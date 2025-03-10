@@ -9,7 +9,7 @@ class Server: TestHelperI {
         //
         // Its possible to have batch oneway requests dispatched
         // after the adapter is deactivated due to thread
-        // scheduling so we supress this warning.
+        // scheduling so we suppress this warning.
         //
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
         //

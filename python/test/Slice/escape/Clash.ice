@@ -10,7 +10,7 @@ interface Intf
     void response();
     void upCast();
     void typeId();
-    void del();
+    ["python:identifier:_del"] void del();
     void cookie();
     void sync();
     void inS();
@@ -31,14 +31,14 @@ class Cls
     short response;
     string upCast;
     int typeId;
-    short del;
+    ["python:identifier:_del"] short del;
     optional(1) short cookie;
     string ex;
     int result;
     string istr;
     string ostr;
     string inS;
-    string in;
+    ["python:identifier:_in"] string in;
     string proxy;
 }
 

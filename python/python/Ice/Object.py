@@ -83,6 +83,7 @@ class Object(object):
 
 Object._op_ice_isA = IcePy.Operation(
     "ice_isA",
+    "ice_isA",
     Ice.OperationMode.Idempotent,
     False,
     None,
@@ -93,6 +94,7 @@ Object._op_ice_isA = IcePy.Operation(
     (),
 )
 Object._op_ice_ping = IcePy.Operation(
+    "ice_ping",
     "ice_ping",
     Ice.OperationMode.Idempotent,
     False,
@@ -105,6 +107,7 @@ Object._op_ice_ping = IcePy.Operation(
 )
 Object._op_ice_ids = IcePy.Operation(
     "ice_ids",
+    "ice_ids",
     Ice.OperationMode.Idempotent,
     False,
     None,
@@ -115,6 +118,7 @@ Object._op_ice_ids = IcePy.Operation(
     (),
 )
 Object._op_ice_id = IcePy.Operation(
+    "ice_id",
     "ice_id",
     Ice.OperationMode.Idempotent,
     False,

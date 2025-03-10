@@ -825,8 +825,8 @@ module IceGrid
         /// @param id The server id.
         /// @param path The path of the log file. A log file can be opened only if it's declared in the server or
         /// service deployment descriptor.
-        /// @param count Specifies where to start reading the file. If negative, the file is read from the begining. If
-        /// 0 or positive, the file is read from the last <code>count</code> lines.
+        /// @param count Specifies where to start reading the file. If negative, the file is read from the beginning.
+        /// If 0 or positive, the file is read from the last <code>count</code> lines.
         /// @return An iterator to read the file. The returned proxy is never null.
         /// @throws FileNotAvailableException Raised if the file can't be read.
         /// @throws ServerNotExistException Raised if the server doesn't exist.
@@ -837,8 +837,8 @@ module IceGrid
 
         /// Open the given server stderr file for reading. The file can be read with the returned file iterator.
         /// @param id The server id.
-        /// @param count Specifies where to start reading the file. If negative, the file is read from the begining. If
-        /// 0 or positive, the file is read from the last <code>count</code> lines.
+        /// @param count Specifies where to start reading the file. If negative, the file is read from the beginning.
+        /// If 0 or positive, the file is read from the last <code>count</code> lines.
         /// @return An iterator to read the file. The returned proxy is never null.
         /// @throws FileNotAvailableException Raised if the file can't be read.
         /// @throws ServerNotExistException Raised if the server doesn't exist.
@@ -849,7 +849,7 @@ module IceGrid
 
         /// Open the given server stdout file for reading. The file can be read with the returned file iterator.
         /// @param id The server id.
-        /// @param count Specifies where to start reading the file. If negative, the file is read from the begining.
+        /// @param count Specifies where to start reading the file. If negative, the file is read from the beginning.
         /// If 0 or positive, the file is read from the last <code>count</code> lines.
         /// @return An iterator to read the file. The returned proxy is never null.
         /// @throws FileNotAvailableException Raised if the file can't be read.
@@ -861,8 +861,8 @@ module IceGrid
 
         /// Open the given node stderr file for reading. The file can be read with the returned file iterator.
         /// @param name The node name.
-        /// @param count Specifies where to start reading the file. If negative, the file is read from the begining. If
-        /// 0 or positive, the file is read from the last <code>count</code> lines.
+        /// @param count Specifies where to start reading the file. If negative, the file is read from the beginning.
+        /// If 0 or positive, the file is read from the last <code>count</code> lines.
         /// @return An iterator to read the file. The returned proxy is never null.
         /// @throws FileNotAvailableException Raised if the file can't be read.
         /// @throws NodeNotExistException Raised if the node doesn't exist.
@@ -872,8 +872,8 @@ module IceGrid
 
         /// Open the given node stdout file for reading. The file can be read with the returned file iterator.
         /// @param name The node name.
-        /// @param count Specifies where to start reading the file. If negative, the file is read from the begining. If
-        /// 0 or positive, the file is read from the last <code>count</code> lines.
+        /// @param count Specifies where to start reading the file. If negative, the file is read from the beginning.
+        /// If 0 or positive, the file is read from the last <code>count</code> lines.
         /// @return An iterator to read the file. The returned proxy is never null.
         /// @throws FileNotAvailableException Raised if the file can't be read.
         /// @throws NodeNotExistException Raised if the node doesn't exist.
@@ -883,8 +883,8 @@ module IceGrid
 
         /// Open the given registry stderr file for reading. The file can be read with the returned file iterator.
         /// @param name The registry name.
-        /// @param count Specifies where to start reading the file. If negative, the file is read from the begining. If
-        /// 0 or positive, the file is read from the last <code>count</code> lines.
+        /// @param count Specifies where to start reading the file. If negative, the file is read from the beginning.
+        /// If 0 or positive, the file is read from the last <code>count</code> lines.
         /// @return An iterator to read the file. The returned proxy is never null.
         /// @throws FileNotAvailableException Raised if the file can't be read.
         /// @throws RegistryNotExistException Raised if the registry doesn't exist.
@@ -894,8 +894,8 @@ module IceGrid
 
         /// Open the given registry stdout file for reading. The file can be read with the returned file iterator.
         /// @param name The registry name.
-        /// @param count Specifies where to start reading the file. If negative, the file is read from the begining. If
-        /// 0 or positive, the file is read from the last <code>count</code> lines.
+        /// @param count Specifies where to start reading the file. If negative, the file is read from the beginning.
+        /// If 0 or positive, the file is read from the last <code>count</code> lines.
         /// @return An iterator to read the file. The returned proxy is never null.
         /// @throws FileNotAvailableException Raised if the file can't be read.
         /// @throws RegistryNotExistException Raised if the registry doesn't exist.

@@ -33,12 +33,6 @@ def allTests(helper, communicator):
     except Test1.E2:
         # Expected
         pass
-    try:
-        initial.throwTest1Def()
-        test(False)
-    except Test1._def:
-        # Expected
-        pass
     print("ok")
 
     sys.stdout.write("testing types with package... ")

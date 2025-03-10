@@ -28,9 +28,6 @@ class InitialI(Test.Initial):
     def throwTest1E2AsE2(self, current):
         raise Test1.E2()
 
-    def throwTest1Def(self, current):
-        raise Test1._def()
-
     def getTest2C2AsObject(self, current):
         return testpkg.Test2.C2()
 

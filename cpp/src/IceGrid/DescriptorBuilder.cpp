@@ -592,7 +592,7 @@ void
 CommunicatorDescriptorBuilder::finish()
 {
     //
-    // Add the hidden properties at the begining of the communicator
+    // Add the hidden properties at the beginning of the communicator
     // properties. These properties are not added directly to the
     // property set because it's not allowed to define properties
     // before references to property sets.

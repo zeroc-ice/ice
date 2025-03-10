@@ -1,61 +1,83 @@
 // Copyright (c) ZeroC, Inc.
 
-module and
+// TODO find a better solution for remapping modules.
+module escapedAnd
 {
+    ["python:identifier:_assert"]
     enum assert
     {
+        ["python:identifier:_break"]
         break
     }
 
+    ["python:identifier:_continue"]
     struct continue
     {
+        ["python:identifier:_def"]
         int def;
     }
 
+    ["python:identifier:_del"]
     interface del
     {
-        ["amd"] void elif(int else, out int except);
+        ["amd"] ["python:identifier:_elif"] void elif(
+            ["python:identifier:_else"] int else,
+            out ["python:identifier:_except"] int except
+        );
     }
 
+    ["python:identifier:_exec"]
     interface exec
     {
+        ["python:identifier:_finally"]
         void finally();
     }
 
+    ["python:identifier:_for"]
     class for
     {
-        int lambda;
-        exec* from;
-        int global;
+        int foo;
+        ["python:identifier:_from"] exec* from;
     }
 
-    interface if extends exec, del
-    {
-    }
-
-    sequence<assert> import;
-    dictionary<string,assert> in;
-
+    ["python:identifier:_is"]
     exception is
     {
-        int lambda;
+        int bar;
     }
 
+    ["python:identifier:_not"]
     exception not extends is
     {
-        int or;
-        int pass;
+        ["python:identifier:_pass"] int pass;
     }
 
-    interface print
+    ["python:identifier:_if"]
+    interface if extends exec, del
     {
-        assert raise(continue else, for return, del* while, exec* yield, if* or, int global) throws is;
+        ["python:identifier:_raise"]
+        assert raise(
+            ["python:identifier:_else"] continue else,
+            ["python:identifier:_return"] for return,
+            ["python:identifier:_while"] del* while,
+            ["python:identifier:_yield"] exec* yield,
+            ["python:identifier:_or"] if* or,
+            ["python:identifier:_global"] int global
+        ) throws is;
     }
 
+    ["python:identifier:_import"]
+    sequence<assert> import;
+
+    ["python:identifier:_in"]
+    dictionary<string,assert> in;
+
+    ["python:identifier:_lambda"]
     const int lambda = 0;
 
     enum EnumNone
     {
+        ["python:identifier:_None"]
         None
     }
 }
