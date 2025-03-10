@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 module Test
 {
     interface Echo
@@ -12,7 +12,7 @@ module Test
         void shutdown();
         bool supportsCompress();
     }
-        
+
     interface MyObject
     {
         string getName();

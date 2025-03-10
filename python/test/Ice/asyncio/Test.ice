@@ -1,13 +1,13 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 module Test
 {
     exception TestException
     {
     }
-        
+
     interface TestIntf
     {
         int op();

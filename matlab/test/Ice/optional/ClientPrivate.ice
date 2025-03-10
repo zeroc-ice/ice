@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Test.ice"
-    
+
 module Test
 {
     //
@@ -14,7 +14,7 @@ module Test
     interface Initial2
     {
         void opClassAndUnknownOptional(A p, optional(1) VarStruct ovs);
-            
+
         void opVoid(optional(1) int a, optional(2) string v);
     }
 }

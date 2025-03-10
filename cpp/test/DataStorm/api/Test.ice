@@ -5,7 +5,7 @@ module Test
     {
         int value;
     };
-        
+
     class ClassKey
     {
         int value;

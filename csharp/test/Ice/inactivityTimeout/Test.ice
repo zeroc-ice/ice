@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 ["cs:namespace:Ice.inactivityTimeout"]
 module Test
 {
@@ -9,7 +9,7 @@ module Test
     {
         ["amd"]
         void sleep(int ms);
-            
+
         void shutdown();
     }
 }

@@ -1,17 +1,17 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 module BEGIN
 {
     enum END
     {
         alias
     }
-        
+
     struct and
     {
         int begin;
     }
-        
+
     interface break
     {
         void case(int clone, int def);
@@ -19,7 +19,7 @@ module BEGIN
         void instance_variable_set();
         void instance_variables();
     }
-        
+
     class display
     {
         int when;
@@ -27,30 +27,30 @@ module BEGIN
         break* dup;
         int else;
     }
-        
+
     interface elsif extends break
     {
     }
-        
+
     sequence<END> rescue;
     dictionary<string, END> ensure;
-        
+
     exception next
     {
         int new;
     }
-        
+
     exception nil extends next
     {
         int not;
         int or;
     }
-        
+
     interface extend
     {
         END for(display freeze, elsif* hash, break* if, display inspect, elsif* method, int methods)
             throws nil;
     }
-        
+
     const int redo = 1;
 }

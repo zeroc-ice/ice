@@ -1,18 +1,18 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 [["suppress-warning:deprecated"]] // For enumerator references
-    
+
 module Test
 {
     enum Color { red, green, blue }
-        
+
     module Nested
     {
         enum Color { red, green, blue }
     }
-        
+
     struct Struct1
     {
         bool boolFalse = false;
@@ -38,7 +38,7 @@ module Test
         double zeroD = 0;
         double zeroDotD = 0;
     }
-        
+
     const bool ConstBool = true;
     const byte ConstByte = 254;
     const short ConstShort = 16000;
@@ -59,7 +59,7 @@ module Test
     const float ConstZeroDotF = 0.0;
     const double ConstZeroD = 0;
     const double ConstZeroDotD = 0;
-        
+
     struct Struct2
     {
         bool boolTrue = ConstBool;
@@ -83,7 +83,7 @@ module Test
         double zeroD = ConstZeroD;
         double zeroDotD = ConstZeroDotD;
     }
-        
+
     class Base
     {
         bool boolFalse = false;
@@ -103,7 +103,7 @@ module Test
         double zeroD = 0;
         double zeroDotD = 0;
     }
-        
+
     class Derived extends Base
     {
         Color c1 = ::Test::Color::red;
@@ -113,7 +113,7 @@ module Test
         Nested::Color nc2 = Nested::green;
         Nested::Color nc3 = blue;
     }
-        
+
     exception BaseEx
     {
         bool boolFalse = false;
@@ -133,7 +133,7 @@ module Test
         double zeroD = 0;
         double zeroDotD = 0;
     }
-        
+
     exception DerivedEx extends BaseEx
     {
         Color c1 = ConstColor1;
@@ -143,16 +143,16 @@ module Test
         Nested::Color nc2 = ConstNestedColor2;
         Nested::Color nc3 = ConstNestedColor3;
     }
-        
+
     sequence<byte> ByteSeq;
     sequence<int> IntSeq;
     dictionary<int, string> IntStringDict;
-        
+
     struct InnerStruct
     {
         int a;
     }
-        
+
     struct StructNoDefaults
     {
         bool bo;
@@ -169,27 +169,27 @@ module Test
         IntStringDict dict;
         InnerStruct st;
     }
-        
+
     exception ExceptionNoDefaultsBase
     {
         string str;
         Color c1;
         ByteSeq bs;
     }
-        
+
     exception ExceptionNoDefaults extends ExceptionNoDefaultsBase
     {
         InnerStruct st;
         IntStringDict dict;
     }
-        
+
     class ClassNoDefaultsBase
     {
         string str;
         Color c1;
         ByteSeq bs;
     }
-        
+
     class ClassNoDefaults extends ClassNoDefaultsBase
     {
         InnerStruct st;

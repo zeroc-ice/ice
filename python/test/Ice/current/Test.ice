@@ -1,10 +1,10 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/Context.ice"
 #include "Ice/Identity.ice"
-    
+
 module Test
 {
     interface TestIntf
@@ -18,7 +18,7 @@ module Test
         Ice::Context getContext();
         int getRequestId();
         string getEncoding();
-            
+
         void shutdown();
     }
 }

@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/Locator.ice"
-    
+
 module Test
 {
     interface TestLocatorRegistry extends ::Ice::LocatorRegistry
@@ -13,7 +13,7 @@ module Test
         //
         void addObject(Object* obj);
     }
-        
+
     interface TestLocator extends ::Ice::Locator
     {
         //
@@ -21,26 +21,26 @@ module Test
         //
         idempotent int getRequestCount();
     }
-        
+
     interface ServerManager
     {
         void startServer();
         void shutdown();
     }
-        
+
     interface Hello
     {
         void sayHello();
     }
-        
+
     interface TestIntf
     {
         void shutdown();
-            
+
         Hello* getHello();
-            
+
         Hello* getReplicatedHello();
-            
+
         void migrateHello();
     }
 }

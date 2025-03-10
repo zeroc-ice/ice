@@ -1,32 +1,32 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 module Test::NumPy
 {
     ["python:numpy.ndarray"] sequence<bool> BoolSeq1;
     ["python:memoryview:Custom.myNumPyBoolSeq"] sequence<bool> BoolSeq2;
-        
+
     ["python:numpy.ndarray"] sequence<byte> ByteSeq1;
     ["python:memoryview:Custom.myNumPyByteSeq"] sequence<byte> ByteSeq2;
-        
+
     ["python:numpy.ndarray"] sequence<short> ShortSeq1;
     ["python:memoryview:Custom.myNumPyShortSeq"] sequence<short> ShortSeq2;
-        
+
     ["python:numpy.ndarray"] sequence<int> IntSeq1;
     ["python:memoryview:Custom.myNumPyIntSeq"] sequence<int> IntSeq2;
-        
+
     ["python:numpy.ndarray"] sequence<long> LongSeq1;
     ["python:memoryview:Custom.myNumPyLongSeq"] sequence<long> LongSeq2;
-        
+
     ["python:numpy.ndarray"] sequence<float> FloatSeq1;
     ["python:memoryview:Custom.myNumPyFloatSeq"] sequence<float> FloatSeq2;
-        
+
     ["python:numpy.ndarray"] sequence<double> DoubleSeq1;
     ["python:memoryview:Custom.myNumPyDoubleSeq"] sequence<double> DoubleSeq2;
-        
+
     ["python:memoryview:Custom.myNumPyComplex128Seq"] sequence<byte> Complex128Seq;
-        
+
     class D
     {
         optional(1) BoolSeq1 boolSeq;
@@ -37,7 +37,7 @@ module Test::NumPy
         optional(6) FloatSeq1 floatSeq;
         optional(7) DoubleSeq1 doubleSeq;
     }
-        
+
     interface Custom
     {
         BoolSeq1 opBoolSeq(BoolSeq1 v1, out BoolSeq2 v2);
@@ -48,7 +48,7 @@ module Test::NumPy
         FloatSeq1 opFloatSeq(FloatSeq1 v1, out FloatSeq2 v2);
         DoubleSeq1 opDoubleSeq(DoubleSeq1 v1, out DoubleSeq2 v2);
         Complex128Seq opComplex128Seq(Complex128Seq v1);
-            
+
         ["python:memoryview:Custom.myNumPyMatrix3x3"] BoolSeq1 opBoolMatrix();
         ["python:memoryview:Custom.myNumPyMatrix3x3"] ByteSeq1 opByteMatrix();
         ["python:memoryview:Custom.myNumPyMatrix3x3"] ShortSeq1 opShortMatrix();
@@ -56,11 +56,11 @@ module Test::NumPy
         ["python:memoryview:Custom.myNumPyMatrix3x3"] LongSeq1 opLongMatrix();
         ["python:memoryview:Custom.myNumPyMatrix3x3"] FloatSeq1 opFloatMatrix();
         ["python:memoryview:Custom.myNumPyMatrix3x3"] DoubleSeq1 opDoubleMatrix();
-            
+
         ["python:memoryview:Custom.myBogusNumpyArrayType"]BoolSeq1 opBogusNumpyArrayType();
-            
+
         D opD(D d);
-            
+
         void shutdown();
     }
 }

@@ -1,19 +1,19 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 module Test
 {
     const byte ByteConst1 = 10;
     const short ShortConst1 = 20;
     const int IntConst1 = 30;
     const long LongConst1 = 40;
-        
+
     const byte ByteConst2 = 126;
     const short ShortConst2 = 32766;
     const int IntConst2 = 2147483647;
     const long LongConst2 = 2147483646;
-        
+
     enum ByteEnum
     {
         benum1,
@@ -28,7 +28,7 @@ module Test
         benum10,
         benum11 = ByteConst2
     }
-        
+
     enum ShortEnum
     {
         senum1 = 3,
@@ -43,7 +43,7 @@ module Test
         senum10,
         senum11 = ShortConst2
     }
-        
+
     enum IntEnum
     {
         ienum1,
@@ -59,21 +59,21 @@ module Test
         ienum11 = IntConst2,
         ienum12 = LongConst2
     }
-        
+
     enum SimpleEnum
     {
         red,
         green,
         blue
     }
-        
+
     interface TestIntf
     {
         ByteEnum opByte(ByteEnum b1, out ByteEnum b2);
         ShortEnum opShort(ShortEnum s1, out ShortEnum s2);
         IntEnum opInt(IntEnum i1, out IntEnum i2);
         SimpleEnum opSimple(SimpleEnum s1, out SimpleEnum s2);
-            
+
         void shutdown();
     }
 }

@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/BuiltinSequences.ice"
-    
+
 [["swift:class-resolver-prefix:IceStrem"]]
 module Test
 {
@@ -13,10 +13,10 @@ module Test
         enum2,
         enum3
     }
-        
+
     interface MyInterface;
     class MyClass;
-        
+
     struct LargeStruct
     {
         bool bo;
@@ -30,7 +30,7 @@ module Test
         MyEnum e;
         MyInterface* p;
     }
-        
+
     class OptionalClass
     {
         bool bo;
@@ -38,11 +38,11 @@ module Test
         optional(1) short sh;
         optional(2) int i;
     }
-        
+
     sequence<MyEnum> MyEnumS;
     sequence<LargeStruct> LargeStructS;
     sequence<MyClass> MyClassS;
-        
+
     sequence<Ice::BoolSeq> BoolSS;
     sequence<Ice::ByteSeq> ByteSS;
     sequence<Ice::ShortSeq> ShortSS;
@@ -54,13 +54,13 @@ module Test
     sequence<MyEnumS> MyEnumSS;
     sequence<LargeStructS> LargeStructSS;
     sequence<MyClassS> MyClassSS;
-        
+
     dictionary<byte, bool> ByteBoolD;
     dictionary<short, int> ShortIntD;
     dictionary<long, float> LongFloatD;
     dictionary<string, string> StringStringD;
     dictionary<string, MyClass> StringMyClassD;
-        
+
     class MyClass
     {
         MyClass c;
@@ -78,16 +78,16 @@ module Test
         MyClassS seq10;
         StringMyClassD d;
     }
-        
+
     interface MyInterface
     {
     }
-        
+
     exception MyException
     {
         MyClass c;
     }
-        
+
     module Sub
     {
         enum NestedEnum
@@ -96,7 +96,7 @@ module Test
             nestedEnum2,
             nestedEnum3
         }
-            
+
         struct NestedStruct
         {
             bool bo;
@@ -109,14 +109,14 @@ module Test
             string str;
             NestedEnum e;
         }
-            
+
         exception NestedException
         {
             string str;
         }
     }
 }
-    
+
 ["swift:module:Test:Test2"]
 module Test2
 {
@@ -128,7 +128,7 @@ module Test2
             nestedEnum5,
             nestedEnum6
         }
-            
+
         struct NestedStruct2
         {
             bool bo;
@@ -141,7 +141,7 @@ module Test2
             string str;
             NestedEnum2 e;
         }
-            
+
         exception NestedException2
         {
             string str;

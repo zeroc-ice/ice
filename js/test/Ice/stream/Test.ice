@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/BuiltinSequences.ice"
-    
+
 module Test
 {
     enum MyEnum
@@ -12,10 +12,10 @@ module Test
         enum2,
         enum3
     }
-        
+
     class MyClass;
     interface MyInterface;
-        
+
     struct LargeStruct
     {
         bool bo;
@@ -29,7 +29,7 @@ module Test
         MyEnum e;
         MyInterface* p;
     }
-        
+
     class OptionalClass
     {
         bool bo;
@@ -37,10 +37,10 @@ module Test
         optional(1) short sh;
         optional(2) int i;
     }
-        
+
     sequence<MyEnum> MyEnumS;
     sequence<MyClass> MyClassS;
-        
+
     sequence<Ice::BoolSeq> BoolSS;
     sequence<Ice::ByteSeq> ByteSS;
     sequence<Ice::ShortSeq> ShortSS;
@@ -51,13 +51,13 @@ module Test
     sequence<Ice::StringSeq> StringSS;
     sequence<MyEnumS> MyEnumSS;
     sequence<MyClassS> MyClassSS;
-        
+
     dictionary<byte, bool> ByteBoolD;
     dictionary<short, int> ShortIntD;
     dictionary<long, float> LongFloatD;
     dictionary<string, string> StringStringD;
     dictionary<string, MyClass> StringMyClassD;
-        
+
     class MyClass
     {
         MyClass c;
@@ -75,12 +75,12 @@ module Test
         MyClassS seq10;
         StringMyClassD d;
     }
-        
+
     exception MyException
     {
         MyClass c;
     }
-        
+
     interface MyInterface
     {
     }

@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Glacier2/Session.ice"
-    
+
 module Test
 {
     interface Backend
@@ -11,9 +11,9 @@ module Test
         void check();
         void shutdown();
     }
-        
+
     enum StateCode { Initial, Running, Finished }
-        
+
     struct TestToken
     {
         bool expectedResult;
@@ -23,7 +23,7 @@ module Test
         short caseIndex;
         string testReference;
     }
-        
+
     /**
     *
     * The test controller interface permits coordination between the test
@@ -38,7 +38,7 @@ module Test
         void step(Glacier2::Session* currentSession, TestToken currentState, out TestToken newState);
         void shutdown();
     }
-        
+
     interface TestSession extends Glacier2::Session
     {
         void shutdown();

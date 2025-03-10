@@ -1,11 +1,11 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 module M
 {
     class C { long l; }
     sequence<int> S;
     dictionary<string, string> D;
-        
+
     interface Bar
     {
         void foo1() throws C;

@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #include "include/IcePrefix.ice"        // No error should be caused by this file
-    
+
 module OK
 {
     const long PrxA = 0;
@@ -14,7 +14,7 @@ module OK
     const long HolderA = 0;
     const long aIce = 0;
 }
-    
+
 module errors
 {
     const long Prx = 0;

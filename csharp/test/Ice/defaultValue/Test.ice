@@ -1,19 +1,19 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 [["suppress-warning:deprecated"]] // For enumerator references
-    
+
 ["cs:namespace:Ice.defaultValue"]
 module Test
 {
     enum Color { red, green, blue }
-        
+
     module Nested
     {
         enum Color { red, green, blue }
     }
-        
+
     //
     // Struct1 maps to a C# class because it contains string members.
     //
@@ -42,7 +42,7 @@ module Test
         double zeroD = 0;
         double zeroDotD = 0;
     }
-        
+
     const bool ConstBool = true;
     const byte ConstByte = 254;
     const short ConstShort = 16000;
@@ -63,7 +63,7 @@ module Test
     const float ConstZeroDotF = 0.0;
     const double ConstZeroD = 0;
     const double ConstZeroDotD = 0;
-        
+
     struct Struct2
     {
         bool boolTrue = ConstBool;
@@ -87,7 +87,7 @@ module Test
         double zeroD = ConstZeroD;
         double zeroDotD = ConstZeroDotD;
     }
-        
+
     //
     // Struct3 would normally map to a C# struct because we have omitted
     // the string members, but we use metadata to force it to be mapped
@@ -119,7 +119,7 @@ module Test
         double zeroD = 0;
         double zeroDotD = 0;
     }
-        
+
     //
     // Struct4 would normally map to a C# struct because we have omitted
     // the string members, and don't contains cs:class metadata, but as it
@@ -150,7 +150,7 @@ module Test
         double zeroD = 0;
         double zeroDotD = 0;
     }
-        
+
     class Base
     {
         bool boolFalse = false;
@@ -170,18 +170,18 @@ module Test
         double zeroD = 0;
         double zeroDotD = 0;
     }
-        
+
     class Derived extends Base
     {
         Color c1 = ::Test::Color::red;
         Color c2 = Test::green;
         Color c3 = blue;
-            
+
         Nested::Color nc1 = ::Test::Nested::Color::red;
         Nested::Color nc2 = Nested::green;
         Nested::Color nc3 = blue;
     }
-        
+
     exception BaseEx
     {
         bool boolFalse = false;
@@ -201,18 +201,18 @@ module Test
         double zeroD = 0;
         double zeroDotD = 0;
     }
-        
+
     exception DerivedEx extends BaseEx
     {
         Color c1 = ConstColor1;
         Color c2 = ConstColor2;
         Color c3 = ConstColor3;
-            
+
         Nested::Color nc1 = ConstNestedColor1;
         Nested::Color nc2 = ConstNestedColor2;
         Nested::Color nc3 = ConstNestedColor3;
     }
-        
+
     ["cs:property"]
     class ClassProperty
     {
@@ -233,7 +233,7 @@ module Test
         double zeroD = 0;
         double zeroDotD = 0;
     }
-        
+
     ["cs:property"]
     struct StructProperty
     {
@@ -254,7 +254,7 @@ module Test
         double zeroD = 0;
         double zeroDotD = 0;
     }
-        
+
     ["cs:property"]
     exception ExceptionProperty
     {
@@ -275,21 +275,21 @@ module Test
         double zeroD = 0;
         double zeroDotD = 0;
     }
-        
+
     sequence<byte> ByteSeq;
     sequence<int> IntSeq;
     dictionary<int, string> IntStringDict;
-        
+
     struct InnerStruct
     {
         int a;
     }
-        
+
     struct InnerStruct2
     {
         string a;
     }
-        
+
     struct StructNoDefaults
     {
         bool bo;
@@ -307,28 +307,28 @@ module Test
         InnerStruct2 st2;
         IntStringDict dict;
     }
-        
+
     exception ExceptionNoDefaultsBase
     {
         string str;
         Color c1;
         ByteSeq bs;
     }
-        
+
     exception ExceptionNoDefaults extends ExceptionNoDefaultsBase
     {
         InnerStruct st;
         InnerStruct2 st2;
         IntStringDict dict;
     }
-        
+
     class ClassNoDefaultsBase
     {
         string str;
         Color c1;
         ByteSeq bs;
     }
-        
+
     class ClassNoDefaults extends ClassNoDefaultsBase
     {
         InnerStruct st;

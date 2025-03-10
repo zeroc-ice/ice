@@ -1,19 +1,19 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 module Test
 {
     const byte ByteConst1 = 10;
     const short ShortConst1 = 20;
     const int IntConst1 = 30;
     const long LongConst1 = 40;
-        
+
     const byte ByteConst2 = 126;
     const short ShortConst2 = 32766;
     const int IntConst2 = 2147483647;
     const long LongConst2 = 2147483646;
-        
+
     enum ByteEnum
     {
         benum1,
@@ -29,7 +29,7 @@ module Test
         benum11 = ByteConst2
     }
     sequence<ByteEnum> ByteEnumSeq;
-        
+
     enum ShortEnum
     {
         senum1 = 3,
@@ -45,7 +45,7 @@ module Test
         senum11 = ShortConst2
     }
     sequence<ShortEnum> ShortEnumSeq;
-        
+
     enum IntEnum
     {
         ienum1,
@@ -62,7 +62,7 @@ module Test
         ienum12 = LongConst2
     }
     sequence<IntEnum> IntEnumSeq;
-        
+
     enum SimpleEnum
     {
         red,
@@ -70,19 +70,19 @@ module Test
         blue
     }
     sequence<SimpleEnum> SimpleEnumSeq;
-        
+
     interface TestIntf
     {
         ByteEnum opByte(ByteEnum b1, out ByteEnum b2);
         ShortEnum opShort(ShortEnum s1, out ShortEnum s2);
         IntEnum opInt(IntEnum i1, out IntEnum i2);
         SimpleEnum opSimple(SimpleEnum s1, out SimpleEnum s2);
-            
+
         ByteEnumSeq opByteSeq(ByteEnumSeq b1, out ByteEnumSeq b2);
         ShortEnumSeq opShortSeq(ShortEnumSeq s1, out ShortEnumSeq s2);
         IntEnumSeq opIntSeq(IntEnumSeq i1, out IntEnumSeq i2);
         SimpleEnumSeq opSimpleSeq(SimpleEnumSeq s1, out SimpleEnumSeq s2);
-            
+
         void shutdown();
     }
 }

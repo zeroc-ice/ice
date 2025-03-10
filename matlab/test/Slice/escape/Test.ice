@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 module classdef::break // Should be escaped
 {
     enum bitand // Should not be escaped
@@ -18,7 +18,7 @@ module classdef::break // Should be escaped
         abs, and, char, eq, length, size, xor,
         LAST
     }
-        
+
     struct bitor // Should not be escaped
     {
         bitand case = catch;
@@ -26,28 +26,28 @@ module classdef::break // Should be escaped
         int eq = 2;
         int ne = 3;
     }
-        
+
     class logical // Should not be escaped
     {
         bitand else = enumeration;
         bitor for;
         bool int64 = true; // Should not be escaped
     }
-        
+
     class xor extends logical // Should not be escaped
     {
         int return = 1;
     }
-        
+
     sequence<bitor> parfor;
     dictionary<int, bitor> switch;
-        
+
     class try // Should be escaped
     {
         int while = 1;
         int delete = 2; // Should not be escaped
     }
-        
+
     class properties extends try // Should be escaped
     {
         int if = 2;
@@ -55,7 +55,7 @@ module classdef::break // Should be escaped
         parfor spmd;
         switch otherwise;
     }
-        
+
     exception persistent // Should be escaped
     {
         //
@@ -66,15 +66,15 @@ module classdef::break // Should be escaped
         string stack = "3";
         string cause = "4";
         string type = "5";
-            
+
         logical end;
     }
-        
+
     exception global extends persistent // Should be escaped
     {
         int enumeration = 1;
     }
-        
+
     interface elseif // elseifPrx should not be escaped
     {
         void events();
@@ -82,6 +82,6 @@ module classdef::break // Should be escaped
         void delete();
         void checkedCast();
     }
-        
+
     const int methods = 1;
 }

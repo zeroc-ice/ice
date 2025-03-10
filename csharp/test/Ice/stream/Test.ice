@@ -1,12 +1,12 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 // Suppress invalid metadata warnings which we expect this test to generate.
 [["suppress-warning"]]
-    
+
 #include "Ice/BuiltinSequences.ice"
-    
+
 ["cs:namespace:Ice.stream"]
 module Test
 {
@@ -16,10 +16,10 @@ module Test
         enum2,
         enum3
     }
-        
+
     class MyClass;
     interface MyInterface;
-        
+
     struct LargeStruct
     {
         bool bo;
@@ -33,7 +33,7 @@ module Test
         MyEnum e;
         MyInterface* p;
     }
-        
+
     class OptionalClass
     {
         bool bo;
@@ -41,10 +41,10 @@ module Test
         optional(1) short sh;
         optional(2) int i;
     }
-        
+
     sequence<MyEnum> MyEnumS;
     sequence<MyClass> MyClassS;
-        
+
     sequence<Ice::BoolSeq> BoolSS;
     sequence<Ice::ByteSeq> ByteSS;
     sequence<Ice::ShortSeq> ShortSS;
@@ -55,13 +55,13 @@ module Test
     sequence<Ice::StringSeq> StringSS;
     sequence<MyEnumS> MyEnumSS;
     sequence<MyClassS> MyClassSS;
-        
+
     dictionary<byte, bool> ByteBoolD;
     dictionary<short, int> ShortIntD;
     dictionary<long, float> LongFloatD;
     dictionary<string, string> StringStringD;
     dictionary<string, MyClass> StringMyClassD;
-        
+
     ["cs:generic:List"]
     sequence<bool> BoolList;
     ["cs:generic:List"]
@@ -74,7 +74,7 @@ module Test
     sequence<MyClass> MyClassList;
     ["cs:generic:List"]
     sequence<MyInterface*> MyInterfaceProxyList;
-        
+
     ["cs:generic:LinkedList"]
     sequence<short> ShortLinkedList;
     ["cs:generic:LinkedList"]
@@ -83,7 +83,7 @@ module Test
     sequence<MyEnum> MyEnumLinkedList;
     ["cs:generic:LinkedList"]
     sequence<LargeStruct> LargeStructLinkedList;
-        
+
     ["cs:generic:Stack"]
     sequence<long> LongStack;
     ["cs:generic:Stack"]
@@ -92,7 +92,7 @@ module Test
     sequence<LargeStruct> LargeStructStack;
     ["cs:generic:Stack"]
     sequence<MyInterface*> MyInterfaceProxyStack;
-        
+
     //
     // This will produce a warning and use the default
     // sequence mapping. The generic:Stack metadata cannot be use
@@ -100,7 +100,7 @@ module Test
     //
     ["cs:generic:Stack"]
     sequence<Object> ObjectStack;
-        
+
     //
     // This will produce a warning and use the default
     // sequence mapping. The generic:Stack metadata cannot be use
@@ -108,22 +108,22 @@ module Test
     //
     ["cs:generic:Stack"]
     sequence<MyClass> MyClassStack;
-        
+
     ["cs:generic:Queue"]
     sequence<double> DoubleQueue;
     ["cs:generic:Queue"]
     sequence<string> StringQueue;
     ["cs:generic:Queue"]
     sequence<LargeStruct> LargeStructQueue;
-        
+
     ["cs:generic:List"]
     sequence<Ice::StringSeq> StringSList;
     ["cs:generic:Stack"]
     sequence<Ice::StringSeq> StringSStack;
-        
+
     ["cs:generic:SortedDictionary"]
     dictionary<string, string> SortedStringStringD;
-        
+
     class MyClass
     {
         MyClass c;
@@ -141,12 +141,12 @@ module Test
         MyClassS seq10;
         StringMyClassD d;
     }
-        
+
     exception MyException
     {
         MyClass c;
     }
-        
+
     interface MyInterface
     {
     }
