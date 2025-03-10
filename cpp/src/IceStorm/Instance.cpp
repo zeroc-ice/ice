@@ -134,7 +134,7 @@ Instance::~Instance()
     // Usually they are called before destruction, but in some cases they are not, for example when the constructor
     // of PersistentInstance fails because the database directory does not exist.
     shutdown();
-    destroy();
+    destroy(); // NOLINT(clang-analyzer-optin.cplusplus.VirtualCall)
 }
 
 void
