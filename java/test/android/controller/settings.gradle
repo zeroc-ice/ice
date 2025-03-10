@@ -1,0 +1,4 @@
+pluginManagement {
+    includeBuild "../../../../tools/gradle"
+}
+include("build.gradle")

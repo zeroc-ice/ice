@@ -8,27 +8,35 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.3.1'
+        classpath 'com.android.tools.build:gradle:8.9.0'
         classpath 'gradle.plugin.com.zeroc.gradle.ice-builder:slice:1.5.0'
     }
 }
 
+plugins {
+    id 'com.zeroc.ice.slice-tools' apply false
+}
+
 apply plugin: 'com.android.application'
-apply plugin: 'com.zeroc.gradle.ice-builder.slice'
+apply plugin: 'com.zeroc.ice.slice-tools'
+
+def topSrcDir = new File("$rootProject.projectDir/../../../..").getCanonicalPath()
 
 slice {
-    output = file("${project.buildDir}/generated/source/ice")
-    cppConfiguration = project.cppConfiguration
-    cppPlatform = project.cppPlatform
-    iceHome = new File("$rootProject.projectDir/../../../..").getCanonicalPath()
-    java {
-        files = fileTree(dir: "$rootProject.projectDir/../../../../scripts/", includes: ['*.ice'])
+    def defaultIceToolsPath = "${topSrcDir}/cpp/bin"
+
+    if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        def platform = project.findProperty("cppPlatform") ?: "x64"
+        def configuration = project.findProperty("cppConfiguration") ?: "Release"
+        toolsPath = "$defaultIceToolsPath/$platform/$configuration"
+    } else {
+        toolsPath = defaultIceToolsPath
     }
 }
 
 repositories {
     repositories {
-        flatDir dirs: "file://${project.slice.iceHome}/java/lib"
+        flatDir dirs: "file://${topSrcDir}/java/lib"
     }
 
     google()
@@ -66,6 +74,14 @@ android {
         }
     }
     namespace 'com.zeroc.testcontroller'
+
+    sourceSets {
+        main {
+            slice {
+                srcDir "$topSrcDir/scripts"
+            }
+        }
+    }
 }
 
 task copyBksTask(type: Copy) {
