@@ -1,6 +1,6 @@
+InterfaceMismatch.ice:6: class 'Foo1' was previously defined as an interface
 InterfaceMismatch.ice:7: class 'Foo1' was previously defined as an interface
-InterfaceMismatch.ice:8: class 'Foo1' was previously defined as an interface
-InterfaceMismatch.ice:11: class 'Foo2' was previously defined as an interface
+InterfaceMismatch.ice:10: class 'Foo2' was previously defined as an interface
+InterfaceMismatch.ice:13: interface 'Foo3' was previously defined as a class
 InterfaceMismatch.ice:14: interface 'Foo3' was previously defined as a class
-InterfaceMismatch.ice:15: interface 'Foo3' was previously defined as a class
-InterfaceMismatch.ice:18: interface 'Foo4' was previously defined as a class
+InterfaceMismatch.ice:17: interface 'Foo4' was previously defined as a class

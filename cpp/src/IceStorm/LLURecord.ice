@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 #pragma once
-
+    
 [["cpp:header-ext:h"]]
-
+    
 module IceStormElection
 {
     /// A struct used for marking the last log update.

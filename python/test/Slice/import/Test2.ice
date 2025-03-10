@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 module Test
 {
     module SubA
@@ -13,7 +13,7 @@ module Test
             const int Value1 = 30;
         }
     }
-
+        
     module SubB
     {
         module SubSubB1
