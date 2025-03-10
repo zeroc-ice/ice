@@ -26,12 +26,12 @@ namespace Slice::Python
 
     /// Get the fully-qualified name of the given definition, including any package defined via metadata,
     /// but "_M_" is prepended to the first name segment, indicating that this is a an explicit reference.
-    std::string getExplicitAbsolute(const Slice::ContainedPtr& p);
+    std::string getModuleReference(const Slice::ContainedPtr& p);
 
     /// Get the fully-qualified name of the given definition, including any package defined via metadata,
     /// but "_M_" is prepended to the first name segment, and "_t_" is prepended to the final name segment,
     /// indicating that this is a an explicit reference to a type.
-    std::string getAbsoluteType(const Slice::ContainedPtr& p);
+    std::string getTypeReference(const Slice::ContainedPtr& p);
 
     /// Emit a comment header.
     void printHeader(IceInternal::Output&);
