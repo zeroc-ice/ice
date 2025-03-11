@@ -879,13 +879,13 @@ namespace Ice.binding
 
                 List<Properties> serverProps =
                 [
-                    .. clientProps,
-                        anyipv4,
-                        anyipv6,
-                        anyboth,
-                        localipv4,
-                        localipv6,
-                    ];
+                .. clientProps,
+                    anyipv4,
+                    anyipv6,
+                    anyboth,
+                    localipv4,
+                    localipv6,
+                ];
 
                 bool ipv6NotSupported = false;
                 foreach (Properties p in serverProps)
