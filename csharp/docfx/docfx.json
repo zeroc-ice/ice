@@ -4,6 +4,10 @@
       "src": [
         {
           "files": ["src/*/*.csproj"],
+          "exclude": [
+            "src/Ice/Internal/**",
+            "src/Ice/UtilInternal/**"
+          ],
           "src": "../"
         }
       ],

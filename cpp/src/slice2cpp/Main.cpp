@@ -209,7 +209,7 @@ compile(const vector<string>& argv)
 
             DefinitionContextPtr dc = u->findDefinitionContext(u->topLevelFile());
             assert(dc);
-            string ext = dc->getMetadataArgs("cpp:header-ext").value_or("");
+            string ext = dc->getMetadataArgs("cpp:header-ext").value_or(headerExtension);
 
             u->destroy();
 
