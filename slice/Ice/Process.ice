@@ -20,7 +20,7 @@ module Ice
     /// identity harder to guess, and be registered in an object adapter with a secured endpoint.
     interface Process
     {
-        /// Initiate a graceful shut-down.
+        /// Initiate a graceful shutdown.
         /// @see Communicator#shutdown
         void shutdown();
 

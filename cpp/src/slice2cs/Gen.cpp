@@ -1590,7 +1590,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp;
     writeDocComment(p);
-    _out << nl << "public interface " << p->mappedName() << "Prx : ";
+    _out << nl << "public partial interface " << p->mappedName() << "Prx : ";
 
     vector<string> baseInterfaces;
     for (const auto& base : p->bases())
@@ -1627,7 +1627,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     string ns = getNamespace(p);
 
     _out << sp;
-    _out << nl << "public sealed class " << name << "PrxHelper : "
+    _out << nl << "public sealed partial class " << name << "PrxHelper : "
          << "Ice.ObjectPrxHelperBase, " << name << "Prx";
     _out << sb;
 
@@ -2223,7 +2223,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     string ns = getNamespace(p);
 
     _out << sp;
-    _out << nl << "public abstract class " << name << "Disp_ : Ice.ObjectImpl, " << name;
+    _out << nl << "public abstract partial class " << name << "Disp_ : Ice.ObjectImpl, " << name;
 
     _out << sb;
     for (const auto& op : p->allOperations())
