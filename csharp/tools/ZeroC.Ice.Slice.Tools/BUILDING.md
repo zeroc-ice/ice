@@ -1,4 +1,4 @@
-# Building Slice Tools for Ice and C#
+# Building the Slice Tools for Ice and C#
 
 This page describes how to build Slice Tools for Ice .NET from source and package the resulting binaries.
 
@@ -15,7 +15,7 @@ This page describes how to build Slice Tools for Ice .NET from source and packag
    Refer to the [build instructions](../../cpp/BUILDING.md) in the `cpp` folder for details on how to build the C++
    source distribution.
 
-### Building the Slice Tools for Ice C#
+### Building
 
 Open a command prompt and run:
 

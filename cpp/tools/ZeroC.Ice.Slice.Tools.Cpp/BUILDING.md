@@ -1,6 +1,6 @@
-# Building Slice Tools for Ice and C++
+# Building the Slice Tools for Ice and C++
 
-This page describes how to build Slice Tools for Ice and C++ from source and package the resulting binaries.
+This page describes how to build the Slice Tools for Ice and C++ from source and package the resulting binaries.
 
 - [Prerequisites](#prerequisites)
 - [Building](#building)
@@ -11,7 +11,7 @@ This page describes how to build Slice Tools for Ice and C++ from source and pac
 1. **.NET SDK 8.0**
    Download the .NET SDK from [dotnet.microsoft.com](https://dotnet.microsoft.com/en-us/download/dotnet).
 
-## Building Slice Tools for Ice and C++
+## Building
 
 Open a command prompt and run:
 
@@ -21,5 +21,7 @@ dotnet build /p:Platform="Any CPU" /p:Configuration=Release
 
 ### NuGet Packages
 
-This task is packaged with the Ice for C++ `ZeroC.Ice.Slice.Tools.Cpp` NuGet package. Refer to building instructions for
-the [Ice for C++](../../BUILDING.md) for more information.
+This task is packaged with the Ice for C++ `ZeroC.Ice.Cpp` NuGet package. Refer to the Ice for C++
+[build instructions][cpp-building] for more information.
+
+[cpp-building]: ../../BUILDING.md
