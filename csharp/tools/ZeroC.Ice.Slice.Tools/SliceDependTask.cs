@@ -16,9 +16,6 @@ public abstract class SliceDependTask : Task
     public ITaskItem[] Sources { get; set; } = Array.Empty<ITaskItem>();
 
     [Required]
-    public string IceHome { get; set; } = "";
-
-    [Required]
     public string IceToolsPath { get; set; } = "";
 
     [Required]
@@ -47,7 +44,6 @@ public abstract class SliceDependTask : Task
     {
         var options = new Dictionary<string, string>
         {
-            ["IceHome"] = IceHome,
             ["IceToolsPath"] = IceToolsPath,
             ["OutputDir"] = item.GetMetadata("OutputDir").TrimEnd('\\')
         };

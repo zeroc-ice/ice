@@ -73,7 +73,6 @@
         <!-- First we check dependencies and compute which Slice files need to be recompiled -->
         <Slice2CSharpDependTask
             WorkingDirectory      = "$(MSBuildProjectDirectory)"
-            IceHome               = "$(IceHome)"
             IceToolsPath          = "$(IceToolsPath)"
             Sources               = "@(SliceCompile)">
 
@@ -90,7 +89,6 @@
         <!-- Compile the Slice files -->
         <Slice2CSharpTask
             WorkingDirectory      = "$(MSBuildProjectDirectory)"
-            IceHome               = "$(IceHome)"
             IceToolsPath          = "$(IceToolsPath)"
             OutputDir             = "%(_SliceCompile.OutputDir)"
             IncludeDirectories    = "%(_SliceCompile.IncludeDirectories)"

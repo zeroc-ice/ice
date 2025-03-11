@@ -6,23 +6,6 @@
       <Nullable>enable</Nullable>
       <LangVersion>10.0</LangVersion>
 
-      <!-- Packaging properties -->
-
-      <!-- The version for the NuGet package. -->
-      <!-- Defaults to IcePackageVersion, which is set in ice.version.props imported above. -->
-      <PackageVersion>$(IcePackageVersion)</PackageVersion>
-      <Description>Provides tools to generate C# code from Slice definitions; includes support for MSBuild projects.</Description>
-      <DevelopmentDependency>true</DevelopmentDependency>
-      <PackageType>Dependency</PackageType>
-      <IncludeBuildOutput>false</IncludeBuildOutput>
-      <!-- Suppress NU5100 warning for the package. -->
-      <!-- The assembly 'tasks\ZeroC.Ice.Slice.Tools.CSharp.dll' is not inside the 'lib' folder -->
-      <!-- We do that on purpose we don't want projects to reference it, is only for MSBuild to load the tasks. -->
-      <NoWarn>NU5100</NoWarn>
-      <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
-      <PackageTags>Ice;RPC;MSBuild;Slice</PackageTags>
-      <PackageReadmeFile>README.md</PackageReadmeFile>
-
       <!-- Signing properties -->
       <TimeStampServer Condition="'$(SIGN_TIMESTAMPSERVER)' == ''">http://timestamp.digicert.com</TimeStampServer>
       <SignCommandSHA1 Condition="Exists('$(SIGN_CERTIFICATE)')">signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(TimeStampServer)</SignCommandSHA1>
@@ -30,7 +13,7 @@
 
     </PropertyGroup>
     <ItemGroup>
-      <Compile Include="..\ZeroC.Ice.Slice.Tools\*.cs" />
+      <Compile Include="..\..\..\csharp\tools\ZeroC.Ice.Slice.Tools\*.cs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -54,7 +37,7 @@
 
     <!-- Use the Slice for C++ compiler from this source build. -->
     <ItemGroup>
-      <Content Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\$(Configuration)\slice2cs.exe">
+      <Content Include="$(MSBuildThisFileDirectory)..\..\bin\x64\$(Configuration)\slice2cpp.exe">
         <Pack>true</Pack>
         <PackagePath>tools\windows-x64</PackagePath>
       </Content>

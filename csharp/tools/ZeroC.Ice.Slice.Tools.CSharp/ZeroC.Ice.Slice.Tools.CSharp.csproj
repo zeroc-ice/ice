@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-    <Import Project="..\..\config\ice.version.props" />
+    <Import Project="..\..\..\config\ice.version.props" />
     <PropertyGroup>
       <TargetFramework>netstandard2.0</TargetFramework>
       <Nullable>enable</Nullable>
@@ -84,7 +84,7 @@
       <When Condition="'$(IceOSName)' == 'windows'">
         <!-- Use the compilers from this source build. -->
         <ItemGroup>
-          <Content Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\$(Configuration)\slice2cs.exe">
+          <Content Include="$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\$(Configuration)\slice2cs.exe">
             <Pack>true</Pack>
             <PackagePath>tools\$(IceOSName)-$(IceOSArch)</PackagePath>
           </Content>
@@ -93,7 +93,7 @@
       <Otherwise>
         <ItemGroup>
           <!-- Use the compilers from this source build. -->
-          <Content Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\slice2cs">
+          <Content Include="$(MSBuildThisFileDirectory)..\..\..\cpp\bin\slice2cs">
             <Pack>true</Pack>
             <PackagePath>tools\$(IceOSName)-$(IceOSArch)</PackagePath>
           </Content>

@@ -17,9 +17,6 @@ public abstract class SliceCompilerTask : ToolTask
     public string WorkingDirectory { get; set; } = "";
 
     [Required]
-    public string IceHome { get; set; } = "";
-
-    [Required]
     public string IceToolsPath { get; set; } = "";
 
     [Required]
@@ -48,7 +45,6 @@ public abstract class SliceCompilerTask : ToolTask
     {
         var options = new Dictionary<string, string>
         {
-            ["IceHome"] = IceHome,
             ["IceToolsPath"] = IceToolsPath,
             ["OutputDir"] = OutputDir.TrimEnd('\\')
         };
@@ -82,8 +78,6 @@ public abstract class SliceCompilerTask : ToolTask
         {
             builder.AppendSwitchIfNotNull("-I", path);
         }
-
-        builder.AppendSwitchIfNotNull("-I", Path.Combine(IceHome, "slice"));
 
         foreach (var option in AdditionalOptions)
         {
