@@ -49,7 +49,6 @@ module IceBox
 
     /// Administers a set of IceBox Service instances.
     /// @see Service
-    ["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
     interface ServiceManager
     {
         /// Start an individual service.

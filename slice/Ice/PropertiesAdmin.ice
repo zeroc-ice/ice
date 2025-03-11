@@ -17,7 +17,6 @@
 module Ice
 {
     /// The PropertiesAdmin interface provides remote access to the properties of a communicator.
-    ["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
     interface PropertiesAdmin
     {
         /// Get a property by key. If the property is not set, an empty string is returned.

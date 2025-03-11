@@ -31,7 +31,6 @@ module Glacier2
     }
 
     /// The Glacier2 specialization of the <code>Ice::Router</code> interface.
-    ["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
     interface Router extends Ice::Router
     {
         /// This category must be used in the identities of all of the client's callback objects. This is necessary in

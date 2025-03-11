@@ -12,6 +12,7 @@
         "decoratee",
         "demangled",
         "demangles",
+        "docfx",
         "DTLS",
         "finalizer",
         "finalizers",
@@ -37,9 +38,9 @@
         "twoway",
         "unmarshal",
         "unmarshaling",
+        "unregisters",
         "upcall",
         "upcalls",
-        "unregisters",
         "zeroc"
     ],
     "flagWords": [

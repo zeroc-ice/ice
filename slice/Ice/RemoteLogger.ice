@@ -83,7 +83,6 @@ module Ice
 
     /// The interface of the admin object that allows an Ice application the attach its
     /// {@link RemoteLogger} to the {@link RemoteLogger} of this admin object's Ice communicator.
-    ["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
     interface LoggerAdmin
     {
         /// Attaches a RemoteLogger object to the local logger. attachRemoteLogger calls init on the provided
