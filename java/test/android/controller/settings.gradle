@@ -1,0 +1,4 @@
+pluginManagement {
+    includeBuild "../../../tools/slice-tools"
+}
+include("build.gradle")

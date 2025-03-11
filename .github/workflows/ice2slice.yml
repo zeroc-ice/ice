@@ -17,8 +17,6 @@ jobs:
 
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
-        with:
-          use_ccache: false
 
       - name: Build ice2slice
         working-directory: ./cpp

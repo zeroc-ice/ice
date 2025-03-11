@@ -294,10 +294,10 @@ export class Client extends TestHelper {
         test(b1.ice_getEncodingVersion().major === 6 && b1.ice_getEncodingVersion().minor === 5);
 
         b1 = communicator.stringToProxy("test -p 1.0 -e 1.0");
-        test(b1.toString() === "test -t -e 1.0");
+        test(b1.toString() === "test -e 1.0");
 
         b1 = communicator.stringToProxy("test -p 6.5 -e 1.0");
-        test(b1.toString() === "test -t -p 6.5 -e 1.0");
+        test(b1.toString() === "test -p 6.5 -e 1.0");
 
         try {
             b1 = communicator.stringToProxy("test:" + defaultProtocol + "@adapterId");
@@ -521,24 +521,21 @@ export class Client extends TestHelper {
 
         const proxyProps = communicator.proxyToProperty(b1, "Test");
         test(proxyProps.size === 18);
-        test(proxyProps.get("Test") === "test -t -e 1.0");
+        test(proxyProps.get("Test") === "test -e 1.0");
         test(proxyProps.get("Test.ConnectionCached") === "1");
         test(proxyProps.get("Test.PreferSecure") === "0");
         test(proxyProps.get("Test.EndpointSelection") === "Ordered");
         test(proxyProps.get("Test.LocatorCacheTimeout") === "100");
         test(proxyProps.get("Test.InvocationTimeout") === "1234");
 
-        test(proxyProps.get("Test.Locator") === "locator -t -e " + Ice.encodingVersionToString(Ice.currentEncoding()));
+        test(proxyProps.get("Test.Locator") === "locator");
         test(proxyProps.get("Test.Locator.ConnectionCached") === "0");
         test(proxyProps.get("Test.Locator.PreferSecure") === "1");
         test(proxyProps.get("Test.Locator.EndpointSelection") === "Random");
         test(proxyProps.get("Test.Locator.LocatorCacheTimeout") === "300");
         test(proxyProps.get("Test.Locator.InvocationTimeout") === "1500");
 
-        test(
-            proxyProps.get("Test.Locator.Router") ===
-                "router -t -e " + Ice.encodingVersionToString(Ice.currentEncoding()),
-        );
+        test(proxyProps.get("Test.Locator.Router") === "router");
         test(proxyProps.get("Test.Locator.Router.ConnectionCached") === "1");
         test(proxyProps.get("Test.Locator.Router.PreferSecure") === "1");
         test(proxyProps.get("Test.Locator.Router.EndpointSelection") === "Random");
@@ -930,20 +927,20 @@ export class Client extends TestHelper {
         // Legal TCP endpoint expressed as opaque endpoint
         let p1 = communicator.stringToProxy("test -e 1.1:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
         let pstr = communicator.proxyToString(p1);
-        test(pstr === "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
+        test(pstr === "test:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
         // Legal WS endpoint expressed as opaque endpoint
         p1 = communicator.stringToProxy("test -e 1.1:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=");
         pstr = communicator.proxyToString(p1);
-        test(pstr === "test -t -e 1.1:ws -h 127.0.0.1 -p 12010 -t 10000");
+        test(pstr === "test:ws -h 127.0.0.1 -p 12010 -t 10000");
 
         // Opaque endpoint encoded with 1.1 encoding.
 
         let p2 = communicator.stringToProxy("test:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
-        test(communicator.proxyToString(p2) === "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
+        test(communicator.proxyToString(p2) === "test:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
         p2 = communicator.stringToProxy("test:opaque -e 1.1 -t 4 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=");
-        test(communicator.proxyToString(p2) === "test -t -e 1.1:ws -h 127.0.0.1 -p 12010 -t 10000");
+        test(communicator.proxyToString(p2) === "test:ws -h 127.0.0.1 -p 12010 -t 10000");
 
         const ref = "test:" + this.getTestEndpoint();
 
@@ -959,13 +956,13 @@ export class Client extends TestHelper {
             "test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==",
         );
         pstr = communicator.proxyToString(p1);
-        test(pstr === "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
+        test(pstr === "test -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 
         p1 = communicator.stringToProxy(
             "test -e 1.0:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAAA=",
         );
         pstr = communicator.proxyToString(p1);
-        test(pstr === "test -t -e 1.0:ws -h 127.0.0.1 -p 12010 -t 10000:ws -h 127.0.0.2 -p 12011 -t 10000");
+        test(pstr === "test -e 1.0:ws -h 127.0.0.1 -p 12010 -t 10000:ws -h 127.0.0.2 -p 12011 -t 10000");
 
         //
         // Test that an SSL endpoint and a nonsense endpoint get
@@ -975,7 +972,7 @@ export class Client extends TestHelper {
             "test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch",
         );
         pstr = communicator.proxyToString(p1);
-        test(pstr === "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
+        test(pstr === "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
 
         //
         // Try to invoke on the SSL endpoint to verify that we get a
@@ -1006,7 +1003,7 @@ export class Client extends TestHelper {
         p2 = await derived.echo(p1);
 
         pstr = communicator.proxyToString(p2);
-        test(pstr === "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
+        test(pstr === "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
 
         let p = communicator.stringToProxy("test:" + this.getTestEndpoint());
         if (defaultProtocol === "tcp") {

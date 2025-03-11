@@ -39,6 +39,11 @@ jobs:
       - name: Setup Ice Build Dependencies
         uses: ./.github/actions/setup-dependencies
 
+      - name: Setup Cache
+        uses: ./.github/actions/setup-cache
+        with:
+          prefix: clang-tidy
+
       - name: Install clang-tidy
         run: |
           # This LLVM script will add the relevant LLVM PPA: https://apt.llvm.org/

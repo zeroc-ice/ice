@@ -405,7 +405,7 @@ IceInternal::FileLock::FileLock(const std::string& path) : _path(path)
 
     struct ::flock lock;
     lock.l_type = F_WRLCK;    // Write lock
-    lock.l_whence = SEEK_SET; // Begining of file
+    lock.l_whence = SEEK_SET; // Beginning of file
     lock.l_start = 0;
     lock.l_len = 0;
 
@@ -427,7 +427,7 @@ IceInternal::FileLock::FileLock(const std::string& path) : _path(path)
     //
 
     //
-    // Now that we have acquire an excluxive write lock,
+    // Now that we have acquire an exclusive write lock,
     // write the process pid there.
     //
     ostringstream os;

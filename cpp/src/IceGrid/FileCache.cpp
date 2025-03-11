@@ -59,13 +59,13 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
         }
         else
         {
-            is.seekg(0, ios::beg); // We've reach the begining of the file.
+            is.seekg(0, ios::beg); // We've reach the beginning of the file.
         }
 
         //
         // Read the block and count the number of lines in the block
         // If we found the "first last N lines", we start throwing out
-        // the lines read at the begining of the file.
+        // the lines read at the beginning of the file.
         //
         int count = originalCount - totalCount; // Number of lines left to find.
         while (is.good() && is.tellg() <= streamoff(lastBlockOffset))
@@ -88,7 +88,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 
         if (lastBlockOffset - blockSize < streamoff(0))
         {
-            break; // We're done if the block started at the begining of the file.
+            break; // We're done if the block started at the beginning of the file.
         }
         else if (totalCount < originalCount)
         {

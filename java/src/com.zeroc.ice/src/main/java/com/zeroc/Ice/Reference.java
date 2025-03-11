@@ -297,7 +297,7 @@ public abstract class Reference implements Cloneable {
         switch (_mode) {
             case ModeTwoway:
                 {
-                    s.append(" -t");
+                    // Don't print the default mode.
                     break;
                 }
 
@@ -331,23 +331,18 @@ public abstract class Reference implements Cloneable {
         }
 
         if (!_protocol.equals(Util.Protocol_1_0)) {
-            //
-            // We only print the protocol if it's not 1.0. It's fine as
-            // long as we don't add Ice.Default.ProtocolVersion, a
-            // stringified proxy will convert back to the same proxy with
-            // stringToProxy.
-            //
+            // We print the protocol unless it's 1.0.
             s.append(" -p ");
             s.append(Util.protocolVersionToString(_protocol));
         }
 
-        //
-        // Always print the encoding version to ensure a stringified proxy
-        // will convert back to a proxy with the same encoding with
-        // stringToProxy (and won't use Ice.Default.EncodingVersion).
-        //
-        s.append(" -e ");
-        s.append(Util.encodingVersionToString(_encoding));
+        // We print the encoding if it's not 1.1 or if Ice.Default.EncodingVersion is set to
+        // something other than 1.1.
+        if (!_encoding.equals(Util.Encoding_1_1)
+                || !_instance.defaultsAndOverrides().defaultEncoding.equals(Util.Encoding_1_1)) {
+            s.append(" -e ");
+            s.append(Util.encodingVersionToString(_encoding));
+        }
 
         return s.toString();
 

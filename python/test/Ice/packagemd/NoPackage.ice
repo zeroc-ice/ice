@@ -23,9 +23,4 @@ exception E2 extends E1
 {
     long l;
 }
-
-exception def /* Test keyword escape. */
-{
-    int i;
-}
 }

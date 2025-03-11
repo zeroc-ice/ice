@@ -1,5 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
+plugins {
+    id 'com.zeroc.ice.slice-tools' apply false
+}
+
 subprojects {
     project.ext.topSrcDir = "$rootProject.projectDir/.."
 
@@ -7,6 +11,7 @@ subprojects {
     project.group = "com.zeroc"
 
     apply plugin: 'java'
+    apply plugin: 'com.zeroc.ice.slice-tools'
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
 
     repositories {
@@ -66,7 +71,7 @@ task alljavadoc(type: Javadoc) {
     destinationDir = file("$buildDir/docs/javadoc")
     options.encoding = 'UTF-8'
     // Where to find source files for the different modules
-    options.addStringOption('-module-source-path', './src/*/src/main/java/:./src/*/build/generated-src/')
+    options.addStringOption('-module-source-path', './src/*/src/main/java/:./src/*/build/generated/source/slice/main')
     options.addBooleanOption('html5', true)
     options.header = 'Ice for Java'
     options.docTitle = "Ice ${iceVersion} API Reference"

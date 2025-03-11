@@ -902,9 +902,9 @@ namespace
 }
 
 InstancePtr
-IceInternal::Instance::create(const Ice::CommunicatorPtr& communicator, const Ice::InitializationData& initData)
+IceInternal::Instance::create(const Ice::CommunicatorPtr& communicator, Ice::InitializationData initData)
 {
-    auto instance = shared_ptr<Instance>(new Instance(initData));
+    auto instance = shared_ptr<Instance>(new Instance(std::move(initData)));
     instance->initialize(communicator);
     return instance;
 }

@@ -40,9 +40,14 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
 
+      - name: Setup Cache
+        uses: ./.github/actions/setup-cache
+        with:
+          prefix: build-brew-packages
+
       - name: Tap Nightly Repository
         env:
-            NIGHTLY_URL: "https://download.zeroc.com/nexus/repository/nightly/homebrew-nightly.git"
+          NIGHTLY_URL: "https://download.zeroc.com/nexus/repository/nightly/homebrew-nightly.git"
         run: |
           if git ls-remote $NIGHTLY_URL; then
             brew tap zeroc-ice/nightly $NIGHTLY_URL

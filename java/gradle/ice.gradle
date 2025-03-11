@@ -9,18 +9,23 @@ buildscript {
         }
     }
     dependencies {
-        classpath group: "gradle.plugin.com.zeroc.gradle.ice-builder", name: 'slice', version: "1.5.0"
         classpath "com.diffplug.spotless:spotless-plugin-gradle:6.25.0"
     }
 }
 
-apply plugin: com.zeroc.gradle.icebuilder.slice.SlicePlugin
 apply plugin: com.diffplug.gradle.spotless.SpotlessPlugin
 
 slice {
-    cppConfiguration = project.cppConfiguration
-    cppPlatform = project.cppPlatform
-    iceHome = new File(project.ext.topSrcDir).getCanonicalPath()
+    includeSearchPath = files("${project.ext.topSrcDir}/slice")
+    def defaultIceToolsPath = "${new File(project.ext.topSrcDir).getCanonicalPath()}/cpp/bin"
+
+    if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        def platform = project.findProperty("cppPlatform") ?: "x64"
+        def configuration = project.findProperty("cppConfiguration") ?: "Release"
+        toolsPath = "$defaultIceToolsPath/$platform/$configuration"
+    } else {
+        toolsPath = defaultIceToolsPath
+    }
 }
 
 spotless {

@@ -12,7 +12,13 @@ import { MapUtil } from "./MapUtil.js";
 import { OpaqueEndpointI } from "./OpaqueEndpoint.js";
 import { ReferenceMode } from "./ReferenceMode.js";
 import { StringUtil } from "./StringUtil.js";
-import { Encoding_1_0, Protocol_1_0, encodingVersionToString, protocolVersionToString } from "./Protocol.js";
+import {
+    Encoding_1_0,
+    Encoding_1_1,
+    Protocol_1_0,
+    encodingVersionToString,
+    protocolVersionToString,
+} from "./Protocol.js";
 import { FixedProxyException, NoEndpointException } from "./LocalExceptions.js";
 import { Promise } from "./Promise.js";
 import { ConnectRequestHandler } from "./ConnectRequestHandler.js";
@@ -375,7 +381,7 @@ export class Reference {
 
         switch (this._mode) {
             case ReferenceMode.ModeTwoway: {
-                s.push(" -t");
+                // Don't print the default mode.
                 break;
             }
 
@@ -410,23 +416,19 @@ export class Reference {
         }
 
         if (!this._protocol.equals(Protocol_1_0)) {
-            //
-            // We only print the protocol if it's not 1.0. It's fine as
-            // long as we don't add Ice.Default.ProtocolVersion, a
-            // stringified proxy will convert back to the same proxy with
-            // stringToProxy.
-            //
+            // We print the protocol unless it's 1.0.
             s.push(" -p ");
             s.push(protocolVersionToString(this._protocol));
         }
 
-        //
-        // Always print the encoding version to ensure a stringified proxy
-        // will convert back to a proxy with the same encoding with
-        // stringToProxy (and won't use Ice.Default.EncodingVersion).
-        //
-        s.push(" -e ");
-        s.push(encodingVersionToString(this._encoding));
+        // We print the encoding if it's not 1.1 or if Ice.Default.EncodingVersion is set to something other than 1.1.
+        if (
+            !this._encoding.equals(Encoding_1_1) ||
+            !this._instance.defaultsAndOverrides().defaultEncoding.equals(Encoding_1_1)
+        ) {
+            s.push(" -e ");
+            s.push(encodingVersionToString(this._encoding));
+        }
 
         return s.join("");
 
