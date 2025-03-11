@@ -28,11 +28,11 @@ available at runtime, they must be copied to the plugin’s resources directory.
 The plugin expects the following structure within src/main/resources/:
 
 ```shell
-src/main/resources/slice         # Ice Slice files
-src/main/resources/macos-arm64   # slice2java compiler for macOS (Apple Silicon)
-src/main/resources/linux-arm64   # slice2java compiler for Linux (ARM64)
-src/main/resources/linux-x64     # slice2java compiler for Linux (x86_64)
-src/main/resources/windows-x64   # slice2java compiler for Windows (x64)
+src/main/resources/resources/slice         # Ice Slice files
+src/main/resources/resources/macos-arm64   # slice2java compiler for macOS (Apple Silicon)
+src/main/resources/resources/linux-arm64   # slice2java compiler for Linux (ARM64)
+src/main/resources/resources/linux-x64     # slice2java compiler for Linux (x86_64)
+src/main/resources/resources/windows-x64   # slice2java compiler for Windows (x64)
 ```
 
 ## Publish

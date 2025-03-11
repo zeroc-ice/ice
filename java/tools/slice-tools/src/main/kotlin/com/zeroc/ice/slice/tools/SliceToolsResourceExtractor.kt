@@ -3,6 +3,8 @@
 package com.zeroc.ice.slice.tools
 
 import org.gradle.api.Project
+import java.net.JarURLConnection
+import java.util.jar.JarFile
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
@@ -26,7 +28,7 @@ object SliceToolsResourceExtractor {
         val os = detectOS()
         val arch = detectArch()
         val toolName = if (os == "windows") "slice2java.exe" else "slice2java"
-        val resourcePath = "/$os-$arch/$toolName"
+        val resourcePath = "/resources/$os-$arch/$toolName"
 
         val gradleUserDir = File(project.gradle.gradleUserHomeDir, "native/$pluginName-$pluginVersion/bin")
         val slice2JavaFile = File(gradleUserDir, toolName)
@@ -54,25 +56,38 @@ object SliceToolsResourceExtractor {
      * Slice files are not present in the resources.
      */
     fun extractSliceFiles(project: Project): String? {
+        val resourcePath = "/resources/slice/"
         val pluginVersion = getPluginVersion(project)
+        val targetDir = File(project.gradle.gradleUserHomeDir, "native/$pluginName-$pluginVersion/slice")
 
-        val sliceSourcePath = "/slice/"
-        val sliceTargetDir = File(project.gradle.gradleUserHomeDir, "native/$pluginName-$pluginVersion/slice")
+        targetDir.mkdirs() // Ensure the target directory exists
 
-        if (!sliceTargetDir.exists()) {
-            val resourceURL = this::class.java.getResource(sliceSourcePath)
-            if (resourceURL == null) {
-                return null
-            }
-
-            project.logger.lifecycle("Extracting Slice files to ${sliceTargetDir.absolutePath}")
-            sliceTargetDir.mkdirs()
-
-            val resourceDir = File(resourceURL.toURI())
-            copyDirectory(resourceDir, sliceTargetDir)
+        val resourceURL = this::class.java.getResource("$resourcePath")
+        if (resourceURL == null) {
+            return null
         }
 
-        return sliceTargetDir.absolutePath
+        val jarConnection = resourceURL.openConnection() as? JarURLConnection
+        val jarFile = jarConnection?.jarFile
+            ?: throw IllegalStateException("Failed to open jar file: $resourceURL")
+
+        val resourcePaths = jarFile.entries().asSequence()
+            .map { it.name }
+            .filter { it.endsWith(".ice") }
+            .toList()
+
+        for (resource in resourcePaths) {
+            project.logger.lifecycle("Extracting $resource to ${targetDir.absolutePath}")
+            val relativePath = resource.removePrefix(resourcePath)
+            val outputFile = File(targetDir, relativePath)
+
+            outputFile.parentFile.mkdirs() // Create parent directories if needed
+
+            this::class.java.getResourceAsStream("/$resource")?.use { input ->
+                outputFile.outputStream().use { output -> input.copyTo(output) }
+            }
+        }
+        return targetDir.absolutePath
     }
 
     private fun getPluginVersion(project: Project): String {
@@ -82,19 +97,6 @@ object SliceToolsResourceExtractor {
         return implementationVersion
             ?: projectSliceToolsVersion
             ?: throw IllegalStateException("Failed to determine plugin version: implementationVersion is missing")
-    }
-
-    private fun copyDirectory(source: File, destination: File) {
-        source.walk().forEach { file ->
-            val targetFile = File(destination, file.relativeTo(source).path)
-            if (file.isDirectory) {
-                targetFile.mkdirs()
-            } else {
-                file.inputStream().use { input ->
-                    targetFile.outputStream().use { output -> input.copyTo(output) }
-                }
-            }
-        }
     }
 
     private fun detectOS(): String {
@@ -110,8 +112,8 @@ object SliceToolsResourceExtractor {
     private fun detectArch(): String {
         val arch = System.getProperty("os.arch").lowercase()
         return when {
-            arch.contains("64") || arch.contains("x86_64") -> "x64"
-            arch.contains("arm") || arch.contains("aarch64") -> "arm64"
+            arch.contains("amd64") || arch.contains("x86_64") -> "x64"
+            arch.contains("aarch64") -> "arm64"
             else -> arch
         }
     }
