@@ -46,9 +46,9 @@ module Test
     sequence<string> StringSeq;
     sequence<MyEnum> MyEnumSeq;
     sequence<SmallStruct> SmallStructSeq;
-    ["cpp:type:std::list< ::Test::SmallStruct>"] sequence<SmallStruct> SmallStructList;
+    ["cpp:type:std::list<::Test::SmallStruct>"] sequence<SmallStruct> SmallStructList;
     sequence<FixedStruct> FixedStructSeq;
-    ["cpp:type:std::list< ::Test::FixedStruct>"] sequence<FixedStruct> FixedStructList;
+    ["cpp:type:std::list<::Test::FixedStruct>"] sequence<FixedStruct> FixedStructList;
     sequence<VarStruct> VarStructSeq;
     sequence<MyInterface*> MyInterfacePrxSeq;
 
