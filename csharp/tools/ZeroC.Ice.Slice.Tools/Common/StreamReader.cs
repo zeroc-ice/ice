@@ -2,7 +2,7 @@
 
 using System.Diagnostics;
 
-namespace ZeroC.Ice.Slice.Tools;
+namespace ZeroC.Ice.Slice.Tools.Common;
 
 public class StreamReader
 {

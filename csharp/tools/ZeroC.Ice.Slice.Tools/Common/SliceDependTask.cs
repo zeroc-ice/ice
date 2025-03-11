@@ -8,15 +8,12 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 
-namespace ZeroC.Ice.Slice.Tools;
+namespace ZeroC.Ice.Slice.Tools.Common;
 
 public abstract class SliceDependTask : Task
 {
     [Required]
     public ITaskItem[] Sources { get; set; } = Array.Empty<ITaskItem>();
-
-    [Required]
-    public string IceHome { get; set; } = "";
 
     [Required]
     public string IceToolsPath { get; set; } = "";
@@ -47,7 +44,6 @@ public abstract class SliceDependTask : Task
     {
         var options = new Dictionary<string, string>
         {
-            ["IceHome"] = IceHome,
             ["IceToolsPath"] = IceToolsPath,
             ["OutputDir"] = item.GetMetadata("OutputDir").TrimEnd('\\')
         };

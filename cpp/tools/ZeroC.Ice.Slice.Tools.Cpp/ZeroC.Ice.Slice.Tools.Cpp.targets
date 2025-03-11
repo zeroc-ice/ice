@@ -4,7 +4,7 @@
 
     <!--
     Set the path of the ZeroC.Ice.Slice.Tools.Cpp assembly conditionally based on whether we are using
-    the zeroc.ice.v143 NuGet package or the Ice source distribution.
+    the ZeroC.Ice.Cpp NuGet package or the Ice source distribution.
 
     - For the NuGet package, the assembly is included in the "tasks" directory.
     - For the Ice source distribution, the assembly is taken from the ZeroC.Ice.Slice.Tools.Cpp project
@@ -61,7 +61,6 @@
 
         <!-- First we check dependencies to compute which Slice files need to be recompiled -->
         <Slice2CppDependTask
-            IceHome                           = "$(IceHome)"
             IceToolsPath                      = "$(IceToolsPath)"
             WorkingDirectory                  = "$(MSBuildProjectDirectory)"
             Sources                           = "@(SliceCompile)">
@@ -78,7 +77,6 @@
 
         <!-- Compile the Slice files -->
         <Slice2CppTask
-            IceHome                           = "$(IceHome)"
             IceToolsPath                      = "$(IceToolsPath)"
             WorkingDirectory                  = "$(MSBuildProjectDirectory)"
             OutputDir                         = "%(_SliceCompile.OutputDir)"

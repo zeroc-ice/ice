@@ -40,8 +40,8 @@
   <!-- Copy required files from the NuGet package before MSI build -->
   <Target Name="CopyToStaging" BeforeTargets="CoreCompile">
 
-    <Error Condition="!Exists('$(PackageDir)zeroc.ice.v143.nupkg')"
-      Text="PackageDir must be set to the location of zeroc.ice.v143 NuGet package." />
+    <Error Condition="!Exists('$(PackageDir)ZeroC.Ice.Cpp.nupkg')"
+      Text="PackageDir must be set to the location of ZeroC.Ice.Cpp NuGet package." />
 
     <Error Condition="!Exists('$(MSBuildThisFileDirectory)..\..\java\lib\icegridgui.jar')"
       Text="The IceGridGUI must be build before creating the MSI package." />

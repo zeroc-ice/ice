@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-    <Import Project="..\..\config\ice.version.props" />
+    <Import Project="..\..\..\config\ice.version.props" />
     <PropertyGroup>
       <TargetFramework>netstandard2.0</TargetFramework>
       <Nullable>enable</Nullable>
@@ -34,9 +34,6 @@
       <IceOSName Condition="$([MSBuild]::IsOSPlatform('OSX'))">macos</IceOSName>
       <IceOSArch>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLower())</IceOSArch>
     </PropertyGroup>
-    <ItemGroup>
-      <Compile Include="..\ZeroC.Ice.Slice.Tools\*.cs" />
-    </ItemGroup>
 
     <ItemGroup>
       <Content Include="ProjectItemsSchema.xaml" Pack="true" PackagePath="build/" />
@@ -84,7 +81,7 @@
       <When Condition="'$(IceOSName)' == 'windows'">
         <!-- Use the compilers from this source build. -->
         <ItemGroup>
-          <Content Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\$(Configuration)\slice2cs.exe">
+          <Content Include="$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\$(Configuration)\slice2cs.exe">
             <Pack>true</Pack>
             <PackagePath>tools\$(IceOSName)-$(IceOSArch)</PackagePath>
           </Content>
@@ -93,7 +90,7 @@
       <Otherwise>
         <ItemGroup>
           <!-- Use the compilers from this source build. -->
-          <Content Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\slice2cs">
+          <Content Include="$(MSBuildThisFileDirectory)..\..\..\cpp\bin\slice2cs">
             <Pack>true</Pack>
             <PackagePath>tools\$(IceOSName)-$(IceOSArch)</PackagePath>
           </Content>

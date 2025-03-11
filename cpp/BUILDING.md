@@ -244,7 +244,7 @@ You can create a NuGet package with the following command:
 msbuild msbuild\ice.proj /m /t:Pack /p:BuildAllConfigurations=yes
 ```
 
-This creates `zeroc.ice.v143\zeroc.ice.v143.nupkg`.
+This creates `ZeroC.Ice.Cpp\ZeroC.Ice.Cpp.nupkg`.
 
 You can publish the package to your local `global-packages` source with the following command:
 

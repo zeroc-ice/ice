@@ -105,8 +105,6 @@ jobs:
       - name: Publish NuGet Packages
         run: |
           $packages = @(
-              Get-ChildItem -Path tools -Filter "*.nupkg" -File -Recurse
-              Get-ChildItem -Path tools -Filter "*.snupkg" -File -Recurse
               Get-ChildItem -Path csharp -Filter "*.nupkg" -File -Recurse
               Get-ChildItem -Path csharp -Filter "*.snupkg" -File -Recurse
           )

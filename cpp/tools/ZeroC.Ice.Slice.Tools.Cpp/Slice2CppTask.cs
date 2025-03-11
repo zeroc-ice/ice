@@ -4,6 +4,7 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using System.Collections.Generic;
 using System.IO;
+using ZeroC.Ice.Slice.Tools.Common;
 
 namespace ZeroC.Ice.Slice.Tools.Cpp;
 
