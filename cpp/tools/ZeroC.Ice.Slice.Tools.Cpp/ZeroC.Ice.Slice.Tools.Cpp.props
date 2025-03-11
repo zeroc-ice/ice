@@ -26,7 +26,7 @@
     </ItemDefinitionGroup>
 
     <Choose>
-        <When Condition="Exists('$(MSBuildThisFileDirectory)..\..\..\slice')"> 
+        <When Condition="Exists('$(MSBuildThisFileDirectory)..\..\..\slice')">
             <!-- Default SliceCompile settings for Ice source builds -->
             <ItemDefinitionGroup>
                 <SliceCompile>

@@ -9,7 +9,7 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace ZeroC.Ice.Slice.Tools;
+namespace ZeroC.Ice.Slice.Tools.Common;
 
 public abstract class SliceCompilerTask : ToolTask
 {

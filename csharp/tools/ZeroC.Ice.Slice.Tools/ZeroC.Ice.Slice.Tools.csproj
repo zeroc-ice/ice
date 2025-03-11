@@ -34,9 +34,6 @@
       <IceOSName Condition="$([MSBuild]::IsOSPlatform('OSX'))">macos</IceOSName>
       <IceOSArch>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLower())</IceOSArch>
     </PropertyGroup>
-    <ItemGroup>
-      <Compile Include="..\ZeroC.Ice.Slice.Tools\*.cs" />
-    </ItemGroup>
 
     <ItemGroup>
       <Content Include="ProjectItemsSchema.xaml" Pack="true" PackagePath="build/" />

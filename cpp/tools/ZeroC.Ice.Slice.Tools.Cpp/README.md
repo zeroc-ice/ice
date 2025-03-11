@@ -64,7 +64,7 @@ Example:
 </ItemGroup>
 ```
 
-[package]: https://www.nuget.org/packages/ZeroC.Ice.Slice.Tools.CSharp
+[package]: https://www.nuget.org/packages/ZeroC.Ice.Cpp
 [slice]: https://doc.zeroc.com/ice/3.7/the-slice-language
 [slice2cpp]: https://doc.zeroc.com/ice/latest/language-mappings/c++-mapping/slice2cpp-command-line-options
-[source]: https://github.com/zeroc-ice/ice/tree/main/tools/ZeroC.Ice.Slice.Tools.CSharp
+[source]: https://github.com/zeroc-ice/ice/tree/main/cpp/tools/ZeroC.Ice.Slice.Tools.Cpp

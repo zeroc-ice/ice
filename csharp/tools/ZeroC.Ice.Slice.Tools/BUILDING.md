@@ -8,14 +8,14 @@ This page describes how to build Slice Tools for Ice .NET from source and packag
 
 ## Prerequisites
 
-1. **.NET SDK 8.0**  
+1. **.NET SDK 8.0**
    Download the .NET SDK from [dotnet.microsoft.com](https://dotnet.microsoft.com/en-us/download/dotnet).
 
-2. **The Slice to C# compiler from the C++ source distribution**  
+2. **The Slice to C# compiler from the C++ source distribution**
    Refer to the [build instructions](../../cpp/BUILDING.md) in the `cpp` folder for details on how to build the C++
    source distribution.
 
-### Building Slice Tools for Ice .NET
+### Building the Slice Tools for Ice C#
 
 Open a command prompt and run:
 
@@ -31,18 +31,18 @@ To create the NuGet package, open a command prompt and run the following command
 dotnet pack /p:Platform="Any CPU" /p:Configuration=Release
 ```
 
-This command creates the `ZeroC.Ice.Slice.Tools.CSharp` NuGet package in the project output directory.
+This command creates the `ZeroC.Ice.Slice.Tools` NuGet package in the project output directory.
 
 On Linux and macOS, the NuGet package is located at:
 
 ```shell
-bin/Release/ZeroC.Ice.Slice.Tools.CSharp.3.8.0-alpha0.nupkg
+bin/Release/ZeroC.Ice.Slice.Tools.3.8.0-alpha0.nupkg
 ```
 
 On Windows, the NuGet package is located at:
 
 ```shell
-bin\Release\ZeroC.Ice.Slice.Tools.CSharp.3.8.0-alpha0.nupkg
+bin\Release\ZeroC.Ice.Slice.Tools.3.8.0-alpha0.nupkg
 ```
 
 By default, the NuGet package includes the Slice-to-CSharp compiler (`slice2cs`) for the current platform. To include

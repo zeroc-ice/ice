@@ -8,7 +8,7 @@ This page describes how to build Slice Tools for Ice and C++ from source and pac
 
 ## Prerequisites
 
-1. **.NET SDK 8.0**  
+1. **.NET SDK 8.0**
    Download the .NET SDK from [dotnet.microsoft.com](https://dotnet.microsoft.com/en-us/download/dotnet).
 
 ## Building Slice Tools for Ice and C++

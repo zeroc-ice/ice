@@ -1,6 +1,6 @@
 # Slice Tools for Ice and CSharp
 
-**ZeroC.Ice.Slice.Tools.CSharp** provides an MSBuild task for compiling Slice definitions (`.ice` files) into C# source
+**ZeroC.Ice.Slice.Tools** provides an MSBuild task for compiling Slice definitions (`.ice` files) into C# source
 files (`.cs` files) automatically as part of your build process.
 
 [Source code][source] | [Package][package] | [slice2cs options][slice2cs] | [Slice documentation][slice]
@@ -18,7 +18,7 @@ files (`.cs` files) automatically as part of your build process.
 To use this task, add the NuGet package to your project:
 
 ```sh
-dotnet add package ZeroC.Ice.Slice.Tools.CSharp
+dotnet add package ZeroC.Ice.Slice.Tools
 ```
 
 Once installed, Slice files are automatically compiled into C# files every time the project is built.
@@ -69,7 +69,7 @@ Example:
 ```
 
 [default-items]: https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#enabledefaultitems
-[package]: https://www.nuget.org/packages/ZeroC.Ice.Slice.Tools.CSharp
+[package]: https://www.nuget.org/packages/ZeroC.Ice.Slice.Tools
 [slice]: https://doc.zeroc.com/ice/3.7/the-slice-language
 [slice2cs]: https://doc.zeroc.com/ice/3.7/language-mappings/c-sharp-mapping/client-side-slice-to-c-sharp-mapping/slice2cs-command-line-options
-[source]: https://github.com/zeroc-ice/ice/tree/main/tools/ZeroC.Ice.Slice.Tools.CSharp
+[source]: https://github.com/zeroc-ice/ice/tree/main/csharp/tools/ZeroC.Ice.Slice.Tools

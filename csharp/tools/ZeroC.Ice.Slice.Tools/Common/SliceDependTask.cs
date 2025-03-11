@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 
-namespace ZeroC.Ice.Slice.Tools;
+namespace ZeroC.Ice.Slice.Tools.Common;
 
 public abstract class SliceDependTask : Task
 {
