@@ -61,7 +61,9 @@ jobs:
           path: java/lib/*
 
       - name: Publish Maven Packages
-        run: ./gradlew publish
+        run: |
+          ./gradlew -p tools/slice-tools publish
+          ./gradlew publish
         working-directory: java
         env:
           MAVEN_REPOSITORY: ${{ inputs.repository_url }}
