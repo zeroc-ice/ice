@@ -6,17 +6,15 @@
 
 module Test
 {
+    interface MyClass
+    {
+        void shutdown();
 
-interface MyClass
-{
-    void shutdown();
+        Ice::Context getContext();
+    }
 
-    Ice::Context getContext();
-}
-
-interface MyDerivedClass extends MyClass
-{
-    Object* echo(Object* obj);
-}
-
+    interface MyDerivedClass extends MyClass
+    {
+        Object* echo(Object* obj);
+    }
 }

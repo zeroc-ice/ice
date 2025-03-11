@@ -7,20 +7,18 @@
 
 module Test
 {
+    interface TestIntf
+    {
+        string getAdapterName();
+        string getConnection();
+        Ice::Identity getIdentity();
+        string getFacet();
+        string getOperation();
+        string getMode();
+        Ice::Context getContext();
+        int getRequestId();
+        string getEncoding();
 
-interface TestIntf
-{
-    string getAdapterName();
-    string getConnection();
-    Ice::Identity getIdentity();
-    string getFacet();
-    string getOperation();
-    string getMode();
-    Ice::Context getContext();
-    int getRequestId();
-    string getEncoding();
-
-    void shutdown();
-}
-
+        void shutdown();
+    }
 }

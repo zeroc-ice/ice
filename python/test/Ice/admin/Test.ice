@@ -7,32 +7,30 @@
 
 module Test
 {
+    interface RemoteCommunicator
+    {
+        Object* getAdmin();
 
-interface RemoteCommunicator
-{
-    Object* getAdmin();
+        Ice::PropertyDict getChanges();
 
-    Ice::PropertyDict getChanges();
+        void shutdown();
 
-    void shutdown();
+        void waitForShutdown();
 
-    void waitForShutdown();
+        void destroy();
+    }
 
-    void destroy();
-}
+    interface RemoteCommunicatorFactory
+    {
+        RemoteCommunicator* createCommunicator(Ice::PropertyDict props);
 
-interface RemoteCommunicatorFactory
-{
-    RemoteCommunicator* createCommunicator(Ice::PropertyDict props);
+        void shutdown();
+    }
 
-    void shutdown();
-}
-
-interface TestFacet
-{
-    void op();
-}
-
+    interface TestFacet
+    {
+        void op();
+    }
 }
 
 #endif
