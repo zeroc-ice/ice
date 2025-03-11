@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 pluginManagement {
-    includeBuild "../tools/gradle"
+    includeBuild "./tools/slice-tools"
 }
 
 // Source projects

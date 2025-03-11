@@ -1,4 +1,4 @@
 pluginManagement {
-    includeBuild "../../../../tools/gradle"
+    includeBuild "../../../tools/slice-tools"
 }
 include("build.gradle")
