@@ -15,8 +15,8 @@
 
     <ItemGroup>
         <!-- Packages produced by the source build -->
-        <DistPackage Include="ZeroC.Ice.Slice.Tools.CSharp">
-            <ProjectDir>$(MSBuildThisFileDirectory)..\..\tools\ZeroC.Ice.Slice.Tools.CSharp</ProjectDir>
+        <DistPackage Include="ZeroC.Ice.Slice.Tools">
+            <ProjectDir>$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools</ProjectDir>
         </DistPackage>
         <DistPackage Include="ZeroC.Ice">
             <ProjectDir>$(MSBuildThisFileDirectory)..\src\Ice</ProjectDir>
@@ -49,7 +49,7 @@
 
     <ItemGroup>
         <!-- Tools projects -->
-        <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\ZeroC.Ice.Slice.Tools.CSharp\ZeroC.Ice.Slice.Tools.CSharp.sln">
+        <ToolsSolution Include="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools\ZeroC.Ice.Slice.Tools.sln">
             <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
             <Properties Condition="'$(PackageVersion)' != ''">%(Properties);PackageVersion=$(PackageVersion)</Properties>
         </ToolsSolution>

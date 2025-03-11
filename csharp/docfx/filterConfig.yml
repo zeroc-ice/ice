@@ -1,0 +1,7 @@
+apiRules:
+- exclude:
+    uidRegex: ^Ice\.Internal\..*
+    type: Type
+- exclude:
+    uidRegex: ^Ice\.UtilInternal\..*
+    type: Type

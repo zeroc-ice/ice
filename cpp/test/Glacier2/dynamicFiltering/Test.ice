@@ -6,43 +6,41 @@
 
 module Test
 {
+    interface Backend
+    {
+        void check();
+        void shutdown();
+    }
 
-interface Backend
-{
-    void check();
-    void shutdown();
-}
+    enum StateCode { Initial, Running, Finished }
 
-enum StateCode { Initial, Running, Finished }
+    struct TestToken
+    {
+        bool expectedResult;
+        string description;
+        StateCode code;
+        short config;
+        short caseIndex;
+        string testReference;
+    }
 
-struct TestToken
-{
-    bool expectedResult;
-    string description;
-    StateCode code;
-    short config;
-    short caseIndex;
-    string testReference;
-}
+    /**
+    *
+    * The test controller interface permits coordination between the test
+    * server and the test client. Prior to each call the client makes on
+    * various backend references, it calls step on the controller. The
+    * controller will manage the configuration of the system and return a
+    * flag indicating whether the next call is meant to succeed or not.
+    *
+    **/
+    interface TestController
+    {
+        void step(Glacier2::Session* currentSession, TestToken currentState, out TestToken newState);
+        void shutdown();
+    }
 
-/**
- *
- * The test controller interface permits coordination between the test
- * server and the test client. Prior to each call the client makes on
- * various backend references, it calls step on the controller. The
- * controller will manage the configuration of the system and return a
- * flag indicating whether the next call is meant to succeed or not.
- *
- **/
-interface TestController
-{
-    void step(Glacier2::Session* currentSession, TestToken currentState, out TestToken newState);
-    void shutdown();
-}
-
-interface TestSession extends Glacier2::Session
-{
-    void shutdown();
-}
-
+    interface TestSession extends Glacier2::Session
+    {
+        void shutdown();
+    }
 }

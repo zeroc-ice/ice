@@ -5,10 +5,8 @@
 ["cs:namespace:Ice.defaultServant"]
 module Test
 {
-
-interface MyObject
-{
-    string getName();
-}
-
+    interface MyObject
+    {
+        string getName();
+    }
 }

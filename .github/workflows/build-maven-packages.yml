@@ -30,8 +30,24 @@ on:
         type: string
 
 jobs:
-  build-maven-packages:
-    runs-on: ubuntu-24.04
+  build-slice-compilers:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            target: macos-arm64
+            artifact-path: cpp/bin/slice2java
+          - os: windows-latest
+            target: windows-x64
+            artifact-path: cpp/bin/x64/Release/slice2java.*
+          - os: ubuntu-24.04
+            target: linux-x64
+            artifact-path: cpp/bin/slice2java
+          - os: ubuntu-24.04-arm
+            target: linux-arm64
+            artifact-path: cpp/bin/slice2java
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout repository
@@ -40,29 +56,77 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
 
-      - name: Build Slice Compiler
-        run: make slice2java
-        working-directory: cpp
+      - name: Build Compiler
+        uses: ./.github/actions/build-slice-compiler
+        with:
+          compiler-name: slice2java
+
+      - name: Upload Compiler Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: slice2java-${{ matrix.target }}
+          path: ${{ matrix.artifact-path }}
+
+  build-maven-packages:
+    runs-on: ubuntu-24.04
+    needs: build-slice-compilers
+    env:
+      SLICE2JAVA_STAGING_PATH: ${{ github.workspace }}/ice/tools/slice-tools/src/main/resources/resources
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: ice
+
+      - name: Download All Compiler Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Copy slice2java binaries to staging path
+        run: |
+          # Create the staging path.
+          mkdir -p "$SLICE2JAVA_STAGING_PATH/macos-arm64" \
+                   "$SLICE2JAVA_STAGING_PATH/linux-x64" \
+                   "$SLICE2JAVA_STAGING_PATH/linux-arm64" \
+                   "$SLICE2JAVA_STAGING_PATH/windows-x64"
+
+          # Copy the slice2java binaries to the staging path.
+          cp -v artifacts/slice2java-macos-arm64/slice2java "$SLICE2JAVA_STAGING_PATH/macos-arm64/"
+          chmod +x $SLICE2JAVA_STAGING_PATH/macos-arm64/slice2java
+          cp -v artifacts/slice2java-linux-x64/slice2java "$SLICE2JAVA_STAGING_PATH/linux-x64/"
+          chmod +x $SLICE2JAVA_STAGING_PATH/linux-x64/slice2java
+          cp -v artifacts/slice2java-linux-arm64/slice2java "$SLICE2JAVA_STAGING_PATH/linux-arm64/"
+          chmod +x $SLICE2JAVA_STAGING_PATH/linux-arm64/slice2java
+          cp -v artifacts/slice2java-windows-x64/slice2java.exe "$SLICE2JAVA_STAGING_PATH/windows-x64/"
+
+          # Copy the slice2java binary to the cpp/bin directory to avoid rebuilding it.
+          mkdir -p ice/cpp/bin
+          cp -v artifacts/slice2java-linux-x64/slice2java $GITHUB_WORKSPACE/ice/cpp/bin/slice2java
+          chmod +x $GITHUB_WORKSPACE/ice/cpp/bin/slice2java
+
+          for component in DataStorm Glacier2 Ice IceBox IceGrid IceStorm; do
+            mkdir -p $SLICE2JAVA_STAGING_PATH/slice/$component
+            cp -v ice/slice/$component/*.ice $SLICE2JAVA_STAGING_PATH/slice/$component
+          done
 
       - name: Update Ice Version
         run: |
-          sed -i "s/^iceVersion = .*/iceVersion = ${{ inputs.ice_version }}/" java/gradle.properties
-          sed -i "s/^sliceToolsVersion = .*/sliceToolsVersion = ${{ inputs.ice_version }}/" java/tools/slice-tools/gradle.properties
+          sed -i "s/^iceVersion = .*/iceVersion = ${{ inputs.ice_version }}/" gradle.properties
+          sed -i "s/^sliceToolsVersion = .*/sliceToolsVersion = ${{ inputs.ice_version }}/" tools/slice-tools/gradle.properties
+        working-directory: ice/java
         if: inputs.ice_version != ''
 
       - name: Build Java Packages
         run: ./gradlew dist
-        working-directory: java
-
-      - name: Upload Java Packages
-        uses: actions/upload-artifact@v4
-        with:
-          name: java-packages
-          path: java/lib/*
+        working-directory: ice/java
 
       - name: Publish Maven Packages
-        run: ./gradlew publish
-        working-directory: java
+        run: |
+          ./gradlew -p tools/slice-tools publish
+          ./gradlew publish
+        working-directory: ice/java
         env:
           MAVEN_REPOSITORY: ${{ inputs.repository_url }}
           MAVEN_USERNAME: ${{ inputs.repository_username }}

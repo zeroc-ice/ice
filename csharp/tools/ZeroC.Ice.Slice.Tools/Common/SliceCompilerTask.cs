@@ -9,15 +9,12 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace ZeroC.Ice.Slice.Tools;
+namespace ZeroC.Ice.Slice.Tools.Common;
 
 public abstract class SliceCompilerTask : ToolTask
 {
     [Required]
     public string WorkingDirectory { get; set; } = "";
-
-    [Required]
-    public string IceHome { get; set; } = "";
 
     [Required]
     public string IceToolsPath { get; set; } = "";
@@ -48,7 +45,6 @@ public abstract class SliceCompilerTask : ToolTask
     {
         var options = new Dictionary<string, string>
         {
-            ["IceHome"] = IceHome,
             ["IceToolsPath"] = IceToolsPath,
             ["OutputDir"] = OutputDir.TrimEnd('\\')
         };
@@ -82,8 +78,6 @@ public abstract class SliceCompilerTask : ToolTask
         {
             builder.AppendSwitchIfNotNull("-I", path);
         }
-
-        builder.AppendSwitchIfNotNull("-I", Path.Combine(IceHome, "slice"));
 
         foreach (var option in AdditionalOptions)
         {

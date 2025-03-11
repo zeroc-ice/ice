@@ -3,11 +3,11 @@
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
-namespace ZeroC.Ice.Slice.Tools.CSharp;
+namespace ZeroC.Ice.Slice.Tools;
 
-public class Slice2CSharpTask : SliceCompilerTask
+public class Slice2CSharpTask : Common.SliceCompilerTask
 {
-    protected override string ToolName => TaskUtil.isWindows ? "slice2cs.exe" : "slice2cs";
+    protected override string ToolName => Common.TaskUtil.isWindows ? "slice2cs.exe" : "slice2cs";
 
     protected override string GeneratedExtensions => "cs";
 
@@ -16,7 +16,7 @@ public class Slice2CSharpTask : SliceCompilerTask
         foreach (ITaskItem source in Sources)
         {
             string message = string.Format("Compiling {0} Generating -> ", source.GetMetadata("Identity"));
-            message += TaskUtil.MakeRelative(WorkingDirectory, GetGeneratedPath(source, OutputDir, ".cs"));
+            message += Common.TaskUtil.MakeRelative(WorkingDirectory, GetGeneratedPath(source, OutputDir, ".cs"));
             Log.LogMessage(MessageImportance.High, message);
         }
     }

@@ -2,8 +2,6 @@
 
 module Test
 {
-
-class C { long l; }
-sequence<int> C;
-
+    class C { long l; }
+    sequence<int> C;
 }

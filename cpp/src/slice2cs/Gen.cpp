@@ -91,15 +91,15 @@ namespace
     void writeMarshalDocComment(Output& out)
     {
         writeDocLine(out, "summary", "Marshals a value into an output stream.");
-        writeDocLine(out, "param name=\"ostr\"", "The output stream.", "param");
-        writeDocLine(out, "param name=\"v\"", "The value to marshal.", "param");
+        writeDocLine(out, R"(param name="ostr")", "The output stream.", "param");
+        writeDocLine(out, R"(param name="v")", "The value to marshal.", "param");
     }
 
     // Standard unmarshal doc-comment
     void writeUnmarshalDocComment(Output& out)
     {
         writeDocLine(out, "summary", "Unmarshals a value from an input stream.");
-        writeDocLine(out, "param name=\"istr\"", "The input stream.", "param");
+        writeDocLine(out, R"(param name="istr")", "The input stream.", "param");
         writeDocLine(out, "returns", "The unmarshaled value.");
     }
 
@@ -1699,7 +1699,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     notes << "Use the methods of this interface to invoke operations on a remote Ice object that implements <c>"
           << p->name() << "</c>.";
     writeDocComment(p, "client-side interface", notes.str());
-    _out << nl << "public interface " << p->mappedName() << "Prx : ";
+    _out << nl << "public partial interface " << p->mappedName() << "Prx : ";
 
     vector<string> baseInterfaces;
     for (const auto& base : p->bases())
@@ -1739,7 +1739,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     ostringstream summary;
     summary << "Helper class for proxy <see cref=\"" << name << "Prx\" />.";
     writeHelperDocComment(p, summary.str(), "proxy helper class");
-    _out << nl << "public sealed class " << name << "PrxHelper : "
+    _out << nl << "public sealed partial class " << name << "PrxHelper : "
          << "Ice.ObjectPrxHelperBase, " << name << "Prx";
     _out << sb;
 
@@ -2117,10 +2117,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         //
         string context = getEscapedParamName(p, "context");
         _out << sp;
-        writeOpDocComment(
-            p,
-            {"<param name=\"" + context + "\">The Context map to send with the invocation.</param>"},
-            false);
+        writeOpDocComment(p, {"<param name=\"" + context + "\">The request context.</param>"}, false);
         emitObsoleteAttribute(p, _out);
         _out << nl << retS << " " << name << spar << getParams(p, ns)
              << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar
@@ -2138,8 +2135,8 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         _out << sp;
         writeOpDocComment(
             p,
-            {"<param name=\"" + context + "\">Context map to send with the invocation.</param>",
-             "<param name=\"" + progress + "\">Sent progress provider.</param>",
+            {"<param name=\"" + context + "\">The request context.</param>",
+             "<param name=\"" + progress + "\">The sent progress provider.</param>",
              "<param name=\"" + cancel + "\">A cancellation token that receives the cancellation requests.</param>"},
             true);
         emitObsoleteAttribute(p, _out);
@@ -2350,7 +2347,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             << "</c>.";
 
     writeHelperDocComment(p, summary.str(), "helper class", remarks.str());
-    _out << nl << "public abstract class " << name << "Disp_ : Ice.ObjectImpl, " << name;
+    _out << nl << "public abstract partial class " << name << "Disp_ : Ice.ObjectImpl, " << name;
 
     _out << sb;
     for (const auto& op : p->allOperations())

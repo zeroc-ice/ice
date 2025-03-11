@@ -2,8 +2,6 @@
 
 module Test
 {
-
-sequence<int> Seq;
-sequence<int> Seq;
-
+    sequence<int> Seq;
+    sequence<int> Seq;
 }

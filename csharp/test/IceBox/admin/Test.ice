@@ -7,12 +7,10 @@
 
 module Test
 {
-
-interface TestFacet
-{
-    Ice::PropertyDict getChanges();
-}
-
+    interface TestFacet
+    {
+        Ice::PropertyDict getChanges();
+    }
 }
 
 #endif
