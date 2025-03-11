@@ -17,5 +17,8 @@
     "java.format.settings.google.extra": "--aosp",
     "java.format.settings.google.version": "1.24.0", // should match version in ice.gradle
     "gradle.nestedProjects": true,
-    "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable"
+    "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable",
+    "cSpell.words": [
+        "Unmarshals"
+    ]
 }
