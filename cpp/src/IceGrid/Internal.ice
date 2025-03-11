@@ -284,7 +284,7 @@ module IceGrid
         ["cpp:const"] idempotent Ice::StringSeq getServers();
 
         /// Wait for the application update to complete (the application is completely updated once all the registry
-            /// replicas have been updated). This is used by the node to ensure that before to start a server all the
+        /// replicas have been updated). This is used by the node to ensure that before to start a server all the
         /// replicas have the up-to-date descriptor of the server.
         ["amd"] ["cpp:const"] void waitForApplicationUpdate(string application, int revision);
 
