@@ -11,7 +11,7 @@ This document describes how to build and publish the Slice Tools for Ice Gradle 
 The plugin can be built using the following Gradle command:
 
 ```shell
-./gradlew build
+../../gradlew build
 ```
 
 This will:
