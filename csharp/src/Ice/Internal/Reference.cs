@@ -268,8 +268,8 @@ public abstract class Reference : IEquatable<Reference>
 
         if (!s.getEncoding().Equals(Ice.Util.Encoding_1_0))
         {
-            _protocol.ice_writeMembers(s);
-            _encoding.ice_writeMembers(s);
+            ProtocolVersion.ice_write(s, _protocol);
+            EncodingVersion.ice_write(s, _encoding);
         }
 
         // Derived class writes the remainder of the reference.

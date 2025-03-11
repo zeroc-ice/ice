@@ -205,7 +205,7 @@ public sealed class OutputStream
         _encapsStack.start = _buf.b.position();
 
         writeInt(0); // Placeholder for the encapsulation length.
-        _encapsStack.encoding.ice_writeMembers(this);
+        EncodingVersion.ice_write(this, _encapsStack.encoding);
     }
 
     /// <summary>
@@ -235,7 +235,7 @@ public sealed class OutputStream
     {
         Protocol.checkSupportedEncoding(encoding);
         writeInt(6); // Size
-        encoding.ice_writeMembers(this);
+        EncodingVersion.ice_write(this, encoding);
     }
 
     /// <summary>
@@ -1568,8 +1568,7 @@ public sealed class OutputStream
         }
         else
         {
-            Identity ident = new Identity();
-            ident.ice_writeMembers(this);
+            Identity.ice_write(this, new Identity());
         }
     }
 

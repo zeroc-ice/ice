@@ -1519,8 +1519,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 {
                     var os = new OutputStream(Util.currentProtocolEncoding);
                     os.writeBlob(Protocol.magic);
-                    Util.currentProtocol.ice_writeMembers(os);
-                    Util.currentProtocolEncoding.ice_writeMembers(os);
+                    ProtocolVersion.ice_write(os, Util.currentProtocol);
+                    EncodingVersion.ice_write(os, Util.currentProtocolEncoding);
                     os.writeByte(Protocol.validateConnectionMsg);
                     os.writeByte(0);
                     os.writeInt(Protocol.headerSize); // Message size.
@@ -1802,8 +1802,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             //
             var os = new OutputStream(Util.currentProtocolEncoding);
             os.writeBlob(Protocol.magic);
-            Util.currentProtocol.ice_writeMembers(os);
-            Util.currentProtocolEncoding.ice_writeMembers(os);
+            ProtocolVersion.ice_write(os, Util.currentProtocol);
+            EncodingVersion.ice_write(os, Util.currentProtocolEncoding);
             os.writeByte(Protocol.closeConnectionMsg);
             os.writeByte(0); // Compression status: always zero for close connection.
             os.writeInt(Protocol.headerSize); // Message size.
@@ -1854,8 +1854,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 if (_writeStream.size() == 0)
                 {
                     _writeStream.writeBlob(Protocol.magic);
-                    Util.currentProtocol.ice_writeMembers(_writeStream);
-                    Util.currentProtocolEncoding.ice_writeMembers(_writeStream);
+                    ProtocolVersion.ice_write(_writeStream, Util.currentProtocol);
+                    EncodingVersion.ice_write(_writeStream, Util.currentProtocolEncoding);
                     _writeStream.writeByte(Protocol.validateConnectionMsg);
                     _writeStream.writeByte(0); // Compression status (always zero for validate connection).
                     _writeStream.writeInt(Protocol.headerSize); // Message size.

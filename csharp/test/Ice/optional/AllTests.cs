@@ -514,7 +514,7 @@ namespace Ice
                         os.writeValue(a);
                         os.writeOptional(1, Ice.OptionalFormat.FSize);
                         int pos = os.startSize();
-                        ovs.ice_writeMembers(os);
+                        Test.VarStruct.ice_write(os, ovs);
                         os.endSize(pos);
                         os.endEncapsulation();
                         inEncaps = os.finished();
@@ -866,7 +866,7 @@ namespace Ice
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.VSize);
                     os.writeSize(1);
-                    p1.Value.ice_writeMembers(os);
+                    Test.SmallStruct.ice_write(os, p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opSmallStruct", OperationMode.Normal, inEncaps, out outEncaps);
@@ -906,7 +906,7 @@ namespace Ice
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.VSize);
                     os.writeSize(4);
-                    p1.Value.ice_writeMembers(os);
+                    Test.FixedStruct.ice_write(os, p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opFixedStruct", OperationMode.Normal, inEncaps, out outEncaps);
@@ -946,7 +946,7 @@ namespace Ice
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.FSize);
                     int pos = os.startSize();
-                    p1.ice_writeMembers(os);
+                    Test.VarStruct.ice_write(os, p1);
                     os.endSize(pos);
                     os.endEncapsulation();
                     inEncaps = os.finished();
