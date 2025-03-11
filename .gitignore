@@ -148,3 +148,5 @@ packaging/msi/staging
 *.binlog
 
 *.tar.gz
+
+.kotlin

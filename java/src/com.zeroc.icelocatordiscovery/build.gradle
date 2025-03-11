@@ -4,9 +4,11 @@ project.ext.displayName = "IceLocatorDiscovery"
 project.ext.moduleName = "com.zeroc.icelocatordiscovery"
 project.ext.description = "Ice plug-in that enables the discovery of IceGrid and custom locators via UDP multicast"
 
-slice {
-    java {
-        srcDir = "$project.ext.topSrcDir/slice/IceLocatorDiscovery"
+sourceSets {
+    main {
+        slice {
+            srcDir "$project.ext.topSrcDir/slice/IceLocatorDiscovery"
+        }
     }
 }
 

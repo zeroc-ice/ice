@@ -47,6 +47,7 @@ jobs:
       - name: Update Ice Version
         run: |
           sed -i "s/^iceVersion = .*/iceVersion = ${{ inputs.ice_version }}/" java/gradle.properties
+          sed -i "s/^sliceToolsVersion = .*/sliceToolsVersion = ${{ inputs.ice_version }}/" java/tools/slice-tools/gradle.properties
         if: inputs.ice_version != ''
 
       - name: Build Java Packages

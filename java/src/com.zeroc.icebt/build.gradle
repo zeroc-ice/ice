@@ -4,9 +4,11 @@ project.ext.displayName = "IceBT"
 project.ext.moduleName = "com.zeroc.icebt"
 project.ext.description = "Bluetooth support for Ice"
 
-slice {
-    java {
-        srcDir = "$project.ext.topSrcDir/slice/IceBT"
+sourceSets {
+    main {
+        slice {
+            srcDir "$project.ext.topSrcDir/slice/IceBT"
+        }
     }
 }
 
