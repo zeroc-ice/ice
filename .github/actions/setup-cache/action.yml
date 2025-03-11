@@ -17,9 +17,9 @@ runs:
       with:
         # create-symlink: true
         append-timestamp: false
-        key: ${{ inputs.prefix }}-${{ runner.os }}-${{ github.sha }}
+        key: ${{ inputs.prefix }}-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
         restore-keys: |
-          ${{ inputs.prefix }}-${{ runner.os }}
+          ${{ inputs.prefix }}-${{ runner.os }}-${{ runner.arch }}
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
     - name: Configure ccache path

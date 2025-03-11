@@ -23,9 +23,4 @@ module Test1
     {
         long l;
     }
-
-    exception def /* Test keyword escape. */
-    {
-        int i;
-    }
 }

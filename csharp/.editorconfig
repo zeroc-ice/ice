@@ -31,7 +31,7 @@ dotnet_style_parentheses_in_other_operators = never_if_unnecessary:suggestion
 dotnet_style_parentheses_in_relational_binary_operators = always_for_clarity:suggestion
 
 # Modifier preferences
-dotnet_style_require_accessibility_modifiers = always:warning
+dotnet_style_require_accessibility_modifiers = for_non_interface_members
 
 # Expression-level preferences
 dotnet_style_coalesce_expression = true:suggestion
@@ -153,19 +153,19 @@ csharp_preserve_single_line_statements = true
 
 # Naming rules
 
-dotnet_naming_rule.interface_should_be_begins_with_i.severity = suggestion
+dotnet_naming_rule.interface_should_be_begins_with_i.severity = none # for backward compatibility
 dotnet_naming_rule.interface_should_be_begins_with_i.symbols = interface
 dotnet_naming_rule.interface_should_be_begins_with_i.style = begins_with_i
 
-dotnet_naming_rule.public_protected_or_internal_field_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.public_protected_or_internal_field_should_be_pascal_case.severity = none # for backward compatibility
 dotnet_naming_rule.public_protected_or_internal_field_should_be_pascal_case.symbols = public_protected_or_internal_field
 dotnet_naming_rule.public_protected_or_internal_field_should_be_pascal_case.style = pascal_case
 
-dotnet_naming_rule.non_field_members_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.non_field_members_should_be_pascal_case.severity = none # for backward compatibility
 dotnet_naming_rule.non_field_members_should_be_pascal_case.symbols = non_field_members
 dotnet_naming_rule.non_field_members_should_be_pascal_case.style = pascal_case
 
-dotnet_naming_rule.constant_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.constant_should_be_pascal_case.severity = none # for backward compatibility
 dotnet_naming_rule.constant_should_be_pascal_case.symbols = constant
 dotnet_naming_rule.constant_should_be_pascal_case.style = pascal_case
 

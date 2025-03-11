@@ -7,31 +7,26 @@ from TestHelper import TestHelper
 TestHelper.loadSlice("Key.ice Clash.ice")
 import sys
 import Ice
-import _and
+import escapedAnd
 
 
-class delI(_and._del):
+class delI(escapedAnd._del):
     def _elifAsync(self, _else, current):
         pass
 
 
-class execI(_and._exec):
+class execI(escapedAnd._exec):
     def _finally(self, current):
         assert current.operation == "finally"
 
 
-class ifI(_and._if):
+class ifI(escapedAnd._if):
     def _elifAsync(self, _else, current):
         pass
 
     def _finally(self, current):
         pass
 
-    def foo(self, _from, current):
-        pass
-
-
-class printI(_and._print):
     def _raise(self, _else, _return, _while, _yield, _or, _global):
         pass
 
@@ -39,31 +34,29 @@ class printI(_and._print):
 def testtypes():
     sys.stdout.write("Testing generated type names... ")
     sys.stdout.flush()
-    _a = _and._assert._break
-    b = _and._continue
+    _a = escapedAnd._assert._break
+    b = escapedAnd._continue
     b._def = 0
-    _c = _and.delPrx.uncheckedCast(None)
-    assert "_elif" in dir(_and.delPrx)
+    _c = escapedAnd._delPrx.uncheckedCast(None)
+    assert "_elif" in dir(escapedAnd._delPrx)
     _c1 = delI()
-    _d = _and.execPrx.uncheckedCast(None)
-    assert "_finally" in dir(_and.execPrx)
+    _d = escapedAnd._execPrx.uncheckedCast(None)
+    assert "_finally" in dir(escapedAnd._execPrx)
     _d1 = execI()
 
-    _e1 = _and._for()
-    _f = _and.ifPrx.uncheckedCast(None)
+    _e1 = escapedAnd._for()
+    _f = escapedAnd._ifPrx.uncheckedCast(None)
 
-    assert "_finally" in dir(_and.ifPrx)
-    assert "_elif" in dir(_and.ifPrx)
+    assert "_finally" in dir(escapedAnd._ifPrx)
+    assert "_elif" in dir(escapedAnd._ifPrx)
     _f1 = ifI()
-    g = _and._is()
-    g._lamba = 0
-    h = _and._not()
-    h._lamba = 0
-    h._or = 1
+    g = escapedAnd._is()
+    g.bar = 0
+    h = escapedAnd._not()
+    h.bar = 0
     h._pass = 2
-    _i = printI()
-    _j = _and._lambda
-    _en = _and.EnumNone._None
+    _j = escapedAnd._lambda
+    _en = escapedAnd.EnumNone._None
     print("ok")
 
 
@@ -72,7 +65,7 @@ class Client(TestHelper):
         properties = self.createTestProperties(args)
         #
         # Its possible to have batch oneway requests dispatched after the
-        # adapter is deactivated due to thread scheduling so we supress
+        # adapter is deactivated due to thread scheduling so we suppress
         # this warning.
         #
         properties.setProperty("Ice.Warn.Dispatch", "0")
@@ -84,7 +77,7 @@ class Client(TestHelper):
 
             sys.stdout.write("Testing operation name... ")
             sys.stdout.flush()
-            p = _and.execPrx.uncheckedCast(
+            p = escapedAnd._execPrx.uncheckedCast(
                 adapter.createProxy(Ice.stringToIdentity("test"))
             )
             p._finally()
