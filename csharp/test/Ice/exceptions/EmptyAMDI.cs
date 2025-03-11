@@ -2,11 +2,10 @@
 
 namespace Ice.exceptions
 {
-        namespace AMD
+    namespace AMD
+    {
+        public sealed class EmptyI : Test.EmptyDisp_
         {
-            public sealed class EmptyI : Test.EmptyDisp_
-            {
-            }
         }
     }
-
+}

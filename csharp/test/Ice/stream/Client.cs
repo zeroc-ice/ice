@@ -2,20 +2,19 @@
 
 namespace Ice.stream
 {
-        public class Client : global::Test.TestHelper
+    public class Client : global::Test.TestHelper
+    {
+        public override void run(string[] args)
         {
-            public override void run(string[] args)
+            var initData = new InitializationData();
+            initData.properties = createTestProperties(ref args);
+            using (var communicator = initialize(initData))
             {
-                var initData = new InitializationData();
-                initData.properties = createTestProperties(ref args);
-                using (var communicator = initialize(initData))
-                {
-                    AllTests.allTests(this);
-                }
+                AllTests.allTests(this);
             }
-
-            public static Task<int> Main(string[] args) =>
-                global::Test.TestDriver.runTestAsync<Client>(args);
         }
-    }
 
+        public static Task<int> Main(string[] args) =>
+            global::Test.TestDriver.runTestAsync<Client>(args);
+    }
+}

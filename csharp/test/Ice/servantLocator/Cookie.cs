@@ -2,12 +2,11 @@
 
 namespace Ice.servantLocator
 {
-        public sealed class Cookie
+    public sealed class Cookie
+    {
+        public string message()
         {
-            public string message()
-            {
-                return "blahblah";
-            }
+            return "blahblah";
         }
     }
-
+}

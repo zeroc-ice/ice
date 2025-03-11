@@ -4,16 +4,15 @@ using Test;
 
 namespace Ice.hold
 {
-        public class Client : TestHelper
+    public class Client : TestHelper
+    {
+        public override async Task runAsync(string[] args)
         {
-            public override async Task runAsync(string[] args)
-            {
-                using var communicator = initialize(ref args);
-                await AllTests.allTests(this);
-            }
-
-            public static Task<int> Main(string[] args) =>
-                TestDriver.runTestAsync<Client>(args);
+            using var communicator = initialize(ref args);
+            await AllTests.allTests(this);
         }
-    }
 
+        public static Task<int> Main(string[] args) =>
+            TestDriver.runTestAsync<Client>(args);
+    }
+}

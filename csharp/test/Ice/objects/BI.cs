@@ -2,17 +2,16 @@
 
 namespace Ice.objects
 {
-        public sealed class BI : Test.B
+    public sealed class BI : Test.B
+    {
+        public override void ice_preMarshal()
         {
-            public override void ice_preMarshal()
-            {
-                preMarshalInvoked = true;
-            }
+            preMarshalInvoked = true;
+        }
 
-            public override void ice_postUnmarshal()
-            {
-                postUnmarshalInvoked = true;
-            }
+        public override void ice_postUnmarshal()
+        {
+            postUnmarshalInvoked = true;
         }
     }
-
+}

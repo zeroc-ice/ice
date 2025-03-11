@@ -2,21 +2,20 @@
 
 namespace Ice.facets
 {
-        public sealed class FI : Test.FDisp_
+    public sealed class FI : Test.FDisp_
+    {
+        public FI()
         {
-            public FI()
-            {
-            }
+        }
 
-            public override string callE(Ice.Current current)
-            {
-                return "E";
-            }
+        public override string callE(Ice.Current current)
+        {
+            return "E";
+        }
 
-            public override string callF(Ice.Current current)
-            {
-                return "F";
-            }
+        public override string callF(Ice.Current current)
+        {
+            return "F";
         }
     }
-
+}

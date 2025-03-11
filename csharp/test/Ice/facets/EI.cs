@@ -2,16 +2,15 @@
 
 namespace Ice.facets
 {
-        public sealed class EI : Test.EDisp_
+    public sealed class EI : Test.EDisp_
+    {
+        public EI()
         {
-            public EI()
-            {
-            }
+        }
 
-            public override string callE(Ice.Current current)
-            {
-                return "E";
-            }
+        public override string callE(Ice.Current current)
+        {
+            return "E";
         }
     }
-
+}

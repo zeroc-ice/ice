@@ -2,16 +2,15 @@
 
 namespace Ice.facets
 {
-        public sealed class AI : Test.ADisp_
+    public sealed class AI : Test.ADisp_
+    {
+        public AI()
         {
-            public AI()
-            {
-            }
+        }
 
-            public override string callA(Ice.Current current)
-            {
-                return "A";
-            }
+        public override string callA(Ice.Current current)
+        {
+            return "A";
         }
     }
-
+}
