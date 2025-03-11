@@ -30,6 +30,16 @@ public abstract partial class AdminSessionDisp_
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
+public partial interface FileIterator
+{
+}
+
+[EditorBrowsable(EditorBrowsableState.Never)]
+public abstract partial class FileIteratorDisp_
+{
+}
+
+[EditorBrowsable(EditorBrowsableState.Never)]
 public partial interface FileParser
 {
 }
