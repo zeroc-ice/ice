@@ -405,7 +405,7 @@ IceInternal::FileLock::FileLock(const std::string& path) : _path(path)
 
     struct ::flock lock;
     lock.l_type = F_WRLCK;    // Write lock
-    lock.l_whence = SEEK_SET; // beginning of file
+    lock.l_whence = SEEK_SET; // Beginning of file
     lock.l_start = 0;
     lock.l_len = 0;
 
