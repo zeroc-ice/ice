@@ -13,7 +13,7 @@ source files (`.cpp` files) automatically as part of your build process.
 
 ## Installation
 
-This tasks is distributed with the Ice for C++ `ZeroC.Ice.Cpp` NuGet package. Installing the package on a VC++ project
+This task is distributed with the Ice for C++ `ZeroC.Ice.Cpp` NuGet package. Installing the package on a VC++ project
 will automatically add the task to the project build.
 
 ## Configuring Slice Compilation
