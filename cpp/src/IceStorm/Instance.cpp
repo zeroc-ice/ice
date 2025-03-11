@@ -129,7 +129,13 @@ Instance::Instance(
     }
 }
 
-Instance::~Instance() = default;
+Instance::~Instance()
+{
+    // Usually they are called before destruction, but in some cases they are not, for example when the constructor
+    // of PersistentInstance fails because the database directory does not exist.
+    shutdown();
+    destroy(); // NOLINT(clang-analyzer-optin.cplusplus.VirtualCall)
+}
 
 void
 Instance::setNode(shared_ptr<NodeI> node)
@@ -264,7 +270,7 @@ Instance::sendQueueSizeMaxPolicy() const
 }
 
 void
-Instance::shutdown()
+Instance::shutdown() noexcept
 {
     if (_node)
     {
@@ -283,7 +289,7 @@ Instance::shutdown()
 }
 
 void
-Instance::destroy()
+Instance::destroy() noexcept
 {
     // The node instance must be cleared as the node holds the
     // replica (TopicManager) which holds the instance causing a
@@ -340,7 +346,7 @@ PersistentInstance::PersistentInstance(
 }
 
 void
-PersistentInstance::destroy()
+PersistentInstance::destroy() noexcept
 {
     _dbEnv.close();
     dbContext.communicator = nullptr;
