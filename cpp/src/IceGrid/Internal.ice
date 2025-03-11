@@ -236,7 +236,7 @@ module IceGrid
             throws DeploymentException;
 
         /// Establish a session to the given replica, this method only returns once the registration was attempted (unlike
-            /// replicaAdded below).
+        /// replicaAdded below).
         void registerWithReplica(InternalRegistry* replica);
 
         /// Get the node name.
