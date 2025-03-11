@@ -12,22 +12,17 @@
 
     <!-- default values -->
     <Choose>
-        <When Condition="Exists('$(MSBuildThisFileDirectory)..\..\..\cpp') and $(IceOSName) == 'windows'">
-            <!-- Use the Slice compiler from this source build -->
+        <When Condition="Exists('$(MSBuildThisFileDirectory)..\ZeroC.Ice.Slice.Tools.nuspec')">
+            <!-- Use the Slice compiler from this NuGet package -->
             <PropertyGroup>
-                <IceToolsPath>$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\$(Configuration)\</IceToolsPath>
-            </PropertyGroup>
-        </When>
-        <When Condition="Exists('$(MSBuildThisFileDirectory)..\..\..\cpp')">
-            <!-- Use the Slice compiler from this source build -->
-            <PropertyGroup>
-                <IceToolsPath>$(MSBuildThisFileDirectory)..\..\..\cpp\bin\</IceToolsPath>
+                <IceToolsPath>$(MSBuildThisFileDirectory)..\tools\$(IceOSName)-$(IceOSArch)\</IceToolsPath>
             </PropertyGroup>
         </When>
         <Otherwise>
-            <PropertyGroup>
-                <!-- Use the Slice compiler from this NuGet package -->
-                <IceToolsPath>$(MSBuildThisFileDirectory)..\tools\$(IceOSName)-$(IceOSArch)</IceToolsPath>
+            <PropertyGroup >
+                <!-- Use the Slice compiler from this Source distribution -->
+                <IceToolsPath>$(MSBuildThisFileDirectory)..\..\..\cpp\bin\</IceToolsPath>
+                <IceToolsPath Condition="'$(IceOSName)' == 'windows'">$(IceToolsPath)x64\$(Configuration)\</IceToolsPath>
             </PropertyGroup>
         </Otherwise>
     </Choose>
@@ -40,19 +35,19 @@
     </ItemDefinitionGroup>
 
     <Choose>
-        <When Condition="Exists('$(MSBuildThisFileDirectory)..\..\..\slice')">
-            <!-- Default SliceCompile settings for Ice source builds -->
+        <When Condition="Exists('$(MSBuildThisFileDirectory)..\ZeroC.Ice.Slice.Tools.nuspec')">
+            <!-- Default SliceCompile settings for NuGet package -->
             <ItemDefinitionGroup>
                 <SliceCompile>
-                    <IncludeDirectories>$(MSBuildThisFileDirectory)..\..\..\slice</IncludeDirectories>
+                    <IncludeDirectories>$(MSBuildThisFileDirectory)..\slice</IncludeDirectories>
                 </SliceCompile>
             </ItemDefinitionGroup>
         </When>
         <Otherwise>
-            <!-- Default SliceCompile settings -->
+            <!-- Default SliceCompile settings for Ice source builds -->
             <ItemDefinitionGroup>
                 <SliceCompile>
-                    <IncludeDirectories>$(MSBuildThisFileDirectory)..\slice</IncludeDirectories>
+                    <IncludeDirectories>$(MSBuildThisFileDirectory)..\..\..\slice</IncludeDirectories>
                 </SliceCompile>
             </ItemDefinitionGroup>
         </Otherwise>
