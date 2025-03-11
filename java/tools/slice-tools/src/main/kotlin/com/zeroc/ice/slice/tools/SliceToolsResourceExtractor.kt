@@ -3,9 +3,8 @@
 package com.zeroc.ice.slice.tools
 
 import org.gradle.api.Project
-import java.net.JarURLConnection
-import java.util.jar.JarFile
 import java.io.File
+import java.net.JarURLConnection
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
@@ -30,14 +29,14 @@ object SliceToolsResourceExtractor {
         val toolName = if (os == "windows") "slice2java.exe" else "slice2java"
         val resourcePath = "/resources/$os-$arch/$toolName"
 
-        val gradleUserDir = File(project.gradle.gradleUserHomeDir, "native/$pluginName-$pluginVersion/bin")
-        val slice2JavaFile = File(gradleUserDir, toolName)
+        val targetDir = File(project.gradle.gradleUserHomeDir, "native/$pluginName-$pluginVersion/bin")
+        val slice2JavaFile = File(targetDir, toolName)
 
         if (!slice2JavaFile.exists()) {
             val resourceStream = this::class.java.getResourceAsStream(resourcePath)
             if (resourceStream != null) {
-                project.logger.lifecycle("Extracting $toolName to ${gradleUserDir.absolutePath}")
-                gradleUserDir.mkdirs()
+                project.logger.info("Extracting $toolName to ${targetDir.absolutePath}")
+                targetDir.mkdirs()
                 Files.copy(resourceStream, slice2JavaFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
                 slice2JavaFile.setExecutable(true)
             } else {
@@ -45,7 +44,7 @@ object SliceToolsResourceExtractor {
             }
         }
 
-        return gradleUserDir.absolutePath
+        return targetDir.absolutePath
     }
 
     /**
@@ -60,31 +59,36 @@ object SliceToolsResourceExtractor {
         val pluginVersion = getPluginVersion(project)
         val targetDir = File(project.gradle.gradleUserHomeDir, "native/$pluginName-$pluginVersion/slice")
 
-        targetDir.mkdirs() // Ensure the target directory exists
+        if (!targetDir.exists()) {
+            targetDir.mkdirs() // Ensure the target directory exists
 
-        val resourceURL = this::class.java.getResource("$resourcePath")
-        if (resourceURL == null) {
-            return null
-        }
+            val resourceURL = this::class.java.getResource("$resourcePath")
+            if (resourceURL == null) {
+                return null
+            }
 
-        val jarConnection = resourceURL.openConnection() as? JarURLConnection
-        val jarFile = jarConnection?.jarFile
-            ?: throw IllegalStateException("Failed to open jar file: $resourceURL")
+            val jarConnection = resourceURL.openConnection() as? JarURLConnection
+            val jarFile = jarConnection?.jarFile
+            if (jarFile == null) {
+                return null
+            }
 
-        val resourcePaths = jarFile.entries().asSequence()
-            .map { it.name }
-            .filter { it.endsWith(".ice") }
-            .toList()
+            val resourcePaths = jarFile.entries().asSequence()
+                .map { it.name }
+                .filter { it.endsWith(".ice") }
+                .toList()
 
-        for (resource in resourcePaths) {
-            project.logger.lifecycle("Extracting $resource to ${targetDir.absolutePath}")
-            val relativePath = resource.removePrefix(resourcePath)
-            val outputFile = File(targetDir, relativePath)
+            for (resource in resourcePaths) {
+                val relativePath = resource.removePrefix(resourcePath)
+                val outputFile = File(targetDir, relativePath)
 
-            outputFile.parentFile.mkdirs() // Create parent directories if needed
+                outputFile.parentFile.mkdirs() // Create parent directories if needed
 
-            this::class.java.getResourceAsStream("/$resource")?.use { input ->
-                outputFile.outputStream().use { output -> input.copyTo(output) }
+                project.logger.info("Extracting $relativePath to ${outputFile.absolutePath}")
+
+                this::class.java.getResourceAsStream("/$resource")?.use { input ->
+                    outputFile.outputStream().use { output -> input.copyTo(output) }
+                }
             }
         }
         return targetDir.absolutePath

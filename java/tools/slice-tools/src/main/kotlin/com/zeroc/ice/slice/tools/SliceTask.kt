@@ -6,6 +6,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.logging.Logger
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -185,12 +186,10 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
             val errors = stderrReader.readText()
             val exitCode = process.waitFor()
 
+            printErrorsAndWarnings(errors.lineSequence(), project.logger)
             if (exitCode != 0) {
-                logger.error("Failed to compile Slice files: $errors")
-            } else if (errors.isNotBlank()) {
-                logger.warn("Warnings while compiling Slice files: $errors")
+                throw GradleException("Command failed: $command (exit code: $exitCode)")
             }
-
             newGeneratedFiles = parseGeneratedFiles(output)
         }
 
@@ -206,6 +205,19 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
         // but are no longer present in the latest compilation results.
         val generatedFilesSet = mergedGeneratedFiles.values.flatten().map { File(it).canonicalFile }.toSet()
         deleteStaleFiles(outputDir, generatedFilesSet)
+    }
+
+    private fun printErrorsAndWarnings(lines: Sequence<String>, logger: Logger) {
+        val warningRegex = Regex("""(.*):[0-9]+:\s+warning:(.*)""")
+
+        lines.map { it.trim() }
+            .filter { it.isNotBlank() }
+            .forEach { line ->
+                when {
+                    warningRegex.matches(line) -> logger.warn(line)
+                    else -> logger.error(line) // Treat everything else as an error
+                }
+            }
     }
 
     /**
@@ -247,11 +259,11 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
             .start()
 
         val stderrReader = process.errorStream.bufferedReader()
+        val errorOutput = stderrReader.readText()
         val exitCode = process.waitFor()
-
+        printErrorsAndWarnings(errorOutput.lineSequence(), project.logger)
         if (exitCode != 0) {
-            val errorOutput = stderrReader.readText() // Read stderr only when there's an error
-            logger.error(errorOutput)
+            throw GradleException("Command failed: $command (exit code: $exitCode)")
         }
     }
 
@@ -371,7 +383,7 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
 
             // If no generated files exist, force recompilation
             if (firstGeneratedFile == null) {
-                logger.lifecycle("No generated files found for Slice file: $sliceFile (Recompiling)")
+                logger.info("No generated files found for Slice file: $sliceFile (Recompiling)")
                 changedFiles.add(sliceFile)
                 continue
             }
@@ -380,7 +392,7 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
             val lastCompiledTimestamp = firstGeneratedFile.lastModified()
 
             if (lastCompiledTimestamp < slice2javaLastModified) {
-                logger.lifecycle("Slice2Java compiler has been updated since last compilation: $slice2java")
+                logger.info("Slice2Java compiler has been updated since last compilation: $slice2java")
                 changedFiles.add(sliceFile)
                 continue
             }
@@ -391,14 +403,14 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
 
                 // Recompile if the generated file is missing
                 if (!generatedFile.exists()) {
-                    logger.lifecycle("Missing generated file: $generatedFile")
+                    logger.info("Missing generated file: $generatedFile")
                     changedFiles.add(sliceFile)
                     break
                 }
 
                 // Recompile if the generated file is older than the Slice file
                 if (generatedFile.lastModified() < sliceLastModified) {
-                    logger.lifecycle("Outdated generated file: $generatedFile")
+                    logger.info("Outdated generated file: $generatedFile")
                     changedFiles.add(sliceFile)
                     break
                 }
@@ -406,7 +418,7 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
 
             // If the file is not in `dependencies`, assume it's new and must be compiled
             if (sliceFile !in dependencies) {
-                logger.lifecycle("New Slice file detected: $sliceFile (No previous dependencies found)")
+                logger.info("New Slice file detected: $sliceFile (No previous dependencies found)")
                 changedFiles.add(sliceFile)
                 continue
             }
@@ -417,7 +429,7 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
             // Check if any dependency is newer than the first generated file
             val changedDependency = sliceDependencies.find { it.exists() && it.lastModified() > lastCompiledTimestamp }
             if (changedDependency != null) {
-                logger.lifecycle("Dependency changed for Slice file: $sliceFile (Updated dependency: $changedDependency, last compiled at $lastCompiledTimestamp)")
+                logger.info("Dependency changed for Slice file: $sliceFile (Updated dependency: $changedDependency, last compiled at $lastCompiledTimestamp)")
                 changedFiles.add(sliceFile)
                 continue
             }
