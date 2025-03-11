@@ -57,7 +57,7 @@ module escapedAwait
             ["js:identifier:_new"] typeof* new,
             ["js:identifier:_null"] delete null,
             int override
-            ) throws fixed, foreach;
+        ) throws fixed, foreach;
     }
 
     ["js:identifier:_while"]
