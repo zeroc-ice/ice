@@ -25,7 +25,7 @@ module Test
     struct s6
     {                       // Two members with metadata, OK
         ["Hi"]    long l;
-        byte b;
+                  byte b;
     }
 
     struct s7               // Two members with metadata, OK
