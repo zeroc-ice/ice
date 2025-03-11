@@ -75,7 +75,7 @@ module escaped_and
             ["cpp:identifier:escaped_not"] switch not,
             ["cpp:identifier:escaped_or"] int or
         )
-            throws return, sizeof;
+        throws return, sizeof;
     }
 
     ["cpp:identifier:escaped_template"]
