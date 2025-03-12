@@ -26,16 +26,80 @@ using namespace IceInternal;
 
 namespace
 {
-    void writeDocLines(Output& out, const StringList& lines)
+    void
+    writeDocLine(Output& out, const string& openTag, const string& comment, std::optional<string> closeTag = nullopt)
     {
-        for (const auto& line : lines)
+        if (comment.empty())
         {
-            out << nl << "///";
-            if (!line.empty())
-            {
-                out << " " << line;
-            }
+            return;
         }
+
+        if (!closeTag)
+        {
+            closeTag = openTag;
+        }
+
+        out << nl << "/// <" << openTag << ">" << comment << "</" << *closeTag << ">";
+    }
+
+    void writeDocLines(Output& out, const string& openTag, const StringList& lines, optional<string> closeTag = nullopt)
+    {
+        // If there is a single line, write the doc-comment as a single line. Otherwise, write the doc-comment on
+        // multiple lines.
+
+        if (lines.size() == 1)
+        {
+            writeDocLine(out, openTag, lines.front(), closeTag);
+        }
+        else
+        {
+            if (lines.empty())
+            {
+                return;
+            }
+
+            if (!closeTag)
+            {
+                closeTag = openTag;
+            }
+
+            bool firstLine = true;
+
+            for (const auto& line : lines)
+            {
+                if (firstLine)
+                {
+                    firstLine = false;
+                    out << nl << "/// <" << openTag << ">";
+                }
+                else
+                {
+                    out << nl << "///";
+                    if (!line.empty())
+                    {
+                        out << ' ';
+                    }
+                }
+                out << line;
+            }
+            out << "</" << *closeTag << ">";
+        }
+    }
+
+    /// Standard marshal doc-comment
+    void writeMarshalDocComment(Output& out)
+    {
+        writeDocLine(out, "summary", "Marshals a value into an output stream.");
+        writeDocLine(out, R"(param name="ostr")", "The output stream.", "param");
+        writeDocLine(out, R"(param name="v")", "The value to marshal.", "param");
+    }
+
+    /// Standard unmarshal doc-comment
+    void writeUnmarshalDocComment(Output& out)
+    {
+        writeDocLine(out, "summary", "Unmarshals a value from an input stream.");
+        writeDocLine(out, R"(param name="istr")", "The input stream.", "param");
+        writeDocLine(out, "returns", "The unmarshaled value.");
     }
 
     /// Returns a C# formatted link to the provided Slice identifier.
@@ -395,6 +459,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
     _out << sp;
+    emitNonBrowsableAttribute();
     _out << nl << "protected override void iceWriteImpl(Ice.OutputStream ostr_)";
     _out << sb;
     _out << nl << "ostr_.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
@@ -417,6 +482,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     _out << eb;
 
     _out << sp;
+    emitNonBrowsableAttribute();
     _out << nl << "protected override void iceReadImpl(Ice.InputStream istr_)";
     _out << sb;
     _out << nl << "istr_.startSlice();";
@@ -655,23 +721,52 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& dataMembers)
 }
 
 void
-Slice::CsVisitor::writeDocComment(const ContainedPtr& p)
+Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generatedType, const string& notes)
 {
     optional<DocComment> comment = DocComment::parseFrom(p, csLinkFormatter, true, true);
-    if (!comment)
+    if (comment)
     {
-        return;
+        writeDocLines(_out, "summary", comment->overview());
     }
 
-    StringList overview = comment->overview();
-    if (!overview.empty())
+    // We generate remarks only for module-level types.
+    if (dynamic_pointer_cast<Module>(p->container()))
     {
-        _out << nl << "/// <summary>";
-        writeDocLines(_out, overview);
-        _out << nl << "/// </summary>";
+        assert(!generatedType.empty());
+
+        _out << nl << "/// <remarks>" << "The Slice compiler generated this " << generatedType << " from Slice "
+             << p->kindOf() << " <c>" << p->scoped() << "</c>.";
+        if (!notes.empty())
+        {
+            _out << nl << "/// " << notes;
+        }
+        _out << "</remarks>";
     }
 
-    writeSeeAlso(_out, comment->seeAlso());
+    if (comment)
+    {
+        writeSeeAlso(_out, comment->seeAlso());
+    }
+}
+
+void
+Slice::CsVisitor::writeHelperDocComment(
+    const ContainedPtr& p,
+    const string& comment,
+    const string& generatedType,
+    const string& notes)
+{
+    // Called only for module-level types.
+    assert(dynamic_pointer_cast<Module>(p->container()));
+
+    writeDocLine(_out, "summary", comment);
+    _out << nl << "/// <remarks>" << "The Slice compiler generated this " << generatedType << " from Slice "
+         << p->kindOf() << " <c>" << p->scoped() << "</c>.";
+    if (!notes.empty())
+    {
+        _out << nl << "/// " << notes;
+    }
+    _out << "</remarks>";
 }
 
 void
@@ -683,13 +778,7 @@ Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>
         return;
     }
 
-    StringList overview = comment->overview();
-    if (!overview.empty())
-    {
-        _out << nl << "/// <summary>";
-        writeDocLines(_out, overview);
-        _out << nl << "/// </summary>";
-    }
+    writeDocLines(_out, "summary", comment->overview());
 
     writeParameterDocComments(*comment, isAsync ? op->inParameters() : op->parameters());
 
@@ -704,13 +793,7 @@ Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>
     }
     else if (op->returnType())
     {
-        StringList returns = comment->returns();
-        if (!returns.empty())
-        {
-            _out << nl << "/// <returns>";
-            writeDocLines(_out, returns);
-            _out << nl << "/// </returns>";
-        }
+        writeDocLines(_out, "returns", comment->returns());
     }
 
     for (const auto& [exceptionName, exceptionLines] : comment->exceptions())
@@ -722,12 +805,10 @@ Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>
             name = ex->mappedScoped(".").substr(1);
         }
 
-        if (!exceptionLines.empty())
-        {
-            _out << nl << "/// <exception cref=\"" << name << "\">";
-            writeDocLines(_out, exceptionLines);
-            _out << nl << "/// </exception>";
-        }
+        ostringstream openTag;
+        openTag << "exception cref=\"" << name << "\"";
+
+        writeDocLines(_out, openTag.str(), exceptionLines, "exception");
     }
 
     writeSeeAlso(_out, comment->seeAlso());
@@ -742,9 +823,9 @@ Slice::CsVisitor::writeParameterDocComments(const DocComment& comment, const Par
         auto q = commentParameters.find(param->name());
         if (q != commentParameters.end())
         {
-            _out << nl << "/// <param name=\"" << removeEscapePrefix(param->mappedName()) << "\">";
-            writeDocLines(_out, q->second);
-            _out << nl << "/// </param>";
+            ostringstream openTag;
+            openTag << "param name=\"" << removeEscapePrefix(param->mappedName()) << "\"";
+            writeDocLines(_out, openTag.str(), q->second, "param");
         }
     }
 }
@@ -898,6 +979,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassDefPtr base = p->base();
 
     _out << sp;
+    writeDocComment(p, "class");
     emitAttributes(p);
 
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
@@ -1050,14 +1132,19 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     string typeS = typeToString(p, ns);
     _out << sp;
+    ostringstream summary;
+    summary << "Provides methods to marshal and unmarshal a <c>" << p->name() << "</c>.";
+    writeHelperDocComment(p, summary.str(), "sequence helper class");
     _out << nl << "public sealed class " << name << "Helper";
     _out << sb;
 
+    writeMarshalDocComment(_out);
     _out << sp << nl << "public static void write(Ice.OutputStream ostr, " << typeS << " v)";
     _out << sb;
     writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", true, false);
     _out << eb;
 
+    writeUnmarshalDocComment(_out);
     _out << sp << nl << "public static " << typeS << " read(Ice.InputStream istr)";
     _out << sb;
     _out << nl << typeS << " v;";
@@ -1085,6 +1172,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         // custom sequence type does not implement an indexer.
         //
         _out << sp;
+        emitNonBrowsableAttribute();
         _out << nl << "public class " << name << "_Tester";
         _out << sb;
         _out << nl << name << "_Tester()";
@@ -1110,23 +1198,27 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     string name = "global::System.Collections.Generic." + genericType + "<" + keyS + ", " + valueS + ">";
 
     _out << sp;
+    ostringstream summary;
+    summary << "Provides methods to marshal and unmarshal a <c>" << p->name() << "</c>.";
+    writeHelperDocComment(p, summary.str(), "dictionary helper class");
     _out << nl << "public sealed class " << p->mappedName() << "Helper";
     _out << sb;
 
+    writeMarshalDocComment(_out);
     _out << sp << nl << "public static void write(";
     _out.useCurrentPosAsIndent();
     _out << "Ice.OutputStream ostr,";
     _out << nl << name << " v)";
     _out.restoreIndent();
     _out << sb;
-    _out << nl << "if(v == null)";
+    _out << nl << "if (v is null)";
     _out << sb;
     _out << nl << "ostr.writeSize(0);";
     _out << eb;
     _out << nl << "else";
     _out << sb;
     _out << nl << "ostr.writeSize(v.Count);";
-    _out << nl << "foreach(global::System.Collections.";
+    _out << nl << "foreach (global::System.Collections.";
     _out << "Generic.KeyValuePair<" << keyS << ", " << valueS << ">";
     _out << " e in v)";
     _out << sb;
@@ -1136,11 +1228,12 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << eb;
     _out << eb;
 
+    writeUnmarshalDocComment(_out);
     _out << sp << nl << "public static " << name << " read(Ice.InputStream istr)";
     _out << sb;
     _out << nl << "int sz = istr.readSize();";
     _out << nl << name << " r = new " << name << "();";
-    _out << nl << "for(int i = 0; i < sz; ++i)";
+    _out << nl << "for (int i = 0; i < sz; ++i)";
     _out << sb;
     _out << nl << keyS << " k;";
     writeMarshalUnmarshalCode(_out, key, ns, "k", false);
@@ -1171,7 +1264,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     ExceptionPtr base = p->base();
 
     _out << sp;
-    writeDocComment(p);
+    writeDocComment(p, "exception class");
     emitObsoleteAttribute(p, _out);
     emitAttributes(p);
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
@@ -1296,6 +1389,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << nl << "public override string ice_id() => \"" << scoped << "\";";
 
     _out << sp;
+    emitNonBrowsableAttribute();
     _out << nl << "protected override void iceWriteImpl(Ice.OutputStream ostr_)";
     _out << sb;
     _out << nl << "ostr_.startSlice(\"" << scoped << "\", -1, " << (!base ? "true" : "false") << ");";
@@ -1320,6 +1414,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << eb;
 
     _out << sp;
+    emitNonBrowsableAttribute();
     _out << nl << "protected override void iceReadImpl(Ice.InputStream istr_)";
     _out << sb;
     _out << nl << "istr_.startSlice();";
@@ -1346,6 +1441,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     if (p->usesClasses() && !(base && base->usesClasses()))
     {
         _out << sp;
+        emitNonBrowsableAttribute();
         _out << nl << "public override bool iceUsesClasses()";
         _out << sb;
         _out << nl << "return true;";
@@ -1362,10 +1458,12 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     string name = p->mappedName();
     _out << sp;
 
-    emitObsoleteAttribute(p, _out);
+    string mappedType = classMapping ? "record class" : "record struct";
 
+    writeDocComment(p, mappedType);
+    emitObsoleteAttribute(p, _out);
     emitAttributes(p);
-    _out << nl << "public " << (classMapping ? "sealed partial record class" : "partial record struct") << ' ' << name;
+    _out << nl << "public " << (classMapping ? "sealed " : "") << "partial " << mappedType << ' ' << name;
     _out << sb;
     return true;
 }
@@ -1469,8 +1567,8 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     const bool hasExplicitValues = p->hasExplicitValues();
 
     _out << sp;
+    writeDocComment(p, "enum");
     emitObsoleteAttribute(p, _out);
-    writeDocComment(p);
     emitAttributes(p);
     _out << nl << "public enum " << name;
     _out << sb;
@@ -1482,7 +1580,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             _out << sp;
         }
 
-        writeDocComment(enumerator);
+        writeDocComment(enumerator, "");
         emitAttributes(enumerator);
         _out << nl << enumerator->mappedName();
         if (hasExplicitValues)
@@ -1493,15 +1591,20 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << eb;
 
     _out << sp;
+    ostringstream classComment;
+    classComment << "Provides methods to marshal and unmarshal a <see cref=\"" << name << "\" />.";
+    writeHelperDocComment(p, classComment.str(), "enum helper class");
     _out << nl << "public sealed class " << name << "Helper";
     _out << sb;
     _out << sp;
+    writeMarshalDocComment(_out);
     _out << nl << "public static void write(Ice.OutputStream ostr, " << name << " v)";
     _out << sb;
     writeMarshalUnmarshalCode(_out, p, ns, "v", true);
     _out << eb;
 
     _out << sp;
+    writeUnmarshalDocComment(_out);
     _out << nl << "public static " << name << " read(Ice.InputStream istr)";
     _out << sb;
     _out << nl << name << " v;";
@@ -1583,7 +1686,10 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     string ns = getNamespace(p);
 
     _out << sp;
-    writeDocComment(p);
+    ostringstream notes;
+    notes << "Use the methods of this interface to invoke operations on a remote Ice object that implements <c>"
+          << p->name() << "</c>.";
+    writeDocComment(p, "client-side interface", notes.str());
     _out << nl << "public partial interface " << p->mappedName() << "Prx : ";
 
     vector<string> baseInterfaces;
@@ -1621,6 +1727,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     string ns = getNamespace(p);
 
     _out << sp;
+    ostringstream summary;
+    summary << "Helper class for proxy <see cref=\"" << name << "Prx\" />.";
+    writeHelperDocComment(p, summary.str(), "proxy helper class");
     _out << nl << "public sealed partial class " << name << "PrxHelper : "
          << "Ice.ObjectPrxHelperBase, " << name << "Prx";
     _out << sb;
@@ -1827,13 +1936,13 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             // Generate a catch block for each legal user exception.
             for (const auto& thrown : throws)
             {
-                _out << nl << "catch(" << getUnqualified(thrown, ns) << ")";
+                _out << nl << "catch (" << getUnqualified(thrown, ns) << ")";
                 _out << sb;
                 _out << nl << "throw;";
                 _out << eb;
             }
 
-            _out << nl << "catch(Ice.UserException)";
+            _out << nl << "catch (Ice.UserException)";
             _out << sb;
             _out << eb;
 
@@ -1962,6 +2071,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out.dec();
 
     _out << sp;
+    emitNonBrowsableAttribute();
     _out << nl << "protected override Ice.ObjectPrxHelperBase iceNewInstance(Ice.Internal.Reference reference) => new "
          << name << "PrxHelper(reference);";
 
@@ -1998,10 +2108,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         //
         string context = getEscapedParamName(p, "context");
         _out << sp;
-        writeOpDocComment(
-            p,
-            {"<param name=\"" + context + "\">The Context map to send with the invocation.</param>"},
-            false);
+        writeOpDocComment(p, {"<param name=\"" + context + "\">The request context.</param>"}, false);
         emitObsoleteAttribute(p, _out);
         _out << nl << retS << " " << name << spar << getParams(p, ns)
              << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar
@@ -2019,8 +2126,8 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         _out << sp;
         writeOpDocComment(
             p,
-            {"<param name=\"" + context + "\">Context map to send with the invocation.</param>",
-             "<param name=\"" + progress + "\">Sent progress provider.</param>",
+            {"<param name=\"" + context + "\">The request context.</param>",
+             "<param name=\"" + progress + "\">The sent progress provider.</param>",
              "<param name=\"" + cancel + "\">A cancellation token that receives the cancellation requests.</param>"},
             true);
         emitObsoleteAttribute(p, _out);
@@ -2178,6 +2285,11 @@ Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp;
     emitAttributes(p);
 
+    ostringstream notes;
+    notes << "Your servant class implements this interface by deriving from <see cref=\"" << p->mappedName()
+          << "Disp_\" /> or from the Disp_ class for a derived interface.";
+
+    writeDocComment(p, "server-side interface", notes.str());
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << "public partial interface " << p->mappedName();
 
@@ -2217,6 +2329,15 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     string ns = getNamespace(p);
 
     _out << sp;
+    ostringstream summary;
+    summary << "Implements <see cref=\"Ice.Object.dispatchAsync\" /> for the operations of Slice interface <c>"
+            << p->name() << "</c>.";
+
+    ostringstream remarks;
+    remarks << "Your servant class derives from this abstract class to implement Slice interface <c>" << p->name()
+            << "</c>.";
+
+    writeHelperDocComment(p, summary.str(), "dispatch helper class", remarks.str());
     _out << nl << "public abstract partial class " << name << "Disp_ : Ice.ObjectImpl, " << name;
 
     _out << sb;
@@ -2261,6 +2382,7 @@ Slice::Gen::ServantVisitor::visitOperation(const OperationPtr& op)
     _out << nl << retS << " " << opName << spar << params << epar << ";";
 
     _out << sp;
+    emitNonBrowsableAttribute();
     _out << nl << "protected static " << (amd ? "async " : "")
          << "global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> iceD_"
          << removeEscapePrefix(op->mappedName()) << "Async(";

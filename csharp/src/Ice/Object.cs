@@ -51,7 +51,7 @@ public interface Object
     }
 
     /// <summary>
-    /// Returns the Slice type IDs of the interfaces supported by this object.
+    /// Gets the Slice type IDs of the interfaces supported by this object.
     /// </summary>
     /// <param name="current">The Current object for the dispatch.</param>
     /// <returns>The Slice type IDs of the interfaces supported by this object, in alphabetical order.</returns>
@@ -69,7 +69,7 @@ public interface Object
     }
 
     /// <summary>
-    /// Returns the Slice type ID of the most-derived interface supported by this object.
+    /// Gets the Slice type ID of the most-derived interface supported by this object.
     /// </summary>
     /// <param name="current">The Current object for the dispatch.</param>
     /// <returns>The Slice type ID of the most-derived interface.</returns>
@@ -120,16 +120,12 @@ public interface Object
 public abstract class ObjectImpl : Object
 {
     /// <summary>
-    /// Returns the Slice type ID of the interface supported by this object.
+    /// Gets the Slice type ID of the interface supported by this object.
     /// </summary>
     /// <returns>The return value is always ::Ice::Object.</returns>
     public static string ice_staticId() => "::Ice::Object";
 
-    /// <summary>
-    /// Returns the Slice type ID of the most-derived interface supported by this object.
-    /// </summary>
-    /// <param name="current">The Current object for the dispatch.</param>
-    /// <returns>The return value is always ::Ice::Object.</returns>
+    /// <inheritdoc />
     public virtual string ice_id(Current current) => ice_staticId();
 
     public virtual ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request) =>

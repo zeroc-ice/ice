@@ -14,7 +14,7 @@ namespace Ice;
 public interface ObjectPrx : IEquatable<ObjectPrx>
 {
     /// <summary>
-    /// Returns the communicator that created this proxy.
+    /// Gets the communicator that created this proxy.
     /// </summary>
     /// <returns>The communicator that created this proxy.</returns>
     Communicator ice_getCommunicator();
@@ -23,7 +23,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// Tests whether this object supports a specific Slice interface.
     /// </summary>
     /// <param name="id">The type ID of the Slice interface to test against.</param>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <returns>True if the target object has the interface specified by id or derives
     /// from the interface specified by id.</returns>
     bool ice_isA(string id, Dictionary<string, string>? context = null);
@@ -32,7 +32,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// Tests whether this object supports a specific Slice interface.
     /// </summary>
     /// <param name="id">The type ID of the Slice interface to test against.</param>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
@@ -45,13 +45,13 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>
     /// Tests whether the target object of this proxy can be reached.
     /// </summary>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     void ice_ping(Dictionary<string, string>? context = null);
 
     /// <summary>
     /// Tests whether the target object of this proxy can be reached.
     /// </summary>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
@@ -61,17 +61,17 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
         CancellationToken cancel = default);
 
     /// <summary>
-    /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+    /// Gets the Slice type IDs of the interfaces supported by the target object of this proxy.
     /// </summary>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <returns>The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
     /// </returns>
     string[] ice_ids(Dictionary<string, string>? context = null);
 
     /// <summary>
-    /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+    /// Gets the Slice type IDs of the interfaces supported by the target object of this proxy.
     /// </summary>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
@@ -81,16 +81,16 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
         CancellationToken cancel = default);
 
     /// <summary>
-    /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+    /// Gets the Slice type ID of the most-derived interface supported by the target object of this proxy.
     /// </summary>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <returns>The Slice type ID of the most-derived interface.</returns>
     string ice_id(Dictionary<string, string>? context = null);
 
     /// <summary>
-    /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+    /// Gets the Slice type ID of the most-derived interface supported by the target object of this proxy.
     /// </summary>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
@@ -107,7 +107,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
     /// <param name="outEncaps">The encoded out-parameters and return value
     /// for the operation. The return value follows any out-parameters.</param>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <returns>If the operation completed successfully, the return value
     /// is true. If the operation raises a user exception,
     /// the return value is false; in this case, outEncaps
@@ -126,7 +126,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <param name="operation">The name of the operation to invoke.</param>
     /// <param name="mode">The operation mode (normal or idempotent).</param>
     /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
@@ -140,7 +140,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
         CancellationToken cancel = default);
 
     /// <summary>
-    /// Returns the identity embedded in this proxy.
+    /// Gets the identity embedded in this proxy.
     /// <returns>The identity of the target object.</returns>
     /// </summary>
     Identity ice_getIdentity();
@@ -153,7 +153,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     ObjectPrx ice_identity(Identity newIdentity);
 
     /// <summary>
-    /// Returns the per-proxy context for this proxy.
+    /// Gets the per-proxy context for this proxy.
     /// </summary>
     /// <returns>The per-proxy context. If the proxy does not have a per-proxy (implicit) context, the return value
     /// is null.</returns>
@@ -167,7 +167,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     ObjectPrx ice_context(Dictionary<string, string> newContext);
 
     /// <summary>
-    /// Returns the facet for this proxy.
+    /// Gets the facet for this proxy.
     /// </summary>
     /// <returns>The facet for this proxy. If the proxy uses the default facet, the return value is the
     /// empty string.</returns>
@@ -181,7 +181,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     ObjectPrx ice_facet(string newFacet);
 
     /// <summary>
-    /// Returns the adapter ID for this proxy.
+    /// Gets the adapter ID for this proxy.
     /// </summary>
     /// <returns>The adapter ID. If the proxy does not have an adapter ID, the return value is the
     /// empty string.</returns>
@@ -195,7 +195,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     ObjectPrx ice_adapterId(string newAdapterId);
 
     /// <summary>
-    /// Returns the endpoints used by this proxy.
+    /// Gets the endpoints used by this proxy.
     /// </summary>
     /// <returns>The endpoints used by this proxy.</returns>
     Endpoint[] ice_getEndpoints();
@@ -208,7 +208,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     ObjectPrx ice_endpoints(Endpoint[] newEndpoints);
 
     /// <summary>
-    /// Returns the locator cache timeout of this proxy.
+    /// Gets the locator cache timeout of this proxy.
     /// </summary>
     /// <returns>The locator cache timeout value.</returns>
     TimeSpan ice_getLocatorCacheTimeout();
@@ -238,7 +238,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     ObjectPrx ice_invocationTimeout(TimeSpan newTimeout);
 
     /// <summary>
-    /// Returns the invocation timeout of this proxy.
+    /// Gets the invocation timeout of this proxy.
     /// </summary>
     /// <returns>The invocation timeout value.</returns>
     TimeSpan ice_getInvocationTimeout();
@@ -292,7 +292,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <returns>The new proxy with the specified encoding version.</returns>
     ObjectPrx ice_encodingVersion(EncodingVersion encodingVersion);
 
-    /// <summary>Returns the encoding version used to marshal requests parameters.</summary>
+    /// <summary>Gets the encoding version used to marshal requests parameters.</summary>
     /// <returns>The encoding version.</returns>
     EncodingVersion ice_getEncodingVersion();
 
@@ -313,7 +313,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     ObjectPrx ice_preferSecure(bool preferSecure);
 
     /// <summary>
-    /// Returns the router for this proxy.
+    /// Gets the router for this proxy.
     /// </summary>
     /// <returns>The router for the proxy. If no router is configured for the proxy, the return value
     /// is null.</returns>
@@ -327,7 +327,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     ObjectPrx ice_router(RouterPrx? router);
 
     /// <summary>
-    /// Returns the locator for this proxy.
+    /// Gets the locator for this proxy.
     /// </summary>
     /// <returns>The locator for this proxy. If no locator is configured, the return value is null.</returns>
     LocatorPrx? ice_getLocator();
@@ -435,7 +435,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     ObjectPrx ice_connectionId(string connectionId);
 
     /// <summary>
-    /// Returns the connection id of this proxy.
+    /// Gets the connection id of this proxy.
     /// </summary>
     /// <returns>The connection id.</returns>
     string ice_getConnectionId();
@@ -474,7 +474,7 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     Task<Connection?> ice_getConnectionAsync(IProgress<bool>? progress = null, CancellationToken cancel = default);
 
     /// <summary>
-    /// Returns the cached Connection for this proxy. If the proxy does not yet have an established
+    /// Gets the cached Connection for this proxy. If the proxy does not yet have an established
     /// connection, it does not attempt to create a connection.
     /// </summary>
     /// <returns>The cached Connection for this proxy (null if the proxy does not have
@@ -546,7 +546,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the communicator that created this proxy.
+    /// Gets the communicator that created this proxy.
     /// </summary>
     /// <returns>The communicator that created this proxy.</returns>
     public Communicator ice_getCommunicator()
@@ -555,7 +555,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the stringified form of this proxy.
+    /// Gets the stringified form of this proxy.
     /// </summary>
     /// <returns>The stringified proxy.</returns>
     public override string ToString()
@@ -567,7 +567,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Tests whether this object supports a specific Slice interface.
     /// </summary>
     /// <param name="id">The type ID of the Slice interface to test against.</param>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <returns>True if the target object has the interface specified by id or derives
     /// from the interface specified by id.</returns>
     public bool ice_isA(string id, Dictionary<string, string>? context = null)
@@ -586,7 +586,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Tests whether this object supports a specific Slice interface.
     /// </summary>
     /// <param name="id">The type ID of the Slice interface to test against.</param>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
@@ -636,7 +636,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Tests whether the target object of this proxy can be reached.
     /// </summary>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     public void ice_ping(Dictionary<string, string>? context = null)
     {
         try
@@ -652,7 +652,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>
     /// Tests whether the target object of this proxy can be reached.
     /// </summary>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
@@ -692,9 +692,9 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+    /// Gets the Slice type IDs of the interfaces supported by the target object of this proxy.
     /// </summary>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <returns>The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
     /// </returns>
     public string[] ice_ids(Dictionary<string, string>? context = null)
@@ -710,9 +710,9 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+    /// Gets the Slice type IDs of the interfaces supported by the target object of this proxy.
     /// </summary>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
@@ -755,9 +755,9 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+    /// Gets the Slice type ID of the most-derived interface supported by the target object of this proxy.
     /// </summary>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <returns>The Slice type ID of the most-derived interface.</returns>
     public string ice_id(Dictionary<string, string>? context = null)
     {
@@ -772,9 +772,9 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+    /// Gets the Slice type ID of the most-derived interface supported by the target object of this proxy.
     /// </summary>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
@@ -823,7 +823,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
     /// <param name="outEncaps">The encoded out-parameters and return value
     /// for the operation. The return value follows any out-parameters.</param>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <returns>If the operation completed successfully, the return value
     /// is true. If the operation raises a user exception,
     /// the return value is false; in this case, outEncaps
@@ -861,7 +861,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <param name="operation">The name of the operation to invoke.</param>
     /// <param name="mode">The operation mode (normal or idempotent).</param>
     /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
-    /// <param name="context">The context dictionary for the invocation.</param>
+    /// <param name="context">The request context.</param>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
@@ -904,7 +904,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the identity embedded in this proxy.
+    /// Gets the identity embedded in this proxy.
     /// </summary>
     /// <returns>The identity of the target object.</returns>
     public Identity ice_getIdentity() => _reference.getIdentity() with { };
@@ -932,7 +932,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the per-proxy context for this proxy.
+    /// Gets the per-proxy context for this proxy.
     /// </summary>
     /// <returns>The per-proxy context. If the proxy does not have a per-proxy (implicit) context, the return value
     /// is null.</returns>
@@ -952,7 +952,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the facet for this proxy.
+    /// Gets the facet for this proxy.
     /// </summary>
     /// <returns>The facet for this proxy. If the proxy uses the default facet, the return value is the
     /// empty string.</returns>
@@ -981,7 +981,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the adapter ID for this proxy.
+    /// Gets the adapter ID for this proxy.
     /// </summary>
     /// <returns>The adapter ID. If the proxy does not have an adapter ID, the return value is the
     /// empty string.</returns>
@@ -1010,7 +1010,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the endpoints used by this proxy.
+    /// Gets the endpoints used by this proxy.
     /// </summary>
     /// <returns>The endpoints used by this proxy.</returns>
     public Endpoint[] ice_getEndpoints()
@@ -1043,7 +1043,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the locator cache timeout of this proxy.
+    /// Gets the locator cache timeout of this proxy.
     /// </summary>
     /// <returns>The locator cache timeout value.</returns>
     public TimeSpan ice_getLocatorCacheTimeout()
@@ -1079,7 +1079,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the invocation timeout of this proxy.
+    /// Gets the invocation timeout of this proxy.
     /// </summary>
     /// <returns>The invocation timeout value.</returns>
     public TimeSpan ice_getInvocationTimeout()
@@ -1212,7 +1212,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         }
     }
 
-    /// <summary>Returns the encoding version used to marshal requests parameters.</summary>
+    /// <summary>Gets the encoding version used to marshal requests parameters.</summary>
     /// <returns>The encoding version.</returns>
     public EncodingVersion ice_getEncodingVersion()
     {
@@ -1249,7 +1249,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the router for this proxy.
+    /// Gets the router for this proxy.
     /// </summary>
     /// <returns>The router for the proxy. If no router is configured for the proxy, the return value
     /// is null.</returns>
@@ -1277,7 +1277,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the locator for this proxy.
+    /// Gets the locator for this proxy.
     /// </summary>
     /// <returns>The locator for this proxy. If no locator is configured, the return value is null.</returns>
     public LocatorPrx? ice_getLocator()
@@ -1497,7 +1497,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the connection id of this proxy.
+    /// Gets the connection id of this proxy.
     /// </summary>
     /// <returns>The connection id.</returns>
     public string ice_getConnectionId()
@@ -1587,7 +1587,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns the cached Connection for this proxy. If the proxy does not yet have an established
+    /// Gets the cached Connection for this proxy. If the proxy does not yet have an established
     /// connection, it does not attempt to create a connection.
     /// </summary>
     /// <returns>The cached Connection for this proxy (null if the proxy does not have
@@ -1958,7 +1958,7 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     public static ObjectPrx? uncheckedCast(ObjectPrx? proxy, string facet) => proxy?.ice_facet(facet);
 
     /// <summary>
-    /// Returns the Slice type id of the interface or class associated
+    /// Gets the Slice type id of the interface or class associated
     /// with this proxy class.
     /// </summary>
     /// <returns>The type id, "::Ice::Object".</returns>
