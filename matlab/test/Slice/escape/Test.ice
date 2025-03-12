@@ -5,52 +5,50 @@
 // TODO come up with a better way to escape modules.
 module escaped_classdef
 {
-    enum bitand
+    ["matlab:identifier:persistent_"]
+    enum persistent
     {
         ["matlab:identifier:break_"] break,
         ["matlab:identifier:catch_"] catch,
         LAST
     }
 
-    struct bitor
+    ["matlab:identifier:global_"]
+    struct global
     {
-        ["matlab:identifier:case_"] bitand case = catch;
+        ["matlab:identifier:case_"] persistent case = catch;
         ["matlab:identifier:continue_"] int continue = 1;
         ["matlab:identifier:eq_"] int eq = 2;
     }
 
     class logical
     {
-        ["matlab:identifier:else_"] bitand else = break;
-        ["matlab:identifier:for_"] bitor for;
+        ["matlab:identifier:else_"] persistent else = break;
+        ["matlab:identifier:for_"] global for;
         bool int64 = true;
     }
 
-    ["matlab:identifier:xor_"]
     class xor extends logical
     {
         ["matlab:identifier:return_"] int return = 1;
     }
 
-    ["matlab:identifier:parfor_"] sequence<bitor> parfor;
-    ["matlab:identifier:switch_"] dictionary<int, bitor> switch;
+    ["matlab:identifier:parfor_"] sequence<global> parfor;
+    ["matlab:identifier:switch_"] dictionary<int, global> switch;
 
-    ["matlab:identifier:try_"]
-    class try
+    class Base
     {
         ["matlab:identifier:while_"] int while = 1;
     }
 
-    ["matlab:identifier:properties_"]
-    class properties extends try
+    class Derived extends Base
     {
         ["matlab:identifier:if_"] int if = 2;
         ["matlab:identifier:spmd_"] parfor spmd;
         ["matlab:identifier:otherwise_"] switch otherwise;
     }
 
-    ["matlab:identifier:persistent_"]
-    exception persistent
+    exception bitand
     {
         // These data members clash with members of MException.
         ["matlab:identifier:identifier_"] string identifier = "1";
@@ -59,8 +57,7 @@ module escaped_classdef
         ["matlab:identifier:end_"] logical end;
     }
 
-    ["matlab:identifier:global_"]
-    exception global extends persistent
+    exception bitor extends bitand
     {
         ["matlab:identifier:enumeration_"]
         int enumeration = 1;
