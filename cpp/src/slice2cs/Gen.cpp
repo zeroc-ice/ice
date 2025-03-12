@@ -640,10 +640,9 @@ Slice::CsVisitor::getDispatchParams(
 void
 Slice::CsVisitor::emitAttributes(const ContainedPtr& p)
 {
-    assert(dynamic_pointer_cast<Enum>(p->container()) ||
-        dynamic_pointer_cast<Enumerator>(p->container()) ||
-        dynamic_pointer_cast<DataMember>(p->container()) ||
-        dynamic_pointer_cast<Const>(p->container()));
+    assert(
+        dynamic_pointer_cast<Enum>(p->container()) || dynamic_pointer_cast<Enumerator>(p->container()) ||
+        dynamic_pointer_cast<DataMember>(p->container()) || dynamic_pointer_cast<Const>(p->container()));
 
     for (const auto& metadata : p->getMetadata())
     {
