@@ -50,7 +50,7 @@ jobs:
         uses: ./.github/actions/setup-cpp
 
       - name: Setup Node
-        uses: ./github/actions/setup-node
+        uses: ./.github/actions/setup-node
 
       - name: Build Compiler
         uses: ./.github/actions/build-slice-compiler

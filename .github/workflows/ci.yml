@@ -102,26 +102,26 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup C++
-        uses: ./github/actions/setup-cpp
+        uses: ./.github/actions/setup-cpp
 
       - name: Setup PHP
-        uses: ./github/actions/setup-php
+        uses: ./.github/actions/setup-php
 
       - name: Setup Python
-        uses: ./github/actions/setup-python
+        uses: ./.github/actions/setup-python
 
       - name: Setup .NET
-        uses: ./github/actions/setup-dotnet
+        uses: ./.github/actions/setup-dotnet
 
       - name: Setup Java
-        uses: ./github/actions/setup-java
+        uses: ./.github/actions/setup-java
 
       - name: Setup Node
-        uses: ./github/actions/setup-node
+        uses: ./.github/actions/setup-node
 
       - name: Setup Ruby
         if: runner.os != 'Windows'
-        uses: ./github/actions/setup-ruby
+        uses: ./.github/actions/setup-ruby
 
       - name: Setup MATLAB
         if: matrix.config == 'matlab'

@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup .NET
-        uses: ./github/actions/setup-dotnet
+        uses: ./.github/actions/setup-dotnet
 
       - name: Run dotnet format
         run: |
