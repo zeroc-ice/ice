@@ -174,33 +174,7 @@ internal sealed class TraceUtil
         try
         {
             byte mode = str.readByte();
-            s.Write("\nmode = " + (int)mode + ' ');
-            switch ((Ice.OperationMode)mode)
-            {
-                case Ice.OperationMode.Normal:
-                {
-                    s.Write("(normal)");
-                    break;
-                }
-
-                case Ice.OperationMode.Nonmutating:
-                {
-                    s.Write("(nonmutating)");
-                    break;
-                }
-
-                case Ice.OperationMode.Idempotent:
-                {
-                    s.Write("(idempotent)");
-                    break;
-                }
-
-                default:
-                {
-                    s.Write("(unknown)");
-                    break;
-                }
-            }
+            s.Write("\nmode = " + ((OperationMode)mode).ToString());
 
             int sz = str.readSize();
             s.Write("\ncontext = ");

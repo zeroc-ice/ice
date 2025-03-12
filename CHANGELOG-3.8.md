@@ -258,6 +258,8 @@ other CPUs.
 invocation made from an Ice thread pool thread executes in a .NET thread pool thread; previously, this continuation
 was executed in a thread managed by the same Ice thread pool unless you specified `.ConfigureAwait(false)`.
 
+- The `cs:attribute` Slice metadata is now limited to enum, enumerators, fields and constants.
+
 ## Objective-C Changes
 
 - The Objective-C mapping was removed.
