@@ -16,7 +16,7 @@
       <PackageType>Dependency</PackageType>
       <IncludeBuildOutput>false</IncludeBuildOutput>
       <!-- Suppress NU5100 warning for the package. -->
-      <!-- The assembly 'tasks\ZeroC.Ice.Slice.Tools.CSharp.dll' is not inside the 'lib' folder -->
+      <!-- The assembly 'tasks\ZeroC.Ice.Slice.Tools.dll' is not inside the 'lib' folder -->
       <!-- We do that on purpose we don't want projects to reference it, is only for MSBuild to load the tasks. -->
       <NoWarn>NU5100</NoWarn>
       <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
@@ -39,8 +39,8 @@
       <Content Include="ProjectItemsSchema.xaml" Pack="true" PackagePath="build/" />
       <Content Include="SliceCompile.CSharp.File.xaml" Pack="true" PackagePath="build/" />
       <Content Include="SliceCompile.CSharp.xaml" Pack="true" PackagePath="build/" />
-      <Content Include="ZeroC.Ice.Slice.Tools.CSharp.props" Pack="true" PackagePath="build/" />
-      <Content Include="ZeroC.Ice.Slice.Tools.CSharp.targets" Pack="true" PackagePath="build/" />
+      <Content Include="ZeroC.Ice.Slice.Tools.props" Pack="true" PackagePath="build/" />
+      <Content Include="ZeroC.Ice.Slice.Tools.targets" Pack="true" PackagePath="build/" />
       <None Include="$(OutputPath)/$(AssemblyName).dll" Pack="true" PackagePath="tasks/" Visible="false" />
       <Content Include="README.md" Pack="true" PackagePath="/" />
     </ItemGroup>
