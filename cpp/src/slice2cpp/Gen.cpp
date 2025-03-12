@@ -271,8 +271,8 @@ namespace
             }
             if (auto enumTarget = dynamic_pointer_cast<Enum>(target))
             {
-                // If a link to an enum isn't qualified (ie. we're the source and target are in the same module),
-                // we have to place a '#' character in front, to explicitly tell Doxygen it's in the current scope.
+                // If a link to an enum isn't qualified (ie. the source and target are in the same module),
+                // we have to place a '#' character in front, so Doxygen looks in the current scope.
                 string link = getUnqualified(enumTarget->mappedScoped(), source->mappedScope());
                 if (link.find("::") == string::npos)
                 {
