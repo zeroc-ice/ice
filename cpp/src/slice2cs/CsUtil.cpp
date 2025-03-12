@@ -64,7 +64,8 @@ string
 Slice::CsGenerator::getUnqualified(const ContainedPtr& p, const string& package)
 {
     // If contained is an operation, a field, or an enumerator, we use the enclosing type.
-    if (dynamic_pointer_cast<Operation>(p) || dynamic_pointer_cast<DataMember>(p) || dynamic_pointer_cast<Enumerator>(p))
+    if (dynamic_pointer_cast<Operation>(p) || dynamic_pointer_cast<DataMember>(p) ||
+        dynamic_pointer_cast<Enumerator>(p))
     {
         return getUnqualified(dynamic_pointer_cast<Contained>(p->container()), package) + "." + p->mappedName();
     }

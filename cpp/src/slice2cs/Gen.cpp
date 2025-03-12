@@ -134,7 +134,7 @@ namespace
                 {
                     // link to the method on the proxy interface
                     result << "cref=\"" << CsGenerator::getUnqualified(operationTarget->interface(), sourceScope)
-                        << "Prx." << operationTarget->mappedName() << "\"";
+                           << "Prx." << operationTarget->mappedName() << "\"";
                 }
                 else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
                 {
@@ -144,7 +144,7 @@ namespace
                 else
                 {
                     result << "cref=\""
-                        << CsGenerator::getUnqualified(dynamic_pointer_cast<Contained>(target), sourceScope) << "\"";
+                           << CsGenerator::getUnqualified(dynamic_pointer_cast<Contained>(target), sourceScope) << "\"";
                 }
             }
         }
@@ -1664,7 +1664,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     writeDocComment(p, "field");
     emitObsoleteAttribute(p, _out);
     emitAttributes(p);
-    _out << nl << "public" << ' ' << type << ' ' << p->mappedName();
+    _out << nl << "public " << type << ' ' << p->mappedName();
 
     bool addSemicolon = true;
     if (isProperty)
