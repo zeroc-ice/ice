@@ -39,7 +39,7 @@ namespace Slice
             std::vector<std::string>&,
             const std::string&);
 
-        // Generates a C# attribute from the cs:attribute metadata.
+        /// Generates C# attributes from any 'cs:attribute' metadata.
         void emitAttributes(const ContainedPtr&);
 
         void emitNonBrowsableAttribute();
