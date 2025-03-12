@@ -86,7 +86,7 @@ namespace
         }
     }
 
-    // Standard marshal doc-comment
+    /// Standard marshal doc-comment
     void writeMarshalDocComment(Output& out)
     {
         writeDocLine(out, "summary", "Marshals a value into an output stream.");
@@ -94,7 +94,7 @@ namespace
         writeDocLine(out, R"(param name="v")", "The value to marshal.", "param");
     }
 
-    // Standard unmarshal doc-comment
+    /// Standard unmarshal doc-comment
     void writeUnmarshalDocComment(Output& out)
     {
         writeDocLine(out, "summary", "Unmarshals a value from an input stream.");
@@ -732,6 +732,8 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generated
     // We generate remarks only for module-level types.
     if (dynamic_pointer_cast<Module>(p->container()))
     {
+        assert(!generatedType.empty());
+
         _out << nl << "/// <remarks>" << "The Slice compiler generated this " << generatedType << " from Slice "
              << p->kindOf() << " <c>" << p->scoped() << "</c>.";
         if (!notes.empty())
@@ -754,19 +756,17 @@ Slice::CsVisitor::writeHelperDocComment(
     const string& generatedType,
     const string& notes)
 {
-    writeDocLine(_out, "summary", comment);
+    // Called only for module-level types.
+    assert(dynamic_pointer_cast<Module>(p->container()));
 
-    // We generate remarks only for module-level types.
-    if (dynamic_pointer_cast<Module>(p->container()))
+    writeDocLine(_out, "summary", comment);
+    _out << nl << "/// <remarks>" << "The Slice compiler generated this " << generatedType << " from Slice "
+         << p->kindOf() << " <c>" << p->scoped() << "</c>.";
+    if (!notes.empty())
     {
-        _out << nl << "/// <remarks>" << "The Slice compiler generated this " << generatedType << " from Slice "
-             << p->kindOf() << " <c>" << p->scoped() << "</c>.";
-        if (!notes.empty())
-        {
-            _out << nl << "/// " << notes;
-        }
-        _out << "</remarks>";
+        _out << nl << "/// " << notes;
     }
+    _out << "</remarks>";
 }
 
 void
