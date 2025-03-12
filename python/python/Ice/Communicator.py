@@ -77,6 +77,12 @@ class Communicator:
         while not self._impl.waitForShutdown(500):
             pass
 
+    def waitForShutdownAsync(self):
+        """
+        returns a future that will be set when the communicator has been shut down.
+        """
+        return self._impl.waitForShutdownAsync()
+
     def isShutdown(self):
         """
         Check whether the communicator has been shut down.
