@@ -14,8 +14,6 @@ jobs:
 
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
-        with:
-          use_ccache: false
 
       - name: Generate C++ Coverage
         working-directory: ./cpp
@@ -61,8 +59,6 @@ jobs:
 
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
-        with:
-          use_ccache: false
 
       - name: Build
         run: |
@@ -103,8 +99,6 @@ jobs:
 
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
-        with:
-          use_ccache: false
 
       - name: Generate Java Coverage
         working-directory: ./java

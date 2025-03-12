@@ -23,6 +23,11 @@ jobs:
         with:
           use_matlab: true
 
+      - name: Setup Cache
+        uses: ./.github/actions/setup-cache
+        with:
+          prefix: build-matlab-packages
+
       - name: Build Linux MATLAB ToolBox
         run: |
           make -C cpp srcs

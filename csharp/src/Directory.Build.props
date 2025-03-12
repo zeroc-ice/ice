@@ -11,7 +11,7 @@
         <AnalysisMode>All</AnalysisMode>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
-    <Import Project="$(MSBuildThisFileDirectory)..\..\tools\ZeroC.Ice.Slice.Tools.CSharp\ZeroC.Ice.Slice.Tools.CSharp.props"/>
+    <Import Project="$(MSBuildThisFileDirectory)..\tools\ZeroC.Ice.Slice.Tools\ZeroC.Ice.Slice.Tools.props"/>
     <ItemGroup>
         <AdditionalFiles Include="$(MSBuildThisFileDirectory)../msbuild/StyleCop.json" Link="stylecop.json" />
         <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)../msbuild/CodeAnalysis.Base.globalconfig" />

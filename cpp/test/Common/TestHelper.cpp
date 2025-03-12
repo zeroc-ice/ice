@@ -296,9 +296,9 @@ Test::TestHelper::initialize(int& argc, char* argv[], const Ice::PropertiesPtr& 
 }
 
 Ice::CommunicatorPtr
-Test::TestHelper::initialize(int& argc, char* argv[], const Ice::InitializationData& initData)
+Test::TestHelper::initialize(int& argc, char* argv[], Ice::InitializationData initData)
 {
-    _communicator = Ice::initialize(argc, argv, initData);
+    _communicator = Ice::initialize(argc, argv, std::move(initData));
     if (_controllerHelper)
     {
         _controllerHelper->communicatorInitialized(_communicator);

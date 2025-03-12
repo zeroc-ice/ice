@@ -15,8 +15,8 @@
 
 module Test
 {
-   interface Œuvre
-   {
-      void cœur();
-   }
+    interface Œuvre
+    {
+        void cœur();
+    }
 }

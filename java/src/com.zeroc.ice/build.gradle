@@ -5,9 +5,11 @@ project.ext.moduleName = "com.zeroc.ice"
 project.ext.description = "Ice is a comprehensive RPC framework that helps you build distributed applications" +
                           " with minimal effort using familiar object-oriented idioms"
 
-slice {
-    java {
-        srcDir = "$project.ext.topSrcDir/slice/Ice"
+sourceSets {
+    main {
+        slice {
+            srcDir "$project.ext.topSrcDir/slice/Ice"
+        }
     }
 }
 

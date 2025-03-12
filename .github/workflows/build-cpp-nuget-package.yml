@@ -41,15 +41,13 @@ jobs:
         with:
           name: windows-cpp-nuget-packages
           path: |
-            cpp/msbuild/zeroc.ice.v143/*.nupkg
+            cpp/msbuild/ZeroC.Ice.Cpp/*.nupkg
 
       - name: Publish NuGet Packages
         run: |
           $packages = @(
-              Get-ChildItem -Path tools -Filter "*.nupkg" -File -Recurse
-              Get-ChildItem -Path tools -Filter "*.snupkg" -File -Recurse
-              Get-ChildItem -Path cpp\msbuild\zeroc.ice.v143 -Filter "*.nupkg" -File -Recurse
-              Get-ChildItem -Path cpp\msbuild\zeroc.ice.v143 -Filter "*.snupkg" -File -Recurse
+              Get-ChildItem -Path cpp\msbuild\ZeroC.Ice.Cpp -Filter "*.nupkg" -File -Recurse
+              Get-ChildItem -Path cpp\msbuild\ZeroC.Ice.Cpp -Filter "*.snupkg" -File -Recurse
           )
 
           foreach ($package in $packages) {

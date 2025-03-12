@@ -4,58 +4,56 @@
 
 module Test
 {
+    class Empty
+    {
+    }
 
-class Empty
-{
-}
+    class AlsoEmpty
+    {
+    }
 
-class AlsoEmpty
-{
-}
+    interface UnexpectedObjectExceptionTest
+    {
+        AlsoEmpty op();
+    }
 
-interface UnexpectedObjectExceptionTest
-{
-    AlsoEmpty op();
-}
+    //
+    // Remaining definitions are here to ensure that the generated code compiles.
+    //
 
-//
-// Remaining definitions are here to ensure that the generated code compiles.
-//
+    class COneMember
+    {
+        Empty e;
+    }
 
-class COneMember
-{
-    Empty e;
-}
+    class CTwoMembers
+    {
+        Empty e1;
+        Empty e2;
+    }
 
-class CTwoMembers
-{
-    Empty e1;
-    Empty e2;
-}
+    exception EOneMember
+    {
+        Empty e;
+    }
 
-exception EOneMember
-{
-    Empty e;
-}
+    exception ETwoMembers
+    {
+        Empty e1;
+        Empty e2;
+    }
 
-exception ETwoMembers
-{
-    Empty e1;
-    Empty e2;
-}
+    struct SOneMember
+    {
+        Empty e;
+    }
 
-struct SOneMember
-{
-    Empty e;
-}
+    struct STwoMembers
+    {
+        Empty e1;
+        Empty e2;
+    }
 
-struct STwoMembers
-{
-    Empty e1;
-    Empty e2;
-}
-
-dictionary<int, COneMember> DOneMember;
-dictionary<int, CTwoMembers> DTwoMembers;
-
+    dictionary<int, COneMember> DOneMember;
+    dictionary<int, CTwoMembers> DTwoMembers;
 }

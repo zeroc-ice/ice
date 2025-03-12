@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2009-2018 ZeroC, Inc. All rights reserved. -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <!--
+    Set the path of the ZeroC.Ice.Slice.Tools.Cpp assembly conditionally based on whether we are using
+    the ZeroC.Ice.Cpp NuGet package or the Ice source distribution.
+
+    - For the NuGet package, the assembly is included in the "tasks" directory.
+    - For the Ice source distribution, the assembly is taken from the ZeroC.Ice.Slice.Tools.Cpp project
+      output directory.
+    -->
+    <Choose>
+        <When Condition="Exists('$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll')">
+            <PropertyGroup>
+                <IceSliceToolsAssembly>$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll</IceSliceToolsAssembly>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <IceSliceToolsAssembly>$(MSBuildThisFileDirectory)bin\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll</IceSliceToolsAssembly>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
+
+    <!-- Import the MSBuild tasks required to compile Slice files using the slice2cpp compiler. -->
+    <UsingTask TaskName="ZeroC.Ice.Slice.Tools.Cpp.Slice2CppTask" AssemblyFile="$(IceSliceToolsAssembly)"/>
+    <UsingTask TaskName="ZeroC.Ice.Slice.Tools.Cpp.Slice2CppDependTask" AssemblyFile="$(IceSliceToolsAssembly)"/>
+
+    <PropertyGroup>
+        <EnableDefaultSliceCompileItems Condition="'$(EnableDefaultSliceCompileItems)' == ''">true</EnableDefaultSliceCompileItems>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(EnableDefaultItems)' == 'true'">
+        <SliceCompile Condition="'$(EnableDefaultSliceCompileItems)' == 'true'" Include="**\*.ice"
+                      Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder);@(SliceCompile)"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PropertyPageSchema Include="$(MSBuildThisFileDirectory)ProjectItemsSchema.xaml" />
+        <PropertyPageSchema Include="$(MSBuildThisFileDirectory)SliceCompile.Cpp.xaml">
+            <Context>Project</Context>
+        </PropertyPageSchema>
+        <PropertyPageSchema Include="$(MSBuildThisFileDirectory)SliceCompile.Cpp.File.xaml">
+            <Context>File</Context>
+        </PropertyPageSchema>
+        <AvailableItemName Include="SliceCompile"/>
+    </ItemGroup>
+
+    <Target Name="SliceCompile" BeforeTargets="CLCompile"
+            Condition="@(SliceCompile) != ''">
+
+        <Error Text="IceToolsPath is set to a non-existing directory: `$(IceToolsPath)'. Did you forget to build the slice2cpp compiler?"
+           Condition="!Exists('$(IceToolsPath)')" />
+
+        <!--
+            Create the output directories
+        -->
+        <MakeDir Directories="%(SliceCompile.OutputDir)" Condition="!Exists('%(SliceCompile.OutputDir)')"/>
+        <MakeDir Directories="%(SliceCompile.HeaderOutputDir)" Condition="!Exists('%(SliceCompile.HeaderOutputDir)')"/>
+
+        <!-- First we check dependencies to compute which Slice files need to be recompiled -->
+        <Slice2CppDependTask
+            IceToolsPath                      = "$(IceToolsPath)"
+            WorkingDirectory                  = "$(MSBuildProjectDirectory)"
+            Sources                           = "@(SliceCompile)">
+
+            <Output
+                ItemName                      = "_SliceCompile"
+                TaskParameter                 = "ComputedSources"/>
+
+             <Output
+                PropertyName      = "_SliceCompileGeneratedPaths"
+                TaskParameter     = "GeneratedCompiledPaths"/>
+
+        </Slice2CppDependTask>
+
+        <!-- Compile the Slice files -->
+        <Slice2CppTask
+            IceToolsPath                      = "$(IceToolsPath)"
+            WorkingDirectory                  = "$(MSBuildProjectDirectory)"
+            OutputDir                         = "%(_SliceCompile.OutputDir)"
+            HeaderOutputDir                   = "%(_SliceCompile.HeaderOutputDir)"
+            IncludeDirectories                = "%(_SliceCompile.IncludeDirectories)"
+            AdditionalOptions                 = "%(_SliceCompile.AdditionalOptions)"
+            BaseDirectoryForGeneratedInclude  = "%(_SliceCompile.BaseDirectoryForGeneratedInclude)"
+            HeaderExt                         = "%(_SliceCompile.HeaderExt)"
+            SourceExt                         = "%(_SliceCompile.SourceExt)"
+            Sources                           = "@(_SliceCompile)"
+            Condition                         = "'%(_SliceCompile.BuildRequired)' == 'True'">
+            <Output
+                ItemName                      = "_SliceCompileTLogItem"
+                TaskParameter                 = "ComputedSources"/>
+        </Slice2CppTask>
+
+        <!--
+            Include all C++ generated source items that have not been manually included. We want to delay this until we are
+            running the SliceCompile target so that the Visual Studio extension has a chance to add the items to the project in
+            a persistent way. If the extension is not enabled or we are building from the command line we just add the
+            missing items in a transient way.
+
+            The builder's depend task has an output property named GeneratedPaths that contains the paths of all generated items.
+        -->
+
+        <ItemGroup>
+            <ClCompile Include="$(_SliceCompileGeneratedPaths)"
+                       Exclude="@(ClCompile->'%(FullPath)');@(ClCompile->'%(Identity)')" />
+        </ItemGroup>
+
+        <!--
+            TLog files are used by Visual Studio's up to date check to figure out if a project file
+            needs to be rebuilt.
+        -->
+        <!-- Write TLog files -->
+        <MakeDir Directories="$(TLogLocation)" Condition="!Exists('$(TLogLocation)')"/>
+
+        <WriteLinesToFile File                = "$(TLogLocation)\slice2cpp.write.1u.tlog"
+                          Encoding            = "Unicode"
+                          Overwrite           = "true"
+                          Lines               = ""/>
+
+        <WriteLinesToFile File                = "$(TLogLocation)\slice2cpp.write.1u.tlog"
+                          Encoding            = "Unicode"
+                          Lines               = "^%(_SliceCompile.FullPath);%(_SliceCompile.Outputs)"
+                          Condition           = "'%(_SliceCompile.Outputs)' != ''"/>
+
+        <WriteLinesToFile File                = "$(TLogLocation)\slice2cpp.write.1u.tlog"
+                          Encoding            = "Unicode"
+                          Lines               = "^%(_SliceCompileTLogItem.FullPath);%(_SliceCompileTLogItem.Outputs)"
+                          Condition           = "'%(_SliceCompileTLogItem.Outputs)' != ''"/>
+
+        <!-- Read TLog files -->
+        <WriteLinesToFile File                = "$(TLogLocation)\slice2cpp.read.1u.tlog"
+                          Encoding            = "Unicode"
+                          Overwrite           = "true"
+                          Lines               = ""/>
+
+        <WriteLinesToFile File                = "$(TLogLocation)\slice2cpp.read.1u.tlog"
+                          Encoding            = "Unicode"
+                          Lines               = "^%(_SliceCompile.FullPath);%(_SliceCompile.Inputs)"
+                          Condition           = "'%(_SliceCompile.Inputs)' != ''"/>
+
+        <WriteLinesToFile File                = "$(TLogLocation)\slice2cpp.read.1u.tlog"
+                          Encoding            = "Unicode"
+                          Lines               = "^%(_SliceCompileTLogItem.FullPath);%(_SliceCompileTLogItem.Inputs)"
+                          Condition           = "'%(_SliceCompileTLogItem.Inputs)' != ''"/>
+    </Target>
+
+    <Target Name="SliceCompileClean" BeforeTargets="Clean">
+        <Delete Files="@(SliceCompile->'%(OutputDir)\%(Filename).%(SourceExt)')"/>
+        <Delete Files="@(SliceCompile->'%(OutputDir)\%(Filename).%(HeaderExt)')"/>
+        <Delete Files="@(SliceCompile->'%(OutputDir)\SliceCompile.%(Filename).d')"/>
+    </Target>
+</Project>

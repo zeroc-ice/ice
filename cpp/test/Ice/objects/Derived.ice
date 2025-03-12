@@ -7,10 +7,8 @@
 
 module Test
 {
-
-class Derived extends Base
-{
-    string b;
-}
-
+    class Derived extends Base
+    {
+        string b;
+    }
 }

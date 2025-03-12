@@ -400,7 +400,7 @@ namespace Ice
         void postToClientThreadPool(std::function<void()> call);
 
     private:
-        static CommunicatorPtr create(const InitializationData&);
+        static CommunicatorPtr create(InitializationData);
 
         //
         // Certain initialization tasks need to be completed after the
@@ -411,9 +411,9 @@ namespace Ice
         [[nodiscard]] IceInternal::ReferencePtr _stringToProxy(std::string_view str) const;
         [[nodiscard]] IceInternal::ReferencePtr _propertyToProxy(std::string_view property) const;
 
-        friend ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData&);
-        friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&);
-        friend ICE_API CommunicatorPtr initialize(const InitializationData&);
+        friend ICE_API CommunicatorPtr initialize(int&, const char*[], InitializationData);
+        friend ICE_API CommunicatorPtr initialize(StringSeq&, InitializationData);
+        friend ICE_API CommunicatorPtr initialize(InitializationData);
         friend ICE_API IceInternal::InstancePtr IceInternal::getInstance(const Ice::CommunicatorPtr&);
         friend ICE_API IceInternal::TimerPtr IceInternal::getInstanceTimer(const Ice::CommunicatorPtr&);
 

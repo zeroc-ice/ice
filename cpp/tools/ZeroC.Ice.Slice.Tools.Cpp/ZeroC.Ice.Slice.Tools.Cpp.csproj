@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+      <Version>3.8.0</Version>
+      <TargetFramework>netstandard2.0</TargetFramework>
+      <Nullable>enable</Nullable>
+      <LangVersion>10.0</LangVersion>
+
+      <!-- Signing properties -->
+      <TimeStampServer Condition="'$(SIGN_TIMESTAMPSERVER)' == ''">http://timestamp.digicert.com</TimeStampServer>
+      <SignCommandSHA1 Condition="Exists('$(SIGN_CERTIFICATE)')">signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(TimeStampServer)</SignCommandSHA1>
+      <SignCommandSHA256 Condition="Exists('$(SIGN_CERTIFICATE)')">signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /tr $(TimeStampServer) /td sha256 /fd sha256 /as</SignCommandSHA256>
+
+    </PropertyGroup>
+    <ItemGroup>
+      <Compile Include="..\..\..\csharp\tools\ZeroC.Ice.Slice.Tools\Common\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="ProjectItemsSchema.xaml" Pack="true" PackagePath="build/" />
+      <Content Include="SliceCompile.Cpp.File.xaml" Pack="true" PackagePath="build/" />
+      <Content Include="SliceCompile.Cpp.xaml" Pack="true" PackagePath="build/" />
+      <Content Include="ZeroC.Ice.Slice.Tools.Cpp.props" Pack="true" PackagePath="build/" />
+      <Content Include="ZeroC.Ice.Slice.Tools.Cpp.targets" Pack="true" PackagePath="build/" />
+      <None Include="$(OutputPath)/$(AssemblyName).dll" Pack="true" PackagePath="tasks/" Visible="false" />
+      <Content Include="README.md" Pack="true" PackagePath="/" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Build.Framework" Version="15.5.180" />
+      <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.5.180" />
+    </ItemGroup>
+    <Target Name="Sign" AfterTargets="CopyFilesToOutputDirectory" Condition="Exists('$(SIGN_CERTIFICATE)')">
+        <Exec Command="$(SignCommandSHA1) $(OutputPath)$(AssemblyName).dll" />
+        <Exec Command="$(SignCommandSHA256) $(OutputPath)$(AssemblyName).dll" />
+    </Target>
+
+    <!-- Use the Slice for C++ compiler from this source build. -->
+    <ItemGroup>
+      <Content Include="$(MSBuildThisFileDirectory)..\..\bin\x64\$(Configuration)\slice2cpp.exe">
+        <Pack>true</Pack>
+        <PackagePath>tools\windows-x64</PackagePath>
+      </Content>
+    </ItemGroup>
+</Project>

@@ -4,10 +4,15 @@
       "src": [
         {
           "files": ["src/*/*.csproj"],
+          "exclude": [
+            "src/IceDiscovery/**",
+            "src/IceLocatorDiscovery/**"
+          ],
           "src": "../"
         }
       ],
       "dest": "api",
+      "filter": "filterConfig.yml",
       "includePrivateMembers": false,
       "disableGitFeatures": false,
       "disableDefaultFilter": false,

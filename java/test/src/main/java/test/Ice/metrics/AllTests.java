@@ -1162,8 +1162,7 @@ public class AllTests {
         }
 
         testAttribute(clientMetrics, clientProps, "Invocation", "parent", "Communicator", op, out);
-        testAttribute(
-                clientMetrics, clientProps, "Invocation", "id", "metrics -t -e 1.1 [op]", op, out);
+        testAttribute(clientMetrics, clientProps, "Invocation", "id", "metrics [op]", op, out);
 
         testAttribute(clientMetrics, clientProps, "Invocation", "operation", "op", op, out);
         testAttribute(clientMetrics, clientProps, "Invocation", "identity", "metrics", op, out);
@@ -1171,13 +1170,7 @@ public class AllTests {
         testAttribute(clientMetrics, clientProps, "Invocation", "encoding", "1.1", op, out);
         testAttribute(clientMetrics, clientProps, "Invocation", "mode", "twoway", op, out);
         testAttribute(
-                clientMetrics,
-                clientProps,
-                "Invocation",
-                "proxy",
-                "metrics -t -e 1.1:" + endpoint,
-                op,
-                out);
+                clientMetrics, clientProps, "Invocation", "proxy", "metrics:" + endpoint, op, out);
 
         testAttribute(clientMetrics, clientProps, "Invocation", "context.entry1", "test", op, out);
         testAttribute(clientMetrics, clientProps, "Invocation", "context.entry2", "", op, out);

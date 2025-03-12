@@ -22,7 +22,6 @@ function status = slice2matlab(varargin)
         fullfile(root_dir, 'slice2matlab.exe'),
         fullfile(root_dir, '..', '..', 'cpp', 'bin', 'x64', 'Release', 'slice2matlab.exe'),
         fullfile(root_dir, '..', '..', 'cpp', 'bin', 'x64', 'Debug', 'slice2matlab.exe'),
-        fullfile(root_dir, '..', 'msbuild', 'packages', 'zeroc.ice.v143', 'build', 'native', 'tools', 'slice2matlab.exe'),
         fullfile(root_dir, '..', '..', 'cpp', 'bin', 'slice2matlab')
     };
 

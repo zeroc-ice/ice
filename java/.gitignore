@@ -8,3 +8,5 @@ local.properties
 # Jacoco coverage files
 *.jacoco.exec
 jacoco.exec
+
+tools/slice-tools/src/main/resources

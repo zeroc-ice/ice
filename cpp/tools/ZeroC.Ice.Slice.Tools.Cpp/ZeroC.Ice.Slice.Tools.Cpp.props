@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2009-2018 ZeroC, Inc. All rights reserved. -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <!-- default values -->
+    <Choose>
+        <When Condition="Exists('$(MSBuildThisFileDirectory)..\ZeroC.Ice.Cpp.nuspec')">
+            <!-- Use the Slice compiler from this NuGet package -->
+            <PropertyGroup>
+                <IceToolsPath>$(MSBuildThisFileDirectory)..\tools\</IceToolsPath>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup >
+                <!-- Use the Slice compiler from this Source distribution -->
+                <IceToolsPath>$(MSBuildThisFileDirectory)..\..\..\cpp\bin\x64\Configuration</IceToolsPath>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
+
+    <ItemDefinitionGroup>
+        <SliceCompile>
+            <OutputDir>$(IntDir)</OutputDir>
+            <HeaderExt>h</HeaderExt>
+            <SourceExt>cpp</SourceExt>
+        </SliceCompile>
+    </ItemDefinitionGroup>
+
+    <Choose>
+        <When Condition="Exists('$(MSBuildThisFileDirectory)..\ZeroC.Ice.Cpp.nuspec')">
+            <!-- Default SliceCompile settings for NuGet package -->
+            <ItemDefinitionGroup>
+                <SliceCompile>
+                    <IncludeDirectories>$(MSBuildThisFileDirectory)..\slice</IncludeDirectories>
+                </SliceCompile>
+            </ItemDefinitionGroup>
+        </When>
+        <Otherwise>
+            <!-- Default SliceCompile settings for Ice source builds -->
+            <ItemDefinitionGroup>
+                <SliceCompile>
+                    <IncludeDirectories>$(MSBuildThisFileDirectory)..\..\..\slice</IncludeDirectories>
+                </SliceCompile>
+            </ItemDefinitionGroup>
+        </Otherwise>
+    </Choose>
+</Project>
