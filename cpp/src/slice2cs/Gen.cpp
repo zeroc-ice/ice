@@ -2287,7 +2287,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     ostringstream notes;
     notes << "Your servant class implements this interface by deriving from <see cref=\"" << p->mappedName()
-        << "Disp_\" /> or from the Disp_ class for a derived interface.";
+          << "Disp_\" /> or from the Disp_ class for a derived interface.";
 
     writeDocComment(p, "server-side interface", notes.str());
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
