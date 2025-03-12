@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) ZeroC, Inc. All rights reserved. -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <!-- Use bin and lib directories that match the used platform toolset -->
+    <PropertyGroup>
+        <IceConfiguration Condition="'$(UseDebugLibraries)' == 'true'">Debug</IceConfiguration>
+        <IceConfiguration Condition="'$(UseDebugLibraries)' != 'true'">Release</IceConfiguration>
+        <LocalDebuggerEnvironment Condition="'$(LocalDebuggerEnvironment)' == ''">PATH=$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)</LocalDebuggerEnvironment>
+        <IceDllDebugSuffix Condition="'$(IceConfiguration)' == 'Debug'">d</IceDllDebugSuffix>
+        <IceDLLSuffix>38a0$(IceDllDebugSuffix)</IceDLLSuffix>
+    </PropertyGroup>
+    <!-- Import Slice Tools targets file -->
+    <Import Project="$(MSBuildThisFileDirectory)..\ZeroC.Ice.Slice.Tools.Cpp.targets" />
+
+    <ItemGroup>
+        <_Ice_DLLs Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\*$(IceDLLSuffix).dll" Exclude="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\icedb38*.dll"/>
+        <_Ice_DLLs Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\libssl*.dll"/>
+        <_Ice_DLLs Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\libcrypto*.dll"/>
+        <_Ice_DLLs Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\bzip2*.dll"/>
+    </ItemGroup>
+
+    <ItemDefinitionGroup>
+        <ClCompile>
+            <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+        </ClCompile>
+        <Link>
+            <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)lib\$(Platform)\Release;$(MSBuildThisFileDirectory)lib\$(Platform)\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+        </Link>
+    </ItemDefinitionGroup>
+
+    <Target Name="ValidateSliceCompilerVersion" BeforeTargets="CLCompile">
+        <Error Text="Detected invalid Ice version '$(IceVersion)' expected '3.8a0'" Condition="'$(IceVersion)' != '3.8a0'" />
+    </Target>
+
+    <Target Name="Ice_CopyDLLs" AfterTargets="Build" Condition="'$(Ice_CopyDLLs)' == 'Yes'">
+        <Copy SourceFiles="@(_Ice_DLLs)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
+    </Target>
+</Project>
