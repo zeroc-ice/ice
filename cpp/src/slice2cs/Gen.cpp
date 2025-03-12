@@ -43,7 +43,7 @@ namespace
     }
 
     void
-    writeDocLines(Output& out, const string& openTag, const StringList& lines, std::optional<string> closeTag = nullopt)
+    writeDocLines(Output& out, const string& openTag, const StringList& lines, optional<string> closeTag = nullopt)
     {
         // If there is a single line, write the doc-comment as a single line. Otherwise, write the doc-comment on
         // multiple lines.
