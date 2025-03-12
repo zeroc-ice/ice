@@ -2,166 +2,163 @@
 
 using System.Diagnostics;
 
-namespace Ice
+namespace Ice.admin
 {
-    namespace admin
+    public class TestFacetI : Test.TestFacetDisp_
     {
-        public class TestFacetI : Test.TestFacetDisp_
+        public override void op(Ice.Current current)
         {
-            public override void op(Ice.Current current)
+        }
+    }
+
+    public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
+    {
+        public RemoteCommunicatorI(Ice.Communicator communicator)
+        {
+            _communicator = communicator;
+        }
+
+        public override Ice.ObjectPrx getAdmin(Ice.Current current)
+        {
+            return _communicator.getAdmin();
+        }
+
+        public override Dictionary<string, string> getChanges(Ice.Current current)
+        {
+            lock (this)
             {
+                return _changes;
             }
         }
 
-        public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
+        public override void print(string message, Ice.Current current)
         {
-            public RemoteCommunicatorI(Ice.Communicator communicator)
-            {
-                _communicator = communicator;
-            }
-
-            public override Ice.ObjectPrx getAdmin(Ice.Current current)
-            {
-                return _communicator.getAdmin();
-            }
-
-            public override Dictionary<string, string> getChanges(Ice.Current current)
-            {
-                lock (this)
-                {
-                    return _changes;
-                }
-            }
-
-            public override void print(string message, Ice.Current current)
-            {
-                _communicator.getLogger().print(message);
-            }
-
-            public override void trace(string category, string message, Ice.Current current)
-            {
-                _communicator.getLogger().trace(category, message);
-            }
-
-            public override void warning(string message, Ice.Current current)
-            {
-                _communicator.getLogger().warning(message);
-            }
-
-            public override void error(string message, Ice.Current current)
-            {
-                _communicator.getLogger().error(message);
-            }
-
-            public override void shutdown(Ice.Current current)
-            {
-                _communicator.shutdown();
-            }
-
-            public override void waitForShutdown(Ice.Current current)
-            {
-                //
-                // Note that we are executing in a thread of the *main* communicator,
-                // not the one that is being shut down.
-                //
-                _communicator.waitForShutdown();
-            }
-
-            public override void destroy(Ice.Current current)
-            {
-                _communicator.destroy();
-            }
-
-            public void updated(Dictionary<string, string> changes)
-            {
-                lock (this)
-                {
-                    _changes = changes;
-                }
-            }
-
-            private Ice.Communicator _communicator;
-            private Dictionary<string, string> _changes;
+            _communicator.getLogger().print(message);
         }
 
-        public class RemoteCommunicatorFactoryI : Test.RemoteCommunicatorFactoryDisp_
+        public override void trace(string category, string message, Ice.Current current)
         {
-            public override Test.RemoteCommunicatorPrx createCommunicator(Dictionary<string, string> props, Ice.Current current)
+            _communicator.getLogger().trace(category, message);
+        }
+
+        public override void warning(string message, Ice.Current current)
+        {
+            _communicator.getLogger().warning(message);
+        }
+
+        public override void error(string message, Ice.Current current)
+        {
+            _communicator.getLogger().error(message);
+        }
+
+        public override void shutdown(Ice.Current current)
+        {
+            _communicator.shutdown();
+        }
+
+        public override void waitForShutdown(Ice.Current current)
+        {
+            //
+            // Note that we are executing in a thread of the *main* communicator,
+            // not the one that is being shut down.
+            //
+            _communicator.waitForShutdown();
+        }
+
+        public override void destroy(Ice.Current current)
+        {
+            _communicator.destroy();
+        }
+
+        public void updated(Dictionary<string, string> changes)
+        {
+            lock (this)
             {
-                //
-                // Prepare the property set using the given properties.
-                //
-                Ice.InitializationData init = new Ice.InitializationData();
-                init.properties = new Ice.Properties();
-                foreach (KeyValuePair<string, string> e in props)
-                {
-                    init.properties.setProperty(e.Key, e.Value);
-                }
+                _changes = changes;
+            }
+        }
 
-                if (init.properties.getPropertyAsInt("NullLogger") > 0)
-                {
-                    init.logger = new NullLogger();
-                }
+        private Ice.Communicator _communicator;
+        private Dictionary<string, string> _changes;
+    }
 
-                //
-                // Initialize a new communicator.
-                //
-                Ice.Communicator communicator = Ice.Util.initialize(init);
-
-                //
-                // Install a custom admin facet.
-                //
-                communicator.addAdminFacet(new TestFacetI(), "TestFacet");
-
-                //
-                // Set the callback on the admin facet.
-                //
-                RemoteCommunicatorI servant = new RemoteCommunicatorI(communicator);
-                Ice.Object propFacet = communicator.findAdminFacet("Properties");
-
-                if (propFacet != null)
-                {
-                    Ice.NativePropertiesAdmin admin = (Ice.NativePropertiesAdmin)propFacet;
-                    Debug.Assert(admin != null);
-                    admin.addUpdateCallback(servant.updated);
-                }
-
-                Ice.ObjectPrx proxy = current.adapter.addWithUUID(servant);
-                return Test.RemoteCommunicatorPrxHelper.uncheckedCast(proxy);
+    public class RemoteCommunicatorFactoryI : Test.RemoteCommunicatorFactoryDisp_
+    {
+        public override Test.RemoteCommunicatorPrx createCommunicator(Dictionary<string, string> props, Ice.Current current)
+        {
+            //
+            // Prepare the property set using the given properties.
+            //
+            Ice.InitializationData init = new Ice.InitializationData();
+            init.properties = new Ice.Properties();
+            foreach (KeyValuePair<string, string> e in props)
+            {
+                init.properties.setProperty(e.Key, e.Value);
             }
 
-            public override void shutdown(Ice.Current current)
+            if (init.properties.getPropertyAsInt("NullLogger") > 0)
             {
-                current.adapter.getCommunicator().shutdown();
+                init.logger = new NullLogger();
             }
 
-            private class NullLogger : Ice.Logger
+            //
+            // Initialize a new communicator.
+            //
+            Ice.Communicator communicator = Ice.Util.initialize(init);
+
+            //
+            // Install a custom admin facet.
+            //
+            communicator.addAdminFacet(new TestFacetI(), "TestFacet");
+
+            //
+            // Set the callback on the admin facet.
+            //
+            RemoteCommunicatorI servant = new RemoteCommunicatorI(communicator);
+            Ice.Object propFacet = communicator.findAdminFacet("Properties");
+
+            if (propFacet != null)
             {
-                public void print(string message)
-                {
-                }
+                Ice.NativePropertiesAdmin admin = (Ice.NativePropertiesAdmin)propFacet;
+                Debug.Assert(admin != null);
+                admin.addUpdateCallback(servant.updated);
+            }
 
-                public void trace(string category, string message)
-                {
-                }
+            Ice.ObjectPrx proxy = current.adapter.addWithUUID(servant);
+            return Test.RemoteCommunicatorPrxHelper.uncheckedCast(proxy);
+        }
 
-                public void warning(string message)
-                {
-                }
+        public override void shutdown(Ice.Current current)
+        {
+            current.adapter.getCommunicator().shutdown();
+        }
 
-                public void error(string message)
-                {
-                }
+        private class NullLogger : Ice.Logger
+        {
+            public void print(string message)
+            {
+            }
 
-                public string getPrefix()
-                {
-                    return "NullLogger";
-                }
+            public void trace(string category, string message)
+            {
+            }
 
-                public Ice.Logger cloneWithPrefix(string prefix)
-                {
-                    return this;
-                }
+            public void warning(string message)
+            {
+            }
+
+            public void error(string message)
+            {
+            }
+
+            public string getPrefix()
+            {
+                return "NullLogger";
+            }
+
+            public Ice.Logger cloneWithPrefix(string prefix)
+            {
+                return this;
             }
         }
     }
