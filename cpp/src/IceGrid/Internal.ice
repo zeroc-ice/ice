@@ -154,7 +154,7 @@ module IceGrid
         ["amd"] void start()
             throws ServerStartException;
 
-        /// Stop the server. This methods returns only when the server is deactivated. If the server doesn't stop after a
+        /// Stop the server. This method returns only when the server is deactivated. If the server doesn't stop after a
         /// configurable amount of time, it will be killed.
         ["amd"] void stop()
             throws ServerStopException;
