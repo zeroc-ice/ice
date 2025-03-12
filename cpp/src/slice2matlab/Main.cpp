@@ -826,8 +826,7 @@ namespace
                     }
                     for (const auto& outParam : outParams)
                     {
-                        out << nl << "%   " << outParam->mappedName() << " (" << typeToString(outParam->type())
-                            << ")";
+                        out << nl << "%   " << outParam->mappedName() << " (" << typeToString(outParam->type()) << ")";
                         auto r = docParameters.find(outParam->name());
                         if (r != docParameters.end() && !r->second.empty())
                         {
@@ -1019,15 +1018,15 @@ namespace
         MetadataInfo identifierInfo = {
             .validOn =
                 {typeid(InterfaceDecl),
-                typeid(Operation),
-                typeid(Struct),
-                typeid(Sequence),
-                typeid(Dictionary),
-                typeid(Enum),
-                typeid(Enumerator),
-                typeid(Const),
-                typeid(Parameter),
-                typeid(DataMember)},
+                 typeid(Operation),
+                 typeid(Struct),
+                 typeid(Sequence),
+                 typeid(Dictionary),
+                 typeid(Enum),
+                 typeid(Enumerator),
+                 typeid(Const),
+                 typeid(Parameter),
+                 typeid(DataMember)},
             .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
         };
         knownMetadata.emplace("matlab:identifier", std::move(identifierInfo));
@@ -1274,13 +1273,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     for (const auto& optionalMember : optionalMembers)
     {
-        marshal(
-            out,
-            "os",
-            "obj." + optionalMember->mappedName(),
-            optionalMember->type(),
-            true,
-            optionalMember->tag());
+        marshal(out, "os", "obj." + optionalMember->mappedName(), optionalMember->type(), true, optionalMember->tag());
     }
     out << nl << "os.endSlice();";
     if (base)
@@ -1894,7 +1887,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     else
     {
-        out << nl << self << " = " << self << "@" << base->mappedScoped(".").substr(1) << spar << "errID" << "msg" << epar << ';';
+        out << nl << self << " = " << self << "@" << base->mappedScoped(".").substr(1) << spar << "errID" << "msg"
+            << epar << ';';
     }
     out.dec();
     out << nl << "end";
