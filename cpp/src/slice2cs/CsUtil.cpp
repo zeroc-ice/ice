@@ -1733,19 +1733,7 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
 
     // "cs:attribute"
     MetadataInfo attributeInfo = {
-        .validOn =
-            {typeid(Unit),
-             typeid(Module),
-             typeid(InterfaceDecl),
-             typeid(ClassDecl),
-             typeid(Operation),
-             typeid(Slice::Exception),
-             typeid(Struct),
-             typeid(Enum),
-             typeid(Enumerator),
-             typeid(Const),
-             typeid(Parameter),
-             typeid(DataMember)},
+        .validOn = {typeid(Enum), typeid(Enumerator), typeid(Const), typeid(DataMember)},
         .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
         .mustBeUnique = false,
     };

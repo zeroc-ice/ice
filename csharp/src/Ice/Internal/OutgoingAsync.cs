@@ -651,7 +651,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
         // If the request didn't get sent or if it's non-mutating or idempotent it can
         // also always be retried if the retry count isn't reached.
         bool shouldRetry = ex is LocalException && (!_sent ||
-            mode_ == OperationMode.Nonmutating || mode_ == OperationMode.Idempotent ||
+            mode_ is not OperationMode.Normal ||
             ex is CloseConnectionException ||
             ex is ObjectNotExistException);
 

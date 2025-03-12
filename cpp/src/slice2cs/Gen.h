@@ -39,10 +39,10 @@ namespace Slice
             std::vector<std::string>&,
             const std::string&);
 
+        /// Generates C# attributes from any 'cs:attribute' metadata.
         void emitAttributes(const ContainedPtr&);
-        void emitNonBrowsableAttribute();
 
-        static std::string getParamAttributes(const ParameterPtr&);
+        void emitNonBrowsableAttribute();
 
         void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
 
@@ -85,8 +85,6 @@ namespace Slice
         {
         public:
             TypesVisitor(IceInternal::Output&);
-
-            bool visitUnitStart(const UnitPtr&) final;
 
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;

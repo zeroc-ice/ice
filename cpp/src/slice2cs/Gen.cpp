@@ -505,20 +505,6 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     _out << eb;
 }
 
-string
-Slice::CsVisitor::getParamAttributes(const ParameterPtr& p)
-{
-    ostringstream ostr;
-    for (const auto& metadata : p->getMetadata())
-    {
-        if (metadata->directive() == "cs:attribute")
-        {
-            ostr << "[" << metadata->arguments() << "] ";
-        }
-    }
-    return ostr.str();
-}
-
 vector<string>
 Slice::CsVisitor::getParams(const OperationPtr& op, const string& ns)
 {
@@ -527,10 +513,10 @@ Slice::CsVisitor::getParams(const OperationPtr& op, const string& ns)
     InterfaceDefPtr interface = op->interface();
     for (const auto& q : paramList)
     {
-        string param = getParamAttributes(q);
+        string param;
         if (q->isOutParam())
         {
-            param += "out ";
+            param = "out ";
         }
         param += typeToString(q->type(), ns, q->optional()) + " " + q->mappedName();
         params.push_back(param);
@@ -545,7 +531,7 @@ Slice::CsVisitor::getInParams(const OperationPtr& op, const string& ns, bool int
     for (const auto& q : op->inParameters())
     {
         string param = (internal ? ("iceP_" + removeEscapePrefix(q->mappedName())) : q->mappedName());
-        params.push_back(getParamAttributes(q) + typeToString(q->type(), ns, q->optional()) + " " + param);
+        params.push_back(typeToString(q->type(), ns, q->optional()) + " " + param);
     }
     return params;
 }
@@ -565,10 +551,10 @@ Slice::CsVisitor::getOutParams(const OperationPtr& op, const string& ns, bool re
 
     for (const auto& q : op->outParameters())
     {
-        string s = getParamAttributes(q);
+        string s;
         if (outKeyword)
         {
-            s += "out ";
+            s = "out ";
         }
         s += typeToString(q->type(), ns, q->optional()) + ' ' + q->mappedName();
         params.push_back(s);
@@ -654,6 +640,10 @@ Slice::CsVisitor::getDispatchParams(
 void
 Slice::CsVisitor::emitAttributes(const ContainedPtr& p)
 {
+    assert(
+        dynamic_pointer_cast<Enum>(p) || dynamic_pointer_cast<Enumerator>(p) || dynamic_pointer_cast<DataMember>(p) ||
+        dynamic_pointer_cast<Const>(p));
+
     for (const auto& metadata : p->getMetadata())
     {
         if (metadata->directive() == "cs:attribute")
@@ -931,35 +921,11 @@ Slice::Gen::printHeader()
 Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
-Slice::Gen::TypesVisitor::visitUnitStart(const UnitPtr& unit)
-{
-    DefinitionContextPtr dc = unit->findDefinitionContext(unit->topLevelFile());
-    assert(dc);
-
-    bool sep = false;
-    for (const auto& metadata : dc->getMetadata())
-    {
-        if (metadata->directive() == "cs:attribute")
-        {
-            if (!sep)
-            {
-                _out << sp;
-                sep = true;
-            }
-            _out << nl << '[' << metadata->arguments() << ']';
-        }
-    }
-    return true;
-}
-
-bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
     moduleStart(p);
     _out << sp;
-    emitAttributes(p);
     _out << nl << "namespace " << p->mappedName();
-
     _out << sb;
 
     return true;
@@ -980,8 +946,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out << sp;
     writeDocComment(p, "class");
-    emitAttributes(p);
-
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
     if (p->compactId() >= 0)
     {
@@ -1266,7 +1230,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << sp;
     writeDocComment(p, "exception class");
     emitObsoleteAttribute(p, _out);
-    emitAttributes(p);
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << "public partial class " << p->mappedName() << " : ";
     if (base)
@@ -1462,7 +1425,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     writeDocComment(p, mappedType);
     emitObsoleteAttribute(p, _out);
-    emitAttributes(p);
     _out << nl << "public " << (classMapping ? "sealed " : "") << "partial " << mappedType << ' ' << name;
     _out << sb;
     return true;
@@ -1581,6 +1543,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         }
 
         writeDocComment(enumerator, "");
+        emitObsoleteAttribute(enumerator, _out);
         emitAttributes(enumerator);
         _out << nl << enumerator->mappedName();
         if (hasExplicitValues)
@@ -1639,10 +1602,9 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     _out << sp;
 
-    emitObsoleteAttribute(p, _out);
-
     string type = typeToString(p->type(), ns, p->optional());
 
+    emitObsoleteAttribute(p, _out);
     emitAttributes(p);
     _out << nl << "public" << ' ' << type << ' ' << p->mappedName();
 
@@ -2283,8 +2245,6 @@ Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     string ns = getNamespace(p);
 
     _out << sp;
-    emitAttributes(p);
-
     ostringstream notes;
     notes << "Your servant class implements this interface by deriving from <see cref=\"" << p->mappedName()
           << "Disp_\" /> or from the Disp_ class for a derived interface.";
@@ -2377,7 +2337,6 @@ Slice::Gen::ServantVisitor::visitOperation(const OperationPtr& op)
 
     writeOpDocComment(op, {"<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>"}, amd);
 
-    emitAttributes(op);
     emitObsoleteAttribute(op, _out);
     _out << nl << retS << " " << opName << spar << params << epar << ";";
 

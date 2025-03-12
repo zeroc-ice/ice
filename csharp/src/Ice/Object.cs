@@ -125,6 +125,22 @@ public abstract class ObjectImpl : Object
     /// <returns>The return value is always ::Ice::Object.</returns>
     public static string ice_staticId() => "::Ice::Object";
 
+    public static void iceCheckMode(OperationMode expected, OperationMode received)
+    {
+        Debug.Assert(expected is OperationMode.Normal or OperationMode.Idempotent); // We never expect Nonmutating
+        if (expected != received)
+        {
+            if (expected is OperationMode.Idempotent && received is not OperationMode.Normal)
+            {
+                // Fine: typically an old client still using the deprecated nonmutating keyword/mode.
+            }
+            else
+            {
+                throw new MarshalException($"unexpected operation mode: expected = {expected} received = {received}");
+            }
+        }
+    }
+
     /// <inheritdoc />
     public virtual string ice_id(Current current) => ice_staticId();
 
@@ -137,41 +153,6 @@ public abstract class ObjectImpl : Object
             "ice_ping" => Object.iceD_ice_pingAsync(this, request),
             _ => throw new OperationNotExistException()
         };
-
-    private static string operationModeToString(OperationMode mode)
-    {
-        if (mode == OperationMode.Normal)
-        {
-            return "::Ice::Normal";
-        }
-        if (mode == OperationMode.Nonmutating)
-        {
-            return "::Ice::Nonmutating";
-        }
-
-        if (mode == OperationMode.Idempotent)
-        {
-            return "::Ice::Idempotent";
-        }
-
-        return "???";
-    }
-
-    public static void iceCheckMode(OperationMode expected, OperationMode received)
-    {
-        Debug.Assert(expected != OperationMode.Nonmutating); // We never expect Nonmutating
-        if (expected != received)
-        {
-            if (expected == OperationMode.Idempotent && received == OperationMode.Nonmutating)
-            {
-                // Fine: typically an old client still using the deprecated nonmutating keyword
-            }
-            else
-            {
-                throw new MarshalException($"unexpected operation mode: expected = {operationModeToString(expected)} received = {operationModeToString(received)}");
-            }
-        }
-    }
 }
 
 /// <summary>
