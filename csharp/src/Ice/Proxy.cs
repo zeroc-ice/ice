@@ -1636,7 +1636,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     [EditorBrowsable(EditorBrowsableState.Never)]
     public void iceWrite(OutputStream os)
     {
-        _reference.getIdentity().ice_writeMembers(os);
+        Identity.ice_write(os, _reference.getIdentity());
         _reference.streamWrite(os);
     }
 

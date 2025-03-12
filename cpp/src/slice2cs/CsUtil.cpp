@@ -513,14 +513,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
     {
         if (marshal)
         {
-            if (isMappedToClass(st))
-            {
-                out << nl << typeToString(st, package) << ".ice_write(" << stream << ", " << param << ");";
-            }
-            else
-            {
-                out << nl << param << ".ice_writeMembers(" << stream << ");";
-            }
+            out << nl << typeToString(st, package) << ".ice_write(" << stream << ", " << param << ");";
         }
         else
         {
@@ -1246,32 +1239,31 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
                 out << nl << "for (int ix = 0; ix < " << param << '.' << limitID << "; ++ix)";
             }
             out << sb;
-            string call;
+
+            out << nl << typeS << ".ice_write(" << stream << ", ";
+
             if (isGeneric && !isList && !isStack)
             {
                 if (isValueType(type))
                 {
-                    call = "e.Current";
+                    out << "e.Current";
                 }
                 else
                 {
-                    call = "(e.Current == null ? new ";
-                    call += typeS + "() : e.Current)";
+                    out << "(e.Current is null ? new ";
+                    out << typeS << "() : e.Current)";
                 }
             }
             else
             {
-                call = param;
+                out << param;
                 if (isStack)
                 {
-                    call += "_tmp";
+                    out << "_tmp";
                 }
-                call += "[ix]";
+                out << "[ix]";
             }
-            call += ".";
-            call += "ice_writeMembers";
-            call += "(" + stream + ");";
-            out << nl << call;
+            out << ");";
             out << eb;
             out << eb;
         }

@@ -268,8 +268,8 @@ internal sealed class UdpEndpointI : IPEndpointI
         base.streamWriteImpl(s);
         if (s.getEncoding().Equals(Ice.Util.Encoding_1_0))
         {
-            Ice.Util.Protocol_1_0.ice_writeMembers(s);
-            Ice.Util.Encoding_1_0.ice_writeMembers(s);
+            ProtocolVersion.ice_write(s, Ice.Util.Protocol_1_0);
+            EncodingVersion.ice_write(s, Ice.Util.Encoding_1_0);
         }
         s.writeBool(_compress);
     }

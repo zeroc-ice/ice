@@ -869,7 +869,7 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
 
         Reference rf = proxy_.iceReference();
 
-        rf.getIdentity().ice_writeMembers(os_);
+        Identity.ice_write(os_, rf.getIdentity());
 
         //
         // For compatibility with the old FacetPath.

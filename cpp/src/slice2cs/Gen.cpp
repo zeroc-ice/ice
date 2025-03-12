@@ -405,11 +405,11 @@ Slice::CsVisitor::writeMarshalDataMember(
     }
     else
     {
-        string stream = forStruct ? "" : "ostr_";
+        string stream = forStruct ? "ostr" : "ostr_";
         string memberName = name;
         if (forStruct)
         {
-            memberName = "this." + memberName;
+            memberName = "v." + memberName;
         }
 
         writeMarshalUnmarshalCode(_out, member->type(), ns, memberName, true, stream);
@@ -1545,7 +1545,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << eb;
 
     _out << sp;
-    _out << nl << "public void ice_writeMembers(Ice.OutputStream ostr)";
+    _out << nl << "public static void ice_write(Ice.OutputStream ostr, " << name << " v)";
     _out << sb;
     for (const auto& dataMember : dataMembers)
     {
@@ -1554,14 +1554,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << eb;
 
     _out << sp;
-    writeMarshalDocComment(_out);
-    _out << nl << "public static void ice_write(Ice.OutputStream ostr, " << name << " v)";
-    _out << sb;
-    _out << nl << "v.ice_writeMembers(ostr);";
-    _out << eb;
-
-    _out << sp;
-    writeUnmarshalDocComment(_out);
     _out << nl << "public static " << name << " ice_read(Ice.InputStream istr) => new(istr);";
     _out << eb;
 }
@@ -2294,8 +2286,8 @@ Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     emitAttributes(p);
 
     ostringstream notes;
-    notes << "Your servant class implements this interface by deriving from a generated Disp_ class such as "
-          << "<see cref=\"" << p->mappedName() << "Disp_\" />.";
+    notes << "Your servant class implements this interface by deriving from <see cref=\"" << p->mappedName()
+        << "Disp_\" /> or from the Disp_ class for a derived interface.";
 
     writeDocComment(p, "server-side interface", notes.str());
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
