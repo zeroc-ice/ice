@@ -63,15 +63,22 @@ Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
 string
 Slice::CsGenerator::getUnqualified(const ContainedPtr& p, const string& package)
 {
-    string name = p->mappedName();
-    string contPkg = getNamespace(p);
-    if (contPkg == package || contPkg.empty())
+    // If contained is an operation, a field, or an enumerator, we use the enclosing type.
+    if (dynamic_pointer_cast<Operation>(p) || dynamic_pointer_cast<DataMember>(p) || dynamic_pointer_cast<Enumerator>(p))
     {
-        return name;
+        return getUnqualified(dynamic_pointer_cast<Contained>(p->container()), package) + "." + p->mappedName();
     }
     else
     {
-        return "global::" + contPkg + "." + name;
+        string pNamespace = getNamespace(p);
+        if (pNamespace == package || pNamespace.empty())
+        {
+            return p->mappedName();
+        }
+        else
+        {
+            return "global::" + pNamespace + "." + p->mappedName();
+        }
     }
 }
 

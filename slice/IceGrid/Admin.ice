@@ -209,7 +209,7 @@ module IceGrid
         ApplicationUpdateDescriptor descriptor;
     }
 
-    /// The IceGrid administrative interface. <p class="Warning">Allowing access to this interface is a security risk!
+    /// The IceGrid administrative interface. Warning: Allowing access to this interface is a security risk!
     /// Please see the IceGrid documentation for further information.
     interface Admin
     {

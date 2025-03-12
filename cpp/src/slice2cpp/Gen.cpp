@@ -3028,8 +3028,9 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
                                           : "[responseHandler] { responseHandler->sendEmptyResponse(); }");
         }
         params.push_back("std::function<void(std::exception_ptr)> " + excbParam);
-        args.emplace_back("[responseHandler](std::exception_ptr ex) { "
-                          "responseHandler->sendException(ex); }");
+        args.emplace_back(
+            "[responseHandler](std::exception_ptr ex) { "
+            "responseHandler->sendException(ex); }");
         params.push_back(currentDecl);
         args.emplace_back("responseHandler->current()");
     }
