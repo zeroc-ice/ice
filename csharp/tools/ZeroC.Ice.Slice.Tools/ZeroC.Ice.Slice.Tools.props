@@ -12,7 +12,8 @@
 
     <!-- default values -->
     <Choose>
-        <When Condition="Exists('$(MSBuildThisFileDirectory)..\ZeroC.Ice.Slice.Tools.nuspec')">
+        <!-- NuGet creates .nuspec files with all lowercase names -->
+        <When Condition="Exists('$(MSBuildThisFileDirectory)..\zeroc.ice.slice.tools.nuspec')">
             <!-- Use the Slice compiler from this NuGet package -->
             <PropertyGroup>
                 <IceToolsPath>$(MSBuildThisFileDirectory)..\tools\$(IceOSName)-$(IceOSArch)\</IceToolsPath>
