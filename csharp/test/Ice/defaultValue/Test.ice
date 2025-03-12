@@ -169,6 +169,7 @@ module Test
         float zeroDotF = 0.0;
         double zeroD = 0;
         double zeroDotD = 0;
+        Struct1 st1;
     }
 
     class Derived extends Base
