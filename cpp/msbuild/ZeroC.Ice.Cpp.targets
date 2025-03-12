@@ -3,7 +3,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <!-- Use bin and lib directories that match the used platform toolset -->
-    <PropertyGroup Condition="'$(PlatformToolset)' == 'v143'">
+    <PropertyGroup>
         <IceConfiguration Condition="'$(UseDebugLibraries)' == 'true'">Debug</IceConfiguration>
         <IceConfiguration Condition="'$(UseDebugLibraries)' != 'true'">Release</IceConfiguration>
         <LocalDebuggerEnvironment Condition="'$(LocalDebuggerEnvironment)' == ''">PATH=$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)</LocalDebuggerEnvironment>
@@ -14,13 +14,13 @@
     <Import Project="$(MSBuildThisFileDirectory)..\ZeroC.Ice.Slice.Tools.Cpp.targets" />
 
     <ItemGroup>
-        <_Ice_DLLs_v143 Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\*$(IceDLLSuffix).dll" Exclude="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\icedb37*.dll"/>
-        <_Ice_DLLs_v143 Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\libssl*.dll"/>
-        <_Ice_DLLs_v143 Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\libcrypto*.dll"/>
-        <_Ice_DLLs_v143 Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\bzip2*.dll"/>
+        <_Ice_DLLs Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\*$(IceDLLSuffix).dll" Exclude="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\icedb38*.dll"/>
+        <_Ice_DLLs Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\libssl*.dll"/>
+        <_Ice_DLLs Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\libcrypto*.dll"/>
+        <_Ice_DLLs Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\bzip2*.dll"/>
     </ItemGroup>
 
-    <ItemDefinitionGroup Condition="'$(PlatformToolset)' == 'v143'">
+    <ItemDefinitionGroup>
         <ClCompile>
             <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
         </ClCompile>
@@ -33,7 +33,7 @@
         <Error Text="Detected invalid Ice version '$(IceVersion)' expected '3.8a0'" Condition="'$(IceVersion)' != '3.8a0'" />
     </Target>
 
-    <Target Name="Ice_CopyDLLs_v143" AfterTargets="Build" Condition="'$(PlatformToolset)' == 'v143' and '$(Ice_CopyDLLs)' == 'Yes'">
-        <Copy SourceFiles="@(_Ice_DLLs_v143)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
+    <Target Name="Ice_CopyDLLs" AfterTargets="Build" Condition="'$(Ice_CopyDLLs)' == 'Yes'">
+        <Copy SourceFiles="@(_Ice_DLLs)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
     </Target>
 </Project>
