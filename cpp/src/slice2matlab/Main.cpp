@@ -34,19 +34,6 @@ using namespace IceInternal;
 
 namespace
 {
-    string replace(const string& s, const string& patt, const string& val)
-    {
-        string r{s};
-        string::size_type pos = r.find(patt);
-        while (pos != string::npos)
-        {
-            r.replace(pos, patt.size(), val);
-            pos += val.size();
-            pos = r.find(patt, pos);
-        }
-        return r;
-    }
-
     void writeCopyright(IceInternal::Output& out, const string& file)
     {
         string f = file;
