@@ -1135,7 +1135,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << sp;
     ostringstream summary;
     summary << "Provides methods to marshal and unmarshal a <c>" << p->name() << "</c>.";
-    writeHelperDocComment(p, summary.str(), "helper class");
+    writeHelperDocComment(p, summary.str(), "sequence helper class");
     _out << nl << "public sealed class " << name << "Helper";
     _out << sb;
 
@@ -1201,7 +1201,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sp;
     ostringstream summary;
     summary << "Provides methods to marshal and unmarshal a <c>" << p->name() << "</c>.";
-    writeHelperDocComment(p, summary.str(), "helper class");
+    writeHelperDocComment(p, summary.str(), "dictionary helper class");
     _out << nl << "public sealed class " << p->mappedName() << "Helper";
     _out << sb;
 
@@ -1602,7 +1602,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << sp;
     ostringstream classComment;
     classComment << "Provides methods to marshal and unmarshal a <see cref=\"" << name << "\" />.";
-    writeHelperDocComment(p, classComment.str(), "helper class");
+    writeHelperDocComment(p, classComment.str(), "enum helper class");
     _out << nl << "public sealed class " << name << "Helper";
     _out << sb;
     _out << sp;
@@ -2346,7 +2346,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     remarks << "Your servant class derives from this abstract class to implement Slice interface <c>" << p->name()
             << "</c>.";
 
-    writeHelperDocComment(p, summary.str(), "helper class", remarks.str());
+    writeHelperDocComment(p, summary.str(), "dispatch helper class", remarks.str());
     _out << nl << "public abstract partial class " << name << "Disp_ : Ice.ObjectImpl, " << name;
 
     _out << sb;
