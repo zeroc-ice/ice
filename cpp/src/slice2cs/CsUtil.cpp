@@ -983,7 +983,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
                         {
                             out << nl << "global::System.Collections.Generic.IEnumerator<" << typeS << "> e = " << param
                                 << ".GetEnumerator();";
-                            out << nl << "while(e.MoveNext())";
+                            out << nl << "while (e.MoveNext())";
                             out << sb;
                             string func = (kind == Builtin::KindObject || kind == Builtin::KindValue) ? "writeValue"
                                                                                                       : "writeProxy";
@@ -1119,7 +1119,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
                         out << nl << param << " = new "
                             << "global::" << genericType << "<" << typeToString(type, scope) << ">();";
                         out << nl << "int szx = " << stream << ".readSize();";
-                        out << nl << "for(int ix = 0; ix < szx; ++ix)";
+                        out << nl << "for (int ix = 0; ix < szx; ++ix)";
                         out << sb;
                         out << nl << param << ".Add(" << stream << ".read" << func << "());";
                         out << eb;
@@ -1164,7 +1164,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
             }
             else
             {
-                out << nl << "for(int ix = 0; ix < " << param << '.' << limitID << "; ++ix)";
+                out << nl << "for (int ix = 0; ix < " << param << '.' << limitID << "; ++ix)";
                 out << sb;
                 out << nl << stream << ".writeValue(" << param << "[ix]);";
                 out << eb;
@@ -1225,18 +1225,18 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
                 if (isStack)
                 {
                     out << nl << typeS << "[] " << param << "_tmp = " << param << ".ToArray();";
-                    out << nl << "for(int ix = 0; ix < " << param << "_tmp.Length; ++ix)";
+                    out << nl << "for (int ix = 0; ix < " << param << "_tmp.Length; ++ix)";
                 }
                 else
                 {
                     out << nl << "global::System.Collections.Generic.IEnumerator<" << typeS << "> e = " << param
                         << ".GetEnumerator();";
-                    out << nl << "while(e.MoveNext())";
+                    out << nl << "while (e.MoveNext())";
                 }
             }
             else
             {
-                out << nl << "for(int ix = 0; ix < " << param << '.' << limitID << "; ++ix)";
+                out << nl << "for (int ix = 0; ix < " << param << '.' << limitID << "; ++ix)";
             }
             out << sb;
 
@@ -1294,7 +1294,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
                 }
                 out << ");";
             }
-            out << nl << "for(int ix = 0; ix < szx; ++ix)";
+            out << nl << "for (int ix = 0; ix < szx; ++ix)";
             out << sb;
             if (isArray || isStack)
             {
@@ -1338,7 +1338,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
                 if (isStack)
                 {
                     out << nl << typeS << "[] " << param << "_tmp = " << param << ".ToArray();";
-                    out << nl << "for(int ix = 0; ix < " << param << "_tmp.Length; ++ix)";
+                    out << nl << "for (int ix = 0; ix < " << param << "_tmp.Length; ++ix)";
                     out << sb;
                     out << nl << stream << ".writeEnum((int)" << param << "_tmp[ix], " << en->maxValue() << ");";
                     out << eb;
@@ -1347,7 +1347,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
                 {
                     out << nl << "global::System.Collections.Generic.IEnumerator<" << typeS << "> e = " << param
                         << ".GetEnumerator();";
-                    out << nl << "while(e.MoveNext())";
+                    out << nl << "while (e.MoveNext())";
                     out << sb;
                     out << nl << stream << ".writeEnum((int)e.Current, " << en->maxValue() << ");";
                     out << eb;
@@ -1355,7 +1355,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
             }
             else
             {
-                out << nl << "for(int ix = 0; ix < " << param << '.' << limitID << "; ++ix)";
+                out << nl << "for (int ix = 0; ix < " << param << '.' << limitID << "; ++ix)";
                 out << sb;
                 out << nl << stream << ".writeEnum((int)" << param << "[ix], " << en->maxValue() << ");";
                 out << eb;
@@ -1389,7 +1389,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
                 }
                 out << ");";
             }
-            out << nl << "for(int ix = 0; ix < szx; ++ix)";
+            out << nl << "for (int ix = 0; ix < szx; ++ix)";
             out << sb;
             if (isArray || isStack)
             {
@@ -1442,7 +1442,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
             if (isStack)
             {
                 out << nl << typeS << "[] " << param << "_tmp = " << param << ".ToArray();";
-                out << nl << "for(int ix = 0; ix < " << param << "_tmp.Length; ++ix)";
+                out << nl << "for (int ix = 0; ix < " << param << "_tmp.Length; ++ix)";
                 out << sb;
                 out << nl << helperName << '.' << func << '(' << stream << ", " << param << "_tmp[ix]);";
                 out << eb;
@@ -1451,7 +1451,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
             {
                 out << nl << "global::System.Collections.Generic.IEnumerator<" << typeS << "> e = " << param
                     << ".GetEnumerator();";
-                out << nl << "while(e.MoveNext())";
+                out << nl << "while (e.MoveNext())";
                 out << sb;
                 out << nl << helperName << '.' << func << '(' << stream << ", e.Current);";
                 out << eb;
@@ -1459,7 +1459,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
         }
         else
         {
-            out << nl << "for(int ix = 0; ix < " << param << '.' << limitID << "; ++ix)";
+            out << nl << "for (int ix = 0; ix < " << param << '.' << limitID << "; ++ix)";
             out << sb;
             out << nl << helperName << '.' << func << '(' << stream << ", " << param << "[ix]);";
             out << eb;
@@ -1488,7 +1488,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
         {
             out << nl << param << " = new global::System.Collections.Generic." << genericType << "<" << typeS << ">();";
         }
-        out << nl << "for(int ix = 0; ix < szx; ++ix)";
+        out << nl << "for (int ix = 0; ix < szx; ++ix)";
         out << sb;
         if (isArray || isStack)
         {

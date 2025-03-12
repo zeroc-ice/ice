@@ -49,7 +49,12 @@ namespace Slice
         // Generates "= null!" for non-nullable fields (Slice class and exception only).
         void writeDataMemberInitializers(const DataMemberList&);
 
-        void writeDocComment(const ContainedPtr&);
+        void writeDocComment(const ContainedPtr& p, const std::string& generatedType, const std::string& notes = "");
+        void writeHelperDocComment(
+            const ContainedPtr& p,
+            const std::string& comment,
+            const std::string& generatedType,
+            const std::string& notes = "");
 
         void
         writeOpDocComment(const OperationPtr& operation, const std::vector<std::string>& extraParams, bool isAsync);
