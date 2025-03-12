@@ -100,4 +100,6 @@ async def allTestsAsync(helper, communicator):
     test(waitForShutdownFuture.done())
     test(testCommunicator.isShutdown())
 
+    destroy_thread.join()
+
     print("ok")
