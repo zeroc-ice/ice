@@ -1,16 +1,15 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice.facets
-{
-    public sealed class EI : Test.EDisp_
-    {
-        public EI()
-        {
-        }
+namespace Ice.facets;
 
-        public override string callE(Ice.Current current)
-        {
-            return "E";
-        }
+public sealed class EI : Test.EDisp_
+{
+    public EI()
+    {
+    }
+
+    public override string callE(Ice.Current current)
+    {
+        return "E";
     }
 }

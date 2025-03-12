@@ -2,19 +2,18 @@
 
 using Test;
 
-namespace Ice.defaultServant
-{
-    public class Client : TestHelper
-    {
-        public override void run(string[] args)
-        {
-            using (var communicator = initialize(ref args))
-            {
-                AllTests.allTests(this);
-            }
-        }
+namespace Ice.defaultServant;
 
-        public static Task<int> Main(string[] args) =>
-            TestDriver.runTestAsync<Client>(args);
+public class Client : TestHelper
+{
+    public override void run(string[] args)
+    {
+        using (var communicator = initialize(ref args))
+        {
+            AllTests.allTests(this);
+        }
     }
+
+    public static Task<int> Main(string[] args) =>
+        TestDriver.runTestAsync<Client>(args);
 }
