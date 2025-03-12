@@ -1023,6 +1023,31 @@ namespace
             out << nl << "% Deprecated";
         }
     }
+
+    void validateMetadata(const UnitPtr& unit)
+    {
+        map<string, MetadataInfo> knownMetadata;
+
+        // "matlab:identifier"
+        MetadataInfo identifierInfo = {
+            .validOn =
+                {typeid(InterfaceDecl),
+                typeid(Operation),
+                typeid(Struct),
+                typeid(Sequence),
+                typeid(Dictionary),
+                typeid(Enum),
+                typeid(Enumerator),
+                typeid(Const),
+                typeid(Parameter),
+                typeid(DataMember)},
+            .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+        };
+        knownMetadata.emplace("matlab:identifier", std::move(identifierInfo));
+
+        // Pass this information off to the parser's metadata validation logic.
+        Slice::validateMetadata(unit, "matlab", knownMetadata);
+    }
 }
 
 //
@@ -3638,10 +3663,7 @@ compile(const vector<string>& argv)
 
                     try
                     {
-                        // 'slice2matlab' doesn't have any language-specific metadata, so we call `validateMetadata`
-                        // with an empty list.  This ensures that the validation still runs, and will reject any
-                        // 'matlab' metadata the user might think exists.
-                        Slice::validateMetadata(u, "matlab", {});
+                        validateMetadata(u);
 
                         CodeVisitor codeVisitor(output);
                         u->visit(&codeVisitor);
