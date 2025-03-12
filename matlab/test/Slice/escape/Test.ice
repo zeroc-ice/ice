@@ -2,86 +2,77 @@
 
 #pragma once
 
-module classdef::break // Should be escaped
+// TODO come up with a better way to escape modules.
+module escaped_classdef
 {
-    enum bitand // Should not be escaped
+    enum bitand
     {
-        //
-        // All of the keywords.
-        //
-        break, case, catch, classdef, continue, else, elseif, end, enumeration, events, for, function, global,
-        if, methods, otherwise, parfor, persistent, properties, return, spmd, switch, try, while,
-        //
-        // Plus a few method names reserved for enumerators because the enumeration class derives from uint8
-        // or int32.
-        //
-        abs, and, char, eq, length, size, xor,
+        ["matlab:identifier:break_"] break,
+        ["matlab:identifier:catch_"] catch,
         LAST
     }
 
-    struct bitor // Should not be escaped
+    struct bitor
     {
-        bitand case = catch;
-        int continue = 1;
-        int eq = 2;
-        int ne = 3;
+        ["matlab:identifier:case_"] bitand case = catch;
+        ["matlab:identifier:continue_"] int continue = 1;
+        ["matlab:identifier:eq_"] int eq = 2;
     }
 
-    class logical // Should not be escaped
+    class logical
     {
-        bitand else = enumeration;
-        bitor for;
-        bool int64 = true; // Should not be escaped
+        ["matlab:identifier:else_"] bitand else = break;
+        ["matlab:identifier:for_"] bitor for;
+        bool int64 = true;
     }
 
-    class xor extends logical // Should not be escaped
+    ["matlab:identifier:xor_"]
+    class xor extends logical
     {
-        int return = 1;
+        ["matlab:identifier:return_"] int return = 1;
     }
 
-    sequence<bitor> parfor;
-    dictionary<int, bitor> switch;
+    ["matlab:identifier:parfor_"] sequence<bitor> parfor;
+    ["matlab:identifier:switch_"] dictionary<int, bitor> switch;
 
-    class try // Should be escaped
+    ["matlab:identifier:try_"]
+    class try
     {
-        int while = 1;
-        int delete = 2; // Should not be escaped
+        ["matlab:identifier:while_"] int while = 1;
     }
 
-    class properties extends try // Should be escaped
+    ["matlab:identifier:properties_"]
+    class properties extends try
     {
-        int if = 2;
-        xor catch;
-        parfor spmd;
-        switch otherwise;
+        ["matlab:identifier:if_"] int if = 2;
+        ["matlab:identifier:spmd_"] parfor spmd;
+        ["matlab:identifier:otherwise_"] switch otherwise;
     }
 
-    exception persistent // Should be escaped
+    ["matlab:identifier:persistent_"]
+    exception persistent
     {
-        //
-        // These symbols clash with members of MException and should be escaped.
-        //
-        string identifier = "1";
-        string message = "2";
-        string stack = "3";
-        string cause = "4";
-        string type = "5";
+        // These data members clash with members of MException.
+        ["matlab:identifier:identifier_"] string identifier = "1";
+        ["matlab:identifier:message_"] string message = "2";
 
-        logical end;
+        ["matlab:identifier:end_"] logical end;
     }
 
-    exception global extends persistent // Should be escaped
+    ["matlab:identifier:global_"]
+    exception global extends persistent
     {
+        ["matlab:identifier:enumeration_"]
         int enumeration = 1;
     }
 
-    interface elseif // elseifPrx should not be escaped
+    ["matlab:identifier:MyInterface"]
+    interface operations
     {
-        void events();
-        void function();
-        void delete();
-        void checkedCast();
+        ["matlab:identifier:foobar"] void events();
+        ["matlab:identifier:func"] void function();
     }
 
+    ["matlab:identifier:methods_"]
     const int methods = 1;
 }
