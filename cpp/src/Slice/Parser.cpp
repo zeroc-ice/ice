@@ -448,45 +448,46 @@ namespace
 optional<DocComment>
 Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatter, bool stripMarkup, bool escapeXml)
 {
-    string rawComment = p->docComment();
-
-    // Fix any link tags using the provided link formatter.
-    const string link = "{@link ";
-    auto pos = rawComment.find(link);
-    while (pos != string::npos)
-    {
-        auto endpos = rawComment.find('}', pos);
-        if (endpos != string::npos)
-        {
-            // Extract the linked-to identifier.
-            auto identStart = rawComment.find_first_not_of(" \t", pos + link.size());
-            auto identEnd = rawComment.find_last_not_of(" \t", endpos);
-            string linkText = rawComment.substr(identStart, identEnd - identStart);
-
-            // Then erase the entire '{@link foo}' tag from the comment.
-            rawComment.erase(pos, endpos - pos + 1);
-
-            // Attempt to resolve the link, and issue a warning if the link is invalid.
-            SyntaxTreeBasePtr linkTarget = resolveDocLink(linkText, p);
-            if (!linkTarget)
-            {
-                string msg = "no Slice element with identifier '" + linkText + "' could be found in this context";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
-            }
-
-            // Finally, insert a correctly formatted link where the '{@link foo}' used to be.
-            string formattedLink = linkFormatter(linkText, p, linkTarget);
-            rawComment.insert(pos, formattedLink);
-            pos += formattedLink.length();
-        }
-        pos = rawComment.find(link, pos);
-    }
-
     // Split the comment's raw text up into lines.
-    StringList lines = splitComment(rawComment, stripMarkup, escapeXml);
+    StringList lines = splitComment(p->docComment(), stripMarkup, escapeXml);
     if (lines.empty())
     {
         return nullopt;
+    }
+
+    // Fix any link tags using the provided link formatter.
+    const string link = "{@link ";
+    for (auto& line : lines)
+    {
+        auto pos = line.find(link);
+        while (pos != string::npos)
+        {
+            auto endpos = line.find('}', pos);
+            if (endpos != string::npos)
+            {
+                // Extract the linked-to identifier.
+                auto identStart = line.find_first_not_of(" \t", pos + link.size());
+                auto identEnd = line.find_last_not_of(" \t", endpos);
+                string linkText = line.substr(identStart, identEnd - identStart);
+
+                // Then erase the entire '{@link foo}' tag from the comment.
+                line.erase(pos, endpos - pos + 1);
+
+                // Attempt to resolve the link, and issue a warning if the link is invalid.
+                SyntaxTreeBasePtr linkTarget = resolveDocLink(linkText, p);
+                if (!linkTarget)
+                {
+                    string msg = "no Slice element with identifier '" + linkText + "' could be found in this context";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                }
+
+                // Finally, insert a correctly formatted link where the '{@link foo}' used to be.
+                string formattedLink = linkFormatter(linkText, p, linkTarget);
+                line.insert(pos, formattedLink);
+                pos += formattedLink.length();
+            }
+            pos = line.find(link, pos);
+        }
     }
 
     // Some tags are only valid if they're applied to an operation.
