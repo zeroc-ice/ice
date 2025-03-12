@@ -20,6 +20,7 @@ runs:
         key: ${{ inputs.prefix }}-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
         restore-keys: |
           ${{ inputs.prefix }}-${{ runner.os }}-${{ runner.arch }}
+        size: 1G
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
     - name: Configure ccache path
