@@ -1,21 +1,17 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.objects
 {
-    namespace objects
+    public sealed class DI : Test.D
     {
-
-        public sealed class DI : Test.D
+        public override void ice_preMarshal()
         {
-            public override void ice_preMarshal()
-            {
-                preMarshalInvoked = true;
-            }
+            preMarshalInvoked = true;
+        }
 
-            public override void ice_postUnmarshal()
-            {
-                postUnmarshalInvoked = true;
-            }
+        public override void ice_postUnmarshal()
+        {
+            postUnmarshalInvoked = true;
         }
     }
 }

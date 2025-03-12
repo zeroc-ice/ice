@@ -1,28 +1,25 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.threadPoolPriority
 {
-    namespace threadPoolPriority
+    public class Server : global::Test.TestHelper
     {
-        public class Server : global::Test.TestHelper
+        public override void run(string[] args)
         {
-            public override void run(string[] args)
+            var properties = createTestProperties(ref args);
+            properties.setProperty("Ice.ThreadPool.Server.ThreadPriority", "AboveNormal");
+            using (var communicator = initialize(properties))
             {
-                var properties = createTestProperties(ref args);
-                properties.setProperty("Ice.ThreadPool.Server.ThreadPriority", "AboveNormal");
-                using (var communicator = initialize(properties))
-                {
-                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    var adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.add(new PriorityI(), Ice.Util.stringToIdentity("test"));
-                    adapter.activate();
-                    serverReady();
-                    communicator.waitForShutdown();
-                }
+                communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                var adapter = communicator.createObjectAdapter("TestAdapter");
+                adapter.add(new PriorityI(), Ice.Util.stringToIdentity("test"));
+                adapter.activate();
+                serverReady();
+                communicator.waitForShutdown();
             }
-
-            public static Task<int> Main(string[] args) =>
-                global::Test.TestDriver.runTestAsync<Server>(args);
         }
+
+        public static Task<int> Main(string[] args) =>
+            global::Test.TestDriver.runTestAsync<Server>(args);
     }
 }
