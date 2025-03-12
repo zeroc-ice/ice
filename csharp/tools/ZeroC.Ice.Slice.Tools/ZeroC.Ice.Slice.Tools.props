@@ -33,23 +33,4 @@
             <OutputDir>$(MSBuildProjectDirectory)\generated</OutputDir>
         </SliceCompile>
     </ItemDefinitionGroup>
-
-    <Choose>
-        <When Condition="Exists('$(MSBuildThisFileDirectory)..\ZeroC.Ice.Slice.Tools.nuspec')">
-            <!-- Default SliceCompile settings for NuGet package -->
-            <ItemDefinitionGroup>
-                <SliceCompile>
-                    <IncludeDirectories>$(MSBuildThisFileDirectory)..\slice</IncludeDirectories>
-                </SliceCompile>
-            </ItemDefinitionGroup>
-        </When>
-        <Otherwise>
-            <!-- Default SliceCompile settings for Ice source builds -->
-            <ItemDefinitionGroup>
-                <SliceCompile>
-                    <IncludeDirectories>$(MSBuildThisFileDirectory)..\..\..\slice</IncludeDirectories>
-                </SliceCompile>
-            </ItemDefinitionGroup>
-        </Otherwise>
-    </Choose>
 </Project>

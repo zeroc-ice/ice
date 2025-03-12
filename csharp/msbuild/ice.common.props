@@ -22,15 +22,22 @@
     <StyleCopAnalyzersVersion>1.2.0-beta.556</StyleCopAnalyzersVersion>
   </PropertyGroup>
 
-<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <DebugType>portable</DebugType>
-    <Optimize>false</Optimize>
-    <DebugSymbols>true</DebugSymbols>
-</PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+      <DebugType>portable</DebugType>
+      <Optimize>false</Optimize>
+      <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
 
-<PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
-</PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+      <DebugType>portable</DebugType>
+      <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <!-- Default SliceCompile settings for Ice source builds -->
+  <ItemDefinitionGroup>
+      <SliceCompile>
+          <IncludeDirectories>$(MSBuildThisFileDirectory)..\..\slice</IncludeDirectories>
+      </SliceCompile>
+  </ItemDefinitionGroup>
 
 </Project>
