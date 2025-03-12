@@ -212,6 +212,7 @@ Requires: %{?nameprefix}ice-compilers(x86-64) = %{version}-%{release}
     %endif
 %endif
 Requires: glibc-devel%{?_isa}
+Requires: openssl-devel%{?_isa}
 %description -n lib%{?nameprefix}ice-c++-devel
 This package contains the libraries and headers needed for developing
 Ice applications in C++.

@@ -37,6 +37,7 @@ Section: libdevel
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
          zeroc-ice-compilers (= ${binary:Version}),
          zeroc-ice-slice (= ${source:Version}),
+         libssl-dev,
          ${misc:Depends}
 Description: libraries and headers for developing Ice applications in C++
  This package contains the libraries and headers needed for developing
