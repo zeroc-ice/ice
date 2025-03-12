@@ -28,5 +28,7 @@
     <Content Include="../../../LICENSE" Pack="true" PackagePath="/" />
     <Content Include="../../../ICE_LICENSE" Pack="true" PackagePath="/" />
     <Content Include="README.md" Pack="true" PackagePath="/" />
+    <Content Include="@(SliceCompile)" Pack="true" PackagePath="/slice/IceBox"/>
+    <Content Include="ZeroC.IceBox.props" Pack="true" PackagePath="buildTransitive/" />
   </ItemGroup>
 </Project>
