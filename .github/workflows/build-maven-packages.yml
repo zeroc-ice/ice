@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: build-slice-compilers
     env:
-      SLICE2JAVA_STAGING_PATH: ${{ github.workspace }}/ice/tools/slice-tools/src/main/resources/resources
+      SLICE2JAVA_STAGING_PATH: ${{ github.workspace }}/ice/java/tools/slice-tools/src/main/resources/resources
 
     steps:
       - name: Checkout repository

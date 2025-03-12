@@ -26,7 +26,7 @@
     </ItemDefinitionGroup>
 
     <Choose>
-        <When Condition="Exists('$(MSBuildThisFileDirectory)..\ZeroC.Ice.Slice.Tools.nuspec')">
+        <When Condition="Exists('$(MSBuildThisFileDirectory)..\ZeroC.Ice.Cpp.nuspec')">
             <!-- Default SliceCompile settings for NuGet package -->
             <ItemDefinitionGroup>
                 <SliceCompile>
