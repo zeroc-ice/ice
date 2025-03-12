@@ -1,0 +1,28 @@
+name: Setup Android
+runs:
+  using: "composite"
+  steps:
+    # See https://github.com/marketplace/actions/android-emulator-runner
+    - name: Enable KVM group perms
+      shell: bash
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+
+    - name: Android SDK and PATH
+      shell: bash
+      run: |
+        echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+        echo "$ANDROID_HOME/emulator" >> $GITHUB_PATH
+        echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
+        # For some reason avdmanager is placing the avd into $HOME/.config/.android/avd instead of $HOME/.android/avd
+        echo "ANDROID_AVD_HOME=$HOME/.config/.android" >> $GITHUB_ENV
+
+    - name: Configure Android SDK
+      shell: bash
+      run: |
+        sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34"
+        sdkmanager "system-images;android-34;google_apis;x86_64"
+        sdkmanager emulator
+        sdkmanager --update

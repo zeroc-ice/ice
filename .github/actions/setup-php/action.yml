@@ -1,0 +1,13 @@
+name: "Setup PHP"
+runs:
+  using: "composite"
+  steps:
+    - name: Install PHP on macOS
+      run: brew install php
+      shell: bash
+      if: runner.os == 'macOS'
+
+    - name: Install PHP on Linux
+      run: sudo apt-get update && sudo apt-get install -y php-cli php-dev
+      shell: bash
+      if: runner.os == 'Linux'

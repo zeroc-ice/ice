@@ -12,8 +12,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Dependencies
-        uses: ./.github/actions/setup-dependencies
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
 
       - name: Generate C++ Coverage
         working-directory: ./cpp
@@ -57,8 +57,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Dependencies
-        uses: ./.github/actions/setup-dependencies
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
 
       - name: Build
         run: |
@@ -97,8 +100,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Dependencies
-        uses: ./.github/actions/setup-dependencies
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup Java
+        uses: ./.github/actions/setup-java
 
       - name: Generate Java Coverage
         working-directory: ./java

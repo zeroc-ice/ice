@@ -15,6 +15,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup .NET
+        uses: ./github/actions/setup-dotnet
+
       - name: Run dotnet format
         run: |
           dotnet format --verify-no-changes csharp/msbuild/ice.sln

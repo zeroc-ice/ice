@@ -1,0 +1,34 @@
+name: Setup C++
+runs:
+  using: "composite"
+  steps:
+    - name: Install dependencies on macOS
+      if: runner.os == 'macOS'
+      shell: bash
+      run: brew install mcpp lmdb
+
+    - name: Install dependencies on Linux
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        sudo apt-get update && sudo apt-get install -y \
+            libbz2-dev libssl-dev libffi-dev \
+            libmcpp-dev libedit-dev liblmdb-dev libexpat1-dev libsystemd-dev \
+            libbluetooth-dev libdbus-1-dev \
+            libsystemd-dev
+
+    - name: Set macOS MAKEFLAGS
+      run: echo "MAKEFLAGS=-j$(sysctl -n hw.ncpu) V=1" >> $GITHUB_ENV
+      shell: bash
+      if: runner.os == 'macOS'
+
+    - name: Set Linux MAKEFLAGS
+      run: echo "MAKEFLAGS=-j$(nproc) V=1" >> $GITHUB_ENV
+      shell: bash
+      if: runner.os == 'Linux'
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+      with:
+        msbuild-architecture: x64
+      if: runner.os == 'Windows'

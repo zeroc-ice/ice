@@ -15,10 +15,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Dependencies
-        uses: ./.github/actions/setup-dependencies
-        with:
-          use_matlab: true
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup MATLAB
+        uses: ./.github/actions/setup-matlab
 
       - name: Build MATLAB on Ubuntu
         uses: ./.github/actions/build

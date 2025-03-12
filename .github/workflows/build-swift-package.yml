@@ -24,8 +24,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Dependencies
-        uses: ./.github/actions/setup-dependencies
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
 
       - name: Setup Cache
         uses: ./.github/actions/setup-cache

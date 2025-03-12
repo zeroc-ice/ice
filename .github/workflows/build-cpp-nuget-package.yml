@@ -29,8 +29,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Dependencies
-        uses: ./.github/actions/setup-dependencies
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
 
       - name: Build C++ NuGet Packages
         run: msbuild /m ice.proj /t:Pack /p:BuildAllConfigurations=yes /p:IcePackageVersion="${{ inputs.ice_version }}"

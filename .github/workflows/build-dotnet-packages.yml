@@ -46,8 +46,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Dependencies
-        uses: ./.github/actions/setup-dependencies
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
 
       - name: Build Compiler
         uses: ./.github/actions/build-slice-compiler
@@ -67,6 +67,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: ./github/actions/setup-dotnet
 
       - name: Download All Compiler Artifacts
         uses: actions/download-artifact@v4
