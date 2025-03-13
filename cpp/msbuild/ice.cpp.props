@@ -55,8 +55,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <!-- Include directories -->
       <AdditionalIncludeDirectories>$(IceHome)\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>
-        $(IceHome)\cpp\include\generated\$(Platform)\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IceHome)\cpp\include\generated\$(Platform)\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Condition="'$(USING_BUILD_CACHE)' == 'true'">
       <ForcedIncludeFiles />
