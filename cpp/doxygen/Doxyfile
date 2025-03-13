@@ -1023,7 +1023,8 @@ EXCLUDE_PATTERNS       =
 # wildcard * is used, a substring. Examples: ANamespace, AClass,
 # ANamespace::AClass, ANamespace::*Test
 
-EXCLUDE_SYMBOLS        = IceInternal \
+EXCLUDE_SYMBOLS        = DataStormI \
+                         IceInternal \
                          IceUtilInternal \
                          Glacier2Internal \
                          std

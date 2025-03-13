@@ -290,13 +290,10 @@ namespace
                 // Doxygen supports multiple syntaxes for operations, but none of them allow for a bare operation name.
                 // We opt for the syntax where operation names are qualified by what type they're defined on.
                 // See: https://www.doxygen.nl/manual/autolink.html#linkfunc.
-                // We also need to make sure to include the 'Async' suffix for 'amd' operations.
-                InterfaceDefPtr parent = operationTarget->interface();
-                bool amd = (parent->hasMetadata("amd") || operationTarget->hasMetadata("amd"));
 
-                string parentName = getUnqualified(parent->mappedScoped() + "Prx", source->mappedScope());
-                string opName = operationTarget->mappedName() + (amd ? "Async" : "");
-                return parentName + "::" + opName;
+                InterfaceDefPtr parent = operationTarget->interface();
+                return getUnqualified(parent->mappedScoped() + "Prx", source->mappedScope()) +
+                       "::" + operationTarget->mappedName();
             }
             if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
             {
@@ -436,19 +433,15 @@ namespace
             }
         }
 
-        if (dynamic_pointer_cast<ClassDef>(p) || dynamic_pointer_cast<ClassDecl>(p) ||
-            dynamic_pointer_cast<Struct>(p) || dynamic_pointer_cast<Slice::Exception>(p))
-        {
-            string file = p->file();
-            assert(!file.empty());
-            DefinitionContextPtr dc = p->unit()->findDefinitionContext(file);
-            assert(dc);
+        string file = p->file();
+        assert(!file.empty());
+        DefinitionContextPtr dc = p->unit()->findDefinitionContext(file);
+        assert(dc);
 
-            // TODO: why do we ignore all instances of this metadata except the first?
-            if (auto headerFile = dc->getMetadataArgs("cpp:doxygen:include"))
-            {
-                out << nl << "/// \\headerfile " << *headerFile;
-            }
+        // Retrieve as "cpp:doxygen".
+        if (auto headerFile = dc->getMetadataArgs("cpp:doxygen"))
+        {
+            out << nl << "/// \\headerfile " << headerFile->substr(8); // Remove "include:" prefix.
         }
     }
 
@@ -941,9 +934,11 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     knownMetadata.emplace("cpp:dll-export", std::move(dllExportInfo));
 
     // "cpp:doxygen:include"
+    // While the metadata is cpp:doxygen:include, due to a limitation in the metadata system, we have need to look it
+    // up as just cpp:doxygen.
     MetadataInfo doxygenInfo = {
         .validOn = {typeid(Unit)},
-        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
         .extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr&) -> optional<string>
         {
             if (meta->arguments().find("include:") != 0)
@@ -1703,8 +1698,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     const string deprecatedAttribute = getDeprecatedAttribute(p);
 
     optional<DocComment> comment = DocComment::parseFrom(p, cppLinkFormatter);
-    const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
-    const string futureDoc = "The future object for the invocation.";
+    const string contextDoc = "@param " + contextParam + " The request context.";
+    const string futureDoc = "A future holding the result of the invocation.";
 
     if (!isFirstElement(p))
     {
@@ -2081,8 +2076,8 @@ void
 Slice::Gen::DataDefVisitor::visitStructEnd(const StructPtr& p)
 {
     H << sp;
-    H << nl << "/// Obtains a tuple containing all of the struct's data members.";
-    H << nl << "/// @return The data members in a tuple.";
+    H << nl << "/// Creates a tuple with all the fields of this struct.";
+    H << nl << "/// @return A tuple with all the fields of this struct.";
     writeIceTuple(H, p->dataMembers(), _useWstring);
 
     H << sp;
@@ -2272,8 +2267,8 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     if (!dataMembers.empty())
     {
-        H << nl << "/// Obtains a tuple containing all of the exception's data members.";
-        H << nl << "/// @return The data members in a tuple.";
+        H << nl << "/// Creates a tuple with all the fields of this exception.";
+        H << nl << "/// @return A tuple with all the fields of this exception.";
         writeIceTuple(H, p->allDataMembers(), _useWstring);
         H << sp;
 
@@ -2457,8 +2452,8 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     if (!dataMembers.empty())
     {
         H << sp;
-        H << nl << "/// Obtains a tuple containing all of the value's data members.";
-        H << nl << "/// @return The data members in a tuple.";
+        H << nl << "/// Creates a tuple with all the fields of this class.";
+        H << nl << "/// @return A tuple with all the fields of this class.";
         writeIceTuple(H, p->allDataMembers(), _useWstring);
     }
 
@@ -3044,8 +3039,9 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
                                           : "[responseHandler] { responseHandler->sendEmptyResponse(); }");
         }
         params.push_back("std::function<void(std::exception_ptr)> " + excbParam);
-        args.emplace_back("[responseHandler](std::exception_ptr ex) { "
-                          "responseHandler->sendException(ex); }");
+        args.emplace_back(
+            "[responseHandler](std::exception_ptr ex) { "
+            "responseHandler->sendException(ex); }");
         params.push_back(currentDecl);
         args.emplace_back("responseHandler->current()");
     }
