@@ -431,7 +431,7 @@ def allTests(helper, communicator, collocated):
         con.setCloseCallback(lambda c: cb.called())
         f = p.startDispatchAsync()
         f.sent()  # Ensure the request was sent before we close the connection.
-        con.close(False)
+        con.close()
 
         # give time for startDispatch to start in the server before we call finishDispatch
         time.sleep(0.1) # 100ms
@@ -450,7 +450,7 @@ def allTests(helper, communicator, collocated):
         except Exception:
             test(False)
 
-        p.ice_getCachedConnection().close(True) # Wait until the connection is closed.
+        p.ice_getCachedConnection().close().result() # Wait until the connection is closed.
 
         print("ok")
 
