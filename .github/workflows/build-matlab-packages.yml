@@ -18,10 +18,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Dependencies
-        uses: ./.github/actions/setup-dependencies
-        with:
-          use_matlab: true
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup MATLAB
+        uses: ./.github/actions/setup-matlab
 
       - name: Setup Cache
         uses: ./.github/actions/setup-cache

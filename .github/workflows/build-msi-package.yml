@@ -46,8 +46,8 @@ jobs:
         with:
           path: ice
 
-      - name: Setup Dependencies
-        uses: ./ice/.github/actions/setup-dependencies
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
 
       - name: Download C++ Binaries From NuGet feed
         run: |

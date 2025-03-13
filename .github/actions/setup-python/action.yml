@@ -1,0 +1,13 @@
+name: Setup Python
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.13"
+
+    - name: Configure Windows Python Environment
+      run: |
+        echo "PythonHome=$env:Python_ROOT_DIR"  >> $env:GITHUB_ENV
+      shell: powershell
+      if: runner.os == 'Windows'

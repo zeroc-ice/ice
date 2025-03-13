@@ -1,0 +1,7 @@
+name: Setup Ruby
+runs:
+  using: "composite"
+  steps:
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: "3.3"
