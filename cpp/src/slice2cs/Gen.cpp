@@ -347,7 +347,7 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
         if (!marshal && ret->isClassType())
         {
             ostringstream os;
-            os << '(' << typeToString(ret, ns) << " v) => {" << paramPrefix << returnValueS << " = v; }";
+            os << '(' << typeToString(ret, ns) << " v) => { " << paramPrefix << returnValueS << " = v; }";
             param = os.str();
         }
         else
@@ -759,11 +759,8 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generated
         writeDocLines(_out, "summary", comment->overview());
     }
 
-    // We generate remarks only for module-level types.
-    if (dynamic_pointer_cast<Module>(p->container()))
+    if (!generatedType.empty())
     {
-        assert(!generatedType.empty());
-
         _out << nl << "/// <remarks>" << "The Slice compiler generated this " << generatedType << " from Slice "
              << p->kindOf() << " <c>" << p->scoped() << "</c>.";
         if (!notes.empty())
@@ -788,6 +785,7 @@ Slice::CsVisitor::writeHelperDocComment(
 {
     // Called only for module-level types.
     assert(dynamic_pointer_cast<Module>(p->container()));
+    assert(!generatedType.empty());
 
     writeDocLine(_out, "summary", comment);
     _out << nl << "/// <remarks>" << "The Slice compiler generated this " << generatedType << " from Slice "
@@ -910,7 +908,6 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     }
     FileTracker::instance()->addFile(file);
     printHeader();
-
     printGeneratedHeader(_out, fileBase + ".ice");
 
     _out << nl << "#nullable enable";
@@ -918,6 +915,22 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     _out << nl << "[assembly:Ice.Slice(\"" << fileBase << ".ice\")]";
 
     _out << sp;
+
+    /*
+    // Disable some warnings when auto-generated is removed from the header. See printGeneratedHeader above.
+    _out << nl << "#pragma warning disable SA1403 // File may only contain a single namespace";
+    _out << nl << "#pragma warning disable SA1611 // The documentation for parameter x is missing";
+
+    _out << nl << "#pragma warning disable CA1041 // Provide a message for the ObsoleteAttribute that marks ...";
+    _out << nl << "#pragma warning disable CA1068 // Cancellation token as last parameter";
+    _out << nl << "#pragma warning disable CA1725 // Change parameter name istr_ to istr in order to match ...";
+
+    // Missing doc - only necessary for the tests.
+    _out << nl << "#pragma warning disable SA1602";
+    _out << nl << "#pragma warning disable SA1604";
+    _out << nl << "#pragma warning disable SA1605";
+    */
+
     _out << nl << "#pragma warning disable CS1591 // Missing XML Comment";
     _out << nl << "#pragma warning disable CS1573 // Parameter has no matching param tag in the XML comment";
     _out << nl << "#pragma warning disable CS0612 // Type or member is obsolete";
@@ -952,10 +965,9 @@ Slice::Gen::generate(const UnitPtr& p)
 void
 Slice::Gen::printHeader()
 {
-    _out << "// Copyright (c) ZeroC, Inc.\n";
-    _out << "//\n";
-    _out << "// Ice version " << ICE_STRING_VERSION << "\n";
-    _out << "//\n";
+    _out << "// Copyright (c) ZeroC, Inc.";
+    _out << sp;
+    _out << nl << "// Ice version " << ICE_STRING_VERSION << "\n";
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out) {}
@@ -1051,12 +1063,15 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         // Primary constructor.
         _out << sp;
-        writeDocLine(_out, "summary", "Initializes a new instance of the " + name + " class.");
+        writeDocLine(_out, "summary", "Initializes a new instance of the <see cref=\"" + name + "\" /> class.");
         _out << nl << "public " << name << spar << parameters << epar;
 
         if (base && allDataMembers.size() != dataMembers.size())
         {
-            _out << " : base" << spar;
+            _out.inc();
+            _out << nl << ": base";
+            _out.dec();
+            _out << spar;
             vector<string> baseParamNames;
             DataMemberList baseDataMembers = base->allDataMembers();
             for (const auto& q : baseDataMembers)
@@ -1089,11 +1104,13 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         if (secondaryCtorParams.size() != parameters.size())
         {
             _out << sp;
-            writeDocLine(_out, "summary", "Initializes a new instance of the " + name + " class.");
+            writeDocLine(_out, "summary", "Initializes a new instance of the <see cref=\"" + name + "\" /> class.");
             _out << nl << "public " << name << spar << secondaryCtorParams << epar;
             if (base && secondaryCtorBaseParamNames.size() > 0)
             {
-                _out << " : base" << spar << secondaryCtorBaseParamNames << epar;
+                _out.inc();
+                _out << nl << ": base" << spar << secondaryCtorBaseParamNames << epar;
+                _out.dec();
             }
             _out << sb;
             for (const auto& q : secondaryCtorMemberNames)
@@ -1113,7 +1130,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             writeDocLine(
                 _out,
                 "summary",
-                "Initializes a new instance of the " + name + " class. Used for unmarshaling.");
+                "Initializes a new instance of the <see cref=\"" + name + "\" /> class. Used for unmarshaling.");
             emitNonBrowsableAttribute();
             _out << nl << "public " << name << "()";
             _out << sb;
@@ -1124,14 +1141,14 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
 
     ostringstream staticId;
-    staticId << "<c>" << p->scoped() << "</c>";
+    staticId << "The string <c>" << p->scoped() << "</c>.";
 
     _out << sp;
     writeDocLine(_out, "summary", "Gets the type ID of the associated Slice class.");
     writeDocLine(_out, "returns", staticId.str());
     _out << nl << R"(public static new string ice_staticId() => ")" << p->scoped() << R"(";)";
 
-    _out << nl << "public override string ice_id() => ice_staticId();";
+    _out << sp << nl << "public override string ice_id() => ice_staticId();";
     writeMarshaling(p);
 
     _out << eb;
@@ -1151,50 +1168,22 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << nl << "public sealed class " << name << "Helper";
     _out << sb;
 
+    _out << sp;
     writeMarshalDocComment(_out);
-    _out << sp << nl << "public static void write(Ice.OutputStream ostr, " << typeS << " v)";
+    _out << nl << "public static void write(Ice.OutputStream ostr, " << typeS << " v)";
     _out << sb;
     writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", true, false);
     _out << eb;
 
+    _out << sp;
     writeUnmarshalDocComment(_out);
-    _out << sp << nl << "public static " << typeS << " read(Ice.InputStream istr)";
+    _out << nl << "public static " << typeS << " read(Ice.InputStream istr)";
     _out << sb;
     _out << nl << typeS << " v;";
     writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", false, false);
     _out << nl << "return v;";
     _out << eb;
     _out << eb;
-
-    if (auto metadata = p->getMetadataArgs("cs:generic"))
-    {
-        string_view type = *metadata;
-        if (type == "List" || type == "LinkedList" || type == "Queue" || type == "Stack")
-        {
-            return;
-        }
-
-        if (!p->type()->isClassType())
-        {
-            return;
-        }
-
-        //
-        // The sequence is a custom sequence with elements of class type.
-        // Emit a dummy class that causes a compile-time error if the
-        // custom sequence type does not implement an indexer.
-        //
-        _out << sp;
-        emitNonBrowsableAttribute();
-        _out << nl << "public class " << name << "_Tester";
-        _out << sb;
-        _out << nl << name << "_Tester()";
-        _out << sb;
-        _out << nl << typeS << " test = new " << typeS << "();";
-        _out << nl << "test[0] = null;";
-        _out << eb;
-        _out << eb;
-    }
 }
 
 void
@@ -1217,12 +1206,10 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "public sealed class " << p->mappedName() << "Helper";
     _out << sb;
 
+    _out << sp;
     writeMarshalDocComment(_out);
-    _out << sp << nl << "public static void write(";
-    _out.useCurrentPosAsIndent();
-    _out << "Ice.OutputStream ostr,";
-    _out << nl << name << " v)";
-    _out.restoreIndent();
+    _out << nl << "public static void write(";
+    _out << "Ice.OutputStream ostr, " << name << " v)";
     _out << sb;
     _out << nl << "if (v is null)";
     _out << sb;
@@ -1241,8 +1228,9 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << eb;
     _out << eb;
 
+    _out << sp;
     writeUnmarshalDocComment(_out);
-    _out << sp << nl << "public static " << name << " read(Ice.InputStream istr)";
+    _out << nl << "public static " << name << " read(Ice.InputStream istr)";
     _out << sb;
     _out << nl << "int sz = istr.readSize();";
     _out << nl << name << " r = new " << name << "();";
@@ -1331,12 +1319,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         // Primary constructor.
         _out << sp;
-        writeDocLine(_out, "summary", "Initializes a new instance of the " + name + " class.");
+        writeDocLine(_out, "summary", "Initializes a new instance of the <see cref=\"" + name + "\" /> class.");
         _out << nl << "public " << name << spar << parameters << epar;
 
         if (base && allDataMembers.size() != dataMembers.size())
         {
-            _out << " : base" << spar;
+            _out.inc();
+            _out << nl << ": base" << spar;
+            _out.dec();
             vector<string> baseParamNames;
             DataMemberList baseDataMembers = base->allDataMembers();
             for (const auto& q : baseDataMembers)
@@ -1368,11 +1358,13 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         if (secondaryCtorParams.size() != parameters.size())
         {
             _out << sp;
-            writeDocLine(_out, "summary", "Initializes a new instance of the " + name + " class.");
+            writeDocLine(_out, "summary", "Initializes a new instance of the <see cref=\"" + name + "\" /> class.");
             _out << nl << "public " << name << spar << secondaryCtorParams << epar;
             if (base && secondaryCtorBaseParamNames.size() > 0)
             {
-                _out << " : base" << spar << secondaryCtorBaseParamNames << epar;
+                _out.inc();
+                _out << nl << ": base" << spar << secondaryCtorBaseParamNames << epar;
+                _out.dec();
             }
             _out << sb;
             for (const auto& q : secondaryCtorMemberNames)
@@ -1388,7 +1380,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         if (secondaryCtorParams.size() > 0)
         {
             _out << sp;
-            writeDocLine(_out, "summary", "Initializes a new instance of the " + name + " class.");
+            writeDocLine(_out, "summary", "Initializes a new instance of the <see cref=\"" + name + "\" /> class.");
             emitNonBrowsableAttribute();
             _out << nl << "public " << name << "()";
             _out << sb;
@@ -1490,11 +1482,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp << nl << "partial void ice_initialize();";
 
-    string kind = "record struct";
+    string kind = "struct";
 
     if (isMappedToClass(p))
     {
-        kind = "record class";
+        kind = "class";
 
         // We generate a constructor that initializes all required fields (collections and structs mapped to
         // classes). It can be parameterless.
@@ -1516,7 +1508,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         if (ctorParams.size() != dataMembers.size())
         {
             _out << sp;
-            writeDocLine(_out, "summary", "Initializes a new instance of the " + name + " record class.");
+            writeDocLine(_out, "summary", "Initializes a new instance of the <see cref=\"" + name + "\" /> class.");
             _out << nl << "public " << name << spar << ctorParams << epar;
             _out << sb;
             for (const auto& q : ctorParamNames)
@@ -1532,7 +1524,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     // Primary constructor.
     _out << sp;
-    writeDocLine(_out, "summary", "Initializes a new instance of the " + name + " " + kind + ".");
+    writeDocLine(_out, "summary", "Initializes a new instance of the <see cref=\"" + name + "\" /> " + kind + ".");
     _out << nl << "public " << name << spar;
     vector<string> parameters;
     for (const auto& q : dataMembers)
@@ -1555,7 +1547,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     // Unmarshaling constructor
     _out << sp;
-    writeDocLine(_out, "summary", "Initializes a new instance of the " + name + " " + kind + " from an input stream.");
+    writeDocLine(
+        _out,
+        "summary",
+        "Initializes a new instance of the <see cref=\"" + name + "\" /> " + kind + " from an input stream.");
     _out << nl << "public " << name << "(Ice.InputStream istr)";
     _out << sb;
     for (const auto& q : dataMembers)
@@ -1603,7 +1598,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             _out << sp;
         }
 
-        writeDocComment(enumerator, "enumerator");
+        writeDocComment(enumerator);
         emitObsoleteAttribute(enumerator, _out);
         emitAttributes(enumerator);
         _out << nl << enumerator->mappedName();
@@ -1643,10 +1638,12 @@ void
 Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
     _out << sp;
+    writeHelperDocComment(p, "Provides the " + p->mappedName() + " constant.", "helper class");
     emitAttributes(p);
     _out << nl << "public abstract class " << p->mappedName();
     _out << sb;
-    _out << sp << nl << "public const " << typeToString(p->type(), "") << " value = ";
+    writeDocComment(p);
+    _out << nl << "public const " << typeToString(p->type(), "") << " value = ";
     writeConstantValue(p->type(), p->valueType(), p->value());
     _out << ";";
     _out << eb;
@@ -1665,7 +1662,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     string type = typeToString(p->type(), ns, p->optional());
 
-    writeDocComment(p, "field");
+    writeDocComment(p);
     emitObsoleteAttribute(p, _out);
     emitAttributes(p);
     _out << nl << "public " << type << ' ' << p->mappedName();
@@ -1682,9 +1679,16 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
         if (p->defaultValue())
         {
-            _out << " = ";
-            writeConstantValue(p->type(), p->defaultValueType(), *p->defaultValue());
-            addSemicolon = true;
+            string defaultValue = *p->defaultValue();
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
+
+            // Don't explicitly initialize to default value.
+            if (!builtin || builtin->kind() == Builtin::KindString || defaultValue != "0")
+            {
+                _out << " = ";
+                writeConstantValue(p->type(), p->defaultValueType(), defaultValue);
+                addSemicolon = true;
+            }
         }
         else if (!p->optional())
         {
@@ -2041,7 +2045,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(_out, R"(param name="b")", "The source proxy.", "param");
     writeDocLine(_out, R"(param name="ctx")", "The request context.", "param");
     writeDocLine(_out, "returns", checkedCastReturns.str());
-    _out << sp << nl << "public static " << name
+    _out << nl << "public static " << name
          << "Prx? checkedCast(Ice.ObjectPrx? b, global::System.Collections.Generic.Dictionary<string, string>? ctx = "
             "null) =>";
     _out.inc();
@@ -2126,28 +2130,8 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl << "uncheckedCast(b?.ice_facet(f));";
     _out.dec();
 
-    //
-    // Need static-readonly for arrays in C# (not const)
-    //
-    _out << sp << nl << "private static readonly string[] _ids =";
-    _out << sb;
-
-    StringList ids = p->ids();
-    {
-        auto q = ids.begin();
-        while (q != ids.end())
-        {
-            _out << nl << '"' << *q << '"';
-            if (++q != ids.end())
-            {
-                _out << ',';
-            }
-        }
-    }
-    _out << eb << ";";
-
     ostringstream staticId;
-    staticId << "<c>" << p->scoped() << "</c>";
+    staticId << "The string <c>" << p->scoped() << "</c>.";
 
     _out << sp;
     writeDocLine(_out, "summary", "Gets the type ID of the associated Slice interface.");
@@ -2437,6 +2421,14 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl << "public abstract partial class " << name << "Disp_ : Ice.ObjectImpl, " << name;
 
     _out << sb;
+
+    ostringstream staticId;
+    staticId << "The string <c>" << p->scoped() << "</c>.";
+
+    writeDocLine(_out, "summary", "Gets the type ID of the associated Slice interface.");
+    writeDocLine(_out, "returns", staticId.str());
+    _out << nl << R"(public static new string ice_staticId() => ")" << p->scoped() << R"(";)";
+
     for (const auto& op : p->allOperations())
     {
         string retS;
@@ -2447,14 +2439,6 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     _out << sp;
     _out << nl << "public override string ice_id(Ice.Current current) => ice_staticId();";
-
-    ostringstream staticId;
-    staticId << "<c>" << p->scoped() << "</c>";
-
-    _out << sp;
-    writeDocLine(_out, "summary", "Gets the type ID of the associated Slice interface.");
-    writeDocLine(_out, "returns", staticId.str());
-    _out << nl << R"(public static new string ice_staticId() => ")" << p->scoped() << R"(";)";
 
     writeDispatch(p);
     _out << eb;
@@ -2538,7 +2522,7 @@ Slice::Gen::ServantVisitor::visitOperation(const OperationPtr& op)
         else
         {
             _out << nl << "var result = obj." << opName << spar << inArgs << "request.current" << epar << ";";
-            _out << nl << "return new (new Ice.OutgoingResponse(result.outputStream));";
+            _out << nl << "return new(new Ice.OutgoingResponse(result.outputStream));";
         }
     }
     else if (amd)

@@ -46,10 +46,24 @@ namespace Slice
 
         void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
 
-        // Generates "= null!" for non-nullable fields (Slice class and exception only).
+        /// Writes "= null!" for non-nullable fields (Slice class and exception only).
         void writeDataMemberInitializers(const DataMemberList&);
 
-        void writeDocComment(const ContainedPtr& p, const std::string& generatedType, const std::string& notes = "");
+        /// Writes a doc-comment for the given Slice element, using this element's doc-comment, if any.
+        /// @param p The Slice element.
+        /// @param generatedType The kind of mapped element, used for the remarks. For example, server-side interface.
+        /// This function does not write any remarks when this argument is empty.
+        /// @param notes Optional notes included at the end of the remarks.
+        void writeDocComment(
+            const ContainedPtr& p,
+            const std::string& generatedType = "",
+            const std::string& notes = "");
+
+        /// Writes a doc-comment for a helper class generated for a Slice element.
+        /// @param p The Slice element.
+        /// @param comment The summary.
+        /// @param generatedType The kind of mapped element, used for the remarks. Must not be empty.
+        /// @param notes Optional notes included at the end of the remarks.
         void writeHelperDocComment(
             const ContainedPtr& p,
             const std::string& comment,

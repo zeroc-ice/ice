@@ -47,7 +47,7 @@ module Ice
         LogMessageType type;
 
         /// The date and time when the {@link RemoteLogger} received this message, expressed as the number of microseconds
-        /// since the Unix Epoch (00:00:00 UTC on 1 January 1970)
+        /// since the Unix Epoch (00:00:00 UTC on 1 January 1970).
         long timestamp;
 
         /// For a message of type trace, the trace category of this log message; otherwise, the empty string.
