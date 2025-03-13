@@ -547,8 +547,7 @@ public final class Communicator implements AutoCloseable {
      */
 
     //
-    // Certain initialization tasks need to be completed after the
-    // constructor.
+    // Certain initialization tasks need to be completed after the constructor.
     //
     void finishSetup(String[] args, java.util.List<String> rArgs) {
         try {

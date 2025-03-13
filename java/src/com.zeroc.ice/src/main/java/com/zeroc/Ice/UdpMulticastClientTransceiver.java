@@ -165,8 +165,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
     @Override
     public synchronized void checkSendSize(Buffer buf) {
         //
-        // The maximum packetSize is either the maximum allowable UDP packet size, or
-        // the UDP send buffer size (whichever is smaller).
+        // The maximum packetSize is either the maximum allowable UDP packet size, or the UDP send buffer size (whichever is smaller).
         //
         final int packetSize = java.lang.Math.min(_maxPacketSize, _size - _udpOverhead);
         if (packetSize < buf.size()) {
@@ -278,16 +277,13 @@ final class UdpMulticastClientTransceiver implements Transceiver {
 
         try {
             //
-            // Try to set the buffer size. The kernel will silently adjust the size to an acceptable
-            // value.
-            // Then read the size back to get the size that was actually set.
+            // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value. Then read the size back to get the size that was actually set.
             //
             _socket.setSendBufferSize(_newSize);
             _size = _socket.getSendBufferSize();
 
             //
-            // Warn if the size that was set is less than the requested size and we have not already
-            // warned.
+            // Warn if the size that was set is less than the requested size and we have not already warned.
             //
             if (_size < _newSize) {
                 BufSizeWarnInfo winfo = _instance.getBufSizeWarn(UDPEndpointType.value);
@@ -333,8 +329,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
 
                 synchronized (this) {
                     //
-                    // Wait until the socket is closed, an exception occurs, or we have something to
-                    // write.
+                    // Wait until the socket is closed, an exception occurs, or we have something to write.
                     //
                     while (_socket != null && _exception == null && _buffers.isEmpty()) {
                         try {
@@ -369,8 +364,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
                         offset = buf.b.arrayOffset();
                     } else {
                         //
-                        // If the buffer doesn't have a backing array, we'll have to make a copy of
-                        // the data.
+                        // If the buffer doesn't have a backing array, we'll have to make a copy of the data.
                         //
                         arr = new byte[buf.b.limit()];
                         offset = 0;
@@ -402,10 +396,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
     private int _newSize;
 
     //
-    // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for
-    // the
-    // UDP header
-    // to get the maximum payload.
+    // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header to get the maximum payload.
     //
     private static final int _udpOverhead = 20 + 8;
     private static final int _maxPacketSize = 65535 - _udpOverhead;

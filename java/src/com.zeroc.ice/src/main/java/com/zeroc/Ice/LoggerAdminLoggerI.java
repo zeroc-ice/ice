@@ -113,8 +113,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
                                     (Void v, Throwable ex) -> {
                                         if (ex != null) {
                                             if (ex instanceof CommunicatorDestroyedException) {
-                                                // Expected if there are outstanding calls during
-                                                // communicator destruction.
+                                                // Expected if there are outstanding calls during communicator destruction.
                                             } else if (ex instanceof LocalException) {
                                                 _loggerAdmin.deadRemoteLogger(
                                                         p,

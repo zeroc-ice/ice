@@ -62,8 +62,7 @@ public final class Current implements Cloneable {
             int requestId,
             EncodingVersion encoding) {
         // We may occasionally construct a Current with a null adapter, however we never
-        // return such
-        // a current to the application code.
+        // return such a current to the application code.
         Objects.requireNonNull(id);
         Objects.requireNonNull(facet);
         Objects.requireNonNull(operation);
@@ -189,9 +188,7 @@ public final class Current implements Cloneable {
         OutputStream ostr;
 
         if (requestId != 0) {
-            // The default class format doesn't matter since we always encode user
-            // exceptions in
-            // Sliced format.;
+            // The default class format doesn't matter since we always encode user exceptions in Sliced format.;
             ostr =
                     new OutputStream(
                             Protocol.currentProtocolEncoding, FormatType.SlicedFormat, false);
@@ -267,8 +264,7 @@ public final class Current implements Cloneable {
                 // and we don't use the dispatchExceptionMessage.
             } else {
                 // If the exception is a DispatchException, we keep its message as-is; otherwise, we
-                // create a custom
-                // message. This message doesn't include the stack trace.
+                // create a custom message. This message doesn't include the stack trace.
                 if (dispatchExceptionMessage == null) {
                     dispatchExceptionMessage = "Dispatch failed with " + exc.toString();
                 }

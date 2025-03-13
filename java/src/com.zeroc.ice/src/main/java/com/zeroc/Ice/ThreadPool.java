@@ -38,8 +38,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
 
         @Override
         public void execute(ThreadPoolCurrent current) {
-            // No call to ioCompleted, this shouldn't block (and we don't want to cause
-            // a new thread to be started).
+            // No call to ioCompleted, this shouldn't block (and we don't want to cause a new thread to be started).
             try {
                 _thread.join();
             } catch (InterruptedException e) {
@@ -83,9 +82,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
         int nProcessors = Runtime.getRuntime().availableProcessors();
 
         //
-        // We use just one thread as the default. This is the fastest
-        // possible setting, still allows one level of nesting, and
-        // doesn't require to make the servants thread safe.
+        // We use just one thread as the default. This is the fastest possible setting, still allows one level of nesting, and doesn't require to make the servants thread safe.
         //
         int size = properties.getPropertyAsIntWithDefault(_prefix + ".Size", 1);
         if (size < 1) {
@@ -313,9 +310,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
     public void joinWithAllThreads() throws InterruptedException {
         //
         // _threads is immutable after destroy() has been called,
-        // therefore no synchronization is needed. (Synchronization
-        // wouldn't be possible here anyway, because otherwise the
-        // other threads would never terminate.)
+        // therefore no synchronization is needed. (Synchronization wouldn't be possible here anyway, because otherwise the other threads would never terminate.)
         //
         for (EventHandlerThread thread : _threads) {
             thread.join();
@@ -423,10 +418,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
 
                 if (current._handler == null) {
                     //
-                    // If there are no more ready handlers and there are still threads busy
-                    // performing
-                    // IO, we give up leadership and promote another follower (which will perform
-                    // the
+                    // If there are no more ready handlers and there are still threads busy performing IO, we give up leadership and promote another follower (which will perform the
                     // select() only once all the IOs are completed). Otherwise, if there's no more
                     // threads peforming IOs, it's time to do another select().
                     //
@@ -440,8 +432,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
                     }
                 } else if (_sizeMax > 1) {
                     //
-                    // Increment the IO thread count and if there's still threads available
-                    // to perform IO and more handlers ready, we promote a follower.
+                    // Increment the IO thread count and if there's still threads available to perform IO and more handlers ready, we promote a follower.
                     //
                     ++_inUseIO;
                     if (_nextHandler.hasNext() && _inUseIO < _sizeIO) {
@@ -540,9 +531,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
         current._thread.setState(ThreadState.ThreadStateIdle);
 
         //
-        // It's important to clear the handler before waiting to make sure that
-        // resources for the handler are released now if it's finished. We also
-        // clear the per-thread stream.
+        // It's important to clear the handler before waiting to make sure that resources for the handler are released now if it's finished. We also clear the per-thread stream.
         //
         current._handler = null;
         current.stream.reset();

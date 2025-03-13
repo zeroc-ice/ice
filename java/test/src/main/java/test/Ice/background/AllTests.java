@@ -869,8 +869,7 @@ public class AllTests {
             configuration.readException(new com.zeroc.Ice.SocketException());
             r = background.opAsync();
             InvocationFuture<Void> f = Util.getInvocationFuture(r);
-            // The read exception might propagate before the message send is seen as completed on
-            // IOCP.
+            // The read exception might propagate before the message send is seen as completed on IOCP.
             f.waitForSent();
             try {
                 r.join();

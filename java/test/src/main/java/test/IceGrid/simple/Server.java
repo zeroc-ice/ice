@@ -6,8 +6,7 @@ public class Server extends test.TestHelper {
     public void run(String[] args) {
         com.zeroc.Ice.Properties properties = createTestProperties(args);
 
-        // It's possible to have batch oneway requests dispatched after the adapter is
-        // deactivated due to thread scheduling so we suppress this warning.
+        // It's possible to have batch oneway requests dispatched after the adapter is deactivated due to thread scheduling so we suppress this warning.
         properties.setProperty("Ice.Warn.Dispatch", "0");
         properties.setProperty("Ice.Package.Test", "test.IceGrid.simple");
         try (com.zeroc.Ice.Communicator communicator = initialize(args)) {

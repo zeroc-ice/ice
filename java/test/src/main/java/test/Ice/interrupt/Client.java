@@ -7,8 +7,7 @@ public class Client extends test.TestHelper {
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.interrupt");
         //
-        // We need to send messages large enough to cause the transport
-        // buffers to fill up.
+        // We need to send messages large enough to cause the transport buffers to fill up.
         //
         properties.setProperty("Ice.MessageSizeMax", "20000");
         //

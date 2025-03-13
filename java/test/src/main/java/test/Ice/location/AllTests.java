@@ -69,8 +69,7 @@ public class AllTests {
                         == 0);
 
         //
-        // We also test ice_router/ice_getRouter (perhaps we should add a
-        // test/Ice/router test?)
+        // We also test ice_router/ice_getRouter (perhaps we should add a test/Ice/router test?)
         //
         test(base.ice_getRouter() == null);
         var anotherRouter = com.zeroc.Ice.RouterPrx.createProxy(communicator, "anotherRouter");
@@ -470,10 +469,7 @@ public class AllTests {
                 test(count == locator.getRequestCount());
                 Thread.sleep(1200);
 
-                // The following request should trigger the background updates but still use the
-                // cached
-                // endpoints
-                // and therefore succeed.
+                // The following request should trigger the background updates but still use the cached endpoints and therefore succeed.
                 ic.stringToProxy("test@TestAdapter5")
                         .ice_locatorCacheTimeout(1)
                         .ice_ping(); // 1s timeout.

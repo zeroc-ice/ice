@@ -49,8 +49,7 @@ final class TransceiverI implements Transceiver {
 
     @Override
     public int closing(boolean initiator, LocalException ex) {
-        // If we are initiating the connection closure, wait for the peer
-        // to close the connection. Otherwise, close immediately.
+        // If we are initiating the connection closure, wait for the peer to close the connection. Otherwise, close immediately.
         return initiator ? SocketOperation.Read : SocketOperation.None;
     }
 
@@ -372,8 +371,7 @@ final class TransceiverI implements Transceiver {
 
             while (true) {
                 synchronized (this) {
-                    // If we've read too much data, wait until the application consumes some before
-                    // we read again.
+                    // If we've read too much data, wait until the application consumes some before we read again.
                     while (_state == StateConnected
                             && _exception == null
                             && _readBuffer.b.position() > _rcvSize) {

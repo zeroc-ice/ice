@@ -249,8 +249,7 @@ public class AllTests {
         } else {
             try {
                 //
-                // This test fails when using the compact format because the instance cannot
-                // be sliced to a known type.
+                // This test fails when using the compact format because the instance cannot be sliced to a known type.
                 //
                 test.SBSUnknownDerivedAsSBaseCompact();
                 test(false);
@@ -294,8 +293,7 @@ public class AllTests {
             cb.check();
         } else {
             //
-            // This test fails when using the compact format because the instance cannot
-            // be sliced to a known type.
+            // This test fails when using the compact format because the instance cannot be sliced to a known type.
             //
             Callback cb = new Callback();
             test.SBSUnknownDerivedAsSBaseCompactAsync()
@@ -1866,9 +1864,7 @@ public class AllTests {
 
         try {
             //
-            // Obtain an object with preserved slices and send it back to the server.
-            // The preserved slices should be excluded for the 1.0 encoding, otherwise
-            // they should be included.
+            // Obtain an object with preserved slices and send it back to the server. The preserved slices should be excluded for the 1.0 encoding, otherwise they should be included.
             //
             Preserved p = test.PBSUnknownAsPreserved();
             test.checkPBSUnknown(p);
@@ -2097,9 +2093,7 @@ public class AllTests {
 
         try {
             //
-            // Obtain an object with preserved slices and send it back to the server.
-            // The preserved slices should be excluded for the 1.0 encoding, otherwise
-            // they should be included.
+            // Obtain an object with preserved slices and send it back to the server. The preserved slices should be excluded for the 1.0 encoding, otherwise they should be included.
             //
             Preserved p = test.PBSUnknownAsPreserved();
             test.checkPBSUnknown(p);
@@ -2150,9 +2144,7 @@ public class AllTests {
             }
 
             //
-            // Obtain a preserved object from the server where the most-derived
-            // type is unknown. A data member in the preserved slice refers to the
-            // outer object, so the chain of references looks like this:
+            // Obtain a preserved object from the server where the most-derived type is unknown. A data member in the preserved slice refers to the outer object, so the chain of references looks like this:
             //
             // outer.slicedData.outer
             //
@@ -2165,11 +2157,7 @@ public class AllTests {
             }
 
             //
-            // Throw a preserved exception where the most-derived type is unknown.
-            // The preserved exception slice contains a class data member. This
-            // object is also preserved, and its most-derived type is also unknown.
-            // The preserved slice of the object contains a class data member that
-            // refers to itself.
+            // Throw a preserved exception where the most-derived type is unknown. The preserved exception slice contains a class data member. This object is also preserved, and its most-derived type is also unknown. The preserved slice of the object contains a class data member that refers to itself.
             //
             // The chain of references looks like this:
             //

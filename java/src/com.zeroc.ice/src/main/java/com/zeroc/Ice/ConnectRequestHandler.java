@@ -48,11 +48,7 @@ final class ConnectRequestHandler
     @Override
     public synchronized ConnectionI getConnection() {
         //
-        // First check for the connection, it's important otherwise the user could first get a
-        // connection
-        // and then the exception if he tries to obtain the proxy cached connection multiple times
-        // (the
-        // exception can be set after the connection is set if the flush of pending requests fails).
+        // First check for the connection, it's important otherwise the user could first get a connection and then the exception if he tries to obtain the proxy cached connection multiple times (the exception can be set after the connection is set if the flush of pending requests fails).
         //
         if (_connection != null) {
             return _connection;
@@ -75,8 +71,7 @@ final class ConnectRequestHandler
         }
 
         //
-        // If this proxy is for a non-local object, and we are using a router, then
-        // add this proxy to the router info object.
+        // If this proxy is for a non-local object, and we are using a router, then add this proxy to the router info object.
         //
         RouterInfo ri = _reference.getRouterInfo();
         if (ri != null && !ri.addProxy(_reference, this)) {
@@ -116,8 +111,7 @@ final class ConnectRequestHandler
     @Override
     public void addedProxy() {
         //
-        // The proxy was added to the router info, we're now ready to send the
-        // queued requests.
+        // The proxy was added to the router info, we're now ready to send the queued requests.
         //
         flushRequests();
     }
@@ -137,8 +131,7 @@ final class ConnectRequestHandler
             return true;
         } else {
             //
-            // This is similar to a mutex lock in that the flag is
-            // only true for a short period of time.
+            // This is similar to a mutex lock in that the flag is only true for a short period of time.
             //
             boolean interrupted = false;
             while (_flushing) {
@@ -158,9 +151,7 @@ final class ConnectRequestHandler
             if (_exception != null) {
                 if (_connection != null) {
                     //
-                    // Only throw if the connection didn't get established. If
-                    // it died after being established, we allow the caller to
-                    // retry the connection establishment by not throwing here
+                    // Only throw if the connection didn't get established. If it died after being established, we allow the caller to retry the connection establishment by not throwing here
                     // (the connection will throw RetryException).
                     //
                     return true;
@@ -177,9 +168,7 @@ final class ConnectRequestHandler
             assert (_connection != null && !_initialized);
 
             //
-            // We set the _flushing flag to true to prevent any additional queuing. Callers
-            // might block for a little while as the queued requests are being sent but this
-            // shouldn't be an issue as the request sends are non-blocking.
+            // We set the _flushing flag to true to prevent any additional queuing. Callers might block for a little while as the queued requests are being sent but this shouldn't be an issue as the request sends are non-blocking.
             //
             _flushing = true;
         }

@@ -31,13 +31,7 @@ public class AllTests {
             s = (ConnectionMetrics) r.returnValue.get("Connection")[0];
             int nRetry = 30;
             while (s.sentBytes != expected && nRetry-- > 0) {
-                // On some platforms, it's necessary to wait a little before obtaining the server
-                // metrics
-                // to get an accurate sentBytes metric. The sentBytes metric is updated before the
-                // response
-                // to the operation is sent and getMetricsView can be dispatched before the metric
-                // is really
-                // updated.
+                // On some platforms, it's necessary to wait a little before obtaining the server metrics to get an accurate sentBytes metric. The sentBytes metric is updated before the response to the operation is sent and getMetricsView can be dispatched before the metric is really updated.
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException ex) {
@@ -536,12 +530,7 @@ public class AllTests {
             map = toMap(serverMetrics.getMetricsView("View").returnValue.get("Connection"));
             test(map.get("holding").current == 1);
 
-            // Calling `close` on a Connection blocks the calling thread until the closure is
-            // complete.
-            // At which point the connection is in the `Closed` state. So to test the `Closing`
-            // state,
-            // we directly call `doApplicationClose` to _initiate_ a closure, without having to
-            // wait.
+            // Calling `close` on a Connection blocks the calling thread until the closure is complete. At which point the connection is in the `Closed` state. So to test the `Closing` state, we directly call `doApplicationClose` to _initiate_ a closure, without having to wait.
             ((com.zeroc.Ice.ConnectionI) metrics.ice_getConnection()).doApplicationClose();
 
             map = toMap(clientMetrics.getMetricsView("View").returnValue.get("Connection"));

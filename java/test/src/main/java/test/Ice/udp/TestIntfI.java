@@ -27,8 +27,7 @@ public final class TestIntfI implements TestIntf {
     public void pingBiDir(com.zeroc.Ice.Identity id, com.zeroc.Ice.Current current) {
         try {
             //
-            // Ensure sending too much data doesn't cause the UDP connection
-            // to be closed.
+            // Ensure sending too much data doesn't cause the UDP connection to be closed.
             //
             try {
                 byte[] seq = new byte[32 * 1024];

@@ -110,8 +110,7 @@ public class AllTests {
             }
 
             //
-            // Ensure that the proxy correctly caches the connection (we
-            // always send the request over the same connection.)
+            // Ensure that the proxy correctly caches the connection (we always send the request over the same connection.)
             //
             {
                 for (RemoteObjectAdapterPrx p : adapters) {
@@ -132,8 +131,7 @@ public class AllTests {
             }
 
             //
-            // Deactivate an adapter and ensure that we can still
-            // establish the connection to the remaining adapters.
+            // Deactivate an adapter and ensure that we can still establish the connection to the remaining adapters.
             //
             rcom.deactivateObjectAdapter(adapters.get(0));
             names.add("Adapter12");
@@ -155,8 +153,7 @@ public class AllTests {
             }
 
             //
-            // Deactivate an adapter and ensure that we can still
-            // establish the connection to the remaining adapter.
+            // Deactivate an adapter and ensure that we can still establish the connection to the remaining adapter.
             //
             rcom.deactivateObjectAdapter(adapters.get(2));
             TestIntfPrx test = createTestIntfPrx(adapters);
@@ -274,8 +271,7 @@ public class AllTests {
             }
 
             //
-            // Ensure that the proxy correctly caches the connection (we
-            // always send the request over the same connection.)
+            // Ensure that the proxy correctly caches the connection (we always send the request over the same connection.)
             //
             {
                 for (RemoteObjectAdapterPrx p : adapters) {
@@ -296,8 +292,7 @@ public class AllTests {
             }
 
             //
-            // Deactivate an adapter and ensure that we can still
-            // establish the connection to the remaining adapters.
+            // Deactivate an adapter and ensure that we can still establish the connection to the remaining adapters.
             //
             rcom.deactivateObjectAdapter(adapters.get(0));
             names.add("AdapterAMI12");
@@ -319,8 +314,7 @@ public class AllTests {
             }
 
             //
-            // Deactivate an adapter and ensure that we can still
-            // establish the connection to the remaining adapter.
+            // Deactivate an adapter and ensure that we can still establish the connection to the remaining adapter.
             //
             rcom.deactivateObjectAdapter(adapters.get(2));
             TestIntfPrx test = createTestIntfPrx(adapters);
@@ -831,11 +825,9 @@ public class AllTests {
                             } catch (com.zeroc.Ice.ObjectNotExistException ex) {
                                 // Expected, no object registered.
                             } catch (com.zeroc.Ice.DNSException ex) {
-                                // Expected if no IPv4 or IPv6 address is
-                                // associated to localhost or if trying to connect
+                                // Expected if no IPv4 or IPv6 address is associated to localhost or if trying to connect
                                 // to an any endpoint with the wrong IP version,
-                                // e.g.: resolving an IPv4 address when only IPv6
-                                // is enabled fails with a DNS exception.
+                                // e.g.: resolving an IPv4 address when only IPv6 is enabled fails with a DNS exception.
                             } catch (com.zeroc.Ice.SocketException ex) {
                                 test(
                                         (p == ipv4 && q == ipv6)

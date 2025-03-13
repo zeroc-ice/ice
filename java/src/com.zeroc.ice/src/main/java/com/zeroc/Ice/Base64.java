@@ -3,8 +3,7 @@
 package com.zeroc.Ice;
 
 // We would prefer to use java.util.Base64 but unfortunately that class isn't supported in Android
-// until
-// Android O, so we are using our own implementation.
+// until Android O, so we are using our own implementation.
 final class Base64 {
     public static String encode(byte[] plainSeq) {
         if (plainSeq == null || plainSeq.length == 0) {
@@ -94,8 +93,7 @@ final class Base64 {
             return null;
         }
 
-        // Note: This is how we were previously computing the size of the return
-        //       sequence. The method below is more efficient (and correct).
+        // Note: This is how we were previously computing the size of the return sequence. The method below is more efficient (and correct).
         // size_t lines = str.size() / 78;
         // size_t totalBytes = (lines * 76) + (((str.size() - (lines * 78)) * 3) / 4);
 

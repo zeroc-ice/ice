@@ -74,8 +74,7 @@ public class Server extends test.TestHelper {
         properties.setProperty("Ice.Warn.Connections", "0");
         properties.setProperty("Ice.MessageSizeMax", "50000");
 
-        // This test relies on filling the TCP send/recv buffer, so
-        // we rely on a fixed value for these buffers.
+        // This test relies on filling the TCP send/recv buffer, so we rely on a fixed value for these buffers.
         properties.setProperty("Ice.TCP.RcvSize", "50000");
 
         //

@@ -48,9 +48,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.text.JTextComponent;
 
 //
-// This class coordinates the communications between the various objects
-// that make up the IceGrid GUI.
-// It also provides both the menu bar and tool bar.
+// This class coordinates the communications between the various objects that make up the IceGrid GUI. It also provides both the menu bar and tool bar.
 //
 public class Coordinator {
     public interface IGraphView {
@@ -1235,15 +1233,9 @@ public class Coordinator {
         }
 
         // This class acts as a decorator around an existing trust manager, enabling it to intercept
-        // and
-        // react to
-        // certificate exceptions thrown due to invalid certificates. In such cases, rather than
-        // terminating the
+        // and react to certificate exceptions thrown due to invalid certificates. In such cases, rather than terminating the
         // connection, this class presents the user with an interactive dialog, allowing them to
-        // manually decide
-        // whether to trust the certificate. If the user rejects the certificate, the original
-        // exception
-        // is rethrown.
+        // manually decide whether to trust the certificate. If the user rejects the certificate, the original exception is rethrown.
         final class TrustManagerI implements javax.net.ssl.X509TrustManager {
             TrustManagerI(
                     KeyStore trustedServerKeyStore, javax.net.ssl.X509TrustManager decoratee) {
@@ -1275,11 +1267,9 @@ public class Coordinator {
                     //
                     // Compare the server certificate with a previous accepted certificate if
                     // any, the transient certificate is reset by Coordinator.login, and is only
-                    // useful in case the connection is retry, because a timeout or ACM closed
-                    // it while the certificate verifier was waiting for the user decision.
+                    // useful in case the connection is retry, because a timeout or ACM closed it while the certificate verifier was waiting for the user decision.
                     //
-                    // This avoids to show the dialog again if the user already granted the cert for
-                    // this login operation.
+                    // This avoids to show the dialog again if the user already granted the cert for this login operation.
                     //
                     if (_transientCert != null && _transientCert.equals(serverCertificate)) {
                         return;
@@ -1406,8 +1396,7 @@ public class Coordinator {
                 while (aliases.hasMoreElements()) {
                     if (trustedCaKeyStore.entryInstanceOf(
                             aliases.nextElement(), TrustedCertificateEntry.class)) {
-                        // Only initialize the trust managers if there is at least one trusted
-                        // certificate.
+                        // Only initialize the trust managers if there is at least one trusted certificate.
                         trustManagerFactory.init(trustedCaKeyStore);
                         trustManagers = trustManagerFactory.getTrustManagers();
                         break;
@@ -1463,10 +1452,7 @@ public class Coordinator {
             }
 
             if (trustManagers == null || trustManagers.length == 0) {
-                // The trust managers array would be empty if the trusted CA KeyStore is empty. In
-                // this
-                // case, we
-                // install a trust manager that rejects all peer certificates.
+                // The trust managers array would be empty if the trusted CA KeyStore is empty. In this case, we install a trust manager that rejects all peer certificates.
                 trustManagers =
                         new javax.net.ssl.TrustManager[] {
                             new javax.net.ssl.X509TrustManager() {
@@ -1860,15 +1846,9 @@ public class Coordinator {
                                     }
 
                                     //
-                                    // If the registry to use is the locator local registry, we
-                                    // install a default
-                                    // router
-                                    // to ensure we'll use a single connection regardless of the
+                                    // If the registry to use is the locator local registry, we install a default router to ensure we'll use a single connection regardless of the
                                     // endpoints returned in
-                                    // the
-                                    // proxies of the various session/admin methods (useful if used
-                                    // over a ssh
-                                    // tunnel).
+                                    // the proxies of the various session/admin methods (useful if used over a ssh tunnel).
                                     //
                                     if (cb.getRegistry()
                                             .ice_getIdentity()
@@ -3388,8 +3368,7 @@ public class Coordinator {
     //
     private void trace(String category, String message) {
         //
-        // It would be nicer to use the communicator's logger,
-        // but accessing _communicator is not thread-safe.
+        // It would be nicer to use the communicator's logger, but accessing _communicator is not thread-safe.
         //
         _initData.logger.trace(category, message);
     }
@@ -3481,8 +3460,7 @@ public class Coordinator {
     private MainPane _mainPane;
 
     //
-    // Keep tracks of serial number when viewing/editing application definitions
-    // (not used for displaying live deployment)
+    // Keep tracks of serial number when viewing/editing application definitions (not used for displaying live deployment)
     //
     private int _latestSerial = -1;
     private int _writeSerial = -1;
@@ -3543,8 +3521,7 @@ public class Coordinator {
     private ActionWrapper _moveDown;
 
     //
-    // Two sets of actions because the popup's target and the menu/toolbar's target
-    // can be different.
+    // Two sets of actions because the popup's target and the menu/toolbar's target can be different.
     //
     private LiveActions _liveActionsForMenu = new LiveActions();
     private LiveActions _liveActionsForPopup = new LiveActions();

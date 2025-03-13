@@ -72,8 +72,7 @@ public class AllTests {
                 break; // Success
             }
 
-            // If the 3 datagrams were not received within the 2 seconds, we try again to
-            // receive 3 new datagrams using a new object. We give up after 5 retries.
+            // If the 3 datagrams were not received within the 2 seconds, we try again to receive 3 new datagrams using a new object. We give up after 5 retries.
             replyI = new PingReplyI();
             reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         }
@@ -81,8 +80,7 @@ public class AllTests {
 
         if (communicator.getProperties().getIcePropertyAsInt("Ice.Override.Compress") == 0) {
             //
-            // Only run this test if compression is disabled, the test expects fixed message size
-            // to be sent over the wire.
+            // Only run this test if compression is disabled, the test expects fixed message size to be sent over the wire.
             //
             byte[] seq = null;
             try {
@@ -104,8 +102,7 @@ public class AllTests {
                 replyI.reset();
                 obj.sendByteSeq(seq, reply);
                 //
-                // We don't expect a reply because the server's value for Ice.UDP.RcvSize is too
-                // small.
+                // We don't expect a reply because the server's value for Ice.UDP.RcvSize is too small.
                 //
                 test(!replyI.waitReply(1, 500));
             } catch (com.zeroc.Ice.LocalException ex) {
@@ -143,9 +140,7 @@ public class AllTests {
             TestIntfPrx objMcast = TestIntfPrx.uncheckedCast(base);
 
             //
-            // On Android, the test suite driver only starts one server instance. Otherwise, we
-            // expect
-            // there to be five servers and we expect a response from all of them.
+            // On Android, the test suite driver only starts one server instance. Otherwise, we expect there to be five servers and we expect a response from all of them.
             //
             final int numServers = helper.isAndroid() ? 1 : 5;
 
@@ -156,9 +151,7 @@ public class AllTests {
                     objMcast.ping(reply);
                 } catch (com.zeroc.Ice.SocketException ex) {
                     if (communicator.getProperties().getIceProperty("Ice.IPv6").equals("1")) {
-                        // Multicast IPv6 not supported on the platform. This occurs for example on
-                        // macOS Big
-                        // Sur
+                        // Multicast IPv6 not supported on the platform. This occurs for example on macOS Big Sur
                         out.print("(not supported) ");
                         ret = true;
                         break;

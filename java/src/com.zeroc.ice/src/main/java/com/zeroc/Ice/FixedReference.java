@@ -197,8 +197,7 @@ public class FixedReference extends Reference {
         }
 
         //
-        // If a secure connection is requested or secure overrides is set,
-        // check if the connection is secure.
+        // If a secure connection is requested or secure overrides is set, check if the connection is secure.
         //
         boolean secure;
         DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();

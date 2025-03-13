@@ -118,9 +118,7 @@ public class Buffer {
 
     //
     // Call expand(n) to add room for n additional bytes. Note that expand()
-    // examines the current position of the buffer first; we don't want to
-    // expand the buffer if the caller is writing to a location that is
-    // already in the buffer.
+    // examines the current position of the buffer first; we don't want to expand the buffer if the caller is writing to a location that is already in the buffer.
     //
     public void expand(int n) {
         final int sz = (b == _emptyBuffer) ? n : b.position() + n;
@@ -150,10 +148,7 @@ public class Buffer {
     public void reset() {
         if (_size > 0 && _size * 2 < _capacity) {
             //
-            // If the current buffer size is smaller than the
-            // buffer capacity, we shrink the buffer memory to the
-            // current size. This is to avoid holding on to too much
-            // memory if it's not needed anymore.
+            // If the current buffer size is smaller than the buffer capacity, we shrink the buffer memory to the current size. This is to avoid holding on to too much memory if it's not needed anymore.
             //
             if (++_shrinkCounter > 2) {
                 reserve(_size);

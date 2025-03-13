@@ -206,8 +206,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                         _maxRefreshPeriod,
                                         1);
 
-                        // SpinnerNumberModel to set the maximum number of samples to keep in X
-                        // axis.
+                        // SpinnerNumberModel to set the maximum number of samples to keep in X axis.
                         final SpinnerNumberModel samples =
                                 new SpinnerNumberModel(_samples, _minSamples, _maxSamples, 1);
 
@@ -339,9 +338,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                             if (seriesClass != null) {
                                                 _styles.remove(seriesClass);
                                             }
-                                            // Don't remove the XYChart.Series object here, to avoid
-                                            // the series style classes getting reassigned by
-                                            // JavaFX.
+                                            // Don't remove the XYChart.Series object here, to avoid the series style classes getting reassigned by JavaFX.
                                             //
                                             // TODO: _chart.getData().remove(row.series);
                                             try {
@@ -642,8 +639,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
                                 columns.put(j.getField().getFieldName(), row);
                                 j.getField().setContext(GraphView.this);
-                                // When a line is clicked we select the corresponding row in the
-                                // legend table.
+                                // When a line is clicked we select the corresponding row in the legend table.
                                 javafx.scene.Node n =
                                         _chart.lookup(".chart-series-line." + styleClass);
                                 if (n != null) {
@@ -703,8 +699,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         // Reset the cell field necessary to avoid bogus calculations.
         row.cell.resetField();
 
-        // We need also a new click handler so click works in all segments
-        // of the line.
+        // We need also a new click handler so click works in all segments of the line.
         //
         // When a line is clicked we select the corresponding row in the legend table.
         javafx.scene.Node n = _chart.lookup(".chart-series-line." + styleClass);
@@ -749,9 +744,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                             metricsSeq = data.get(i.getKey());
                         }
 
-                        // Iterate over all configured values, if there isn't data for one
-                        // configured
-                        // field we need to add a gap.
+                        // Iterate over all configured values, if there isn't data for one configured field we need to add a gap.
                         for (Map.Entry<String, Map<String, MetricsRow>> j :
                                 i.getValue().entrySet()) {
                             com.zeroc.Ice.IceMX.Metrics metrics = null;
@@ -766,19 +759,14 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                             }
                             for (Map.Entry<String, MetricsRow> k : j.getValue().entrySet()) {
                                 MetricsRow row = k.getValue();
-                                // If there isn't a metrics object we disable the row and add a
-                                // dummy value.
+                                // If there isn't a metrics object we disable the row and add a dummy value.
                                 if (metrics == null) {
-                                    // If the row isn't disabled we add a new series to represent
-                                    // the gap
-                                    // and mark the row as disabled.
+                                    // If the row isn't disabled we add a new series to represent the gap and mark the row as disabled.
                                     if (!row.disabled) {
                                         row.series.push(new XYChart.Series<Number, Number>());
                                         row.disabled = true;
                                     }
-                                    // This dummy value is added to represent gap sizes, but isn't
-                                    // displayed
-                                    // as the series isn't added to the graph.
+                                    // This dummy value is added to represent gap sizes, but isn't displayed as the series isn't added to the graph.
                                     row.series
                                             .peek()
                                             .getData()
@@ -791,10 +779,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                         }
 
                                         Number value = row.cell.getValue(metrics, timestamp);
-                                        // The cell returns null to indicate the value must be
-                                        // skipped,
-                                        // this is usually because it needs two values to calculate
-                                        // the average.
+                                        // The cell returns null to indicate the value must be skipped, this is usually because it needs two values to calculate the average.
                                         if (value == null) {
                                             continue;
                                         }
@@ -810,9 +795,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                     }
                                 }
 
-                                // Remove the vertices from the beginning of the series that
-                                // exceeded
-                                // the maximum number of samples.
+                                // Remove the vertices from the beginning of the series that exceeded the maximum number of samples.
                                 adjustSize(row);
                             }
                         }
@@ -1157,8 +1140,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     row.cell.setScaleFactor(((Double) value).doubleValue());
                 } else if (_columnNames[columnIndex].equals("Color")) {
                     Color color = (Color) value;
-                    // Convert color to the CSS representation used by JavaFX style.
-                    // example: #ff00aa
+                    // Convert color to the CSS representation used by JavaFX style. example: #ff00aa
                     row.color =
                             "#"
                                     + String.format("%02X", color.getRed())

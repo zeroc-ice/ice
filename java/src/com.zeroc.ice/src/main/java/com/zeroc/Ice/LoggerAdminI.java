@@ -166,9 +166,7 @@ final class LoggerAdminI implements LoggerAdmin {
         }
 
         //
-        // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent
-        // to
-        // remote loggers
+        // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to remote loggers
         //
         if (sendLogCommunicator != null) {
             sendLogCommunicator.destroy();
@@ -288,8 +286,7 @@ final class LoggerAdminI implements LoggerAdmin {
         assert (!logMessages.isEmpty() && messageMax != 0);
 
         //
-        // Filter only if one of the 3 filters is set; messageMax < 0 means "give me all"
-        // that match the other filters, if any.
+        // Filter only if one of the 3 filters is set; messageMax < 0 means "give me all" that match the other filters, if any.
         //
         if (!messageTypes.isEmpty() || !traceCategories.isEmpty() || messageMax > 0) {
             int count = 0;

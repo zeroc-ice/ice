@@ -27,34 +27,27 @@ public class SSLEngine {
         com.zeroc.Ice.Properties properties = communicator().getProperties();
 
         //
-        // CheckCertName determines whether we compare the name in a peer's
-        // certificate against its hostname.
+        // CheckCertName determines whether we compare the name in a peer's certificate against its hostname.
         //
         _checkCertName = properties.getIcePropertyAsInt("IceSSL.CheckCertName") > 0;
 
         //
-        // CheckCertName > 1 enables SNI, the SNI extension applies to client
-        // connections,
-        // indicating the hostname to the server (must be DNS hostname, not an IP
-        // address).
+        // CheckCertName > 1 enables SNI, the SNI extension applies to client connections, indicating the hostname to the server (must be DNS hostname, not an IP address).
         //
         _serverNameIndication = properties.getIcePropertyAsInt("IceSSL.CheckCertName") > 1;
 
         //
-        // VerifyPeer determines whether certificate validation failures abort a
-        // connection.
+        // VerifyPeer determines whether certificate validation failures abort a connection.
         //
         _verifyPeer = properties.getIcePropertyAsInt("IceSSL.VerifyPeer");
 
         //
-        // If the user doesn't supply an SSLContext, we need to create one based
-        // on property settings.
+        // If the user doesn't supply an SSLContext, we need to create one based on property settings.
         //
         if (_context == null) {
             try {
                 //
-                // Check for a default directory. We look in this directory for
-                // files mentioned in the configuration.
+                // Check for a default directory. We look in this directory for files mentioned in the configuration.
                 //
                 _defaultDir = properties.getIceProperty("IceSSL.DefaultDir");
 
@@ -74,9 +67,7 @@ public class SSLEngine {
                 String keystorePassword = properties.getIceProperty("IceSSL.KeystorePassword");
 
                 //
-                // The default keystore type is usually "JKS", but the legal values are
-                // determined
-                // by the JVM implementation. Other possibilities include "PKCS12" and "BKS".
+                // The default keystore type is usually "JKS", but the legal values are determined by the JVM implementation. Other possibilities include "PKCS12" and "BKS".
                 //
                 final String defaultType = java.security.KeyStore.getDefaultType();
                 final String keystoreType =
@@ -99,9 +90,7 @@ public class SSLEngine {
                 String truststorePassword = properties.getIceProperty("IceSSL.TruststorePassword");
 
                 //
-                // The default truststore type is usually "JKS", but the legal values are
-                // determined
-                // by the JVM implementation. Other possibilities include "PKCS12" and "BKS".
+                // The default truststore type is usually "JKS", but the legal values are determined by the JVM implementation. Other possibilities include "PKCS12" and "BKS".
                 //
                 final String truststoreType =
                         properties.getPropertyWithDefault("IceSSL.TruststoreType", defaultType);
@@ -213,8 +202,7 @@ public class SSLEngine {
                 java.security.KeyStore ts = null;
                 if (_truststoreStream != null || !truststorePath.isEmpty()) {
                     //
-                    // If the trust store and the key store are the same input
-                    // stream or file, don't create another key store.
+                    // If the trust store and the key store are the same input stream or file, don't create another key store.
                     //
                     if ((_truststoreStream != null && _truststoreStream == _keystoreStream)
                             || (!truststorePath.isEmpty() && truststorePath.equals(keystorePath))) {
@@ -268,11 +256,7 @@ public class SSLEngine {
                 }
 
                 //
-                // Collect the trust managers. Use IceSSL.Truststore if
-                // specified, otherwise use the Java root CAs if
-                // Ice.Use.PlatformCAs is enabled. If none of these are enabled,
-                // use the keystore or a dummy trust manager which rejects any
-                // certificate.
+                // Collect the trust managers. Use IceSSL.Truststore if specified, otherwise use the Java root CAs if Ice.Use.PlatformCAs is enabled. If none of these are enabled, use the keystore or a dummy trust manager which rejects any certificate.
                 //
                 javax.net.ssl.TrustManager[] trustManagers = null;
                 {

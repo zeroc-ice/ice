@@ -42,9 +42,7 @@ final class ServantManager implements Object {
                 skipEncapsulation = false;
             } finally {
                 if (skipEncapsulation) {
-                    // Skip the encapsulation on exception. This allows the next batch requests in
-                    // the same
-                    // InputStream to proceed.
+                    // Skip the encapsulation on exception. This allows the next batch requests in the same InputStream to proceed.
                     request.inputStream.skipEncapsulation();
                 }
             }
@@ -55,8 +53,7 @@ final class ServantManager implements Object {
             try {
                 response = servant.dispatch(request);
             } catch (UserException | RuntimeException | Error exception) {
-                // We catch Error because ServantLocator guarantees finished gets called no matter
-                // what.
+                // We catch Error because ServantLocator guarantees finished gets called no matter what.
                 locator.finished(current, servant, cookie);
                 throw exception; // unless finished above throws another exception
             }
@@ -72,8 +69,7 @@ final class ServantManager implements Object {
                             ex = finishedEx;
                         }
                         if (ex != null) {
-                            // We only marshal errors and runtime exceptions (including
-                            // CompletionException) at a higher level.
+                            // We only marshal errors and runtime exceptions (including CompletionException) at a higher level.
                             if (ex instanceof Error errorEx) {
                                 throw errorEx;
                             }

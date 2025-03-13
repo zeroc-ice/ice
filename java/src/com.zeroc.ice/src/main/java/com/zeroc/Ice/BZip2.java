@@ -50,8 +50,7 @@ public class BZip2 {
         }
 
         //
-        // Don't bother if the compressed data is larger than the
-        // uncompressed data.
+        // Don't bother if the compressed data is larger than the uncompressed data.
         //
         if (compressedLen >= uncompressedLen) {
             return null;
@@ -154,8 +153,7 @@ public class BZip2 {
 
     public static synchronized boolean supported() {
         //
-        // Use lazy initialization when determining whether support for bzip2 compression is
-        // available.
+        // Use lazy initialization when determining whether support for bzip2 compression is available.
         //
         if (!_checked) {
             _checked = true;

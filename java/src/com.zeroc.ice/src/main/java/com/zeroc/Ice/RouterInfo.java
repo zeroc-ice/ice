@@ -160,17 +160,14 @@ final class RouterInfo {
 
     private synchronized void addAndEvictProxies(Identity identity, ObjectPrx[] evictedProxies) {
         //
-        // Check if the proxy hasn't already been evicted by a
-        // concurrent addProxies call. If it's the case, don't
-        // add it to our local map.
+        // Check if the proxy hasn't already been evicted by a concurrent addProxies call. If it's the case, don't add it to our local map.
         //
         int index = _evictedIdentities.indexOf(identity);
         if (index >= 0) {
             _evictedIdentities.remove(index);
         } else {
             //
-            // If we successfully added the proxy to the router,
-            // we add it to our local map.
+            // If we successfully added the proxy to the router, we add it to our local map.
             //
             _identities.add(identity);
         }
@@ -181,9 +178,7 @@ final class RouterInfo {
         for (ObjectPrx p : evictedProxies) {
             if (!_identities.remove(p.ice_getIdentity())) {
                 //
-                // It's possible for the proxy to not have been
-                // added yet in the local map if two threads
-                // concurrently call addProxies.
+                // It's possible for the proxy to not have been added yet in the local map if two threads concurrently call addProxies.
                 //
                 _evictedIdentities.add(p.ice_getIdentity());
             }

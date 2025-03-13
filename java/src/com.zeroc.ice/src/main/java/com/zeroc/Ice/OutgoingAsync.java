@@ -126,8 +126,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
 
     @Override
     public int invokeCollocated(CollocatedRequestHandler handler) {
-        // The stream cannot be cached if the proxy is not a twoway or there is an invocation
-        // timeout set.
+        // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
         if (!_proxy.ice_isTwoway()
                 || _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
             // Disable caching by marking the streams as cached!
@@ -204,8 +203,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
     public final boolean completed(InputStream is) {
         //
         // NOTE: this method is called from ConnectionI.parseMessage
-        // with the connection locked. Therefore, it must not invoke
-        // any user callbacks.
+        // with the connection locked. Therefore, it must not invoke any user callbacks.
         //
 
         // _is can already be initialized if the invocation is retried

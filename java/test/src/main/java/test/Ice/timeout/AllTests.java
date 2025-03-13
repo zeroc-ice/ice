@@ -42,9 +42,7 @@ public class AllTests {
         try {
             allTestsWithController(helper, controller);
         } catch (Exception ex) {
-            // Ensure the adapter is not in the holding state when an unexpected exception occurs to
-            // prevent the test
-            // from hanging on exit in case a connection which disables timeouts is still opened.
+            // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent the test from hanging on exit in case a connection which disables timeouts is still opened.
             controller.resumeAdapter();
             throw ex;
         }
@@ -151,14 +149,9 @@ public class AllTests {
         out.print("testing close timeout... ");
         out.flush();
         {
-            // This test wants to call some local methods while our connection is in the `Closing`
-            // state, before it eventually transitions to the `Closed` state due to hitting the
-            // close timeout.
+            // This test wants to call some local methods while our connection is in the `Closing` state, before it eventually transitions to the `Closed` state due to hitting the close timeout.
             //
-            // However, in Java `close` blocks until the connection is closed. So, in order to
-            // access the `Closing` state, we initiate the close in a separate thread, wait 50ms to
-            // let the thread start the closure process, and hope that we're in the `Closing` state
-            // by then.
+            // However, in Java `close` blocks until the connection is closed. So, in order to access the `Closing` state, we initiate the close in a separate thread, wait 50ms to let the thread start the closure process, and hope that we're in the `Closing` state by then.
 
             // Get the connection, and put the OA in the `Hold` state.
             var connection = connect(timeout);

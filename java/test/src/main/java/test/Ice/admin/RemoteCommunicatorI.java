@@ -48,8 +48,7 @@ public class RemoteCommunicatorI
     @Override
     public void waitForShutdown(com.zeroc.Ice.Current current) {
         //
-        // Note that we are executing in a thread of the *main* communicator,
-        // not the one that is being shut down.
+        // Note that we are executing in a thread of the *main* communicator, not the one that is being shut down.
         //
         _communicator.waitForShutdown();
     }

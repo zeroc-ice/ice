@@ -235,9 +235,7 @@ class PluginI implements Plugin {
                 return;
             }
 
-            // If we already have a locator assigned, ensure the given locator has the same
-            // identity,
-            // otherwise ignore it.
+            // If we already have a locator assigned, ensure the given locator has the same identity, otherwise ignore it.
             if (!_pendingRequests.isEmpty()
                     && _locator != null
                     && !locator.ice_getIdentity()
@@ -401,8 +399,7 @@ class PluginI implements Plugin {
 
         synchronized void exception(Throwable ex) {
             if (++_failureCount == _lookups.size() && _pending) {
-                // All the lookup calls failed, cancel the timer and propagate the error to the
-                // requests.
+                // All the lookup calls failed, cancel the timer and propagate the error to the requests.
                 _future.cancel(false);
                 _future = null;
                 _pendingRetryCount = 0;

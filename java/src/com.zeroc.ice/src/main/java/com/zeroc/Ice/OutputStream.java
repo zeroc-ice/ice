@@ -47,11 +47,7 @@ public final class OutputStream {
      * @param direct Indicates whether to use a direct buffer.
      */
     public OutputStream(EncodingVersion encoding, FormatType format, boolean direct) {
-        // The 1.0 encoding doesn't use the class format type, but we still have to set
-        // it in case
-        // the stream reads an 1.1 encapsulation, in which case it would use the format
-        // type set
-        // in the stream.
+        // The 1.0 encoding doesn't use the class format type, but we still have to set it in case the stream reads an 1.1 encapsulation, in which case it would use the format type set in the stream.
         _buf = new Buffer(direct);
         _encoding = encoding;
         _format = format;
@@ -127,10 +123,7 @@ public final class OutputStream {
         _encoding = tmpEncoding;
 
         //
-        // Swap is never called for streams that have encapsulations being written.
-        // However,
-        // encapsulations might still be set in case marshaling failed. We just
-        // reset the encapsulations if there are still some set.
+        // Swap is never called for streams that have encapsulations being written. However, encapsulations might still be set in case marshaling failed. We just reset the encapsulations if there are still some set.
         //
         resetEncapsulation();
         other.resetEncapsulation();
@@ -201,9 +194,7 @@ public final class OutputStream {
     /** Writes the start of an encapsulation to the stream. */
     public void startEncapsulation() {
         //
-        // If no encoding version is specified, use the current write
-        // encapsulation encoding version if there's a current write
-        // encapsulation, otherwise, use the stream encoding version.
+        // If no encoding version is specified, use the current write encapsulation encoding version if there's a current write encapsulation, otherwise, use the stream encoding version.
         //
 
         if (_encapsStack != null) {
@@ -320,13 +311,9 @@ public final class OutputStream {
                 ? _encapsStack.encoding_1_0
                 : _encoding.equals(Util.Encoding_1_0)) {
             //
-            // If using the 1.0 encoding and no instances were written, we
-            // still write an empty sequence for pending instances if
-            // requested (i.e.: if this is called).
+            // If using the 1.0 encoding and no instances were written, we still write an empty sequence for pending instances if requested (i.e.: if this is called).
             //
-            // This is required by the 1.0 encoding, even if no instances
-            // are written we do marshal an empty sequence if marshaled
-            // data types use classes.
+            // This is required by the 1.0 encoding, even if no instances are written we do marshal an empty sequence if marshaled data types use classes.
             //
             writeSize(0);
         }
@@ -1491,12 +1478,9 @@ public final class OutputStream {
         @Override
         void writeException(UserException v) {
             //
-            // User exception with the 1.0 encoding start with a boolean
-            // flag that indicates whether or not the exception uses
-            // classes.
+            // User exception with the 1.0 encoding start with a boolean flag that indicates whether or not the exception uses classes.
             //
-            // This allows reading the pending instances even if some part of
-            // the exception was sliced.
+            // This allows reading the pending instances even if some part of the exception was sliced.
             //
             boolean usesClasses = v._usesClasses();
             _stream.writeBool(usesClasses);
@@ -1528,8 +1512,7 @@ public final class OutputStream {
         void startSlice(String typeId, int compactId, boolean last) {
             //
             // For instance slices, encode a boolean to indicate how the type ID
-            // is encoded and the type ID either as a string or index. For
-            // exception slices, always encode the type ID as a string.
+            // is encoded and the type ID either as a string or index. For exception slices, always encode the type ID as a string.
             //
             if (_sliceType == SliceType.ValueSlice) {
                 int index = registerTypeId(typeId);
@@ -1562,8 +1545,7 @@ public final class OutputStream {
         void writePendingValues() {
             while (!_toBeMarshaledMap.isEmpty()) {
                 //
-                // Consider the to be marshaled instances as marshaled now,
-                // this is necessary to avoid adding again the "to be
+                // Consider the to be marshaled instances as marshaled now, this is necessary to avoid adding again the "to be
                 // marshaled instances" into _toBeMarshaledMap while writing
                 // instances.
                 //
@@ -1574,9 +1556,7 @@ public final class OutputStream {
                 _stream.writeSize(savedMap.size());
                 for (java.util.Map.Entry<Value, Integer> p : savedMap.entrySet()) {
                     //
-                    // Ask the instance to marshal itself. Any new class
-                    // instances that are triggered by the classes marshaled
-                    // are added to toBeMarshaledMap.
+                    // Ask the instance to marshal itself. Any new class instances that are triggered by the classes marshaled are added to toBeMarshaledMap.
                     //
                     _stream.writeInt(p.getValue().intValue());
 
@@ -1645,11 +1625,7 @@ public final class OutputStream {
                 }
 
                 //
-                // If writing an instance within a slice and using the sliced
-                // format, write an index from the instance indirection
-                // table. The indirect instance table is encoded at the end of
-                // each slice and is always read (even if the Slice is
-                // unknown).
+                // If writing an instance within a slice and using the sliced format, write an index from the instance indirection table. The indirect instance table is encoded at the end of each slice and is always read (even if the Slice is unknown).
                 //
                 Integer index = _current.indirectionMap.get(v);
                 if (index == null) {
@@ -1711,14 +1687,11 @@ public final class OutputStream {
             _stream.writeByte((byte) 0); // Placeholder for the slice flags
 
             //
-            // For instance slices, encode the flag and the type ID either as a
-            // string or index. For exception slices, always encode the type
-            // ID a string.
+            // For instance slices, encode the flag and the type ID either as a string or index. For exception slices, always encode the type ID a string.
             //
             if (_current.sliceType == SliceType.ValueSlice) {
                 //
-                // Encode the type ID (only in the first slice for the compact
-                // encoding).
+                // Encode the type ID (only in the first slice for the compact encoding).
                 //
                 if (_encaps.format == FormatType.SlicedFormat || _current.firstSlice) {
                     if (compactId >= 0) {
@@ -1750,9 +1723,7 @@ public final class OutputStream {
         @Override
         void endSlice() {
             //
-            // Write the optional member end marker if some optional members
-            // were encoded. Note that the optional members are encoded before
-            // the indirection table and are included in the slice size.
+            // Write the optional member end marker if some optional members were encoded. Note that the optional members are encoded before the indirection table and are included in the slice size.
             //
             if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0) {
                 _stream.writeByte((byte) Protocol.OPTIONAL_END_MARKER);
@@ -1920,10 +1891,7 @@ public final class OutputStream {
     }
 
     //
-    // The encoding version to use when there's no encapsulation to
-    // read from or write to. This is for example used to read message
-    // headers or when the user is using the streaming API with no
-    // encapsulation.
+    // The encoding version to use when there's no encapsulation to read from or write to. This is for example used to read message headers or when the user is using the streaming API with no encapsulation.
     //
     private EncodingVersion _encoding;
 

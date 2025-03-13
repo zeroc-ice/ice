@@ -211,8 +211,7 @@ public class AllTests {
                     r.get();
                     //
                     // get() won't raise InterruptedException if connection establishment has
-                    // already
-                    // completed.
+                    // already completed.
                     //
                     // test(false);
                     mainThread.interrupted();

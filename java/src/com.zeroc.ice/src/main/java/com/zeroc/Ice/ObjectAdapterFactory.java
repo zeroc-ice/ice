@@ -113,8 +113,7 @@ final class ObjectAdapterFactory {
         }
 
         //
-        // Must be called outside the synchronization since initialize can make client invocations
-        // on the router if it's set.
+        // Must be called outside the synchronization since initialize can make client invocations on the router if it's set.
         //
         ObjectAdapter adapter = null;
         try {
