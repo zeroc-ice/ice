@@ -3016,22 +3016,30 @@ IcePy::createServantWrapper(PyObject* servant)
 PyObject*
 IcePy::createFuture(const string& operation, PyObject* asyncInvocationContext)
 {
-    PyObject* futureType = lookupType("Ice.InvocationFuture");
-    assert(futureType);
-    PyObjectHandle args{PyTuple_New(2)};
-    if (!args.get())
+    auto type = reinterpret_cast<PyTypeObject*>(lookupType("Ice.InvocationFuture"));
+    assert(type);
+
+    // Create the Ice.InvocationFuture object.
+    PyObjectHandle newArgs{PyTuple_New(0)};
+    PyObjectHandle future{type->tp_new(type, newArgs.get(), nullptr)};
+    if (!future.get())
     {
         return nullptr;
     }
-    PyTuple_SET_ITEM(args.get(), 0, createString(operation));
+
+    // Prepare the arguments for the Ice.InvocationFuture.__init__ method.
+    PyObjectHandle initArgs{PyTuple_New(2)};
+    if (!initArgs.get())
+    {
+        return nullptr;
+    }
+    PyTuple_SET_ITEM(initArgs.get(), 0, createString(operation));
     Py_XINCREF(asyncInvocationContext);
-    PyTuple_SET_ITEM(args.get(), 1, asyncInvocationContext);
-    PyTypeObject* type = reinterpret_cast<PyTypeObject*>(futureType);
-    PyObject* future = type->tp_new(type, args.get(), 0);
-    if (!future)
-    {
-        return nullptr;
-    }
-    type->tp_init(future, args.get(), 0); // Call the constructor
-    return future;
+    PyTuple_SET_ITEM(initArgs.get(), 1, asyncInvocationContext);
+
+    // Call the Ice.InvocationFuture.__init__ method.
+    type->tp_init(future.get(), initArgs.get(), nullptr);
+
+    // Release the reference to the future object and let the caller take ownership.
+    return future.release();
 }
