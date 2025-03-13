@@ -21,6 +21,7 @@ runs:
         restore-keys: |
           ${{ inputs.prefix }}-${{ runner.os }}-${{ runner.arch }}
         max-size: 1G
+        evict-old-files: job
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
     - name: Configure ccache path
