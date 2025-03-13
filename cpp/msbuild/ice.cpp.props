@@ -6,7 +6,7 @@
   </PropertyGroup>
   <!-- Set IceHome to this source distribution. -->
   <PropertyGroup>
-      <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
+    <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
   </PropertyGroup>
 
   <!-- Import version settings required for library targets. -->
@@ -32,7 +32,7 @@
   </Choose>
 
   <PropertyGroup>
-      <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
+    <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
   </PropertyGroup>
 
   <!-- Common properties set for all builds, configurations and platforms. -->
@@ -55,7 +55,13 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <!-- Include directories -->
       <AdditionalIncludeDirectories>$(IceHome)\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>$(IceHome)\cpp\include\generated\$(Platform)\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+        $(IceHome)\cpp\include\generated\$(Platform)\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <ClCompile Condition="'$(USING_BUILD_CACHE)' == 'true'">
+      <ForcedIncludeFiles />
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <ObjectFileName>$(IntDir)%(FileName).obj</ObjectFileName>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
@@ -103,7 +109,8 @@
     </Link>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(IceBuildingSrc)|$(IceLanguageMapping)' == 'DynamicLibrary|yes|cpp'">
+  <ItemDefinitionGroup
+    Condition="'$(ConfigurationType)|$(IceBuildingSrc)|$(IceLanguageMapping)' == 'DynamicLibrary|yes|cpp'">
     <Link>
       <ImportLibrary>$(IceHome)\cpp\lib\$(Platform)\$(Configuration)\$(TargetName).lib</ImportLibrary>
     </Link>
@@ -117,18 +124,18 @@
 
   <!-- Base target names. -->
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
-      <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
+    <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
-      <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
+    <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
-      <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
+    <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
-      <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
+    <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
   </PropertyGroup>
 </Project>
