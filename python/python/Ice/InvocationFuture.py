@@ -8,6 +8,17 @@ from .LocalExceptions import TimeoutException
 from .LocalExceptions import InvocationCanceledException
 
 class InvocationFuture(Future):
+    """
+    A Future object representing the result of an AMI (Asynchronous Method Invocation) request.
+
+    InvocationFuture objects are returned by AMI requests. The application can use an InvocationFuture object to
+    wait for the result of the AMI request or register a callback that will be invoked when the result becomes
+    available.
+
+    This class provides the same functionality as `Future`, with the addition of "sent callbacks," which are invoked
+    when the request is sent.
+    """
+
     def __init__(self, operation, asyncInvocationContext):
         Future.__init__(self)
         assert asyncInvocationContext
@@ -18,51 +29,92 @@ class InvocationFuture(Future):
         self._sentCallbacks = []
 
     def cancel(self):
+        """
+        Cancel the invocation.
+
+        This method prevents a queued invocation from being sent. If the invocation has already been sent,
+        cancellation ensures that any reply from the server is ignored.
+
+        Cancellation is a local operation with no effect on the server.
+
+        After cancellation, `done()` returns `True`, and attempting to retrieve the result will raise
+        an `Ice.InvocationCanceledException`.
+        """
         self._asyncInvocationContext.cancel()
         return Future.cancel(self)
 
-    def add_done_callback_async(self, fn):
-        def callback():
-            try:
-                fn(self)
-            except Exception:
-                self._warn("done callback raised exception")
-
-        with self._condition:
-            if self._state == Future.StateRunning:
-                self._doneCallbacks.append(fn)
-                return
-        self._asyncInvocationContext.callLater(callback)
-
     def is_sent(self):
+        """
+        Check if the request has been sent.
+
+        Returns
+        -------
+        bool
+            True if the request has been sent, otherwise False.
+        """
         with self._condition:
             return self._sent
 
     def is_sent_synchronously(self):
+        """
+        Check if the request was sent synchronously.
+
+        Returns
+        -------
+        bool
+            True if the request was sent synchronously, otherwise False.
+        """
         with self._condition:
             return self._sentSynchronously
 
     def add_sent_callback(self, fn):
+        """
+        Attach a callback to be executed when the invocation is sent.
+
+        The callback `fn` is called with the future as its first argument and a boolean as its
+        second argument, indicating whether the invocation was sent synchronously.
+
+        If the future has already been sent, `fn` is called immediately from the calling thread.
+
+        Parameters
+        ----------
+        fn : callable
+            The function to execute when the invocation is sent.
+        """
         with self._condition:
             if not self._sent:
                 self._sentCallbacks.append(fn)
                 return
         fn(self, self._sentSynchronously)
 
-    def add_sent_callback_async(self, fn):
-        def callback():
-            try:
-                fn(self, self._sentSynchronously)
-            except Exception:
-                self._warn("sent callback raised exception")
-
-        with self._condition:
-            if not self._sent:
-                self._sentCallbacks.append(fn)
-                return
-        self._asyncInvocationContext.callLater(callback)
-
     def sent(self, timeout=None):
+        """
+        Wait for the operation to be sent.
+
+        This method waits up to `timeout` seconds for the operation to be sent and then returns
+        whether it was sent synchronously.
+
+        If the operation has not been sent within the specified time, a `TimeoutException` is raised.
+        If the future was cancelled before being sent, an `InvocationCanceledException` is raised.
+
+        Parameters
+        ----------
+        timeout : int or float, optional
+            Maximum time (in seconds) to wait for the operation to be sent. If `None`, the method waits
+            indefinitely.
+
+        Returns
+        -------
+        bool
+            True if the operation was sent synchronously, otherwise False.
+
+        Raises
+        ------
+        TimeoutException
+            If the operation was not sent within the specified timeout.
+        InvocationCanceledException
+            If the operation was cancelled before it was sent.
+        """
         with self._condition:
             if not self._wait(timeout, lambda: not self._sent):
                 raise TimeoutException()
@@ -91,9 +143,6 @@ class InvocationFuture(Future):
                 callback(self, sentSynchronously)
             except Exception:
                 self._warn("sent callback raised exception")
-
-    def operation(self):
-        return self._operation
 
     def _warn(self, msg):
         communicator = self.communicator()
