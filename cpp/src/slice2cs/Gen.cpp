@@ -136,7 +136,7 @@ namespace
                 {
                     // link to the method on the proxy interface
                     result << CsGenerator::getUnqualified(operationTarget->interface(), sourceScope) << "Prx."
-                        << operationTarget->mappedName();
+                           << operationTarget->mappedName();
                 }
                 else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
                 {
