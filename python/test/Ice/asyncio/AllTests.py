@@ -2,6 +2,7 @@
 
 import sys
 import asyncio
+import threading
 import Ice
 import Test
 
@@ -78,3 +79,27 @@ async def allTestsAsync(helper, communicator):
     print("ok")
 
     await Ice.wrap_future(p.shutdownAsync())
+
+    sys.stdout.write("testing communicator shutdownCompleted... ")
+    sys.stdout.flush()
+
+    testCommunicator = Ice.initialize()
+    shutdownCompletedFuture = Ice.wrap_future(testCommunicator.shutdownCompleted())
+    test(not shutdownCompletedFuture.done())
+    test(not testCommunicator.isShutdown())
+
+    # Call destroy() from a separate thread to avoid blocking the event loop
+    def destroy_communicator():
+        testCommunicator.destroy()
+
+    destroy_thread = threading.Thread(target=destroy_communicator)
+    destroy_thread.start()
+
+    await shutdownCompletedFuture
+
+    test(shutdownCompletedFuture.done())
+    test(testCommunicator.isShutdown())
+
+    destroy_thread.join()
+
+    print("ok")

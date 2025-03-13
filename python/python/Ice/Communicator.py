@@ -77,6 +77,19 @@ class Communicator:
         while not self._impl.waitForShutdown(500):
             pass
 
+    def shutdownCompleted(self):
+        """
+        Return a Future that is marked as done when the communicator's shutdown completes.
+
+        The returned Future always completes successfully.
+
+        Returns
+        -------
+        Ice.Future
+            A Future that is marked as done upon shutdown completion.
+        """
+        return self._impl.shutdownCompleted()
+
     def isShutdown(self):
         """
         Check whether the communicator has been shut down.

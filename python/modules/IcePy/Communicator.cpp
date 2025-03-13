@@ -494,6 +494,38 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
 }
 
 extern "C" PyObject*
+communicatorShutdownCompleted(CommunicatorObject* self, PyObject* /*args*/)
+{
+    assert(self->communicator);
+
+    PyObject* futureType = lookupType("Ice.Future");
+    assert(futureType);
+
+    PyObjectHandle emptyArgs{PyTuple_New(0)};
+    PyTypeObject* type = reinterpret_cast<PyTypeObject*>(futureType);
+    PyObjectHandle future{type->tp_new(type, emptyArgs.get(), nullptr)};
+    if (!future.get())
+    {
+        return nullptr;
+    }
+
+    // Call Ice.Future.__init__
+    type->tp_init(future.get(), emptyArgs.get(), nullptr);
+
+    (*self->communicator)
+        ->waitForShutdownAsync(
+            [futureHandle = PyObjectHandle(future)]()
+            {
+                AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+                PyObjectHandle discard{callMethod(futureHandle.get(), "set_result", Py_None)};
+            });
+
+    // Release the reference to the future object and let the caller take ownership. The
+    // callback keeps its own strong reference to the future.
+    return future.release();
+}
+
+extern "C" PyObject*
 communicatorIsShutdown(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
@@ -1413,6 +1445,10 @@ static PyMethodDef CommunicatorMethods[] = {
      reinterpret_cast<PyCFunction>(communicatorWaitForShutdown),
      METH_VARARGS,
      PyDoc_STR("waitForShutdown() -> None")},
+    {"shutdownCompleted",
+     reinterpret_cast<PyCFunction>(communicatorShutdownCompleted),
+     METH_VARARGS,
+     PyDoc_STR("shutdownCompleted() -> Ice.Future")},
     {"isShutdown",
      reinterpret_cast<PyCFunction>(communicatorIsShutdown),
      METH_NOARGS,
