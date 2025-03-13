@@ -159,32 +159,6 @@ func allTests(_ helper: TestHelper) async throws -> TestIntfPrx {
     base = try communicator.stringToProxy("category/finished:\(helper.getTestEndpoint(num: 0))")!
     obj = try await checkedCast(prx: base, type: TestIntfPrx.self)!
     try await testExceptions(obj, helper)
-
-    //
-    // Only call these for category/finished.
-    //
-    do {
-        try await obj.asyncResponse()
-    } catch is TestIntfUserException {
-        try test(false)
-    } catch is TestImpossibleException {
-        //
-        // Called by finished().
-        //
-    }
-
-    //
-    // Only call these for category/finished.
-    //
-    do {
-        try await obj.asyncException()
-    } catch is TestIntfUserException {
-        try test(false)
-    } catch is TestImpossibleException {
-        //
-        // Called by finished().
-        //
-    }
     output.writeLine("ok")
 
     output.write("testing servant locator removal... ")

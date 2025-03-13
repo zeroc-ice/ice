@@ -130,12 +130,5 @@ ServantLocatorI::exception(const Ice::Current& current)
     {
         throw TestImpossibleException(); // Yes, it really is meant to be TestImpossibleException.
     }
-    else if (current.operation == "asyncResponse")
-    {
-        throw TestImpossibleException();
-    }
-    else if (current.operation == "asyncException")
-    {
-        throw TestImpossibleException();
-    }
+    fatalError("unexpected operation `" + current.operation + "'");
 }

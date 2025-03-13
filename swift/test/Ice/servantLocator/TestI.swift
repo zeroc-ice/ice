@@ -43,18 +43,6 @@ class TestI: TestIntf {
         return "Hello"
     }
 
-    func asyncResponse(current _: Current) async throws {
-        //
-        // Only relevant for AMD.
-        //
-    }
-
-    func asyncException(current _: Current) async throws {
-        //
-        // Only relevant for AMD.
-        //
-    }
-
     func shutdown(current: Current) async throws {
         current.adapter.deactivate()
     }
