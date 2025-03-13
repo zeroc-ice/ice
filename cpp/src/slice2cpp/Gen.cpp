@@ -256,17 +256,34 @@ namespace
     /// Returns a doxygen formatted link to the provided Slice identifier.
     string cppLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
     {
-        string result = "{@link ";
         if (target)
         {
-            if (auto dataMemberTarget = dynamic_pointer_cast<DataMember>(target))
+            if (dynamic_pointer_cast<DataMember>(target) || dynamic_pointer_cast<Enumerator>(target))
             {
-                // Links to fields must always be qualified in the form 'container#field'.
-                ContainedPtr parent = dynamic_pointer_cast<Contained>(dataMemberTarget->container());
+                ContainedPtr memberTarget = dynamic_pointer_cast<Contained>(target);
+
+                // Links to fields/enumerators must always be qualified in the form 'container#member'.
+                ContainedPtr parent = dynamic_pointer_cast<Contained>(memberTarget->container());
                 assert(parent);
 
                 string parentName = getUnqualified(parent->mappedScoped(), source->mappedScope());
-                return parentName + "#" + dataMemberTarget->mappedName();
+                return parentName + "#" + memberTarget->mappedName();
+            }
+            if (auto enumTarget = dynamic_pointer_cast<Enum>(target))
+            {
+                // If a link to an enum isn't qualified (ie. the source and target are in the same module),
+                // we have to place a '#' character in front, so Doxygen looks in the current scope.
+                string link = getUnqualified(enumTarget->mappedScoped(), source->mappedScope());
+                if (link.find("::") == string::npos)
+                {
+                    link.insert(0, "#");
+                }
+                return link;
+            }
+            if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+            {
+                // Links to Slice interfaces should always point to the generated proxy type, not the servant type.
+                return getUnqualified(interfaceTarget->mappedScoped() + "Prx", source->mappedScope());
             }
             if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
             {
@@ -277,7 +294,7 @@ namespace
                 InterfaceDefPtr parent = operationTarget->interface();
                 bool amd = (parent->hasMetadata("amd") || operationTarget->hasMetadata("amd"));
 
-                string parentName = getUnqualified(parent->mappedScoped(), source->mappedScope());
+                string parentName = getUnqualified(parent->mappedScoped() + "Prx", source->mappedScope());
                 string opName = operationTarget->mappedName() + (amd ? "Async" : "");
                 return parentName + "::" + opName;
             }
@@ -292,9 +309,8 @@ namespace
         }
         else
         {
-            result += rawLink;
+            return "{@link " + rawLink + "}";
         }
-        return result + "}";
     }
 
     void writeDocLines(Output& out, const StringList& lines, bool commentFirst, const string& space = " ")

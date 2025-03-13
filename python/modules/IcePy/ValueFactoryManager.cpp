@@ -199,8 +199,8 @@ IcePy::DefaultValueFactory::create(std::string_view id)
     // Instantiate the object.
     //
     PyTypeObject* type = reinterpret_cast<PyTypeObject*>(info->pythonType);
-    PyObjectHandle args{PyTuple_New(0)};
-    PyObjectHandle obj{type->tp_new(type, args.get(), 0)};
+    PyObjectHandle emptyArgs{PyTuple_New(0)};
+    PyObjectHandle obj{type->tp_new(type, emptyArgs.get(), nullptr)};
     if (!obj.get())
     {
         assert(PyErr_Occurred());

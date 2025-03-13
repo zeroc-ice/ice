@@ -1,8 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice.exceptions
+namespace Ice.exceptions;
+
+public sealed class EmptyI : Test.EmptyDisp_
 {
-    public sealed class EmptyI : Test.EmptyDisp_
-    {
-    }
 }
