@@ -498,11 +498,10 @@ communicatorShutdownCompleted(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
 
-    PyObject* futureType = lookupType("Ice.Future");
-    assert(futureType);
+    auto type = reinterpret_cast<PyTypeObject*>(lookupType("Ice.Future"));
+    assert(type);
 
     PyObjectHandle emptyArgs{PyTuple_New(0)};
-    PyTypeObject* type = reinterpret_cast<PyTypeObject*>(futureType);
     PyObjectHandle future{type->tp_new(type, emptyArgs.get(), nullptr)};
     if (!future.get())
     {
