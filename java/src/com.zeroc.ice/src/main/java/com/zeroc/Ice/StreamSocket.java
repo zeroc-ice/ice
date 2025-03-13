@@ -211,7 +211,8 @@ class StreamSocket {
 
         if (System.getProperty("os.name").startsWith("Windows")) {
             //
-            // On Windows, limiting the buffer size is important to prevent poor throughput performances when sending large amount of data. See Microsoft KB article KB823764.
+            // On Windows, limiting the buffer size is important to prevent poor throughput
+            // performances when sending large amount of data. See Microsoft KB article KB823764.
             //
             _maxSendPacketSize = java.lang.Math.max(512, Network.getSendBufferSize(_fd) / 2);
         } else {

@@ -40,7 +40,8 @@ public class ServiceManagerI implements ServiceManager {
             throws AlreadyStartedException, NoSuchServiceException {
         ServiceInfo info = null;
         synchronized (this) {
-            // Search would be more efficient if services were contained in a map, but order is required for shutdown.
+            // Search would be more efficient if services were contained in a map, but order is
+            // required for shutdown.
             for (ServiceInfo p : _services) {
                 if (p.name.equals(name)) {
                     if (p.status == StatusStarted) {
@@ -101,7 +102,8 @@ public class ServiceManagerI implements ServiceManager {
             throws AlreadyStoppedException, NoSuchServiceException {
         ServiceInfo info = null;
         synchronized (this) {
-            // Search would be more efficient if services were contained in a map, but order is required for shutdown.
+            // Search would be more efficient if services were contained in a map, but order is
+            // required for shutdown.
             for (ServiceInfo p : _services) {
                 if (p.name.equals(name)) {
                     if (p.status == StatusStopped) {
@@ -200,7 +202,8 @@ public class ServiceManagerI implements ServiceManager {
             //
             // IceBox.Service.Foo=[jar-or-dir:]Package.Foo [args]
             //
-            // We parse the service properties specified in IceBox.LoadOrder first, then the ones from remaining services.
+            // We parse the service properties specified in IceBox.LoadOrder first, then the ones
+            // from remaining services.
             final String prefix = "IceBox.Service.";
             java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
 
@@ -229,7 +232,9 @@ public class ServiceManagerI implements ServiceManager {
                 servicesInfo.add(new StartServiceInfo(name, value, _argv));
             }
 
-            // Check if some services are using the shared communicator in which case we create the shared communicator now with a property set that is the union of all the service properties (from services that use the shared communicator).
+            // Check if some services are using the shared communicator in which case we create the
+            // shared communicator now with a property set that is the union of all the service
+            // properties (from services that use the shared communicator).
             if (properties.getPropertiesForPrefix("IceBox.UseSharedCommunicator.").size() > 0) {
                 com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
                 initData.properties = createServiceProperties("SharedCommunicator");
@@ -240,13 +245,15 @@ public class ServiceManagerI implements ServiceManager {
                         continue;
                     }
 
-                    // Load the service properties using the shared communicator properties as the default properties.
+                    // Load the service properties using the shared communicator properties as the
+                    // default properties.
                     java.util.List<String> remainingArgs = new java.util.ArrayList<>();
                     Properties serviceProps =
                             new Properties(service.args, initData.properties, remainingArgs);
                     service.args = remainingArgs.toArray(new String[remainingArgs.size()]);
 
-                    // Remove properties from the shared property set that a service explicitly clears.
+                    // Remove properties from the shared property set that a service explicitly
+                    // clears.
                     java.util.Map<String, String> allProps =
                             initData.properties.getPropertiesForPrefix("");
                     for (String key : allProps.keySet()) {
@@ -273,7 +280,9 @@ public class ServiceManagerI implements ServiceManager {
                 _sharedCommunicator = Util.initialize(initData);
 
                 if (addFacets) {
-                    // Add all facets created on shared communicator to the IceBox communicator but renamed <prefix>.<facet-name>, except for the Process facet which is never added.
+                    // Add all facets created on shared communicator to the IceBox communicator but
+                    // renamed <prefix>.<facet-name>, except for the Process facet which is never
+                    // added.
                     for (java.util.Map.Entry<String, com.zeroc.Ice.Object> p :
                             _sharedCommunicator.findAllAdminFacets().entrySet()) {
                         if (!p.getKey().equals("Process")) {
@@ -295,7 +304,8 @@ public class ServiceManagerI implements ServiceManager {
             // is "ready".
             // This is done by defining the property IceBox.PrintServicesReady=bundleName
             //
-            // bundleName is whatever you choose to call this set of services. It will be echoed back as "bundleName ready".
+            // bundleName is whatever you choose to call this set of services. It will be echoed
+            // back as "bundleName ready".
             //
             // This must be done after start() has been invoked on the services.
             String bundleName = properties.getIceProperty("IceBox.PrintServicesReady");
@@ -356,7 +366,8 @@ public class ServiceManagerI implements ServiceManager {
                 }
                 classDir = URLEncoder.encode(classDir, "UTF-8");
 
-                // Reuse an existing class loader if we have already loaded a plug-in with the same value for classDir, otherwise create a new one.
+                // Reuse an existing class loader if we have already loaded a plug-in with the same
+                // value for classDir, otherwise create a new one.
                 ClassLoader cl = null;
 
                 if (_classLoaders == null) {
@@ -399,7 +410,9 @@ public class ServiceManagerI implements ServiceManager {
         info.args = args;
 
         // If IceBox.UseSharedCommunicator.<name> is defined, create a
-        // communicator for the service. The communicator inherits from the shared communicator properties. If it's not defined, add the service properties to the shared communicator property set.
+        // communicator for the service. The communicator inherits from the shared communicator
+        // properties. If it's not defined, add the service properties to the shared communicator
+        // property set.
         com.zeroc.Ice.Communicator communicator;
         if (_communicator
                         .getProperties()
@@ -415,7 +428,8 @@ public class ServiceManagerI implements ServiceManager {
                 initData.properties = createServiceProperties(service);
                 String[] serviceArgs = info.args;
                 if (serviceArgs.length > 0) {
-                    // Create the service properties with the given service arguments. This should read the service config file if it's specified with --Ice.Config.
+                    // Create the service properties with the given service arguments. This should
+                    // read the service config file if it's specified with --Ice.Config.
                     java.util.List<String> remainingArgs = new java.util.ArrayList<>();
                     initData.properties =
                             new Properties(serviceArgs, initData.properties, remainingArgs);
@@ -426,7 +440,8 @@ public class ServiceManagerI implements ServiceManager {
                     serviceArgs = initData.properties.parseCommandLineOptions(service, serviceArgs);
                 }
 
-                // Clone the logger to assign a new prefix. If one of the built-in loggers is configured don't set any logger.
+                // Clone the logger to assign a new prefix. If one of the built-in loggers is
+                // configured don't set any logger.
                 if (initData.properties.getIceProperty("Ice.LogFile").isEmpty()
                         && (initData.properties.getIcePropertyAsInt("Ice.UseSyslog") <= 0
                                 || System.getProperty("os.name").startsWith("Windows"))) {
@@ -444,7 +459,8 @@ public class ServiceManagerI implements ServiceManager {
                 String serviceFacetNamePrefix = "IceBox.Service." + service + ".";
                 boolean addFacets = configureAdmin(initData.properties, serviceFacetNamePrefix);
 
-                // Remaining command line options are passed to the communicator. This is necessary for Ice plug-in properties (e.g.: Ice.SSL).
+                // Remaining command line options are passed to the communicator. This is necessary
+                // for Ice plug-in properties (e.g.: Ice.SSL).
                 java.util.List<String> remainingArgs = new java.util.ArrayList<>();
                 info.communicator = Util.initialize(serviceArgs, initData, remainingArgs);
                 info.args = remainingArgs.toArray(new String[remainingArgs.size()]);
@@ -655,7 +671,8 @@ public class ServiceManagerI implements ServiceManager {
     private void observerRemoved(ServiceObserverPrx observer, RuntimeException ex) {
         if (_traceServiceObserver >= 1) {
             // CommunicatorDestroyedException may occur during shutdown. The observer notification
-            // has been sent, but the communicator was destroyed before the reply was received. We do not log a message for this exception.
+            // has been sent, but the communicator was destroyed before the reply was received. We
+            // do not log a message for this exception.
             if (!(ex instanceof com.zeroc.Ice.CommunicatorDestroyedException)) {
                 _logger.trace(
                         "IceBox.ServiceObserver",
@@ -805,7 +822,8 @@ public class ServiceManagerI implements ServiceManager {
             communicator.shutdown();
             communicator.waitForShutdown();
         } catch (com.zeroc.Ice.CommunicatorDestroyedException e) {
-            // Ignore, the service might have already destroyed the communicator for its own reasons.
+            // Ignore, the service might have already destroyed the communicator for its own
+            // reasons.
         } catch (Exception e) {
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);

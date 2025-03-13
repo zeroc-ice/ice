@@ -64,7 +64,8 @@ public class Client extends test.TestHelper {
         }
     }
 
-    // This section of the test is present to ensure that the C++ types are named correctly. It is not expected to run.
+    // This section of the test is present to ensure that the C++ types are named correctly. It is
+    // not expected to run.
     @SuppressWarnings({"unused", "null"})
     private static void testtypes() {
         _assert v = _assert.escaped_boolean;

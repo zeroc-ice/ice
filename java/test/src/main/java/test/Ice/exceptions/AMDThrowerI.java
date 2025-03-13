@@ -191,14 +191,16 @@ public final class AMDThrowerI implements Thrower {
 
     @Override
     public CompletionStage<Void> throwAfterResponseAsync(com.zeroc.Ice.Current current) {
-        // The Java 8 mapping doesn't support completing a request and continuing to use the dispatch thread.
+        // The Java 8 mapping doesn't support completing a request and continuing to use the
+        // dispatch thread.
 
         return CompletableFuture.completedFuture((Void) null);
     }
 
     @Override
     public CompletionStage<Void> throwAfterExceptionAsync(com.zeroc.Ice.Current current) throws A {
-        // The Java 8 mapping doesn't support completing a request and continuing to use the dispatch thread.
+        // The Java 8 mapping doesn't support completing a request and continuing to use the
+        // dispatch thread.
 
         CompletableFuture<Void> r = new CompletableFuture<>();
         r.completeExceptionally(new A());

@@ -110,7 +110,8 @@ public final class AMDServantLocatorI implements ServantLocator {
             throw new UnknownException("reason");
         }
         //
-        // User exceptions are checked exceptions in Java, so it's not possible to throw it from the servant locator.
+        // User exceptions are checked exceptions in Java, so it's not possible to throw it from the
+        // servant locator.
         //
         //      else if(current.operation.equals("userException"))
         //      {

@@ -189,7 +189,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
     public synchronized void waitUntilFinished() throws InterruptedException {
         //
-        // We wait indefinitely until the connection is finished and all outstanding requests are completed. Otherwise we couldn't
+        // We wait indefinitely until the connection is finished and all outstanding requests are
+        // completed. Otherwise we couldn't
         // guarantee that there are no outstanding calls when deactivate()
         // is called on the servant locators.
         //
@@ -235,7 +236,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
         if (_exception != null) {
             //
-            // If the connection is closed before we even have a chance to send our request, we always try to send the request again.
+            // If the connection is closed before we even have a chance to send our request, we
+            // always try to send the request again.
             //
             throw new RetryException((LocalException) _exception.fillInStackTrace());
         }
@@ -249,7 +251,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         _transceiver.checkSendSize(os.getBuffer());
 
         //
-        // Notify the request that it's cancelable with this connection. This will throw if the request is canceled.
+        // Notify the request that it's cancelable with this connection. This will throw if the
+        // request is canceled.
         //
         out.cancelable(this);
 
@@ -358,7 +361,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     setState(StateClosed, ex);
                 } else {
                     //
-                    // If the request is being sent, don't remove it from the send streams, it will be removed once the sending is finished.
+                    // If the request is being sent, don't remove it from the send streams, it will
+                    // be removed once the sending is finished.
                     //
                     // Note that since we swapped the message stream to _writeStream
                     // it's fine if the OutgoingAsync output stream is released (and
@@ -420,7 +424,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         }
 
         if (adapter != null) {
-            // Go through the adapter to set the adapter on this connection to ensure the object adapter is still active and to ensure proper locking order.
+            // Go through the adapter to set the adapter on this connection to ensure the object
+            // adapter is still active and to ensure proper locking order.
             adapter.setAdapterOnConnection(this);
         } else {
             synchronized (this) {
@@ -432,7 +437,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         }
 
         //
-        // We never change the thread pool with which we were initially registered, even if we add or remove an object adapter.
+        // We never change the thread pool with which we were initially registered, even if we add
+        // or remove an object adapter.
         //
     }
 
@@ -487,7 +493,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 int writeOp = SocketOperation.None;
                 int readOp = SocketOperation.None;
 
-                // If writes are ready, write the data from the connection's write buffer (_writeStream)
+                // If writes are ready, write the data from the connection's write buffer
+                // (_writeStream)
                 if ((current.operation & SocketOperation.Write) != 0) {
                     final Buffer buf = _writeStream.getBuffer();
                     if (_observer != null) {
@@ -502,7 +509,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 // If reads are ready, read the data into the connection's read buffer
                 // (_readStream). The data is read until:
                 // - the full message is read (the transport read returns SocketOperationNone)
-                // and the read buffer is fully filled - the read operation on the transport can't continue without blocking
+                // and the read buffer is fully filled - the read operation on the transport can't
+                // continue without blocking
                 if ((current.operation & SocketOperation.Read) != 0) {
                     while (true) {
                         final Buffer buf = _readStream.getBuffer();
@@ -520,7 +528,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                             observerFinishRead(buf);
                         }
 
-                        // If read header is true, we're reading a new Ice protocol message and we need to read the message header.
+                        // If read header is true, we're reading a new Ice protocol message and we
+                        // need to read the message header.
                         if (_readHeader) {
                             // The next read will read the remainder of the message.
                             _readHeader = false;
@@ -538,7 +547,9 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                             //
                             _validated = true;
 
-                            // Full header should be read because the size of _readStream is always headerSize (14) when reading a new message (see the code that sets _readHeader = true).
+                            // Full header should be read because the size of _readStream is always
+                            // headerSize (14) when reading a new message (see the code that sets
+                            // _readHeader = true).
                             int pos = _readStream.pos();
                             if (pos < Protocol.headerSize) {
                                 //
@@ -605,7 +616,9 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     }
                 }
 
-                // readOp and writeOp are set to the operations that the transport read or write calls from above returned. They indicate which operations will need to be monitored by the thread pool's selector when this method returns.
+                // readOp and writeOp are set to the operations that the transport read or write
+                // calls from above returned. They indicate which operations will need to be
+                // monitored by the thread pool's selector when this method returns.
                 int newOp = readOp | writeOp;
 
                 // Operations that are ready. For example, if message was called with
@@ -614,7 +627,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 int readyOp = current.operation & ~newOp;
 
                 if (_state <= StateNotValidated) {
-                    // If the connection is still not validated and there's still data to read or write, continue waiting for data to read or write.
+                    // If the connection is still not validated and there's still data to read or
+                    // write, continue waiting for data to read or write.
                     if (newOp != 0) {
                         _threadPool.update(this, current.operation, newOp);
                         return;
@@ -630,10 +644,12 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         return;
                     }
 
-                    // The connection is validated and doesn't need additional data to be read or written. So unregister it from the thread pool's selector.
+                    // The connection is validated and doesn't need additional data to be read or
+                    // written. So unregister it from the thread pool's selector.
                     _threadPool.unregister(this, current.operation);
 
-                    // The connection starts in the holding state. It will be activated by the connection factory.
+                    // The connection starts in the holding state. It will be activated by the
+                    // connection factory.
                     setState(StateHolding);
                     if (_startCallback != null) {
                         startCB = _startCallback;
@@ -646,14 +662,16 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     assert (_state <= StateClosingPending);
 
                     //
-                    // We parse messages first, if we receive a close connection message we won't send more messages.
+                    // We parse messages first, if we receive a close connection message we won't
+                    // send more messages.
                     //
                     if ((readyOp & SocketOperation.Read) != 0) {
                         // Optimization: use the thread's stream.
                         info = new MessageInfo(current.stream);
 
                         // At this point, the protocol message is fully read and can therefore be
-                        // decoded by parseMessage. parseMessage returns the operation to wait for readiness next.
+                        // decoded by parseMessage. parseMessage returns the operation to wait for
+                        // readiness next.
                         newOp |= parseMessage(info);
                         upcallCount += info.upcallCount;
                     }
@@ -670,7 +688,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         }
                     }
 
-                    // If the connection is not closed yet, we update the thread pool selector to wait for readiness of read, write or both operations.
+                    // If the connection is not closed yet, we update the thread pool selector to
+                    // wait for readiness of read, write or both operations.
                     if (_state < StateClosed) {
                         _threadPool.update(this, current.operation, newOp);
                     }
@@ -682,7 +701,9 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
                 _upcallCount += upcallCount;
 
-                // There's something to dispatch so we mark IO as completed to elect a new leader thread and let IO be performed on this new leader thread while this thread continues with dispatching the up-calls.
+                // There's something to dispatch so we mark IO as completed to elect a new leader
+                // thread and let IO be performed on this new leader thread while this thread
+                // continues with dispatching the up-calls.
                 current.ioCompleted();
             } catch (DatagramLimitException ex) // Expected.
             {
@@ -718,7 +739,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         } else {
             if (info != null) {
                 //
-                // Create a new stream for the dispatch instead of using the thread pool's thread stream.
+                // Create a new stream for the dispatch instead of using the thread pool's thread
+                // stream.
                 //
                 assert (info.stream == current.stream);
                 InputStream stream = info.stream;
@@ -766,7 +788,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
         if (info != null) {
             //
-            // Asynchronous replies must be handled outside the thread synchronization, so that nested calls are possible.
+            // Asynchronous replies must be handled outside the thread synchronization, so that
+            // nested calls are possible.
             //
             if (info.outAsync != null) {
                 info.outAsync.invokeCompleted();
@@ -774,7 +797,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             }
 
             //
-            // Method invocation (or multiple invocations for batch messages) must be done outside the thread synchronization, so that nested calls are possible.
+            // Method invocation (or multiple invocations for batch messages) must be done outside
+            // the thread synchronization, so that nested calls are possible.
             //
             if (info.requestCount > 0) {
                 dispatchAll(
@@ -785,7 +809,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         info.adapter);
 
                 //
-                // Don't increase dispatchedCount, the dispatch count is decreased when the incoming reply is sent.
+                // Don't increase dispatchedCount, the dispatch count is decreased when the incoming
+                // reply is sent.
                 //
             }
         }
@@ -800,7 +825,9 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 _upcallCount -= dispatchedCount;
                 if (_upcallCount == 0) {
                     //
-                    // Only initiate shutdown if not already done. It might have already been done if the sent callback or AMI callback was dispatched when the connection was already in the closing state.
+                    // Only initiate shutdown if not already done. It might have already been done
+                    // if the sent callback or AMI callback was dispatched when the connection was
+                    // already in the closing state.
                     //
                     if (_state == StateClosing) {
                         try {
@@ -839,7 +866,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
         //
         // If there are no callbacks to call, we don't call ioCompleted() since
-        // we're not going to call code that will potentially block (this avoids promoting a new leader and unnecessary thread creation, especially if this is called on shutdown).
+        // we're not going to call code that will potentially block (this avoids promoting a new
+        // leader and unnecessary thread creation, especially if this is called on shutdown).
         //
         if (_startCallback == null
                 && _sendStreams.isEmpty()
@@ -928,7 +956,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         if (!_sendStreams.isEmpty()) {
             if (!_writeStream.isEmpty()) {
                 //
-                // Return the stream to the outgoing call. This is important for retriable AMI calls which are not marshaled again.
+                // Return the stream to the outgoing call. This is important for retriable AMI calls
+                // which are not marshaled again.
                 //
                 OutgoingMessage message = _sendStreams.getFirst();
                 _writeStream.swap(message.stream);
@@ -1078,7 +1107,9 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     && _readHeader // we're not waiting for the remainder of an incoming message
                     && _sendStreams.size() <= 1 // there is at most one pending outgoing message
             ) {
-                // We may become inactive while the peer is back-pressuring us. In this case, we only schedule the inactivity timer if there is no pending outgoing message or the pending outgoing message is a heartbeat.
+                // We may become inactive while the peer is back-pressuring us. In this case, we
+                // only schedule the inactivity timer if there is no pending outgoing message or the
+                // pending outgoing message is a heartbeat.
 
                 // The stream of the first _sendStreams message is in _writeStream.
                 if (_sendStreams.isEmpty()
@@ -1087,8 +1118,14 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 }
             }
 
-            // We send a heartbeat to the peer to generate a "write" on the connection. This write in turns creates a read on the peer, and resets the peer's idle check timer. When _sendStream is not empty, there is already an outstanding write, so we don't need to send a heartbeat. It's possible the first message of _sendStreams was already sent but not yet removed from _sendStreams: it means the last write occurred very recently, which is good enough with respect to the idle check.
-            // As a result of this optimization, the only possible heartbeat in _sendStreams is the first _sendStreams message.
+            // We send a heartbeat to the peer to generate a "write" on the connection. This write
+            // in turns creates a read on the peer, and resets the peer's idle check timer. When
+            // _sendStream is not empty, there is already an outstanding write, so we don't need to
+            // send a heartbeat. It's possible the first message of _sendStreams was already sent
+            // but not yet removed from _sendStreams: it means the last write occurred very
+            // recently, which is good enough with respect to the idle check.
+            // As a result of this optimization, the only possible heartbeat in _sendStreams is the
+            // first _sendStreams message.
             if (_sendStreams.isEmpty()) {
                 OutputStream os = new OutputStream(Protocol.currentProtocolEncoding);
                 os.writeBlob(Protocol.magic);
@@ -1259,7 +1296,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
         //
         // We must set the new state before we notify requests of any
-        // exceptions. Otherwise new requests may retry on a connection that is not yet marked as closed or closing.
+        // exceptions. Otherwise new requests may retry on a connection that is not yet marked as
+        // closed or closing.
         //
         setState(state);
     }
@@ -1319,7 +1357,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                                 _idleTimeoutTransceiver.enableIdleCheck();
                             }
                         }
-                        // else don't resume reading since we're at or over the _maxDispatches limit.
+                        // else don't resume reading since we're at or over the _maxDispatches
+                        // limit.
                         break;
                     }
 
@@ -1338,7 +1377,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                                 _idleTimeoutTransceiver.disableIdleCheck();
                             }
                         }
-                        // else reads are already disabled because the _maxDispatches limit is reached or exceeded.
+                        // else reads are already disabled because the _maxDispatches limit is
+                        // reached or exceeded.
                         break;
                     }
 
@@ -1363,7 +1403,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         _batchRequestQueue.destroy(_exception);
 
                         //
-                        // Don't need to close now for connections so only close the transceiver if the selector request it.
+                        // Don't need to close now for connections so only close the transceiver if
+                        // the selector request it.
                         //
                         if (_threadPool.finish(this, false)) {
                             _transceiver.close();
@@ -1636,10 +1677,12 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
      */
     private int sendNextMessage(java.util.List<OutgoingMessage> callbacks) {
         if (_sendStreams.isEmpty()) {
-            // This can occur if no message was being written and the socket write operation was registered with the thread pool (a transceiver read method can request writing data).
+            // This can occur if no message was being written and the socket write operation was
+            // registered with the thread pool (a transceiver read method can request writing data).
             return SocketOperation.None;
         } else if (_state == StateClosingPending && _writeStream.pos() == 0) {
-            // Message wasn't sent, empty the _writeStream, we're not going to send more data because the connection is being closed.
+            // Message wasn't sent, empty the _writeStream, we're not going to send more data
+            // because the connection is being closed.
             OutgoingMessage message = _sendStreams.getFirst();
             _writeStream.swap(message.stream);
             return SocketOperation.None;
@@ -1651,7 +1694,9 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         try {
             while (true) {
                 //
-                // The message that was being sent is sent. We can swap back the write stream buffer to the outgoing message (required for retry) and queue its sent callback (if any).
+                // The message that was being sent is sent. We can swap back the write stream buffer
+                // to the outgoing message (required for retry) and queue its sent callback (if
+                // any).
                 //
                 OutgoingMessage message = _sendStreams.getFirst();
                 _writeStream.swap(message.stream);
@@ -1735,7 +1780,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         assert _state >= StateActive;
         assert _state < StateClosed;
 
-        // Some messages are queued for sending. Just adds the message to the send queue and tell the caller that the message was queued.
+        // Some messages are queued for sending. Just adds the message to the send queue and tell
+        // the caller that the message was queued.
         if (!_sendStreams.isEmpty()) {
             _sendStreams.addLast(message);
             return AsyncStatus.Queued;
@@ -1771,9 +1817,12 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             return status;
         }
 
-        // The message couldn't be sent right away so we add it to the send stream queue (which is empty) and swap its stream with `_writeStream`. The socket operation returned by the transceiver write is registered with the thread
+        // The message couldn't be sent right away so we add it to the send stream queue (which is
+        // empty) and swap its stream with `_writeStream`. The socket operation returned by the
+        // transceiver write is registered with the thread
         // pool. At this point the message() method will take care of sending the whole
-        // message (held by _writeStream) when the transceiver is ready to write more of the message buffer.
+        // message (held by _writeStream) when the transceiver is ready to write more of the message
+        // buffer.
 
         _writeStream.swap(message.stream);
         _sendStreams.addLast(message);
@@ -1785,7 +1834,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         boolean compressionSupported = false;
         if (compress) {
             //
-            // Don't check whether compression support is available unless the proxy is configured for compression.
+            // Don't check whether compression support is available unless the proxy is configured
+            // for compression.
             //
             compressionSupported = BZip2.supported();
         }
@@ -2026,13 +2076,15 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             byte compress,
             ObjectAdapter adapter) {
 
-        // Note: In contrast to other private or protected methods, this method must be called *without* the mutex locked.
+        // Note: In contrast to other private or protected methods, this method must be called
+        // *without* the mutex locked.
 
         Object dispatcher = adapter != null ? adapter.dispatchPipeline() : null;
 
         try {
             while (requestCount > 0) {
-                // adapter can be null here, however we never pass a null current.adapter to the application code.
+                // adapter can be null here, however we never pass a null current.adapter to the
+                // application code.
                 var request = new IncomingRequest(requestId, this, adapter, stream);
                 final boolean isTwoWay = !_endpoint.datagram() && requestId != 0;
 
@@ -2073,7 +2125,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         } catch (LocalException ex) {
             dispatchException(ex, requestCount);
         } catch (RuntimeException | Error ex) {
-            // A runtime exception or an error was thrown outside of servant code (i.e., by Ice code). Note that this code does NOT send a response to the client.
+            // A runtime exception or an error was thrown outside of servant code (i.e., by Ice
+            // code). Note that this code does NOT send a response to the client.
             var uex = new UnknownException(ex);
             var sw = new java.io.StringWriter();
             var pw = new java.io.PrintWriter(sw);
@@ -2110,7 +2163,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         if (_state == StateActive
                                 && _maxDispatches > 0
                                 && _dispatchCount == _maxDispatches) {
-                            // Resume reading if the connection is active and the dispatch count is about to be less than _maxDispatches.
+                            // Resume reading if the connection is active and the dispatch count is
+                            // about to be less than _maxDispatches.
                             _threadPool.update(this, SocketOperation.None, SocketOperation.Read);
                             if (_idleTimeoutTransceiver != null) {
                                 _idleTimeoutTransceiver.enableIdleCheck();
@@ -2137,7 +2191,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
     private void dispatchException(LocalException ex, int requestCount) {
         boolean finished = false;
         synchronized (this) {
-            // Fatal exception while dispatching a request. Since sendResponse isn't called in case of a fatal exception we decrement _upcallCount here.
+            // Fatal exception while dispatching a request. Since sendResponse isn't called in case
+            // of a fatal exception we decrement _upcallCount here.
 
             setState(StateClosed, ex);
 
@@ -2277,7 +2332,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
     private synchronized void closeTimedOut() {
         if (_state < StateClosed) {
-            // We don't use setState(state, exception) because we want to overwrite the exception set by a graceful closure.
+            // We don't use setState(state, exception) because we want to overwrite the exception
+            // set by a graceful closure.
             _exception = new CloseTimeoutException();
             setState(StateClosed);
         }
@@ -2430,24 +2486,31 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
     private InputStream _readStream;
 
     // When _readHeader is true, the next bytes we'll read are the header of a new
-    // message. When false, we're reading next the remainder of a message that was already partially received.
+    // message. When false, we're reading next the remainder of a message that was already partially
+    // received.
     private boolean _readHeader;
 
-    // Contains the message which is being sent. The write stream buffer is empty if no message is being sent.
+    // Contains the message which is being sent. The write stream buffer is empty if no message is
+    // being sent.
     private OutputStream _writeStream;
 
     private com.zeroc.Ice.Instrumentation.ConnectionObserver _observer;
     private int _readStreamPos;
     private int _writeStreamPos;
 
-    // The upcall count keeps track of the number of dispatches, AMI (response) continuations, sent callbacks and connection establishment callbacks that have been started (or are about to be started) by a thread of the thread pool associated with this connection, and have not completed yet. All these operations except the connection establishment callbacks execute application code or code generated from Slice definitions.
+    // The upcall count keeps track of the number of dispatches, AMI (response) continuations, sent
+    // callbacks and connection establishment callbacks that have been started (or are about to be
+    // started) by a thread of the thread pool associated with this connection, and have not
+    // completed yet. All these operations except the connection establishment callbacks execute
+    // application code or code generated from Slice definitions.
     private int _upcallCount;
 
     // The number of outstanding dispatches. Maintained only while state is
     // StateActive or StateHolding.
     private int _dispatchCount;
 
-    // When we dispatch _maxDispatches concurrent requests, we stop reading the connection to back-pressure the peer. _maxDispatches <= 0 means no limit.
+    // When we dispatch _maxDispatches concurrent requests, we stop reading the connection to
+    // back-pressure the peer. _maxDispatches <= 0 means no limit.
     private final int _maxDispatches;
 
     private int _state; // The current state.

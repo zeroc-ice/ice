@@ -49,7 +49,8 @@ public final class Network {
     public static boolean connectionRefused(java.net.ConnectException ex) {
         //
         // The JDK raises a generic ConnectException when the server
-        // actively refuses a connection. Unfortunately, our only choice is to search the exception message for distinguishing phrases.
+        // actively refuses a connection. Unfortunately, our only choice is to search the exception
+        // message for distinguishing phrases.
         //
 
         String msg = ex.getMessage();
@@ -328,7 +329,9 @@ public final class Network {
 
         if (System.getProperty("os.name").equals("Linux")) {
             //
-            // Prevent self connect (self connect happens on Linux when a client tries to connect to a server which was just deactivated if the client socket re-uses the same ephemeral port as the server).
+            // Prevent self connect (self connect happens on Linux when a client tries to connect to
+            // a server which was just deactivated if the client socket re-uses the same ephemeral
+            // port as the server).
             //
             if (addr.equals(fd.socket().getLocalSocketAddress())) {
                 closeSocketNoThrow(fd);
@@ -340,7 +343,8 @@ public final class Network {
 
     public static void doFinishConnect(java.nio.channels.SocketChannel fd) {
         //
-        // Note: we don't close the socket if there's an exception. It's the responsibility of the caller to do so.
+        // Note: we don't close the socket if there's an exception. It's the responsibility of the
+        // caller to do so.
         //
 
         try {
@@ -350,7 +354,9 @@ public final class Network {
 
             if (System.getProperty("os.name").equals("Linux")) {
                 //
-                // Prevent self connect (self connect happens on Linux when a client tries to connect to a server which was just deactivated if the client socket re-uses the same ephemeral port as the server).
+                // Prevent self connect (self connect happens on Linux when a client tries to
+                // connect to a server which was just deactivated if the client socket re-uses the
+                // same ephemeral port as the server).
                 //
                 java.net.SocketAddress addr = fd.socket().getRemoteSocketAddress();
                 if (addr != null && addr.equals(fd.socket().getLocalSocketAddress())) {
@@ -647,7 +653,8 @@ public final class Network {
     public static void setTcpBufSize(
             java.nio.channels.SocketChannel socket, ProtocolInstance instance) {
         //
-        // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system defaults.
+        // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system
+        // defaults.
         //
         int dfltBufSize = 0;
         if (System.getProperty("os.name").startsWith("Windows")) {
@@ -669,12 +676,14 @@ public final class Network {
             ProtocolInstance instance) {
         if (rcvSize > 0) {
             //
-            // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value. Then read the size back to get the size that was actually set.
+            // Try to set the buffer size. The kernel will silently adjust the size to an acceptable
+            // value. Then read the size back to get the size that was actually set.
             //
             setRecvBufferSize(socket, rcvSize);
             int size = getRecvBufferSize(socket);
             if (size < rcvSize) {
-                // Warn if the size that was set is less than the requested size and we have not already warned.
+                // Warn if the size that was set is less than the requested size and we have not
+                // already warned.
                 BufSizeWarnInfo winfo = instance.getBufSizeWarn(TCPEndpointType.value);
                 if (!winfo.rcvWarn || rcvSize != winfo.rcvSize) {
                     instance.logger()
@@ -690,12 +699,14 @@ public final class Network {
 
         if (sndSize > 0) {
             //
-            // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value. Then read the size back to get the size that was actually set.
+            // Try to set the buffer size. The kernel will silently adjust the size to an acceptable
+            // value. Then read the size back to get the size that was actually set.
             //
             setSendBufferSize(socket, sndSize);
             int size = getSendBufferSize(socket);
             if (size < sndSize) {
-                // Warn if the size that was set is less than the requested size and we have not already warned.
+                // Warn if the size that was set is less than the requested size and we have not
+                // already warned.
                 BufSizeWarnInfo winfo = instance.getBufSizeWarn(TCPEndpointType.value);
                 if (!winfo.sndWarn || sndSize != winfo.sndSize) {
                     instance.logger()
@@ -713,7 +724,8 @@ public final class Network {
     public static void setTcpBufSize(
             java.nio.channels.ServerSocketChannel socket, ProtocolInstance instance) {
         //
-        // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system defaults.
+        // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system
+        // defaults.
         //
         int dfltBufSize = 0;
         if (System.getProperty("os.name").startsWith("Windows")) {
@@ -727,12 +739,14 @@ public final class Network {
                 instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
         if (sizeRequested > 0) {
             //
-            // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value. Then read the size back to get the size that was actually set.
+            // Try to set the buffer size. The kernel will silently adjust the size to an acceptable
+            // value. Then read the size back to get the size that was actually set.
             //
             setRecvBufferSize(socket, sizeRequested);
             int size = getRecvBufferSize(socket);
             if (size < sizeRequested) {
-                // Warn if the size that was set is less than the requested size and we have not already warned.
+                // Warn if the size that was set is less than the requested size and we have not
+                // already warned.
                 BufSizeWarnInfo winfo = instance.getBufSizeWarn(TCPEndpointType.value);
                 if (!winfo.rcvWarn || sizeRequested != winfo.rcvSize) {
                     instance.logger()
@@ -874,7 +888,8 @@ public final class Network {
         StringBuffer s = new StringBuffer();
 
         //
-        // In early Android releases, sockets don't correctly report their address and port information.
+        // In early Android releases, sockets don't correctly report their address and port
+        // information.
         //
 
         if (addr == null || addr.isAnyLocalAddress()) {

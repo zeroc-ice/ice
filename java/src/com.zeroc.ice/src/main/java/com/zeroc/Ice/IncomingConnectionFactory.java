@@ -53,7 +53,8 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             }
 
             //
-            // We want to wait until all connections are in holding state outside the thread synchronization.
+            // We want to wait until all connections are in holding state outside the thread
+            // synchronization.
             //
             connections = new java.util.LinkedList<>(_connections);
         }
@@ -71,7 +72,8 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
 
         synchronized (this) {
             //
-            // First we wait until the factory is destroyed. If we are using an acceptor, we also wait for it to be closed.
+            // First we wait until the factory is destroyed. If we are using an acceptor, we also
+            // wait for it to be closed.
             //
             while (_state != StateFinished) {
                 wait();
@@ -83,7 +85,8 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             _adapter = null;
 
             //
-            // We want to wait until all connections are finished outside the thread synchronization.
+            // We want to wait until all connections are finished outside the thread
+            // synchronization.
             //
             connections = new java.util.LinkedList<>(_connections);
         }
@@ -268,7 +271,8 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             }
 
             //
-            // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got closed because of an unexpected error), try to restart the acceptor in 1 second.
+            // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got
+            // closed because of an unexpected error), try to restart the acceptor in 1 second.
             //
             _instance
                     .timer()
@@ -311,7 +315,8 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
     @Override
     public synchronized void connectionStartCompleted(ConnectionI connection) {
         //
-        // Initially, connections are in the holding state. If the factory is active we activate the connection.
+        // Initially, connections are in the holding state. If the factory is active we activate the
+        // connection.
         //
         if (_state == StateActive) {
             connection.activate();
@@ -490,7 +495,10 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                 {
                     if (_acceptorStarted) {
                         //
-                        // If possible, close the acceptor now to prevent new connections from being accepted while we are deactivating. This is especially useful if there are no more threads in the thread pool available to dispatch the finish() call.
+                        // If possible, close the acceptor now to prevent new connections from being
+                        // accepted while we are deactivating. This is especially useful if there
+                        // are no more threads in the thread pool available to dispatch the finish()
+                        // call.
                         //
                         _acceptorStarted = false;
                         if (_adapter.getThreadPool().finish(this, true)) {

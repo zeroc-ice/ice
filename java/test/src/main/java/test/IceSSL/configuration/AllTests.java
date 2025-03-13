@@ -168,7 +168,8 @@ public class AllTests {
 
             // Test Ice.SSL.VerifyPeer=1. Client has a certificate.
             //
-            // Provide "cacert1" to the client to verify the server certificate (without this the client connection wouldn't be able to provide the certificate chain).
+            // Provide "cacert1" to the client to verify the server certificate (without this the
+            // client connection wouldn't be able to provide the certificate chain).
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             comm = Util.initialize(args, initData);
             fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -264,7 +265,8 @@ public class AllTests {
             fact.destroyServer(server);
             comm.destroy();
 
-            // This should succeed because the self signed certificate used by the server is trusted.
+            // This should succeed because the self signed certificate used by the server is
+            // trusted.
             initData = createClientProps(defaultProperties, "", "cacert2");
             initData.properties.setProperty("IceSSL.VerifyPeer", "1");
             comm = Util.initialize(args, initData);
@@ -282,7 +284,8 @@ public class AllTests {
             fact.destroyServer(server);
             comm.destroy();
 
-            // This should fail because the self signed certificate used by the server is not trusted.
+            // This should fail because the self signed certificate used by the server is not
+            // trusted.
             initData = createClientProps(defaultProperties);
             initData.properties.setProperty("IceSSL.VerifyPeer", "1");
             comm = Util.initialize(args, initData);
@@ -367,7 +370,8 @@ public class AllTests {
                     comm.destroy();
                 }
 
-                // Target host matches the certificate Common Name and the certificate does not include a DNS altName
+                // Target host matches the certificate Common Name and the certificate does not
+                // include a DNS altName
                 {
                     initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
@@ -387,7 +391,8 @@ public class AllTests {
                     comm.destroy();
                 }
 
-                // Target host does not match the certificate Common Name and the certificate does not include a DNS altName
+                // Target host does not match the certificate Common Name and the certificate does
+                // not include a DNS altName
                 {
                     initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
@@ -407,7 +412,8 @@ public class AllTests {
                     comm.destroy();
                 }
 
-                // Target host matches the certificate Common Name and the certificate has a DNS altName that does not matches the target host
+                // Target host matches the certificate Common Name and the certificate has a DNS
+                // altName that does not matches the target host
                 {
                     initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
@@ -469,7 +475,8 @@ public class AllTests {
                     comm.destroy();
                 }
 
-                // Target host is an IP address that matches the CN and the certificate doesn't include an IP altName
+                // Target host is an IP address that matches the CN and the certificate doesn't
+                // include an IP altName
                 {
                     initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
@@ -489,7 +496,8 @@ public class AllTests {
                     comm.destroy();
                 }
 
-                // Target host does not match the certificate DNS altName, connection should succeed because Ice.SSL.CheckCertName is set to 0.
+                // Target host does not match the certificate DNS altName, connection should succeed
+                // because Ice.SSL.CheckCertName is set to 0.
                 {
                     initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                     initData.properties.setProperty("IceSSL.CheckCertName", "0");

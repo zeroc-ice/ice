@@ -366,7 +366,8 @@ public final class Properties {
             throw new InitializationException("Attempt to set property with empty key");
         }
 
-        // Check if the property is in an Ice property prefix. If so, check that it's a valid property.
+        // Check if the property is in an Ice property prefix. If so, check that it's a valid
+        // property.
         PropertyArray propertyArray = findIcePropertyArray(key);
         if (propertyArray != null) {
             if (propertyArray.isOptIn()
@@ -806,7 +807,9 @@ public final class Properties {
     static Property findProperty(String key, PropertyArray propertyArray) {
         for (Property prop : propertyArray.properties()) {
             String pattern = prop.pattern();
-            // If the key is an exact match, return the property unless it has a property class which is prefix only. If the key is a regex match, return the property. A property cannot have a property class and use regex.
+            // If the key is an exact match, return the property unless it has a property class
+            // which is prefix only. If the key is a regex match, return the property. A property
+            // cannot have a property class and use regex.
             if (key.equals(pattern)) {
                 if (prop.propertyArray() != null && prop.propertyArray().prefixOnly()) {
                     return null;
@@ -827,7 +830,8 @@ public final class Properties {
                         && key.startsWith(pattern)
                         && key.charAt(pattern.length()) == '.') {
                     String substring = key.substring(pattern.length() + 1);
-                    // Check if the suffix is a valid property. If so, return it. If it's not, continue searching the current property array.
+                    // Check if the suffix is a valid property. If so, return it. If it's not,
+                    // continue searching the current property array.
                     Property foundProp = findProperty(substring, prop.propertyArray());
                     if (foundProp != null) {
                         return foundProp;

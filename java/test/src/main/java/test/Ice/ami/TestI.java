@@ -125,7 +125,8 @@ public class TestI implements TestIntf {
 
     @Override
     public void closeConnection(com.zeroc.Ice.Current current) {
-        // We can't wait for the connection to be closed - this would cause a self dead-lock. So instead we just initiate the closure in the background.
+        // We can't wait for the connection to be closed - this would cause a self dead-lock. So
+        // instead we just initiate the closure in the background.
         CompletableFuture.runAsync(
                 () -> {
                     try {
@@ -154,7 +155,8 @@ public class TestI implements TestIntf {
     @Override
     public synchronized CompletionStage<Void> startDispatchAsync(com.zeroc.Ice.Current current) {
         if (_shutdown) {
-            // Ignore, this can occur with the forceful connection close test, shutdown can be dispatch before start dispatch.
+            // Ignore, this can occur with the forceful connection close test, shutdown can be
+            // dispatch before start dispatch.
             CompletableFuture<Void> v = new CompletableFuture<>();
             v.complete(null);
             return v;

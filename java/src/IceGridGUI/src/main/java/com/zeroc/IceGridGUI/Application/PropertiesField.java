@@ -74,7 +74,8 @@ public class PropertiesField extends JTable {
         _hiddenProperties.clear();
 
         if (adapters != null) {
-            // Note that we don't substitute *on purpose*, i.e. the names or values must match before substitution.
+            // Note that we don't substitute *on purpose*, i.e. the names or values must match
+            // before substitution.
             for (AdapterDescriptor p : adapters) {
                 hiddenPropertyNames.add(p.name + ".Endpoints");
                 hiddenPropertyNames.add(p.name + ".PublishedEndpoints");

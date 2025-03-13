@@ -469,7 +469,8 @@ public class AllTests {
                 test(count == locator.getRequestCount());
                 Thread.sleep(1200);
 
-                // The following request should trigger the background updates but still use the cached endpoints and therefore succeed.
+                // The following request should trigger the background updates but still use the
+                // cached endpoints and therefore succeed.
                 ic.stringToProxy("test@TestAdapter5")
                         .ice_locatorCacheTimeout(1)
                         .ice_ping(); // 1s timeout.

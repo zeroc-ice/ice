@@ -11,7 +11,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 
-// This class behaves like a leaf; derived class that represent non-leaf nodes must override various methods.
+// This class behaves like a leaf; derived class that represent non-leaf nodes must override various
+// methods.
 public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer {
     public Coordinator getCoordinator() {
         return _parent.getCoordinator();

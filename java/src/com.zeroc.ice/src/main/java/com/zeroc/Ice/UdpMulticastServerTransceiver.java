@@ -114,7 +114,8 @@ final class UdpMulticastServerTransceiver implements Transceiver {
             }
 
             //
-            // The read thread will temporarily stop reading if we exceed our threshold. Wake it up if we've transitioned below the limit.
+            // The read thread will temporarily stop reading if we exceed our threshold. Wake it up
+            // if we've transitioned below the limit.
             //
             if (_buffers.size() == _threshold - 1) {
                 notifyAll();
@@ -287,13 +288,15 @@ final class UdpMulticastServerTransceiver implements Transceiver {
 
         try {
             //
-            // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value. Then read the size back to get the size that was actually set.
+            // Try to set the buffer size. The kernel will silently adjust the size to an acceptable
+            // value. Then read the size back to get the size that was actually set.
             //
             _socket.setReceiveBufferSize(_newSize);
             _size = _socket.getReceiveBufferSize();
 
             //
-            // Warn if the size that was set is less than the requested size and we have not already warned.
+            // Warn if the size that was set is less than the requested size and we have not already
+            // warned.
             //
             if (_size < _newSize) {
                 BufSizeWarnInfo winfo = _instance.getBufSizeWarn(UDPEndpointType.value);
@@ -338,7 +341,8 @@ final class UdpMulticastServerTransceiver implements Transceiver {
 
                 synchronized (this) {
                     //
-                    // If we've read too much data, wait until the application consumes some before we read again.
+                    // If we've read too much data, wait until the application consumes some before
+                    // we read again.
                     //
                     while (_socket != null && _exception == null && _buffers.size() >= _threshold) {
                         try {
@@ -425,7 +429,8 @@ final class UdpMulticastServerTransceiver implements Transceiver {
     private static final int _udpOverhead = 20 + 8;
 
     //
-    // The maximum number of packets that we'll queue before the read thread temporarily stops reading.
+    // The maximum number of packets that we'll queue before the read thread temporarily stops
+    // reading.
     //
     private static final int _threshold = 10;
 

@@ -658,13 +658,16 @@ public class Server extends Communicator {
                     }
 
                     if (_serviceObserver != null) {
-                        // Add observer to service manager using AMI call Note that duplicate registrations are ignored
+                        // Add observer to service manager using AMI call Note that duplicate
+                        // registrations are ignored
 
                         com.zeroc.IceBox.ServiceManagerPrx serviceManager = getServiceManager();
 
                         if (serviceManager != null) {
                             try {
-                                // Ignore failures to register the service observers. Failures can occur if there's an incompatibility between IceGrid nodes & registries (it's the case for instance between 3.5 and 3.7).
+                                // Ignore failures to register the service observers. Failures can
+                                // occur if there's an incompatibility between IceGrid nodes &
+                                // registries (it's the case for instance between 3.5 and 3.7).
                                 serviceManager.addObserverAsync(_serviceObserver);
                             } catch (com.zeroc.Ice.LocalException ex) {
                                 // Ignore

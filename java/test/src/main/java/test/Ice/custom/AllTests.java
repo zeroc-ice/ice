@@ -60,7 +60,8 @@ public class AllTests {
             }
 
             //
-            // Invoke each operation and verify that the returned sequences have the same structure as the original.
+            // Invoke each operation and verify that the returned sequences have the same structure
+            // as the original.
             //
             TestIntf.OpASeqResult seqR = t.opASeq(seq);
             test(seqR.returnValue.length == seq.length);

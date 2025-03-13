@@ -83,7 +83,9 @@ class MetricsView extends TreeNode {
                                                                     .getTree()
                                                                     .getLastSelectedPathComponent()
                                                             == MetricsView.this) {
-                                                        // If the metrics view is selected when enabled success, we must start the refresh thread to pull updates.
+                                                        // If the metrics view is selected when
+                                                        // enabled success, we must start the
+                                                        // refresh thread to pull updates.
                                                         MetricsViewEditor.startRefresh(
                                                                 MetricsView.this);
                                                     }
@@ -134,7 +136,8 @@ class MetricsView extends TreeNode {
                                                                     .getTree()
                                                                     .getLastSelectedPathComponent()
                                                             == MetricsView.this) {
-                                                        // If the metrics view is selected when disabled success, we stop the refresh.
+                                                        // If the metrics view is selected when
+                                                        // disabled success, we stop the refresh.
                                                         MetricsViewEditor.stopRefresh();
                                                     }
                                                 });

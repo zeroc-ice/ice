@@ -57,7 +57,9 @@ final class OutgoingConnectionFactory {
         java.util.Map<Connector, java.util.List<ConnectionI>> connections = null;
         synchronized (this) {
             //
-            // First we wait until the factory is destroyed. We also wait until there are no pending connections anymore. Only then we can be sure the _connections contains all connections.
+            // First we wait until the factory is destroyed. We also wait until there are no pending
+            // connections anymore. Only then we can be sure the _connections contains all
+            // connections.
             //
             while (!_destroyed || !_pending.isEmpty() || _pendingConnectCount > 0) {
                 try {
@@ -68,7 +70,8 @@ final class OutgoingConnectionFactory {
             }
 
             //
-            // We want to wait until all connections are finished outside the thread synchronization.
+            // We want to wait until all connections are finished outside the thread
+            // synchronization.
             //
             connections = new java.util.HashMap<>(_connections);
         }
@@ -145,9 +148,11 @@ final class OutgoingConnectionFactory {
                 //
                 // The Connection object does not take the compression flag of
                 // endpoints into account, but instead gets the information
-                // about whether messages should be compressed or not from other sources. In order to allow connection sharing for
+                // about whether messages should be compressed or not from other sources. In order
+                // to allow connection sharing for
                 // endpoints that differ in the value of the compression flag
-                // only, we always set the compression flag to false here in this connection factory. We also clear the timeout as it is
+                // only, we always set the compression flag to false here in this connection
+                // factory. We also clear the timeout as it is
                 // no longer used for Ice 3.8.
                 //
                 endpoint = endpoint.compress(false).timeout(-1);
@@ -343,7 +348,8 @@ final class OutgoingConnectionFactory {
 
             if (addToPending(cb, connectors)) {
                 // A connection to one of our endpoints is pending. The callback will be notified
-                // once the connection is established. Returning null indicates that the connection is still pending.
+                // once the connection is established. Returning null indicates that the connection
+                // is still pending.
                 return null;
             }
         }
@@ -501,7 +507,9 @@ final class OutgoingConnectionFactory {
         }
 
         //
-        // If there's no pending connection for the given connectors, we're responsible for its establishment. We add empty pending lists, other callbacks to the same connectors will be queued.
+        // If there's no pending connection for the given connectors, we're responsible for its
+        // establishment. We add empty pending lists, other callbacks to the same connectors will be
+        // queued.
         //
         for (ConnectorInfo p : connectors) {
             if (!_pending.containsKey(p.connector)) {
@@ -699,7 +707,9 @@ final class OutgoingConnectionFactory {
         private void getConnectors() {
             try {
                 //
-                // Notify the factory that there's an async connect pending. This is necessary to prevent the outgoing connection factory to be destroyed before all the pending asynchronous connects are finished.
+                // Notify the factory that there's an async connect pending. This is necessary to
+                // prevent the outgoing connection factory to be destroyed before all the pending
+                // asynchronous connects are finished.
                 //
                 _factory.incPendingConnectCount();
             } catch (LocalException ex) {
@@ -730,7 +740,8 @@ final class OutgoingConnectionFactory {
                 if (connection == null) {
                     //
                     // A null return value from getConnection indicates that the connection
-                    // is being established and that everything has been done to ensure that the callback will be notified when the connection establishment is done.
+                    // is being established and that everything has been done to ensure that the
+                    // callback will be notified when the connection establishment is done.
                     //
                     return;
                 }

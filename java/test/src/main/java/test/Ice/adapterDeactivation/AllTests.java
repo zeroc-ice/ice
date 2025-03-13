@@ -54,7 +54,8 @@ public class AllTests {
             }
             adapter.destroy();
             //
-            // Use a different port than the first adapter to avoid an "address already in use" error.
+            // Use a different port than the first adapter to avoid an "address already in use"
+            // error.
             //
             adapter =
                     communicator.createObjectAdapterWithEndpoints(

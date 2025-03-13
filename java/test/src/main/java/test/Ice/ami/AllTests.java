@@ -650,7 +650,8 @@ public class AllTests {
                     //
                     // Exception - 2 connections - 1 failure.
                     //
-                    // All connections should be flushed even if there are failures on some connections. Exceptions should not be reported.
+                    // All connections should be flushed even if there are failures on some
+                    // connections. Exceptions should not be reported.
                     //
                     final SentCallback cb = new SentCallback();
                     test(p.opBatchCount() == 0);
@@ -924,7 +925,8 @@ public class AllTests {
             out.print("testing connection close... ");
             out.flush();
             {
-                // Local case: begin a request, close the connection gracefully, and make sure it waits for the request to complete.
+                // Local case: begin a request, close the connection gracefully, and make sure it
+                // waits for the request to complete.
                 com.zeroc.Ice.Connection con = p.ice_getConnection();
                 Callback cb = new Callback();
                 con.setCloseCallback(c -> cb.called());
@@ -943,7 +945,9 @@ public class AllTests {
                 //
                 byte[] seq = new byte[1024 * 10];
 
-                // Send multiple opWithPayload, followed by a close and followed by multiple opWithPayload. The goal is to make sure that none of the opWithPayload fail even if the server closes the connection gracefully in between.
+                // Send multiple opWithPayload, followed by a close and followed by multiple
+                // opWithPayload. The goal is to make sure that none of the opWithPayload fail even
+                // if the server closes the connection gracefully in between.
                 int maxQueue = 2;
                 boolean done = false;
                 while (!done && maxQueue < 50) {
@@ -984,7 +988,8 @@ public class AllTests {
             out.flush();
             {
                 //
-                // Local case: start an operation and then close the connection forcefully on the client side. There will be no retry and we expect the invocation to fail with
+                // Local case: start an operation and then close the connection forcefully on the
+                // client side. There will be no retry and we expect the invocation to fail with
                 // ConnectionAbortedException.
                 //
                 p.ice_ping();
@@ -1008,7 +1013,8 @@ public class AllTests {
                 p.finishDispatch();
 
                 //
-                // Remote case: the server closes the connection forcefully. This causes the request to fail
+                // Remote case: the server closes the connection forcefully. This causes the request
+                // to fail
                 // with a ConnectionLostException. Since the close() operation is not idempotent,
                 // the client will not retry.
                 //
@@ -1093,7 +1099,8 @@ public class AllTests {
                 CompletableFuture<Void> sleep3Future = p.sleepAsync(1000);
                 TestIntfPrx onewayProxy = p.ice_oneway();
 
-                // Sending should block because the TCP send/receive buffer size on the server is set to 50KB.
+                // Sending should block because the TCP send/receive buffer size on the server is
+                // set to 50KB.
                 CompletableFuture<Void> future =
                         onewayProxy.opWithPayloadAsync(new byte[768 * 1024]);
                 boolean timeout = false;

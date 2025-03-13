@@ -41,16 +41,20 @@ public final class ErrorObserverMiddleware implements Object {
                                 } else if (exception
                                                 instanceof CompletionException completionException
                                         && completionException.getCause() instanceof Error error) {
-                                    // This can occur when the closure of a parent completion stage throws an error.
+                                    // This can occur when the closure of a parent completion stage
+                                    // throws an error.
                                     _errorObserver.accept(error);
                                 }
 
                                 if (exception instanceof RuntimeException runtimeException) {
-                                    // Rethrow as-is. Note that Java does not wrap CompletionException in CompletionException.
+                                    // Rethrow as-is. Note that Java does not wrap
+                                    // CompletionException in CompletionException.
                                     throw runtimeException;
                                 }
 
-                                // exception is a Throwable that is not an Error or a RuntimeException. We can't throw it so we marshal this exception into a response.
+                                // exception is a Throwable that is not an Error or a
+                                // RuntimeException. We can't throw it so we marshal this exception
+                                // into a response.
                                 return request.current.createOutgoingResponse(exception);
                             });
         } catch (Error error) {

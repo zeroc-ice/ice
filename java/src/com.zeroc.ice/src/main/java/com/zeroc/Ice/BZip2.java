@@ -153,7 +153,8 @@ public class BZip2 {
 
     public static synchronized boolean supported() {
         //
-        // Use lazy initialization when determining whether support for bzip2 compression is available.
+        // Use lazy initialization when determining whether support for bzip2 compression is
+        // available.
         //
         if (!_checked) {
             _checked = true;

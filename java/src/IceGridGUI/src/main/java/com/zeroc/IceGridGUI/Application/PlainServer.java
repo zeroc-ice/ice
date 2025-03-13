@@ -28,7 +28,8 @@ class PlainServer extends Communicator implements Server {
     }
 
     public static void shallowRestore(ServerDescriptor from, ServerDescriptor into) {
-        // When editing a server or server template, if we update properties, we replace the entire field
+        // When editing a server or server template, if we update properties, we replace the entire
+        // field
         into.propertySet = from.propertySet;
         into.description = from.description;
         into.id = from.id;

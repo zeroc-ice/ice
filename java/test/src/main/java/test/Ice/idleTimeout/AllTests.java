@@ -36,7 +36,11 @@ public class AllTests {
         p.shutdown();
     }
 
-    // The client and server have the same idle timeout (1s) and both side enable the idle check (the default). We verify that the server's idle check does not abort the connection as long as this connection receives heartbeats, even when the heartbeats are not read off the connection in a timely manner. To verify this situation, we use an OA with a MaxDispatches = 1 to back-pressure the connection.
+    // The client and server have the same idle timeout (1s) and both side enable the idle check
+    // (the default). We verify that the server's idle check does not abort the connection as long
+    // as this connection receives heartbeats, even when the heartbeats are not read off the
+    // connection in a timely manner. To verify this situation, we use an OA with a MaxDispatches =
+    // 1 to back-pressure the connection.
     private static void testIdleCheckDoesNotAbortBackPressuredConnection(
             TestIntfPrx p, PrintWriter output) {
         output.write("testing that the idle check does not abort a back-pressured connection... ");
@@ -77,7 +81,8 @@ public class AllTests {
             var connection = p.ice_getConnection();
             test(connection != null);
 
-            // The idle check on the server side aborts the connection because it doesn't get a heartbeat in a timely fashion.
+            // The idle check on the server side aborts the connection because it doesn't get a
+            // heartbeat in a timely fashion.
             try {
                 p.sleep(2000); // the implementation in the server sleeps for 2,000ms
                 test(false); // we expect the server to abort the connection after about 1 second.
@@ -88,7 +93,8 @@ public class AllTests {
         output.println("ok");
     }
 
-    // Verifies the behavior with the idle check enabled or disabled when the client and the server have mismatched idle timeouts (here: 3s on the server side and 1s on the client side).
+    // Verifies the behavior with the idle check enabled or disabled when the client and the server
+    // have mismatched idle timeouts (here: 3s on the server side and 1s on the client side).
     private static void testEnableDisableIdleCheck(
             TestHelper helper,
             boolean enabled,

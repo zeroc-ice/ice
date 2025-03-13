@@ -4460,7 +4460,8 @@ public class SessionKeeper {
                 private JCheckBox _storeKeyPassword;
             }
 
-            // If there isn't a store password or the certificate requires a password and the password isn't provided, we show the login dialog.
+            // If there isn't a store password or the certificate requires a password and the
+            // password isn't provided, we show the login dialog.
             if ((info.getPassword() == null || info.getPassword().length == 0)
                     || (info.getUseX509Certificate()
                             && checkCertificateRequirePassword(info.getAlias())
@@ -4600,7 +4601,8 @@ public class SessionKeeper {
                 private JCheckBox _storeKeyPassword;
             }
 
-            // If the certificate requires a password and the password isn't provided, we show the login dialog.
+            // If the certificate requires a password and the password isn't provided, we show the
+            // login dialog.
             if ((info.getKeyPassword() == null || info.getKeyPassword().length == 0)
                     && checkCertificateRequirePassword(info.getAlias())) {
                 _authDialog = new X509CertificateAuthDialog();

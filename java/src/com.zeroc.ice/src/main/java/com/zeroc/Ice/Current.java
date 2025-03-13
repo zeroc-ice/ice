@@ -188,7 +188,8 @@ public final class Current implements Cloneable {
         OutputStream ostr;
 
         if (requestId != 0) {
-            // The default class format doesn't matter since we always encode user exceptions in Sliced format.;
+            // The default class format doesn't matter since we always encode user exceptions in
+            // Sliced format.;
             ostr =
                     new OutputStream(
                             Protocol.currentProtocolEncoding, FormatType.SlicedFormat, false);

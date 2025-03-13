@@ -93,7 +93,8 @@ final class Base64 {
             return null;
         }
 
-        // Note: This is how we were previously computing the size of the return sequence. The method below is more efficient (and correct).
+        // Note: This is how we were previously computing the size of the return sequence. The
+        // method below is more efficient (and correct).
         // size_t lines = str.size() / 78;
         // size_t totalBytes = (lines * 76) + (((str.size() - (lines * 78)) * 3) / 4);
 

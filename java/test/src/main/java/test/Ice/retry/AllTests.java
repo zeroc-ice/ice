@@ -162,7 +162,8 @@ public class AllTests {
             test(retry1.opIdempotent(4) == 4);
             instrumentation.testInvocationCount(1);
             instrumentation.testFailureCount(0);
-            // It succeeded after 3 retry because of the failed opIdempotent on the fixed proxy above
+            // It succeeded after 3 retry because of the failed opIdempotent on the fixed proxy
+            // above
             instrumentation.testRetryCount(3);
             out.println("ok");
         }

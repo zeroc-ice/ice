@@ -37,7 +37,8 @@ public class AllTests {
         Connection connection = p.ice_getConnection();
         test(connection != null);
 
-        // The inactivity timeout is 3s on the client side and 5s on the server side. 4 seconds tests the client side.
+        // The inactivity timeout is 3s on the client side and 5s on the server side. 4 seconds
+        // tests the client side.
         try {
             Thread.sleep(4000);
         } catch (InterruptedException ex) {
@@ -67,7 +68,8 @@ public class AllTests {
             Connection connection = p.ice_getConnection();
             test(connection != null);
 
-            // The inactivity timeout is 5s on the client side and 3s on the server side. 4 seconds tests the server side.
+            // The inactivity timeout is 5s on the client side and 3s on the server side. 4 seconds
+            // tests the server side.
             try {
                 Thread.sleep(4000);
             } catch (InterruptedException ex) {
@@ -96,7 +98,8 @@ public class AllTests {
         Connection connection = p.ice_getConnection();
         test(connection != null);
 
-        // The inactivity timeout is 3s on the client side and 5s on the server side; 4 seconds tests only the client-side.
+        // The inactivity timeout is 3s on the client side and 5s on the server side; 4 seconds
+        // tests only the client-side.
         p.sleep(4000); // two-way blocks for 4 seconds; one-way is non-blocking
         if (oneway) {
             try {
@@ -108,7 +111,8 @@ public class AllTests {
         Connection connection2 = p.ice_getConnection();
 
         if (oneway) {
-            // With a oneway invocation, the inactivity timeout on the client side shut down the first connection.
+            // With a oneway invocation, the inactivity timeout on the client side shut down the
+            // first connection.
             test(connection2 != connection);
         } else {
             // With a two-way invocation, the inactivity timeout should not shutdown any connection.

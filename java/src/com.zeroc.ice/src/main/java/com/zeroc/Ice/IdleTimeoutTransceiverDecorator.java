@@ -68,7 +68,8 @@ final class IdleTimeoutTransceiverDecorator implements Transceiver {
     @Override
     public int read(Buffer buf) {
         if (_idleCheckEnabled) {
-            // We don't want the idle check to run while we're reading, so we reschedule it before reading.
+            // We don't want the idle check to run while we're reading, so we reschedule it before
+            // reading.
             rescheduleReadTimer();
         }
         return _decoratee.read(buf);
@@ -137,7 +138,8 @@ final class IdleTimeoutTransceiverDecorator implements Transceiver {
     }
 
     void scheduleHeartbeat() {
-        // Reschedule because the connection establishment may have already written to the connection and scheduled a heartbeat.
+        // Reschedule because the connection establishment may have already written to the
+        // connection and scheduled a heartbeat.
         rescheduleWriteTimer();
     }
 
