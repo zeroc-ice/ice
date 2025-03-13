@@ -113,15 +113,16 @@ namespace
             if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
             {
                 string typeS = CsGenerator::typeToString(builtinTarget, "");
-                if (typeS.find("Ice") == std::string::npos)
-                {
-                    result << "langword=\"" << typeS << "\"";
-                }
-                else
+                if (builtinTarget->kind() == Builtin::KindObjectProxy || builtinTarget->kind() == Builtin::KindValue)
                 {
                     // Remove trailing '?':
                     typeS.pop_back();
                     result << "cref=\"" << typeS << "\"";
+                }
+                else
+                {
+                    // All other builtin types correspond to C# language keywords.
+                    result << "langword=\"" << typeS << "\"";
                 }
             }
             else
@@ -130,22 +131,23 @@ namespace
                 string sourceScope = source->mappedScope(".").substr(1);
                 sourceScope.pop_back();
 
+                result << "cref=\"";
                 if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
                 {
                     // link to the method on the proxy interface
-                    result << "cref=\"" << CsGenerator::getUnqualified(operationTarget->interface(), sourceScope)
-                           << "Prx." << operationTarget->mappedName() << "\"";
+                    result << CsGenerator::getUnqualified(operationTarget->interface(), sourceScope) << "Prx."
+                        << operationTarget->mappedName();
                 }
                 else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
                 {
                     // link to the proxy interface
-                    result << "cref=\"" << CsGenerator::getUnqualified(interfaceTarget, sourceScope) << "Prx\"";
+                    result << CsGenerator::getUnqualified(interfaceTarget, sourceScope) << "Prx";
                 }
                 else
                 {
-                    result << "cref=\""
-                           << CsGenerator::getUnqualified(dynamic_pointer_cast<Contained>(target), sourceScope) << "\"";
+                    result << CsGenerator::getUnqualified(dynamic_pointer_cast<Contained>(target), sourceScope);
                 }
+                result << "\"";
             }
         }
         else
@@ -153,7 +155,9 @@ namespace
             // Replace "::"" by "." in the raw link. This is for the situation where the user passes a Slice type
             // reference but (a) the source Slice file does not include this type and (b) there is no cs:identifier or
             // other identifier renaming.
-            result << "cref=\"" << joinString(splitScopedName(rawLink, false), ".") << "\"";
+            string targetS = joinString(splitScopedName(rawLink, false), ".");
+            replace(targetS.begin(), targetS.end(), '#', '.');
+            result << "cref=\"" << targetS << "\"";
         }
 
         result << " />";
@@ -1120,12 +1124,12 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
 
     ostringstream staticId;
-    staticId << '"' << p->scoped() << '"';
+    staticId << "<c>" << p->scoped() << "</c>";
 
     _out << sp;
     writeDocLine(_out, "summary", "Gets the type ID of the associated Slice class.");
     writeDocLine(_out, "returns", staticId.str());
-    _out << nl << "public static new string ice_staticId() => " << staticId.str() << ";";
+    _out << nl << R"(public static new string ice_staticId() => ")" << p->scoped() << R"(";)";
 
     _out << nl << "public override string ice_id() => ice_staticId();";
     writeMarshaling(p);
@@ -2143,12 +2147,12 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << eb << ";";
 
     ostringstream staticId;
-    staticId << '"' << p->scoped() << '"';
+    staticId << "<c>" << p->scoped() << "</c>";
 
     _out << sp;
     writeDocLine(_out, "summary", "Gets the type ID of the associated Slice interface.");
     writeDocLine(_out, "returns", staticId.str());
-    _out << nl << "public static string ice_staticId() => " << staticId.str() << ";";
+    _out << nl << R"(public static string ice_staticId() => ")" << p->scoped() << R"(";)";
 
     _out << sp;
     writeMarshalDocComment(_out);
@@ -2445,12 +2449,12 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl << "public override string ice_id(Ice.Current current) => ice_staticId();";
 
     ostringstream staticId;
-    staticId << '"' << p->scoped() << '"';
+    staticId << "<c>" << p->scoped() << "</c>";
 
     _out << sp;
     writeDocLine(_out, "summary", "Gets the type ID of the associated Slice interface.");
     writeDocLine(_out, "returns", staticId.str());
-    _out << nl << "public static new string ice_staticId() => " << staticId.str() << ";";
+    _out << nl << R"(public static new string ice_staticId() => ")" << p->scoped() << R"(";)";
 
     writeDispatch(p);
     _out << eb;
