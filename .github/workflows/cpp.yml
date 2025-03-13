@@ -36,8 +36,8 @@ jobs:
       - name: Checkout Ice
         uses: actions/checkout@v4
 
-      - name: Setup Ice Build Dependencies
-        uses: ./.github/actions/setup-dependencies
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
 
       - name: Setup Cache
         uses: ./.github/actions/setup-cache

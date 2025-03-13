@@ -101,10 +101,42 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Dependencies
-        uses: ./.github/actions/setup-dependencies
-        with:
-          use_matlab: ${{ matrix.config == 'matlab' }}
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup PHP
+        uses: ./.github/actions/setup-php
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+
+      - name: Setup .NET
+        uses: ./.github/actions/setup-dotnet
+
+      - name: Setup Java
+        uses: ./.github/actions/setup-java
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Setup Ruby
+        if: runner.os != 'Windows'
+        uses: ./.github/actions/setup-ruby
+
+      - name: Setup MATLAB
+        if: matrix.config == 'matlab'
+        uses: ./.github/actions/setup-matlab
+
+      - name: Setup Android
+        if: matrix.config == 'android'
+        uses: ./.github/actions/setup-android
+
+      - name: Install ice-builder-xcode
+        run: |
+          #TODO: We should consider removing the dependency on ice-builder-xcode
+          brew install zeroc-ice/tap/ice-builder-xcode
+        shell: bash
+        if: (runner.os == 'macOS') && (matrix.config == 'ios')
 
       - name: Setup Cache
         uses: ./.github/actions/setup-cache
@@ -129,6 +161,10 @@ jobs:
           build_android_controller: ${{ matrix.build_android_controller || false }}
           build_flags: ${{ matrix.build_flags || '' }}
           msbuild_project: ${{ matrix.msbuild_project || 'ice.proj' }}
+
+      - name: Install testing dependencies from pip
+        run: python3 -m pip install passlib cryptography numpy
+        shell: bash
 
       - name: Test ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test

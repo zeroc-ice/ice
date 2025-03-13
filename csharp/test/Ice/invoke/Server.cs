@@ -2,59 +2,58 @@
 
 using Test;
 
-namespace Ice.invoke
+namespace Ice.invoke;
+
+public class ServantLocatorI : Ice.ServantLocator
 {
-    public class ServantLocatorI : Ice.ServantLocator
+    public ServantLocatorI(bool async)
     {
-        public ServantLocatorI(bool async)
+        if (async)
         {
-            if (async)
-            {
-                _blobject = new BlobjectAsyncI();
-            }
-            else
-            {
-                _blobject = new BlobjectI();
-            }
+            _blobject = new BlobjectAsyncI();
         }
-
-        public Ice.Object
-        locate(Ice.Current current, out System.Object cookie)
+        else
         {
-            cookie = null;
-            return _blobject;
+            _blobject = new BlobjectI();
         }
-
-        public void
-        finished(Ice.Current current, Ice.Object servant, System.Object cookie)
-        {
-        }
-
-        public void
-        deactivate(string category)
-        {
-        }
-
-        private Ice.Object _blobject;
     }
 
-    public class Server : TestHelper
+    public Ice.Object
+    locate(Ice.Current current, out System.Object cookie)
     {
-        public override void run(string[] args)
-        {
-            bool async = args.Any(v => v == "--async");
-            using (var communicator = initialize(ref args))
-            {
-                communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                adapter.addServantLocator(new ServantLocatorI(async), "");
-                adapter.activate();
-                serverReady();
-                communicator.waitForShutdown();
-            }
-        }
-
-        public static Task<int> Main(string[] args) =>
-            TestDriver.runTestAsync<Server>(args);
+        cookie = null;
+        return _blobject;
     }
+
+    public void
+    finished(Ice.Current current, Ice.Object servant, System.Object cookie)
+    {
+    }
+
+    public void
+    deactivate(string category)
+    {
+    }
+
+    private Ice.Object _blobject;
+}
+
+public class Server : TestHelper
+{
+    public override void run(string[] args)
+    {
+        bool async = args.Any(v => v == "--async");
+        using (var communicator = initialize(ref args))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.addServantLocator(new ServantLocatorI(async), "");
+            adapter.activate();
+            serverReady();
+            communicator.waitForShutdown();
+        }
+    }
+
+    public static Task<int> Main(string[] args) =>
+        TestDriver.runTestAsync<Server>(args);
 }

@@ -1222,10 +1222,12 @@ IcePy::StructInfo::marshal(
     {
         if (!_nullMarshalValue.get())
         {
-            PyObjectHandle args{PyTuple_New(0)};
+            PyObjectHandle emptyArgs{PyTuple_New(0)};
             PyTypeObject* type = reinterpret_cast<PyTypeObject*>(pythonType);
-            _nullMarshalValue = type->tp_new(type, args.get(), 0);
-            type->tp_init(_nullMarshalValue.get(), args.get(), 0); // Initialize the struct members
+            // Create a new instance of the type
+            _nullMarshalValue = type->tp_new(type, emptyArgs.get(), nullptr);
+            // Call the instance __init__ method
+            type->tp_init(_nullMarshalValue.get(), emptyArgs.get(), nullptr);
         }
         p = _nullMarshalValue.get();
     }
@@ -1356,9 +1358,9 @@ IcePy::StructInfo::destroy()
 PyObject*
 IcePy::StructInfo::instantiate(PyObject* pythonType)
 {
-    PyObjectHandle args{PyTuple_New(0)};
+    PyObjectHandle emptyArgs{PyTuple_New(0)};
     PyTypeObject* type = reinterpret_cast<PyTypeObject*>(pythonType);
-    return type->tp_new(type, args.get(), 0);
+    return type->tp_new(type, emptyArgs.get(), nullptr);
 }
 
 //
