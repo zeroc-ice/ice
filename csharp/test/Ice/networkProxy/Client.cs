@@ -12,10 +12,8 @@ public class Client : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using (var communicator = initialize(ref args))
-        {
-            AllTests.allTests(this);
-        }
+        using var communicator = initialize(ref args);
+        AllTests.allTests(this);
     }
 
     public static Task<int> Main(string[] args) =>

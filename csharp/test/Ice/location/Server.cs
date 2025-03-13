@@ -16,30 +16,28 @@ public class Server : TestHelper
         Ice.Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.ThreadPool.Server.Size", "2");
 
-        using (var communicator = initialize(properties))
-        {
-            communicator.getProperties().setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
+        using var communicator = initialize(properties);
+        communicator.getProperties().setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
 
-            //
-            // We also register a sample server locator which implements the
-            // locator interface, this locator is used by the clients and the
-            // 'servers' created with the server manager interface.
-            //
-            ServerLocatorRegistry registry = new ServerLocatorRegistry();
-            Ice.Object @object = new ServerManagerI(registry, this);
-            adapter.add(@object, Ice.Util.stringToIdentity("ServerManager"));
-            registry.addObject(adapter.createProxy(Ice.Util.stringToIdentity("ServerManager")));
-            Ice.LocatorRegistryPrx registryPrx =
-                Ice.LocatorRegistryPrxHelper.uncheckedCast(adapter.add(registry, Ice.Util.stringToIdentity("registry")));
+        //
+        // We also register a sample server locator which implements the
+        // locator interface, this locator is used by the clients and the
+        // 'servers' created with the server manager interface.
+        //
+        ServerLocatorRegistry registry = new ServerLocatorRegistry();
+        Ice.Object @object = new ServerManagerI(registry, this);
+        adapter.add(@object, Ice.Util.stringToIdentity("ServerManager"));
+        registry.addObject(adapter.createProxy(Ice.Util.stringToIdentity("ServerManager")));
+        Ice.LocatorRegistryPrx registryPrx =
+            Ice.LocatorRegistryPrxHelper.uncheckedCast(adapter.add(registry, Ice.Util.stringToIdentity("registry")));
 
-            ServerLocator locator = new ServerLocator(registry, registryPrx);
-            adapter.add(locator, Ice.Util.stringToIdentity("locator"));
+        ServerLocator locator = new ServerLocator(registry, registryPrx);
+        adapter.add(locator, Ice.Util.stringToIdentity("locator"));
 
-            adapter.activate();
-            serverReady();
-            communicator.waitForShutdown();
-        }
+        adapter.activate();
+        serverReady();
+        communicator.waitForShutdown();
     }
 
     public static Task<int> Main(string[] args) =>

@@ -23,10 +23,8 @@ public class Client : Test.TestHelper
             //
             initData.properties.setProperty("Ice.TCP.SndSize", "50000");
             initData.executor = new Executor().execute;
-            using (var communicator = initialize(initData))
-            {
-                AllTests.allTests(this);
-            }
+            using var communicator = initialize(initData);
+            AllTests.allTests(this);
         }
         finally
         {

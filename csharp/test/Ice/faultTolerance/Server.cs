@@ -41,15 +41,13 @@ public class Server : Test.TestHelper
             throw new ArgumentException("Server: no port specified");
         }
 
-        using (var communicator = initialize(properties))
-        {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(port));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            Ice.Object obj = new TestI();
-            adapter.add(obj, Ice.Util.stringToIdentity("test"));
-            adapter.activate();
-            communicator.waitForShutdown();
-        }
+        using var communicator = initialize(properties);
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(port));
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        Ice.Object obj = new TestI();
+        adapter.add(obj, Ice.Util.stringToIdentity("test"));
+        adapter.activate();
+        communicator.waitForShutdown();
     }
 
     public static Task<int> Main(string[] args) =>

@@ -100,39 +100,37 @@ public class Client : Test.TestHelper
 
     public override void run(string[] args)
     {
-        using (var communicator = initialize(ref args))
-        {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new decimalI(), Ice.Util.stringToIdentity("test"));
-            adapter.add(new Test1I(), Ice.Util.stringToIdentity("test1"));
-            adapter.add(new Test2I(), Ice.Util.stringToIdentity("test2"));
-            adapter.activate();
+        using var communicator = initialize(ref args);
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        adapter.add(new decimalI(), Ice.Util.stringToIdentity("test"));
+        adapter.add(new Test1I(), Ice.Util.stringToIdentity("test1"));
+        adapter.add(new Test2I(), Ice.Util.stringToIdentity("test2"));
+        adapter.activate();
 
-            Console.Out.Write("testing operation name... ");
-            Console.Out.Flush();
-            escaped_abstract.@decimalPrx p =
-                escaped_abstract.@decimalPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test")));
-            p.@default();
-            Console.Out.WriteLine("ok");
+        Console.Out.Write("testing operation name... ");
+        Console.Out.Flush();
+        escaped_abstract.@decimalPrx p =
+            escaped_abstract.@decimalPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test")));
+        p.@default();
+        Console.Out.WriteLine("ok");
 
-            Console.Out.Write("testing System as module name... ");
-            Console.Out.Flush();
-            escaped_abstract.System.TestPrx t1 =
-                escaped_abstract.System.TestPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test1")));
-            t1.op();
+        Console.Out.Write("testing System as module name... ");
+        Console.Out.Flush();
+        escaped_abstract.System.TestPrx t1 =
+            escaped_abstract.System.TestPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test1")));
+        t1.op();
 
-            System.TestPrx t2 =
-                System.TestPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test2")));
+        System.TestPrx t2 =
+            System.TestPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test2")));
 
-            t2.op();
-            Console.Out.WriteLine("ok");
+        t2.op();
+        Console.Out.WriteLine("ok");
 
-            Console.Out.Write("testing types... ");
-            Console.Out.Flush();
-            testtypes();
-            Console.Out.WriteLine("ok");
-        }
+        Console.Out.Write("testing types... ");
+        Console.Out.Flush();
+        testtypes();
+        Console.Out.WriteLine("ok");
     }
 
     public static Task<int> Main(string[] args) =>

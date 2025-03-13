@@ -88,43 +88,41 @@ public class Server : Test.TestHelper
         properties.setProperty("Ice.Default.Protocol",
                                "test-" + properties.getIceProperty("Ice.Default.Protocol"));
 
-        using (var communicator = initialize(properties))
+        using var communicator = initialize(properties);
+        PluginI plugin = new PluginI(communicator);
+        plugin.initialize();
+        communicator.getPluginManager().addPlugin("Test", plugin);
+
+        //
+        // When running as a MIDlet the properties for the server may be
+        // overridden by configuration. If it isn't then we assume
+        // defaults.
+        //
+        if (communicator.getProperties().getProperty("TestAdapter.Endpoints").Length == 0)
         {
-            PluginI plugin = new PluginI(communicator);
-            plugin.initialize();
-            communicator.getPluginManager().addPlugin("Test", plugin);
-
-            //
-            // When running as a MIDlet the properties for the server may be
-            // overridden by configuration. If it isn't then we assume
-            // defaults.
-            //
-            if (communicator.getProperties().getProperty("TestAdapter.Endpoints").Length == 0)
-            {
-                communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            }
-
-            if (communicator.getProperties().getProperty("ControllerAdapter.Endpoints").Length == 0)
-            {
-                communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
-                communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
-            }
-
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
-
-            BackgroundControllerI backgroundController = new BackgroundControllerI(adapter);
-
-            adapter.add(new BackgroundI(backgroundController), Ice.Util.stringToIdentity("background"));
-            adapter.add(new LocatorI(backgroundController), Ice.Util.stringToIdentity("locator"));
-            adapter.add(new RouterI(backgroundController), Ice.Util.stringToIdentity("router"));
-            adapter.activate();
-
-            adapter2.add(backgroundController, Ice.Util.stringToIdentity("backgroundController"));
-            adapter2.activate();
-
-            communicator.waitForShutdown();
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         }
+
+        if (communicator.getProperties().getProperty("ControllerAdapter.Endpoints").Length == 0)
+        {
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
+            communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
+        }
+
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
+
+        BackgroundControllerI backgroundController = new BackgroundControllerI(adapter);
+
+        adapter.add(new BackgroundI(backgroundController), Ice.Util.stringToIdentity("background"));
+        adapter.add(new LocatorI(backgroundController), Ice.Util.stringToIdentity("locator"));
+        adapter.add(new RouterI(backgroundController), Ice.Util.stringToIdentity("router"));
+        adapter.activate();
+
+        adapter2.add(backgroundController, Ice.Util.stringToIdentity("backgroundController"));
+        adapter2.activate();
+
+        communicator.waitForShutdown();
     }
 
     public static Task<int> Main(string[] args) =>

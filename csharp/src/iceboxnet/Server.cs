@@ -60,16 +60,14 @@ public static class Server
 
         try
         {
-            using (var communicator = Ice.Util.initialize(ref args, initData))
+            using var communicator = Ice.Util.initialize(ref args, initData);
+            Console.CancelKeyPress += (sender, eventArgs) =>
             {
-                Console.CancelKeyPress += (sender, eventArgs) =>
-                {
-                    eventArgs.Cancel = true;
-                    communicator.shutdown();
-                };
+                eventArgs.Cancel = true;
+                communicator.shutdown();
+            };
 
-                status = run(communicator, args);
-            }
+            status = run(communicator, args);
         }
         catch (Exception ex)
         {

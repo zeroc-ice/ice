@@ -237,18 +237,16 @@ public class Server : TestHelper
     {
         var initData = new InitializationData();
         initData.properties = createTestProperties(ref args);
-        using (var communicator = initialize(initData))
-        {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new MyInterface1(), Ice.Util.stringToIdentity("i1"));
-            adapter.add(new MyInterface2(), Ice.Util.stringToIdentity("i2"));
-            adapter.add(new MyInterface3(), Ice.Util.stringToIdentity("i3"));
-            adapter.add(new MyInterface4(), Ice.Util.stringToIdentity("i4"));
-            adapter.activate();
-            serverReady();
-            communicator.waitForShutdown();
-        }
+        using var communicator = initialize(initData);
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        adapter.add(new MyInterface1(), Ice.Util.stringToIdentity("i1"));
+        adapter.add(new MyInterface2(), Ice.Util.stringToIdentity("i2"));
+        adapter.add(new MyInterface3(), Ice.Util.stringToIdentity("i3"));
+        adapter.add(new MyInterface4(), Ice.Util.stringToIdentity("i4"));
+        adapter.activate();
+        serverReady();
+        communicator.waitForShutdown();
     }
 
     public static Task<int> Main(string[] args) =>

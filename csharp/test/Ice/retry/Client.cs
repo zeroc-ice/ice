@@ -18,21 +18,17 @@ public class Client : TestHelper
         // This test kills connections, so we don't want warnings.
         //
         initData.properties.setProperty("Ice.Warn.Connections", "0");
-        using (var communicator = initialize(initData))
-        {
-            //
-            // Configure a second communicator for the invocation timeout
-            // + retry test, we need to configure a large retry interval
-            // to avoid time-sensitive failures.
-            //
-            initData.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
-            initData.observer = Instrumentation.getObserver();
-            using (var communicator2 = initialize(initData))
-            {
-                var retry = await AllTests.allTests(this, communicator, communicator2, "retry:" + getTestEndpoint(0));
-                await retry.shutdownAsync();
-            }
-        }
+        using var communicator = initialize(initData);
+        //
+        // Configure a second communicator for the invocation timeout
+        // + retry test, we need to configure a large retry interval
+        // to avoid time-sensitive failures.
+        //
+        initData.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
+        initData.observer = Instrumentation.getObserver();
+        using var communicator2 = initialize(initData);
+        var retry = await AllTests.allTests(this, communicator, communicator2, "retry:" + getTestEndpoint(0));
+        await retry.shutdownAsync();
     }
 
     public static Task<int> Main(string[] args) =>

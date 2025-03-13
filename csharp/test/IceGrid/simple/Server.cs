@@ -12,15 +12,13 @@ public class Server : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using (var communicator = initialize(ref args))
-        {
-            communicator.getProperties().parseCommandLineOptions("TestAdapter", args);
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            string id = communicator.getProperties().getPropertyWithDefault("Identity", "test");
-            adapter.add(new TestI(), Ice.Util.stringToIdentity(id));
-            adapter.activate();
-            communicator.waitForShutdown();
-        }
+        using var communicator = initialize(ref args);
+        communicator.getProperties().parseCommandLineOptions("TestAdapter", args);
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        string id = communicator.getProperties().getPropertyWithDefault("Identity", "test");
+        adapter.add(new TestI(), Ice.Util.stringToIdentity(id));
+        adapter.activate();
+        communicator.waitForShutdown();
     }
 
     public static Task<int> Main(string[] args) =>

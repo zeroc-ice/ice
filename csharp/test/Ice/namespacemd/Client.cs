@@ -10,11 +10,9 @@ public class Client : TestHelper
     {
         var properties = createTestProperties(ref args);
         properties.setProperty("Ice.Warn.Dispatch", "0");
-        using (var communicator = initialize(properties))
-        {
-            var initial = AllTests.allTests(this);
-            initial.shutdown();
-        }
+        using var communicator = initialize(properties);
+        var initial = AllTests.allTests(this);
+        initial.shutdown();
     }
 
     public static Task<int> Main(string[] args) =>

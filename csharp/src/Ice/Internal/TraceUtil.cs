@@ -73,11 +73,9 @@ internal sealed class TraceUtil
         {
             if (slicingIds.Add(typeId))
             {
-                using (StringWriter s = new StringWriter(CultureInfo.CurrentCulture))
-                {
-                    s.Write("unknown " + kind + " type `" + typeId + "'");
-                    logger.trace(slicingCat, s.ToString());
-                }
+                using StringWriter s = new StringWriter(CultureInfo.CurrentCulture);
+                s.Write("unknown " + kind + " type `" + typeId + "'");
+                logger.trace(slicingCat, s.ToString());
             }
         }
     }

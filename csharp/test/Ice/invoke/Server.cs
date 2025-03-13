@@ -43,15 +43,13 @@ public class Server : TestHelper
     public override void run(string[] args)
     {
         bool async = args.Any(v => v == "--async");
-        using (var communicator = initialize(ref args))
-        {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.addServantLocator(new ServantLocatorI(async), "");
-            adapter.activate();
-            serverReady();
-            communicator.waitForShutdown();
-        }
+        using var communicator = initialize(ref args);
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        adapter.addServantLocator(new ServantLocatorI(async), "");
+        adapter.activate();
+        serverReady();
+        communicator.waitForShutdown();
     }
 
     public static Task<int> Main(string[] args) =>
