@@ -494,7 +494,7 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
 }
 
 extern "C" PyObject*
-communicatorWaitForShutdownAsync(CommunicatorObject* self, PyObject* /*args*/)
+communicatorShutdownCompleted(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
 
@@ -1445,10 +1445,10 @@ static PyMethodDef CommunicatorMethods[] = {
      reinterpret_cast<PyCFunction>(communicatorWaitForShutdown),
      METH_VARARGS,
      PyDoc_STR("waitForShutdown() -> None")},
-    {"waitForShutdownAsync",
-     reinterpret_cast<PyCFunction>(communicatorWaitForShutdownAsync),
+    {"shutdownCompleted",
+     reinterpret_cast<PyCFunction>(communicatorShutdownCompleted),
      METH_VARARGS,
-     PyDoc_STR("waitForShutdownAsync() -> Ice.Future")},
+     PyDoc_STR("shutdownCompleted() -> Ice.Future")},
     {"isShutdown",
      reinterpret_cast<PyCFunction>(communicatorIsShutdown),
      METH_NOARGS,
