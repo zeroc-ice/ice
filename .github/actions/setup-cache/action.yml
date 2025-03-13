@@ -22,7 +22,7 @@ runs:
           ${{ inputs.prefix }}-${{ runner.os }}-${{ runner.arch }}
         max-size: 1G
         evict-old-files: job
-        variant: ${{ runner.os == 'Windows' && 'sccache' || 'ccache' }}
+        variant: ${{ runner.os == 'Windows' && 'ccache' || 'ccache' }}
 
     - name: Configure ccache path
       if: runner.os == 'macOS' || runner.os == 'Linux'
@@ -34,19 +34,19 @@ runs:
 
     # See https://github.com/ccache/ccache/wiki/MS-Visual-Studio
     # The same instructions apply to sccache
-    - name: Setup sccache
+    - name: Setup ccache
       if: runner.os == 'Windows'
       shell: powershell
       run: |
-        # Find sccache in path and copy it to cl.exe
-        $sccache = Get-Command sccache.exe -ErrorAction Stop
-        if ($sccache -eq $null) {
-          Write-Host "sccache not found in PATH"
+        # Find ccache in path and copy it to cl.exe
+        $ccache = Get-Command ccache.exe -ErrorAction Stop
+        if ($ccache -eq $null) {
+          Write-Host "ccache not found in PATH"
           exit 1
         }
 
-        # Copy $sccache to C:\cl.exe
-        Copy-Item $sccache.Path C:\cl.exe
+        # Copy $ccache to C:\cl.exe
+        Copy-Item $ccache.Path C:\cl.exe
 
         # Set required environment variables for ccache to work with MSVC
         echo "USING_BUILD_CACHE=true" >> $env:GITHUB_ENV
