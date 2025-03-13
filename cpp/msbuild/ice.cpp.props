@@ -35,6 +35,11 @@
     <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- UseMultiToolTask=true is required when using ccache or sccache -->
+    <UseMultiToolTask>true</UseMultiToolTask>
+  </PropertyGroup>
+
   <!-- Common properties set for all builds, configurations and platforms. -->
   <ItemDefinitionGroup>
     <ClCompile>
@@ -57,6 +62,7 @@
       <AdditionalIncludeDirectories>$(IceHome)\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories>$(IceHome)\cpp\include\generated\$(Platform)\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <!-- See https://github.com/ccache/ccache/wiki/MS-Visual-Studio -->
     <ClCompile Condition="'$(USING_BUILD_CACHE)' == 'true'">
       <ForcedIncludeFiles />
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
