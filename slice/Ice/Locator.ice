@@ -48,7 +48,7 @@ module Ice
     interface LocatorRegistry;
 
     /// The Ice locator interface. This interface is used by clients to lookup adapters and objects. It is also used by
-    /// servers to get the locator registry proxy. <p class="Note">The {@link Locator} interface is intended to be used
+    /// servers to get the locator registry proxy. Note: The {@link Locator} interface is intended to be used
     /// by Ice internals and by locator implementations. Regular user code should not attempt to use any functionality
     /// of this interface directly.
     interface Locator
@@ -74,7 +74,7 @@ module Ice
     }
 
     /// The Ice locator registry interface. This interface is used by servers to register adapter endpoints with the
-    /// locator. <p class="Note"> The {@link LocatorRegistry} interface is intended to be used by Ice internals and by
+    /// locator. Note: The {@link LocatorRegistry} interface is intended to be used by Ice internals and by
     /// locator implementations. Regular user code should not attempt to use any functionality of this interface
     /// directly.
     interface LocatorRegistry

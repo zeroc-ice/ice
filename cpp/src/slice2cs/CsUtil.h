@@ -30,6 +30,8 @@ namespace Slice
         /// Removes a leading '@' character from the provided identifier (if one is present).
         [[nodiscard]] static std::string removeEscapePrefix(const std::string& identifier);
 
+        static std::string typeToString(const TypePtr&, const std::string&, bool = false);
+
     protected:
         /// Returns the namespace prefix of a Contained entity.
         static std::string getNamespacePrefix(const ContainedPtr&);
@@ -39,7 +41,6 @@ namespace Slice
         static std::string taskResultType(const OperationPtr&, const std::string&, bool = false);
         static std::string getOptionalFormat(const TypePtr&);
         static std::string getStaticId(const TypePtr&);
-        static std::string typeToString(const TypePtr&, const std::string&, bool = false);
 
         // Is this Slice type mapped to a C# value type?
         static bool isValueType(const TypePtr&);

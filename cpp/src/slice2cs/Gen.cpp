@@ -103,29 +103,69 @@ namespace
     }
 
     /// Returns a C# formatted link to the provided Slice identifier.
-    /// TODO: this is temporary and will be replaced when we add 'cs:identifier' support.
-    string csLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    string csLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
     {
-        string result = "<see cref=\"";
+        ostringstream result;
+        result << "<see ";
 
-        auto hashPos = rawLink.find('#');
-        if (hashPos != string::npos)
+        if (target)
         {
-            if (hashPos != 0)
+            if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
             {
-                result += rawLink.substr(0, hashPos);
-                result += ".";
+                string typeS = CsGenerator::typeToString(builtinTarget, "");
+                if (builtinTarget->kind() == Builtin::KindObjectProxy || builtinTarget->kind() == Builtin::KindValue)
+                {
+                    // Remove trailing '?':
+                    typeS.pop_back();
+                    result << "cref=\"" << typeS << "\"";
+                }
+                else
+                {
+                    // All other builtin types correspond to C# language keywords.
+                    result << "langword=\"" << typeS << "\"";
+                }
             }
-            result += rawLink.substr(hashPos + 1);
+            else
+            {
+                // TODO: remove once mappedScope() is fixed.
+                string sourceScope = source->mappedScope(".").substr(1);
+                sourceScope.pop_back();
+
+                result << "cref=\"";
+                if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
+                {
+                    // link to the method on the proxy interface
+                    result << CsGenerator::getUnqualified(operationTarget->interface(), sourceScope) << "Prx."
+                           << operationTarget->mappedName();
+                }
+                else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+                {
+                    // link to the proxy interface
+                    result << CsGenerator::getUnqualified(interfaceTarget, sourceScope) << "Prx";
+                }
+                else
+                {
+                    result << CsGenerator::getUnqualified(dynamic_pointer_cast<Contained>(target), sourceScope);
+                }
+                result << "\"";
+            }
         }
         else
         {
-            result += rawLink;
+            // Replace "::"" by "." in the raw link. This is for the situation where the user passes a Slice type
+            // reference but (a) the source Slice file does not include this type and (b) there is no cs:identifier or
+            // other identifier renaming.
+            string targetS = joinString(splitScopedName(rawLink, false), ".");
+            replace(targetS.begin(), targetS.end(), '#', '.');
+            result << "cref=\"" << targetS << "\"";
         }
-        return result + "\" />";
+
+        result << " />";
+        return result.str();
     }
 
     // TODO: this function should probably use the link formatter.
+    // This is currently not possible because DocComment::seeAlso() returns a list of strings.
     string toCsIdent(const string& s)
     {
         string::size_type pos = s.find('#');
@@ -956,7 +996,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     if (base)
     {
         _out << getUnqualified(base, ns);
-        ;
     }
     else
     {
@@ -987,10 +1026,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
     else
     {
-        // Primary constructor.
-        _out << sp;
-        _out << nl << "public " << name << spar;
-
         vector<string> parameters;
         vector<string> secondaryCtorParams;
         vector<string> secondaryCtorMemberNames;
@@ -1013,7 +1048,11 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 }
             }
         }
-        _out << parameters << epar;
+
+        // Primary constructor.
+        _out << sp;
+        writeDocLine(_out, "summary", "Initializes a new instance of the " + name + " class.");
+        _out << nl << "public " << name << spar << parameters << epar;
 
         if (base && allDataMembers.size() != dataMembers.size())
         {
@@ -1050,6 +1089,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         if (secondaryCtorParams.size() != parameters.size())
         {
             _out << sp;
+            writeDocLine(_out, "summary", "Initializes a new instance of the " + name + " class.");
             _out << nl << "public " << name << spar << secondaryCtorParams << epar;
             if (base && secondaryCtorBaseParamNames.size() > 0)
             {
@@ -1070,6 +1110,10 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         if (secondaryCtorParams.size() > 0)
         {
             _out << sp;
+            writeDocLine(
+                _out,
+                "summary",
+                "Initializes a new instance of the " + name + " class. Used for unmarshaling.");
             emitNonBrowsableAttribute();
             _out << nl << "public " << name << "()";
             _out << sb;
@@ -1079,8 +1123,13 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         }
     }
 
+    ostringstream staticId;
+    staticId << "<c>" << p->scoped() << "</c>";
+
     _out << sp;
-    _out << nl << "public static new string ice_staticId() => \"" << p->scoped() << "\";";
+    writeDocLine(_out, "summary", "Gets the type ID of the associated Slice class.");
+    writeDocLine(_out, "returns", staticId.str());
+    _out << nl << R"(public static new string ice_staticId() => ")" << p->scoped() << R"(";)";
 
     _out << nl << "public override string ice_id() => ice_staticId();";
     writeMarshaling(p);
@@ -1256,10 +1305,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     if (!allDataMembers.empty())
     {
-        // Primary constructor.
-        _out << sp;
-        _out << nl << "public " << name << spar;
-
         vector<string> parameters;
         vector<string> secondaryCtorParams;
         vector<string> secondaryCtorMemberNames;
@@ -1283,7 +1328,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 }
             }
         }
-        _out << parameters << epar;
+
+        // Primary constructor.
+        _out << sp;
+        writeDocLine(_out, "summary", "Initializes a new instance of the " + name + " class.");
+        _out << nl << "public " << name << spar << parameters << epar;
 
         if (base && allDataMembers.size() != dataMembers.size())
         {
@@ -1319,6 +1368,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         if (secondaryCtorParams.size() != parameters.size())
         {
             _out << sp;
+            writeDocLine(_out, "summary", "Initializes a new instance of the " + name + " class.");
             _out << nl << "public " << name << spar << secondaryCtorParams << epar;
             if (base && secondaryCtorBaseParamNames.size() > 0)
             {
@@ -1338,6 +1388,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         if (secondaryCtorParams.size() > 0)
         {
             _out << sp;
+            writeDocLine(_out, "summary", "Initializes a new instance of the " + name + " class.");
             emitNonBrowsableAttribute();
             _out << nl << "public " << name << "()";
             _out << sb;
@@ -1439,8 +1490,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp << nl << "partial void ice_initialize();";
 
+    string kind = "record struct";
+
     if (isMappedToClass(p))
     {
+        kind = "record class";
+
         // We generate a constructor that initializes all required fields (collections and structs mapped to
         // classes). It can be parameterless.
 
@@ -1461,6 +1516,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         if (ctorParams.size() != dataMembers.size())
         {
             _out << sp;
+            writeDocLine(_out, "summary", "Initializes a new instance of the " + name + " record class.");
             _out << nl << "public " << name << spar << ctorParams << epar;
             _out << sb;
             for (const auto& q : ctorParamNames)
@@ -1474,7 +1530,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         }
     }
 
+    // Primary constructor.
     _out << sp;
+    writeDocLine(_out, "summary", "Initializes a new instance of the " + name + " " + kind + ".");
     _out << nl << "public " << name << spar;
     vector<string> parameters;
     for (const auto& q : dataMembers)
@@ -1497,6 +1555,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     // Unmarshaling constructor
     _out << sp;
+    writeDocLine(_out, "summary", "Initializes a new instance of the " + name + " " + kind + " from an input stream.");
     _out << nl << "public " << name << "(Ice.InputStream istr)";
     _out << sb;
     for (const auto& q : dataMembers)
@@ -1507,6 +1566,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << eb;
 
     _out << sp;
+    writeMarshalDocComment(_out);
     _out << nl << "public static void ice_write(Ice.OutputStream ostr, " << name << " v)";
     _out << sb;
     for (const auto& dataMember : dataMembers)
@@ -1516,6 +1576,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << eb;
 
     _out << sp;
+    writeUnmarshalDocComment(_out);
     _out << nl << "public static " << name << " ice_read(Ice.InputStream istr) => new(istr);";
     _out << eb;
 }
@@ -1542,7 +1603,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             _out << sp;
         }
 
-        writeDocComment(enumerator, "");
+        writeDocComment(enumerator, "enumerator");
         emitObsoleteAttribute(enumerator, _out);
         emitAttributes(enumerator);
         _out << nl << enumerator->mappedName();
@@ -1604,9 +1665,10 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     string type = typeToString(p->type(), ns, p->optional());
 
+    writeDocComment(p, "field");
     emitObsoleteAttribute(p, _out);
     emitAttributes(p);
-    _out << nl << "public" << ' ' << type << ' ' << p->mappedName();
+    _out << nl << "public " << type << ' ' << p->mappedName();
 
     bool addSemicolon = true;
     if (isProperty)
@@ -1953,12 +2015,32 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         _out << eb;
     }
 
-    _out << sp << nl << "public static " << name
-         << "Prx createProxy(Ice.Communicator communicator, string proxyString) =>";
+    _out << sp;
+
+    writeDocLine(_out, "summary", "Creates a new proxy from a communicator and a proxy string.");
+    writeDocLine(_out, R"(param name="communicator")", "The communicator.", "param");
+    writeDocLine(_out, R"(param name="proxyString")", "The stringified proxy.", "param");
+    writeDocLine(_out, "returns", "A new proxy.");
+    _out << nl << "public static " << name << "Prx createProxy(Ice.Communicator communicator, string proxyString) =>";
     _out.inc();
     _out << nl << "new " << name << "PrxHelper(Ice.ObjectPrxHelper.createProxy(communicator, proxyString));";
     _out.dec();
 
+    ostringstream checkedCastSummary;
+    checkedCastSummary << "Downcasts a proxy to a <see cref=\"" << name
+                       << "Prx\" /> after checking that the target object implements Slice interface <c>" << p->name()
+                       << "</c>.";
+
+    ostringstream checkedCastReturns;
+    checkedCastReturns << "A proxy with the requested type, or null if the target object does not implement Slice"
+                          " interface <c>"
+                       << p->name() << "</c>.";
+
+    _out << sp;
+    writeDocLine(_out, "summary", checkedCastSummary.str());
+    writeDocLine(_out, R"(param name="b")", "The source proxy.", "param");
+    writeDocLine(_out, R"(param name="ctx")", "The request context.", "param");
+    writeDocLine(_out, "returns", checkedCastReturns.str());
     _out << sp << nl << "public static " << name
          << "Prx? checkedCast(Ice.ObjectPrx? b, global::System.Collections.Generic.Dictionary<string, string>? ctx = "
             "null) =>";
@@ -1966,14 +2048,35 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl << "b is not null && b.ice_isA(ice_staticId(), ctx) ? new " << name << "PrxHelper(b) : null;";
     _out.dec();
 
-    _out << sp << nl << "public static " << name
+    ostringstream checkedCastWithFacetSummary;
+    checkedCastWithFacetSummary << "Downcasts a proxy to a <see cref=\"" << name
+                                << "Prx\" /> after checking that the target facet implements Slice interface <c>"
+                                << p->name() << "</c>.";
+
+    ostringstream checkedCastWithFacetReturns;
+    checkedCastWithFacetReturns << "A proxy with the requested type, or null if the target facet does not implement"
+                                   " Slice interface <c>"
+                                << p->name() << "</c>.";
+
+    _out << sp;
+    writeDocLine(_out, "summary", checkedCastWithFacetSummary.str());
+    writeDocLine(_out, R"(param name="b")", "The source proxy.", "param");
+    writeDocLine(_out, R"(param name="f")", "The facet.", "param");
+    writeDocLine(_out, R"(param name="ctx")", "The request context.", "param");
+    writeDocLine(_out, "returns", checkedCastWithFacetReturns.str());
+    _out << nl << "public static " << name
          << "Prx? checkedCast(Ice.ObjectPrx? b, string f, global::System.Collections.Generic.Dictionary<string, "
             "string>? ctx = null) =>";
     _out.inc();
     _out << nl << "checkedCast(b?.ice_facet(f), ctx);";
     _out.dec();
 
-    _out << sp << nl << "public static async global::System.Threading.Tasks.Task<" << name
+    _out << sp;
+    writeDocLine(_out, "summary", checkedCastSummary.str());
+    writeDocLine(_out, R"(param name="b")", "The source proxy.", "param");
+    writeDocLine(_out, R"(param name="ctx")", "The request context.", "param");
+    writeDocLine(_out, "returns", checkedCastReturns.str());
+    _out << nl << "public static async global::System.Threading.Tasks.Task<" << name
          << "Prx?> checkedCastAsync(Ice.ObjectPrx b, global::System.Collections.Generic.Dictionary<string, string>? "
             "ctx = null) =>";
     _out.inc();
@@ -1981,21 +2084,44 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
          << "PrxHelper(b) : null;";
     _out.dec();
 
-    _out << sp << nl << "public static global::System.Threading.Tasks.Task<" << name
+    _out << sp;
+    writeDocLine(_out, "summary", checkedCastWithFacetSummary.str());
+    writeDocLine(_out, R"(param name="b")", "The source proxy.", "param");
+    writeDocLine(_out, R"(param name="f")", "The facet.", "param");
+    writeDocLine(_out, R"(param name="ctx")", "The request context.", "param");
+    writeDocLine(_out, "returns", checkedCastWithFacetReturns.str());
+    _out << nl << "public static global::System.Threading.Tasks.Task<" << name
          << "Prx?> checkedCastAsync(Ice.ObjectPrx b, string f, global::System.Collections.Generic.Dictionary<string, "
             "string>? ctx = null) =>";
     _out.inc();
     _out << nl << "checkedCastAsync(b.ice_facet(f), ctx);";
     _out.dec();
 
-    _out << sp << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
-    _out << sp << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b) =>";
+    ostringstream uncheckedCastSummary;
+    uncheckedCastSummary << "Downcasts a proxy to a <see cref=\"" << name
+                         << "Prx\" />. This method does not perform any check.";
+
+    _out << sp;
+    writeDocLine(_out, "summary", uncheckedCastSummary.str());
+    writeDocLine(_out, R"(param name="b")", "The source proxy.", "param");
+    writeDocLine(_out, "returns", "A proxy with the requested type, or null if the source proxy is null.");
+    _out << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
+    _out << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b) =>";
     _out.inc();
     _out << nl << "b is not null ? new " << name << "PrxHelper(b) : null;";
     _out.dec();
 
-    _out << sp << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
-    _out << sp << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b, string f) =>";
+    ostringstream uncheckedCastWithFacetSummary;
+    uncheckedCastWithFacetSummary << "Downcasts a proxy to a <see cref=\"" << name
+                                  << "Prx\" /> after changing its facet. This method does not perform any check.";
+
+    _out << sp;
+    writeDocLine(_out, "summary", uncheckedCastWithFacetSummary.str());
+    writeDocLine(_out, R"(param name="b")", "The source proxy.", "param");
+    writeDocLine(_out, R"(param name="f")", "The facet.", "param");
+    writeDocLine(_out, "returns", "A proxy with the requested type, or null if the source proxy is null.");
+    _out << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
+    _out << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b, string f) =>";
     _out.inc();
     _out << nl << "uncheckedCast(b?.ice_facet(f));";
     _out.dec();
@@ -2020,14 +2146,24 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     }
     _out << eb << ";";
 
-    _out << sp << nl << "public static string ice_staticId() => \"" << p->scoped() << "\";";
+    ostringstream staticId;
+    staticId << "<c>" << p->scoped() << "</c>";
 
-    _out << sp << nl << "public static void write(Ice.OutputStream ostr, " << name << "Prx? v)";
+    _out << sp;
+    writeDocLine(_out, "summary", "Gets the type ID of the associated Slice interface.");
+    writeDocLine(_out, "returns", staticId.str());
+    _out << nl << R"(public static string ice_staticId() => ")" << p->scoped() << R"(";)";
+
+    _out << sp;
+    writeMarshalDocComment(_out);
+    _out << nl << "public static void write(Ice.OutputStream ostr, " << name << "Prx? v)";
     _out << sb;
     _out << nl << "ostr.writeProxy(v);";
     _out << eb;
 
-    _out << sp << nl << "public static " << name << "Prx? read(Ice.InputStream istr) =>";
+    _out << sp;
+    writeUnmarshalDocComment(_out);
+    _out << nl << "public static " << name << "Prx? read(Ice.InputStream istr) =>";
     _out.inc();
     _out << nl << "istr.readProxy() is Ice.ObjectPrx proxy ? new " << name << "PrxHelper(proxy) : null;";
     _out.dec();
@@ -2312,8 +2448,13 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << sp;
     _out << nl << "public override string ice_id(Ice.Current current) => ice_staticId();";
 
+    ostringstream staticId;
+    staticId << "<c>" << p->scoped() << "</c>";
+
     _out << sp;
-    _out << nl << "public static new string ice_staticId() => \"" << p->scoped() << "\";";
+    writeDocLine(_out, "summary", "Gets the type ID of the associated Slice interface.");
+    writeDocLine(_out, "returns", staticId.str());
+    _out << nl << R"(public static new string ice_staticId() => ")" << p->scoped() << R"(";)";
 
     writeDispatch(p);
     _out << eb;
