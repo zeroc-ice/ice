@@ -110,6 +110,6 @@ class ServantLocatorI: Ice.ServantLocator {
         } else if current.operation == "intfUserException" {
             throw TestImpossibleException()  // Yes, it really is meant to be TestImpossibleException.
         }
-        fatalError("unexpected operation: \(current.operation)");
+        fatalError("unexpected operation: \(current.operation)")
     }
 }
