@@ -93,15 +93,11 @@ class ThrowerI: Thrower {
     }
 
     func throwAfterResponse(current _: Ice.Current) async throws {
-        //
-        // Only relevant for AMD.
-        //
+        // Not relevant for Swift as there's no AMD callback but we need to implement it for cross testing.
     }
 
     func throwAfterException(current _: Ice.Current) async throws {
-        //
-        // Only relevant for AMD.
-        //
+        // Not relevant for Swift as there's no AMD callback but we need to implement it for cross testing.
         throw A()
     }
 }
