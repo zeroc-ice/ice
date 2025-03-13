@@ -578,54 +578,6 @@ def allTestsFuture(helper, communicator, collocated):
 
     print("ok")
 
-    sys.stdout.write("testing done callback async... ")
-    sys.stdout.flush()
-
-    # Now repeat with add_done_callback_async
-    ctx = {}
-    cb = FutureDoneCallback()
-
-    p.ice_isAAsync(Test.TestIntf.ice_staticId()).add_done_callback_async(cb.isA)
-    cb.check()
-    p.ice_isAAsync(Test.TestIntf.ice_staticId(), ctx).add_done_callback_async(cb.isA)
-    cb.check()
-
-    p.ice_pingAsync().add_done_callback_async(cb.ping)
-    cb.check()
-    p.ice_pingAsync(ctx).add_done_callback_async(cb.ping)
-    cb.check()
-
-    p.ice_idAsync().add_done_callback_async(cb.id)
-    cb.check()
-    p.ice_idAsync(ctx).add_done_callback_async(cb.id)
-    cb.check()
-
-    p.ice_idsAsync().add_done_callback_async(cb.ids)
-    cb.check()
-    p.ice_idsAsync(ctx).add_done_callback_async(cb.ids)
-    cb.check()
-
-    if not collocated:
-        p.ice_getConnectionAsync().add_done_callback_async(cb.connection)
-        cb.check()
-
-    p.opAsync().add_done_callback_async(cb.op)
-    cb.check()
-    p.opAsync(ctx).add_done_callback_async(cb.op)
-    cb.check()
-
-    p.opWithResultAsync().add_done_callback_async(cb.opWithResult)
-    cb.check()
-    p.opWithResultAsync(ctx).add_done_callback_async(cb.opWithResult)
-    cb.check()
-
-    p.opWithUEAsync().add_done_callback_async(cb.opWithUE)
-    cb.check()
-    p.opWithUEAsync(ctx).add_done_callback_async(cb.opWithUE)
-    cb.check()
-
-    print("ok")
-
     if not collocated:
         sys.stdout.write("testing bi-dir... ")
         sys.stdout.flush()
@@ -741,21 +693,6 @@ def allTestsFuture(helper, communicator, collocated):
     p.opAsync().add_sent_callback(cb.sent)
     cb.check()
 
-    p.ice_isAAsync("").add_sent_callback_async(cb.sentAsync)
-    cb.check()
-
-    p.ice_pingAsync().add_sent_callback_async(cb.sentAsync)
-    cb.check()
-
-    p.ice_idAsync().add_sent_callback_async(cb.sentAsync)
-    cb.check()
-
-    p.ice_idsAsync().add_sent_callback_async(cb.sentAsync)
-    cb.check()
-
-    p.opAsync().add_sent_callback_async(cb.sentAsync)
-    cb.check()
-
     cbs = []
     b = [random.randint(0, 255) for x in range(0, 1024)]
     seq = bytes(b)
@@ -788,7 +725,6 @@ def allTestsFuture(helper, communicator, collocated):
     cb = FutureFlushCallback()
     f = b1.ice_flushBatchRequestsAsync()
     f.add_sent_callback(cb.sent)
-    f.add_sent_callback_async(cb.sentAsync)
     cb.check()
     test(f.is_sent())
     test(f.done())
@@ -1026,14 +962,10 @@ def allTestsFuture(helper, communicator, collocated):
     f2.result()
     test(f2.done())
 
-    test(f1.operation() == "op")
-    test(f2.operation() == "opWithPayload")
-
     #
     # Twoway
     #
     f = p.ice_pingAsync()
-    test(f.operation() == "ice_ping")
     f.result()
 
     #
@@ -1041,7 +973,6 @@ def allTestsFuture(helper, communicator, collocated):
     #
     p2 = p.ice_oneway()
     f = p2.ice_pingAsync()
-    test(f.operation() == "ice_ping")
 
     #
     # Batch request via proxy
