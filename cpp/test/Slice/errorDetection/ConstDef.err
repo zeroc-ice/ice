@@ -11,21 +11,21 @@ ConstDef.ice:77: initializer of type 'bool' is incompatible with the type 'long'
 ConstDef.ice:79: missing constant name
 ConstDef.ice:82: 'two' does not designate an enumerator of '::Test::color'
 ConstDef.ice:83: type of initializer is incompatible with the type of constant 'ic10'
-ConstDef.ice:99: integer constant '-9223372036854775809' out of range
-ConstDef.ice:100: integer constant '+9223372036854775808' out of range
-ConstDef.ice:104: initializer '-2147483649' for constant 'i3' out of range for type int
-ConstDef.ice:105: initializer '2147483648' for constant 'i4' out of range for type int
-ConstDef.ice:109: initializer '-32769' for constant 's3' out of range for type short
-ConstDef.ice:110: initializer '32768' for constant 's4' out of range for type short
-ConstDef.ice:114: initializer '-1' for constant 'b3' out of range for type byte
-ConstDef.ice:115: initializer '256' for constant 'b4' out of range for type byte
-ConstDef.ice:127: initializer '32767' for constant 'c5' out of range for type byte
-ConstDef.ice:128: initializer '2147483647' for constant 'c6' out of range for type short
-ConstDef.ice:129: initializer '9223372036854775807' for constant 'c7' out of range for type int
-ConstDef.ice:140: warning: unknown escape sequence in string literal: '\g'
-ConstDef.ice:141: unknown escape sequence in string literal: '\u000N'
-ConstDef.ice:142: unknown escape sequence in string literal: '\U0000000K'
-ConstDef.ice:143: octal escape sequence out of range: '\455'
-ConstDef.ice:144: no hex digit in hex escape sequence
-ConstDef.ice:145: a universal character name cannot designate a surrogate: '\uD83C'
-ConstDef.ice:145: a universal character name cannot designate a surrogate: '\uDF4C'
+ConstDef.ice:92: integer constant '-9223372036854775809' out of range
+ConstDef.ice:93: integer constant '+9223372036854775808' out of range
+ConstDef.ice:97: initializer '-2147483649' for constant 'i3' out of range for type int
+ConstDef.ice:98: initializer '2147483648' for constant 'i4' out of range for type int
+ConstDef.ice:102: initializer '-32769' for constant 's3' out of range for type short
+ConstDef.ice:103: initializer '32768' for constant 's4' out of range for type short
+ConstDef.ice:107: initializer '-1' for constant 'b3' out of range for type byte
+ConstDef.ice:108: initializer '256' for constant 'b4' out of range for type byte
+ConstDef.ice:120: initializer '32767' for constant 'c5' out of range for type byte
+ConstDef.ice:121: initializer '2147483647' for constant 'c6' out of range for type short
+ConstDef.ice:122: initializer '9223372036854775807' for constant 'c7' out of range for type int
+ConstDef.ice:133: warning: unknown escape sequence in string literal: '\g'
+ConstDef.ice:134: unknown escape sequence in string literal: '\u000N'
+ConstDef.ice:135: unknown escape sequence in string literal: '\U0000000K'
+ConstDef.ice:136: octal escape sequence out of range: '\455'
+ConstDef.ice:137: no hex digit in hex escape sequence
+ConstDef.ice:138: a universal character name cannot designate a surrogate: '\uD83C'
+ConstDef.ice:138: a universal character name cannot designate a surrogate: '\uDF4C'
