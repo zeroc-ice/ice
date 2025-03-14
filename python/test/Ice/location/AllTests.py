@@ -203,7 +203,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     hello = Test.HelloPrx(communicator, "hello")
     obj.migrateHello()
-    hello.ice_getConnection().close()
+    hello.ice_getConnection().close().result()
     hello.sayHello()
     obj.migrateHello()
     hello.sayHello()

@@ -513,14 +513,16 @@ communicatorShutdownCompleted(CommunicatorObject* self, PyObject* /*args*/)
 
     (*self->communicator)
         ->waitForShutdownAsync(
-            [futureHandle = PyObjectHandle(future)]()
+            [futureHandle = PyObjectHandle(future)]() mutable
             {
                 AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-                PyObjectHandle discard{callMethod(futureHandle.get(), "set_result", Py_None)};
+                // Adopt the future handle so it is released within this scope.
+                PyObjectHandle futureGuard{futureHandle.release()};
+                PyObjectHandle discard{callMethod(futureGuard.get(), "set_result", Py_None)};
             });
 
-    // Release the reference to the future object and let the caller take ownership. The
-    // callback keeps its own strong reference to the future.
+    // Release the reference to the future object and let the caller take ownership.
+    // The callback maintains its own strong reference to the future.
     return future.release();
 }
 
@@ -1446,7 +1448,7 @@ static PyMethodDef CommunicatorMethods[] = {
      PyDoc_STR("waitForShutdown() -> None")},
     {"shutdownCompleted",
      reinterpret_cast<PyCFunction>(communicatorShutdownCompleted),
-     METH_VARARGS,
+     METH_NOARGS,
      PyDoc_STR("shutdownCompleted() -> Ice.Future")},
     {"isShutdown",
      reinterpret_cast<PyCFunction>(communicatorIsShutdown),

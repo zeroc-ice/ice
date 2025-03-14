@@ -43,8 +43,14 @@ class TestIntfI(Test.TestIntf):
             return result
 
     def closeConnection(self, current):
-        # TODO: make sure close is graceful once API is fixed
-        current.con.close(False)
+        # We can't wait for the connection to close - it would self-deadlock. So we just initiate the closure.
+        def close_connection(future):
+            try:
+                future.result()
+            except Exception as ex:
+                print("closeConnection failed: ", ex)
+
+        current.con.close().add_done_callback(close_connection)
 
     def abortConnection(self, current):
         current.con.abort()

@@ -209,39 +209,62 @@ connectionAbort(ConnectionObject* self, PyObject* /* args */)
 }
 
 extern "C" PyObject*
-connectionClose(ConnectionObject* self, PyObject* args)
+connectionClose(ConnectionObject* self, PyObject* /* args */)
 {
-    // TODO: temporary. For now True = wait (default) and False = don't wait.
+    assert(self->connection);
 
-    bool waitForClose = true;
+    auto type = reinterpret_cast<PyTypeObject*>(lookupType("Ice.Future"));
+    assert(type);
 
-    PyObject* flag = nullptr;
-    if (!PyArg_ParseTuple(args, "|O", &flag))
+    PyObjectHandle emptyArgs{PyTuple_New(0)};
+    PyObjectHandle future{type->tp_new(type, emptyArgs.get(), nullptr)};
+    if (!future.get())
     {
         return nullptr;
     }
-    if (flag)
-    {
-        waitForClose = PyObject_IsTrue(flag) == 1;
-    }
 
-    assert(self->connection);
+    // Call Ice.Future.__init__
+    type->tp_init(future.get(), emptyArgs.get(), nullptr);
+
+    // Create a strong reference to prevent premature release of the future object. The reference will be released by
+    // either the success or exception callback, depending on the outcome of the close operation.
+    PyObject* futureObject = future.get();
+    Py_INCREF(futureObject);
+
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
-        auto future = (*self->connection)->close();
-        if (waitForClose)
-        {
-            future.get();
-        }
+        (*self->connection)
+            ->close(
+                [futureObject]()
+                {
+                    // Ensure the current thread is able to call into Python.
+                    AdoptThread adoptThread;
+                    // Adopt the future handle so it is released within this scope.
+                    PyObjectHandle futureGuard{futureObject};
+                    PyObjectHandle discard{callMethod(futureGuard.get(), "set_result", Py_None)};
+                },
+                [futureObject](exception_ptr ex)
+                {
+                    // Ensure the current thread is able to call into Python.
+                    AdoptThread adoptThread;
+                    // Adopt the future handle so it is released within this scope.
+                    PyObjectHandle futureGuard{futureObject};
+                    PyObjectHandle pythonException{convertException(ex)};
+                    PyObjectHandle discard{callMethod(futureGuard.get(), "set_exception", pythonException.get())};
+                });
     }
     catch (...)
     {
+        // Ensure the future is released if an exception is thrown synchronously, since neither the success nor
+        // exception callback will be invoked.
+        PyObjectHandle futureGuard{futureObject};
         setPythonException(current_exception());
         return nullptr;
     }
 
-    return Py_None;
+    // Release the reference to the future object and let the caller take ownership.
+    // The callbacks maintain their own strong reference to the future.
+    return future.release();
 }
 
 extern "C" PyObject*
@@ -569,7 +592,7 @@ connectionThrowException(ConnectionObject* self, PyObject* /*args*/)
 
 static PyMethodDef ConnectionMethods[] = {
     {"abort", reinterpret_cast<PyCFunction>(connectionAbort), METH_NOARGS, PyDoc_STR("abort() -> None")},
-    {"close", reinterpret_cast<PyCFunction>(connectionClose), METH_VARARGS, PyDoc_STR("close(bool) -> None")},
+    {"close", reinterpret_cast<PyCFunction>(connectionClose), METH_NOARGS, PyDoc_STR("close() -> Ice.Future")},
     {"createProxy",
      reinterpret_cast<PyCFunction>(connectionCreateProxy),
      METH_VARARGS,
