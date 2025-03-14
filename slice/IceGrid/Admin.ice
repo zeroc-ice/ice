@@ -186,7 +186,7 @@ module IceGrid
         /// The application revision number.
         int revision;
 
-        /// The application descriptor
+        /// The application descriptor.
         ApplicationDescriptor descriptor;
     }
 
@@ -490,7 +490,7 @@ module IceGrid
             throws NodeNotExistException, NodeUnreachableException;
 
         /// Get a proxy to the IceGrid node's admin object.
-        /// @param name The IceGrid node name
+        /// @param name The IceGrid node name.
         /// @return A proxy to the IceGrid node's admin object. The returned proxy is never null.
         /// @throws NodeNotExistException Raised if the node doesn't exist.
         /// @throws NodeUnreachableException Raised if the node could not be reached.
@@ -542,7 +542,7 @@ module IceGrid
             throws RegistryNotExistException, RegistryUnreachableException;
 
         /// Get a proxy to the IceGrid registry's admin object.
-        /// @param name The registry name
+        /// @param name The registry name.
         /// @return A proxy to the IceGrid registry's admin object. The returned proxy is never null.
         /// @throws RegistryNotExistException Raised if the registry doesn't exist.
         ["cpp:const"] idempotent Object* getRegistryAdmin(string name)

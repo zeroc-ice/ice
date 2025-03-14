@@ -66,7 +66,7 @@ module IceBox
             throws AlreadyStoppedException, NoSuchServiceException;
 
         /// Registers a new observer with the ServiceManager.
-        /// @param observer The new observer
+        /// @param observer The new observer.
         void addObserver(ServiceObserver* observer);
 
         /// Shut down all services. This causes stop to be invoked on all configured services.
