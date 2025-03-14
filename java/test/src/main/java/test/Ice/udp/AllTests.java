@@ -72,8 +72,8 @@ public class AllTests {
                 break; // Success
             }
 
-            // If the 3 datagrams were not received within the 2 seconds, we try again to
-            // receive 3 new datagrams using a new object. We give up after 5 retries.
+            // If the 3 datagrams were not received within the 2 seconds, we try again to receive 3
+            // new datagrams using a new object. We give up after 5 retries.
             replyI = new PingReplyI();
             reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         }
@@ -81,8 +81,8 @@ public class AllTests {
 
         if (communicator.getProperties().getIcePropertyAsInt("Ice.Override.Compress") == 0) {
             //
-            // Only run this test if compression is disabled, the test expects fixed message size
-            // to be sent over the wire.
+            // Only run this test if compression is disabled, the test expects fixed message size to
+            // be sent over the wire.
             //
             byte[] seq = null;
             try {
@@ -144,8 +144,7 @@ public class AllTests {
 
             //
             // On Android, the test suite driver only starts one server instance. Otherwise, we
-            // expect
-            // there to be five servers and we expect a response from all of them.
+            // expect there to be five servers and we expect a response from all of them.
             //
             final int numServers = helper.isAndroid() ? 1 : 5;
 
@@ -157,8 +156,7 @@ public class AllTests {
                 } catch (com.zeroc.Ice.SocketException ex) {
                     if (communicator.getProperties().getIceProperty("Ice.IPv6").equals("1")) {
                         // Multicast IPv6 not supported on the platform. This occurs for example on
-                        // macOS Big
-                        // Sur
+                        // macOS Big Sur
                         out.print("(not supported) ");
                         ret = true;
                         break;

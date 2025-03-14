@@ -52,9 +52,7 @@ class TwowaysAMI {
                                                     instanceof
                                                     com.zeroc.Ice
                                                             .OperationNotExistException); // OK,
-                                    // talking
-                                    // to
-                                    // non-Java server.
+                                    // talking to non-Java server.
                                 } else {
                                     test(result.o == null);
                                     test(result.returnValue == null);
@@ -78,9 +76,7 @@ class TwowaysAMI {
                                                     instanceof
                                                     com.zeroc.Ice
                                                             .OperationNotExistException); // OK,
-                                    // talking
-                                    // to
-                                    // non-Java server.
+                                    // talking to non-Java server.
                                 } else {
                                     test(result.o.i == 99);
                                     test(result.returnValue.i == 99);
@@ -113,9 +109,7 @@ class TwowaysAMI {
                                                     instanceof
                                                     com.zeroc.Ice
                                                             .OperationNotExistException); // OK,
-                                    // talking
-                                    // to
-                                    // non-Java server.
+                                    // talking to non-Java server.
                                 } else {
                                     test(result.o.d1 == 1.0);
                                     test(result.o.d2 == 2.0);

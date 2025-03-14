@@ -35,14 +35,11 @@ public final class Options {
                                     // backslash-newline pairs.
                                     //
                                     // If a backslash comes before a space, single quote, double
-                                    // quote, or dollar sign
-                                    // we drop the backslash, but still write the the space, quote,
-                                    // or dollar sign.
-                                    // This is necessary to allow quotes to be escaped. Dropping the
-                                    // backslash
-                                    // preceding a space deviates from bash quoting rules, but is
-                                    // necessary so we
-                                    // don't drop backslashes from Windows path names.
+                                    // quote, or dollar sign we drop the backslash, but still write
+                                    // the the space, quote, or dollar sign. This is necessary to
+                                    // allow quotes to be escaped. Dropping the backslash preceding
+                                    // a space deviates from bash quoting rules, but is necessary so
+                                    // we don't drop backslashes from Windows path names.
                                     if (i < line.length() - 1 && line.charAt(++i) != '\n') {
                                         char nextChar = line.charAt(i);
                                         // TODO: comment says we should be checking single quotes
@@ -265,14 +262,11 @@ public final class Options {
                                                                             - '@'));
                                                 } else {
                                                     // Bash does not define what should happen if a
-                                                    // \c
-                                                    // is not followed by a recognized control
+                                                    // \c is not followed by a recognized control
                                                     // character.
                                                     // We simply treat this case like other
-                                                    // unrecognized
-                                                    // escape sequences, that is, we preserve the
-                                                    // escape
-                                                    // sequence unchanged.
+                                                    // unrecognized escape sequences, that is, we
+                                                    // preserve the escape sequence unchanged.
                                                     arg.append('\\');
                                                     arg.append('c');
                                                     arg.append(c);
@@ -282,9 +276,8 @@ public final class Options {
 
                                         // If inside an ANSI-quoted string, a backslash isn't
                                         // followed by
-                                        // one of the recognized characters, both the backslash
-                                        // and the
-                                        // character are preserved.
+                                        // one of the recognized characters, both the backslash and
+                                        // the character are preserved.
                                         default:
                                             {
                                                 arg.append('\\');

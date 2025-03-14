@@ -321,8 +321,7 @@ public class Client extends test.TestHelper {
                   base.ice_ping();
                   test(false);
                   }
-                  // If we use the glacier router, the exact exception reason gets
-                  // lost.
+                  // If we use the glacier router, the exact exception reason gets lost.
                   catch(com.zeroc.Ice.UnknownLocalException ex)
                   {
                   System.out.println("ok");

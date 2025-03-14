@@ -50,9 +50,8 @@ public final class HoldI implements Hold {
 
                             current.adapter.activate();
                         } catch (com.zeroc.Ice.LocalException ex) {
-                            // This shouldn't occur. The test ensures all the
-                            // waitForHold timers are finished before shutting down the
-                            // communicator.
+                            // This shouldn't occur. The test ensures all the waitForHold timers are
+                            // finished before shutting down the communicator.
                             test(false);
                         }
                     }

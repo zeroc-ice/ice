@@ -50,8 +50,7 @@ public class BZip2 {
         }
 
         //
-        // Don't bother if the compressed data is larger than the
-        // uncompressed data.
+        // Don't bother if the compressed data is larger than the uncompressed data.
         //
         if (compressedLen >= uncompressedLen) {
             return null;

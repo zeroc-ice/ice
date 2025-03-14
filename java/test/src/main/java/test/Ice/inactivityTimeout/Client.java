@@ -9,8 +9,7 @@ public class Client extends test.TestHelper {
         properties.setProperty("Ice.Package.Test", "test.Ice.inactivityTimeout");
 
         // We configure a low idle timeout to make sure we send heartbeats frequently. It's the
-        // sending
-        // of the heartbeats that schedules the inactivity timer task.
+        // sending of the heartbeats that schedules the inactivity timer task.
         properties.setProperty("Ice.Connection.Client.IdleTimeout", "1");
         properties.setProperty("Ice.Connection.Client.InactivityTimeout", "3");
 

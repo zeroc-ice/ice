@@ -21,8 +21,8 @@ final class TcpTransceiver implements Transceiver {
 
     @Override
     public int closing(boolean initiator, LocalException ex) {
-        // If we are initiating the connection closure, wait for the peer
-        // to close the TCP/IP connection. Otherwise, close immediately.
+        // If we are initiating the connection closure, wait for the peer to close the TCP/IP
+        // connection. Otherwise, close immediately.
         return initiator ? SocketOperation.Read : SocketOperation.None;
     }
 

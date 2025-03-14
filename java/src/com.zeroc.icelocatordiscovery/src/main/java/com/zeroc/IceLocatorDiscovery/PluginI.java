@@ -236,8 +236,7 @@ class PluginI implements Plugin {
             }
 
             // If we already have a locator assigned, ensure the given locator has the same
-            // identity,
-            // otherwise ignore it.
+            // identity, otherwise ignore it.
             if (!_pendingRequests.isEmpty()
                     && _locator != null
                     && !locator.ice_getIdentity()

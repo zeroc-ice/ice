@@ -71,8 +71,8 @@ public class AllTests {
                 test(false);
             }
 
-            // Ensure the IceGrid discovery locator can discover the
-            // registries and make sure locator requests are forwarded.
+            // Ensure the IceGrid discovery locator can discover the registries and make sure
+            // locator requests are forwarded.
             com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");

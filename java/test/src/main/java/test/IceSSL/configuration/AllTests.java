@@ -168,9 +168,8 @@ public class AllTests {
 
             // Test Ice.SSL.VerifyPeer=1. Client has a certificate.
             //
-            // Provide "cacert1" to the client to verify the server
-            // certificate (without this the client connection wouldn't be
-            // able to provide the certificate chain).
+            // Provide "cacert1" to the client to verify the server certificate (without this the
+            // client connection wouldn't be able to provide the certificate chain).
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             comm = Util.initialize(args, initData);
             fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -393,8 +392,7 @@ public class AllTests {
                 }
 
                 // Target host does not match the certificate Common Name and the certificate does
-                // not
-                // include a DNS altName
+                // not include a DNS altName
                 {
                     initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
@@ -414,8 +412,8 @@ public class AllTests {
                     comm.destroy();
                 }
 
-                // Target host matches the certificate Common Name and the certificate has
-                // a DNS altName that does not matches the target host
+                // Target host matches the certificate Common Name and the certificate has a DNS
+                // altName that does not matches the target host
                 {
                     initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");

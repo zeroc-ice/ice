@@ -20,9 +20,8 @@ public final class Server {
 
             synchronized (_doneMutex) {
                 // Wait on the server to finish shutting down before exiting the ShutdownHook. This
-                // ensures
-                // that all IceBox services have had a chance to shutdown cleanly before the JVM
-                // terminates.
+                // ensures that all IceBox services have had a chance to shutdown cleanly before the
+                // JVM terminates.
                 while (!_done) {
                     try {
                         _doneMutex.wait();

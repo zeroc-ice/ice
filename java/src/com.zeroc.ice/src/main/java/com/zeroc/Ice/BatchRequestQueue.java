@@ -73,8 +73,8 @@ class BatchRequestQueue {
 
     public void finishBatchRequest(OutputStream os, ObjectPrx proxy, String operation) {
         //
-        // No need for synchronization, no other threads are supposed
-        // to modify the queue since we set _batchStreamInUse to true.
+        // No need for synchronization, no other threads are supposed to modify the queue since we
+        // set _batchStreamInUse to true.
         //
         assert (_batchStreamInUse);
         _batchStream.swap(os);

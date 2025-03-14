@@ -31,9 +31,8 @@ final class ObserverMiddleware implements Object {
                                 (response, exception) -> {
                                     if (exception != null) {
                                         // We need to marshal the exception into the response
-                                        // immediately to observe
-                                        // the response size.
-                                        // TODO: should we really marshal/handle errors here?
+                                        // immediately to observe the response size. TODO: should we
+                                        // really marshal/handle errors here?
                                         response =
                                                 request.current.createOutgoingResponse(exception);
                                     }

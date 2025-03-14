@@ -76,8 +76,7 @@ public class ServerManagerI implements ServerManager {
                 }
 
                 // Retry, if OA creation fails with EADDRINUSE (this can occur when running with JS
-                // web
-                // browser clients if the driver uses ports in the same range as this test,
+                // web browser clients if the driver uses ports in the same range as this test,
                 // ICE-8148)
                 if (adapter != null) {
                     adapter.destroy();

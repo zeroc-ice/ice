@@ -4,8 +4,7 @@ package com.zeroc.Ice;
 
 //
 // Base class for handling asynchronous invocations. This class is
-// responsible for the handling of the output stream and the child
-// invocation observer.
+// responsible for the handling of the output stream and the child invocation observer.
 //
 abstract class OutgoingAsyncBase<T> extends InvocationFuture<T> {
     public boolean sent() {
