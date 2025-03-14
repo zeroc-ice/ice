@@ -6,7 +6,7 @@
   </PropertyGroup>
   <!-- Set IceHome to this source distribution. -->
   <PropertyGroup>
-      <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
+    <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
   </PropertyGroup>
 
   <!-- Import version settings required for library targets. -->
@@ -32,7 +32,7 @@
   </Choose>
 
   <PropertyGroup>
-      <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
+    <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
   </PropertyGroup>
 
   <!-- Common properties set for all builds, configurations and platforms. -->
@@ -103,7 +103,8 @@
     </Link>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(IceBuildingSrc)|$(IceLanguageMapping)' == 'DynamicLibrary|yes|cpp'">
+  <ItemDefinitionGroup
+    Condition="'$(ConfigurationType)|$(IceBuildingSrc)|$(IceLanguageMapping)' == 'DynamicLibrary|yes|cpp'">
     <Link>
       <ImportLibrary>$(IceHome)\cpp\lib\$(Platform)\$(Configuration)\$(TargetName).lib</ImportLibrary>
     </Link>
@@ -117,18 +118,30 @@
 
   <!-- Base target names. -->
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
-      <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
+    <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
-      <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
+    <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
-      <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
+    <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
-      <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
+    <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
   </PropertyGroup>
+
+  <!-- See https://github.com/ccache/ccache/wiki/MS-Visual-Studio -->
+  <PropertyGroup Condition="'$(USING_BUILD_CACHE)' == 'true'">
+    <UseMultiToolTask>true</UseMultiToolTask>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(USING_BUILD_CACHE)' == 'true'">
+    <ClCompile>
+      <ForcedIncludeFiles />
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <ObjectFileName>$(IntDir)%(FileName).obj</ObjectFileName>
+    </ClCompile>
+  </ItemDefinitionGroup>
 </Project>
