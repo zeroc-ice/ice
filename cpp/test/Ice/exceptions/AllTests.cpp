@@ -675,7 +675,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "ok" << endl;
 
-    cout << "catching dispatch exception... " << endl;
+    cout << "catching dispatch exception... " << flush;
 
     try
     {
@@ -1121,7 +1121,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "ok" << endl;
 
-    cout << "catching dispatch exception with new AMI mapping... " << endl;
+    cout << "catching dispatch exception with new AMI mapping... " << flush;
     {
         auto f = thrower->throwDispatchExceptionAsync(static_cast<uint8_t>(Ice::ReplyStatus::OperationNotExist));
         try
