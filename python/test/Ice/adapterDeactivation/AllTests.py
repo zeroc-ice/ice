@@ -87,7 +87,7 @@ def allTests(helper, communicator):
         test(communicator.getDefaultObjectAdapter() is not None)
 
         # create new connection
-        obj.ice_getCachedConnection().close()
+        obj.ice_getCachedConnection().close().result()
         obj.ice_ping()
 
         # TODO: compare underlying object adapter objects
@@ -95,7 +95,7 @@ def allTests(helper, communicator):
         communicator.setDefaultObjectAdapter(None)
 
         # create new connection
-        obj.ice_getCachedConnection().close()
+        obj.ice_getCachedConnection().close().result()
         obj.ice_ping()
 
         test(obj.ice_getCachedConnection().getAdapter() is None)
