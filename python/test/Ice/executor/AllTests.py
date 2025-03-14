@@ -63,21 +63,21 @@ def allTests(helper, communicator):
 
     cb = Callback()
 
-    p.opAsync().add_done_callback_async(cb.response)
+    p.opAsync().add_done_callback(cb.response)
     cb.check()
 
     #
     # Expect NoEndpointException.
     #
     i = p.ice_adapterId("dummy")
-    i.opAsync().add_done_callback_async(cb.exception)
+    i.opAsync().add_done_callback(cb.exception)
     cb.check()
 
     #
     # Expect InvocationTimeoutException.
     #
     to = p.ice_invocationTimeout(10)
-    to.sleepAsync(500).add_done_callback_async(cb.exceptionEx)
+    to.sleepAsync(500).add_done_callback(cb.exceptionEx)
     cb.check()
 
     #
