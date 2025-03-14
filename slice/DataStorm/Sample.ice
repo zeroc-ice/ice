@@ -3,6 +3,7 @@
 #pragma once
 
 [["cpp:dll-export:DATASTORM_API"]]
+[["cpp:doxygen:include:DataStorm/DataStorm.h"]]
 
 module DataStorm
 {

@@ -534,7 +534,7 @@ SwiftGenerator::validateMetadata(const UnitPtr& u)
     knownMetadata.emplace("swift:module", moduleInfo);
 
     // Pass this information off to the parser's metadata validation logic.
-    Slice::validateMetadata(u, "swift", knownMetadata);
+    Slice::validateMetadata(u, "swift", std::move(knownMetadata));
 }
 
 void

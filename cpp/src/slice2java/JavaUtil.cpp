@@ -1816,5 +1816,5 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
     knownMetadata.emplace("java:UserException", std::move(userExceptionInfo));
 
     // Pass this information off to the parser's metadata validation logic.
-    Slice::validateMetadata(u, "java", knownMetadata);
+    Slice::validateMetadata(u, "java", std::move(knownMetadata));
 }
