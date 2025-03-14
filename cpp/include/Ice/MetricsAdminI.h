@@ -241,9 +241,10 @@ namespace IceInternal
                         continue; // This sub-map isn't configured.
                     }
                 }
-                _subMaps.insert(std::make_pair(
-                    p->first,
-                    std::make_pair(p->second.first, p->second.second->create(subMapPrefix, properties))));
+                _subMaps.insert(
+                    std::make_pair(
+                        p->first,
+                        std::make_pair(p->second.first, p->second.second->create(subMapPrefix, properties))));
             }
         }
 
@@ -386,9 +387,10 @@ namespace IceInternal
                 t->id = key;
 
                 p = _objects
-                        .insert(typename std::map<std::string, EntryTPtr>::value_type(
-                            key,
-                            std::make_shared<EntryT>(shared_from_this(), t, _detachedQueue.end())))
+                        .insert(
+                            typename std::map<std::string, EntryTPtr>::value_type(
+                                key,
+                                std::make_shared<EntryT>(shared_from_this(), t, _detachedQueue.end())))
                         .first;
             }
             p->second->attach(helper);
