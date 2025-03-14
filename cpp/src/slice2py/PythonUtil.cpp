@@ -2469,5 +2469,5 @@ Slice::Python::validateMetadata(const UnitPtr& unit)
     knownMetadata.emplace("python:tuple", std::move(unqualifiedSeqInfo));
 
     // Pass this information off to the parser's metadata validation logic.
-    Slice::validateMetadata(unit, "python", knownMetadata);
+    Slice::validateMetadata(unit, "python", std::move(knownMetadata));
 }

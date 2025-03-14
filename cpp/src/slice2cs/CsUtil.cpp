@@ -1826,5 +1826,5 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
     knownMetadata.emplace("cs:property", std::move(propertyInfo));
 
     // Pass this information off to the parser's metadata validation logic.
-    Slice::validateMetadata(u, "cs", knownMetadata);
+    Slice::validateMetadata(u, "cs", std::move(knownMetadata));
 }

@@ -2885,5 +2885,5 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     knownMetadata.emplace("js:identifier", std::move(identifierInfo));
 
     // Pass this information off to the parser's metadata validation logic.
-    Slice::validateMetadata(u, "js", knownMetadata);
+    Slice::validateMetadata(u, "js", std::move(knownMetadata));
 }

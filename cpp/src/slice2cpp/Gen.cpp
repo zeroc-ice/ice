@@ -438,10 +438,11 @@ namespace
         DefinitionContextPtr dc = p->unit()->findDefinitionContext(file);
         assert(dc);
 
-        // Retrieve as "cpp:doxygen".
+        // The metadata directive is cpp:doxygen, not cpp:doxygen:include. The arg of cpp:doxygen is something like
+        // include:Ice/Ice.h.
         if (auto headerFile = dc->getMetadataArgs("cpp:doxygen"))
         {
-            out << nl << "/// \\headerfile " << headerFile->substr(8); // Remove "include:" prefix.
+            out << nl << "/// \\headerfile " << headerFile->substr(8); // remove include: prefix
         }
     }
 
@@ -933,14 +934,16 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     };
     knownMetadata.emplace("cpp:dll-export", std::move(dllExportInfo));
 
-    // "cpp:doxygen:include"
-    // While the metadata is cpp:doxygen:include, due to a limitation in the metadata system, we have need to look it
-    // up as just cpp:doxygen.
+    // "cpp:doxygen"
+    // The metadata validation system does not support metadata names with colons. So here, for
+    // cpp:doxygen:include:Ice/Ice.h, include is either the first of two args, or part of the one arg. We consider it's
+    // a single arg that starts with 'include:'.
     MetadataInfo doxygenInfo = {
         .validOn = {typeid(Unit)},
         .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
         .extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr&) -> optional<string>
         {
+            // Make sure the argument starts with 'include:'.
             if (meta->arguments().find("include:") != 0)
             {
                 ostringstream msg;
@@ -1070,7 +1073,7 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     knownMetadata.emplace("cpp:type", typeInfo);
 
     // Pass this information off to the parser's metadata validation logic.
-    Slice::validateMetadata(u, "cpp", knownMetadata);
+    Slice::validateMetadata(u, "cpp", std::move(knownMetadata));
 }
 
 TypeContext
@@ -3039,9 +3042,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
                                           : "[responseHandler] { responseHandler->sendEmptyResponse(); }");
         }
         params.push_back("std::function<void(std::exception_ptr)> " + excbParam);
-        args.emplace_back(
-            "[responseHandler](std::exception_ptr ex) { "
-            "responseHandler->sendException(ex); }");
+        args.emplace_back("[responseHandler](std::exception_ptr ex) { responseHandler->sendException(ex); }");
         params.push_back(currentDecl);
         args.emplace_back("responseHandler->current()");
     }
