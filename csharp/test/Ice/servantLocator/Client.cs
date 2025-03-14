@@ -10,11 +10,9 @@ public class Client : TestHelper
     {
         var initData = new InitializationData();
         initData.properties = createTestProperties(ref args);
-        using (var communicator = initialize(initData))
-        {
-            var obj = AllTests.allTests(this);
-            obj.shutdown();
-        }
+        using var communicator = initialize(initData);
+        var obj = AllTests.allTests(this);
+        obj.shutdown();
     }
 
     public static Task<int> Main(string[] args) =>

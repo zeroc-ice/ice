@@ -8,10 +8,8 @@ public class Client : global::Test.TestHelper
     {
         var initData = new InitializationData();
         initData.properties = createTestProperties(ref args);
-        using (var communicator = initialize(initData))
-        {
-            AllTests.allTests(this);
-        }
+        using var communicator = initialize(initData);
+        AllTests.allTests(this);
     }
 
     public static Task<int> Main(string[] args) =>

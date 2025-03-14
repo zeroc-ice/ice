@@ -37,16 +37,14 @@ public class Server : Test.TestHelper
 
     public override void run(string[] args)
     {
-        using (var communicator = initialize(ref args))
-        {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            BlobjectI blob = new BlobjectI();
-            adapter.addDefaultServant(blob, "");
-            adapter.add(new EchoI(blob), Ice.Util.stringToIdentity("__echo"));
-            adapter.activate();
-            communicator.waitForShutdown();
-        }
+        using var communicator = initialize(ref args);
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        BlobjectI blob = new BlobjectI();
+        adapter.addDefaultServant(blob, "");
+        adapter.add(new EchoI(blob), Ice.Util.stringToIdentity("__echo"));
+        adapter.activate();
+        communicator.waitForShutdown();
     }
 
     public static Task<int> Main(string[] args) =>

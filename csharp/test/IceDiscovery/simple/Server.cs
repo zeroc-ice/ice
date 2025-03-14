@@ -12,27 +12,25 @@ public class Server : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using (var communicator = initialize(ref args))
+        using var communicator = initialize(ref args);
+        int num = 0;
+        try
         {
-            int num = 0;
-            try
-            {
-                num = Int32.Parse(args[0]);
-            }
-            catch (FormatException)
-            {
-            }
-
-            communicator.getProperties().setProperty("ControlAdapter.Endpoints", getTestEndpoint(num));
-            communicator.getProperties().setProperty("ControlAdapter.AdapterId", "control" + num);
-            communicator.getProperties().setProperty("ControlAdapter.ThreadPool.Size", "1");
-
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ControlAdapter");
-            adapter.add(new ControllerI(), Ice.Util.stringToIdentity("controller" + num));
-            adapter.activate();
-
-            communicator.waitForShutdown();
+            num = Int32.Parse(args[0]);
         }
+        catch (FormatException)
+        {
+        }
+
+        communicator.getProperties().setProperty("ControlAdapter.Endpoints", getTestEndpoint(num));
+        communicator.getProperties().setProperty("ControlAdapter.AdapterId", "control" + num);
+        communicator.getProperties().setProperty("ControlAdapter.ThreadPool.Size", "1");
+
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ControlAdapter");
+        adapter.add(new ControllerI(), Ice.Util.stringToIdentity("controller" + num));
+        adapter.activate();
+
+        communicator.waitForShutdown();
     }
 
     public static Task<int> Main(string[] args) =>

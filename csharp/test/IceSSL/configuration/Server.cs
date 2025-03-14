@@ -12,21 +12,19 @@ public class Server : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using (var communicator = initialize(ref args))
+        using var communicator = initialize(ref args);
+        if (args.Length < 1)
         {
-            if (args.Length < 1)
-            {
-                throw new ArgumentException("Usage: server testdir");
-            }
-
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            Ice.Identity id = Ice.Util.stringToIdentity("factory");
-            adapter.add(new ServerFactoryI(args[0] + "/../certs"), id);
-            adapter.activate();
-
-            communicator.waitForShutdown();
+            throw new ArgumentException("Usage: server testdir");
         }
+
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        Ice.Identity id = Ice.Util.stringToIdentity("factory");
+        adapter.add(new ServerFactoryI(args[0] + "/../certs"), id);
+        adapter.activate();
+
+        communicator.waitForShutdown();
     }
 
     public static Task<int> Main(string[] args) =>

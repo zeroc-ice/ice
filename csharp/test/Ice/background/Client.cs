@@ -34,14 +34,12 @@ public class Client : Test.TestHelper
         properties.setProperty("Ice.Default.Protocol",
                                "test-" + properties.getIceProperty("Ice.Default.Protocol"));
 
-        using (var communicator = initialize(properties))
-        {
-            PluginI plugin = new PluginI(communicator);
-            plugin.initialize();
-            communicator.getPluginManager().addPlugin("Test", plugin);
-            Test.BackgroundPrx background = await AllTests.allTests(this);
-            background.shutdown();
-        }
+        using var communicator = initialize(properties);
+        PluginI plugin = new PluginI(communicator);
+        plugin.initialize();
+        communicator.getPluginManager().addPlugin("Test", plugin);
+        Test.BackgroundPrx background = await AllTests.allTests(this);
+        background.shutdown();
     }
 
     public static Task<int> Main(string[] args) =>
