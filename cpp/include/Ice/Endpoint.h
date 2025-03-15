@@ -27,14 +27,24 @@ namespace Ice
     class ICE_API Endpoint
     {
     public:
+        /// Default constructor.
         Endpoint() = default;
+
+        /// Destructor.
         virtual ~Endpoint();
 
         Endpoint(const Endpoint&) = delete;
         Endpoint& operator=(const Endpoint&) = delete;
 
-        virtual bool operator==(const Endpoint&) const = 0;
-        virtual bool operator<(const Endpoint&) const = 0;
+        /// Operator equal to. Checks if this endpoint is equal to the @p rhs endpoint.
+        /// @param rhs The endpoint to compare against.
+        /// @return @c true if the endpoints are equal, @c false otherwise.
+        virtual bool operator==(const Endpoint& rhs) const = 0;
+
+        /// Operator less than. Checks if this endpoint is less than the @p rhs endpoint.
+        /// @param rhs The endpoint to compare against.
+        /// @return @c true if this endpoint is less than the @p rhs endpoint, @c false otherwise.
+        virtual bool operator<(const Endpoint& rhs) const = 0;
 
         /**
          * Return a string representation of the endpoint.
@@ -91,6 +101,7 @@ namespace Ice
         const bool compress;
 
     protected:
+        /// @private
         explicit EndpointInfo(EndpointInfoPtr underlyingInfo)
             : underlying(std::move(underlyingInfo)),
               timeout(underlying->timeout),
@@ -98,6 +109,7 @@ namespace Ice
         {
         }
 
+        /// @private
         EndpointInfo(int timeout, bool compress) : timeout(timeout), compress(compress) {}
     };
 
@@ -128,6 +140,7 @@ namespace Ice
         const std::string sourceAddress;
 
     protected:
+        /// @private
         IPEndpointInfo(int timeout, bool compress, std::string host, int port, std::string sourceAddress)
             : EndpointInfo{timeout, compress},
               host{std::move(host)},
@@ -153,6 +166,7 @@ namespace Ice
         [[nodiscard]] bool secure() const noexcept final { return _secure; }
 
         // internal constructor
+        /// @private
         TCPEndpointInfo(
             int timeout,
             bool compress,
@@ -197,6 +211,7 @@ namespace Ice
         [[nodiscard]] bool datagram() const noexcept final { return true; }
 
         // internal constructor
+        /// @private
         UDPEndpointInfo(
             bool compress,
             std::string host,
@@ -228,6 +243,7 @@ namespace Ice
         const std::string resource;
 
         // internal constructor
+        /// @private
         WSEndpointInfo(EndpointInfoPtr underlying, std::string resource)
             : EndpointInfo{std::move(underlying)},
               resource{std::move(resource)}
@@ -270,6 +286,7 @@ namespace Ice
         const std::string protocol;
 
         // internal constructor
+        /// @private
         IAPEndpointInfo(
             int timeout,
             bool compress,
@@ -318,6 +335,7 @@ namespace Ice
         const std::vector<std::byte> rawBytes;
 
         // internal constructor
+        /// @private
         OpaqueEndpointInfo(std::int16_t type, Ice::EncodingVersion rawEncoding, std::vector<std::byte> rawBytes)
             : EndpointInfo{-1, false},
               rawEncoding{rawEncoding},

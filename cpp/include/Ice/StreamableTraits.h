@@ -70,31 +70,35 @@ namespace Ice
         Class = 7
     };
 
-    /**
-     * Determines whether the provided type is a container. For now, the implementation only checks
-     * if there is a T::iterator typedef using SFINAE.
-     * \headerfile Ice/Ice.h
-     */
+    /// Determines whether the provided type is a container. The implementation checks if there is a @p T::iterator
+    /// typedef using SFINAE.
+    /// @tparam T The type to check
+    /// \headerfile Ice/Ice.h
     template<typename T> struct IsContainer
     {
+        /// @private
         template<typename C> static char test(typename C::iterator*) noexcept;
 
+        /// @private
         template<typename C> static long test(...) noexcept;
 
+        /// @c true when @p T is a container, otherwise @c false.
         static const bool value = sizeof(test<T>(nullptr)) == sizeof(char);
     };
 
-    /**
-     * Determines whether the provided type is a map. For now, the implementation only checks if there
-     * is a T::mapped_type typedef using SFINAE.
-     * \headerfile Ice/Ice.h
-     */
+    /// Determines whether the provided type is a map. The implementation checks if there is a @p T::mapped_type typedef
+    /// using SFINAE.
+    /// @tparam T The type to check
+    /// \headerfile Ice/Ice.h
     template<typename T> struct IsMap
     {
+        /// @private
         template<typename C> static char test(typename C::mapped_type*) noexcept;
 
+        /// @private
         template<typename C> static long test(...) noexcept;
 
+        /// @c true when @p T is a map, otherwise @c false.
         static const bool value = IsContainer<T>::value && sizeof(test<T>(nullptr)) == sizeof(char);
     };
 

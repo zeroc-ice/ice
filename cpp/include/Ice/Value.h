@@ -23,9 +23,11 @@ namespace Ice
     class ICE_API Value
     {
     public:
+        /// Default constructor.
+        Value() noexcept = default;
+
         // There is no copy constructor, move constructor, copy-assignment operator or move-assignment operator to
         // prevent accidental slicing.
-        Value() noexcept = default;
         Value(Value&&) = delete;
         virtual ~Value() = default;
 
@@ -80,7 +82,8 @@ namespace Ice
         /// @param os The output stream.
         virtual void ice_printFields(std::ostream& os) const;
 
-        /// \cond INTERNAL
+        /// @cond INTERNAL
+
         virtual void _iceWrite(Ice::OutputStream*) const;
         virtual void _iceRead(Ice::InputStream*);
 
@@ -98,7 +101,7 @@ namespace Ice
 
         virtual void _iceWriteImpl(Ice::OutputStream*) const {}
         virtual void _iceReadImpl(Ice::InputStream*) {}
-        /// \endcond
+        /// @endcond
 
     private:
         SlicedDataPtr _slicedData;

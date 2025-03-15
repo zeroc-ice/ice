@@ -18,14 +18,22 @@ namespace Ice
     public:
         MarshaledResult() = delete;
         MarshaledResult(const MarshaledResult&) = delete;
-        MarshaledResult(MarshaledResult&&) = default;
+
+        /// Move constructor. Constructs a MarshaledResult with the contents of @p other using move semantics.
+        /// @param other The result to move from.
+        MarshaledResult(MarshaledResult&& other) = default;
 
         virtual ~MarshaledResult();
 
         MarshaledResult& operator=(const MarshaledResult&) = delete;
-        MarshaledResult& operator=(MarshaledResult&&) = default;
 
-        /// \cond INTERNAL
+        /// Move assignment operator. Replaces the contents of this result with the contents of @p rhs using move
+        /// semantics.
+        /// @param rhs The result to move from.
+        /// @return A reference to this result.
+        MarshaledResult& operator=(MarshaledResult&& rhs) = default;
+
+        /// @cond INTERNAL
 
         OutputStream&& outputStream() && noexcept { return std::move(_ostr); }
 
@@ -38,7 +46,7 @@ namespace Ice
         /** The output stream used to marshal the results. */
         OutputStream _ostr;
 
-        /// \endcond
+        /// @endcond
     };
 }
 

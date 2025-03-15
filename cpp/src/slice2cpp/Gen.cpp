@@ -1562,13 +1562,13 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     // We can't use "= default" for the copy/move ctor/assignment operator as it's not correct with virtual inheritance.
 
     H << sp;
-    H << nl << "/// Copy constructor. Constructs with a copy of the contents of other.";
+    H << nl << "/// Copy constructor. Constructs with a copy of the contents of @p other.";
     H << nl << "/// @param other The proxy to copy from.";
     H << nl << prx << "(const " << prx << "& other) noexcept : Ice::ObjectPrx(other)";
     H << " {} // NOLINT(modernize-use-equals-default)";
 
     H << sp;
-    H << nl << "/// Move constructor. Constructs a proxy with the contents of other using move semantics.";
+    H << nl << "/// Move constructor. Constructs a proxy with the contents of @p other using move semantics.";
     H << nl << "/// @param other The proxy to move from.";
     H << nl << prx << "(" << prx << "&& other) noexcept : Ice::ObjectPrx(std::move(other))"
       << " {} // NOLINT(modernize-use-equals-default)";
@@ -1576,7 +1576,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << sp;
     H << nl << "/// Constructs a proxy from a communicator and a proxy string.";
     H << nl << "/// @param communicator The communicator of the new proxy.";
-    H << nl << "/// @param proxyString The proxy string.";
+    H << nl << "/// @param proxyString The proxy string to parse.";
     H << nl << prx << "(const Ice::CommunicatorPtr& communicator, std::string_view proxyString)"
       << " : Ice::ObjectPrx(communicator, proxyString) {} // NOLINT(modernize-use-equals-default)";
 
@@ -1586,8 +1586,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     C << nl << scopedPrx.substr(2) << "::~" << prx << "() = default;"; // avoid weak table
 
     H << sp;
-    H << nl << "/// Copy assignment operator. Replaces the contents of this proxy with a copy of the contents of rhs.";
+    H << nl
+      << "/// Copy assignment operator. Replaces the contents of this proxy with a copy of the contents of @p rhs.";
     H << nl << "/// @param rhs The proxy to copy from.";
+    H << nl << "/// @return A reference to this proxy.";
     H << nl << prx << "& operator=(const " << prx << "& rhs) noexcept";
     H << sb;
     // The self-assignment check is to make clang-tidy happy.
@@ -1600,7 +1602,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     H << sp;
     H << nl
-      << "/// Move assignment operator. Replaces the contents of this proxy with the contents of rhs using move "
+      << "/// Move assignment operator. Replaces the contents of this proxy with the contents of @p rhs using move "
          "semantics.";
     H << nl << "/// @param rhs The proxy to move from.";
     H << nl << prx << "& operator=(" << prx << "&& rhs) noexcept";
