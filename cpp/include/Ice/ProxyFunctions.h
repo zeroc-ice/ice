@@ -201,59 +201,6 @@ namespace Ice
      */
     ICE_API bool
     proxyIdentityAndFacetEqual(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) noexcept;
-
-    /**
-     * A functor that compares the object identities of two proxies. Evaluates true if the identity in lhs
-     * compares less than the identity in rhs, false otherwise.
-     * \headerfile Ice/Ice.h
-     */
-
-    struct ProxyIdentityLess
-    {
-        bool operator()(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) const noexcept
-        {
-            return proxyIdentityLess(lhs, rhs);
-        }
-    };
-
-    /**
-     * A functor that compares the object identities of two proxies. Evaluates true if the identity in lhs
-     * compares equal to the identity in rhs, false otherwise.
-     * \headerfile Ice/Ice.h
-     */
-    struct ProxyIdentityEqual
-    {
-        bool operator()(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) const noexcept
-        {
-            return proxyIdentityEqual(lhs, rhs);
-        }
-    };
-
-    /**
-     * A functor that compares the object identities and facets of two proxies. Evaluates true if the identity
-     * and facet in lhs compare less than the identity and facet in rhs, false otherwise.
-     * \headerfile Ice/Ice.h
-     */
-    struct ProxyIdentityAndFacetLess
-    {
-        bool operator()(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) const noexcept
-        {
-            return proxyIdentityAndFacetLess(lhs, rhs);
-        }
-    };
-
-    /**
-     * A functor that compares the object identities and facets of two proxies. Evaluates true if the identity
-     * and facet in lhs compare equal to the identity and facet in rhs, false otherwise.
-     * \headerfile Ice/Ice.h
-     */
-    struct ProxyIdentityAndFacetEqual
-    {
-        bool operator()(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) const noexcept
-        {
-            return proxyIdentityAndFacetEqual(lhs, rhs);
-        }
-    };
 }
 
 #endif

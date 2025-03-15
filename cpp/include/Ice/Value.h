@@ -23,9 +23,11 @@ namespace Ice
     class ICE_API Value
     {
     public:
+        /// Default constructor.
+        Value() noexcept = default;
+
         // There is no copy constructor, move constructor, copy-assignment operator or move-assignment operator to
         // prevent accidental slicing.
-        Value() noexcept = default;
         Value(Value&&) = delete;
         virtual ~Value() = default;
 
@@ -80,13 +82,12 @@ namespace Ice
         /// @param os The output stream.
         virtual void ice_printFields(std::ostream& os) const;
 
-        /// \cond STREAM
+        /// @cond INTERNAL
+
         virtual void _iceWrite(Ice::OutputStream*) const;
         virtual void _iceRead(Ice::InputStream*);
-        /// \endcond
 
     protected:
-        /// \cond INTERNAL
         Value(const Value&) = default; // for clone
 
         // Helper class that allows derived classes to clone "this" even though the copy constructor is protected.
@@ -97,12 +98,10 @@ namespace Ice
         };
 
         [[nodiscard]] virtual ValuePtr _iceCloneImpl() const;
-        /// \endcond
 
-        /// \cond STREAM
         virtual void _iceWriteImpl(Ice::OutputStream*) const {}
         virtual void _iceReadImpl(Ice::InputStream*) {}
-        /// \endcond
+        /// @endcond
 
     private:
         SlicedDataPtr _slicedData;

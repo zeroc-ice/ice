@@ -25,7 +25,10 @@ module Ice
     ["cpp:custom-print"]
     struct ProtocolVersion
     {
+        /// The major version of the Ice protocol.
         byte major;
+
+        /// The minor version of the Ice protocol.
         byte minor;
     }
 
@@ -33,7 +36,10 @@ module Ice
     ["cpp:custom-print"]
     struct EncodingVersion
     {
+        /// The major version of the Ice encoding.
         byte major;
+
+        /// The minor version of the Ice encoding.
         byte minor;
     }
 }

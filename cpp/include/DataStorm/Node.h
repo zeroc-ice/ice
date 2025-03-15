@@ -20,6 +20,8 @@ namespace DataStorm
     class DATASTORM_API NodeShutdownException final : public std::exception
     {
     public:
+        /// Gets the error message of this exception.
+        /// @return The error message.
         [[nodiscard]] const char* what() const noexcept final;
     };
 

@@ -30,9 +30,8 @@ namespace Ice
         /** Obtains the collected output. */
         [[nodiscard]] std::string str() const;
 
-        /// \cond INTERNAL
+        /// @private
         std::ostringstream& _stream(); // For internal use only. Don't use in your code.
-        /// \endcond
 
     private:
         std::ostringstream _os;
@@ -93,12 +92,14 @@ namespace Ice
     template<class L, class LPtr, void (L::*output)(const std::string&)> class LoggerOutput : public LoggerOutputBase
     {
     public:
-        inline LoggerOutput(LPtr lptr) : _logger(std::move(lptr)) {}
+        /// Constructs a LoggerOutput object with the given logger.
+        /// @param logger The logger or logger-like object to log to.
+        LoggerOutput(LPtr logger) : _logger(std::move(logger)) {}
 
-        inline ~LoggerOutput() { flush(); }
+        ~LoggerOutput() { flush(); }
 
         /** Flushes the colleted output to the logger method. */
-        inline void flush()
+        void flush()
         {
             std::string s = _stream().str();
             if (!s.empty())
@@ -129,8 +130,14 @@ namespace Ice
     class ICE_API Trace : public LoggerOutputBase
     {
     public:
-        Trace(LoggerPtr, std::string);
+        /// Constructs a Trace object with the given logger and category.
+        /// @param logger The logger to log to.
+        /// @param category The trace category.
+        Trace(LoggerPtr logger, std::string category);
+
         ~Trace();
+
+        /// Calls Logger#trace with the collected output.
         void flush();
 
     private:

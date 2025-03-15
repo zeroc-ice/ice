@@ -74,15 +74,7 @@ namespace Ice
         [[nodiscard]] const std::string& operation() const noexcept { return *_operation; }
 
     protected:
-        /**
-         * Constructs a RequestFailedException with a custom error message.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param replyStatus The reply status.
-         * @param id The identity of the Ice Object to which the request was sent.
-         * @param facet The facet to which the request was sent.
-         * @param operation The operation name of the request.
-         */
+        /// @cond INTERNAL
         RequestFailedException(
             const char* file,
             int line,
@@ -91,18 +83,12 @@ namespace Ice
             std::string facet,
             std::string operation);
 
-        /**
-         * Constructs a RequestFailedException without specifying the details of the current request. The details will
-         * be filled-in automatically by the Ice runtime before marshaling the exception.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param replyStatus The reply status.
-         */
         RequestFailedException(const char* file, int line, ReplyStatus replyStatus);
 
         RequestFailedException(const RequestFailedException&) noexcept = default;
         RequestFailedException& operator=(const RequestFailedException&) noexcept = default;
         ~RequestFailedException() override; // to avoid weak vtable
+        /// @endcond
 
     private:
         std::shared_ptr<Identity> _id;
@@ -286,6 +272,9 @@ namespace Ice
     class ICE_API CloseConnectionException final : public ProtocolException
     {
     public:
+        /// Constructs a CloseConnectionException.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
         CloseConnectionException(const char* file, int line)
             : ProtocolException(file, line, "connection closed by the peer")
         {
@@ -302,6 +291,9 @@ namespace Ice
     class ICE_API DatagramLimitException final : public ProtocolException
     {
     public:
+        /// Constructs a DatagramLimitException.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
         DatagramLimitException(const char* file, int line)
             : ProtocolException(file, line, "datagram size exceeds configured limit")
         {
@@ -407,7 +399,7 @@ namespace Ice
     class ICE_API SyscallException : public LocalException
     {
     public:
-        // The error code is a DWORD (unsigned long) on Windows and an int on other platforms.
+        /// The error code is a DWORD (unsigned long) on Windows and an int on other platforms.
 #ifdef _WIN32
         using ErrorCode = unsigned long;
 #else
@@ -651,6 +643,9 @@ namespace Ice
     class ICE_API CommunicatorDestroyedException final : public LocalException
     {
     public:
+        /// Constructs a CommunicatorDestroyedException.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
         CommunicatorDestroyedException(const char* file, int line)
             : LocalException(file, line, "the Ice communicator object is destroyed")
         {

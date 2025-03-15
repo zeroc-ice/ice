@@ -52,7 +52,8 @@ namespace Ice
     class ICE_API InputStream final : public IceInternal::Buffer
     {
     public:
-        using size_type = size_t;
+        /// The size type for the underlying byte buffer.
+        using size_type = std::size_t;
 
         /**
          * Signature for a patch function, used to receive an unmarshaled value.
@@ -851,6 +852,7 @@ namespace Ice
             using IndexToPtrMap = std::map<std::int32_t, ValuePtr>;
             using TypeIdMap = std::map<std::int32_t, std::string>;
 
+            /// @private
             struct PatchEntry
             {
                 PatchFunc patchFunc;

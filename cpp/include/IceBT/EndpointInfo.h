@@ -41,6 +41,7 @@ namespace IceBT
         const std::string uuid;
 
         // internal constructor
+        /// @private
         EndpointInfo(int timeout, bool compress, std::string addr, std::string uuid, std::int16_t type, bool secure)
             : Ice::EndpointInfo{timeout, compress},
               addr{std::move(addr)},

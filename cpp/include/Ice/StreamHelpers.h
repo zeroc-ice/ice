@@ -22,9 +22,10 @@
 
 namespace Ice
 {
-    /// \cond STREAM
-
     // StreamHelper templates used by streams to read, write and print data.
+
+    // TODO: temporary - we should document this code properly
+    /// @cond INTERNAL
 
     /// Prints a value with a pass-by-value type (such as bool, int32, or enum) to the stream.
     /// @tparam T The type of the value.
@@ -733,7 +734,7 @@ namespace Ice
         static void read(InputStream* istr, EncodingVersion& v) { istr->readAll(v.major, v.minor); }
     };
 
-    /// \endcond
+    /// @endcond
 }
 
 #endif

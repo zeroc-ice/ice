@@ -85,6 +85,8 @@ namespace Ice
     class ICE_API SlicedData final
     {
     public:
+        /// Constructs a SlicedData instance with the given slices.
+        /// @param slices The slices of the unknown class.
         SlicedData(SliceInfoSeq slices) noexcept;
 
         /** The slices of the unknown class. */

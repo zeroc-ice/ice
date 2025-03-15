@@ -591,7 +591,10 @@ namespace Ice
         CommunicatorHolder& operator=(CommunicatorPtr communicator);
 
         CommunicatorHolder(const CommunicatorHolder&) = delete;
-        CommunicatorHolder(CommunicatorHolder&&) = default;
+
+        /// Move constructor. Constructs a CommunicatorHolder with the contents of @p other using move semantics.
+        /// @param other The holder to move from.
+        CommunicatorHolder(CommunicatorHolder&& other) = default;
 
         /**
          * Adopts the communicator in the given holder. If this holder currently holds a communicator,

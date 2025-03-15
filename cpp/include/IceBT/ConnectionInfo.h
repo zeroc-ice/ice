@@ -63,6 +63,7 @@ namespace IceBT
         const int sndSize;
 
         // internal constructor
+        /// @private
         ConnectionInfo(
             bool incoming,
             std::string adapterName,
@@ -86,6 +87,7 @@ namespace IceBT
         }
 
         // internal constructor
+        /// @private
         ConnectionInfo(bool incoming, std::string adapterName, std::string connectionId)
             : ConnectionInfo{incoming, std::move(adapterName), std::move(connectionId), "", -1, "", -1, "", 0, 0}
         {

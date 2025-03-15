@@ -397,6 +397,7 @@ namespace Ice
          */
         FacetMap findAllAdminFacets();
 
+        /// @private
         void postToClientThreadPool(std::function<void()> call);
 
     private:
