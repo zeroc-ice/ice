@@ -19,6 +19,10 @@ jobs:
         working-directory: ./cpp
         run: ../scripts/generate-cpp-code-coverage.sh
 
+      - name: Install testing dependencies from pip
+        run: python3 -m pip install passlib cryptography numpy
+        shell: bash
+
       - name: Generate C++ Coverage Reports
         working-directory: ./cpp
         run: |
@@ -63,6 +67,10 @@ jobs:
       - name: Setup .NET
         uses: ./.github/actions/setup-dotnet
 
+      - name: Install testing dependencies from pip
+        run: python3 -m pip install passlib cryptography numpy
+        shell: bash
+
       - name: Build
         run: |
           make -C cpp srcs
@@ -105,6 +113,10 @@ jobs:
 
       - name: Setup Java
         uses: ./.github/actions/setup-java
+
+      - name: Install testing dependencies from pip
+        run: python3 -m pip install passlib cryptography numpy
+        shell: bash
 
       - name: Generate Java Coverage
         working-directory: ./java
