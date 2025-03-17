@@ -19,6 +19,7 @@
 
 [["java:package:com.zeroc"]]
 
+/// Full-featured RPC framework.
 module Ice
 {
     /// The identity of an Ice object. In a proxy, an empty {@link Identity#name} denotes a null proxy. An identity with

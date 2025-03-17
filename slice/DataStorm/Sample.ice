@@ -5,6 +5,7 @@
 [["cpp:dll-export:DATASTORM_API"]]
 [["cpp:doxygen:include:DataStorm/DataStorm.h"]]
 
+/// Data-centric, broker-less publish/subscribe framework. C++ only.
 module DataStorm
 {
     /// The sample event matches the operation used by the DataWriter to update the data element. It also provides
