@@ -135,9 +135,8 @@ final class CollocatedRequestHandler implements RequestHandler {
             }
 
             //
-            // This must be called within the synchronization to
-            // ensure completed(ex) can't be called concurrently if
-            // the request is canceled.
+            // This must be called within the synchronization to ensure completed(ex) can't be
+            // called concurrently if the request is canceled.
             //
             if (!outAsync.sent()) {
                 return true;
@@ -176,10 +175,9 @@ final class CollocatedRequestHandler implements RequestHandler {
         try {
             while (dispatchCount > 0) {
                 //
-                // Increase the direct count for the dispatch. We increase it again here for
-                // each dispatch. It's important for the direct count to be > 0 until the last
-                // collocated request response is sent to make sure the thread pool isn't
-                // destroyed before.
+                // Increase the direct count for the dispatch. We increase it again here for each
+                // dispatch. It's important for the direct count to be > 0 until the last collocated
+                // request response is sent to make sure the thread pool isn't destroyed before.
                 //
                 try {
                     _adapter.incDirectCount();
@@ -218,8 +216,7 @@ final class CollocatedRequestHandler implements RequestHandler {
             dispatchException(ex, requestId, false); // Fatal dispatch exception
         } catch (RuntimeException | Error ex) {
             // A runtime exception or an error was thrown outside of servant code (i.e., by Ice
-            // code).
-            // Note that this code does NOT send a response to the client.
+            // code). Note that this code does NOT send a response to the client.
             var uex = new UnknownException(ex);
             var sw = new java.io.StringWriter();
             var pw = new java.io.PrintWriter(sw);
@@ -265,9 +262,8 @@ final class CollocatedRequestHandler implements RequestHandler {
 
             if (outAsync != null) {
                 //
-                // If called from an AMD dispatch, invoke asynchronously
-                // the completion callback since this might be called from
-                // the user code.
+                // If called from an AMD dispatch, invoke asynchronously the completion callback
+                // since this might be called from the user code.
                 //
                 if (amd) {
                     outAsync.invokeCompletedAsync();
@@ -299,9 +295,8 @@ final class CollocatedRequestHandler implements RequestHandler {
 
         if (outAsync != null) {
             //
-            // If called from an AMD dispatch, invoke asynchronously
-            // the completion callback since this might be called from
-            // the user code.
+            // If called from an AMD dispatch, invoke asynchronously the completion callback since
+            // this might be called from the user code.
             //
             if (amd) {
                 outAsync.invokeCompletedAsync();
@@ -324,8 +319,8 @@ final class CollocatedRequestHandler implements RequestHandler {
 
     private int _requestId;
 
-    // A map of outstanding requests that can be canceled. A request
-    // can be canceled if it has an invocation timeout, or we support
+    // A map of outstanding requests that can be canceled. A request can be canceled if it has an
+    // invocation timeout, or we support
     // interrupts.
     private final java.util.Map<OutgoingAsyncBase, Integer> _sendAsyncRequests =
             new java.util.HashMap<>();

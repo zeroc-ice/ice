@@ -43,8 +43,8 @@ public class AllTests {
             allTestsWithController(helper, controller);
         } catch (Exception ex) {
             // Ensure the adapter is not in the holding state when an unexpected exception occurs to
-            // prevent the test
-            // from hanging on exit in case a connection which disables timeouts is still opened.
+            // prevent the test from hanging on exit in case a connection which disables timeouts is
+            // still opened.
             controller.resumeAdapter();
             throw ex;
         }

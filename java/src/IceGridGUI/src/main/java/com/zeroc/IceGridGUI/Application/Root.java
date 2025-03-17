@@ -436,8 +436,8 @@ public class Root extends ListTreeNode {
                                             });
                                     asyncRelease = true;
 
-                                    // If the update fails, we know we can't get other updates
-                                    // since we have exclusive write access
+                                    // If the update fails, we know we can't get other updates since
+                                    // we have exclusive write access
                                     _skipUpdates++;
                                 } else {
                                     final String prefix =
@@ -1183,8 +1183,8 @@ public class Root extends ListTreeNode {
     }
 
     boolean pasteIceBox(IceBoxDescriptor ibd) {
-        // During paste, check that all service instances refer to existing services,
-        // and remove any extra template parameters
+        // During paste, check that all service instances refer to existing services, and remove any
+        // extra template parameters
         for (ServiceInstanceDescriptor p : ibd.services) {
             if (p.template.length() > 0) {
                 TemplateDescriptor td = findServiceTemplateDescriptor(p.template);
@@ -1254,8 +1254,7 @@ public class Root extends ListTreeNode {
 
     private boolean _discardMe = false;
 
-    // True when any update was applied to this application
-    // (including children)
+    // True when any update was applied to this application (including children)
     private boolean _updated = false;
 
     // Updates saved when _updated == false and

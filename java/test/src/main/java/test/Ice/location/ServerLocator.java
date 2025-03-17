@@ -27,8 +27,8 @@ public class ServerLocator implements TestLocator {
             return CompletableFuture.completedFuture(_registry.getAdapter("TestAdapter"));
         }
 
-        // We add a small delay to make sure locator request queuing gets tested when
-        // running the test on a fast machine
+        // We add a small delay to make sure locator request queuing gets tested when running the
+        // test on a fast machine
         try {
             Thread.sleep(1);
         } catch (InterruptedException ex) {
@@ -41,8 +41,8 @@ public class ServerLocator implements TestLocator {
             com.zeroc.Ice.Identity id, com.zeroc.Ice.Current current)
             throws com.zeroc.Ice.ObjectNotFoundException {
         ++_requestCount;
-        // We add a small delay to make sure locator request queuing gets tested when
-        // running the test on a fast machine
+        // We add a small delay to make sure locator request queuing gets tested when running the
+        // test on a fast machine
         try {
             Thread.sleep(1);
         } catch (InterruptedException ex) {

@@ -262,8 +262,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
     public final void invokeCompletedAsync() {
         //
         // CommunicatorDestroyedException is the only exception that can propagate directly from
-        // this
-        // method.
+        // this method.
         //
         _instance
                 .clientThreadPool()
@@ -312,10 +311,9 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
                 _doneInSent = true;
 
                 //
-                // For oneway requests after the data has been sent
-                // the buffers can be reused unless this is a
-                // collocated invocation. For collocated invocations
-                // the buffer won't be reused because it has already
+                // For oneway requests after the data has been sent the buffers can be reused unless
+                // this is a collocated invocation. For collocated invocations the buffer won't be
+                // reused because it has already
                 // been marked as cached in invokeCollocated.
                 //
                 cacheMessageBuffers();
@@ -396,9 +394,9 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
 
     public final void invokeSentAsync() {
         //
-        // This is called when it's not safe to call the sent callback
-        // synchronously from this thread. Instead the future is completed
-        // asynchronously from a client in the client thread pool.
+        // This is called when it's not safe to call the sent callback synchronously from this
+        // thread. Instead the future is completed asynchronously from a client in the client thread
+        // pool.
         //
         dispatch(() -> invokeSent());
     }

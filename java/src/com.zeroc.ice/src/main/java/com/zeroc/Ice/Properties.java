@@ -808,9 +808,8 @@ public final class Properties {
         for (Property prop : propertyArray.properties()) {
             String pattern = prop.pattern();
             // If the key is an exact match, return the property unless it has a property class
-            // which is prefix only.
-            // If the key is a regex match, return the property. A property cannot have a property
-            // class and use regex.
+            // which is prefix only. If the key is a regex match, return the property. A property
+            // cannot have a property class and use regex.
             if (key.equals(pattern)) {
                 if (prop.propertyArray() != null && prop.propertyArray().prefixOnly()) {
                     return null;
@@ -824,16 +823,15 @@ public final class Properties {
             if (prop.propertyArray() != null) {
                 // Check if the key is a prefix of the property.
                 // The key must be:
-                // - shorter than the property pattern
-                // - the property pattern must start with the key
+                //  - shorter than the property pattern
+                //  - the property pattern must start with the key
                 // - the pattern character after the key must be a dot
                 if (key.length() > pattern.length()
                         && key.startsWith(pattern)
                         && key.charAt(pattern.length()) == '.') {
                     String substring = key.substring(pattern.length() + 1);
                     // Check if the suffix is a valid property. If so, return it. If it's not,
-                    // continue searching
-                    // the current property array.
+                    // continue searching the current property array.
                     Property foundProp = findProperty(substring, prop.propertyArray());
                     if (foundProp != null) {
                         return foundProp;

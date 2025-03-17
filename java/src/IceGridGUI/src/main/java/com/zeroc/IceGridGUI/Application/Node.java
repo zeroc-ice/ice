@@ -393,8 +393,8 @@ class Node extends TreeNode implements PropertySetParent {
         java.util.List<Server> servers;
     }
 
-    // Try to rebuild this node; returns a backup object if rollback is later necessary
-    // We don't rebuild the property sets since they don't depend on the variables.
+    // Try to rebuild this node; returns a backup object if rollback is later necessary We don't
+    // rebuild the property sets since they don't depend on the variables.
     Backup rebuild(java.util.List<Editable> editables) throws UpdateFailedException {
         Root root = getRoot();
         Backup backup = new Backup();

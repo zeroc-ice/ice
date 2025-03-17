@@ -19,8 +19,8 @@ final class LocatorInfo {
                 if (_ref.isWellKnown()
                         && !Protocol.isSupported(_ref.getEncoding(), r.getEncoding())) {
                     //
-                    // If a well-known proxy and the returned proxy
-                    // encoding isn't supported, we're done: there's
+                    // If a well-known proxy and the returned proxy encoding isn't supported, we're
+                    // done: there's
                     // no compatible endpoint we can use.
                     //
                 } else if (!r.isIndirect()) {
@@ -578,8 +578,7 @@ final class LocatorInfo {
                 // Cache the well-known object reference.
                 _table.addObjectReference(ref.getIdentity(), ((_ObjectPrxI) proxy)._getReference());
             } else if (notRegistered) {
-                // If the well-known object isn't registered anymore, remove it from
-                // the cache.
+                // If the well-known object isn't registered anymore, remove it from the cache.
                 _table.removeObjectReference(ref.getIdentity());
             }
 

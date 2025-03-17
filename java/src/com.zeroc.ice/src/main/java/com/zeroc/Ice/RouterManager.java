@@ -13,8 +13,8 @@ final class RouterManager {
     }
 
     //
-    // Returns router info for a given router. Automatically creates
-    // the router info if it doesn't exist yet.
+    // Returns router info for a given router. Automatically creates the router info if it doesn't
+    // exist yet.
     //
     public RouterInfo get(RouterPrx router) {
         if (router == null) {

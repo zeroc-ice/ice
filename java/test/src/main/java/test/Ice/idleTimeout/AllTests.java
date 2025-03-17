@@ -37,13 +37,10 @@ public class AllTests {
     }
 
     // The client and server have the same idle timeout (1s) and both side enable the idle check
-    // (the
-    // default). We verify that the server's idle check does not abort the connection as long as
-    // this
-    // connection receives heartbeats, even when the heartbeats are not read off the connection in a
-    // timely manner.
-    // To verify this situation, we use an OA with a MaxDispatches = 1 to back-pressure the
-    // connection.
+    // (the default). We verify that the server's idle check does not abort the connection as long
+    // as this connection receives heartbeats, even when the heartbeats are not read off the
+    // connection in a timely manner. To verify this situation, we use an OA with a MaxDispatches =
+    // 1 to back-pressure the connection.
     private static void testIdleCheckDoesNotAbortBackPressuredConnection(
             TestIntfPrx p, PrintWriter output) {
         output.write("testing that the idle check does not abort a back-pressured connection... ");
@@ -85,8 +82,7 @@ public class AllTests {
             test(connection != null);
 
             // The idle check on the server side aborts the connection because it doesn't get a
-            // heartbeat
-            // in a timely fashion.
+            // heartbeat in a timely fashion.
             try {
                 p.sleep(2000); // the implementation in the server sleeps for 2,000ms
                 test(false); // we expect the server to abort the connection after about 1 second.

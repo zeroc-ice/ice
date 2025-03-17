@@ -125,8 +125,8 @@ public class TestI implements TestIntf {
 
     @Override
     public void closeConnection(com.zeroc.Ice.Current current) {
-        // We can't wait for the connection to be closed - this would cause a self dead-lock.
-        // So instead we just initiate the closure in the background.
+        // We can't wait for the connection to be closed - this would cause a self dead-lock. So
+        // instead we just initiate the closure in the background.
         CompletableFuture.runAsync(
                 () -> {
                     try {

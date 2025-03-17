@@ -34,9 +34,9 @@ class EndpointHostResolver {
             final IPEndpointI endpoint,
             final EndpointI_connectors callback) {
         //
-        // TODO: Optimize to avoid the lookup if the given host is a textual IPv4 or IPv6
-        // address. This requires implementing parsing of IPv4/IPv6 addresses (Java does
-        // not provide such methods).
+        // TODO: Optimize to avoid the lookup if the given host is a textual IPv4 or IPv6 address.
+        // This requires implementing parsing of IPv4/IPv6 addresses (Java does not provide such
+        // methods).
         //
 
         assert (!_destroyed);
@@ -117,8 +117,7 @@ class EndpointHostResolver {
             _destroyed = true;
 
             //
-            // Shutdown the executor. No new tasks will be accepted.
-            // Existing tasks will execute.
+            // Shutdown the executor. No new tasks will be accepted. Existing tasks will execute.
             //
             _executor.shutdown();
         }

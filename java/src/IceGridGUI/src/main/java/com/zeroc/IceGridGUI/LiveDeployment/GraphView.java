@@ -703,8 +703,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         // Reset the cell field necessary to avoid bogus calculations.
         row.cell.resetField();
 
-        // We need also a new click handler so click works in all segments
-        // of the line.
+        // We need also a new click handler so click works in all segments of the line.
         //
         // When a line is clicked we select the corresponding row in the legend table.
         javafx.scene.Node n = _chart.lookup(".chart-series-line." + styleClass);
@@ -750,8 +749,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                         }
 
                         // Iterate over all configured values, if there isn't data for one
-                        // configured
-                        // field we need to add a gap.
+                        // configured field we need to add a gap.
                         for (Map.Entry<String, Map<String, MetricsRow>> j :
                                 i.getValue().entrySet()) {
                             com.zeroc.Ice.IceMX.Metrics metrics = null;
@@ -770,15 +768,13 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                 // dummy value.
                                 if (metrics == null) {
                                     // If the row isn't disabled we add a new series to represent
-                                    // the gap
-                                    // and mark the row as disabled.
+                                    // the gap and mark the row as disabled.
                                     if (!row.disabled) {
                                         row.series.push(new XYChart.Series<Number, Number>());
                                         row.disabled = true;
                                     }
                                     // This dummy value is added to represent gap sizes, but isn't
-                                    // displayed
-                                    // as the series isn't added to the graph.
+                                    // displayed as the series isn't added to the graph.
                                     row.series
                                             .peek()
                                             .getData()
@@ -792,9 +788,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
                                         Number value = row.cell.getValue(metrics, timestamp);
                                         // The cell returns null to indicate the value must be
-                                        // skipped,
-                                        // this is usually because it needs two values to calculate
-                                        // the average.
+                                        // skipped, this is usually because it needs two values to
+                                        // calculate the average.
                                         if (value == null) {
                                             continue;
                                         }
@@ -811,8 +806,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                 }
 
                                 // Remove the vertices from the beginning of the series that
-                                // exceeded
-                                // the maximum number of samples.
+                                // exceeded the maximum number of samples.
                                 adjustSize(row);
                             }
                         }

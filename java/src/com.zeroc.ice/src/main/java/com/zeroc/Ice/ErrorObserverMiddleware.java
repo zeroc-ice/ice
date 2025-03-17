@@ -53,8 +53,8 @@ public final class ErrorObserverMiddleware implements Object {
                                 }
 
                                 // exception is a Throwable that is not an Error or a
-                                // RuntimeException. We can't
-                                // throw it so we marshal this exception into a response.
+                                // RuntimeException. We can't throw it so we marshal this exception
+                                // into a response.
                                 return request.current.createOutgoingResponse(exception);
                             });
         } catch (Error error) {

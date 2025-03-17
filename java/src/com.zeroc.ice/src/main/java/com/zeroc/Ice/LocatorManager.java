@@ -60,8 +60,8 @@ final class LocatorManager {
     }
 
     //
-    // Returns locator info for a given locator. Automatically creates
-    // the locator info if it doesn't exist yet.
+    // Returns locator info for a given locator. Automatically creates the locator info if it
+    // doesn't exist yet.
     //
     public LocatorInfo get(LocatorPrx loc) {
         if (loc == null) {
@@ -81,9 +81,8 @@ final class LocatorManager {
             LocatorInfo info = _table.get(locator);
             if (info == null) {
                 //
-                // Rely on locator identity for the adapter table. We want to
-                // have only one table per locator (not one per locator
-                // proxy).
+                // Rely on locator identity for the adapter table. We want to have only one table
+                // per locator (not one per locator proxy).
                 //
                 LocatorTable table = _locatorTables.get(_lookupKey.set(locator));
                 if (table == null) {

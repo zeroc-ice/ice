@@ -43,8 +43,7 @@ final class ServantManager implements Object {
             } finally {
                 if (skipEncapsulation) {
                     // Skip the encapsulation on exception. This allows the next batch requests in
-                    // the same
-                    // InputStream to proceed.
+                    // the same InputStream to proceed.
                     request.inputStream.skipEncapsulation();
                 }
             }

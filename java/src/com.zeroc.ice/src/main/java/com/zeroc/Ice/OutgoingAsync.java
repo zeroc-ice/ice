@@ -204,8 +204,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
     public final boolean completed(InputStream is) {
         //
         // NOTE: this method is called from ConnectionI.parseMessage
-        // with the connection locked. Therefore, it must not invoke
-        // any user callbacks.
+        // with the connection locked. Therefore, it must not invoke any user callbacks.
         //
 
         // _is can already be initialized if the invocation is retried

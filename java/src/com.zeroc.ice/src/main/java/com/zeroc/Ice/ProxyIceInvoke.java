@@ -63,8 +63,7 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
     @Override
     public int invokeCollocated(CollocatedRequestHandler handler) {
         // The stream cannot be cached if the proxy is not a twoway or there is an invocation
-        // timeout
-        // set.
+        // timeout set.
         if (!_proxy.ice_isTwoway()
                 || _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
             // Disable caching by marking the streams as cached!

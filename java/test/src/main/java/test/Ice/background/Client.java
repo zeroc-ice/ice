@@ -19,8 +19,8 @@ public class Client extends test.TestHelper {
         properties.setProperty("Ice.Warn.Connections", "0");
 
         //
-        // This test relies on filling the TCP send/recv buffer, so
-        // we rely on a fixed value for these buffers.
+        // This test relies on filling the TCP send/recv buffer, so we rely on a fixed value for
+        // these buffers.
         //
         properties.setProperty("Ice.TCP.SndSize", "50000");
 

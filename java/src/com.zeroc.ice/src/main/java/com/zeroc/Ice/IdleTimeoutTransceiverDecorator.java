@@ -7,8 +7,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 // Decorates Transceiver to send heartbeats and optionally detect when no byte is received/read for
-// a while.
-// This decorator must not be applied on UDP connections.
+// a while. This decorator must not be applied on UDP connections.
 final class IdleTimeoutTransceiverDecorator implements Transceiver {
     private final Transceiver _decoratee;
     private final int _idleTimeout;

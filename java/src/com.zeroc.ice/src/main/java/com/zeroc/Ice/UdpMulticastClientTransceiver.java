@@ -165,8 +165,8 @@ final class UdpMulticastClientTransceiver implements Transceiver {
     @Override
     public synchronized void checkSendSize(Buffer buf) {
         //
-        // The maximum packetSize is either the maximum allowable UDP packet size, or
-        // the UDP send buffer size (whichever is smaller).
+        // The maximum packetSize is either the maximum allowable UDP packet size, or the UDP send
+        // buffer size (whichever is smaller).
         //
         final int packetSize = java.lang.Math.min(_maxPacketSize, _size - _udpOverhead);
         if (packetSize < buf.size()) {
@@ -279,8 +279,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
         try {
             //
             // Try to set the buffer size. The kernel will silently adjust the size to an acceptable
-            // value.
-            // Then read the size back to get the size that was actually set.
+            // value. Then read the size back to get the size that was actually set.
             //
             _socket.setSendBufferSize(_newSize);
             _size = _socket.getSendBufferSize();
@@ -403,9 +402,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
 
     //
     // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for
-    // the
-    // UDP header
-    // to get the maximum payload.
+    // the UDP header to get the maximum payload.
     //
     private static final int _udpOverhead = 20 + 8;
     private static final int _maxPacketSize = 65535 - _udpOverhead;

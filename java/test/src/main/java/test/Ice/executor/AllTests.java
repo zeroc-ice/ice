@@ -208,8 +208,8 @@ public class AllTests {
                 cb.check();
             }
 
-            // Hold adapter to make sure the invocations don't complete synchronously
-            // Also disable collocation optimization on p
+            // Hold adapter to make sure the invocations don't complete synchronously. Also disable
+            // collocation optimization on p.
             //
             testController.holdAdapter();
             p = p.ice_collocationOptimized(false);

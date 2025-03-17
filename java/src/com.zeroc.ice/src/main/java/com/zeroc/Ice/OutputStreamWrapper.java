@@ -109,8 +109,8 @@ class OutputStreamWrapper extends java.io.OutputStream {
     @Override
     public void flush() throws IOException {
         // This does nothing because we do not know the final size of a writable stream until it is
-        // closed,
-        // and we cannot write to the stream until we know whether the final size is < 255 or not.
+        // closed, and we cannot write to the stream until we know whether the final size is < 255
+        // or not.
     }
 
     @Override

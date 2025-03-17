@@ -131,8 +131,8 @@ public final class Instance implements java.util.function.Function<String, Class
 
     public InitializationData initializationData() {
         //
-        // No check for destruction. It must be possible to access the
-        // initialization data after destruction.
+        // No check for destruction. It must be possible to access the initialization data after
+        // destruction.
         //
         // No mutex lock, immutable.
         //
@@ -546,14 +546,11 @@ public final class Instance implements java.util.function.Function<String, Class
         //
         // 1. Convert the Slice type ID into a classname (e.g., ::M::X becomes M.X).
         // 2. Check if the application has defined any package prefixes for the top-level module
-        // (e.g.:
-        // "M").
-        //    Attempt to resolve the <package-prefix>+<class-name> in order trying each defined
-        // package
-        //    prefix.
+        // (e.g.: "M").    Attempt to resolve the <package-prefix>+<class-name> in order trying each
+        // defined package    prefix.
         // 3. If the above step fails, it checks the value of Default.Package property. If found,
-        //    prepend its value to the classname. Otherwise, attempt to use the
-        //    classname directly.
+        //    prepend its value to the classname. Otherwise, attempt to use the    classname
+        // directly.
         //
         String fullyQualifiedClassName;
 
@@ -687,8 +684,8 @@ public final class Instance implements java.util.function.Function<String, Class
 
                     if (!stdOut.isEmpty()) {
                         //
-                        // We need to close the existing stdout for JVM thread dump to go
-                        // to the new file
+                        // We need to close the existing stdout for JVM thread dump to go to the new
+                        // file
                         //
                         System.out.close();
 
@@ -1035,8 +1032,8 @@ public final class Instance implements java.util.function.Function<String, Class
         _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
 
         //
-        // The default router/locator may have been set during the loading of plugins.
-        // Therefore we make sure it is not already set before checking the property.
+        // The default router/locator may have been set during the loading of plugins. Therefore we
+        // make sure it is not already set before checking the property.
         //
         if (_referenceFactory.getDefaultRouter() == null) {
             RouterPrx router =
@@ -1110,8 +1107,8 @@ public final class Instance implements java.util.function.Function<String, Class
 
         try {
             //
-            // Shutdown and destroy all the incoming and outgoing Ice
-            // connections and wait for the connections to be finished.
+            // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the
+            // connections to be finished.
             //
             if (_objectAdapterFactory != null) {
                 _objectAdapterFactory.shutdown();
@@ -1143,9 +1140,9 @@ public final class Instance implements java.util.function.Function<String, Class
             }
 
             //
-            // Now, destroy the thread pools. This must be done *only* after
-            // all the connections are finished (the connections destruction
-            // can require invoking callbacks with the thread pools).
+            // Now, destroy the thread pools. This must be done *only* after all the connections are
+            // finished (the connections destruction can require invoking callbacks with the thread
+            // pools).
             //
             if (_serverThreadPool != null) {
                 _serverThreadPool.destroy();
@@ -1187,8 +1184,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
             //
             // NOTE: at this point destroy() can't be interrupted
-            // anymore. The calls below are therefore guaranteed to be
-            // called once.
+            // anymore. The calls below are therefore guaranteed to be called once.
             //
             if (_routerManager != null) {
                 _routerManager.destroy();

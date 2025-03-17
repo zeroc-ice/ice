@@ -84,9 +84,8 @@ class MetricsView extends TreeNode {
                                                                     .getLastSelectedPathComponent()
                                                             == MetricsView.this) {
                                                         // If the metrics view is selected when
-                                                        // enabled success,
-                                                        // we must start the refresh thread to pull
-                                                        // updates.
+                                                        // enabled success, we must start the
+                                                        // refresh thread to pull updates.
                                                         MetricsViewEditor.startRefresh(
                                                                 MetricsView.this);
                                                     }
