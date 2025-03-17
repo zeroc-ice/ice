@@ -40,6 +40,9 @@ ifneq ($(OPTIMIZE),yes)
 python_cppflags         := $(filter-out -O% -DNDEBUG -Wp$(comma)-D_FORTIFY_SOURCE=%,$(python_cppflags))
 endif
 
+# Disable the warning about missing field initializers
+python_cppflags         := $(python_cppflags) -Wno-missing-field-initializers
+
 #
 # Python installation directory
 #
