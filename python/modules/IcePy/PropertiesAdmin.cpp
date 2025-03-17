@@ -36,10 +36,15 @@ nativePropertiesAdminDealloc(NativePropertiesAdminObject* self)
 extern "C" PyObject*
 nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* args)
 {
-    PyObject* callbackType{lookupType("Ice.PropertiesAdminUpdateCallback")};
     PyObject* callback{nullptr};
-    if (!PyArg_ParseTuple(args, "O!", callbackType, &callback))
+    if (!PyArg_ParseTuple(args, "O", &callback))
     {
+        return nullptr;
+    }
+
+    if (!PyCallable_Check(callback))
+    {
+        PyErr_SetString(PyExc_TypeError, "Expected a callable object");
         return nullptr;
     }
 
@@ -64,7 +69,9 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
                         }
                     }
 
-                    PyObjectHandle obj{PyObject_CallMethod(callback, "updated", "O", result.get())};
+                    PyObjectHandle args{PyTuple_New(1)};
+                    PyTuple_SetItem(args.get(), 0, result.release());
+                    PyObjectHandle obj{PyObject_Call(callback, args.get(), nullptr)};
                     if (!obj.get())
                     {
                         assert(PyErr_Occurred());
@@ -81,9 +88,8 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
 extern "C" PyObject*
 nativePropertiesAdminRemoveUpdateCB(NativePropertiesAdminObject* self, PyObject* args)
 {
-    PyObject* callbackType{lookupType("Ice.PropertiesAdminUpdateCallback")};
     PyObject* callback{nullptr};
-    if (!PyArg_ParseTuple(args, "O!", callbackType, &callback))
+    if (!PyArg_ParseTuple(args, "O", &callback))
     {
         return nullptr;
     }
