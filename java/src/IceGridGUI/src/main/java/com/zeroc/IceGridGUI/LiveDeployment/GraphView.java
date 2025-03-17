@@ -1151,8 +1151,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     row.cell.setScaleFactor(((Double) value).doubleValue());
                 } else if (_columnNames[columnIndex].equals("Color")) {
                     Color color = (Color) value;
-                    // Convert color to the CSS representation used by JavaFX style. example:
-                    // #ff00aa
+                    // Convert color to the CSS representation used by JavaFX style.
+                    // example: #ff00aa
                     row.color =
                             "#"
                                     + String.format("%02X", color.getRed())
