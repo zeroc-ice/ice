@@ -34,7 +34,7 @@ IcePy::ValueFactoryManager::create()
     // Create a Python wrapper around this object. Note that this is cyclic - we clear the
     // reference in destroy().
     //
-    ValueFactoryManagerObject* obj =
+    auto* obj =
         reinterpret_cast<ValueFactoryManagerObject*>(ValueFactoryManagerType.tp_alloc(&ValueFactoryManagerType, 0));
     assert(obj);
 
@@ -61,7 +61,7 @@ IcePy::ValueFactoryManager::find(string_view typeId) const noexcept
 {
     ValueFactoryPtr factory;
     {
-        CustomFactoryMap::const_iterator p = _customFactories.find(typeId);
+        auto p = _customFactories.find(typeId);
         if (p != _customFactories.end())
         {
             factory = p->second;
@@ -104,7 +104,7 @@ IcePy::ValueFactoryManager::findValueFactory(string_view id) const
 {
     // Called from the Python thread, no need to lock.
 
-    CustomFactoryMap::const_iterator p = _customFactories.find(id);
+    auto p = _customFactories.find(id);
     if (p != _customFactories.end())
     {
         return p->second->getValueFactory();
@@ -198,7 +198,7 @@ IcePy::DefaultValueFactory::create(std::string_view id)
     //
     // Instantiate the object.
     //
-    PyTypeObject* type = reinterpret_cast<PyTypeObject*>(info->pythonType);
+    auto* type = reinterpret_cast<PyTypeObject*>(info->pythonType);
     PyObjectHandle emptyArgs{PyTuple_New(0)};
     PyObjectHandle obj{type->tp_new(type, emptyArgs.get(), nullptr)};
     if (!obj.get())
@@ -277,55 +277,22 @@ valueFactoryManagerFind(ValueFactoryManagerObject* self, PyObject* args)
 static PyMethodDef ValueFactoryManagerMethods[] = {
     {"add", reinterpret_cast<PyCFunction>(valueFactoryManagerAdd), METH_VARARGS, PyDoc_STR("add(factory, id) -> None")},
     {"find", reinterpret_cast<PyCFunction>(valueFactoryManagerFind), METH_VARARGS, PyDoc_STR("find(id) -> function")},
-    {0, 0} /* sentinel */
+    {nullptr, nullptr} /* sentinel */
 };
 
 namespace IcePy
 {
+    // clang-format off
     PyTypeObject ValueFactoryManagerType = {
-        /* The ob_type field must be initialized in the module init function
-         * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.ValueFactoryManager", /* tp_name */
-        sizeof(ValueFactoryManagerObject),                       /* tp_basicsize */
-        0,                                                       /* tp_itemsize */
-        /* methods */
-        reinterpret_cast<destructor>(valueFactoryManagerDealloc), /* tp_dealloc */
-        0,                                                        /* tp_print */
-        0,                                                        /* tp_getattr */
-        0,                                                        /* tp_setattr */
-        0,                                                        /* tp_reserved */
-        0,                                                        /* tp_repr */
-        0,                                                        /* tp_as_number */
-        0,                                                        /* tp_as_sequence */
-        0,                                                        /* tp_as_mapping */
-        0,                                                        /* tp_hash */
-        0,                                                        /* tp_call */
-        0,                                                        /* tp_str */
-        0,                                                        /* tp_getattro */
-        0,                                                        /* tp_setattro */
-        0,                                                        /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT,                                       /* tp_flags */
-        0,                                                        /* tp_doc */
-        0,                                                        /* tp_traverse */
-        0,                                                        /* tp_clear */
-        0,                                                        /* tp_richcompare */
-        0,                                                        /* tp_weaklistoffset */
-        0,                                                        /* tp_iter */
-        0,                                                        /* tp_iternext */
-        ValueFactoryManagerMethods,                               /* tp_methods */
-        0,                                                        /* tp_members */
-        0,                                                        /* tp_getset */
-        0,                                                        /* tp_base */
-        0,                                                        /* tp_dict */
-        0,                                                        /* tp_descr_get */
-        0,                                                        /* tp_descr_set */
-        0,                                                        /* tp_dictoffset */
-        0,                                                        /* tp_init */
-        0,                                                        /* tp_alloc */
-        reinterpret_cast<newfunc>(valueFactoryManagerNew),        /* tp_new */
-        0,                                                        /* tp_free */
-        0,                                                        /* tp_is_gc */
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
+        .tp_name = "IcePy.ValueFactoryManager",
+        .tp_basicsize = sizeof(ValueFactoryManagerObject),
+        .tp_dealloc = reinterpret_cast<destructor>(valueFactoryManagerDealloc),
+        .tp_flags = Py_TPFLAGS_DEFAULT,
+        .tp_methods = ValueFactoryManagerMethods,
+        .tp_new = reinterpret_cast<newfunc>(valueFactoryManagerNew),
     };
+    // clang-format on
 }
 
 bool
@@ -335,8 +302,8 @@ IcePy::initValueFactoryManager(PyObject* module)
     {
         return false;
     }
-    PyTypeObject* type = &ValueFactoryManagerType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, "ValueFactoryManager", reinterpret_cast<PyObject*>(type)) < 0)
+
+    if (PyModule_AddObject(module, "ValueFactoryManager", reinterpret_cast<PyObject*>(&ValueFactoryManagerType)) < 0)
     {
         return false;
     }

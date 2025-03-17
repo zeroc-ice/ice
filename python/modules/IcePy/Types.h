@@ -71,7 +71,7 @@ namespace IcePy
     class ReadValueCallback
     {
     public:
-        ReadValueCallback(const ValueInfoPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
+        ReadValueCallback(ValueInfoPtr, UnmarshalCallbackPtr, PyObject*, void*);
         ~ReadValueCallback();
 
         void invoke(const std::shared_ptr<Ice::Value>&);
@@ -132,15 +132,15 @@ namespace IcePy
     {
     public:
         TypeInfo();
-        virtual std::string getId() const = 0;
+        [[nodiscard]] virtual std::string getId() const = 0;
 
         virtual bool validate(PyObject*) = 0;
 
-        virtual bool variableLength() const = 0;
-        virtual int wireSize() const = 0;
-        virtual Ice::OptionalFormat optionalFormat() const = 0;
+        [[nodiscard]] virtual bool variableLength() const = 0;
+        [[nodiscard]] virtual int wireSize() const = 0;
+        [[nodiscard]] virtual Ice::OptionalFormat optionalFormat() const = 0;
 
-        virtual bool usesClasses() const; // Default implementation returns false.
+        [[nodiscard]] virtual bool usesClasses() const; // Default implementation returns false.
 
         void unmarshaled(PyObject*, PyObject*, void*) override; // Default implementation is assert(false).
 
@@ -182,13 +182,13 @@ namespace IcePy
 
         PrimitiveInfo(Kind);
 
-        std::string getId() const final;
+        [[nodiscard]] std::string getId() const final;
 
         bool validate(PyObject*) final;
 
-        bool variableLength() const final;
-        int wireSize() const final;
-        Ice::OptionalFormat optionalFormat() const final;
+        [[nodiscard]] bool variableLength() const final;
+        [[nodiscard]] int wireSize() const final;
+        [[nodiscard]] Ice::OptionalFormat optionalFormat() const final;
 
         void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) final;
         void unmarshal(
@@ -215,13 +215,13 @@ namespace IcePy
     public:
         EnumInfo(std::string, PyObject*, PyObject*);
 
-        std::string getId() const final;
+        [[nodiscard]] std::string getId() const final;
 
         bool validate(PyObject*) final;
 
-        bool variableLength() const final;
-        int wireSize() const final;
-        Ice::OptionalFormat optionalFormat() const final;
+        [[nodiscard]] bool variableLength() const final;
+        [[nodiscard]] int wireSize() const final;
+        [[nodiscard]] Ice::OptionalFormat optionalFormat() const final;
 
         void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) final;
         void unmarshal(
@@ -237,11 +237,11 @@ namespace IcePy
         void destroy() final;
 
         std::int32_t valueForEnumerator(PyObject*) const;
-        PyObject* enumeratorForValue(std::int32_t) const;
+        [[nodiscard]] PyObject* enumeratorForValue(std::int32_t) const;
 
         const std::string id;
         PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
-        const std::int32_t maxValue;
+        const std::int32_t maxValue{0};
         const EnumeratorMap enumerators;
     };
     using EnumInfoPtr = std::shared_ptr<EnumInfo>;
@@ -268,15 +268,15 @@ namespace IcePy
     public:
         StructInfo(std::string, PyObject*, PyObject*);
 
-        std::string getId() const final;
+        [[nodiscard]] std::string getId() const final;
 
         bool validate(PyObject*) final;
 
-        bool variableLength() const final;
-        int wireSize() const final;
-        Ice::OptionalFormat optionalFormat() const final;
+        [[nodiscard]] bool variableLength() const final;
+        [[nodiscard]] int wireSize() const final;
+        [[nodiscard]] Ice::OptionalFormat optionalFormat() const final;
 
-        bool usesClasses() const final;
+        [[nodiscard]] bool usesClasses() const final;
 
         void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) final;
         void unmarshal(
@@ -312,15 +312,15 @@ namespace IcePy
     public:
         SequenceInfo(std::string, PyObject*, PyObject*);
 
-        std::string getId() const final;
+        [[nodiscard]] std::string getId() const final;
 
         bool validate(PyObject*) final;
 
-        bool variableLength() const final;
-        int wireSize() const final;
-        Ice::OptionalFormat optionalFormat() const final;
+        [[nodiscard]] bool variableLength() const final;
+        [[nodiscard]] int wireSize() const final;
+        [[nodiscard]] Ice::OptionalFormat optionalFormat() const final;
 
-        bool usesClasses() const final;
+        [[nodiscard]] bool usesClasses() const final;
 
         void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) final;
         void unmarshal(
@@ -367,7 +367,7 @@ namespace IcePy
 
             void unmarshaled(PyObject*, PyObject*, void*) final;
 
-            PyObject* createContainer(int) const;
+            [[nodiscard]] PyObject* createContainer(int) const;
             void setItem(PyObject*, int, PyObject*) const;
 
             Type type;
@@ -402,15 +402,15 @@ namespace IcePy
     public:
         DictionaryInfo(std::string, PyObject*, PyObject*);
 
-        std::string getId() const final;
+        [[nodiscard]] std::string getId() const final;
 
         bool validate(PyObject*) final;
 
-        bool variableLength() const final;
-        int wireSize() const final;
-        Ice::OptionalFormat optionalFormat() const final;
+        [[nodiscard]] bool variableLength() const final;
+        [[nodiscard]] int wireSize() const final;
+        [[nodiscard]] Ice::OptionalFormat optionalFormat() const final;
 
-        bool usesClasses() const final;
+        [[nodiscard]] bool usesClasses() const final;
 
         void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) final;
         void unmarshal(
@@ -457,15 +457,15 @@ namespace IcePy
 
         void define(PyObject*, int, bool, PyObject*, PyObject*);
 
-        std::string getId() const final;
+        [[nodiscard]] std::string getId() const final;
 
         bool validate(PyObject*) final;
 
-        bool variableLength() const final;
-        int wireSize() const final;
-        Ice::OptionalFormat optionalFormat() const final;
+        [[nodiscard]] bool variableLength() const final;
+        [[nodiscard]] int wireSize() const final;
+        [[nodiscard]] Ice::OptionalFormat optionalFormat() const final;
 
-        bool usesClasses() const final;
+        [[nodiscard]] bool usesClasses() const final;
 
         void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) final;
         void unmarshal(
@@ -483,14 +483,14 @@ namespace IcePy
         void printMembers(PyObject*, IceInternal::Output&, PrintObjectHistory*);
 
         const std::string id;
-        const std::int32_t compactId;
-        const bool interface;
+        const std::int32_t compactId{-1};
+        const bool interface{false};
         const ValueInfoPtr base;
         const DataMemberList members;
         const DataMemberList optionalMembers;
         PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
         PyObject* typeObj;    // Borrowed reference - the "_t_XXX" variable owns the reference.
-        const bool defined;
+        const bool defined{false};
 
     private:
         ValueInfo(std::string);
@@ -506,13 +506,13 @@ namespace IcePy
 
         void define(PyObject*);
 
-        std::string getId() const final;
+        [[nodiscard]] std::string getId() const final;
 
         bool validate(PyObject*) final;
 
-        bool variableLength() const final;
-        int wireSize() const final;
-        Ice::OptionalFormat optionalFormat() const final;
+        [[nodiscard]] bool variableLength() const final;
+        [[nodiscard]] int wireSize() const final;
+        [[nodiscard]] Ice::OptionalFormat optionalFormat() const final;
 
         void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = nullptr) final;
         void unmarshal(
@@ -562,7 +562,7 @@ namespace IcePy
     class ValueWriter final : public Ice::Value
     {
     public:
-        ValueWriter(PyObject*, ObjectMap*, const ValueInfoPtr&);
+        ValueWriter(PyObject*, ObjectMap*, ValueInfoPtr);
         void ice_preMarshal() final;
 
         void _iceWrite(Ice::OutputStream*) const final;
@@ -583,18 +583,18 @@ namespace IcePy
     class ValueReader final : public std::enable_shared_from_this<ValueReader>, public Ice::Value
     {
     public:
-        ValueReader(PyObject*, const ValueInfoPtr&);
+        ValueReader(PyObject*, ValueInfoPtr);
 
         void ice_postUnmarshal() final;
 
         void _iceWrite(Ice::OutputStream*) const final;
         void _iceRead(Ice::InputStream*) final;
 
-        ValueInfoPtr getInfo() const;
+        [[nodiscard]] ValueInfoPtr getInfo() const;
 
-        PyObject* getObject() const; // Borrowed reference.
+        [[nodiscard]] PyObject* getObject() const; // Borrowed reference.
 
-        Ice::SlicedDataPtr getSlicedData() const;
+        [[nodiscard]] Ice::SlicedDataPtr getSlicedData() const;
 
     private:
         PyObjectHandle _object;
@@ -608,19 +608,19 @@ namespace IcePy
     class ExceptionWriter final : public Ice::UserException
     {
     public:
-        ExceptionWriter(const PyObjectHandle&, const ExceptionInfoPtr& = 0) noexcept;
+        ExceptionWriter(const PyObjectHandle&, const ExceptionInfoPtr& = nullptr) noexcept;
         ExceptionWriter(const ExceptionWriter&);
-        ~ExceptionWriter() noexcept;
+        ~ExceptionWriter() noexcept override;
 
         ExceptionWriter& operator=(const ExceptionWriter&) = delete;
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
         void ice_throw() const final;
 
         void _write(Ice::OutputStream*) const final;
         void _read(Ice::InputStream*) final;
 
-        bool _usesClasses() const final;
+        [[nodiscard]] bool _usesClasses() const final;
 
     protected:
         void _writeImpl(Ice::OutputStream*) const final {}
@@ -638,18 +638,18 @@ namespace IcePy
     class ExceptionReader final : public Ice::UserException
     {
     public:
-        ExceptionReader(const ExceptionInfoPtr&) noexcept;
+        ExceptionReader(ExceptionInfoPtr) noexcept;
         ExceptionReader(const ExceptionReader&) = default;
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
         void ice_throw() const final;
 
         void _write(Ice::OutputStream*) const final;
         void _read(Ice::InputStream*) final;
 
-        bool _usesClasses() const final;
+        [[nodiscard]] bool _usesClasses() const final;
 
-        PyObject* getException() const; // Borrowed reference.
+        [[nodiscard]] PyObject* getException() const; // Borrowed reference.
 
     protected:
         void _writeImpl(Ice::OutputStream*) const final {}

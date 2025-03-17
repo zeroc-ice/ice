@@ -36,8 +36,8 @@ nativePropertiesAdminDealloc(NativePropertiesAdminObject* self)
 extern "C" PyObject*
 nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* args)
 {
-    PyObject* callbackType = lookupType("Ice.PropertiesAdminUpdateCallback");
-    PyObject* callback;
+    PyObject* callbackType{lookupType("Ice.PropertiesAdminUpdateCallback")};
+    PyObject* callback{nullptr};
     if (!PyArg_ParseTuple(args, "O!", callbackType, &callback))
     {
         return nullptr;
@@ -53,11 +53,11 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
                     PyObjectHandle result{PyDict_New()};
                     if (result.get())
                     {
-                        for (Ice::PropertyDict::const_iterator p = dict.begin(); p != dict.end(); ++p)
+                        for (const auto& [key, value] : dict)
                         {
-                            PyObjectHandle key{createString(p->first)};
-                            PyObjectHandle val{createString(p->second)};
-                            if (!val.get() || PyDict_SetItem(result.get(), key.get(), val.get()) < 0)
+                            PyObjectHandle pyKey{createString(key)};
+                            PyObjectHandle pyValue{createString(value)};
+                            if (!pyValue.get() || PyDict_SetItem(result.get(), pyKey.get(), pyValue.get()) < 0)
                             {
                                 return;
                             }
@@ -72,7 +72,7 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
                     }
                 });
 
-    (*self->callbacks).push_back(make_pair(callback, remover));
+    (*self->callbacks).emplace_back(callback, remover);
     Py_INCREF(callback);
 
     return Py_None;
@@ -81,8 +81,8 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
 extern "C" PyObject*
 nativePropertiesAdminRemoveUpdateCB(NativePropertiesAdminObject* self, PyObject* args)
 {
-    PyObject* callbackType = lookupType("Ice.PropertiesAdminUpdateCallback");
-    PyObject* callback;
+    PyObject* callbackType{lookupType("Ice.PropertiesAdminUpdateCallback")};
+    PyObject* callback{nullptr};
     if (!PyArg_ParseTuple(args, "O!", callbackType, &callback))
     {
         return nullptr;
@@ -111,55 +111,22 @@ static PyMethodDef NativePropertiesAdminMethods[] = {
      reinterpret_cast<PyCFunction>(nativePropertiesAdminRemoveUpdateCB),
      METH_VARARGS,
      PyDoc_STR("removeUpdateCallback(callback) -> None")},
-    {0, 0} /* sentinel */
+    {nullptr, nullptr} /* sentinel */
 };
 
 namespace IcePy
 {
+    // clang-format off
     PyTypeObject NativePropertiesAdminType = {
-        /* The ob_type field must be initialized in the module init function
-         * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.NativePropertiesAdmin", /* tp_name */
-        sizeof(NativePropertiesAdminObject),                       /* tp_basicsize */
-        0,                                                         /* tp_itemsize */
-        /* methods */
-        reinterpret_cast<destructor>(nativePropertiesAdminDealloc), /* tp_dealloc */
-        0,                                                          /* tp_print */
-        0,                                                          /* tp_getattr */
-        0,                                                          /* tp_setattr */
-        0,                                                          /* tp_reserved */
-        0,                                                          /* tp_repr */
-        0,                                                          /* tp_as_number */
-        0,                                                          /* tp_as_sequence */
-        0,                                                          /* tp_as_mapping */
-        0,                                                          /* tp_hash */
-        0,                                                          /* tp_call */
-        0,                                                          /* tp_str */
-        0,                                                          /* tp_getattro */
-        0,                                                          /* tp_setattro */
-        0,                                                          /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT,                                         /* tp_flags */
-        0,                                                          /* tp_doc */
-        0,                                                          /* tp_traverse */
-        0,                                                          /* tp_clear */
-        0,                                                          /* tp_richcompare */
-        0,                                                          /* tp_weaklistoffset */
-        0,                                                          /* tp_iter */
-        0,                                                          /* tp_iternext */
-        NativePropertiesAdminMethods,                               /* tp_methods */
-        0,                                                          /* tp_members */
-        0,                                                          /* tp_getset */
-        0,                                                          /* tp_base */
-        0,                                                          /* tp_dict */
-        0,                                                          /* tp_descr_get */
-        0,                                                          /* tp_descr_set */
-        0,                                                          /* tp_dictoffset */
-        0,                                                          /* tp_init */
-        0,                                                          /* tp_alloc */
-        reinterpret_cast<newfunc>(nativePropertiesAdminNew),        /* tp_new */
-        0,                                                          /* tp_free */
-        0,                                                          /* tp_is_gc */
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
+        .tp_name = "IcePy.NativePropertiesAdmin",
+        .tp_basicsize = sizeof(NativePropertiesAdminObject),
+        .tp_dealloc = reinterpret_cast<destructor>(nativePropertiesAdminDealloc),
+        .tp_flags = Py_TPFLAGS_DEFAULT,
+        .tp_methods = NativePropertiesAdminMethods,
+        .tp_new = reinterpret_cast<newfunc>(nativePropertiesAdminNew),
     };
+    // clang-format on
 }
 
 bool
@@ -169,8 +136,9 @@ IcePy::initPropertiesAdmin(PyObject* module)
     {
         return false;
     }
-    PyTypeObject* type = &NativePropertiesAdminType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, "NativePropertiesAdmin", reinterpret_cast<PyObject*>(type)) < 0)
+
+    if (PyModule_AddObject(module, "NativePropertiesAdmin", reinterpret_cast<PyObject*>(&NativePropertiesAdminType)) <
+        0)
     {
         return false;
     }
@@ -182,7 +150,7 @@ IcePy::createNativePropertiesAdmin(const Ice::NativePropertiesAdminPtr& admin)
 {
     PyTypeObject* type = &NativePropertiesAdminType;
 
-    NativePropertiesAdminObject* p = reinterpret_cast<NativePropertiesAdminObject*>(type->tp_alloc(type, 0));
+    auto* p = reinterpret_cast<NativePropertiesAdminObject*>(type->tp_alloc(type, 0));
     if (!p)
     {
         return nullptr;

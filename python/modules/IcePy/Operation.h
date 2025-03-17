@@ -29,7 +29,7 @@ namespace IcePy
     class GetConnectionAsyncCallback
     {
     public:
-        GetConnectionAsyncCallback(const Ice::CommunicatorPtr&, const std::string&);
+        GetConnectionAsyncCallback(Ice::CommunicatorPtr, std::string);
         ~GetConnectionAsyncCallback();
 
         void setFuture(PyObject*);
@@ -40,9 +40,9 @@ namespace IcePy
     protected:
         Ice::CommunicatorPtr _communicator;
         std::string _op;
-        PyObject* _future;
+        PyObject* _future{nullptr};
         Ice::ConnectionPtr _connection;
-        PyObject* _exception;
+        PyObject* _exception{nullptr};
     };
     using GetConnectionAsyncCallbackPtr = std::shared_ptr<GetConnectionAsyncCallback>;
 
@@ -50,7 +50,7 @@ namespace IcePy
     class FlushAsyncCallback
     {
     public:
-        FlushAsyncCallback(const std::string&);
+        FlushAsyncCallback(std::string);
         ~FlushAsyncCallback();
 
         void setFuture(PyObject*);
@@ -60,10 +60,10 @@ namespace IcePy
 
     protected:
         std::string _op;
-        PyObject* _future;
-        bool _sent;
-        bool _sentSynchronously;
-        PyObject* _exception;
+        PyObject* _future{nullptr};
+        bool _sent{false};
+        bool _sentSynchronously{false};
+        PyObject* _exception{nullptr};
     };
     using FlushAsyncCallbackPtr = std::shared_ptr<FlushAsyncCallback>;
 
@@ -72,7 +72,7 @@ namespace IcePy
     {
     public:
         ServantWrapper(PyObject*);
-        ~ServantWrapper();
+        ~ServantWrapper() override;
 
         PyObject* getObject();
 

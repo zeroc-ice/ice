@@ -22,12 +22,12 @@ namespace IcePy
 extern "C" ImplicitContextObject*
 implicitContextNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
-    ImplicitContextObject* self = reinterpret_cast<ImplicitContextObject*>(type->tp_alloc(type, 0));
+    auto* self = reinterpret_cast<ImplicitContextObject*>(type->tp_alloc(type, 0));
     if (!self)
     {
         return nullptr;
     }
-    self->implicitContext = 0;
+    self->implicitContext = nullptr;
     return self;
 }
 
@@ -41,11 +41,11 @@ implicitContextDealloc(ImplicitContextObject* self)
 extern "C" PyObject*
 implicitContextCompare(ImplicitContextObject* c1, PyObject* other, int op)
 {
-    bool result = false;
+    bool result{false};
 
     if (PyObject_TypeCheck(other, &ImplicitContextType))
     {
-        ImplicitContextObject* c2 = reinterpret_cast<ImplicitContextObject*>(other);
+        auto* c2 = reinterpret_cast<ImplicitContextObject*>(other);
 
         switch (op)
         {
@@ -143,18 +143,15 @@ implicitContextContainsKey(ImplicitContextObject* self, PyObject* args)
         return nullptr;
     }
 
-    bool containsKey;
     try
     {
-        containsKey = (*self->implicitContext)->containsKey(key);
+        return (*self->implicitContext)->containsKey(key) ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    return containsKey ? Py_True : Py_False;
 }
 
 extern "C" PyObject*
@@ -263,55 +260,23 @@ static PyMethodDef ImplicitContextMethods[] = {
     {"get", reinterpret_cast<PyCFunction>(implicitContextGet), METH_VARARGS, PyDoc_STR("get(key) -> string")},
     {"put", reinterpret_cast<PyCFunction>(implicitContextPut), METH_VARARGS, PyDoc_STR("put(key, value) -> string")},
     {"remove", reinterpret_cast<PyCFunction>(implicitContextRemove), METH_VARARGS, PyDoc_STR("remove(key) -> string")},
-    {0, 0} /* sentinel */
+    {nullptr, nullptr} /* sentinel */
 };
 
 namespace IcePy
 {
+    // clang-format off
     PyTypeObject ImplicitContextType = {
-        /* The ob_type field must be initialized in the module init function
-         * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.ImplicitContext", /* tp_name */
-        sizeof(ImplicitContextObject),                       /* tp_basicsize */
-        0,                                                   /* tp_itemsize */
-        /* methods */
-        reinterpret_cast<destructor>(implicitContextDealloc),  /* tp_dealloc */
-        0,                                                     /* tp_print */
-        0,                                                     /* tp_getattr */
-        0,                                                     /* tp_setattr */
-        0,                                                     /* tp_reserved */
-        0,                                                     /* tp_repr */
-        0,                                                     /* tp_as_number */
-        0,                                                     /* tp_as_sequence */
-        0,                                                     /* tp_as_mapping */
-        0,                                                     /* tp_hash */
-        0,                                                     /* tp_call */
-        0,                                                     /* tp_str */
-        0,                                                     /* tp_getattro */
-        0,                                                     /* tp_setattro */
-        0,                                                     /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT,                                    /* tp_flags */
-        0,                                                     /* tp_doc */
-        0,                                                     /* tp_traverse */
-        0,                                                     /* tp_clear */
-        reinterpret_cast<richcmpfunc>(implicitContextCompare), /* tp_richcompare */
-        0,                                                     /* tp_weaklistoffset */
-        0,                                                     /* tp_iter */
-        0,                                                     /* tp_iternext */
-        ImplicitContextMethods,                                /* tp_methods */
-        0,                                                     /* tp_members */
-        0,                                                     /* tp_getset */
-        0,                                                     /* tp_base */
-        0,                                                     /* tp_dict */
-        0,                                                     /* tp_descr_get */
-        0,                                                     /* tp_descr_set */
-        0,                                                     /* tp_dictoffset */
-        0,                                                     /* tp_init */
-        0,                                                     /* tp_alloc */
-        reinterpret_cast<newfunc>(implicitContextNew),         /* tp_new */
-        0,                                                     /* tp_free */
-        0,                                                     /* tp_is_gc */
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
+        .tp_name = "IcePy.ImplicitContext",
+        .tp_basicsize = sizeof(ImplicitContextObject),
+        .tp_dealloc = reinterpret_cast<destructor>(implicitContextDealloc),
+        .tp_flags = Py_TPFLAGS_DEFAULT,
+        .tp_richcompare = reinterpret_cast<richcmpfunc>(implicitContextCompare),
+        .tp_methods = ImplicitContextMethods,
+        .tp_new = reinterpret_cast<newfunc>(implicitContextNew),
     };
+    // clang-format on
 }
 
 bool
@@ -321,8 +286,8 @@ IcePy::initImplicitContext(PyObject* module)
     {
         return false;
     }
-    PyTypeObject* type = &ImplicitContextType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, "ImplicitContext", reinterpret_cast<PyObject*>(type)) < 0)
+
+    if (PyModule_AddObject(module, "ImplicitContext", reinterpret_cast<PyObject*>(&ImplicitContextType)) < 0)
     {
         return false;
     }
@@ -333,7 +298,7 @@ IcePy::initImplicitContext(PyObject* module)
 PyObject*
 IcePy::createImplicitContext(const Ice::ImplicitContextPtr& implicitContext)
 {
-    ImplicitContextObject* obj = implicitContextNew(&ImplicitContextType, 0, 0);
+    ImplicitContextObject* obj{implicitContextNew(&ImplicitContextType, nullptr, nullptr)};
     if (obj)
     {
         obj->implicitContext = new Ice::ImplicitContextPtr(implicitContext);
