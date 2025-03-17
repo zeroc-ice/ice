@@ -284,7 +284,7 @@ namespace IcePy
 {
     // clang-format off
     PyTypeObject ValueFactoryManagerType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.ValueFactoryManager",
         .tp_basicsize = sizeof(ValueFactoryManagerObject),
         .tp_dealloc = reinterpret_cast<destructor>(valueFactoryManagerDealloc),

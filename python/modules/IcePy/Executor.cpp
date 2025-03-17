@@ -48,7 +48,7 @@ namespace IcePy
 {
     // clang-format off
     PyTypeObject ExecutorCallType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.ExecutorCall",
         .tp_basicsize = sizeof(ExecutorCallObject),
         .tp_dealloc = reinterpret_cast<destructor>(executorCallDealloc),

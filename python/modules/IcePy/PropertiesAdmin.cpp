@@ -118,7 +118,7 @@ namespace IcePy
 {
     // clang-format off
     PyTypeObject NativePropertiesAdminType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.NativePropertiesAdmin",
         .tp_basicsize = sizeof(NativePropertiesAdminObject),
         .tp_dealloc = reinterpret_cast<destructor>(nativePropertiesAdminDealloc),

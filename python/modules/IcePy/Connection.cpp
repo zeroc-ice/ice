@@ -640,7 +640,7 @@ namespace IcePy
 {
     // clang-format off
     PyTypeObject ConnectionType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.Connection",
         .tp_basicsize = sizeof(ConnectionObject),
         .tp_dealloc = reinterpret_cast<destructor>(connectionDealloc),

@@ -711,7 +711,7 @@ namespace IcePy
 {
     // clang-format off
     PyTypeObject PropertiesType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.Properties",
         .tp_basicsize = sizeof(PropertiesObject),
         .tp_dealloc = reinterpret_cast<destructor>(propertiesDealloc),

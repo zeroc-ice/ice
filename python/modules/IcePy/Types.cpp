@@ -3769,7 +3769,7 @@ namespace IcePy
 {
     // clang-format off
     PyTypeObject TypeInfoType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.TypeInfo",
         .tp_basicsize = sizeof(TypeInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(typeInfoDealloc),
@@ -3778,7 +3778,7 @@ namespace IcePy
     };
 
     PyTypeObject ExceptionInfoType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.ExceptionInfo",
         .tp_basicsize = sizeof(ExceptionInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(exceptionInfoDealloc),

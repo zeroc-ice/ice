@@ -438,8 +438,6 @@ adapterDeactivate(ObjectAdapterObject* self, PyObject* /*args*/)
     AllowThreads allowThreads;
     (*self->adapter)->deactivate();
     return Py_None;
-
-    return Py_None;
 }
 
 extern "C" PyObject*
@@ -1565,7 +1563,7 @@ namespace IcePy
 {
     // clang-format off
     PyTypeObject ObjectAdapterType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.ObjectAdapter",
         .tp_basicsize = sizeof(ObjectAdapterObject),
         .tp_dealloc = reinterpret_cast<destructor>(adapterDealloc),

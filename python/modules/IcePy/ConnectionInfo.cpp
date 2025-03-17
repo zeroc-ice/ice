@@ -248,7 +248,7 @@ namespace IcePy
 {
     // clang-format off
     PyTypeObject ConnectionInfoType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.ConnectionInfo",
         .tp_basicsize = sizeof(ConnectionInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(connectionInfoDealloc),
@@ -258,7 +258,7 @@ namespace IcePy
     };
 
     PyTypeObject IPConnectionInfoType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.IPConnectionInfo",
         .tp_basicsize = sizeof(ConnectionInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(connectionInfoDealloc),
@@ -268,7 +268,7 @@ namespace IcePy
     };
 
     PyTypeObject TCPConnectionInfoType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.TCPConnectionInfo",
         .tp_basicsize = sizeof(ConnectionInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(connectionInfoDealloc),
@@ -278,7 +278,7 @@ namespace IcePy
     };
 
     PyTypeObject UDPConnectionInfoType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.UDPConnectionInfo",
         .tp_basicsize = sizeof(ConnectionInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(connectionInfoDealloc),
@@ -288,7 +288,7 @@ namespace IcePy
     };
 
     PyTypeObject WSConnectionInfoType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.WSConnectionInfo",
         .tp_basicsize = sizeof(ConnectionInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(connectionInfoDealloc),
@@ -298,7 +298,7 @@ namespace IcePy
     };
 
     static PyTypeObject SSLConnectionInfoType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.SSLConnectionInfo",
         .tp_basicsize = sizeof(ConnectionInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(connectionInfoDealloc),

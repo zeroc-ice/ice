@@ -267,7 +267,7 @@ namespace IcePy
 {
     // clang-format off
     PyTypeObject ImplicitContextType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.ImplicitContext",
         .tp_basicsize = sizeof(ImplicitContextObject),
         .tp_dealloc = reinterpret_cast<destructor>(implicitContextDealloc),

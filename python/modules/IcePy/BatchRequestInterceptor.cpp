@@ -140,7 +140,7 @@ namespace IcePy
 {
     // clang-format off
     PyTypeObject BatchRequestType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.BatchRequest",
         .tp_basicsize = sizeof(BatchRequestObject),
         .tp_dealloc = (destructor)batchRequestDealloc,

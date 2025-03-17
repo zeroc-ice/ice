@@ -209,7 +209,7 @@ namespace IcePy
 {
     // clang-format off
     PyTypeObject EndpointInfoType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.EndpointInfo",
         .tp_basicsize = sizeof(EndpointInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(endpointInfoDealloc),
@@ -220,7 +220,7 @@ namespace IcePy
     };
 
     PyTypeObject IPEndpointInfoType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.IPEndpointInfo",
         .tp_basicsize = sizeof(EndpointInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(endpointInfoDealloc),
@@ -230,7 +230,7 @@ namespace IcePy
     };
 
     PyTypeObject TCPEndpointInfoType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.TCPEndpointInfo",
         .tp_basicsize = sizeof(EndpointInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(endpointInfoDealloc),
@@ -239,7 +239,7 @@ namespace IcePy
     };
 
     PyTypeObject UDPEndpointInfoType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.UDPEndpointInfo",
         .tp_basicsize = sizeof(EndpointInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(endpointInfoDealloc),
@@ -249,7 +249,7 @@ namespace IcePy
     };
 
     PyTypeObject WSEndpointInfoType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.WSEndpointInfo",
         .tp_basicsize = sizeof(EndpointInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(endpointInfoDealloc),
@@ -259,7 +259,7 @@ namespace IcePy
     };
 
     PyTypeObject SSLEndpointInfoType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.SSLEndpointInfo",
         .tp_basicsize = sizeof(EndpointInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(endpointInfoDealloc),
@@ -268,7 +268,7 @@ namespace IcePy
     };
 
     PyTypeObject OpaqueEndpointInfoType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.OpaqueEndpointInfo",
         .tp_basicsize = sizeof(EndpointInfoObject),
         .tp_dealloc = reinterpret_cast<destructor>(endpointInfoDealloc),

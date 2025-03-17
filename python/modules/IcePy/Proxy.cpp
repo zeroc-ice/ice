@@ -2128,7 +2128,7 @@ namespace IcePy
 {
     // clang-format off
     PyTypeObject ProxyType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.ObjectPrx",
         .tp_basicsize = sizeof(ProxyObject),
         .tp_dealloc = reinterpret_cast<destructor>(proxyDealloc),

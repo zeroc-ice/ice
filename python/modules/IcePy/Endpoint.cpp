@@ -129,7 +129,7 @@ namespace IcePy
 {
     // clang-format off
     PyTypeObject EndpointType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.Endpoint",
         .tp_basicsize = sizeof(EndpointObject),
         .tp_dealloc = reinterpret_cast<destructor>(endpointDealloc),

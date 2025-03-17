@@ -1049,7 +1049,7 @@ namespace IcePy
 {
     // clang-format off
     PyTypeObject OperationType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.Operation",
         .tp_basicsize = sizeof(OperationObject),
         .tp_dealloc = reinterpret_cast<destructor>(operationDealloc),
@@ -1060,7 +1060,7 @@ namespace IcePy
     };
 
     PyTypeObject DispatchCallbackType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.DispatchCallback",
         .tp_basicsize = sizeof(DispatchCallbackObject),
         .tp_dealloc = reinterpret_cast<destructor>(dispatchCallbackDealloc),
@@ -1070,7 +1070,7 @@ namespace IcePy
     };
 
     PyTypeObject AsyncInvocationContextType = {
-        PyVarObject_HEAD_INIT(nullptr, 0)
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0)
         .tp_name = "IcePy.AsyncInvocationContext",
         .tp_basicsize = sizeof(AsyncInvocationContextObject),
         .tp_dealloc = reinterpret_cast<destructor>(asyncInvocationContextDealloc),
@@ -1080,7 +1080,7 @@ namespace IcePy
     };
 
     PyTypeObject MarshaledResultType = {
-        PyVarObject_HEAD_INIT(nullptr, 0) /* object header */
+        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0) /* object header */
         .tp_name = "IcePy.MarshaledResult",
         .tp_basicsize = sizeof(MarshaledResultObject),
         .tp_dealloc = reinterpret_cast<destructor>(marshaledResultDealloc),
