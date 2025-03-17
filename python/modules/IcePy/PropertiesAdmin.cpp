@@ -69,9 +69,10 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
                         }
                     }
 
-                    PyObjectHandle args{PyTuple_New(1)};
-                    PyTuple_SetItem(args.get(), 0, result.release());
-                    PyObjectHandle obj{PyObject_Call(callback, args.get(), nullptr)};
+                    PyObjectHandle callbackArgs{PyTuple_New(1)};
+                    PyTuple_SetItem(callbackArgs.get(), 0, result.release());
+
+                    PyObjectHandle obj{PyObject_Call(callback, callbackArgs.get(), nullptr)};
                     if (!obj.get())
                     {
                         assert(PyErr_Occurred());
