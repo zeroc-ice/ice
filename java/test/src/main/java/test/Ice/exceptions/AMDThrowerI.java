@@ -144,7 +144,7 @@ public final class AMDThrowerI implements Thrower {
         ex.cMem = c;
         throw ex;
         // r.completeExceptionally(ex);
-        //  return r;
+        // return r;
     }
 
     @Override
