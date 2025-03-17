@@ -43,7 +43,6 @@ from .Object import Object
 from .Blobject import Blobject
 from .BlobjectAsync import BlobjectAsync
 from .FormatType import *
-from .PropertiesAdminUpdateCallback import *
 from .Util import *
 from .UnknownSlicedValue import *
 from .ToStringMode import *

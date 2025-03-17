@@ -15,7 +15,7 @@ class TestFacetI(Test.TestFacet):
         return
 
 
-class RemoteCommunicatorI(Test.RemoteCommunicator, Ice.PropertiesAdminUpdateCallback):
+class RemoteCommunicatorI(Test.RemoteCommunicator):
     def __init__(self, communicator):
         self.communicator = communicator
         self.called = False
@@ -81,13 +81,15 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
         communicator.addAdminFacet(TestFacetI(), "TestFacet")
 
         #
-        # The RemoteCommunicator servant also implements PropertiesAdminUpdateCallback.
-        # Set the callback on the admin facet.
+        # Set the properties update callback on the admin facet.
         #
         servant = RemoteCommunicatorI(communicator)
+
+        def properties_updated(changes):
+            servant.updated(changes)
         admin = communicator.findAdminFacet("Properties")
         if admin is not None:
-            admin.addUpdateCallback(servant)
+            admin.addUpdateCallback(properties_updated)
 
         return current.adapter.addWithUUID(servant)
 
