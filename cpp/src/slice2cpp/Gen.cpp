@@ -1574,7 +1574,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
       << " {} // NOLINT(modernize-use-equals-default)";
 
     H << sp;
-    H << nl << "/// Constructs a proxy from a communicator and a proxy string.";
+    H << nl << "/// Constructs a proxy from a Communicator and a proxy string.";
     H << nl << "/// @param communicator The communicator of the new proxy.";
     H << nl << "/// @param proxyString The proxy string to parse.";
     H << nl << prx << "(const Ice::CommunicatorPtr& communicator, std::string_view proxyString)"
@@ -3344,7 +3344,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
     H << nl << "/// The minimum number of bytes needed to marshal this type.";
     H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
     H << sp;
-    H << nl << "/// Is this type always encoded on a fixed number of bytes?";
+    H << nl << "/// Indicates if the type is always encoded on a fixed number of bytes.";
     H << nl << "static const bool fixedLength = " << (p->isVariableLength() ? "false" : "true") << ";";
     H << eb << ";" << nl;
 
@@ -3381,7 +3381,7 @@ Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
     H << nl << "/// The minimum number of bytes needed to marshal this type.";
     H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
     H << sp;
-    H << nl << "/// Is this type always encoded on a fixed number of bytes?";
+    H << nl << "/// Indicates if the type is always encoded on a fixed number of bytes.";
     H << nl << "static const bool fixedLength = false;";
     H << eb << ";";
 }

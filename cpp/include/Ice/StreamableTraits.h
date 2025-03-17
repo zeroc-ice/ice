@@ -138,7 +138,7 @@ namespace Ice
         /// The minimum number of bytes needed to marshal this type.
         static const int minWireSize = 1;
 
-        /// Is this type always encoded on a fixed number of bytes?
+        /// Indicates if the type is always encoded on a fixed number of bytes.
         static const bool fixedLength = false;
     };
 
@@ -169,7 +169,7 @@ namespace Ice
         /// The minimum number of bytes needed to marshal this type.
         static const int minWireSize = 1;
 
-        /// Is this type always encoded on a fixed number of bytes?
+        /// Indicates if the type is always encoded on a fixed number of bytes.
         static const bool fixedLength = false;
     };
 
@@ -186,7 +186,7 @@ namespace Ice
         /// The minimum number of bytes needed to marshal this type.
         static const int minWireSize = 1;
 
-        /// Is this type always encoded on a fixed number of bytes?
+        /// Indicates if the type is always encoded on a fixed number of bytes.
         static const bool fixedLength = true;
     };
 
@@ -201,7 +201,7 @@ namespace Ice
         static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
         static const int minWireSize = 1;
 
-        /// Is this type always encoded on a fixed number of bytes?
+        /// Indicates if the type is always encoded on a fixed number of bytes.
         static const bool fixedLength = true;
     };
 
@@ -218,7 +218,7 @@ namespace Ice
         /// The minimum number of bytes needed to marshal this type.
         static const int minWireSize = 1;
 
-        /// Is this type always encoded on a fixed number of bytes?
+        /// Indicates if the type is always encoded on a fixed number of bytes.
         static const bool fixedLength = true;
     };
 
@@ -235,7 +235,7 @@ namespace Ice
         /// The minimum number of bytes needed to marshal this type.
         static const int minWireSize = 2;
 
-        /// Is this type always encoded on a fixed number of bytes?
+        /// Indicates if the type is always encoded on a fixed number of bytes.
         static const bool fixedLength = true;
     };
 
@@ -252,7 +252,7 @@ namespace Ice
         /// The minimum number of bytes needed to marshal this type.
         static const int minWireSize = 4;
 
-        /// Is this type always encoded on a fixed number of bytes?
+        /// Indicates if the type is always encoded on a fixed number of bytes.
         static const bool fixedLength = true;
     };
 
@@ -269,7 +269,7 @@ namespace Ice
         /// The minimum number of bytes needed to marshal this type.
         static const int minWireSize = 8;
 
-        /// Is this type always encoded on a fixed number of bytes?
+        /// Indicates if the type is always encoded on a fixed number of bytes.
         static const bool fixedLength = true;
     };
 
@@ -286,7 +286,7 @@ namespace Ice
         /// The minimum number of bytes needed to marshal this type.
         static const int minWireSize = 4;
 
-        /// Is this type always encoded on a fixed number of bytes?
+        /// Indicates if the type is always encoded on a fixed number of bytes.
         static const bool fixedLength = true;
     };
 
@@ -303,7 +303,7 @@ namespace Ice
         /// The minimum number of bytes needed to marshal this type.
         static const int minWireSize = 8;
 
-        /// Is this type always encoded on a fixed number of bytes?
+        /// Indicates if the type is always encoded on a fixed number of bytes.
         static const bool fixedLength = true;
     };
 
@@ -320,7 +320,7 @@ namespace Ice
         /// The minimum number of bytes needed to marshal this type.
         static const int minWireSize = 1;
 
-        /// Is this type always encoded on a fixed number of bytes?
+        /// Indicates if the type is always encoded on a fixed number of bytes.
         static const bool fixedLength = false;
     };
 
@@ -337,7 +337,7 @@ namespace Ice
         /// The minimum number of bytes needed to marshal this type.
         static const int minWireSize = 1;
 
-        /// Is this type always encoded on a fixed number of bytes?
+        /// Indicates if the type is always encoded on a fixed number of bytes.
         static const bool fixedLength = false;
     };
 
@@ -369,7 +369,7 @@ namespace Ice
         /// The minimum number of bytes needed to marshal this type.
         static const int minWireSize = 1;
 
-        /// Is this type always encoded on a fixed number of bytes?
+        /// Indicates if the type is always encoded on a fixed number of bytes.
         static const bool fixedLength = false;
     };
 
@@ -385,7 +385,7 @@ namespace Ice
         /// The minimum number of bytes needed to marshal this type.
         static const int minWireSize = 1;
 
-        /// Is this type always encoded on a fixed number of bytes?
+        /// Indicates if the type is always encoded on a fixed number of bytes.
         static const bool fixedLength = false;
     };
 
@@ -401,7 +401,7 @@ namespace Ice
         /// The minimum number of bytes needed to marshal this type.
         static const int minWireSize = 2;
 
-        /// Is this type always encoded on a fixed number of bytes?
+        /// Indicates if the type is always encoded on a fixed number of bytes.
         static const bool fixedLength = false;
     };
 
@@ -417,7 +417,7 @@ namespace Ice
         /// The minimum number of bytes needed to marshal this type.
         static const int minWireSize = 1;
 
-        /// Is this type always encoded on a fixed number of bytes?
+        /// Indicates if the type is always encoded on a fixed number of bytes.
         static const bool fixedLength = false;
     };
 

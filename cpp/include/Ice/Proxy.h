@@ -307,7 +307,7 @@ namespace Ice
         /// @param other The proxy to move from.
         ObjectPrx(ObjectPrx&& other) noexcept = default;
 
-        /// Constructs a proxy from a communicator and a proxy string.
+        /// Constructs a proxy from a Communicator and a proxy string.
         /// @param communicator The communicator of the new proxy.
         /// @param proxyString The proxy string to parse.
         ObjectPrx(const Ice::CommunicatorPtr& communicator, std::string_view proxyString);
