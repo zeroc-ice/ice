@@ -317,7 +317,7 @@ static PyMethodDef LoggerMethods[] = {
      reinterpret_cast<PyCFunction>(loggerCloneWithPrefix),
      METH_VARARGS,
      PyDoc_STR("cloneWithPrefix(prefix) -> Ice.Logger")},
-    {nullptr, nullptr, METH_NOARGS, nullptr} // Sentinel
+    {nullptr, nullptr, METH_NOARGS, nullptr} /* sentinel */
 };
 
 namespace IcePy

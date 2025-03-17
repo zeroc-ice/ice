@@ -260,7 +260,7 @@ static PyMethodDef ImplicitContextMethods[] = {
     {"get", reinterpret_cast<PyCFunction>(implicitContextGet), METH_VARARGS, PyDoc_STR("get(key) -> string")},
     {"put", reinterpret_cast<PyCFunction>(implicitContextPut), METH_VARARGS, PyDoc_STR("put(key, value) -> string")},
     {"remove", reinterpret_cast<PyCFunction>(implicitContextRemove), METH_VARARGS, PyDoc_STR("remove(key) -> string")},
-    {nullptr, nullptr, METH_NOARGS, nullptr} // Sentinel
+    {nullptr, nullptr, METH_NOARGS, nullptr} /* sentinel */
 };
 
 namespace IcePy

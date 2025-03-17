@@ -633,7 +633,7 @@ static PyMethodDef ConnectionMethods[] = {
      reinterpret_cast<PyCFunction>(connectionThrowException),
      METH_NOARGS,
      PyDoc_STR("throwException() -> None")},
-    {nullptr, nullptr, METH_NOARGS, nullptr} // Sentinel
+    {nullptr, nullptr, METH_NOARGS, nullptr} /* sentinel */
 };
 
 namespace IcePy

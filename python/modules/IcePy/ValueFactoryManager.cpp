@@ -277,7 +277,7 @@ valueFactoryManagerFind(ValueFactoryManagerObject* self, PyObject* args)
 static PyMethodDef ValueFactoryManagerMethods[] = {
     {"add", reinterpret_cast<PyCFunction>(valueFactoryManagerAdd), METH_VARARGS, PyDoc_STR("add(factory, id) -> None")},
     {"find", reinterpret_cast<PyCFunction>(valueFactoryManagerFind), METH_VARARGS, PyDoc_STR("find(id) -> function")},
-    {nullptr, nullptr, METH_NOARGS, nullptr} // Sentinel
+    {nullptr, nullptr, METH_NOARGS, nullptr} /* sentinel */
 };
 
 namespace IcePy

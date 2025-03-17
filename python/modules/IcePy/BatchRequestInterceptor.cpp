@@ -133,7 +133,7 @@ static PyMethodDef BatchRequestMethods[] = {
      METH_NOARGS,
      PyDoc_STR("getProxy() -> Ice.ObjectPrx")},
     {"enqueue", reinterpret_cast<PyCFunction>(batchRequestEnqueue), METH_NOARGS, PyDoc_STR("enqueue() -> None")},
-    {nullptr, nullptr, METH_NOARGS, nullptr} // Sentinel
+    {nullptr, nullptr, METH_NOARGS, nullptr} /* sentinel */
 };
 
 namespace IcePy
