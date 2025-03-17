@@ -13,12 +13,6 @@ namespace Slice::PHP
     // a reserved word, then an escaped version is returned with a leading underscore.
     //
     std::string fixIdent(const std::string&);
-
-    //
-    // Since PHP uses the backslash character as the namespace separator, we have
-    // to escape backslash characters when they appear in a string literal.
-    //
-    std::string escapeName(const std::string&);
 }
 
 #endif

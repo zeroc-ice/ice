@@ -302,7 +302,6 @@ bool
 CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     string scoped = p->scoped();
-    string name = getName(p);
     string type = getTypeVar(p);
     string abs = p->mappedScoped("\\");
     string prxName = getName(p, "Prx");
@@ -722,18 +721,17 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 void
 CodeVisitor::visitSequence(const SequencePtr& p)
 {
-    string type = getTypeVar(p);
-    TypePtr content = p->type();
+    const string type = getTypeVar(p);
+    const TypePtr content = p->type();
 
     startNamespace(p);
 
     // Emit the type information.
-    string scoped = p->scoped();
     _out << sp << nl << "global " << type << ';';
     _out << sp << nl << "if(!isset(" << type << "))";
     _out << sb;
     _out << nl << "global " << getType(content) << ";";
-    _out << nl << type << " = IcePHP_defineSequence('" << scoped << "', ";
+    _out << nl << type << " = IcePHP_defineSequence('" << p->scoped() << "', ";
     writeType(content);
     _out << ");";
     _out << eb;
@@ -744,51 +742,28 @@ CodeVisitor::visitSequence(const SequencePtr& p)
 void
 CodeVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    TypePtr keyType = p->keyType();
-    BuiltinPtr b = dynamic_pointer_cast<Builtin>(keyType);
-    if (b)
-    {
-        switch (b->kind())
-        {
-            // These types are acceptable as dictionary keys.
-            case Slice::Builtin::KindBool:
-            case Slice::Builtin::KindByte:
-            case Slice::Builtin::KindShort:
-            case Slice::Builtin::KindInt:
-            case Slice::Builtin::KindLong:
-            case Slice::Builtin::KindString:
-                break;
+    const string type = getTypeVar(p);
+    const TypePtr keyType = p->keyType();
+    const TypePtr valueType = p->valueType();
 
-            // These types have already been rejected as illegal key types by the parser.
-            case Slice::Builtin::KindFloat:
-            case Slice::Builtin::KindDouble:
-            case Slice::Builtin::KindObject:
-            case Slice::Builtin::KindObjectProxy:
-            case Slice::Builtin::KindValue:
-                assert(false);
-        }
-    }
-    else if (!dynamic_pointer_cast<Enum>(keyType))
+    if (!dynamic_pointer_cast<Builtin>(keyType) && !dynamic_pointer_cast<Enum>(keyType))
     {
         // See https://github.com/zeroc-ice/ice/issues/254
         p->unit()->warning(p->file(), p->line(), All, "dictionary key type not supported in PHP");
     }
 
-    string type = getTypeVar(p);
-
     startNamespace(p);
 
     // Emit the type information.
-    string scoped = p->scoped();
     _out << sp << nl << "global " << type << ';';
     _out << sp << nl << "if(!isset(" << type << "))";
     _out << sb;
-    _out << nl << "global " << getType(p->keyType()) << ";";
-    _out << nl << "global " << getType(p->valueType()) << ";";
-    _out << nl << type << " = IcePHP_defineDictionary('" << scoped << "', ";
-    writeType(p->keyType());
+    _out << nl << "global " << getType(keyType) << ";";
+    _out << nl << "global " << getType(valueType) << ";";
+    _out << nl << type << " = IcePHP_defineDictionary('" << p->scoped() << "', ";
+    writeType(keyType);
     _out << ", ";
-    writeType(p->valueType());
+    writeType(valueType);
     _out << ");";
     _out << eb;
 
