@@ -59,7 +59,7 @@ namespace Ice
          * @return The property value.
          * @see #setProperty
          */
-        std::string getProperty(std::string_view key) noexcept;
+        std::string getProperty(std::string_view key);
 
         /**
          * Get an Ice property by key. If the property is not set, its default value is returned.
@@ -77,7 +77,7 @@ namespace Ice
          * @return The property value or the default value.
          * @see #setProperty
          */
-        std::string getPropertyWithDefault(std::string_view key, std::string_view value) noexcept;
+        std::string getPropertyWithDefault(std::string_view key, std::string_view value);
 
         /**
          * Get a property as an integer. If the property is not set, 0 is returned.
@@ -117,7 +117,7 @@ namespace Ice
          * @return The property value interpreted as a list of strings.
          * @see #setProperty
          */
-        StringSeq getPropertyAsList(std::string_view key) noexcept;
+        StringSeq getPropertyAsList(std::string_view key);
 
         /**
          * Get an Ice property as a list of strings. The strings must be separated by whitespace or comma. If the
@@ -143,7 +143,7 @@ namespace Ice
          * @return The property value interpreted as list of strings, or the default value.
          * @see #setProperty
          */
-        StringSeq getPropertyAsListWithDefault(std::string_view key, const StringSeq& value) noexcept;
+        StringSeq getPropertyAsListWithDefault(std::string_view key, const StringSeq& value);
 
         /**
          * Get all properties whose keys begins with <em>prefix</em>. If <em>prefix</em> is an empty string, then all
@@ -151,7 +151,7 @@ namespace Ice
          * @param prefix The prefix to search for (empty string if none).
          * @return The matching property set.
          */
-        PropertyDict getPropertiesForPrefix(std::string_view prefix) noexcept;
+        PropertyDict getPropertiesForPrefix(std::string_view prefix);
 
         /**
          * Set a property. To unset a property, set it to the empty string.
@@ -166,7 +166,7 @@ namespace Ice
          * sequence is a command-line option of the form <code>--<em>key</em>=<em>value</em></code>.
          * @return The command line options for this property set.
          */
-        StringSeq getCommandLineOptions() noexcept;
+        StringSeq getCommandLineOptions();
 
         /**
          * Convert a sequence of command-line options into properties. All options that begin with

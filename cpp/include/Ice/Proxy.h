@@ -642,7 +642,7 @@ namespace Ice
          * Obtains the identity embedded in this proxy.
          * @return The identity of the target object.
          */
-        [[nodiscard]] Ice::Identity ice_getIdentity() const;
+        [[nodiscard]] const Ice::Identity& ice_getIdentity() const noexcept;
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the identity.
@@ -665,7 +665,7 @@ namespace Ice
          * Obtains the facet for this proxy.
          * @return The facet for this proxy. If the proxy uses the default facet, the return value is the empty string.
          */
-        [[nodiscard]] std::string ice_getFacet() const;
+        [[nodiscard]] const std::string& ice_getFacet() const noexcept;
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the facet.

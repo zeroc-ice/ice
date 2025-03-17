@@ -70,8 +70,8 @@ Ice::operator<<(ostream& os, const Ice::ObjectPrx& p)
     return os << p.ice_toString();
 }
 
-Identity
-Ice::ObjectPrx::ice_getIdentity() const
+const Identity&
+Ice::ObjectPrx::ice_getIdentity() const noexcept
 {
     return _reference->getIdentity();
 }
@@ -82,8 +82,8 @@ Ice::ObjectPrx::ice_getContext() const
     return _reference->getContext()->getValue();
 }
 
-string
-Ice::ObjectPrx::ice_getFacet() const
+const string&
+Ice::ObjectPrx::ice_getFacet() const noexcept
 {
     return _reference->getFacet();
 }

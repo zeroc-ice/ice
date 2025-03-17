@@ -1835,7 +1835,7 @@ Ice::ConnectionI::finish(bool close)
 }
 
 string
-Ice::ConnectionI::toString() const noexcept
+Ice::ConnectionI::toString() const
 {
     return _desc; // No mutex lock, _desc is immutable.
 }
@@ -1846,7 +1846,7 @@ Ice::ConnectionI::getNativeInfo()
     return _transceiver->getNativeInfo();
 }
 
-string
+const string&
 Ice::ConnectionI::type() const noexcept
 {
     return _type; // No mutex lock, _type is immutable.

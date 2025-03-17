@@ -51,7 +51,7 @@ namespace
 Ice::ObjectAdapter::~ObjectAdapter() = default; // avoid weak vtable
 
 string
-Ice::ObjectAdapterI::getName() const noexcept
+Ice::ObjectAdapterI::getName() const
 {
     //
     // No mutex lock necessary, _name is immutable.
@@ -587,7 +587,7 @@ Ice::ObjectAdapterI::getLocator() const noexcept
 }
 
 EndpointSeq
-Ice::ObjectAdapterI::getEndpoints() const noexcept
+Ice::ObjectAdapterI::getEndpoints() const
 {
     lock_guard lock(_mutex);
 
@@ -601,7 +601,7 @@ Ice::ObjectAdapterI::getEndpoints() const noexcept
 }
 
 EndpointSeq
-Ice::ObjectAdapterI::getPublishedEndpoints() const noexcept
+Ice::ObjectAdapterI::getPublishedEndpoints() const
 {
     lock_guard lock(_mutex);
     return {_publishedEndpoints.begin(), _publishedEndpoints.end()};

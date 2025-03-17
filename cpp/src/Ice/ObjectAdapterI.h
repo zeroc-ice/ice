@@ -35,7 +35,7 @@ namespace Ice
     class ObjectAdapterI final : public ObjectAdapter, public std::enable_shared_from_this<ObjectAdapterI>
     {
     public:
-        [[nodiscard]] std::string getName() const noexcept final;
+        [[nodiscard]] std::string getName() const final;
 
         [[nodiscard]] CommunicatorPtr getCommunicator() const noexcept final;
 
@@ -75,9 +75,9 @@ namespace Ice
 
         void setLocator(std::optional<LocatorPrx>) final;
         [[nodiscard]] std::optional<LocatorPrx> getLocator() const noexcept override;
-        [[nodiscard]] EndpointSeq getEndpoints() const noexcept override;
+        [[nodiscard]] EndpointSeq getEndpoints() const override;
 
-        [[nodiscard]] EndpointSeq getPublishedEndpoints() const noexcept override;
+        [[nodiscard]] EndpointSeq getPublishedEndpoints() const override;
         void setPublishedEndpoints(EndpointSeq) final;
 
         [[nodiscard]] bool isLocal(const IceInternal::ReferencePtr&) const;
