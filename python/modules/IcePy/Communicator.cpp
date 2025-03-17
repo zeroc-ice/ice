@@ -1629,7 +1629,7 @@ PyObject*
 IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
 {
     auto p = communicatorMap.find(communicator);
-    assert(p != _communicatorMap.end());
+    assert(p != communicatorMap.end());
     auto* obj = reinterpret_cast<CommunicatorObject*>(p->second);
     if (obj->wrapper)
     {
