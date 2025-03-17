@@ -137,7 +137,7 @@ namespace Ice
 
         ~Trace();
 
-        /// Calls Logger#trace with the collected output.
+        /// Calls Logger::trace with the collected output.
         void flush();
 
     private:

@@ -4,6 +4,6 @@ WarningInvalidComment.ice:11: warning: the '@exception' tag is only valid on ope
 WarningInvalidComment.ice:11: warning: the '@return' tag is only valid on operations
 WarningInvalidComment.ice:15: warning: missing link target after '@see' tag
 WarningInvalidComment.ice:17: warning: ignoring trailing '.' character in '@see' tag
-WarningInvalidComment.ice:26: warning: ignoring unknown doc tag '@remarks' in comment
+WarningInvalidComment.ice:26: warning: ignoring unknown doc tag '@remark' in comment
 WarningInvalidComment.ice:26: warning: '@see' tags cannot span multiple lines and must be of the form: '@see identifier'
 WarningInvalidComment.ice:26: warning: ignoring unknown doc tag '@bad' in comment
