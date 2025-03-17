@@ -1424,11 +1424,11 @@ namespace DataStorm
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    template<typename SFC>
+    template<typename SampleFilterCriteria>
     SingleKeyReader<Key, Value, UpdateTag>::SingleKeyReader(
         const Topic<Key, Value, UpdateTag>& topic,
         const Key& key,
-        const Filter<SFC>& sampleFilter,
+        const Filter<SampleFilterCriteria>& sampleFilter,
         std::string name,
         const ReaderConfig& config)
         : Reader<Key, Value, UpdateTag>(topic.getReader()->create(
@@ -1436,7 +1436,7 @@ namespace DataStorm
               std::move(name),
               config,
               sampleFilter.name,
-              DataStormI::EncoderT<SFC>::encode(topic.getCommunicator(), sampleFilter.criteria)))
+              DataStormI::EncoderT<SampleFilterCriteria>::encode(topic.getCommunicator(), sampleFilter.criteria)))
     {
     }
 
@@ -1466,11 +1466,11 @@ namespace DataStorm
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    template<typename SFC>
+    template<typename SampleFilterCriteria>
     MultiKeyReader<Key, Value, UpdateTag>::MultiKeyReader(
         const Topic<Key, Value, UpdateTag>& topic,
         const std::vector<Key>& keys,
-        const Filter<SFC>& sampleFilter,
+        const Filter<SampleFilterCriteria>& sampleFilter,
         std::string name,
         const ReaderConfig& config)
         : Reader<Key, Value, UpdateTag>(topic.getReader()->create(
@@ -1478,7 +1478,7 @@ namespace DataStorm
               std::move(name),
               config,
               sampleFilter.name,
-              Encoder<SFC>::encode(topic.getCommunicator(), sampleFilter.criteria)))
+              Encoder<SampleFilterCriteria>::encode(topic.getCommunicator(), sampleFilter.criteria)))
     {
     }
 
@@ -1497,10 +1497,10 @@ namespace DataStorm
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    template<typename KFC>
+    template<typename KeyFilterCriteria>
     FilteredKeyReader<Key, Value, UpdateTag>::FilteredKeyReader(
         const Topic<Key, Value, UpdateTag>& topic,
-        const Filter<KFC>& filter,
+        const Filter<KeyFilterCriteria>& filter,
         std::string name,
         const ReaderConfig& config)
         : Reader<Key, Value, UpdateTag>(topic.getReader()->createFiltered(
@@ -1511,11 +1511,11 @@ namespace DataStorm
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    template<typename KFC, typename SFC>
+    template<typename KeyFilterCriteria, typename SampleFilterCriteria>
     FilteredKeyReader<Key, Value, UpdateTag>::FilteredKeyReader(
         const Topic<Key, Value, UpdateTag>& topic,
-        const Filter<KFC>& keyFilter,
-        const Filter<SFC>& sampleFilter,
+        const Filter<KeyFilterCriteria>& keyFilter,
+        const Filter<SampleFilterCriteria>& sampleFilter,
         std::string name,
         const ReaderConfig& config)
         : Reader<Key, Value, UpdateTag>(topic.getReader()->createFiltered(
@@ -1523,7 +1523,7 @@ namespace DataStorm
               std::move(name),
               config,
               sampleFilter.name,
-              Encoder<SFC>::encode(topic.getCommunicator(), sampleFilter.criteria)))
+              Encoder<SampleFilterCriteria>::encode(topic.getCommunicator(), sampleFilter.criteria)))
     {
     }
 
@@ -2003,7 +2003,7 @@ namespace DataStorm
     template<typename Criteria>
     void Topic<Key, Value, UpdateTag>::setSampleFilter(
         std::string name,
-        std::function<std::function<bool(const Sample<Key, Value, UpdateTag>&)>(const Criteria&)> factory) noexcept
+        std::function<std::function<bool(const SampleType&)>(const Criteria&)> factory) noexcept
     {
         std::lock_guard<std::mutex> lock(_mutex);
         _sampleFilterFactories->set(std::move(name), std::move(factory));

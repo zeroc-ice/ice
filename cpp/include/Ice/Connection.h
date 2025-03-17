@@ -202,6 +202,7 @@ namespace Ice
         virtual void throwException() const = 0;
 
     protected:
+        /// @private
         [[nodiscard]] virtual ObjectPrx _createProxy(Identity id) const = 0;
     };
 
@@ -239,6 +240,7 @@ namespace Ice
         const std::string connectionId;
 
     protected:
+        /// @private
         explicit ConnectionInfo(ConnectionInfoPtr underlyingInfo)
             : underlying{std::move(underlyingInfo)},
               incoming{underlying->incoming},
@@ -247,6 +249,7 @@ namespace Ice
         {
         }
 
+        /// @private
         ConnectionInfo(bool incoming, std::string adapterName, std::string connectionId)
             : incoming{incoming},
               adapterName{std::move(adapterName)},
@@ -288,6 +291,7 @@ namespace Ice
         const int remotePort;
 
     protected:
+        /// @private
         IPConnectionInfo(
             bool incoming,
             std::string adapterName,
@@ -326,6 +330,7 @@ namespace Ice
         const int sndSize;
 
         // internal constructor
+        /// @private
         TCPConnectionInfo(
             bool incoming,
             std::string adapterName,
@@ -343,6 +348,7 @@ namespace Ice
         }
 
         // internal constructor
+        /// @private
         TCPConnectionInfo(bool incoming, std::string adapterName, std::string connectionId)
             : TCPConnectionInfo{incoming, std::move(adapterName), std::move(connectionId), "", -1, "", -1, 0, 0}
         {
@@ -381,6 +387,7 @@ namespace Ice
         const int sndSize;
 
         // internal constructor
+        /// @private
         UDPConnectionInfo(
             bool incoming,
             std::string adapterName,
@@ -402,6 +409,7 @@ namespace Ice
         }
 
         // internal constructor
+        /// @private
         UDPConnectionInfo(bool incoming, std::string adapterName, std::string connectionId)
             : UDPConnectionInfo{incoming, std::move(adapterName), std::move(connectionId), "", -1, "", -1, "", -1, 0, 0}
         {
@@ -425,6 +433,7 @@ namespace Ice
         const HeaderDict headers;
 
         // internal constructor
+        /// @private
         WSConnectionInfo(ConnectionInfoPtr underlying, HeaderDict headers)
             : ConnectionInfo{std::move(underlying)},
               headers{std::move(headers)}
@@ -474,6 +483,7 @@ namespace Ice
         const std::string protocol;
 
         // internal constructor
+        /// @private
         IAPConnectionInfo(
             std::string adapterName,
             std::string connectionId,

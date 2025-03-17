@@ -33,7 +33,8 @@ namespace Ice
     class ICE_API OutputStream : public IceInternal::Buffer
     {
     public:
-        using size_type = size_t;
+        /// The size type for the underlying byte buffer.
+        using size_type = std::size_t;
 
         /**
          * Constructs an OutputStream.
@@ -406,31 +407,34 @@ namespace Ice
             }
         }
 
-        /**
-         * Writes a list of mandatory data values.
-         */
+        /// Writes a single non-optional value to this output stream.
+        /// @tparam T The type of the value.
+        /// @param v The value to write.
         template<typename T> void writeAll(const T& v) { write(v); }
 
-        /**
-         * Writes a list of mandatory data values.
-         */
+        /// Writes two or more non-optional values to this output stream.
+        /// @tparam T The type of the first value.
+        /// @tparam Te The types of the remaining values.
+        /// @param v The first value to write.
+        /// @param ve The remaining values.
         template<typename T, typename... Te> void writeAll(const T& v, const Te&... ve)
         {
             write(v);
             writeAll(ve...);
         }
 
-        /**
-         * Writes a list of mandatory data values.
-         */
+        /// @cond INTERNAL
+        // TODO: internal because it breaks doxygen 1.13.2.
+
+        /// Helper function for the next writeAll.
         template<size_t I = 0, typename... Te> std::enable_if_t<I == sizeof...(Te), void> writeAll(std::tuple<Te...>)
         {
             // Do nothing. Either tuple is empty or we are at the end.
         }
 
-        /**
-         * Writes a list of mandatory data values.
-         */
+        /// Writes a tuple of non-optional values to this output stream.
+        /// @tparam I The index of the first element to write.
+        /// @tparam Te The types of the values in the tuple, starting at index @p I.
         template<size_t I = 0, typename... Te>
             std::enable_if_t < I<sizeof...(Te), void> writeAll(std::tuple<Te...> tuple)
         {
@@ -438,17 +442,23 @@ namespace Ice
             writeAll<I + 1, Te...>(tuple);
         }
 
-        /**
-         * Writes a list of optional data values.
-         */
+        /// @endcond
+
+        /// Writes a single optional value to this output stream.
+        /// @tparam T The type of the value.
+        /// @param tags The tag list. The last tag is used to write the value.
+        /// @param v The value to write.
         template<typename T> void writeAll(std::initializer_list<std::int32_t> tags, const std::optional<T>& v)
         {
             write(*(tags.begin() + tags.size() - 1), v);
         }
 
-        /**
-         * Writes a list of optional data values.
-         */
+        /// Writes two or more optional values to this output stream.
+        /// @tparam T The type of the first value.
+        /// @tparam Te The types of the remaining values.
+        /// @param tags The tag list.
+        /// @param v The first value to write.
+        /// @param ve The remaining values.
         template<typename T, typename... Te>
         void
         writeAll(std::initializer_list<std::int32_t> tags, const std::optional<T>& v, const std::optional<Te>&... ve)

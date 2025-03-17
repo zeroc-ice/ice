@@ -270,6 +270,8 @@ namespace Ice
         [[nodiscard]] Prx ice_twoway() const { return fromReference(asPrx()._twoway()); }
 
     protected:
+        /// @cond INTERNAL
+
         // This constructor never initializes the base classes since they are all virtual and Proxy is never the most
         // derived class.
         Proxy() = default;
@@ -278,6 +280,7 @@ namespace Ice
         Proxy(const Proxy&) noexcept = default;
         Proxy& operator=(const Proxy&) noexcept { return *this; } // NOLINT
         Proxy& operator=(Proxy&&) noexcept { return *this; }      // NOLINT
+        /// @endcond
 
     private:
         Prx fromReference(IceInternal::ReferencePtr&& ref) const
@@ -296,14 +299,30 @@ namespace Ice
     class ICE_API ObjectPrx : public Proxy<ObjectPrx>
     {
     public:
+        /// Copy constructor. Constructs with a copy of the contents of @p other.
+        /// @param other The proxy to copy from.
         ObjectPrx(const ObjectPrx& other) noexcept = default;
-        ObjectPrx(ObjectPrx&&) noexcept = default;
 
+        /// Move constructor. Constructs a proxy with the contents of @p other using move semantics.
+        /// @param other The proxy to move from.
+        ObjectPrx(ObjectPrx&& other) noexcept = default;
+
+        /// Constructs a proxy from a Communicator and a proxy string.
+        /// @param communicator The communicator of the new proxy.
+        /// @param proxyString The proxy string to parse.
         ObjectPrx(const Ice::CommunicatorPtr& communicator, std::string_view proxyString);
 
         virtual ~ObjectPrx();
 
+        /// Copy assignment operator. Replaces the contents of this proxy with a copy of the contents of @p rhs.
+        /// @param rhs The proxy to copy from.
+        /// @return A reference to this proxy.
         ObjectPrx& operator=(const ObjectPrx& rhs) noexcept = default;
+
+        /// Move assignment operator. Replaces the contents of this proxy with the contents of @p rhs using move
+        /// semantics.
+        /// @param rhs The proxy to move from.
+        /// @return A reference to this proxy.
         ObjectPrx& operator=(ObjectPrx&& rhs) noexcept = default;
 
         /**
