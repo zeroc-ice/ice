@@ -24,9 +24,7 @@ IcePy::LoggerWrapper::print(const string& message)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    //
     // Method must be named "_print".
-    //
     PyObjectHandle tmp{PyObject_CallMethod(_logger.get(), "_print", "s", message.c_str())};
     if (!tmp.get())
     {
@@ -75,7 +73,7 @@ IcePy::LoggerWrapper::getPrefix()
 {
     AdoptThread adoptThread;
 
-    PyObjectHandle tmp{PyObject_CallMethod(_logger.get(), "getPrefix", 0)};
+    PyObjectHandle tmp{PyObject_CallMethod(_logger.get(), "getPrefix", nullptr)};
     if (!tmp.get())
     {
         throwPythonException();
@@ -106,7 +104,7 @@ IcePy::LoggerWrapper::getObject()
 extern "C" LoggerObject*
 loggerNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
-    LoggerObject* self = reinterpret_cast<LoggerObject*>(type->tp_alloc(type, 0));
+    auto* self = reinterpret_cast<LoggerObject*>(type->tp_alloc(type, 0));
     if (!self)
     {
         return nullptr;
@@ -319,55 +317,22 @@ static PyMethodDef LoggerMethods[] = {
      reinterpret_cast<PyCFunction>(loggerCloneWithPrefix),
      METH_VARARGS,
      PyDoc_STR("cloneWithPrefix(prefix) -> Ice.Logger")},
-    {0, 0} /* sentinel */
+    {nullptr, nullptr} /* sentinel */
 };
 
 namespace IcePy
 {
+    // clang-format off
     PyTypeObject LoggerType = {
-        /* The ob_type field must be initialized in the module init function
-         * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.Logger", /* tp_name */
-        sizeof(LoggerObject),                       /* tp_basicsize */
-        0,                                          /* tp_itemsize */
-        /* methods */
-        reinterpret_cast<destructor>(loggerDealloc), /* tp_dealloc */
-        0,                                           /* tp_print */
-        0,                                           /* tp_getattr */
-        0,                                           /* tp_setattr */
-        0,                                           /* tp_reserved */
-        0,                                           /* tp_repr */
-        0,                                           /* tp_as_number */
-        0,                                           /* tp_as_sequence */
-        0,                                           /* tp_as_mapping */
-        0,                                           /* tp_hash */
-        0,                                           /* tp_call */
-        0,                                           /* tp_str */
-        0,                                           /* tp_getattro */
-        0,                                           /* tp_setattro */
-        0,                                           /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT,                          /* tp_flags */
-        0,                                           /* tp_doc */
-        0,                                           /* tp_traverse */
-        0,                                           /* tp_clear */
-        0,                                           /* tp_richcompare */
-        0,                                           /* tp_weaklistoffset */
-        0,                                           /* tp_iter */
-        0,                                           /* tp_iternext */
-        LoggerMethods,                               /* tp_methods */
-        0,                                           /* tp_members */
-        0,                                           /* tp_getset */
-        0,                                           /* tp_base */
-        0,                                           /* tp_dict */
-        0,                                           /* tp_descr_get */
-        0,                                           /* tp_descr_set */
-        0,                                           /* tp_dictoffset */
-        0,                                           /* tp_init */
-        0,                                           /* tp_alloc */
-        reinterpret_cast<newfunc>(loggerNew),        /* tp_new */
-        0,                                           /* tp_free */
-        0,                                           /* tp_is_gc */
+        PyVarObject_HEAD_INIT(nullptr, 0)
+        .tp_name = "IcePy.Logger",
+        .tp_basicsize = sizeof(LoggerObject),
+        .tp_dealloc = reinterpret_cast<destructor>(loggerDealloc),
+        .tp_flags = Py_TPFLAGS_DEFAULT,
+        .tp_methods = LoggerMethods,
+        .tp_new = reinterpret_cast<newfunc>(loggerNew),
     };
+    // clang-format on
 }
 
 bool
@@ -377,8 +342,8 @@ IcePy::initLogger(PyObject* module)
     {
         return false;
     }
-    PyTypeObject* type = &LoggerType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, "Logger", reinterpret_cast<PyObject*>(type)) < 0)
+
+    if (PyModule_AddObject(module, "Logger", reinterpret_cast<PyObject*>(&LoggerType)) < 0)
     {
         return false;
     }
@@ -398,7 +363,7 @@ IcePy::cleanupLogger()
 PyObject*
 IcePy::createLogger(const Ice::LoggerPtr& logger)
 {
-    LoggerObject* obj = loggerNew(&LoggerType, 0, 0);
+    LoggerObject* obj = loggerNew(&LoggerType, nullptr, nullptr);
     if (obj)
     {
         obj->logger = new Ice::LoggerPtr(logger);

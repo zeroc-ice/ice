@@ -61,7 +61,7 @@ namespace IcePy
 
         operator bool() const { return _p != nullptr; }
 
-        PyObject* get() const;
+        [[nodiscard]] PyObject* get() const;
         PyObject* release();
 
     private:
@@ -96,11 +96,6 @@ namespace IcePy
 
         PyObjectHandle ex;
     };
-
-    //
-    // Convert Ice::ByteSeq to a Python list.
-    //
-    PyObject* byteSeqToList(const Ice::ByteSeq&);
 
     //
     // Convert Ice::StringSeq to and from a Python list.
@@ -194,8 +189,8 @@ namespace IcePy
     //
     // Call a Python method.
     //
-    PyObject* callMethod(PyObject*, const std::string&, PyObject* = 0, PyObject* = 0);
-    PyObject* callMethod(PyObject*, PyObject* = 0, PyObject* = 0);
+    PyObject* callMethod(PyObject*, const std::string&, PyObject* = nullptr, PyObject* = nullptr);
+    PyObject* callMethod(PyObject*, PyObject* = nullptr, PyObject* = nullptr);
 }
 
 extern "C" PyObject* IcePy_stringVersion(PyObject*, PyObject*);

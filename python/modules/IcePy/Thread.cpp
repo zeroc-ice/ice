@@ -40,7 +40,7 @@ IcePy::ThreadHook::start()
     if (_threadStart.get())
     {
         PyObjectHandle args{PyTuple_New(0)};
-        PyObjectHandle tmp{PyObject_Call(_threadStart.get(), args.get(), 0)};
+        PyObjectHandle tmp{PyObject_Call(_threadStart.get(), args.get(), nullptr)};
         if (!tmp.get())
         {
             throwPythonException();
@@ -55,7 +55,7 @@ IcePy::ThreadHook::stop()
     if (_threadStop.get())
     {
         PyObjectHandle args{PyTuple_New(0)};
-        PyObjectHandle tmp{PyObject_Call(_threadStop.get(), args.get(), 0)};
+        PyObjectHandle tmp{PyObject_Call(_threadStop.get(), args.get(), nullptr)};
         if (!tmp.get())
         {
             throwPythonException();

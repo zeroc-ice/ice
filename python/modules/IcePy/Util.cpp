@@ -80,9 +80,9 @@ namespace IcePy
 
     template<typename T> PyObject* createVersion(const T& version, const char* type)
     {
-        PyObject* versionType = lookupType(type);
+        PyObject* versionType{lookupType(type)};
 
-        PyObjectHandle obj{PyObject_CallObject(versionType, 0)};
+        PyObjectHandle obj{PyObject_CallObject(versionType, nullptr)};
         if (!obj.get())
         {
             return nullptr;
@@ -98,8 +98,8 @@ namespace IcePy
 
     template<typename T> PyObject* versionToString(PyObject* args, const char* type)
     {
-        PyObject* versionType = IcePy::lookupType(type);
-        PyObject* p;
+        PyObject* versionType{lookupType(type)};
+        PyObject* p{nullptr};
         if (!PyArg_ParseTuple(args, "O!", versionType, &p))
         {
             return nullptr;
@@ -126,7 +126,7 @@ namespace IcePy
 
     template<typename T> PyObject* stringToVersion(PyObject* args, const char* type)
     {
-        char* str;
+        char* str{nullptr};
         if (!PyArg_ParseTuple(args, "s", &str))
         {
             return nullptr;
@@ -161,8 +161,8 @@ IcePy::getString(PyObject* p)
         PyObjectHandle bytes{PyUnicode_AsUTF8String(p)};
         if (bytes.get())
         {
-            char* s;
-            Py_ssize_t sz;
+            char* s{nullptr};
+            Py_ssize_t sz{};
             PyBytes_AsStringAndSize(bytes.get(), &s, &sz);
             str.assign(s, static_cast<size_t>(sz));
         }
@@ -189,7 +189,7 @@ IcePy::getStringArg(PyObject* p, const string& arg, string& val)
 PyObject*
 IcePy::getAttr(PyObject* obj, const string& attrib, bool allowNone)
 {
-    PyObject* v = PyObject_GetAttrString(obj, attrib.c_str());
+    PyObject* v{PyObject_GetAttrString(obj, attrib.c_str())};
     if (v == Py_None)
     {
         if (!allowNone)
@@ -211,7 +211,7 @@ IcePy::getFunction()
     //
     // Get name of current function.
     //
-    PyFrameObject* f = PyEval_GetFrame();
+    PyFrameObject* f{PyEval_GetFrame()};
     PyObjectHandle code{getAttr(reinterpret_cast<PyObject*>(f), "f_code", false)};
     assert(code.get());
     PyObjectHandle func{getAttr(code.get(), "co_name", false)};
@@ -262,7 +262,7 @@ IcePy::PyObjectHandle::get() const
 PyObject*
 IcePy::PyObjectHandle::release()
 {
-    PyObject* result = _p;
+    PyObject* result{_p};
     _p = nullptr;
     return result;
 }
@@ -279,7 +279,7 @@ namespace
 {
     string getTypeName(PyObject* ex)
     {
-        PyObject* cls = reinterpret_cast<PyObject*>(ex->ob_type);
+        PyObject* cls{reinterpret_cast<PyObject*>(ex->ob_type)};
         IcePy::PyObjectHandle name{IcePy::getAttr(cls, "__name__", false)};
         assert(name.get());
         IcePy::PyObjectHandle mod{IcePy::getAttr(cls, "__module__", false)};
@@ -289,6 +289,7 @@ namespace
         result += IcePy::getString(name.get());
         return result;
     }
+
     string createUnknownExceptionMessage(PyObject* ex)
     {
         ostringstream ostr;
@@ -310,12 +311,12 @@ void
 IcePy::PyException::raise()
 {
     assert(ex.get());
-    PyObject* localExceptionType = lookupType("Ice.LocalException");
+    PyObject* localExceptionType{lookupType("Ice.LocalException")};
     if (PyObject_IsInstance(ex.get(), localExceptionType))
     {
         string typeName = getTypeName(ex.get());
 
-        PyObject* requestFailedExceptionType = lookupType("Ice.RequestFailedException");
+        PyObject* requestFailedExceptionType{lookupType("Ice.RequestFailedException")};
 
         if (PyObject_IsInstance(ex.get(), requestFailedExceptionType))
         {
@@ -379,7 +380,7 @@ IcePy::PyException::raise()
             throw Ice::UnknownException{__FILE__, __LINE__, std::move(message)};
         }
 
-        PyObject* dispatchExceptionType = lookupType("Ice.DispatchException");
+        PyObject* dispatchExceptionType{lookupType("Ice.DispatchException")};
         if (PyObject_IsInstance(ex.get(), dispatchExceptionType))
         {
             PyObjectHandle replyStatusAttr{getAttr(ex.get(), "replyStatus", false)};
@@ -404,44 +405,15 @@ IcePy::PyException::checkSystemExit()
     }
 }
 
-PyObject*
-IcePy::byteSeqToList(const Ice::ByteSeq& seq)
-{
-    PyObject* l = PyList_New(0);
-    if (!l)
-    {
-        return nullptr;
-    }
-
-    for (Ice::ByteSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
-    {
-        PyObject* byte = PyLong_FromLong(std::to_integer<long>(*p));
-        if (!byte)
-        {
-            Py_DECREF(l);
-            return nullptr;
-        }
-        int status = PyList_Append(l, byte);
-        Py_DECREF(byte); // Give ownership to the list.
-        if (status < 0)
-        {
-            Py_DECREF(l);
-            return nullptr;
-        }
-    }
-
-    return l;
-}
-
 bool
 IcePy::listToStringSeq(PyObject* l, Ice::StringSeq& seq)
 {
     assert(PyList_Check(l));
 
-    Py_ssize_t sz = PyList_GET_SIZE(l);
+    Py_ssize_t sz{PyList_GET_SIZE(l)};
     for (Py_ssize_t i = 0; i < sz; ++i)
     {
-        PyObject* item = PyList_GET_ITEM(l, i);
+        PyObject* item{PyList_GET_ITEM(l, i)};
         if (!item)
         {
             return false;
@@ -463,27 +435,24 @@ IcePy::listToStringSeq(PyObject* l, Ice::StringSeq& seq)
 }
 
 bool
-IcePy::stringSeqToList(const Ice::StringSeq& seq, PyObject* l)
+IcePy::stringSeqToList(const Ice::StringSeq& source, PyObject* target)
 {
-    assert(PyList_Check(l));
+    assert(PyList_Check(target));
 
-    for (Ice::StringSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
+    for (const auto& value : source)
     {
-        PyObject* str = Py_BuildValue("s", p->c_str());
+        PyObjectHandle str{Py_BuildValue("s", value.c_str())};
         if (!str)
         {
-            Py_DECREF(l);
             return false;
         }
-        int status = PyList_Append(l, str);
-        Py_DECREF(str); // Give ownership to the list.
+
+        int status = PyList_Append(target, str.get());
         if (status < 0)
         {
-            Py_DECREF(l);
             return false;
         }
     }
-
     return true;
 }
 
@@ -495,11 +464,12 @@ IcePy::tupleToStringSeq(PyObject* t, Ice::StringSeq& seq)
     int sz = static_cast<int>(PyTuple_GET_SIZE(t));
     for (int i = 0; i < sz; ++i)
     {
-        PyObject* item = PyTuple_GET_ITEM(t, i);
+        PyObject* item{PyTuple_GET_ITEM(t, i)};
         if (!item)
         {
             return false;
         }
+
         string str;
         if (checkString(item))
         {
@@ -522,8 +492,8 @@ IcePy::dictionaryToContext(PyObject* dict, Ice::Context& context)
     assert(PyDict_Check(dict));
 
     Py_ssize_t pos = 0;
-    PyObject* key;
-    PyObject* value;
+    PyObject* key{nullptr};
+    PyObject* value{nullptr};
     while (PyDict_Next(dict, &pos, &key, &value))
     {
         string keystr;
@@ -559,15 +529,15 @@ IcePy::contextToDictionary(const Ice::Context& ctx, PyObject* dict)
 {
     assert(PyDict_Check(dict));
 
-    for (Ice::Context::const_iterator p = ctx.begin(); p != ctx.end(); ++p)
+    for (const auto& [key, value] : ctx)
     {
-        PyObjectHandle key{createString(p->first)};
-        PyObjectHandle value{createString(p->second)};
-        if (!key.get() || !value.get())
+        PyObjectHandle pyKey{createString(key)};
+        PyObjectHandle pyValue{createString(value)};
+        if (!pyKey.get() || !pyValue.get())
         {
             return false;
         }
-        if (PyDict_SetItem(dict, key.get(), value.get()) < 0)
+        if (PyDict_SetItem(dict, pyKey.get(), pyValue.get()) < 0)
         {
             return false;
         }
@@ -587,11 +557,11 @@ IcePy::lookupType(const string& typeName)
     //
     // First search for the module in sys.modules.
     //
-    PyObject* sysModules = PyImport_GetModuleDict();
+    PyObject* sysModules{PyImport_GetModuleDict()};
     assert(sysModules);
 
     PyObject* module = PyDict_GetItemString(sysModules, const_cast<char*>(moduleName.c_str()));
-    PyObject* dict;
+    PyObject* dict{nullptr};
     if (!module)
     {
         //
@@ -635,7 +605,7 @@ namespace
         result.replace(0, 7, "Ice.");
         assert(result.find(':') == string::npos); // Assert that there weren't any intermediate scopes.
 
-        PyObject* type = IcePy::lookupType(result);
+        PyObject* type{IcePy::lookupType(result)};
         if (!type)
         {
             if (fallbackToLocalException)
@@ -682,7 +652,7 @@ IcePy::convertException(std::exception_ptr exPtr)
             IcePy::createString(ex.kindOfObject()),
             IcePy::createString(ex.id()),
             IcePy::createString(ex.what())};
-        return createPythonException(ex.ice_id(), std::move(args));
+        return createPythonException(ex.ice_id(), args);
     }
     catch (const Ice::NotRegisteredException& ex)
     {
@@ -690,17 +660,17 @@ IcePy::convertException(std::exception_ptr exPtr)
             IcePy::createString(ex.kindOfObject()),
             IcePy::createString(ex.id()),
             IcePy::createString(ex.what())};
-        return createPythonException(ex.ice_id(), std::move(args));
+        return createPythonException(ex.ice_id(), args);
     }
     catch (const Ice::ConnectionAbortedException& ex)
     {
         std::array args{ex.closedByApplication() ? Py_True : Py_False, IcePy::createString(ex.what())};
-        return createPythonException(ex.ice_id(), std::move(args));
+        return createPythonException(ex.ice_id(), args);
     }
     catch (const Ice::ConnectionClosedException& ex)
     {
         std::array args{ex.closedByApplication() ? Py_True : Py_False, IcePy::createString(ex.what())};
-        return createPythonException(ex.ice_id(), std::move(args));
+        return createPythonException(ex.ice_id(), args);
     }
     catch (const Ice::RequestFailedException& ex)
     {
@@ -709,34 +679,34 @@ IcePy::convertException(std::exception_ptr exPtr)
             IcePy::createString(ex.facet()),
             IcePy::createString(ex.operation()),
             IcePy::createString(ex.what())};
-        return createPythonException(ex.ice_id(), std::move(args));
+        return createPythonException(ex.ice_id(), args);
     }
     catch (const Ice::UnknownException& ex)
     {
         // The 3 Unknown exceptions can be constructed from just a message.
         std::array args{IcePy::createString(ex.what())};
-        return createPythonException(ex.ice_id(), std::move(args));
+        return createPythonException(ex.ice_id(), args);
     }
     catch (const Ice::DispatchException& ex)
     {
         std::array args{PyLong_FromLong(static_cast<int>(ex.replyStatus())), IcePy::createString(ex.what())};
-        return createPythonException(ex.ice_id(), std::move(args));
+        return createPythonException(ex.ice_id(), args);
     }
     // Then all other exceptions.
     catch (const Ice::LocalException& ex)
     {
         std::array args{IcePy::createString(ex.what())};
-        return createPythonException(ex.ice_id(), std::move(args), true);
+        return createPythonException(ex.ice_id(), args, true);
     }
     catch (const std::exception& ex)
     {
         std::array args{IcePy::createString(ex.what())};
-        return createPythonException(localExceptionTypeId, std::move(args));
+        return createPythonException(localExceptionTypeId, args);
     }
     catch (...)
     {
         std::array args{IcePy::createString("unknown C++ exception")};
-        return createPythonException(localExceptionTypeId, std::move(args));
+        return createPythonException(localExceptionTypeId, args);
     }
 }
 
@@ -796,16 +766,16 @@ IcePy::handleSystemExit(PyObject* ex)
         status = 1;
     }
 
-    code = 0;
+    code = nullptr;
     Py_Exit(status);
 }
 
 PyObject*
 IcePy::createIdentity(const Ice::Identity& ident)
 {
-    PyObject* identityType = lookupType("Ice.Identity");
+    PyObject* identityType{lookupType("Ice.Identity")};
 
-    PyObjectHandle obj{PyObject_CallObject(identityType, 0)};
+    PyObjectHandle obj{PyObject_CallObject(identityType, nullptr)};
     if (!obj.get())
     {
         return nullptr;
@@ -822,7 +792,7 @@ IcePy::createIdentity(const Ice::Identity& ident)
 bool
 IcePy::checkIdentity(PyObject* p)
 {
-    PyObject* identityType = lookupType("Ice.Identity");
+    PyObject* identityType{lookupType("Ice.Identity")};
     return PyObject_IsInstance(p, identityType) == 1;
 }
 
@@ -948,7 +918,7 @@ IcePy::callMethod(PyObject* method, PyObject* arg1, PyObject* arg2)
             return nullptr;
         }
     }
-    return PyObject_Call(method, args.get(), 0);
+    return PyObject_Call(method, args.get(), nullptr);
 }
 
 extern "C" PyObject*

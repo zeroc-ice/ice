@@ -12,11 +12,11 @@ using namespace IcePy;
 PyObject*
 IcePy::createCurrent(const Ice::Current& current)
 {
-    PyObject* currentType = lookupType("Ice.Current");
+    PyObject* currentType{lookupType("Ice.Current")};
 
     PyObjectHandle args{PyTuple_New(9)};
 
-    PyObject* adapter = wrapObjectAdapter(current.adapter);
+    PyObject* adapter{wrapObjectAdapter(current.adapter)};
     if (!adapter)
     {
         return nullptr;
@@ -25,7 +25,7 @@ IcePy::createCurrent(const Ice::Current& current)
 
     if (current.con)
     {
-        PyObject* connection = createConnection(current.con, current.adapter->getCommunicator());
+        PyObject* connection{createConnection(current.con, current.adapter->getCommunicator())};
         if (!connection)
         {
             return nullptr;
@@ -37,21 +37,21 @@ IcePy::createCurrent(const Ice::Current& current)
         PyTuple_SetItem(args.get(), 1, Py_None);
     }
 
-    PyObject* id = createIdentity(current.id);
+    PyObject* id{createIdentity(current.id)};
     if (!id)
     {
         return nullptr;
     }
     PyTuple_SetItem(args.get(), 2, id);
 
-    PyObject* facet = createString(current.facet);
+    PyObject* facet{createString(current.facet)};
     if (!facet)
     {
         return nullptr;
     }
     PyTuple_SetItem(args.get(), 3, facet);
 
-    PyObject* operation = createString(current.operation);
+    PyObject* operation{createString(current.operation)};
     if (!operation)
     {
         return nullptr;
@@ -60,7 +60,7 @@ IcePy::createCurrent(const Ice::Current& current)
 
     PyObject* operationModeType = lookupType("Ice.OperationMode");
     assert(operationModeType);
-    const char* enumerator = nullptr;
+    const char* enumerator{nullptr};
     switch (current.mode)
     {
         case Ice::OperationMode::Normal:
@@ -84,14 +84,14 @@ IcePy::createCurrent(const Ice::Current& current)
     }
     PyTuple_SetItem(args.get(), 6, ctx.release());
 
-    PyObject* requestId = PyLong_FromLong(current.requestId);
+    PyObject* requestId{PyLong_FromLong(current.requestId)};
     if (!requestId)
     {
         return nullptr;
     }
     PyTuple_SetItem(args.get(), 7, requestId);
 
-    PyObject* encoding = IcePy::createEncodingVersion(current.encoding);
+    PyObject* encoding{IcePy::createEncodingVersion(current.encoding)};
     if (!encoding)
     {
         return nullptr;

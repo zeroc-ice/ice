@@ -12,7 +12,7 @@ namespace IcePy
 
     bool initProxy(PyObject*);
 
-    PyObject* createProxy(const Ice::ObjectPrx&, const Ice::CommunicatorPtr&, PyObject* = 0);
+    PyObject* createProxy(const Ice::ObjectPrx&, const Ice::CommunicatorPtr&, PyObject* = nullptr);
 
     //
     // Verifies that the given Python object is a proxy. A value of None is not considered legal here.

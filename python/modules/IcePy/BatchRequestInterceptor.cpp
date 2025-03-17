@@ -133,55 +133,22 @@ static PyMethodDef BatchRequestMethods[] = {
      METH_NOARGS,
      PyDoc_STR("getProxy() -> Ice.ObjectPrx")},
     {"enqueue", reinterpret_cast<PyCFunction>(batchRequestEnqueue), METH_NOARGS, PyDoc_STR("enqueue() -> None")},
-    {0, 0} /* sentinel */
+    {nullptr, nullptr} /* sentinel */
 };
 
 namespace IcePy
 {
+    // clang-format off
     PyTypeObject BatchRequestType = {
-        /* The ob_type field must be initialized in the module init function
-         * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.BatchRequest", /* tp_name */
-        sizeof(BatchRequestObject),                       /* tp_basicsize */
-        0,                                                /* tp_itemsize */
-        /* methods */
-        reinterpret_cast<destructor>(batchRequestDealloc), /* tp_dealloc */
-        0,                                                 /* tp_print */
-        0,                                                 /* tp_getattr */
-        0,                                                 /* tp_setattr */
-        0,                                                 /* tp_reserved */
-        0,                                                 /* tp_repr */
-        0,                                                 /* tp_as_number */
-        0,                                                 /* tp_as_sequence */
-        0,                                                 /* tp_as_mapping */
-        0,                                                 /* tp_hash */
-        0,                                                 /* tp_call */
-        0,                                                 /* tp_str */
-        0,                                                 /* tp_getattro */
-        0,                                                 /* tp_setattro */
-        0,                                                 /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT,                                /* tp_flags */
-        0,                                                 /* tp_doc */
-        0,                                                 /* tp_traverse */
-        0,                                                 /* tp_clear */
-        0,                                                 /* tp_richcompare */
-        0,                                                 /* tp_weaklistoffset */
-        0,                                                 /* tp_iter */
-        0,                                                 /* tp_iternext */
-        BatchRequestMethods,                               /* tp_methods */
-        0,                                                 /* tp_members */
-        0,                                                 /* tp_getset */
-        0,                                                 /* tp_base */
-        0,                                                 /* tp_dict */
-        0,                                                 /* tp_descr_get */
-        0,                                                 /* tp_descr_set */
-        0,                                                 /* tp_dictoffset */
-        0,                                                 /* tp_init */
-        0,                                                 /* tp_alloc */
-        reinterpret_cast<newfunc>(batchRequestNew),        /* tp_new */
-        0,                                                 /* tp_free */
-        0,                                                 /* tp_is_gc */
+        PyVarObject_HEAD_INIT(nullptr, 0)
+        .tp_name = "IcePy.BatchRequest",
+        .tp_basicsize = sizeof(BatchRequestObject),
+        .tp_dealloc = (destructor)batchRequestDealloc,
+        .tp_flags = Py_TPFLAGS_DEFAULT,
+        .tp_methods = BatchRequestMethods,
+        .tp_new = (newfunc)batchRequestNew,
     };
+    // clang-format on
 }
 
 bool
@@ -191,8 +158,8 @@ IcePy::initBatchRequest(PyObject* module)
     {
         return false;
     }
-    PyTypeObject* type = &BatchRequestType; // Necessary to prevent GCC's strict-alias warnings.
-    if (PyModule_AddObject(module, "BatchRequest", reinterpret_cast<PyObject*>(type)) < 0)
+
+    if (PyModule_AddObject(module, "BatchRequest", reinterpret_cast<PyObject*>(&BatchRequestType)) < 0)
     {
         return false;
     }
@@ -218,16 +185,16 @@ IcePy::BatchRequestInterceptorWrapper::enqueue(const Ice::BatchRequest& request,
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    BatchRequestObject* obj = reinterpret_cast<BatchRequestObject*>(BatchRequestType.tp_alloc(&BatchRequestType, 0));
+    auto* obj = reinterpret_cast<BatchRequestObject*>(BatchRequestType.tp_alloc(&BatchRequestType, 0));
     if (!obj)
     {
         return;
     }
 
     obj->request = &request;
-    obj->size = 0;
-    obj->operation = 0;
-    obj->proxy = 0;
+    obj->size = nullptr;
+    obj->operation = nullptr;
+    obj->proxy = nullptr;
     PyObjectHandle tmp;
     if (PyCallable_Check(_interceptor.get()))
     {

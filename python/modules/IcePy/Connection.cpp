@@ -43,7 +43,7 @@ namespace
     {
         long operator()(void* ptr) const
         {
-            intptr_t v = reinterpret_cast<intptr_t>(ptr);
+            auto v = reinterpret_cast<intptr_t>(ptr);
 
             // Eliminate lower 4 bits as objecs are usually aligned on 16 bytes boundaries,
             // then eliminate upper bits
@@ -87,17 +87,15 @@ namespace IcePy
 
             PyObjectHandle args{Py_BuildValue("(O)", _con)};
             assert(_cb);
-            PyObjectHandle tmp{PyObject_Call(_cb, args.get(), 0)};
+            PyObjectHandle tmp{PyObject_Call(_cb, args.get(), nullptr)};
             if (PyErr_Occurred())
             {
                 PyException ex; // Retrieve it before another Python API call clears it.
 
-                //
                 // A callback that calls sys.exit() will raise the SystemExit exception.
-                // This is normally caught by the interpreter, causing it to exit.
-                // However, we have no way to pass this exception to the interpreter,
-                // so we act on it directly.
                 //
+                // This is normally caught by the interpreter, causing it to exit. However, we have no way to pass this
+                // exception to the interpreter, so we act on it directly.
                 ex.checkSystemExit();
 
                 ex.raise();
@@ -115,13 +113,13 @@ extern "C" ConnectionObject*
 connectionNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     assert(type && type->tp_alloc);
-    ConnectionObject* self = reinterpret_cast<ConnectionObject*>(type->tp_alloc(type, 0));
+    auto* self = reinterpret_cast<ConnectionObject*>(type->tp_alloc(type, 0));
     if (!self)
     {
         return nullptr;
     }
-    self->connection = 0;
-    self->communicator = 0;
+    self->connection = nullptr;
+    self->communicator = nullptr;
     return self;
 }
 
@@ -140,7 +138,7 @@ connectionCompare(ConnectionObject* c1, PyObject* other, int op)
 
     if (PyObject_TypeCheck(other, &ConnectionType))
     {
-        ConnectionObject* c2 = reinterpret_cast<ConnectionObject*>(other);
+        auto* c2 = reinterpret_cast<ConnectionObject*>(other);
 
         switch (op)
         {
@@ -371,7 +369,7 @@ connectionFlushBatchRequests(ConnectionObject* self, PyObject* args)
 
     PyObjectHandle v{getAttr(compressBatch, "_value", true)};
     assert(v.get());
-    Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
+    auto cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
     assert(self->connection);
     try
@@ -400,7 +398,7 @@ connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
 
     PyObjectHandle v{getAttr(compressBatch, "_value", true)};
     assert(v.get());
-    Ice::CompressBatch compress = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
+    auto compress = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
     assert(self->connection);
     const string op = "flushBatchRequests";
@@ -635,55 +633,24 @@ static PyMethodDef ConnectionMethods[] = {
      reinterpret_cast<PyCFunction>(connectionThrowException),
      METH_NOARGS,
      PyDoc_STR("throwException() -> None")},
-    {0, 0} /* sentinel */
+    {nullptr, nullptr} /* sentinel */
 };
 
 namespace IcePy
 {
+    // clang-format off
     PyTypeObject ConnectionType = {
-        /* The ob_type field must be initialized in the module init function
-         * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.Connection", /* tp_name */
-        sizeof(ConnectionObject),                       /* tp_basicsize */
-        0,                                              /* tp_itemsize */
-        /* methods */
-        reinterpret_cast<destructor>(connectionDealloc),  /* tp_dealloc */
-        0,                                                /* tp_print */
-        0,                                                /* tp_getattr */
-        0,                                                /* tp_setattr */
-        0,                                                /* tp_reserved */
-        0,                                                /* tp_repr */
-        0,                                                /* tp_as_number */
-        0,                                                /* tp_as_sequence */
-        0,                                                /* tp_as_mapping */
-        reinterpret_cast<hashfunc>(connectionHash),       /* tp_hash */
-        0,                                                /* tp_call */
-        0,                                                /* tp_str */
-        0,                                                /* tp_getattro */
-        0,                                                /* tp_setattro */
-        0,                                                /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT,                               /* tp_flags */
-        0,                                                /* tp_doc */
-        0,                                                /* tp_traverse */
-        0,                                                /* tp_clear */
-        reinterpret_cast<richcmpfunc>(connectionCompare), /* tp_richcompare */
-        0,                                                /* tp_weaklistoffset */
-        0,                                                /* tp_iter */
-        0,                                                /* tp_iternext */
-        ConnectionMethods,                                /* tp_methods */
-        0,                                                /* tp_members */
-        0,                                                /* tp_getset */
-        0,                                                /* tp_base */
-        0,                                                /* tp_dict */
-        0,                                                /* tp_descr_get */
-        0,                                                /* tp_descr_set */
-        0,                                                /* tp_dictoffset */
-        0,                                                /* tp_init */
-        0,                                                /* tp_alloc */
-        reinterpret_cast<newfunc>(connectionNew),         /* tp_new */
-        0,                                                /* tp_free */
-        0,                                                /* tp_is_gc */
+        PyVarObject_HEAD_INIT(nullptr, 0)
+        .tp_name = "IcePy.Connection",
+        .tp_basicsize = sizeof(ConnectionObject),
+        .tp_dealloc = reinterpret_cast<destructor>(connectionDealloc),
+        .tp_hash = reinterpret_cast<hashfunc>(connectionHash),
+        .tp_flags = Py_TPFLAGS_DEFAULT,
+        .tp_richcompare = reinterpret_cast<richcmpfunc>(connectionCompare),
+        .tp_methods = ConnectionMethods,
+        .tp_new = reinterpret_cast<newfunc>(connectionNew),
     };
+    // clang-format on
 }
 
 bool
@@ -705,7 +672,7 @@ IcePy::initConnection(PyObject* module)
 PyObject*
 IcePy::createConnection(const Ice::ConnectionPtr& connection, const Ice::CommunicatorPtr& communicator)
 {
-    ConnectionObject* obj = connectionNew(&ConnectionType, 0, 0);
+    ConnectionObject* obj = connectionNew(&ConnectionType, nullptr, nullptr);
     if (obj)
     {
         obj->connection = new Ice::ConnectionPtr(connection);
@@ -726,7 +693,7 @@ IcePy::getConnectionArg(PyObject* p, const string& func, const string& arg, Ice:
 {
     if (p == Py_None)
     {
-        con = 0;
+        con = nullptr;
         return true;
     }
     else if (!checkConnection(p))
@@ -740,7 +707,7 @@ IcePy::getConnectionArg(PyObject* p, const string& func, const string& arg, Ice:
     }
     else
     {
-        ConnectionObject* obj = reinterpret_cast<ConnectionObject*>(p);
+        auto* obj = reinterpret_cast<ConnectionObject*>(p);
         con = *obj->connection;
         return true;
     }
