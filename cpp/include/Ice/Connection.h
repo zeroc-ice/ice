@@ -75,7 +75,7 @@ namespace Ice
          * @param response A callback that the implementation calls when the connection is closed gracefully.
          * @param exception A callback that the implementation calls when the connection closure failed. Its
          * exception_ptr parameter is always non-null and describes the reason for the closure.
-         * @remarks The response and exception callbacks may be called synchronously (from the calling thread); in
+         * @remark The response and exception callbacks may be called synchronously (from the calling thread); in
          * particular, this occurs when you call close on a connection that is already closed. The implementation always
          * calls one of the two callbacks once; it never calls both.
          * If closing the connection takes longer than the configured close timeout, the connection is aborted with a
