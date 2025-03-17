@@ -731,9 +731,12 @@ Slice::writeStreamReader(Output& out, const StructPtr& p, const DataMemberList& 
 {
     string fullName = p->mappedScoped();
 
+    out << nl << "/// @private"; // No need to pollute the doc with all these specializations.
+    out << nl << "/// Specialization of StreamReader for " << fullName << ".";
     out << nl << "template<>";
     out << nl << "struct StreamReader<" << fullName << ">";
     out << sb;
+    out << nl << "/// Unmarshals a " << fullName << " from the input stream.";
     out << nl << "static void read(InputStream* istr, " << fullName << "& v)";
     out << sb;
 

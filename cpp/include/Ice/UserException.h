@@ -28,19 +28,18 @@ namespace Ice
         /// @param os The output stream.
         virtual void ice_printFields(std::ostream& os) const;
 
-        /// \cond STREAM
+        /// @cond INTERNAL
+
         // _write and _read are virtual for the Python, Ruby etc. mappings.
         virtual void _write(OutputStream*) const;
         virtual void _read(InputStream*);
 
         [[nodiscard]] virtual bool _usesClasses() const;
-        /// \endcond
 
     protected:
-        /// \cond STREAM
         virtual void _writeImpl(OutputStream*) const = 0;
         virtual void _readImpl(InputStream*) = 0;
-        /// \endcond
+        /// @endcond
     };
 }
 

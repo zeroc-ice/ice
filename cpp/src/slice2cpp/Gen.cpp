@@ -1540,6 +1540,12 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << "/// @return The fully-scoped type ID.";
     H << nl << "static const char* ice_staticId() noexcept;";
 
+    C << sp;
+    C << nl << "const char*" << nl << scopedPrx.substr(2) << "::ice_staticId() noexcept";
+    C << sb;
+    C << nl << "return \"" << scopedName << "\";";
+    C << eb;
+
     if (!bases.empty())
     {
         // -Wextra wants to initialize all the virtual base classes _in the right order_, which is not practical, and
@@ -1554,15 +1560,25 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     }
 
     // We can't use "= default" for the copy/move ctor/assignment operator as it's not correct with virtual inheritance.
+
     H << sp;
+    H << nl << "/// Copy constructor. Constructs with a copy of the contents of @p other.";
+    H << nl << "/// @param other The proxy to copy from.";
     H << nl << prx << "(const " << prx << "& other) noexcept : Ice::ObjectPrx(other)";
     H << " {} // NOLINT(modernize-use-equals-default)";
+
     H << sp;
-    H << nl << prx << "(" << prx << "&& other) noexcept : Ice::ObjectPrx(std::move(other))";
-    H << " {} // NOLINT(modernize-use-equals-default)";
+    H << nl << "/// Move constructor. Constructs a proxy with the contents of @p other using move semantics.";
+    H << nl << "/// @param other The proxy to move from.";
+    H << nl << prx << "(" << prx << "&& other) noexcept : Ice::ObjectPrx(std::move(other))"
+      << " {} // NOLINT(modernize-use-equals-default)";
+
     H << sp;
-    H << nl << prx << "(const Ice::CommunicatorPtr& communicator, std::string_view proxyString)";
-    H << " : Ice::ObjectPrx(communicator, proxyString) {} // NOLINT(modernize-use-equals-default)";
+    H << nl << "/// Constructs a proxy from a Communicator and a proxy string.";
+    H << nl << "/// @param communicator The communicator of the new proxy.";
+    H << nl << "/// @param proxyString The proxy string to parse.";
+    H << nl << prx << "(const Ice::CommunicatorPtr& communicator, std::string_view proxyString)"
+      << " : Ice::ObjectPrx(communicator, proxyString) {} // NOLINT(modernize-use-equals-default)";
 
     H << sp;
     H << nl << "~" << prx << "() override;";
@@ -1570,6 +1586,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     C << nl << scopedPrx.substr(2) << "::~" << prx << "() = default;"; // avoid weak table
 
     H << sp;
+    H << nl
+      << "/// Copy assignment operator. Replaces the contents of this proxy with a copy of the contents of @p rhs.";
+    H << nl << "/// @param rhs The proxy to copy from.";
+    H << nl << "/// @return A reference to this proxy.";
     H << nl << prx << "& operator=(const " << prx << "& rhs) noexcept";
     H << sb;
     // The self-assignment check is to make clang-tidy happy.
@@ -1579,7 +1599,12 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << eb;
     H << nl << "return *this;";
     H << eb;
+
     H << sp;
+    H << nl
+      << "/// Move assignment operator. Replaces the contents of this proxy with the contents of @p rhs using move "
+         "semantics.";
+    H << nl << "/// @param rhs The proxy to move from.";
     H << nl << prx << "& operator=(" << prx << "&& rhs) noexcept";
     H << sb;
     // The self-assignment check is to make clang-tidy happy.
@@ -1590,17 +1615,19 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << "return *this;";
     H << eb;
     H << sp;
-    H << nl << "/// \\cond INTERNAL";
+    H << nl << "/// @private";
     H << nl << "static " << prx << " _fromReference(IceInternal::ReferencePtr ref) { return " << prx
       << "(std::move(ref)); }";
     H.dec();
+
     H << sp << nl << "protected:";
     H.inc();
+    H << nl << "/// @private";
     H << nl << prx << "() = default;";
     H << sp;
+    H << nl << "/// @private";
     H << nl << "explicit " << prx << "(IceInternal::ReferencePtr&& ref) : Ice::ObjectPrx(std::move(ref))";
     H << sb << eb;
-    H << nl << "/// \\endcond";
 
     if (!bases.empty())
     {
@@ -1615,12 +1642,6 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     }
 
     H << eb << ';';
-
-    C << sp;
-    C << nl << "const char*" << nl << scopedPrx.substr(2) << "::ice_staticId() noexcept";
-    C << sb;
-    C << nl << "return \"" << scopedName << "\";";
-    C << eb;
 
     _useWstring = resetUseWstring(_useWstringHist);
 }
@@ -1933,13 +1954,12 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     string returnT = createOutgoingAsyncTypeParam(outgoingAsyncParams);
 
     H << sp;
-    H << nl << "/// \\cond INTERNAL";
+    H << nl << "/// @private";
     H << nl << "void " << opImplName << spar;
     H << "const std::shared_ptr<IceInternal::OutgoingAsyncT<" + returnT + ">>&";
     H << inParamsS;
     H << "const Ice::Context&";
     H << epar << " const;";
-    H << nl << "/// \\endcond";
 
     C << sp;
     C << nl << "void" << nl << scopedPrxPrefix << opImplName << spar;
@@ -2312,18 +2332,15 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     if (p->usesClasses() && !(base && base->usesClasses()))
     {
         H << sp;
-        H << nl << "/// \\cond STREAM";
+        H << nl << "/// @private";
         H << nl << _dllMemberExport << "[[nodiscard]] bool _usesClasses() const override;";
-        H << nl << "/// \\endcond";
 
         C << sp;
-        C << nl << "/// \\cond STREAM";
         C << nl << "bool";
         C << nl << scoped.substr(2) << "::_usesClasses() const";
         C << sb;
         C << nl << "return true;";
         C << eb;
-        C << nl << "/// \\endcond";
     }
 
     if (!dataMembers.empty())
@@ -2347,6 +2364,7 @@ Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
     H << sp << nl << "protected:";
     H.inc();
 
+    H << nl << "/// @private";
     H << nl << _dllMemberExport << "void _writeImpl(Ice::OutputStream*) const override;";
     C << sp << nl << "void" << nl << scoped.substr(2) << "::_writeImpl(Ice::OutputStream* ostr) const";
     C << sb;
@@ -2363,7 +2381,9 @@ Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     C << eb;
 
-    H << sp << nl << _dllMemberExport << "void _readImpl(Ice::InputStream*) override;";
+    H << sp;
+    H << nl << "/// @private";
+    H << nl << _dllMemberExport << "void _readImpl(Ice::InputStream*) override;";
     C << sp << nl << "void" << nl << scoped.substr(2) << "::_readImpl(Ice::InputStream* istr)";
     C << sb;
     C << nl << "istr->startSlice();";
@@ -2488,7 +2508,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     if (p->hasMetadata("cpp:custom-print"))
     {
         H << sp;
-        H << nl << "// Custom ice_print implemented by the application.";
+        H << nl << "/// Custom ice_print implemented by the application.";
         H << nl << "void ice_print(std::ostream& os) const override;";
     }
 
@@ -2509,8 +2529,13 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << eb;
     }
 
+    H << sp;
+    H << nl << "/// Copy constructor.";
     H << nl << name << "(const " << name << "&) = default;";
-    H << sp << nl << _dllMemberExport << "[[nodiscard]] Ice::ValuePtr _iceCloneImpl() const override;";
+
+    H << sp;
+    H << nl << "/// @private";
+    H << nl << _dllMemberExport << "[[nodiscard]] Ice::ValuePtr _iceCloneImpl() const override;";
     C << sp;
     C << nl << "Ice::ValuePtr" << nl << scoped.substr(2) << "::_iceCloneImpl() const";
     C << sb;
@@ -2518,6 +2543,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << eb;
 
     H << sp;
+    H << nl << "/// @private";
     H << nl << _dllMemberExport << "void _iceWriteImpl(Ice::OutputStream*) const override;";
     C << sp << nl << "void" << nl << scoped.substr(2) << "::_iceWriteImpl(Ice::OutputStream* ostr) const";
     C << sb;
@@ -2534,7 +2560,9 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
     C << eb;
 
-    H << sp << nl << _dllMemberExport << "void _iceReadImpl(Ice::InputStream*) override;";
+    H << sp;
+    H << nl << "/// @private";
+    H << nl << _dllMemberExport << "void _iceReadImpl(Ice::InputStream*) override;";
     C << sp << nl << "void" << nl << scoped.substr(2) << "::_iceReadImpl(Ice::InputStream* istr)";
     C << sb;
     C << nl << "istr->startSlice();";
@@ -2786,6 +2814,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // In C++, a nested type cannot have the same name as the enclosing type
     if (name != "ProxyType")
     {
+        H << nl << "/// The associated proxy type.";
         H << nl << "using ProxyType = " << p->mappedName() << "Prx;";
     }
 
@@ -2858,10 +2887,14 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         allOpNames.emplace_back("ice_ping", "ice_ping");
         allOpNames.sort();
 
+        // The Ice:: qualification confuses doxygen, so we remove it when in the Ice module.
+        bool inIceModule = p->scope() == "::Ice::";
+        string_view incomingRequestType = inIceModule ? "IncomingRequest" : "Ice::IncomingRequest";
+        string_view outgoingResponseType = inIceModule ? "OutgoingResponse" : "Ice::OutgoingResponse";
+
         H << sp;
-        H << nl
-          << "void dispatch(Ice::IncomingRequest&, std::function<void(Ice::OutgoingResponse)>) "
-             "override;";
+        H << nl << "void dispatch(" << incomingRequestType << "& request, std::function<void(" << outgoingResponseType
+          << ")> sendResponse) override;";
 
         C << sp;
         C << nl << "void";
@@ -3125,13 +3158,12 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         writeOpDocSummary(H, p, *comment, pt, true, GenerateDeprecated::No, StringList(), postParams, returns);
     }
     H << nl << noDiscard << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
-    H << sp << nl << "/// \\cond INTERNAL";
+    H << sp;
+    H << nl << "/// @private";
     H << nl << "void _iceD_" << p->mappedName() << "(Ice::IncomingRequest&, std::function<void(Ice::OutgoingResponse)>)"
       << isConst << ';';
-    H << nl << "/// \\endcond";
 
     C << sp;
-    C << nl << "/// \\cond INTERNAL";
     C << nl << "void";
     C << nl << scope.substr(2) << "_iceD_" << p->mappedName() << "(";
     C.inc();
@@ -3256,7 +3288,6 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         C << eb;
     }
     C << eb;
-    C << nl << "/// \\endcond";
 }
 
 Slice::Gen::StreamVisitor::StreamVisitor(Output& h) : H(h) {}
@@ -3273,7 +3304,6 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
     {
         // Only emit this for the top-level module.
         H << sp;
-        H << nl << "/// \\cond STREAM";
         H << nl << "namespace Ice" << nl << '{';
         H.inc();
     }
@@ -3288,7 +3318,6 @@ Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
         // Only emit this for the top-level module.
         H.dec();
         H << nl << '}';
-        H << nl << "/// \\endcond";
     }
 }
 
@@ -3304,11 +3333,18 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
         H << sp;
     }
 
+    H << nl << "/// @private"; // No need to pollute the doc with all these specializations.
+    H << nl << "/// Specialization of StreamableTraits for " << p->mappedScoped() << ".";
     H << nl << "template<>";
     H << nl << "struct StreamableTraits<" << p->mappedScoped() << ">";
     H << sb;
+    H << nl << "/// @copydoc StreamableTraits::helper";
     H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryStruct;";
+    H << sp;
+    H << nl << "/// The minimum number of bytes needed to marshal this type.";
     H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
+    H << sp;
+    H << nl << "/// Indicates if the type is always encoded on a fixed number of bytes.";
     H << nl << "static const bool fixedLength = " << (p->isVariableLength() ? "false" : "true") << ";";
     H << eb << ";" << nl;
 
@@ -3328,13 +3364,24 @@ Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
         H << sp;
     }
 
+    H << nl << "/// @private"; // No need to pollute the doc with all these specializations.
+    H << nl << "/// Specialization of StreamableTraits for " << p->mappedScoped() << ".";
     H << nl << "template<>";
     H << nl << "struct StreamableTraits<" << p->mappedScoped() << ">";
     H << sb;
+    H << nl << "/// @copydoc StreamableTraits::helper";
     H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryEnum;";
+    H << sp;
+    H << nl << "/// The minimum value of this enum.";
     H << nl << "static const int minValue = " << p->minValue() << ";";
+    H << sp;
+    H << nl << "/// The maximum value of this enum.";
     H << nl << "static const int maxValue = " << p->maxValue() << ";";
+    H << sp;
+    H << nl << "/// The minimum number of bytes needed to marshal this type.";
     H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
+    H << sp;
+    H << nl << "/// Indicates if the type is always encoded on a fixed number of bytes.";
     H << nl << "static const bool fixedLength = false;";
     H << eb << ";";
 }

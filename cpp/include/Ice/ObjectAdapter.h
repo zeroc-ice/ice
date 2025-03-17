@@ -452,6 +452,7 @@ namespace Ice
         virtual void setPublishedEndpoints(EndpointSeq newEndpoints) = 0;
 
     protected:
+        /// @cond INTERNAL
         virtual ObjectPrx _add(ObjectPtr servant, Identity id) = 0;
         virtual ObjectPrx _addFacet(ObjectPtr servant, Identity id, std::string facet) = 0;
         virtual ObjectPrx _addWithUUID(ObjectPtr servant) = 0;
@@ -459,6 +460,7 @@ namespace Ice
         [[nodiscard]] virtual ObjectPrx _createProxy(Identity id) const = 0;
         [[nodiscard]] virtual ObjectPrx _createDirectProxy(Identity id) const = 0;
         [[nodiscard]] virtual ObjectPrx _createIndirectProxy(Identity id) const = 0;
+        /// @endcond
     };
 }
 
