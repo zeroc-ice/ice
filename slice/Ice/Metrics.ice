@@ -14,7 +14,7 @@
 
 [["java:package:com.zeroc.Ice"]]
 
-/// The %Ice Management eXtension facility.
+/// The Ice Management eXtension facility.
 ["swift:module:Ice:MX"]
 module IceMX
 {

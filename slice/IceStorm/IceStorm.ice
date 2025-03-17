@@ -16,7 +16,7 @@
 
 [["java:package:com.zeroc"]]
 
-/// Lightweight publish/subscribe framework, available for all %Ice language mappings.
+/// Lightweight publish/subscribe framework, available for all Ice language mappings.
 module IceStorm
 {
     interface Topic;

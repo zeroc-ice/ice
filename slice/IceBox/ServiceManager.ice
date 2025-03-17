@@ -15,7 +15,7 @@
 
 [["java:package:com.zeroc"]]
 
-/// Host multiple independent services in the same %Ice server.
+/// Host multiple independent services in the same Ice server.
 module IceBox
 {
     /// This exception is thrown if an attempt is made to start an already-started service.
