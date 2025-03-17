@@ -244,12 +244,12 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
 
     if (!_slicedDataType)
     {
-        _slicedDataType = idToClass("::Ice::SlicedData");
+        _slicedDataType = nameToClass("\\Ice\\SlicedData");
         assert(_slicedDataType);
     }
     if (!_sliceInfoType)
     {
-        _sliceInfoType = idToClass("::Ice::SliceInfo");
+        _sliceInfoType = nameToClass("\\Ice\\SliceInfo");
         assert(_sliceInfoType);
     }
 

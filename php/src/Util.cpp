@@ -189,6 +189,19 @@ namespace
 
     char Ice_ProtocolVersion[] = "::Ice::ProtocolVersion";
     char Ice_EncodingVersion[] = "::Ice::EncodingVersion";
+
+    zend_class_entry* idToClass(const string& id)
+    {
+        string result = fixIdent(id);
+    
+        string::size_type pos;
+        while ((pos = result.find("::")) != string::npos)
+        {
+            result.replace(pos, 2, "\\");
+        }
+    
+        return nameToClass(result);
+    }
 }
 
 void*
@@ -212,24 +225,6 @@ IcePHP::extractWrapper(zval* zv)
     }
 
     return obj;
-}
-
-zend_class_entry*
-IcePHP::idToClass(const string& id)
-{
-    string result = fixIdent(id);
-    if (result.find("::") == 0)
-    {
-        result.replace(0, 2, "\\");
-    }
-
-    string::size_type pos;
-    while ((pos = result.find("::")) != string::npos)
-    {
-        result.replace(pos, 2, "\\");
-    }
-
-    return nameToClass(result);
 }
 
 zend_class_entry*
