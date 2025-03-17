@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Ice/Ice.h"
+#include "Ice/TargetCompare.h"
 #include "Util.h"
 #include "ice.h"
 

@@ -1,6 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-#include "Ice/Comparable.h"
 #include "Ice/Ice.h"
 #include "IceGrid/IceGrid.h"
 #include "Test.h"

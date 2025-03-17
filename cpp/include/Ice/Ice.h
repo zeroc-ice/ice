@@ -3,7 +3,6 @@
 #ifndef ICE_ICE_H
 #define ICE_ICE_H
 
-#include "Comparable.h"
 #include "Config.h"
 #include "Exception.h"
 #include "InputStream.h"
@@ -11,6 +10,7 @@
 #include "Object.h"
 #include "OutputStream.h"
 #include "Proxy.h"
+#include "TupleCompare.h"
 #include "UserException.h"
 #include "Value.h"
 

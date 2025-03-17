@@ -12,6 +12,7 @@
 #include "ReferenceFactory.h"
 #include "RequestHandlerCache.h"
 #include "RouterInfo.h"
+#include "TargetCompare.h"
 
 #include <stdexcept>
 
