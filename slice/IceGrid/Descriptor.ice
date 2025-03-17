@@ -42,6 +42,7 @@ module IceGrid
         Ice::StringSeq references;
 
         /// The property set properties.
+        ["matlab:identifier:propertyDescriptors"]
         PropertyDescriptorSeq properties;
     }
 

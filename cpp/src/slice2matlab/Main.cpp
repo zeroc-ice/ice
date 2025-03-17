@@ -34,270 +34,6 @@ using namespace IceInternal;
 
 namespace
 {
-    //
-    // Split an absolute name into its components and return the components as a list of identifiers.
-    //
-    vector<string> splitAbsoluteName(const string& abs)
-    {
-        vector<string> ids;
-        string::size_type start = 0;
-        string::size_type pos;
-        while ((pos = abs.find('.', start)) != string::npos)
-        {
-            assert(pos > start);
-            ids.push_back(abs.substr(start, pos - start));
-            start = pos + 1;
-        }
-        if (start != abs.size())
-        {
-            ids.push_back(abs.substr(start));
-        }
-
-        return ids;
-    }
-
-    string lookupKwd(const string& name)
-    {
-        //
-        // Keyword list. *Must* be kept in alphabetical order.
-        //
-        static const string keywordList[] = {
-            "break",       "case",       "catch",      "classdef", "continue", "else",   "elseif",  "end",
-            "enumeration", "events",     "for",        "function", "global",   "if",     "methods", "otherwise",
-            "parfor",      "persistent", "properties", "return",   "spmd",     "switch", "try",     "while"};
-        bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
-        return found ? name + "_" : name;
-    }
-
-    string fixIdent(const string& ident)
-    {
-        if (ident[0] != ':')
-        {
-            return lookupKwd(ident);
-        }
-        vector<string> ids = splitScopedName(ident);
-        transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
-        stringstream result;
-        for (const auto& id : ids)
-        {
-            result << "::" + id;
-        }
-        return result.str();
-    }
-
-    string fixEnumerator(const string& name)
-    {
-        assert(name[0] != ':');
-
-        //
-        // Method list. These represent the built-in methods for enumerators, inherited from uint8 or int32.
-        // MATLAB does not allow an enumeration class to declare an enumerator having one of these names.
-        //
-        // *Must* be kept in alphabetical order.
-        //
-        static const string methodList[] = {
-            "abs",
-            "accumarray",
-            "all",
-            "and",
-            "any",
-            "bitand",
-            "bitcmp",
-            "bitget",
-            "bitor",
-            "bitset",
-            "bitshift",
-            "bitxor",
-            "bsxfun",
-            "cat",
-            "ceil",
-            "cell",
-            "cellstr",
-            "char",
-            "complex",
-            "conj",
-            "conv2",
-            "ctranspose",
-            "cummax",
-            "cummin",
-            "cumprod",
-            "cumsum",
-            "diag",
-            "diff",
-            "double",
-            "end",
-            "eq",
-            "fft",
-            "fftn",
-            "find",
-            "fix",
-            "floor",
-            "full",
-            "function_handle",
-            "ge",
-            "gt",
-            "horzcat",
-            "ifft",
-            "ifftn",
-            "imag",
-            "int16",
-            "int32",
-            "int64",
-            "int8",
-            "intersect",
-            "isempty",
-            "isequal",
-            "isequaln",
-            "isequalwithequalnans",
-            "isfinite",
-            "isfloat",
-            "isinf",
-            "isinteger",
-            "islogical",
-            "ismember",
-            "isnan",
-            "isnumeric",
-            "isreal",
-            "isscalar",
-            "issorted",
-            "issparse",
-            "isvector",
-            "ldivide",
-            "le",
-            "length",
-            "linsolve",
-            "logical",
-            "lt",
-            "max",
-            "min",
-            "minus",
-            "mldivide",
-            "mod",
-            "mpower",
-            "mrdivide",
-            "mtimes",
-            "ndims",
-            "ne",
-            "nnz",
-            "nonzeros",
-            "not",
-            "numel",
-            "nzmax",
-            "or",
-            "permute",
-            "plot",
-            "plus",
-            "power",
-            "prod",
-            "rdivide",
-            "real",
-            "rem",
-            "reshape",
-            "round",
-            "setdiff",
-            "setxor",
-            "sign",
-            "single",
-            "size",
-            "sort",
-            "sortrowsc",
-            "strcmp",
-            "strcmpi",
-            "strncmp",
-            "strncmpi",
-            "subsasgn",
-            "subsindex",
-            "subsref",
-            "sum",
-            "times",
-            "transpose",
-            "tril",
-            "triu",
-            "uint16",
-            "uint32",
-            "uint64",
-            "uminus",
-            "union",
-            "uplus",
-            "vertcat",
-            "xor"};
-
-        bool found = binary_search(&methodList[0], &methodList[sizeof(methodList) / sizeof(*methodList)], name);
-        return found ? name + "_" : lookupKwd(name);
-    }
-
-    string fixOp(const string& name)
-    {
-        assert(name[0] != ':');
-
-        //
-        // An operation name must be escaped if it matches any of the identifiers in this list, in addition to the
-        // MATLAB language keywords. The identifiers below represent the names of methods inherited from ObjectPrx
-        // and handle.
-        //
-        // *Must* be kept in alphabetical order.
-        //
-        static const string idList[] = {
-            "addlistener",
-            "checkedCast",
-            "delete",
-            "eq",
-            "findobj",
-            "findprop",
-            "ge",
-            "gt",
-            "isvalid",
-            "le",
-            "lt",
-            "ne",
-            "notify",
-            "uncheckedCast"};
-        bool found = binary_search(&idList[0], &idList[sizeof(idList) / sizeof(*idList)], name);
-        return found ? name + "_" : fixIdent(name);
-    }
-
-    string fixExceptionMember(const string& ident)
-    {
-        //
-        // User exceptions are subclasses of MATLAB's MException class. Subclasses cannot redefine a member that
-        // conflicts with MException's properties. Unfortunately MException also has some undocumented non-public
-        // properties that will cause run-time errors.
-        //
-        if (ident == "identifier" || ident == "message" || ident == "stack" || ident == "cause" ||
-            ident == "type") // Undocumented
-        {
-            return ident + "_";
-        }
-
-        return fixIdent(ident);
-    }
-
-    string fixStructMember(const string& ident)
-    {
-        //
-        // We define eq() and ne() methods for structures.
-        //
-        if (ident == "eq" || ident == "ne")
-        {
-            return ident + "_";
-        }
-
-        return fixIdent(ident);
-    }
-
-    string replace(const string& s, const string& patt, const string& val)
-    {
-        string r{s};
-        string::size_type pos = r.find(patt);
-        while (pos != string::npos)
-        {
-            r.replace(pos, patt.size(), val);
-            pos += val.size();
-            pos = r.find(patt, pos);
-        }
-        return r;
-    }
-
     void writeCopyright(IceInternal::Output& out, const string& file)
     {
         string f = file;
@@ -314,7 +50,20 @@ namespace
 
     void openClass(const string& abs, const string& dir, IceInternal::Output& out)
     {
-        vector<string> v = splitAbsoluteName(abs);
+        // Split the absolute name into individual components.
+        vector<string> v;
+        string::size_type start = 0;
+        string::size_type pos;
+        while ((pos = abs.find('.', start)) != string::npos)
+        {
+            assert(pos > start);
+            v.push_back(abs.substr(start, pos - start));
+            start = pos + 1;
+        }
+        if (start != abs.size())
+        {
+            v.push_back(abs.substr(start));
+        }
         assert(v.size() > 1);
 
         string path;
@@ -328,7 +77,7 @@ namespace
         //
         for (vector<string>::size_type i = 0; i < v.size() - 1; i++)
         {
-            path += "+" + lookupKwd(v[i]);
+            path += "+" + v[i];
             if (!IceInternal::directoryExists(path))
             {
                 int err = IceInternal::mkdir(path, 0777);
@@ -358,28 +107,11 @@ namespace
         // The class directory is useful if you want to add additional supporting files for the class. We only
         // generate a single file for a class so we use option 2.
         //
-        const string cls = lookupKwd(v[v.size() - 1]);
+        const string cls = v[v.size() - 1];
         path += cls + ".m";
 
         out.open(path);
         FileTracker::instance()->addFile(path);
-    }
-
-    //
-    // Get the fully-qualified name of the given definition. If a suffix is provided,
-    // it is prepended to the definition's unqualified name. If the nameSuffix
-    // is provided, it is appended to the container's name.
-    //
-    string
-    getAbsolute(const ContainedPtr& cont, const string& pfx = std::string(), const string& suffix = std::string())
-    {
-        string str = fixIdent(cont->scope() + pfx + cont->name() + suffix);
-        if (str.find("::") == 0)
-        {
-            str.erase(0, 2);
-        }
-
-        return replace(str, "::", ".");
     }
 
     string typeToString(const TypePtr& type)
@@ -412,13 +144,13 @@ namespace
         ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
         if (cl)
         {
-            return getAbsolute(cl);
+            return cl->mappedScoped(".").substr(1);
         }
 
         InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
         if (proxy)
         {
-            return getAbsolute(proxy, "", "Prx");
+            return proxy->mappedScoped(".").substr(1) + "Prx";
         }
 
         DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
@@ -437,7 +169,7 @@ namespace
         ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
         if (contained)
         {
-            return getAbsolute(contained);
+            return contained->mappedScoped(".").substr(1);
         }
 
         return "???";
@@ -522,7 +254,7 @@ namespace
         ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
         if (constant)
         {
-            return getAbsolute(constant) + ".value";
+            return constant->mappedScoped(".").substr(1) + ".value";
         }
         else
         {
@@ -559,7 +291,7 @@ namespace
             {
                 EnumeratorPtr e = dynamic_pointer_cast<Enumerator>(valueType);
                 assert(e);
-                return getAbsolute(e);
+                return e->mappedScoped(".").substr(1);
             }
             else
             {
@@ -628,13 +360,13 @@ namespace
             if (en)
             {
                 const EnumeratorList enumerators = en->enumerators();
-                return getAbsolute(*enumerators.begin());
+                return (*enumerators.begin())->mappedScoped(".").substr(1);
             }
 
             StructPtr st = dynamic_pointer_cast<Struct>(m->type());
             if (st)
             {
-                return getAbsolute(st) + "()";
+                return st->mappedScoped(".").substr(1) + "()";
             }
 
             return "[]";
@@ -696,13 +428,13 @@ namespace
         SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
         if (seq)
         {
-            out << nl << dest << " = " << getAbsolute(seq) << ".convert(" << src << ");";
+            out << nl << dest << " = " << seq->mappedScoped(".").substr(1) << ".convert(" << src << ");";
         }
 
         DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
         if (d)
         {
-            out << nl << dest << " = " << getAbsolute(d) << ".convert(" << src << ");";
+            out << nl << dest << " = " << d->mappedScoped(".").substr(1) << ".convert(" << src << ");";
         }
 
         StructPtr st = dynamic_pointer_cast<Struct>(type);
@@ -728,15 +460,15 @@ namespace
             string result;
             if (hashPos != 0)
             {
-                result += fixIdent(rawLink.substr(0, hashPos));
+                result += rawLink.substr(0, hashPos);
                 result += ".";
             }
-            result += fixIdent(rawLink.substr(hashPos + 1));
+            result += rawLink.substr(hashPos + 1);
             return result;
         }
         else
         {
-            return fixIdent(rawLink);
+            return rawLink;
         }
     }
 
@@ -845,7 +577,7 @@ namespace
                     }
                     else
                     {
-                        out << getAbsolute(c.front());
+                        out << c.front()->mappedScoped(".").substr(1);
                     }
 
                     if (!rest.empty())
@@ -870,7 +602,7 @@ namespace
             return;
         }
 
-        string n = fixIdent(p->name());
+        const string n = p->mappedName();
 
         //
         // No leading newline.
@@ -893,7 +625,7 @@ namespace
                 out << nl << "% " << n << " Properties:";
                 for (const auto& enumerator : enumerators)
                 {
-                    out << nl << "%   " << fixEnumerator(enumerator->name());
+                    out << nl << "%   " << enumerator->mappedName();
                     if (auto enumeratorDoc = DocComment::parseFrom(enumerator, matlabLinkFormatter, true))
                     {
                         StringList enumeratorOverview = enumeratorDoc->overview();
@@ -915,7 +647,7 @@ namespace
                 out << nl << "% " << n << " Properties:";
                 for (const auto& member : members)
                 {
-                    out << nl << "%   " << fixIdent(member->name());
+                    out << nl << "%   " << member->mappedName();
                     if (auto memberDoc = DocComment::parseFrom(member, matlabLinkFormatter, true))
                     {
                         StringList memberOverview = memberDoc->overview();
@@ -937,7 +669,7 @@ namespace
                 out << nl << "% " << n << " Properties:";
                 for (const auto& member : members)
                 {
-                    out << nl << "%   " << fixExceptionMember(member->name());
+                    out << nl << "%   " << member->mappedName();
                     if (auto memberDoc = DocComment::parseFrom(member, matlabLinkFormatter, true))
                     {
                         StringList memberOverview = memberDoc->overview();
@@ -959,7 +691,7 @@ namespace
                 out << nl << "% " << n << " Properties:";
                 for (const auto& member : members)
                 {
-                    out << nl << "%   " << fixIdent(member->name());
+                    out << nl << "%   " << member->mappedName();
                     if (auto memberDoc = DocComment::parseFrom(member, matlabLinkFormatter, true))
                     {
                         StringList memberOverview = memberDoc->overview();
@@ -1004,7 +736,7 @@ namespace
             return;
         }
 
-        out << nl << "% " << (async ? p->name() + "Async" : fixOp(p->name()));
+        out << nl << "% " << p->mappedName() << (async ? "Async" : "");
 
         StringList docOverview = doc->overview();
         if (!docOverview.empty())
@@ -1021,16 +753,16 @@ namespace
         string resultName = "result";
         for (const auto& inParam : inParams)
         {
-            if (inParam->name() == "context")
+            if (inParam->mappedName() == "context")
             {
                 ctxName = "context_";
             }
-            if (inParam->name() == "result")
+            if (inParam->mappedName() == "result")
             {
                 resultName = "result_";
             }
 
-            out << nl << "%   " << fixIdent(inParam->name()) << " (" << typeToString(inParam->type()) << ")";
+            out << nl << "%   " << inParam->mappedName() << " (" << typeToString(inParam->type()) << ")";
             auto r = docParameters.find(inParam->name());
             if (r != docParameters.end() && !r->second.empty())
             {
@@ -1052,7 +784,7 @@ namespace
                 const ParameterList outParams = p->outParameters();
                 for (const auto& outParam : outParams)
                 {
-                    if (outParam->name() == "result")
+                    if (outParam->mappedName() == "result")
                     {
                         resultName = "result_";
                     }
@@ -1094,8 +826,7 @@ namespace
                     }
                     for (const auto& outParam : outParams)
                     {
-                        out << nl << "%   " << fixIdent(outParam->name()) << " (" << typeToString(outParam->type())
-                            << ")";
+                        out << nl << "%   " << outParam->mappedName() << " (" << typeToString(outParam->type()) << ")";
                         auto r = docParameters.find(outParam->name());
                         if (r != docParameters.end() && !r->second.empty())
                         {
@@ -1121,7 +852,7 @@ namespace
                 ExceptionPtr ex = p->container()->lookupException(docException.first, false);
                 if (ex)
                 {
-                    out << getAbsolute(ex);
+                    out << ex->mappedScoped(".").substr(1);
                 }
                 else
                 {
@@ -1166,7 +897,7 @@ namespace
             return;
         }
 
-        string n = p->name() + "Prx";
+        const string n = p->mappedName() + "Prx";
 
         //
         // No leading newline.
@@ -1187,8 +918,9 @@ namespace
         {
             for (const auto& op : ops)
             {
-                optional<DocComment> opdoc = DocComment::parseFrom(op, matlabLinkFormatter, true);
-                out << nl << "%   " << fixOp(op->name());
+                const string opName = op->mappedName();
+                const optional<DocComment> opdoc = DocComment::parseFrom(op, matlabLinkFormatter, true);
+                out << nl << "%   " << opName;
                 if (opdoc)
                 {
                     StringList opdocOverview = opdoc->overview();
@@ -1198,7 +930,7 @@ namespace
                         writeDocSentence(out, opdocOverview);
                     }
                 }
-                out << nl << "%   " << op->name() << "Async";
+                out << nl << "%   " << opName << "Async";
                 if (opdoc)
                 {
                     StringList opdocOverview = opdoc->overview();
@@ -1249,16 +981,7 @@ namespace
         StringList docDeprecated = doc->deprecated();
         bool docIsDeprecated = doc->isDeprecated();
 
-        string n;
-
-        if (dynamic_pointer_cast<Exception>(p))
-        {
-            n = fixExceptionMember(p->name());
-        }
-        else
-        {
-            n = fixIdent(p->name());
-        }
+        const string n = p->mappedName();
 
         out << nl << "% " << n;
 
@@ -1285,6 +1008,31 @@ namespace
             out << nl << "%";
             out << nl << "% Deprecated";
         }
+    }
+
+    void validateMetadata(const UnitPtr& unit)
+    {
+        map<string, MetadataInfo> knownMetadata;
+
+        // "matlab:identifier"
+        MetadataInfo identifierInfo = {
+            .validOn =
+                {typeid(InterfaceDecl),
+                 typeid(Operation),
+                 typeid(Struct),
+                 typeid(Sequence),
+                 typeid(Dictionary),
+                 typeid(Enum),
+                 typeid(Enumerator),
+                 typeid(Const),
+                 typeid(Parameter),
+                 typeid(DataMember)},
+            .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+        };
+        knownMetadata.emplace("matlab:identifier", std::move(identifierInfo));
+
+        // Pass this information off to the parser's metadata validation logic.
+        Slice::validateMetadata(unit, "matlab", std::move(knownMetadata));
     }
 }
 
@@ -1333,16 +1081,15 @@ CodeVisitor::CodeVisitor(string dir) : _dir(std::move(dir)) {}
 bool
 CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    const string name = fixIdent(p->name());
+    const string name = p->mappedName();
     const string scoped = p->scoped();
-    const string abs = getAbsolute(p);
     const string self = name == "obj" ? "this" : "obj";
     const ClassDefPtr base = p->base();
     const DataMemberList members = p->dataMembers();
     const DataMemberList allMembers = p->allDataMembers();
 
     IceInternal::Output out;
-    openClass(abs, _dir, out);
+    openClass(p->mappedScoped(".").substr(1), _dir, out);
 
     writeDocSummary(out, p);
     writeCopyright(out, p->file());
@@ -1351,7 +1098,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << name;
     if (base)
     {
-        out << " < " << getAbsolute(base);
+        out << " < " << base->mappedScoped(".").substr(1);
     }
     else
     {
@@ -1366,7 +1113,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         for (const auto& q : members)
         {
             writeMemberDoc(out, q);
-            out << nl << fixIdent(q->name());
+            out << nl << q->mappedName();
             if (declarePropertyType(q->type(), q->optional()))
             {
                 out << " " << typeToString(q->type());
@@ -1401,7 +1148,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         vector<string> allNames;
         for (const auto& member : allMembers)
         {
-            allNames.push_back(fixIdent(member->name()));
+            allNames.push_back(member->mappedName());
         }
         out << nl << "function " << self << " = " << name << spar << allNames << epar;
         out.inc();
@@ -1413,11 +1160,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out.inc();
             for (const auto& member : allMembers)
             {
-                out << nl << fixIdent(member->name()) << " = " << defaultValue(member) << ';';
+                out << nl << member->mappedName() << " = " << defaultValue(member) << ';';
             }
             writeBaseClassArrayParams(out, baseMembers, false);
             out.dec();
-            out << nl << "elseif eq(" << fixIdent(firstMember->name()) << ", IceInternal.NoInit.Instance)";
+            out << nl << "elseif eq(" << firstMember->mappedName() << ", IceInternal.NoInit.Instance)";
             out.inc();
             writeBaseClassArrayParams(out, baseMembers, true);
             out.dec();
@@ -1427,13 +1174,13 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out.dec();
             out << nl << "end";
 
-            out << nl << self << " = " << self << "@" << getAbsolute(base) << "(v{:});";
+            out << nl << self << " = " << self << "@" << base->mappedScoped(".").substr(1) << "(v{:});";
 
-            out << nl << "if ne(" << fixIdent(firstMember->name()) << ", IceInternal.NoInit.Instance)";
+            out << nl << "if ne(" << firstMember->mappedName() << ", IceInternal.NoInit.Instance)";
             out.inc();
             for (const auto& member : members)
             {
-                const string memberName = fixIdent(member->name());
+                const string memberName = member->mappedName();
                 out << nl << self << "." << memberName << " = " << memberName << ';';
             }
             out.dec();
@@ -1445,14 +1192,14 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out.inc();
             for (const auto& member : allMembers)
             {
-                out << nl << self << "." << fixIdent(member->name()) << " = " << defaultValue(member) << ';';
+                out << nl << self << "." << member->mappedName() << " = " << defaultValue(member) << ';';
             }
             out.dec();
-            out << nl << "elseif ne(" << fixIdent(firstMember->name()) << ", IceInternal.NoInit.Instance)";
+            out << nl << "elseif ne(" << firstMember->mappedName() << ", IceInternal.NoInit.Instance)";
             out.inc();
             for (const auto& member : allMembers)
             {
-                const string memberName = fixIdent(member->name());
+                const string memberName = member->mappedName();
                 out << nl << self << "." << memberName << " = " << memberName << ';';
             }
             out.dec();
@@ -1495,12 +1242,12 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out.inc();
         for (const auto& convertMember : convertMembers)
         {
-            string m = "obj." + fixIdent(convertMember->name());
+            string m = "obj." + convertMember->mappedName();
             convertValueType(out, m, m, convertMember->type(), convertMember->optional());
         }
         if (base)
         {
-            out << nl << "icePostUnmarshal@" << getAbsolute(base) << "(obj);";
+            out << nl << "icePostUnmarshal@" << base->mappedScoped(".").substr(1) << "(obj);";
         }
         out.dec();
         out << nl << "end";
@@ -1521,23 +1268,17 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if (!member->optional())
         {
-            marshal(out, "os", "obj." + fixIdent(member->name()), member->type(), false, 0);
+            marshal(out, "os", "obj." + member->mappedName(), member->type(), false, 0);
         }
     }
     for (const auto& optionalMember : optionalMembers)
     {
-        marshal(
-            out,
-            "os",
-            "obj." + fixIdent(optionalMember->name()),
-            optionalMember->type(),
-            true,
-            optionalMember->tag());
+        marshal(out, "os", "obj." + optionalMember->mappedName(), optionalMember->type(), true, optionalMember->tag());
     }
     out << nl << "os.endSlice();";
     if (base)
     {
-        out << nl << "iceWriteImpl@" << getAbsolute(base) << "(obj, os);";
+        out << nl << "iceWriteImpl@" << base->mappedScoped(".").substr(1) << "(obj, os);";
     }
     out.dec();
     out << nl << "end";
@@ -1550,23 +1291,23 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             if (dm->type()->isClassType())
             {
-                unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent(dm->name()), dm->type(), false, 0);
+                unmarshal(out, "is", "@obj.iceSetMember_" + dm->mappedName(), dm->type(), false, 0);
             }
             else
             {
-                unmarshal(out, "is", "obj." + fixIdent(dm->name()), dm->type(), false, 0);
+                unmarshal(out, "is", "obj." + dm->mappedName(), dm->type(), false, 0);
             }
         }
     }
     for (const auto& dm : optionalMembers)
     {
         assert(!dm->type()->isClassType());
-        unmarshal(out, "is", "obj." + fixIdent(dm->name()), dm->type(), true, dm->tag());
+        unmarshal(out, "is", "obj." + dm->mappedName(), dm->type(), true, dm->tag());
     }
     out << nl << "is.endSlice();";
     if (base)
     {
-        out << nl << "iceReadImpl@" << getAbsolute(base) << "(obj, is);";
+        out << nl << "iceReadImpl@" << base->mappedScoped(".").substr(1) << "(obj, is);";
     }
     out.dec();
     out << nl << "end";
@@ -1580,7 +1321,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         for (const auto& classMember : classMembers)
         {
-            string m = fixIdent(classMember->name());
+            string m = classMember->mappedName();
             out << nl << "function iceSetMember_" << m << "(obj, v)";
             out.inc();
             out << nl << "obj." << m << " = v;";
@@ -1637,17 +1378,13 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const string name = fixIdent(p->name());
-    const string scoped = p->scoped();
-    const string abs = getAbsolute(p);
-    InterfaceList bases = p->bases();
-
     //
     // Generate proxy class.
     //
 
-    const string prxName = p->name() + "Prx";
-    const string prxAbs = getAbsolute(p, "", "Prx");
+    const InterfaceList bases = p->bases();
+    const string prxName = p->mappedName() + "Prx";
+    const string prxAbs = p->mappedScoped(".").substr(1) + "Prx";
 
     IceInternal::Output out;
     openClass(prxAbs, _dir, out);
@@ -1664,7 +1401,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 out << " & ";
             }
-            out << getAbsolute(*q, "", "Prx");
+            out << (*q)->mappedScoped(".").substr(1) + "Prx";
         }
     }
     else
@@ -1712,7 +1449,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         string self = "obj";
         for (const auto& param : outParams)
         {
-            if (fixIdent(param->name()) == "obj")
+            if (param->mappedName() == "obj")
             {
                 self = "obj_";
                 break;
@@ -1720,7 +1457,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         for (const auto& param : inParams)
         {
-            if (fixIdent(param->name()) == "obj")
+            if (param->mappedName() == "obj")
             {
                 self = "obj_";
                 break;
@@ -1736,21 +1473,21 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             out.spar("[");
             for (const auto& param : returnAndOutParameters)
             {
-                out << fixIdent(param->name());
+                out << param->mappedName();
             }
             out.epar("]");
             out << " = ";
         }
         else if (returnsAnyValues)
         {
-            out << fixIdent((*returnAndOutParameters.begin())->name()) << " = ";
+            out << (*returnAndOutParameters.begin())->mappedName() << " = ";
         }
-        out << fixOp(op->name()) << spar;
+        out << op->mappedName() << spar;
 
         out << self;
         for (const auto& param : inParams)
         {
-            out << fixIdent(param->name());
+            out << param->mappedName();
         }
         out << "varargin"; // For the optional context
         out << epar;
@@ -1770,7 +1507,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             for (const auto& param : sortedInParams)
             {
-                marshal(out, "os_", fixIdent(param->name()), param->type(), param->optional(), param->tag());
+                marshal(out, "os_", param->mappedName(), param->type(), param->optional(), param->tag());
             }
             if (op->sendsClasses())
             {
@@ -1793,7 +1530,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         else
         {
-            out << ", " << prxAbs << "." << op->name() << "_ex_";
+            out << ", " << prxAbs << "." << op->mappedName() << "_ex_";
         }
         out << ", varargin{:});";
 
@@ -1812,7 +1549,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             for (const auto& param : op->sortedReturnAndOutParameters("result"))
             {
                 const TypePtr paramType = param->type();
-                const string paramName = fixIdent(param->name());
+                const string paramName = param->mappedName();
                 string paramString;
 
                 if (paramType->isClassType())
@@ -1842,12 +1579,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             // Now we need to collect the values.
             for (const auto& param : classParams)
             {
-                const string paramName = fixIdent(param->name());
+                const string paramName = param->mappedName();
                 out << nl << paramName << " = " << paramName << "_h_.value;";
             }
             for (const auto& param : convertParams)
             {
-                const string paramName = fixIdent(param->name());
+                const string paramName = param->mappedName();
                 convertValueType(out, paramName, paramName, param->type(), param->optional());
             }
         }
@@ -1858,11 +1595,11 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         //
         // Asynchronous method.
         //
-        out << nl << "function r_ = " << op->name() << "Async" << spar;
+        out << nl << "function r_ = " << op->mappedName() << "Async" << spar;
         out << self;
         for (const auto& param : inParams)
         {
-            out << fixIdent(param->name());
+            out << param->mappedName();
         }
         out << "varargin"; // For the optional context
         out << epar;
@@ -1882,7 +1619,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             for (const auto& param : sortedInParams)
             {
-                marshal(out, "os_", fixIdent(param->name()), param->type(), param->optional(), param->tag());
+                marshal(out, "os_", param->mappedName(), param->type(), param->optional(), param->tag());
             }
             if (op->sendsClasses())
             {
@@ -1906,7 +1643,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             for (const auto& param : op->sortedReturnAndOutParameters("result"))
             {
                 const TypePtr paramType = param->type();
-                const string paramName = fixIdent(param->name());
+                const string paramName = param->mappedName();
                 string paramString;
                 if (paramType->isClassType())
                 {
@@ -1927,7 +1664,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             int i = 1;
             for (const auto& param : returnAndOutParameters)
             {
-                const string paramName = fixIdent(param->name());
+                const string paramName = param->mappedName();
                 if (param->type()->isClassType())
                 {
                     out << nl << "varargout{" << i << "} = " << paramName << ".value;";
@@ -1957,7 +1694,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         else
         {
-            out << ", " << prxAbs << "." << op->name() << "_ex_";
+            out << ", " << prxAbs << "." << op->mappedName() << "_ex_";
         }
         out << ", varargin{:});";
 
@@ -1972,7 +1709,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out.inc();
     out << nl << "function id = ice_staticId()";
     out.inc();
-    out << nl << "id = '" << scoped << "';";
+    out << nl << "id = '" << p->scoped() << "';";
     out.dec();
     out << nl << "end";
     out << nl << "function r = ice_read(is)";
@@ -2034,14 +1771,14 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             if (!exceptions.empty())
             {
-                out << nl << op->name() << "_ex_ = { ";
+                out << nl << op->mappedName() << "_ex_ = { ";
                 for (auto e = exceptions.begin(); e != exceptions.end(); ++e)
                 {
                     if (e != exceptions.begin())
                     {
                         out << ", ";
                     }
-                    out << "'" + getAbsolute(*e) + "'";
+                    out << "'" + (*e)->mappedScoped(".").substr(1) + "'";
                 }
                 out << " }";
             }
@@ -2062,9 +1799,8 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 bool
 CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    const string name = fixIdent(p->name());
-    const string scoped = p->scoped();
-    const string abs = getAbsolute(p);
+    const string name = p->mappedName();
+    const string abs = p->mappedScoped(".").substr(1);
 
     IceInternal::Output out;
     openClass(abs, _dir, out);
@@ -2078,7 +1814,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "classdef " << name;
     if (base)
     {
-        out << " < " << getAbsolute(base);
+        out << " < " << base->mappedScoped(".").substr(1);
     }
     else
     {
@@ -2093,7 +1829,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         for (const auto& member : members)
         {
             writeMemberDoc(out, member);
-            out << nl << fixExceptionMember(member->name());
+            out << nl << member->mappedName();
             if (declarePropertyType(member->type(), member->optional()))
             {
                 out << " " << typeToString(member->type());
@@ -2151,14 +1887,15 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     else
     {
-        out << nl << self << " = " << self << "@" << getAbsolute(base) << spar << "errID" << "msg" << epar << ';';
+        out << nl << self << " = " << self << "@" << base->mappedScoped(".").substr(1) << spar << "errID" << "msg"
+            << epar << ';';
     }
     out.dec();
     out << nl << "end";
 
     out << nl << "function id = ice_id(~)";
     out.inc();
-    out << nl << "id = '" << scoped << "';";
+    out << nl << "id = '" << p->scoped() << "';";
     out.dec();
     out << nl << "end";
     out.dec();
@@ -2173,17 +1910,17 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         out.inc();
         for (const auto& classMember : classMembers)
         {
-            string m = fixExceptionMember(classMember->name());
+            string m = classMember->mappedName();
             out << nl << "obj." << m << " = obj." << m << ".value;";
         }
         for (const auto& convertMember : convertMembers)
         {
-            string m = "obj." + fixExceptionMember(convertMember->name());
+            string m = "obj." + convertMember->mappedName();
             convertValueType(out, m, m, convertMember->type(), convertMember->optional());
         }
         if (base && base->usesClasses())
         {
-            out << nl << "obj = icePostUnmarshal@" << getAbsolute(base) << "(obj);";
+            out << nl << "obj = icePostUnmarshal@" << base->mappedScoped(".").substr(1) << "(obj);";
         }
         out.dec();
         out << nl << "end";
@@ -2199,7 +1936,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "is.startSlice();";
     for (const auto& dm : members)
     {
-        string m = fixExceptionMember(dm->name());
+        const string m = dm->mappedName();
         if (!dm->optional())
         {
             if (dm->type()->isClassType())
@@ -2216,7 +1953,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
     for (const auto& dm : optionalMembers)
     {
-        string m = fixExceptionMember(dm->name());
+        const string m = dm->mappedName();
         if (dm->type()->isClassType())
         {
             out << nl << "obj." << m << " = IceInternal.ValueHolder();";
@@ -2230,7 +1967,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "is.endSlice();";
     if (base)
     {
-        out << nl << "obj = iceReadImpl@" << getAbsolute(base) << "(obj, is);";
+        out << nl << "obj = iceReadImpl@" << base->mappedScoped(".").substr(1) << "(obj, is);";
     }
     out.dec();
     out << nl << "end";
@@ -2249,9 +1986,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 CodeVisitor::visitStructStart(const StructPtr& p)
 {
-    const string name = fixIdent(p->name());
-    const string scoped = p->scoped();
-    const string abs = getAbsolute(p);
+    const string name = p->mappedName();
+    const string abs = p->mappedScoped(".").substr(1);
 
     IceInternal::Output out;
     openClass(abs, _dir, out);
@@ -2271,7 +2007,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     DataMemberList convertMembers;
     for (const auto& member : members)
     {
-        const string m = fixStructMember(member->name());
+        const string m = member->mappedName();
         memberNames.push_back(m);
         writeMemberDoc(out, member);
         out << nl << m;
@@ -2297,10 +2033,10 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out.inc();
     for (const auto& member : members)
     {
-        out << nl << self << "." << fixStructMember(member->name()) << " = " << defaultValue(member) << ';';
+        out << nl << self << "." << member->mappedName() << " = " << defaultValue(member) << ';';
     }
     out.dec();
-    out << nl << "elseif ne(" << fixStructMember((*members.begin())->name()) << ", IceInternal.NoInit.Instance)";
+    out << nl << "elseif ne(" << (*members.begin())->mappedName() << ", IceInternal.NoInit.Instance)";
     out.inc();
     for (const auto& memberName : memberNames)
     {
@@ -2351,7 +2087,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out << nl << "end";
     for (const auto& member : members)
     {
-        marshal(out, "os", "v." + fixStructMember(member->name()), member->type(), false, 0);
+        marshal(out, "os", "v." + member->mappedName(), member->type(), false, 0);
     }
     out.dec();
     out << nl << "end";
@@ -2447,9 +2183,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     StructPtr structContent = dynamic_pointer_cast<Struct>(content);
     DictionaryPtr dictContent = dynamic_pointer_cast<Dictionary>(content);
 
-    const string name = fixIdent(p->name());
-    const string scoped = p->scoped();
-    const string abs = getAbsolute(p);
+    const string abs = p->mappedScoped(".").substr(1);
     const bool cls = content->isClassType();
     const bool proxy = isProxy(content);
     const bool convert = needsConversion(content);
@@ -2459,7 +2193,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
 
     writeCopyright(out, p->file());
 
-    out << nl << "classdef " << name;
+    out << nl << "classdef " << p->mappedName();
     out.inc();
     out << nl << "methods(Static)";
     out.inc();
@@ -2538,10 +2272,10 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     else if (enumContent)
     {
         const EnumeratorList enumerators = enumContent->enumerators();
-        out << nl << "r = " << getAbsolute(enumContent) << ".empty();";
+        out << nl << "r = " << enumContent->mappedScoped(".").substr(1) << ".empty();";
         out << nl << "if sz > 0";
         out.inc();
-        out << nl << "r(1, sz) = " << getAbsolute(*enumerators.begin()) << ";";
+        out << nl << "r(1, sz) = " << (*enumerators.begin())->mappedScoped(".").substr(1) << ";";
         out << nl << "for i = 1:sz";
         out.inc();
         unmarshal(out, "is", "r(i)", content, false, 0);
@@ -2557,10 +2291,10 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         // syntax "arr(1, sz) = Type()". Additionally, we also have to inline the unmarshaling code for
         // the struct members.
         //
-        out << nl << "r = " << getAbsolute(structContent) << ".empty();";
+        out << nl << "r = " << structContent->mappedScoped(".").substr(1) << ".empty();";
         out << nl << "if sz > 0";
         out.inc();
-        out << nl << "r(1, sz) = " << getAbsolute(structContent) << "();";
+        out << nl << "r(1, sz) = " << structContent->mappedScoped(".").substr(1) << "();";
         out << nl << "for i = 1:sz";
         out.inc();
         unmarshalStruct(out, structContent, "r(i)");
@@ -2711,9 +2445,8 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 
     const StructPtr st = dynamic_pointer_cast<Struct>(key);
 
-    const string name = fixIdent(p->name());
-    const string scoped = p->scoped();
-    const string abs = getAbsolute(p);
+    const string name = p->mappedName();
+    const string abs = p->mappedScoped(".").substr(1);
     const string self = name == "obj" ? "this" : "obj";
 
     IceInternal::Output out;
@@ -2949,9 +2682,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 void
 CodeVisitor::visitEnum(const EnumPtr& p)
 {
-    const string name = fixIdent(p->name());
-    const string scoped = p->scoped();
-    const string abs = getAbsolute(p);
+    const string abs = p->mappedScoped(".").substr(1);
     const EnumeratorList enumerators = p->enumerators();
 
     IceInternal::Output out;
@@ -2960,7 +2691,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     writeDocSummary(out, p);
     writeCopyright(out, p->file());
 
-    out << nl << "classdef " << name;
+    out << nl << "classdef " << p->mappedName();
     if (p->maxValue() <= 255)
     {
         out << " < uint8";
@@ -2982,7 +2713,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
         }
 
         writeDocSummary(out, enumerator);
-        out << fixEnumerator(enumerator->name()) << " (" << enumerator->value() << ")";
+        out << enumerator->mappedName() << " (" << enumerator->value() << ")";
     }
     out.dec();
     out << nl << "end";
@@ -2994,7 +2725,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     out.inc();
     out << nl << "if isempty(v)";
     out.inc();
-    string firstEnum = fixEnumerator(enumerators.front()->name());
+    const string firstEnum = enumerators.front()->mappedName();
     out << nl << "os.writeEnum(int32(" << abs << "." << firstEnum << "), " << p->maxValue() << ");";
     out.dec();
     out << nl << "else";
@@ -3044,7 +2775,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     {
         out << nl << "case " << enumerator->value();
         out.inc();
-        out << nl << "r = " << abs << "." << fixEnumerator(enumerator->name()) << ";";
+        out << nl << "r = " << abs << "." << enumerator->mappedName() << ";";
         out.dec();
     }
     out << nl << "otherwise";
@@ -3068,17 +2799,13 @@ CodeVisitor::visitEnum(const EnumPtr& p)
 void
 CodeVisitor::visitConst(const ConstPtr& p)
 {
-    const string name = fixIdent(p->name());
-    const string scoped = p->scoped();
-    const string abs = getAbsolute(p);
-
     IceInternal::Output out;
-    openClass(abs, _dir, out);
+    openClass(p->mappedScoped(".").substr(1), _dir, out);
 
     writeDocSummary(out, p);
     writeCopyright(out, p->file());
 
-    out << nl << "classdef " << name;
+    out << nl << "classdef " << p->mappedName();
 
     out.inc();
     out << nl << "properties(Constant)";
@@ -3284,7 +3011,7 @@ CodeVisitor::marshal(
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        const string typeS = getAbsolute(st);
+        const string typeS = st->mappedScoped(".").substr(1);
         if (optional)
         {
             out << nl << typeS << ".ice_writeOpt(" << stream << ", " << tag << ", " << v << ");";
@@ -3299,7 +3026,7 @@ CodeVisitor::marshal(
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if (en)
     {
-        const string typeS = getAbsolute(en);
+        const string typeS = en->mappedScoped(".").substr(1);
         if (optional)
         {
             out << nl << typeS << ".ice_writeOpt(" << stream << ", " << tag << ", " << v << ");";
@@ -3314,13 +3041,14 @@ CodeVisitor::marshal(
     DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if (dict)
     {
+        const string typeS = dict->mappedScoped(".").substr(1);
         if (optional)
         {
-            out << nl << getAbsolute(dict) << ".writeOpt(" << stream << ", " << tag << ", " << v << ");";
+            out << nl << typeS << ".writeOpt(" << stream << ", " << tag << ", " << v << ");";
         }
         else
         {
-            out << nl << getAbsolute(dict) << ".write(" << stream << ", " << v << ");";
+            out << nl << typeS << ".write(" << stream << ", " << v << ");";
         }
         return;
     }
@@ -3350,13 +3078,14 @@ CodeVisitor::marshal(
             return;
         }
 
+        const string typeS = seq->mappedScoped(".").substr(1);
         if (optional)
         {
-            out << nl << getAbsolute(seq) << ".writeOpt(" << stream << ", " << tag << ", " << v << ");";
+            out << nl << typeS << ".writeOpt(" << stream << ", " << tag << ", " << v << ");";
         }
         else
         {
-            out << nl << getAbsolute(seq) << ".write(" << stream << ", " << v << ");";
+            out << nl << typeS << ".write(" << stream << ", " << v << ");";
         }
         return;
     }
@@ -3500,7 +3229,7 @@ CodeVisitor::unmarshal(
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
     if (prx)
     {
-        const string typeS = getAbsolute(prx, "", "Prx");
+        const string typeS = prx->mappedScoped(".").substr(1) + "Prx";
         if (optional)
         {
             out << nl << v << " = " << stream << ".readProxyOpt(" << tag << ", '" << typeS << "');";
@@ -3517,7 +3246,7 @@ CodeVisitor::unmarshal(
     if (cl)
     {
         assert(!optional); // Optional classes are disallowed by the parser.
-        const string cls = getAbsolute(cl);
+        const string cls = cl->mappedScoped(".").substr(1);
         out << nl << stream << ".readValue(" << v << ", '" << cls << "');";
         return;
     }
@@ -3525,7 +3254,7 @@ CodeVisitor::unmarshal(
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        const string typeS = getAbsolute(st);
+        const string typeS = st->mappedScoped(".").substr(1);
         if (optional)
         {
             out << nl << v << " = " << typeS << ".ice_readOpt(" << stream << ", " << tag << ");";
@@ -3540,7 +3269,7 @@ CodeVisitor::unmarshal(
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if (en)
     {
-        const string typeS = getAbsolute(en);
+        const string typeS = en->mappedScoped(".").substr(1);
         if (optional)
         {
             out << nl << v << " = " << typeS << ".ice_readOpt(" << stream << ", " << tag << ");";
@@ -3555,13 +3284,14 @@ CodeVisitor::unmarshal(
     DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if (dict)
     {
+        const string typeS = dict->mappedScoped(".").substr(1);
         if (optional)
         {
-            out << nl << v << " = " << getAbsolute(dict) << ".readOpt(" << stream << ", " << tag << ");";
+            out << nl << v << " = " << typeS << ".readOpt(" << stream << ", " << tag << ");";
         }
         else
         {
-            out << nl << v << " = " << getAbsolute(dict) << ".read(" << stream << ");";
+            out << nl << v << " = " << typeS << ".read(" << stream << ");";
         }
         return;
     }
@@ -3590,13 +3320,14 @@ CodeVisitor::unmarshal(
             return;
         }
 
+        const string typeS = seq->mappedScoped(".").substr(1);
         if (optional)
         {
-            out << nl << v << " = " << getAbsolute(seq) << ".readOpt(" << stream << ", " << tag << ");";
+            out << nl << v << " = " << typeS << ".readOpt(" << stream << ", " << tag << ");";
         }
         else
         {
-            out << nl << v << " = " << getAbsolute(seq) << ".read(" << stream << ");";
+            out << nl << v << " = " << typeS << ".read(" << stream << ");";
         }
         return;
     }
@@ -3609,7 +3340,7 @@ CodeVisitor::unmarshalStruct(IceInternal::Output& out, const StructPtr& p, const
 {
     for (const auto& dm : p->dataMembers())
     {
-        string m = fixStructMember(dm->name());
+        const string m = dm->mappedName();
         if (dm->type()->isClassType())
         {
             out << nl << m << "_ = IceInternal.ValueHolder();";
@@ -3628,7 +3359,7 @@ CodeVisitor::convertStruct(IceInternal::Output& out, const StructPtr& p, const s
 {
     for (const auto& dm : p->dataMembers())
     {
-        string m = fixStructMember(dm->name());
+        const string m = dm->mappedName();
         if (needsConversion(dm->type()))
         {
             convertValueType(out, v + "." + m, v + "." + m, dm->type(), false);
@@ -3647,7 +3378,7 @@ CodeVisitor::writeBaseClassArrayParams(IceInternal::Output& out, const DataMembe
     bool first = true;
     for (const auto& member : baseMembers)
     {
-        const string memberName = fixIdent(member->name());
+        const string memberName = member->mappedName();
         if (first)
         {
             out << (noInit ? "IceInternal.NoInit.Instance" : memberName);
@@ -3913,10 +3644,7 @@ compile(const vector<string>& argv)
 
                     try
                     {
-                        // 'slice2matlab' doesn't have any language-specific metadata, so we call `validateMetadata`
-                        // with an empty list.  This ensures that the validation still runs, and will reject any
-                        // 'matlab' metadata the user might think exists.
-                        Slice::validateMetadata(u, "matlab", {});
+                        validateMetadata(u);
 
                         CodeVisitor codeVisitor(output);
                         u->visit(&codeVisitor);
