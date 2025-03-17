@@ -181,7 +181,7 @@ static PyGetSetDef ConnectionInfoGetters[] = {
      nullptr,
      PyDoc_STR("adapter associated the connection"),
      nullptr},
-    {nullptr, nullptr, nullptr, nullptr, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 static PyGetSetDef IPConnectionInfoGetters[] = {
@@ -197,7 +197,7 @@ static PyGetSetDef IPConnectionInfoGetters[] = {
      PyDoc_STR("remote address"),
      nullptr},
     {"remotePort", reinterpret_cast<getter>(ipConnectionInfoGetRemotePort), nullptr, PyDoc_STR("remote port"), nullptr},
-    {nullptr, nullptr, nullptr, nullptr, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 static PyGetSetDef TCPConnectionInfoGetters[] = {
@@ -207,7 +207,7 @@ static PyGetSetDef TCPConnectionInfoGetters[] = {
      PyDoc_STR("receive buffer size"),
      nullptr},
     {"sndSize", reinterpret_cast<getter>(tcpConnectionInfoGetSndSize), nullptr, PyDoc_STR("send buffer size"), nullptr},
-    {nullptr, nullptr, nullptr, nullptr, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 static PyGetSetDef UDPConnectionInfoGetters[] = {
@@ -227,12 +227,12 @@ static PyGetSetDef UDPConnectionInfoGetters[] = {
      PyDoc_STR("receive buffer size"),
      nullptr},
     {"sndSize", reinterpret_cast<getter>(udpConnectionInfoGetSndSize), nullptr, PyDoc_STR("send buffer size"), nullptr},
-    {nullptr, nullptr, nullptr, nullptr, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 static PyGetSetDef WSConnectionInfoGetters[] = {
     {"headers", reinterpret_cast<getter>(wsConnectionInfoGetHeaders), nullptr, PyDoc_STR("request headers"), nullptr},
-    {nullptr, nullptr, nullptr, nullptr, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 static PyGetSetDef SSLConnectionInfoGetters[] = {
@@ -241,7 +241,7 @@ static PyGetSetDef SSLConnectionInfoGetters[] = {
      nullptr,
      PyDoc_STR("peer certificate"),
      nullptr},
-    {nullptr, nullptr, nullptr, nullptr, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 namespace IcePy

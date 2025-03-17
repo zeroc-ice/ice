@@ -704,7 +704,7 @@ static PyMethodDef PropertyMethods[] = {
      PyDoc_STR("parseIceCommandLineOptions(prefix, options) -> list")},
     {"load", reinterpret_cast<PyCFunction>(propertiesLoad), METH_VARARGS, PyDoc_STR("load(file) -> None")},
     {"clone", reinterpret_cast<PyCFunction>(propertiesClone), METH_NOARGS, PyDoc_STR("clone() -> Ice.Properties")},
-    {nullptr, nullptr, METH_NOARGS, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 namespace IcePy

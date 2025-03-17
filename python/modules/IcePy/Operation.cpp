@@ -1021,7 +1021,7 @@ static PyMethodDef OperationMethods[] = {
     {"invoke", reinterpret_cast<PyCFunction>(operationInvoke), METH_VARARGS, PyDoc_STR("internal function")},
     {"invokeAsync", reinterpret_cast<PyCFunction>(operationInvokeAsync), METH_VARARGS, PyDoc_STR("internal function")},
     {"deprecate", reinterpret_cast<PyCFunction>(operationDeprecate), METH_VARARGS, PyDoc_STR("internal function")},
-    {nullptr, nullptr, METH_NOARGS, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 static PyMethodDef DispatchCallbackMethods[] = {
@@ -1030,7 +1030,7 @@ static PyMethodDef DispatchCallbackMethods[] = {
      reinterpret_cast<PyCFunction>(dispatchCallbackException),
      METH_VARARGS,
      PyDoc_STR("internal function")},
-    {nullptr, nullptr, METH_NOARGS, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 static PyMethodDef AsyncInvocationContextMethods[] = {
@@ -1042,7 +1042,7 @@ static PyMethodDef AsyncInvocationContextMethods[] = {
      reinterpret_cast<PyCFunction>(asyncInvocationContextCallLater),
      METH_VARARGS,
      PyDoc_STR("internal function")},
-    {nullptr, nullptr, METH_NOARGS, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 namespace IcePy
