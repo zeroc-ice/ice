@@ -713,7 +713,8 @@ public class ServiceManagerI implements ServiceManager {
 
             // We support the following formats:
             //
-            // <class-name> [args] <jar-file>:<class-name> [args]
+            // <class-name> [args]
+            // <jar-file>:<class-name> [args]
             // <class-dir>:<class-name> [args]
             // "<path with spaces>":<class-name> [args]
             // "<path with spaces>:<class-name>" [args]
