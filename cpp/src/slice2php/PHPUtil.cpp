@@ -105,24 +105,6 @@ lookupKwd(const string& name)
 }
 
 string
-Slice::PHP::scopedToName(const string& scoped)
-{
-    string result = fixIdent(scoped);
-    if (result.find("::") == 0)
-    {
-        result.replace(0, 2, "\\");
-    }
-
-    string::size_type pos;
-    while ((pos = result.find("::")) != string::npos)
-    {
-        result.replace(pos, 2, "\\");
-    }
-
-    return result;
-}
-
-string
 Slice::PHP::fixIdent(const string& ident)
 {
     if (ident[0] != ':')
@@ -137,19 +119,4 @@ Slice::PHP::fixIdent(const string& ident)
         result << "::" + id;
     }
     return result.str();
-}
-
-string
-Slice::PHP::escapeName(const string& name)
-{
-    string result = name;
-
-    string::size_type pos = 0;
-    while ((pos = result.find('\\', pos)) != string::npos)
-    {
-        result.insert(pos, "\\");
-        pos += 2;
-    }
-
-    return result;
 }

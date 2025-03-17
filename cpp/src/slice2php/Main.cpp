@@ -143,7 +143,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string scoped = p->scoped();
     const string name = getName(p);
     const string type = getTypeVar(p);
-    const string abs = scopedToName(p->scoped());
+    const string abs = p->mappedScoped("\\\\");
     const ClassDefPtr base = p->base();
     const DataMemberList members = p->dataMembers();
     const DataMemberList baseMembers = (base ? base->allDataMembers() : DataMemberList{});
@@ -156,7 +156,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << "class " << name;
     if (base)
     {
-        _out << " extends " << scopedToName(base->scoped());
+        _out << " extends " << base->mappedScoped("\\");
     }
     else
     {
@@ -251,7 +251,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     // Emit the type information.
-    _out << nl << type << " = IcePHP_defineClass('" << scoped << "', '" << escapeName(abs) << "', " << p->compactId()
+    _out << nl << type << " = IcePHP_defineClass('" << scoped << "', '" << abs << "', " << p->compactId()
          << ", false, ";
     if (!base)
     {
@@ -304,7 +304,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
-    string abs = scopedToName(p->scoped());
+    string abs = p->mappedScoped("\\");
     string prxName = getName(p, "Prx");
     string prxType = getTypeVar(p, "Prx");
     string prxAbs = abs + "Prx";
@@ -534,7 +534,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
-    string abs = scopedToName(p->scoped());
+    string abs = p->mappedScoped("\\\\");
 
     startNamespace(p);
 
@@ -544,7 +544,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     string baseName;
     if (base)
     {
-        baseName = scopedToName(base->scoped());
+        baseName = base->mappedScoped("\\");
         _out << baseName;
     }
     else
@@ -592,7 +592,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     // Emit the type information.
-    _out << sp << nl << type << " = IcePHP_defineException('" << scoped << "', '" << escapeName(abs) << "', ";
+    _out << sp << nl << type << " = IcePHP_defineException('" << scoped << "', '" << abs << "', ";
     if (!base)
     {
         _out << "null";
@@ -642,7 +642,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     const string scoped = p->scoped();
     const string name = getName(p);
     const string type = getTypeVar(p);
-    const string abs = scopedToName(p->scoped());
+    const string abs = p->mappedScoped("\\\\");
     const DataMemberList members = p->dataMembers();
 
     startNamespace(p);
@@ -693,7 +693,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     }
 
     // Emit the type information.
-    _out << nl << type << " = IcePHP_defineStruct('" << scoped << "', '" << escapeName(abs) << "', array(";
+    _out << nl << type << " = IcePHP_defineStruct('" << scoped << "', '" << abs << "', array(";
 
     // Data members are represented as an array:
     //
@@ -801,7 +801,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
-    string abs = scopedToName(p->scoped());
+    string abs = p->mappedScoped("\\");
     EnumeratorList enumerators = p->enumerators();
 
     startNamespace(p);
@@ -837,11 +837,11 @@ CodeVisitor::visitConst(const ConstPtr& p)
 {
     string name = getName(p);
     string type = getTypeVar(p);
-    string abs = scopedToName(p->scoped());
+    string abs = p->mappedScoped("\\\\");
 
     startNamespace(p);
 
-    _out << sp << nl << "if(!defined('" << escapeName(abs) << "'))";
+    _out << sp << nl << "if(!defined('" << abs << "'))";
     _out << sb;
     _out << sp << nl << "define(__NAMESPACE__ . '\\\\" << name << "', ";
     writeConstantValue(p->type(), p->valueType(), p->value());
@@ -853,12 +853,12 @@ CodeVisitor::visitConst(const ConstPtr& p)
 }
 
 void
-CodeVisitor::startNamespace(const ContainedPtr& cont)
+CodeVisitor::startNamespace(const ContainedPtr& p)
 {
-    string scope = cont->scope();
-    scope = scope.substr(2);                     // Removing leading '::'
-    scope = scope.substr(0, scope.length() - 2); // Removing trailing '::'
-    _out << sp << nl << "namespace " << scopedToName(scope);
+    // This function should only be called on module level elements.
+    ModulePtr container = dynamic_pointer_cast<Module>(p->container());
+    assert(container);
+    _out << sp << nl << "namespace " << container->mappedScoped("\\").substr(1);
     _out << sb;
 }
 
@@ -997,7 +997,7 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
     if (en)
     {
         string firstEnumerator = en->enumerators().front()->name();
-        _out << scopedToName(en->scoped()) << "::" << fixIdent(firstEnumerator);
+        _out << en->mappedScoped("\\") << "::" << fixIdent(firstEnumerator);
         return;
     }
 
@@ -1021,7 +1021,7 @@ CodeVisitor::writeAssign(const DataMemberPtr& member)
     const string memberName = fixIdent(member->name());
     if (StructPtr st = dynamic_pointer_cast<Struct>(member->type()))
     {
-        _out << nl << "$this->" << memberName << " = is_null($" << memberName << ") ? new " << scopedToName(st->scoped()) << " : $"
+        _out << nl << "$this->" << memberName << " = is_null($" << memberName << ") ? new " << st->mappedScoped("\\") << " : $"
              << memberName << ';';
     }
     else
@@ -1036,7 +1036,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if (constant)
     {
-        _out << scopedToName(constant->scoped());
+        _out << constant->mappedScoped("\\");
     }
     else
     {
@@ -1086,7 +1086,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
         {
             EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
-            _out << scopedToName(en->scoped()) << "::" << fixIdent(lte->name());
+            _out << en->mappedScoped("\\") << "::" << fixIdent(lte->name());
         }
         else
         {
