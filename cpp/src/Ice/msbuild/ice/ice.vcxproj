@@ -964,7 +964,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\Buffer.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Communicator.h" />
     <ClInclude Include="..\..\..\..\include\Ice\CommunicatorF.h" />
-    <ClInclude Include="..\..\..\..\include\Ice\Comparable.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Config.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Connection.h" />
     <ClInclude Include="..\..\..\..\include\Ice\ConnectionF.h" />
@@ -1019,6 +1018,7 @@
     <ClInclude Include="..\..\..\..\include\Ice\SlicedDataF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\StreamHelpers.h" />
     <ClInclude Include="..\..\..\..\include\Ice\StringConverter.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\TupleCompare.h" />
     <ClInclude Include="..\..\..\..\include\Ice\UserException.h" />
     <ClInclude Include="..\..\..\..\include\Ice\UserExceptionFactory.h" />
     <ClInclude Include="..\..\..\..\include\Ice\UUID.h" />

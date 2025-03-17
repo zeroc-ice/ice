@@ -5,6 +5,7 @@
 #include "Ice/Current.h"
 #include "Ice/ObjectAdapter.h"
 #include "Reference.h"
+#include "TargetCompare.h"
 
 #include <sstream>
 

@@ -8,8 +8,8 @@
 
 [["cpp:no-default-include"]]
 [["cpp:include:Ice/Config.h"]]
-[["cpp:include:Ice/Comparable.h"]]
 [["cpp:include:Ice/StreamHelpers.h"]]
+[["cpp:include:Ice/TupleCompare.h"]]
 [["cpp:include:string"]]
 [["cpp:include:vector"]]
 

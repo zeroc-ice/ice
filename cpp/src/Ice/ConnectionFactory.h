@@ -11,12 +11,12 @@
 #include "EndpointIF.h"
 #include "EventHandler.h"
 #include "Ice/CommunicatorF.h"
-#include "Ice/Comparable.h"
 #include "Ice/Endpoint.h"
 #include "Ice/InstanceF.h"
 #include "Ice/Instrumentation.h"
 #include "Ice/ObjectAdapterF.h"
 #include "RouterInfoF.h"
+#include "TargetCompare.h"
 #include "TransceiverF.h"
 
 #include <condition_variable>

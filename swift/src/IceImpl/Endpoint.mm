@@ -24,7 +24,7 @@
 
 - (bool)isEqual:(ICEEndpoint*)other
 {
-    return Ice::targetEqualTo(self.endpoint, other.endpoint);
+    return *self.endpoint == *other.endpoint;
 }
 
 + (id)createEndpointInfo:(std::shared_ptr<Ice::EndpointInfo>)infoPtr

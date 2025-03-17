@@ -2,6 +2,7 @@
 
 #include "WSConnector.h"
 #include "HttpParser.h"
+#include "TargetCompare.h"
 #include "WSEndpoint.h"
 #include "WSTransceiver.h"
 

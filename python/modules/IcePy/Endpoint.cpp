@@ -2,6 +2,7 @@
 
 #include "Endpoint.h"
 #include "EndpointInfo.h"
+#include "Ice/TargetCompare.h"
 #include "Util.h"
 
 using namespace std;
