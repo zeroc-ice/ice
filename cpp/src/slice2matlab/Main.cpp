@@ -1032,7 +1032,7 @@ namespace
         knownMetadata.emplace("matlab:identifier", std::move(identifierInfo));
 
         // Pass this information off to the parser's metadata validation logic.
-        Slice::validateMetadata(unit, "matlab", knownMetadata);
+        Slice::validateMetadata(unit, "matlab", std::move(knownMetadata));
     }
 }
 
