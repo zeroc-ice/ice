@@ -81,9 +81,6 @@ private:
     /// Write constructor parameters with default values.
     void writeConstructorParams(const DataMemberList& members);
 
-    // Convert an operation mode into a string.
-    string getOperationMode(Slice::Operation::Mode);
-
     Output& _out;
     set<string> _classHistory;
 };
@@ -411,7 +408,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
 
             _out << nl << "IcePHP_defineOperation(" << prxType << ", '" << op->name() << "', "
-                 << getOperationMode(op->mode()) << ", " << phpFormat << ", ";
+                 << static_cast<int>(op->mode()) << ", " << phpFormat << ", ";
             for (t = params.begin(), count = 0; t != params.end(); ++t)
             {
                 if (!(*t)->isOutParam())
@@ -1075,14 +1072,6 @@ CodeVisitor::writeConstructorParams(const DataMemberList& members)
             writeDefaultValue(member);
         }
     }
-}
-
-string
-CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
-{
-    ostringstream ostr;
-    ostr << static_cast<int>(mode);
-    return ostr.str();
 }
 
 static void
