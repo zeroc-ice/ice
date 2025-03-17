@@ -822,7 +822,7 @@ public final class Properties {
             // If the property has a property class, check if the key is a prefix of the property.
             if (prop.propertyArray() != null) {
                 // Check if the key is a prefix of the property.
-                //  The key must be:
+                // The key must be:
                 //  - shorter than the property pattern
                 //  - the property pattern must start with the key
                 // - the pattern character after the key must be a dot
