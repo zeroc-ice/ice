@@ -217,7 +217,7 @@ IcePHP::extractWrapper(zval* zv)
 zend_class_entry*
 IcePHP::idToClass(const string& id)
 {
-    string cls = scopedToName(id, true);
+    string cls = scopedToName(id);
     return nameToClass(cls);
 }
 

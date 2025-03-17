@@ -105,38 +105,18 @@ lookupKwd(const string& name)
 }
 
 string
-Slice::PHP::scopedToName(const string& scoped, bool ns)
+Slice::PHP::scopedToName(const string& scoped)
 {
-    string result;
-    if (ns)
+    string result = fixIdent(scoped);
+    if (result.find("::") == 0)
     {
-        result = fixIdent(scoped);
-        if (result.find("::") == 0)
-        {
-            result.replace(0, 2, "\\");
-        }
-
-        string::size_type pos;
-        while ((pos = result.find("::")) != string::npos)
-        {
-            result.replace(pos, 2, "\\");
-        }
+        result.replace(0, 2, "\\");
     }
-    else
+
+    string::size_type pos;
+    while ((pos = result.find("::")) != string::npos)
     {
-        string str = scoped;
-        if (str.find("::") == 0)
-        {
-            str.erase(0, 2);
-        }
-
-        string::size_type pos;
-        while ((pos = str.find("::")) != string::npos)
-        {
-            str.replace(pos, 2, "_");
-        }
-
-        result = fixIdent(str);
+        result.replace(pos, 2, "\\");
     }
 
     return result;

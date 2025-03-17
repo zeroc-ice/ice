@@ -43,17 +43,6 @@ using namespace Slice;
 using namespace Slice::PHP;
 using namespace IceInternal;
 
-namespace
-{
-    // Get the fully-qualified name of the given definition. If a suffix is provided, it is prepended to the
-    // definition's unqualified name. If the nameSuffix is provided, it is appended to the container's name.
-    string
-    getAbsolute(const ContainedPtr& cont, const string& pfx = std::string(), const string& suffix = std::string())
-    {
-        return scopedToName(cont->scope() + pfx + cont->name() + suffix, true);
-    }
-}
-
 // CodeVisitor generates the PHP mapping for a translation unit.
 class CodeVisitor final : public ParserVisitor
 {
@@ -154,7 +143,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string scoped = p->scoped();
     const string name = getName(p);
     const string type = getTypeVar(p);
-    const string abs = getAbsolute(p);
+    const string abs = scopedToName(p->scoped());
     const ClassDefPtr base = p->base();
     const DataMemberList members = p->dataMembers();
     const DataMemberList baseMembers = (base ? base->allDataMembers() : DataMemberList{});
@@ -167,7 +156,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << "class " << name;
     if (base)
     {
-        _out << " extends " << getAbsolute(base);
+        _out << " extends " << scopedToName(base->scoped());
     }
     else
     {
@@ -315,10 +304,10 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
-    string abs = getAbsolute(p);
+    string abs = scopedToName(p->scoped());
     string prxName = getName(p, "Prx");
     string prxType = getTypeVar(p, "Prx");
-    string prxAbs = getAbsolute(p, "", "Prx");
+    string prxAbs = abs + "Prx";
     InterfaceList bases = p->bases();
     OperationList ops = p->operations();
     startNamespace(p);
@@ -545,7 +534,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
-    string abs = getAbsolute(p);
+    string abs = scopedToName(p->scoped());
 
     startNamespace(p);
 
@@ -555,7 +544,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     string baseName;
     if (base)
     {
-        baseName = getAbsolute(base);
+        baseName = scopedToName(base->scoped());
         _out << baseName;
     }
     else
@@ -653,7 +642,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     const string scoped = p->scoped();
     const string name = getName(p);
     const string type = getTypeVar(p);
-    const string abs = getAbsolute(p);
+    const string abs = scopedToName(p->scoped());
     const DataMemberList members = p->dataMembers();
 
     startNamespace(p);
@@ -812,7 +801,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
-    string abs = getAbsolute(p);
+    string abs = scopedToName(p->scoped());
     EnumeratorList enumerators = p->enumerators();
 
     startNamespace(p);
@@ -848,7 +837,7 @@ CodeVisitor::visitConst(const ConstPtr& p)
 {
     string name = getName(p);
     string type = getTypeVar(p);
-    string abs = getAbsolute(p);
+    string abs = scopedToName(p->scoped());
 
     startNamespace(p);
 
@@ -869,7 +858,7 @@ CodeVisitor::startNamespace(const ContainedPtr& cont)
     string scope = cont->scope();
     scope = scope.substr(2);                     // Removing leading '::'
     scope = scope.substr(0, scope.length() - 2); // Removing trailing '::'
-    _out << sp << nl << "namespace " << scopedToName(scope, true);
+    _out << sp << nl << "namespace " << scopedToName(scope);
     _out << sb;
 }
 
@@ -882,7 +871,7 @@ CodeVisitor::endNamespace()
 string
 CodeVisitor::getTypeVar(const ContainedPtr& p, const string& suffix)
 {
-    return "$" + scopedToName(p->scope() + "_t_" + p->name() + suffix, false);
+    return "$" + fixIdent(p->mappedScope("_").substr(1) + "_t_" + p->name() + suffix);
 }
 
 string
@@ -1008,7 +997,7 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
     if (en)
     {
         string firstEnumerator = en->enumerators().front()->name();
-        _out << getAbsolute(en) << "::" << fixIdent(firstEnumerator);
+        _out << scopedToName(en->scoped()) << "::" << fixIdent(firstEnumerator);
         return;
     }
 
@@ -1032,7 +1021,7 @@ CodeVisitor::writeAssign(const DataMemberPtr& member)
     const string memberName = fixIdent(member->name());
     if (StructPtr st = dynamic_pointer_cast<Struct>(member->type()))
     {
-        _out << nl << "$this->" << memberName << " = is_null($" << memberName << ") ? new " << getAbsolute(st) << " : $"
+        _out << nl << "$this->" << memberName << " = is_null($" << memberName << ") ? new " << scopedToName(st->scoped()) << " : $"
              << memberName << ';';
     }
     else
@@ -1047,7 +1036,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if (constant)
     {
-        _out << getAbsolute(constant);
+        _out << scopedToName(constant->scoped());
     }
     else
     {
@@ -1097,7 +1086,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
         {
             EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
-            _out << getAbsolute(en) << "::" << fixIdent(lte->name());
+            _out << scopedToName(en->scoped()) << "::" << fixIdent(lte->name());
         }
         else
         {

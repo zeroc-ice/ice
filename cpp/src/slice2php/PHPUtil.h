@@ -11,7 +11,7 @@ namespace Slice::PHP
     //
     // Convert a scoped name into a PHP name.
     //
-    std::string scopedToName(const std::string&, bool);
+    std::string scopedToName(const std::string&);
 
     //
     // Check the given identifier against PHP's list of reserved words. If it matches
