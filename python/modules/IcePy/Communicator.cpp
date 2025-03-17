@@ -511,13 +511,18 @@ communicatorShutdownCompleted(CommunicatorObject* self, PyObject* /*args*/)
     // Call Ice.Future.__init__
     type->tp_init(future.get(), emptyArgs.get(), nullptr);
 
+    // Create a strong reference to prevent premature release of the future object. The reference will be released by
+    // the callback.
+    PyObject* futureObject = future.get();
+    Py_INCREF(futureObject);
+
     (*self->communicator)
         ->waitForShutdownAsync(
-            [futureHandle = PyObjectHandle(future)]() mutable
+            [futureObject]()
             {
                 AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-                // Adopt the future handle so it is released within this scope.
-                PyObjectHandle futureGuard{futureHandle.release()};
+                // Adopt the future object so it is released within this scope.
+                PyObjectHandle futureGuard{futureObject};
                 PyObjectHandle discard{callMethod(futureGuard.get(), "set_result", Py_None)};
             });
 

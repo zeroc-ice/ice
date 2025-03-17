@@ -237,7 +237,7 @@ connectionClose(ConnectionObject* self, PyObject* /* args */)
                 {
                     // Ensure the current thread is able to call into Python.
                     AdoptThread adoptThread;
-                    // Adopt the future handle so it is released within this scope.
+                    // Adopt the future object so it is released within this scope.
                     PyObjectHandle futureGuard{futureObject};
                     PyObjectHandle discard{callMethod(futureGuard.get(), "set_result", Py_None)};
                 },
@@ -245,7 +245,7 @@ connectionClose(ConnectionObject* self, PyObject* /* args */)
                 {
                     // Ensure the current thread is able to call into Python.
                     AdoptThread adoptThread;
-                    // Adopt the future handle so it is released within this scope.
+                    // Adopt the future object so it is released within this scope.
                     PyObjectHandle futureGuard{futureObject};
                     PyObjectHandle pythonException{convertException(ex)};
                     PyObjectHandle discard{callMethod(futureGuard.get(), "set_exception", pythonException.get())};
