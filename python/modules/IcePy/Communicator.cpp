@@ -1563,7 +1563,7 @@ static PyMethodDef CommunicatorMethods[] = {
      METH_VARARGS,
      PyDoc_STR("internal function")},
     {"_getWrapper", reinterpret_cast<PyCFunction>(communicatorGetWrapper), METH_NOARGS, PyDoc_STR("internal function")},
-    {nullptr, nullptr} /* sentinel */
+    {nullptr, nullptr, METH_NOARGS, nullptr} // Sentinel
 };
 
 namespace IcePy

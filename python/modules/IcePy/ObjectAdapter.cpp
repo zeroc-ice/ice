@@ -1556,7 +1556,7 @@ static PyMethodDef AdapterMethods[] = {
      reinterpret_cast<PyCFunction>(adapterSetPublishedEndpoints),
      METH_VARARGS,
      PyDoc_STR("setPublishedEndpoints(endpoints) -> None")},
-    {nullptr, nullptr} /* sentinel */
+    {nullptr, nullptr, METH_NOARGS, nullptr} // Sentinel
 };
 
 namespace IcePy

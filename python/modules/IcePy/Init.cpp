@@ -110,7 +110,7 @@ static PyMethodDef methods[] = {
      PyDoc_STR("internal function")},
     {"loadSlice", reinterpret_cast<PyCFunction>(IcePy_loadSlice), METH_VARARGS, PyDoc_STR("loadSlice(cmd) -> None")},
     {"compile", reinterpret_cast<PyCFunction>(IcePy_compile), METH_VARARGS, PyDoc_STR("internal function")},
-    {nullptr, nullptr} /* sentinel */
+    {nullptr, nullptr, METH_NOARGS, nullptr} // Sentinel
 };
 
 static struct PyModuleDef iceModule = {

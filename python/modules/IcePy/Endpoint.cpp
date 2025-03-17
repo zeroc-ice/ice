@@ -122,7 +122,7 @@ static PyMethodDef EndpointMethods[] = {
      reinterpret_cast<PyCFunction>(endpointGetInfo),
      METH_NOARGS,
      PyDoc_STR("getInfo() -> Ice.EndpointInfo")},
-    {nullptr, nullptr} /* sentinel */
+    {nullptr, nullptr, METH_NOARGS, nullptr} // Sentinel
 };
 
 namespace IcePy
