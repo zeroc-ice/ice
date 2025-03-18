@@ -183,11 +183,6 @@ NodeI::createSession(
             return; // Shutting down.
         }
 
-        // Unlock the mutex to prevent a deadlock. If ice_getConnectionAsync completes synchronously, the callback will
-        // execute with the mutex locked. This could cause a deadlock if the callback calls createSession again—for
-        // example, during session->reconnect.
-        lock.unlock();
-
         s->ice_getConnectionAsync(
             [=, self = shared_from_this()](const auto& connection) mutable
             {
