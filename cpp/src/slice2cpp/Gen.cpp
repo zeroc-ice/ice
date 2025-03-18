@@ -1747,7 +1747,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         StringList postParams;
         postParams.push_back(contextDoc);
-        writeOpDocSummary(H, p, *comment, OpDocAllParams, true, {}, StringList(), postParams, comment->returns());
+        writeOpDocSummary(H, p, *comment, OpDocAllParams, true, {}, StringList{}, postParams, comment->returns());
     }
     H << nl << deprecatedAttribute << retS << ' ' << opName << spar << paramsDecl << contextDecl << epar << " const;";
 
@@ -1808,7 +1808,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         StringList postParams, returns;
         postParams.push_back(contextDoc);
         returns.push_back(futureDoc);
-        writeOpDocSummary(H, p, *comment, OpDocInParams, false, {}, StringList(), postParams, returns);
+        writeOpDocSummary(H, p, *comment, OpDocInParams, false, {}, StringList{}, postParams, returns);
     }
 
     H << nl << deprecatedAttribute << "[[nodiscard]] std::future<" << futureT << "> " << opName << "Async" << spar

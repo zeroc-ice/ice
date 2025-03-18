@@ -23,7 +23,7 @@ namespace Ice
 
     class UnknownSlicedValue;
 
-    /// A shared pointer to a UnknownSlicedValue.
+    /// A shared pointer to an UnknownSlicedValue.
     using UnknownSlicedValuePtr = std::shared_ptr<UnknownSlicedValue>;
 }
 
