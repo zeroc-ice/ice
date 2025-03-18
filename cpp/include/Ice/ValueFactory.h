@@ -62,6 +62,7 @@ namespace Ice
         [[nodiscard]] virtual ValueFactory find(std::string_view id) const noexcept = 0;
     };
 
+    /// A shared pointer to a ValueFactoryManager.
     using ValueFactoryManagerPtr = std::shared_ptr<ValueFactoryManager>;
 }
 

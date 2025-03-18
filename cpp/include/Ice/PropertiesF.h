@@ -8,6 +8,8 @@
 namespace Ice
 {
     class Properties;
+
+    /// A shared pointer to a Properties.
     using PropertiesPtr = std::shared_ptr<Properties>;
 
     class PropertiesAdmin;

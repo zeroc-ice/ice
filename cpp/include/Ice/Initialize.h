@@ -227,6 +227,7 @@ namespace Ice
         virtual void stop() = 0;
     };
 
+    /// A shared pointer to a ThreadNotification.
     using ThreadNotificationPtr = std::shared_ptr<ThreadNotification>;
 
     /**

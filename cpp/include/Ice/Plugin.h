@@ -30,6 +30,8 @@ namespace Ice
          */
         virtual void destroy() = 0;
     };
+
+    /// A shared pointer to a Plugin.
     using PluginPtr = std::shared_ptr<Plugin>;
 
     /**
@@ -79,6 +81,8 @@ namespace Ice
          */
         virtual void destroy() noexcept = 0;
     };
+
+    /// A shared pointer to a PluginManager.
     using PluginManagerPtr = std::shared_ptr<PluginManager>;
 }
 

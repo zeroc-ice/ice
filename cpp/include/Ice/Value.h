@@ -107,7 +107,7 @@ namespace Ice
         SlicedDataPtr _slicedData;
     };
 
-    /// Outputs the description of a class instance to the stream. This function calls ice_print on value.
+    /// Outputs the description of a class instance to a stream. This function calls Value::ice_print on @p value.
     /// @param os The output stream.
     /// @param value The class instance.
     /// @return The output stream.

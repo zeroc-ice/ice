@@ -1160,6 +1160,9 @@ Slice::Gen::ForwardDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 
     const string name = p->mappedName();
     H << nl << "class " << name << ';';
+
+    H << sp;
+    H << nl << "/// A shared pointer to a " << name << ".";
     H << nl << "using " << name << "Ptr " << getDeprecatedAttribute(p) << "= std::shared_ptr<" << name << ">;";
 }
 
@@ -1250,7 +1253,11 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
     H << eb << ';';
 
     H << sp;
-    H << nl << _dllExport << "std::ostream& operator<<(std::ostream&, " << mappedName << ");";
+    H << nl << "/// Outputs the enumerator name or underlying value of a " << mappedName << " to a stream.";
+    H << nl << "/// @param os The output stream.";
+    H << nl << "/// @param value The value to output.";
+    H << nl << "/// @return The output stream.";
+    H << nl << _dllExport << "std::ostream& operator<<(std::ostream& os, " << mappedName << " value);";
 
     if (!p->hasMetadata("cpp:custom-print"))
     {
@@ -1298,8 +1305,8 @@ Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
     const MetadataList metadata = p->getMetadata();
 
     string seqType = findMetadata(metadata, _useWstring);
-    writeDocSummary(H, p);
 
+    writeDocSummary(H, p);
     string deprecatedAttribute = getDeprecatedAttribute(p);
     H << nl << "using " << name << " " << deprecatedAttribute << "= ";
 
@@ -1340,7 +1347,6 @@ Slice::Gen::ForwardDeclVisitor::visitDictionary(const DictionaryPtr& p)
     const TypeContext typeCtx = _useWstring;
 
     writeDocSummary(H, p);
-
     string deprecatedAttribute = getDeprecatedAttribute(p);
     H << nl << "using " << name << " " << deprecatedAttribute << "= ";
 
@@ -2037,13 +2043,16 @@ Slice::Gen::DataDefVisitor::visitModuleEnd(const ModulePtr& p)
     if (p->contains<Struct>())
     {
         // Bring in relational operators for structs.
+        // Don't show it in the generated doxygen doc as it's more confusing than helpful.
         H << sp;
+        H << nl << "/// @cond INTERNAL";
         H << nl << "using Ice::Tuple::operator<;";
         H << nl << "using Ice::Tuple::operator<=;";
         H << nl << "using Ice::Tuple::operator>;";
         H << nl << "using Ice::Tuple::operator>=;";
         H << nl << "using Ice::Tuple::operator==;";
         H << nl << "using Ice::Tuple::operator!=;";
+        H << nl << "/// @endcond";
     }
 
     H.dec();
@@ -2094,7 +2103,12 @@ Slice::Gen::DataDefVisitor::visitStructEnd(const StructPtr& p)
     printFields(p->dataMembers(), true);
     C << eb;
 
-    H << sp << nl << _dllExport << "std::ostream& operator<<(std::ostream&, const " << p->mappedName() << "&);";
+    H << sp;
+    H << nl << "/// Outputs the description of a " << p->mappedName() << " to a stream, including all its fields.";
+    H << nl << "/// @param os The output stream.";
+    H << nl << "/// @param value The instance to output.";
+    H << nl << "/// @return The output stream.";
+    H << nl << _dllExport << "std::ostream& operator<<(std::ostream& os, const " << p->mappedName() << "& value);";
 
     if (!p->hasMetadata("cpp:custom-print"))
     {
@@ -2927,7 +2941,9 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     H << eb << ';';
 
-    H << sp << nl << "using " << name << "Ptr = std::shared_ptr<" << name << ">;";
+    H << sp;
+    H << nl << "/// A shared pointer to a " << name << ".";
+    H << nl << "using " << name << "Ptr = std::shared_ptr<" << name << ">;";
 
     _useWstring = resetUseWstring(_useWstringHist);
 }

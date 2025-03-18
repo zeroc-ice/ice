@@ -824,8 +824,17 @@ namespace Ice
         IceInternal::RequestHandlerCachePtr _requestHandlerCache;
     };
 
-    ICE_API std::ostream& operator<<(std::ostream&, const ObjectPrx&);
+    /// Outputs the stringified version of a proxy to a stream.
+    /// @param os The output stream.
+    /// @param proxy The proxy to output.
+    /// @return The output stream.
+    ICE_API std::ostream& operator<<(std::ostream& os, const ObjectPrx& proxy);
 
+    /// Outputs the stringified version of a proxy to a stream.
+    /// @tparam Prx The proxy type.
+    /// @param os The output stream.
+    /// @param proxy The proxy to output.
+    /// @return The output stream.
     template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
     inline std::ostream& operator<<(std::ostream& os, const std::optional<Prx>& proxy)
     {

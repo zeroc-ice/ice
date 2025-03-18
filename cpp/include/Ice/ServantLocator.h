@@ -71,6 +71,7 @@ namespace Ice
         virtual void deactivate(std::string_view category) = 0;
     };
 
+    /// A shared pointer to a ServantLocator.
     using ServantLocatorPtr = std::shared_ptr<ServantLocator>;
 }
 

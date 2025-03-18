@@ -8,6 +8,8 @@
 namespace Ice
 {
     class Object;
+
+    /// A shared pointer to an Object.
     using ObjectPtr = std::shared_ptr<Object>;
 }
 

@@ -158,12 +158,40 @@ namespace Ice
         return proxy ? checkedCast<Prx>(proxy->ice_facet(std::move(facet)), context) : std::nullopt;
     }
 
+    /// Operator less-than.
+    /// @param lhs The left-hand side proxy.
+    /// @param rhs The right-hand side proxy.
+    /// @return @c true if @p lhs is less than @p rhs, @c false otherwise.
     ICE_API bool operator<(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept;
+
+    /// Operator equal to.
+    /// @param lhs The left-hand side proxy.
+    /// @param rhs The right-hand side proxy.
+    /// @return @c true if @p lhs is equal to @p rhs, @c false otherwise.
     ICE_API bool operator==(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept;
 
+    /// Operator greater-than.
+    /// @param lhs The left-hand side proxy.
+    /// @param rhs The right-hand side proxy.
+    /// @return @c true if @p lhs is greater than @p rhs, @c false otherwise.
     inline bool operator>(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept { return rhs < lhs; }
+
+    /// Operator less-than or equal to.
+    /// @param lhs The left-hand side proxy.
+    /// @param rhs The right-hand side proxy.
+    /// @return @c true if @p lhs is less than or equal to @p rhs, @c false otherwise.
     inline bool operator<=(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept { return !(lhs > rhs); }
+
+    /// Operator greater-than or equal to.
+    /// @param lhs The left-hand side proxy.
+    /// @param rhs The right-hand side proxy.
+    /// @return @c true if @p lhs is greater than or equal to @p rhs, @c false otherwise.
     inline bool operator>=(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept { return !(lhs < rhs); }
+
+    /// Operator not equal to.
+    /// @param lhs The left-hand side proxy.
+    /// @param rhs The right-hand side proxy.
+    /// @return @c true if @p lhs is not equal to @p rhs, @c false otherwise.
     inline bool operator!=(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept { return !(lhs == rhs); }
 
     /**
