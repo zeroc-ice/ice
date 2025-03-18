@@ -330,6 +330,10 @@ NodeI::createPublisherSession(
                     // assume the current session connection is being closed and reconnect using the new connection.
                     //
                     // Otherwise, once the current connection is actually closed, we won't be able to reconnect.
+
+                    // Unlock the mutex to prevent a deadlock, as reconnect() may call createPublisherSession() again.
+                    lock.unlock();
+
                     session->disconnect();
                     session->reconnect(publisher, publisherConnection);
                 }
