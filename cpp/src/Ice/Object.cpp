@@ -156,21 +156,14 @@ Ice::Object::dispatch(IncomingRequest& request, std::function<void(OutgoingRespo
 void
 Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
 {
-    if (expected != received)
+    if (received != OperationMode::Normal && expected == OperationMode::Normal)
     {
-#include "PushDisableDeprecatedWarnings.h"
-        assert(expected != OperationMode::Nonmutating); // We never expect Nonmutating
-        if (expected == OperationMode::Idempotent && received == OperationMode::Nonmutating)
-        {
-            // Fine: typically an old client still using the deprecated nonmutating keyword
-        }
-        else
-        {
-            ostringstream os;
-            os << "unexpected operation mode: expected = " << expected << " received = " << received;
-            throw Ice::MarshalException(__FILE__, __LINE__, os.str());
-        }
-#include "Ice/PopDisableWarnings.h"
+        // The caller believes the operation is idempotent or non-mutating, but the implementation (the local code)
+        // doesn't. This is a problem, as the Ice runtime could retry automatically when it shouldn't. Other mismatches
+        // are not a concern.
+        ostringstream os;
+        os << "operation mode mismatch: expected = " << expected << " received = " << received;
+        throw MarshalException{__FILE__, __LINE__, os.str()};
     }
 }
 

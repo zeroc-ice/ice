@@ -21,7 +21,7 @@ namespace
         switch (opMode)
         {
             case Operation::Normal:
-                mode = "null"; // shorthand for most common case
+                mode += "Normal";
                 break;
             case Operation::Idempotent:
                 mode += "Idempotent";

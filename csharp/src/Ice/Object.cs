@@ -127,17 +127,12 @@ public abstract class ObjectImpl : Object
 
     public static void iceCheckMode(OperationMode expected, OperationMode received)
     {
-        Debug.Assert(expected is OperationMode.Normal or OperationMode.Idempotent); // We never expect Nonmutating
-        if (expected != received)
+        if (received is not OperationMode.Normal && expected is OperationMode.Normal)
         {
-            if (expected is OperationMode.Idempotent && received is not OperationMode.Normal)
-            {
-                // Fine: typically an old client still using the deprecated nonmutating keyword/mode.
-            }
-            else
-            {
-                throw new MarshalException($"unexpected operation mode: expected = {expected} received = {received}");
-            }
+            // The caller believes the operation is idempotent or non-mutating, but the implementation (the local code)
+            // doesn't. This is a problem, as the Ice runtime could retry automatically when it shouldn't. Other
+            // mismatches are not a concern.
+            throw new MarshalException($"Operation mode mismatch: expected = {expected} received = {received}");
         }
     }
 
