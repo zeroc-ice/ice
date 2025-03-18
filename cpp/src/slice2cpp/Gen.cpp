@@ -1254,7 +1254,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
 
     H << sp;
     H << nl << "/// Outputs the enumerator name or underlying value of " << getArticleFor(mappedName) << ' '
-        << mappedName << " to a stream.";
+      << mappedName << " to a stream.";
     H << nl << "/// @param os The output stream.";
     H << nl << "/// @param value The value to output.";
     H << nl << "/// @return The output stream.";
@@ -2106,7 +2106,7 @@ Slice::Gen::DataDefVisitor::visitStructEnd(const StructPtr& p)
 
     H << sp;
     H << nl << "/// Outputs the description of " << getArticleFor(p->mappedName()) << ' ' << p->mappedName()
-        << " to a stream, including all its fields.";
+      << " to a stream, including all its fields.";
     H << nl << "/// @param os The output stream.";
     H << nl << "/// @param value The instance to output.";
     H << nl << "/// @return The output stream.";

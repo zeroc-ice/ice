@@ -1612,7 +1612,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << sp;
     ostringstream classComment;
     classComment << "Provides methods to marshal and unmarshal " << getArticleFor(name) << " <see cref=\"" << name
-        << "\" />.";
+                 << "\" />.";
     writeHelperDocComment(p, classComment.str(), "enum helper class");
     _out << nl << "public sealed class " << name << "Helper";
     _out << sb;
