@@ -33,7 +33,7 @@ namespace Ice
 
         /// Gets the name of this object adapter.
         /// @return This object adapter's name.
-        [[nodiscard]] virtual const std::string& getName() const = 0;
+        [[nodiscard]] virtual const std::string& getName() const noexcept = 0;
 
         /// Gets the communicator this object adapter belongs to.
         /// @return This object adapter's communicator.
