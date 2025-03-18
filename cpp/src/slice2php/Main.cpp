@@ -39,7 +39,6 @@
 
 using namespace std;
 using namespace Slice;
-using namespace Slice::PHP;
 using namespace IceInternal;
 
 // CodeVisitor generates the PHP mapping for a translation unit.
