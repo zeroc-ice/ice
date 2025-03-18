@@ -68,10 +68,14 @@ namespace Ice
 
     /** A narrow string converter. */
     using StringConverter = BasicStringConverter<char>;
+
+    /// A shared pointer to a StringConverter.
     using StringConverterPtr = std::shared_ptr<StringConverter>;
 
     /** A wide string converter. */
     using WstringConverter = BasicStringConverter<wchar_t>;
+
+    /// A shared pointer to a WstringConverter.
     using WstringConverterPtr = std::shared_ptr<WstringConverter>;
 
     /**

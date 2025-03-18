@@ -393,14 +393,13 @@ namespace
         return ostr.str();
     }
 
-    enum class GenerateDeprecated
+    struct DocSummaryOptions
     {
-        Yes,
-        No
+        bool generateDeprecated{true};
+        bool includeHeaderFile{false};
     };
 
-    void
-    writeDocSummary(Output& out, const ContainedPtr& p, GenerateDeprecated generateDeprecated = GenerateDeprecated::Yes)
+    void writeDocSummary(Output& out, const ContainedPtr& p, DocSummaryOptions options = {})
     {
         optional<DocComment> doc = DocComment::parseFrom(p, cppLinkFormatter);
         if (!doc)
@@ -418,7 +417,7 @@ namespace
             writeSeeAlso(out, doc->seeAlso());
         }
 
-        if (generateDeprecated == GenerateDeprecated::Yes)
+        if (options.generateDeprecated)
         {
             if (!doc->deprecated().empty())
             {
@@ -438,11 +437,14 @@ namespace
         DefinitionContextPtr dc = p->unit()->findDefinitionContext(file);
         assert(dc);
 
-        // The metadata directive is cpp:doxygen, not cpp:doxygen:include. The arg of cpp:doxygen is something like
-        // include:Ice/Ice.h.
-        if (auto headerFile = dc->getMetadataArgs("cpp:doxygen"))
+        if (options.includeHeaderFile)
         {
-            out << nl << "/// \\headerfile " << headerFile->substr(8); // remove include: prefix
+            // The metadata directive is cpp:doxygen, not cpp:doxygen:include. The arg of cpp:doxygen is something like
+            // include:Ice/Ice.h.
+            if (auto headerFile = dc->getMetadataArgs("cpp:doxygen"))
+            {
+                out << nl << "/// \\headerfile " << headerFile->substr(8); // remove include: prefix
+            }
         }
     }
 
@@ -521,7 +523,7 @@ namespace
         const DocComment& doc,
         OpDocParamType type,
         bool showExceptions,
-        GenerateDeprecated generateDeprecated = GenerateDeprecated::Yes,
+        DocSummaryOptions options = {},
         const StringList& preParams = StringList(),
         const StringList& postParams = StringList(),
         const StringList& returns = StringList())
@@ -551,7 +553,7 @@ namespace
             writeSeeAlso(out, seeAlso);
         }
 
-        if (generateDeprecated == GenerateDeprecated::Yes)
+        if (options.generateDeprecated)
         {
             const auto& deprecated = doc.deprecated();
             if (!deprecated.empty())
@@ -1129,7 +1131,9 @@ bool
 Slice::Gen::ForwardDeclVisitor::visitModuleStart(const ModulePtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
-    H << sp << nl << "namespace " << p->mappedName() << nl << '{';
+    H << sp;
+    writeDocSummary(H, p);
+    H << nl << "namespace " << p->mappedName() << nl << '{';
     H.inc();
     return true;
 }
@@ -1156,6 +1160,9 @@ Slice::Gen::ForwardDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 
     const string name = p->mappedName();
     H << nl << "class " << name << ';';
+
+    H << sp;
+    H << nl << "/// A shared pointer to a " << name << ".";
     H << nl << "using " << name << "Ptr " << getDeprecatedAttribute(p) << "= std::shared_ptr<" << name << ">;";
 }
 
@@ -1246,7 +1253,11 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
     H << eb << ';';
 
     H << sp;
-    H << nl << _dllExport << "std::ostream& operator<<(std::ostream&, " << mappedName << ");";
+    H << nl << "/// Outputs the enumerator name or underlying value of a " << mappedName << " to a stream.";
+    H << nl << "/// @param os The output stream.";
+    H << nl << "/// @param value The value to output.";
+    H << nl << "/// @return The output stream.";
+    H << nl << _dllExport << "std::ostream& operator<<(std::ostream& os, " << mappedName << " value);";
 
     if (!p->hasMetadata("cpp:custom-print"))
     {
@@ -1294,8 +1305,8 @@ Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
     const MetadataList metadata = p->getMetadata();
 
     string seqType = findMetadata(metadata, _useWstring);
-    writeDocSummary(H, p);
 
+    writeDocSummary(H, p);
     string deprecatedAttribute = getDeprecatedAttribute(p);
     H << nl << "using " << name << " " << deprecatedAttribute << "= ";
 
@@ -1336,7 +1347,6 @@ Slice::Gen::ForwardDeclVisitor::visitDictionary(const DictionaryPtr& p)
     const TypeContext typeCtx = _useWstring;
 
     writeDocSummary(H, p);
-
     string deprecatedAttribute = getDeprecatedAttribute(p);
     H << nl << "using " << name << " " << deprecatedAttribute << "= ";
 
@@ -1498,7 +1508,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string scope = p->mappedScope();
     const InterfaceList bases = p->bases();
 
-    writeDocSummary(H, p);
+    writeDocSummary(H, p, {.includeHeaderFile = true});
     H << nl << "class " << _dllExport << getDeprecatedAttribute(p) << name << "Prx : public Ice::Proxy<"
       << name + "Prx, ";
     if (bases.empty())
@@ -1737,16 +1747,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         StringList postParams;
         postParams.push_back(contextDoc);
-        writeOpDocSummary(
-            H,
-            p,
-            *comment,
-            OpDocAllParams,
-            true,
-            GenerateDeprecated::Yes,
-            StringList(),
-            postParams,
-            comment->returns());
+        writeOpDocSummary(H, p, *comment, OpDocAllParams, true, {}, StringList{}, postParams, comment->returns());
     }
     H << nl << deprecatedAttribute << retS << ' ' << opName << spar << paramsDecl << contextDecl << epar << " const;";
 
@@ -1807,16 +1808,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         StringList postParams, returns;
         postParams.push_back(contextDoc);
         returns.push_back(futureDoc);
-        writeOpDocSummary(
-            H,
-            p,
-            *comment,
-            OpDocInParams,
-            false,
-            GenerateDeprecated::Yes,
-            StringList(),
-            postParams,
-            returns);
+        writeOpDocSummary(H, p, *comment, OpDocInParams, false, {}, StringList{}, postParams, returns);
     }
 
     H << nl << deprecatedAttribute << "[[nodiscard]] std::future<" << futureT << "> " << opName << "Async" << spar
@@ -1852,16 +1844,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         postParams.push_back("@param " + sentParam + " The sent callback.");
         postParams.push_back(contextDoc);
         returns.emplace_back("A function that can be called to cancel the invocation locally.");
-        writeOpDocSummary(
-            H,
-            p,
-            *comment,
-            OpDocInParams,
-            false,
-            GenerateDeprecated::Yes,
-            StringList(),
-            postParams,
-            returns);
+        writeOpDocSummary(H, p, *comment, OpDocInParams, false, {}, StringList{}, postParams, returns);
     }
     H << nl << "// NOLINTNEXTLINE(modernize-use-nodiscard)";
     H << nl << deprecatedAttribute << "std::function<void()> " << opName << "Async" << spar;
@@ -2060,13 +2043,16 @@ Slice::Gen::DataDefVisitor::visitModuleEnd(const ModulePtr& p)
     if (p->contains<Struct>())
     {
         // Bring in relational operators for structs.
+        // Don't show it in the generated doxygen doc as it's more confusing than helpful.
         H << sp;
+        H << nl << "/// @cond INTERNAL";
         H << nl << "using Ice::Tuple::operator<;";
         H << nl << "using Ice::Tuple::operator<=;";
         H << nl << "using Ice::Tuple::operator>;";
         H << nl << "using Ice::Tuple::operator>=;";
         H << nl << "using Ice::Tuple::operator==;";
         H << nl << "using Ice::Tuple::operator!=;";
+        H << nl << "/// @endcond";
     }
 
     H.dec();
@@ -2088,7 +2074,7 @@ Slice::Gen::DataDefVisitor::visitStructStart(const StructPtr& p)
 
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
-    writeDocSummary(H, p);
+    writeDocSummary(H, p, {.includeHeaderFile = true});
     H << nl << "struct " << getDeprecatedAttribute(p) << p->mappedName();
     H << sb;
 
@@ -2117,7 +2103,12 @@ Slice::Gen::DataDefVisitor::visitStructEnd(const StructPtr& p)
     printFields(p->dataMembers(), true);
     C << eb;
 
-    H << sp << nl << _dllExport << "std::ostream& operator<<(std::ostream&, const " << p->mappedName() << "&);";
+    H << sp;
+    H << nl << "/// Outputs the description of a " << p->mappedName() << " to a stream, including all its fields.";
+    H << nl << "/// @param os The output stream.";
+    H << nl << "/// @param value The instance to output.";
+    H << nl << "/// @return The output stream.";
+    H << nl << _dllExport << "std::ostream& operator<<(std::ostream& os, const " << p->mappedName() << "& value);";
 
     if (!p->hasMetadata("cpp:custom-print"))
     {
@@ -2191,7 +2182,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string baseClass = base ? getUnqualified(base->mappedScoped(), scope) : "Ice::UserException";
     const string baseName = base ? base->mappedName() : "UserException";
 
-    writeDocSummary(H, p);
+    writeDocSummary(H, p, {.includeHeaderFile = true});
     H << nl << "class " << _dllClassExport << getDeprecatedAttribute(p) << name << " : public " << baseClass;
     H << sb;
 
@@ -2424,7 +2415,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList allDataMembers = p->allDataMembers();
 
-    writeDocSummary(H, p);
+    writeDocSummary(H, p, {.includeHeaderFile = true});
     H << nl << "class " << _dllClassExport << getDeprecatedAttribute(p) << name << " : public ";
 
     if (!base)
@@ -2785,7 +2776,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string scoped = p->mappedScoped();
     const InterfaceList bases = p->bases();
 
-    writeDocSummary(H, p, GenerateDeprecated::No);
+    writeDocSummary(H, p, {.generateDeprecated = false, .includeHeaderFile = true});
     H << nl << "class " << _dllExport << name << " : ";
     H.useCurrentPosAsIndent();
     if (bases.empty())
@@ -2950,7 +2941,9 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     H << eb << ';';
 
-    H << sp << nl << "using " << name << "Ptr = std::shared_ptr<" << name << ">;";
+    H << sp;
+    H << nl << "/// A shared pointer to a " << name << ".";
+    H << nl << "using " << name << "Ptr = std::shared_ptr<" << name << ">;";
 
     _useWstring = resetUseWstring(_useWstringHist);
 }
@@ -3155,7 +3148,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             returns = comment->returns();
         }
         postParams.push_back("@param " + currentParam + " The Current object for the invocation.");
-        writeOpDocSummary(H, p, *comment, pt, true, GenerateDeprecated::No, StringList(), postParams, returns);
+        writeOpDocSummary(H, p, *comment, pt, true, {.generateDeprecated = false}, StringList(), postParams, returns);
     }
     H << nl << noDiscard << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
     H << sp;

@@ -196,8 +196,13 @@ namespace IceGrid
         virtual bool removeTypeFilter(const std::string& type, const std::shared_ptr<TypeFilter>& filter) noexcept = 0;
     };
 
+    /// A shared pointer to a ReplicaGroupFilter.
     using ReplicaGroupFilterPtr = std::shared_ptr<ReplicaGroupFilter>;
+
+    /// A shared pointer to a TypeFilter.
     using TypeFilterPtr = std::shared_ptr<TypeFilter>;
+
+    /// A shared pointer to a RegistryPluginFacade.
     using RegistryPluginFacadePtr = std::shared_ptr<RegistryPluginFacade>;
 
     /**

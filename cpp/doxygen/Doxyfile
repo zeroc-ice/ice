@@ -378,6 +378,8 @@ MARKDOWN_ID_STYLE      = DOXYGEN
 
 AUTOLINK_SUPPORT       = YES
 
+AUTOLINK_IGNORE_WORDS  = DataStorm Glacier2 Ice IceBox IceGrid IceMX IceStorm
+
 # If you use STL classes (i.e. std::string, std::vector, etc.) but do not want
 # to include (a tag file for) the STL sources as input, then you should set this
 # tag to YES in order to let doxygen match functions declarations and

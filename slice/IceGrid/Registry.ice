@@ -18,6 +18,7 @@
 
 [["java:package:com.zeroc"]]
 
+/// Deploy and manage Ice servers.
 module IceGrid
 {
     /// Determines which load sampling interval to use.

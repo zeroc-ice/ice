@@ -11,6 +11,8 @@
 namespace Ice
 {
     class Logger;
+
+    /// A shared pointer to a Logger.
     using LoggerPtr = std::shared_ptr<Logger>;
 
     /**

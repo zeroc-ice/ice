@@ -27,6 +27,8 @@ namespace Ice
          */
         virtual std::function<void()> addUpdateCallback(std::function<void(const PropertyDict&)> cb) = 0;
     };
+
+    /// A shared pointer to a NativePropertiesAdmin.
     using NativePropertiesAdminPtr = std::shared_ptr<NativePropertiesAdmin>;
 }
 

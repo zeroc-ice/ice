@@ -15,8 +15,7 @@
 
 [["java:package:com.zeroc"]]
 
-/// IceBox is an application server specifically for Ice applications. IceBox can easily run and administer Ice
-/// services that are dynamically loaded as a DLL, shared library, or Java class.
+/// Host multiple independent services in the same Ice server.
 module IceBox
 {
     /// This exception is thrown if an attempt is made to start an already-started service.

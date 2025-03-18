@@ -208,28 +208,6 @@ namespace Ice
 #endif
 
     /**
-     * Base class for a thread notification hook. An application can subclass this class,
-     * implement start and stop, and install an instance in InitializationData in order
-     * to receive notifications when Ice threads are started and stopped.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API ThreadNotification
-    {
-    public:
-        /**
-         * Called from the new Ice thread at startup.
-         */
-        virtual void start() = 0;
-
-        /**
-         * Called from an Ice thread that is about to stop.
-         */
-        virtual void stop() = 0;
-    };
-
-    using ThreadNotificationPtr = std::shared_ptr<ThreadNotification>;
-
-    /**
      * A special plug-in that installs a thread hook during a communicator's initialization.
      * Both initialize and destroy are no-op. See InitializationData.
      * \headerfile Ice/Ice.h

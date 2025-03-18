@@ -8,6 +8,8 @@
 namespace Ice
 {
     class Value;
+
+    /// A shared pointer to a Value.
     using ValuePtr = std::shared_ptr<Value>;
 }
 

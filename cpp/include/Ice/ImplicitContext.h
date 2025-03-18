@@ -97,6 +97,7 @@ namespace Ice
         Context _context;
     };
 
+    /// A shared pointer to an ImplicitContext.
     using ImplicitContextPtr = std::shared_ptr<ImplicitContext>;
 }
 

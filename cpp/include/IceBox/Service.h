@@ -55,6 +55,7 @@ namespace IceBox
         virtual void stop() = 0;
     };
 
+    /// A shared pointer to a Service.
     using ServicePtr = std::shared_ptr<Service>;
 }
 

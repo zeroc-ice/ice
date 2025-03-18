@@ -8,6 +8,8 @@
 namespace Ice
 {
     class Communicator;
+
+    /// A shared pointer to a Communicator.
     using CommunicatorPtr = std::shared_ptr<Communicator>;
 }
 
