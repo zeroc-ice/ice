@@ -393,14 +393,13 @@ namespace
         return ostr.str();
     }
 
-    enum DocSummaryOptions
+    struct DocSummaryOptions
     {
-        NoOptions = 0,
-        NoDeprecated = 1,
-        IncludeHeaderFile = 2
+        bool generateDeprecated{true};
+        bool includeHeaderFile{false};
     };
 
-    void writeDocSummary(Output& out, const ContainedPtr& p, DocSummaryOptions options = NoOptions)
+    void writeDocSummary(Output& out, const ContainedPtr& p, DocSummaryOptions options = {})
     {
         optional<DocComment> doc = DocComment::parseFrom(p, cppLinkFormatter);
         if (!doc)
@@ -418,7 +417,7 @@ namespace
             writeSeeAlso(out, doc->seeAlso());
         }
 
-        if ((options & NoDeprecated) == 0)
+        if (options.generateDeprecated)
         {
             if (!doc->deprecated().empty())
             {
@@ -438,7 +437,7 @@ namespace
         DefinitionContextPtr dc = p->unit()->findDefinitionContext(file);
         assert(dc);
 
-        if (options & IncludeHeaderFile)
+        if (options.includeHeaderFile)
         {
             // The metadata directive is cpp:doxygen, not cpp:doxygen:include. The arg of cpp:doxygen is something like
             // include:Ice/Ice.h.
@@ -524,7 +523,7 @@ namespace
         const DocComment& doc,
         OpDocParamType type,
         bool showExceptions,
-        DocSummaryOptions options = NoOptions,
+        DocSummaryOptions options = {},
         const StringList& preParams = StringList(),
         const StringList& postParams = StringList(),
         const StringList& returns = StringList())
@@ -554,7 +553,7 @@ namespace
             writeSeeAlso(out, seeAlso);
         }
 
-        if ((options & NoDeprecated) == 0)
+        if (options.generateDeprecated)
         {
             const auto& deprecated = doc.deprecated();
             if (!deprecated.empty())
@@ -1503,7 +1502,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string scope = p->mappedScope();
     const InterfaceList bases = p->bases();
 
-    writeDocSummary(H, p, IncludeHeaderFile);
+    writeDocSummary(H, p, {.includeHeaderFile = true});
     H << nl << "class " << _dllExport << getDeprecatedAttribute(p) << name << "Prx : public Ice::Proxy<"
       << name + "Prx, ";
     if (bases.empty())
@@ -1742,16 +1741,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         StringList postParams;
         postParams.push_back(contextDoc);
-        writeOpDocSummary(
-            H,
-            p,
-            *comment,
-            OpDocAllParams,
-            true,
-            NoOptions,
-            StringList(),
-            postParams,
-            comment->returns());
+        writeOpDocSummary(H, p, *comment, OpDocAllParams, true, {}, StringList(), postParams, comment->returns());
     }
     H << nl << deprecatedAttribute << retS << ' ' << opName << spar << paramsDecl << contextDecl << epar << " const;";
 
@@ -1812,7 +1802,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         StringList postParams, returns;
         postParams.push_back(contextDoc);
         returns.push_back(futureDoc);
-        writeOpDocSummary(H, p, *comment, OpDocInParams, false, NoOptions, StringList(), postParams, returns);
+        writeOpDocSummary(H, p, *comment, OpDocInParams, false, {}, StringList(), postParams, returns);
     }
 
     H << nl << deprecatedAttribute << "[[nodiscard]] std::future<" << futureT << "> " << opName << "Async" << spar
@@ -1848,7 +1838,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         postParams.push_back("@param " + sentParam + " The sent callback.");
         postParams.push_back(contextDoc);
         returns.emplace_back("A function that can be called to cancel the invocation locally.");
-        writeOpDocSummary(H, p, *comment, OpDocInParams, false, NoOptions, StringList(), postParams, returns);
+        writeOpDocSummary(H, p, *comment, OpDocInParams, false, {}, StringList{}, postParams, returns);
     }
     H << nl << "// NOLINTNEXTLINE(modernize-use-nodiscard)";
     H << nl << deprecatedAttribute << "std::function<void()> " << opName << "Async" << spar;
@@ -2075,7 +2065,7 @@ Slice::Gen::DataDefVisitor::visitStructStart(const StructPtr& p)
 
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
-    writeDocSummary(H, p, IncludeHeaderFile);
+    writeDocSummary(H, p, {.includeHeaderFile = true});
     H << nl << "struct " << getDeprecatedAttribute(p) << p->mappedName();
     H << sb;
 
@@ -2178,7 +2168,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string baseClass = base ? getUnqualified(base->mappedScoped(), scope) : "Ice::UserException";
     const string baseName = base ? base->mappedName() : "UserException";
 
-    writeDocSummary(H, p, IncludeHeaderFile);
+    writeDocSummary(H, p, {.includeHeaderFile = true});
     H << nl << "class " << _dllClassExport << getDeprecatedAttribute(p) << name << " : public " << baseClass;
     H << sb;
 
@@ -2411,7 +2401,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList allDataMembers = p->allDataMembers();
 
-    writeDocSummary(H, p, IncludeHeaderFile);
+    writeDocSummary(H, p, {.includeHeaderFile = true});
     H << nl << "class " << _dllClassExport << getDeprecatedAttribute(p) << name << " : public ";
 
     if (!base)
@@ -2772,7 +2762,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string scoped = p->mappedScoped();
     const InterfaceList bases = p->bases();
 
-    writeDocSummary(H, p, static_cast<DocSummaryOptions>(NoDeprecated | IncludeHeaderFile));
+    writeDocSummary(H, p, {.generateDeprecated = false, .includeHeaderFile = true});
     H << nl << "class " << _dllExport << name << " : ";
     H.useCurrentPosAsIndent();
     if (bases.empty())
@@ -3142,7 +3132,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             returns = comment->returns();
         }
         postParams.push_back("@param " + currentParam + " The Current object for the invocation.");
-        writeOpDocSummary(H, p, *comment, pt, true, NoDeprecated, StringList(), postParams, returns);
+        writeOpDocSummary(H, p, *comment, pt, true, {.generateDeprecated = false}, StringList(), postParams, returns);
     }
     H << nl << noDiscard << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
     H << sp;
