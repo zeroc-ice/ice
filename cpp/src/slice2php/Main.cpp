@@ -51,17 +51,17 @@ namespace
         MetadataInfo identifierInfo = {
             .validOn =
                 {typeid(InterfaceDecl),
-                    typeid(Operation),
-                    typeid(ClassDecl),
-                    typeid(Slice::Exception),
-                    typeid(Struct),
-                    typeid(Sequence),
-                    typeid(Dictionary),
-                    typeid(Enum),
-                    typeid(Enumerator),
-                    typeid(Const),
-                    typeid(Parameter),
-                    typeid(DataMember)},
+                 typeid(Operation),
+                 typeid(ClassDecl),
+                 typeid(Slice::Exception),
+                 typeid(Struct),
+                 typeid(Sequence),
+                 typeid(Dictionary),
+                 typeid(Enum),
+                 typeid(Enumerator),
+                 typeid(Const),
+                 typeid(Parameter),
+                 typeid(DataMember)},
             .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
         };
         knownMetadata.emplace("php:identifier", std::move(identifierInfo));
@@ -424,7 +424,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
 
             _out << nl << "IcePHP_defineOperation(" << prxType << ", '" << op->name() << "', '" << op->mappedName()
-                 << "', "<< static_cast<int>(op->mode()) << ", " << phpFormat << ", ";
+                 << "', " << static_cast<int>(op->mode()) << ", " << phpFormat << ", ";
             for (t = params.begin(), count = 0; t != params.end(); ++t)
             {
                 if (!(*t)->isOutParam())
