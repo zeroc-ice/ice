@@ -35,7 +35,7 @@ namespace Ice
     class ObjectAdapterI final : public ObjectAdapter, public std::enable_shared_from_this<ObjectAdapterI>
     {
     public:
-        [[nodiscard]] std::string getName() const final;
+        [[nodiscard]] const std::string& getName() const noexcept final;
 
         [[nodiscard]] CommunicatorPtr getCommunicator() const noexcept final;
 

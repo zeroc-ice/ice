@@ -31,18 +31,12 @@ namespace Ice
     public:
         virtual ~ObjectAdapter();
 
-        /**
-         * Get the name of this object adapter.
-         * @return This object adapter's name.
-         * @remark This function remains usable after the object adapter has been deactivated.
-         */
-        [[nodiscard]] virtual std::string getName() const = 0;
+        /// Gets the name of this object adapter.
+        /// @return This object adapter's name.
+        [[nodiscard]] virtual const std::string& getName() const = 0;
 
-        /**
-         * Get the communicator this object adapter belongs to.
-         * @return This object adapter's communicator.
-         * @see Communicator
-         */
+        /// Gets the communicator this object adapter belongs to.
+        /// @return This object adapter's communicator.
         [[nodiscard]] virtual CommunicatorPtr getCommunicator() const noexcept = 0;
 
         /**
