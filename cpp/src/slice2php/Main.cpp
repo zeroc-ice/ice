@@ -41,6 +41,36 @@ using namespace std;
 using namespace Slice;
 using namespace IceInternal;
 
+namespace
+{
+    void validateMetadata(const UnitPtr& unit)
+    {
+        map<string, MetadataInfo> knownMetadata;
+
+        // "php:identifier"
+        MetadataInfo identifierInfo = {
+            .validOn =
+                {typeid(InterfaceDecl),
+                    typeid(Operation),
+                    typeid(ClassDecl),
+                    typeid(Slice::Exception),
+                    typeid(Struct),
+                    typeid(Sequence),
+                    typeid(Dictionary),
+                    typeid(Enum),
+                    typeid(Enumerator),
+                    typeid(Const),
+                    typeid(Parameter),
+                    typeid(DataMember)},
+            .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+        };
+        knownMetadata.emplace("php:identifier", std::move(identifierInfo));
+
+        // Pass this information off to the parser's metadata validation logic.
+        Slice::validateMetadata(unit, "php", std::move(knownMetadata));
+    }
+}
+
 // CodeVisitor generates the PHP mapping for a translation unit.
 class CodeVisitor final : public ParserVisitor
 {
@@ -1075,9 +1105,7 @@ generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output
         }
     }
 
-    // 'slice2php' doesn't have any language-specific metadata, so we call `validateMetadata` with an empty list.
-    // This ensures that the validation still runs, and will reject any 'php' metadata the user might think exists.
-    Slice::validateMetadata(un, "php", {});
+    validateMetadata(un);
 
     CodeVisitor codeVisitor(out);
     un->visit(&codeVisitor);
