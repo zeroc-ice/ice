@@ -908,7 +908,8 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     _out << sp << nl << "def <=>(other)";
     _out.inc();
-    _out << nl << "other.is_a?(" << name << ") or raise ArgumentError, \"value must be a " << name << "\"";
+    _out << nl << "other.is_a?(" << name << ") or raise ArgumentError, \"value must be " << getArticleFor(name) << ' '
+        << name << "\"";
     _out << nl << "@value <=> other.to_i";
     _out.dec();
     _out << nl << "end";

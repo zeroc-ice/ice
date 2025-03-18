@@ -1162,7 +1162,7 @@ Slice::Gen::ForwardDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     H << nl << "class " << name << ';';
 
     H << sp;
-    H << nl << "/// A shared pointer to a " << name << ".";
+    H << nl << "/// A shared pointer to " << getArticleFor(name) << ' ' << name << ".";
     H << nl << "using " << name << "Ptr " << getDeprecatedAttribute(p) << "= std::shared_ptr<" << name << ">;";
 }
 
@@ -1253,7 +1253,8 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
     H << eb << ';';
 
     H << sp;
-    H << nl << "/// Outputs the enumerator name or underlying value of a " << mappedName << " to a stream.";
+    H << nl << "/// Outputs the enumerator name or underlying value of " << getArticleFor(mappedName) << ' '
+        << mappedName << " to a stream.";
     H << nl << "/// @param os The output stream.";
     H << nl << "/// @param value The value to output.";
     H << nl << "/// @return The output stream.";
@@ -2104,7 +2105,8 @@ Slice::Gen::DataDefVisitor::visitStructEnd(const StructPtr& p)
     C << eb;
 
     H << sp;
-    H << nl << "/// Outputs the description of a " << p->mappedName() << " to a stream, including all its fields.";
+    H << nl << "/// Outputs the description of " << getArticleFor(p->mappedName()) << ' ' << p->mappedName()
+        << " to a stream, including all its fields.";
     H << nl << "/// @param os The output stream.";
     H << nl << "/// @param value The instance to output.";
     H << nl << "/// @return The output stream.";
@@ -2942,7 +2944,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << eb << ';';
 
     H << sp;
-    H << nl << "/// A shared pointer to a " << name << ".";
+    H << nl << "/// A shared pointer to " << getArticleFor(name) << ' ' << name << ".";
     H << nl << "using " << name << "Ptr = std::shared_ptr<" << name << ">;";
 
     _useWstring = resetUseWstring(_useWstringHist);

@@ -736,7 +736,7 @@ Slice::writeStreamReader(Output& out, const StructPtr& p, const DataMemberList& 
     out << nl << "template<>";
     out << nl << "struct StreamReader<" << fullName << ">";
     out << sb;
-    out << nl << "/// Unmarshals a " << fullName << " from the input stream.";
+    out << nl << "/// Unmarshals " << getArticleFor(fullName) << ' ' << fullName << " from the input stream.";
     out << nl << "static void read(InputStream* istr, " << fullName << "& v)";
     out << sb;
 
