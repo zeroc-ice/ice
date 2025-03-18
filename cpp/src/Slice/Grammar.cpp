@@ -3971,7 +3971,7 @@ yyreduce:
             def = make_shared<ConstDefTok>();
             string msg = "illegal initializer: '" + scoped->v + "' is ";
             string kindOf = cl.front()->kindOf();
-            msg += prependA(kindOf);
+            msg += getArticleFor(kindOf) + " " + kindOf;
             currentUnit->error(msg); // $$ is dummy
         }
     }

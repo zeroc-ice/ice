@@ -54,8 +54,8 @@ namespace Slice
 
     std::vector<std::string> splitScopedName(const std::string& scoped, bool allowEmpty = true);
 
-    // return a or an <s>
-    std::string prependA(const std::string& s);
+    /// Returns "an" if @p s starts with a vowel and "a" otherwise.
+    std::string getArticleFor(const std::string& s);
 
     /// Returns the 'kindOf' string for the provided Slice definition, but correctly pluralized.
     /// @see Contained::kindOf
