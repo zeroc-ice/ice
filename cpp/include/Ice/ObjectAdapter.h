@@ -31,17 +31,12 @@ namespace Ice
     public:
         virtual ~ObjectAdapter();
 
-        /**
-         * Get the name of this object adapter.
-         * @return This object adapter's name.
-         */
-        [[nodiscard]] virtual std::string getName() const noexcept = 0;
+        /// Gets the name of this object adapter.
+        /// @return This object adapter's name.
+        [[nodiscard]] virtual const std::string& getName() const noexcept = 0;
 
-        /**
-         * Get the communicator this object adapter belongs to.
-         * @return This object adapter's communicator.
-         * @see Communicator
-         */
+        /// Gets the communicator this object adapter belongs to.
+        /// @return This object adapter's communicator.
         [[nodiscard]] virtual CommunicatorPtr getCommunicator() const noexcept = 0;
 
         /**
@@ -434,15 +429,17 @@ namespace Ice
          * Get the set of endpoints configured with this object adapter.
          * @return The set of endpoints.
          * @see Endpoint
+         * @remark This function remains usable after the object adapter has been deactivated.
          */
-        [[nodiscard]] virtual EndpointSeq getEndpoints() const noexcept = 0;
+        [[nodiscard]] virtual EndpointSeq getEndpoints() const = 0;
 
         /**
          * Get the set of endpoints that proxies created by this object adapter will contain.
          * @return The set of published endpoints.
          * @see Endpoint
+         * @remark This function remains usable after the object adapter has been deactivated.
          */
-        [[nodiscard]] virtual EndpointSeq getPublishedEndpoints() const noexcept = 0;
+        [[nodiscard]] virtual EndpointSeq getPublishedEndpoints() const = 0;
 
         /**
          * Set of the endpoints that proxies created by this object adapter will contain.

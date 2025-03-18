@@ -172,13 +172,14 @@ namespace Ice
          * Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
          * @return The type of the connection.
          */
-        [[nodiscard]] virtual std::string type() const noexcept = 0;
+        [[nodiscard]] virtual const std::string& type() const noexcept = 0;
 
         /**
          * Return a description of the connection as human readable text, suitable for logging or error messages.
          * @return The description of the connection as human readable text.
+         * @remark This function remains usable after the connection is closed or aborted.
          */
-        [[nodiscard]] virtual std::string toString() const noexcept = 0;
+        [[nodiscard]] virtual std::string toString() const = 0;
 
         /**
          * Returns the connection information.
