@@ -14,7 +14,7 @@ namespace Ice
 
     /**
      * Represents a request received by a connection. It's the argument to the dispatch function on Object.
-     * @remarks IncomingRequest is neither copyable nor movable. It can be used only on the dispatch thread.
+     * @remark IncomingRequest is neither copyable nor movable. It can be used only on the dispatch thread.
      * @see Object::dispatch
      * \headerfile Ice/Ice.h
      */
@@ -30,7 +30,7 @@ namespace Ice
          * positioned at the beginning of the request header - the next data to read is the identity of the target.
          * @param requestCount The number of requests remaining in the InputStream. This value is always 1 for
          * non-batched requests. For batch requests, it is the number of requests remaining in the InputStream.
-         * @remarks This constructor reads the request header from inputStream. When it completes, the input stream is
+         * @remark This constructor reads the request header from inputStream. When it completes, the input stream is
          * positioned at the beginning of encapsulation carried by the request.
          */
         IncomingRequest(

@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "SSLEndpointI.h"
-#include "Ice/Comparable.h"
+#include "../TargetCompare.h"
 #include "SSLAcceptorI.h"
 #include "SSLConnectorI.h"
 #include "SSLInstance.h"

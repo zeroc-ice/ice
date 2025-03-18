@@ -75,6 +75,15 @@ namespace Ice
 
     protected:
         /// @cond INTERNAL
+        /**
+         * Constructs a RequestFailedException with a custom error message.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param replyStatus The reply status.
+         * @param id The identity of the Ice Object to which the request was sent.
+         * @param facet The facet to which the request was sent.
+         * @param operation The operation name of the request.
+         */
         RequestFailedException(
             const char* file,
             int line,
@@ -83,6 +92,13 @@ namespace Ice
             std::string facet,
             std::string operation);
 
+        /**
+         * Constructs a RequestFailedException without specifying the details of the current request. The details will
+         * be filled-in automatically by the Ice runtime before marshaling the exception.
+         * @param file The file where this exception is constructed. This C string is not copied.
+         * @param line The line where this exception is constructed.
+         * @param replyStatus The reply status.
+         */
         RequestFailedException(const char* file, int line, ReplyStatus replyStatus);
 
         RequestFailedException(const RequestFailedException&) noexcept = default;

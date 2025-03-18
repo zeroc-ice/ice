@@ -68,7 +68,7 @@ namespace Ice
         /// Waits until the communicator is shut down.
         /// @param completed The callback to call when the shutdown is complete. This callback must not throw any
         /// exception.
-        /// @remarks If you call this function on a communicator that has already been shut down, the callback is called
+        /// @remark If you call this function on a communicator that has already been shut down, the callback is called
         /// immediately by the current thread.
         /// @see #shutdown
         void waitForShutdownAsync(std::function<void()> completed) noexcept;
@@ -216,6 +216,7 @@ namespace Ice
          * communicator. This function returns null unless you set a non-null default object adapter using
          * setDefaultObjectAdapter.
          * @return The object adapter associated by default with new outgoing connections.
+         * @throws CommunicatorDestroyedException if the communicator has been destroyed.
          * @see Connection::getAdapter
          */
         [[nodiscard]] ObjectAdapterPtr getDefaultObjectAdapter() const;
@@ -258,6 +259,7 @@ namespace Ice
         /**
          * Get the default router for this communicator.
          * @return The default router for this communicator.
+         * @throws CommunicatorDestroyedException if the communicator has been destroyed.
          * @see #setDefaultRouter
          * @see Router
          */
@@ -298,6 +300,7 @@ namespace Ice
         /**
          * Get the plug-in manager for this communicator.
          * @return This communicator's plug-in manager.
+         * @throws CommunicatorDestroyedException if the communicator has been destroyed.
          * @see PluginManager
          */
         [[nodiscard]] PluginManagerPtr getPluginManager() const;
@@ -363,6 +366,7 @@ namespace Ice
          * <code>Ice.Admin.InstanceName</code> is not set. If Ice.Admin.DelayCreation is 0 or not set, getAdmin is
          * called by the communicator initialization, after initialization of all plugins.
          * @return A proxy to the main ("") facet of the Admin object, or nullopt if no Admin object is configured.
+         * @throws CommunicatorDestroyedException if the communicator has been destroyed.
          * @see #createAdmin
          */
         std::optional<ObjectPrx> getAdmin() const; // NOLINT(modernize-use-nodiscard)

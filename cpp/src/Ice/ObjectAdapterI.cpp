@@ -46,17 +46,16 @@ using namespace IceInternal;
 namespace
 {
     inline EndpointIPtr toEndpointI(const EndpointPtr& endp) { return dynamic_pointer_cast<EndpointI>(endp); }
+
+    string emptyName{};
 }
 
 Ice::ObjectAdapter::~ObjectAdapter() = default; // avoid weak vtable
 
-string
+const string&
 Ice::ObjectAdapterI::getName() const noexcept
 {
-    //
-    // No mutex lock necessary, _name is immutable.
-    //
-    return _noConfig ? string("") : _name;
+    return _noConfig ? emptyName : _name;
 }
 
 CommunicatorPtr
@@ -587,7 +586,7 @@ Ice::ObjectAdapterI::getLocator() const noexcept
 }
 
 EndpointSeq
-Ice::ObjectAdapterI::getEndpoints() const noexcept
+Ice::ObjectAdapterI::getEndpoints() const
 {
     lock_guard lock(_mutex);
 
@@ -601,7 +600,7 @@ Ice::ObjectAdapterI::getEndpoints() const noexcept
 }
 
 EndpointSeq
-Ice::ObjectAdapterI::getPublishedEndpoints() const noexcept
+Ice::ObjectAdapterI::getPublishedEndpoints() const
 {
     lock_guard lock(_mutex);
     return {_publishedEndpoints.begin(), _publishedEndpoints.end()};

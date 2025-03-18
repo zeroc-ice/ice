@@ -4,10 +4,10 @@
 #include "EndpointFactoryManager.h"
 #include "HashUtil.h"
 #include "IPEndpointI.h"
-#include "Ice/Comparable.h"
 #include "Ice/InputStream.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/OutputStream.h"
+#include "TargetCompare.h"
 #include "WSAcceptor.h"
 #include "WSConnector.h"
 

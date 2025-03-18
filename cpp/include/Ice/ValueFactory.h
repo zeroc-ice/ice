@@ -46,7 +46,7 @@ namespace Ice
          * Find a value factory registered with this communicator.
          * @param id The type ID for which the factory can create instances, or an empty string for the default factory.
          * @return The value factory, or null if no value factory was found for the given type ID.
-         * @remarks When unmarshaling an Ice value, the Ice run time reads the most-derived type ID off the wire and
+         * @remark When unmarshaling an Ice value, the Ice run time reads the most-derived type ID off the wire and
          * attempts to create an instance of the type using a factory. If no instance is created, either because no
          * factory was found, or because all factories returned null, the behavior of the Ice run time depends on the
          * format with which the value was marshaled: If the value uses the "sliced" format, Ice ascends the class

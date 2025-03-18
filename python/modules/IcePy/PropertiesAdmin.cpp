@@ -118,7 +118,7 @@ static PyMethodDef NativePropertiesAdminMethods[] = {
      reinterpret_cast<PyCFunction>(nativePropertiesAdminRemoveUpdateCB),
      METH_VARARGS,
      PyDoc_STR("removeUpdateCallback(callback) -> None")},
-    {nullptr, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 namespace IcePy

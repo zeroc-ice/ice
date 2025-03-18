@@ -147,7 +147,7 @@ static PyMethodDef EndpointInfoMethods[] = {
     {"type", reinterpret_cast<PyCFunction>(endpointInfoType), METH_NOARGS, PyDoc_STR("type() -> int")},
     {"datagram", reinterpret_cast<PyCFunction>(endpointInfoDatagram), METH_NOARGS, PyDoc_STR("datagram() -> bool")},
     {"secure", reinterpret_cast<PyCFunction>(endpointInfoSecure), METH_NOARGS, PyDoc_STR("secure() -> bool")},
-    {nullptr, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 static PyGetSetDef EndpointInfoGetters[] = {
@@ -162,7 +162,7 @@ static PyGetSetDef EndpointInfoGetters[] = {
      PyDoc_STR("timeout in milliseconds"),
      nullptr},
     {"compress", reinterpret_cast<getter>(endpointInfoGetCompress), nullptr, PyDoc_STR("compression status"), nullptr},
-    {nullptr, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 static PyGetSetDef IPEndpointInfoGetters[] = {
@@ -173,7 +173,7 @@ static PyGetSetDef IPEndpointInfoGetters[] = {
      nullptr,
      PyDoc_STR("source IP address"),
      nullptr},
-    {nullptr, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 static PyGetSetDef UDPEndpointInfoGetters[] = {
@@ -187,12 +187,12 @@ static PyGetSetDef UDPEndpointInfoGetters[] = {
      nullptr,
      PyDoc_STR("multicast time-to-live"),
      nullptr},
-    {nullptr, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 static PyGetSetDef WSEndpointInfoGetters[] = {
     {"resource", reinterpret_cast<getter>(wsEndpointInfoGetResource), nullptr, PyDoc_STR("resource"), nullptr},
-    {nullptr, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 static PyGetSetDef OpaqueEndpointInfoGetters[] = {
@@ -202,7 +202,7 @@ static PyGetSetDef OpaqueEndpointInfoGetters[] = {
      nullptr,
      PyDoc_STR("raw encoding version"),
      nullptr},
-    {nullptr, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 namespace IcePy

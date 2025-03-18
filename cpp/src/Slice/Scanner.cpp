@@ -4,9 +4,14 @@
 #include "../Ice/ScannerConfig.h"
 #include <cstdint>
 
+// Clang detects unreachable code in the generated scanner, so we disable the warning.
+#if defined(__clang__)
+#    pragma clang diagnostic ignored "-Wunreachable-code"
+#endif
+
 // NOLINTBEGIN
 
-#line 9 "src/Slice/Scanner.cpp"
+#line 14 "src/Slice/Scanner.cpp"
 
 #define  YY_INT_ALIGNED long int
 
@@ -358,6 +363,7 @@ typedef int16_t flex_int16_t;
 typedef uint16_t flex_uint16_t;
 typedef int32_t flex_int32_t;
 typedef uint32_t flex_uint32_t;
+typedef uint64_t flex_uint64_t;
 #else
 typedef signed char flex_int8_t;
 typedef short int flex_int16_t;
@@ -482,7 +488,7 @@ typedef size_t yy_size_t;
 #endif
 
 /* %if-not-reentrant */
-extern int yyleng;
+extern yy_size_t yyleng;
 /* %endif */
 
 /* %if-c-only */
@@ -535,7 +541,7 @@ struct yy_buffer_state
 	/* Number of characters read into yy_ch_buf, not including EOB
 	 * characters.
 	 */
-	int yy_n_chars;
+	yy_size_t yy_n_chars;
 
 	/* Whether we "own" the buffer - i.e., we know we created it,
 	 * and can realloc() it to grow it, and should free() it to
@@ -616,8 +622,8 @@ static YY_BUFFER_STATE * yy_buffer_stack = NULL; /**< Stack as an array. */
 /* %not-for-header */
 /* yy_hold_char holds the character lost when yytext is formed. */
 static char yy_hold_char;
-static int yy_n_chars;		/* number of characters read into yy_ch_buf */
-int yyleng;
+static yy_size_t yy_n_chars;		/* number of characters read into yy_ch_buf */
+yy_size_t yyleng;
 
 /* Points to current character in buffer. */
 static char *yy_c_buf_p = NULL;
@@ -647,7 +653,7 @@ static void yy_init_buffer ( YY_BUFFER_STATE b, FILE *file  );
 
 YY_BUFFER_STATE yy_scan_buffer ( char *base, yy_size_t size  );
 YY_BUFFER_STATE yy_scan_string ( const char *yy_str  );
-YY_BUFFER_STATE yy_scan_bytes ( const char *bytes, int len  );
+YY_BUFFER_STATE yy_scan_bytes ( const char *bytes, yy_size_t len  );
 
 /* %endif */
 
@@ -716,7 +722,7 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yytext_ptr) = yy_bp; \
 /* %% [2.0] code to fiddle yytext and yyleng for yymore() goes here \ */\
 	(yytext_ptr) -= (yy_more_len); \
-	yyleng = (int) (yy_cp - (yytext_ptr)); \
+	yyleng = (yy_size_t) (yy_cp - (yytext_ptr)); \
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 /* %% [3.0] code to copy yytext_ptr to yytext[] goes here, if %array \ */\
@@ -1132,11 +1138,11 @@ int yy_flex_debug = 1;
 
 static const flex_int32_t yy_rule_linenum[50] =
     {   0,
-      122,  136,  137,  144,  145,  146,  153,  172,  185,  195,
-      202,  203,  215,  216,  224,  235,  245,  253,  271,  294,
-      322,  327,  331,  336,  342,  343,  348,  354,  379,  384,
-      390,  391,  406,  411,  419,  424,  430,  440,  445,  449,
-      454,  460,  466,  499,  509,  512,  519,  523,  537
+      127,  141,  142,  149,  150,  151,  158,  177,  190,  200,
+      207,  208,  220,  221,  229,  240,  250,  258,  276,  299,
+      327,  332,  336,  341,  347,  348,  353,  359,  384,  389,
+      395,  396,  411,  416,  424,  429,  435,  445,  450,  454,
+      459,  465,  471,  504,  514,  517,  524,  528,  542
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -1151,7 +1157,7 @@ static int yy_more_len = 0;
 char *yytext;
 #line 1 "src/Slice/Scanner.l"
 
-#line 12 "src/Slice/Scanner.l"
+#line 17 "src/Slice/Scanner.l"
 
 #include "GrammarUtil.h"
 #include "Grammar.h"
@@ -1197,8 +1203,8 @@ namespace
 #define YY_USER_ACTION preAction();
 #define YY_FATAL_ERROR(msg) fatalError(msg);
 
-#line 1201 "src/Slice/Scanner.cpp"
-#line 60 "src/Slice/Scanner.l"
+#line 1206 "src/Slice/Scanner.cpp"
+#line 65 "src/Slice/Scanner.l"
   /* Changes the default prefix of 'yy' to 'slice_' for functions and variables in the generated code. */
   /* Instructs flex to not suppress any warnings when generating the scanner. */
   /* Instructs flex to generate a scanner that supports verbose outputting (debug mode). */
@@ -1224,7 +1230,7 @@ namespace
 
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
-#line 1228 "src/Slice/Scanner.cpp"
+#line 1233 "src/Slice/Scanner.cpp"
 
 #define INITIAL 0
 #define C_COMMENT 1
@@ -1358,7 +1364,7 @@ static int input ( void );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		int n; \
+		yy_size_t n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( yyin )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
@@ -1510,12 +1516,12 @@ YY_DECL
 
 	{
 /* %% [7.0] user's declarations go here */
-#line 118 "src/Slice/Scanner.l"
+#line 123 "src/Slice/Scanner.l"
 
 
   /* ========== Literals ========== */
   /* Matches the start of a double-quoted string literal. */
-#line 1519 "src/Slice/Scanner.cpp"
+#line 1524 "src/Slice/Scanner.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1600,7 +1606,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 122 "src/Slice/Scanner.l"
+#line 127 "src/Slice/Scanner.l"
 {
     yy_push_state(STRING_LITERAL);
     startLocation(yylloc);
@@ -1615,10 +1621,10 @@ YY_RULE_SETUP
 /* Matches Escaped backslashes and any other valid string characters. Invalid characters are
    * new-lines, non-printable ASCII characters, and double-quotes. */
 case 2:
-#line 137 "src/Slice/Scanner.l"
+#line 142 "src/Slice/Scanner.l"
 case 3:
 YY_RULE_SETUP
-#line 137 "src/Slice/Scanner.l"
+#line 142 "src/Slice/Scanner.l"
 {
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
@@ -1627,12 +1633,12 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches an escaped double-quote, single-quote, or question mark. */
 case 4:
-#line 145 "src/Slice/Scanner.l"
+#line 150 "src/Slice/Scanner.l"
 case 5:
-#line 146 "src/Slice/Scanner.l"
+#line 151 "src/Slice/Scanner.l"
 case 6:
 YY_RULE_SETUP
-#line 146 "src/Slice/Scanner.l"
+#line 151 "src/Slice/Scanner.l"
 {
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
@@ -1642,7 +1648,7 @@ YY_RULE_SETUP
 /* Matches an ANSI-C escape code pattern. */
 case 7:
 YY_RULE_SETUP
-#line 153 "src/Slice/Scanner.l"
+#line 158 "src/Slice/Scanner.l"
 {
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     char ansiCode;
@@ -1664,7 +1670,7 @@ YY_RULE_SETUP
 /* Matches an escaped octal value. Octal literals are limited to a max of 3 digits. */
 case 8:
 YY_RULE_SETUP
-#line 172 "src/Slice/Scanner.l"
+#line 177 "src/Slice/Scanner.l"
 {
     int64_t value = std::stoll((yytext + 1), nullptr, 8);
     if (value > 255)
@@ -1680,7 +1686,7 @@ YY_RULE_SETUP
 /* Matches an escaped hexadecimal value. Hexadecimal literals are limited to a max of 2 digits. */
 case 9:
 YY_RULE_SETUP
-#line 185 "src/Slice/Scanner.l"
+#line 190 "src/Slice/Scanner.l"
 {
     int64_t value = std::stoll((yytext + 2), nullptr, 16);
     assert(value <= 255);
@@ -1693,7 +1699,7 @@ YY_RULE_SETUP
 /* Matches an empty hexadecimal escape value. */
 case 10:
 YY_RULE_SETUP
-#line 195 "src/Slice/Scanner.l"
+#line 200 "src/Slice/Scanner.l"
 {
     currentUnit->error("no hex digit in hex escape sequence");
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
@@ -1702,10 +1708,10 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches a 4-char or 8-char size universal character code. */
 case 11:
-#line 203 "src/Slice/Scanner.l"
+#line 208 "src/Slice/Scanner.l"
 case 12:
 YY_RULE_SETUP
-#line 203 "src/Slice/Scanner.l"
+#line 208 "src/Slice/Scanner.l"
 {
     int64_t codePoint = std::stoll((yytext + 2), nullptr, 16);
     if (codePoint <= 0xdfff && codePoint >= 0xd800)
@@ -1719,10 +1725,10 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches a universal character code that isn't the correct size, or uses incorrect characters. */
 case 13:
-#line 216 "src/Slice/Scanner.l"
+#line 221 "src/Slice/Scanner.l"
 case 14:
 YY_RULE_SETUP
-#line 216 "src/Slice/Scanner.l"
+#line 221 "src/Slice/Scanner.l"
 {
     currentUnit->error("unknown escape sequence in string literal: '" + string(yytext) + "'");
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
@@ -1734,7 +1740,7 @@ YY_RULE_SETUP
 case 15:
 /* rule 15 can match eol */
 YY_RULE_SETUP
-#line 224 "src/Slice/Scanner.l"
+#line 229 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     endLocation(yylloc);
@@ -1748,7 +1754,7 @@ YY_RULE_SETUP
    * it only matches 2 characters (the lowest any match), and it's beneath the others. */
 case 16:
 YY_RULE_SETUP
-#line 235 "src/Slice/Scanner.l"
+#line 240 "src/Slice/Scanner.l"
 {
     currentUnit->warning(All, "unknown escape sequence in string literal: '" + string{yytext} + "'");
 
@@ -1761,7 +1767,7 @@ YY_RULE_SETUP
 /* Matches a dangling backslash, with nothing to escape. This rule is mostly included for grammar completeness. */
 case 17:
 YY_RULE_SETUP
-#line 245 "src/Slice/Scanner.l"
+#line 250 "src/Slice/Scanner.l"
 {
     currentUnit->warning(All, "dangling backslash in string literal");
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
@@ -1772,7 +1778,7 @@ YY_RULE_SETUP
    * to match the longest string it can, so quotes preceeded with a literal '\' will match the rules above this one. */
 case 18:
 YY_RULE_SETUP
-#line 253 "src/Slice/Scanner.l"
+#line 258 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     endLocation(yylloc);
@@ -1784,7 +1790,7 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches EOF, but only while scanning a string literal. */
 case YY_STATE_EOF(STRING_LITERAL):
-#line 263 "src/Slice/Scanner.l"
+#line 268 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     endLocation(yylloc);
@@ -1795,7 +1801,7 @@ case YY_STATE_EOF(STRING_LITERAL):
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 271 "src/Slice/Scanner.l"
+#line 276 "src/Slice/Scanner.l"
 {
     setLocation(yylloc);
 
@@ -1821,7 +1827,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 294 "src/Slice/Scanner.l"
+#line 299 "src/Slice/Scanner.l"
 {
     setLocation(yylloc);
 
@@ -1851,7 +1857,7 @@ YY_RULE_SETUP
 /* Matches and records a triple-slash style doc-comment. */
 case 21:
 YY_RULE_SETUP
-#line 322 "src/Slice/Scanner.l"
+#line 327 "src/Slice/Scanner.l"
 {
     currentUnit->addToDocComment(yytext + 3);
 }
@@ -1859,7 +1865,7 @@ YY_RULE_SETUP
 /* Matches and consumes a C++ style comment. */
 case 22:
 YY_RULE_SETUP
-#line 327 "src/Slice/Scanner.l"
+#line 332 "src/Slice/Scanner.l"
 {}
 	YY_BREAK
 /* Matches the start of a C style doc-comment, and switches the scanner to the C_DOC_COMMENT state.
@@ -1871,7 +1877,7 @@ YY_LINENO_REWIND_TO(yy_bp + 3);
 (yy_c_buf_p) = yy_cp = yy_bp + 3;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 331 "src/Slice/Scanner.l"
+#line 336 "src/Slice/Scanner.l"
 {
     yy_push_state(C_DOC_COMMENT);
 }
@@ -1879,7 +1885,7 @@ YY_RULE_SETUP
 /* Matches the start of a C style comment, and switches the scanner to the C_COMMENT state. */
 case 24:
 YY_RULE_SETUP
-#line 336 "src/Slice/Scanner.l"
+#line 341 "src/Slice/Scanner.l"
 {
     yy_push_state(C_COMMENT);
 }
@@ -1887,10 +1893,10 @@ YY_RULE_SETUP
 /* Matches any character except for newlines and adds them to the comments. '*' are matched one at a time to ensure
    * Flex scans '* /' correctly. Flex prioritizes longer matches over shorter ones, so '* /' will match before '*'. */
 case 25:
-#line 343 "src/Slice/Scanner.l"
+#line 348 "src/Slice/Scanner.l"
 case 26:
 YY_RULE_SETUP
-#line 343 "src/Slice/Scanner.l"
+#line 348 "src/Slice/Scanner.l"
 {
     yymore();
 }
@@ -1899,7 +1905,7 @@ YY_RULE_SETUP
 case 27:
 /* rule 27 can match eol */
 YY_RULE_SETUP
-#line 348 "src/Slice/Scanner.l"
+#line 353 "src/Slice/Scanner.l"
 {
     nextLine(yyleng);
     yymore();
@@ -1908,7 +1914,7 @@ YY_RULE_SETUP
 /* Matches the end of a C style comment, and reverts the scanner state to what it previously was. */
 case 28:
 YY_RULE_SETUP
-#line 354 "src/Slice/Scanner.l"
+#line 359 "src/Slice/Scanner.l"
 {
     yy_pop_state();
 
@@ -1923,7 +1929,7 @@ YY_RULE_SETUP
 /* Handles reaching EOF while scanning a C style comment by issuing a warning but continuing normally. */
 case YY_STATE_EOF(C_COMMENT):
 case YY_STATE_EOF(C_DOC_COMMENT):
-#line 366 "src/Slice/Scanner.l"
+#line 371 "src/Slice/Scanner.l"
 {
     yy_pop_state();
 
@@ -1938,7 +1944,7 @@ case YY_STATE_EOF(C_DOC_COMMENT):
 /* Matches the empty preprocessor directive. */
 case 29:
 YY_RULE_SETUP
-#line 379 "src/Slice/Scanner.l"
+#line 384 "src/Slice/Scanner.l"
 {
     yy_push_state(PREPROCESS);
 }
@@ -1946,7 +1952,7 @@ YY_RULE_SETUP
 /* Matches a line preprocessor directive, but missing a line number. */
 case 30:
 YY_RULE_SETUP
-#line 384 "src/Slice/Scanner.l"
+#line 389 "src/Slice/Scanner.l"
 {
     yy_push_state(PREPROCESS);
     currentUnit->error("missing line number in line preprocessor directive");
@@ -1954,10 +1960,10 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
 case 31:
-#line 391 "src/Slice/Scanner.l"
+#line 396 "src/Slice/Scanner.l"
 case 32:
 YY_RULE_SETUP
-#line 391 "src/Slice/Scanner.l"
+#line 396 "src/Slice/Scanner.l"
 {
     int includeAction = scanPosition(yytext);
     if (yylineno == 0 || includeAction == 1) // Push: Indicated the scanner has started scanning a new file.
@@ -1975,7 +1981,7 @@ YY_RULE_SETUP
    * found while scanning a preprocessor directive. */
 case 33:
 YY_RULE_SETUP
-#line 406 "src/Slice/Scanner.l"
+#line 411 "src/Slice/Scanner.l"
 {
     currentUnit->error("encountered unexpected token while scanning preprocessor directive: '" + string(yytext) + "'");
 }
@@ -1983,10 +1989,10 @@ YY_RULE_SETUP
 /* Matches a new-line character or EOF. This signals the end of the preprocessor statement. */
 case 34:
 /* rule 34 can match eol */
-#line 412 "src/Slice/Scanner.l"
+#line 417 "src/Slice/Scanner.l"
 YY_RULE_SETUP
 case YY_STATE_EOF(PREPROCESS):
-#line 412 "src/Slice/Scanner.l"
+#line 417 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     nextLine();
@@ -1995,7 +2001,7 @@ case YY_STATE_EOF(PREPROCESS):
 /* ========== Metadata ========== */
 case 35:
 YY_RULE_SETUP
-#line 419 "src/Slice/Scanner.l"
+#line 424 "src/Slice/Scanner.l"
 {
     yy_push_state(METADATA);
     return ICE_METADATA_OPEN;
@@ -2003,7 +2009,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 424 "src/Slice/Scanner.l"
+#line 429 "src/Slice/Scanner.l"
 {
     yy_push_state(METADATA);
     return ICE_FILE_METADATA_OPEN;
@@ -2012,7 +2018,7 @@ YY_RULE_SETUP
 /* Matches the start of a metadata string, then switches the scanner into STRING_LITERAL mode. */
 case 37:
 YY_RULE_SETUP
-#line 430 "src/Slice/Scanner.l"
+#line 435 "src/Slice/Scanner.l"
 {
     yy_push_state(STRING_LITERAL);
     startLocation(yylloc);
@@ -2025,7 +2031,7 @@ YY_RULE_SETUP
 /* Matches commas between string literals in quoted metadata and forwards them to the parser. */
 case 38:
 YY_RULE_SETUP
-#line 440 "src/Slice/Scanner.l"
+#line 445 "src/Slice/Scanner.l"
 {
     return yytext[0];
 }
@@ -2034,14 +2040,14 @@ YY_RULE_SETUP
 case 39:
 /* rule 39 can match eol */
 YY_RULE_SETUP
-#line 445 "src/Slice/Scanner.l"
+#line 450 "src/Slice/Scanner.l"
 {
     nextLine(yyleng);
 }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 449 "src/Slice/Scanner.l"
+#line 454 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     return ICE_METADATA_CLOSE;
@@ -2049,7 +2055,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 454 "src/Slice/Scanner.l"
+#line 459 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     return ICE_FILE_METADATA_CLOSE;
@@ -2058,7 +2064,7 @@ YY_RULE_SETUP
 /* Matches any characters not matched by another metadata rule (except whitespace), and reports an error. */
 case 42:
 YY_RULE_SETUP
-#line 460 "src/Slice/Scanner.l"
+#line 465 "src/Slice/Scanner.l"
 {
     currentUnit->error("invalid character between metadata");
 }
@@ -2067,7 +2073,7 @@ YY_RULE_SETUP
 case 43:
 /* rule 43 can match eol */
 YY_RULE_SETUP
-#line 466 "src/Slice/Scanner.l"
+#line 471 "src/Slice/Scanner.l"
 {
     StringTokPtr ident = make_shared<StringTok>();
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
@@ -2103,7 +2109,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 499 "src/Slice/Scanner.l"
+#line 504 "src/Slice/Scanner.l"
 {
     StringTokPtr ident = make_shared<StringTok>();
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
@@ -2115,14 +2121,14 @@ YY_RULE_SETUP
 /* Matches and consumes any whitespace, except for newlines. */
 case 45:
 YY_RULE_SETUP
-#line 509 "src/Slice/Scanner.l"
+#line 514 "src/Slice/Scanner.l"
 {}
 	YY_BREAK
 /* Matches and consumes newlines, but only when the scanner isn't in a sub-scanner. */
 case 46:
 /* rule 46 can match eol */
 YY_RULE_SETUP
-#line 512 "src/Slice/Scanner.l"
+#line 517 "src/Slice/Scanner.l"
 {
     nextLine(yyleng);
 }
@@ -2131,7 +2137,7 @@ YY_RULE_SETUP
 /* Matches and consumes a BOM, but only when the scanner has just started scanning a new file. */
 case 47:
 YY_RULE_SETUP
-#line 519 "src/Slice/Scanner.l"
+#line 524 "src/Slice/Scanner.l"
 {}
 	YY_BREAK
 /* Matches invalid characters, one at a time to make this the 2nd lowest priority rule. All printable ASCII
@@ -2139,7 +2145,7 @@ YY_RULE_SETUP
 case 48:
 /* rule 48 can match eol */
 YY_RULE_SETUP
-#line 523 "src/Slice/Scanner.l"
+#line 528 "src/Slice/Scanner.l"
 {
     stringstream s;
     s << "illegal input character: '\\";
@@ -2156,7 +2162,7 @@ YY_RULE_SETUP
    * This is the lowest priority rule in the scanner, and is only active while not in a sub-scanner. */
 case 49:
 YY_RULE_SETUP
-#line 537 "src/Slice/Scanner.l"
+#line 542 "src/Slice/Scanner.l"
 {
     setLocation(yylloc);
     return yytext[0];
@@ -2164,10 +2170,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 542 "src/Slice/Scanner.l"
+#line 547 "src/Slice/Scanner.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 2171 "src/Slice/Scanner.cpp"
+#line 2176 "src/Slice/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(SLICE):
 case YY_STATE_EOF(METADATA):
@@ -2373,7 +2379,7 @@ static int yy_get_next_buffer (void)
 
 	else
 		{
-			int num_to_read =
+			yy_size_t num_to_read =
 			YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
 		while ( num_to_read <= 0 )
@@ -2387,7 +2393,7 @@ static int yy_get_next_buffer (void)
 
 			if ( b->yy_is_our_buffer )
 				{
-				int new_size = b->yy_buf_size * 2;
+				yy_size_t new_size = b->yy_buf_size * 2;
 
 				if ( new_size <= 0 )
 					b->yy_buf_size += b->yy_buf_size / 8;
@@ -2445,7 +2451,7 @@ static int yy_get_next_buffer (void)
 
 	if (((yy_n_chars) + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
 		/* Extend the array by 50%, plus the number we really need. */
-		int new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
+		yy_size_t new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
 		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *) yyrealloc(
 			(void *) YY_CURRENT_BUFFER_LVALUE->yy_ch_buf, (yy_size_t) new_size  );
 		if ( ! YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
@@ -2567,7 +2573,7 @@ static int yy_get_next_buffer (void)
 
 		else
 			{ /* need more input */
-			int offset = (int) ((yy_c_buf_p) - (yytext_ptr));
+			yy_size_t offset = (yy_c_buf_p) - (yytext_ptr);
 			++(yy_c_buf_p);
 
 			switch ( yy_get_next_buffer(  ) )
@@ -3021,7 +3027,7 @@ static void yynoreturn yy_fatal_error (const char* msg )
 	do \
 		{ \
 		/* Undo effects of setting up yytext. */ \
-        int yyless_macro_arg = (n); \
+        yy_size_t yyless_macro_arg = (n); \
         YY_LESS_LINENO(yyless_macro_arg);\
 		yytext[yyleng] = (yy_hold_char); \
 		(yy_c_buf_p) = yytext + yyless_macro_arg; \
@@ -3170,7 +3176,7 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 542 "src/Slice/Scanner.l"
+#line 547 "src/Slice/Scanner.l"
 
 
 // NOLINTEND

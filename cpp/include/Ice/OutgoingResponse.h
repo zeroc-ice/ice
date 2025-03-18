@@ -15,7 +15,7 @@ namespace Ice
     /**
      * Represents the response to an incoming request. It's the argument to the sendResponse callback accepted by
      * Object::dispatch.
-     * @remarks OutgoingResponse is movable but not copyable. sendResponse wrappers must move the response to the next
+     * @remark OutgoingResponse is movable but not copyable. sendResponse wrappers must move the response to the next
      * callback.
      * @see Object::dispatch
      * \headerfile Ice/Ice.h
@@ -66,7 +66,7 @@ namespace Ice
         /**
          * Get the current object of this response.
          * @return A const reference to the current object.
-         * @remarks The response only holds onto a reference for this Current object. The caller keeps the Current
+         * @remark The response only holds onto a reference for this Current object. The caller keeps the Current
          * object alive until the call to sendResponse completes.
          */
         [[nodiscard]] const Current& current() const noexcept { return _current.get(); }

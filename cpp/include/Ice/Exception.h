@@ -18,11 +18,11 @@ namespace Ice
         /// Default constructor.
         Exception() noexcept = default;
 
-        /// Copy constructor. Initializes this exception with a copy of other.
+        /// Copy constructor. Initializes this exception with a copy of @p other.
         /// @param other The exception to copy from.
         Exception(const Exception& other) noexcept = default;
 
-        /// Copy assignment operator. Assigns the contents of rhs to this exception.
+        /// Copy assignment operator. Assigns the contents of @p rhs to this exception.
         /// @param rhs The exception to copy from.
         Exception& operator=(const Exception& rhs) noexcept = default;
 

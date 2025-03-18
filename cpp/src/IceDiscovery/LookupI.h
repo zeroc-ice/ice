@@ -3,7 +3,6 @@
 #ifndef LOOKUPI_H
 #define LOOKUPI_H
 
-#include "Ice/Comparable.h"
 #include "Ice/Properties.h"
 #include "Ice/Timer.h"
 #include "IceDiscovery.h"

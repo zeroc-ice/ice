@@ -2,6 +2,7 @@
 
 #include "Endpoint.h"
 #include "EndpointInfo.h"
+#include "Ice/TargetCompare.h"
 #include "Util.h"
 
 using namespace std;
@@ -122,7 +123,7 @@ static PyMethodDef EndpointMethods[] = {
      reinterpret_cast<PyCFunction>(endpointGetInfo),
      METH_NOARGS,
      PyDoc_STR("getInfo() -> Ice.EndpointInfo")},
-    {nullptr, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 namespace IcePy

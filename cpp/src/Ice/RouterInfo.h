@@ -5,7 +5,6 @@
 
 #include "EndpointIF.h"
 #include "Ice/BuiltinSequences.h"
-#include "Ice/Comparable.h"
 #include "Ice/Identity.h"
 #include "Ice/ReferenceF.h"
 #include "Ice/Router.h"

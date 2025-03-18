@@ -2121,7 +2121,7 @@ static PyMethodDef ProxyMethods[] = {
      reinterpret_cast<PyCFunction>(proxyIceStaticId),
      METH_NOARGS | METH_STATIC,
      PyDoc_STR("ice_staticId() -> string")},
-    {nullptr, nullptr} /* sentinel */
+    {} /* sentinel */
 };
 
 namespace IcePy

@@ -522,7 +522,7 @@ export class Client extends TestHelper {
                 //
                 out.writeLine("Test not supported with Safari web workers.");
                 const obj = communicator.stringToProxy("communicator:" + this.getTestEndpoint());
-                const prx = await Test.RemoteCommunicatorPrx.uncheckedCast(obj);
+                const prx = Test.RemoteCommunicatorPrx.uncheckedCast(obj);
                 await prx.shutdown();
             } else {
                 await this.allTests();

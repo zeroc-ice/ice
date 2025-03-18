@@ -9,7 +9,6 @@
 #include "EndpointI.h"
 #include "FixedRequestHandler.h"
 #include "HashUtil.h"
-#include "Ice/Comparable.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/Locator.h"
 #include "Ice/LoggerUtil.h"
@@ -23,6 +22,7 @@
 #include "Random.h"
 #include "ReferenceFactory.h"
 #include "RouterInfo.h"
+#include "TargetCompare.h"
 #include "TraceLevels.h"
 
 #include <algorithm>

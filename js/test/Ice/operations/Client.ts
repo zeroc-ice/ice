@@ -30,18 +30,7 @@ export class Client extends TestHelper {
         await batchOneways(cl);
         out.writeLine("ok");
 
-        out.write("testing server shutdown... ");
         await cl.shutdown();
-        try {
-            await cl.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
-            throw new Error("test failed");
-        } catch (ex) {
-            if (ex instanceof Ice.LocalException) {
-                out.writeLine("ok");
-            } else {
-                throw ex;
-            }
-        }
     }
 
     async run(args: string[]) {

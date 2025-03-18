@@ -80,7 +80,7 @@ namespace DataStorm
          *
          * @return The update tag.
          */
-        [[nodiscard]] UpdateTag getUpdateTag() const noexcept;
+        [[nodiscard]] UpdateTag getUpdateTag() const;
 
         /**
          * The timestamp of the sample.
@@ -100,7 +100,7 @@ namespace DataStorm
          *
          * @return The origin of the sample.
          */
-        [[nodiscard]] std::string getOrigin() const noexcept;
+        [[nodiscard]] const std::string& getOrigin() const noexcept;
 
         /**
          * Get the session identifier of the session that received this sample.
@@ -109,7 +109,7 @@ namespace DataStorm
          *
          * @return The session identifier.
          */
-        [[nodiscard]] std::string getSession() const noexcept;
+        [[nodiscard]] const std::string& getSession() const noexcept;
 
         /** @private */
         Sample(const std::shared_ptr<DataStormI::Sample>&) noexcept;
@@ -209,21 +209,21 @@ namespace DataStorm
          *
          * @return The names of the connected writers.
          */
-        [[nodiscard]] std::vector<std::string> getConnectedWriters() const noexcept;
+        [[nodiscard]] std::vector<std::string> getConnectedWriters() const;
 
         /**
          * Get the keys for which writers are connected to this reader.
          *
          * @return The keys for which we have writers connected.
          **/
-        [[nodiscard]] std::vector<Key> getConnectedKeys() const noexcept;
+        [[nodiscard]] std::vector<Key> getConnectedKeys() const;
 
         /**
          * Returns all the unread samples.
          *
          * @return The unread samples.
          */
-        [[nodiscard]] std::vector<Sample<Key, Value, UpdateTag>> getAllUnread() noexcept;
+        [[nodiscard]] std::vector<Sample<Key, Value, UpdateTag>> getAllUnread();
 
         /**
          * Wait for given number of unread samples to be available.
@@ -364,14 +364,14 @@ namespace DataStorm
          *
          * @return The names of the connected readers.
          */
-        [[nodiscard]] std::vector<std::string> getConnectedReaders() const noexcept;
+        [[nodiscard]] std::vector<std::string> getConnectedReaders() const;
 
         /**
          * Get the keys for which readers are connected to this writer.
          *
          * @return The keys for which we have writers connected.
          **/
-        [[nodiscard]] std::vector<Key> getConnectedKeys() const noexcept;
+        [[nodiscard]] std::vector<Key> getConnectedKeys() const;
 
         /**
          * Get the last written sample.
@@ -386,7 +386,7 @@ namespace DataStorm
          *
          * @return The sample history.
          **/
-        [[nodiscard]] std::vector<Sample<Key, Value, UpdateTag>> getAll() noexcept;
+        [[nodiscard]] std::vector<Sample<Key, Value, UpdateTag>> getAll();
 
         /**
          * Calls the given functions to provide the initial set of connected keys and when a key is added or
@@ -1017,7 +1017,7 @@ namespace DataStorm
             const Topic<Key, Value, UpdateTag>& topic,
             const Key& key,
             std::string name = std::string(),
-            const WriterConfig& config = WriterConfig()) noexcept;
+            const WriterConfig& config = WriterConfig());
 
         /**
          * Move constructor.
@@ -1039,7 +1039,7 @@ namespace DataStorm
          *
          * @param value The data element value.
          */
-        void add(const Value& value) noexcept;
+        void add(const Value& value);
 
         /**
          * Update the data element. This generates an {@link Update} sample with the
@@ -1047,7 +1047,7 @@ namespace DataStorm
          *
          * @param value The data element value.
          */
-        void update(const Value& value) noexcept;
+        void update(const Value& value);
 
         /**
          * Get a partial update generator function for the given partial update tag. When called, the returned
@@ -1059,7 +1059,7 @@ namespace DataStorm
          * @param tag The partial update tag.
          */
         template<typename UpdateValue>
-        [[nodiscard]] std::function<void(const UpdateValue&)> partialUpdate(const UpdateTag& tag) noexcept;
+        [[nodiscard]] std::function<void(const UpdateValue&)> partialUpdate(const UpdateTag& tag);
 
         /**
          * Remove the data element. This generates a {@link Remove} sample.
@@ -1093,7 +1093,7 @@ namespace DataStorm
             const Topic<Key, Value, UpdateTag>& topic,
             const std::vector<Key>& keys,
             std::string name = std::string(),
-            const WriterConfig& config = WriterConfig()) noexcept;
+            const WriterConfig& config = WriterConfig());
 
         /**
          * Transfers the given writer to this writer.
@@ -1115,7 +1115,7 @@ namespace DataStorm
          * @param key The key
          * @param value The data element value.
          */
-        void add(const Key& key, const Value& value) noexcept;
+        void add(const Key& key, const Value& value);
 
         /**
          * Update the data element. This generates an {@link Update} sample with the given value.
@@ -1123,7 +1123,7 @@ namespace DataStorm
          * @param key The key
          * @param value The data element value.
          */
-        void update(const Key& key, const Value& value) noexcept;
+        void update(const Key& key, const Value& value);
 
         /**
          * Get a partial update generator function for the given partial update tag. When called, the returned
@@ -1135,7 +1135,7 @@ namespace DataStorm
          * @param tag The partial update tag.
          */
         template<typename UpdateValue>
-        [[nodiscard]] std::function<void(const Key&, const UpdateValue&)> partialUpdate(const UpdateTag& tag) noexcept;
+        [[nodiscard]] std::function<void(const Key&, const UpdateValue&)> partialUpdate(const UpdateTag& tag);
 
         /**
          * Remove the data element. This generates a {@link Remove} sample.
@@ -1163,7 +1163,7 @@ namespace DataStorm
         const Topic<K, V, UT>& topic,
         const typename Topic<K, V, UT>::KeyType& key,
         std::string name = std::string(),
-        const WriterConfig& config = WriterConfig()) noexcept
+        const WriterConfig& config = WriterConfig())
     {
         return SingleKeyWriter<K, V, UT>(topic, key, std::move(name), config);
     }
@@ -1182,7 +1182,7 @@ namespace DataStorm
         const Topic<K, V, UT>& topic,
         const std::vector<typename Topic<K, V, UT>::KeyType>& keys,
         std::string name = std::string(),
-        const WriterConfig& config = WriterConfig()) noexcept
+        const WriterConfig& config = WriterConfig())
     {
         return MultiKeyWriter<K, V, UT>(topic, keys, std::move(name), config);
     }
@@ -1199,7 +1199,7 @@ namespace DataStorm
     [[nodiscard]] MultiKeyWriter<K, V, UT> makeAnyKeyWriter(
         const Topic<K, V, UT>& topic,
         std::string name = std::string(),
-        const WriterConfig& config = WriterConfig()) noexcept
+        const WriterConfig& config = WriterConfig())
     {
         return MultiKeyWriter<K, V, UT>(topic, {}, std::move(name), config);
     }
@@ -1230,7 +1230,7 @@ namespace DataStorm
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    UpdateTag Sample<Key, Value, UpdateTag>::getUpdateTag() const noexcept
+    UpdateTag Sample<Key, Value, UpdateTag>::getUpdateTag() const
     {
         return _impl->getTag();
     }
@@ -1242,13 +1242,13 @@ namespace DataStorm
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    std::string Sample<Key, Value, UpdateTag>::getOrigin() const noexcept
+    const std::string& Sample<Key, Value, UpdateTag>::getOrigin() const noexcept
     {
         return _impl->origin;
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    std::string Sample<Key, Value, UpdateTag>::getSession() const noexcept
+    const std::string& Sample<Key, Value, UpdateTag>::getSession() const noexcept
     {
         return _impl->session;
     }
@@ -1306,13 +1306,13 @@ namespace DataStorm
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    std::vector<std::string> Reader<Key, Value, UpdateTag>::getConnectedWriters() const noexcept
+    std::vector<std::string> Reader<Key, Value, UpdateTag>::getConnectedWriters() const
     {
         return _impl->getConnectedElements();
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    std::vector<Key> Reader<Key, Value, UpdateTag>::getConnectedKeys() const noexcept
+    std::vector<Key> Reader<Key, Value, UpdateTag>::getConnectedKeys() const
     {
         std::vector<Key> keys;
         auto connectedKeys = _impl->getConnectedKeys();
@@ -1325,7 +1325,7 @@ namespace DataStorm
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    std::vector<Sample<Key, Value, UpdateTag>> Reader<Key, Value, UpdateTag>::getAllUnread() noexcept
+    std::vector<Sample<Key, Value, UpdateTag>> Reader<Key, Value, UpdateTag>::getAllUnread()
     {
         auto unread = _impl->getAllUnread();
         std::vector<Sample<Key, Value, UpdateTag>> samples;
@@ -1588,13 +1588,13 @@ namespace DataStorm
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    std::vector<std::string> Writer<Key, Value, UpdateTag>::getConnectedReaders() const noexcept
+    std::vector<std::string> Writer<Key, Value, UpdateTag>::getConnectedReaders() const
     {
         return _impl->getConnectedElements();
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    std::vector<Key> Writer<Key, Value, UpdateTag>::getConnectedKeys() const noexcept
+    std::vector<Key> Writer<Key, Value, UpdateTag>::getConnectedKeys() const
     {
         std::vector<Key> keys;
         auto connectedKeys = _impl->getConnectedKeys();
@@ -1618,7 +1618,7 @@ namespace DataStorm
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    std::vector<Sample<Key, Value, UpdateTag>> Writer<Key, Value, UpdateTag>::getAll() noexcept
+    std::vector<Sample<Key, Value, UpdateTag>> Writer<Key, Value, UpdateTag>::getAll()
     {
         auto all = _impl->getAll();
         std::vector<Sample<Key, Value, UpdateTag>> samples;
@@ -1667,7 +1667,7 @@ namespace DataStorm
         const Topic<Key, Value, UpdateTag>& topic,
         const Key& key,
         std::string name,
-        const WriterConfig& config) noexcept
+        const WriterConfig& config)
         : Writer<Key, Value, UpdateTag>(
               topic.getWriter()->create({topic._keyFactory->create(key)}, std::move(name), config)),
           _tagFactory(topic._tagFactory)
@@ -1690,7 +1690,7 @@ namespace DataStorm
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    void SingleKeyWriter<Key, Value, UpdateTag>::add(const Value& value) noexcept
+    void SingleKeyWriter<Key, Value, UpdateTag>::add(const Value& value)
     {
         Writer<Key, Value, UpdateTag>::_impl->publish(
             nullptr,
@@ -1698,7 +1698,7 @@ namespace DataStorm
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    void SingleKeyWriter<Key, Value, UpdateTag>::update(const Value& value) noexcept
+    void SingleKeyWriter<Key, Value, UpdateTag>::update(const Value& value)
     {
         Writer<Key, Value, UpdateTag>::_impl->publish(
             nullptr,
@@ -1707,8 +1707,7 @@ namespace DataStorm
 
     template<typename Key, typename Value, typename UpdateTag>
     template<typename UpdateValue>
-    std::function<void(const UpdateValue&)>
-    SingleKeyWriter<Key, Value, UpdateTag>::partialUpdate(const UpdateTag& tag) noexcept
+    std::function<void(const UpdateValue&)> SingleKeyWriter<Key, Value, UpdateTag>::partialUpdate(const UpdateTag& tag)
     {
         auto impl = Writer<Key, Value, UpdateTag>::_impl;
         auto updateTag = _tagFactory->create(tag);
@@ -1732,7 +1731,7 @@ namespace DataStorm
         const Topic<Key, Value, UpdateTag>& topic,
         const std::vector<Key>& keys,
         std::string name,
-        const WriterConfig& config) noexcept
+        const WriterConfig& config)
         : Writer<Key, Value, UpdateTag>(
               topic.getWriter()->create(topic._keyFactory->create(keys), std::move(name), config)),
           _keyFactory(topic._keyFactory),
@@ -1757,7 +1756,7 @@ namespace DataStorm
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    void MultiKeyWriter<Key, Value, UpdateTag>::add(const Key& key, const Value& value) noexcept
+    void MultiKeyWriter<Key, Value, UpdateTag>::add(const Key& key, const Value& value)
     {
         Writer<Key, Value, UpdateTag>::_impl->publish(
             _keyFactory->create(key),
@@ -1765,7 +1764,7 @@ namespace DataStorm
     }
 
     template<typename Key, typename Value, typename UpdateTag>
-    void MultiKeyWriter<Key, Value, UpdateTag>::update(const Key& key, const Value& value) noexcept
+    void MultiKeyWriter<Key, Value, UpdateTag>::update(const Key& key, const Value& value)
     {
         Writer<Key, Value, UpdateTag>::_impl->publish(
             _keyFactory->create(key),
@@ -1775,7 +1774,7 @@ namespace DataStorm
     template<typename Key, typename Value, typename UpdateTag>
     template<typename UpdateValue>
     std::function<void(const Key&, const UpdateValue&)>
-    MultiKeyWriter<Key, Value, UpdateTag>::partialUpdate(const UpdateTag& tag) noexcept
+    MultiKeyWriter<Key, Value, UpdateTag>::partialUpdate(const UpdateTag& tag)
     {
         auto impl = Writer<Key, Value, UpdateTag>::_impl;
         auto updateTag = _tagFactory->create(tag);
@@ -1798,8 +1797,7 @@ namespace DataStorm
     }
 
     /** @private */
-    template<typename Value>
-    std::function<std::function<bool(const Value&)>(const std::string&)> makeRegexFilter() noexcept
+    template<typename Value> std::function<std::function<bool(const Value&)>(const std::string&)> makeRegexFilter()
     {
         // std::regex's constructor accepts a const string&; it does not accept a string_view.
         return [](const std::string& criteria)
@@ -1817,7 +1815,7 @@ namespace DataStorm
     /** @private */
     template<typename Key, typename Value, typename UpdateTag>
     std::function<std::function<bool(const Sample<Key, Value, UpdateTag>&)>(const std::vector<SampleEvent>&)>
-    makeSampleEventFilter(const Topic<Key, Value, UpdateTag>&) noexcept
+    makeSampleEventFilter(const Topic<Key, Value, UpdateTag>&)
     {
         return [](const std::vector<SampleEvent>& criteria)
         {

@@ -160,7 +160,7 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
 }
 
 string
-Ice::Properties::getProperty(string_view key) noexcept
+Ice::Properties::getProperty(string_view key)
 {
     lock_guard lock(_mutex);
 
@@ -184,7 +184,7 @@ Ice::Properties::getIceProperty(string_view key)
 }
 
 string
-Ice::Properties::getPropertyWithDefault(string_view key, string_view value) noexcept
+Ice::Properties::getPropertyWithDefault(string_view key, string_view value)
 {
     lock_guard lock(_mutex);
 
@@ -245,7 +245,7 @@ Ice::Properties::getPropertyAsIntWithDefault(string_view key, int32_t value)
 }
 
 Ice::StringSeq
-Ice::Properties::getPropertyAsList(string_view key) noexcept
+Ice::Properties::getPropertyAsList(string_view key)
 {
     return getPropertyAsListWithDefault(key, StringSeq());
 }
@@ -260,7 +260,7 @@ Ice::Properties::getIcePropertyAsList(string_view key)
 }
 
 Ice::StringSeq
-Ice::Properties::getPropertyAsListWithDefault(string_view key, const StringSeq& value) noexcept
+Ice::Properties::getPropertyAsListWithDefault(string_view key, const StringSeq& value)
 {
     lock_guard lock(_mutex);
 
@@ -288,7 +288,7 @@ Ice::Properties::getPropertyAsListWithDefault(string_view key, const StringSeq& 
 }
 
 PropertyDict
-Ice::Properties::getPropertiesForPrefix(string_view prefix) noexcept
+Ice::Properties::getPropertiesForPrefix(string_view prefix)
 {
     lock_guard lock(_mutex);
 
@@ -364,7 +364,7 @@ Ice::Properties::setProperty(string_view key, string_view value)
 }
 
 StringSeq
-Ice::Properties::getCommandLineOptions() noexcept
+Ice::Properties::getCommandLineOptions()
 {
     lock_guard lock(_mutex);
 

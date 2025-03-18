@@ -5,6 +5,7 @@
 #import "include/Communicator.h"
 #import "include/Connection.h"
 #import "include/OutputStream.h"
+
 #include <chrono>
 
 @implementation ICEObjectPrx
@@ -645,7 +646,7 @@
 
 - (bool)isEqual:(ICEObjectPrx*)other
 {
-    return Ice::targetEqualTo(_prx, other.prx);
+    return *_prx == *other.prx;
 }
 
 - (bool)proxyIdentityLess:(ICEObjectPrx*)other

@@ -199,11 +199,11 @@ namespace Ice
 
         void message(IceInternal::ThreadPoolCurrent&) final;
         void finished(IceInternal::ThreadPoolCurrent&, bool) final;
-        [[nodiscard]] std::string toString() const noexcept final; // From Connection and EventHandler.
+        [[nodiscard]] std::string toString() const final; // From Connection and EventHandler.
         IceInternal::NativeInfoPtr getNativeInfo() final;
 
-        [[nodiscard]] std::string type() const noexcept final; // From Connection.
-        [[nodiscard]] ConnectionInfoPtr getInfo() const final; // From Connection
+        [[nodiscard]] const std::string& type() const noexcept final; // From Connection.
+        [[nodiscard]] ConnectionInfoPtr getInfo() const final;        // From Connection
 
         void setBufferSize(std::int32_t rcvSize, std::int32_t sndSize) final; // From Connection
 

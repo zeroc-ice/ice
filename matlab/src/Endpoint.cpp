@@ -127,8 +127,7 @@ extern "C"
         assert(other); // Wrapper only calls this function for non-nil arguments.
         try
         {
-            return createResultValue(
-                createBool(Ice::targetEqualTo(deref<Ice::Endpoint>(self), deref<Ice::Endpoint>(other))));
+            return createResultValue(createBool(*deref<Ice::Endpoint>(self) == *deref<Ice::Endpoint>(other)));
         }
         catch (...)
         {
