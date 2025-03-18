@@ -162,45 +162,19 @@ public interface Object {
 
     /**
      * @hidden
-     * @param mode -
-     * @return -
-     */
-    static String _iceOperationModeToString(OperationMode mode) {
-        if (mode == OperationMode.Normal) {
-            return "::Ice::Normal";
-        }
-        if (mode == OperationMode.Nonmutating) {
-            return "::Ice::Nonmutating";
-        }
-
-        if (mode == OperationMode.Idempotent) {
-            return "::Ice::Idempotent";
-        }
-
-        return "???";
-    }
-
-    /**
-     * @hidden
      * @param expected -
      * @param received -
      */
     static void _iceCheckMode(OperationMode expected, OperationMode received) {
-        if (expected == null) {
-            expected = OperationMode.Normal;
-        }
-
-        assert expected != OperationMode.Nonmutating; // We never expect Nonmutating
-        if (expected != received) {
-            if (expected == OperationMode.Idempotent && received == OperationMode.Nonmutating) {
-                // Fine: typically an old client still using the deprecated nonmutating keyword
-            } else {
-                throw new MarshalException(
-                        "unexpected operation mode: expected = "
-                                + _iceOperationModeToString(expected)
-                                + " received = "
-                                + _iceOperationModeToString(received));
-            }
+        if (received != OperationMode.Normal && expected == OperationMode.Normal) {
+            // The caller believes the operation is idempotent or non-mutating, but the
+            // implementation (the local code) doesn't. This is a problem, as the Ice runtime
+            // could retry automatically when it shouldn't. Other mismatches are not a concern.
+            throw new MarshalException(
+                    "Operation mode mismatch: expected = "
+                            + expected.toString()
+                            + " received = "
+                            + received.toString());
         }
     }
 }
