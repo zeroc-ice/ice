@@ -189,7 +189,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
 
         data.compactIdResolver = [](int id) { return IceRuby::resolveCompactId(id); };
 
-        ValueFactoryManagerPtr valueFactoryManager =  ValueFactoryManager::create();
+        ValueFactoryManagerPtr valueFactoryManager = ValueFactoryManager::create();
         // Prevent the Ruby GC from prematurely releasing the Ruby object held by ValueFactoryManager before the
         // communicator is created.
         [[maybe_unused]] volatile VALUE _ = valueFactoryManager->getObject();
