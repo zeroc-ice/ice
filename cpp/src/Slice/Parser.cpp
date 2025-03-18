@@ -1181,8 +1181,9 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
         }
         else
         {
+            const string kindOf = matches.front()->kindOf();
             ostringstream os;
-            os << "class '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
+            os << "class '" << name << "' was previously defined as " << getArticleFor(kindOf) << " " << kindOf;
             unit()->error(os.str());
         }
         return nullptr;
@@ -1239,8 +1240,9 @@ Slice::Container::createClassDecl(const string& name)
         }
         else
         {
+            const string kindOf = matches.front()->kindOf();
             ostringstream os;
-            os << "class '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
+            os << "class '" << name << "' was previously defined as " << getArticleFor(kindOf) << " " << kindOf;
             unit()->error(os.str());
         }
         return nullptr;
@@ -1313,8 +1315,9 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
         }
         else
         {
+            const string kindOf = matches.front()->kindOf();
             ostringstream os;
-            os << "interface '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
+            os << "interface '" << name << "' was previously defined as " << getArticleFor(kindOf) << " " << kindOf;
             unit()->error(os.str());
         }
         return nullptr;
@@ -1373,8 +1376,9 @@ Slice::Container::createInterfaceDecl(const string& name)
         }
         else
         {
+            const string kindOf = matches.front()->kindOf();
             ostringstream os;
-            os << "interface '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
+            os << "interface '" << name << "' was previously defined as " << getArticleFor(kindOf) << " " << kindOf;
             unit()->error(os.str());
         }
         return nullptr;
