@@ -4,6 +4,11 @@
 #include "../Ice/ScannerConfig.h"
 #include <cstdint>
 
+// Clang detects unreachable code in the generated scanner, so we disable the warning.
+#if defined(__clang__)
+#    pragma clang diagnostic ignored "-Wunreachable-code"
+#endif
+
 // NOLINTBEGIN
 
 }

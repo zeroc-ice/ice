@@ -20,8 +20,8 @@ RUN dnf install -y \
     openssl-devel \
     expat-devel \
     libedit-devel \
-    readline-devel \
     lmdb-devel \
+    python3-devel \
     && dnf clean all
 
 # Create a non-root user and set permissions
