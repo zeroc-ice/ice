@@ -2786,16 +2786,16 @@ IcePHP::ProxyInfo::isA(string_view typeId) const
 }
 
 void
-IcePHP::ProxyInfo::addOperation(const string& name, const OperationPtr& op)
+IcePHP::ProxyInfo::addOperation(const string& mappedName, const OperationPtr& op)
 {
-    operations.insert(OperationMap::value_type(Slice::PHP::fixIdent(name), op));
+    operations.insert(OperationMap::value_type(mappedName, op));
 }
 
 IcePHP::OperationPtr
-IcePHP::ProxyInfo::getOperation(const string& name) const
+IcePHP::ProxyInfo::getOperation(const string& mappedName) const
 {
     OperationPtr op;
-    OperationMap::const_iterator p = operations.find(name);
+    OperationMap::const_iterator p = operations.find(mappedName);
     if (p != operations.end())
     {
         op = p->second;
@@ -2803,14 +2803,14 @@ IcePHP::ProxyInfo::getOperation(const string& name) const
 
     if (!op && base)
     {
-        op = base->getOperation(name);
+        op = base->getOperation(mappedName);
     }
 
     if (!op && !interfaces.empty())
     {
         for (const auto& q : interfaces)
         {
-            op = q->getOperation(name);
+            op = q->getOperation(mappedName);
             if (op)
             {
                 break;
