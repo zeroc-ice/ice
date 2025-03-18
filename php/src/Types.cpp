@@ -5,7 +5,6 @@
 #include "Ice/SlicedData.h"
 #include "Proxy.h"
 #include "Util.h"
-#include "slice2php/PHPUtil.h"
 
 #include <limits>
 #include <memory>

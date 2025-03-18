@@ -10,7 +10,6 @@
 #include "../Slice/Util.h"
 #include "Ice/CtrlCHandler.h"
 #include "Ice/StringUtil.h"
-#include "PHPUtil.h"
 
 #include <algorithm>
 #include <cassert>
