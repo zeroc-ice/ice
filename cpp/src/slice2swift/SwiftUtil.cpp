@@ -1612,7 +1612,8 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
     out << sb;
     out << nl;
 
-    if (op->mode() == Operation::Mode::Normal) {
+    if (op->mode() == Operation::Mode::Normal)
+    {
         out << nl << "try request.checkNonIdempotent()";
     }
 
