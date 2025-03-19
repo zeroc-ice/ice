@@ -67,6 +67,14 @@ namespace Ice
 
     /** A default-initialized Current instance. */
     ICE_API extern const Current emptyCurrent;
+
+    /// Makes sure the operation mode of an incoming request is not idempotent.
+    /// @param current The Current object of the incoming request to check.
+    /// @throws MarshalException Thrown when the request's operation mode is OperationMode::Idempotent or
+    /// OperationMode::Nonmutating.
+    /// @remark The generated code calls this function to ensure that when an operation's mode is not idempotent
+    /// (locally), the incoming request's operation mode is not idempotent.
+    ICE_API void checkNonIdempotent(const Current& current);
 }
 
 #endif

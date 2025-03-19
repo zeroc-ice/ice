@@ -75,7 +75,6 @@ namespace IcePy
         ExceptionInfoList exceptions;
         bool sendsClasses;
         bool returnsClasses;
-        bool pseudoOp;
 
     private:
         string _deprecateMessage;
@@ -811,11 +810,6 @@ IcePy::Operation::Operation(
     {
         exceptions.push_back(getException(PyTuple_GET_ITEM(ex, i)));
     }
-
-    //
-    // Does the operation name start with "ice_"?
-    //
-    pseudoOp = sliceName.find("ice_") == 0;
 }
 
 void
@@ -2787,12 +2781,9 @@ IcePy::TypedServantWrapper::ice_invokeAsync(
             }
         }
 
-        //
-        // See bug 4976.
-        //
-        if (!op->pseudoOp)
+        if (op->mode == Ice::OperationMode::Normal)
         {
-            _iceCheckMode(op->mode, current.mode);
+            checkNonIdempotent(current);
         }
 
         UpcallPtr up = make_shared<TypedUpcall>(op, std::move(response), error, current.adapter->getCommunicator());

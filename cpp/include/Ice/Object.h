@@ -95,11 +95,6 @@ namespace Ice
          * @return The return value is always "::Ice::Object".
          */
         static const char* ice_staticId() noexcept;
-
-    protected:
-        /// \cond INTERNAL
-        static void _iceCheckMode(OperationMode, OperationMode);
-        /// \endcond
     };
 
     /**
