@@ -26,14 +26,6 @@ public sealed class ServantLocatorI : Ice.ServantLocator
         _deactivated = false;
     }
 
-    ~ServantLocatorI()
-    {
-        lock (this)
-        {
-            test(_deactivated);
-        }
-    }
-
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
     public Ice.Object locate(Ice.Current current, out System.Object cookie)

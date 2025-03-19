@@ -31,17 +31,5 @@ public class PluginOneFailFactory : Ice.PluginFactory
             test(!_three.isDestroyed());
             _destroyed = true;
         }
-
-        ~PluginOneFail()
-        {
-            if (!_initialized)
-            {
-                Console.WriteLine("PluginOneFail not initialized");
-            }
-            if (!_destroyed)
-            {
-                Console.WriteLine("PluginOneFail not destroyed");
-            }
-        }
     }
 }
