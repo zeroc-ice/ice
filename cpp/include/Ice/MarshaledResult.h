@@ -9,10 +9,8 @@
 
 namespace Ice
 {
-    /**
-     * Base class for marshaled result structures, which are generated for operations having the marshaled-result
-     * metadata tag. \headerfile Ice/Ice.h
-     */
+    /// Base class for marshaled result structures, which are generated for operations having the marshaled-result
+    /// metadata tag. \headerfile Ice/Ice.h
     class ICE_API MarshaledResult
     {
     public:
@@ -38,12 +36,10 @@ namespace Ice
         OutputStream&& outputStream() && noexcept { return std::move(_ostr); }
 
     protected:
-        /**
-         * The constructor requires the Current object that was passed to the servant.
-         */
+        /// The constructor requires the Current object that was passed to the servant.
         MarshaledResult(const Current& current);
 
-        /** The output stream used to marshal the results. */
+        /// The output stream used to marshal the results.
         OutputStream _ostr;
 
         /// @endcond

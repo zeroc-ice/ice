@@ -13,60 +13,54 @@ namespace Ice
     class ObjectPrx;
     class UserException;
 
-    /**
-     * The stream helper category allows streams to select the desired StreamHelper for a given streamable object.
-     */
+    /// The stream helper category allows streams to select the desired StreamHelper for a given streamable object.
     using StreamHelperCategory = int;
 
-    /** For types with no specialized trait. */
+    /// For types with no specialized trait.
     const StreamHelperCategory StreamHelperCategoryUnknown = 0;
-    /** For built-in types usually passed by value. */
+    /// For built-in types usually passed by value.
     const StreamHelperCategory StreamHelperCategoryBuiltinValue = 1;
-    /** For built-in types usually passed by reference. */
+    /// For built-in types usually passed by reference.
     const StreamHelperCategory StreamHelperCategoryBuiltin = 2;
-    /** For struct types. */
+    /// For struct types.
     const StreamHelperCategory StreamHelperCategoryStruct = 3;
-    /** For enum types. */
+    /// For enum types.
     const StreamHelperCategory StreamHelperCategoryEnum = 4;
-    /** For sequence types. */
+    /// For sequence types.
     const StreamHelperCategory StreamHelperCategorySequence = 5;
-    /** For dictionary types. */
+    /// For dictionary types.
     const StreamHelperCategory StreamHelperCategoryDictionary = 6;
-    /** For proxy types. */
+    /// For proxy types.
     const StreamHelperCategory StreamHelperCategoryProxy = 7;
-    /** For class types. */
+    /// For class types.
     const StreamHelperCategory StreamHelperCategoryClass = 8;
-    /** For exception types. */
+    /// For exception types.
     const StreamHelperCategory StreamHelperCategoryUserException = 9;
 
-    /**
-     * The optional format.
-     *
-     * Optional data members and parameters are encoded with a specific
-     * optional format. This optional format describes how the data is encoded
-     * and how it can be skipped by the unmarshaling code if the optional ID
-     * isn't known to the receiver.
-     */
+    /// The optional format.
+    ///
+    /// Optional data members and parameters are encoded with a specific
+    /// optional format. This optional format describes how the data is encoded
+    /// and how it can be skipped by the unmarshaling code if the optional ID
+    /// isn't known to the receiver.
     enum class OptionalFormat : std::uint8_t
     {
-        /** Fixed 1-byte encoding. */
+        /// Fixed 1-byte encoding.
         F1 = 0,
-        /** Fixed 2-byte encoding. */
+        /// Fixed 2-byte encoding.
         F2 = 1,
-        /** Fixed 4-byte encoding. */
+        /// Fixed 4-byte encoding.
         F4 = 2,
-        /** Fixed 8-byte encoding. */
+        /// Fixed 8-byte encoding.
         F8 = 3,
-        /** "Size encoding" using 1 to 5 bytes, e.g., enum, class identifier. */
+        /// "Size encoding" using 1 to 5 bytes, e.g., enum, class identifier.
         Size = 4,
-        /**
-         * "Size encoding" using 1 to 5 bytes followed by data, e.g., string, fixed size
-         * struct, or containers whose size can be computed prior to marshaling.
-         */
+        /// "Size encoding" using 1 to 5 bytes followed by data, e.g., string, fixed size
+        /// struct, or containers whose size can be computed prior to marshaling.
         VSize = 5,
-        /** Fixed size using 4 bytes followed by data, e.g., variable-size struct, container. */
+        /// Fixed size using 4 bytes followed by data, e.g., variable-size struct, container.
         FSize = 6,
-        /** Class instance. */
+        /// Class instance.
         Class = 7
     };
 
@@ -125,10 +119,8 @@ namespace Ice
         // static const bool fixedLength = false;
     };
 
-    /**
-     * Specialization for sequence and dictionary types.
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for sequence and dictionary types.
+    /// \headerfile Ice/Ice.h
     template<typename T> struct StreamableTraits<T, std::enable_if_t<IsMap<T>::value || IsContainer<T>::value>>
     {
         /// @copydoc StreamableTraits::helper
@@ -142,10 +134,8 @@ namespace Ice
         static const bool fixedLength = false;
     };
 
-    /**
-     * Specialization for exceptions.
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for exceptions.
+    /// \headerfile Ice/Ice.h
     template<typename T> struct StreamableTraits<T, std::enable_if_t<std::is_base_of_v<UserException, T>>>
     {
         /// @copydoc StreamableTraits::helper
@@ -157,10 +147,8 @@ namespace Ice
         //
     };
 
-    /**
-     * Specialization for arrays (std::pair<const T*, const T*>).
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for arrays (std::pair<const T*, const T*>).
+    /// \headerfile Ice/Ice.h
     template<typename T> struct StreamableTraits<std::pair<T*, T*>>
     {
         /// @copydoc StreamableTraits::helper
@@ -173,11 +161,9 @@ namespace Ice
         static const bool fixedLength = false;
     };
 
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for built-in type (this is needed for sequence
+    /// marshaling to figure out the minWireSize of each type).
+    /// \headerfile Ice/Ice.h
     template<> struct StreamableTraits<bool>
     {
         /// @copydoc StreamableTraits::helper
@@ -190,11 +176,9 @@ namespace Ice
         static const bool fixedLength = true;
     };
 
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for built-in type (this is needed for sequence
+    /// marshaling to figure out the minWireSize of each type).
+    /// \headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::byte>
     {
         /// @copydoc StreamableTraits::helper
@@ -205,11 +189,9 @@ namespace Ice
         static const bool fixedLength = true;
     };
 
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for built-in type (this is needed for sequence
+    /// marshaling to figure out the minWireSize of each type).
+    /// \headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::uint8_t>
     {
         /// @copydoc StreamableTraits::helper
@@ -222,11 +204,9 @@ namespace Ice
         static const bool fixedLength = true;
     };
 
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for built-in type (this is needed for sequence
+    /// marshaling to figure out the minWireSize of each type).
+    /// \headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::int16_t>
     {
         /// @copydoc StreamableTraits::helper
@@ -239,11 +219,9 @@ namespace Ice
         static const bool fixedLength = true;
     };
 
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for built-in type (this is needed for sequence
+    /// marshaling to figure out the minWireSize of each type).
+    /// \headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::int32_t>
     {
         /// @copydoc StreamableTraits::helper
@@ -256,11 +234,9 @@ namespace Ice
         static const bool fixedLength = true;
     };
 
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for built-in type (this is needed for sequence
+    /// marshaling to figure out the minWireSize of each type).
+    /// \headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::int64_t>
     {
         /// @copydoc StreamableTraits::helper
@@ -273,11 +249,9 @@ namespace Ice
         static const bool fixedLength = true;
     };
 
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for built-in type (this is needed for sequence
+    /// marshaling to figure out the minWireSize of each type).
+    /// \headerfile Ice/Ice.h
     template<> struct StreamableTraits<float>
     {
         /// @copydoc StreamableTraits::helper
@@ -290,11 +264,9 @@ namespace Ice
         static const bool fixedLength = true;
     };
 
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for built-in type (this is needed for sequence
+    /// marshaling to figure out the minWireSize of each type).
+    /// \headerfile Ice/Ice.h
     template<> struct StreamableTraits<double>
     {
         /// @copydoc StreamableTraits::helper
@@ -307,11 +279,9 @@ namespace Ice
         static const bool fixedLength = true;
     };
 
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for built-in type (this is needed for sequence
+    /// marshaling to figure out the minWireSize of each type).
+    /// \headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::string>
     {
         /// @copydoc StreamableTraits::helper
@@ -324,11 +294,9 @@ namespace Ice
         static const bool fixedLength = false;
     };
 
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for built-in type (this is needed for sequence
+    /// marshaling to figure out the minWireSize of each type).
+    /// \headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::string_view>
     {
         /// @copydoc StreamableTraits::helper
@@ -341,11 +309,9 @@ namespace Ice
         static const bool fixedLength = false;
     };
 
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for built-in type (this is needed for sequence
+    /// marshaling to figure out the minWireSize of each type).
+    /// \headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::wstring>
     {
         /// @copydoc StreamableTraits::helper
@@ -356,11 +322,9 @@ namespace Ice
         static const bool fixedLength = false;
     };
 
-    /**
-     * Specialization for built-in type (this is needed for sequence
-     * marshaling to figure out the minWireSize of each type).
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for built-in type (this is needed for sequence
+    /// marshaling to figure out the minWireSize of each type).
+    /// \headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::wstring_view>
     {
         /// @copydoc StreamableTraits::helper
@@ -373,10 +337,8 @@ namespace Ice
         static const bool fixedLength = false;
     };
 
-    /**
-     * vector<bool> is a special type in C++: the streams handle it like a built-in type.
-     * \headerfile Ice/Ice.h
-     */
+    /// vector<bool> is a special type in C++: the streams handle it like a built-in type.
+    /// \headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::vector<bool>>
     {
         /// @copydoc StreamableTraits::helper
@@ -389,10 +351,8 @@ namespace Ice
         static const bool fixedLength = false;
     };
 
-    /**
-     * Specialization for proxy types.
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for proxy types.
+    /// \headerfile Ice/Ice.h
     template<typename T> struct StreamableTraits<std::optional<T>, std::enable_if_t<std::is_base_of_v<ObjectPrx, T>>>
     {
         /// @copydoc StreamableTraits::helper
@@ -405,10 +365,8 @@ namespace Ice
         static const bool fixedLength = false;
     };
 
-    /**
-     * Specialization for class types.
-     * \headerfile Ice/Ice.h
-     */
+    /// Specialization for class types.
+    /// \headerfile Ice/Ice.h
     template<typename T> struct StreamableTraits<std::shared_ptr<T>, std::enable_if_t<std::is_base_of_v<Value, T>>>
     {
         /// @copydoc StreamableTraits::helper

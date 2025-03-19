@@ -16,10 +16,8 @@
 
 namespace IceBT
 {
-    /**
-     * Indicates a failure in the Bluetooth plug-in.
-     * \headerfile IceBT/IceBT.h
-     */
+    /// Indicates a failure in the Bluetooth plug-in.
+    /// \headerfile IceBT/IceBT.h
     class ICEBT_API BluetoothException final : public Ice::LocalException
     {
     public:

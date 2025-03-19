@@ -7,18 +7,12 @@
 
 namespace Ice
 {
-    /**
-     * Describes the possible formats for classes and exceptions.
-     */
+    /// Describes the possible formats for classes and exceptions.
     enum class FormatType : std::uint8_t
     {
-        /**
-         * A minimal format that eliminates the possibility for slicing unrecognized types.
-         */
+        /// A minimal format that eliminates the possibility for slicing unrecognized types.
         CompactFormat,
-        /**
-         * Allow slicing and preserve slices for unknown types.
-         */
+        /// Allow slicing and preserve slices for unknown types.
         SlicedFormat
     };
 }
