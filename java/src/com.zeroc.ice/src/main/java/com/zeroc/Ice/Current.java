@@ -85,8 +85,8 @@ public final class Current implements Cloneable {
      * this method to ensure that when an operation's mode is not idempotent (locally), the incoming
      * request's operation mode is not idempotent.
      *
-     * @throws MarshalException Thrown when the request's operation mode is {@link
-     *     OperationMode#Idempotent} or {@link OperationMode#Nonmutating}.
+     * @throws MarshalException Thrown when the request's operation mode is
+     *     {@link OperationMode#Idempotent} or {@link OperationMode#Nonmutating}.
      */
     public void checkNonIdempotent() {
         if (mode != OperationMode.Normal) {
