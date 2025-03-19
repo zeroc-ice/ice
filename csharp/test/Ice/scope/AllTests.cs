@@ -24,10 +24,10 @@ public class AllTests : global::Test.AllTests
             test(sseq2[0].Equals(s1));
             test(sseq3[0].Equals(s1));
 
-            Dictionary<String, Test.MyStruct> smap1 = new Dictionary<string, Test.MyStruct>();
+            Dictionary<string, Test.MyStruct> smap1 = new Dictionary<string, Test.MyStruct>();
             smap1["a"] = s1;
-            Dictionary<String, Test.MyStruct> smap2;
-            Dictionary<String, Test.MyStruct> smap3 = i.opMyStructMap(smap1, out smap2);
+            Dictionary<string, Test.MyStruct> smap2;
+            Dictionary<string, Test.MyStruct> smap3 = i.opMyStructMap(smap1, out smap2);
             test(smap2["a"].Equals(s1));
             test(smap3["a"].Equals(s1));
 
@@ -43,9 +43,9 @@ public class AllTests : global::Test.AllTests
             test(cseq2[0].s.Equals(s1));
             test(cseq3[0].s.Equals(s1));
 
-            var cmap1 = new Dictionary<String, Test.MyClass>();
+            var cmap1 = new Dictionary<string, Test.MyClass>();
             cmap1["a"] = c1;
-            Dictionary<String, Test.MyClass> cmap2;
+            Dictionary<string, Test.MyClass> cmap2;
             var cmap3 = i.opMyClassMap(cmap1, out cmap2);
             test(cmap2["a"].s.Equals(s1));
             test(cmap3["a"].s.Equals(s1));
@@ -75,7 +75,7 @@ public class AllTests : global::Test.AllTests
                     test(opMyStructSeqResult.returnValue[0].Equals(s1));
                     test(opMyStructSeqResult.s2[0].Equals(s1));
 
-                    var smap1 = new Dictionary<String, Test.MyStruct>();
+                    var smap1 = new Dictionary<string, Test.MyStruct>();
                     smap1["a"] = s1;
                     var opMyStructMapResult = await i.opMyStructMapAsync(smap1);
                     test(opMyStructMapResult.returnValue["a"].Equals(s1));
@@ -91,7 +91,7 @@ public class AllTests : global::Test.AllTests
                     test(opMyClassSeqResult.returnValue[0].s.Equals(s1));
                     test(opMyClassSeqResult.c2[0].s.Equals(s1));
 
-                    var cmap1 = new Dictionary<String, Test.MyClass>();
+                    var cmap1 = new Dictionary<string, Test.MyClass>();
                     cmap1["a"] = c1;
                     var opMyClassMapResult = await i.opMyClassMapAsync(cmap1);
                     test(opMyClassMapResult.returnValue["a"].s.Equals(s1));
@@ -123,10 +123,10 @@ public class AllTests : global::Test.AllTests
             test(sseq2[0].Equals(s1));
             test(sseq3[0].Equals(s1));
 
-            Dictionary<String, Test.Inner.Inner2.MyStruct> smap1 = new Dictionary<String, Test.Inner.Inner2.MyStruct>();
+            Dictionary<string, Test.Inner.Inner2.MyStruct> smap1 = new Dictionary<string, Test.Inner.Inner2.MyStruct>();
             smap1["a"] = s1;
-            Dictionary<String, Test.Inner.Inner2.MyStruct> smap2;
-            Dictionary<String, Test.Inner.Inner2.MyStruct> smap3 = i.opMyStructMap(smap1, out smap2);
+            Dictionary<string, Test.Inner.Inner2.MyStruct> smap2;
+            Dictionary<string, Test.Inner.Inner2.MyStruct> smap3 = i.opMyStructMap(smap1, out smap2);
             test(smap2["a"].Equals(s1));
             test(smap3["a"].Equals(s1));
 
@@ -142,10 +142,10 @@ public class AllTests : global::Test.AllTests
             test(cseq2[0].s.Equals(s1));
             test(cseq3[0].s.Equals(s1));
 
-            Dictionary<String, Test.Inner.Inner2.MyClass> cmap1 = new Dictionary<String, Test.Inner.Inner2.MyClass>();
+            Dictionary<string, Test.Inner.Inner2.MyClass> cmap1 = new Dictionary<string, Test.Inner.Inner2.MyClass>();
             cmap1["a"] = c1;
-            Dictionary<String, Test.Inner.Inner2.MyClass> cmap2;
-            Dictionary<String, Test.Inner.Inner2.MyClass> cmap3 = i.opMyClassMap(cmap1, out cmap2);
+            Dictionary<string, Test.Inner.Inner2.MyClass> cmap2;
+            Dictionary<string, Test.Inner.Inner2.MyClass> cmap3 = i.opMyClassMap(cmap1, out cmap2);
             test(cmap2["a"].s.Equals(s1));
             test(cmap3["a"].s.Equals(s1));
         }
@@ -165,7 +165,7 @@ public class AllTests : global::Test.AllTests
                     test(opMyStructSeqResult.returnValue[0].Equals(s1));
                     test(opMyStructSeqResult.s2[0].Equals(s1));
 
-                    Dictionary<String, Test.Inner.Inner2.MyStruct> smap1 = new Dictionary<String, Test.Inner.Inner2.MyStruct>();
+                    Dictionary<string, Test.Inner.Inner2.MyStruct> smap1 = new Dictionary<string, Test.Inner.Inner2.MyStruct>();
                     smap1["a"] = s1;
                     Test.Inner.MyInterface_OpMyStructMapResult opMyStructMapResult = await i.opMyStructMapAsync(smap1);
                     test(opMyStructMapResult.returnValue["a"].Equals(s1));
@@ -181,7 +181,7 @@ public class AllTests : global::Test.AllTests
                     test(opMyClassSeqResult.returnValue[0].s.Equals(s1));
                     test(opMyClassSeqResult.c2[0].s.Equals(s1));
 
-                    Dictionary<String, Test.Inner.Inner2.MyClass> cmap1 = new Dictionary<String, Test.Inner.Inner2.MyClass>();
+                    Dictionary<string, Test.Inner.Inner2.MyClass> cmap1 = new Dictionary<string, Test.Inner.Inner2.MyClass>();
                     cmap1["a"] = c1;
                     Test.Inner.MyInterface_OpMyClassMapResult opMyClassMapResult = await i.opMyClassMapAsync(cmap1);
                     test(opMyClassMapResult.returnValue["a"].s.Equals(s1));
@@ -204,10 +204,10 @@ public class AllTests : global::Test.AllTests
             test(sseq2[0].Equals(s1));
             test(sseq3[0].Equals(s1));
 
-            Dictionary<String, Test.Inner.Inner2.MyStruct> smap1 = new Dictionary<String, Test.Inner.Inner2.MyStruct>();
+            Dictionary<string, Test.Inner.Inner2.MyStruct> smap1 = new Dictionary<string, Test.Inner.Inner2.MyStruct>();
             smap1["a"] = s1;
-            Dictionary<String, Test.Inner.Inner2.MyStruct> smap2;
-            Dictionary<String, Test.Inner.Inner2.MyStruct> smap3 = i.opMyStructMap(smap1, out smap2);
+            Dictionary<string, Test.Inner.Inner2.MyStruct> smap2;
+            Dictionary<string, Test.Inner.Inner2.MyStruct> smap3 = i.opMyStructMap(smap1, out smap2);
             test(smap2["a"].Equals(s1));
             test(smap3["a"].Equals(s1));
 
@@ -223,10 +223,10 @@ public class AllTests : global::Test.AllTests
             test(cseq2[0].s.Equals(s1));
             test(cseq3[0].s.Equals(s1));
 
-            Dictionary<String, Test.Inner.Inner2.MyClass> cmap1 = new Dictionary<String, Test.Inner.Inner2.MyClass>();
+            Dictionary<string, Test.Inner.Inner2.MyClass> cmap1 = new Dictionary<string, Test.Inner.Inner2.MyClass>();
             cmap1["a"] = c1;
-            Dictionary<String, Test.Inner.Inner2.MyClass> cmap2;
-            Dictionary<String, Test.Inner.Inner2.MyClass> cmap3 = i.opMyClassMap(cmap1, out cmap2);
+            Dictionary<string, Test.Inner.Inner2.MyClass> cmap2;
+            Dictionary<string, Test.Inner.Inner2.MyClass> cmap3 = i.opMyClassMap(cmap1, out cmap2);
             test(cmap2["a"].s.Equals(s1));
             test(cmap3["a"].s.Equals(s1));
         }
@@ -246,7 +246,7 @@ public class AllTests : global::Test.AllTests
                     test(opMyStructSeqResult.returnValue[0].Equals(s1));
                     test(opMyStructSeqResult.s2[0].Equals(s1));
 
-                    Dictionary<String, Test.Inner.Inner2.MyStruct> smap1 = new Dictionary<String, Test.Inner.Inner2.MyStruct>();
+                    Dictionary<string, Test.Inner.Inner2.MyStruct> smap1 = new Dictionary<string, Test.Inner.Inner2.MyStruct>();
                     smap1["a"] = s1;
                     Test.Inner.Inner2.MyInterface_OpMyStructMapResult opMyStructMapResult = await i.opMyStructMapAsync(smap1);
                     test(opMyStructMapResult.returnValue["a"].Equals(s1));
@@ -262,7 +262,7 @@ public class AllTests : global::Test.AllTests
                     test(opMyClassSeqResult.returnValue[0].s.Equals(s1));
                     test(opMyClassSeqResult.c2[0].s.Equals(s1));
 
-                    Dictionary<String, Test.Inner.Inner2.MyClass> cmap1 = new Dictionary<String, Test.Inner.Inner2.MyClass>();
+                    Dictionary<string, Test.Inner.Inner2.MyClass> cmap1 = new Dictionary<string, Test.Inner.Inner2.MyClass>();
                     cmap1["a"] = c1;
                     Test.Inner.Inner2.MyInterface_OpMyClassMapResult opMyClassMapResult = await i.opMyClassMapAsync(cmap1);
                     test(opMyClassMapResult.returnValue["a"].s.Equals(s1));
@@ -285,10 +285,10 @@ public class AllTests : global::Test.AllTests
             test(sseq2[0].Equals(s1));
             test(sseq3[0].Equals(s1));
 
-            Dictionary<String, Test.MyStruct> smap1 = new Dictionary<String, Test.MyStruct>();
+            Dictionary<string, Test.MyStruct> smap1 = new Dictionary<string, Test.MyStruct>();
             smap1["a"] = s1;
-            Dictionary<String, Test.MyStruct> smap2;
-            Dictionary<String, Test.MyStruct> smap3 = i.opMyStructMap(smap1, out smap2);
+            Dictionary<string, Test.MyStruct> smap2;
+            Dictionary<string, Test.MyStruct> smap3 = i.opMyStructMap(smap1, out smap2);
             test(smap2["a"].Equals(s1));
             test(smap3["a"].Equals(s1));
 
@@ -304,10 +304,10 @@ public class AllTests : global::Test.AllTests
             test(cseq2[0].s.Equals(s1));
             test(cseq3[0].s.Equals(s1));
 
-            Dictionary<String, Test.MyClass> cmap1 = new Dictionary<String, Test.MyClass>();
+            Dictionary<string, Test.MyClass> cmap1 = new Dictionary<string, Test.MyClass>();
             cmap1["a"] = c1;
-            Dictionary<String, Test.MyClass> cmap2;
-            Dictionary<String, Test.MyClass> cmap3 = i.opMyClassMap(cmap1, out cmap2);
+            Dictionary<string, Test.MyClass> cmap2;
+            Dictionary<string, Test.MyClass> cmap3 = i.opMyClassMap(cmap1, out cmap2);
             test(cmap2["a"].s.Equals(s1));
             test(cmap3["a"].s.Equals(s1));
         }
@@ -327,7 +327,7 @@ public class AllTests : global::Test.AllTests
                     test(opMyStructSeqResult.returnValue[0].Equals(s1));
                     test(opMyStructSeqResult.s2[0].Equals(s1));
 
-                    Dictionary<String, Test.MyStruct> smap1 = new Dictionary<String, Test.MyStruct>();
+                    Dictionary<string, Test.MyStruct> smap1 = new Dictionary<string, Test.MyStruct>();
                     smap1["a"] = s1;
                     Inner.Test.Inner2.MyInterface_OpMyStructMapResult opMyStructMapResult = await i.opMyStructMapAsync(smap1);
                     test(opMyStructMapResult.returnValue["a"].Equals(s1));
@@ -343,7 +343,7 @@ public class AllTests : global::Test.AllTests
                     test(opMyClassSeqResult.returnValue[0].s.Equals(s1));
                     test(opMyClassSeqResult.c2[0].s.Equals(s1));
 
-                    Dictionary<String, Test.MyClass> cmap1 = new Dictionary<String, Test.MyClass>();
+                    Dictionary<string, Test.MyClass> cmap1 = new Dictionary<string, Test.MyClass>();
                     cmap1["a"] = c1;
                     Inner.Test.Inner2.MyInterface_OpMyClassMapResult opMyClassMapResult = await i.opMyClassMapAsync(cmap1);
                     test(opMyClassMapResult.returnValue["a"].s.Equals(s1));

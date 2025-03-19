@@ -249,7 +249,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing logger facet... ");
         output.Flush();
         {
-            Dictionary<String, String> props = new Dictionary<String, String>();
+            Dictionary<string, string> props = new Dictionary<string, string>();
             props.Add("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.Add("Ice.Admin.InstanceName", "Test");
             props.Add("NullLogger", "1");

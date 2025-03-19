@@ -59,7 +59,7 @@ public sealed class ServantLocatorI : Ice.ServantLocator
         return new TestI();
     }
 
-    public void finished(Ice.Current current, Ice.Object servant, System.Object cookie)
+    public void finished(Ice.Current current, Ice.Object servant, object cookie)
     {
         lock (this)
         {

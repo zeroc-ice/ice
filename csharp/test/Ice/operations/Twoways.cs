@@ -169,17 +169,17 @@ internal class Twoways
             test(l == 12);
             test(r == 12L);
 
-            r = p.opShortIntLong(Int16.MinValue, Int32.MinValue, Int64.MinValue, out s, out i, out l);
-            test(s == Int16.MinValue);
-            test(i == Int32.MinValue);
-            test(l == Int64.MinValue);
-            test(r == Int64.MinValue);
+            r = p.opShortIntLong(short.MinValue, int.MinValue, long.MinValue, out s, out i, out l);
+            test(s == short.MinValue);
+            test(i == int.MinValue);
+            test(l == long.MinValue);
+            test(r == long.MinValue);
 
-            r = p.opShortIntLong(Int16.MaxValue, Int32.MaxValue, Int64.MaxValue, out s, out i, out l);
-            test(s == Int16.MaxValue);
-            test(i == Int32.MaxValue);
-            test(l == Int64.MaxValue);
-            test(r == Int64.MaxValue);
+            r = p.opShortIntLong(short.MaxValue, int.MaxValue, long.MaxValue, out s, out i, out l);
+            test(s == short.MaxValue);
+            test(i == int.MaxValue);
+            test(l == long.MaxValue);
+            test(r == long.MaxValue);
         }
 
         {
@@ -192,15 +192,15 @@ internal class Twoways
             test(d == 1.1e10);
             test(r == 1.1e10);
 
-            r = p.opFloatDouble(Single.Epsilon, Double.MinValue, out f, out d);
-            test(f == Single.Epsilon);
-            test(d == Double.MinValue);
-            test(r == Double.MinValue);
+            r = p.opFloatDouble(float.Epsilon, double.MinValue, out f, out d);
+            test(f == float.Epsilon);
+            test(d == double.MinValue);
+            test(r == double.MinValue);
 
-            r = p.opFloatDouble(Single.MaxValue, Double.MaxValue, out f, out d);
-            test(f == Single.MaxValue);
-            test(d == Double.MaxValue);
-            test(r == Double.MaxValue);
+            r = p.opFloatDouble(float.MaxValue, double.MaxValue, out f, out d);
+            test(f == float.MaxValue);
+            test(d == double.MaxValue);
+            test(r == double.MaxValue);
         }
 
         {
@@ -1417,7 +1417,7 @@ internal class Twoways
             // Test implicit context propagation
             //
 
-            String[] impls = { "Shared", "PerThread" };
+            string[] impls = { "Shared", "PerThread" };
             for (int i = 0; i < 2; i++)
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
@@ -1438,7 +1438,7 @@ internal class Twoways
                 test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContext(), ctx));
 
                 test(ic.getImplicitContext().containsKey("zero") == false);
-                String r = ic.getImplicitContext().put("zero", "ZERO");
+                string r = ic.getImplicitContext().put("zero", "ZERO");
                 test(r.Length == 0);
                 test(ic.getImplicitContext().get("zero") == "ZERO");
 

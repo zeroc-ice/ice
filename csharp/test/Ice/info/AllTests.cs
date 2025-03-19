@@ -160,7 +160,7 @@ public class AllTests : global::Test.AllTests
             Dictionary<string, string> ctx = testIntf.getEndpointInfoAsContext();
             test(ctx["host"].Equals(tcpinfo.host));
             test(ctx["compress"] == "false");
-            int port = System.Int32.Parse(ctx["port"]);
+            int port = int.Parse(ctx["port"]);
             test(port > 0);
 
             info = @base.ice_datagram().ice_getConnection().getEndpoint().getInfo();

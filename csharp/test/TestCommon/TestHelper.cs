@@ -81,12 +81,12 @@ public abstract class TestHelper
         return properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
     }
 
-    public String getTestProtocol()
+    public string getTestProtocol()
     {
         return getTestProtocol(_communicator.getProperties());
     }
 
-    public static String getTestProtocol(Ice.Properties properties)
+    public static string getTestProtocol(Ice.Properties properties)
     {
         return properties.getIceProperty("Ice.Default.Protocol");
     }

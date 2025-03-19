@@ -193,7 +193,7 @@ public class AllTests : Test.AllTests
         output.Write("testing invalid lookup endpoints... ");
         output.Flush();
         {
-            String multicast;
+            string multicast;
             if (communicator.getProperties().getIceProperty("Ice.IPv6") == "1")
             {
                 multicast = "\"ff15::1\"";

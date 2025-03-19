@@ -200,7 +200,7 @@ public class Client : Test.TestHelper
             Console.Out.WriteLine("ok");
         }
 
-        String category;
+        string category;
 
         {
             Console.Out.Write("getting category from router... ");

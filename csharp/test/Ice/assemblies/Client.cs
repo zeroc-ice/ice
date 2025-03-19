@@ -20,7 +20,7 @@ public class Client : Test.TestHelper
         properties.setProperty("Ice.PreloadAssemblies", "0");
 
         string assembly =
-            String.Format("{0}/core.dll",
+            string.Format("{0}/core.dll",
 #pragma warning disable SYSLIB0012 // Type or member is obsolete
                           Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
 #pragma warning restore SYSLIB0012 // Type or member is obsolete
