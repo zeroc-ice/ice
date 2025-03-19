@@ -44,6 +44,6 @@ public class PluginFactory : Ice.PluginFactory
 
         private bool _initialized = false;
         private bool _destroyed = false;
-        private string[] _args;
+        private readonly string[] _args;
     }
 }

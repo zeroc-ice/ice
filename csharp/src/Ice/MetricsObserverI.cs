@@ -231,7 +231,7 @@ public class MetricsHelper<T> where T : Metrics
             _attributes.Add(name, new MemberMethodResolverI(name, method, subMethod));
         }
 
-        private Dictionary<string, Resolver> _attributes = new Dictionary<string, Resolver>();
+        private readonly Dictionary<string, Resolver> _attributes = new Dictionary<string, Resolver>();
     }
 
     protected MetricsHelper(AttributeResolver attributes)
@@ -254,7 +254,7 @@ public class MetricsHelper<T> where T : Metrics
         return null;
     }
 
-    private AttributeResolver _attributes;
+    private readonly AttributeResolver _attributes;
 }
 
 public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Metrics, new()
@@ -470,7 +470,7 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
 
     private readonly MetricsAdminI _metrics;
     private readonly string _name;
-    private List<MetricsMap<T>> _maps = new();
+    private readonly List<MetricsMap<T>> _maps = new();
     private volatile bool _enabled;
     private Action _updater;
     private readonly object _mutex = new();

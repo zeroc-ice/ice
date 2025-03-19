@@ -1556,7 +1556,7 @@ public sealed class InputStream
         }
     }
 
-    private static System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
+    private static readonly System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
 
     /// <summary>
     /// Extracts a string from the stream.
@@ -2270,7 +2270,7 @@ public sealed class InputStream
         // Encapsulation attributes for object unmarshaling.
         //
         protected Dictionary<int, LinkedList<PatchEntry>>? _patchMap;
-        private Dictionary<int, Value> _unmarshaledMap;
+        private readonly Dictionary<int, Value> _unmarshaledMap;
         private Dictionary<int, string>? _typeIdMap;
         private int _typeIdIndex;
         private List<Value>? _valueList;

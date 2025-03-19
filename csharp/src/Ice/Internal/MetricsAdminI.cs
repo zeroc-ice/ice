@@ -216,8 +216,8 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             return _object.id;
         }
 
-        private MetricsMap<T> _map;
-        private T _object;
+        private readonly MetricsMap<T> _map;
+        private readonly T _object;
         private Dictionary<string, int> _failures;
         private Dictionary<string, ISubMap> _subMaps;
     }
@@ -1013,7 +1013,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
         return updated;
     }
 
-    private Ice.Properties _properties;
+    private readonly Ice.Properties _properties;
 
     private readonly Ice.Logger _logger;
 
@@ -1022,6 +1022,6 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
 
     private Dictionary<string, MetricsViewI> _views = new Dictionary<string, MetricsViewI>();
 
-    private List<string> _disabledViews = new List<string>();
+    private readonly List<string> _disabledViews = new List<string>();
     private readonly object _mutex = new();
 }

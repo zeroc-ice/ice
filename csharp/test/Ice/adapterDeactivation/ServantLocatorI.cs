@@ -84,5 +84,5 @@ public sealed class ServantLocatorI : Ice.ServantLocator
     }
 
     private bool _deactivated;
-    private RouterI _router = new RouterI();
+    private readonly RouterI _router = new RouterI();
 }

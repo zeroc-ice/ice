@@ -26,7 +26,7 @@ public interface PluginFactory
 
 internal sealed class PluginManagerI : PluginManager
 {
-    private static string _kindOfObject = "plugin";
+    private static readonly string _kindOfObject = "plugin";
 
     internal static void registerPluginFactory(string name, PluginFactory factory, bool loadOnInit)
     {
@@ -433,10 +433,10 @@ internal sealed class PluginManagerI : PluginManager
 
     internal record class PluginInfo(string name, Plugin plugin);
 
-    private static Dictionary<string, PluginFactory> _factories = new Dictionary<string, PluginFactory>();
-    private static List<string> _loadOnInitialization = new List<string>();
+    private static readonly Dictionary<string, PluginFactory> _factories = new Dictionary<string, PluginFactory>();
+    private static readonly List<string> _loadOnInitialization = new List<string>();
     private Communicator? _communicator;
-    private ArrayList _plugins;
+    private readonly ArrayList _plugins;
     private bool _initialized;
     private readonly object _mutex = new();
 }

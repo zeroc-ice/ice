@@ -1454,7 +1454,7 @@ public sealed class OutputStream
         }
     }
 
-    private static System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
+    private static readonly System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
 
     /// <summary>
     /// Writes a string to the stream.

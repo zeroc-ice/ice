@@ -79,7 +79,7 @@ internal class BackgroundControllerI : BackgroundControllerDisp_
         _configuration = Configuration.getInstance();
     }
 
-    private Ice.ObjectAdapter _adapter;
-    private HashSet<string> _pausedCalls = new HashSet<string>();
-    private Configuration _configuration;
+    private readonly Ice.ObjectAdapter _adapter;
+    private readonly HashSet<string> _pausedCalls = new HashSet<string>();
+    private readonly Configuration _configuration;
 }

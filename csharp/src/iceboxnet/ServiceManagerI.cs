@@ -1004,15 +1004,15 @@ internal class ServiceManagerI : ServiceManagerDisp_
         }
     }
 
-    private Ice.Communicator _communicator;
-    private bool _adminEnabled;
-    private HashSet<string> _adminFacetFilter;
+    private readonly Ice.Communicator _communicator;
+    private readonly bool _adminEnabled;
+    private readonly HashSet<string> _adminFacetFilter;
     private Ice.Communicator _sharedCommunicator;
-    private Ice.Logger _logger;
-    private string[] _argv; // Filtered server argument vector
-    private List<ServiceInfo> _services = new();
+    private readonly Ice.Logger _logger;
+    private readonly string[] _argv; // Filtered server argument vector
+    private readonly List<ServiceInfo> _services = new();
     private bool _pendingStatusChanges;
-    private Dictionary<ServiceObserverPrx, bool> _observers = new();
-    private int _traceServiceObserver;
+    private readonly Dictionary<ServiceObserverPrx, bool> _observers = new();
+    private readonly int _traceServiceObserver;
     private readonly object _mutex = new();
 }

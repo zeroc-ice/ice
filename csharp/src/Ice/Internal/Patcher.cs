@@ -125,10 +125,10 @@ public sealed class Patcher
             }
         }
 
-        private MethodInfo _addMethod;
-        private MethodInfo _setMethod;
-        private MethodInfo _countMethod;
+        private readonly MethodInfo _addMethod;
+        private readonly MethodInfo _setMethod;
+        private readonly MethodInfo _countMethod;
     }
 
-    private static Dictionary<Type, InvokeInfo> _methodTable = new Dictionary<Type, InvokeInfo>();
+    private static readonly Dictionary<Type, InvokeInfo> _methodTable = new Dictionary<Type, InvokeInfo>();
 }

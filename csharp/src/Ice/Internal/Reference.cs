@@ -426,10 +426,10 @@ public abstract class Reference : IEquatable<Reference>
 
     public virtual Reference Clone() => (Reference)MemberwiseClone();
 
-    private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
+    private static readonly Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
 
     private protected Instance _instance;
-    private Ice.Communicator _communicator;
+    private readonly Ice.Communicator _communicator;
 
     private Mode _mode;
     private Ice.Identity _identity;
@@ -700,7 +700,7 @@ public class FixedReference : Reference
         return rhs is not null && base.Equals(rhs) && _fixedConnection.Equals(rhs._fixedConnection);
     }
 
-    private static EndpointI[] _emptyEndpoints = [];
+    private static readonly EndpointI[] _emptyEndpoints = [];
     private Ice.ConnectionI _fixedConnection;
 }
 
@@ -1087,8 +1087,8 @@ public class RoutableReference : Reference
             _cb.setException(ex);
         }
 
-        private RoutableReference _ir;
-        private GetConnectionCallback _cb;
+        private readonly RoutableReference _ir;
+        private readonly GetConnectionCallback _cb;
     }
 
     internal override RequestHandler getRequestHandler()
@@ -1147,8 +1147,8 @@ public class RoutableReference : Reference
             _cb.setException(ex);
         }
 
-        private RoutableReference _ir;
-        private GetConnectionCallback _cb;
+        private readonly RoutableReference _ir;
+        private readonly GetConnectionCallback _cb;
     }
 
     private sealed class ConnectionCallback : GetConnectionCallback
@@ -1195,9 +1195,9 @@ public class RoutableReference : Reference
             }
         }
 
-        private RoutableReference _ir;
-        private GetConnectionCallback _cb;
-        private bool _cached;
+        private readonly RoutableReference _ir;
+        private readonly GetConnectionCallback _cb;
+        private readonly bool _cached;
     }
 
     private void getConnectionNoRouterInfo(GetConnectionCallback callback)
@@ -1448,9 +1448,9 @@ public class RoutableReference : Reference
             _rr.getInstance().outgoingConnectionFactory().create(endpointList, more, this);
         }
 
-        private RoutableReference _rr;
-        private EndpointI[] _endpoints;
-        private GetConnectionCallback _callback;
+        private readonly RoutableReference _rr;
+        private readonly EndpointI[] _endpoints;
+        private readonly GetConnectionCallback _callback;
         private int _i;
         private Ice.LocalException _exception;
     }
@@ -1539,12 +1539,12 @@ public class RoutableReference : Reference
             }
         }
 
-        private bool _preferSecure;
+        private readonly bool _preferSecure;
     }
 
-    private static EndpointComparator _preferNonSecureEndpointComparator = new EndpointComparator(false);
-    private static EndpointComparator _preferSecureEndpointComparator = new EndpointComparator(true);
-    private static EndpointI[] _emptyEndpoints = [];
+    private static readonly EndpointComparator _preferNonSecureEndpointComparator = new EndpointComparator(false);
+    private static readonly EndpointComparator _preferSecureEndpointComparator = new EndpointComparator(true);
+    private static readonly EndpointI[] _emptyEndpoints = [];
 
     private BatchRequestQueue _batchRequestQueue;
 

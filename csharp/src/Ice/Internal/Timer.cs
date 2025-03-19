@@ -327,8 +327,8 @@ public sealed class Timer
     }
 
     private readonly object _mutex = new object();
-    private IDictionary<Token, object> _tokens = new SortedDictionary<Token, object>();
-    private IDictionary<TimerTask, Token> _tasks = new Dictionary<TimerTask, Token>();
+    private readonly IDictionary<Token, object> _tokens = new SortedDictionary<Token, object>();
+    private readonly IDictionary<TimerTask, Token> _tasks = new Dictionary<TimerTask, Token>();
     private Instance _instance;
     private long _wakeUpTime = long.MaxValue;
     private int _tokenId;

@@ -54,6 +54,6 @@ public sealed class ProtocolPluginFacadeI : ProtocolPluginFacade
         return _instance.endpointFactoryManager().get(type);
     }
 
-    private Instance _instance;
-    private Ice.Communicator _communicator;
+    private readonly Instance _instance;
+    private readonly Ice.Communicator _communicator;
 }

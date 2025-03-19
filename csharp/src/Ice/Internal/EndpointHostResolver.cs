@@ -193,7 +193,7 @@ public class EndpointHostResolver
     private readonly int _protocol;
     private readonly bool _preferIPv6;
     private bool _destroyed;
-    private LinkedList<ResolveEntry> _queue = new LinkedList<ResolveEntry>();
+    private readonly LinkedList<ResolveEntry> _queue = new LinkedList<ResolveEntry>();
     private Ice.Instrumentation.ThreadObserver _observer;
 
     private sealed class HelperThread
@@ -241,11 +241,11 @@ public class EndpointHostResolver
             return _name;
         }
 
-        private EndpointHostResolver _resolver;
-        private string _name;
+        private readonly EndpointHostResolver _resolver;
+        private readonly string _name;
         private Thread _thread;
     }
 
-    private HelperThread _thread;
+    private readonly HelperThread _thread;
     private readonly object _mutex = new();
 }

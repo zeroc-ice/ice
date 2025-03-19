@@ -21,5 +21,5 @@ public class TestI : TestIntfDisp_
         return _args;
     }
 
-    private string[] _args;
+    private readonly string[] _args;
 }

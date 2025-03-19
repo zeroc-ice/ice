@@ -4,7 +4,7 @@ namespace Ice.invoke;
 
 public class AllTests : global::Test.AllTests
 {
-    private static string testString = "This is a test string";
+    private static readonly string testString = "This is a test string";
 
     public static Test.MyClassPrx allTests(global::Test.TestHelper helper)
     {

@@ -59,7 +59,7 @@ internal sealed class WSConnector : Connector
     }
 
     private readonly ProtocolInstance _instance;
-    private Connector _delegate;
-    private string _host;
-    private string _resource;
+    private readonly Connector _delegate;
+    private readonly string _host;
+    private readonly string _resource;
 }

@@ -96,8 +96,8 @@ public class ServerManagerI : Test.ServerManagerDisp_
         current.adapter.getCommunicator().shutdown();
     }
 
-    private ServerLocatorRegistry _registry;
-    private ArrayList _communicators;
-    private global::Test.TestHelper _helper;
+    private readonly ServerLocatorRegistry _registry;
+    private readonly ArrayList _communicators;
+    private readonly global::Test.TestHelper _helper;
     private int _nextPort = 1;
 }

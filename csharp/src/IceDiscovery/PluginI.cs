@@ -133,7 +133,7 @@ public sealed class PluginI : Ice.Plugin
         }
     }
 
-    private Ice.Communicator _communicator;
+    private readonly Ice.Communicator _communicator;
     private Ice.ObjectAdapter _multicastAdapter;
     private Ice.ObjectAdapter _replyAdapter;
     private Ice.ObjectAdapter _locatorAdapter;

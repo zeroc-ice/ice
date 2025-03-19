@@ -64,8 +64,8 @@ internal class ThreadPoolMessage : IDisposable
         }
     }
 
-    private ThreadPoolCurrent _current;
-    private object _mutex;
+    private readonly ThreadPoolCurrent _current;
+    private readonly object _mutex;
     private bool _finish;
     private bool _finishWithIO;
 }
@@ -673,8 +673,8 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         return state => queueReadyForIOHandler((EventHandler)state, operation);
     }
 
-    private Instance _instance;
-    private System.Action<System.Action, Ice.Connection> _executor;
+    private readonly Instance _instance;
+    private readonly System.Action<System.Action, Ice.Connection> _executor;
     private bool _destroyed;
     private readonly string _prefix;
     private readonly string _threadPrefix;
@@ -683,7 +683,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
     internal sealed class WorkerThread
     {
-        private ThreadPool _threadPool;
+        private readonly ThreadPool _threadPool;
         private Ice.Instrumentation.ThreadObserver _observer;
         private Ice.Instrumentation.ThreadState _state;
 
@@ -801,9 +801,9 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
     private readonly TimeSpan _threadIdleTime;
     private readonly int _stackSize;
 
-    private List<WorkerThread> _threads; // All threads, running or not.
+    private readonly List<WorkerThread> _threads; // All threads, running or not.
     private int _threadIndex; // For assigning thread names.
     private int _inUse; // Number of threads that are currently in use.
 
-    private Queue<ThreadPoolWorkItem> _workItems;
+    private readonly Queue<ThreadPoolWorkItem> _workItems;
 }

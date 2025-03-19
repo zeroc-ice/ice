@@ -236,8 +236,8 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
     private readonly Ice.RouterPrx _router;
     private EndpointI[] _clientEndpoints;
     private Ice.ObjectAdapter _adapter;
-    private HashSet<Ice.Identity> _identities = new HashSet<Ice.Identity>();
-    private List<Ice.Identity> _evictedIdentities = new List<Ice.Identity>();
+    private readonly HashSet<Ice.Identity> _identities = new HashSet<Ice.Identity>();
+    private readonly List<Ice.Identity> _evictedIdentities = new List<Ice.Identity>();
     private bool _hasRoutingTable;
     private readonly object _mutex = new();
 }
@@ -294,6 +294,6 @@ public sealed class RouterManager
         }
     }
 
-    private Dictionary<Ice.RouterPrx, RouterInfo> _table;
+    private readonly Dictionary<Ice.RouterPrx, RouterInfo> _table;
     private readonly object _mutex = new();
 }

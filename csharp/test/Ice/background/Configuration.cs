@@ -163,5 +163,5 @@ internal class Configuration
     private Ice.LocalException _writeException;
     private bool _buffered;
 
-    private static Configuration _instance = new Configuration();
+    private static readonly Configuration _instance = new Configuration();
 }

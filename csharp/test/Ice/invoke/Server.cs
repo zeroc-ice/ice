@@ -35,7 +35,7 @@ public class ServantLocatorI : Ice.ServantLocator
     {
     }
 
-    private Ice.Object _blobject;
+    private readonly Ice.Object _blobject;
 }
 
 public class Server : TestHelper

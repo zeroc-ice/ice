@@ -65,7 +65,7 @@ internal sealed class TraceUtil
         }
     }
 
-    private static HashSet<string> slicingIds = new();
+    private static readonly HashSet<string> slicingIds = new();
 
     internal static void traceSlicing(string kind, string typeId, string slicingCat, Ice.Logger logger)
     {

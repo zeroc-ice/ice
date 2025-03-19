@@ -1613,9 +1613,9 @@ internal sealed class WSTransceiver : Transceiver
 
     private ProtocolInstance _instance;
     private Transceiver _delegate;
-    private string _host;
+    private readonly string _host;
     private string _resource;
-    private bool _incoming;
+    private readonly bool _incoming;
 
     private const int StateInitializeDelegate = 0;
     private const int StateConnected = 1;
@@ -1703,5 +1703,5 @@ internal sealed class WSTransceiver : Transceiver
     private const string _iceProtocol = "ice.zeroc.com";
     private const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-    private static UTF8Encoding _utf8 = new UTF8Encoding(false, true);
+    private static readonly UTF8Encoding _utf8 = new UTF8Encoding(false, true);
 }

@@ -837,21 +837,21 @@ internal sealed class UdpTransceiver : Transceiver
     private UdpEndpointI _endpoint;
     private readonly ProtocolInstance _instance;
     private int _state;
-    private bool _incoming;
+    private readonly bool _incoming;
     private int _rcvSize;
     private int _sndSize;
     private Socket _fd;
     private EndPoint _addr;
-    private EndPoint _sourceAddr;
+    private readonly EndPoint _sourceAddr;
     private IPEndPoint _mcastAddr;
     private EndPoint _peerAddr;
-    private string _mcastInterface;
+    private readonly string _mcastInterface;
 
-    private int _port;
+    private readonly int _port;
     private bool _bound;
 
     private SocketAsyncEventArgs _writeEventArgs;
-    private SocketAsyncEventArgs _readEventArgs;
+    private readonly SocketAsyncEventArgs _readEventArgs;
     private AsyncCallback _writeCallback;
     private AsyncCallback _readCallback;
 

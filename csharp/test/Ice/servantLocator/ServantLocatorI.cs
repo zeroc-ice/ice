@@ -151,6 +151,6 @@ public sealed class ServantLocatorI : Ice.ServantLocator
     }
 
     private bool _deactivated;
-    private string _category;
+    private readonly string _category;
     private int _requestId;
 }

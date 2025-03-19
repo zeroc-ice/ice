@@ -241,5 +241,5 @@ public class TestControllerI : Test.TestIntfControllerDisp_
         _adapter = adapter;
     }
 
-    private Ice.ObjectAdapter _adapter;
+    private readonly Ice.ObjectAdapter _adapter;
 }

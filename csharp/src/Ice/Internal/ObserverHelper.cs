@@ -44,5 +44,5 @@ public sealed class ObserverHelper
         return null;
     }
 
-    private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
+    private static readonly Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
 }

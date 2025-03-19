@@ -346,6 +346,6 @@ internal class PerThreadImplicitContext : ImplicitContextI
     //
     //  map Thread -> Context
     //
-    private Dictionary<Thread, Dictionary<string, string>> _map = new();
+    private readonly Dictionary<Thread, Dictionary<string, string>> _map = new();
     private readonly object _mutex = new();
 }

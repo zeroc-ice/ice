@@ -65,6 +65,6 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         return (Ice.ObjectPrx)obj;
     }
 
-    private Hashtable _adapters;
-    private Hashtable _objects;
+    private readonly Hashtable _adapters;
+    private readonly Hashtable _objects;
 }

@@ -40,7 +40,7 @@ public sealed class Instance
             _instance.updateThreadObservers();
         }
 
-        private Instance _instance;
+        private readonly Instance _instance;
     }
 
     public Ice.InitializationData initializationData()
@@ -1430,9 +1430,9 @@ public sealed class Instance
     private bool _adminEnabled;
     private Ice.ObjectAdapter _adminAdapter;
     private Dictionary<string, Ice.Object> _adminFacets = new();
-    private HashSet<string> _adminFacetFilter = new();
+    private readonly HashSet<string> _adminFacetFilter = new();
     private Ice.Identity _adminIdentity;
-    private Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new();
+    private readonly Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new();
     private ConnectionOptions _serverConnectionOptions; // set in initialize
     private Ice.SSL.SSLEngine _sslEngine;
     private readonly object _mutex = new object();

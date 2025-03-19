@@ -389,7 +389,7 @@ public abstract class OutgoingAsyncBase
     private Ice.Exception _ex;
     private Ice.LocalException _cancellationException;
     private CancellationHandler _cancellationHandler;
-    private OutgoingAsyncCompletionCallback _completionCallback;
+    private readonly OutgoingAsyncCompletionCallback _completionCallback;
 
     protected const int StateOK = 0x1;
     protected const int StateDone = 0x2;
@@ -1415,8 +1415,8 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
             return _observer;
         }
 
-        private CommunicatorFlushBatchAsync _outAsync;
-        private Ice.Instrumentation.InvocationObserver _observer;
+        private readonly CommunicatorFlushBatchAsync _outAsync;
+        private readonly Ice.Instrumentation.InvocationObserver _observer;
     }
 
     public CommunicatorFlushBatchAsync(Instance instance, OutgoingAsyncCompletionCallback callback)

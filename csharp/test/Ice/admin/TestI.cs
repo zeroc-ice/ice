@@ -78,7 +78,7 @@ public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
         }
     }
 
-    private Ice.Communicator _communicator;
+    private readonly Ice.Communicator _communicator;
     private Dictionary<string, string> _changes;
 }
 

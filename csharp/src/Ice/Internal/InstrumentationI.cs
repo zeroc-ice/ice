@@ -155,7 +155,7 @@ internal class ConnectionHelper : MetricsHelper<ConnectionMetrics>
         }
     }
 
-    private static AttributeResolver _attributes = new AttributeResolverI();
+    private static readonly AttributeResolver _attributes = new AttributeResolverI();
 
     public ConnectionHelper(Ice.ConnectionInfo con, Ice.Endpoint endpt, Ice.Instrumentation.ConnectionState state)
         : base(_attributes)
@@ -286,7 +286,7 @@ internal class DispatchHelper : MetricsHelper<DispatchMetrics>
         }
     }
 
-    private static AttributeResolver _attributes = new AttributeResolverI();
+    private static readonly AttributeResolver _attributes = new AttributeResolverI();
 
     public DispatchHelper(Ice.Current current, int size)
         : base(_attributes)
@@ -414,7 +414,7 @@ internal class InvocationHelper : MetricsHelper<InvocationMetrics>
         }
     }
 
-    private static AttributeResolver _attributes = new AttributeResolverI();
+    private static readonly AttributeResolver _attributes = new AttributeResolverI();
 
     public InvocationHelper(Ice.ObjectPrx proxy, string op, Dictionary<string, string> ctx)
         : base(_attributes)
@@ -555,7 +555,7 @@ internal class ThreadHelper : MetricsHelper<ThreadMetrics>
         }
     }
 
-    private static AttributeResolver _attributes = new AttributeResolverI();
+    private static readonly AttributeResolver _attributes = new AttributeResolverI();
 
     public ThreadHelper(string parent, string id, Ice.Instrumentation.ThreadState state)
         : base(_attributes)
@@ -608,7 +608,7 @@ internal class EndpointHelper : MetricsHelper<Metrics>
         }
     }
 
-    private static AttributeResolver _attributes = new AttributeResolverI();
+    private static readonly AttributeResolver _attributes = new AttributeResolverI();
 
     public EndpointHelper(Ice.Endpoint endpt, string id)
         : base(_attributes)
@@ -671,7 +671,7 @@ public class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
         }
     }
 
-    private static AttributeResolver _attributes = new AttributeResolverI();
+    private static readonly AttributeResolver _attributes = new AttributeResolverI();
 
     public RemoteInvocationHelper(Ice.ConnectionInfo con, Ice.Endpoint endpt, int requestId, int size)
         : base(_attributes)
@@ -761,7 +761,7 @@ public class CollocatedInvocationHelper : MetricsHelper<CollocatedMetrics>
         }
     }
 
-    private static AttributeResolver _attributes = new AttributeResolverI();
+    private static readonly AttributeResolver _attributes = new AttributeResolverI();
 
     public CollocatedInvocationHelper(Ice.ObjectAdapter adapter, int requestId, int size)
         : base(_attributes)

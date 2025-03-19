@@ -17,8 +17,8 @@ internal class ActivateAdapterThread
         _adapter.activate();
     }
 
-    private Ice.ObjectAdapter _adapter;
-    private int _timeout;
+    private readonly Ice.ObjectAdapter _adapter;
+    private readonly int _timeout;
 }
 
 internal class TimeoutI : Test.TimeoutDisp_
@@ -65,5 +65,5 @@ internal class ControllerI : Test.ControllerDisp_
         current.adapter.getCommunicator().shutdown();
     }
 
-    private Ice.ObjectAdapter _adapter;
+    private readonly Ice.ObjectAdapter _adapter;
 }

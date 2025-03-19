@@ -278,7 +278,7 @@ public sealed class ObjectAdapterFactory
 
     private Instance _instance;
     private Ice.Communicator _communicator;
-    private HashSet<string> _adapterNamesInUse;
-    private List<Ice.ObjectAdapter> _adapters;
+    private readonly HashSet<string> _adapterNamesInUse;
+    private readonly List<Ice.ObjectAdapter> _adapters;
     private readonly object _mutex = new();
 }

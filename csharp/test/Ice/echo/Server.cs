@@ -32,7 +32,7 @@ public class Server : Test.TestHelper
             current.adapter.getCommunicator().shutdown();
         }
 
-        private BlobjectI _blob;
+        private readonly BlobjectI _blob;
     }
 
     public override void run(string[] args)

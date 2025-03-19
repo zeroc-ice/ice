@@ -23,8 +23,8 @@ public sealed class ObjectAdapter
     private const int StateDestroyed = 7;
 
     private int _state = StateUninitialized;
-    private Instance _instance;
-    private Communicator _communicator;
+    private readonly Instance _instance;
+    private readonly Communicator _communicator;
     private ObjectAdapterFactory? _objectAdapterFactory;
     private Ice.Internal.ThreadPool? _threadPool;
     private readonly ServantManager _servantManager;
@@ -32,13 +32,13 @@ public sealed class ObjectAdapter
     private readonly string _id;
     private readonly string _replicaGroupId;
     private Reference? _reference;
-    private List<IncomingConnectionFactory> _incomingConnectionFactories;
+    private readonly List<IncomingConnectionFactory> _incomingConnectionFactories;
     private RouterInfo? _routerInfo;
     private EndpointI[] _publishedEndpoints;
     private LocatorInfo? _locatorInfo;
     private int _directCount;  // The number of colloc proxies dispatching on this object adapter.
-    private bool _noConfig;
-    private int _messageSizeMax;
+    private readonly bool _noConfig;
+    private readonly int _messageSizeMax;
     private readonly SslServerAuthenticationOptions? _serverAuthenticationOptions;
 
     private readonly Lazy<Object> _dispatchPipeline;

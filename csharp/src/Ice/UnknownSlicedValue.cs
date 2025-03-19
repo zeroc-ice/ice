@@ -27,5 +27,5 @@ public sealed class UnknownSlicedValue : Value
         return _unknownTypeId;
     }
 
-    private string _unknownTypeId;
+    private readonly string _unknownTypeId;
 }
