@@ -3108,7 +3108,7 @@ public sealed class InputStream
                     previous.next = this;
                 }
                 this.previous = previous;
-                this.next = null;
+                next = null;
             }
 
             // Instance attributes
