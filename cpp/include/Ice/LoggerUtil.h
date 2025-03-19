@@ -15,10 +15,8 @@
 
 namespace Ice
 {
-    /**
-     * Base class for logger output utility classes.
-     * \headerfile Ice/Ice.h
-     */
+    /// Base class for logger output utility classes.
+    /// \headerfile Ice/Ice.h
     class ICE_API LoggerOutputBase
     {
     public:
@@ -27,7 +25,7 @@ namespace Ice
 
         LoggerOutputBase& operator=(const LoggerOutputBase&) = delete;
 
-        /** Obtains the collected output. */
+        /// Obtains the collected output.
         [[nodiscard]] std::string str() const;
 
         /// @private
@@ -85,10 +83,8 @@ namespace Ice
     ICE_API LoggerOutputBase& operator<<(LoggerOutputBase&, std::ios_base& (*)(std::ios_base&));
     /// \endcond
 
-    /**
-     * Collects output and flushes it via a logger method.
-     * \headerfile Ice/Ice.h
-     */
+    /// Collects output and flushes it via a logger method.
+    /// \headerfile Ice/Ice.h
     template<class L, class LPtr, void (L::*output)(const std::string&)> class LoggerOutput : public LoggerOutputBase
     {
     public:
@@ -98,7 +94,7 @@ namespace Ice
 
         ~LoggerOutput() { flush(); }
 
-        /** Flushes the colleted output to the logger method. */
+        /// Flushes the colleted output to the logger method.
         void flush()
         {
             std::string s = _stream().str();
@@ -114,19 +110,17 @@ namespace Ice
         LPtr _logger;
     };
 
-    /** Flushes output to Logger::print. */
+    /// Flushes output to Logger::print.
     using Print = LoggerOutput<Logger, LoggerPtr, &Logger::print>;
 
-    /** Flushes output to Logger::warning. */
+    /// Flushes output to Logger::warning.
     using Warning = LoggerOutput<Logger, LoggerPtr, &Logger::warning>;
 
-    /** Flushes output to Logger::error. */
+    /// Flushes output to Logger::error.
     using Error = LoggerOutput<Logger, LoggerPtr, &Logger::error>;
 
-    /**
-     * Flushes output to Logger::trace.
-     * \headerfile Ice/Ice.h
-     */
+    /// Flushes output to Logger::trace.
+    /// \headerfile Ice/Ice.h
     class ICE_API Trace : public LoggerOutputBase
     {
     public:
@@ -145,25 +139,21 @@ namespace Ice
         std::string _category;
     };
 
-    /**
-     * A special plug-in that installs a logger during a communicator's initialization.
-     * Both initialize and destroy are no-op. See Ice::InitializationData.
-     * \headerfile Ice/Ice.h
-     */
+    /// A special plug-in that installs a logger during a communicator's initialization.
+    /// Both initialize and destroy are no-op. See Ice::InitializationData.
+    /// \headerfile Ice/Ice.h
     class ICE_API LoggerPlugin : public Ice::Plugin
     {
     public:
-        /**
-         * Constructs the plug-in with a target communicator and a logger.
-         * @param communicator The communicator in which to install the logger.
-         * @param logger The logger to be installed.
-         */
+        /// Constructs the plug-in with a target communicator and a logger.
+        /// @param communicator The communicator in which to install the logger.
+        /// @param logger The logger to be installed.
         LoggerPlugin(const CommunicatorPtr& communicator, const LoggerPtr& logger);
 
-        /** This method is a no-op. */
+        /// This method is a no-op.
         void initialize() override;
 
-        /** This method is a no-op. */
+        /// This method is a no-op.
         void destroy() override;
     };
 }

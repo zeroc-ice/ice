@@ -8,7 +8,7 @@
 
 namespace Ice
 {
-    /** Creates and throws a user exception. */
+    /// Creates and throws a user exception.
     using UserExceptionFactory = std::function<void(std::string_view)>;
 }
 
