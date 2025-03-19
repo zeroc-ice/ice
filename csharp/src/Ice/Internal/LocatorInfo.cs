@@ -57,10 +57,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
             {
                 locatorInfo.getEndpointsTrace(_ref, endpoints, false);
             }
-            if (_callback != null)
-            {
-                _callback.setEndpoints(endpoints == null ? [] : endpoints, false);
-            }
+            _callback?.setEndpoints(endpoints ?? [], false);
         }
 
         public void
@@ -72,10 +69,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
             }
             catch (Ice.LocalException ex)
             {
-                if (_callback != null)
-                {
-                    _callback.setException(ex);
-                }
+                _callback?.setException(ex);
             }
         }
 
@@ -367,10 +361,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         {
             getEndpointsTrace(@ref, endpoints, true);
         }
-        if (callback != null)
-        {
-            callback.setEndpoints(endpoints, true);
-        }
+        callback?.setEndpoints(endpoints, true);
     }
 
     public void clearCache(Reference rf)

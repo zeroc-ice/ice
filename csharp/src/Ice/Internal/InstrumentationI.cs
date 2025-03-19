@@ -14,30 +14,21 @@ public class ObserverWithDelegate<T, O> : Observer<T>
     attach()
     {
         base.attach();
-        if (delegate_ != null)
-        {
-            delegate_.attach();
-        }
+        delegate_?.attach();
     }
 
     public override void
     detach()
     {
         base.detach();
-        if (delegate_ != null)
-        {
-            delegate_.detach();
-        }
+        delegate_?.detach();
     }
 
     public override void
     failed(string exceptionName)
     {
         base.failed(exceptionName);
-        if (delegate_ != null)
-        {
-            delegate_.failed(exceptionName);
-        }
+        delegate_?.failed(exceptionName);
     }
 
     public O
@@ -828,20 +819,14 @@ public class ConnectionObserverI : ObserverWithDelegate<ConnectionMetrics, Ice.I
     {
         _sentBytes = num;
         forEach(sentBytesUpdate);
-        if (delegate_ != null)
-        {
-            delegate_.sentBytes(num);
-        }
+        delegate_?.sentBytes(num);
     }
 
     public void receivedBytes(int num)
     {
         _receivedBytes = num;
         forEach(receivedBytesUpdate);
-        if (delegate_ != null)
-        {
-            delegate_.receivedBytes(num);
-        }
+        delegate_?.receivedBytes(num);
     }
 
     private void sentBytesUpdate(ConnectionMetrics v)
@@ -865,10 +850,7 @@ public class DispatchObserverI : ObserverWithDelegate<DispatchMetrics, Ice.Instr
     userException()
     {
         forEach(userException);
-        if (delegate_ != null)
-        {
-            delegate_.userException();
-        }
+        delegate_?.userException();
     }
 
     public void reply(int size)
@@ -877,10 +859,7 @@ public class DispatchObserverI : ObserverWithDelegate<DispatchMetrics, Ice.Instr
         {
             v.replySize += size;
         });
-        if (delegate_ != null)
-        {
-            delegate_.reply(size);
-        }
+        delegate_?.reply(size);
     }
 
     private void userException(DispatchMetrics v)
@@ -898,10 +877,7 @@ public class RemoteObserverI : ObserverWithDelegate<RemoteMetrics, Ice.Instrumen
         {
             v.replySize += size;
         });
-        if (delegate_ != null)
-        {
-            delegate_.reply(size);
-        }
+        delegate_?.reply(size);
     }
 }
 
@@ -914,10 +890,7 @@ public class CollocatedObserverI : ObserverWithDelegate<CollocatedMetrics, Ice.I
         {
             v.replySize += size;
         });
-        if (delegate_ != null)
-        {
-            delegate_.reply(size);
-        }
+        delegate_?.reply(size);
     }
 }
 
@@ -928,20 +901,14 @@ public class InvocationObserverI : ObserverWithDelegate<InvocationMetrics, Ice.I
     userException()
     {
         forEach(userException);
-        if (delegate_ != null)
-        {
-            delegate_.userException();
-        }
+        delegate_?.userException();
     }
 
     public void
     retried()
     {
         forEach(incrementRetry);
-        if (delegate_ != null)
-        {
-            delegate_.retried();
-        }
+        delegate_?.retried();
     }
 
     public Ice.Instrumentation.RemoteObserver getRemoteObserver(
@@ -998,10 +965,7 @@ public class ThreadObserverI : ObserverWithDelegate<ThreadMetrics, Ice.Instrumen
         _oldState = oldState;
         _newState = newState;
         forEach(threadStateUpdate);
-        if (delegate_ != null)
-        {
-            delegate_.stateChanged(oldState, newState);
-        }
+        delegate_?.stateChanged(oldState, newState);
     }
 
     private void threadStateUpdate(ThreadMetrics v)
@@ -1222,10 +1186,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
             _connections.setUpdater(updater.updateConnectionObservers);
             _threads.setUpdater(updater.updateThreadObservers);
         }
-        if (_delegate != null)
-        {
-            _delegate.setObserverUpdater(updater);
-        }
+        _delegate?.setObserverUpdater(updater);
     }
 
     public MetricsAdminI getFacet()

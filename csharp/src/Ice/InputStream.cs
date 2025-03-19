@@ -2709,10 +2709,7 @@ public sealed class InputStream
             {
                 _current.slices.Clear();
             }
-            if (_current.indirectionTables != null)
-            {
-                _current.indirectionTables.Clear();
-            }
+            _current.indirectionTables?.Clear();
             _current = _current.previous;
             return slicedData;
         }
@@ -3091,7 +3088,7 @@ public sealed class InputStream
             }
             else
             {
-                _current = _current.next == null ? new InstanceData(_current) : _current.next;
+                _current = _current.next ?? new InstanceData(_current);
             }
             _current.sliceType = sliceType;
             _current.skipFirstSlice = false;

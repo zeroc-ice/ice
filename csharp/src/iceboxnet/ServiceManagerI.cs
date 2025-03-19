@@ -79,7 +79,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
         {
             info.service.start(
                 info.name,
-                info.communicator == null ? _sharedCommunicator : info.communicator,
+                info.communicator ?? _sharedCommunicator,
                 info.args);
             started = true;
         }

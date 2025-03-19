@@ -168,17 +168,19 @@ public class Client : Test.TestHelper
         Ice.ObjectPrx prx9 = communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000");
         Ice.ObjectPrx prx10 = communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000");
 
-        Dictionary<string, int> proxyMap = new Dictionary<string, int>();
-        proxyMap["prx1"] = prx1.GetHashCode();
-        proxyMap["prx2"] = prx2.GetHashCode();
-        proxyMap["prx3"] = prx3.GetHashCode();
-        proxyMap["prx4"] = prx4.GetHashCode();
-        proxyMap["prx5"] = prx5.GetHashCode();
-        proxyMap["prx6"] = prx6.GetHashCode();
-        proxyMap["prx7"] = prx7.GetHashCode();
-        proxyMap["prx8"] = prx8.GetHashCode();
-        proxyMap["prx9"] = prx9.GetHashCode();
-        proxyMap["prx10"] = prx10.GetHashCode();
+        Dictionary<string, int> proxyMap = new Dictionary<string, int>
+        {
+            ["prx1"] = prx1.GetHashCode(),
+            ["prx2"] = prx2.GetHashCode(),
+            ["prx3"] = prx3.GetHashCode(),
+            ["prx4"] = prx4.GetHashCode(),
+            ["prx5"] = prx5.GetHashCode(),
+            ["prx6"] = prx6.GetHashCode(),
+            ["prx7"] = prx7.GetHashCode(),
+            ["prx8"] = prx8.GetHashCode(),
+            ["prx9"] = prx9.GetHashCode(),
+            ["prx10"] = prx10.GetHashCode()
+        };
 
         test(communicator.stringToProxy("Glacier2/router:tcp -p 10010").GetHashCode() == proxyMap["prx1"]);
         test(communicator.stringToProxy("Glacier2/router:ssl -p 10011").GetHashCode() == proxyMap["prx2"]);

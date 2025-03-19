@@ -380,10 +380,7 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
 
     public void destroy()
     {
-        if (_metrics != null)
-        {
-            _metrics.unregisterMap(_name);
-        }
+        _metrics?.unregisterMap(_name);
     }
 
     public O getObserver(MetricsHelper<T> helper)
@@ -406,7 +403,7 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
             }
             foreach (MetricsMap<T> m in _maps)
             {
-                MetricsMap<T>.Entry e = m.getMatching(helper, old != null ? old.getEntry(m) : null);
+                MetricsMap<T>.Entry e = m.getMatching(helper, old?.getEntry(m));
                 if (e != null)
                 {
                     if (metricsObjects == null)
@@ -419,10 +416,7 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
 
             if (metricsObjects == null)
             {
-                if (old != null)
-                {
-                    old.detach();
-                }
+                old?.detach();
                 return null;
             }
 

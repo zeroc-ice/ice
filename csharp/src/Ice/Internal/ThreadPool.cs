@@ -702,10 +702,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
             if (obsv is not null)
             {
                 _observer = obsv.getThreadObserver(_threadPool._prefix, _name, _state, _observer);
-                if (_observer is not null)
-                {
-                    _observer.attach();
-                }
+                _observer?.attach();
             }
         }
 
@@ -774,10 +771,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
                 _threadPool._instance.initializationData().logger.error(s);
             }
 
-            if (_observer is not null)
-            {
-                _observer.detach();
-            }
+            _observer?.detach();
 
             if (_threadPool._instance.initializationData().threadStop is not null)
             {

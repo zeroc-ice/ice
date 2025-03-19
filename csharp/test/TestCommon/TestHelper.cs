@@ -146,10 +146,7 @@ public abstract class TestHelper
         {
             _communicator = communicator;
         }
-        if (_controllerHelper != null)
-        {
-            _controllerHelper.communicatorInitialized(communicator);
-        }
+        _controllerHelper?.communicatorInitialized(communicator);
         return communicator;
     }
 
@@ -197,10 +194,7 @@ public abstract class TestHelper
 
     public void serverReady()
     {
-        if (_controllerHelper != null)
-        {
-            _controllerHelper.serverReady();
-        }
+        _controllerHelper?.serverReady();
     }
 
     private Ice.Communicator _communicator;

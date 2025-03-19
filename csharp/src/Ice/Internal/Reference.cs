@@ -987,16 +987,17 @@ public class RoutableReference : Reference
 
     public override Dictionary<string, string> toProperty(string prefix)
     {
-        Dictionary<string, string> properties = new Dictionary<string, string>();
-
-        properties[prefix] = ToString();
-        properties[prefix + ".CollocationOptimized"] = _collocationOptimized ? "1" : "0";
-        properties[prefix + ".ConnectionCached"] = _cacheConnection ? "1" : "0";
-        properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
-        properties[prefix + ".EndpointSelection"] =
-                   _endpointSelection == Ice.EndpointSelectionType.Random ? "Random" : "Ordered";
-        properties[prefix + ".LocatorCacheTimeout"] = _locatorCacheTimeout.TotalSeconds.ToString(CultureInfo.InvariantCulture);
-        properties[prefix + ".InvocationTimeout"] = getInvocationTimeout().TotalMilliseconds.ToString(CultureInfo.InvariantCulture);
+        Dictionary<string, string> properties = new Dictionary<string, string>
+        {
+            [prefix] = ToString(),
+            [prefix + ".CollocationOptimized"] = _collocationOptimized ? "1" : "0",
+            [prefix + ".ConnectionCached"] = _cacheConnection ? "1" : "0",
+            [prefix + ".PreferSecure"] = _preferSecure ? "1" : "0",
+            [prefix + ".EndpointSelection"] =
+                   _endpointSelection == Ice.EndpointSelectionType.Random ? "Random" : "Ordered",
+            [prefix + ".LocatorCacheTimeout"] = _locatorCacheTimeout.TotalSeconds.ToString(CultureInfo.InvariantCulture),
+            [prefix + ".InvocationTimeout"] = getInvocationTimeout().TotalMilliseconds.ToString(CultureInfo.InvariantCulture)
+        };
 
         if (_routerInfo != null)
         {

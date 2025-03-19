@@ -342,10 +342,7 @@ public sealed class ObjectAdapter
             _threadPool.joinWithAllThreads();
         }
 
-        if (_objectAdapterFactory is not null)
-        {
-            _objectAdapterFactory.removeObjectAdapter(this);
-        }
+        _objectAdapterFactory?.removeObjectAdapter(this);
 
         lock (_mutex)
         {
@@ -913,10 +910,7 @@ public sealed class ObjectAdapter
             threadPool = _threadPool;
         }
 
-        if (threadPool is not null)
-        {
-            threadPool.updateObservers();
-        }
+        threadPool?.updateObservers();
     }
 
     internal void incDirectCount()
@@ -1299,11 +1293,7 @@ public sealed class ObjectAdapter
             }
 
             string s = endpts.Substring(beg, end - beg);
-            EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints);
-            if (endp is null)
-            {
-                throw new ParseException($"invalid object adapter endpoint '{s}'");
-            }
+            EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints) ?? throw new ParseException($"invalid object adapter endpoint '{s}'");
             endpoints.Add(endp);
 
             ++end;

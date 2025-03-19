@@ -808,10 +808,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                                 // The next read will read the remainder of the message.
                                 _readHeader = false;
 
-                                if (_observer is not null)
-                                {
-                                    _observer.receivedBytes(Protocol.headerSize);
-                                }
+                                _observer?.receivedBytes(Protocol.headerSize);
 
                                 //
                                 // Connection is validated on first message. This is only used by

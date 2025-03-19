@@ -715,14 +715,8 @@ internal sealed class UdpTransceiver : Transceiver
         }
         catch (Ice.LocalException)
         {
-            if (_readEventArgs != null)
-            {
-                _readEventArgs.Dispose();
-            }
-            if (_writeEventArgs != null)
-            {
-                _writeEventArgs.Dispose();
-            }
+            _readEventArgs?.Dispose();
+            _writeEventArgs?.Dispose();
             _fd = null;
             throw;
         }

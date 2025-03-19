@@ -798,11 +798,7 @@ internal sealed class WSTransceiver : Transceiver
         val = _parser.getHeader("Sec-WebSocket-Protocol", true);
         if (val != null)
         {
-            string[] protocols = Ice.UtilInternal.StringUtil.splitString(val, ",");
-            if (protocols == null)
-            {
-                throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
-            }
+            string[] protocols = Ice.UtilInternal.StringUtil.splitString(val, ",") ?? throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
             foreach (string p in protocols)
             {
                 if (!p.Trim().Equals(_iceProtocol, StringComparison.Ordinal))
@@ -817,12 +813,7 @@ internal sealed class WSTransceiver : Transceiver
         // "A |Sec-WebSocket-Key| header field with a base64-encoded
         //  value that, when decoded, is 16 bytes in length."
         //
-        string key = _parser.getHeader("Sec-WebSocket-Key", false);
-        if (key == null)
-        {
-            throw new WebSocketException("missing value for WebSocket key");
-        }
-
+        string key = _parser.getHeader("Sec-WebSocket-Key", false) ?? throw new WebSocketException("missing value for WebSocket key");
         byte[] decodedKey = Convert.FromBase64String(key);
         if (decodedKey.Length != 16)
         {

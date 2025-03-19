@@ -68,7 +68,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
         bool? hasRoutingTable;
         var proxy = _router.getClientProxy(out hasRoutingTable);
-        return setClientEndpoints(proxy, hasRoutingTable.HasValue ? hasRoutingTable.Value : true);
+        return setClientEndpoints(proxy, hasRoutingTable ?? true);
     }
 
     public void getClientEndpoints(GetClientEndpointsCallback callback)
@@ -107,12 +107,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
     public EndpointI[] getServerEndpoints()
     {
-        Ice.ObjectPrx serverProxy = _router.getServerProxy();
-        if (serverProxy == null)
-        {
-            throw new NoEndpointException("Router::getServerProxy returned a null proxy.");
-        }
-
+        Ice.ObjectPrx serverProxy = _router.getServerProxy() ?? throw new NoEndpointException("Router::getServerProxy returned a null proxy.");
         serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
         return ((Ice.ObjectPrxHelperBase)serverProxy).iceReference().getEndpoints();
     }

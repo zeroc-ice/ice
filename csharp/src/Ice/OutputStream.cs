@@ -2049,7 +2049,7 @@ public sealed class OutputStream
             }
             else
             {
-                _current = _current.next == null ? new InstanceData(_current) : _current.next;
+                _current = _current.next ?? new InstanceData(_current);
             }
             _current.sliceType = sliceType;
             _current.firstSlice = true;

@@ -55,21 +55,13 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
 
     internal Ice.ObjectPrx getAdapter(string adapter)
     {
-        object obj = _adapters[adapter];
-        if (obj == null)
-        {
-            throw new Ice.AdapterNotFoundException();
-        }
+        object obj = _adapters[adapter] ?? throw new Ice.AdapterNotFoundException();
         return (Ice.ObjectPrx)obj;
     }
 
     internal Ice.ObjectPrx getObject(Ice.Identity id)
     {
-        object obj = _objects[id];
-        if (obj == null)
-        {
-            throw new Ice.ObjectNotFoundException();
-        }
+        object obj = _objects[id] ?? throw new Ice.ObjectNotFoundException();
         return (Ice.ObjectPrx)obj;
     }
 

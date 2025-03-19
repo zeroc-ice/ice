@@ -957,20 +957,14 @@ public sealed class Instance
                 //
                 // Make sure the admin plugin receives property updates.
                 //
-                if (propsAdmin != null)
-                {
-                    propsAdmin.addUpdateCallback(observer.getFacet().updated);
-                }
+                propsAdmin?.addUpdateCallback(observer.getFacet().updated);
             }
         }
 
         //
         // Set observer updater
         //
-        if (_initData.observer != null)
-        {
-            _initData.observer.setObserverUpdater(new ObserverUpdaterI(this));
-        }
+        _initData.observer?.setObserverUpdater(new ObserverUpdaterI(this));
 
         //
         // Create threads.
@@ -1092,35 +1086,17 @@ public sealed class Instance
         // Shutdown and destroy all the incoming and outgoing Ice
         // connections and wait for the connections to be finished.
         //
-        if (_objectAdapterFactory != null)
-        {
-            _objectAdapterFactory.shutdown();
-        }
+        _objectAdapterFactory?.shutdown();
 
-        if (_outgoingConnectionFactory != null)
-        {
-            _outgoingConnectionFactory.destroy();
-        }
+        _outgoingConnectionFactory?.destroy();
 
-        if (_objectAdapterFactory != null)
-        {
-            _objectAdapterFactory.destroy();
-        }
+        _objectAdapterFactory?.destroy();
 
-        if (_outgoingConnectionFactory != null)
-        {
-            _outgoingConnectionFactory.waitUntilFinished();
-        }
+        _outgoingConnectionFactory?.waitUntilFinished();
 
-        if (_retryQueue != null)
-        {
-            _retryQueue.destroy(); // Must be called before destroying thread pools.
-        }
+        _retryQueue?.destroy(); // Must be called before destroying thread pools.
 
-        if (_initData.observer != null)
-        {
-            _initData.observer.setObserverUpdater(null);
-        }
+        _initData.observer?.setObserverUpdater(null);
 
         if (_initData.logger is LoggerAdminLogger loggerAdminLogger)
         {
@@ -1132,48 +1108,21 @@ public sealed class Instance
         // all the connections are finished (the connections destruction
         // can require invoking callbacks with the thread pools).
         //
-        if (_serverThreadPool != null)
-        {
-            _serverThreadPool.destroy();
-        }
-        if (_clientThreadPool != null)
-        {
-            _clientThreadPool.destroy();
-        }
-        if (_endpointHostResolver != null)
-        {
-            _endpointHostResolver.destroy();
-        }
+        _serverThreadPool?.destroy();
+        _clientThreadPool?.destroy();
+        _endpointHostResolver?.destroy();
 
         //
         // Wait for all the threads to be finished.
         //
-        if (_timer != null)
-        {
-            _timer.destroy();
-        }
-        if (_clientThreadPool != null)
-        {
-            _clientThreadPool.joinWithAllThreads();
-        }
-        if (_serverThreadPool != null)
-        {
-            _serverThreadPool.joinWithAllThreads();
-        }
-        if (_endpointHostResolver != null)
-        {
-            _endpointHostResolver.joinWithThread();
-        }
+        _timer?.destroy();
+        _clientThreadPool?.joinWithAllThreads();
+        _serverThreadPool?.joinWithAllThreads();
+        _endpointHostResolver?.joinWithThread();
 
-        if (_routerManager != null)
-        {
-            _routerManager.destroy();
-        }
+        _routerManager?.destroy();
 
-        if (_locatorManager != null)
-        {
-            _locatorManager.destroy();
-        }
+        _locatorManager?.destroy();
 
         if (_initData.properties.getIcePropertyAsInt("Ice.Warn.UnusedProperties") > 0)
         {
@@ -1193,10 +1142,7 @@ public sealed class Instance
         //
         // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
         //
-        if (_pluginManager != null)
-        {
-            _pluginManager.destroy();
-        }
+        _pluginManager?.destroy();
 
         lock (_mutex)
         {
@@ -1290,24 +1236,12 @@ public sealed class Instance
     {
         try
         {
-            if (_clientThreadPool != null)
-            {
-                _clientThreadPool.updateObservers();
-            }
-            if (_serverThreadPool != null)
-            {
-                _serverThreadPool.updateObservers();
-            }
+            _clientThreadPool?.updateObservers();
+            _serverThreadPool?.updateObservers();
             Debug.Assert(_objectAdapterFactory != null);
             _objectAdapterFactory.updateThreadObservers();
-            if (_endpointHostResolver != null)
-            {
-                _endpointHostResolver.updateObserver();
-            }
-            if (_timer != null)
-            {
-                _timer.updateObserver(_initData.observer);
-            }
+            _endpointHostResolver?.updateObserver();
+            _timer?.updateObserver(_initData.observer);
         }
         catch (Ice.CommunicatorDestroyedException)
         {

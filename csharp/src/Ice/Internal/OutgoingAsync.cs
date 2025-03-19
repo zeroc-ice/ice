@@ -186,10 +186,7 @@ public abstract class OutgoingAsyncBase
         {
             int size = os_.size() - Protocol.headerSize - 4;
             childObserver_ = observer.getRemoteObserver(info, endpt, requestId, size);
-            if (childObserver_ != null)
-            {
-                childObserver_.attach();
-            }
+            childObserver_?.attach();
         }
     }
 
@@ -200,10 +197,7 @@ public abstract class OutgoingAsyncBase
         {
             int size = os_.size() - Protocol.headerSize - 4;
             childObserver_ = observer.getCollocatedObserver(adapter, requestId, size);
-            if (childObserver_ != null)
-            {
-                childObserver_.attach();
-            }
+            childObserver_?.attach();
         }
     }
 
@@ -245,10 +239,7 @@ public abstract class OutgoingAsyncBase
         os_ = os ?? new OutputStream(Ice.Util.currentProtocolEncoding, instance.defaultsAndOverrides().defaultFormat);
         is_ = iss ?? new Ice.InputStream(instance, Ice.Util.currentProtocolEncoding);
         _completionCallback = completionCallback;
-        if (_completionCallback != null)
-        {
-            _completionCallback.init(this);
-        }
+        _completionCallback?.init(this);
     }
 
     protected virtual bool sentImpl(bool done)
@@ -300,10 +291,7 @@ public abstract class OutgoingAsyncBase
             }
             _cancellationHandler = null;
 
-            if (observer_ != null)
-            {
-                observer_.failed(ex.ice_id());
-            }
+            observer_?.failed(ex.ice_id());
             bool invoke = _completionCallback.handleException(ex, this);
             if (!invoke && observer_ != null)
             {
@@ -526,9 +514,9 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
                     instance_.timer().schedule(this, (long)invocationTimeout.TotalMilliseconds);
                 }
             }
-            else if (observer_ != null)
+            else
             {
-                observer_.retried();
+                observer_?.retried();
             }
 
             while (true)
@@ -577,9 +565,9 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
                         instance_.retryQueue().add(this, interval);
                         return;
                     }
-                    else if (observer_ != null)
+                    else
                     {
-                        observer_.retried();
+                        observer_?.retried();
                     }
                 }
             }
@@ -723,10 +711,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
                 if (@ref.isWellKnown())
                 {
                     LocatorInfo li = @ref.getLocatorInfo();
-                    if (li != null)
-                    {
-                        li.clearCache(@ref);
-                    }
+                    li?.clearCache(@ref);
                 }
             }
             else
@@ -1085,10 +1070,7 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
         catch (UserException ex)
         {
             is_.endEncapsulation();
-            if (userException_ != null)
-            {
-                userException_.Invoke(ex);
-            }
+            userException_?.Invoke(ex);
             throw UnknownUserException.fromTypeId(ex.ice_id());
         }
     }
@@ -1106,10 +1088,7 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                 state_ |= StateCachedBuffers;
             }
 
-            if (is_ != null)
-            {
-                is_.reset();
-            }
+            is_?.reset();
             os_.reset();
 
             proxy_.cacheMessageBuffers(is_, os_);

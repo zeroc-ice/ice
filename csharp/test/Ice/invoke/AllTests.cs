@@ -59,8 +59,10 @@ public class AllTests : global::Test.AllTests
             Dictionary<string, string> ctx = null;
             if (i == 1)
             {
-                ctx = new Dictionary<string, string>();
-                ctx["raise"] = "";
+                ctx = new Dictionary<string, string>
+                {
+                    ["raise"] = ""
+                };
             }
 
             if (cl.ice_invoke("opException", Ice.OperationMode.Normal, null, out outEncaps, ctx))

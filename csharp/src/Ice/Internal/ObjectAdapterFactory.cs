@@ -188,10 +188,7 @@ public sealed class ObjectAdapterFactory
         }
         catch (Ice.CommunicatorDestroyedException)
         {
-            if (adapter != null)
-            {
-                adapter.destroy();
-            }
+            adapter?.destroy();
             throw;
         }
         catch (Ice.LocalException)

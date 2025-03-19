@@ -232,8 +232,10 @@ public class Client : Test.TestHelper
             Console.Out.Flush();
             CallbackPrx oneway = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway());
             CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
-            Dictionary<string, string> context = new Dictionary<string, string>();
-            context["_fwd"] = "o";
+            Dictionary<string, string> context = new Dictionary<string, string>
+            {
+                ["_fwd"] = "o"
+            };
             oneway.initiateCallback(onewayR, context);
             callbackReceiverImpl.callbackOK();
             Console.Out.WriteLine("ok");
@@ -242,8 +244,10 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("testing twoway callback... ");
             Console.Out.Flush();
-            Dictionary<string, string> context = new Dictionary<string, string>();
-            context["_fwd"] = "t";
+            Dictionary<string, string> context = new Dictionary<string, string>
+            {
+                ["_fwd"] = "t"
+            };
             twoway.initiateCallback(twowayR, context);
             callbackReceiverImpl.callbackOK();
             Console.Out.WriteLine("ok");
@@ -252,8 +256,10 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("ditto, but with user exception... ");
             Console.Out.Flush();
-            Dictionary<string, string> context = new Dictionary<string, string>();
-            context["_fwd"] = "t";
+            Dictionary<string, string> context = new Dictionary<string, string>
+            {
+                ["_fwd"] = "t"
+            };
             try
             {
                 twoway.initiateCallbackEx(twowayR, context);
@@ -271,8 +277,10 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("trying twoway callback with fake category... ");
             Console.Out.Flush();
-            Dictionary<string, string> context = new Dictionary<string, string>();
-            context["_fwd"] = "t";
+            Dictionary<string, string> context = new Dictionary<string, string>
+            {
+                ["_fwd"] = "t"
+            };
             try
             {
                 twoway.initiateCallback(fakeTwowayR, context);
@@ -287,8 +295,10 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("testing whether other allowed category is accepted... ");
             Console.Out.Flush();
-            Dictionary<string, string> context = new Dictionary<string, string>();
-            context["_fwd"] = "t";
+            Dictionary<string, string> context = new Dictionary<string, string>
+            {
+                ["_fwd"] = "t"
+            };
             CallbackPrx otherCategoryTwoway =
                 CallbackPrxHelper.uncheckedCast(twoway.ice_identity(Ice.Util.stringToIdentity("c2/callback")));
             otherCategoryTwoway.initiateCallback(twowayR, context);
@@ -299,8 +309,10 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("testing whether disallowed category gets rejected... ");
             Console.Out.Flush();
-            Dictionary<string, string> context = new Dictionary<string, string>();
-            context["_fwd"] = "t";
+            Dictionary<string, string> context = new Dictionary<string, string>
+            {
+                ["_fwd"] = "t"
+            };
             try
             {
                 CallbackPrx otherCategoryTwoway =
@@ -317,8 +329,10 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("testing whether user-id as category is accepted... ");
             Console.Out.Flush();
-            Dictionary<string, string> context = new Dictionary<string, string>();
-            context["_fwd"] = "t";
+            Dictionary<string, string> context = new Dictionary<string, string>
+            {
+                ["_fwd"] = "t"
+            };
             CallbackPrx otherCategoryTwoway =
                 CallbackPrxHelper.uncheckedCast(twoway.ice_identity(Ice.Util.stringToIdentity("_userid/callback")));
             otherCategoryTwoway.initiateCallback(twowayR, context);

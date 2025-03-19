@@ -80,14 +80,8 @@ public class ServerManagerI : Test.ServerManagerDisp_
 
                 // Retry, if OA creation fails with EADDRINUSE(this can occur when running with JS web
                 // browser clients if the driver uses ports in the same range as this test, ICE-8148)
-                if (adapter != null)
-                {
-                    adapter.destroy();
-                }
-                if (adapter2 != null)
-                {
-                    adapter2.destroy();
-                }
+                adapter?.destroy();
+                adapter2?.destroy();
             }
         }
     }

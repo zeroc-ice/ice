@@ -185,10 +185,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to
         // remote loggers
         //
-        if (sendLogCommunicator != null)
-        {
-            sendLogCommunicator.destroy();
-        }
+        sendLogCommunicator?.destroy();
     }
 
     internal List<Ice.RemoteLoggerPrx> log(Ice.LogMessage logMessage)

@@ -152,10 +152,7 @@ public sealed class Timer
                 _thread.Name,
                 Ice.Instrumentation.ThreadState.ThreadStateIdle,
                 _observer);
-            if (_observer != null)
-            {
-                _observer.attach();
-            }
+            _observer?.attach();
         }
     }
 

@@ -57,10 +57,7 @@ public class EndpointHostResolver
             if (obsv != null)
             {
                 entry.observer = obsv.getEndpointLookupObserver(endpoint);
-                if (entry.observer != null)
-                {
-                    entry.observer.attach();
-                }
+                entry.observer?.attach();
             }
 
             _queue.AddLast(entry);
@@ -80,10 +77,7 @@ public class EndpointHostResolver
 
     public void joinWithThread()
     {
-        if (_thread != null)
-        {
-            _thread.Join();
-        }
+        _thread?.Join();
     }
 
     public void run()
@@ -110,12 +104,9 @@ public class EndpointHostResolver
                 threadObserver = _observer;
             }
 
-            if (threadObserver != null)
-            {
-                threadObserver.stateChanged(
+            threadObserver?.stateChanged(
                     Ice.Instrumentation.ThreadState.ThreadStateIdle,
                     Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
-            }
 
             try
             {
@@ -150,12 +141,9 @@ public class EndpointHostResolver
             }
             finally
             {
-                if (threadObserver != null)
-                {
-                    threadObserver.stateChanged(
+                threadObserver?.stateChanged(
                         Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
                         Ice.Instrumentation.ThreadState.ThreadStateIdle);
-                }
             }
         }
 
@@ -171,10 +159,7 @@ public class EndpointHostResolver
         }
         _queue.Clear();
 
-        if (_observer != null)
-        {
-            _observer.detach();
-        }
+        _observer?.detach();
     }
 
     public void
@@ -190,10 +175,7 @@ public class EndpointHostResolver
                     _thread.getName(),
                     Ice.Instrumentation.ThreadState.ThreadStateIdle,
                     _observer);
-                if (_observer != null)
-                {
-                    _observer.attach();
-                }
+                _observer?.attach();
             }
         }
     }

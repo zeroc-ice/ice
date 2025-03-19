@@ -89,11 +89,7 @@ internal class SharedImplicitContext : ImplicitContextI
                 key = "";
             }
 
-            string val = _context[key];
-            if (val == null)
-            {
-                val = "";
-            }
+            string val = _context[key] ?? "";
             return val;
         }
     }
@@ -267,11 +263,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
             }
         }
 
-        string val = threadContext[key];
-        if (val == null)
-        {
-            val = "";
-        }
+        string val = threadContext[key] ?? "";
         return val;
     }
 
