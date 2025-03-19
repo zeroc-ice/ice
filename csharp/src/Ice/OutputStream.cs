@@ -1783,10 +1783,7 @@ public sealed class OutputStream
 
         protected int registerTypeId(string typeId)
         {
-            if (_typeIdMap == null)
-            {
-                _typeIdMap = new Dictionary<string, int>();
-            }
+            _typeIdMap ??= new Dictionary<string, int>();
 
             int p;
             if (_typeIdMap.TryGetValue(typeId, out p))

@@ -140,10 +140,7 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
                         continue; // TODO: Inconsistency
                     }
 
-                    if (result == null)
-                    {
-                        result = proxy;
-                    }
+                    result ??= proxy;
 
                     endpoints.AddRange(proxy.ice_getEndpoints());
                 }

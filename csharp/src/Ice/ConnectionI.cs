@@ -2027,10 +2027,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 _writeStream.swap(message.stream);
                 if (message.sent())
                 {
-                    if (callbacks is null)
-                    {
-                        callbacks = new Queue<OutgoingMessage>();
-                    }
+                    callbacks ??= new Queue<OutgoingMessage>();
                     callbacks.Enqueue(message);
                 }
                 _sendStreams.RemoveFirst();
@@ -2155,7 +2152,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             if (message.sent())
             {
                 // If there's a sent callback, indicate the caller that it should invoke the sent callback.
-                status = status | OutgoingAsyncBase.AsyncStatusInvokeSentCallback;
+                status |= OutgoingAsyncBase.AsyncStatusInvokeSentCallback;
             }
 
             return status;

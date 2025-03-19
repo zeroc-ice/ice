@@ -125,10 +125,7 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
             Ice.ObjectPrx result = null;
             foreach (Ice.ObjectPrx prx in _proxies)
             {
-                if (result == null)
-                {
-                    result = prx;
-                }
+                result ??= prx;
                 endpoints.AddRange(prx.ice_getEndpoints());
             }
             sendResponse(result.ice_endpoints(endpoints.ToArray()));

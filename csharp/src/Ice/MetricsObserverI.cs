@@ -321,10 +321,7 @@ public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Met
             MetricsMap<S>.Entry e = entry.getMatching(mapName, helper);
             if (e != null)
             {
-                if (metricsObjects == null)
-                {
-                    metricsObjects = new List<MetricsMap<S>.Entry>(_objects.Count);
-                }
+                metricsObjects ??= new List<MetricsMap<S>.Entry>(_objects.Count);
                 metricsObjects.Add(e);
             }
         }
@@ -406,10 +403,7 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
                 MetricsMap<T>.Entry e = m.getMatching(helper, old?.getEntry(m));
                 if (e != null)
                 {
-                    if (metricsObjects == null)
-                    {
-                        metricsObjects = new List<MetricsMap<T>.Entry>(_maps.Count);
-                    }
+                    metricsObjects ??= new List<MetricsMap<T>.Entry>(_maps.Count);
                     metricsObjects.Add(e);
                 }
             }

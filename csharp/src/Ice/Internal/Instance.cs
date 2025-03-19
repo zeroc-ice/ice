@@ -611,10 +611,7 @@ public sealed class Instance
 
         try
         {
-            if (_initData.properties == null)
-            {
-                _initData.properties = new Ice.Properties();
-            }
+            _initData.properties ??= new Ice.Properties();
 
             lock (_staticLock)
             {
@@ -813,10 +810,7 @@ public sealed class Instance
 
             _pluginManager = new Ice.PluginManagerI(communicator);
 
-            if (_initData.valueFactoryManager == null)
-            {
-                _initData.valueFactoryManager = new ValueFactoryManagerI();
-            }
+            _initData.valueFactoryManager ??= new ValueFactoryManagerI();
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 

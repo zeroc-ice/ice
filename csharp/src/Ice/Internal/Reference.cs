@@ -140,10 +140,7 @@ public abstract class Reference : IEquatable<Reference>
     //
     public Reference changeContext(Dictionary<string, string> newContext)
     {
-        if (newContext == null)
-        {
-            newContext = _emptyContext;
-        }
+        newContext ??= _emptyContext;
         Reference r = _instance.referenceFactory().copy(this);
         if (newContext.Count == 0)
         {
@@ -1265,15 +1262,9 @@ public class RoutableReference : Reference
         _endpointSelection = endpointSelection;
         _locatorCacheTimeout = locatorCacheTimeout;
 
-        if (_endpoints == null)
-        {
-            _endpoints = _emptyEndpoints;
-        }
+        _endpoints ??= _emptyEndpoints;
 
-        if (_adapterId == null)
-        {
-            _adapterId = "";
-        }
+        _adapterId ??= "";
         setBatchRequestQueue();
 
         Debug.Assert(_adapterId.Length == 0 || _endpoints.Length == 0);
@@ -1444,10 +1435,7 @@ public class RoutableReference : Reference
 
         public void setException(Ice.LocalException ex)
         {
-            if (_exception == null)
-            {
-                _exception = ex;
-            }
+            _exception ??= ex;
 
             if (_endpoints == null || ++_i == _endpoints.Length)
             {

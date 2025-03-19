@@ -234,10 +234,7 @@ internal class ConnectionHelper : MetricsHelper<ConnectionMetrics>
 
     public Ice.EndpointInfo getEndpointInfo()
     {
-        if (_endpointInfo == null)
-        {
-            _endpointInfo = _endpoint.getInfo();
-        }
+        _endpointInfo ??= _endpoint.getInfo();
         return _endpointInfo;
     }
 
@@ -628,10 +625,7 @@ internal class EndpointHelper : MetricsHelper<Metrics>
 
     public Ice.EndpointInfo getEndpointInfo()
     {
-        if (_endpointInfo == null)
-        {
-            _endpointInfo = _endpoint.getInfo();
-        }
+        _endpointInfo ??= _endpoint.getInfo();
         return _endpointInfo;
     }
 
@@ -642,10 +636,7 @@ internal class EndpointHelper : MetricsHelper<Metrics>
 
     public string getId()
     {
-        if (_id == null)
-        {
-            _id = _endpoint.ToString();
-        }
+        _id ??= _endpoint.ToString();
         return _id;
     }
 
@@ -738,10 +729,7 @@ public class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
 
     public Ice.EndpointInfo getEndpointInfo()
     {
-        if (_endpointInfo == null)
-        {
-            _endpointInfo = _endpoint.getInfo();
-        }
+        _endpointInfo ??= _endpoint.getInfo();
         return _endpointInfo;
     }
 

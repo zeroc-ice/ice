@@ -225,10 +225,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                     {
                         Debug.Assert(_logCount < _maxLogCount);
                         _logCount++;
-                        if (_oldestLog == null)
-                        {
-                            _oldestLog = _queue.Last;
-                        }
+                        _oldestLog ??= _queue.Last;
                     }
                 }
                 else
@@ -254,10 +251,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                     {
                         Debug.Assert(_traceCount < _maxTraceCount);
                         _traceCount++;
-                        if (_oldestTrace == null)
-                        {
-                            _oldestTrace = _queue.Last;
-                        }
+                        _oldestTrace ??= _queue.Last;
                     }
                 }
             }
@@ -274,10 +268,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                     if (logMessage.type != Ice.LogMessageType.TraceMessage || filters.traceCategories.Count == 0 ||
                        filters.traceCategories.Contains(logMessage.traceCategory))
                     {
-                        if (remoteLoggers == null)
-                        {
-                            remoteLoggers = new List<Ice.RemoteLoggerPrx>();
-                        }
+                        remoteLoggers ??= new List<Ice.RemoteLoggerPrx>();
                         remoteLoggers.Add(p.remoteLogger);
                     }
                 }

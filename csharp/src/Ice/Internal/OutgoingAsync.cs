@@ -1314,7 +1314,7 @@ internal class ConnectionFlushBatchAsync : OutgoingAsyncBase
                 status = AsyncStatusSent;
                 if (sent())
                 {
-                    status = status | AsyncStatusInvokeSentCallback;
+                    status |= AsyncStatusInvokeSentCallback;
                 }
             }
             else

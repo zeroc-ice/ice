@@ -120,10 +120,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             {
                 ++_object.failures;
                 int count;
-                if (_failures == null)
-                {
-                    _failures = new Dictionary<string, int>();
-                }
+                _failures ??= new Dictionary<string, int>();
                 if (_failures.TryGetValue(exceptionName, out count))
                 {
                     _failures[exceptionName] = count + 1;
@@ -148,10 +145,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
                     {
                         return null;
                     }
-                    if (_subMaps == null)
-                    {
-                        _subMaps = new Dictionary<string, ISubMap>();
-                    }
+                    _subMaps ??= new Dictionary<string, ISubMap>();
                     _subMaps.Add(mapName, m);
                 }
             }
@@ -494,10 +488,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             return;
         }
 
-        if (_detachedQueue == null)
-        {
-            _detachedQueue = new LinkedList<Entry>();
-        }
+        _detachedQueue ??= new LinkedList<Entry>();
         Debug.Assert(_detachedQueue.Count <= _retain);
 
         // Compress the queue by removing entries which are no longer detached.

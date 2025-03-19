@@ -142,10 +142,7 @@ public abstract class TestHelper
     public Ice.Communicator initialize(Ice.InitializationData initData)
     {
         Ice.Communicator communicator = Ice.Util.initialize(initData);
-        if (_communicator == null)
-        {
-            _communicator = communicator;
-        }
+        _communicator ??= communicator;
         _controllerHelper?.communicatorInitialized(communicator);
         return communicator;
     }

@@ -1084,10 +1084,7 @@ public sealed class ObjectAdapter
                 _threadPool = new Ice.Internal.ThreadPool(_instance, _name + ".ThreadPool", 0);
             }
 
-            if (router is null)
-            {
-                router = RouterPrxHelper.uncheckedCast(communicator.propertyToProxy(_name + ".Router"));
-            }
+            router ??= RouterPrxHelper.uncheckedCast(communicator.propertyToProxy(_name + ".Router"));
             if (router is not null)
             {
                 _routerInfo = _instance.routerManager().get(router);

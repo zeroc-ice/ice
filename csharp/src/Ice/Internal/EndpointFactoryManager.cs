@@ -158,10 +158,7 @@ public sealed class EndpointFactoryManager
             // isn't available. In this case, the factory needs to make sure the stream position
             // is preserved for reading the opaque endpoint.
             //
-            if (e == null)
-            {
-                e = new OpaqueEndpointI(type, s);
-            }
+            e ??= new OpaqueEndpointI(type, s);
 
             s.endEncapsulation();
 

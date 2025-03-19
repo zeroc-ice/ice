@@ -20,10 +20,7 @@ internal sealed class WSEndpoint : EndpointI
 
         initWithOptions(args);
 
-        if (_resource == null)
-        {
-            _resource = "/";
-        }
+        _resource ??= "/";
     }
 
     internal WSEndpoint(ProtocolInstance instance, EndpointI del, Ice.InputStream s)
