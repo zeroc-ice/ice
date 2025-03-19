@@ -91,7 +91,23 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
     public void destroy()
     {
         _delegate.destroy();
+        if (!_verified && _writeResult is not null)
+        {
+            // If the SSL handshake is still in progress, cancel it and wait for its completion before disposing of the
+            // stream.
+            _sslHandshakeCts.Cancel();
+            try
+            {
+                _writeResult.Wait();
+                _writeResult = null;
+            }
+            catch
+            {
+            }
+        }
+        Debug.Assert(_writeResult is null || _writeResult.IsCompleted);
         _sslStream?.Dispose();
+        _sslHandshakeCts.Dispose();
     }
 
     public int write(Ice.Internal.Buffer buf) =>
@@ -366,13 +382,15 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
             {
                 _writeResult = _sslStream.AuthenticateAsServerAsync(
                     _serverAuthenticationOptions ??
-                    _instance.engine().createServerAuthenticationOptions(validationCallback));
+                    _instance.engine().createServerAuthenticationOptions(validationCallback),
+                    _sslHandshakeCts.Token);
             }
             else
             {
                 _writeResult = _sslStream.AuthenticateAsClientAsync(
                     _instance.initializationData().clientAuthenticationOptions ??
-                    _instance.engine().createClientAuthenticationOptions(validationCallback, _host));
+                    _instance.engine().createClientAuthenticationOptions(validationCallback, _host),
+                    _sslHandshakeCts.Token);
             }
             _writeResult.ContinueWith(
                 task =>
@@ -510,4 +528,5 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
     private string _cipher;
     private bool _verified;
     private readonly SslServerAuthenticationOptions _serverAuthenticationOptions;
+    private readonly CancellationTokenSource _sslHandshakeCts = new();
 }
