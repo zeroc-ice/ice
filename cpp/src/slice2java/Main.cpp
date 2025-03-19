@@ -181,11 +181,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            if (!icecpp->printMakefileDependencies(
-                    os,
-                    Preprocessor::SliceXML,
-                    includePaths,
-                    "-D__SLICE2JAVA__"))
+            if (!icecpp->printMakefileDependencies(os, Preprocessor::SliceXML, includePaths, "-D__SLICE2JAVA__"))
             {
                 return EXIT_FAILURE;
             }

@@ -33,7 +33,6 @@ namespace Slice
             PHP,
             JavaScript,
             JavaScriptJSON,
-            ObjC,
             SliceXML,
             Swift
         };

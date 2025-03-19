@@ -3563,11 +3563,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            if (!icecpp->printMakefileDependencies(
-                    os,
-                    Preprocessor::SliceXML,
-                    includePaths,
-                    "-D__SLICE2MATLAB__"))
+            if (!icecpp->printMakefileDependencies(os, Preprocessor::SliceXML, includePaths, "-D__SLICE2MATLAB__"))
             {
                 return EXIT_FAILURE;
             }

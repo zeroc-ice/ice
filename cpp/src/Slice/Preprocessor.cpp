@@ -627,16 +627,6 @@ Slice::Preprocessor::printMakefileDependencies(
             }
             break;
         }
-        case ObjC:
-        {
-            pos = result.find(suffix);
-            if (pos != string::npos)
-            {
-                string name = result.substr(0, pos);
-                result.replace(0, pos + suffix.size() - 1, name + ".h " + name + ".m");
-            }
-            break;
-        }
         case Swift:
         {
             //
