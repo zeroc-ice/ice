@@ -3,12 +3,7 @@
 // TODO find a better way to escape module names.
 module escapedAnd
 {
-    ["php:identifier:_endfor"]
-    sequence<array> endfor;
-    ["php:identifier:_endforeach"]
-    dictionary<string, array> endforeach;
-
-    ["php:identifier:_require_once"]
+    ["php:identifier:another_name"]
     const int require_once = 1;
 
     ["php:identifier:_array"]
@@ -17,6 +12,11 @@ module escapedAnd
         ["php:identifier:_clone"]
         clone = require_once
     }
+
+    ["php:identifier:_endfor"]
+    sequence<array> endfor;
+    ["php:identifier:_endforeach"]
+    dictionary<string, array> endforeach;
 
     ["php:identifier:_xor"]
     struct xor
