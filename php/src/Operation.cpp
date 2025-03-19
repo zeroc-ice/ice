@@ -8,7 +8,6 @@
 
 using namespace std;
 using namespace IcePHP;
-using namespace Slice::PHP;
 
 extern "C"
 {
