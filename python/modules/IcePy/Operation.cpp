@@ -18,6 +18,8 @@
 #include "Util.h"
 #include "slice2py/PythonUtil.h"
 
+#include <algorithm>
+
 using namespace std;
 using namespace IcePy;
 using namespace Slice::Python;
