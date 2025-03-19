@@ -16,10 +16,8 @@
 
 namespace IceBT
 {
-    /**
-     * Provides access to the details of a Bluetooth connection.
-     * \headerfile IceBT/IceBT.h
-     */
+    /// Provides access to the details of a Bluetooth connection.
+    /// \headerfile IceBT/IceBT.h
     class ICEBT_API ConnectionInfo final : public Ice::ConnectionInfo
     {
     public:
@@ -27,39 +25,25 @@ namespace IceBT
         ConnectionInfo(const ConnectionInfo&) = delete;
         ConnectionInfo& operator=(const ConnectionInfo&) = delete;
 
-        /**
-         * The local Bluetooth address.
-         */
+        /// The local Bluetooth address.
         const std::string localAddress;
 
-        /**
-         * The local RFCOMM channel.
-         */
+        /// The local RFCOMM channel.
         const int localChannel;
 
-        /**
-         * The remote Bluetooth address.
-         */
+        /// The remote Bluetooth address.
         const std::string remoteAddress;
 
-        /**
-         * The remote RFCOMM channel.
-         */
+        /// The remote RFCOMM channel.
         const int remoteChannel;
 
-        /**
-         * The UUID of the service being offered (in a server) or targeted (in a client).
-         */
+        /// The UUID of the service being offered (in a server) or targeted (in a client).
         const std::string uuid;
 
-        /**
-         * The connection buffer receive size.
-         */
+        /// The connection buffer receive size.
         const int rcvSize;
 
-        /**
-         * The connection buffer send size.
-         */
+        /// The connection buffer send size.
         const int sndSize;
 
         // internal constructor

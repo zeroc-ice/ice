@@ -16,6 +16,7 @@ public class PluginFactory : Ice.PluginFactory
 
         public void initialize()
         {
+            test(!_initialized);
             _initialized = true;
             test(_args.Length == 3);
             test(_args[0] == "C:\\Program Files\\");
@@ -25,25 +26,12 @@ public class PluginFactory : Ice.PluginFactory
 
         public void destroy()
         {
-            _destroyed = true;
-        }
-
-        ~Plugin()
-        {
-            if (!_initialized)
-            {
-                Console.WriteLine("Plugin not initialized");
-            }
-            if (!_destroyed)
-            {
-                Console.WriteLine("Plugin not destroyed");
-            }
+            test(_initialized);
         }
 
         private static void test(bool b) => global::Test.TestHelper.test(b);
 
         private bool _initialized = false;
-        private bool _destroyed = false;
         private readonly string[] _args;
     }
 }

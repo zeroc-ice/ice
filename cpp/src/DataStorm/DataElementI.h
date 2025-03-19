@@ -82,14 +82,12 @@ namespace DataStormI
             {
             }
 
-            /**
-             * Determines if any subscriber matches the given sample.
-             *
-             * @param sample The sample to evaluate against the subscribers.
-             * @param matchKey If true, the sample's key is matched against subscriber keys.
-             *                 If false, the key match is skipped.
-             * @return True if at least one subscriber matches the sample, otherwise false.
-             */
+            /// Determines if any subscriber matches the given sample.
+            ///
+            /// @param sample The sample to evaluate against the subscribers.
+            /// @param matchKey If true, the sample's key is matched against subscriber keys.
+            ///                 If false, the key match is skipped.
+            /// @return True if at least one subscriber matches the sample, otherwise false.
             [[nodiscard]] bool matchOne(const std::shared_ptr<Sample>& sample, bool matchKey) const
             {
                 for (const auto& [_, subscriber] : subscribers)

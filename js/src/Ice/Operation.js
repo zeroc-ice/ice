@@ -73,7 +73,7 @@ function parseOperation(name, arr) {
 
     r.name = name;
     r.servantMethod = arr[0] ? arr[0] : name;
-    r.mode = arr[1] ? OperationMode.valueOf(arr[1]) : OperationMode.Normal;
+    r.mode = OperationMode.valueOf(arr[1]);
     r.format = arr[2] ? FormatType.valueOf(arr[2]) : null;
 
     let ret;
@@ -231,12 +231,23 @@ function marshalParams(os, params, retvalInfo, paramInfo, optParamInfo, usesClas
     }
 }
 
+function checkMode(expected, received) {
+    if (received !== OperationMode.Normal && expected === OperationMode.Normal) {
+        // The caller believes the operation is idempotent or non-mutating, but the implementation (the local code)
+        // doesn't. This is a problem, as the Ice runtime could retry automatically when it shouldn't. Other
+        // mismatches are not a concern.
+        throw new MarshalException(`Operation mode mismatch: expected = ${expected} received = ${received}`);
+    }
+}
+
 function dispatchImpl(servant, op, request) {
     //
     // Check to make sure the servant implements the operation.
     //
     const method = servant[op.servantMethod];
     DEV: console.assert(typeof method === "function");
+
+    checkMode(op.mode, request.current.mode);
 
     //
     // Unmarshal the in params (if any).

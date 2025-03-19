@@ -7,19 +7,13 @@
 
 namespace Ice
 {
-    /**
-     * Determines the order in which the Ice run time uses the endpoints in a proxy when establishing a connection.
-     * \headerfile Ice/Ice.h
-     */
+    /// Determines the order in which the Ice run time uses the endpoints in a proxy when establishing a connection.
+    /// \headerfile Ice/Ice.h
     enum class EndpointSelectionType : std::uint8_t
     {
-        /**
-         * <code>Random</code> causes the endpoints to be arranged in a random order.
-         */
+        /// <code>Random</code> causes the endpoints to be arranged in a random order.
         Random,
-        /**
-         * <code>Ordered</code> forces the Ice run time to use the endpoints in the order they appeared in the proxy.
-         */
+        /// <code>Ordered</code> forces the Ice run time to use the endpoints in the order they appeared in the proxy.
         Ordered
     };
 }

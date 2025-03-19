@@ -16,10 +16,8 @@
 
 namespace IceBT
 {
-    /**
-     * Provides access to Bluetooth endpoint information.
-     * \headerfile IceBT/IceBT.h
-     */
+    /// Provides access to Bluetooth endpoint information.
+    /// \headerfile IceBT/IceBT.h
     class ICEBT_API EndpointInfo final : public Ice::EndpointInfo
     {
     public:
@@ -30,14 +28,10 @@ namespace IceBT
         [[nodiscard]] std::int16_t type() const noexcept final { return _type; }
         [[nodiscard]] bool secure() const noexcept final { return _secure; }
 
-        /**
-         * The address configured with the endpoint.
-         */
+        /// The address configured with the endpoint.
         const std::string addr;
 
-        /**
-         * The UUID configured with the endpoint.
-         */
+        /// The UUID configured with the endpoint.
         const std::string uuid;
 
         // internal constructor

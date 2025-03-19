@@ -16,3 +16,17 @@ public final class IncomingRequest {
         self.inputStream = inputStream
     }
 }
+
+extension IncomingRequest {
+    /// Makes sure the operation mode received with the request is not idempotent.
+    /// - Throws: `MarshalException` if the operation mode is idempotent or nonmutating.
+    public func checkNonIdempotent() throws {
+        if current.mode != .normal {  // i.e. idempotent or non-mutating
+            // The caller believes the operation is idempotent or non-mutating, but the implementation (the local code)
+            // doesn't. This is a problem, as the Ice runtime could retry automatically when it shouldn't.
+            throw MarshalException(
+                "Operation mode mismatch for operation '\(current.operation)': received \(current.mode) for non-idempotent operation"
+            )
+        }
+    }
+}
