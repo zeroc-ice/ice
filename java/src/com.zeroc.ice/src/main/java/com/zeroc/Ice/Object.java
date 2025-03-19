@@ -159,22 +159,4 @@ public interface Object {
                 request.current.createOutgoingResponse(
                         ret, (ostr, value) -> ostr.writeString(value), FormatType.CompactFormat));
     }
-
-    /**
-     * @hidden
-     * @param expected -
-     * @param received -
-     */
-    static void _iceCheckMode(OperationMode expected, OperationMode received) {
-        if (received != OperationMode.Normal && expected == OperationMode.Normal) {
-            // The caller believes the operation is idempotent or non-mutating, but the
-            // implementation (the local code) doesn't. This is a problem, as the Ice runtime
-            // could retry automatically when it shouldn't. Other mismatches are not a concern.
-            throw new MarshalException(
-                    "Operation mode mismatch: expected = "
-                            + expected.toString()
-                            + " received = "
-                            + received.toString());
-        }
-    }
 }
