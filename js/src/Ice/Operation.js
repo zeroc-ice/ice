@@ -232,7 +232,7 @@ function marshalParams(os, params, retvalInfo, paramInfo, optParamInfo, usesClas
 }
 
 function checkMode(expected, received) {
-    if (received != OperationMode.Normal && expected == OperationMode.Normal) {
+    if (received !== OperationMode.Normal && expected === OperationMode.Normal) {
         // The caller believes the operation is idempotent or non-mutating, but the implementation (the local code)
         // doesn't. This is a problem, as the Ice runtime could retry automatically when it shouldn't. Other
         // mismatches are not a concern.
