@@ -1611,7 +1611,8 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     _out << sp;
     ostringstream classComment;
-    classComment << "Provides methods to marshal and unmarshal a <see cref=\"" << name << "\" />.";
+    classComment << "Provides methods to marshal and unmarshal " << getArticleFor(name) << " <see cref=\"" << name
+                 << "\" />.";
     writeHelperDocComment(p, classComment.str(), "enum helper class");
     _out << nl << "public sealed class " << name << "Helper";
     _out << sb;
@@ -2031,7 +2032,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out.dec();
 
     ostringstream checkedCastSummary;
-    checkedCastSummary << "Downcasts a proxy to a <see cref=\"" << name
+    checkedCastSummary << "Downcasts a proxy to " << getArticleFor(name) << " <see cref=\"" << name
                        << "Prx\" /> after checking that the target object implements Slice interface <c>" << p->name()
                        << "</c>.";
 
@@ -2053,7 +2054,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out.dec();
 
     ostringstream checkedCastWithFacetSummary;
-    checkedCastWithFacetSummary << "Downcasts a proxy to a <see cref=\"" << name
+    checkedCastWithFacetSummary << "Downcasts a proxy to " << getArticleFor(name) << " <see cref=\"" << name
                                 << "Prx\" /> after checking that the target facet implements Slice interface <c>"
                                 << p->name() << "</c>.";
 
@@ -2102,7 +2103,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out.dec();
 
     ostringstream uncheckedCastSummary;
-    uncheckedCastSummary << "Downcasts a proxy to a <see cref=\"" << name
+    uncheckedCastSummary << "Downcasts a proxy to " << getArticleFor(name) << " <see cref=\"" << name
                          << "Prx\" />. This method does not perform any check.";
 
     _out << sp;
@@ -2116,7 +2117,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out.dec();
 
     ostringstream uncheckedCastWithFacetSummary;
-    uncheckedCastWithFacetSummary << "Downcasts a proxy to a <see cref=\"" << name
+    uncheckedCastWithFacetSummary << "Downcasts a proxy to " << getArticleFor(name) << " <see cref=\"" << name
                                   << "Prx\" /> after changing its facet. This method does not perform any check.";
 
     _out << sp;
