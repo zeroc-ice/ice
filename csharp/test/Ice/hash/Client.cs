@@ -277,9 +277,9 @@ public class Client : Test.TestHelper
             int exceptionCollisions = 0;
             for (i = 0; i < maxIterations && exceptionCollisions < maxCollisions; ++i)
             {
-                Test.OtherException ex = new Test.OtherException(rand.Next(100) * 2 ^ 30,
-                                                                 rand.Next(100) * 2 ^ 30,
-                                                                 rand.Next(100) * 2 ^ 30,
+                Test.OtherException ex = new Test.OtherException((rand.Next(100) * 2) ^ 30,
+                                                                 (rand.Next(100) * 2) ^ 30,
+                                                                 (rand.Next(100) * 2) ^ 30,
                                                                  false);
 
                 if (seenException.ContainsKey(ex.GetHashCode()))
