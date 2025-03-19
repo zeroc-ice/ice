@@ -826,7 +826,7 @@ ZEND_FUNCTION(Ice_stringToProtocolVersion)
     }
     string s(str, strLen);
 
-    if (!stringToVersion<Ice::ProtocolVersion>(s, return_value, Ice_ProtocolVersion))
+    if (!stringToVersion<Ice::ProtocolVersion>(s, return_value, Ice_ProtocolVersionType))
     {
         RETURN_NULL();
     }
@@ -859,7 +859,7 @@ ZEND_FUNCTION(Ice_stringToEncodingVersion)
     }
     string s(str, strLen);
 
-    if (!stringToVersion<Ice::EncodingVersion>(s, return_value, Ice_EncodingVersion))
+    if (!stringToVersion<Ice::EncodingVersion>(s, return_value, Ice_EncodingVersionType))
     {
         RETURN_NULL();
     }
