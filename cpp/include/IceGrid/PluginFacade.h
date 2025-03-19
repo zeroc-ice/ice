@@ -11,7 +11,8 @@ namespace IceGrid
     /// The ReplicaGroupFilter is used by IceGrid to filter adapters returned to the client when it resolves a filtered
     /// replica group.
     /// IceGrid provides the list of available adapters. The implementation of this method can use the provided context
-    /// and connection to filter and return the filtered set of adapters. \headerfile IceGrid/IceGrid.h
+    /// and connection to filter and return the filtered set of adapters.
+    /// \headerfile IceGrid/IceGrid.h
     class ReplicaGroupFilter
     {
     public:
