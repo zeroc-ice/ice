@@ -18,6 +18,8 @@
 #include "Util.h"
 #include "slice2py/PythonUtil.h"
 
+#include <algorithm>
+
 using namespace std;
 using namespace IcePy;
 using namespace Slice::Python;
@@ -1274,7 +1276,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, pair<const byte*, co
         {
             if (!info->optional)
             {
-                void* closure = reinterpret_cast<void*>(info->pos);
+                void* closure = reinterpret_cast<void*>(info->pos); // NOLINT(performance-no-int-to-ptr)
                 info->type->unmarshal(&is, info, results.get(), closure, false, &info->metadata);
             }
         }
@@ -1285,7 +1287,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, pair<const byte*, co
         if (op->returnType && !op->returnType->optional)
         {
             assert(op->returnType->pos == 0);
-            void* closure = reinterpret_cast<void*>(op->returnType->pos);
+            void* closure = reinterpret_cast<void*>(op->returnType->pos); // NOLINT(performance-no-int-to-ptr)
             op->returnType->type->unmarshal(&is, op->returnType, results.get(), closure, false, &op->metadata);
         }
 
@@ -1296,7 +1298,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, pair<const byte*, co
         {
             if (is.readOptional(info->tag, info->type->optionalFormat()))
             {
-                void* closure = reinterpret_cast<void*>(info->pos);
+                void* closure = reinterpret_cast<void*>(info->pos); // NOLINT(performance-no-int-to-ptr)
                 info->type->unmarshal(&is, info, results.get(), closure, true, &info->metadata);
             }
             else
@@ -2200,7 +2202,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*> i
             {
                 if (!info->optional)
                 {
-                    void* closure = reinterpret_cast<void*>(info->pos);
+                    void* closure = reinterpret_cast<void*>(info->pos); // NOLINT(performance-no-int-to-ptr)
                     info->type->unmarshal(&is, info, args.get(), closure, false, &info->metadata);
                 }
             }
@@ -2212,7 +2214,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*> i
             {
                 if (is.readOptional(info->tag, info->type->optionalFormat()))
                 {
-                    void* closure = reinterpret_cast<void*>(info->pos);
+                    void* closure = reinterpret_cast<void*>(info->pos); // NOLINT(performance-no-int-to-ptr)
                     info->type->unmarshal(&is, info, args.get(), closure, true, &info->metadata);
                 }
                 else

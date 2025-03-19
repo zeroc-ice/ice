@@ -19,7 +19,7 @@ Checks:
 '
 WarningsAsErrors:  '*'
 HeaderFilterRegex: '.*'
-ExcludeHeaderFilterRegex: 'include/lmdb.h|Grammar.h|dbus/*'
+ExcludeHeaderFilterRegex: 'include/lmdb.h|include/python*/*|Grammar.h|dbus/*'
 UseColor: true
 FormatStyle: 'file'
 CheckOptions:
