@@ -93,7 +93,8 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         _delegate.destroy();
         if (!_verified && _writeResult is not null)
         {
-            // If the SSL handshake is still in progress cancel it and wait for it ot finish before disposing the stream
+            // If the SSL handshake is still in progress, cancel it and wait for its completion before disposing of the
+            // stream.
             _sslHandshakeCts.Cancel();
             try
             {
@@ -106,6 +107,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         }
         Debug.Assert(_writeResult is null || _writeResult.IsCompleted);
         _sslStream?.Dispose();
+        _sslHandshakeCts.Dispose();
     }
 
     public int write(Ice.Internal.Buffer buf) =>
