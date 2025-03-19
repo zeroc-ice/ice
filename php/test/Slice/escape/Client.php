@@ -10,7 +10,7 @@ function allTests($helper)
     echo "testing type names... ";
     flush();
 
-    test($another_name == 1)
+    test($another_name == 1);
     $b = new escapedAnd\_xor();
     test($b->_abstract == 0);
     test($b->_var == 0);
