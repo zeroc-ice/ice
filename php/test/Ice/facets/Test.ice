@@ -4,6 +4,7 @@
 
 module Test
 {
+    ["php:identifier:_Empty"]
     interface Empty
     {
     }
