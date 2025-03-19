@@ -154,20 +154,6 @@ Ice::Object::dispatch(IncomingRequest& request, std::function<void(OutgoingRespo
 }
 
 void
-Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
-{
-    if (received != OperationMode::Normal && expected == OperationMode::Normal)
-    {
-        // The caller believes the operation is idempotent or non-mutating, but the implementation (the local code)
-        // doesn't. This is a problem, as the Ice runtime could retry automatically when it shouldn't. Other mismatches
-        // are not a concern.
-        ostringstream os;
-        os << "operation mode mismatch: expected = " << expected << " received = " << received;
-        throw MarshalException{__FILE__, __LINE__, os.str()};
-    }
-}
-
-void
 Ice::Blobject::dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse)
 {
     const Current& current = request.current();

@@ -2481,7 +2481,11 @@ Slice::Gen::ServantVisitor::visitOperation(const OperationPtr& op)
     ParameterList inParams = op->inParameters();
     ParameterList outParams = op->outParameters();
 
-    _out << nl << "Ice.ObjectImpl.iceCheckMode(" << sliceModeToIceMode(op->mode()) << ", request.current.mode);";
+    if (op->mode() == Operation::Mode::Normal)
+    {
+        _out << nl << "Ice.CurrentExtensions.checkNonIdempotent(request.current);";
+    }
+
     if (!inParams.empty())
     {
         // Unmarshal 'in' parameters.

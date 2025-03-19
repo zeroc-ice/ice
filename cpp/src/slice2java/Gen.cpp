@@ -3691,8 +3691,10 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         const bool amd = p->hasMetadata("amd") || op->hasMetadata("amd");
         const ParameterList inParams = op->inParameters();
 
-        out << nl << "com.zeroc.Ice.Object._iceCheckMode(" << sliceModeToIceMode(op->mode())
-            << ", request.current.mode);";
+        if (op->mode() == Operation::Mode::Normal)
+        {
+            out << nl << "request.current.checkNonIdempotent();";
+        }
 
         if (!inParams.empty())
         {

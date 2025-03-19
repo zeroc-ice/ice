@@ -81,11 +81,6 @@ namespace Ice
         /// Gets the Slice type ID of this type.
         /// @return The return value is always "::Ice::Object".
         static const char* ice_staticId() noexcept;
-
-    protected:
-        /// \cond INTERNAL
-        static void _iceCheckMode(OperationMode, OperationMode);
-        /// \endcond
     };
 
     /// Base class for dynamic dispatch servants. A server application derives a concrete servant class
