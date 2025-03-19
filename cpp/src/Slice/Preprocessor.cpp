@@ -566,54 +566,6 @@ Slice::Preprocessor::printMakefileDependencies(
         }
         case SliceXML:
             break;
-        case Java:
-        case MATLAB:
-        {
-            //
-            // We want to shift the files left one position, so that
-            // "x.h: x.ice y.ice" becomes "x.ice: y.ice".
-            //
-
-            //
-            // Remove the first file.
-            //
-            string::size_type start = result.find(suffix);
-            assert(start != string::npos);
-            start = result.find_first_not_of(" \t\r\n\\", start + suffix.size()); // Skip to beginning of next file.
-            assert(start != string::npos);
-            result.erase(0, start);
-
-            //
-            // Find end of next file.
-            //
-            pos = 0;
-            while ((pos = result.find_first_of(" :\t\r\n\\", pos + 1)) != string::npos)
-            {
-                if (result[pos] == ':')
-                {
-                    result.insert(pos, 1, '\\'); // Escape colons.
-                    ++pos;
-                }
-                else if (result[pos] == '\\') // Ignore escaped characters.
-                {
-                    ++pos;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            if (pos == string::npos)
-            {
-                result.append(":");
-            }
-            else
-            {
-                result.insert(pos, 1, ':');
-            }
-            break;
-        }
         case CSharp:
         {
             //

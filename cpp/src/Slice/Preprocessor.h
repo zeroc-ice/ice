@@ -27,7 +27,6 @@ namespace Slice
         enum Language
         {
             CPlusPlus,
-            Java,
             CSharp,
             Python,
             Ruby,
@@ -36,7 +35,6 @@ namespace Slice
             JavaScriptJSON,
             ObjC,
             SliceXML,
-            MATLAB,
             Swift
         };
 
