@@ -7,6 +7,6 @@ on:
 
 jobs:
   call-build-nightly-release:
-    if: github.event.repository.fork == false
+    if: github.repository == 'zeroc-ice/ice'
     uses: ./.github/workflows/build-nightly-release-workflow.yml
     secrets: inherit
