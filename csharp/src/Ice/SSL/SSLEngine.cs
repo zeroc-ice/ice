@@ -1,12 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
-using Ice.Internal;
 using System.Diagnostics;
 using System.Net.Security;
 using System.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Ice.Internal;
 
 namespace Ice.SSL;
 

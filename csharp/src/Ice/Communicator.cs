@@ -2,8 +2,8 @@
 
 #nullable enable
 
-using Ice.Internal;
 using System.Net.Security;
+using Ice.Internal;
 
 namespace Ice;
 

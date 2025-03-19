@@ -11,8 +11,8 @@ tab_width = 4
 #### .NET Coding Conventions ####
 
 # Organize usings
-dotnet_separate_import_directive_groups = false
-dotnet_sort_system_directives_first = false
+dotnet_separate_import_directive_groups = false:warning
+dotnet_sort_system_directives_first = false:warning
 
 # this. and Me. preferences
 dotnet_style_qualification_for_event = false:suggestion

@@ -2,8 +2,8 @@
 
 #nullable enable
 
-using Ice.Internal;
 using System.Diagnostics;
+using Ice.Internal;
 
 namespace Ice;
 

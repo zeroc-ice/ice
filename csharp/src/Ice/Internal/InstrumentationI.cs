@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
-using IceMX;
 using System.Diagnostics;
 using System.Text;
+using IceMX;
 
 namespace Ice.Internal;
 

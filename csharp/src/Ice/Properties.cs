@@ -2,10 +2,10 @@
 
 #nullable enable
 
-using Ice.Internal;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using Ice.Internal;
 
 namespace Ice;
 

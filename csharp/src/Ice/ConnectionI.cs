@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-using Ice.Instrumentation;
-using Ice.Internal;
 using System.Diagnostics;
 using System.Text;
+using Ice.Instrumentation;
+using Ice.Internal;
 
 namespace Ice;
 

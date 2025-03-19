@@ -2,9 +2,9 @@
 
 #nullable enable
 
-using Ice.Internal;
 using System.Diagnostics;
 using System.Globalization;
+using Ice.Internal;
 using Protocol = Ice.Internal.Protocol;
 
 namespace Ice;

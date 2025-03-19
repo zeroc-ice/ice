@@ -2,12 +2,12 @@
 
 #nullable enable
 
-using Ice.Instrumentation;
-using Ice.Internal;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Security;
 using System.Text;
+using Ice.Instrumentation;
+using Ice.Internal;
 
 namespace Ice;
 
