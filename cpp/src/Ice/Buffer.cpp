@@ -90,6 +90,11 @@ IceInternal::Buffer::Container::operator=(Container&& other) noexcept
 {
     if (this != &other)
     {
+        // If we own the buffer, free it first.
+        if (_buf && _owned)
+        {
+            ::free(_buf);
+        }
         _buf = other._buf;
         _size = other._size;
         _capacity = other._capacity;
