@@ -8,10 +8,8 @@
 
 namespace Ice
 {
-    /**
-     * Generates a universally unique identifier (UUID).
-     * @return The UUID.
-     */
+    /// Generates a universally unique identifier (UUID).
+    /// @return The UUID.
     ICE_API std::string generateUUID();
 }
 

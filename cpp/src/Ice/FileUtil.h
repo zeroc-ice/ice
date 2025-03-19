@@ -127,19 +127,15 @@ namespace IceInternal
         std::string _path;
     };
 
-    /**
-     * This exception indicates the failure to lock a file.
-     */
+    /// This exception indicates the failure to lock a file.
     class ICE_API FileLockException final : public Ice::LocalException
     {
     public:
-        /**
-         * Constructs a FileLockException.
-         * @param file The file where this exception is constructed. This C string is not copied.
-         * @param line The line where this exception is constructed.
-         * @param error The error code.
-         * @param path The path of the file.
-         */
+        /// Constructs a FileLockException.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
+        /// @param error The error code.
+        /// @param path The path of the file.
         FileLockException(const char* file, int line, int error, const std::string& path);
 
         [[nodiscard]] const char* ice_id() const noexcept final;
