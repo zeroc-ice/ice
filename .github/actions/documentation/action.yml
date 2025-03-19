@@ -102,4 +102,4 @@ runs:
         AWS_S3_CODE_BUCKET: ${{ inputs.aws-s3-code-bucket }}
         AWS_DEFAULT_REGION: us-east-1
       shell: bash
-      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && github.event.repository.fork == false

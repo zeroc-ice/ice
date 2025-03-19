@@ -53,7 +53,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
           AWS_DEFAULT_REGION: us-east-1
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event.repository.fork == false
 
   generate-csharp-coverage-report:
     runs-on: ubuntu-24.04
@@ -100,7 +100,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
           AWS_DEFAULT_REGION: us-east-1
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event.repository.fork == false
 
   generate-java-coverage-report:
     runs-on: ubuntu-24.04
@@ -131,4 +131,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
           AWS_DEFAULT_REGION: us-east-1
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event.repository.fork == false
