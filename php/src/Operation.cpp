@@ -718,7 +718,7 @@ ZEND_FUNCTION(IcePHP_defineOperation)
 
     if (zend_parse_parameters(
             ZEND_NUM_ARGS(),
-            const_cast<char*>("oslla!a!a!a!"),
+            const_cast<char*>("osslla!a!a!a!"),
             &cls,
             &sliceName,
             &sliceNameLen,
