@@ -25,13 +25,6 @@ module escapedAnd
         ["php:identifier:_var"] int var = require_once;
     }
 
-    ["php:identifier:_echo"]
-    class echo
-    {
-        ["php:identifier:_if"] int if;
-        ["php:identifier:_empty"] die* empty;
-    }
-
     ["php:identifier:_endif"]
     exception endif
     {
@@ -57,6 +50,13 @@ module escapedAnd
     {
         ["php:identifier:_do"]
         void do();
+    }
+
+    ["php:identifier:_echo"]
+    class echo
+    {
+        ["php:identifier:_if"] int if;
+        ["php:identifier:_empty"] die* empty;
     }
 
     ["php:identifier:_enddeclare"]
