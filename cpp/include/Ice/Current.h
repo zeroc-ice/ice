@@ -12,60 +12,40 @@
 
 namespace Ice
 {
-    /**
-     * Information about an incoming request being dispatched.
-     * \headerfile Ice/Ice.h
-     */
+    /// Information about an incoming request being dispatched.
+    /// \headerfile Ice/Ice.h
     struct Current
     {
-        /**
-         * The object adapter.
-         */
+        /// The object adapter.
         ObjectAdapterPtr adapter;
 
-        /**
-         * Information about the connection over which the current method invocation was received. If the invocation is
-         * direct due to collocation optimization, this value is set to null.
-         */
+        /// Information about the connection over which the current method invocation was received. If the invocation is
+        /// direct due to collocation optimization, this value is set to null.
         ConnectionPtr con;
 
-        /**
-         * The Ice object identity.
-         */
+        /// The Ice object identity.
         Identity id;
 
-        /**
-         * The facet.
-         */
+        /// The facet.
         std::string facet;
 
-        /**
-         * The operation name.
-         */
+        /// The operation name.
         std::string operation;
 
-        /**
-         * The mode of the operation.
-         */
+        /// The mode of the operation.
         OperationMode mode;
 
-        /**
-         * The request context, as received from the client.
-         */
+        /// The request context, as received from the client.
         Context ctx;
 
-        /**
-         * The request id unless oneway (0).
-         */
+        /// The request id unless oneway (0).
         int requestId;
 
-        /**
-         * The encoding version used to encode the input and output parameters.
-         */
+        /// The encoding version used to encode the input and output parameters.
         EncodingVersion encoding;
     };
 
-    /** A default-initialized Current instance. */
+    /// A default-initialized Current instance.
     ICE_API extern const Current emptyCurrent;
 
     /// Makes sure the operation mode of an incoming request is not idempotent.

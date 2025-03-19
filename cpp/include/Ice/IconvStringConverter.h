@@ -193,12 +193,10 @@ namespace IceInternal
 
 namespace Ice
 {
-    /**
-     * Creates a string converter for the given code.
-     * @param internalCodeWithDefault The desired code. If empty or not provided, a default code is used.
-     * @return The converter object.
-     * @throws FeatureNotSupportedException If the code is not supported.
-     */
+    /// Creates a string converter for the given code.
+    /// @param internalCodeWithDefault The desired code. If empty or not provided, a default code is used.
+    /// @return The converter object.
+    /// @throws FeatureNotSupportedException If the code is not supported.
     template<typename charT>
     std::shared_ptr<Ice::BasicStringConverter<charT>>
     createIconvStringConverter(const std::string& internalCodeWithDefault = "")

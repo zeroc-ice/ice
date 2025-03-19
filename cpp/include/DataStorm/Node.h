@@ -10,13 +10,11 @@ namespace DataStorm
 {
     template<typename, typename, typename> class Topic;
 
-    /**
-     * The exception NodeShutdownException. It's raised by methods which might block waiting for a condition to
-     * occur and after the node has been shutdown. It informs the application that the condition won't occur
-     * because the DataStorm node is being shutdown and will disconnect from other nodes.
-     *
-     * @headerfile DataStorm/DataStorm.h
-     */
+    /// The exception NodeShutdownException. It's raised by methods which might block waiting for a condition to
+    /// occur and after the node has been shutdown. It informs the application that the condition won't occur
+    /// because the DataStorm node is being shutdown and will disconnect from other nodes.
+    ///
+    /// @headerfile DataStorm/DataStorm.h
     class DATASTORM_API NodeShutdownException final : public std::exception
     {
     public:
@@ -25,46 +23,40 @@ namespace DataStorm
         [[nodiscard]] const char* what() const noexcept final;
     };
 
-    /**
-     * The Node class allows creating topic readers and writers.
-     *
-     * A Node is the main DataStorm object which allows creating topic readers or writers.
-     *
-     * @headerfile DataStorm/DataStorm.h
-     */
+    /// The Node class allows creating topic readers and writers.
+    ///
+    /// A Node is the main DataStorm object which allows creating topic readers or writers.
+    ///
+    /// @headerfile DataStorm/DataStorm.h
     class DATASTORM_API Node
     {
     public:
-        /**
-         * Construct a DataStorm node.
-         *
-         * A node is the main DataStorm object. It is required to construct topics.
-         *
-         * @param argc The number of arguments in argv.
-         * @param argv The configuration arguments.
-         * @param configFile The path to an optional Ice configuration file.
-         * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
-         * provided the Node will use the default callback executor that executes callback in a dedicated thread.
-         *
-         */
+        /// Construct a DataStorm node.
+        ///
+        /// A node is the main DataStorm object. It is required to construct topics.
+        ///
+        /// @param argc The number of arguments in argv.
+        /// @param argv The configuration arguments.
+        /// @param configFile The path to an optional Ice configuration file.
+        /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+        /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
+        ///
         Node(
             int& argc,
             const char* argv[],
             std::optional<std::string_view> configFile = std::nullopt,
             std::function<void(std::function<void()> call)> customExecutor = nullptr);
 
-        /**
-         * Construct a DataStorm node.
-         *
-         * A node is the main DataStorm object. It is required to construct topics.
-         *
-         * @param argc The number of arguments in argv.
-         * @param argv The configuration arguments.
-         * @param configFile The path to an optional Ice configuration file.
-         * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
-         * provided the Node will use the default callback executor that executes callback in a dedicated thread.
-         *
-         */
+        /// Construct a DataStorm node.
+        ///
+        /// A node is the main DataStorm object. It is required to construct topics.
+        ///
+        /// @param argc The number of arguments in argv.
+        /// @param argv The configuration arguments.
+        /// @param configFile The path to an optional Ice configuration file.
+        /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+        /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
+        ///
         Node(
             int& argc,
             char* argv[],
@@ -75,36 +67,32 @@ namespace DataStorm
         }
 
 #ifdef _WIN32
-        /**
-         * Construct a DataStorm node.
-         *
-         * A node is the main DataStorm object. It is required to construct topics.
-         *
-         * @param argc The number of arguments in argv.
-         * @param argv The configuration arguments.
-         * @param configFile The path to an optional Ice configuration file.
-         * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
-         * provided the Node will use the default callback executor that executes callback in a dedicated thread.
-         *
-         */
+        /// Construct a DataStorm node.
+        ///
+        /// A node is the main DataStorm object. It is required to construct topics.
+        ///
+        /// @param argc The number of arguments in argv.
+        /// @param argv The configuration arguments.
+        /// @param configFile The path to an optional Ice configuration file.
+        /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+        /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
+        ///
         Node(
             int& argc,
             const wchar_t* argv[],
             std::optional<std::string_view> configFile = std::nullopt,
             std::function<void(std::function<void()> call)> customExecutor = nullptr);
 
-        /**
-         * Construct a DataStorm node.
-         *
-         * A node is the main DataStorm object. It is required to construct topics.
-         *
-         * @param argc The number of arguments in argv.
-         * @param argv The configuration arguments.
-         * @param configFile The path to an optional Ice configuration file.
-         * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
-         * provided the Node will use the default callback executor that executes callback in a dedicated thread.
-         *
-         */
+        /// Construct a DataStorm node.
+        ///
+        /// A node is the main DataStorm object. It is required to construct topics.
+        ///
+        /// @param argc The number of arguments in argv.
+        /// @param argv The configuration arguments.
+        /// @param configFile The path to an optional Ice configuration file.
+        /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+        /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
+        ///
         Node(
             int& argc,
             wchar_t* argv[],
@@ -115,84 +103,64 @@ namespace DataStorm
         }
 #endif
 
-        /**
-         * Construct a DataStorm node.
-         *
-         * A node is the main DataStorm object. It is required to construct topics.
-         *
-         * @param configFile The path to an optional Ice configuration file.
-         * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
-         * provided the Node will use the default callback executor that executes callback in a dedicated thread.
-         */
+        /// Construct a DataStorm node.
+        ///
+        /// A node is the main DataStorm object. It is required to construct topics.
+        ///
+        /// @param configFile The path to an optional Ice configuration file.
+        /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+        /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
         Node(
             std::optional<std::string_view> configFile = std::nullopt,
             std::function<void(std::function<void()> call)> customExecutor = nullptr);
 
-        /**
-         * Construct a DataStorm node.
-         *
-         * A node is the main DataStorm object. It is required to construct topics. The node uses the given Ice
-         * communicator.
-         *
-         * @param communicator The Ice communicator used by the topic factory for its configuration and communications.
-         * This communicator must be initialized with a property set to use the "DataStorm" opt-in prefix.
-         * @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
-         * provided the Node will use the default callback executor that executes callback in a dedicated thread.
-         */
+        /// Construct a DataStorm node.
+        ///
+        /// A node is the main DataStorm object. It is required to construct topics. The node uses the given Ice
+        /// communicator.
+        ///
+        /// @param communicator The Ice communicator used by the topic factory for its configuration and communications.
+        /// This communicator must be initialized with a property set to use the "DataStorm" opt-in prefix.
+        /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+        /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
         Node(
             Ice::CommunicatorPtr communicator,
             std::function<void(std::function<void()> call)> customExecutor = nullptr);
 
-        /**
-         * Construct a new Node by taking ownership of the given node.
-         *
-         * @param node The node to transfer ownership from.
-         */
+        /// Construct a new Node by taking ownership of the given node.
+        ///
+        /// @param node The node to transfer ownership from.
         Node(Node&& node) noexcept;
 
-        /**
-         * Node destructor. The node destruction releases associated resources. If the node created the Ice
-         * communicator, the communicator is destroyed.
-         */
+        /// Node destructor. The node destruction releases associated resources. If the node created the Ice
+        /// communicator, the communicator is destroyed.
         ~Node();
 
-        /**
-         * Shutdown the node. The shutdown interrupts calls which are waiting for events, writers or readers.
-         **/
+        /// Shutdown the node. The shutdown interrupts calls which are waiting for events, writers or readers.
         void shutdown() noexcept;
 
-        /**
-         * Return whether or not the node shutdown has been initiated.
-         *
-         * @return True if the node is shutdown, false otherwise.
-         */
+        /// Return whether or not the node shutdown has been initiated.
+        ///
+        /// @return True if the node is shutdown, false otherwise.
         [[nodiscard]] bool isShutdown() const noexcept;
 
-        /**
-         * Wait for shutdown to be called.
-         */
+        /// Wait for shutdown to be called.
         void waitForShutdown() const noexcept;
 
-        /**
-         * Move assignment operator.
-         *
-         * @param node The node.
-         **/
+        /// Move assignment operator.
+        ///
+        /// @param node The node.
         Node& operator=(Node&& node) noexcept;
 
-        /**
-         * Returns the Ice communicator associated with the node.
-         */
+        /// Returns the Ice communicator associated with the node.
         [[nodiscard]] Ice::CommunicatorPtr getCommunicator() const noexcept;
 
-        /**
-         * Returns the Ice connection associated with a session given a session identifier. Session identifiers are
-         * provided with the sample origin data member as the first tuple element.
-         *
-         * @param ident The session identifier.
-         * @return The connection associated with the given session
-         * @see DataStorm::Sample::ElementId DataStorm::Sample::getSession
-         */
+        /// Returns the Ice connection associated with a session given a session identifier. Session identifiers are
+        /// provided with the sample origin data member as the first tuple element.
+        ///
+        /// @param ident The session identifier.
+        /// @return The connection associated with the given session
+        /// @see DataStorm::Sample::ElementId DataStorm::Sample::getSession
         [[nodiscard]] Ice::ConnectionPtr getSessionConnection(std::string_view ident) const noexcept;
 
     private:
