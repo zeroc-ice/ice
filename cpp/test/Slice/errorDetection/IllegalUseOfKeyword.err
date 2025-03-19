@@ -1,23 +1,26 @@
-IllegalUseOfKeyword.ice:7: keyword 'module' cannot be used as exception name
-IllegalUseOfKeyword.ice:7: exceptions cannot be forward declared
-IllegalUseOfKeyword.ice:8: keyword 'void' cannot be used as exception name
-IllegalUseOfKeyword.ice:13: keyword 'exception' cannot be used as struct name
-IllegalUseOfKeyword.ice:13: structs cannot be forward declared
-IllegalUseOfKeyword.ice:14: keyword 'class' cannot be used as struct name
-IllegalUseOfKeyword.ice:19: keyword 'interface' cannot be used as class name
-IllegalUseOfKeyword.ice:20: keyword 'struct' cannot be used as class name
-IllegalUseOfKeyword.ice:27: keyword 'extends' cannot be used as interface name
-IllegalUseOfKeyword.ice:36: keyword 'throws' cannot be used as parameter name
-IllegalUseOfKeyword.ice:36: keyword 'void' cannot be used as parameter name
-IllegalUseOfKeyword.ice:38: keyword 'byte' cannot be used as parameter name
-IllegalUseOfKeyword.ice:38: keyword 'short' cannot be used as parameter name
-IllegalUseOfKeyword.ice:43: keyword 'int' cannot be used as data member name
-IllegalUseOfKeyword.ice:44: keyword 'long' cannot be used as data member name
-IllegalUseOfKeyword.ice:45: keyword 'float' cannot be used as data member name
-IllegalUseOfKeyword.ice:46: keyword 'double' cannot be used as data member name
-IllegalUseOfKeyword.ice:49: keyword 'Object' cannot be used as sequence name
-IllegalUseOfKeyword.ice:53: keyword 'string' cannot be used as enumeration name
-IllegalUseOfKeyword.ice:60: keyword 'sequence' cannot be used as enumerator
-IllegalUseOfKeyword.ice:61: keyword 'dictionary' cannot be used as enumerator
-IllegalUseOfKeyword.ice:62: keyword 'enum' cannot be used as enumerator
-IllegalUseOfKeyword.ice:66: illegal inheritance from type Object
+IllegalUseOfKeyword.ice:5: keyword 'module' cannot be used as exception name
+IllegalUseOfKeyword.ice:5: exceptions cannot be forward declared
+IllegalUseOfKeyword.ice:6: keyword 'void' cannot be used as exception name
+IllegalUseOfKeyword.ice:11: keyword 'exception' cannot be used as struct name
+IllegalUseOfKeyword.ice:11: structs cannot be forward declared
+IllegalUseOfKeyword.ice:12: keyword 'class' cannot be used as struct name
+IllegalUseOfKeyword.ice:17: keyword 'idempotent' cannot be used as class name
+IllegalUseOfKeyword.ice:18: keyword 'struct' cannot be used as class name
+IllegalUseOfKeyword.ice:23: keyword 'interface' cannot be used as interface name
+IllegalUseOfKeyword.ice:24: keyword 'extends' cannot be used as interface name
+IllegalUseOfKeyword.ice:31: keyword 'module' cannot be used as operation name
+IllegalUseOfKeyword.ice:33: keyword 'throws' cannot be used as parameter name
+IllegalUseOfKeyword.ice:33: keyword 'void' cannot be used as parameter name
+IllegalUseOfKeyword.ice:35: keyword 'byte' cannot be used as parameter name
+IllegalUseOfKeyword.ice:35: keyword 'short' cannot be used as parameter name
+IllegalUseOfKeyword.ice:40: keyword 'int' cannot be used as data member name
+IllegalUseOfKeyword.ice:41: keyword 'long' cannot be used as data member name
+IllegalUseOfKeyword.ice:42: keyword 'float' cannot be used as data member name
+IllegalUseOfKeyword.ice:43: keyword 'double' cannot be used as data member name
+IllegalUseOfKeyword.ice:46: keyword 'Object' cannot be used as sequence name
+IllegalUseOfKeyword.ice:48: keyword 'dictionary' cannot be used as dictionary name
+IllegalUseOfKeyword.ice:50: keyword 'string' cannot be used as enumeration name
+IllegalUseOfKeyword.ice:57: keyword 'sequence' cannot be used as enumerator
+IllegalUseOfKeyword.ice:58: keyword 'dictionary' cannot be used as enumerator
+IllegalUseOfKeyword.ice:59: keyword 'enum' cannot be used as enumerator
+IllegalUseOfKeyword.ice:63: illegal inheritance from type Object
