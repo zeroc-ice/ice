@@ -22,17 +22,5 @@ public class PluginThreeFailFactory : Ice.PluginFactory
         {
             test(false);
         }
-
-        ~PluginThreeFail()
-        {
-            if (_initialized)
-            {
-                Console.WriteLine("PluginThreeFail was initialized");
-            }
-            if (_destroyed)
-            {
-                Console.WriteLine("PluginThreeFail was destroyed");
-            }
-        }
     }
 }

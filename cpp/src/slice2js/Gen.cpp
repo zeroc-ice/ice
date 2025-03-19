@@ -1279,12 +1279,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 _out << "\"" << opName << "\""; // Native method name.
             }
-            _out << ", ";
-
-            if (op->mode() != Operation::Normal)
-            {
-                _out << sliceModeToIceMode(op->mode()); // Mode.
-            }
+            _out << ", " << sliceModeToIceMode(op->mode()); // Mode.
             _out << ", ";
 
             if (op->format())
