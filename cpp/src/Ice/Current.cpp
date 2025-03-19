@@ -16,7 +16,7 @@ Ice::checkNonIdempotent(const Current& current)
     {
         ostringstream os;
         os << "operation mode mismatch for operation '" << current.operation << "': received = " << current.mode
-            << " for non-idempotent operation";
+           << " for non-idempotent operation";
         throw MarshalException{__FILE__, __LINE__, os.str()};
     }
 }
