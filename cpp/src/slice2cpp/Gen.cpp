@@ -2216,8 +2216,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
                 auto r = allDocComments.find(dataMember->name());
                 if (r != allDocComments.end())
                 {
-                    H << nl << "/// @param " << dataMember->mappedName() << " "
-                        << getDocSentence(r->second.overview());
+                    H << nl << "/// @param " << dataMember->mappedName() << " " << getDocSentence(r->second.overview());
                 }
             }
             H << nl << name << "(";
@@ -2886,6 +2885,11 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         string_view outgoingResponseType = inIceModule ? "OutgoingResponse" : "Ice::OutgoingResponse";
 
         H << sp;
+        H << nl
+          << "/// Dispatches an incoming request to one of the member functions of this generated class, based on the "
+             "operation name carried by the request.";
+        H << nl << "/// @param request The incoming request.";
+        H << nl << "/// @param sendResponse The callback to send the response.";
         H << nl << "void dispatch(" << incomingRequestType << "& request, std::function<void(" << outgoingResponseType
           << ")> sendResponse) override;";
 
