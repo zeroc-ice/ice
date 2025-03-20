@@ -456,15 +456,12 @@ internal sealed class StreamSocket
 
     private int toState(int operation)
     {
-        switch (operation)
+        return operation switch
         {
-            case SocketOperation.Read:
-                return StateProxyRead;
-            case SocketOperation.Write:
-                return StateProxyWrite;
-            default:
-                return StateProxyConnected;
-        }
+            SocketOperation.Read => StateProxyRead,
+            SocketOperation.Write => StateProxyWrite,
+            _ => StateProxyConnected,
+        };
     }
 
     private readonly ProtocolInstance _instance;

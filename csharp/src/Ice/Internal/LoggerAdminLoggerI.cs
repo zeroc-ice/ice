@@ -73,9 +73,7 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
 
     internal LoggerAdminLoggerI(Ice.Properties props, Ice.Logger localLogger)
     {
-        var wrapper = localLogger as LoggerAdminLoggerI;
-
-        if (wrapper != null)
+        if (localLogger is LoggerAdminLoggerI wrapper)
         {
             _localLogger = wrapper.getLocalLogger();
         }

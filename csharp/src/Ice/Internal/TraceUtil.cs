@@ -322,21 +322,15 @@ internal sealed class TraceUtil
 
     private static string getMessageTypeAsString(byte type)
     {
-        switch (type)
+        return type switch
         {
-            case Protocol.requestMsg:
-                return "request";
-            case Protocol.requestBatchMsg:
-                return "batch request";
-            case Protocol.replyMsg:
-                return "reply";
-            case Protocol.closeConnectionMsg:
-                return "close connection";
-            case Protocol.validateConnectionMsg:
-                return "validate connection";
-            default:
-                return "unknown";
-        }
+            Protocol.requestMsg => "request",
+            Protocol.requestBatchMsg => "batch request",
+            Protocol.replyMsg => "reply",
+            Protocol.closeConnectionMsg => "close connection",
+            Protocol.validateConnectionMsg => "validate connection",
+            _ => "unknown",
+        };
     }
 
     private static readonly object _globalMutex = new object();

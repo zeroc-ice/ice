@@ -311,8 +311,7 @@ public sealed class Timer
             {
                 return true;
             }
-            var t = o as Token;
-            return t == null ? false : CompareTo(t) == 0;
+            return o is not Token t ? false : CompareTo(t) == 0;
         }
 
         public override int GetHashCode() => HashCode.Combine(id, scheduledTime);
