@@ -46,7 +46,7 @@ internal class Request : TaskCompletionSource<Ice.Object_Ice_invokeResult>
         {
             try
             {
-                var result =
+                Ice.Object_Ice_invokeResult result =
                     await locator.ice_invokeAsync(_operation, _mode, _inParams, _context).ConfigureAwait(false);
                 SetResult(result);
             }
@@ -95,22 +95,13 @@ internal class Request : TaskCompletionSource<Ice.Object_Ice_invokeResult>
 internal class VoidLocatorI : Ice.LocatorDisp_
 {
     public override Task<Ice.ObjectPrx>
-    findObjectByIdAsync(Ice.Identity id, Ice.Current current)
-    {
-        return Task.FromResult<Ice.ObjectPrx>(null);
-    }
+    findObjectByIdAsync(Ice.Identity id, Ice.Current current) => Task.FromResult<Ice.ObjectPrx>(null);
 
     public override Task<Ice.ObjectPrx>
-    findAdapterByIdAsync(string id, Ice.Current current)
-    {
-        return Task.FromResult<Ice.ObjectPrx>(null);
-    }
+    findAdapterByIdAsync(string id, Ice.Current current) => Task.FromResult<Ice.ObjectPrx>(null);
 
     public override Ice.LocatorRegistryPrx
-    getRegistry(Ice.Current current)
-    {
-        return null;
-    }
+    getRegistry(Ice.Current current) => null;
 }
 
 internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
@@ -165,14 +156,14 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
         // Use a lookup reply proxy whose address matches the interface used to send multicast datagrams.
         //
         var single = new Ice.Endpoint[1];
-        foreach (var key in new List<LookupPrx>(_lookups.Keys))
+        foreach (LookupPrx key in new List<LookupPrx>(_lookups.Keys))
         {
             var info = (Ice.UDPEndpointInfo)key.ice_getEndpoints()[0].getInfo();
             if (info.mcastInterface.Length > 0)
             {
-                foreach (var q in lookupReply.ice_getEndpoints())
+                foreach (Ice.Endpoint q in lookupReply.ice_getEndpoints())
                 {
-                    var r = q.getInfo();
+                    Ice.EndpointInfo r = q.getInfo();
                     if (r is Ice.IPEndpointInfo &&
                         ((Ice.IPEndpointInfo)r).host.Equals(info.mcastInterface, StringComparison.Ordinal))
                     {
@@ -222,7 +213,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
             {
                 if (_traceLevel > 2)
                 {
-                    StringBuilder s = new StringBuilder("ignoring locator reply: instance name doesn't match\n");
+                    var s = new StringBuilder("ignoring locator reply: instance name doesn't match\n");
                     s.Append("expected = ").Append(_instanceName);
                     s.Append("received = ").Append(locator.ice_getIdentity().category);
                     _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.ToString());
@@ -262,7 +253,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
             if (_traceLevel > 0)
             {
-                StringBuilder s = new StringBuilder("locator lookup succeeded:\nlocator = ");
+                var s = new StringBuilder("locator lookup succeeded:\nlocator = ");
                 s.Append(locator);
                 if (_instanceName.Length > 0)
                 {
@@ -286,7 +277,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                 // We found another locator replica, append its endpoints to the
                 // current locator proxy endpoints.
                 //
-                List<Ice.Endpoint> newEndpoints = new List<Ice.Endpoint>(l.ice_getEndpoints());
+                var newEndpoints = new List<Ice.Endpoint>(l.ice_getEndpoints());
                 foreach (Ice.Endpoint p in locator.ice_getEndpoints())
                 {
                     //
@@ -368,7 +359,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                     {
                         if (_traceLevel > 1)
                         {
-                            StringBuilder s = new StringBuilder("looking up locator:\nlookup = ");
+                            var s = new StringBuilder("looking up locator:\nlookup = ");
                             s.Append(_lookup);
                             if (_instanceName.Length > 0)
                             {
@@ -377,7 +368,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                             _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.ToString());
                         }
 
-                        foreach (var l in _lookups)
+                        foreach (KeyValuePair<LookupPrx, LookupReplyPrx> l in _lookups)
                         {
                             _ = performFindLocatorAsync(l.Key, l.Value);
                         }
@@ -387,7 +378,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                     {
                         if (_traceLevel > 0)
                         {
-                            StringBuilder s = new StringBuilder("locator lookup failed:\nlookup = ");
+                            var s = new StringBuilder("locator lookup failed:\nlookup = ");
                             s.Append(_lookup);
                             if (_instanceName.Length > 0)
                             {
@@ -441,7 +432,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
                 if (_warnOnce)
                 {
-                    StringBuilder builder = new StringBuilder();
+                    var builder = new StringBuilder();
                     builder.Append("failed to lookup locator with lookup proxy `");
                     builder.Append(_lookup);
                     builder.Append("':\n");
@@ -452,7 +443,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
                 if (_traceLevel > 0)
                 {
-                    StringBuilder s = new StringBuilder("locator lookup failed:\nlookup = ");
+                    var s = new StringBuilder("locator lookup failed:\nlookup = ");
                     s.Append(_lookup);
                     if (_instanceName.Length > 0)
                     {
@@ -491,7 +482,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                 {
                     if (_traceLevel > 1)
                     {
-                        StringBuilder s = new StringBuilder("retrying locator lookup:\nlookup = ");
+                        var s = new StringBuilder("retrying locator lookup:\nlookup = ");
                         s.Append(_lookup);
                         s.Append("\nretry count = ").Append(_retryCount);
                         if (_instanceName.Length > 0)
@@ -501,7 +492,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                         _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.ToString());
                     }
 
-                    foreach (var l in _lookups)
+                    foreach (KeyValuePair<LookupPrx, LookupReplyPrx> l in _lookups)
                     {
                         l.Key.findLocatorAsync(_instanceName, l.Value).ContinueWith(
                             t =>
@@ -531,7 +522,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
             if (_traceLevel > 0)
             {
-                StringBuilder s = new StringBuilder("locator lookup timed out:\nlookup = ");
+                var s = new StringBuilder("locator lookup timed out:\nlookup = ");
                 s.Append(_lookup);
                 if (_instanceName.Length > 0)
                 {
@@ -552,52 +543,43 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
         }
     }
 
-    private LookupPrx _lookup;
-    private Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
-    private int _timeout;
-    private Ice.Internal.Timer _timer;
-    private int _traceLevel;
-    private int _retryCount;
-    private int _retryDelay;
+    private readonly LookupPrx _lookup;
+    private readonly Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
+    private readonly int _timeout;
+    private readonly Ice.Internal.Timer _timer;
+    private readonly int _traceLevel;
+    private readonly int _retryCount;
+    private readonly int _retryDelay;
 
     private string _instanceName;
     private bool _warned;
     private Ice.LocatorPrx _locator;
-    private Ice.LocatorPrx _voidLocator;
-    private Dictionary<string, Ice.LocatorPrx> _locators = new Dictionary<string, Ice.LocatorPrx>();
+    private readonly Ice.LocatorPrx _voidLocator;
+    private readonly Dictionary<string, Ice.LocatorPrx> _locators = new Dictionary<string, Ice.LocatorPrx>();
 
     private bool _pending;
     private int _pendingRetryCount;
     private int _failureCount;
     private bool _warnOnce = true;
-    private List<Request> _pendingRequests = new List<Request>();
+    private readonly List<Request> _pendingRequests = new List<Request>();
     private long _nextRetry;
     private readonly object _mutex = new();
 }
 
 internal class LookupReplyI : LookupReplyDisp_
 {
-    public LookupReplyI(LocatorI locator)
-    {
-        _locator = locator;
-    }
+    public LookupReplyI(LocatorI locator) => _locator = locator;
 
     public override void
-    foundLocator(Ice.LocatorPrx locator, Ice.Current current)
-    {
-        _locator.foundLocator(locator);
-    }
+    foundLocator(Ice.LocatorPrx locator, Ice.Current current) => _locator.foundLocator(locator);
 
-    private LocatorI _locator;
+    private readonly LocatorI _locator;
 }
 
 internal class PluginI : Ice.Plugin
 {
     public
-    PluginI(Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-    }
+    PluginI(Ice.Communicator communicator) => _communicator = communicator;
 
     public void
     initialize()
@@ -618,7 +600,7 @@ internal class PluginI : Ice.Plugin
         if (lookupEndpoints.Length == 0)
         {
             int protocol = ipv4 && !preferIPv6 ? Ice.Internal.Network.EnableIPv4 : Ice.Internal.Network.EnableIPv6;
-            var interfaces = Ice.Internal.Network.getInterfacesForMulticast(intf, protocol);
+            List<string> interfaces = Ice.Internal.Network.getInterfacesForMulticast(intf, protocol);
             foreach (string p in interfaces)
             {
                 if (p != interfaces[0])
@@ -672,14 +654,8 @@ internal class PluginI : Ice.Plugin
     public void
     destroy()
     {
-        if (_replyAdapter != null)
-        {
-            _replyAdapter.destroy();
-        }
-        if (_locatorAdapter != null)
-        {
-            _locatorAdapter.destroy();
-        }
+        _replyAdapter?.destroy();
+        _locatorAdapter?.destroy();
         if (_communicator.getDefaultLocator().Equals(_locatorPrx))
         {
             // Restore original default locator proxy, if the user didn't change it in the meantime
@@ -687,7 +663,7 @@ internal class PluginI : Ice.Plugin
         }
     }
 
-    private Ice.Communicator _communicator;
+    private readonly Ice.Communicator _communicator;
     private Ice.ObjectAdapter _locatorAdapter;
     private Ice.ObjectAdapter _replyAdapter;
     private LocatorI _locator;
@@ -698,8 +674,5 @@ internal class PluginI : Ice.Plugin
 public static class Util
 {
     public static void
-    registerIceLocatorDiscovery(bool loadOnInitialize)
-    {
-        Ice.Util.registerPluginFactory("IceLocatorDiscovery", new PluginFactory(), loadOnInitialize);
-    }
+    registerIceLocatorDiscovery(bool loadOnInitialize) => Ice.Util.registerPluginFactory("IceLocatorDiscovery", new PluginFactory(), loadOnInitialize);
 }

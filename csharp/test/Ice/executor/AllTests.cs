@@ -10,15 +10,9 @@ public class AllTests : Test.AllTests
         {
         }
 
-        public bool getResult()
-        {
-            return _sentSynchronously;
-        }
+        public bool getResult() => _sentSynchronously;
 
-        public void Report(bool sentSynchronously)
-        {
-            _sentSynchronously = sentSynchronously;
-        }
+        public void Report(bool sentSynchronously) => _sentSynchronously = sentSynchronously;
 
         private bool _sentSynchronously = false;
     }
@@ -42,7 +36,7 @@ public class AllTests : Test.AllTests
         output.Write("testing executor with async/await... ");
         output.Flush();
         {
-            TaskCompletionSource<object> t = new TaskCompletionSource<object>();
+            var t = new TaskCompletionSource<object>();
             p.opAsync().ContinueWith(async previous => // Execute the code below from the Ice client thread pool
             {
                 try
@@ -52,7 +46,7 @@ public class AllTests : Test.AllTests
 
                     try
                     {
-                        TestIntfPrx i = (TestIntfPrx)p.ice_adapterId("dummy");
+                        var i = (TestIntfPrx)p.ice_adapterId("dummy");
                         await i.opAsync();
                         test(false);
                     }

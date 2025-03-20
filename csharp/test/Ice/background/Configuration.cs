@@ -139,20 +139,11 @@ internal class Configuration
         }
     }
 
-    public void buffered(bool b)
-    {
-        _buffered = b;
-    }
+    public void buffered(bool b) => _buffered = b;
 
-    public bool buffered()
-    {
-        return _buffered;
-    }
+    public bool buffered() => _buffered;
 
-    public static Configuration getInstance()
-    {
-        return _instance;
-    }
+    public static Configuration getInstance() => _instance;
 
     private Ice.LocalException _connectorsException;
     private Ice.LocalException _connectException;
@@ -163,5 +154,5 @@ internal class Configuration
     private Ice.LocalException _writeException;
     private bool _buffered;
 
-    private static Configuration _instance = new Configuration();
+    private static readonly Configuration _instance = new Configuration();
 }

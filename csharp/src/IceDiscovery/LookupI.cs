@@ -15,10 +15,7 @@ internal abstract class Request<T>
         _requestId = Guid.NewGuid().ToString();
     }
 
-    public T getId()
-    {
-        return _id;
-    }
+    public T getId() => _id;
 
     public bool addCallback(TaskCompletionSource<Ice.ObjectPrx> cb)
     {
@@ -26,17 +23,14 @@ internal abstract class Request<T>
         return callbacks_.Count == 1;
     }
 
-    public virtual bool retry()
-    {
-        return --retryCount_ >= 0;
-    }
+    public virtual bool retry() => --retryCount_ >= 0;
 
     public void invoke(string domainId, Dictionary<LookupPrx, LookupReplyPrx> lookups)
     {
         _lookupCount = lookups.Count;
         _failureCount = 0;
-        Ice.Identity id = new Ice.Identity(_requestId, "");
-        foreach (var entry in lookups)
+        var id = new Ice.Identity(_requestId, "");
+        foreach (KeyValuePair<LookupPrx, LookupReplyPrx> entry in lookups)
         {
             invokeWithLookup(
                 domainId,
@@ -55,16 +49,13 @@ internal abstract class Request<T>
         return false;
     }
 
-    public string getRequestId()
-    {
-        return _requestId;
-    }
+    public string getRequestId() => _requestId;
 
     public abstract void finished(Ice.ObjectPrx proxy);
 
     protected abstract void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply);
 
-    private string _requestId;
+    private readonly string _requestId;
 
     protected LookupI lookup_;
     protected int retryCount_;
@@ -78,15 +69,9 @@ internal abstract class Request<T>
 internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
 {
     public AdapterRequest(LookupI lookup, string id, int retryCount)
-        : base(lookup, id, retryCount)
-    {
-        _start = DateTime.Now.Ticks;
-    }
+        : base(lookup, id, retryCount) => _start = DateTime.Now.Ticks;
 
-    public override bool retry()
-    {
-        return _proxies.Count == 0 && --retryCount_ >= 0;
-    }
+    public override bool retry() => _proxies.Count == 0 && --retryCount_ >= 0;
 
     public bool response(Ice.ObjectPrx proxy, bool isReplicaGroup)
     {
@@ -121,24 +106,18 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
         }
         else
         {
-            List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>();
+            var endpoints = new List<Ice.Endpoint>();
             Ice.ObjectPrx result = null;
             foreach (Ice.ObjectPrx prx in _proxies)
             {
-                if (result == null)
-                {
-                    result = prx;
-                }
+                result ??= prx;
                 endpoints.AddRange(prx.ice_getEndpoints());
             }
             sendResponse(result.ice_endpoints(endpoints.ToArray()));
         }
     }
 
-    public void runTimerTask()
-    {
-        lookup_.adapterRequestTimedOut(this);
-    }
+    public void runTimerTask() => lookup_.adapterRequestTimedOut(this);
 
     protected override void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
     {
@@ -159,7 +138,7 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
 
     private void sendResponse(Ice.ObjectPrx proxy)
     {
-        foreach (var cb in callbacks_)
+        foreach (TaskCompletionSource<Ice.ObjectPrx> cb in callbacks_)
         {
             cb.SetResult(proxy);
         }
@@ -171,8 +150,8 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
     // the same proxy if it's accessible through multiple network interfaces and if we
     // also sent the request to multiple interfaces.
     //
-    private HashSet<Ice.ObjectPrx> _proxies = new HashSet<Ice.ObjectPrx>();
-    private long _start;
+    private readonly HashSet<Ice.ObjectPrx> _proxies = new HashSet<Ice.ObjectPrx>();
+    private readonly long _start;
     private long _latency;
 }
 
@@ -183,24 +162,18 @@ internal class ObjectRequest : Request<Ice.Identity>, Ice.Internal.TimerTask
     {
     }
 
-    public void response(Ice.ObjectPrx proxy)
-    {
-        finished(proxy);
-    }
+    public void response(Ice.ObjectPrx proxy) => finished(proxy);
 
     public override void finished(Ice.ObjectPrx proxy)
     {
-        foreach (var cb in callbacks_)
+        foreach (TaskCompletionSource<Ice.ObjectPrx> cb in callbacks_)
         {
             cb.SetResult(proxy);
         }
         callbacks_.Clear();
     }
 
-    public void runTimerTask()
-    {
-        lookup_.objectRequestTimedOut(this);
-    }
+    public void runTimerTask() => lookup_.objectRequestTimedOut(this);
 
     protected override void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
     {
@@ -237,7 +210,7 @@ internal class LookupI : LookupDisp_
         // datagram on each endpoint.
         //
         var single = new Ice.Endpoint[1];
-        foreach (var endpt in lookup.ice_getEndpoints())
+        foreach (Ice.Endpoint endpt in lookup.ice_getEndpoints())
         {
             single[0] = endpt;
             _lookups[(LookupPrx)lookup.ice_endpoints(single)] = null;
@@ -251,14 +224,14 @@ internal class LookupI : LookupDisp_
         // Use a lookup reply proxy whose address matches the interface used to send multicast datagrams.
         //
         var single = new Ice.Endpoint[1];
-        foreach (var key in new List<LookupPrx>(_lookups.Keys))
+        foreach (LookupPrx key in new List<LookupPrx>(_lookups.Keys))
         {
             var info = (Ice.UDPEndpointInfo)key.ice_getEndpoints()[0].getInfo();
             if (info.mcastInterface.Length > 0)
             {
-                foreach (var q in lookupReply.ice_getEndpoints())
+                foreach (Ice.Endpoint q in lookupReply.ice_getEndpoints())
                 {
-                    var r = q.getInfo();
+                    Ice.EndpointInfo r = q.getInfo();
                     if (r is Ice.IPEndpointInfo &&
                         ((Ice.IPEndpointInfo)r).host.Equals(info.mcastInterface, StringComparison.Ordinal))
                     {
@@ -307,8 +280,7 @@ internal class LookupI : LookupDisp_
             return; // Ignore
         }
 
-        bool isReplicaGroup;
-        Ice.ObjectPrx proxy = _registry.findAdapter(adapterId, out isReplicaGroup);
+        Ice.ObjectPrx proxy = _registry.findAdapter(adapterId, out bool isReplicaGroup);
         if (proxy != null)
         {
             //
@@ -329,8 +301,7 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            ObjectRequest request;
-            if (!_objectRequests.TryGetValue(id, out request))
+            if (!_objectRequests.TryGetValue(id, out ObjectRequest request))
             {
                 request = new ObjectRequest(this, id, _retryCount);
                 _objectRequests.Add(id, request);
@@ -358,8 +329,7 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            AdapterRequest request;
-            if (!_adapterRequests.TryGetValue(adapterId, out request))
+            if (!_adapterRequests.TryGetValue(adapterId, out AdapterRequest request))
             {
                 request = new AdapterRequest(this, adapterId, _retryCount);
                 _adapterRequests.Add(adapterId, request);
@@ -387,8 +357,7 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            ObjectRequest request;
-            if (_objectRequests.TryGetValue(id, out request) && request.getRequestId() == requestId)
+            if (_objectRequests.TryGetValue(id, out ObjectRequest request) && request.getRequestId() == requestId)
             {
                 request.response(proxy);
                 _timer.cancel(request);
@@ -402,8 +371,7 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            AdapterRequest request;
-            if (_adapterRequests.TryGetValue(adapterId, out request) && request.getRequestId() == requestId)
+            if (_adapterRequests.TryGetValue(adapterId, out AdapterRequest request) && request.getRequestId() == requestId)
             {
                 if (request.response(proxy, isReplicaGroup))
                 {
@@ -419,8 +387,7 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            ObjectRequest r;
-            if (!_objectRequests.TryGetValue(request.getId(), out r) || r != request)
+            if (!_objectRequests.TryGetValue(request.getId(), out ObjectRequest r) || r != request)
             {
                 return;
             }
@@ -448,8 +415,7 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            ObjectRequest r;
-            if (!_objectRequests.TryGetValue(request.getId(), out r) || r != request)
+            if (!_objectRequests.TryGetValue(request.getId(), out ObjectRequest r) || r != request)
             {
                 return;
             }
@@ -458,7 +424,7 @@ internal class LookupI : LookupDisp_
             {
                 if (_warnOnce)
                 {
-                    StringBuilder s = new StringBuilder();
+                    var s = new StringBuilder();
                     s.Append("failed to lookup object `");
                     s.Append(_lookup.ice_getCommunicator().identityToString(request.getId()));
                     s.Append("' with lookup proxy `");
@@ -478,8 +444,7 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            AdapterRequest r;
-            if (!_adapterRequests.TryGetValue(request.getId(), out r) || r != request)
+            if (!_adapterRequests.TryGetValue(request.getId(), out AdapterRequest r) || r != request)
             {
                 return;
             }
@@ -507,8 +472,7 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            AdapterRequest r;
-            if (!_adapterRequests.TryGetValue(request.getId(), out r) || r != request)
+            if (!_adapterRequests.TryGetValue(request.getId(), out AdapterRequest r) || r != request)
             {
                 return;
             }
@@ -517,7 +481,7 @@ internal class LookupI : LookupDisp_
             {
                 if (_warnOnce)
                 {
-                    StringBuilder s = new StringBuilder();
+                    var s = new StringBuilder();
                     s.Append("failed to lookup adapter `");
                     s.Append(request.getId());
                     s.Append("' with lookup proxy `");
@@ -533,47 +497,34 @@ internal class LookupI : LookupDisp_
         }
     }
 
-    internal Ice.Internal.Timer timer()
-    {
-        return _timer;
-    }
+    internal Ice.Internal.Timer timer() => _timer;
 
-    internal int latencyMultiplier()
-    {
-        return _latencyMultiplier;
-    }
+    internal int latencyMultiplier() => _latencyMultiplier;
 
-    private LocatorRegistryI _registry;
-    private LookupPrx _lookup;
-    private Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
+    private readonly LocatorRegistryI _registry;
+    private readonly LookupPrx _lookup;
+    private readonly Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
     private readonly int _timeout;
     private readonly int _retryCount;
     private readonly int _latencyMultiplier;
     private readonly string _domainId;
 
-    private Ice.Internal.Timer _timer;
+    private readonly Ice.Internal.Timer _timer;
     private bool _warnOnce = true;
-    private Dictionary<Ice.Identity, ObjectRequest> _objectRequests = new Dictionary<Ice.Identity, ObjectRequest>();
-    private Dictionary<string, AdapterRequest> _adapterRequests = new Dictionary<string, AdapterRequest>();
+    private readonly Dictionary<Ice.Identity, ObjectRequest> _objectRequests =
+        new Dictionary<Ice.Identity, ObjectRequest>();
+
+    private readonly Dictionary<string, AdapterRequest> _adapterRequests = new Dictionary<string, AdapterRequest>();
     private readonly object _mutex = new();
 }
 
 internal class LookupReplyI : LookupReplyDisp_
 {
-    public LookupReplyI(LookupI lookup)
-    {
-        _lookup = lookup;
-    }
+    public LookupReplyI(LookupI lookup) => _lookup = lookup;
 
-    public override void foundObjectById(Ice.Identity id, Ice.ObjectPrx proxy, Ice.Current c)
-    {
-        _lookup.foundObject(id, c.id.name, proxy);
-    }
+    public override void foundObjectById(Ice.Identity id, Ice.ObjectPrx proxy, Ice.Current c) => _lookup.foundObject(id, c.id.name, proxy);
 
-    public override void foundAdapterById(string adapterId, Ice.ObjectPrx proxy, bool isReplicaGroup, Ice.Current c)
-    {
-        _lookup.foundAdapter(adapterId, c.id.name, proxy, isReplicaGroup);
-    }
+    public override void foundAdapterById(string adapterId, Ice.ObjectPrx proxy, bool isReplicaGroup, Ice.Current c) => _lookup.foundAdapter(adapterId, c.id.name, proxy, isReplicaGroup);
 
-    private LookupI _lookup;
+    private readonly LookupI _lookup;
 }

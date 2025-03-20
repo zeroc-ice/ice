@@ -75,15 +75,12 @@ public class Executor
         _instance._thread.Join();
     }
 
-    public static bool isExecutorThread()
-    {
-        return Thread.CurrentThread == _instance._thread;
-    }
+    public static bool isExecutorThread() => Thread.CurrentThread == _instance._thread;
 
     private static Executor _instance;
 
-    private Queue<System.Action> _calls = new Queue<System.Action>();
-    private Thread _thread;
+    private readonly Queue<System.Action> _calls = new Queue<System.Action>();
+    private readonly Thread _thread;
     private bool _terminated = false;
     private static readonly object _m = new object();
 }

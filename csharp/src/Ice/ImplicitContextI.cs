@@ -71,10 +71,7 @@ internal class SharedImplicitContext : ImplicitContextI
     {
         lock (_mutex)
         {
-            if (key == null)
-            {
-                key = "";
-            }
+            key ??= "";
 
             return _context.ContainsKey(key);
         }
@@ -84,16 +81,9 @@ internal class SharedImplicitContext : ImplicitContextI
     {
         lock (_mutex)
         {
-            if (key == null)
-            {
-                key = "";
-            }
+            key ??= "";
 
-            string val = _context[key];
-            if (val == null)
-            {
-                val = "";
-            }
+            string val = _context[key] ?? "";
             return val;
         }
     }
@@ -102,21 +92,11 @@ internal class SharedImplicitContext : ImplicitContextI
     {
         lock (_mutex)
         {
-            if (key == null)
-            {
-                key = "";
-            }
-            if (value == null)
-            {
-                value = "";
-            }
+            key ??= "";
+            value ??= "";
 
-            string oldVal;
-            _context.TryGetValue(key, out oldVal);
-            if (oldVal == null)
-            {
-                oldVal = "";
-            }
+            _context.TryGetValue(key, out string oldVal);
+            oldVal ??= "";
             _context[key] = value;
 
             return oldVal;
@@ -127,10 +107,7 @@ internal class SharedImplicitContext : ImplicitContextI
     {
         lock (_mutex)
         {
-            if (key == null)
-            {
-                key = "";
-            }
+            key ??= "";
 
             string val = _context[key];
 
@@ -171,7 +148,7 @@ internal class SharedImplicitContext : ImplicitContextI
     {
         lock (_mutex)
         {
-            Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+            var combined = new Dictionary<string, string>(prxContext);
             foreach (KeyValuePair<string, string> e in _context)
             {
                 try
@@ -205,10 +182,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
             }
         }
 
-        if (threadContext == null)
-        {
-            threadContext = new Dictionary<string, string>();
-        }
+        threadContext ??= new Dictionary<string, string>();
         return threadContext;
     }
 
@@ -223,7 +197,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
         }
         else
         {
-            Dictionary<string, string> threadContext = new Dictionary<string, string>(context);
+            var threadContext = new Dictionary<string, string>(context);
 
             lock (_mutex)
             {
@@ -234,10 +208,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
 
     public override bool containsKey(string key)
     {
-        if (key == null)
-        {
-            key = "";
-        }
+        key ??= "";
 
         Dictionary<string, string> threadContext = null;
         lock (_mutex)
@@ -253,10 +224,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
 
     public override string get(string key)
     {
-        if (key == null)
-        {
-            key = "";
-        }
+        key ??= "";
 
         Dictionary<string, string> threadContext = null;
         lock (_mutex)
@@ -267,24 +235,14 @@ internal class PerThreadImplicitContext : ImplicitContextI
             }
         }
 
-        string val = threadContext[key];
-        if (val == null)
-        {
-            val = "";
-        }
+        string val = threadContext[key] ?? "";
         return val;
     }
 
     public override string put(string key, string value)
     {
-        if (key == null)
-        {
-            key = "";
-        }
-        if (value == null)
-        {
-            value = "";
-        }
+        key ??= "";
+        value ??= "";
 
         Dictionary<string, string> threadContext = null;
         lock (_mutex)
@@ -296,8 +254,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
             }
         }
 
-        string oldVal;
-        if (!threadContext.TryGetValue(key, out oldVal))
+        if (!threadContext.TryGetValue(key, out string oldVal))
         {
             oldVal = "";
         }
@@ -308,10 +265,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
 
     public override string remove(string key)
     {
-        if (key == null)
-        {
-            key = "";
-        }
+        key ??= "";
 
         Dictionary<string, string> threadContext = null;
         lock (_mutex)
@@ -322,8 +276,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
             }
         }
 
-        string val = null;
-        if (!threadContext.TryGetValue(key, out val))
+        if (!threadContext.TryGetValue(key, out string val))
         {
             val = "";
         }
@@ -352,7 +305,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
         }
         else
         {
-            Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+            var combined = new Dictionary<string, string>(prxContext);
             foreach (KeyValuePair<string, string> e in threadContext)
             {
                 try
@@ -379,7 +332,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
             }
         }
 
-        Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+        var combined = new Dictionary<string, string>(prxContext);
         foreach (KeyValuePair<string, string> e in threadContext)
         {
             combined.Add(e.Key, e.Value);
@@ -390,6 +343,6 @@ internal class PerThreadImplicitContext : ImplicitContextI
     //
     //  map Thread -> Context
     //
-    private Dictionary<Thread, Dictionary<string, string>> _map = new();
+    private readonly Dictionary<Thread, Dictionary<string, string>> _map = new();
     private readonly object _mutex = new();
 }

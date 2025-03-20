@@ -8,8 +8,5 @@ public sealed class AI : Test.ADisp_
     {
     }
 
-    public override string callA(Ice.Current current)
-    {
-        return "A";
-    }
+    public override string callA(Ice.Current current) => "A";
 }

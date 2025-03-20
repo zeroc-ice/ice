@@ -25,14 +25,14 @@ public class Server : TestHelper
         // locator interface, this locator is used by the clients and the
         // 'servers' created with the server manager interface.
         //
-        ServerLocatorRegistry registry = new ServerLocatorRegistry();
+        var registry = new ServerLocatorRegistry();
         Ice.Object @object = new ServerManagerI(registry, this);
         adapter.add(@object, Ice.Util.stringToIdentity("ServerManager"));
         registry.addObject(adapter.createProxy(Ice.Util.stringToIdentity("ServerManager")));
         Ice.LocatorRegistryPrx registryPrx =
             Ice.LocatorRegistryPrxHelper.uncheckedCast(adapter.add(registry, Ice.Util.stringToIdentity("registry")));
 
-        ServerLocator locator = new ServerLocator(registry, registryPrx);
+        var locator = new ServerLocator(registry, registryPrx);
         adapter.add(locator, Ice.Util.stringToIdentity("locator"));
 
         adapter.activate();

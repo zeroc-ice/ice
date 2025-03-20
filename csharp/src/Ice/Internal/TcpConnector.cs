@@ -6,15 +6,9 @@ namespace Ice.Internal;
 
 internal sealed class TcpConnector : Connector
 {
-    public Transceiver connect()
-    {
-        return new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
-    }
+    public Transceiver connect() => new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
 
-    public short type()
-    {
-        return _instance.type();
-    }
+    public short type() => _instance.type();
 
     //
     // Only for use by TcpEndpoint
@@ -47,7 +41,7 @@ internal sealed class TcpConnector : Connector
             return true;
         }
 
-        TcpConnector p = (TcpConnector)obj;
+        var p = (TcpConnector)obj;
         if (_timeout != p._timeout)
         {
             return false;
@@ -66,10 +60,7 @@ internal sealed class TcpConnector : Connector
         return _addr.Equals(p._addr);
     }
 
-    public override string ToString()
-    {
-        return Network.addrToString(_proxy == null ? _addr : _proxy.getAddress());
-    }
+    public override string ToString() => Network.addrToString(_proxy == null ? _addr : _proxy.getAddress());
 
     public override int GetHashCode()
     {
@@ -85,9 +76,9 @@ internal sealed class TcpConnector : Connector
     }
 
     private readonly ProtocolInstance _instance;
-    private EndPoint _addr;
-    private NetworkProxy _proxy;
-    private EndPoint _sourceAddr;
-    private int _timeout;
-    private string _connectionId;
+    private readonly EndPoint _addr;
+    private readonly NetworkProxy _proxy;
+    private readonly EndPoint _sourceAddr;
+    private readonly int _timeout;
+    private readonly string _connectionId;
 }

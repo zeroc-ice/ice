@@ -35,7 +35,7 @@ public class Client : Test.TestHelper
                                "test-" + properties.getIceProperty("Ice.Default.Protocol"));
 
         using var communicator = initialize(properties);
-        PluginI plugin = new PluginI(communicator);
+        var plugin = new PluginI(communicator);
         plugin.initialize();
         communicator.getPluginManager().addPlugin("Test", plugin);
         Test.BackgroundPrx background = await AllTests.allTests(this);

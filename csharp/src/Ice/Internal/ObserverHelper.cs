@@ -12,19 +12,13 @@ public sealed class ObserverHelper
         if (obsv != null)
         {
             InvocationObserver observer = obsv.getInvocationObserver(null, op, _emptyContext);
-            if (observer != null)
-            {
-                observer.attach();
-            }
+            observer?.attach();
             return observer;
         }
         return null;
     }
 
-    public static InvocationObserver get(Ice.ObjectPrx proxy, string op)
-    {
-        return get(proxy, op, null);
-    }
+    public static InvocationObserver get(Ice.ObjectPrx proxy, string op) => get(proxy, op, null);
 
     public static InvocationObserver get(Ice.ObjectPrx proxy, string op, Dictionary<string, string> context)
     {
@@ -41,14 +35,11 @@ public sealed class ObserverHelper
             {
                 observer = obsv.getInvocationObserver(proxy, op, context);
             }
-            if (observer != null)
-            {
-                observer.attach();
-            }
+            observer?.attach();
             return observer;
         }
         return null;
     }
 
-    private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
+    private static readonly Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
 }

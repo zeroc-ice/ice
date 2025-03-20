@@ -23,8 +23,8 @@ public sealed class ObjectAdapter
     private const int StateDestroyed = 7;
 
     private int _state = StateUninitialized;
-    private Instance _instance;
-    private Communicator _communicator;
+    private readonly Instance _instance;
+    private readonly Communicator _communicator;
     private ObjectAdapterFactory? _objectAdapterFactory;
     private Ice.Internal.ThreadPool? _threadPool;
     private readonly ServantManager _servantManager;
@@ -32,13 +32,13 @@ public sealed class ObjectAdapter
     private readonly string _id;
     private readonly string _replicaGroupId;
     private Reference? _reference;
-    private List<IncomingConnectionFactory> _incomingConnectionFactories;
+    private readonly List<IncomingConnectionFactory> _incomingConnectionFactories;
     private RouterInfo? _routerInfo;
     private EndpointI[] _publishedEndpoints;
     private LocatorInfo? _locatorInfo;
     private int _directCount;  // The number of colloc proxies dispatching on this object adapter.
-    private bool _noConfig;
-    private int _messageSizeMax;
+    private readonly bool _noConfig;
+    private readonly int _messageSizeMax;
     private readonly SslServerAuthenticationOptions? _serverAuthenticationOptions;
 
     private readonly Lazy<Object> _dispatchPipeline;
@@ -342,10 +342,7 @@ public sealed class ObjectAdapter
             _threadPool.joinWithAllThreads();
         }
 
-        if (_objectAdapterFactory is not null)
-        {
-            _objectAdapterFactory.removeObjectAdapter(this);
-        }
+        _objectAdapterFactory?.removeObjectAdapter(this);
 
         lock (_mutex)
         {
@@ -777,7 +774,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            List<Endpoint> endpoints = new List<Endpoint>();
+            var endpoints = new List<Endpoint>();
             foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
             {
                 endpoints.Add(factory.endpoint());
@@ -913,10 +910,7 @@ public sealed class ObjectAdapter
             threadPool = _threadPool;
         }
 
-        if (threadPool is not null)
-        {
-            threadPool.updateObservers();
-        }
+        threadPool?.updateObservers();
     }
 
     internal void incDirectCount()
@@ -1090,10 +1084,7 @@ public sealed class ObjectAdapter
                 _threadPool = new Ice.Internal.ThreadPool(_instance, _name + ".ThreadPool", 0);
             }
 
-            if (router is null)
-            {
-                router = RouterPrxHelper.uncheckedCast(communicator.propertyToProxy(_name + ".Router"));
-            }
+            router ??= RouterPrxHelper.uncheckedCast(communicator.propertyToProxy(_name + ".Router"));
             if (router is not null)
             {
                 _routerInfo = _instance.routerManager().get(router);
@@ -1185,10 +1176,7 @@ public sealed class ObjectAdapter
         }
     }
 
-    internal SslServerAuthenticationOptions? getServerAuthenticationOptions()
-    {
-        return _serverAuthenticationOptions;
-    }
+    internal SslServerAuthenticationOptions? getServerAuthenticationOptions() => _serverAuthenticationOptions;
 
     private ObjectPrx newProxy(Identity ident, string facet)
     {
@@ -1237,7 +1225,7 @@ public sealed class ObjectAdapter
 
         string delim = " \t\n\r";
 
-        List<EndpointI> endpoints = new List<EndpointI>();
+        var endpoints = new List<EndpointI>();
         while (end < endpts.Length)
         {
             beg = Ice.UtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
@@ -1298,12 +1286,9 @@ public sealed class ObjectAdapter
                 throw new ParseException("invalid empty object adapter endpoint");
             }
 
-            string s = endpts.Substring(beg, end - beg);
-            EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints);
-            if (endp is null)
-            {
+            string s = endpts[beg..end];
+            EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints) ??
                 throw new ParseException($"invalid object adapter endpoint '{s}'");
-            }
             endpoints.Add(endp);
 
             ++end;
@@ -1411,7 +1396,7 @@ public sealed class ObjectAdapter
         {
             if (_instance!.traceLevels().location >= 1)
             {
-                StringBuilder s = new StringBuilder();
+                var s = new StringBuilder();
                 s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                 s.Append("the object adapter is not known to the locator registry");
                 _instance.initializationData().logger!.trace(_instance.traceLevels().locationCat, s.ToString());
@@ -1423,7 +1408,7 @@ public sealed class ObjectAdapter
         {
             if (_instance.traceLevels().location >= 1)
             {
-                StringBuilder s = new StringBuilder();
+                var s = new StringBuilder();
                 s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                 s.Append("the replica group `" + _replicaGroupId + "' is not known to the locator registry");
                 _instance.initializationData().logger!.trace(_instance.traceLevels().locationCat, s.ToString());
@@ -1435,7 +1420,7 @@ public sealed class ObjectAdapter
         {
             if (_instance.traceLevels().location >= 1)
             {
-                StringBuilder s = new StringBuilder();
+                var s = new StringBuilder();
                 s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                 s.Append("the object adapter endpoints are already set");
                 _instance.initializationData().logger!.trace(_instance.traceLevels().locationCat, s.ToString());
@@ -1459,7 +1444,7 @@ public sealed class ObjectAdapter
         {
             if (_instance.traceLevels().location >= 1)
             {
-                StringBuilder s = new StringBuilder();
+                var s = new StringBuilder();
                 s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                 s.Append(e.ToString());
                 _instance.initializationData().logger!.trace(_instance.traceLevels().locationCat, s.ToString());
@@ -1469,7 +1454,7 @@ public sealed class ObjectAdapter
 
         if (_instance.traceLevels().location >= 1)
         {
-            StringBuilder s = new StringBuilder();
+            var s = new StringBuilder();
             s.Append("updated object adapter `" + _id + "' endpoints with the locator registry\n");
             s.Append("endpoints = ");
             if (proxy is not null)

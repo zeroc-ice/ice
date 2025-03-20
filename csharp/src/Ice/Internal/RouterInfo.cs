@@ -48,13 +48,11 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
     public override int GetHashCode() => _router.GetHashCode();
 
-    public Ice.RouterPrx getRouter()
-    {
+    public Ice.RouterPrx getRouter() =>
         //
         // No mutex lock necessary, _router is immutable.
         //
-        return _router;
-    }
+        _router;
 
     public EndpointI[] getClientEndpoints()
     {
@@ -66,9 +64,8 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
             }
         }
 
-        bool? hasRoutingTable;
-        var proxy = _router.getClientProxy(out hasRoutingTable);
-        return setClientEndpoints(proxy, hasRoutingTable.HasValue ? hasRoutingTable.Value : true);
+        ObjectPrx proxy = _router.getClientProxy(out bool? hasRoutingTable);
+        return setClientEndpoints(proxy, hasRoutingTable ?? true);
     }
 
     public void getClientEndpoints(GetClientEndpointsCallback callback)
@@ -90,7 +87,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
         {
             try
             {
-                var r = await router.getClientProxyAsync().ConfigureAwait(false);
+                Router_GetClientProxyResult r = await router.getClientProxyAsync().ConfigureAwait(false);
                 callback.setEndpoints(setClientEndpoints(r.returnValue, r.hasRoutingTable ?? true));
             }
             catch (Ice.LocalException ex)
@@ -107,12 +104,8 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
     public EndpointI[] getServerEndpoints()
     {
-        Ice.ObjectPrx serverProxy = _router.getServerProxy();
-        if (serverProxy == null)
-        {
+        Ice.ObjectPrx serverProxy = _router.getServerProxy() ??
             throw new NoEndpointException("Router::getServerProxy returned a null proxy.");
-        }
-
         serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
         return ((Ice.ObjectPrxHelperBase)serverProxy).iceReference().getEndpoints();
     }
@@ -142,7 +135,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
         {
             try
             {
-                var evictedProxies = await router.addProxiesAsync([new ObjectPrxHelper(reference)]).ConfigureAwait(false);
+                ObjectPrx[] evictedProxies = await router.addProxiesAsync([new ObjectPrxHelper(reference)]).ConfigureAwait(false);
                 addAndEvictProxies(identity, evictedProxies);
                 callback.addedProxy();
             }
@@ -241,18 +234,15 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
     private readonly Ice.RouterPrx _router;
     private EndpointI[] _clientEndpoints;
     private Ice.ObjectAdapter _adapter;
-    private HashSet<Ice.Identity> _identities = new HashSet<Ice.Identity>();
-    private List<Ice.Identity> _evictedIdentities = new List<Ice.Identity>();
+    private readonly HashSet<Ice.Identity> _identities = new HashSet<Ice.Identity>();
+    private readonly List<Ice.Identity> _evictedIdentities = new List<Ice.Identity>();
     private bool _hasRoutingTable;
     private readonly object _mutex = new();
 }
 
 public sealed class RouterManager
 {
-    internal RouterManager()
-    {
-        _table = new Dictionary<Ice.RouterPrx, RouterInfo>();
-    }
+    internal RouterManager() => _table = new Dictionary<Ice.RouterPrx, RouterInfo>();
 
     internal void destroy()
     {
@@ -279,8 +269,7 @@ public sealed class RouterManager
 
         lock (_mutex)
         {
-            RouterInfo info = null;
-            if (!_table.TryGetValue(router, out info))
+            if (!_table.TryGetValue(router, out RouterInfo info))
             {
                 info = new RouterInfo(router);
                 _table.Add(router, info);
@@ -299,6 +288,6 @@ public sealed class RouterManager
         }
     }
 
-    private Dictionary<Ice.RouterPrx, RouterInfo> _table;
+    private readonly Dictionary<Ice.RouterPrx, RouterInfo> _table;
     private readonly object _mutex = new();
 }

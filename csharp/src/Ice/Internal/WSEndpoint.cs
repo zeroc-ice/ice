@@ -20,10 +20,7 @@ internal sealed class WSEndpoint : EndpointI
 
         initWithOptions(args);
 
-        if (_resource == null)
-        {
-            _resource = "/";
-        }
+        _resource ??= "/";
     }
 
     internal WSEndpoint(ProtocolInstance instance, EndpointI del, Ice.InputStream s)
@@ -36,15 +33,9 @@ internal sealed class WSEndpoint : EndpointI
 
     public override EndpointInfo getInfo() => new WSEndpointInfo(_delegate.getInfo(), _resource);
 
-    public override short type()
-    {
-        return _delegate.type();
-    }
+    public override short type() => _delegate.type();
 
-    public override string protocol()
-    {
-        return _delegate.protocol();
-    }
+    public override string protocol() => _delegate.protocol();
 
     public override void streamWriteImpl(Ice.OutputStream s)
     {
@@ -52,10 +43,7 @@ internal sealed class WSEndpoint : EndpointI
         s.writeString(_resource);
     }
 
-    public override int timeout()
-    {
-        return _delegate.timeout();
-    }
+    public override int timeout() => _delegate.timeout();
 
     public override EndpointI timeout(int timeout)
     {
@@ -69,10 +57,7 @@ internal sealed class WSEndpoint : EndpointI
         }
     }
 
-    public override string connectionId()
-    {
-        return _delegate.connectionId();
-    }
+    public override string connectionId() => _delegate.connectionId();
 
     public override EndpointI connectionId(string connectionId)
     {
@@ -86,10 +71,7 @@ internal sealed class WSEndpoint : EndpointI
         }
     }
 
-    public override bool compress()
-    {
-        return _delegate.compress();
-    }
+    public override bool compress() => _delegate.compress();
 
     public override EndpointI compress(bool compress)
     {
@@ -103,20 +85,11 @@ internal sealed class WSEndpoint : EndpointI
         }
     }
 
-    public override bool datagram()
-    {
-        return _delegate.datagram();
-    }
+    public override bool datagram() => _delegate.datagram();
 
-    public override bool secure()
-    {
-        return _delegate.secure();
-    }
+    public override bool secure() => _delegate.secure();
 
-    public override Transceiver transceiver()
-    {
-        return null;
-    }
+    public override Transceiver transceiver() => null;
 
     private sealed class EndpointI_connectorsI : EndpointI_connectors
     {
@@ -130,7 +103,7 @@ internal sealed class WSEndpoint : EndpointI
 
         public void connectors(List<Connector> connectors)
         {
-            List<Connector> l = new List<Connector>();
+            var l = new List<Connector>();
             foreach (Connector c in connectors)
             {
                 l.Add(new WSConnector(_instance, c, _host, _resource));
@@ -138,15 +111,12 @@ internal sealed class WSEndpoint : EndpointI
             _callback.connectors(l);
         }
 
-        public void exception(Ice.LocalException ex)
-        {
-            _callback.exception(ex);
-        }
+        public void exception(Ice.LocalException ex) => _callback.exception(ex);
 
         private readonly ProtocolInstance _instance;
-        private string _host;
-        private string _resource;
-        private EndpointI_connectors _callback;
+        private readonly string _host;
+        private readonly string _resource;
+        private readonly EndpointI_connectors _callback;
     }
 
     public override void connectors_async(EndpointI_connectors callback)
@@ -156,7 +126,7 @@ internal sealed class WSEndpoint : EndpointI
         {
             if (p is Ice.IPEndpointInfo)
             {
-                Ice.IPEndpointInfo ipInfo = (Ice.IPEndpointInfo)p;
+                var ipInfo = (Ice.IPEndpointInfo)p;
                 host = ipInfo.host + ":" + ipInfo.port;
                 break;
             }
@@ -164,10 +134,7 @@ internal sealed class WSEndpoint : EndpointI
         _delegate.connectors_async(new EndpointI_connectorsI(_instance, host, _resource, callback));
     }
 
-    public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions)
-    {
-        return new WSAcceptor(this, _instance, _delegate.acceptor(adapterName, serverAuthenticationOptions));
-    }
+    public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions) => new WSAcceptor(this, _instance, _delegate.acceptor(adapterName, serverAuthenticationOptions));
 
     public WSEndpoint endpoint(EndpointI delEndp)
     {
@@ -195,7 +162,7 @@ internal sealed class WSEndpoint : EndpointI
         {
             return false;
         }
-        WSEndpoint wsEndpointI = (WSEndpoint)endpoint;
+        var wsEndpointI = (WSEndpoint)endpoint;
         return _delegate.equivalent(wsEndpointI._delegate);
     }
 
@@ -237,7 +204,7 @@ internal sealed class WSEndpoint : EndpointI
             return type() < obj.type() ? -1 : 1;
         }
 
-        WSEndpoint p = (WSEndpoint)obj;
+        var p = (WSEndpoint)obj;
         if (this == p)
         {
             return 0;
@@ -258,11 +225,7 @@ internal sealed class WSEndpoint : EndpointI
         {
             case 'r':
             {
-                if (argument == null)
-                {
-                    throw new ParseException($"no argument provided for -r option in endpoint '{endpoint}{_delegate.options()}'");
-                }
-                _resource = argument;
+                _resource = argument ?? throw new ParseException($"no argument provided for -r option in endpoint '{endpoint}{_delegate.options()}'");
                 return true;
             }
 
@@ -274,7 +237,7 @@ internal sealed class WSEndpoint : EndpointI
     }
 
     private readonly ProtocolInstance _instance;
-    private EndpointI _delegate;
+    private readonly EndpointI _delegate;
     private string _resource;
 }
 
@@ -285,18 +248,9 @@ public class WSEndpointFactory : EndpointFactoryWithUnderlying
     {
     }
 
-    public override EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying)
-    {
-        return new WSEndpointFactory(instance, underlying);
-    }
+    public override EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying) => new WSEndpointFactory(instance, underlying);
 
-    protected override EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint)
-    {
-        return new WSEndpoint(instance_, underlying, args);
-    }
+    protected override EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint) => new WSEndpoint(instance_, underlying, args);
 
-    protected override EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s)
-    {
-        return new WSEndpoint(instance_, underlying, s);
-    }
+    protected override EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s) => new WSEndpoint(instance_, underlying, s);
 }

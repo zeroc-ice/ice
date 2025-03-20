@@ -16,7 +16,7 @@ public class Server : Test.TestHelper
         int num = 0;
         try
         {
-            num = Int32.Parse(args[0]);
+            num = int.Parse(args[0]);
         }
         catch (FormatException)
         {

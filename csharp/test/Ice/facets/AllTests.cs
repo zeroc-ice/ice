@@ -11,7 +11,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing Ice.Admin.Facets property... ");
         test(communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets").Length == 0);
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
-        String[] facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
+        string[] facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         test(facetFilter.Length == 1 && facetFilter[0] == "foobar");
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foo\\'bar");
         facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");

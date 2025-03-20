@@ -52,10 +52,7 @@ public class PlatformTests
 
         var clientOptions = new SslClientAuthenticationOptions
         {
-            RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
-            {
-                return certificate.Subject == serverCertificate.Subject;
-            }
+            RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => certificate.Subject == serverCertificate.Subject
         };
         using var clientCommunicator = createClient(clientOptions);
 
@@ -93,10 +90,7 @@ public class PlatformTests
 
         var clientOptions = new SslClientAuthenticationOptions
         {
-            RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
-            {
-                return false;
-            }
+            RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => false
         };
         using var clientCommunicator = createClient(clientOptions);
 
@@ -148,19 +142,13 @@ public class PlatformTests
         {
             ServerCertificate = serverCertificate,
             ClientCertificateRequired = true,
-            RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
-            {
-                return certificate.Subject == clientCertificate.Subject;
-            },
+            RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => certificate.Subject == clientCertificate.Subject,
         };
         using var serverCommunicator = createServer(serverOptions, helper);
 
         var clientOptions = new SslClientAuthenticationOptions
         {
-            RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
-            {
-                return certificate.Subject == serverCertificate.Subject;
-            },
+            RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => certificate.Subject == serverCertificate.Subject,
             ClientCertificates =
             [
                 clientCertificate
@@ -183,19 +171,13 @@ public class PlatformTests
         {
             ServerCertificate = serverCertificate,
             ClientCertificateRequired = true,
-            RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
-            {
-                return false;
-            },
+            RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => false,
         };
         using var serverCommunicator = createServer(serverOptions, helper);
 
         var clientOptions = new SslClientAuthenticationOptions
         {
-            RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
-            {
-                return certificate.Subject == serverCertificate.Subject;
-            },
+            RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => certificate.Subject == serverCertificate.Subject,
             ClientCertificates =
             [
                 clientCertificate
@@ -230,10 +212,7 @@ public class PlatformTests
 
         var clientOptions = new SslClientAuthenticationOptions
         {
-            RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
-            {
-                return certificate.Subject == serverCertificate.Subject;
-            },
+            RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => certificate.Subject == serverCertificate.Subject,
             ClientCertificates =
             [
                 clientCertificate
@@ -256,18 +235,16 @@ public class PlatformTests
 
     private sealed class ServerState : IDisposable
     {
-        public X509Certificate2 Certificate => _certificate;
+        public X509Certificate2 Certificate { get; private set; }
 
-        private X509Certificate2 _certificate;
+        public ServerState(string certificatePath) => Certificate = new X509Certificate2(certificatePath, "password");
 
-        public ServerState(string certificatePath) => _certificate = new X509Certificate2(certificatePath, "password");
-
-        public void Dispose() => _certificate?.Dispose();
+        public void Dispose() => Certificate?.Dispose();
 
         public void reloadCertificate(string certificatePath)
         {
-            _certificate?.Dispose();
-            _certificate = new X509Certificate2(certificatePath, "password");
+            Certificate?.Dispose();
+            Certificate = new X509Certificate2(certificatePath, "password");
         }
     }
 
@@ -290,10 +267,7 @@ public class PlatformTests
         {
             var clientOptions = new SslClientAuthenticationOptions
             {
-                RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
-                {
-                    return certificate.Issuer == trustedRootCertificatesCA1.Subject;
-                }
+                RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => certificate.Issuer == trustedRootCertificatesCA1.Subject
             };
             using var clientCommunicator = createClient(clientOptions);
 
@@ -305,10 +279,7 @@ public class PlatformTests
             // CA2 is not accepted with the initial configuration
             var clientOptions = new SslClientAuthenticationOptions
             {
-                RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
-                {
-                    return certificate.Issuer == trustedRootCertificatesCA2.Subject;
-                }
+                RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => certificate.Issuer == trustedRootCertificatesCA2.Subject
             };
             using var clientCommunicator = createClient(clientOptions);
 
@@ -330,10 +301,7 @@ public class PlatformTests
             // CA2 is accepted with the new configuration
             var clientOptions = new SslClientAuthenticationOptions
             {
-                RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
-                {
-                    return certificate.Issuer == trustedRootCertificatesCA2.Subject;
-                }
+                RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => certificate.Issuer == trustedRootCertificatesCA2.Subject
             };
             using var clientCommunicator = createClient(clientOptions);
 
@@ -345,10 +313,7 @@ public class PlatformTests
             // CA1 is not accepted with the initial configuration
             var clientOptions = new SslClientAuthenticationOptions
             {
-                RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
-                {
-                    return certificate.Issuer == trustedRootCertificatesCA1.Subject;
-                }
+                RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => certificate.Issuer == trustedRootCertificatesCA1.Subject
             };
             using var clientCommunicator = createClient(clientOptions);
 

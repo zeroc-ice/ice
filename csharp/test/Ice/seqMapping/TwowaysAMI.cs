@@ -82,7 +82,7 @@ public class TwowaysAMI
         }
 
         {
-            List<bool> i = new List<bool>();
+            var i = new List<bool>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Add(c % 1 == 1);
@@ -490,7 +490,7 @@ public class TwowaysAMI
         }
 
         {
-            Value[] i = new Value[_length];
+            var i = new Value[_length];
             for (int c = 0; c < _length; ++c)
             {
                 i[c] = new Test.CV(c);
@@ -528,7 +528,7 @@ public class TwowaysAMI
         }
 
         {
-            ObjectPrx[] i = new ObjectPrx[_length];
+            var i = new ObjectPrx[_length];
             for (int c = 0; c < _length; ++c)
             {
                 i[c] = communicator.stringToProxy(c.ToString());
@@ -686,7 +686,7 @@ public class TwowaysAMI
         }
 
         {
-            Test.IPrx[] i = new Test.IPrx[_length];
+            var i = new Test.IPrx[_length];
             for (int c = 0; c < _length; ++c)
             {
                 i[c] = Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString()));
@@ -734,7 +734,7 @@ public class TwowaysAMI
         }
 
         {
-            Stack<Test.IPrx> i = new Stack<Test.IPrx>();
+            var i = new Stack<Test.IPrx>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
@@ -875,10 +875,10 @@ public class TwowaysAMI
         }
 
         {
-            Custom<Custom<int>> i = new Custom<Custom<int>>();
+            var i = new Custom<Custom<int>>();
             for (int c = 0; c < _length; ++c)
             {
-                Custom<int> inner = new Custom<int>();
+                var inner = new Custom<int>();
                 for (int j = 0; j < c; ++j)
                 {
                     inner.Add(j);

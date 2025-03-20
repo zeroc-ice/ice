@@ -25,34 +25,23 @@ public sealed class Instance
 {
     private class ObserverUpdaterI : Ice.Instrumentation.ObserverUpdater
     {
-        public ObserverUpdaterI(Instance instance)
-        {
-            _instance = instance;
-        }
+        public ObserverUpdaterI(Instance instance) => _instance = instance;
 
-        public void updateConnectionObservers()
-        {
-            _instance.updateConnectionObservers();
-        }
+        public void updateConnectionObservers() => _instance.updateConnectionObservers();
 
-        public void updateThreadObservers()
-        {
-            _instance.updateThreadObservers();
-        }
+        public void updateThreadObservers() => _instance.updateThreadObservers();
 
-        private Instance _instance;
+        private readonly Instance _instance;
     }
 
-    public Ice.InitializationData initializationData()
-    {
+    public Ice.InitializationData initializationData() =>
         //
         // No check for destruction. It must be possible to access the
         // initialization data after destruction.
         //
         // No mutex lock, immutable.
         //
-        return _initData;
-    }
+        _initData;
 
     public TraceLevels traceLevels()
     {
@@ -138,20 +127,11 @@ public sealed class Instance
         }
     }
 
-    public int protocolSupport()
-    {
-        return _protocolSupport;
-    }
+    public int protocolSupport() => _protocolSupport;
 
-    public bool preferIPv6()
-    {
-        return _preferIPv6;
-    }
+    public bool preferIPv6() => _preferIPv6;
 
-    public NetworkProxy networkProxy()
-    {
-        return _networkProxy;
-    }
+    public NetworkProxy networkProxy() => _networkProxy;
 
     public ThreadPool clientThreadPool()
     {
@@ -262,41 +242,28 @@ public sealed class Instance
         }
     }
 
-    public int messageSizeMax()
-    {
+    public int messageSizeMax() =>
         // No mutex lock, immutable.
-        return _messageSizeMax;
-    }
+        _messageSizeMax;
 
-    public int batchAutoFlushSize()
-    {
+    public int batchAutoFlushSize() =>
         // No mutex lock, immutable.
-        return _batchAutoFlushSize;
-    }
+        _batchAutoFlushSize;
 
-    public int classGraphDepthMax()
-    {
+    public int classGraphDepthMax() =>
         // No mutex lock, immutable.
-        return _classGraphDepthMax;
-    }
+        _classGraphDepthMax;
 
     public Ice.ToStringMode
-    toStringMode()
-    {
+    toStringMode() =>
         // No mutex lock, immutable
-        return _toStringMode;
-    }
+        _toStringMode;
 
-    public int cacheMessageBuffers()
-    {
+    public int cacheMessageBuffers() =>
         // No mutex lock, immutable.
-        return _cacheMessageBuffers;
-    }
+        _cacheMessageBuffers;
 
-    public Ice.ImplicitContextI getImplicitContext()
-    {
-        return _implicitContext;
-    }
+    public Ice.ImplicitContextI getImplicitContext() => _implicitContext;
 
     public Ice.ObjectPrx createAdmin(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
     {
@@ -583,13 +550,11 @@ public sealed class Instance
     }
 
     public void
-    setLogger(Ice.Logger logger)
-    {
+    setLogger(Ice.Logger logger) =>
         //
         // No locking, as it can only be called during plug-in loading
         //
         _initData.logger = logger;
-    }
 
     public void
     setThreadHook(System.Action threadStart, System.Action threadStop)
@@ -611,10 +576,7 @@ public sealed class Instance
 
         try
         {
-            if (_initData.properties == null)
-            {
-                _initData.properties = new Ice.Properties();
-            }
+            _initData.properties ??= new Ice.Properties();
 
             lock (_staticLock)
             {
@@ -732,7 +694,7 @@ public sealed class Instance
                 }
             }
 
-            var classGraphDepthMax = _initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
+            int classGraphDepthMax = _initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
             if (classGraphDepthMax < 1 || classGraphDepthMax > 0x7fffffff)
             {
                 _classGraphDepthMax = 0x7fffffff;
@@ -796,27 +758,24 @@ public sealed class Instance
 
             _endpointFactoryManager = new EndpointFactoryManager(this);
 
-            ProtocolInstance tcpInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp", false);
+            var tcpInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp", false);
             _endpointFactoryManager.add(new TcpEndpointFactory(tcpInstance));
 
-            ProtocolInstance udpInstance = new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp", false);
+            var udpInstance = new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp", false);
             _endpointFactoryManager.add(new UdpEndpointFactory(udpInstance));
 
-            ProtocolInstance wsInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
+            var wsInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
             _endpointFactoryManager.add(new WSEndpointFactory(wsInstance, Ice.TCPEndpointType.value));
 
             var sslInstance = new Ice.SSL.Instance(_sslEngine, Ice.SSLEndpointType.value, "ssl");
             _endpointFactoryManager.add(new Ice.SSL.EndpointFactoryI(sslInstance, Ice.TCPEndpointType.value));
 
-            ProtocolInstance wssInstance = new ProtocolInstance(this, Ice.WSSEndpointType.value, "wss", true);
+            var wssInstance = new ProtocolInstance(this, Ice.WSSEndpointType.value, "wss", true);
             _endpointFactoryManager.add(new WSEndpointFactory(wssInstance, Ice.SSLEndpointType.value));
 
             _pluginManager = new Ice.PluginManagerI(communicator);
 
-            if (_initData.valueFactoryManager == null)
-            {
-                _initData.valueFactoryManager = new ValueFactoryManagerI();
-            }
+            _initData.valueFactoryManager ??= new ValueFactoryManagerI();
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -877,7 +836,7 @@ public sealed class Instance
         // Load plug-ins.
         //
         Debug.Assert(_serverThreadPool == null);
-        Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
+        var pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
         pluginManagerImpl.loadPlugins(ref args);
 
         //
@@ -950,27 +909,21 @@ public sealed class Instance
             string metricsFacetName = "Metrics";
             if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(metricsFacetName))
             {
-                CommunicatorObserverI observer = new CommunicatorObserverI(_initData);
+                var observer = new CommunicatorObserverI(_initData);
                 _initData.observer = observer;
                 _adminFacets.Add(metricsFacetName, observer.getFacet());
 
                 //
                 // Make sure the admin plugin receives property updates.
                 //
-                if (propsAdmin != null)
-                {
-                    propsAdmin.addUpdateCallback(observer.getFacet().updated);
-                }
+                propsAdmin?.addUpdateCallback(observer.getFacet().updated);
             }
         }
 
         //
         // Set observer updater
         //
-        if (_initData.observer != null)
-        {
-            _initData.observer.setObserverUpdater(new ObserverUpdaterI(this));
-        }
+        _initData.observer?.setObserverUpdater(new ObserverUpdaterI(this));
 
         //
         // Create threads.
@@ -1092,35 +1045,17 @@ public sealed class Instance
         // Shutdown and destroy all the incoming and outgoing Ice
         // connections and wait for the connections to be finished.
         //
-        if (_objectAdapterFactory != null)
-        {
-            _objectAdapterFactory.shutdown();
-        }
+        _objectAdapterFactory?.shutdown();
 
-        if (_outgoingConnectionFactory != null)
-        {
-            _outgoingConnectionFactory.destroy();
-        }
+        _outgoingConnectionFactory?.destroy();
 
-        if (_objectAdapterFactory != null)
-        {
-            _objectAdapterFactory.destroy();
-        }
+        _objectAdapterFactory?.destroy();
 
-        if (_outgoingConnectionFactory != null)
-        {
-            _outgoingConnectionFactory.waitUntilFinished();
-        }
+        _outgoingConnectionFactory?.waitUntilFinished();
 
-        if (_retryQueue != null)
-        {
-            _retryQueue.destroy(); // Must be called before destroying thread pools.
-        }
+        _retryQueue?.destroy(); // Must be called before destroying thread pools.
 
-        if (_initData.observer != null)
-        {
-            _initData.observer.setObserverUpdater(null);
-        }
+        _initData.observer?.setObserverUpdater(null);
 
         if (_initData.logger is LoggerAdminLogger loggerAdminLogger)
         {
@@ -1132,55 +1067,28 @@ public sealed class Instance
         // all the connections are finished (the connections destruction
         // can require invoking callbacks with the thread pools).
         //
-        if (_serverThreadPool != null)
-        {
-            _serverThreadPool.destroy();
-        }
-        if (_clientThreadPool != null)
-        {
-            _clientThreadPool.destroy();
-        }
-        if (_endpointHostResolver != null)
-        {
-            _endpointHostResolver.destroy();
-        }
+        _serverThreadPool?.destroy();
+        _clientThreadPool?.destroy();
+        _endpointHostResolver?.destroy();
 
         //
         // Wait for all the threads to be finished.
         //
-        if (_timer != null)
-        {
-            _timer.destroy();
-        }
-        if (_clientThreadPool != null)
-        {
-            _clientThreadPool.joinWithAllThreads();
-        }
-        if (_serverThreadPool != null)
-        {
-            _serverThreadPool.joinWithAllThreads();
-        }
-        if (_endpointHostResolver != null)
-        {
-            _endpointHostResolver.joinWithThread();
-        }
+        _timer?.destroy();
+        _clientThreadPool?.joinWithAllThreads();
+        _serverThreadPool?.joinWithAllThreads();
+        _endpointHostResolver?.joinWithThread();
 
-        if (_routerManager != null)
-        {
-            _routerManager.destroy();
-        }
+        _routerManager?.destroy();
 
-        if (_locatorManager != null)
-        {
-            _locatorManager.destroy();
-        }
+        _locatorManager?.destroy();
 
         if (_initData.properties.getIcePropertyAsInt("Ice.Warn.UnusedProperties") > 0)
         {
             List<string> unusedProperties = _initData.properties.getUnusedProperties();
             if (unusedProperties.Count != 0)
             {
-                StringBuilder message = new StringBuilder("The following properties were set but never read:");
+                var message = new StringBuilder("The following properties were set but never read:");
                 foreach (string s in unusedProperties)
                 {
                     message.Append("\n    ");
@@ -1193,10 +1101,7 @@ public sealed class Instance
         //
         // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
         //
-        if (_pluginManager != null)
-        {
-            _pluginManager.destroy();
-        }
+        _pluginManager?.destroy();
 
         lock (_mutex)
         {
@@ -1290,24 +1195,12 @@ public sealed class Instance
     {
         try
         {
-            if (_clientThreadPool != null)
-            {
-                _clientThreadPool.updateObservers();
-            }
-            if (_serverThreadPool != null)
-            {
-                _serverThreadPool.updateObservers();
-            }
+            _clientThreadPool?.updateObservers();
+            _serverThreadPool?.updateObservers();
             Debug.Assert(_objectAdapterFactory != null);
             _objectAdapterFactory.updateThreadObservers();
-            if (_endpointHostResolver != null)
-            {
-                _endpointHostResolver.updateObserver();
-            }
-            if (_timer != null)
-            {
-                _timer.updateObserver(_initData.observer);
-            }
+            _endpointHostResolver?.updateObserver();
+            _timer?.updateObserver(_initData.observer);
         }
         catch (Ice.CommunicatorDestroyedException)
         {
@@ -1318,7 +1211,7 @@ public sealed class Instance
     {
         lock (_mutex)
         {
-            Dictionary<string, Ice.Object> filteredFacets = new Dictionary<string, Ice.Object>();
+            var filteredFacets = new Dictionary<string, Ice.Object>();
 
             foreach (KeyValuePair<string, Ice.Object> entry in _adminFacets)
             {
@@ -1356,7 +1249,7 @@ public sealed class Instance
             {
                 if (_traceLevels.location >= 1)
                 {
-                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    var s = new System.Text.StringBuilder();
                     s.Append("couldn't register server `" + serverId + "' with the locator registry:\n");
                     s.Append("the server is not known to the locator registry");
                     _initData.logger.trace(_traceLevels.locationCat, s.ToString());
@@ -1368,7 +1261,7 @@ public sealed class Instance
             {
                 if (_traceLevels.location >= 1)
                 {
-                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    var s = new System.Text.StringBuilder();
                     s.Append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
                     _initData.logger.trace(_traceLevels.locationCat, s.ToString());
                 }
@@ -1377,7 +1270,7 @@ public sealed class Instance
 
             if (_traceLevels.location >= 1)
             {
-                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                var s = new System.Text.StringBuilder();
                 s.Append("registered server `" + serverId + "' with the locator registry");
                 _initData.logger.trace(_traceLevels.locationCat, s.ToString());
             }
@@ -1502,9 +1395,9 @@ public sealed class Instance
     private bool _adminEnabled;
     private Ice.ObjectAdapter _adminAdapter;
     private Dictionary<string, Ice.Object> _adminFacets = new();
-    private HashSet<string> _adminFacetFilter = new();
+    private readonly HashSet<string> _adminFacetFilter = new();
     private Ice.Identity _adminIdentity;
-    private Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new();
+    private readonly Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new();
     private ConnectionOptions _serverConnectionOptions; // set in initialize
     private Ice.SSL.SSLEngine _sslEngine;
     private readonly object _mutex = new object();

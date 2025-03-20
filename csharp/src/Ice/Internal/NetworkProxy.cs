@@ -67,10 +67,7 @@ public sealed class SOCKSNetworkProxy : NetworkProxy
         _port = port;
     }
 
-    private SOCKSNetworkProxy(EndPoint address)
-    {
-        _address = address;
-    }
+    private SOCKSNetworkProxy(EndPoint address) => _address = address;
 
     public void beginWrite(EndPoint endpoint, Buffer buf)
     {
@@ -86,7 +83,7 @@ public sealed class SOCKSNetworkProxy : NetworkProxy
         //
         // SOCKS connect request
         //
-        IPEndPoint addr = (IPEndPoint)endpoint;
+        var addr = (IPEndPoint)endpoint;
         buf.resize(9, false);
         ByteBuffer.ByteOrder order = buf.b.order();
         buf.b.order(ByteBuffer.ByteOrder.BigEndian); // Network byte order.
@@ -101,11 +98,9 @@ public sealed class SOCKSNetworkProxy : NetworkProxy
         buf.b.order(order);
     }
 
-    public int endWrite(Buffer buf)
-    {
+    public int endWrite(Buffer buf) =>
         // Once the request is sent, read the response
-        return buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.Read;
-    }
+        buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.Read;
 
     public void beginRead(Buffer buf)
     {
@@ -116,11 +111,9 @@ public sealed class SOCKSNetworkProxy : NetworkProxy
         buf.b.position(0);
     }
 
-    public int endRead(Buffer buf)
-    {
+    public int endRead(Buffer buf) =>
         // We're done once we read the response
-        return buf.b.hasRemaining() ? SocketOperation.Read : SocketOperation.None;
-    }
+        buf.b.hasRemaining() ? SocketOperation.Read : SocketOperation.None;
 
     public void finish(Buffer readBuffer, Buffer writeBuffer)
     {
@@ -150,15 +143,9 @@ public sealed class SOCKSNetworkProxy : NetworkProxy
         return _address;
     }
 
-    public string getName()
-    {
-        return "SOCKS";
-    }
+    public string getName() => "SOCKS";
 
-    public int getProtocolSupport()
-    {
-        return Network.EnableIPv4;
-    }
+    public int getProtocolSupport() => Network.EnableIPv4;
 
     private readonly string _host;
     private readonly int _port;
@@ -183,7 +170,7 @@ public sealed class HTTPNetworkProxy : NetworkProxy
     public void beginWrite(EndPoint endpoint, Buffer buf)
     {
         string addr = Network.addrToString(endpoint);
-        StringBuilder str = new StringBuilder();
+        var str = new StringBuilder();
         str.Append("CONNECT ");
         str.Append(addr);
         str.Append(" HTTP/1.1\r\nHost: ");
@@ -201,11 +188,9 @@ public sealed class HTTPNetworkProxy : NetworkProxy
         buf.b.limit(buf.size());
     }
 
-    public int endWrite(Buffer buf)
-    {
+    public int endWrite(Buffer buf) =>
         // Once the request is sent, read the response
-        return buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.Read;
-    }
+        buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.Read;
 
     public void beginRead(Buffer buf)
     {
@@ -238,7 +223,7 @@ public sealed class HTTPNetworkProxy : NetworkProxy
 
     public void finish(Buffer readBuffer, Buffer writeBuffer)
     {
-        HttpParser parser = new HttpParser();
+        var parser = new HttpParser();
         parser.parse(readBuffer.b, 0, readBuffer.b.position());
         if (parser.status() != 200)
         {
@@ -265,15 +250,9 @@ public sealed class HTTPNetworkProxy : NetworkProxy
         return _address;
     }
 
-    public string getName()
-    {
-        return "HTTP";
-    }
+    public string getName() => "HTTP";
 
-    public int getProtocolSupport()
-    {
-        return _protocolSupport;
-    }
+    public int getProtocolSupport() => _protocolSupport;
 
     private readonly string _host;
     private readonly int _port;

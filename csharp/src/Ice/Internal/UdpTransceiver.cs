@@ -11,10 +11,7 @@ namespace Ice.Internal;
 internal sealed class UdpTransceiver : Transceiver
 #pragma warning restore CA1001
 {
-    public Socket fd()
-    {
-        return _fd;
-    }
+    public Socket fd() => _fd;
 
     public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
     {
@@ -48,13 +45,11 @@ internal sealed class UdpTransceiver : Transceiver
         return SocketOperation.None;
     }
 
-    public int closing(bool initiator, Ice.LocalException ex)
-    {
+    public int closing(bool initiator, Ice.LocalException ex) =>
         //
         // Nothing to do.
         //
-        return SocketOperation.None;
-    }
+        SocketOperation.None;
 
     public void close()
     {
@@ -131,7 +126,7 @@ internal sealed class UdpTransceiver : Transceiver
         // The caller is supposed to check the send size before by calling checkSendSize
         Debug.Assert(Math.Min(_maxPacketSize, _sndSize - _udpOverhead) >= buf.size());
 
-        int ret = 0;
+        int ret;
         while (true)
         {
             try
@@ -197,7 +192,7 @@ internal sealed class UdpTransceiver : Transceiver
         buf.resize(packetSize, true);
         buf.b.position(0);
 
-        int ret = 0;
+        int ret;
         while (true)
         {
             try
@@ -459,7 +454,8 @@ internal sealed class UdpTransceiver : Transceiver
         {
             if (_writeEventArgs.SocketError != SocketError.Success)
             {
-                System.Net.Sockets.SocketException ex = new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
+                var ex =
+                    new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
                 if (Network.connectionRefused(ex))
                 {
                     throw new Ice.ConnectionRefusedException(ex);
@@ -503,10 +499,7 @@ internal sealed class UdpTransceiver : Transceiver
         buf.b.position(buf.b.position() + ret);
     }
 
-    public string protocol()
-    {
-        return _instance.protocol();
-    }
+    public string protocol() => _instance.protocol();
 
     public ConnectionInfo getInfo(bool incoming, string adapterName, string connectionId)
     {
@@ -571,10 +564,7 @@ internal sealed class UdpTransceiver : Transceiver
         }
     }
 
-    public void setBufferSize(int rcvSize, int sndSize)
-    {
-        setBufSize(rcvSize, sndSize);
-    }
+    public void setBufferSize(int rcvSize, int sndSize) => setBufSize(rcvSize, sndSize);
 
     public override string ToString()
     {
@@ -610,10 +600,10 @@ internal sealed class UdpTransceiver : Transceiver
 
     public string toDetailedString()
     {
-        StringBuilder s = new StringBuilder(ToString());
+        var s = new StringBuilder(ToString());
         if (_mcastAddr is not null)
         {
-            var intfs = Network.getInterfacesForMulticast(
+            List<string> intfs = Network.getInterfacesForMulticast(
                 _mcastInterface,
                 Network.getProtocolSupport(_mcastAddr.Address));
             if (intfs.Count != 0)
@@ -625,10 +615,7 @@ internal sealed class UdpTransceiver : Transceiver
         return s.ToString();
     }
 
-    public int effectivePort()
-    {
-        return Network.endpointPort(_addr);
-    }
+    public int effectivePort() => Network.endpointPort(_addr);
 
     //
     // Only for use by UdpConnector.
@@ -715,14 +702,8 @@ internal sealed class UdpTransceiver : Transceiver
         }
         catch (Ice.LocalException)
         {
-            if (_readEventArgs != null)
-            {
-                _readEventArgs.Dispose();
-            }
-            if (_writeEventArgs != null)
-            {
-                _writeEventArgs.Dispose();
-            }
+            _readEventArgs?.Dispose();
+            _writeEventArgs?.Dispose();
             _fd = null;
             throw;
         }
@@ -843,21 +824,21 @@ internal sealed class UdpTransceiver : Transceiver
     private UdpEndpointI _endpoint;
     private readonly ProtocolInstance _instance;
     private int _state;
-    private bool _incoming;
+    private readonly bool _incoming;
     private int _rcvSize;
     private int _sndSize;
     private Socket _fd;
     private EndPoint _addr;
-    private EndPoint _sourceAddr;
+    private readonly EndPoint _sourceAddr;
     private IPEndPoint _mcastAddr;
     private EndPoint _peerAddr;
-    private string _mcastInterface;
+    private readonly string _mcastInterface;
 
-    private int _port;
+    private readonly int _port;
     private bool _bound;
 
     private SocketAsyncEventArgs _writeEventArgs;
-    private SocketAsyncEventArgs _readEventArgs;
+    private readonly SocketAsyncEventArgs _readEventArgs;
     private AsyncCallback _writeCallback;
     private AsyncCallback _readCallback;
 

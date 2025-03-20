@@ -44,13 +44,13 @@ public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Col
     /// <returns>Less than zero if x is less than y; greater than zero if x is greater than y; otherwise zero.</returns>
     public int Compare(object? x, object? y)
     {
-        ObjectPrx? proxy1 = x as ObjectPrx;
+        var proxy1 = x as ObjectPrx;
         if (x is not null && proxy1 is null)
         {
             throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(x));
         }
 
-        ObjectPrx? proxy2 = y as ObjectPrx;
+        var proxy2 = y as ObjectPrx;
         if (y is not null && proxy2 is null)
         {
             throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(y));
@@ -105,13 +105,13 @@ public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, Syste
     /// 0, otherwise.</returns>
     public int Compare(object? x, object? y)
     {
-        ObjectPrx? proxy1 = x as ObjectPrx;
+        var proxy1 = x as ObjectPrx;
         if (x is not null && proxy1 is null)
         {
             throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(x));
         }
 
-        ObjectPrx? proxy2 = y as ObjectPrx;
+        var proxy2 = y as ObjectPrx;
         if (y is not null && proxy2 is null)
         {
             throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(y));

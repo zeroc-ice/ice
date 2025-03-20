@@ -33,45 +33,21 @@ internal class BackgroundControllerI : BackgroundControllerDisp_
         }
     }
 
-    public override void holdAdapter(Ice.Current current)
-    {
-        _adapter.hold();
-    }
+    public override void holdAdapter(Ice.Current current) => _adapter.hold();
 
-    public override void resumeAdapter(Ice.Current current)
-    {
-        _adapter.activate();
-    }
+    public override void resumeAdapter(Ice.Current current) => _adapter.activate();
 
-    public override void initializeException(bool enable, Ice.Current current)
-    {
-        _configuration.initializeException(enable ? new Ice.SocketException() : null);
-    }
+    public override void initializeException(bool enable, Ice.Current current) => _configuration.initializeException(enable ? new Ice.SocketException() : null);
 
-    public override void readReady(bool enable, Ice.Current current)
-    {
-        _configuration.readReady(enable);
-    }
+    public override void readReady(bool enable, Ice.Current current) => _configuration.readReady(enable);
 
-    public override void readException(bool enable, Ice.Current current)
-    {
-        _configuration.readException(enable ? new Ice.SocketException() : null);
-    }
+    public override void readException(bool enable, Ice.Current current) => _configuration.readException(enable ? new Ice.SocketException() : null);
 
-    public override void writeReady(bool enable, Ice.Current current)
-    {
-        _configuration.writeReady(enable);
-    }
+    public override void writeReady(bool enable, Ice.Current current) => _configuration.writeReady(enable);
 
-    public override void writeException(bool enable, Ice.Current current)
-    {
-        _configuration.writeException(enable ? new Ice.SocketException() : null);
-    }
+    public override void writeException(bool enable, Ice.Current current) => _configuration.writeException(enable ? new Ice.SocketException() : null);
 
-    public override void buffered(bool enable, Ice.Current current)
-    {
-        _configuration.buffered(enable);
-    }
+    public override void buffered(bool enable, Ice.Current current) => _configuration.buffered(enable);
 
     internal BackgroundControllerI(Ice.ObjectAdapter adapter)
     {
@@ -79,7 +55,7 @@ internal class BackgroundControllerI : BackgroundControllerDisp_
         _configuration = Configuration.getInstance();
     }
 
-    private Ice.ObjectAdapter _adapter;
-    private HashSet<string> _pausedCalls = new HashSet<string>();
-    private Configuration _configuration;
+    private readonly Ice.ObjectAdapter _adapter;
+    private readonly HashSet<string> _pausedCalls = new HashSet<string>();
+    private readonly Configuration _configuration;
 }

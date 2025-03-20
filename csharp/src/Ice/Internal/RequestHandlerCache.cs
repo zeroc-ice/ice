@@ -28,10 +28,7 @@ internal sealed class RequestHandlerCache
             {
                 lock (_mutex)
                 {
-                    if (_cachedRequestHandler is null)
-                    {
-                        _cachedRequestHandler = handler;
-                    }
+                    _cachedRequestHandler ??= handler;
                     // else ignore handler
                     return _cachedRequestHandler;
                 }

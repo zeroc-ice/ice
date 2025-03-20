@@ -343,7 +343,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             int status = OutgoingAsyncBase.AsyncStatusQueued;
             try
             {
-                OutgoingMessage message = new OutgoingMessage(og, os, compress, requestId);
+                var message = new OutgoingMessage(og, os, compress, requestId);
                 status = sendMessage(message);
             }
             catch (LocalException ex)
@@ -507,15 +507,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    internal EndpointI endpoint()
-    {
-        return _endpoint; // No mutex protection necessary, _endpoint is immutable.
-    }
+    internal EndpointI endpoint() => _endpoint; // No mutex protection necessary, _endpoint is immutable.
 
-    internal Connector connector()
-    {
-        return _connector; // No mutex protection necessary, _endpoint is immutable.
-    }
+    internal Connector connector() => _connector; // No mutex protection necessary, _endpoint is immutable.
 
     public void setAdapter(ObjectAdapter adapter)
     {
@@ -556,10 +550,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    public Endpoint getEndpoint()
-    {
-        return _endpoint; // No mutex protection necessary, _endpoint is immutable.
-    }
+    public Endpoint getEndpoint() => _endpoint; // No mutex protection necessary, _endpoint is immutable.
 
     public ObjectPrx createProxy(Identity id)
     {
@@ -615,13 +606,12 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                             observerStartWrite(_writeStream.getBuffer());
                         }
 
-                        bool messageWritten = false;
                         bool completedSynchronously =
                             _transceiver.startWrite(
                                 _writeStream.getBuffer(),
                                 completedCallback,
                                 this,
-                                out messageWritten);
+                                out bool messageWritten);
                         // If the startWrite call consumed the complete buffer, we assume the message is sent now for
                         // at-most-once semantics.
                         if (messageWritten && _sendStreams.Count > 0)
@@ -675,7 +665,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 _transceiver.finishWrite(buf);
                 if (_instance.traceLevels().network >= 3 && buf.b.position() != start)
                 {
-                    StringBuilder s = new StringBuilder("sent ");
+                    var s = new StringBuilder("sent ");
                     s.Append(buf.b.position() - start);
                     if (!_endpoint.datagram())
                     {
@@ -701,7 +691,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 _transceiver.finishRead(buf);
                 if (_instance.traceLevels().network >= 3 && buf.b.position() != start)
                 {
-                    StringBuilder s = new StringBuilder("received ");
+                    var s = new StringBuilder("received ");
                     if (_endpoint.datagram())
                     {
                         s.Append(buf.b.limit());
@@ -736,10 +726,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     {
         StartCallback startCB = null;
         Queue<OutgoingMessage> sentCBs = null;
-        MessageInfo info = new MessageInfo();
+        var info = new MessageInfo();
         int upcallCount = 0;
 
-        using ThreadPoolMessage msg = new ThreadPoolMessage(current, _mutex);
+        using var msg = new ThreadPoolMessage(current, _mutex);
         lock (_mutex)
         {
             try
@@ -808,10 +798,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                                 // The next read will read the remainder of the message.
                                 _readHeader = false;
 
-                                if (_observer is not null)
-                                {
-                                    _observer.receivedBytes(Protocol.headerSize);
-                                }
+                                _observer?.receivedBytes(Protocol.headerSize);
 
                                 //
                                 // Connection is validated on first message. This is only used by
@@ -1060,7 +1047,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 }
                 if (m.receivedReply)
                 {
-                    OutgoingAsync outAsync = (OutgoingAsync)m.outAsync;
+                    var outAsync = (OutgoingAsync)m.outAsync;
                     if (outAsync.response())
                     {
                         outAsync.invokeResponse();
@@ -1162,7 +1149,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         {
             if (_instance.traceLevels().network >= 2)
             {
-                StringBuilder s = new StringBuilder("failed to ");
+                var s = new StringBuilder("failed to ");
                 s.Append(_connector is not null ? "establish" : "accept");
                 s.Append(' ');
                 s.Append(_endpoint.protocol());
@@ -1177,7 +1164,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         {
             if (_instance.traceLevels().network >= 1)
             {
-                StringBuilder s = new StringBuilder("closed ");
+                var s = new StringBuilder("closed ");
                 s.Append(_endpoint.protocol());
                 s.Append(" connection\n");
                 s.Append(ToString());
@@ -1229,7 +1216,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     }
                     if (message.receivedReply)
                     {
-                        OutgoingAsync outAsync = (OutgoingAsync)message.outAsync;
+                        var outAsync = (OutgoingAsync)message.outAsync;
                         if (outAsync.response())
                         {
                             outAsync.invokeResponse();
@@ -1317,16 +1304,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     }
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-        return _desc; // No mutex lock, _desc is immutable.
-    }
+    public override string ToString() => _desc; // No mutex lock, _desc is immutable.
 
     /// <inheritdoc/>
-    public string type()
-    {
-        return _type; // No mutex lock, _type is immutable.
-    }
+    public string type() => _type; // No mutex lock, _type is immutable.
 
     /// <inheritdoc/>
     public ConnectionInfo getInfo()
@@ -1363,10 +1344,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    public Ice.Internal.ThreadPool getThreadPool()
-    {
-        return _threadPool;
-    }
+    public Ice.Internal.ThreadPool getThreadPool() => _threadPool;
 
     internal ConnectionI(
         Instance instance,
@@ -1550,10 +1528,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private const int StateClosed = 6;
     private const int StateFinished = 7;
 
-    private static ConnectionState toConnectionState(int state)
-    {
-        return connectionStateMap[state];
-    }
+    private static ConnectionState toConnectionState(int state) => connectionStateMap[state];
 
     private void setState(int state, LocalException ex)
     {
@@ -1964,7 +1939,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
         if (_instance.traceLevels().network >= 1)
         {
-            StringBuilder s = new StringBuilder();
+            var s = new StringBuilder();
             if (_endpoint.datagram())
             {
                 s.Append("starting to ");
@@ -2030,10 +2005,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 _writeStream.swap(message.stream);
                 if (message.sent())
                 {
-                    if (callbacks is null)
-                    {
-                        callbacks = new Queue<OutgoingMessage>();
-                    }
+                    callbacks ??= new Queue<OutgoingMessage>();
                     callbacks.Enqueue(message);
                 }
                 _sendStreams.RemoveFirst();
@@ -2158,7 +2130,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             if (message.sent())
             {
                 // If there's a sent callback, indicate the caller that it should invoke the sent callback.
-                status = status | OutgoingAsyncBase.AsyncStatusInvokeSentCallback;
+                status |= OutgoingAsyncBase.AsyncStatusInvokeSentCallback;
             }
 
             return status;
@@ -2188,7 +2160,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 _compressionLevel);
             if (cbuf is not null)
             {
-                OutputStream cstream = new OutputStream(new Internal.Buffer(cbuf, true), decompressed.getEncoding());
+                var cstream = new OutputStream(new Internal.Buffer(cbuf, true), decompressed.getEncoding());
 
                 //
                 // Set compression status.
@@ -2675,14 +2647,12 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             return _info;
         }
 
-        _info = _transceiver.getInfo(incoming: _connector is null, _adapter?.getName() ?? "", _endpoint.connectionId());
+        _info =
+            _transceiver.getInfo(incoming: _connector is null, _adapter?.getName() ?? "", _endpoint.connectionId());
         return _info;
     }
 
-    private void warning(string msg, System.Exception ex)
-    {
-        _logger.warning(msg + ":\n" + ex + "\n" + _transceiver.ToString());
-    }
+    private void warning(string msg, System.Exception ex) => _logger.warning(msg + ":\n" + ex + "\n" + _transceiver.ToString());
 
     private void observerStartRead(Ice.Internal.Buffer buf)
     {
@@ -2734,7 +2704,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         int op = _transceiver.read(buf, ref _hasMoreData);
         if (_instance.traceLevels().network >= 3 && buf.b.position() != start)
         {
-            StringBuilder s = new StringBuilder("received ");
+            var s = new StringBuilder("received ");
             if (_endpoint.datagram())
             {
                 s.Append(buf.b.limit());
@@ -2760,7 +2730,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         int op = _transceiver.write(buf);
         if (_instance.traceLevels().network >= 3 && buf.b.position() != start)
         {
-            StringBuilder s = new StringBuilder("sent ");
+            var s = new StringBuilder("sent ");
             s.Append(buf.b.position() - start);
             if (!_endpoint.datagram())
             {
@@ -2877,7 +2847,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         internal bool receivedReply;
     }
 
-    private static ConnectionState[] connectionStateMap = [
+    private static readonly ConnectionState[] connectionStateMap = [
         ConnectionState.ConnectionStateValidating,   // StateNotInitialized
         ConnectionState.ConnectionStateValidating,   // StateNotValidated
         ConnectionState.ConnectionStateActive,       // StateActive
@@ -2888,20 +2858,20 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         ConnectionState.ConnectionStateClosed,       // StateFinished
     ];
 
-    private Instance _instance;
+    private readonly Instance _instance;
     private readonly Transceiver _transceiver;
     private readonly IdleTimeoutTransceiverDecorator _idleTimeoutTransceiver; // can be null
 
     private string _desc;
-    private string _type;
+    private readonly string _type;
     private readonly Connector _connector;
-    private EndpointI _endpoint;
+    private readonly EndpointI _endpoint;
 
     private ObjectAdapter _adapter;
 
-    private Logger _logger;
-    private TraceLevels _traceLevels;
-    private Ice.Internal.ThreadPool _threadPool;
+    private readonly Logger _logger;
+    private readonly TraceLevels _traceLevels;
+    private readonly Ice.Internal.ThreadPool _threadPool;
 
     private readonly TimeSpan _connectTimeout;
     private readonly TimeSpan _closeTimeout;
@@ -2914,33 +2884,33 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     // This action must be called outside the ConnectionI lock to avoid lock acquisition deadlocks.
     private readonly Action<ConnectionI> _removeFromFactory;
 
-    private bool _warn;
-    private bool _warnUdp;
+    private readonly bool _warn;
+    private readonly bool _warnUdp;
 
-    private int _compressionLevel;
+    private readonly int _compressionLevel;
 
     private int _nextRequestId;
 
-    private Dictionary<int, OutgoingAsyncBase> _asyncRequests = new Dictionary<int, OutgoingAsyncBase>();
+    private readonly Dictionary<int, OutgoingAsyncBase> _asyncRequests = new Dictionary<int, OutgoingAsyncBase>();
 
     private LocalException _exception;
 
     private readonly int _messageSizeMax;
-    private BatchRequestQueue _batchRequestQueue;
+    private readonly BatchRequestQueue _batchRequestQueue;
 
-    private LinkedList<OutgoingMessage> _sendStreams = new LinkedList<OutgoingMessage>();
+    private readonly LinkedList<OutgoingMessage> _sendStreams = new LinkedList<OutgoingMessage>();
 
     // Contains the message which is being received. If the connection is waiting to receive a message (_readHeader ==
     // true), its size is Protocol.headerSize. Otherwise, its size is the message size specified in the received message
     // header.
-    private InputStream _readStream;
+    private readonly InputStream _readStream;
 
     // When _readHeader is true, the next bytes we'll read are the header of a new message. When false, we're reading
     // next the remainder of a message that was already partially received.
     private bool _readHeader;
 
     // Contains the message which is being sent. The write stream buffer is empty if no message is being sent.
-    private OutputStream _writeStream;
+    private readonly OutputStream _writeStream;
 
     private ConnectionObserver _observer;
     private int _readStreamPos;

@@ -50,7 +50,7 @@ internal sealed class StreamSocket
         {
             if (_writeEventArgs.SocketError != SocketError.Success)
             {
-                System.Net.Sockets.SocketException ex = new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
+                var ex = new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
                 if (Network.connectionRefused(ex))
                 {
                     throw new Ice.ConnectionRefusedException(ex);
@@ -88,25 +88,13 @@ internal sealed class StreamSocket
         return SocketOperation.None;
     }
 
-    public Socket fd()
-    {
-        return _fd;
-    }
+    public Socket fd() => _fd;
 
-    public int getSendPacketSize(int length)
-    {
-        return _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
-    }
+    public int getSendPacketSize(int length) => _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
 
-    public int getRecvPacketSize(int length)
-    {
-        return _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
-    }
+    public int getRecvPacketSize(int length) => _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
 
-    public void setBufferSize(int rcvSize, int sndSize)
-    {
-        Network.setTcpBufSize(_fd, rcvSize, sndSize, _instance);
-    }
+    public void setBufferSize(int rcvSize, int sndSize) => Network.setTcpBufSize(_fd, rcvSize, sndSize, _instance);
 
     public int read(Buffer buf)
     {
@@ -341,10 +329,7 @@ internal sealed class StreamSocket
         _writeEventArgs.Dispose();
     }
 
-    public override string ToString()
-    {
-        return _desc;
-    }
+    public override string ToString() => _desc;
 
     private int read(ByteBuffer buf)
     {
@@ -471,15 +456,12 @@ internal sealed class StreamSocket
 
     private int toState(int operation)
     {
-        switch (operation)
+        return operation switch
         {
-            case SocketOperation.Read:
-                return StateProxyRead;
-            case SocketOperation.Write:
-                return StateProxyWrite;
-            default:
-                return StateProxyConnected;
-        }
+            SocketOperation.Read => StateProxyRead,
+            SocketOperation.Write => StateProxyWrite,
+            _ => StateProxyConnected,
+        };
     }
 
     private readonly ProtocolInstance _instance;

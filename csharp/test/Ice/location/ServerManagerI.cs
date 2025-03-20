@@ -30,7 +30,7 @@ public class ServerManagerI : Test.ServerManagerDisp_
         // its endpoints with the locator and create references containing
         // the adapter id instead of the endpoints.
         //
-        Ice.InitializationData initData = new Ice.InitializationData();
+        var initData = new Ice.InitializationData();
         initData.properties = _helper.communicator().getProperties().Clone();
         initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
         initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
@@ -80,14 +80,8 @@ public class ServerManagerI : Test.ServerManagerDisp_
 
                 // Retry, if OA creation fails with EADDRINUSE(this can occur when running with JS web
                 // browser clients if the driver uses ports in the same range as this test, ICE-8148)
-                if (adapter != null)
-                {
-                    adapter.destroy();
-                }
-                if (adapter2 != null)
-                {
-                    adapter2.destroy();
-                }
+                adapter?.destroy();
+                adapter2?.destroy();
             }
         }
     }
@@ -102,8 +96,8 @@ public class ServerManagerI : Test.ServerManagerDisp_
         current.adapter.getCommunicator().shutdown();
     }
 
-    private ServerLocatorRegistry _registry;
-    private ArrayList _communicators;
-    private global::Test.TestHelper _helper;
+    private readonly ServerLocatorRegistry _registry;
+    private readonly ArrayList _communicators;
+    private readonly global::Test.TestHelper _helper;
     private int _nextPort = 1;
 }

@@ -4,10 +4,7 @@ namespace Ice.dictMapping;
 
 public sealed class MyClassI : Test.MyClassDisp_
 {
-    public override void shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
     public override Dictionary<int, int> opNV(Dictionary<int, int> i, out Dictionary<int, int> o,
                                               Ice.Current current)

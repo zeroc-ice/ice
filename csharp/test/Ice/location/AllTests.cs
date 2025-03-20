@@ -451,7 +451,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing locator cache background updates... ");
         output.Flush();
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
+            var initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().Clone();
             initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
             Ice.Communicator ic = helper.initialize(initData);
@@ -527,7 +527,7 @@ public class AllTests : global::Test.AllTests
 
         output.Write("testing locator encoding resolution... ");
         output.Flush();
-        hello = Test.HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
+        _ = Test.HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
         count = locator.getRequestCount();
         communicator.stringToProxy("test@TestAdapter").ice_encodingVersion(Ice.Util.Encoding_1_1).ice_ping();
         test(count == locator.getRequestCount());

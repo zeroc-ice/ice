@@ -22,7 +22,7 @@ public static class Server
         var argSeq = new List<string>(args);
         foreach (KeyValuePair<string, string> pair in services)
         {
-            string name = pair.Key.Substring(prefix.Length);
+            string name = pair.Key[prefix.Length..];
             argSeq.RemoveAll(v => v.StartsWith($"--{name}", StringComparison.Ordinal));
         }
 
@@ -46,7 +46,7 @@ public static class Server
             }
         }
 
-        ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator, args);
+        var serviceManagerImpl = new ServiceManagerI(communicator, args);
         return serviceManagerImpl.run();
     }
 
@@ -54,13 +54,13 @@ public static class Server
     {
         int status = 0;
 
-        Ice.InitializationData initData = new Ice.InitializationData();
+        var initData = new Ice.InitializationData();
         initData.properties = new Ice.Properties(["IceBox"]);
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
 
         try
         {
-            using var communicator = Ice.Util.initialize(ref args, initData);
+            using Ice.Communicator communicator = Ice.Util.initialize(ref args, initData);
             Console.CancelKeyPress += (sender, eventArgs) =>
             {
                 eventArgs.Cancel = true;

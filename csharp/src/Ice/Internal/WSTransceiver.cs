@@ -9,10 +9,7 @@ namespace Ice.Internal;
 
 internal sealed class WSTransceiver : Transceiver
 {
-    public Socket fd()
-    {
-        return _delegate.fd();
-    }
+    public Socket fd() => _delegate.fd();
 
     public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
     {
@@ -50,7 +47,7 @@ internal sealed class WSTransceiver : Transceiver
                     //
                     // Compose the upgrade request.
                     //
-                    StringBuilder @out = new StringBuilder();
+                    var @out = new StringBuilder();
                     @out.Append("GET " + _resource + " HTTP/1.1\r\n");
                     @out.Append("Host: " + _host + "\r\n");
                     @out.Append("Upgrade: websocket\r\n");
@@ -323,10 +320,7 @@ internal sealed class WSTransceiver : Transceiver
         return null;
     }
 
-    public void destroy()
-    {
-        _delegate.destroy();
-    }
+    public void destroy() => _delegate.destroy();
 
     public int write(Buffer buf)
     {
@@ -416,7 +410,7 @@ internal sealed class WSTransceiver : Transceiver
             return SocketOperation.None;
         }
 
-        int s = SocketOperation.None;
+        int s;
         do
         {
             if (preRead(buf))
@@ -646,33 +640,18 @@ internal sealed class WSTransceiver : Transceiver
         postWrite(buf, SocketOperation.None);
     }
 
-    public string protocol()
-    {
-        return _instance.protocol();
-    }
+    public string protocol() => _instance.protocol();
 
     public ConnectionInfo getInfo(bool incoming, string adapterName, string connectionId) =>
         new WSConnectionInfo(_delegate.getInfo(incoming, adapterName, connectionId), _parser.getHeaders());
 
-    public void checkSendSize(Buffer buf)
-    {
-        _delegate.checkSendSize(buf);
-    }
+    public void checkSendSize(Buffer buf) => _delegate.checkSendSize(buf);
 
-    public void setBufferSize(int rcvSize, int sndSize)
-    {
-        _delegate.setBufferSize(rcvSize, sndSize);
-    }
+    public void setBufferSize(int rcvSize, int sndSize) => _delegate.setBufferSize(rcvSize, sndSize);
 
-    public override string ToString()
-    {
-        return _delegate.ToString();
-    }
+    public override string ToString() => _delegate.ToString();
 
-    public string toDetailedString()
-    {
-        return _delegate.toDetailedString();
-    }
+    public string toDetailedString() => _delegate.toDetailedString();
 
     internal
     WSTransceiver(ProtocolInstance instance, Transceiver del, string host, string resource)
@@ -798,11 +777,8 @@ internal sealed class WSTransceiver : Transceiver
         val = _parser.getHeader("Sec-WebSocket-Protocol", true);
         if (val != null)
         {
-            string[] protocols = Ice.UtilInternal.StringUtil.splitString(val, ",");
-            if (protocols == null)
-            {
+            string[] protocols = Ice.UtilInternal.StringUtil.splitString(val, ",") ??
                 throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
-            }
             foreach (string p in protocols)
             {
                 if (!p.Trim().Equals(_iceProtocol, StringComparison.Ordinal))
@@ -817,12 +793,8 @@ internal sealed class WSTransceiver : Transceiver
         // "A |Sec-WebSocket-Key| header field with a base64-encoded
         //  value that, when decoded, is 16 bytes in length."
         //
-        string key = _parser.getHeader("Sec-WebSocket-Key", false);
-        if (key == null)
-        {
+        string key = _parser.getHeader("Sec-WebSocket-Key", false) ??
             throw new WebSocketException("missing value for WebSocket key");
-        }
-
         byte[] decodedKey = Convert.FromBase64String(key);
         if (decodedKey.Length != 16)
         {
@@ -837,7 +809,7 @@ internal sealed class WSTransceiver : Transceiver
         //
         // Compose the response.
         //
-        StringBuilder @out = new StringBuilder();
+        var @out = new StringBuilder();
         @out.Append("HTTP/1.1 101 Switching Protocols\r\n");
         @out.Append("Upgrade: websocket\r\n");
         @out.Append("Connection: Upgrade\r\n");
@@ -859,7 +831,7 @@ internal sealed class WSTransceiver : Transceiver
         @out.Append("Sec-WebSocket-Accept: ");
         string input = key + _wsUUID;
 #pragma warning disable CA5350 // SHA1 is used for compatibility with the WebSocket protocol
-        using SHA1 sha1 = SHA1.Create();
+        using var sha1 = SHA1.Create();
         byte[] hash = sha1.ComputeHash(_utf8.GetBytes(input));
 #pragma warning restore CA5350
         @out.Append(Convert.ToBase64String(hash) + "\r\n" + "\r\n"); // EOM
@@ -894,7 +866,7 @@ internal sealed class WSTransceiver : Transceiver
         //
         if (_parser.status() != 101)
         {
-            StringBuilder @out = new StringBuilder("unexpected status value " + _parser.status());
+            var @out = new StringBuilder("unexpected status value " + _parser.status());
             if (_parser.reason().Length > 0)
             {
                 @out.Append(":\n" + _parser.reason());
@@ -964,7 +936,7 @@ internal sealed class WSTransceiver : Transceiver
 
         string input = _key + _wsUUID;
 #pragma warning disable CA5350 // SHA1 is used for compatibility with the WebSocket protocol
-        using SHA1 sha1 = SHA1.Create();
+        using var sha1 = SHA1.Create();
         byte[] hash = sha1.ComputeHash(_utf8.GetBytes(input));
 #pragma warning restore CA5350
         if (!val.Equals(Convert.ToBase64String(hash), StringComparison.Ordinal))
@@ -1622,9 +1594,9 @@ internal sealed class WSTransceiver : Transceiver
 
     private ProtocolInstance _instance;
     private Transceiver _delegate;
-    private string _host;
+    private readonly string _host;
     private string _resource;
-    private bool _incoming;
+    private readonly bool _incoming;
 
     private const int StateInitializeDelegate = 0;
     private const int StateConnected = 1;
@@ -1712,5 +1684,5 @@ internal sealed class WSTransceiver : Transceiver
     private const string _iceProtocol = "ice.zeroc.com";
     private const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-    private static UTF8Encoding _utf8 = new UTF8Encoding(false, true);
+    private static readonly UTF8Encoding _utf8 = new UTF8Encoding(false, true);
 }

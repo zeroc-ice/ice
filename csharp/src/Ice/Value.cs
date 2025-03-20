@@ -14,19 +14,13 @@ public abstract class Value
     /// Returns the Slice type ID of the interface supported by this object.
     /// </summary>
     /// <returns>The return value is always ::Ice::Object.</returns>
-    public static string ice_staticId()
-    {
-        return _id;
-    }
+    public static string ice_staticId() => _id;
 
     /// <summary>
     /// Returns the Slice type ID of the most-derived interface supported by this object.
     /// </summary>
     /// <returns>The return value is always ::Ice::Object.</returns>
-    public virtual string ice_id()
-    {
-        return _id;
-    }
+    public virtual string ice_id() => _id;
 
     /// <summary>
     /// The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass

@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice.Internal;
-
 using System.Collections.Generic;
+
+namespace Ice.Internal;
 
 public interface EndpointFactory
 {
@@ -41,15 +41,9 @@ public abstract class EndpointFactoryWithUnderlying : EndpointFactory
         }
     }
 
-    public short type()
-    {
-        return instance_.type();
-    }
+    public short type() => instance_.type();
 
-    public string protocol()
-    {
-        return instance_.protocol();
-    }
+    public string protocol() => instance_.protocol();
 
     public EndpointI create(List<string> args, bool oaEndpoint)
     {
@@ -69,10 +63,7 @@ public abstract class EndpointFactoryWithUnderlying : EndpointFactory
         return readWithUnderlying(_underlying.read(s), s);
     }
 
-    public EndpointFactory clone(ProtocolInstance instance)
-    {
-        return cloneWithUnderlying(instance, _type);
-    }
+    public EndpointFactory clone(ProtocolInstance instance) => cloneWithUnderlying(instance, _type);
 
     public abstract EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying);
 

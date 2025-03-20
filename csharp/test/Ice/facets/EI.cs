@@ -8,8 +8,5 @@ public sealed class EI : Test.EDisp_
     {
     }
 
-    public override string callE(Ice.Current current)
-    {
-        return "E";
-    }
+    public override string callE(Ice.Current current) => "E";
 }

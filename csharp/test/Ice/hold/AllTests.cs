@@ -10,10 +10,10 @@ public class AllTests : global::Test.AllTests
         var output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
-        String @ref = "hold:" + helper.getTestEndpoint(0);
+        string @ref = "hold:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
-        String refSerialized = "hold:" + helper.getTestEndpoint(1);
+        string refSerialized = "hold:" + helper.getTestEndpoint(1);
         Ice.ObjectPrx baseSerialized = communicator.stringToProxy(refSerialized);
         test(baseSerialized != null);
         output.WriteLine("ok");

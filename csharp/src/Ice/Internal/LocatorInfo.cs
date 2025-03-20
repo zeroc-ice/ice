@@ -57,10 +57,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
             {
                 locatorInfo.getEndpointsTrace(_ref, endpoints, false);
             }
-            if (_callback != null)
-            {
-                _callback.setEndpoints(endpoints == null ? [] : endpoints, false);
-            }
+            _callback?.setEndpoints(endpoints ?? [], false);
         }
 
         public void
@@ -72,10 +69,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
             }
             catch (Ice.LocalException ex)
             {
-                if (_callback != null)
-                {
-                    _callback.setException(ex);
-                }
+                _callback?.setException(ex);
             }
         }
 
@@ -97,7 +91,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         public void
         addCallback(Reference @ref, Reference wellKnownRef, TimeSpan ttl, GetEndpointsCallback cb)
         {
-            RequestCallback callback = new RequestCallback(@ref, ttl, cb);
+            var callback = new RequestCallback(@ref, ttl, cb);
             lock (_mutex)
             {
                 if (!_response && _exception == null)
@@ -173,8 +167,8 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         protected readonly LocatorInfo _locatorInfo;
         protected readonly Reference _ref;
 
-        private List<RequestCallback> _callbacks = new List<RequestCallback>();
-        private List<Reference> _wellKnownRefs = new List<Reference>();
+        private readonly List<RequestCallback> _callbacks = new List<RequestCallback>();
+        private readonly List<Reference> _wellKnownRefs = new List<Reference>();
         private bool _sent;
         private bool _response;
         private Ice.ObjectPrx _proxy;
@@ -197,8 +191,8 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
                 {
                     try
                     {
-                        var locator = _locatorInfo.getLocator();
-                        var proxy = await locator.findObjectByIdAsync(_ref.getIdentity()).ConfigureAwait(false);
+                        LocatorPrx locator = _locatorInfo.getLocator();
+                        ObjectPrx proxy = await locator.findObjectByIdAsync(_ref.getIdentity()).ConfigureAwait(false);
                         response(proxy);
                     }
                     catch (Ice.Exception ex)
@@ -224,8 +218,8 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
                 {
                     try
                     {
-                        var locator = _locatorInfo.getLocator();
-                        var proxy = await locator.findAdapterByIdAsync(_ref.getAdapterId()).ConfigureAwait(false);
+                        LocatorPrx locator = _locatorInfo.getLocator();
+                        ObjectPrx proxy = await locator.findAdapterByIdAsync(_ref.getAdapterId()).ConfigureAwait(false);
                         response(proxy);
                     }
                     catch (Ice.Exception ex)
@@ -263,13 +257,11 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
 
     public override int GetHashCode() => _locator.GetHashCode();
 
-    public Ice.LocatorPrx getLocator()
-    {
+    public Ice.LocatorPrx getLocator() =>
         //
         // No synchronization necessary, _locator is immutable.
         //
-        return _locator;
-    }
+        _locator;
 
     public Ice.LocatorRegistryPrx getLocatorRegistry()
     {
@@ -304,17 +296,14 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
     }
 
     public void
-    getEndpoints(Reference @ref, TimeSpan ttl, GetEndpointsCallback callback)
-    {
-        getEndpoints(@ref, null, ttl, callback);
-    }
+    getEndpoints(Reference @ref, TimeSpan ttl, GetEndpointsCallback callback) => getEndpoints(@ref, null, ttl, callback);
 
     public void
     getEndpoints(Reference @ref, Reference wellKnownRef, TimeSpan ttl, GetEndpointsCallback callback)
     {
         Debug.Assert(@ref.isIndirect());
         EndpointI[] endpoints = null;
-        bool cached = false;
+        bool cached;
         if (!@ref.isWellKnown())
         {
             endpoints = _table.getAdapterEndpoints(@ref.getAdapterId(), ttl, out cached);
@@ -367,10 +356,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         {
             getEndpointsTrace(@ref, endpoints, true);
         }
-        if (callback != null)
-        {
-            callback.setEndpoints(endpoints, true);
-        }
+        callback?.setEndpoints(endpoints, true);
     }
 
     public void clearCache(Reference rf)
@@ -411,7 +397,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
 
     private void trace(string msg, Reference r, EndpointI[] endpoints)
     {
-        System.Text.StringBuilder s = new System.Text.StringBuilder();
+        var s = new System.Text.StringBuilder();
         s.Append(msg + "\n");
         if (r.getAdapterId().Length > 0)
         {
@@ -440,7 +426,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
     {
         Debug.Assert(r.isWellKnown());
 
-        System.Text.StringBuilder s = new System.Text.StringBuilder();
+        var s = new System.Text.StringBuilder();
         s.Append(msg);
         s.Append('\n');
         s.Append("well-known proxy = ");
@@ -463,7 +449,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
             Instance instance = @ref.getInstance();
             if (instance.traceLevels().location >= 1)
             {
-                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                var s = new System.Text.StringBuilder();
                 s.Append("adapter not found\n");
                 s.Append("adapter = " + @ref.getAdapterId());
                 instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
@@ -476,7 +462,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
             Instance instance = @ref.getInstance();
             if (instance.traceLevels().location >= 1)
             {
-                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                var s = new System.Text.StringBuilder();
                 s.Append("object not found\n");
                 s.Append("object = " + Ice.Util.identityToString(@ref.getIdentity(), instance.toStringMode()));
                 instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
@@ -495,7 +481,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
             Instance instance = @ref.getInstance();
             if (instance.traceLevels().location >= 1)
             {
-                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                var s = new System.Text.StringBuilder();
                 s.Append("couldn't contact the locator to retrieve endpoints\n");
                 if (@ref.getAdapterId().Length > 0)
                 {
@@ -552,7 +538,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         else
         {
             Instance instance = @ref.getInstance();
-            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            var s = new System.Text.StringBuilder();
             s.Append("no endpoints configured for ");
             if (@ref.getAdapterId().Length > 0)
             {
@@ -574,7 +560,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         if (@ref.getInstance().traceLevels().location >= 1)
         {
             Instance instance = @ref.getInstance();
-            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            var s = new System.Text.StringBuilder();
             s.Append("searching for adapter by id\nadapter = ");
             s.Append(@ref.getAdapterId());
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
@@ -582,8 +568,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
 
         lock (_mutex)
         {
-            Request request;
-            if (_adapterRequests.TryGetValue(@ref.getAdapterId(), out request))
+            if (_adapterRequests.TryGetValue(@ref.getAdapterId(), out Request request))
             {
                 return request;
             }
@@ -600,7 +585,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         if (@ref.getInstance().traceLevels().location >= 1)
         {
             Instance instance = @ref.getInstance();
-            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            var s = new System.Text.StringBuilder();
             s.Append("searching for well-known object\nwell-known proxy = ");
             s.Append(@ref.ToString());
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
@@ -608,8 +593,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
 
         lock (_mutex)
         {
-            Request request;
-            if (_objectRequests.TryGetValue(@ref.getIdentity(), out request))
+            if (_objectRequests.TryGetValue(@ref.getIdentity(), out Request request))
             {
                 return request;
             }
@@ -623,7 +607,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
     private void
     finishRequest(Reference @ref, List<Reference> wellKnownRefs, Ice.ObjectPrx proxy, bool notRegistered)
     {
-        Ice.ObjectPrxHelperBase @base = proxy as Ice.ObjectPrxHelperBase;
+        var @base = proxy as Ice.ObjectPrxHelperBase;
         if (proxy == null || @base.iceReference().isIndirect())
         {
             //
@@ -679,8 +663,8 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
     private readonly LocatorTable _table;
     private readonly bool _background;
 
-    private Dictionary<string, Request> _adapterRequests = new Dictionary<string, Request>();
-    private Dictionary<Ice.Identity, Request> _objectRequests = new Dictionary<Ice.Identity, Request>();
+    private readonly Dictionary<string, Request> _adapterRequests = new Dictionary<string, Request>();
+    private readonly Dictionary<Ice.Identity, Request> _objectRequests = new Dictionary<Ice.Identity, Request>();
     private readonly object _mutex = new();
 }
 
@@ -697,7 +681,7 @@ public sealed class LocatorManager
 
         public override bool Equals(object o)
         {
-            LocatorKey k = (LocatorKey)o;
+            var k = (LocatorKey)o;
             if (!k._id.Equals(_id))
             {
                 return false;
@@ -711,7 +695,7 @@ public sealed class LocatorManager
 
         public override int GetHashCode() => HashCode.Combine(_id, _encoding);
 
-        private Ice.Identity _id;
+        private readonly Ice.Identity _id;
         private Ice.EncodingVersion _encoding;
     }
 
@@ -756,17 +740,15 @@ public sealed class LocatorManager
         //
         lock (_mutex)
         {
-            LocatorInfo info = null;
-            if (!_table.TryGetValue(locator, out info))
+            if (!_table.TryGetValue(locator, out LocatorInfo info))
             {
                 //
                 // Rely on locator identity for the adapter table. We want to
                 // have only one table per locator (not one per locator
                 // proxy).
                 //
-                LocatorTable table = null;
-                LocatorKey key = new LocatorKey(locator);
-                if (!_locatorTables.TryGetValue(key, out table))
+                var key = new LocatorKey(locator);
+                if (!_locatorTables.TryGetValue(key, out LocatorTable table))
                 {
                     table = new LocatorTable();
                     _locatorTables[key] = table;
@@ -780,8 +762,8 @@ public sealed class LocatorManager
         }
     }
 
-    private Dictionary<Ice.LocatorPrx, LocatorInfo> _table;
-    private Dictionary<LocatorKey, LocatorTable> _locatorTables;
+    private readonly Dictionary<Ice.LocatorPrx, LocatorInfo> _table;
+    private readonly Dictionary<LocatorKey, LocatorTable> _locatorTables;
     private readonly bool _background;
     private readonly object _mutex = new();
 }
@@ -813,8 +795,7 @@ internal sealed class LocatorTable
 
         lock (_mutex)
         {
-            EndpointTableEntry entry = null;
-            if (_adapterEndpointsTable.TryGetValue(adapter, out entry))
+            if (_adapterEndpointsTable.TryGetValue(adapter, out EndpointTableEntry entry))
             {
                 cached = checkTTL(entry.time, ttl);
                 return entry.endpoints;
@@ -837,8 +818,7 @@ internal sealed class LocatorTable
     {
         lock (_mutex)
         {
-            EndpointTableEntry entry = null;
-            if (_adapterEndpointsTable.TryGetValue(adapter, out entry))
+            if (_adapterEndpointsTable.TryGetValue(adapter, out EndpointTableEntry entry))
             {
                 _adapterEndpointsTable.Remove(adapter);
                 return entry.endpoints;
@@ -857,8 +837,7 @@ internal sealed class LocatorTable
 
         lock (_mutex)
         {
-            ReferenceTableEntry entry = null;
-            if (_objectTable.TryGetValue(id, out entry))
+            if (_objectTable.TryGetValue(id, out ReferenceTableEntry entry))
             {
                 cached = checkTTL(entry.time, ttl);
                 return entry.reference;
@@ -880,8 +859,7 @@ internal sealed class LocatorTable
     {
         lock (_mutex)
         {
-            ReferenceTableEntry entry = null;
-            if (_objectTable.TryGetValue(id, out entry))
+            if (_objectTable.TryGetValue(id, out ReferenceTableEntry entry))
             {
                 _objectTable.Remove(id);
                 return entry.reference;
@@ -927,7 +905,7 @@ internal sealed class LocatorTable
         public Reference reference;
     }
 
-    private Dictionary<string, EndpointTableEntry> _adapterEndpointsTable;
-    private Dictionary<Ice.Identity, ReferenceTableEntry> _objectTable;
+    private readonly Dictionary<string, EndpointTableEntry> _adapterEndpointsTable;
+    private readonly Dictionary<Ice.Identity, ReferenceTableEntry> _objectTable;
     private readonly object _mutex = new();
 }

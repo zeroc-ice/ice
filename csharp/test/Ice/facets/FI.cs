@@ -8,13 +8,7 @@ public sealed class FI : Test.FDisp_
     {
     }
 
-    public override string callE(Ice.Current current)
-    {
-        return "E";
-    }
+    public override string callE(Ice.Current current) => "E";
 
-    public override string callF(Ice.Current current)
-    {
-        return "F";
-    }
+    public override string callF(Ice.Current current) => "F";
 }

@@ -4,10 +4,7 @@ namespace Ice.seqMapping;
 
 public sealed class MyClassI : Test.MyClassDisp_
 {
-    public override void shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
     public override byte[] opAByteS(byte[] i, out byte[] o, Ice.Current current)
     {

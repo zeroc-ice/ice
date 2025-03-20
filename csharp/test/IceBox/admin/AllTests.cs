@@ -8,11 +8,10 @@ public class AllTests : Test.AllTests
     {
         Ice.Communicator communicator = helper.communicator();
         Ice.ObjectPrx admin = communicator.stringToProxy("DemoIceBox/admin:default -p 9996 -t 10000");
-
-        TestFacetPrx facet = null;
-
         Console.Out.Write("testing custom facet... ");
         Console.Out.Flush();
+
+        TestFacetPrx facet;
         {
             //
             // Test: Verify that the custom facet is present.
@@ -51,12 +50,14 @@ public class AllTests : Test.AllTests
             //
             // Test: PropertiesAdmin::setProperties()
             //
-            Dictionary<string, string> setProps = new Dictionary<string, string>();
-            setProps.Add("Prop1", "10"); // Changed
-            setProps.Add("Prop2", "20"); // Changed
-            setProps.Add("Prop3", ""); // Removed
-            setProps.Add("Prop4", "4"); // Added
-            setProps.Add("Prop5", "5"); // Added
+            var setProps = new Dictionary<string, string>
+            {
+                { "Prop1", "10" }, // Changed
+                { "Prop2", "20" }, // Changed
+                { "Prop3", "" }, // Removed
+                { "Prop4", "4" }, // Added
+                { "Prop5", "5" } // Added
+            };
             pa.setProperties(setProps);
             test(pa.getProperty("Prop1") == "10");
             test(pa.getProperty("Prop2") == "20");
@@ -86,23 +87,24 @@ public class AllTests : Test.AllTests
                 Ice.PropertiesAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.Properties");
 
             string[] views;
-            string[] disabledViews;
-            views = ma.getMetricsViewNames(out disabledViews);
+            views = ma.getMetricsViewNames(out _);
             test(views.Length == 0);
 
-            Dictionary<string, string> setProps = new Dictionary<string, string>();
-            setProps.Add("IceMX.Metrics.Debug.GroupBy", "id");
-            setProps.Add("IceMX.Metrics.All.GroupBy", "none");
-            setProps.Add("IceMX.Metrics.Parent.GroupBy", "parent");
+            var setProps = new Dictionary<string, string>
+            {
+                { "IceMX.Metrics.Debug.GroupBy", "id" },
+                { "IceMX.Metrics.All.GroupBy", "none" },
+                { "IceMX.Metrics.Parent.GroupBy", "parent" }
+            };
             pa.setProperties(setProps);
             pa.setProperties(new Dictionary<string, string>());
 
-            views = ma.getMetricsViewNames(out disabledViews);
+            views = ma.getMetricsViewNames(out _);
             test(views.Length == 3);
 
             // Make sure that the IceBox communicator metrics admin is a separate instance.
             test(IceMX.MetricsAdminPrxHelper.checkedCast(admin,
-                                                         "Metrics").getMetricsViewNames(out disabledViews).Length == 0);
+                                                         "Metrics").getMetricsViewNames(out _).Length == 0);
         }
         Console.Out.WriteLine("ok");
     }

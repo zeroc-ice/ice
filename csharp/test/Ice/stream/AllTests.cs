@@ -55,15 +55,9 @@ public class AllTests : global::Test.AllTests
 
     private class TestValueWriter : Ice.Value
     {
-        public TestValueWriter(Test.MyClass obj)
-        {
-            this.obj = obj;
-        }
+        public TestValueWriter(Test.MyClass obj) => this.obj = obj;
 
-        public override void iceRead(Ice.InputStream inS)
-        {
-            Debug.Assert(false);
-        }
+        public override void iceRead(Ice.InputStream inS) => Debug.Assert(false);
 
         public override void iceWrite(Ice.OutputStream outS)
         {
@@ -84,10 +78,7 @@ public class AllTests : global::Test.AllTests
             called = true;
         }
 
-        public override void iceWrite(Ice.OutputStream outS)
-        {
-            Debug.Assert(false);
-        }
+        public override void iceWrite(Ice.OutputStream outS) => Debug.Assert(false);
 
         internal Test.MyClass obj;
         internal bool called = false;
@@ -101,20 +92,14 @@ public class AllTests : global::Test.AllTests
 
     private class TestReadValueCallback
     {
-        public void invoke(Ice.Value obj)
-        {
-            this.obj = obj;
-        }
+        public void invoke(Ice.Value obj) => this.obj = obj;
 
         internal Ice.Value obj;
     }
 
     public class MyClassFactoryWrapper
     {
-        public MyClassFactoryWrapper()
-        {
-            _factory = null;
-        }
+        public MyClassFactoryWrapper() => _factory = null;
 
         public Ice.Value create(string type)
         {
@@ -125,10 +110,7 @@ public class AllTests : global::Test.AllTests
             return new Test.MyClass();
         }
 
-        public void setFactory(Ice.ValueFactory factory)
-        {
-            _factory = factory;
-        }
+        public void setFactory(Ice.ValueFactory factory) => _factory = factory;
 
         private Ice.ValueFactory _factory;
     }
@@ -136,7 +118,7 @@ public class AllTests : global::Test.AllTests
     public static int allTests(global::Test.TestHelper helper)
     {
         var communicator = helper.communicator();
-        MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
+        var factoryWrapper = new MyClassFactoryWrapper();
 
         communicator.getValueFactoryManager().add(factoryWrapper.create, Test.MyClass.ice_staticId());
         Ice.InputStream inS;
@@ -290,7 +272,7 @@ public class AllTests : global::Test.AllTests
             outS.writePendingValues();
             var data = outS.finished();
             inS = new Ice.InputStream(communicator, data);
-            TestReadValueCallback cb = new TestReadValueCallback();
+            var cb = new TestReadValueCallback();
             inS.readValue(cb.invoke);
             inS.readPendingValues();
             var o2 = (Test.OptionalClass)cb.obj;
@@ -536,8 +518,10 @@ public class AllTests : global::Test.AllTests
             myClassArray[i].seq8 = new string[] { "string1", "string2", "string3", "string4" };
             myClassArray[i].seq9 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum2, Test.MyEnum.enum1 };
             myClassArray[i].seq10 = new Test.MyClass[4]; // null elements.
-            myClassArray[i].d = new Dictionary<string, Test.MyClass>();
-            myClassArray[i].d["hi"] = myClassArray[i];
+            myClassArray[i].d = new Dictionary<string, Test.MyClass>
+            {
+                ["hi"] = myClassArray[i]
+            };
         }
 
         {
@@ -644,8 +628,10 @@ public class AllTests : global::Test.AllTests
             c.seq8 = new string[] { "string1", "string2", "string3", "string4" };
             c.seq9 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum2, Test.MyEnum.enum1 };
             c.seq10 = new Test.MyClass[4]; // null elements.
-            c.d = new Dictionary<string, Test.MyClass>();
-            c.d.Add("hi", c);
+            c.d = new Dictionary<string, Test.MyClass>
+            {
+                { "hi", c }
+            };
 
             ex.c = c;
 
@@ -678,9 +664,11 @@ public class AllTests : global::Test.AllTests
         }
 
         {
-            var dict = new Dictionary<byte, bool>();
-            dict.Add(4, true);
-            dict.Add(1, false);
+            var dict = new Dictionary<byte, bool>
+            {
+                { 4, true },
+                { 1, false }
+            };
             outS = new Ice.OutputStream(communicator);
             Test.ByteBoolDHelper.write(outS, dict);
             var data = outS.finished();
@@ -690,9 +678,11 @@ public class AllTests : global::Test.AllTests
         }
 
         {
-            var dict = new Dictionary<short, int>();
-            dict.Add(1, 9);
-            dict.Add(4, 8);
+            var dict = new Dictionary<short, int>
+            {
+                { 1, 9 },
+                { 4, 8 }
+            };
             outS = new Ice.OutputStream(communicator);
             Test.ShortIntDHelper.write(outS, dict);
             var data = outS.finished();
@@ -702,9 +692,11 @@ public class AllTests : global::Test.AllTests
         }
 
         {
-            var dict = new Dictionary<long, float>();
-            dict.Add(123809828, 0.51f);
-            dict.Add(123809829, 0.56f);
+            var dict = new Dictionary<long, float>
+            {
+                { 123809828, 0.51f },
+                { 123809829, 0.56f }
+            };
             outS = new Ice.OutputStream(communicator);
             Test.LongFloatDHelper.write(outS, dict);
             var data = outS.finished();
@@ -714,9 +706,11 @@ public class AllTests : global::Test.AllTests
         }
 
         {
-            var dict = new Dictionary<string, string>();
-            dict.Add("key1", "value1");
-            dict.Add("key2", "value2");
+            var dict = new Dictionary<string, string>
+            {
+                { "key1", "value1" },
+                { "key2", "value2" }
+            };
             outS = new Ice.OutputStream(communicator);
             Test.StringStringDHelper.write(outS, dict);
             var data = outS.finished();
@@ -850,7 +844,7 @@ public class AllTests : global::Test.AllTests
         {
             int[] arr = { 0x01, 0x11, 0x12, 0x22 };
             outS = new Ice.OutputStream(communicator);
-            LinkedList<int> l = new LinkedList<int>(arr);
+            var l = new LinkedList<int>(arr);
             Test.IntLinkedListHelper.write(outS, l);
             byte[] data = outS.finished();
             inS = new Ice.InputStream(communicator, data);
@@ -861,7 +855,7 @@ public class AllTests : global::Test.AllTests
         {
             Test.MyEnum[] arr = { Test.MyEnum.enum3, Test.MyEnum.enum2, Test.MyEnum.enum1, Test.MyEnum.enum2 };
             outS = new Ice.OutputStream(communicator);
-            LinkedList<Test.MyEnum> l = new LinkedList<Test.MyEnum>(arr);
+            var l = new LinkedList<Test.MyEnum>(arr);
             Test.MyEnumLinkedListHelper.write(outS, l);
             byte[] data = outS.finished();
             inS = new Ice.InputStream(communicator, data);
@@ -999,9 +993,11 @@ public class AllTests : global::Test.AllTests
         }
 
         {
-            var dict = new SortedDictionary<string, string>();
-            dict.Add("key1", "value1");
-            dict.Add("key2", "value2");
+            var dict = new SortedDictionary<string, string>
+            {
+                { "key1", "value1" },
+                { "key2", "value2" }
+            };
             outS = new Ice.OutputStream(communicator);
             Test.SortedStringStringDHelper.write(outS, dict);
             var data = outS.finished();

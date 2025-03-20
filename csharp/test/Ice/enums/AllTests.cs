@@ -94,28 +94,24 @@ public class AllTests : global::Test.AllTests
         output.Write("testing enum operations... ");
         output.Flush();
 
-        Test.ByteEnum byteEnum;
-        test(proxy.opByte(Test.ByteEnum.benum1, out byteEnum) == Test.ByteEnum.benum1);
+        test(proxy.opByte(Test.ByteEnum.benum1, out Test.ByteEnum byteEnum) == Test.ByteEnum.benum1);
         test(byteEnum == Test.ByteEnum.benum1);
         test(proxy.opByte(Test.ByteEnum.benum11, out byteEnum) == Test.ByteEnum.benum11);
         test(byteEnum == Test.ByteEnum.benum11);
 
-        Test.ShortEnum shortEnum;
-        test(proxy.opShort(Test.ShortEnum.senum1, out shortEnum) == Test.ShortEnum.senum1);
+        test(proxy.opShort(Test.ShortEnum.senum1, out Test.ShortEnum shortEnum) == Test.ShortEnum.senum1);
         test(shortEnum == Test.ShortEnum.senum1);
         test(proxy.opShort(Test.ShortEnum.senum11, out shortEnum) == Test.ShortEnum.senum11);
         test(shortEnum == Test.ShortEnum.senum11);
 
-        Test.IntEnum intEnum;
-        test(proxy.opInt(Test.IntEnum.ienum1, out intEnum) == Test.IntEnum.ienum1);
+        test(proxy.opInt(Test.IntEnum.ienum1, out Test.IntEnum intEnum) == Test.IntEnum.ienum1);
         test(intEnum == Test.IntEnum.ienum1);
         test(proxy.opInt(Test.IntEnum.ienum11, out intEnum) == Test.IntEnum.ienum11);
         test(intEnum == Test.IntEnum.ienum11);
         test(proxy.opInt(Test.IntEnum.ienum12, out intEnum) == Test.IntEnum.ienum12);
         test(intEnum == Test.IntEnum.ienum12);
 
-        Test.SimpleEnum s;
-        test(proxy.opSimple(Test.SimpleEnum.green, out s) == Test.SimpleEnum.green);
+        test(proxy.opSimple(Test.SimpleEnum.green, out Test.SimpleEnum s) == Test.SimpleEnum.green);
         test(s == Test.SimpleEnum.green);
 
         output.WriteLine("ok");
@@ -139,8 +135,7 @@ public class AllTests : global::Test.AllTests
                                 Test.ByteEnum.benum11
                     };
 
-            Test.ByteEnum[] b2;
-            Test.ByteEnum[] b3 = proxy.opByteSeq(b1, out b2);
+            Test.ByteEnum[] b3 = proxy.opByteSeq(b1, out Test.ByteEnum[] b2);
 
             for (int i = 0; i < b1.Length; ++i)
             {
@@ -165,8 +160,7 @@ public class AllTests : global::Test.AllTests
                             Test.ShortEnum.senum11
                 };
 
-            Test.ShortEnum[] s2;
-            Test.ShortEnum[] s3 = proxy.opShortSeq(s1, out s2);
+            Test.ShortEnum[] s3 = proxy.opShortSeq(s1, out Test.ShortEnum[] s2);
 
             for (int i = 0; i < s1.Length; ++i)
             {
@@ -176,7 +170,7 @@ public class AllTests : global::Test.AllTests
         }
 
         {
-            Test.IntEnum[] i1 = new Test.IntEnum[11]
+            var i1 = new Test.IntEnum[11]
                     {
                                 Test.IntEnum.ienum1,
                                 Test.IntEnum.ienum2,
@@ -191,8 +185,7 @@ public class AllTests : global::Test.AllTests
                                 Test.IntEnum.ienum11
                     };
 
-            Test.IntEnum[] i2;
-            Test.IntEnum[] i3 = proxy.opIntSeq(i1, out i2);
+            Test.IntEnum[] i3 = proxy.opIntSeq(i1, out Test.IntEnum[] i2);
 
             for (int i = 0; i < i1.Length; ++i)
             {
@@ -209,8 +202,7 @@ public class AllTests : global::Test.AllTests
                                 Test.SimpleEnum.blue
                     };
 
-            Test.SimpleEnum[] s2;
-            Test.SimpleEnum[] s3 = proxy.opSimpleSeq(s1, out s2);
+            Test.SimpleEnum[] s3 = proxy.opSimpleSeq(s1, out Test.SimpleEnum[] s2);
 
             for (int i = 0; i < s1.Length; ++i)
             {

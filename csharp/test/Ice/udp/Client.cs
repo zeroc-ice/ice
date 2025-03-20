@@ -16,7 +16,7 @@ public class Client : global::Test.TestHelper
         int num;
         try
         {
-            num = args.Length == 1 ? Int32.Parse(args[0]) : 1;
+            num = args.Length == 1 ? int.Parse(args[0]) : 1;
         }
         catch (FormatException)
         {
@@ -30,8 +30,5 @@ public class Client : global::Test.TestHelper
         }
     }
 
-    public static Task<int> Main(string[] args)
-    {
-        return global::Test.TestDriver.runTestAsync<Client>(args);
-    }
+    public static Task<int> Main(string[] args) => global::Test.TestDriver.runTestAsync<Client>(args);
 }

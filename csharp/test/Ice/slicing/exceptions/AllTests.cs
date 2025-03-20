@@ -7,10 +7,7 @@ public class AllTests : Test.AllTests
 {
     private class Callback
     {
-        internal Callback()
-        {
-            _called = false;
-        }
+        internal Callback() => _called = false;
 
         public virtual void check()
         {
@@ -44,7 +41,7 @@ public class AllTests : Test.AllTests
         var output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
-        String @ref = "Test:" + helper.getTestEndpoint(0) + " -t 2000";
+        string @ref = "Test:" + helper.getTestEndpoint(0) + " -t 2000";
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         output.WriteLine("ok");

@@ -20,12 +20,11 @@ public sealed class ValueFactoryManagerI : Ice.ValueFactoryManager
     {
         lock (_mutex)
         {
-            Ice.ValueFactory factory = null;
-            _factoryMap.TryGetValue(id, out factory);
+            _factoryMap.TryGetValue(id, out ValueFactory factory);
             return factory;
         }
     }
 
-    private Dictionary<string, Ice.ValueFactory> _factoryMap = new();
+    private readonly Dictionary<string, Ice.ValueFactory> _factoryMap = new();
     private readonly object _mutex = new();
 }

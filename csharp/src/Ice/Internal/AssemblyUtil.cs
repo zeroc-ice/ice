@@ -49,10 +49,7 @@ public static class AssemblyUtil
         {
             if (!_loadedAssemblies.Contains(a.FullName))
             {
-                if (newAssemblies == null)
-                {
-                    newAssemblies = new List<Assembly>();
-                }
+                newAssemblies ??= new List<Assembly>();
                 newAssemblies.Add(a);
                 _loadedAssemblies[a.FullName] = a;
             }
@@ -77,7 +74,7 @@ public static class AssemblyUtil
                 {
                     try
                     {
-                        Assembly ra = Assembly.Load(name);
+                        var ra = Assembly.Load(name);
                         //
                         // The value of name.FullName may not match that of ra.FullName, so
                         // we record the assembly using both keys.

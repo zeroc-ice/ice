@@ -1,12 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice.Internal;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
+
+namespace Ice.Internal;
 
 internal interface IMetricsMap
 {
@@ -51,10 +51,7 @@ internal class SubMap<S> : ISubMap where S : IceMX.Metrics, new()
         _field = field;
     }
 
-    internal MetricsMap<S>.Entry getMatching(IceMX.MetricsHelper<S> helper)
-    {
-        return _map.getMatching(helper, null);
-    }
+    internal MetricsMap<S>.Entry getMatching(IceMX.MetricsHelper<S> helper) => _map.getMatching(helper, null);
 
     public void addSubMapToMetrics(IceMX.Metrics metrics)
     {
@@ -80,10 +77,7 @@ internal class SubMapCloneFactory<S> : ISubMapCloneFactory where S : IceMX.Metri
         _field = field;
     }
 
-    public ISubMap create()
-    {
-        return new SubMap<S>(new MetricsMap<S>(_map), _field);
-    }
+    public ISubMap create() => new SubMap<S>(new MetricsMap<S>(_map), _field);
 
     private readonly MetricsMap<S> _map;
     private readonly System.Reflection.FieldInfo _field;
@@ -91,15 +85,9 @@ internal class SubMapCloneFactory<S> : ISubMapCloneFactory where S : IceMX.Metri
 
 internal class SubMapFactory<S> : ISubMapFactory where S : IceMX.Metrics, new()
 {
-    internal SubMapFactory(System.Reflection.FieldInfo field)
-    {
-        _field = field;
-    }
+    internal SubMapFactory(System.Reflection.FieldInfo field) => _field = field;
 
-    public ISubMapCloneFactory createCloneFactory(string subMapPrefix, Ice.Properties properties)
-    {
-        return new SubMapCloneFactory<S>(new MetricsMap<S>(subMapPrefix, properties, null), _field);
-    }
+    public ISubMapCloneFactory createCloneFactory(string subMapPrefix, Ice.Properties properties) => new SubMapCloneFactory<S>(new MetricsMap<S>(subMapPrefix, properties, null), _field);
 
     private readonly System.Reflection.FieldInfo _field;
 }
@@ -119,12 +107,8 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             lock (_map._mutex)
             {
                 ++_object.failures;
-                int count;
-                if (_failures == null)
-                {
-                    _failures = new Dictionary<string, int>();
-                }
-                if (_failures.TryGetValue(exceptionName, out count))
+                _failures ??= new Dictionary<string, int>();
+                if (_failures.TryGetValue(exceptionName, out int count))
                 {
                     _failures[exceptionName] = count + 1;
                 }
@@ -148,10 +132,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
                     {
                         return null;
                     }
-                    if (_subMaps == null)
-                    {
-                        _subMaps = new Dictionary<string, ISubMap>();
-                    }
+                    _subMaps ??= new Dictionary<string, ISubMap>();
                     _subMaps.Add(mapName, m);
                 }
             }
@@ -178,10 +159,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             }
         }
 
-        public MetricsMap<T> getMap()
-        {
-            return _map;
-        }
+        public MetricsMap<T> getMap() => _map;
 
         internal IceMX.MetricsFailures getFailures()
         {
@@ -199,14 +177,11 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             helper.initMetrics(_object);
         }
 
-        internal bool isDetached()
-        {
-            return _object.current == 0;
-        }
+        internal bool isDetached() => _object.current == 0;
 
         internal IceMX.Metrics clone()
         {
-            T metrics = (T)_object.Clone();
+            var metrics = (T)_object.Clone();
             if (_subMaps != null)
             {
                 foreach (ISubMap s in _subMaps.Values)
@@ -217,13 +192,10 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             return metrics;
         }
 
-        internal string getId()
-        {
-            return _object.id;
-        }
+        internal string getId() => _object.id;
 
-        private MetricsMap<T> _map;
-        private T _object;
+        private readonly MetricsMap<T> _map;
+        private readonly T _object;
         private Dictionary<string, int> _failures;
         private Dictionary<string, ISubMap> _subMaps;
     }
@@ -284,7 +256,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
         {
             _subMaps = new Dictionary<string, ISubMapCloneFactory>();
 
-            List<string> subMapNames = new List<string>();
+            var subMapNames = new List<string>();
             foreach (KeyValuePair<string, ISubMapFactory> e in subMaps)
             {
                 subMapNames.Add(e.Key);
@@ -322,16 +294,13 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
         _subMaps = map._subMaps;
     }
 
-    public Dictionary<string, string> getProperties()
-    {
-        return _properties;
-    }
+    public Dictionary<string, string> getProperties() => _properties;
 
     public IceMX.Metrics[] getMetrics()
     {
         lock (_mutex)
         {
-            IceMX.Metrics[] metrics = new IceMX.Metrics[_objects.Count];
+            var metrics = new IceMX.Metrics[_objects.Count];
             int i = 0;
             foreach (Entry e in _objects.Values)
             {
@@ -372,8 +341,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
         {
             return null;
         }
-        ISubMapCloneFactory factory;
-        if (_subMaps.TryGetValue(subMapName, out factory))
+        if (_subMaps.TryGetValue(subMapName, out ISubMapCloneFactory factory))
         {
             return factory.create();
         }
@@ -413,7 +381,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             }
             else
             {
-                StringBuilder os = new StringBuilder();
+                var os = new StringBuilder();
                 IEnumerator<string> q = _groupBySeparators.GetEnumerator();
                 foreach (string p in _groupByAttributes)
                 {
@@ -442,12 +410,11 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
                 return previous;
             }
 
-            Entry e;
-            if (!_objects.TryGetValue(key, out e))
+            if (!_objects.TryGetValue(key, out Entry e))
             {
                 try
                 {
-                    T t = new T();
+                    var t = new T();
                     t.id = key;
                     e = new Entry(this, t);
                     _objects.Add(key, e);
@@ -464,11 +431,11 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
 
     private static Dictionary<string, Regex> parseRule(Ice.Properties properties, string name)
     {
-        Dictionary<string, Regex> pats = new Dictionary<string, Regex>();
+        var pats = new Dictionary<string, Regex>();
         Dictionary<string, string> rules = properties.getPropertiesForPrefix(name + '.');
         foreach (KeyValuePair<string, string> e in rules)
         {
-            pats.Add(e.Key.Substring(name.Length + 1), new Regex(e.Value));
+            pats.Add(e.Key[(name.Length + 1)..], new Regex(e.Value));
         }
         return pats;
     }
@@ -494,10 +461,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             return;
         }
 
-        if (_detachedQueue == null)
-        {
-            _detachedQueue = new LinkedList<Entry>();
-        }
+        _detachedQueue ??= new LinkedList<Entry>();
         Debug.Assert(_detachedQueue.Count <= _retain);
 
         // Compress the queue by removing entries which are no longer detached.
@@ -538,10 +502,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
 
 internal class MetricsViewI
 {
-    internal MetricsViewI(string name)
-    {
-        _name = name;
-    }
+    internal MetricsViewI(string name) => _name = name;
 
     internal bool addOrUpdateMap(
         Ice.Properties properties,
@@ -557,7 +518,8 @@ internal class MetricsViewI
         Dictionary<string, string> mapsProps = properties.getPropertiesForPrefix(mapsPrefix);
 
         string mapPrefix;
-        Dictionary<string, string> mapProps = new Dictionary<string, string>();
+        _ = new Dictionary<string, string>();
+        Dictionary<string, string> mapProps;
         if (mapsProps.Count > 0)
         {
             mapPrefix = mapsPrefix + mapName + ".";
@@ -580,8 +542,7 @@ internal class MetricsViewI
             return _maps.Remove(mapName);
         }
 
-        IMetricsMap m;
-        if (_maps.TryGetValue(mapName, out m) && m.getProperties().DictionaryEqual(mapProps))
+        if (_maps.TryGetValue(mapName, out IMetricsMap m) && m.getProperties().DictionaryEqual(mapProps))
         {
             return false; // The map configuration didn't change, no need to re-create.
         }
@@ -598,14 +559,11 @@ internal class MetricsViewI
         return true;
     }
 
-    internal bool removeMap(string mapName)
-    {
-        return _maps.Remove(mapName);
-    }
+    internal bool removeMap(string mapName) => _maps.Remove(mapName);
 
     internal Dictionary<string, IceMX.Metrics[]> getMetrics()
     {
-        Dictionary<string, IceMX.Metrics[]> metrics = new Dictionary<string, IceMX.Metrics[]>();
+        var metrics = new Dictionary<string, IceMX.Metrics[]>();
         foreach (KeyValuePair<string, IMetricsMap> e in _maps)
         {
             IceMX.Metrics[] m = e.Value.getMetrics();
@@ -619,8 +577,7 @@ internal class MetricsViewI
 
     internal IceMX.MetricsFailures[] getFailures(string mapName)
     {
-        IMetricsMap m;
-        if (_maps.TryGetValue(mapName, out m))
+        if (_maps.TryGetValue(mapName, out IMetricsMap m))
         {
             return m.getFailures();
         }
@@ -629,23 +586,18 @@ internal class MetricsViewI
 
     internal IceMX.MetricsFailures getFailures(string mapName, string id)
     {
-        IMetricsMap m;
-        if (_maps.TryGetValue(mapName, out m))
+        if (_maps.TryGetValue(mapName, out IMetricsMap m))
         {
             return m.getFailures(id);
         }
         return new(failures: []);
     }
 
-    internal ICollection<string> getMaps()
-    {
-        return _maps.Keys;
-    }
+    internal ICollection<string> getMaps() => _maps.Keys;
 
     internal MetricsMap<T> getMap<T>(string mapName) where T : IceMX.Metrics, new()
     {
-        IMetricsMap m;
-        if (_maps.TryGetValue(mapName, out m))
+        if (_maps.TryGetValue(mapName, out IMetricsMap m))
         {
             return (MetricsMap<T>)m;
         }
@@ -671,7 +623,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
     public static void validateProperties(string prefix, Ice.Properties properties)
     {
         Dictionary<string, string> props = properties.getPropertiesForPrefix(prefix);
-        List<string> unknownProps = new List<string>();
+        var unknownProps = new List<string>();
         foreach (string prop in props.Keys)
         {
             bool valid = false;
@@ -692,7 +644,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
 
         if (unknownProps.Count != 0)
         {
-            StringBuilder message = new StringBuilder("Found unknown IceMX properties for '");
+            var message = new StringBuilder("Found unknown IceMX properties for '");
             message.Append(prefix.AsSpan(0, prefix.Length - 1));
             message.Append("':");
             foreach (string p in unknownProps)
@@ -706,10 +658,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
 
     private class MetricsMapFactory<T> : IMetricsMapFactory where T : IceMX.Metrics, new()
     {
-        public MetricsMapFactory(Action updater)
-        {
-            _updater = updater;
-        }
+        public MetricsMapFactory(Action updater) => _updater = updater;
 
         public void update()
         {
@@ -717,16 +666,10 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
             _updater();
         }
 
-        public IMetricsMap create(string mapPrefix, Ice.Properties properties)
-        {
-            return new MetricsMap<T>(mapPrefix, properties, _subMaps);
-        }
+        public IMetricsMap create(string mapPrefix, Ice.Properties properties) => new MetricsMap<T>(mapPrefix, properties, _subMaps);
 
         public void registerSubMap<S>(string subMap, System.Reflection.FieldInfo field)
-            where S : IceMX.Metrics, new()
-        {
-            _subMaps.Add(subMap, new SubMapFactory<S>(field));
-        }
+            where S : IceMX.Metrics, new() => _subMaps.Add(subMap, new SubMapFactory<S>(field));
 
         private readonly Action _updater;
         private readonly Dictionary<string, ISubMapFactory> _subMaps = new Dictionary<string, ISubMapFactory>();
@@ -741,20 +684,20 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
 
     public void updateViews()
     {
-        HashSet<IMetricsMapFactory> updatedMaps = new HashSet<IMetricsMapFactory>();
+        var updatedMaps = new HashSet<IMetricsMapFactory>();
         lock (_mutex)
         {
             string viewsPrefix = "IceMX.Metrics.";
             Dictionary<string, string> viewsProps = _properties.getPropertiesForPrefix(viewsPrefix);
-            Dictionary<string, MetricsViewI> views = new Dictionary<string, MetricsViewI>();
+            var views = new Dictionary<string, MetricsViewI>();
             _disabledViews.Clear();
             foreach (KeyValuePair<string, string> e in viewsProps)
             {
-                string viewName = e.Key.Substring(viewsPrefix.Length);
+                string viewName = e.Key[viewsPrefix.Length..];
                 int dotPos = viewName.IndexOf('.', StringComparison.Ordinal);
                 if (dotPos > 0)
                 {
-                    viewName = viewName.Substring(0, dotPos);
+                    viewName = viewName[..dotPos];
                 }
 
                 if (views.ContainsKey(viewName) || _disabledViews.Contains(viewName))
@@ -773,8 +716,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
                 //
                 // Create the view or update it.
                 //
-                MetricsViewI v;
-                if (!_views.TryGetValue(viewName, out v))
+                if (!_views.TryGetValue(viewName, out MetricsViewI v))
                 {
                     v = new MetricsViewI(viewName);
                 }
@@ -950,7 +892,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
 
     public List<MetricsMap<T>> getMaps<T>(string mapName) where T : IceMX.Metrics, new()
     {
-        List<MetricsMap<T>> maps = new List<MetricsMap<T>>();
+        var maps = new List<MetricsMap<T>>();
         foreach (MetricsViewI v in _views.Values)
         {
             MetricsMap<T> map = v.getMap<T>(mapName);
@@ -962,10 +904,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
         return maps;
     }
 
-    public Ice.Logger getLogger()
-    {
-        return _logger;
-    }
+    public Ice.Logger getLogger() => _logger;
 
     internal void updated(Dictionary<string, string> changes)
     {
@@ -990,8 +929,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
 
     private MetricsViewI getMetricsView(string name)
     {
-        MetricsViewI view;
-        if (!_views.TryGetValue(name, out view))
+        if (!_views.TryGetValue(name, out MetricsViewI view))
         {
             if (!_disabledViews.Contains(name))
             {
@@ -1022,7 +960,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
         return updated;
     }
 
-    private Ice.Properties _properties;
+    private readonly Ice.Properties _properties;
 
     private readonly Ice.Logger _logger;
 
@@ -1031,6 +969,6 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
 
     private Dictionary<string, MetricsViewI> _views = new Dictionary<string, MetricsViewI>();
 
-    private List<string> _disabledViews = new List<string>();
+    private readonly List<string> _disabledViews = new List<string>();
     private readonly object _mutex = new();
 }

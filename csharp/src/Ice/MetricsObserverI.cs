@@ -11,10 +11,7 @@ public class MetricsHelper<T> where T : Metrics
     {
         private abstract class Resolver
         {
-            protected Resolver(string name)
-            {
-                _name = name;
-            }
+            protected Resolver(string name) => _name = name;
 
             protected abstract object resolve(object obj);
 
@@ -81,10 +78,7 @@ public class MetricsHelper<T> where T : Metrics
                 _field = field;
             }
 
-            protected override object resolve(object obj)
-            {
-                return getField(_field, obj);
-            }
+            protected override object resolve(object obj) => getField(_field, obj);
 
             private readonly System.Reflection.FieldInfo _field;
         }
@@ -98,10 +92,7 @@ public class MetricsHelper<T> where T : Metrics
                 _method = method;
             }
 
-            protected override object resolve(object obj)
-            {
-                return _method.Invoke(obj, null);
-            }
+            protected override object resolve(object obj) => _method.Invoke(obj, null);
 
             private readonly System.Reflection.MethodInfo _method;
         }
@@ -187,8 +178,7 @@ public class MetricsHelper<T> where T : Metrics
 
         public string resolve(MetricsHelper<T> helper, string attribute)
         {
-            Resolver resolver;
-            if (!_attributes.TryGetValue(attribute, out resolver))
+            if (!_attributes.TryGetValue(attribute, out Resolver resolver))
             {
                 if (attribute == "none")
                 {
@@ -205,66 +195,42 @@ public class MetricsHelper<T> where T : Metrics
         }
 
         public void
-        add(string name, System.Reflection.MethodInfo method)
-        {
-            _attributes.Add(name, new MethodResolverI(name, method));
-        }
+        add(string name, System.Reflection.MethodInfo method) => _attributes.Add(name, new MethodResolverI(name, method));
 
         public void
-        add(string name, System.Reflection.FieldInfo field)
-        {
-            _attributes.Add(name, new FieldResolverI(name, field));
-        }
+        add(string name, System.Reflection.FieldInfo field) => _attributes.Add(name, new FieldResolverI(name, field));
 
         public void
-        add(string name, System.Reflection.MethodInfo method, System.Reflection.FieldInfo field)
-        {
-            _attributes.Add(name, new MemberFieldResolverI(name, method, field));
-        }
+        add(string name, System.Reflection.MethodInfo method, System.Reflection.FieldInfo field) => _attributes.Add(name, new MemberFieldResolverI(name, method, field));
 
         public void add(string name, System.Reflection.MethodInfo method, System.Reflection.PropertyInfo property) =>
             _attributes.Add(name, new MemberPropertyResolverI(name, method, property));
 
         public void
-        add(string name, System.Reflection.MethodInfo method, System.Reflection.MethodInfo subMethod)
-        {
-            _attributes.Add(name, new MemberMethodResolverI(name, method, subMethod));
-        }
+        add(string name, System.Reflection.MethodInfo method, System.Reflection.MethodInfo subMethod) => _attributes.Add(name, new MemberMethodResolverI(name, method, subMethod));
 
-        private Dictionary<string, Resolver> _attributes = new Dictionary<string, Resolver>();
+        private readonly Dictionary<string, Resolver> _attributes = new Dictionary<string, Resolver>();
     }
 
-    protected MetricsHelper(AttributeResolver attributes)
-    {
-        _attributes = attributes;
-    }
+    protected MetricsHelper(AttributeResolver attributes) => _attributes = attributes;
 
-    public string resolve(string attribute)
-    {
-        return _attributes.resolve(this, attribute);
-    }
+    public string resolve(string attribute) => _attributes.resolve(this, attribute);
 
     public virtual void initMetrics(T metrics)
     {
         // Override in specialized helpers.
     }
 
-    protected virtual string defaultResolve(string attribute)
-    {
-        return null;
-    }
+    protected virtual string defaultResolve(string attribute) => null;
 
-    private AttributeResolver _attributes;
+    private readonly AttributeResolver _attributes;
 }
 
 public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Metrics, new()
 {
     public delegate void MetricsUpdate(T m);
 
-    public virtual void attach()
-    {
-        Start();
-    }
+    public virtual void attach() => Start();
 
     public virtual void detach()
     {
@@ -321,10 +287,7 @@ public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Met
             MetricsMap<S>.Entry e = entry.getMatching(mapName, helper);
             if (e != null)
             {
-                if (metricsObjects == null)
-                {
-                    metricsObjects = new List<MetricsMap<S>.Entry>(_objects.Count);
-                }
+                metricsObjects ??= new List<MetricsMap<S>.Entry>(_objects.Count);
                 metricsObjects.Add(e);
             }
         }
@@ -336,7 +299,7 @@ public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Met
 
         try
         {
-            ObserverImpl obsv = new ObserverImpl();
+            var obsv = new ObserverImpl();
             obsv.init(helper, metricsObjects, null);
             return obsv;
         }
@@ -378,18 +341,9 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
         _metrics = null;
     }
 
-    public void destroy()
-    {
-        if (_metrics != null)
-        {
-            _metrics.unregisterMap(_name);
-        }
-    }
+    public void destroy() => _metrics?.unregisterMap(_name);
 
-    public O getObserver(MetricsHelper<T> helper)
-    {
-        return getObserver(helper, null);
-    }
+    public O getObserver(MetricsHelper<T> helper) => getObserver(helper, null);
 
     public O getObserver(MetricsHelper<T> helper, object observer)
     {
@@ -406,23 +360,17 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
             }
             foreach (MetricsMap<T> m in _maps)
             {
-                MetricsMap<T>.Entry e = m.getMatching(helper, old != null ? old.getEntry(m) : null);
+                MetricsMap<T>.Entry e = m.getMatching(helper, old?.getEntry(m));
                 if (e != null)
                 {
-                    if (metricsObjects == null)
-                    {
-                        metricsObjects = new List<MetricsMap<T>.Entry>(_maps.Count);
-                    }
+                    metricsObjects ??= new List<MetricsMap<T>.Entry>(_maps.Count);
                     metricsObjects.Add(e);
                 }
             }
 
             if (metricsObjects == null)
             {
-                if (old != null)
-                {
-                    old.detach();
-                }
+                old?.detach();
                 return null;
             }
 
@@ -442,15 +390,9 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
     }
 
     public void registerSubMap<S>(string subMap, System.Reflection.FieldInfo field)
-        where S : Metrics, new()
-    {
-        _metrics.registerSubMap<S>(_name, subMap, field);
-    }
+        where S : Metrics, new() => _metrics.registerSubMap<S>(_name, subMap, field);
 
-    public bool isEnabled()
-    {
-        return _enabled;
-    }
+    public bool isEnabled() => _enabled;
 
     public void update()
     {
@@ -466,10 +408,7 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
             updater = _updater;
         }
 
-        if (updater != null)
-        {
-            updater();
-        }
+        updater?.Invoke();
     }
 
     public void setUpdater(Action updater)
@@ -482,7 +421,7 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
 
     private readonly MetricsAdminI _metrics;
     private readonly string _name;
-    private List<MetricsMap<T>> _maps = new();
+    private readonly List<MetricsMap<T>> _maps = new();
     private volatile bool _enabled;
     private Action _updater;
     private readonly object _mutex = new();
