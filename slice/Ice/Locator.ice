@@ -60,8 +60,8 @@ module Ice
     /// Provides access to a {@link Locator} object via a fixed identity.
     /// A LocatorFinder is always registered with identity @c Ice/LocatorFinder. This allows clients to obtain the
     /// associated Locator proxy with just the endpoint information of the object. For example, you can use the
-    /// LocatorFinder proxy <tt>Ice/LocatorFinder:tcp -h somehost -p 4061</tt> to get the Locator proxy
-    /// <tt>MyIceGrid/Locator:tcp -h somehost -p 4061</tt>.
+    /// LocatorFinder proxy `Ice/LocatorFinder:tcp -h somehost -p 4061` to get the Locator proxy
+    /// `MyIceGrid/Locator:tcp -h somehost -p 4061`.
     interface LocatorFinder
     {
         /// Gets a proxy to the associated {@link Locator}. The proxy might point to several replicas.
