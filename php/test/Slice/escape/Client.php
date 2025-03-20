@@ -13,7 +13,7 @@ function allTests($helper)
     test(escapedAnd\another_name == 1);
     $b = new escapedAnd\_xor();
     test($b->_abstract == 0);
-    test($b->_var == 0);
+    test($b->_var == 1);
     $communicator = $helper->communicator();
     $c = escapedAnd\_functionPrxHelper::createProxy($communicator, "test:tcp -p 10000");
     $d = escapedAnd\_diePrxHelper::uncheckedCast($c);
