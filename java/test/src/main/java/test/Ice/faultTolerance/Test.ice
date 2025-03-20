@@ -5,13 +5,11 @@
 [["java:package:test.Ice.faultTolerance"]]
 module Test
 {
-
-interface TestIntf
-{
-    void shutdown();
-    void abort();
-    idempotent void idempotentAbort();
-    idempotent int pid();
-}
-
+    interface TestIntf
+    {
+        void shutdown();
+        void abort();
+        idempotent void idempotentAbort();
+        idempotent int pid();
+    }
 }

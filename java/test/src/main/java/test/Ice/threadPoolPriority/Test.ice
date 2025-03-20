@@ -5,11 +5,9 @@
 [["java:package:test.Ice.threadPoolPriority"]]
 module Test
 {
-
-interface Priority
-{
-    void shutdown();
-    int getPriority();
-}
-
+    interface Priority
+    {
+        void shutdown();
+        int getPriority();
+    }
 }

@@ -5,13 +5,11 @@
 [["java:package:test.Ice.adapterDeactivation"]]
 module Test
 {
+    interface TestIntf
+    {
+        ["java:identifier:transientOp"]
+        void transient();
 
-interface TestIntf
-{
-    ["java:identifier:transientOp"]
-    void transient();
-
-    void deactivate();
-}
-
+        void deactivate();
+    }
 }

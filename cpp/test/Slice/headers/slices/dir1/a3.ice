@@ -2,9 +2,7 @@
 
 module Test
 {
-
-class A3
-{
-}
-
+    class A3
+    {
+    }
 }

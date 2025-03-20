@@ -5,10 +5,8 @@
 [["java:package:test.Ice.networkProxy"]]
 module Test
 {
-
-interface TestIntf
-{
-    void shutdown();
-}
-
+    interface TestIntf
+    {
+        void shutdown();
+    }
 }
