@@ -46,40 +46,39 @@ namespace Ice
 
         /// Tests whether this object supports a specific Slice interface.
         /// @param s The type ID of the Slice interface to test against.
-        /// @param current The Current object for the invocation.
-        /// @return True if this object has the interface
-        /// specified by s or derives from the interface
-        /// specified by s.
+        /// @param current The Current object of the incoming request.
+        /// @return @c true if this object has the interface specified by @p s or derives from the interface specified
+        /// by @p s.
         [[nodiscard]] virtual bool ice_isA(std::string s, const Current& current) const;
-        /// \cond INTERNAL
+
+        /// @private
         void _iceD_ice_isA(IncomingRequest&, std::function<void(OutgoingResponse)>);
-        /// \endcond
 
         /// Tests whether this object can be reached.
-        /// @param current The Current object for the invocation.
+        /// @param current The Current object of the incoming request.
         virtual void ice_ping(const Current& current) const;
-        /// \cond INTERNAL
-        void _iceD_ice_ping(IncomingRequest&, std::function<void(OutgoingResponse)>);
-        /// \endcond
 
-        /// Gets the Slice type IDs of the interfaces supported by this object.
-        /// @param current The Current object for the invocation.
+        /// @private
+        void _iceD_ice_ping(IncomingRequest&, std::function<void(OutgoingResponse)>);
+
+        /// Gets the Slice interfaces supported by this object as a list of type IDs.
+        /// @param current The Current object of the incoming request.
         /// @return The Slice type IDs of the interfaces supported by this object, in alphabetical order.
         [[nodiscard]] virtual std::vector<std::string> ice_ids(const Current& current) const;
-        /// \cond INTERNAL
-        void _iceD_ice_ids(IncomingRequest&, std::function<void(OutgoingResponse)>);
-        /// \endcond
 
-        /// Gets the Slice type ID of the most-derived interface supported by this object.
-        /// @param current The Current object for the invocation.
+        /// @private
+        void _iceD_ice_ids(IncomingRequest&, std::function<void(OutgoingResponse)>);
+
+        /// Gets the type ID of the most-derived Slice interface supported by this object.
+        /// @param current The Current object of the incoming request.
         /// @return The Slice type ID of the most-derived interface.
         [[nodiscard]] virtual std::string ice_id(const Current& current) const;
-        /// \cond INTERNAL
-        void _iceD_ice_id(IncomingRequest&, std::function<void(OutgoingResponse)>);
-        /// \endcond
 
-        /// Gets the Slice type ID of this type.
-        /// @return The return value is always "::Ice::Object".
+        /// @private
+        void _iceD_ice_id(IncomingRequest&, std::function<void(OutgoingResponse)>);
+
+        /// Gets the type ID of the associated Slice interface.
+        /// @return The string @c "::Ice::Object".
         static const char* ice_staticId() noexcept;
     };
 
@@ -89,11 +88,11 @@ namespace Ice
     class ICE_API Blobject : public Object
     {
     public:
-        /// Dispatch an incoming request.
+        /// Dispatches an incoming request.
         ///
         /// @param inEncaps An encapsulation containing the encoded in-parameters for the operation.
         /// @param outEncaps An encapsulation containing the encoded results for the operation.
-        /// @param current The Current object for the invocation.
+        /// @param current The Current object of the incoming request.
         /// @return True if the operation completed successfully, in which case outEncaps contains
         /// an encapsulation of the encoded results, or false if the operation raised a user exception,
         /// in which case outEncaps contains an encapsulation of the encoded user exception.
@@ -111,11 +110,11 @@ namespace Ice
     class ICE_API BlobjectArray : public Object
     {
     public:
-        /// Dispatch an incoming request.
+        /// Dispatches an incoming request.
         ///
         /// @param inEncaps An encapsulation containing the encoded in-parameters for the operation.
         /// @param outEncaps An encapsulation containing the encoded results for the operation.
-        /// @param current The Current object for the invocation.
+        /// @param current The Current object of the incoming request.
         /// @return True if the operation completed successfully, in which case outEncaps contains
         /// an encapsulation of the encoded results, or false if the operation raised a user exception,
         /// in which case outEncaps contains an encapsulation of the encoded user exception.
@@ -143,7 +142,7 @@ namespace Ice
         /// the semantics.
         /// @param error A callback the implementation should invoke when the invocation completes
         /// with an exception.
-        /// @param current The Current object for the invocation.
+        /// @param current The Current object of the incoming request.
         /// @throws UserException A user exception can be raised directly and the
         /// run time will marshal it.
         virtual void ice_invokeAsync(
@@ -169,7 +168,7 @@ namespace Ice
         /// the semantics.
         /// @param error A callback the implementation should invoke when the invocation completes
         /// with an exception.
-        /// @param current The Current object for the invocation.
+        /// @param current The Current object of the incoming request.
         /// @throws UserException A user exception can be raised directly and the
         /// run time will marshal it.
         virtual void ice_invokeAsync(

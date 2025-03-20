@@ -464,6 +464,7 @@ namespace
         const StringList& postParams = StringList())
     {
         ParameterList params;
+        bool showOut = false;
         switch (type)
         {
             case OpDocInParams:
@@ -474,6 +475,7 @@ namespace
                 break;
             case OpDocAllParams:
                 params = op->parameters();
+                showOut = true;
                 break;
         }
 
@@ -489,8 +491,11 @@ namespace
             auto q = paramDoc.find(param->name());
             if (q != paramDoc.end())
             {
+                // We only show [out], and never the [in] default.
+                string direction = showOut && param->isOutParam() ? "[out]" : "";
+
                 // But when we emit the parameter's name, we want it to take 'cpp:identifier' metadata into account.
-                out << nl << "/// @param " << param->mappedName() << " ";
+                out << nl << "/// @param" << direction << ' ' << param->mappedName() << ' ';
                 writeDocLines(out, q->second, false);
             }
         }
@@ -1547,14 +1552,14 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     const InterfaceList bases = p->allBases();
 
     H << sp;
-    H << nl << "/// Obtains the Slice type ID of this interface.";
-    H << nl << "/// @return The fully-scoped type ID.";
+    H << nl << "/// Gets the type ID of the associated Slice interface.";
+    H << nl << "/// @return The string @c \"" << p->scoped() << "\".";
     H << nl << "static const char* ice_staticId() noexcept;";
 
     C << sp;
     C << nl << "const char*" << nl << scopedPrx.substr(2) << "::ice_staticId() noexcept";
     C << sb;
-    C << nl << "return \"" << scopedName << "\";";
+    C << nl << "return \"" << p->scoped() << "\";";
     C << eb;
 
     if (!bases.empty())
@@ -2211,7 +2216,8 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
                 auto r = allDocComments.find(dataMember->name());
                 if (r != allDocComments.end())
                 {
-                    H << nl << "/// @param " << dataMember->mappedName() << " " << getDocSentence(r->second.overview());
+                    H << nl << "/// @param " << dataMember->mappedName() << " "
+                        << getDocSentence(r->second.overview());
                 }
             }
             H << nl << name << "(";
@@ -2301,8 +2307,8 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         C << eb;
     }
 
-    H << nl << "/// Obtains the Slice type ID of this exception.";
-    H << nl << "/// @return The fully-scoped type ID.";
+    H << nl << "/// Gets the type ID of the associated Slice exception.";
+    H << nl << "/// @return The string @c \"" << p->scoped() << "\".";
     H << nl << _dllMemberExport << "static const char* ice_staticId() noexcept;";
 
     C << sp << nl << "const char*" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
@@ -2450,8 +2456,8 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     H << sp;
-    H << nl << "/// Obtains the Slice type ID of this value.";
-    H << nl << "/// @return The fully-scoped type ID.";
+    H << nl << "/// Gets the type ID of the associated Slice class.";
+    H << nl << "/// @return The string @c \"" << p->scoped() << "\".";
     H << nl << _dllMemberExport << "static const char* ice_staticId() noexcept;";
     C << sp;
     C << nl << "const char*" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
@@ -2814,18 +2820,18 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     StringList ids = p->ids();
 
     H << sp;
-    H << nl << "/// Obtains a list of the Slice type IDs representing the interfaces supported by this object.";
-    H << nl << "/// @param current The Current object for the invocation.";
-    H << nl << "/// @return A list of fully-scoped type IDs.";
+    H << nl << "/// Gets the Slice interfaces supported by this object as a list of type IDs.";
+    H << nl << "/// @param current The Current object of the incoming request.";
+    H << nl << "/// @return The Slice type IDs of the interfaces supported by this object, in alphabetical order.";
     H << nl << "[[nodiscard]] std::vector<std::string> ice_ids(const Ice::Current& current) const override;";
     H << sp;
-    H << nl << "/// Obtains a Slice type ID representing the most-derived interface supported by this object.";
-    H << nl << "/// @param current The Current object for the invocation.";
-    H << nl << "/// @return A fully-scoped type ID.";
+    H << nl << "/// Gets the type ID of the most-derived Slice interface supported by this object.";
+    H << nl << "/// @param current The Current object of the incoming request.";
+    H << nl << "/// @return The Slice type ID of the most-derived interface.";
     H << nl << "[[nodiscard]] std::string ice_id(const Ice::Current& current) const override;";
     H << sp;
-    H << nl << "/// Obtains the Slice type ID corresponding to this interface.";
-    H << nl << "/// @return A fully-scoped type ID.";
+    H << nl << "/// Gets the type ID of the associated Slice interface.";
+    H << nl << "/// @return The string @c \"" << p->scoped() << "\".";
     H << nl << "static const char* ice_staticId() noexcept;";
 
     C << sp;
@@ -3109,7 +3115,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
                 H << nl << "/// @param " << param->mappedName() << " " << getDocSentence(r->second);
             }
         }
-        H << nl << "/// @param " << mrcurrent << " The Current object for the invocation.";
+        H << nl << "/// @param " << mrcurrent << " The Current object of the incoming request.";
         H << nl << resultName << spar << responseParams << currentTypeDecl + " " + mrcurrent << epar << ";";
         H << eb << ';';
 
@@ -3149,7 +3155,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         {
             returns = comment->returns();
         }
-        postParams.push_back("@param " + currentParam + " The Current object for the invocation.");
+        postParams.push_back("@param " + currentParam + " The Current object of the incoming request.");
         writeOpDocSummary(H, p, *comment, pt, true, {.generateDeprecated = false}, StringList(), postParams, returns);
     }
     H << nl << noDiscard << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
