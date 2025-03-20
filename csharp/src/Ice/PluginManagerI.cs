@@ -26,7 +26,7 @@ public interface PluginFactory
 
 internal sealed class PluginManagerI : PluginManager
 {
-    private static readonly string _kindOfObject = "plugin";
+    private const string _kindOfObject = "plugin";
 
     internal static void registerPluginFactory(string name, PluginFactory factory, bool loadOnInit)
     {
