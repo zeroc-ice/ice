@@ -552,6 +552,7 @@ internal class LookupI : LookupDisp_
     private bool _warnOnce = true;
     private readonly Dictionary<Ice.Identity, ObjectRequest> _objectRequests =
         new Dictionary<Ice.Identity, ObjectRequest>();
+
     private readonly Dictionary<string, AdapterRequest> _adapterRequests = new Dictionary<string, AdapterRequest>();
     private readonly object _mutex = new();
 }
