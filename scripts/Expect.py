@@ -731,3 +731,24 @@ class Expect(object):
                 test(self.exitstatus, [exitstatus, -self.killed])
         else:
             test(self.exitstatus, exitstatus)
+
+    def stackDump(self):
+        if platform.system() != "Linux":
+            print("stackDump not supported on this platform")
+            return
+
+        gdbCmd = [
+            "gdb",
+            "-q",
+            "-n",
+            "-batch",
+            "-ex", f"attach {self.p.pid}",
+            "-ex", "thread apply all bt",
+            "-ex", "detach",
+            "-ex", "quit",
+        ]
+
+        try:
+            subprocess.run(gdbCmd)
+        except Exception as e:
+            print(e)

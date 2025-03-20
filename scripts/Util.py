@@ -296,9 +296,7 @@ class Platform(object):
     def _getBinDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
-            return os.path.join(
-                installDir, "bin", mapping.getTargetFramework(current)
-            )
+            return os.path.join(installDir, "bin", mapping.getTargetFramework(current))
         return os.path.join(installDir, "bin")
 
     def _getLibDir(self, component, process, mapping, current):
@@ -464,9 +462,7 @@ class Windows(Platform):
         )
 
         if isinstance(mapping, CSharpMapping):
-            return os.path.join(
-                installDir, "bin", mapping.getTargetFramework(current)
-            )
+            return os.path.join(installDir, "bin", mapping.getTargetFramework(current))
         elif isinstance(mapping, PhpMapping):
             return os.path.join(
                 self.getNugetPackageDir(component, mapping, current),
@@ -1325,12 +1321,16 @@ class Process(Runnable):
                     current.driver.setInterrupt(True)
                     raise
                 except Expect.TIMEOUT:
-                    if watchDog and watchDog.timedOut(timeout):
-                        print(
-                            "process {0} is hanging - {1}".format(
-                                process, time.strftime("%x %X")
-                            )
-                        )
+                    assert watchDog
+                    if watchDog.timedOut(timeout):
+                        print("process {0} is hanging - {1}".format(process, time.strftime("%x %X")))
+
+                        # If we're running in CI, dump the stack trace and exit
+                        if os.getenv("CI"):
+                            process.stackDump()
+                            self.stop(current, False, exitstatus)
+                            raise
+
                         if current.driver.isInterrupted():
                             self.stop(current, False, exitstatus)
                             raise
@@ -3639,16 +3639,18 @@ class CppMapping(Mapping):
         return "{0}/com.zeroc.Cpp-Test-Controller".format(category)
 
     def getIOSAppFullPath(self, current):
-        cmd = "xcodebuild -project '{0}/cpp/test/ios/controller/C++ Test Controller.xcodeproj' \
+        cmd = (
+            "xcodebuild -project '{0}/cpp/test/ios/controller/C++ Test Controller.xcodeproj' \
                           -scheme 'C++ Test Controller' \
                           -configuration {1} \
                           -sdk {2} \
                           -arch arm64 \
                           -showBuildSettings \
                           ".format(
-            toplevel,
-            "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug",
-            current.config.buildPlatform,
+                toplevel,
+                "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug",
+                current.config.buildPlatform,
+            )
         )
         targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
         testDriver = os.path.join(targetBuildDir, "C++ Test Controller.app")
