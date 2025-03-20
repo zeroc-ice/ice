@@ -3,12 +3,13 @@
 #pragma once
 
 #include "Ice/Locator.ice"
+#include "Ice/LocatorRegistry.ice"
 
 [["java:package:test.Ice.location"]]
 module Test
 {
 
-interface TestLocatorRegistry extends ::Ice::LocatorRegistry
+interface TestLocatorRegistry extends Ice::LocatorRegistry
 {
     //
     // Allow remote addition of objects to the locator registry.
@@ -16,7 +17,7 @@ interface TestLocatorRegistry extends ::Ice::LocatorRegistry
     void addObject(Object* obj);
 }
 
-interface TestLocator extends ::Ice::Locator
+interface TestLocator extends Ice::Locator
 {
     //
     // Returns the number of request on the locator interface.

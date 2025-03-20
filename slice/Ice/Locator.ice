@@ -5,119 +5,67 @@
 [["cpp:dll-export:ICE_API"]]
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
-
 [["cpp:source-include:Ice/Process.h"]]
 
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:Ice"]]
 
 #include "Identity.ice"
 
-[["java:package:com.zeroc"]]
-
 module Ice
 {
-    interface Process;
-
-    /// This exception is raised if an adapter cannot be found.
+    /// This exception is thrown by a {@link Locator} implementation when it cannot find an object adapter with the
+    /// provided adapter ID.
     exception AdapterNotFoundException
     {
     }
 
-    /// This exception is raised if the replica group provided by the server is invalid.
-    exception InvalidReplicaGroupIdException
-    {
-    }
-
-    /// This exception is raised if a server tries to set endpoints for an adapter that is already active.
-    exception AdapterAlreadyActiveException
-    {
-    }
-
-    /// This exception is raised if an object cannot be found.
+    /// This exception is thrown by a {@link Locator} implementation when it cannot find an object with the provided
+    /// identity.
     exception ObjectNotFoundException
-    {
-    }
-
-    /// This exception is raised if a server cannot be found.
-    exception ServerNotFoundException
     {
     }
 
     interface LocatorRegistry;
 
-    /// The Ice locator interface. This interface is used by clients to lookup adapters and objects. It is also used by
-    /// servers to get the locator registry proxy. Note: The {@link Locator} interface is intended to be used
-    /// by Ice internals and by locator implementations. Regular user code should not attempt to use any functionality
-    /// of this interface directly.
+    /// Client applications use the {@link Locator} object to resolve Ice indirect proxies. This object also allows
+    /// server applications to retrieve a proxy to the associated {@link LocatorRegistry} object where they can register
+    /// their object adapters.
     interface Locator
     {
-        /// Find an object by identity and return a proxy that contains the adapter ID or endpoints which can be used to
-        /// access the object.
+        /// Finds an object by identity and returns a dummy proxy with the endpoint(s) that can be used to reach this
+        /// object. This dummy proxy may be an indirect proxy that requires further resolution using
+        /// {@link findAdapterById}.
         /// @param id The identity.
-        /// @return The proxy, or null if the object is not active.
-        /// @throws ObjectNotFoundException Raised if the object cannot be found.
+        /// @return A dummy proxy, or null if an object with the requested identity was not found.
+        /// @throws ObjectNotFoundException Thrown if an object with the requested identity was not found. The caller
+        /// should treat this exception like a null return value.
         ["amd"] ["cpp:const"] idempotent Object* findObjectById(Identity id)
             throws ObjectNotFoundException;
 
-        /// Find an adapter by id and return a proxy that contains its endpoints.
-        /// @param id The adapter id.
-        /// @return The adapter proxy, or null if the adapter is not active.
-        /// @throws AdapterNotFoundException Raised if the adapter cannot be found.
+        /// Finds an object adapter by adapter ID and returns a dummy proxy with the object adapter's endpoint(s).
+        /// @param id The adapter ID.
+        /// @return A dummy proxy with the adapter's endpoints, or null if an object adapter with @p id was not found.
+        /// @throws AdapterNotFoundException Thrown if an object adapter with this adapter ID was not found. The caller
+        /// should treat this exception like a null return value.
         ["amd"] ["cpp:const"] idempotent Object* findAdapterById(string id)
             throws AdapterNotFoundException;
 
-        /// Get the locator registry.
-        /// @return The locator registry.
+        /// Gets a proxy to the locator registry.
+        /// @return A proxy to the locator registry, or null if this locator has no associated registry.
         ["cpp:const"] idempotent LocatorRegistry* getRegistry();
     }
 
-    /// The Ice locator registry interface. This interface is used by servers to register adapter endpoints with the
-    /// locator. Note: The {@link LocatorRegistry} interface is intended to be used by Ice internals and by
-    /// locator implementations. Regular user code should not attempt to use any functionality of this interface
-    /// directly.
-    interface LocatorRegistry
-    {
-        /// Set the adapter endpoints with the locator registry.
-        /// @param id The adapter id.
-        /// @param proxy The adapter proxy (a dummy direct proxy created by the adapter). The direct proxy contains the
-        /// adapter endpoints. The proxy can be null, typically during adapter deactivation.
-        /// @throws AdapterNotFoundException Raised if the adapter cannot be found, or if the locator only allows
-        /// registered adapters to set their active proxy and the adapter is not registered with the locator.
-        /// @throws AdapterAlreadyActiveException Raised if an adapter with the same id is already active.
-        ["amd"] idempotent void setAdapterDirectProxy(string id, Object* proxy)
-            throws AdapterNotFoundException, AdapterAlreadyActiveException;
-
-        /// Set the adapter endpoints with the locator registry.
-        /// @param adapterId The adapter id.
-        /// @param replicaGroupId The replica group id.
-        /// @param proxy The adapter proxy (a dummy direct proxy created by the adapter). The direct proxy contains the
-        /// adapter endpoints. The proxy can be null, typically during adapter deactivation.
-        /// @throws AdapterNotFoundException Raised if the adapter cannot be found, or if the locator only allows
-        /// registered adapters to set their active proxy and the adapter is not registered with the locator.
-        /// @throws AdapterAlreadyActiveException Raised if an adapter with the same id is already active.
-        /// @throws InvalidReplicaGroupIdException Raised if the given replica group doesn't match the one registered
-        /// with the locator registry for this object adapter.
-        ["amd"] idempotent void setReplicatedAdapterDirectProxy(string adapterId, string replicaGroupId, Object* proxy)
-            throws AdapterNotFoundException, AdapterAlreadyActiveException, InvalidReplicaGroupIdException;
-
-        /// Set the process proxy for a server.
-        /// @param id The server id.
-        /// @param proxy The process proxy. The proxy is never null.
-        /// @throws ServerNotFoundException Raised if the server cannot be found.
-        ["amd"] idempotent void setServerProcessProxy(string id, Process* proxy)
-            throws ServerNotFoundException;
-    }
-
-    /// This interface should be implemented by services implementing the <code>Ice::Locator interface</code>. It should
-    /// be advertised through an Ice object with the identity <code>'Ice/LocatorFinder'</code>. This allows clients to
-    /// retrieve the locator proxy with just the endpoint information of the service.
+    /// Provides access to a {@link Locator} object via a fixed identity.
+    /// A LocatorFinder is always registered with identity @c Ice/LocatorFinder. This allows clients to obtain the
+    /// associated Locator proxy with just the endpoint information of the object. For example, you can use the
+    /// LocatorFinder proxy <tt>Ice/LocatorFinder:tcp -h somehost -p 4061</tt> to get the Locator proxy
+    /// <tt>MyIceGrid/Locator:tcp -h somehost -p 4061</tt>.
     interface LocatorFinder
     {
-        /// Get the locator proxy implemented by the process hosting this finder object. The proxy might point to
-        /// several replicas. This proxy is never null.
-        /// @return The locator proxy.
+        /// Gets a proxy to the associated {@link Locator}. The proxy might point to several replicas.
+        /// @return The locator proxy. This proxy is never null.
         Locator* getLocator();
     }
 }
