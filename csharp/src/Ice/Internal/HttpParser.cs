@@ -375,8 +375,7 @@ internal sealed class HttpParser
                         {
                             str.Append((char)raw[i]);
                         }
-                        string s = null;
-                        if (!_headers.TryGetValue(_headerName, out s) || s.Length == 0)
+                        if (!_headers.TryGetValue(_headerName, out string s) || s.Length == 0)
                         {
                             _headers[_headerName] = str.ToString();
                         }
@@ -659,8 +658,7 @@ internal sealed class HttpParser
 
     internal string getHeader(string name, bool toLower)
     {
-        string s = null;
-        if (_headers.TryGetValue(name.ToLowerInvariant(), out s))
+        if (_headers.TryGetValue(name.ToLowerInvariant(), out string s))
         {
             return toLower ? s.Trim().ToLowerInvariant() : s.Trim();
         }

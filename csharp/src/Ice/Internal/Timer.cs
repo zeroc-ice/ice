@@ -103,8 +103,7 @@ public sealed class Timer
                 return false;
             }
 
-            Token token;
-            if (!_tasks.TryGetValue(task, out token))
+            if (!_tasks.TryGetValue(task, out Token token))
             {
                 return false;
             }

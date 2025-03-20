@@ -178,8 +178,7 @@ public class MetricsHelper<T> where T : Metrics
 
         public string resolve(MetricsHelper<T> helper, string attribute)
         {
-            Resolver resolver;
-            if (!_attributes.TryGetValue(attribute, out resolver))
+            if (!_attributes.TryGetValue(attribute, out Resolver resolver))
             {
                 if (attribute == "none")
                 {

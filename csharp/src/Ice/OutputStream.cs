@@ -1721,8 +1721,7 @@ public sealed class OutputStream
         {
             _typeIdMap ??= new Dictionary<string, int>();
 
-            int p;
-            if (_typeIdMap.TryGetValue(typeId, out p))
+            if (_typeIdMap.TryGetValue(typeId, out int p))
             {
                 return p;
             }
@@ -1887,8 +1886,7 @@ public sealed class OutputStream
             //
             // Look for this instance in the to-be-marshaled map.
             //
-            int p;
-            if (_toBeMarshaledMap.TryGetValue(v, out p))
+            if (_toBeMarshaledMap.TryGetValue(v, out int p))
             {
                 return p;
             }
@@ -1947,8 +1945,7 @@ public sealed class OutputStream
                 // If writing an instance within a slice and using the sliced
                 // format, write an index from the instance indirection table.
                 //
-                int index;
-                if (!_current.indirectionMap!.TryGetValue(v, out index))
+                if (!_current.indirectionMap!.TryGetValue(v, out int index))
                 {
                     _current.indirectionTable.Add(v);
                     int idx = _current.indirectionTable.Count; // Position + 1 (0 is reserved for nil)
@@ -2182,8 +2179,7 @@ public sealed class OutputStream
             //
             // If the instance was already marshaled, just write it's ID.
             //
-            int p;
-            if (_marshaledMap.TryGetValue(v, out p))
+            if (_marshaledMap.TryGetValue(v, out int p))
             {
                 _stream.writeSize(p);
                 return;

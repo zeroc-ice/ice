@@ -280,8 +280,7 @@ internal class LookupI : LookupDisp_
             return; // Ignore
         }
 
-        bool isReplicaGroup;
-        Ice.ObjectPrx proxy = _registry.findAdapter(adapterId, out isReplicaGroup);
+        Ice.ObjectPrx proxy = _registry.findAdapter(adapterId, out bool isReplicaGroup);
         if (proxy != null)
         {
             //
@@ -302,8 +301,7 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            ObjectRequest request;
-            if (!_objectRequests.TryGetValue(id, out request))
+            if (!_objectRequests.TryGetValue(id, out ObjectRequest request))
             {
                 request = new ObjectRequest(this, id, _retryCount);
                 _objectRequests.Add(id, request);
@@ -331,8 +329,7 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            AdapterRequest request;
-            if (!_adapterRequests.TryGetValue(adapterId, out request))
+            if (!_adapterRequests.TryGetValue(adapterId, out AdapterRequest request))
             {
                 request = new AdapterRequest(this, adapterId, _retryCount);
                 _adapterRequests.Add(adapterId, request);
@@ -360,8 +357,7 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            ObjectRequest request;
-            if (_objectRequests.TryGetValue(id, out request) && request.getRequestId() == requestId)
+            if (_objectRequests.TryGetValue(id, out ObjectRequest request) && request.getRequestId() == requestId)
             {
                 request.response(proxy);
                 _timer.cancel(request);
@@ -375,8 +371,7 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            AdapterRequest request;
-            if (_adapterRequests.TryGetValue(adapterId, out request) && request.getRequestId() == requestId)
+            if (_adapterRequests.TryGetValue(adapterId, out AdapterRequest request) && request.getRequestId() == requestId)
             {
                 if (request.response(proxy, isReplicaGroup))
                 {
@@ -392,8 +387,7 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            ObjectRequest r;
-            if (!_objectRequests.TryGetValue(request.getId(), out r) || r != request)
+            if (!_objectRequests.TryGetValue(request.getId(), out ObjectRequest r) || r != request)
             {
                 return;
             }
@@ -421,8 +415,7 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            ObjectRequest r;
-            if (!_objectRequests.TryGetValue(request.getId(), out r) || r != request)
+            if (!_objectRequests.TryGetValue(request.getId(), out ObjectRequest r) || r != request)
             {
                 return;
             }
@@ -451,8 +444,7 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            AdapterRequest r;
-            if (!_adapterRequests.TryGetValue(request.getId(), out r) || r != request)
+            if (!_adapterRequests.TryGetValue(request.getId(), out AdapterRequest r) || r != request)
             {
                 return;
             }
@@ -480,8 +472,7 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            AdapterRequest r;
-            if (!_adapterRequests.TryGetValue(request.getId(), out r) || r != request)
+            if (!_adapterRequests.TryGetValue(request.getId(), out AdapterRequest r) || r != request)
             {
                 return;
             }

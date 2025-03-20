@@ -272,12 +272,10 @@ public class AllTests : global::Test.AllTests
             Ice.LoggerAdminPrx logger = Ice.LoggerAdminPrxHelper.checkedCast(obj, "Logger");
             test(logger != null);
 
-            string prefix = null;
-
             //
             // Get all
             //
-            Ice.LogMessage[] logMessages = logger.getLog(null, null, -1, out prefix);
+            Ice.LogMessage[] logMessages = logger.getLog(null, null, -1, out string prefix);
 
             test(logMessages.Length == 4);
             test(prefix == "NullLogger");

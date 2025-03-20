@@ -36,8 +36,7 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
             if (proxy != null)
             {
                 _adapters[adapterId] = proxy;
-                HashSet<string> adapterIds;
-                if (!_replicaGroups.TryGetValue(replicaGroupId, out adapterIds))
+                if (!_replicaGroups.TryGetValue(replicaGroupId, out HashSet<string> adapterIds))
                 {
                     adapterIds = new HashSet<string>();
                     _replicaGroups.Add(replicaGroupId, adapterIds);
@@ -47,8 +46,7 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
             else
             {
                 _adapters.Remove(adapterId);
-                HashSet<string> adapterIds;
-                if (_replicaGroups.TryGetValue(replicaGroupId, out adapterIds))
+                if (_replicaGroups.TryGetValue(replicaGroupId, out HashSet<string> adapterIds))
                 {
                     adapterIds.Remove(adapterId);
                     if (adapterIds.Count == 0)
@@ -115,21 +113,18 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
     {
         lock (_mutex)
         {
-            Ice.ObjectPrx result = null;
-            if (_adapters.TryGetValue(adapterId, out result))
+            if (_adapters.TryGetValue(adapterId, out Ice.ObjectPrx result))
             {
                 isReplicaGroup = false;
                 return result;
             }
 
-            HashSet<string> adapterIds;
-            if (_replicaGroups.TryGetValue(adapterId, out adapterIds))
+            if (_replicaGroups.TryGetValue(adapterId, out HashSet<string> adapterIds))
             {
                 var endpoints = new List<Ice.Endpoint>();
                 foreach (string a in adapterIds)
                 {
-                    Ice.ObjectPrx proxy;
-                    if (!_adapters.TryGetValue(a, out proxy))
+                    if (!_adapters.TryGetValue(a, out Ice.ObjectPrx proxy))
                     {
                         continue; // TODO: Inconsistency
                     }

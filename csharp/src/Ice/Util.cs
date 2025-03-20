@@ -424,8 +424,7 @@ public sealed class Util
     /// <returns>The converted protocol version.</returns>
     public static ProtocolVersion stringToProtocolVersion(string version)
     {
-        byte major, minor;
-        stringToMajorMinor(version, out major, out minor);
+        stringToMajorMinor(version, out byte major, out byte minor);
         return new ProtocolVersion(major, minor);
     }
 
@@ -436,8 +435,7 @@ public sealed class Util
     /// <returns>The converted encoding version.</returns>
     public static EncodingVersion stringToEncodingVersion(string version)
     {
-        byte major, minor;
-        stringToMajorMinor(version, out major, out minor);
+        stringToMajorMinor(version, out byte major, out byte minor);
         return new EncodingVersion(major, minor);
     }
 

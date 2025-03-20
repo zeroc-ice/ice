@@ -107,9 +107,8 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             lock (_map._mutex)
             {
                 ++_object.failures;
-                int count;
                 _failures ??= new Dictionary<string, int>();
-                if (_failures.TryGetValue(exceptionName, out count))
+                if (_failures.TryGetValue(exceptionName, out int count))
                 {
                     _failures[exceptionName] = count + 1;
                 }
@@ -342,8 +341,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
         {
             return null;
         }
-        ISubMapCloneFactory factory;
-        if (_subMaps.TryGetValue(subMapName, out factory))
+        if (_subMaps.TryGetValue(subMapName, out ISubMapCloneFactory factory))
         {
             return factory.create();
         }
@@ -412,8 +410,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
                 return previous;
             }
 
-            Entry e;
-            if (!_objects.TryGetValue(key, out e))
+            if (!_objects.TryGetValue(key, out Entry e))
             {
                 try
                 {
@@ -544,8 +541,7 @@ internal class MetricsViewI
             return _maps.Remove(mapName);
         }
 
-        IMetricsMap m;
-        if (_maps.TryGetValue(mapName, out m) && m.getProperties().DictionaryEqual(mapProps))
+        if (_maps.TryGetValue(mapName, out IMetricsMap m) && m.getProperties().DictionaryEqual(mapProps))
         {
             return false; // The map configuration didn't change, no need to re-create.
         }
@@ -580,8 +576,7 @@ internal class MetricsViewI
 
     internal IceMX.MetricsFailures[] getFailures(string mapName)
     {
-        IMetricsMap m;
-        if (_maps.TryGetValue(mapName, out m))
+        if (_maps.TryGetValue(mapName, out IMetricsMap m))
         {
             return m.getFailures();
         }
@@ -590,8 +585,7 @@ internal class MetricsViewI
 
     internal IceMX.MetricsFailures getFailures(string mapName, string id)
     {
-        IMetricsMap m;
-        if (_maps.TryGetValue(mapName, out m))
+        if (_maps.TryGetValue(mapName, out IMetricsMap m))
         {
             return m.getFailures(id);
         }
@@ -602,8 +596,7 @@ internal class MetricsViewI
 
     internal MetricsMap<T> getMap<T>(string mapName) where T : IceMX.Metrics, new()
     {
-        IMetricsMap m;
-        if (_maps.TryGetValue(mapName, out m))
+        if (_maps.TryGetValue(mapName, out IMetricsMap m))
         {
             return (MetricsMap<T>)m;
         }
@@ -722,8 +715,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
                 //
                 // Create the view or update it.
                 //
-                MetricsViewI v;
-                if (!_views.TryGetValue(viewName, out v))
+                if (!_views.TryGetValue(viewName, out MetricsViewI v))
                 {
                     v = new MetricsViewI(viewName);
                 }
@@ -936,8 +928,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
 
     private MetricsViewI getMetricsView(string name)
     {
-        MetricsViewI view;
-        if (!_views.TryGetValue(name, out view))
+        if (!_views.TryGetValue(name, out MetricsViewI view))
         {
             if (!_disabledViews.Contains(name))
             {

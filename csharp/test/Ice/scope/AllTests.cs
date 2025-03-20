@@ -13,14 +13,12 @@ public class AllTests : global::Test.AllTests
             var i = Test.MyInterfacePrxHelper.createProxy(communicator, "i1:" + helper.getTestEndpoint());
 
             var s1 = new Test.MyStruct(0);
-            Test.MyStruct s2;
-            var s3 = i.opMyStruct(s1, out s2);
+            var s3 = i.opMyStruct(s1, out Test.MyStruct s2);
             test(s2.Equals(s1));
             test(s3.Equals(s1));
 
             var sseq1 = new Test.MyStruct[] { s1 };
-            Test.MyStruct[] sseq2;
-            var sseq3 = i.opMyStructSeq(sseq1, out sseq2);
+            var sseq3 = i.opMyStructSeq(sseq1, out Test.MyStruct[] sseq2);
             test(sseq2[0].Equals(s1));
             test(sseq3[0].Equals(s1));
 
@@ -28,20 +26,17 @@ public class AllTests : global::Test.AllTests
             {
                 ["a"] = s1
             };
-            Dictionary<string, Test.MyStruct> smap2;
-            Dictionary<string, Test.MyStruct> smap3 = i.opMyStructMap(smap1, out smap2);
+            Dictionary<string, Test.MyStruct> smap3 = i.opMyStructMap(smap1, out Dictionary<string, Test.MyStruct> smap2);
             test(smap2["a"].Equals(s1));
             test(smap3["a"].Equals(s1));
 
             var c1 = new Test.MyClass(s1);
-            Test.MyClass c2;
-            var c3 = i.opMyClass(c1, out c2);
+            var c3 = i.opMyClass(c1, out Test.MyClass c2);
             test(c2.s.Equals(c1.s));
             test(c3.s.Equals(c1.s));
 
             var cseq1 = new Test.MyClass[] { c1 };
-            Test.MyClass[] cseq2;
-            var cseq3 = i.opMyClassSeq(cseq1, out cseq2);
+            var cseq3 = i.opMyClassSeq(cseq1, out Test.MyClass[] cseq2);
             test(cseq2[0].s.Equals(s1));
             test(cseq3[0].s.Equals(s1));
 
@@ -49,8 +44,7 @@ public class AllTests : global::Test.AllTests
             {
                 ["a"] = c1
             };
-            Dictionary<string, Test.MyClass> cmap2;
-            var cmap3 = i.opMyClassMap(cmap1, out cmap2);
+            var cmap3 = i.opMyClassMap(cmap1, out Dictionary<string, Test.MyClass> cmap2);
             test(cmap2["a"].s.Equals(s1));
             test(cmap3["a"].s.Equals(s1));
 
@@ -120,14 +114,12 @@ public class AllTests : global::Test.AllTests
             var i = Test.Inner.MyInterfacePrxHelper.createProxy(communicator, "i2:" + helper.getTestEndpoint());
 
             var s1 = new Test.Inner.Inner2.MyStruct(0);
-            Test.Inner.Inner2.MyStruct s2;
-            Test.Inner.Inner2.MyStruct s3 = i.opMyStruct(s1, out s2);
+            Test.Inner.Inner2.MyStruct s3 = i.opMyStruct(s1, out Test.Inner.Inner2.MyStruct s2);
             test(s2.Equals(s1));
             test(s3.Equals(s1));
 
             var sseq1 = new Test.Inner.Inner2.MyStruct[] { s1 };
-            Test.Inner.Inner2.MyStruct[] sseq2;
-            Test.Inner.Inner2.MyStruct[] sseq3 = i.opMyStructSeq(sseq1, out sseq2);
+            Test.Inner.Inner2.MyStruct[] sseq3 = i.opMyStructSeq(sseq1, out Test.Inner.Inner2.MyStruct[] sseq2);
             test(sseq2[0].Equals(s1));
             test(sseq3[0].Equals(s1));
 
@@ -135,20 +127,17 @@ public class AllTests : global::Test.AllTests
             {
                 ["a"] = s1
             };
-            Dictionary<string, Test.Inner.Inner2.MyStruct> smap2;
-            Dictionary<string, Test.Inner.Inner2.MyStruct> smap3 = i.opMyStructMap(smap1, out smap2);
+            Dictionary<string, Test.Inner.Inner2.MyStruct> smap3 = i.opMyStructMap(smap1, out Dictionary<string, Test.Inner.Inner2.MyStruct> smap2);
             test(smap2["a"].Equals(s1));
             test(smap3["a"].Equals(s1));
 
             var c1 = new Test.Inner.Inner2.MyClass(s1);
-            Test.Inner.Inner2.MyClass c2;
-            Test.Inner.Inner2.MyClass c3 = i.opMyClass(c1, out c2);
+            Test.Inner.Inner2.MyClass c3 = i.opMyClass(c1, out Test.Inner.Inner2.MyClass c2);
             test(c2.s.Equals(c1.s));
             test(c3.s.Equals(c1.s));
 
             var cseq1 = new Test.Inner.Inner2.MyClass[] { c1 };
-            Test.Inner.Inner2.MyClass[] cseq2;
-            Test.Inner.Inner2.MyClass[] cseq3 = i.opMyClassSeq(cseq1, out cseq2);
+            Test.Inner.Inner2.MyClass[] cseq3 = i.opMyClassSeq(cseq1, out Test.Inner.Inner2.MyClass[] cseq2);
             test(cseq2[0].s.Equals(s1));
             test(cseq3[0].s.Equals(s1));
 
@@ -156,8 +145,7 @@ public class AllTests : global::Test.AllTests
             {
                 ["a"] = c1
             };
-            Dictionary<string, Test.Inner.Inner2.MyClass> cmap2;
-            Dictionary<string, Test.Inner.Inner2.MyClass> cmap3 = i.opMyClassMap(cmap1, out cmap2);
+            Dictionary<string, Test.Inner.Inner2.MyClass> cmap3 = i.opMyClassMap(cmap1, out Dictionary<string, Test.Inner.Inner2.MyClass> cmap2);
             test(cmap2["a"].s.Equals(s1));
             test(cmap3["a"].s.Equals(s1));
         }
@@ -209,14 +197,12 @@ public class AllTests : global::Test.AllTests
             var i = Test.Inner.Inner2.MyInterfacePrxHelper.createProxy(communicator, "i3:" + helper.getTestEndpoint());
 
             var s1 = new Test.Inner.Inner2.MyStruct(0);
-            Test.Inner.Inner2.MyStruct s2;
-            Test.Inner.Inner2.MyStruct s3 = i.opMyStruct(s1, out s2);
+            Test.Inner.Inner2.MyStruct s3 = i.opMyStruct(s1, out Test.Inner.Inner2.MyStruct s2);
             test(s2.Equals(s1));
             test(s3.Equals(s1));
 
             var sseq1 = new Test.Inner.Inner2.MyStruct[] { s1 };
-            Test.Inner.Inner2.MyStruct[] sseq2;
-            Test.Inner.Inner2.MyStruct[] sseq3 = i.opMyStructSeq(sseq1, out sseq2);
+            Test.Inner.Inner2.MyStruct[] sseq3 = i.opMyStructSeq(sseq1, out Test.Inner.Inner2.MyStruct[] sseq2);
             test(sseq2[0].Equals(s1));
             test(sseq3[0].Equals(s1));
 
@@ -224,20 +210,17 @@ public class AllTests : global::Test.AllTests
             {
                 ["a"] = s1
             };
-            Dictionary<string, Test.Inner.Inner2.MyStruct> smap2;
-            Dictionary<string, Test.Inner.Inner2.MyStruct> smap3 = i.opMyStructMap(smap1, out smap2);
+            Dictionary<string, Test.Inner.Inner2.MyStruct> smap3 = i.opMyStructMap(smap1, out Dictionary<string, Test.Inner.Inner2.MyStruct> smap2);
             test(smap2["a"].Equals(s1));
             test(smap3["a"].Equals(s1));
 
             var c1 = new Test.Inner.Inner2.MyClass(s1);
-            Test.Inner.Inner2.MyClass c2;
-            Test.Inner.Inner2.MyClass c3 = i.opMyClass(c1, out c2);
+            Test.Inner.Inner2.MyClass c3 = i.opMyClass(c1, out Test.Inner.Inner2.MyClass c2);
             test(c2.s.Equals(c1.s));
             test(c3.s.Equals(c1.s));
 
             var cseq1 = new Test.Inner.Inner2.MyClass[] { c1 };
-            Test.Inner.Inner2.MyClass[] cseq2;
-            Test.Inner.Inner2.MyClass[] cseq3 = i.opMyClassSeq(cseq1, out cseq2);
+            Test.Inner.Inner2.MyClass[] cseq3 = i.opMyClassSeq(cseq1, out Test.Inner.Inner2.MyClass[] cseq2);
             test(cseq2[0].s.Equals(s1));
             test(cseq3[0].s.Equals(s1));
 
@@ -245,8 +228,7 @@ public class AllTests : global::Test.AllTests
             {
                 ["a"] = c1
             };
-            Dictionary<string, Test.Inner.Inner2.MyClass> cmap2;
-            Dictionary<string, Test.Inner.Inner2.MyClass> cmap3 = i.opMyClassMap(cmap1, out cmap2);
+            Dictionary<string, Test.Inner.Inner2.MyClass> cmap3 = i.opMyClassMap(cmap1, out Dictionary<string, Test.Inner.Inner2.MyClass> cmap2);
             test(cmap2["a"].s.Equals(s1));
             test(cmap3["a"].s.Equals(s1));
         }
@@ -298,14 +280,12 @@ public class AllTests : global::Test.AllTests
             var i = Inner.Test.Inner2.MyInterfacePrxHelper.createProxy(communicator, "i4:" + helper.getTestEndpoint());
 
             var s1 = new Test.MyStruct(0);
-            Test.MyStruct s2;
-            Test.MyStruct s3 = i.opMyStruct(s1, out s2);
+            Test.MyStruct s3 = i.opMyStruct(s1, out Test.MyStruct s2);
             test(s2.Equals(s1));
             test(s3.Equals(s1));
 
             var sseq1 = new Test.MyStruct[] { s1 };
-            Test.MyStruct[] sseq2;
-            Test.MyStruct[] sseq3 = i.opMyStructSeq(sseq1, out sseq2);
+            Test.MyStruct[] sseq3 = i.opMyStructSeq(sseq1, out Test.MyStruct[] sseq2);
             test(sseq2[0].Equals(s1));
             test(sseq3[0].Equals(s1));
 
@@ -313,20 +293,17 @@ public class AllTests : global::Test.AllTests
             {
                 ["a"] = s1
             };
-            Dictionary<string, Test.MyStruct> smap2;
-            Dictionary<string, Test.MyStruct> smap3 = i.opMyStructMap(smap1, out smap2);
+            Dictionary<string, Test.MyStruct> smap3 = i.opMyStructMap(smap1, out Dictionary<string, Test.MyStruct> smap2);
             test(smap2["a"].Equals(s1));
             test(smap3["a"].Equals(s1));
 
             var c1 = new Test.MyClass(s1);
-            Test.MyClass c2;
-            Test.MyClass c3 = i.opMyClass(c1, out c2);
+            Test.MyClass c3 = i.opMyClass(c1, out Test.MyClass c2);
             test(c2.s.Equals(c1.s));
             test(c3.s.Equals(c1.s));
 
             var cseq1 = new Test.MyClass[] { c1 };
-            Test.MyClass[] cseq2;
-            Test.MyClass[] cseq3 = i.opMyClassSeq(cseq1, out cseq2);
+            Test.MyClass[] cseq3 = i.opMyClassSeq(cseq1, out Test.MyClass[] cseq2);
             test(cseq2[0].s.Equals(s1));
             test(cseq3[0].s.Equals(s1));
 
@@ -334,8 +311,7 @@ public class AllTests : global::Test.AllTests
             {
                 ["a"] = c1
             };
-            Dictionary<string, Test.MyClass> cmap2;
-            Dictionary<string, Test.MyClass> cmap3 = i.opMyClassMap(cmap1, out cmap2);
+            Dictionary<string, Test.MyClass> cmap3 = i.opMyClassMap(cmap1, out Dictionary<string, Test.MyClass> cmap2);
             test(cmap2["a"].s.Equals(s1));
             test(cmap3["a"].s.Equals(s1));
         }

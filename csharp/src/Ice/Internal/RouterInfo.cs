@@ -64,8 +64,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
             }
         }
 
-        bool? hasRoutingTable;
-        ObjectPrx proxy = _router.getClientProxy(out hasRoutingTable);
+        ObjectPrx proxy = _router.getClientProxy(out bool? hasRoutingTable);
         return setClientEndpoints(proxy, hasRoutingTable ?? true);
     }
 
@@ -270,8 +269,7 @@ public sealed class RouterManager
 
         lock (_mutex)
         {
-            RouterInfo info = null;
-            if (!_table.TryGetValue(router, out info))
+            if (!_table.TryGetValue(router, out RouterInfo info))
             {
                 info = new RouterInfo(router);
                 _table.Add(router, info);

@@ -568,9 +568,7 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                B b1;
-                B b2;
-                testPrx.paramTest1(out b1, out b2);
+                testPrx.paramTest1(out B b1, out B b2);
 
                 test(b1 != null);
                 test(b1.ice_id() == "::Test::D1");
@@ -622,9 +620,7 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                B b2;
-                B b1;
-                testPrx.paramTest2(out b2, out b1);
+                testPrx.paramTest2(out B b2, out B b1);
 
                 test(b1 != null);
                 test(b1.ice_id() == "::Test::D1");
@@ -675,9 +671,7 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                B p1;
-                B p2;
-                B ret = testPrx.returnTest1(out p1, out p2);
+                B ret = testPrx.returnTest1(out B p1, out B p2);
                 test(ret == p1);
             }
             catch (Exception ex)
@@ -701,9 +695,7 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                B p1;
-                B p2;
-                B ret = testPrx.returnTest2(out p1, out p2);
+                B ret = testPrx.returnTest2(out B p1, out B p2);
                 test(ret == p1);
             }
             catch (Exception ex)
@@ -935,9 +927,7 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                B p1;
-                B p2;
-                B ret = testPrx.paramTest3(out p1, out p2);
+                B ret = testPrx.paramTest3(out B p1, out B p2);
 
                 test(p1 != null);
                 test(p1.sb == "D2.sb (p1 1)");
@@ -992,8 +982,7 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                B b;
-                B ret = testPrx.paramTest4(out b);
+                B ret = testPrx.paramTest4(out B b);
 
                 test(b != null);
                 test(b.sb == "D4.sb (1)");
@@ -1379,7 +1368,6 @@ public class AllTests : Test.AllTests
             try
             {
                 var bin = new Dictionary<int, B>();
-                Dictionary<int, B> bout;
                 Dictionary<int, B> ret;
                 int i;
                 for (i = 0; i < 10; ++i)
@@ -1392,7 +1380,7 @@ public class AllTests : Test.AllTests
                     bin[i] = d1;
                 }
 
-                ret = testPrx.dictionaryTest(bin, out bout);
+                ret = testPrx.dictionaryTest(bin, out Dictionary<int, B> bout);
 
                 test(bout.Count == 10);
                 for (i = 0; i < 10; ++i)
@@ -1708,8 +1696,7 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                Forward f;
-                testPrx.useForward(out f);
+                testPrx.useForward(out Forward f);
                 test(f != null);
             }
             catch (Exception ex)

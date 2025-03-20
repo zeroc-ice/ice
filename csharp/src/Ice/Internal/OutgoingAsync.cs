@@ -1114,7 +1114,7 @@ public class OutgoingAsyncT<T> : OutgoingAsync
                     {
                         is_.skipEmptyEncapsulation();
                     }
-                    return default(T);
+                    return default;
                 }
                 else
                 {
@@ -1127,7 +1127,7 @@ public class OutgoingAsyncT<T> : OutgoingAsync
             else
             {
                 throwUserException();
-                return default(T); // make compiler happy
+                return default; // make compiler happy
             }
         }
         finally
@@ -1267,8 +1267,7 @@ internal class ConnectionFlushBatchAsync : OutgoingAsyncBase
         try
         {
             int status;
-            bool compress;
-            int batchRequestNum = _connection.getBatchRequestQueue().swap(os_, out compress);
+            int batchRequestNum = _connection.getBatchRequestQueue().swap(os_, out bool compress);
             if (batchRequestNum == 0)
             {
                 status = AsyncStatusSent;
@@ -1395,8 +1394,7 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
         try
         {
             var flushBatch = new FlushBatch(this, instance_, observer_);
-            bool compress;
-            int batchRequestNum = con.getBatchRequestQueue().swap(flushBatch.getOs(), out compress);
+            int batchRequestNum = con.getBatchRequestQueue().swap(flushBatch.getOs(), out bool compress);
             if (batchRequestNum == 0)
             {
                 flushBatch.sent();

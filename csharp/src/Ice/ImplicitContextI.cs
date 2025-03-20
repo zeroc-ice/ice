@@ -95,8 +95,7 @@ internal class SharedImplicitContext : ImplicitContextI
             key ??= "";
             value ??= "";
 
-            string oldVal;
-            _context.TryGetValue(key, out oldVal);
+            _context.TryGetValue(key, out string oldVal);
             oldVal ??= "";
             _context[key] = value;
 
@@ -255,8 +254,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
             }
         }
 
-        string oldVal;
-        if (!threadContext.TryGetValue(key, out oldVal))
+        if (!threadContext.TryGetValue(key, out string oldVal))
         {
             oldVal = "";
         }
@@ -278,8 +276,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
             }
         }
 
-        string val = null;
-        if (!threadContext.TryGetValue(key, out val))
+        if (!threadContext.TryGetValue(key, out string val))
         {
             val = "";
         }

@@ -15,9 +15,8 @@ internal class Twoways
                 [1] = 0
             };
 
-            Dictionary<int, int> o;
             Dictionary<int, int> r;
-            r = p.opNV(i, out o);
+            r = p.opNV(i, out Dictionary<int, int> o);
 
             test(Internal.DictionaryExtensions.DictionaryEqual(i, o));
             test(Internal.DictionaryExtensions.DictionaryEqual(i, r));
@@ -30,9 +29,8 @@ internal class Twoways
                 ["b"] = "a"
             };
 
-            Dictionary<string, string> o;
             Dictionary<string, string> r;
-            r = p.opNR(i, out o);
+            r = p.opNR(i, out Dictionary<string, string> o);
 
             test(Internal.DictionaryExtensions.DictionaryEqual(i, o));
             test(Internal.DictionaryExtensions.DictionaryEqual(i, r));
@@ -48,9 +46,8 @@ internal class Twoways
             i["a"] = id;
             i["b"] = id;
 
-            Dictionary<string, Dictionary<int, int>> o;
             Dictionary<string, Dictionary<int, int>> r;
-            r = p.opNDV(i, out o);
+            r = p.opNDV(i, out Dictionary<string, Dictionary<int, int>> o);
 
             foreach (string key in i.Keys)
             {
@@ -69,9 +66,8 @@ internal class Twoways
             i["a"] = id;
             i["b"] = id;
 
-            Dictionary<string, Dictionary<string, string>> o;
             Dictionary<string, Dictionary<string, string>> r;
-            r = p.opNDR(i, out o);
+            r = p.opNDR(i, out Dictionary<string, Dictionary<string, string>> o);
 
             foreach (string key in i.Keys)
             {
@@ -88,9 +84,8 @@ internal class Twoways
                 ["b"] = ii
             };
 
-            Dictionary<string, int[]> o;
             Dictionary<string, int[]> r;
-            r = p.opNDAIS(i, out o);
+            r = p.opNDAIS(i, out Dictionary<string, int[]> o);
 
             foreach (string key in i.Keys)
             {
@@ -111,9 +106,8 @@ internal class Twoways
                 ["b"] = ii
             };
 
-            Dictionary<string, List<int>> o;
             Dictionary<string, List<int>> r;
-            r = p.opNDGIS(i, out o);
+            r = p.opNDGIS(i, out Dictionary<string, List<int>> o);
 
             foreach (string key in i.Keys)
             {
@@ -130,9 +124,8 @@ internal class Twoways
                 ["b"] = ii
             };
 
-            Dictionary<string, string[]> o;
             Dictionary<string, string[]> r;
-            r = p.opNDASS(i, out o);
+            r = p.opNDASS(i, out Dictionary<string, string[]> o);
 
             foreach (string key in i.Keys)
             {
@@ -153,9 +146,8 @@ internal class Twoways
                 ["b"] = ii
             };
 
-            Dictionary<string, List<string>> o;
             Dictionary<string, List<string>> r;
-            r = p.opNDGSS(i, out o);
+            r = p.opNDGSS(i, out Dictionary<string, List<string>> o);
 
             foreach (string key in i.Keys)
             {

@@ -26,8 +26,7 @@ public class CollocatedRequestHandler : RequestHandler
     {
         lock (_mutex)
         {
-            int requestId;
-            if (_sendAsyncRequests.TryGetValue(outAsync, out requestId))
+            if (_sendAsyncRequests.TryGetValue(outAsync, out int requestId))
             {
                 if (requestId > 0)
                 {

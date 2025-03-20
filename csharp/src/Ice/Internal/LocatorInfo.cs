@@ -568,8 +568,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
 
         lock (_mutex)
         {
-            Request request;
-            if (_adapterRequests.TryGetValue(@ref.getAdapterId(), out request))
+            if (_adapterRequests.TryGetValue(@ref.getAdapterId(), out Request request))
             {
                 return request;
             }
@@ -594,8 +593,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
 
         lock (_mutex)
         {
-            Request request;
-            if (_objectRequests.TryGetValue(@ref.getIdentity(), out request))
+            if (_objectRequests.TryGetValue(@ref.getIdentity(), out Request request))
             {
                 return request;
             }
@@ -742,17 +740,15 @@ public sealed class LocatorManager
         //
         lock (_mutex)
         {
-            LocatorInfo info = null;
-            if (!_table.TryGetValue(locator, out info))
+            if (!_table.TryGetValue(locator, out LocatorInfo info))
             {
                 //
                 // Rely on locator identity for the adapter table. We want to
                 // have only one table per locator (not one per locator
                 // proxy).
                 //
-                LocatorTable table = null;
                 var key = new LocatorKey(locator);
-                if (!_locatorTables.TryGetValue(key, out table))
+                if (!_locatorTables.TryGetValue(key, out LocatorTable table))
                 {
                     table = new LocatorTable();
                     _locatorTables[key] = table;
@@ -799,8 +795,7 @@ internal sealed class LocatorTable
 
         lock (_mutex)
         {
-            EndpointTableEntry entry = null;
-            if (_adapterEndpointsTable.TryGetValue(adapter, out entry))
+            if (_adapterEndpointsTable.TryGetValue(adapter, out EndpointTableEntry entry))
             {
                 cached = checkTTL(entry.time, ttl);
                 return entry.endpoints;
@@ -823,8 +818,7 @@ internal sealed class LocatorTable
     {
         lock (_mutex)
         {
-            EndpointTableEntry entry = null;
-            if (_adapterEndpointsTable.TryGetValue(adapter, out entry))
+            if (_adapterEndpointsTable.TryGetValue(adapter, out EndpointTableEntry entry))
             {
                 _adapterEndpointsTable.Remove(adapter);
                 return entry.endpoints;
@@ -843,8 +837,7 @@ internal sealed class LocatorTable
 
         lock (_mutex)
         {
-            ReferenceTableEntry entry = null;
-            if (_objectTable.TryGetValue(id, out entry))
+            if (_objectTable.TryGetValue(id, out ReferenceTableEntry entry))
             {
                 cached = checkTTL(entry.time, ttl);
                 return entry.reference;
@@ -866,8 +859,7 @@ internal sealed class LocatorTable
     {
         lock (_mutex)
         {
-            ReferenceTableEntry entry = null;
-            if (_objectTable.TryGetValue(id, out entry))
+            if (_objectTable.TryGetValue(id, out ReferenceTableEntry entry))
             {
                 _objectTable.Remove(id);
                 return entry.reference;

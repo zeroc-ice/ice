@@ -24,10 +24,9 @@ internal class Oneways
         }
 
         {
-            byte b;
             try
             {
-                p.opByte((byte)0xff, (byte)0x0f, out b);
+                p.opByte((byte)0xff, (byte)0x0f, out byte b);
                 test(false);
             }
             catch (Ice.TwowayOnlyException)

@@ -20,8 +20,7 @@ public sealed class ValueFactoryManagerI : Ice.ValueFactoryManager
     {
         lock (_mutex)
         {
-            Ice.ValueFactory factory = null;
-            _factoryMap.TryGetValue(id, out factory);
+            _factoryMap.TryGetValue(id, out ValueFactory factory);
             return factory;
         }
     }

@@ -88,8 +88,7 @@ public class AllTests : Test.AllTests
                 Ice.PropertiesAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.Properties");
 
             string[] views;
-            string[] disabledViews;
-            views = ma.getMetricsViewNames(out disabledViews);
+            views = ma.getMetricsViewNames(out string[] disabledViews);
             test(views.Length == 0);
 
             var setProps = new Dictionary<string, string>

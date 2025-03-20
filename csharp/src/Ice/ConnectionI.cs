@@ -606,13 +606,12 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                             observerStartWrite(_writeStream.getBuffer());
                         }
 
-                        bool messageWritten = false;
                         bool completedSynchronously =
                             _transceiver.startWrite(
                                 _writeStream.getBuffer(),
                                 completedCallback,
                                 this,
-                                out messageWritten);
+                                out bool messageWritten);
                         // If the startWrite call consumed the complete buffer, we assume the message is sent now for
                         // at-most-once semantics.
                         if (messageWritten && _sendStreams.Count > 0)

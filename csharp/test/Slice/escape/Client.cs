@@ -49,8 +49,7 @@ public class Client : Test.TestHelper
         test(c != null);
         escaped_abstract.@casePrx c1 = null;
         test(c1 == null);
-        int c2 = 0;
-        c1?.@catch(0, out c2);
+        c1?.@catch(0, out int c2);
         escaped_abstract.@decimal d = new decimalI();
         test(d != null);
         escaped_abstract.@decimalPrx d1 = null;

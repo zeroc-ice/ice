@@ -53,8 +53,7 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
                 }
                 else
                 {
-                    string v;
-                    if (!old.TryGetValue(key, out v) || !value.Equals(v, StringComparison.Ordinal))
+                    if (!old.TryGetValue(key, out string v) || !value.Equals(v, StringComparison.Ordinal))
                     {
                         if (value.Length == 0)
                         {

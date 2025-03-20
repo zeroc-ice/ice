@@ -679,8 +679,7 @@ internal sealed class Network
     internal static List<string> getInterfacesForMulticast(string intf, int protocol)
     {
         var interfaces = new List<string>();
-        bool ipv4Wildcard = false;
-        if (isWildcard(intf, out ipv4Wildcard))
+        if (isWildcard(intf, out bool ipv4Wildcard))
         {
             foreach (IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, true))
             {
