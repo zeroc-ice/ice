@@ -18,6 +18,7 @@ void
 Server::run(int argc, char** argv)
 {
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+
     //
     // This test kills connections, so we don't want warnings.
     //
@@ -48,6 +49,8 @@ Server::run(int argc, char** argv)
     adapter2->activate();
 
     serverReady();
+
+    this_thread::sleep_for(chrono::seconds(10000));
 
     promise<void> shutdownCompleted;
     communicator->waitForShutdownAsync([&shutdownCompleted]() { shutdownCompleted.set_value(); });

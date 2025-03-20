@@ -2,6 +2,7 @@
 
 import io
 import os
+import platform
 import re
 import signal
 import string
@@ -733,26 +734,41 @@ class Expect(object):
             test(self.exitstatus, exitstatus)
 
     def stackDump(self):
-        if sys.platform.system() != "Linux":
-            print("stackDump not supported on this platform")
-            return
+        print(f"Type of self: {type(self)}")
 
-        gdbCmd = [
-            "gdb",
-            "-q",
-            "-n",
-            "-batch",
-            "-ex",
-            f"attach {self.p.pid}",
-            "-ex",
-            "thread apply all bt",
-            "-ex",
-            "detach",
-            "-ex",
-            "quit",
-        ]
+        match platform.system():
+            case "Linux":
+                cmd = [
+                    "gdb",
+                    "-q",
+                    "-n",
+                    "-batch",
+                    "-ex",
+                    f"attach {self.p.pid}",
+                    "-ex",
+                    "thread apply all bt",
+                    "-ex",
+                    "detach",
+                    "-ex",
+                    "quit",
+                ]
+            case "Darwin":
+                cmd = [
+                    "lldb",
+                    "-p",
+                    f"{self.p.pid}",
+                    "-o",
+                    "thread backtrace all",
+                    "-o",
+                    "process detach",
+                    "-o",
+                    "quit",
+                ]
+            case _:
+                print(f"stackDump not supported on {platform.system()}")
+                return
 
         try:
-            subprocess.run(gdbCmd)
+            subprocess.run(cmd)
         except Exception as e:
             print(e)

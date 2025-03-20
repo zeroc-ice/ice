@@ -1424,7 +1424,7 @@ class Process(Runnable):
                 if not process.isTerminated() and waitSuccess:
                     while True:
                         try:
-                            process.waitSuccess(exitstatus=exitstatus, timeout=30)
+                            process.waitSuccess(exitstatus=exitstatus, timeout=5)
                             break
                         except KeyboardInterrupt:
                             current.driver.setInterrupt(True)
@@ -1435,6 +1435,11 @@ class Process(Runnable):
                                     process, time.strftime("%x %X")
                                 )
                             )
+
+                            if os.getenv("CI"):
+                                process.stackDump()
+                                raise
+
                             if current.driver.isInterrupted():
                                 raise
                         except RuntimeError as ex:
