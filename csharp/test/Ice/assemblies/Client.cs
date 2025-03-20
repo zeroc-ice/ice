@@ -12,6 +12,7 @@ public class Client : Test.TestHelper
 {
     public override void run(string[] args)
     {
+#pragma warning disable SYSLIB0012 // Type or member is obsolete
         Console.Out.Write("testing preloading assemblies... ");
         Console.Out.Flush();
         var info = new User.UserInfo();
@@ -21,30 +22,21 @@ public class Client : Test.TestHelper
 
         string assembly =
             string.Format("{0}/core.dll",
-#pragma warning disable SYSLIB0012 // Type or member is obsolete
                           Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
-#pragma warning restore SYSLIB0012 // Type or member is obsolete
         using (var communicator = initialize(properties))
         {
             test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) =>
-                    {
-#pragma warning disable SYSLIB0012 // Type or member is obsolete
-                        return e.CodeBase.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase);
-#pragma warning restore SYSLIB0012 // Type or member is obsolete
-                    }) == null);
+                e.CodeBase.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase)) == null);
         }
         properties.setProperty("Ice.PreloadAssemblies", "1");
         using (var communicator = initialize(properties))
         {
             test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) =>
-                    {
-#pragma warning disable SYSLIB0012 // Type or member is obsolete
-                        return e.CodeBase.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase);
-#pragma warning restore SYSLIB0012 // Type or member is obsolete
-                    }) != null);
+                e.CodeBase.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase)) != null);
         }
 
         Console.Out.WriteLine("ok");
+#pragma warning restore SYSLIB0012 // Type or member is obsolete
     }
 
     public static Task<int> Main(string[] args) =>
