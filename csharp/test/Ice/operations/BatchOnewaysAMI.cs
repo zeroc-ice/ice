@@ -10,10 +10,7 @@ internal class BatchOnewaysAMI
 
     private class Callback
     {
-        internal Callback()
-        {
-            _called = false;
-        }
+        internal Callback() => _called = false;
 
         public void check()
         {

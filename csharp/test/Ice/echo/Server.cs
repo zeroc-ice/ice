@@ -12,10 +12,7 @@ public class Server : Test.TestHelper
 {
     private class EchoI : Test.EchoDisp_
     {
-        public EchoI(BlobjectI blob)
-        {
-            _blob = blob;
-        }
+        public EchoI(BlobjectI blob) => _blob = blob;
 
         public override void startBatch(Ice.Current current)
         {

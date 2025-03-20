@@ -55,10 +55,7 @@ public class AllTests : global::Test.AllTests
 
     private class TestValueWriter : Ice.Value
     {
-        public TestValueWriter(Test.MyClass obj)
-        {
-            this.obj = obj;
-        }
+        public TestValueWriter(Test.MyClass obj) => this.obj = obj;
 
         public override void iceRead(Ice.InputStream inS)
         {
@@ -111,10 +108,7 @@ public class AllTests : global::Test.AllTests
 
     public class MyClassFactoryWrapper
     {
-        public MyClassFactoryWrapper()
-        {
-            _factory = null;
-        }
+        public MyClassFactoryWrapper() => _factory = null;
 
         public Ice.Value create(string type)
         {

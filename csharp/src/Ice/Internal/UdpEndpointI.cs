@@ -385,10 +385,7 @@ internal sealed class UdpEndpointI : IPEndpointI
 
 internal sealed class UdpEndpointFactory : EndpointFactory
 {
-    internal UdpEndpointFactory(ProtocolInstance instance)
-    {
-        _instance = instance;
-    }
+    internal UdpEndpointFactory(ProtocolInstance instance) => _instance = instance;
 
     public void initialize()
     {

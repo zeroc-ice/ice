@@ -490,10 +490,7 @@ public class FixedReference : Reference
         Ice.ConnectionI connection,
         TimeSpan invocationTimeout,
         Dictionary<string, string> context)
-    : base(instance, communicator, identity, facet, mode, secure, compress, protocol, encoding, invocationTimeout, context)
-    {
-        _fixedConnection = connection;
-    }
+    : base(instance, communicator, identity, facet, mode, secure, compress, protocol, encoding, invocationTimeout, context) => _fixedConnection = connection;
 
     public override EndpointI[] getEndpoints()
     {
@@ -1504,10 +1501,7 @@ public class RoutableReference : Reference
 
     private class EndpointComparator : IComparer<EndpointI>
     {
-        public EndpointComparator(bool preferSecure)
-        {
-            _preferSecure = preferSecure;
-        }
+        public EndpointComparator(bool preferSecure) => _preferSecure = preferSecure;
 
         public int Compare(EndpointI le, EndpointI re)
         {

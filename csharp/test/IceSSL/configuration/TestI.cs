@@ -5,10 +5,7 @@ using Test;
 
 internal sealed class ServerI : ServerDisp_
 {
-    internal ServerI(Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-    }
+    internal ServerI(Ice.Communicator communicator) => _communicator = communicator;
 
     public override void
     noCert(Ice.Current current)
@@ -69,10 +66,7 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
-    public ServerFactoryI(string defaultDir)
-    {
-        _defaultDir = defaultDir;
-    }
+    public ServerFactoryI(string defaultDir) => _defaultDir = defaultDir;
 
     public override ServerPrx createServer(Dictionary<string, string> props, Ice.Current current)
     {

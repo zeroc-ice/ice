@@ -1295,10 +1295,7 @@ internal class ConnectionFlushBatchAsync : OutgoingAsyncBase
         Ice.ConnectionI connection,
         Instance instance,
         OutgoingAsyncCompletionCallback completionCallback)
-        : base(instance, completionCallback)
-    {
-        _connection = connection;
-    }
+        : base(instance, completionCallback) => _connection = connection;
 
     public void invoke(string operation, Ice.CompressBatch compressBatch, bool synchronous)
     {
@@ -1420,15 +1417,13 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
     }
 
     public CommunicatorFlushBatchAsync(Instance instance, OutgoingAsyncCompletionCallback callback)
-        : base(instance, callback)
-    {
+        : base(instance, callback) =>
         //
         // _useCount is initialized to 1 to prevent premature callbacks.
         // The caller must invoke ready() after all flush requests have
         // been initiated.
         //
         _useCount = 1;
-    }
 
     internal void flushConnection(Ice.ConnectionI con, Ice.CompressBatch compressBatch)
     {

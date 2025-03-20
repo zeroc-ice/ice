@@ -1085,10 +1085,7 @@ internal sealed class Network
 
     private class EndPointComparator : IComparer<EndPoint>
     {
-        public EndPointComparator(bool ipv6)
-        {
-            _ipv6 = ipv6;
-        }
+        public EndPointComparator(bool ipv6) => _ipv6 = ipv6;
 
         public int Compare(EndPoint lhs, EndPoint rhs)
         {

@@ -91,10 +91,7 @@ internal class SubMapCloneFactory<S> : ISubMapCloneFactory where S : IceMX.Metri
 
 internal class SubMapFactory<S> : ISubMapFactory where S : IceMX.Metrics, new()
 {
-    internal SubMapFactory(System.Reflection.FieldInfo field)
-    {
-        _field = field;
-    }
+    internal SubMapFactory(System.Reflection.FieldInfo field) => _field = field;
 
     public ISubMapCloneFactory createCloneFactory(string subMapPrefix, Ice.Properties properties)
     {
@@ -529,10 +526,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
 
 internal class MetricsViewI
 {
-    internal MetricsViewI(string name)
-    {
-        _name = name;
-    }
+    internal MetricsViewI(string name) => _name = name;
 
     internal bool addOrUpdateMap(
         Ice.Properties properties,
@@ -697,10 +691,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
 
     private class MetricsMapFactory<T> : IMetricsMapFactory where T : IceMX.Metrics, new()
     {
-        public MetricsMapFactory(Action updater)
-        {
-            _updater = updater;
-        }
+        public MetricsMapFactory(Action updater) => _updater = updater;
 
         public void update()
         {

@@ -4,10 +4,7 @@ using System.Diagnostics;
 
 internal class EndpointFactory : Ice.Internal.EndpointFactory
 {
-    internal EndpointFactory(Ice.Internal.EndpointFactory factory)
-    {
-        _factory = factory;
-    }
+    internal EndpointFactory(Ice.Internal.EndpointFactory factory) => _factory = factory;
 
     public void initialize()
     {

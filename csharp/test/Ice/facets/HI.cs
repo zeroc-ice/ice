@@ -4,10 +4,7 @@ namespace Ice.facets;
 
 public sealed class HI : Test.HDisp_
 {
-    public HI(Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-    }
+    public HI(Ice.Communicator communicator) => _communicator = communicator;
 
     public override string callG(Ice.Current current)
     {

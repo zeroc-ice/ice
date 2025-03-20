@@ -63,10 +63,7 @@ public class RetryTask : TimerTask, CancellationHandler
 
 public class RetryQueue
 {
-    public RetryQueue(Instance instance)
-    {
-        _instance = instance;
-    }
+    public RetryQueue(Instance instance) => _instance = instance;
 
     public void add(ProxyOutgoingAsyncBase outAsync, int interval)
     {

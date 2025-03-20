@@ -100,9 +100,11 @@ internal class Twoways
         }
 
         {
-            var ii = new List<int>();
-            ii.Add(1);
-            ii.Add(2);
+            var ii = new List<int>
+            {
+                1,
+                2
+            };
             var i = new Dictionary<string, List<int>>
             {
                 ["a"] = ii,
@@ -140,9 +142,11 @@ internal class Twoways
         }
 
         {
-            var ii = new List<string>();
-            ii.Add("a");
-            ii.Add("b");
+            var ii = new List<string>
+            {
+                "a",
+                "b"
+            };
             var i = new Dictionary<string, List<string>>
             {
                 ["a"] = ii,

@@ -100,8 +100,10 @@ internal class ServiceManagerI : ServiceManagerDisp_
                     {
                         info.status = ServiceStatus.Started;
 
-                        var services = new List<string>();
-                        services.Add(name);
+                        var services = new List<string>
+                        {
+                            name
+                        };
                         servicesStarted(services, _observers.Keys);
                     }
                     else
@@ -171,8 +173,10 @@ internal class ServiceManagerI : ServiceManagerDisp_
                     {
                         info.status = ServiceStatus.Stopped;
 
-                        var services = new List<string>();
-                        services.Add(name);
+                        var services = new List<string>
+                        {
+                            name
+                        };
                         servicesStopped(services, _observers.Keys);
                     }
                     else

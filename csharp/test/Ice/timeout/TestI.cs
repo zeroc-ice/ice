@@ -39,10 +39,7 @@ internal class TimeoutI : Test.TimeoutDisp_
 
 internal class ControllerI : Test.ControllerDisp_
 {
-    public ControllerI(Ice.ObjectAdapter adapter)
-    {
-        _adapter = adapter;
-    }
+    public ControllerI(Ice.ObjectAdapter adapter) => _adapter = adapter;
 
     public override void holdAdapter(int to, Ice.Current current)
     {

@@ -245,10 +245,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
 public sealed class RouterManager
 {
-    internal RouterManager()
-    {
-        _table = new Dictionary<Ice.RouterPrx, RouterInfo>();
-    }
+    internal RouterManager() => _table = new Dictionary<Ice.RouterPrx, RouterInfo>();
 
     internal void destroy()
     {

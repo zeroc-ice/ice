@@ -577,10 +577,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
 internal class LookupReplyI : LookupReplyDisp_
 {
-    public LookupReplyI(LocatorI locator)
-    {
-        _locator = locator;
-    }
+    public LookupReplyI(LocatorI locator) => _locator = locator;
 
     public override void
     foundLocator(Ice.LocatorPrx locator, Ice.Current current)
@@ -594,10 +591,7 @@ internal class LookupReplyI : LookupReplyDisp_
 internal class PluginI : Ice.Plugin
 {
     public
-    PluginI(Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-    }
+    PluginI(Ice.Communicator communicator) => _communicator = communicator;
 
     public void
     initialize()

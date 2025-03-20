@@ -37,10 +37,7 @@ public class ByteBuffer
         return ret;
     }
 
-    public ByteBuffer()
-    {
-        _order = ByteOrder.BigEndian;
-    }
+    public ByteBuffer() => _order = ByteOrder.BigEndian;
 
     /// <summary>
     /// Represents the endianness of the buffer.
@@ -881,10 +878,7 @@ public class ByteBuffer
 
     private class NativeOrder // Native Order
     {
-        static NativeOrder()
-        {
-            _o = BitConverter.IsLittleEndian ? ByteOrder.LittleEndian : ByteOrder.BigEndian;
-        }
+        static NativeOrder() => _o = BitConverter.IsLittleEndian ? ByteOrder.LittleEndian : ByteOrder.BigEndian;
 
         internal static readonly ByteOrder _o;
 

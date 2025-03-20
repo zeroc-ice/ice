@@ -628,9 +628,9 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
             FormatType.CompactFormat,
             context,
             synchronous,
-            (OutputStream os) => { os.writeString(id); },
+            (OutputStream os) => os.writeString(id),
             null,
-            (InputStream iss) => { return iss.readBool(); });
+            (InputStream iss) => iss.readBool());
     }
 
     /// <summary>
@@ -751,7 +751,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
             FormatType.CompactFormat,
             context,
             synchronous,
-            read: (InputStream iss) => { return iss.readStringSeq(); });
+            read: (InputStream iss) => iss.readStringSeq());
     }
 
     /// <summary>
@@ -812,7 +812,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
             FormatType.CompactFormat,
             context,
             synchronous,
-            read: (InputStream iss) => { return iss.readString(); });
+            read: (InputStream iss) => iss.readString());
     }
 
     /// <summary>

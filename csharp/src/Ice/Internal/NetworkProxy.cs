@@ -67,10 +67,7 @@ public sealed class SOCKSNetworkProxy : NetworkProxy
         _port = port;
     }
 
-    private SOCKSNetworkProxy(EndPoint address)
-    {
-        _address = address;
-    }
+    private SOCKSNetworkProxy(EndPoint address) => _address = address;
 
     public void beginWrite(EndPoint endpoint, Buffer buf)
     {

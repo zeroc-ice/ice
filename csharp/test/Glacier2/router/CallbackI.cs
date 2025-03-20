@@ -30,10 +30,7 @@ public sealed class CallbackI : Test.CallbackDisp_
 
 public sealed class CallbackReceiverI : CallbackReceiverDisp_
 {
-    public CallbackReceiverI()
-    {
-        _callback = false;
-    }
+    public CallbackReceiverI() => _callback = false;
 
     public override void
     callback(Ice.Current current)

@@ -78,10 +78,7 @@ internal abstract class Request<T>
 internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
 {
     public AdapterRequest(LookupI lookup, string id, int retryCount)
-        : base(lookup, id, retryCount)
-    {
-        _start = DateTime.Now.Ticks;
-    }
+        : base(lookup, id, retryCount) => _start = DateTime.Now.Ticks;
 
     public override bool retry()
     {
@@ -559,10 +556,7 @@ internal class LookupI : LookupDisp_
 
 internal class LookupReplyI : LookupReplyDisp_
 {
-    public LookupReplyI(LookupI lookup)
-    {
-        _lookup = lookup;
-    }
+    public LookupReplyI(LookupI lookup) => _lookup = lookup;
 
     public override void foundObjectById(Ice.Identity id, Ice.ObjectPrx proxy, Ice.Current c)
     {

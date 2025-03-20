@@ -236,10 +236,7 @@ public class TestControllerI : Test.TestIntfControllerDisp_
     }
 
     public
-    TestControllerI(Ice.ObjectAdapter adapter)
-    {
-        _adapter = adapter;
-    }
+    TestControllerI(Ice.ObjectAdapter adapter) => _adapter = adapter;
 
     private readonly Ice.ObjectAdapter _adapter;
 }

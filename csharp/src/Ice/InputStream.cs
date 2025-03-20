@@ -2279,10 +2279,7 @@ public sealed class InputStream
     private sealed class EncapsDecoder10 : EncapsDecoder
     {
         internal EncapsDecoder10(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager f)
-            : base(stream, encaps, classGraphDepthMax, f)
-        {
-            _sliceType = SliceType.NoSlice;
-        }
+            : base(stream, encaps, classGraphDepthMax, f) => _sliceType = SliceType.NoSlice;
 
         internal override void readValue(System.Action<Value?> cb)
         {

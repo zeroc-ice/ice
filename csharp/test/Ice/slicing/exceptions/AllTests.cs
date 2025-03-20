@@ -7,10 +7,7 @@ public class AllTests : Test.AllTests
 {
     private class Callback
     {
-        internal Callback()
-        {
-            _called = false;
-        }
+        internal Callback() => _called = false;
 
         public virtual void check()
         {

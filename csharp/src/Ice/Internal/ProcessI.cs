@@ -4,10 +4,7 @@ namespace Ice.Internal;
 
 public sealed class ProcessI : Ice.ProcessDisp_
 {
-    public ProcessI(Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-    }
+    public ProcessI(Ice.Communicator communicator) => _communicator = communicator;
 
     public override void shutdown(Ice.Current current)
     {

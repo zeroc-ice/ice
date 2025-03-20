@@ -19,10 +19,7 @@ internal class BackgroundI : BackgroundDisp_
         current.adapter.getCommunicator().shutdown();
     }
 
-    internal BackgroundI(BackgroundControllerI controller)
-    {
-        _controller = controller;
-    }
+    internal BackgroundI(BackgroundControllerI controller) => _controller = controller;
 
     private readonly BackgroundControllerI _controller;
 }

@@ -118,10 +118,7 @@ internal class EndpointI : Ice.Internal.EndpointI
 
     private class ConnectorsCallback : Ice.Internal.EndpointI_connectors
     {
-        internal ConnectorsCallback(Ice.Internal.EndpointI_connectors cb)
-        {
-            _callback = cb;
-        }
+        internal ConnectorsCallback(Ice.Internal.EndpointI_connectors cb) => _callback = cb;
 
         public void connectors(List<Ice.Internal.Connector> cons)
         {

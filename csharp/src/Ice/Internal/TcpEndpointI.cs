@@ -276,10 +276,7 @@ internal sealed class TcpEndpointI : IPEndpointI
 
 internal sealed class TcpEndpointFactory : EndpointFactory
 {
-    internal TcpEndpointFactory(ProtocolInstance instance)
-    {
-        _instance = instance;
-    }
+    internal TcpEndpointFactory(ProtocolInstance instance) => _instance = instance;
 
     public void initialize()
     {

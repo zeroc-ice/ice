@@ -9,10 +9,7 @@ public class PluginFactory : Ice.PluginFactory
 
     internal class Plugin : Ice.Plugin
     {
-        public Plugin(Ice.Communicator communicator, string[] args)
-        {
-            _args = args;
-        }
+        public Plugin(Ice.Communicator communicator, string[] args) => _args = args;
 
         public void initialize()
         {

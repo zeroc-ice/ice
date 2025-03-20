@@ -388,14 +388,14 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
     protected sealed override void QueueTask(System.Threading.Tasks.Task task)
     {
-        execute(() => { TryExecuteTask(task); }, null);
+        execute(() => TryExecuteTask(task), null);
     }
 
     protected sealed override bool TryExecuteTaskInline(System.Threading.Tasks.Task task, bool taskWasPreviouslyQueued)
     {
         if (!taskWasPreviouslyQueued)
         {
-            executeFromThisThread(() => { TryExecuteTask(task); }, null);
+            executeFromThisThread(() => TryExecuteTask(task), null);
             return true;
         }
         return false;
@@ -469,11 +469,9 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
                                 _threads.Remove(thread);
                                 _workItems.Enqueue(c =>
-                                    {
                                         // No call to ioCompleted, this shouldn't block (and we don't want to cause
                                         // a new thread to be started).
-                                        thread.join();
-                                    });
+                                        thread.join());
                                 Monitor.Pulse(_mutex);
                                 return;
                             }

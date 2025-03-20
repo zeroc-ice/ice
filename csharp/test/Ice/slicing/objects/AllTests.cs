@@ -7,10 +7,7 @@ public class AllTests : Test.AllTests
 {
     private class Callback
     {
-        internal Callback()
-        {
-            _called = false;
-        }
+        internal Callback() => _called = false;
 
         public virtual void check()
         {
@@ -40,20 +37,14 @@ public class AllTests : Test.AllTests
 
     private class PNodeI : PNode
     {
-        public PNodeI()
-        {
-            ++counter;
-        }
+        public PNodeI() => ++counter;
 
         internal static int counter = 0;
     }
 
     private class PreservedI : Preserved
     {
-        public PreservedI()
-        {
-            ++counter;
-        }
+        public PreservedI() => ++counter;
 
         internal static int counter = 0;
     }

@@ -10,7 +10,7 @@ public sealed class Patcher
 {
     public static System.Action<T?> arrayReadValue<T>(T?[] arr, int index) where T : Ice.Value
     {
-        return (T? v) => { arr[index] = v; };
+        return (T? v) => arr[index] = v;
     }
 
     public static System.Action<T?> listReadValue<T>(List<T?> seq, int index) where T : Ice.Value

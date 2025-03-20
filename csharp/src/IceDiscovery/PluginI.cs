@@ -24,10 +24,7 @@ public sealed class PluginFactory : Ice.PluginFactory
 public sealed class PluginI : Ice.Plugin
 {
     public
-    PluginI(Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-    }
+    PluginI(Ice.Communicator communicator) => _communicator = communicator;
 
     public void initialize()
     {

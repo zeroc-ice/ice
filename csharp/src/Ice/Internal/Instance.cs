@@ -25,10 +25,7 @@ public sealed class Instance
 {
     private class ObserverUpdaterI : Ice.Instrumentation.ObserverUpdater
     {
-        public ObserverUpdaterI(Instance instance)
-        {
-            _instance = instance;
-        }
+        public ObserverUpdaterI(Instance instance) => _instance = instance;
 
         public void updateConnectionObservers()
         {

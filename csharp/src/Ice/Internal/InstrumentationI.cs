@@ -618,10 +618,7 @@ internal class EndpointHelper : MetricsHelper<Metrics>
     }
 
     public EndpointHelper(Ice.Endpoint endpt)
-        : base(_attributes)
-    {
-        _endpoint = endpt;
-    }
+        : base(_attributes) => _endpoint = endpt;
 
     public Ice.EndpointInfo getEndpointInfo()
     {
@@ -843,10 +840,7 @@ public class DispatchObserverI : ObserverWithDelegate<DispatchMetrics, Ice.Instr
 
     public void reply(int size)
     {
-        forEach((DispatchMetrics v) =>
-        {
-            v.replySize += size;
-        });
+        forEach((DispatchMetrics v) => v.replySize += size);
         delegate_?.reply(size);
     }
 
@@ -861,10 +855,7 @@ public class RemoteObserverI : ObserverWithDelegate<RemoteMetrics, Ice.Instrumen
 {
     public void reply(int size)
     {
-        forEach((RemoteMetrics v) =>
-        {
-            v.replySize += size;
-        });
+        forEach((RemoteMetrics v) => v.replySize += size);
         delegate_?.reply(size);
     }
 }
@@ -874,10 +865,7 @@ public class CollocatedObserverI : ObserverWithDelegate<CollocatedMetrics, Ice.I
 {
     public void reply(int size)
     {
-        forEach((CollocatedMetrics v) =>
-        {
-            v.replySize += size;
-        });
+        forEach((CollocatedMetrics v) => v.replySize += size);
         delegate_?.reply(size);
     }
 }

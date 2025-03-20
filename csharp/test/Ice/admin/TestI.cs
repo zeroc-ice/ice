@@ -13,10 +13,7 @@ public class TestFacetI : Test.TestFacetDisp_
 
 public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
 {
-    public RemoteCommunicatorI(Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-    }
+    public RemoteCommunicatorI(Ice.Communicator communicator) => _communicator = communicator;
 
     public override Ice.ObjectPrx getAdmin(Ice.Current current)
     {

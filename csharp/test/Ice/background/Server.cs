@@ -32,10 +32,7 @@ public class Server : Test.TestHelper
             return null;
         }
 
-        internal LocatorI(BackgroundControllerI controller)
-        {
-            _controller = controller;
-        }
+        internal LocatorI(BackgroundControllerI controller) => _controller = controller;
 
         private readonly BackgroundControllerI _controller;
     }
@@ -60,10 +57,7 @@ public class Server : Test.TestHelper
             return new Ice.ObjectPrx[0];
         }
 
-        internal RouterI(BackgroundControllerI controller)
-        {
-            _controller = controller;
-        }
+        internal RouterI(BackgroundControllerI controller) => _controller = controller;
 
         private readonly BackgroundControllerI _controller;
     }

@@ -144,10 +144,12 @@ public class AllTests : Test.AllTests
 
             communicator.stringToProxy("object @ rg").ice_ping();
 
-            var adapterIds = new List<string>();
-            adapterIds.Add("oa1");
-            adapterIds.Add("oa2");
-            adapterIds.Add("oa3");
+            var adapterIds = new List<string>
+            {
+                "oa1",
+                "oa2",
+                "oa3"
+            };
             TestIntfPrx intf = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("object"));
             intf = (TestIntfPrx)intf.ice_connectionCached(false).ice_locatorCacheTimeout(0);
             while (adapterIds.Count > 0)

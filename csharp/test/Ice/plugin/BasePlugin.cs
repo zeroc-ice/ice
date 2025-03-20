@@ -2,10 +2,7 @@
 
 public abstract class BasePlugin : Ice.Plugin
 {
-    public BasePlugin(Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-    }
+    public BasePlugin(Ice.Communicator communicator) => _communicator = communicator;
 
     public bool isInitialized()
     {

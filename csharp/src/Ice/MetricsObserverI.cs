@@ -11,10 +11,7 @@ public class MetricsHelper<T> where T : Metrics
     {
         private abstract class Resolver
         {
-            protected Resolver(string name)
-            {
-                _name = name;
-            }
+            protected Resolver(string name) => _name = name;
 
             protected abstract object resolve(object obj);
 
@@ -234,10 +231,7 @@ public class MetricsHelper<T> where T : Metrics
         private readonly Dictionary<string, Resolver> _attributes = new Dictionary<string, Resolver>();
     }
 
-    protected MetricsHelper(AttributeResolver attributes)
-    {
-        _attributes = attributes;
-    }
+    protected MetricsHelper(AttributeResolver attributes) => _attributes = attributes;
 
     public string resolve(string attribute)
     {
