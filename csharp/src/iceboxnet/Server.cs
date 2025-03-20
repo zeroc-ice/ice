@@ -22,7 +22,7 @@ public static class Server
         var argSeq = new List<string>(args);
         foreach (KeyValuePair<string, string> pair in services)
         {
-            string name = pair.Key.Substring(prefix.Length);
+            string name = pair.Key[prefix.Length..];
             argSeq.RemoveAll(v => v.StartsWith($"--{name}", StringComparison.Ordinal));
         }
 

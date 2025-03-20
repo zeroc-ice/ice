@@ -225,11 +225,7 @@ internal sealed class WSEndpoint : EndpointI
         {
             case 'r':
             {
-                if (argument == null)
-                {
-                    throw new ParseException($"no argument provided for -r option in endpoint '{endpoint}{_delegate.options()}'");
-                }
-                _resource = argument;
+                _resource = argument ?? throw new ParseException($"no argument provided for -r option in endpoint '{endpoint}{_delegate.options()}'");
                 return true;
             }
 

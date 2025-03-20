@@ -289,7 +289,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             }
             foreach (KeyValuePair<string, string> entry in services)
             {
-                string name = entry.Key.Substring(prefix.Length);
+                string name = entry.Key[prefix.Length..];
                 string value = entry.Value;
                 servicesInfo.Add(new StartServiceInfo(name, value, _argv));
             }
@@ -453,8 +453,8 @@ internal class ServiceManagerI : ServiceManagerDisp_
             }
 
             System.Reflection.Assembly serviceAssembly = null;
-            string assemblyName = entryPoint.Substring(0, sepPos);
-            string className = entryPoint.Substring(sepPos + 1);
+            string assemblyName = entryPoint[..sepPos];
+            string className = entryPoint[(sepPos + 1)..];
 
             try
             {
@@ -960,7 +960,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             {
                 if (p.StartsWith(prefix, StringComparison.Ordinal))
                 {
-                    facetNames.Add(p.Substring(prefix.Length));
+                    facetNames.Add(p[prefix.Length..]);
                 }
             }
 

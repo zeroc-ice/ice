@@ -303,7 +303,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
     {
         Debug.Assert(@ref.isIndirect());
         EndpointI[] endpoints = null;
-        bool cached = false;
+        bool cached;
         if (!@ref.isWellKnown())
         {
             endpoints = _table.getAdapterEndpoints(@ref.getAdapterId(), ttl, out cached);

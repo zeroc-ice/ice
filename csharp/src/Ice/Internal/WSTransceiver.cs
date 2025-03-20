@@ -410,7 +410,7 @@ internal sealed class WSTransceiver : Transceiver
             return SocketOperation.None;
         }
 
-        int s = SocketOperation.None;
+        int s;
         do
         {
             if (preRead(buf))

@@ -2455,7 +2455,7 @@ public sealed class InputStream
             startSlice();
             Debug.Assert(_typeId is not null);
             string mostDerivedId = _typeId;
-            Value? v = null;
+            Value? v;
             while (true)
             {
                 //
@@ -2896,7 +2896,7 @@ public sealed class InputStream
             //
             startSlice();
             string mostDerivedId = _current!.typeId!;
-            Value? v = null;
+            Value? v;
             while (true)
             {
                 string typeId = _current.compactId >= 0 ? _current.compactId.ToString(CultureInfo.InvariantCulture) :

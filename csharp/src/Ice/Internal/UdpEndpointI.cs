@@ -331,11 +331,7 @@ internal sealed class UdpEndpointI : IPEndpointI
         }
         else if (option == "--interface")
         {
-            if (argument == null)
-            {
-                throw new ParseException($"no argument provided for --interface option in endpoint '{endpoint}'");
-            }
-            _mcastInterface = argument;
+            _mcastInterface = argument ?? throw new ParseException($"no argument provided for --interface option in endpoint '{endpoint}'");
         }
         else
         {

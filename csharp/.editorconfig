@@ -93,10 +93,10 @@ csharp_style_deconstructed_variable_declaration = true:warning
 csharp_style_inlined_variable_declaration = true:warning
 csharp_style_namespace_declarations = file_scoped:warning
 csharp_style_pattern_local_over_anonymous_function = false:warning
-csharp_style_prefer_index_operator = true:suggestion
-csharp_style_prefer_range_operator = true:suggestion
-csharp_style_throw_expression = true:suggestion
-csharp_style_unused_value_assignment_preference = discard_variable:suggestion
+csharp_style_prefer_index_operator = true:warning
+csharp_style_prefer_range_operator = true:warning
+csharp_style_throw_expression = true:warning
+csharp_style_unused_value_assignment_preference = discard_variable:warning
 csharp_style_unused_value_expression_statement_preference = discard_variable:silent
 
 # 'using' directive preferences

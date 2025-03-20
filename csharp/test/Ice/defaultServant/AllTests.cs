@@ -35,7 +35,7 @@ public class AllTests : global::Test.AllTests
 
         string[] names = new string[] { "foo", "bar", "x", "y", "abcdefg" };
 
-        Test.MyObjectPrx prx = null;
+        Test.MyObjectPrx prx;
         for (int idx = 0; idx < 5; ++idx)
         {
             identity.name = names[idx];

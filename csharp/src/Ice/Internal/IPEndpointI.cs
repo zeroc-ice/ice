@@ -270,11 +270,7 @@ public abstract class IPEndpointI : EndpointI
     {
         if (option == "-h")
         {
-            if (argument == null)
-            {
-                throw new ParseException($"no argument provided for -h option in endpoint '{endpoint}'");
-            }
-            host_ = argument;
+            host_ = argument ?? throw new ParseException($"no argument provided for -h option in endpoint '{endpoint}'");
             _normalizedHost = normalizeHost(host_);
         }
         else if (option == "-p")

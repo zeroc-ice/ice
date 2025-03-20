@@ -104,12 +104,13 @@ internal class ReferenceFactory
             throw new ParseException($"no non-whitespace characters found in proxy string '{s}'");
         }
 
+        end = Ice.UtilInternal.StringUtil.checkQuote(s, beg);
+
         //
         // Extract the identity, which may be enclosed in single
         // or double quotation marks.
         //
-        string idstr = null;
-        end = Ice.UtilInternal.StringUtil.checkQuote(s, beg);
+        string idstr;
         if (end == -1)
         {
             throw new ParseException($"mismatched quotes around identity in proxy string '{s}'");
@@ -121,12 +122,12 @@ internal class ReferenceFactory
             {
                 end = s.Length;
             }
-            idstr = s.Substring(beg, end - beg);
+            idstr = s[beg..end];
         }
         else
         {
             beg++; // Skip leading quote
-            idstr = s.Substring(beg, end - beg);
+            idstr = s[beg..end];
             end++; // Skip trailing quote
         }
 
@@ -171,8 +172,6 @@ internal class ReferenceFactory
         bool secure = false;
         Ice.EncodingVersion encoding = _instance.defaultsAndOverrides().defaultEncoding;
         Ice.ProtocolVersion protocol = Ice.Util.Protocol_1_0;
-        string adapter = "";
-
         while (true)
         {
             beg = Ice.UtilInternal.StringUtil.findFirstNotOf(s, delim, end);
@@ -197,7 +196,7 @@ internal class ReferenceFactory
                 break;
             }
 
-            string option = s.Substring(beg, end - beg);
+            string option = s[beg..end];
             if (option.Length != 2 || option[0] != '-')
             {
                 throw new ParseException($"expected a proxy option but found '{option}' in proxy string '{s}'");
@@ -228,12 +227,12 @@ internal class ReferenceFactory
                         {
                             end = s.Length;
                         }
-                        argument = s.Substring(beg, end - beg);
+                        argument = s[beg..end];
                     }
                     else
                     {
                         beg++; // Skip leading quote
-                        argument = s.Substring(beg, end - beg);
+                        argument = s[beg..end];
                         end++; // Skip trailing quote
                     }
                 }
@@ -425,7 +424,7 @@ internal class ReferenceFactory
                     }
                 }
 
-                string es = s.Substring(beg, end - beg);
+                string es = s[beg..end];
                 EndpointI endp = _instance.endpointFactoryManager().create(es, false);
                 if (endp != null)
                 {
@@ -466,8 +465,9 @@ internal class ReferenceFactory
                 throw new ParseException($"missing adapter ID in proxy string '{s}'");
             }
 
-            string adapterstr = null;
             end = Ice.UtilInternal.StringUtil.checkQuote(s, beg);
+
+            string adapterstr;
             if (end == -1)
             {
                 throw new ParseException($"mismatched quotes around adapter ID in proxy string '{s}'");
@@ -479,12 +479,12 @@ internal class ReferenceFactory
                 {
                     end = s.Length;
                 }
-                adapterstr = s.Substring(beg, end - beg);
+                adapterstr = s[beg..end];
             }
             else
             {
                 beg++; // Skip leading quote
-                adapterstr = s.Substring(beg, end - beg);
+                adapterstr = s[beg..end];
                 end++; // Skip trailing quote
             }
 
@@ -493,6 +493,7 @@ internal class ReferenceFactory
                 throw new ParseException($"invalid characters after adapter ID in proxy string '{s}'");
             }
 
+            string adapter;
             try
             {
                 adapter = Ice.UtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.Length, "");
@@ -743,7 +744,7 @@ internal class ReferenceFactory
                 context = new Dictionary<string, string>();
                 foreach (KeyValuePair<string, string> e in contexts)
                 {
-                    context.Add(e.Key.Substring(property.Length), e.Value);
+                    context.Add(e.Key[property.Length..], e.Value);
                 }
             }
         }

@@ -435,7 +435,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
         Dictionary<string, string> rules = properties.getPropertiesForPrefix(name + '.');
         foreach (KeyValuePair<string, string> e in rules)
         {
-            pats.Add(e.Key.Substring(name.Length + 1), new Regex(e.Value));
+            pats.Add(e.Key[(name.Length + 1)..], new Regex(e.Value));
         }
         return pats;
     }
@@ -692,11 +692,11 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
             _disabledViews.Clear();
             foreach (KeyValuePair<string, string> e in viewsProps)
             {
-                string viewName = e.Key.Substring(viewsPrefix.Length);
+                string viewName = e.Key[viewsPrefix.Length..];
                 int dotPos = viewName.IndexOf('.', StringComparison.Ordinal);
                 if (dotPos > 0)
                 {
-                    viewName = viewName.Substring(0, dotPos);
+                    viewName = viewName[..dotPos];
                 }
 
                 if (views.ContainsKey(viewName) || _disabledViews.Contains(viewName))

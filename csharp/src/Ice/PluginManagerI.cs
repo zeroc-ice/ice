@@ -257,7 +257,7 @@ internal sealed class PluginManagerI : PluginManager
         //
         foreach (KeyValuePair<string, string> entry in plugins)
         {
-            loadPlugin(entry.Key.Substring(prefix.Length), entry.Value, ref cmdArgs);
+            loadPlugin(entry.Key[prefix.Length..], entry.Value, ref cmdArgs);
         }
     }
 
@@ -332,10 +332,10 @@ internal sealed class PluginManagerI : PluginManager
                 throw new PluginInitializationException($"{err}invalid entry point format");
             }
 
-            System.Reflection.Assembly? pluginAssembly = null;
-            string assemblyName = entryPoint.Substring(0, sepPos);
-            string className = entryPoint.Substring(sepPos + 1);
+            string assemblyName = entryPoint[..sepPos];
+            string className = entryPoint[(sepPos + 1)..];
 
+            System.Reflection.Assembly? pluginAssembly;
             try
             {
                 //
@@ -373,7 +373,7 @@ internal sealed class PluginManagerI : PluginManager
             //
             // Instantiate the class.
             //
-            System.Type? c = null;
+            Type? c;
             try
             {
                 c = pluginAssembly.GetType(className, true);

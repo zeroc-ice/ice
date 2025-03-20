@@ -147,7 +147,7 @@ internal class EndpointI : Ice.Internal.EndpointI
 
     public override bool equivalent(Ice.Internal.EndpointI endpoint)
     {
-        EndpointI testEndpoint = null;
+        EndpointI testEndpoint;
         try
         {
             testEndpoint = (EndpointI)endpoint;

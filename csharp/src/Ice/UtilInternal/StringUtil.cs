@@ -373,7 +373,7 @@ public sealed class StringUtil
                     while (size > 0 && start < end)
                     {
                         c = s[start++];
-                        int charVal = 0;
+                        int charVal;
                         if (c >= '0' && c <= '9')
                         {
                             charVal = c - '0';
@@ -437,7 +437,7 @@ public sealed class StringUtil
                             while (size > 0 && start < end)
                             {
                                 c = s[start++];
-                                int charVal = 0;
+                                int charVal;
                                 if (c >= '0' && c <= '9')
                                 {
                                     charVal = c - '0';
@@ -542,7 +542,7 @@ public sealed class StringUtil
             {
                 checkChar(s, p++);
             }
-            return s.Substring(start, end - start);
+            return s[start..end];
         }
         else
         {
@@ -667,7 +667,7 @@ public sealed class StringUtil
         // Make sure start of the strings match
         //
         if (beginIndex > s.Length ||
-            !s.Substring(0, beginIndex).Equals(pat.Substring(0, beginIndex), StringComparison.Ordinal))
+            !s[..beginIndex].Equals(pat[..beginIndex], StringComparison.Ordinal))
         {
             return false;
         }
@@ -690,7 +690,7 @@ public sealed class StringUtil
         //
         // Make sure end of the strings match
         //
-        if (!s.Substring(endIndex, s.Length - endIndex).Equals(
+        if (!s[endIndex..].Equals(
                pat.Substring(beginIndex + 1, pat.Length - beginIndex - 1),
                StringComparison.Ordinal))
         {

@@ -1286,7 +1286,7 @@ public sealed class ObjectAdapter
                 throw new ParseException("invalid empty object adapter endpoint");
             }
 
-            string s = endpts.Substring(beg, end - beg);
+            string s = endpts[beg..end];
             EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints) ??
                 throw new ParseException($"invalid object adapter endpoint '{s}'");
             endpoints.Add(endp);

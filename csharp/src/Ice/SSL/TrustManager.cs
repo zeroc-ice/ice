@@ -29,7 +29,7 @@ internal sealed class TrustManager
             foreach (KeyValuePair<string, string> entry in dict)
             {
                 key = entry.Key;
-                string name = key.Substring("IceSSL.TrustOnly.Server.".Length);
+                string name = key["IceSSL.TrustOnly.Server.".Length..];
                 var reject = new List<List<RFC2253.RDNPair>>();
                 var accept = new List<List<RFC2253.RDNPair>>();
                 parse(entry.Value, reject, accept);

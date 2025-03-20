@@ -8,11 +8,10 @@ public class AllTests : Test.AllTests
     {
         Ice.Communicator communicator = helper.communicator();
         Ice.ObjectPrx admin = communicator.stringToProxy("DemoIceBox/admin:default -p 9996 -t 10000");
-
-        TestFacetPrx facet = null;
-
         Console.Out.Write("testing custom facet... ");
         Console.Out.Flush();
+
+        TestFacetPrx facet;
         {
             //
             // Test: Verify that the custom facet is present.

@@ -126,7 +126,7 @@ internal sealed class UdpTransceiver : Transceiver
         // The caller is supposed to check the send size before by calling checkSendSize
         Debug.Assert(Math.Min(_maxPacketSize, _sndSize - _udpOverhead) >= buf.size());
 
-        int ret = 0;
+        int ret;
         while (true)
         {
             try
@@ -192,7 +192,7 @@ internal sealed class UdpTransceiver : Transceiver
         buf.resize(packetSize, true);
         buf.b.position(0);
 
-        int ret = 0;
+        int ret;
         while (true)
         {
             try

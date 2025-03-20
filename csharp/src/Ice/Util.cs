@@ -461,8 +461,8 @@ public sealed class Util
             throw new ParseException($"malformed version value in '{str}'");
         }
 
-        string majStr = str.Substring(0, pos - 0);
-        string minStr = str.Substring(pos + 1, str.Length - (pos + 1));
+        string majStr = str[..pos];
+        string minStr = str[(pos + 1)..];
         int majVersion;
         int minVersion;
         try

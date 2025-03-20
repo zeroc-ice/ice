@@ -74,7 +74,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         bool[] r = new bool[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
 
         return Task.FromResult(new Test.MyClass_OpBoolSResult(r, p3));
@@ -90,7 +90,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         bool[][] r = new bool[p1.Length][];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
 
         return Task.FromResult(new Test.MyClass_OpBoolSSResult(r, p3));
@@ -122,7 +122,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         byte[] p3 = new byte[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            p3[i] = p1[p1.Length - (i + 1)];
+            p3[i] = p1[^(i + 1)];
         }
 
         byte[] r = new byte[p1.Length + p2.Length];
@@ -138,7 +138,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         byte[][] p3 = new byte[p1.Length][];
         for (int i = 0; i < p1.Length; i++)
         {
-            p3[i] = p1[p1.Length - (i + 1)];
+            p3[i] = p1[^(i + 1)];
         }
 
         byte[][] r = new byte[p1.Length + p2.Length][];
@@ -159,7 +159,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         double[] p4 = new double[p2.Length];
         for (int i = 0; i < p2.Length; i++)
         {
-            p4[i] = p2[p2.Length - (i + 1)];
+            p4[i] = p2[^(i + 1)];
         }
 
         double[] r = new double[p2.Length + p1.Length];
@@ -180,7 +180,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         var p4 = new double[p2.Length][];
         for (int i = 0; i < p2.Length; i++)
         {
-            p4[i] = p2[p2.Length - (i + 1)];
+            p4[i] = p2[^(i + 1)];
         }
 
         var r = new double[p2.Length + p2.Length][];
@@ -253,7 +253,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         var p5 = new int[p2.Length];
         for (int i = 0; i < p2.Length; i++)
         {
-            p5[i] = p2[p2.Length - (i + 1)];
+            p5[i] = p2[^(i + 1)];
         }
         var p6 = new long[p3.Length + p3.Length];
         Array.Copy(p3, p6, p3.Length);
@@ -269,7 +269,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         var p5 = new int[p2.Length][];
         for (int i = 0; i < p2.Length; i++)
         {
-            p5[i] = p2[p2.Length - (i + 1)];
+            p5[i] = p2[^(i + 1)];
         }
 
         var p6 = new long[p3.Length + p3.Length][];
@@ -340,7 +340,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         var r = new Dictionary<byte, bool>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return Task.FromResult(new Test.MyClass_OpByteBoolDSResult(r, p3));
     }
@@ -355,7 +355,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         var r = new Dictionary<short, int>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return Task.FromResult(new Test.MyClass_OpShortIntDSResult(r, p3));
     }
@@ -370,7 +370,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         var r = new Dictionary<long, float>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return Task.FromResult(new Test.MyClass_OpLongFloatDSResult(r, p3));
     }
@@ -385,7 +385,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         var r = new Dictionary<string, string>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return Task.FromResult(new Test.MyClass_OpStringStringDSResult(r, p3));
     }
@@ -400,7 +400,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         var r = new Dictionary<string, Test.MyEnum>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return Task.FromResult(new Test.MyClass_OpStringMyEnumDSResult(r, p3));
     }
@@ -415,7 +415,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         var r = new Dictionary<Test.MyEnum, string>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return Task.FromResult(new Test.MyClass_OpMyEnumStringDSResult(r, p3));
     }
@@ -432,7 +432,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         var r = new Dictionary<Test.MyStruct, Test.MyEnum>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return Task.FromResult(new Test.MyClass_OpMyStructMyEnumDSResult(r, p3));
     }
@@ -639,7 +639,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         var r = new string[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return Task.FromResult(new Test.MyClass_OpStringSResult(r, p3));
     }
@@ -653,7 +653,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         var r = new string[p2.Length][];
         for (int i = 0; i < p2.Length; i++)
         {
-            r[i] = p2[p2.Length - (i + 1)];
+            r[i] = p2[^(i + 1)];
         }
         return Task.FromResult(new Test.MyClass_OpStringSSResult(r, p3));
     }
@@ -668,7 +668,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         var r = new string[p2.Length][][];
         for (int i = 0; i < p2.Length; i++)
         {
-            r[i] = p2[p2.Length - (i + 1)];
+            r[i] = p2[^(i + 1)];
         }
         return Task.FromResult(new Test.MyClass_OpStringSSSResult(r, p3));
     }

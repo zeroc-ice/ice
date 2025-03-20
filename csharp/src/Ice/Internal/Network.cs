@@ -291,7 +291,7 @@ internal sealed class Network
 
     internal static int getRecvBufferSize(Socket socket)
     {
-        int sz = 0;
+        int sz;
         try
         {
             sz = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);

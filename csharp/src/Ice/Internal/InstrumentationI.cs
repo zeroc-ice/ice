@@ -287,7 +287,7 @@ internal class DispatchHelper : MetricsHelper<DispatchMetrics>
     {
         if (attribute.IndexOf("context.", 0, StringComparison.Ordinal) == 0)
         {
-            if (_current.ctx.TryGetValue(attribute.Substring(8), out string v))
+            if (_current.ctx.TryGetValue(attribute[8..], out string v))
             {
                 return v;
             }
@@ -397,7 +397,7 @@ internal class InvocationHelper : MetricsHelper<InvocationMetrics>
     {
         if (attribute.IndexOf("context.", 0, StringComparison.Ordinal) == 0)
         {
-            if (_context.TryGetValue(attribute.Substring(8), out string v))
+            if (_context.TryGetValue(attribute[8..], out string v))
             {
                 return v;
             }

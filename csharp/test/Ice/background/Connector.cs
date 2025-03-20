@@ -21,8 +21,7 @@ internal class Connector : Ice.Internal.Connector
 
     public override bool Equals(object obj)
     {
-        Connector p = null;
-
+        Connector p;
         try
         {
             p = (Connector)obj;

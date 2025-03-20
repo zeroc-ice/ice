@@ -85,7 +85,7 @@ public sealed class Properties
                 {
                     line += "=1";
                 }
-                parseLine(line.Substring(2));
+                parseLine(line[2..]);
                 loadConfigFiles = true;
 
                 string[] arr = new string[args.Length - 1];
@@ -421,7 +421,7 @@ public sealed class Properties
                     opt += "=1";
                 }
 
-                parseLine(opt.Substring(2));
+                parseLine(opt[2..]);
             }
             else
             {
