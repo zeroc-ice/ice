@@ -24,6 +24,7 @@ require_relative 'Ice/Version.rb'
 
 # Files that define proxies must be last.
 require_relative 'Ice/Locator.rb'
+require_relative 'Ice/LocatorRegistry.rb'
 require_relative 'Ice/Metrics.rb'
 require_relative 'Ice/Process.rb'
 require_relative 'Ice/RemoteLogger.rb'

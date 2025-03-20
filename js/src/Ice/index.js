@@ -36,6 +36,7 @@ import "./InstanceExtensions.js";
 import * as Ice_LocalException from "./LocalException.js";
 import * as Ice_LocalExceptions from "./LocalExceptions.js";
 import * as Ice_Locator from "./Locator.js";
+import * as Ice_LocatorRegistry from "./LocatorRegistry.js";
 import * as Ice_LocatorInfo from "./LocatorInfo.js";
 import * as Ice_Logger from "./Logger.js";
 import * as Ice_MapUtil from "./MapUtil.js";

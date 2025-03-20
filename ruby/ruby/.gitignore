@@ -3,6 +3,7 @@ Ice/Context.rb
 Ice/EndpointTypes.rb
 Ice/Identity.rb
 Ice/Locator.rb
+Ice/LocatorRegistry.rb
 Ice/Metrics.rb
 Ice/OperationMode.rb
 Ice/Process.rb
