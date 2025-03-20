@@ -1312,6 +1312,7 @@ class Process(Runnable):
         if not self.quiet and not current.driver.isWorkerThread():
             # Print out the process output to stdout if we're running the client form the main thread.
             process.trace(self.outfilters)
+
         try:
             while True:
                 try:
@@ -1323,7 +1324,11 @@ class Process(Runnable):
                 except Expect.TIMEOUT:
                     assert watchDog
                     if watchDog.timedOut(timeout):
-                        print("process {0} is hanging - {1}".format(process, time.strftime("%x %X")))
+                        print(
+                            "process {0} is hanging - {1}".format(
+                                process, time.strftime("%x %X")
+                            )
+                        )
 
                         # If we're running in CI, dump the stack trace and exit
                         if os.getenv("CI"):

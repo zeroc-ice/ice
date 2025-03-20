@@ -733,7 +733,7 @@ class Expect(object):
             test(self.exitstatus, exitstatus)
 
     def stackDump(self):
-        if platform.system() != "Linux":
+        if sys.platform.system() != "Linux":
             print("stackDump not supported on this platform")
             return
 
@@ -742,10 +742,14 @@ class Expect(object):
             "-q",
             "-n",
             "-batch",
-            "-ex", f"attach {self.p.pid}",
-            "-ex", "thread apply all bt",
-            "-ex", "detach",
-            "-ex", "quit",
+            "-ex",
+            f"attach {self.p.pid}",
+            "-ex",
+            "thread apply all bt",
+            "-ex",
+            "detach",
+            "-ex",
+            "quit",
         ]
 
         try:
