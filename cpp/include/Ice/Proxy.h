@@ -296,8 +296,8 @@ namespace Ice
         /// @param typeId The type ID of the Slice interface to test against.
         /// @param context The request context.
         /// @return The future object for the invocation.
-        [[nodiscard]] std::future<bool> ice_isAAsync(
-            std::string_view typeId, const Ice::Context& context = Ice::noExplicitContext) const;
+        [[nodiscard]] std::future<bool>
+        ice_isAAsync(std::string_view typeId, const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// @private
         void _iceI_isA(const std::shared_ptr<IceInternal::OutgoingAsyncT<bool>>&, std::string_view, const Ice::Context&)
@@ -349,8 +349,8 @@ namespace Ice
         /// Gets the Slice interfaces supported by this object as a list of type IDs.
         /// @param context The request context.
         /// @return The future object for the invocation.
-        [[nodiscard]] std::future<std::vector<std::string>> ice_idsAsync(
-            const Ice::Context& context = Ice::noExplicitContext) const;
+        [[nodiscard]] std::future<std::vector<std::string>>
+        ice_idsAsync(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// @private
         void _iceI_ids(
