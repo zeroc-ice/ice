@@ -5,21 +5,19 @@
 [["java:package:test.Ice.timeout"]]
 module Test
 {
+    sequence<byte> ByteSeq;
 
-sequence<byte> ByteSeq;
+    interface Timeout
+    {
+        void op();
+        void sendData(ByteSeq seq);
+        void sleep(int to);
+    }
 
-interface Timeout
-{
-    void op();
-    void sendData(ByteSeq seq);
-    void sleep(int to);
-}
-
-interface Controller
-{
-    void holdAdapter(int to);
-    void resumeAdapter();
-    void shutdown();
-}
-
+    interface Controller
+    {
+        void holdAdapter(int to);
+        void resumeAdapter();
+        void shutdown();
+    }
 }

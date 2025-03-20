@@ -1,4 +1,3 @@
-
 // NOTE: Keep the initial blank line. This is necessary to avoid a problem
 // with system-provided mcpp versions that don't include ZeroC's BOM patch.
 

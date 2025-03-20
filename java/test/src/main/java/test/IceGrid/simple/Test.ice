@@ -5,10 +5,8 @@
 [["java:package:test.IceGrid.simple"]]
 module Test
 {
-
-interface TestIntf
-{
-    void shutdown();
-}
-
+    interface TestIntf
+    {
+        void shutdown();
+    }
 }

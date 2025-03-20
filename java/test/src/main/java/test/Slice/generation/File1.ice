@@ -6,18 +6,14 @@
 
 module Test
 {
-
-interface Interface1
-{
-    void method();
-}
-
+    interface Interface1
+    {
+        void method();
+    }
 }
 
 ["java:package:test.Slice.generation.modpkg"]
 module Test2
 {
-
-class Class1 {}
-
+    class Class1 {}
 }
