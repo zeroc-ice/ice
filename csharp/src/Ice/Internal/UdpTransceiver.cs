@@ -11,10 +11,7 @@ namespace Ice.Internal;
 internal sealed class UdpTransceiver : Transceiver
 #pragma warning restore CA1001
 {
-    public Socket fd()
-    {
-        return _fd;
-    }
+    public Socket fd() => _fd;
 
     public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
     {
@@ -48,13 +45,11 @@ internal sealed class UdpTransceiver : Transceiver
         return SocketOperation.None;
     }
 
-    public int closing(bool initiator, Ice.LocalException ex)
-    {
+    public int closing(bool initiator, Ice.LocalException ex) =>
         //
         // Nothing to do.
         //
-        return SocketOperation.None;
-    }
+        SocketOperation.None;
 
     public void close()
     {
@@ -504,10 +499,7 @@ internal sealed class UdpTransceiver : Transceiver
         buf.b.position(buf.b.position() + ret);
     }
 
-    public string protocol()
-    {
-        return _instance.protocol();
-    }
+    public string protocol() => _instance.protocol();
 
     public ConnectionInfo getInfo(bool incoming, string adapterName, string connectionId)
     {
@@ -572,10 +564,7 @@ internal sealed class UdpTransceiver : Transceiver
         }
     }
 
-    public void setBufferSize(int rcvSize, int sndSize)
-    {
-        setBufSize(rcvSize, sndSize);
-    }
+    public void setBufferSize(int rcvSize, int sndSize) => setBufSize(rcvSize, sndSize);
 
     public override string ToString()
     {
@@ -626,10 +615,7 @@ internal sealed class UdpTransceiver : Transceiver
         return s.ToString();
     }
 
-    public int effectivePort()
-    {
-        return Network.endpointPort(_addr);
-    }
+    public int effectivePort() => Network.endpointPort(_addr);
 
     //
     // Only for use by UdpConnector.

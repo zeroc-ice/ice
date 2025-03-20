@@ -31,10 +31,7 @@ internal class TimeoutI : Test.TimeoutDisp_
     {
     }
 
-    public override void sleep(int to, Ice.Current current)
-    {
-        Thread.Sleep(to);
-    }
+    public override void sleep(int to, Ice.Current current) => Thread.Sleep(to);
 }
 
 internal class ControllerI : Test.ControllerDisp_
@@ -52,15 +49,9 @@ internal class ControllerI : Test.ControllerDisp_
         }
     }
 
-    public override void resumeAdapter(Ice.Current current)
-    {
-        _adapter.activate();
-    }
+    public override void resumeAdapter(Ice.Current current) => _adapter.activate();
 
-    public override void shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
     private readonly Ice.ObjectAdapter _adapter;
 }

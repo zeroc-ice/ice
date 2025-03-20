@@ -4,10 +4,7 @@ using Test;
 
 public sealed class TestI : TestIntfDisp_
 {
-    public override void shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
     public override void baseAsBase(Ice.Current current)
     {

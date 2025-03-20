@@ -62,10 +62,7 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
     }
 
     public override Task
-    setServerProcessProxyAsync(string id, Ice.ProcessPrx process, Ice.Current current)
-    {
-        return Task.CompletedTask;
-    }
+    setServerProcessProxyAsync(string id, Ice.ProcessPrx process, Ice.Current current) => Task.CompletedTask;
 
     internal Ice.ObjectPrx findObject(Ice.Identity id)
     {
@@ -169,21 +166,12 @@ internal class LocatorI : Ice.LocatorDisp_
     }
 
     public override Task<Ice.ObjectPrx>
-    findObjectByIdAsync(Ice.Identity id, Ice.Current current)
-    {
-        return _lookup.findObject(id);
-    }
+    findObjectByIdAsync(Ice.Identity id, Ice.Current current) => _lookup.findObject(id);
 
     public override Task<Ice.ObjectPrx>
-    findAdapterByIdAsync(string adapterId, Ice.Current current)
-    {
-        return _lookup.findAdapter(adapterId);
-    }
+    findAdapterByIdAsync(string adapterId, Ice.Current current) => _lookup.findAdapter(adapterId);
 
-    public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current)
-    {
-        return _registry;
-    }
+    public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current) => _registry;
 
     private readonly LookupI _lookup;
     private readonly Ice.LocatorRegistryPrx _registry;

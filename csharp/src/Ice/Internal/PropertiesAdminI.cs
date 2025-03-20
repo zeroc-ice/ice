@@ -11,16 +11,10 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
     }
 
     public override string
-    getProperty(string name, Ice.Current current)
-    {
-        return _properties.getProperty(name);
-    }
+    getProperty(string name, Ice.Current current) => _properties.getProperty(name);
 
     public override Dictionary<string, string>
-    getPropertiesForPrefix(string name, Ice.Current current)
-    {
-        return _properties.getPropertiesForPrefix(name);
-    }
+    getPropertiesForPrefix(string name, Ice.Current current) => _properties.getPropertiesForPrefix(name);
 
     public override void
     setProperties(Dictionary<string, string> props, Ice.Current current)

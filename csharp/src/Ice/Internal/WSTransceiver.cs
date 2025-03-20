@@ -9,10 +9,7 @@ namespace Ice.Internal;
 
 internal sealed class WSTransceiver : Transceiver
 {
-    public Socket fd()
-    {
-        return _delegate.fd();
-    }
+    public Socket fd() => _delegate.fd();
 
     public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
     {
@@ -323,10 +320,7 @@ internal sealed class WSTransceiver : Transceiver
         return null;
     }
 
-    public void destroy()
-    {
-        _delegate.destroy();
-    }
+    public void destroy() => _delegate.destroy();
 
     public int write(Buffer buf)
     {
@@ -646,33 +640,18 @@ internal sealed class WSTransceiver : Transceiver
         postWrite(buf, SocketOperation.None);
     }
 
-    public string protocol()
-    {
-        return _instance.protocol();
-    }
+    public string protocol() => _instance.protocol();
 
     public ConnectionInfo getInfo(bool incoming, string adapterName, string connectionId) =>
         new WSConnectionInfo(_delegate.getInfo(incoming, adapterName, connectionId), _parser.getHeaders());
 
-    public void checkSendSize(Buffer buf)
-    {
-        _delegate.checkSendSize(buf);
-    }
+    public void checkSendSize(Buffer buf) => _delegate.checkSendSize(buf);
 
-    public void setBufferSize(int rcvSize, int sndSize)
-    {
-        _delegate.setBufferSize(rcvSize, sndSize);
-    }
+    public void setBufferSize(int rcvSize, int sndSize) => _delegate.setBufferSize(rcvSize, sndSize);
 
-    public override string ToString()
-    {
-        return _delegate.ToString();
-    }
+    public override string ToString() => _delegate.ToString();
 
-    public string toDetailedString()
-    {
-        return _delegate.toDetailedString();
-    }
+    public string toDetailedString() => _delegate.toDetailedString();
 
     internal
     WSTransceiver(ProtocolInstance instance, Transceiver del, string host, string resource)

@@ -41,20 +41,11 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
         log(logMessage);
     }
 
-    public string getPrefix()
-    {
-        return _localLogger.getPrefix();
-    }
+    public string getPrefix() => _localLogger.getPrefix();
 
-    public Ice.Logger cloneWithPrefix(string prefix)
-    {
-        return _localLogger.cloneWithPrefix(prefix);
-    }
+    public Ice.Logger cloneWithPrefix(string prefix) => _localLogger.cloneWithPrefix(prefix);
 
-    public Ice.Object getFacet()
-    {
-        return _loggerAdmin;
-    }
+    public Ice.Object getFacet() => _loggerAdmin;
 
     public void destroy()
     {
@@ -96,10 +87,7 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
         _loggerAdmin = new LoggerAdminI(props, this);
     }
 
-    internal Ice.Logger getLocalLogger()
-    {
-        return _localLogger;
-    }
+    internal Ice.Logger getLocalLogger() => _localLogger;
 
     internal void log(Ice.LogMessage logMessage)
     {

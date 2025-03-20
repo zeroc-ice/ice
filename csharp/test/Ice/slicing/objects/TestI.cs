@@ -6,10 +6,7 @@ public sealed class TestI : TestIntfDisp_
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
-    public override void shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
     public override Ice.Value SBaseAsObject(Ice.Current current)
     {
@@ -158,10 +155,7 @@ public sealed class TestI : TestIntfDisp_
         p2 = d2;
     }
 
-    public override void paramTest2(out B p1, out B p2, Ice.Current current)
-    {
-        paramTest1(out p2, out p1, current);
-    }
+    public override void paramTest2(out B p1, out B p2, Ice.Current current) => paramTest1(out p2, out p1, current);
 
     public override B paramTest3(out B p1, out B p2, Ice.Current current)
     {
@@ -219,10 +213,7 @@ public sealed class TestI : TestIntfDisp_
         return p1;
     }
 
-    public override B returnTest3(B p1, B p2, Ice.Current current)
-    {
-        return p1;
-    }
+    public override B returnTest3(B p1, B p2, Ice.Current current) => p1;
 
     public override SS3 sequenceTest(SS1 p1, SS2 p2, Ice.Current current)
     {
@@ -261,10 +252,7 @@ public sealed class TestI : TestIntfDisp_
         return r;
     }
 
-    public override PBase exchangePBase(PBase pb, Ice.Current current)
-    {
-        return pb;
-    }
+    public override PBase exchangePBase(PBase pb, Ice.Current current) => pb;
 
     public override Preserved PBSUnknownAsPreserved(Ice.Current current)
     {
@@ -364,10 +352,7 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override PNode exchangePNode(PNode pn, Ice.Current current)
-    {
-        return pn;
-    }
+    public override PNode exchangePNode(PNode pn, Ice.Current current) => pn;
 
     public override void throwBaseAsBase(Ice.Current current)
     {

@@ -4,23 +4,11 @@ namespace Ice.seqMapping;
 
 public class Custom<T> : IEnumerable<T>
 {
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-    {
-        return _list.GetEnumerator();
-    }
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => _list.GetEnumerator();
 
-    public IEnumerator<T> GetEnumerator()
-    {
-        return _list.GetEnumerator();
-    }
+    public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
 
-    public int Count
-    {
-        get
-        {
-            return _list.Count;
-        }
-    }
+    public int Count => _list.Count;
 
     public T this[int index]
     {
@@ -30,10 +18,7 @@ public class Custom<T> : IEnumerable<T>
 
     }
 
-    public void Add(T elmt)
-    {
-        _list.Add(elmt);
-    }
+    public void Add(T elmt) => _list.Add(elmt);
 
     public override bool Equals(object o)
     {
@@ -70,10 +55,7 @@ public class Custom<T> : IEnumerable<T>
         }
     }
 
-    public override int GetHashCode()
-    {
-        return base.GetHashCode();
-    }
+    public override int GetHashCode() => base.GetHashCode();
 
     private readonly List<T> _list = new List<T>();
 }

@@ -24,15 +24,13 @@ public static class Collections
         }
     }
 
-    internal static void Sort<T>(ref List<T> array, IComparer<T> comparator)
-    {
+    internal static void Sort<T>(ref List<T> array, IComparer<T> comparator) =>
         //
         // This Sort method implements the merge sort algorithm
         // which is a stable sort (unlike the Sort method of the
         // System.Collections.ArrayList which is unstable).
         //
         Sort1(ref array, 0, array.Count, comparator);
-    }
 
     private static void Sort1<T>(ref List<T> array, int begin, int end, IComparer<T> comparator)
     {

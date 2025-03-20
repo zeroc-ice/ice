@@ -19,10 +19,7 @@ public sealed class UnknownSlicedValue : Value
     /// Returns the Slice type ID associated with this object.
     /// </summary>
     /// <returns>The type ID.</returns>
-    public override string ice_id()
-    {
-        return _unknownTypeId;
-    }
+    public override string ice_id() => _unknownTypeId;
 
     private readonly string _unknownTypeId;
 }

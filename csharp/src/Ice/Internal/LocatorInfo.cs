@@ -257,13 +257,11 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
 
     public override int GetHashCode() => _locator.GetHashCode();
 
-    public Ice.LocatorPrx getLocator()
-    {
+    public Ice.LocatorPrx getLocator() =>
         //
         // No synchronization necessary, _locator is immutable.
         //
-        return _locator;
-    }
+        _locator;
 
     public Ice.LocatorRegistryPrx getLocatorRegistry()
     {
@@ -298,10 +296,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
     }
 
     public void
-    getEndpoints(Reference @ref, TimeSpan ttl, GetEndpointsCallback callback)
-    {
-        getEndpoints(@ref, null, ttl, callback);
-    }
+    getEndpoints(Reference @ref, TimeSpan ttl, GetEndpointsCallback callback) => getEndpoints(@ref, null, ttl, callback);
 
     public void
     getEndpoints(Reference @ref, Reference wellKnownRef, TimeSpan ttl, GetEndpointsCallback callback)

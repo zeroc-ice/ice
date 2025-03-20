@@ -37,20 +37,11 @@ public sealed class RetryI : Test.RetryDisp_
         return counter;
     }
 
-    public override void opNotIdempotent(Ice.Current current)
-    {
-        throw new Ice.ConnectionLostException();
-    }
+    public override void opNotIdempotent(Ice.Current current) => throw new Ice.ConnectionLostException();
 
-    public override void sleep(int delay, Ice.Current c)
-    {
-        Thread.Sleep(delay);
-    }
+    public override void sleep(int delay, Ice.Current c) => Thread.Sleep(delay);
 
-    public override void shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
     private int _counter;
 }

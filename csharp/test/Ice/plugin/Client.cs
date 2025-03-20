@@ -113,25 +113,13 @@ public class Client : Test.TestHelper
 
     internal class MyPlugin : Ice.Plugin
     {
-        public bool isInitialized()
-        {
-            return _initialized;
-        }
+        public bool isInitialized() => _initialized;
 
-        public bool isDestroyed()
-        {
-            return _destroyed;
-        }
+        public bool isDestroyed() => _destroyed;
 
-        public void initialize()
-        {
-            _initialized = true;
-        }
+        public void initialize() => _initialized = true;
 
-        public void destroy()
-        {
-            _destroyed = true;
-        }
+        public void destroy() => _destroyed = true;
 
         private bool _initialized = false;
         private bool _destroyed = false;

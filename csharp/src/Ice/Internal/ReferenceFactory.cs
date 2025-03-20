@@ -595,10 +595,7 @@ internal class ReferenceFactory
         return factory;
     }
 
-    internal Ice.RouterPrx getDefaultRouter()
-    {
-        return _defaultRouter;
-    }
+    internal Ice.RouterPrx getDefaultRouter() => _defaultRouter;
 
     internal ReferenceFactory setDefaultLocator(Ice.LocatorPrx defaultLocator)
     {
@@ -613,10 +610,7 @@ internal class ReferenceFactory
         return factory;
     }
 
-    internal Ice.LocatorPrx getDefaultLocator()
-    {
-        return _defaultLocator;
-    }
+    internal Ice.LocatorPrx getDefaultLocator() => _defaultLocator;
 
     //
     // Only for use by Instance

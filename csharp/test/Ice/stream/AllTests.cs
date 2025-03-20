@@ -57,10 +57,7 @@ public class AllTests : global::Test.AllTests
     {
         public TestValueWriter(Test.MyClass obj) => this.obj = obj;
 
-        public override void iceRead(Ice.InputStream inS)
-        {
-            Debug.Assert(false);
-        }
+        public override void iceRead(Ice.InputStream inS) => Debug.Assert(false);
 
         public override void iceWrite(Ice.OutputStream outS)
         {
@@ -81,10 +78,7 @@ public class AllTests : global::Test.AllTests
             called = true;
         }
 
-        public override void iceWrite(Ice.OutputStream outS)
-        {
-            Debug.Assert(false);
-        }
+        public override void iceWrite(Ice.OutputStream outS) => Debug.Assert(false);
 
         internal Test.MyClass obj;
         internal bool called = false;
@@ -98,10 +92,7 @@ public class AllTests : global::Test.AllTests
 
     private class TestReadValueCallback
     {
-        public void invoke(Ice.Value obj)
-        {
-            this.obj = obj;
-        }
+        public void invoke(Ice.Value obj) => this.obj = obj;
 
         internal Ice.Value obj;
     }
@@ -119,10 +110,7 @@ public class AllTests : global::Test.AllTests
             return new Test.MyClass();
         }
 
-        public void setFactory(Ice.ValueFactory factory)
-        {
-            _factory = factory;
-        }
+        public void setFactory(Ice.ValueFactory factory) => _factory = factory;
 
         private Ice.ValueFactory _factory;
     }

@@ -30,8 +30,5 @@ public class Client : global::Test.TestHelper
         }
     }
 
-    public static Task<int> Main(string[] args)
-    {
-        return global::Test.TestDriver.runTestAsync<Client>(args);
-    }
+    public static Task<int> Main(string[] args) => global::Test.TestDriver.runTestAsync<Client>(args);
 }

@@ -20,15 +20,9 @@ public sealed class TestI : TestIntfDisp_
         Thread.Sleep(5000); // Give other threads time to die.
     }
 
-    public override void abort(Ice.Current current)
-    {
-        commitSuicide();
-    }
+    public override void abort(Ice.Current current) => commitSuicide();
 
-    public override void idempotentAbort(Ice.Current current)
-    {
-        commitSuicide();
-    }
+    public override void idempotentAbort(Ice.Current current) => commitSuicide();
 
     public override int pid(Ice.Current current)
     {
@@ -38,10 +32,7 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override void shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
     private readonly Process _p;
     private readonly int _pid;

@@ -48,13 +48,11 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
     public override int GetHashCode() => _router.GetHashCode();
 
-    public Ice.RouterPrx getRouter()
-    {
+    public Ice.RouterPrx getRouter() =>
         //
         // No mutex lock necessary, _router is immutable.
         //
-        return _router;
-    }
+        _router;
 
     public EndpointI[] getClientEndpoints()
     {

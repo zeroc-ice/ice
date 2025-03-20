@@ -15,10 +15,7 @@ public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
 {
     public RemoteCommunicatorI(Ice.Communicator communicator) => _communicator = communicator;
 
-    public override Ice.ObjectPrx getAdmin(Ice.Current current)
-    {
-        return _communicator.getAdmin();
-    }
+    public override Ice.ObjectPrx getAdmin(Ice.Current current) => _communicator.getAdmin();
 
     public override Dictionary<string, string> getChanges(Ice.Current current)
     {
@@ -28,44 +25,24 @@ public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
         }
     }
 
-    public override void print(string message, Ice.Current current)
-    {
-        _communicator.getLogger().print(message);
-    }
+    public override void print(string message, Ice.Current current) => _communicator.getLogger().print(message);
 
-    public override void trace(string category, string message, Ice.Current current)
-    {
-        _communicator.getLogger().trace(category, message);
-    }
+    public override void trace(string category, string message, Ice.Current current) => _communicator.getLogger().trace(category, message);
 
-    public override void warning(string message, Ice.Current current)
-    {
-        _communicator.getLogger().warning(message);
-    }
+    public override void warning(string message, Ice.Current current) => _communicator.getLogger().warning(message);
 
-    public override void error(string message, Ice.Current current)
-    {
-        _communicator.getLogger().error(message);
-    }
+    public override void error(string message, Ice.Current current) => _communicator.getLogger().error(message);
 
-    public override void shutdown(Ice.Current current)
-    {
-        _communicator.shutdown();
-    }
+    public override void shutdown(Ice.Current current) => _communicator.shutdown();
 
-    public override void waitForShutdown(Ice.Current current)
-    {
+    public override void waitForShutdown(Ice.Current current) =>
         //
         // Note that we are executing in a thread of the *main* communicator,
         // not the one that is being shut down.
         //
         _communicator.waitForShutdown();
-    }
 
-    public override void destroy(Ice.Current current)
-    {
-        _communicator.destroy();
-    }
+    public override void destroy(Ice.Current current) => _communicator.destroy();
 
     public void updated(Dictionary<string, string> changes)
     {
@@ -125,10 +102,7 @@ public class RemoteCommunicatorFactoryI : Test.RemoteCommunicatorFactoryDisp_
         return Test.RemoteCommunicatorPrxHelper.uncheckedCast(proxy);
     }
 
-    public override void shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
     private class NullLogger : Ice.Logger
     {
@@ -148,14 +122,8 @@ public class RemoteCommunicatorFactoryI : Test.RemoteCommunicatorFactoryDisp_
         {
         }
 
-        public string getPrefix()
-        {
-            return "NullLogger";
-        }
+        public string getPrefix() => "NullLogger";
 
-        public Ice.Logger cloneWithPrefix(string prefix)
-        {
-            return this;
-        }
+        public Ice.Logger cloneWithPrefix(string prefix) => this;
     }
 }

@@ -13,39 +13,21 @@ public sealed class TestI : TestIntfDisp_
     }
 
     public override Task<Ice.Value>
-    SBaseAsObjectAsync(Ice.Current current)
-    {
-        return Task.FromResult<Ice.Value>(new SBase("SBase.sb"));
-    }
+    SBaseAsObjectAsync(Ice.Current current) => Task.FromResult<Ice.Value>(new SBase("SBase.sb"));
 
-    public override Task<SBase> SBaseAsSBaseAsync(Ice.Current current)
-    {
-        return Task.FromResult<SBase>(new SBase("SBase.sb"));
-    }
+    public override Task<SBase> SBaseAsSBaseAsync(Ice.Current current) => Task.FromResult<SBase>(new SBase("SBase.sb"));
 
     public override Task<SBase>
-    SBSKnownDerivedAsSBaseAsync(Ice.Current current)
-    {
-        return Task.FromResult<SBase>(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
-    }
+    SBSKnownDerivedAsSBaseAsync(Ice.Current current) => Task.FromResult<SBase>(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
 
     public override Task<SBSKnownDerived>
-    SBSKnownDerivedAsSBSKnownDerivedAsync(Ice.Current current)
-    {
-        return Task.FromResult<SBSKnownDerived>(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
-    }
+    SBSKnownDerivedAsSBSKnownDerivedAsync(Ice.Current current) => Task.FromResult<SBSKnownDerived>(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
 
     public override Task<SBase>
-    SBSUnknownDerivedAsSBaseAsync(Ice.Current current)
-    {
-        return Task.FromResult<SBase>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
-    }
+    SBSUnknownDerivedAsSBaseAsync(Ice.Current current) => Task.FromResult<SBase>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
 
     public override Task<SBase>
-    SBSUnknownDerivedAsSBaseCompactAsync(Ice.Current current)
-    {
-        return Task.FromResult<SBase>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
-    }
+    SBSUnknownDerivedAsSBaseCompactAsync(Ice.Current current) => Task.FromResult<SBase>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
 
     public override Task<Ice.Value> SUnknownAsObjectAsync(Ice.Current current)
     {
@@ -240,16 +222,10 @@ public sealed class TestI : TestIntfDisp_
     }
 
     public override Task<B>
-    returnTest3Async(B p1, B p2, Ice.Current current)
-    {
-        return Task.FromResult<B>(p1);
-    }
+    returnTest3Async(B p1, B p2, Ice.Current current) => Task.FromResult<B>(p1);
 
     public override Task<SS3>
-    sequenceTestAsync(SS1 p1, SS2 p2, Ice.Current current)
-    {
-        return Task.FromResult<SS3>(new SS3(p1, p2));
-    }
+    sequenceTestAsync(SS1 p1, SS2 p2, Ice.Current current) => Task.FromResult<SS3>(new SS3(p1, p2));
 
     public override Task<TestIntf_DictionaryTestResult>
     dictionaryTestAsync(Dictionary<int, B> bin, Ice.Current current)
@@ -281,10 +257,7 @@ public sealed class TestI : TestIntfDisp_
     }
 
     public override Task<PBase>
-    exchangePBaseAsync(PBase pb, Ice.Current current)
-    {
-        return Task.FromResult<PBase>(pb);
-    }
+    exchangePBaseAsync(PBase pb, Ice.Current current) => Task.FromResult<PBase>(pb);
 
     public override Task<Preserved>
     PBSUnknownAsPreservedAsync(Ice.Current current)
@@ -392,10 +365,7 @@ public sealed class TestI : TestIntfDisp_
     }
 
     public override Task<PNode>
-    exchangePNodeAsync(PNode pn, Ice.Current current)
-    {
-        return Task.FromResult<PNode>(pn);
-    }
+    exchangePNodeAsync(PNode pn, Ice.Current current) => Task.FromResult<PNode>(pn);
 
     public override Task throwBaseAsBaseAsync(Ice.Current current)
     {

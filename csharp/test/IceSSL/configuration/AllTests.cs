@@ -11,10 +11,7 @@ using Test;
 
 public class AllTests : global::Test.AllTests
 {
-    private static X509Certificate2 createCertificate(string certPEM)
-    {
-        return new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
-    }
+    private static X509Certificate2 createCertificate(string certPEM) => new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
 
     private static Ice.InitializationData
     createClientProps(Ice.Properties defaultProperties)

@@ -104,10 +104,7 @@ public sealed class OutputStream
         other.resetEncapsulation();
     }
 
-    private void resetEncapsulation()
-    {
-        _encapsStack = null;
-    }
+    private void resetEncapsulation() => _encapsStack = null;
 
     /// <summary>
     /// Resizes the stream to a new size.
@@ -256,10 +253,7 @@ public sealed class OutputStream
     /// Determines the current encoding version.
     /// </summary>
     /// <returns>The encoding version.</returns>
-    public EncodingVersion getEncoding()
-    {
-        return _encapsStack != null ? _encapsStack.encoding : _encoding;
-    }
+    public EncodingVersion getEncoding() => _encapsStack != null ? _encapsStack.encoding : _encoding;
 
     /// <summary>
     /// Marks the start of a new slice for a class instance or user exception.
@@ -440,10 +434,7 @@ public sealed class OutputStream
     /// </summary>
     /// <param name="v">The byte to write to the stream.</param>
     /// <param name="dest">The position at which to store the byte in the buffer.</param>
-    public void rewriteByte(byte v, int dest)
-    {
-        _buf.b.put(dest, v);
-    }
+    public void rewriteByte(byte v, int dest) => _buf.b.put(dest, v);
 
     /// <summary>
     /// Writes a byte sequence to the stream.
@@ -595,10 +586,7 @@ public sealed class OutputStream
     /// </summary>
     /// <param name="v">The boolean to write to the stream.</param>
     /// <param name="dest">The position at which to store the boolean in the buffer.</param>
-    public void rewriteBool(bool v, int dest)
-    {
-        _buf.b.put(dest, v ? (byte)1 : (byte)0);
-    }
+    public void rewriteBool(bool v, int dest) => _buf.b.put(dest, v ? (byte)1 : (byte)0);
 
     /// <summary>
     /// Writes a boolean sequence to the stream.
@@ -897,10 +885,7 @@ public sealed class OutputStream
     /// </summary>
     /// <param name="v">The int to write to the stream.</param>
     /// <param name="dest">The position at which to store the int in the buffer.</param>
-    public void rewriteInt(int v, int dest)
-    {
-        _buf.b.putInt(dest, v);
-    }
+    public void rewriteInt(int v, int dest) => _buf.b.putInt(dest, v);
 
     /// <summary>
     /// Writes an int sequence to the stream.
@@ -1679,46 +1664,31 @@ public sealed class OutputStream
     /// Determines the current position in the stream.
     /// </summary>
     /// <returns>The current position.</returns>
-    public int pos()
-    {
-        return _buf.b.position();
-    }
+    public int pos() => _buf.b.position();
 
     /// <summary>
     /// Sets the current position in the stream.
     /// </summary>
     /// <param name="n">The new position.</param>
-    public void pos(int n)
-    {
-        _buf.b.position(n);
-    }
+    public void pos(int n) => _buf.b.position(n);
 
     /// <summary>
     /// Determines the current size of the stream.
     /// </summary>
     /// <returns>The current size.</returns>
-    public int size()
-    {
-        return _buf.size();
-    }
+    public int size() => _buf.size();
 
     /// <summary>
     /// Determines whether the stream is empty.
     /// </summary>
     /// <returns>True if no data has been written yet, false otherwise.</returns>
-    public bool isEmpty()
-    {
-        return _buf.empty();
-    }
+    public bool isEmpty() => _buf.empty();
 
     /// <summary>
     /// Expand the stream to accept more data.
     /// </summary>
     /// <param name="n">The number of bytes to accommodate in the stream.</param>
-    public void expand(int n)
-    {
-        _buf.expand(n);
-    }
+    public void expand(int n) => _buf.expand(n);
 
     /// <summary>
     /// Prepares the internal data buffer to be written to a socket.
@@ -1734,10 +1704,7 @@ public sealed class OutputStream
     /// Retrieves the internal data buffer.
     /// </summary>
     /// <returns>The buffer.</returns>
-    internal Ice.Internal.Buffer getBuffer()
-    {
-        return _buf;
-    }
+    internal Ice.Internal.Buffer getBuffer() => _buf;
 
     private Ice.Internal.Buffer _buf;
 
@@ -1772,10 +1739,7 @@ public sealed class OutputStream
 
         internal abstract void endSlice();
 
-        internal virtual bool writeOptional(int tag, OptionalFormat format)
-        {
-            return false;
-        }
+        internal virtual bool writeOptional(int tag, OptionalFormat format) => false;
 
         internal virtual void writePendingValues()
         {
@@ -1854,10 +1818,7 @@ public sealed class OutputStream
             }
         }
 
-        internal override void startInstance(SliceType sliceType, SlicedData? sliceData)
-        {
-            _sliceType = sliceType;
-        }
+        internal override void startInstance(SliceType sliceType, SlicedData? sliceData) => _sliceType = sliceType;
 
         internal override void endInstance()
         {
@@ -2033,10 +1994,7 @@ public sealed class OutputStream
             }
         }
 
-        internal override void writeException(UserException v)
-        {
-            v.iceWrite(_stream);
-        }
+        internal override void writeException(UserException v) => v.iceWrite(_stream);
 
         internal override void startInstance(SliceType sliceType, SlicedData? data)
         {
@@ -2057,10 +2015,7 @@ public sealed class OutputStream
             }
         }
 
-        internal override void endInstance()
-        {
-            _current = _current!.previous;
-        }
+        internal override void endInstance() => _current = _current!.previous;
 
         internal override void startSlice(string typeId, int compactId, bool last)
         {
@@ -2307,10 +2262,7 @@ public sealed class OutputStream
 
     private sealed class Encaps
     {
-        internal void reset()
-        {
-            encoder = null;
-        }
+        internal void reset() => encoder = null;
 
         internal void setEncoding(EncodingVersion encoding)
         {
@@ -2336,10 +2288,7 @@ public sealed class OutputStream
     //
     private EncodingVersion _encoding;
 
-    private bool isEncoding_1_0()
-    {
-        return _encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
-    }
+    private bool isEncoding_1_0() => _encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
 
     private Encaps? _encapsStack;
     private Encaps? _encapsCache;

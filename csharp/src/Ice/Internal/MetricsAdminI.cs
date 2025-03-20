@@ -51,10 +51,7 @@ internal class SubMap<S> : ISubMap where S : IceMX.Metrics, new()
         _field = field;
     }
 
-    internal MetricsMap<S>.Entry getMatching(IceMX.MetricsHelper<S> helper)
-    {
-        return _map.getMatching(helper, null);
-    }
+    internal MetricsMap<S>.Entry getMatching(IceMX.MetricsHelper<S> helper) => _map.getMatching(helper, null);
 
     public void addSubMapToMetrics(IceMX.Metrics metrics)
     {
@@ -80,10 +77,7 @@ internal class SubMapCloneFactory<S> : ISubMapCloneFactory where S : IceMX.Metri
         _field = field;
     }
 
-    public ISubMap create()
-    {
-        return new SubMap<S>(new MetricsMap<S>(_map), _field);
-    }
+    public ISubMap create() => new SubMap<S>(new MetricsMap<S>(_map), _field);
 
     private readonly MetricsMap<S> _map;
     private readonly System.Reflection.FieldInfo _field;
@@ -93,10 +87,7 @@ internal class SubMapFactory<S> : ISubMapFactory where S : IceMX.Metrics, new()
 {
     internal SubMapFactory(System.Reflection.FieldInfo field) => _field = field;
 
-    public ISubMapCloneFactory createCloneFactory(string subMapPrefix, Ice.Properties properties)
-    {
-        return new SubMapCloneFactory<S>(new MetricsMap<S>(subMapPrefix, properties, null), _field);
-    }
+    public ISubMapCloneFactory createCloneFactory(string subMapPrefix, Ice.Properties properties) => new SubMapCloneFactory<S>(new MetricsMap<S>(subMapPrefix, properties, null), _field);
 
     private readonly System.Reflection.FieldInfo _field;
 }
@@ -169,10 +160,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             }
         }
 
-        public MetricsMap<T> getMap()
-        {
-            return _map;
-        }
+        public MetricsMap<T> getMap() => _map;
 
         internal IceMX.MetricsFailures getFailures()
         {
@@ -190,10 +178,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             helper.initMetrics(_object);
         }
 
-        internal bool isDetached()
-        {
-            return _object.current == 0;
-        }
+        internal bool isDetached() => _object.current == 0;
 
         internal IceMX.Metrics clone()
         {
@@ -208,10 +193,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             return metrics;
         }
 
-        internal string getId()
-        {
-            return _object.id;
-        }
+        internal string getId() => _object.id;
 
         private readonly MetricsMap<T> _map;
         private readonly T _object;
@@ -313,10 +295,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
         _subMaps = map._subMaps;
     }
 
-    public Dictionary<string, string> getProperties()
-    {
-        return _properties;
-    }
+    public Dictionary<string, string> getProperties() => _properties;
 
     public IceMX.Metrics[] getMetrics()
     {
@@ -583,10 +562,7 @@ internal class MetricsViewI
         return true;
     }
 
-    internal bool removeMap(string mapName)
-    {
-        return _maps.Remove(mapName);
-    }
+    internal bool removeMap(string mapName) => _maps.Remove(mapName);
 
     internal Dictionary<string, IceMX.Metrics[]> getMetrics()
     {
@@ -622,10 +598,7 @@ internal class MetricsViewI
         return new(failures: []);
     }
 
-    internal ICollection<string> getMaps()
-    {
-        return _maps.Keys;
-    }
+    internal ICollection<string> getMaps() => _maps.Keys;
 
     internal MetricsMap<T> getMap<T>(string mapName) where T : IceMX.Metrics, new()
     {
@@ -699,16 +672,10 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
             _updater();
         }
 
-        public IMetricsMap create(string mapPrefix, Ice.Properties properties)
-        {
-            return new MetricsMap<T>(mapPrefix, properties, _subMaps);
-        }
+        public IMetricsMap create(string mapPrefix, Ice.Properties properties) => new MetricsMap<T>(mapPrefix, properties, _subMaps);
 
         public void registerSubMap<S>(string subMap, System.Reflection.FieldInfo field)
-            where S : IceMX.Metrics, new()
-        {
-            _subMaps.Add(subMap, new SubMapFactory<S>(field));
-        }
+            where S : IceMX.Metrics, new() => _subMaps.Add(subMap, new SubMapFactory<S>(field));
 
         private readonly Action _updater;
         private readonly Dictionary<string, ISubMapFactory> _subMaps = new Dictionary<string, ISubMapFactory>();
@@ -944,10 +911,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
         return maps;
     }
 
-    public Ice.Logger getLogger()
-    {
-        return _logger;
-    }
+    public Ice.Logger getLogger() => _logger;
 
     internal void updated(Dictionary<string, string> changes)
     {

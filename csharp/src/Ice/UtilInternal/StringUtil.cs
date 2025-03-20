@@ -12,10 +12,7 @@ public sealed class StringUtil
     // appear in match, starting from 0. Returns -1 if none is
     // found.
     //
-    public static int findFirstOf(string str, string match)
-    {
-        return findFirstOf(str, match, 0);
-    }
+    public static int findFirstOf(string str, string match) => findFirstOf(str, match, 0);
 
     //
     // Return the index of the first character in str to
@@ -42,10 +39,7 @@ public sealed class StringUtil
     // not appear in match, starting from 0. Returns -1 if none is
     // found.
     //
-    public static int findFirstNotOf(string str, string match)
-    {
-        return findFirstNotOf(str, match, 0);
-    }
+    public static int findFirstNotOf(string str, string match) => findFirstNotOf(str, match, 0);
 
     //
     // Return the index of the first character in str which does
@@ -626,10 +620,7 @@ public sealed class StringUtil
         return l.ToArray();
     }
 
-    public static int checkQuote(string s)
-    {
-        return checkQuote(s, 0);
-    }
+    public static int checkQuote(string s) => checkQuote(s, 0);
 
     //
     // If a single or double quotation mark is found at the start position,
@@ -711,10 +702,7 @@ public sealed class StringUtil
 
     private class OrdinalStringComparerImpl : IComparer<string>
     {
-        public int Compare(string l, string r)
-        {
-            return string.CompareOrdinal(l, r);
-        }
+        public int Compare(string l, string r) => string.CompareOrdinal(l, r);
     }
 
     public static IComparer<string> OrdinalStringComparer = new OrdinalStringComparerImpl();

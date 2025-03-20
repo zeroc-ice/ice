@@ -8,10 +8,7 @@ internal class Connector : Ice.Internal.Connector
         return new Transceiver(_connector.connect());
     }
 
-    public short type()
-    {
-        return (short)(EndpointI.TYPE_BASE + _connector.type());
-    }
+    public short type() => (short)(EndpointI.TYPE_BASE + _connector.type());
 
     //
     // Only for use by Endpoint
@@ -43,15 +40,9 @@ internal class Connector : Ice.Internal.Connector
         return _connector.Equals(p._connector);
     }
 
-    public override string ToString()
-    {
-        return _connector.ToString();
-    }
+    public override string ToString() => _connector.ToString();
 
-    public override int GetHashCode()
-    {
-        return _connector.GetHashCode();
-    }
+    public override int GetHashCode() => _connector.GetHashCode();
 
     private readonly Ice.Internal.Connector _connector;
     private readonly Configuration _configuration;

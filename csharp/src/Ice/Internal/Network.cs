@@ -14,20 +14,11 @@ internal sealed class Network
     public const int EnableIPv6 = 1;
     public const int EnableBoth = 2;
 
-    internal static SocketError socketErrorCode(System.Net.Sockets.SocketException ex)
-    {
-        return ex.SocketErrorCode;
-    }
+    internal static SocketError socketErrorCode(System.Net.Sockets.SocketException ex) => ex.SocketErrorCode;
 
-    internal static bool interrupted(System.Net.Sockets.SocketException ex)
-    {
-        return socketErrorCode(ex) == SocketError.Interrupted;
-    }
+    internal static bool interrupted(System.Net.Sockets.SocketException ex) => socketErrorCode(ex) == SocketError.Interrupted;
 
-    internal static bool wouldBlock(System.Net.Sockets.SocketException ex)
-    {
-        return socketErrorCode(ex) == SocketError.WouldBlock;
-    }
+    internal static bool wouldBlock(System.Net.Sockets.SocketException ex) => socketErrorCode(ex) == SocketError.WouldBlock;
 
     internal static bool connectionLost(System.Net.Sockets.SocketException ex)
     {
@@ -73,24 +64,16 @@ internal sealed class Network
         return false;
     }
 
-    internal static bool connectionRefused(System.Net.Sockets.SocketException ex)
-    {
-        return socketErrorCode(ex) == SocketError.ConnectionRefused;
-    }
+    internal static bool connectionRefused(System.Net.Sockets.SocketException ex) => socketErrorCode(ex) == SocketError.ConnectionRefused;
 
-    internal static bool recvTruncated(System.Net.Sockets.SocketException ex)
-    {
-        return socketErrorCode(ex) == SocketError.MessageSize;
-    }
+    internal static bool recvTruncated(System.Net.Sockets.SocketException ex) => socketErrorCode(ex) == SocketError.MessageSize;
 
-    internal static bool timeout(System.IO.IOException ex)
-    {
+    internal static bool timeout(System.IO.IOException ex) =>
         //
         // TODO: Instead of testing for an English substring, we need to examine the inner
         // exception (if there is one).
         //
-        return ex.Message.Contains("period of time", StringComparison.Ordinal);
-    }
+        ex.Message.Contains("period of time", StringComparison.Ordinal);
 
     internal static bool noMoreFds(System.Exception ex)
     {
@@ -461,10 +444,7 @@ internal sealed class Network
         }
     }
 
-    internal static int getProtocolSupport(IPAddress addr)
-    {
-        return addr.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
-    }
+    internal static int getProtocolSupport(IPAddress addr) => addr.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
 
     internal static EndPoint getAddressForServer(string host, int port, int protocol, bool preferIPv6)
     {
@@ -766,10 +746,7 @@ internal sealed class Network
     }
 
     internal static string
-    addrToString(EndPoint addr)
-    {
-        return endpointAddressToString(addr) + ":" + endpointPort(addr);
-    }
+    addrToString(EndPoint addr) => endpointAddressToString(addr) + ":" + endpointPort(addr);
 
     internal static string localAddrToString(EndPoint endpoint)
     {

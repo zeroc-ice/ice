@@ -635,10 +635,7 @@ internal sealed class HttpParser
         return _state == State.Complete;
     }
 
-    internal Type type()
-    {
-        return _type;
-    }
+    internal Type type() => _type;
 
     internal string method()
     {
@@ -652,25 +649,13 @@ internal sealed class HttpParser
         return _uri.ToString();
     }
 
-    internal int versionMajor()
-    {
-        return _versionMajor;
-    }
+    internal int versionMajor() => _versionMajor;
 
-    internal int versionMinor()
-    {
-        return _versionMinor;
-    }
+    internal int versionMinor() => _versionMinor;
 
-    internal int status()
-    {
-        return _status;
-    }
+    internal int status() => _status;
 
-    internal string reason()
-    {
-        return _reason;
-    }
+    internal string reason() => _reason;
 
     internal string getHeader(string name, bool toLower)
     {

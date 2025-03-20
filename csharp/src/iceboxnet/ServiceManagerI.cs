@@ -247,10 +247,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
         }
     }
 
-    public override void shutdown(Ice.Current current)
-    {
-        _communicator.shutdown();
-    }
+    public override void shutdown(Ice.Current current) => _communicator.shutdown();
 
     public int run()
     {

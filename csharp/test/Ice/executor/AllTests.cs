@@ -10,15 +10,9 @@ public class AllTests : Test.AllTests
         {
         }
 
-        public bool getResult()
-        {
-            return _sentSynchronously;
-        }
+        public bool getResult() => _sentSynchronously;
 
-        public void Report(bool sentSynchronously)
-        {
-            _sentSynchronously = sentSynchronously;
-        }
+        public void Report(bool sentSynchronously) => _sentSynchronously = sentSynchronously;
 
         private bool _sentSynchronously = false;
     }

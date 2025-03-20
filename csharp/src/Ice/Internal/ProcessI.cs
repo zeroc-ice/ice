@@ -6,10 +6,7 @@ public sealed class ProcessI : Ice.ProcessDisp_
 {
     public ProcessI(Ice.Communicator communicator) => _communicator = communicator;
 
-    public override void shutdown(Ice.Current current)
-    {
-        _communicator.shutdown();
-    }
+    public override void shutdown(Ice.Current current) => _communicator.shutdown();
 
     public override void writeMessage(string message, int fd, Ice.Current current)
     {

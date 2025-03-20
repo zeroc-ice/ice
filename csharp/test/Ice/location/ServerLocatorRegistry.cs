@@ -44,10 +44,7 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
     }
 
     public override Task
-    setServerProcessProxyAsync(string id, Ice.ProcessPrx proxy, Ice.Current current)
-    {
-        return Task.CompletedTask;
-    }
+    setServerProcessProxyAsync(string id, Ice.ProcessPrx proxy, Ice.Current current) => Task.CompletedTask;
 
     public override void addObject(Ice.ObjectPrx obj, Ice.Current current) => addObject(obj);
 

@@ -6,10 +6,7 @@ namespace Ice.Internal;
 
 public class CollocatedRequestHandler : RequestHandler
 {
-    private static void fillInValue(Ice.OutputStream os, int pos, int value)
-    {
-        os.rewriteInt(value, pos);
-    }
+    private static void fillInValue(Ice.OutputStream os, int pos, int value) => os.rewriteInt(value, pos);
 
     internal CollocatedRequestHandler(Reference reference, Ice.ObjectAdapter adapter)
     {

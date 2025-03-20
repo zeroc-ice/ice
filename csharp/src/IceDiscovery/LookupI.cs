@@ -15,10 +15,7 @@ internal abstract class Request<T>
         _requestId = Guid.NewGuid().ToString();
     }
 
-    public T getId()
-    {
-        return _id;
-    }
+    public T getId() => _id;
 
     public bool addCallback(TaskCompletionSource<Ice.ObjectPrx> cb)
     {
@@ -26,10 +23,7 @@ internal abstract class Request<T>
         return callbacks_.Count == 1;
     }
 
-    public virtual bool retry()
-    {
-        return --retryCount_ >= 0;
-    }
+    public virtual bool retry() => --retryCount_ >= 0;
 
     public void invoke(string domainId, Dictionary<LookupPrx, LookupReplyPrx> lookups)
     {
@@ -55,10 +49,7 @@ internal abstract class Request<T>
         return false;
     }
 
-    public string getRequestId()
-    {
-        return _requestId;
-    }
+    public string getRequestId() => _requestId;
 
     public abstract void finished(Ice.ObjectPrx proxy);
 
@@ -80,10 +71,7 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
     public AdapterRequest(LookupI lookup, string id, int retryCount)
         : base(lookup, id, retryCount) => _start = DateTime.Now.Ticks;
 
-    public override bool retry()
-    {
-        return _proxies.Count == 0 && --retryCount_ >= 0;
-    }
+    public override bool retry() => _proxies.Count == 0 && --retryCount_ >= 0;
 
     public bool response(Ice.ObjectPrx proxy, bool isReplicaGroup)
     {
@@ -129,10 +117,7 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
         }
     }
 
-    public void runTimerTask()
-    {
-        lookup_.adapterRequestTimedOut(this);
-    }
+    public void runTimerTask() => lookup_.adapterRequestTimedOut(this);
 
     protected override void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
     {
@@ -177,10 +162,7 @@ internal class ObjectRequest : Request<Ice.Identity>, Ice.Internal.TimerTask
     {
     }
 
-    public void response(Ice.ObjectPrx proxy)
-    {
-        finished(proxy);
-    }
+    public void response(Ice.ObjectPrx proxy) => finished(proxy);
 
     public override void finished(Ice.ObjectPrx proxy)
     {
@@ -191,10 +173,7 @@ internal class ObjectRequest : Request<Ice.Identity>, Ice.Internal.TimerTask
         callbacks_.Clear();
     }
 
-    public void runTimerTask()
-    {
-        lookup_.objectRequestTimedOut(this);
-    }
+    public void runTimerTask() => lookup_.objectRequestTimedOut(this);
 
     protected override void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
     {
@@ -527,15 +506,9 @@ internal class LookupI : LookupDisp_
         }
     }
 
-    internal Ice.Internal.Timer timer()
-    {
-        return _timer;
-    }
+    internal Ice.Internal.Timer timer() => _timer;
 
-    internal int latencyMultiplier()
-    {
-        return _latencyMultiplier;
-    }
+    internal int latencyMultiplier() => _latencyMultiplier;
 
     private readonly LocatorRegistryI _registry;
     private readonly LookupPrx _lookup;
@@ -558,15 +531,9 @@ internal class LookupReplyI : LookupReplyDisp_
 {
     public LookupReplyI(LookupI lookup) => _lookup = lookup;
 
-    public override void foundObjectById(Ice.Identity id, Ice.ObjectPrx proxy, Ice.Current c)
-    {
-        _lookup.foundObject(id, c.id.name, proxy);
-    }
+    public override void foundObjectById(Ice.Identity id, Ice.ObjectPrx proxy, Ice.Current c) => _lookup.foundObject(id, c.id.name, proxy);
 
-    public override void foundAdapterById(string adapterId, Ice.ObjectPrx proxy, bool isReplicaGroup, Ice.Current c)
-    {
-        _lookup.foundAdapter(adapterId, c.id.name, proxy, isReplicaGroup);
-    }
+    public override void foundAdapterById(string adapterId, Ice.ObjectPrx proxy, bool isReplicaGroup, Ice.Current c) => _lookup.foundAdapter(adapterId, c.id.name, proxy, isReplicaGroup);
 
     private readonly LookupI _lookup;
 }

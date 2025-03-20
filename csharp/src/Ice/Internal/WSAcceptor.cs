@@ -4,10 +4,7 @@ namespace Ice.Internal;
 
 internal class WSAcceptor : Acceptor
 {
-    public void close()
-    {
-        _delegate.close();
-    }
+    public void close() => _delegate.close();
 
     public EndpointI listen()
     {
@@ -15,40 +12,19 @@ internal class WSAcceptor : Acceptor
         return _endpoint;
     }
 
-    public bool startAccept(AsyncCallback callback, object state)
-    {
-        return _delegate.startAccept(callback, state);
-    }
+    public bool startAccept(AsyncCallback callback, object state) => _delegate.startAccept(callback, state);
 
-    public void finishAccept()
-    {
-        _delegate.finishAccept();
-    }
+    public void finishAccept() => _delegate.finishAccept();
 
-    public Transceiver accept()
-    {
-        return new WSTransceiver(_instance, _delegate.accept());
-    }
+    public Transceiver accept() => new WSTransceiver(_instance, _delegate.accept());
 
-    public string protocol()
-    {
-        return _delegate.protocol();
-    }
+    public string protocol() => _delegate.protocol();
 
-    public override string ToString()
-    {
-        return _delegate.ToString();
-    }
+    public override string ToString() => _delegate.ToString();
 
-    public string toDetailedString()
-    {
-        return _delegate.toDetailedString();
-    }
+    public string toDetailedString() => _delegate.toDetailedString();
 
-    public Acceptor getDelegate()
-    {
-        return _delegate;
-    }
+    public Acceptor getDelegate() => _delegate;
 
     internal WSAcceptor(WSEndpoint endpoint, ProtocolInstance instance, Acceptor del)
     {

@@ -6,19 +6,13 @@ namespace IceDiscovery;
 
 public static class Util
 {
-    public static void registerIceDiscovery(bool loadOnInitialize)
-    {
-        Ice.Util.registerPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
-    }
+    public static void registerIceDiscovery(bool loadOnInitialize) => Ice.Util.registerPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
 }
 
 public sealed class PluginFactory : Ice.PluginFactory
 {
     public Ice.Plugin
-    create(Ice.Communicator communicator, string name, string[] args)
-    {
-        return new PluginI(communicator);
-    }
+    create(Ice.Communicator communicator, string name, string[] args) => new PluginI(communicator);
 }
 
 public sealed class PluginI : Ice.Plugin

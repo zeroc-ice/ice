@@ -32,16 +32,10 @@ public class ObserverWithDelegate<T, O> : Observer<T>
     }
 
     public O
-    getDelegate()
-    {
-        return delegate_;
-    }
+    getDelegate() => delegate_;
 
     public void
-    setDelegate(O del)
-    {
-        delegate_ = del;
-    }
+    setDelegate(O del) => delegate_ = del;
 
     public Observer getObserver<S, ObserverImpl, Observer>(string mapName, MetricsHelper<S> helper, Observer del)
         where S : Metrics, new()
@@ -222,15 +216,9 @@ internal class ConnectionHelper : MetricsHelper<ConnectionMetrics>
         }
     }
 
-    public Ice.ConnectionInfo getConnectionInfo()
-    {
-        return _connectionInfo;
-    }
+    public Ice.ConnectionInfo getConnectionInfo() => _connectionInfo;
 
-    public Ice.Endpoint getEndpoint()
-    {
-        return _endpoint;
-    }
+    public Ice.Endpoint getEndpoint() => _endpoint;
 
     public Ice.EndpointInfo getEndpointInfo()
     {
@@ -308,15 +296,9 @@ internal class DispatchHelper : MetricsHelper<DispatchMetrics>
         throw new ArgumentOutOfRangeException(attribute);
     }
 
-    public override void initMetrics(DispatchMetrics v)
-    {
-        v.size += _size;
-    }
+    public override void initMetrics(DispatchMetrics v) => v.size += _size;
 
-    public string getMode()
-    {
-        return _current.requestId == 0 ? "oneway" : "twoway";
-    }
+    public string getMode() => _current.requestId == 0 ? "oneway" : "twoway";
 
     public string getId()
     {
@@ -333,10 +315,7 @@ internal class DispatchHelper : MetricsHelper<DispatchMetrics>
         return _id;
     }
 
-    public string getParent()
-    {
-        return _current.adapter.getName();
-    }
+    public string getParent() => _current.adapter.getName();
 
     public Ice.ConnectionInfo getConnectionInfo()
     {
@@ -356,10 +335,7 @@ internal class DispatchHelper : MetricsHelper<DispatchMetrics>
         return null;
     }
 
-    public Ice.Connection getConnection()
-    {
-        return _current.con;
-    }
+    public Ice.Connection getConnection() => _current.con;
 
     public Ice.EndpointInfo getEndpointInfo()
     {
@@ -370,15 +346,9 @@ internal class DispatchHelper : MetricsHelper<DispatchMetrics>
         return _endpointInfo;
     }
 
-    public Ice.Current getCurrent()
-    {
-        return _current;
-    }
+    public Ice.Current getCurrent() => _current;
 
-    public string getIdentity()
-    {
-        return _current.adapter.getCommunicator().identityToString(_current.id);
-    }
+    public string getIdentity() => _current.adapter.getCommunicator().identityToString(_current.id);
 
     private readonly Ice.Current _current;
     private readonly int _size;
@@ -497,20 +467,11 @@ internal class InvocationHelper : MetricsHelper<InvocationMetrics>
         return _id;
     }
 
-    public string getParent()
-    {
-        return "Communicator";
-    }
+    public string getParent() => "Communicator";
 
-    public Ice.ObjectPrx getProxy()
-    {
-        return _proxy;
-    }
+    public Ice.ObjectPrx getProxy() => _proxy;
 
-    public string getEncodingVersion()
-    {
-        return Ice.Util.encodingVersionToString(_proxy.ice_getEncodingVersion());
-    }
+    public string getEncodingVersion() => Ice.Util.encodingVersionToString(_proxy.ice_getEncodingVersion());
 
     public string getIdentity()
     {
@@ -524,10 +485,7 @@ internal class InvocationHelper : MetricsHelper<InvocationMetrics>
         }
     }
 
-    public string getOperation()
-    {
-        return _operation;
-    }
+    public string getOperation() => _operation;
 
     private static readonly Ice.Endpoint[] emptyEndpoints = [];
     private readonly Ice.ObjectPrx _proxy;
@@ -626,10 +584,7 @@ internal class EndpointHelper : MetricsHelper<Metrics>
         return _endpointInfo;
     }
 
-    public string getParent()
-    {
-        return "Communicator";
-    }
+    public string getParent() => "Communicator";
 
     public string getId()
     {
@@ -637,10 +592,7 @@ internal class EndpointHelper : MetricsHelper<Metrics>
         return _id;
     }
 
-    public string getEndpoint()
-    {
-        return _endpoint.ToString();
-    }
+    public string getEndpoint() => _endpoint.ToString();
 
     private readonly Ice.Endpoint _endpoint;
     private string _id;
@@ -679,10 +631,7 @@ public class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
         _size = size;
     }
 
-    public override void initMetrics(RemoteMetrics metrics)
-    {
-        metrics.size += _size;
-    }
+    public override void initMetrics(RemoteMetrics metrics) => metrics.size += _size;
 
     public string getId()
     {
@@ -697,10 +646,7 @@ public class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
         return _id;
     }
 
-    public int getRequestId()
-    {
-        return _requestId;
-    }
+    public int getRequestId() => _requestId;
 
     public string getParent()
     {
@@ -714,15 +660,9 @@ public class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
         }
     }
 
-    public Ice.ConnectionInfo getConnectionInfo()
-    {
-        return _connectionInfo;
-    }
+    public Ice.ConnectionInfo getConnectionInfo() => _connectionInfo;
 
-    public Ice.Endpoint getEndpoint()
-    {
-        return _endpoint;
-    }
+    public Ice.Endpoint getEndpoint() => _endpoint;
 
     public Ice.EndpointInfo getEndpointInfo()
     {
@@ -768,25 +708,13 @@ public class CollocatedInvocationHelper : MetricsHelper<CollocatedMetrics>
         _size = size;
     }
 
-    public override void initMetrics(CollocatedMetrics metrics)
-    {
-        metrics.size += _size;
-    }
+    public override void initMetrics(CollocatedMetrics metrics) => metrics.size += _size;
 
-    public string getId()
-    {
-        return _id;
-    }
+    public string getId() => _id;
 
-    public int getRequestId()
-    {
-        return _requestId;
-    }
+    public int getRequestId() => _requestId;
 
-    public string getParent()
-    {
-        return "Communicator";
-    }
+    public string getParent() => "Communicator";
 
     private readonly int _size;
     private readonly int _requestId;
@@ -814,15 +742,9 @@ public class ConnectionObserverI : ObserverWithDelegate<ConnectionMetrics, Ice.I
         delegate_?.receivedBytes(num);
     }
 
-    private void sentBytesUpdate(ConnectionMetrics v)
-    {
-        v.sentBytes += _sentBytes;
-    }
+    private void sentBytesUpdate(ConnectionMetrics v) => v.sentBytes += _sentBytes;
 
-    private void receivedBytesUpdate(ConnectionMetrics v)
-    {
-        v.receivedBytes += _receivedBytes;
-    }
+    private void receivedBytesUpdate(ConnectionMetrics v) => v.receivedBytes += _receivedBytes;
 
     private int _sentBytes;
     private int _receivedBytes;
@@ -844,10 +766,7 @@ public class DispatchObserverI : ObserverWithDelegate<DispatchMetrics, Ice.Instr
         delegate_?.reply(size);
     }
 
-    private void userException(DispatchMetrics v)
-    {
-        ++v.userException;
-    }
+    private void userException(DispatchMetrics v) => ++v.userException;
 }
 
 public class RemoteObserverI : ObserverWithDelegate<RemoteMetrics, Ice.Instrumentation.RemoteObserver>,
@@ -922,15 +841,9 @@ public class InvocationObserverI : ObserverWithDelegate<InvocationMetrics, Ice.I
                 del);
     }
 
-    private void incrementRetry(InvocationMetrics v)
-    {
-        ++v.retry;
-    }
+    private void incrementRetry(InvocationMetrics v) => ++v.retry;
 
-    private void userException(InvocationMetrics v)
-    {
-        ++v.userException;
-    }
+    private void userException(InvocationMetrics v) => ++v.userException;
 }
 
 public class ThreadObserverI : ObserverWithDelegate<ThreadMetrics, Ice.Instrumentation.ThreadObserver>,
@@ -1165,10 +1078,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
         _delegate?.setObserverUpdater(updater);
     }
 
-    public MetricsAdminI getFacet()
-    {
-        return _metrics;
-    }
+    public MetricsAdminI getFacet() => _metrics;
 
     private readonly MetricsAdminI _metrics;
     private readonly Ice.Instrumentation.CommunicatorObserver _delegate;

@@ -1176,10 +1176,7 @@ public sealed class ObjectAdapter
         }
     }
 
-    internal SslServerAuthenticationOptions? getServerAuthenticationOptions()
-    {
-        return _serverAuthenticationOptions;
-    }
+    internal SslServerAuthenticationOptions? getServerAuthenticationOptions() => _serverAuthenticationOptions;
 
     private ObjectPrx newProxy(Identity ident, string facet)
     {

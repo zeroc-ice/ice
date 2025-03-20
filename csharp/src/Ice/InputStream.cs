@@ -139,10 +139,7 @@ public sealed class InputStream
         other.resetEncapsulation();
     }
 
-    private void resetEncapsulation()
-    {
-        _encapsStack = null;
-    }
+    private void resetEncapsulation() => _encapsStack = null;
 
     /// <summary>
     /// Resizes the stream to a new size.
@@ -355,10 +352,7 @@ public sealed class InputStream
     /// Determines the current encoding version.
     /// </summary>
     /// <returns>The encoding version.</returns>
-    public EncodingVersion getEncoding()
-    {
-        return _encapsStack != null ? _encapsStack.encoding : _encoding;
-    }
+    public EncodingVersion getEncoding() => _encapsStack != null ? _encapsStack.encoding : _encoding;
 
     /// <summary>
     /// Determines the size of the current encapsulation, excluding the encapsulation header.
@@ -645,43 +639,37 @@ public sealed class InputStream
     /// Extracts a sequence of byte values from the stream.
     /// </summary>
     /// <param name="l">The extracted byte sequence as a list.</param>
-    public void readByteSeq(out List<byte> l)
-    {
+    public void readByteSeq(out List<byte> l) =>
         //
         // Reading into an array and copy-constructing the
         // list is faster than constructing the list
         // and adding to it one element at a time.
         //
         l = new List<byte>(readByteSeq());
-    }
 
     /// <summary>
     /// Extracts a sequence of byte values from the stream.
     /// </summary>
     /// <param name="l">The extracted byte sequence as a linked list.</param>
-    public void readByteSeq(out LinkedList<byte> l)
-    {
+    public void readByteSeq(out LinkedList<byte> l) =>
         //
         // Reading into an array and copy-constructing the
         // list is faster than constructing the list
         // and adding to it one element at a time.
         //
         l = new LinkedList<byte>(readByteSeq());
-    }
 
     /// <summary>
     /// Extracts a sequence of byte values from the stream.
     /// </summary>
     /// <param name="l">The extracted byte sequence as a queue.</param>
-    public void readByteSeq(out Queue<byte> l)
-    {
+    public void readByteSeq(out Queue<byte> l) =>
         //
         // Reading into an array and copy-constructing the
         // queue is faster than constructing the queue
         // and adding to it one element at a time.
         //
         l = new Queue<byte>(readByteSeq());
-    }
 
     /// <summary>
     /// Extracts a sequence of byte values from the stream.
@@ -771,43 +759,37 @@ public sealed class InputStream
     /// Extracts a sequence of boolean values from the stream.
     /// </summary>
     /// <param name="l">The extracted boolean sequence as a list.</param>
-    public void readBoolSeq(out List<bool> l)
-    {
+    public void readBoolSeq(out List<bool> l) =>
         //
         // Reading into an array and copy-constructing the
         // list is faster than constructing the list
         // and adding to it one element at a time.
         //
         l = new List<bool>(readBoolSeq());
-    }
 
     /// <summary>
     /// Extracts a sequence of boolean values from the stream.
     /// </summary>
     /// <param name="l">The extracted boolean sequence as a linked list.</param>
-    public void readBoolSeq(out LinkedList<bool> l)
-    {
+    public void readBoolSeq(out LinkedList<bool> l) =>
         //
         // Reading into an array and copy-constructing the
         // list is faster than constructing the list
         // and adding to it one element at a time.
         //
         l = new LinkedList<bool>(readBoolSeq());
-    }
 
     /// <summary>
     /// Extracts a sequence of boolean values from the stream.
     /// </summary>
     /// <param name="l">The extracted boolean sequence as a queue.</param>
-    public void readBoolSeq(out Queue<bool> l)
-    {
+    public void readBoolSeq(out Queue<bool> l) =>
         //
         // Reading into an array and copy-constructing the
         // queue is faster than constructing the queue
         // and adding to it one element at a time.
         //
         l = new Queue<bool>(readBoolSeq());
-    }
 
     /// <summary>
     /// Extracts a sequence of boolean values from the stream.
@@ -897,43 +879,37 @@ public sealed class InputStream
     /// Extracts a sequence of short values from the stream.
     /// </summary>
     /// <param name="l">The extracted short sequence as a list.</param>
-    public void readShortSeq(out List<short> l)
-    {
+    public void readShortSeq(out List<short> l) =>
         //
         // Reading into an array and copy-constructing the
         // list is faster than constructing the list
         // and adding to it one element at a time.
         //
         l = new List<short>(readShortSeq());
-    }
 
     /// <summary>
     /// Extracts a sequence of short values from the stream.
     /// </summary>
     /// <param name="l">The extracted short sequence as a linked list.</param>
-    public void readShortSeq(out LinkedList<short> l)
-    {
+    public void readShortSeq(out LinkedList<short> l) =>
         //
         // Reading into an array and copy-constructing the
         // list is faster than constructing the list
         // and adding to it one element at a time.
         //
         l = new LinkedList<short>(readShortSeq());
-    }
 
     /// <summary>
     /// Extracts a sequence of short values from the stream.
     /// </summary>
     /// <param name="l">The extracted short sequence as a queue.</param>
-    public void readShortSeq(out Queue<short> l)
-    {
+    public void readShortSeq(out Queue<short> l) =>
         //
         // Reading into an array and copy-constructing the
         // queue is faster than constructing the queue
         // and adding to it one element at a time.
         //
         l = new Queue<short>(readShortSeq());
-    }
 
     /// <summary>
     /// Extracts a sequence of short values from the stream.
@@ -1024,15 +1000,13 @@ public sealed class InputStream
     /// Extracts a sequence of int values from the stream.
     /// </summary>
     /// <param name="l">The extracted int sequence as a list.</param>
-    public void readIntSeq(out List<int> l)
-    {
+    public void readIntSeq(out List<int> l) =>
         //
         // Reading into an array and copy-constructing the
         // list is faster than constructing the list
         // and adding to it one element at a time.
         //
         l = new List<int>(readIntSeq());
-    }
 
     /// <summary>
     /// Extracts a sequence of int values from the stream.
@@ -1171,15 +1145,13 @@ public sealed class InputStream
     /// Extracts a sequence of long values from the stream.
     /// </summary>
     /// <param name="l">The extracted long sequence as a list.</param>
-    public void readLongSeq(out List<long> l)
-    {
+    public void readLongSeq(out List<long> l) =>
         //
         // Reading into an array and copy-constructing the
         // list is faster than constructing the list
         // and adding to it one element at a time.
         //
         l = new List<long>(readLongSeq());
-    }
 
     /// <summary>
     /// Extracts a sequence of long values from the stream.
@@ -1318,15 +1290,13 @@ public sealed class InputStream
     /// Extracts a sequence of float values from the stream.
     /// </summary>
     /// <param name="l">The extracted float sequence as a list.</param>
-    public void readFloatSeq(out List<float> l)
-    {
+    public void readFloatSeq(out List<float> l) =>
         //
         // Reading into an array and copy-constructing the
         // list is faster than constructing the list
         // and adding to it one element at a time.
         //
         l = new List<float>(readFloatSeq());
-    }
 
     /// <summary>
     /// Extracts a sequence of float values from the stream.
@@ -1465,15 +1435,13 @@ public sealed class InputStream
     /// Extracts a sequence of double values from the stream.
     /// </summary>
     /// <param name="l">The extracted double sequence as a list.</param>
-    public void readDoubleSeq(out List<double> l)
-    {
+    public void readDoubleSeq(out List<double> l) =>
         //
         // Reading into an array and copy-constructing the
         // list is faster than constructing the list
         // and adding to it one element at a time.
         //
         l = new List<double>(readDoubleSeq());
-    }
 
     /// <summary>
     /// Extracts a sequence of double values from the stream.
@@ -1817,18 +1785,12 @@ public sealed class InputStream
     /// <param name="cb">The callback to notify the application when the extracted instance is available.
     /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
     /// corresponding instance has been fully unmarshaled.</param>
-    public void readValue(System.Action<Value?> cb)
-    {
-        readValue<Value>(cb);
-    }
+    public void readValue(System.Action<Value?> cb) => readValue<Value>(cb);
 
     /// <summary>
     /// Extracts a user exception from the stream and throws it.
     /// </summary>
-    public void throwException()
-    {
-        throwException(null);
-    }
+    public void throwException() => throwException(null);
 
     /// <summary>
     /// Extracts a user exception from the stream and throws it.
@@ -1869,37 +1831,25 @@ public sealed class InputStream
     /// Determines the current position in the stream.
     /// </summary>
     /// <returns>The current position.</returns>
-    public int pos()
-    {
-        return _buf.b.position();
-    }
+    public int pos() => _buf.b.position();
 
     /// <summary>
     /// Sets the current position in the stream.
     /// </summary>
     /// <param name="n">The new position.</param>
-    public void pos(int n)
-    {
-        _buf.b.position(n);
-    }
+    public void pos(int n) => _buf.b.position(n);
 
     /// <summary>
     /// Determines the current size of the stream.
     /// </summary>
     /// <returns>The current size.</returns>
-    public int size()
-    {
-        return _buf.size();
-    }
+    public int size() => _buf.size();
 
     /// <summary>
     /// Determines whether the stream is empty.
     /// </summary>
     /// <returns>True if the internal buffer has no data, false otherwise.</returns>
-    public bool isEmpty()
-    {
-        return _buf.empty();
-    }
+    public bool isEmpty() => _buf.empty();
 
     private bool readOptImpl(int readTag, OptionalFormat expectedFormat)
     {
@@ -2085,10 +2035,7 @@ public sealed class InputStream
 
         internal abstract void skipSlice();
 
-        internal virtual bool readOptional(int tag, OptionalFormat format)
-        {
-            return false;
-        }
+        internal virtual bool readOptional(int tag, OptionalFormat format) => false;
 
         internal virtual void readPendingValues()
         {
@@ -3101,10 +3048,7 @@ public sealed class InputStream
 
     private sealed class Encaps
     {
-        internal void reset()
-        {
-            decoder = null;
-        }
+        internal void reset() => decoder = null;
 
         internal void setEncoding(EncodingVersion encoding)
         {
@@ -3128,10 +3072,7 @@ public sealed class InputStream
     //
     private EncodingVersion _encoding;
 
-    private bool isEncoding_1_0()
-    {
-        return _encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
-    }
+    private bool isEncoding_1_0() => _encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
 
     private Encaps? _encapsStack;
     private Encaps? _encapsCache;

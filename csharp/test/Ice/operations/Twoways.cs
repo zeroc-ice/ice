@@ -10,10 +10,7 @@ internal class Twoways
     {
         public PerThreadContextInvokeThread(Test.MyClassPrx proxy) => _proxy = proxy;
 
-        public void Join()
-        {
-            _thread.Join();
-        }
+        public void Join() => _thread.Join();
 
         public void Start()
         {

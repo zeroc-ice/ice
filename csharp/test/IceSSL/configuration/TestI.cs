@@ -52,10 +52,7 @@ internal sealed class ServerI : ServerDisp_
         }
     }
 
-    internal void destroy()
-    {
-        _communicator.destroy();
-    }
+    internal void destroy() => _communicator.destroy();
 
     private static void test(bool b) => global::Test.TestHelper.test(b);
 

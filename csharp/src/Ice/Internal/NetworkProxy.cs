@@ -98,11 +98,9 @@ public sealed class SOCKSNetworkProxy : NetworkProxy
         buf.b.order(order);
     }
 
-    public int endWrite(Buffer buf)
-    {
+    public int endWrite(Buffer buf) =>
         // Once the request is sent, read the response
-        return buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.Read;
-    }
+        buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.Read;
 
     public void beginRead(Buffer buf)
     {
@@ -113,11 +111,9 @@ public sealed class SOCKSNetworkProxy : NetworkProxy
         buf.b.position(0);
     }
 
-    public int endRead(Buffer buf)
-    {
+    public int endRead(Buffer buf) =>
         // We're done once we read the response
-        return buf.b.hasRemaining() ? SocketOperation.Read : SocketOperation.None;
-    }
+        buf.b.hasRemaining() ? SocketOperation.Read : SocketOperation.None;
 
     public void finish(Buffer readBuffer, Buffer writeBuffer)
     {
@@ -147,15 +143,9 @@ public sealed class SOCKSNetworkProxy : NetworkProxy
         return _address;
     }
 
-    public string getName()
-    {
-        return "SOCKS";
-    }
+    public string getName() => "SOCKS";
 
-    public int getProtocolSupport()
-    {
-        return Network.EnableIPv4;
-    }
+    public int getProtocolSupport() => Network.EnableIPv4;
 
     private readonly string _host;
     private readonly int _port;
@@ -198,11 +188,9 @@ public sealed class HTTPNetworkProxy : NetworkProxy
         buf.b.limit(buf.size());
     }
 
-    public int endWrite(Buffer buf)
-    {
+    public int endWrite(Buffer buf) =>
         // Once the request is sent, read the response
-        return buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.Read;
-    }
+        buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.Read;
 
     public void beginRead(Buffer buf)
     {
@@ -262,15 +250,9 @@ public sealed class HTTPNetworkProxy : NetworkProxy
         return _address;
     }
 
-    public string getName()
-    {
-        return "HTTP";
-    }
+    public string getName() => "HTTP";
 
-    public int getProtocolSupport()
-    {
-        return _protocolSupport;
-    }
+    public int getProtocolSupport() => _protocolSupport;
 
     private readonly string _host;
     private readonly int _port;

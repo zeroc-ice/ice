@@ -27,10 +27,7 @@ public class Server : Test.TestHelper
             return Task<Ice.ObjectPrx>.FromResult(current.adapter.createDirectProxy(id));
         }
 
-        public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current)
-        {
-            return null;
-        }
+        public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current) => null;
 
         internal LocatorI(BackgroundControllerI controller) => _controller = controller;
 
@@ -52,10 +49,7 @@ public class Server : Test.TestHelper
             return null;
         }
 
-        public override Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)
-        {
-            return new Ice.ObjectPrx[0];
-        }
+        public override Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current) => new Ice.ObjectPrx[0];
 
         internal RouterI(BackgroundControllerI controller) => _controller = controller;
 

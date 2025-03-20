@@ -6,15 +6,9 @@ namespace Ice.Internal;
 
 internal sealed class UdpConnector : Connector
 {
-    public Transceiver connect()
-    {
-        return new UdpTransceiver(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
-    }
+    public Transceiver connect() => new UdpTransceiver(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
 
-    public short type()
-    {
-        return _instance.type();
-    }
+    public short type() => _instance.type();
 
     //
     // Only for use by UdpEndpointI
@@ -71,10 +65,7 @@ internal sealed class UdpConnector : Connector
         return _addr.Equals(p._addr);
     }
 
-    public override string ToString()
-    {
-        return Network.addrToString(_addr);
-    }
+    public override string ToString() => Network.addrToString(_addr);
 
     public override int GetHashCode()
     {

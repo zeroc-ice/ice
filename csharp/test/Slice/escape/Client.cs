@@ -5,10 +5,7 @@ public class Client : Test.TestHelper
     public sealed class caseI : escaped_abstract.caseDisp_
     {
         public override Task<int>
-        catchAsync(int @checked, Ice.Current current)
-        {
-            return Task<int>.FromResult(0);
-        }
+        catchAsync(int @checked, Ice.Current current) => Task<int>.FromResult(0);
     }
 
     public sealed class decimalI : escaped_abstract.decimalDisp_
@@ -21,15 +18,9 @@ public class Client : Test.TestHelper
     public sealed class TotallyDifferentI : escaped_abstract.TotallyDifferentDisp_
     {
         public override Task<int>
-        catchAsync(int @checked, Ice.Current current)
-        {
-            return Task<int>.FromResult(0);
-        }
+        catchAsync(int @checked, Ice.Current current) => Task<int>.FromResult(0);
 
-        public override void @default(Ice.Current current)
-        {
-            test(current.operation == "default");
-        }
+        public override void @default(Ice.Current current) => test(current.operation == "default");
     }
 
     public sealed class Test1I : escaped_abstract.System.TestDisp_

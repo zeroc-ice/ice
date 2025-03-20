@@ -507,15 +507,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    internal EndpointI endpoint()
-    {
-        return _endpoint; // No mutex protection necessary, _endpoint is immutable.
-    }
+    internal EndpointI endpoint() => _endpoint; // No mutex protection necessary, _endpoint is immutable.
 
-    internal Connector connector()
-    {
-        return _connector; // No mutex protection necessary, _endpoint is immutable.
-    }
+    internal Connector connector() => _connector; // No mutex protection necessary, _endpoint is immutable.
 
     public void setAdapter(ObjectAdapter adapter)
     {
@@ -556,10 +550,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    public Endpoint getEndpoint()
-    {
-        return _endpoint; // No mutex protection necessary, _endpoint is immutable.
-    }
+    public Endpoint getEndpoint() => _endpoint; // No mutex protection necessary, _endpoint is immutable.
 
     public ObjectPrx createProxy(Identity id)
     {
@@ -1314,16 +1305,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     }
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-        return _desc; // No mutex lock, _desc is immutable.
-    }
+    public override string ToString() => _desc; // No mutex lock, _desc is immutable.
 
     /// <inheritdoc/>
-    public string type()
-    {
-        return _type; // No mutex lock, _type is immutable.
-    }
+    public string type() => _type; // No mutex lock, _type is immutable.
 
     /// <inheritdoc/>
     public ConnectionInfo getInfo()
@@ -1360,10 +1345,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         }
     }
 
-    public Ice.Internal.ThreadPool getThreadPool()
-    {
-        return _threadPool;
-    }
+    public Ice.Internal.ThreadPool getThreadPool() => _threadPool;
 
     internal ConnectionI(
         Instance instance,
@@ -1547,10 +1529,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     private const int StateClosed = 6;
     private const int StateFinished = 7;
 
-    private static ConnectionState toConnectionState(int state)
-    {
-        return connectionStateMap[state];
-    }
+    private static ConnectionState toConnectionState(int state) => connectionStateMap[state];
 
     private void setState(int state, LocalException ex)
     {
@@ -2674,10 +2653,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         return _info;
     }
 
-    private void warning(string msg, System.Exception ex)
-    {
-        _logger.warning(msg + ":\n" + ex + "\n" + _transceiver.ToString());
-    }
+    private void warning(string msg, System.Exception ex) => _logger.warning(msg + ":\n" + ex + "\n" + _transceiver.ToString());
 
     private void observerStartRead(Ice.Internal.Buffer buf)
     {

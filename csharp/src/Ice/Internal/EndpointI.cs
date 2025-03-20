@@ -14,8 +14,7 @@ public interface EndpointI_connectors
 
 public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>
 {
-    public override string ToString()
-    {
+    public override string ToString() =>
         //
         // WARNING: Certain features, such as proxy validation in Glacier2,
         // depend on the format of proxy strings. Changes to toString() and
@@ -23,8 +22,7 @@ public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>
         // these features. Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
         //
-        return protocol() + options();
-    }
+        protocol() + options();
 
     public abstract Ice.EndpointInfo getInfo();
 
@@ -195,9 +193,7 @@ public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>
         args.AddRange(unknown);
     }
 
-    protected virtual bool checkOption(string option, string argument, string endpoint)
-    {
+    protected virtual bool checkOption(string option, string argument, string endpoint) =>
         // Must be overridden to check for options.
-        return false;
-    }
+        false;
 }

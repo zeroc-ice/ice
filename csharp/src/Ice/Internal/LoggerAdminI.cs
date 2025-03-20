@@ -294,10 +294,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         }
     }
 
-    internal int getTraceLevel()
-    {
-        return _traceLevel;
-    }
+    internal int getTraceLevel() => _traceLevel;
 
     private static void filterLogMessages(
         LinkedList<Ice.LogMessage> logMessages,

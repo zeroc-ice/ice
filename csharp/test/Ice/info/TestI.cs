@@ -28,10 +28,7 @@ public class TestI : Test.TestIntfDisp_
         return null;
     }
 
-    public override void shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
     public override Dictionary<string, string> getEndpointInfoAsContext(Ice.Current c)
     {

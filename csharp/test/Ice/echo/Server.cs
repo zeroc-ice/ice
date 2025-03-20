@@ -14,20 +14,11 @@ public class Server : Test.TestHelper
     {
         public EchoI(BlobjectI blob) => _blob = blob;
 
-        public override void startBatch(Ice.Current current)
-        {
-            _blob.startBatch();
-        }
+        public override void startBatch(Ice.Current current) => _blob.startBatch();
 
-        public override void flushBatch(Ice.Current current)
-        {
-            _blob.flushBatch();
-        }
+        public override void flushBatch(Ice.Current current) => _blob.flushBatch();
 
-        public override void shutdown(Ice.Current current)
-        {
-            current.adapter.getCommunicator().shutdown();
-        }
+        public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
         private readonly BlobjectI _blob;
     }

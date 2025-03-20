@@ -14,10 +14,7 @@ public class TestI : Test.TestIntfDisp_
         _registry.addObject(_adapter1.add(new HelloI(), Ice.Util.stringToIdentity("hello")));
     }
 
-    public override void shutdown(Ice.Current current)
-    {
-        _adapter1.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => _adapter1.getCommunicator().shutdown();
 
     public override Test.HelloPrx getHello(Ice.Current current)
     {

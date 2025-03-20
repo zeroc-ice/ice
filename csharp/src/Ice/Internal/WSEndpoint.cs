@@ -33,15 +33,9 @@ internal sealed class WSEndpoint : EndpointI
 
     public override EndpointInfo getInfo() => new WSEndpointInfo(_delegate.getInfo(), _resource);
 
-    public override short type()
-    {
-        return _delegate.type();
-    }
+    public override short type() => _delegate.type();
 
-    public override string protocol()
-    {
-        return _delegate.protocol();
-    }
+    public override string protocol() => _delegate.protocol();
 
     public override void streamWriteImpl(Ice.OutputStream s)
     {
@@ -49,10 +43,7 @@ internal sealed class WSEndpoint : EndpointI
         s.writeString(_resource);
     }
 
-    public override int timeout()
-    {
-        return _delegate.timeout();
-    }
+    public override int timeout() => _delegate.timeout();
 
     public override EndpointI timeout(int timeout)
     {
@@ -66,10 +57,7 @@ internal sealed class WSEndpoint : EndpointI
         }
     }
 
-    public override string connectionId()
-    {
-        return _delegate.connectionId();
-    }
+    public override string connectionId() => _delegate.connectionId();
 
     public override EndpointI connectionId(string connectionId)
     {
@@ -83,10 +71,7 @@ internal sealed class WSEndpoint : EndpointI
         }
     }
 
-    public override bool compress()
-    {
-        return _delegate.compress();
-    }
+    public override bool compress() => _delegate.compress();
 
     public override EndpointI compress(bool compress)
     {
@@ -100,20 +85,11 @@ internal sealed class WSEndpoint : EndpointI
         }
     }
 
-    public override bool datagram()
-    {
-        return _delegate.datagram();
-    }
+    public override bool datagram() => _delegate.datagram();
 
-    public override bool secure()
-    {
-        return _delegate.secure();
-    }
+    public override bool secure() => _delegate.secure();
 
-    public override Transceiver transceiver()
-    {
-        return null;
-    }
+    public override Transceiver transceiver() => null;
 
     private sealed class EndpointI_connectorsI : EndpointI_connectors
     {
@@ -135,10 +111,7 @@ internal sealed class WSEndpoint : EndpointI
             _callback.connectors(l);
         }
 
-        public void exception(Ice.LocalException ex)
-        {
-            _callback.exception(ex);
-        }
+        public void exception(Ice.LocalException ex) => _callback.exception(ex);
 
         private readonly ProtocolInstance _instance;
         private readonly string _host;
@@ -161,10 +134,7 @@ internal sealed class WSEndpoint : EndpointI
         _delegate.connectors_async(new EndpointI_connectorsI(_instance, host, _resource, callback));
     }
 
-    public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions)
-    {
-        return new WSAcceptor(this, _instance, _delegate.acceptor(adapterName, serverAuthenticationOptions));
-    }
+    public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions) => new WSAcceptor(this, _instance, _delegate.acceptor(adapterName, serverAuthenticationOptions));
 
     public WSEndpoint endpoint(EndpointI delEndp)
     {
@@ -282,18 +252,9 @@ public class WSEndpointFactory : EndpointFactoryWithUnderlying
     {
     }
 
-    public override EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying)
-    {
-        return new WSEndpointFactory(instance, underlying);
-    }
+    public override EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying) => new WSEndpointFactory(instance, underlying);
 
-    protected override EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint)
-    {
-        return new WSEndpoint(instance_, underlying, args);
-    }
+    protected override EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint) => new WSEndpoint(instance_, underlying, args);
 
-    protected override EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s)
-    {
-        return new WSEndpoint(instance_, underlying, s);
-    }
+    protected override EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s) => new WSEndpoint(instance_, underlying, s);
 }

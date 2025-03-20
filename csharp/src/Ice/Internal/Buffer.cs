@@ -63,15 +63,9 @@ public class Buffer
         }
     }
 
-    public int size()
-    {
-        return _size;
-    }
+    public int size() => _size;
 
-    public bool empty()
-    {
-        return _size == 0;
-    }
+    public bool empty() => _size == 0;
 
     public void clear()
     {

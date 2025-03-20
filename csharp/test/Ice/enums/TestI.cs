@@ -56,8 +56,5 @@ public class TestI : Test.TestIntfDisp_
         return s1;
     }
 
-    public override void shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 }

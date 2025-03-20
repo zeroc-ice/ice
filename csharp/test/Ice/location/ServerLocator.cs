@@ -41,15 +41,9 @@ public class ServerLocator : Test.TestLocatorDisp_
         return Task.FromResult(_registry.getObject(id));
     }
 
-    public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current)
-    {
-        return _registryPrx;
-    }
+    public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current) => _registryPrx;
 
-    public override int getRequestCount(Ice.Current current)
-    {
-        return _requestCount;
-    }
+    public override int getRequestCount(Ice.Current current) => _requestCount;
 
     private readonly ServerLocatorRegistry _registry;
     private readonly Ice.LocatorRegistryPrx _registryPrx;

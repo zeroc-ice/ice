@@ -6,46 +6,22 @@ namespace Ice.servantLocator
     {
         public sealed class TestI : Test.TestIntfDisp_
         {
-            public override Task requestFailedExceptionAsync(Ice.Current current)
-            {
-                return Task.CompletedTask;
-            }
+            public override Task requestFailedExceptionAsync(Ice.Current current) => Task.CompletedTask;
 
-            public override Task unknownUserExceptionAsync(Ice.Current current)
-            {
-                return Task.CompletedTask;
-            }
+            public override Task unknownUserExceptionAsync(Ice.Current current) => Task.CompletedTask;
 
-            public override Task unknownLocalExceptionAsync(Ice.Current current)
-            {
-                return Task.CompletedTask;
-            }
+            public override Task unknownLocalExceptionAsync(Ice.Current current) => Task.CompletedTask;
 
-            public override Task unknownExceptionAsync(Ice.Current current)
-            {
-                return Task.CompletedTask;
-            }
+            public override Task unknownExceptionAsync(Ice.Current current) => Task.CompletedTask;
 
-            public override Task localExceptionAsync(Ice.Current current)
-            {
-                return Task.CompletedTask;
-            }
+            public override Task localExceptionAsync(Ice.Current current) => Task.CompletedTask;
 
-            public override Task userExceptionAsync(Ice.Current current)
-            {
-                return Task.CompletedTask;
-            }
+            public override Task userExceptionAsync(Ice.Current current) => Task.CompletedTask;
 
-            public override Task csExceptionAsync(Ice.Current current)
-            {
-                return Task.CompletedTask;
-            }
+            public override Task csExceptionAsync(Ice.Current current) => Task.CompletedTask;
 
             public override Task
-            unknownExceptionWithServantExceptionAsync(Ice.Current current)
-            {
-                throw new Ice.ObjectNotExistException();
-            }
+            unknownExceptionWithServantExceptionAsync(Ice.Current current) => throw new Ice.ObjectNotExistException();
 
             public override Task<string>
             impossibleExceptionAsync(bool shouldThrow, Ice.Current current)

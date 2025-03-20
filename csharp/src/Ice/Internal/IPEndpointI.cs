@@ -37,25 +37,13 @@ public abstract class IPEndpointI : EndpointI
         connectionId_ = "";
     }
 
-    public override short type()
-    {
-        return instance_.type();
-    }
+    public override short type() => instance_.type();
 
-    public override string protocol()
-    {
-        return instance_.protocol();
-    }
+    public override string protocol() => instance_.protocol();
 
-    public override bool secure()
-    {
-        return instance_.secure();
-    }
+    public override bool secure() => instance_.secure();
 
-    public override string connectionId()
-    {
-        return connectionId_;
-    }
+    public override string connectionId() => connectionId_;
 
     public override EndpointI connectionId(string connectionId)
     {
@@ -69,10 +57,7 @@ public abstract class IPEndpointI : EndpointI
         }
     }
 
-    public override void connectors_async(EndpointI_connectors callback)
-    {
-        instance_.resolve(host_, port_, this, callback);
-    }
+    public override void connectors_async(EndpointI_connectors callback) => instance_.resolve(host_, port_, this, callback);
 
     public override List<EndpointI> expandHost()
     {

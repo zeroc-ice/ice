@@ -95,22 +95,13 @@ internal class Request : TaskCompletionSource<Ice.Object_Ice_invokeResult>
 internal class VoidLocatorI : Ice.LocatorDisp_
 {
     public override Task<Ice.ObjectPrx>
-    findObjectByIdAsync(Ice.Identity id, Ice.Current current)
-    {
-        return Task.FromResult<Ice.ObjectPrx>(null);
-    }
+    findObjectByIdAsync(Ice.Identity id, Ice.Current current) => Task.FromResult<Ice.ObjectPrx>(null);
 
     public override Task<Ice.ObjectPrx>
-    findAdapterByIdAsync(string id, Ice.Current current)
-    {
-        return Task.FromResult<Ice.ObjectPrx>(null);
-    }
+    findAdapterByIdAsync(string id, Ice.Current current) => Task.FromResult<Ice.ObjectPrx>(null);
 
     public override Ice.LocatorRegistryPrx
-    getRegistry(Ice.Current current)
-    {
-        return null;
-    }
+    getRegistry(Ice.Current current) => null;
 }
 
 internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
@@ -580,10 +571,7 @@ internal class LookupReplyI : LookupReplyDisp_
     public LookupReplyI(LocatorI locator) => _locator = locator;
 
     public override void
-    foundLocator(Ice.LocatorPrx locator, Ice.Current current)
-    {
-        _locator.foundLocator(locator);
-    }
+    foundLocator(Ice.LocatorPrx locator, Ice.Current current) => _locator.foundLocator(locator);
 
     private readonly LocatorI _locator;
 }
@@ -686,8 +674,5 @@ internal class PluginI : Ice.Plugin
 public static class Util
 {
     public static void
-    registerIceLocatorDiscovery(bool loadOnInitialize)
-    {
-        Ice.Util.registerPluginFactory("IceLocatorDiscovery", new PluginFactory(), loadOnInitialize);
-    }
+    registerIceLocatorDiscovery(bool loadOnInitialize) => Ice.Util.registerPluginFactory("IceLocatorDiscovery", new PluginFactory(), loadOnInitialize);
 }
