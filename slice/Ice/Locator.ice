@@ -5,7 +5,7 @@
 [["cpp:dll-export:ICE_API"]]
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
-[["cpp:source-include:Ice/Process.h"]]
+[["cpp:source-include:Ice/LocatorRegistry.h"]]
 
 [["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
