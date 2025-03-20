@@ -91,7 +91,7 @@ IceInternal::Buffer::Container::operator=(Container&& other) noexcept
     if (this != &other)
     {
         // If we own the buffer, free it first.
-        if (_buf && _owned)
+        if (_owned)
         {
             ::free(_buf);
         }
@@ -113,7 +113,7 @@ IceInternal::Buffer::Container::operator=(Container&& other) noexcept
 
 IceInternal::Buffer::Container::~Container()
 {
-    if (_buf && _owned)
+    if (_owned)
     {
         ::free(_buf);
     }
@@ -132,7 +132,7 @@ IceInternal::Buffer::Container::swap(Container& other) noexcept
 void
 IceInternal::Buffer::Container::clear()
 {
-    if (_buf && _owned)
+    if (_owned)
     {
         ::free(_buf);
     }
