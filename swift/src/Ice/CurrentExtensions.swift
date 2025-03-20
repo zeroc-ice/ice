@@ -3,6 +3,18 @@
 import Foundation
 
 extension Current {
+    /// Makes sure the operation mode of an incoming request is not idempotent.
+    /// The generated code calls this method to ensure that when an operation's mode is not idempotent (locally), the
+    /// incoming request's operation mode is not idempotent.
+    /// - Throws: `MarshalException` when the operation mode is idempotent or nonmutating.
+    public func checkNonIdempotent() throws {
+        if mode != .normal {  // i.e. idempotent or non-mutating
+            throw MarshalException(
+                "Operation mode mismatch for operation '\(operation)': received \(mode) for non-idempotent operation"
+            )
+        }
+    }
+
     /// Creates an outgoing response with reply status `ok`.
     /// - Parameters:
     ///   - result: The result to marshal into the response payload.

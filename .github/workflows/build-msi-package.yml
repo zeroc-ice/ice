@@ -49,6 +49,9 @@ jobs:
       - name: Setup C++
         uses: ./ice/.github/actions/setup-cpp
 
+      - name: Setup Java
+        uses: ./ice/.github/actions/setup-java
+
       - name: Download C++ Binaries From NuGet feed
         run: |
           New-Item -ItemType Directory -Path "${{ github.workspace }}\packages"

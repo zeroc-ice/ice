@@ -65,6 +65,11 @@ jobs:
         working-directory: cpp
         run: bear -- make
 
+      - name: Build IcePy
+        timeout-minutes: 10
+        working-directory: python
+        run: bear -- make
+
       - name: Select files to check
         uses: tj-actions/glob@v22
         id: glob
@@ -80,3 +85,17 @@ jobs:
         run: |
           echo "Running clang-tidy on ${{ steps.glob.outputs.paths }}"
           run-clang-tidy-19 -j$(nproc) -quiet ${{ steps.glob.outputs.paths }}
+
+      - name: Select files to check for IcePy
+        uses: tj-actions/glob@v22
+        id: globpy
+        with:
+          files: |
+            **/*.cpp
+          working-directory: python
+
+      - name: Run Clang Tidy on IcePy
+        working-directory: python
+        run: |
+          echo "Running clang-tidy on ${{ steps.globpy.outputs.paths }}"
+          run-clang-tidy-19 -j$(nproc) -quiet ${{ steps.globpy.outputs.paths }}

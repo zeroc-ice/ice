@@ -80,6 +80,24 @@ public final class Current implements Cloneable {
         this.encoding = encoding;
     }
 
+    /**
+     * Ensures the operation mode of an incoming request is not idempotent. The generated code calls
+     * this method to ensure that when an operation's mode is not idempotent (locally), the incoming
+     * request's operation mode is not idempotent.
+     *
+     * @throws MarshalException Thrown when the request's operation mode is {@link
+     *     OperationMode#Idempotent} or {@link OperationMode#Nonmutating}.
+     */
+    public void checkNonIdempotent() {
+        if (mode != OperationMode.Normal) {
+            throw new MarshalException(
+                    String.format(
+                            "Operation mode mismatch for operation '%s': received %s for non-idempotent operation",
+                            operation, mode));
+        }
+    }
+
+    @Override
     public Current clone() {
         Current clone = null;
         try {

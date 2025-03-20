@@ -18,6 +18,8 @@
 #include "Util.h"
 #include "slice2py/PythonUtil.h"
 
+#include <algorithm>
+
 using namespace std;
 using namespace IcePy;
 using namespace Slice::Python;
@@ -75,7 +77,6 @@ namespace IcePy
         ExceptionInfoList exceptions;
         bool sendsClasses;
         bool returnsClasses;
-        bool pseudoOp;
 
     private:
         string _deprecateMessage;
@@ -811,11 +812,6 @@ IcePy::Operation::Operation(
     {
         exceptions.push_back(getException(PyTuple_GET_ITEM(ex, i)));
     }
-
-    //
-    // Does the operation name start with "ice_"?
-    //
-    pseudoOp = sliceName.find("ice_") == 0;
 }
 
 void
@@ -1280,7 +1276,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, pair<const byte*, co
         {
             if (!info->optional)
             {
-                void* closure = reinterpret_cast<void*>(info->pos);
+                void* closure = reinterpret_cast<void*>(info->pos); // NOLINT(performance-no-int-to-ptr)
                 info->type->unmarshal(&is, info, results.get(), closure, false, &info->metadata);
             }
         }
@@ -1291,7 +1287,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, pair<const byte*, co
         if (op->returnType && !op->returnType->optional)
         {
             assert(op->returnType->pos == 0);
-            void* closure = reinterpret_cast<void*>(op->returnType->pos);
+            void* closure = reinterpret_cast<void*>(op->returnType->pos); // NOLINT(performance-no-int-to-ptr)
             op->returnType->type->unmarshal(&is, op->returnType, results.get(), closure, false, &op->metadata);
         }
 
@@ -1302,7 +1298,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, pair<const byte*, co
         {
             if (is.readOptional(info->tag, info->type->optionalFormat()))
             {
-                void* closure = reinterpret_cast<void*>(info->pos);
+                void* closure = reinterpret_cast<void*>(info->pos); // NOLINT(performance-no-int-to-ptr)
                 info->type->unmarshal(&is, info, results.get(), closure, true, &info->metadata);
             }
             else
@@ -2206,7 +2202,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*> i
             {
                 if (!info->optional)
                 {
-                    void* closure = reinterpret_cast<void*>(info->pos);
+                    void* closure = reinterpret_cast<void*>(info->pos); // NOLINT(performance-no-int-to-ptr)
                     info->type->unmarshal(&is, info, args.get(), closure, false, &info->metadata);
                 }
             }
@@ -2218,7 +2214,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*> i
             {
                 if (is.readOptional(info->tag, info->type->optionalFormat()))
                 {
-                    void* closure = reinterpret_cast<void*>(info->pos);
+                    void* closure = reinterpret_cast<void*>(info->pos); // NOLINT(performance-no-int-to-ptr)
                     info->type->unmarshal(&is, info, args.get(), closure, true, &info->metadata);
                 }
                 else
@@ -2787,12 +2783,9 @@ IcePy::TypedServantWrapper::ice_invokeAsync(
             }
         }
 
-        //
-        // See bug 4976.
-        //
-        if (!op->pseudoOp)
+        if (op->mode == Ice::OperationMode::Normal)
         {
-            _iceCheckMode(op->mode, current.mode);
+            checkNonIdempotent(current);
         }
 
         UpcallPtr up = make_shared<TypedUpcall>(op, std::move(response), error, current.adapter->getCommunicator());
