@@ -2957,10 +2957,7 @@ public sealed class InputStream
                 throw new MarshalException("index for class received, but no instance");
             }
 
-            if (cb != null)
-            {
-                cb(v);
-            }
+            cb?.Invoke(v);
             return index;
         }
 

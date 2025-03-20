@@ -59,8 +59,8 @@ public class Server : TestHelper
         public override Test.MyOtherClass
         opMyOtherClass(Test.MyOtherClass c1, Ice.Current current) => c1;
 
-        override
-        public void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
+        public
+        override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
     }
 
     private class MyInterface2 : Test.Inner.MyInterfaceDisp_
@@ -109,8 +109,8 @@ public class Server : TestHelper
             return c1;
         }
 
-        override
-        public void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
+        public
+        override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
     }
 
     private class MyInterface3 : Test.Inner.Inner2.MyInterfaceDisp_
@@ -159,8 +159,8 @@ public class Server : TestHelper
             return c1;
         }
 
-        override
-        public void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
+        public
+        override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
     }
 
     private class MyInterface4 : Inner.Test.Inner2.MyInterfaceDisp_

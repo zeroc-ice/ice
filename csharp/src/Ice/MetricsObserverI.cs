@@ -409,10 +409,7 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
             updater = _updater;
         }
 
-        if (updater != null)
-        {
-            updater();
-        }
+        updater?.Invoke();
     }
 
     public void setUpdater(Action updater)
