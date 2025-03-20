@@ -459,7 +459,8 @@ internal sealed class UdpTransceiver : Transceiver
         {
             if (_writeEventArgs.SocketError != SocketError.Success)
             {
-                System.Net.Sockets.SocketException ex = new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
+                System.Net.Sockets.SocketException ex =
+                    new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
                 if (Network.connectionRefused(ex))
                 {
                     throw new Ice.ConnectionRefusedException(ex);

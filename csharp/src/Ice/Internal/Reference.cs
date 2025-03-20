@@ -992,8 +992,10 @@ public class RoutableReference : Reference
             [prefix + ".PreferSecure"] = _preferSecure ? "1" : "0",
             [prefix + ".EndpointSelection"] =
                    _endpointSelection == Ice.EndpointSelectionType.Random ? "Random" : "Ordered",
-            [prefix + ".LocatorCacheTimeout"] = _locatorCacheTimeout.TotalSeconds.ToString(CultureInfo.InvariantCulture),
-            [prefix + ".InvocationTimeout"] = getInvocationTimeout().TotalMilliseconds.ToString(CultureInfo.InvariantCulture)
+            [prefix + ".LocatorCacheTimeout"] =
+                _locatorCacheTimeout.TotalSeconds.ToString(CultureInfo.InvariantCulture),
+            [prefix + ".InvocationTimeout"] =
+                getInvocationTimeout().TotalMilliseconds.ToString(CultureInfo.InvariantCulture)
         };
 
         if (_routerInfo != null)

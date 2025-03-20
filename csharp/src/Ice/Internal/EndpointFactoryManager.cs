@@ -46,7 +46,8 @@ public sealed class EndpointFactoryManager
 
     public EndpointI create(string str, bool oaEndpoint)
     {
-        string[] arr = Ice.UtilInternal.StringUtil.splitString(str, " \t\r\n") ?? throw new ParseException($"Failed to parse endpoint '{str}': mismatched quote");
+        string[] arr = Ice.UtilInternal.StringUtil.splitString(str, " \t\r\n") ??
+            throw new ParseException($"Failed to parse endpoint '{str}': mismatched quote");
         if (arr.Length == 0)
         {
             throw new ParseException($"Failed to parse endpoint '{str}': value has no non-whitespace characters");

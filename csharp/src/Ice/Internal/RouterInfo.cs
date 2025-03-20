@@ -107,7 +107,8 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
     public EndpointI[] getServerEndpoints()
     {
-        Ice.ObjectPrx serverProxy = _router.getServerProxy() ?? throw new NoEndpointException("Router::getServerProxy returned a null proxy.");
+        Ice.ObjectPrx serverProxy = _router.getServerProxy() ??
+            throw new NoEndpointException("Router::getServerProxy returned a null proxy.");
         serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
         return ((Ice.ObjectPrxHelperBase)serverProxy).iceReference().getEndpoints();
     }

@@ -86,6 +86,7 @@ public class Instrumentation
     }
 
     private static readonly Ice.Instrumentation.CommunicatorObserver communicatorObserver = new CommunicatorObserverI();
+LINE TOO LONG
 
     public static Ice.Instrumentation.CommunicatorObserver
     getObserver() => communicatorObserver;

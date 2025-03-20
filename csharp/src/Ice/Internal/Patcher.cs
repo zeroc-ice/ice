@@ -63,15 +63,19 @@ public sealed class Patcher
                 return i;
             }
 
-            MethodInfo? am = t.GetMethod("Add", [typeof(T)]) ?? throw new Ice.MarshalException("Cannot patch a collection without an Add() method");
-            PropertyInfo? pi = t.GetProperty("Item") ?? throw new Ice.MarshalException("Cannot patch a collection without an indexer");
-            MethodInfo? sm = pi.GetSetMethod() ?? throw new Ice.MarshalException("Cannot patch a collection without an indexer to set a value");
+            MethodInfo? am = t.GetMethod("Add", [typeof(T)]) ??
+                throw new Ice.MarshalException("Cannot patch a collection without an Add() method");
+            PropertyInfo? pi = t.GetProperty("Item") ??
+                throw new Ice.MarshalException("Cannot patch a collection without an indexer");
+            MethodInfo? sm = pi.GetSetMethod() ??
+                throw new Ice.MarshalException("Cannot patch a collection without an indexer to set a value");
             pi = t.GetProperty("Count");
             if (pi == null)
             {
                 throw new Ice.MarshalException("Cannot patch a collection without a Count property");
             }
-            MethodInfo? cm = pi.GetGetMethod() ?? throw new Ice.MarshalException("Cannot patch a collection without a readable Count property");
+            MethodInfo? cm = pi.GetGetMethod() ??
+                throw new Ice.MarshalException("Cannot patch a collection without a readable Count property");
             i = new InvokeInfo(am, sm, cm);
             _methodTable.Add(t, i);
             return i;
