@@ -227,7 +227,7 @@ internal sealed class UdpEndpointI : IPEndpointI
             return type() < obj.type() ? -1 : 1;
         }
 
-        UdpEndpointI p = (UdpEndpointI)obj;
+        var p = (UdpEndpointI)obj;
         if (this == p)
         {
             return 0;

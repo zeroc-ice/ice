@@ -46,7 +46,7 @@ public class CollocatedRequestHandler : RequestHandler
             }
             if (outAsync is OutgoingAsync)
             {
-                OutgoingAsync o = (OutgoingAsync)outAsync;
+                var o = (OutgoingAsync)outAsync;
                 Debug.Assert(o != null);
                 foreach (KeyValuePair<int, OutgoingAsyncBase> e in _asyncRequests)
                 {
@@ -167,7 +167,7 @@ public class CollocatedRequestHandler : RequestHandler
             TraceUtil.traceSend(os, _reference.getInstance(), connection: null, _logger, _traceLevels);
         }
 
-        Ice.InputStream iss = new Ice.InputStream(_reference.getInstance(), os.getEncoding(), os.getBuffer(), false);
+        var iss = new Ice.InputStream(_reference.getInstance(), os.getEncoding(), os.getBuffer(), false);
 
         if (requestCount > 0)
         {

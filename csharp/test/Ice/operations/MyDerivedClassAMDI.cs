@@ -115,7 +115,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
     opByteBoolDAsync(Dictionary<byte, bool> p1, Dictionary<byte, bool> p2, Current current)
     {
         Dictionary<byte, bool> p3 = p1;
-        Dictionary<byte, bool> r = new Dictionary<byte, bool>();
+        var r = new Dictionary<byte, bool>();
         foreach (KeyValuePair<byte, bool> e in p1)
         {
             r[e.Key] = e.Value;

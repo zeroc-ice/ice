@@ -45,7 +45,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
     public override void startService(string name, Ice.Current current)
     {
-        ServiceInfo info = new ServiceInfo();
+        var info = new ServiceInfo();
         lock (_mutex)
         {
             //
@@ -100,7 +100,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                     {
                         info.status = ServiceStatus.Started;
 
-                        List<string> services = new List<string>();
+                        var services = new List<string>();
                         services.Add(name);
                         servicesStarted(services, _observers.Keys);
                     }
@@ -119,7 +119,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
     public override void stopService(string name, Ice.Current current)
     {
-        ServiceInfo info = new ServiceInfo();
+        var info = new ServiceInfo();
         lock (_mutex)
         {
             //
@@ -171,7 +171,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                     {
                         info.status = ServiceStatus.Stopped;
 
-                        List<string> services = new List<string>();
+                        var services = new List<string>();
                         services.Add(name);
                         servicesStopped(services, _observers.Keys);
                     }
@@ -190,7 +190,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
     public override void addObserver(ServiceObserverPrx observer, Ice.Current current)
     {
-        List<string> activeServices = new List<string>();
+        var activeServices = new List<string>();
 
         //
         // Null observers and duplicate registrations are ignored
@@ -272,7 +272,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             }
 
             string[] loadOrder = properties.getIcePropertyAsList("IceBox.LoadOrder");
-            List<StartServiceInfo> servicesInfo = new List<StartServiceInfo>();
+            var servicesInfo = new List<StartServiceInfo>();
             for (int i = 0; i < loadOrder.Length; ++i)
             {
                 if (loadOrder[i].Length > 0)
@@ -301,7 +301,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             //
             if (properties.getPropertiesForPrefix("IceBox.UseSharedCommunicator.").Count > 0)
             {
-                Ice.InitializationData initData = new Ice.InitializationData();
+                var initData = new Ice.InitializationData();
                 initData.properties = createServiceProperties("SharedCommunicator");
                 foreach (StartServiceInfo service in servicesInfo)
                 {
@@ -314,7 +314,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                     // Load the service properties using the shared communicator properties as
                     // the default properties.
                     //
-                    Ice.Properties svcProperties = new Ice.Properties(ref service.args, initData.properties);
+                    var svcProperties = new Ice.Properties(ref service.args, initData.properties);
 
                     //
                     // Remove properties from the shared property set that a service explicitly clears.
@@ -497,7 +497,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 throw new FailureException($"{err}GetType failed for '{className}'.", ex);
             }
 
-            ServiceInfo info = new ServiceInfo();
+            var info = new ServiceInfo();
             info.name = service;
             info.status = ServiceStatus.Stopped;
             info.args = args;
@@ -521,7 +521,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 // Create the service properties. We use the communicator properties as the default
                 // properties if IceBox.InheritProperties is set.
                 //
-                Ice.InitializationData initData = new Ice.InitializationData();
+                var initData = new Ice.InitializationData();
                 initData.properties = createServiceProperties(service);
                 if (info.args.Length > 0)
                 {
@@ -588,7 +588,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                     // If the service class provides a constructor that accepts an Ice.Communicator argument,
                     // use that in preference to the default constructor.
                     //
-                    Type[] parameterTypes = new Type[1];
+                    var parameterTypes = new Type[1];
                     parameterTypes[0] = typeof(Ice.Communicator);
                     System.Reflection.ConstructorInfo ci = c.GetConstructor(parameterTypes);
                     if (ci != null)
@@ -693,7 +693,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
             // the disk. Services are stopped in the reverse order of the order they were started.
             //
             _services.Reverse();
-            List<string> stoppedServices = new List<string>();
+            var stoppedServices = new List<string>();
             foreach (ServiceInfo info in _services)
             {
                 if (info.status == ServiceStatus.Started)
@@ -873,7 +873,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
             if (serverArgs.Length > 0)
             {
-                ArrayList l = new ArrayList();
+                var l = new ArrayList();
                 for (int j = 0; j < args.Length; j++)
                 {
                     l.Add(args[j]);
@@ -901,7 +901,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
         if (communicatorProperties.getIcePropertyAsInt("IceBox.InheritProperties") > 0)
         {
             // Inherit all except IceBox. and Ice.Admin. properties
-            foreach (var property in communicatorProperties.getPropertiesForPrefix(""))
+            foreach (KeyValuePair<string, string> property in communicatorProperties.getPropertiesForPrefix(""))
             {
                 if (!property.Key.StartsWith("IceBox.", StringComparison.Ordinal) &&
                     !property.Key.StartsWith("Ice.Admin.", StringComparison.Ordinal))
@@ -954,7 +954,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
     {
         if (_adminEnabled && properties.getIceProperty("Ice.Admin.Enabled").Length == 0)
         {
-            List<string> facetNames = new List<string>();
+            var facetNames = new List<string>();
             foreach (string p in _adminFacetFilter)
             {
                 if (p.StartsWith(prefix, StringComparison.Ordinal))

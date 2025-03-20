@@ -47,7 +47,7 @@ public sealed class Timer
                 throw new Ice.CommunicatorDestroyedException();
             }
 
-            Token token = new Token(Time.currentMonotonicTimeMillis() + delay, ++_tokenId, 0, task);
+            var token = new Token(Time.currentMonotonicTimeMillis() + delay, ++_tokenId, 0, task);
 
             try
             {
@@ -75,7 +75,7 @@ public sealed class Timer
                 throw new Ice.CommunicatorDestroyedException();
             }
 
-            Token token = new Token(Time.currentMonotonicTimeMillis() + period, ++_tokenId, period, task);
+            var token = new Token(Time.currentMonotonicTimeMillis() + period, ++_tokenId, period, task);
 
             try
             {
@@ -286,7 +286,7 @@ public sealed class Timer
             //
             // Token are sorted by scheduled time and token id.
             //
-            Token r = (Token)o;
+            var r = (Token)o;
             if (scheduledTime < r.scheduledTime)
             {
                 return -1;
@@ -314,7 +314,7 @@ public sealed class Timer
             {
                 return true;
             }
-            Token t = o as Token;
+            var t = o as Token;
             return t == null ? false : CompareTo(t) == 0;
         }
 

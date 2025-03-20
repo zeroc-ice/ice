@@ -221,10 +221,10 @@ public sealed class StringUtil
         {
             // Encode UTF-8 bytes
 
-            UTF8Encoding utf8 = new UTF8Encoding();
+            var utf8 = new UTF8Encoding();
             byte[] bytes = utf8.GetBytes(s);
 
-            StringBuilder result = new StringBuilder(bytes.Length);
+            var result = new StringBuilder(bytes.Length);
             for (int i = 0; i < bytes.Length; i++)
             {
                 encodeChar((char)bytes[i], result, special, toStringMode);
@@ -234,7 +234,7 @@ public sealed class StringUtil
         }
         else
         {
-            StringBuilder result = new StringBuilder(s.Length);
+            var result = new StringBuilder(s.Length);
 
             for (int i = 0; i < s.Length; i++)
             {
@@ -552,8 +552,8 @@ public sealed class StringUtil
         }
         else
         {
-            StringBuilder sb = new StringBuilder(end - start);
-            UTF8Encoding utf8Encoding = new UTF8Encoding(false, true);
+            var sb = new StringBuilder(end - start);
+            var utf8Encoding = new UTF8Encoding(false, true);
             while (start < end)
             {
                 start = decodeChar(s, start, end, special, sb, utf8Encoding);
@@ -567,7 +567,7 @@ public sealed class StringUtil
     //
     public static string[] splitString(string str, string delim)
     {
-        List<string> l = new List<string>();
+        var l = new List<string>();
         char[] arr = new char[str.Length];
         int pos = 0;
 

@@ -86,7 +86,7 @@ public sealed class SOCKSNetworkProxy : NetworkProxy
         //
         // SOCKS connect request
         //
-        IPEndPoint addr = (IPEndPoint)endpoint;
+        var addr = (IPEndPoint)endpoint;
         buf.resize(9, false);
         ByteBuffer.ByteOrder order = buf.b.order();
         buf.b.order(ByteBuffer.ByteOrder.BigEndian); // Network byte order.
@@ -183,7 +183,7 @@ public sealed class HTTPNetworkProxy : NetworkProxy
     public void beginWrite(EndPoint endpoint, Buffer buf)
     {
         string addr = Network.addrToString(endpoint);
-        StringBuilder str = new StringBuilder();
+        var str = new StringBuilder();
         str.Append("CONNECT ");
         str.Append(addr);
         str.Append(" HTTP/1.1\r\nHost: ");
@@ -238,7 +238,7 @@ public sealed class HTTPNetworkProxy : NetworkProxy
 
     public void finish(Buffer readBuffer, Buffer writeBuffer)
     {
-        HttpParser parser = new HttpParser();
+        var parser = new HttpParser();
         parser.parse(readBuffer.b, 0, readBuffer.b.position());
         if (parser.status() != 200)
         {

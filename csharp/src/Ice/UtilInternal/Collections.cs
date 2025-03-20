@@ -54,7 +54,7 @@ public static class Collections
         int j = mid;
         int k = 0;
 
-        T[] tmp = new T[end - begin];
+        var tmp = new T[end - begin];
         while (i < mid && j < end)
         {
             if (comparator.Compare(array[i], array[j]) <= 0)

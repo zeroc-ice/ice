@@ -51,7 +51,7 @@ public class AllTests : Test.AllTests
             //
             // Test: PropertiesAdmin::setProperties()
             //
-            Dictionary<string, string> setProps = new Dictionary<string, string>
+            var setProps = new Dictionary<string, string>
             {
                 { "Prop1", "10" }, // Changed
                 { "Prop2", "20" }, // Changed
@@ -92,7 +92,7 @@ public class AllTests : Test.AllTests
             views = ma.getMetricsViewNames(out disabledViews);
             test(views.Length == 0);
 
-            Dictionary<string, string> setProps = new Dictionary<string, string>
+            var setProps = new Dictionary<string, string>
             {
                 { "IceMX.Metrics.Debug.GroupBy", "id" },
                 { "IceMX.Metrics.All.GroupBy", "none" },

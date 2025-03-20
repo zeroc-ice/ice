@@ -478,7 +478,7 @@ public sealed class OutputStream
         }
 
         {
-            List<byte>? value = v as List<byte>;
+            var value = v as List<byte>;
             if (value != null)
             {
                 writeByteSeq(value.ToArray());
@@ -487,7 +487,7 @@ public sealed class OutputStream
         }
 
         {
-            LinkedList<byte>? value = v as LinkedList<byte>;
+            var value = v as LinkedList<byte>;
             if (value != null)
             {
                 writeSize(count);
@@ -502,7 +502,7 @@ public sealed class OutputStream
         }
 
         {
-            Queue<byte>? value = v as Queue<byte>;
+            var value = v as Queue<byte>;
             if (value != null)
             {
                 writeByteSeq(value.ToArray());
@@ -511,7 +511,7 @@ public sealed class OutputStream
         }
 
         {
-            Stack<byte>? value = v as Stack<byte>;
+            var value = v as Stack<byte>;
             if (value != null)
             {
                 writeByteSeq(value.ToArray());
@@ -633,7 +633,7 @@ public sealed class OutputStream
         }
 
         {
-            List<bool>? value = v as List<bool>;
+            var value = v as List<bool>;
             if (value != null)
             {
                 writeBoolSeq(value.ToArray());
@@ -642,7 +642,7 @@ public sealed class OutputStream
         }
 
         {
-            LinkedList<bool>? value = v as LinkedList<bool>;
+            var value = v as LinkedList<bool>;
             if (value != null)
             {
                 writeSize(count);
@@ -657,7 +657,7 @@ public sealed class OutputStream
         }
 
         {
-            Queue<bool>? value = v as Queue<bool>;
+            var value = v as Queue<bool>;
             if (value != null)
             {
                 writeBoolSeq(value.ToArray());
@@ -666,7 +666,7 @@ public sealed class OutputStream
         }
 
         {
-            Stack<bool>? value = v as Stack<bool>;
+            var value = v as Stack<bool>;
             if (value != null)
             {
                 writeBoolSeq(value.ToArray());
@@ -778,7 +778,7 @@ public sealed class OutputStream
         }
 
         {
-            List<short>? value = v as List<short>;
+            var value = v as List<short>;
             if (value != null)
             {
                 writeShortSeq(value.ToArray());
@@ -787,7 +787,7 @@ public sealed class OutputStream
         }
 
         {
-            LinkedList<short>? value = v as LinkedList<short>;
+            var value = v as LinkedList<short>;
             if (value != null)
             {
                 writeSize(count);
@@ -802,7 +802,7 @@ public sealed class OutputStream
         }
 
         {
-            Queue<short>? value = v as Queue<short>;
+            var value = v as Queue<short>;
             if (value != null)
             {
                 writeShortSeq(value.ToArray());
@@ -811,7 +811,7 @@ public sealed class OutputStream
         }
 
         {
-            Stack<short>? value = v as Stack<short>;
+            var value = v as Stack<short>;
             if (value != null)
             {
                 writeShortSeq(value.ToArray());
@@ -935,7 +935,7 @@ public sealed class OutputStream
         }
 
         {
-            List<int>? value = v as List<int>;
+            var value = v as List<int>;
             if (value != null)
             {
                 writeIntSeq(value.ToArray());
@@ -944,7 +944,7 @@ public sealed class OutputStream
         }
 
         {
-            LinkedList<int>? value = v as LinkedList<int>;
+            var value = v as LinkedList<int>;
             if (value != null)
             {
                 writeSize(count);
@@ -959,7 +959,7 @@ public sealed class OutputStream
         }
 
         {
-            Queue<int>? value = v as Queue<int>;
+            var value = v as Queue<int>;
             if (value != null)
             {
                 writeIntSeq(value.ToArray());
@@ -968,7 +968,7 @@ public sealed class OutputStream
         }
 
         {
-            Stack<int>? value = v as Stack<int>;
+            var value = v as Stack<int>;
             if (value != null)
             {
                 writeIntSeq(value.ToArray());
@@ -1082,7 +1082,7 @@ public sealed class OutputStream
         }
 
         {
-            List<long>? value = v as List<long>;
+            var value = v as List<long>;
             if (value != null)
             {
                 writeLongSeq(value.ToArray());
@@ -1091,7 +1091,7 @@ public sealed class OutputStream
         }
 
         {
-            LinkedList<long>? value = v as LinkedList<long>;
+            var value = v as LinkedList<long>;
             if (value != null)
             {
                 writeSize(count);
@@ -1106,7 +1106,7 @@ public sealed class OutputStream
         }
 
         {
-            Queue<long>? value = v as Queue<long>;
+            var value = v as Queue<long>;
             if (value != null)
             {
                 writeLongSeq(value.ToArray());
@@ -1115,7 +1115,7 @@ public sealed class OutputStream
         }
 
         {
-            Stack<long>? value = v as Stack<long>;
+            var value = v as Stack<long>;
             if (value != null)
             {
                 writeLongSeq(value.ToArray());
@@ -1229,7 +1229,7 @@ public sealed class OutputStream
         }
 
         {
-            List<float>? value = v as List<float>;
+            var value = v as List<float>;
             if (value != null)
             {
                 writeFloatSeq(value.ToArray());
@@ -1238,7 +1238,7 @@ public sealed class OutputStream
         }
 
         {
-            LinkedList<float>? value = v as LinkedList<float>;
+            var value = v as LinkedList<float>;
             if (value != null)
             {
                 writeSize(count);
@@ -1253,7 +1253,7 @@ public sealed class OutputStream
         }
 
         {
-            Queue<float>? value = v as Queue<float>;
+            var value = v as Queue<float>;
             if (value != null)
             {
                 writeFloatSeq(value.ToArray());
@@ -1262,7 +1262,7 @@ public sealed class OutputStream
         }
 
         {
-            Stack<float>? value = v as Stack<float>;
+            var value = v as Stack<float>;
             if (value != null)
             {
                 writeFloatSeq(value.ToArray());
@@ -1376,7 +1376,7 @@ public sealed class OutputStream
         }
 
         {
-            List<double>? value = v as List<double>;
+            var value = v as List<double>;
             if (value != null)
             {
                 writeDoubleSeq(value.ToArray());
@@ -1385,7 +1385,7 @@ public sealed class OutputStream
         }
 
         {
-            LinkedList<double>? value = v as LinkedList<double>;
+            var value = v as LinkedList<double>;
             if (value != null)
             {
                 writeSize(count);
@@ -1400,7 +1400,7 @@ public sealed class OutputStream
         }
 
         {
-            Queue<double>? value = v as Queue<double>;
+            var value = v as Queue<double>;
             if (value != null)
             {
                 writeDoubleSeq(value.ToArray());
@@ -1409,7 +1409,7 @@ public sealed class OutputStream
         }
 
         {
-            Stack<double>? value = v as Stack<double>;
+            var value = v as Stack<double>;
             if (value != null)
             {
                 writeDoubleSeq(value.ToArray());
@@ -1923,15 +1923,15 @@ public sealed class OutputStream
                 // marshaled instances" into _toBeMarshaledMap while writing
                 // instances.
                 //
-                foreach (var e in _toBeMarshaledMap)
+                foreach (KeyValuePair<Value, int> e in _toBeMarshaledMap)
                 {
                     _marshaledMap.Add(e.Key, e.Value);
                 }
 
-                var savedMap = _toBeMarshaledMap;
+                Dictionary<Value, int> savedMap = _toBeMarshaledMap;
                 _toBeMarshaledMap = new Dictionary<Value, int>();
                 _stream.writeSize(savedMap.Count);
-                foreach (var p in savedMap)
+                foreach (KeyValuePair<Value, int> p in savedMap)
                 {
                     //
                     // Ask the instance to marshal itself. Any new class
@@ -2165,7 +2165,7 @@ public sealed class OutputStream
                 // Write the indirect instance table.
                 //
                 _stream.writeSize(_current.indirectionTable.Count);
-                foreach (var v in _current.indirectionTable)
+                foreach (Value v in _current.indirectionTable)
                 {
                     writeInstance(v);
                 }
@@ -2214,7 +2214,7 @@ public sealed class OutputStream
                 return;
             }
 
-            foreach (var info in slicedData.slices)
+            foreach (SliceInfo info in slicedData.slices)
             {
                 startSlice(info.typeId, info.compactId, info.isLastSlice);
 
@@ -2238,7 +2238,7 @@ public sealed class OutputStream
                         _current.indirectionTable = new List<Value>();
                         _current.indirectionMap = new Dictionary<Value, int>();
                     }
-                    foreach (var o in info.instances)
+                    foreach (Value o in info.instances)
                     {
                         _current.indirectionTable.Add(o);
                     }

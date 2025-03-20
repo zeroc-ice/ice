@@ -67,7 +67,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
         }
 
         bool? hasRoutingTable;
-        var proxy = _router.getClientProxy(out hasRoutingTable);
+        ObjectPrx proxy = _router.getClientProxy(out hasRoutingTable);
         return setClientEndpoints(proxy, hasRoutingTable ?? true);
     }
 
@@ -90,7 +90,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
         {
             try
             {
-                var r = await router.getClientProxyAsync().ConfigureAwait(false);
+                Router_GetClientProxyResult r = await router.getClientProxyAsync().ConfigureAwait(false);
                 callback.setEndpoints(setClientEndpoints(r.returnValue, r.hasRoutingTable ?? true));
             }
             catch (Ice.LocalException ex)
@@ -138,7 +138,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
         {
             try
             {
-                var evictedProxies = await router.addProxiesAsync([new ObjectPrxHelper(reference)]).ConfigureAwait(false);
+                ObjectPrx[] evictedProxies = await router.addProxiesAsync([new ObjectPrxHelper(reference)]).ConfigureAwait(false);
                 addAndEvictProxies(identity, evictedProxies);
                 callback.addedProxy();
             }

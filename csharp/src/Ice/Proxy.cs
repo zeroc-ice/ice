@@ -838,7 +838,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     {
         try
         {
-            var result = iceI_ice_invokeAsync(
+            Object_Ice_invokeResult result = iceI_ice_invokeAsync(
                 operation,
                 mode,
                 inEncaps,
@@ -1282,7 +1282,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <returns>The locator for this proxy. If no locator is configured, the return value is null.</returns>
     public LocatorPrx? ice_getLocator()
     {
-        var li = _reference.getLocatorInfo();
+        LocatorInfo li = _reference.getLocatorInfo();
         return li?.getLocator();
     }
 

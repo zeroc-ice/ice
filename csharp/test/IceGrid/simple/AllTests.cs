@@ -60,7 +60,7 @@ public class AllTests : Test.AllTests
             // Ensure the IceGrid discovery locator can discover the
             // registries and make sure locator requests are forwarded.
             //
-            Ice.InitializationData initData = new Ice.InitializationData();
+            var initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().Clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",

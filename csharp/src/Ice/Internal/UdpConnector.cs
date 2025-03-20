@@ -47,7 +47,7 @@ internal sealed class UdpConnector : Connector
             return true;
         }
 
-        UdpConnector p = (UdpConnector)obj;
+        var p = (UdpConnector)obj;
         if (!_connectionId.Equals(p._connectionId, StringComparison.Ordinal))
         {
             return false;

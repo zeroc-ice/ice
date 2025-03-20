@@ -50,7 +50,7 @@ internal sealed class StreamSocket
         {
             if (_writeEventArgs.SocketError != SocketError.Success)
             {
-                System.Net.Sockets.SocketException ex = new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
+                var ex = new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
                 if (Network.connectionRefused(ex))
                 {
                     throw new Ice.ConnectionRefusedException(ex);

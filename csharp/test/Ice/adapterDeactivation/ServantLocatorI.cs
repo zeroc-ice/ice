@@ -61,7 +61,7 @@ public sealed class ServantLocatorI : Ice.ServantLocator
             return;
         }
 
-        Cookie co = (Cookie)cookie;
+        var co = (Cookie)cookie;
         test(co.message() == "blahblah");
     }
 

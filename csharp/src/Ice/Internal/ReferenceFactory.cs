@@ -371,11 +371,11 @@ internal class ReferenceFactory
             return create(ident, facet, mode, secure, protocol, encoding, null, null, propertyPrefix);
         }
 
-        List<EndpointI> endpoints = new List<EndpointI>();
+        var endpoints = new List<EndpointI>();
 
         if (s[beg] == ':')
         {
-            List<string> unknownEndpoints = new List<string>();
+            var unknownEndpoints = new List<string>();
             end = beg;
 
             while (end < s.Length && s[end] == ':')
@@ -444,7 +444,7 @@ internal class ReferenceFactory
             else if (unknownEndpoints.Count != 0 &&
                     _instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Endpoints") > 0)
             {
-                StringBuilder msg = new StringBuilder("Proxy contains unknown endpoints:");
+                var msg = new StringBuilder("Proxy contains unknown endpoints:");
                 int sz = unknownEndpoints.Count;
                 for (int idx = 0; idx < sz; ++idx)
                 {
@@ -589,7 +589,7 @@ internal class ReferenceFactory
             return this;
         }
 
-        ReferenceFactory factory = new ReferenceFactory(_instance, _communicator);
+        var factory = new ReferenceFactory(_instance, _communicator);
         factory._defaultLocator = _defaultLocator;
         factory._defaultRouter = defaultRouter;
         return factory;
@@ -607,7 +607,7 @@ internal class ReferenceFactory
             return this;
         }
 
-        ReferenceFactory factory = new ReferenceFactory(_instance, _communicator);
+        var factory = new ReferenceFactory(_instance, _communicator);
         factory._defaultLocator = defaultLocator;
         factory._defaultRouter = _defaultRouter;
         return factory;

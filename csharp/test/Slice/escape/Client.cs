@@ -51,7 +51,7 @@ public class Client : Test.TestHelper
     {
         escaped_abstract.@as a = escaped_abstract.@as.@base;
         test(a == escaped_abstract.@as.@base);
-        escaped_abstract.@break b = new escaped_abstract.@break();
+        var b = new escaped_abstract.@break();
         b.@readonly = 0;
         test(b.@readonly == 0);
         escaped_abstract.@case c = new caseI();
@@ -65,7 +65,7 @@ public class Client : Test.TestHelper
         escaped_abstract.@decimalPrx d1 = null;
         d1?.@default();
         test(d1 == null);
-        escaped_abstract.@delegate e = new escaped_abstract.@delegate();
+        var e = new escaped_abstract.@delegate();
         test(e != null);
         escaped_abstract.@delegate e1 = null;
         test(e1 == null);
@@ -76,12 +76,12 @@ public class Client : Test.TestHelper
             f1.@default();
         }
         test(f1 == null);
-        Dictionary<string, escaped_abstract.@break> g2 = new Dictionary<string, escaped_abstract.@break>();
+        var g2 = new Dictionary<string, escaped_abstract.@break>();
         test(g2 != null);
-        escaped_abstract.@fixed h = new escaped_abstract.@fixed();
+        var h = new escaped_abstract.@fixed();
         h.@for = 0;
         test(h != null);
-        escaped_abstract.@foreach i = new escaped_abstract.@foreach();
+        var i = new escaped_abstract.@foreach();
         i.@for = 0;
         i.@goto = 1;
         i.@if = 2;

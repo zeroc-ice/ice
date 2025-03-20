@@ -54,8 +54,8 @@ public class AllTests : global::Test.AllTests
         Ice.Communicator communicator = helper.communicator();
         communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
-        PingReplyI replyI = new PingReplyI();
-        Test.PingReplyPrx reply =
+        var replyI = new PingReplyI();
+        var reply =
           (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         adapter.activate();
 
@@ -143,7 +143,7 @@ public class AllTests : global::Test.AllTests
 
         Console.Out.Write("testing udp multicast... ");
         Console.Out.Flush();
-        StringBuilder endpoint = new StringBuilder();
+        var endpoint = new StringBuilder();
         //
         // Use loopback to prevent other machines to answer.
         //

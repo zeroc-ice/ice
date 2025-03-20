@@ -31,7 +31,7 @@ public class AllTests : global::Test.AllTests
         r = oa.findDefaultServant("bar");
         test(r == null);
 
-        Ice.Identity identity = new Ice.Identity("", "foo");
+        var identity = new Ice.Identity("", "foo");
 
         string[] names = new string[] { "foo", "bar", "x", "y", "abcdefg" };
 

@@ -343,7 +343,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             int status = OutgoingAsyncBase.AsyncStatusQueued;
             try
             {
-                OutgoingMessage message = new OutgoingMessage(og, os, compress, requestId);
+                var message = new OutgoingMessage(og, os, compress, requestId);
                 status = sendMessage(message);
             }
             catch (LocalException ex)
@@ -675,7 +675,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 _transceiver.finishWrite(buf);
                 if (_instance.traceLevels().network >= 3 && buf.b.position() != start)
                 {
-                    StringBuilder s = new StringBuilder("sent ");
+                    var s = new StringBuilder("sent ");
                     s.Append(buf.b.position() - start);
                     if (!_endpoint.datagram())
                     {
@@ -701,7 +701,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 _transceiver.finishRead(buf);
                 if (_instance.traceLevels().network >= 3 && buf.b.position() != start)
                 {
-                    StringBuilder s = new StringBuilder("received ");
+                    var s = new StringBuilder("received ");
                     if (_endpoint.datagram())
                     {
                         s.Append(buf.b.limit());
@@ -736,10 +736,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     {
         StartCallback startCB = null;
         Queue<OutgoingMessage> sentCBs = null;
-        MessageInfo info = new MessageInfo();
+        var info = new MessageInfo();
         int upcallCount = 0;
 
-        using ThreadPoolMessage msg = new ThreadPoolMessage(current, _mutex);
+        using var msg = new ThreadPoolMessage(current, _mutex);
         lock (_mutex)
         {
             try
@@ -1057,7 +1057,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 }
                 if (m.receivedReply)
                 {
-                    OutgoingAsync outAsync = (OutgoingAsync)m.outAsync;
+                    var outAsync = (OutgoingAsync)m.outAsync;
                     if (outAsync.response())
                     {
                         outAsync.invokeResponse();
@@ -1159,7 +1159,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         {
             if (_instance.traceLevels().network >= 2)
             {
-                StringBuilder s = new StringBuilder("failed to ");
+                var s = new StringBuilder("failed to ");
                 s.Append(_connector is not null ? "establish" : "accept");
                 s.Append(' ');
                 s.Append(_endpoint.protocol());
@@ -1174,7 +1174,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         {
             if (_instance.traceLevels().network >= 1)
             {
-                StringBuilder s = new StringBuilder("closed ");
+                var s = new StringBuilder("closed ");
                 s.Append(_endpoint.protocol());
                 s.Append(" connection\n");
                 s.Append(ToString());
@@ -1226,7 +1226,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     }
                     if (message.receivedReply)
                     {
-                        OutgoingAsync outAsync = (OutgoingAsync)message.outAsync;
+                        var outAsync = (OutgoingAsync)message.outAsync;
                         if (outAsync.response())
                         {
                             outAsync.invokeResponse();
@@ -1961,7 +1961,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
         if (_instance.traceLevels().network >= 1)
         {
-            StringBuilder s = new StringBuilder();
+            var s = new StringBuilder();
             if (_endpoint.datagram())
             {
                 s.Append("starting to ");
@@ -2182,7 +2182,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 _compressionLevel);
             if (cbuf is not null)
             {
-                OutputStream cstream = new OutputStream(new Internal.Buffer(cbuf, true), decompressed.getEncoding());
+                var cstream = new OutputStream(new Internal.Buffer(cbuf, true), decompressed.getEncoding());
 
                 //
                 // Set compression status.
@@ -2729,7 +2729,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         int op = _transceiver.read(buf, ref _hasMoreData);
         if (_instance.traceLevels().network >= 3 && buf.b.position() != start)
         {
-            StringBuilder s = new StringBuilder("received ");
+            var s = new StringBuilder("received ");
             if (_endpoint.datagram())
             {
                 s.Append(buf.b.limit());
@@ -2755,7 +2755,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         int op = _transceiver.write(buf);
         if (_instance.traceLevels().network >= 3 && buf.b.position() != start)
         {
-            StringBuilder s = new StringBuilder("sent ");
+            var s = new StringBuilder("sent ");
             s.Append(buf.b.position() - start);
             if (!_endpoint.datagram())
             {

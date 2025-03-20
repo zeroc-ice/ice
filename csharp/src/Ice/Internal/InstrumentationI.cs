@@ -169,7 +169,7 @@ internal class ConnectionHelper : MetricsHelper<ConnectionMetrics>
     {
         if (_id == null)
         {
-            StringBuilder os = new StringBuilder();
+            var os = new StringBuilder();
             Ice.IPConnectionInfo info = getIPConnectionInfo();
             if (info != null)
             {
@@ -322,7 +322,7 @@ internal class DispatchHelper : MetricsHelper<DispatchMetrics>
     {
         if (_id == null)
         {
-            StringBuilder os = new StringBuilder();
+            var os = new StringBuilder();
             if (_current.id.category.Length > 0)
             {
                 os.Append(_current.id.category).Append('/');
@@ -476,7 +476,7 @@ internal class InvocationHelper : MetricsHelper<InvocationMetrics>
         {
             if (_proxy != null)
             {
-                StringBuilder os = new StringBuilder();
+                var os = new StringBuilder();
                 try
                 {
                     os.Append(_proxy.ice_endpoints(emptyEndpoints)).Append(" [").Append(_operation).Append(']');

@@ -40,7 +40,7 @@ public class Server : global::Test.TestHelper
             adapter2.activate();
         }
 
-        StringBuilder endpoint = new StringBuilder();
+        var endpoint = new StringBuilder();
         //
         // Use loopback to prevent other machines to answer.
         //

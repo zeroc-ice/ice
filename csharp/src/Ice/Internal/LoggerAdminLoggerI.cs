@@ -15,28 +15,28 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
 {
     public void print(string message)
     {
-        Ice.LogMessage logMessage = new Ice.LogMessage(Ice.LogMessageType.PrintMessage, now(), "", message);
+        var logMessage = new Ice.LogMessage(Ice.LogMessageType.PrintMessage, now(), "", message);
         _localLogger.print(message);
         log(logMessage);
     }
 
     public void trace(string category, string message)
     {
-        Ice.LogMessage logMessage = new Ice.LogMessage(Ice.LogMessageType.TraceMessage, now(), category, message);
+        var logMessage = new Ice.LogMessage(Ice.LogMessageType.TraceMessage, now(), category, message);
         _localLogger.trace(category, message);
         log(logMessage);
     }
 
     public void warning(string message)
     {
-        Ice.LogMessage logMessage = new Ice.LogMessage(Ice.LogMessageType.WarningMessage, now(), "", message);
+        var logMessage = new Ice.LogMessage(Ice.LogMessageType.WarningMessage, now(), "", message);
         _localLogger.warning(message);
         log(logMessage);
     }
 
     public void error(string message)
     {
-        Ice.LogMessage logMessage = new Ice.LogMessage(Ice.LogMessageType.ErrorMessage, now(), "", message);
+        var logMessage = new Ice.LogMessage(Ice.LogMessageType.ErrorMessage, now(), "", message);
         _localLogger.error(message);
         log(logMessage);
     }
@@ -82,7 +82,7 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
 
     internal LoggerAdminLoggerI(Ice.Properties props, Ice.Logger localLogger)
     {
-        LoggerAdminLoggerI wrapper = localLogger as LoggerAdminLoggerI;
+        var wrapper = localLogger as LoggerAdminLoggerI;
 
         if (wrapper != null)
         {
@@ -157,7 +157,7 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
                 job = _jobQueue.Dequeue();
             }
 
-            foreach (var p in job.remoteLoggers)
+            foreach (RemoteLoggerPrx p in job.remoteLoggers)
             {
                 if (_loggerAdmin.getTraceLevel() > 1)
                 {

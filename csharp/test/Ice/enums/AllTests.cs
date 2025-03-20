@@ -176,7 +176,7 @@ public class AllTests : global::Test.AllTests
         }
 
         {
-            Test.IntEnum[] i1 = new Test.IntEnum[11]
+            var i1 = new Test.IntEnum[11]
                     {
                                 Test.IntEnum.ienum1,
                                 Test.IntEnum.ienum2,

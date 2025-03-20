@@ -66,7 +66,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                        Ice.Current current)
     {
         p3 = p1;
-        Dictionary<byte, bool> r = new Dictionary<byte, bool>();
+        var r = new Dictionary<byte, bool>();
         foreach (KeyValuePair<byte, bool> e in p1)
         {
             r[e.Key] = e.Value;
@@ -164,7 +164,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                          Ice.Current current)
     {
         p3 = p1;
-        Dictionary<long, float> r = new Dictionary<long, float>();
+        var r = new Dictionary<long, float>();
         foreach (KeyValuePair<long, float> e in p1)
         {
             r[e.Key] = e.Value;
@@ -195,7 +195,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                        out Dictionary<short, int> p3, Ice.Current current)
     {
         p3 = p1;
-        Dictionary<short, int> r = new Dictionary<short, int>();
+        var r = new Dictionary<short, int>();
         foreach (KeyValuePair<short, int> e in p1)
         {
             r[e.Key] = e.Value;
@@ -324,7 +324,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         Array.Copy(p2, p3, p2.Length);
         Array.Copy(p1, 0, p3, p2.Length, p1.Length);
 
-        Dictionary<byte, bool>[] r = new Dictionary<byte, bool>[p1.Length];
+        var r = new Dictionary<byte, bool>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
             r[i] = p1[p1.Length - (i + 1)];
@@ -341,7 +341,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         Array.Copy(p2, p3, p2.Length);
         Array.Copy(p1, 0, p3, p2.Length, p1.Length);
 
-        Dictionary<short, int>[] r = new Dictionary<short, int>[p1.Length];
+        var r = new Dictionary<short, int>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
             r[i] = p1[p1.Length - (i + 1)];
@@ -358,7 +358,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         Array.Copy(p2, p3, p2.Length);
         Array.Copy(p1, 0, p3, p2.Length, p1.Length);
 
-        Dictionary<long, float>[] r = new Dictionary<long, float>[p1.Length];
+        var r = new Dictionary<long, float>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
             r[i] = p1[p1.Length - (i + 1)];
@@ -375,7 +375,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         Array.Copy(p2, p3, p2.Length);
         Array.Copy(p1, 0, p3, p2.Length, p1.Length);
 
-        Dictionary<string, string>[] r = new Dictionary<string, string>[p1.Length];
+        var r = new Dictionary<string, string>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
             r[i] = p1[p1.Length - (i + 1)];
@@ -441,7 +441,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                           Ice.Current current)
     {
         p3 = p2;
-        Dictionary<byte, byte[]> r = new Dictionary<byte, byte[]>();
+        var r = new Dictionary<byte, byte[]>();
         foreach (var e in p1)
         {
             r[e.Key] = e.Value;
@@ -459,7 +459,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                           Ice.Current current)
     {
         p3 = p2;
-        Dictionary<bool, bool[]> r = new Dictionary<bool, bool[]>();
+        var r = new Dictionary<bool, bool[]>();
         foreach (KeyValuePair<bool, bool[]> e in p1)
         {
             r[e.Key] = e.Value;
@@ -477,7 +477,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                               Ice.Current current)
     {
         p3 = p2;
-        Dictionary<short, short[]> r = new Dictionary<short, short[]>();
+        var r = new Dictionary<short, short[]>();
         foreach (KeyValuePair<short, short[]> e in p1)
         {
             r[e.Key] = e.Value;
@@ -495,7 +495,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                       Ice.Current current)
     {
         p3 = p2;
-        Dictionary<int, int[]> r = new Dictionary<int, int[]>();
+        var r = new Dictionary<int, int[]>();
         foreach (KeyValuePair<int, int[]> e in p1)
         {
             r[e.Key] = e.Value;
@@ -513,7 +513,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                           Ice.Current current)
     {
         p3 = p2;
-        Dictionary<long, long[]> r = new Dictionary<long, long[]>();
+        var r = new Dictionary<long, long[]>();
         foreach (KeyValuePair<long, long[]> e in p1)
         {
             r[e.Key] = e.Value;
@@ -531,7 +531,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                                 Ice.Current current)
     {
         p3 = p2;
-        Dictionary<string, float[]> r = new Dictionary<string, float[]>();
+        var r = new Dictionary<string, float[]>();
         foreach (KeyValuePair<string, float[]> e in p1)
         {
             r[e.Key] = e.Value;
@@ -549,7 +549,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                                   Ice.Current current)
     {
         p3 = p2;
-        Dictionary<string, double[]> r = new Dictionary<string, double[]>();
+        var r = new Dictionary<string, double[]>();
         foreach (KeyValuePair<string, double[]> e in p1)
         {
             r[e.Key] = e.Value;
@@ -567,7 +567,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                                   Ice.Current current)
     {
         p3 = p2;
-        Dictionary<string, string[]> r = new Dictionary<string, string[]>();
+        var r = new Dictionary<string, string[]>();
         foreach (KeyValuePair<string, string[]> e in p1)
         {
             r[e.Key] = e.Value;
@@ -689,7 +689,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                                Ice.Current current)
     {
         p3 = p1;
-        Dictionary<string, string> r = new Dictionary<string, string>();
+        var r = new Dictionary<string, string>();
         foreach (KeyValuePair<string, string> e in p1)
         {
             r[e.Key] = e.Value;

@@ -158,7 +158,7 @@ internal sealed class TcpEndpointI : IPEndpointI
             return type() < obj.type() ? -1 : 1;
         }
 
-        TcpEndpointI p = (TcpEndpointI)obj;
+        var p = (TcpEndpointI)obj;
         if (this == p)
         {
             return 0;

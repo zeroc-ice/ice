@@ -127,7 +127,7 @@ internal sealed class WSEndpoint : EndpointI
 
         public void connectors(List<Connector> connectors)
         {
-            List<Connector> l = new List<Connector>();
+            var l = new List<Connector>();
             foreach (Connector c in connectors)
             {
                 l.Add(new WSConnector(_instance, c, _host, _resource));
@@ -153,7 +153,7 @@ internal sealed class WSEndpoint : EndpointI
         {
             if (p is Ice.IPEndpointInfo)
             {
-                Ice.IPEndpointInfo ipInfo = (Ice.IPEndpointInfo)p;
+                var ipInfo = (Ice.IPEndpointInfo)p;
                 host = ipInfo.host + ":" + ipInfo.port;
                 break;
             }
@@ -192,7 +192,7 @@ internal sealed class WSEndpoint : EndpointI
         {
             return false;
         }
-        WSEndpoint wsEndpointI = (WSEndpoint)endpoint;
+        var wsEndpointI = (WSEndpoint)endpoint;
         return _delegate.equivalent(wsEndpointI._delegate);
     }
 
@@ -234,7 +234,7 @@ internal sealed class WSEndpoint : EndpointI
             return type() < obj.type() ? -1 : 1;
         }
 
-        WSEndpoint p = (WSEndpoint)obj;
+        var p = (WSEndpoint)obj;
         if (this == p)
         {
             return 0;

@@ -68,7 +68,7 @@ internal abstract class LoggerI : Logger
 
     private string format(string prefix, string category, string message)
     {
-        System.Text.StringBuilder s = new System.Text.StringBuilder(prefix);
+        var s = new System.Text.StringBuilder(prefix);
         s.Append(' ');
         s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
         s.Append(' ');
@@ -234,7 +234,7 @@ internal sealed class TraceLoggerI : LoggerI
 
     private string format(string category, string message)
     {
-        System.Text.StringBuilder s = new System.Text.StringBuilder(_formattedPrefix);
+        var s = new System.Text.StringBuilder(_formattedPrefix);
         s.Append(category);
         s.Append(": ");
         s.Append(message);

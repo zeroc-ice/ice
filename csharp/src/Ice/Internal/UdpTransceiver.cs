@@ -459,7 +459,7 @@ internal sealed class UdpTransceiver : Transceiver
         {
             if (_writeEventArgs.SocketError != SocketError.Success)
             {
-                System.Net.Sockets.SocketException ex =
+                var ex =
                     new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
                 if (Network.connectionRefused(ex))
                 {
@@ -611,10 +611,10 @@ internal sealed class UdpTransceiver : Transceiver
 
     public string toDetailedString()
     {
-        StringBuilder s = new StringBuilder(ToString());
+        var s = new StringBuilder(ToString());
         if (_mcastAddr is not null)
         {
-            var intfs = Network.getInterfacesForMulticast(
+            List<string> intfs = Network.getInterfacesForMulticast(
                 _mcastInterface,
                 Network.getProtocolSupport(_mcastAddr.Address));
             if (intfs.Count != 0)

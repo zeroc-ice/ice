@@ -89,7 +89,7 @@ public class RemoteCommunicatorFactoryI : Test.RemoteCommunicatorFactoryDisp_
         //
         // Prepare the property set using the given properties.
         //
-        Ice.InitializationData init = new Ice.InitializationData();
+        var init = new Ice.InitializationData();
         init.properties = new Ice.Properties();
         foreach (KeyValuePair<string, string> e in props)
         {
@@ -114,12 +114,12 @@ public class RemoteCommunicatorFactoryI : Test.RemoteCommunicatorFactoryDisp_
         //
         // Set the callback on the admin facet.
         //
-        RemoteCommunicatorI servant = new RemoteCommunicatorI(communicator);
+        var servant = new RemoteCommunicatorI(communicator);
         Ice.Object propFacet = communicator.findAdminFacet("Properties");
 
         if (propFacet != null)
         {
-            Ice.NativePropertiesAdmin admin = (Ice.NativePropertiesAdmin)propFacet;
+            var admin = (Ice.NativePropertiesAdmin)propFacet;
             Debug.Assert(admin != null);
             admin.addUpdateCallback(servant.updated);
         }

@@ -63,7 +63,7 @@ public abstract class TestHelper
 
     public static string getTestEndpoint(Ice.Properties properties, int num = 0, string protocol = "")
     {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.Append(protocol.Length == 0 ? properties.getIceProperty("Ice.Default.Protocol") :
                                    protocol);
         sb.Append(" -p ");
@@ -120,21 +120,21 @@ public abstract class TestHelper
 
     public Ice.Properties createTestProperties(ref string[] args)
     {
-        Ice.Properties properties = new Ice.Properties(ref args);
+        var properties = new Ice.Properties(ref args);
         args = properties.parseCommandLineOptions("Test", args);
         return properties;
     }
 
     public Ice.Communicator initialize(ref string[] args)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
+        var initData = new Ice.InitializationData();
         initData.properties = createTestProperties(ref args);
         return initialize(initData);
     }
 
     public Ice.Communicator initialize(Ice.Properties properties)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
+        var initData = new Ice.InitializationData();
         initData.properties = properties;
         return initialize(initData);
     }

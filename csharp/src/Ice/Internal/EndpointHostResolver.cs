@@ -47,7 +47,7 @@ public class EndpointHostResolver
         {
             Debug.Assert(!_destroyed);
 
-            ResolveEntry entry = new ResolveEntry();
+            var entry = new ResolveEntry();
             entry.host = host;
             entry.port = port;
             entry.endpoint = endpoint;
@@ -149,7 +149,7 @@ public class EndpointHostResolver
 
         foreach (ResolveEntry entry in _queue)
         {
-            Ice.CommunicatorDestroyedException ex = new Ice.CommunicatorDestroyedException();
+            var ex = new Ice.CommunicatorDestroyedException();
             if (entry.observer != null)
             {
                 entry.observer.failed(ex.ice_id());

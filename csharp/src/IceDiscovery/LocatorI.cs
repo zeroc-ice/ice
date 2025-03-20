@@ -81,7 +81,7 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
 
             Ice.ObjectPrx prx = _wellKnownProxy.ice_identity(id);
 
-            List<string> adapterIds = new List<string>();
+            var adapterIds = new List<string>();
             foreach (KeyValuePair<string, HashSet<string>> entry in _replicaGroups)
             {
                 try
@@ -131,7 +131,7 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
             HashSet<string> adapterIds;
             if (_replicaGroups.TryGetValue(adapterId, out adapterIds))
             {
-                List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>();
+                var endpoints = new List<Ice.Endpoint>();
                 foreach (string a in adapterIds)
                 {
                     Ice.ObjectPrx proxy;
@@ -189,5 +189,5 @@ internal class LocatorI : Ice.LocatorDisp_
     }
 
     private readonly LookupI _lookup;
-    private Ice.LocatorRegistryPrx _registry;
+    private readonly Ice.LocatorRegistryPrx _registry;
 }

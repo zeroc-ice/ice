@@ -179,7 +179,7 @@ public sealed class Util
     /// <returns>The converted object identity.</returns>
     public static Identity stringToIdentity(string s)
     {
-        Identity ident = new Identity();
+        var ident = new Identity();
 
         //
         // Find unescaped separator; note that the string may contain an escaped

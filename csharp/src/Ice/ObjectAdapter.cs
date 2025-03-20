@@ -774,7 +774,7 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            List<Endpoint> endpoints = new List<Endpoint>();
+            var endpoints = new List<Endpoint>();
             foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
             {
                 endpoints.Add(factory.endpoint());
@@ -1228,7 +1228,7 @@ public sealed class ObjectAdapter
 
         string delim = " \t\n\r";
 
-        List<EndpointI> endpoints = new List<EndpointI>();
+        var endpoints = new List<EndpointI>();
         while (end < endpts.Length)
         {
             beg = Ice.UtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
@@ -1399,7 +1399,7 @@ public sealed class ObjectAdapter
         {
             if (_instance!.traceLevels().location >= 1)
             {
-                StringBuilder s = new StringBuilder();
+                var s = new StringBuilder();
                 s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                 s.Append("the object adapter is not known to the locator registry");
                 _instance.initializationData().logger!.trace(_instance.traceLevels().locationCat, s.ToString());
@@ -1411,7 +1411,7 @@ public sealed class ObjectAdapter
         {
             if (_instance.traceLevels().location >= 1)
             {
-                StringBuilder s = new StringBuilder();
+                var s = new StringBuilder();
                 s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                 s.Append("the replica group `" + _replicaGroupId + "' is not known to the locator registry");
                 _instance.initializationData().logger!.trace(_instance.traceLevels().locationCat, s.ToString());
@@ -1423,7 +1423,7 @@ public sealed class ObjectAdapter
         {
             if (_instance.traceLevels().location >= 1)
             {
-                StringBuilder s = new StringBuilder();
+                var s = new StringBuilder();
                 s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                 s.Append("the object adapter endpoints are already set");
                 _instance.initializationData().logger!.trace(_instance.traceLevels().locationCat, s.ToString());
@@ -1447,7 +1447,7 @@ public sealed class ObjectAdapter
         {
             if (_instance.traceLevels().location >= 1)
             {
-                StringBuilder s = new StringBuilder();
+                var s = new StringBuilder();
                 s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                 s.Append(e.ToString());
                 _instance.initializationData().logger!.trace(_instance.traceLevels().locationCat, s.ToString());
@@ -1457,7 +1457,7 @@ public sealed class ObjectAdapter
 
         if (_instance.traceLevels().location >= 1)
         {
-            StringBuilder s = new StringBuilder();
+            var s = new StringBuilder();
             s.Append("updated object adapter `" + _id + "' endpoints with the locator registry\n");
             s.Append("endpoints = ");
             if (proxy is not null)

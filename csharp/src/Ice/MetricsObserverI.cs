@@ -333,7 +333,7 @@ public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Met
 
         try
         {
-            ObserverImpl obsv = new ObserverImpl();
+            var obsv = new ObserverImpl();
             obsv.init(helper, metricsObjects, null);
             return obsv;
         }

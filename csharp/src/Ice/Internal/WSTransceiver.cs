@@ -50,7 +50,7 @@ internal sealed class WSTransceiver : Transceiver
                     //
                     // Compose the upgrade request.
                     //
-                    StringBuilder @out = new StringBuilder();
+                    var @out = new StringBuilder();
                     @out.Append("GET " + _resource + " HTTP/1.1\r\n");
                     @out.Append("Host: " + _host + "\r\n");
                     @out.Append("Upgrade: websocket\r\n");
@@ -830,7 +830,7 @@ internal sealed class WSTransceiver : Transceiver
         //
         // Compose the response.
         //
-        StringBuilder @out = new StringBuilder();
+        var @out = new StringBuilder();
         @out.Append("HTTP/1.1 101 Switching Protocols\r\n");
         @out.Append("Upgrade: websocket\r\n");
         @out.Append("Connection: Upgrade\r\n");
@@ -852,7 +852,7 @@ internal sealed class WSTransceiver : Transceiver
         @out.Append("Sec-WebSocket-Accept: ");
         string input = key + _wsUUID;
 #pragma warning disable CA5350 // SHA1 is used for compatibility with the WebSocket protocol
-        using SHA1 sha1 = SHA1.Create();
+        using var sha1 = SHA1.Create();
         byte[] hash = sha1.ComputeHash(_utf8.GetBytes(input));
 #pragma warning restore CA5350
         @out.Append(Convert.ToBase64String(hash) + "\r\n" + "\r\n"); // EOM
@@ -887,7 +887,7 @@ internal sealed class WSTransceiver : Transceiver
         //
         if (_parser.status() != 101)
         {
-            StringBuilder @out = new StringBuilder("unexpected status value " + _parser.status());
+            var @out = new StringBuilder("unexpected status value " + _parser.status());
             if (_parser.reason().Length > 0)
             {
                 @out.Append(":\n" + _parser.reason());
@@ -957,7 +957,7 @@ internal sealed class WSTransceiver : Transceiver
 
         string input = _key + _wsUUID;
 #pragma warning disable CA5350 // SHA1 is used for compatibility with the WebSocket protocol
-        using SHA1 sha1 = SHA1.Create();
+        using var sha1 = SHA1.Create();
         byte[] hash = sha1.ComputeHash(_utf8.GetBytes(input));
 #pragma warning restore CA5350
         if (!val.Equals(Convert.ToBase64String(hash), StringComparison.Ordinal))

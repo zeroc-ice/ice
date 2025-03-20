@@ -683,7 +683,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
             throw ex;
         }
 
-        Ice.ObjectNotExistException one = ex as Ice.ObjectNotExistException;
+        var one = ex as Ice.ObjectNotExistException;
         if (one is not null)
         {
             if (@ref.getRouterInfo() != null && one.operation == "ice_add_proxy")
@@ -770,7 +770,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
         ++_cnt;
         Debug.Assert(_cnt > 0);
 
-        var retryIntervals = instance.retryIntervals;
+        int[] retryIntervals = instance.retryIntervals;
 
         int interval;
         if (_cnt == (retryIntervals.Length + 1) && ex is Ice.CloseConnectionException)

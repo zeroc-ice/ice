@@ -62,7 +62,7 @@ public sealed class TestI : TestIntfDisp_
         }
         else
         {
-            SUnknown su = obj as SUnknown;
+            var su = obj as SUnknown;
             test(su.su == "SUnknown.su");
         }
         return Task.CompletedTask;
@@ -70,7 +70,7 @@ public sealed class TestI : TestIntfDisp_
 
     public override Task<B> oneElementCycleAsync(Ice.Current current)
     {
-        B b = new B();
+        var b = new B();
         b.sb = "B1.sb";
         b.pb = b;
         return Task.FromResult<B>(b);
@@ -78,9 +78,9 @@ public sealed class TestI : TestIntfDisp_
 
     public override Task<B> twoElementCycleAsync(Ice.Current current)
     {
-        B b1 = new B();
+        var b1 = new B();
         b1.sb = "B1.sb";
-        B b2 = new B();
+        var b2 = new B();
         b2.sb = "B2.sb";
         b2.pb = b1;
         b1.pb = b2;
@@ -89,10 +89,10 @@ public sealed class TestI : TestIntfDisp_
 
     public override Task<B> D1AsBAsync(Ice.Current current)
     {
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.sb = "D1.sb";
         d1.sd1 = "D1.sd1";
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.pb = d1;
         d2.sb = "D2.sb";
         d2.sd2 = "D2.sd2";
@@ -104,10 +104,10 @@ public sealed class TestI : TestIntfDisp_
 
     public override Task<D1> D1AsD1Async(Ice.Current current)
     {
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.sb = "D1.sb";
         d1.sd1 = "D1.sd1";
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.pb = d1;
         d2.sb = "D2.sb";
         d2.sd2 = "D2.sd2";
@@ -119,10 +119,10 @@ public sealed class TestI : TestIntfDisp_
 
     public override Task<B> D2AsBAsync(Ice.Current current)
     {
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.sb = "D2.sb";
         d2.sd2 = "D2.sd2";
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.pb = d2;
         d1.sb = "D1.sb";
         d1.sd1 = "D1.sd1";
@@ -135,10 +135,10 @@ public sealed class TestI : TestIntfDisp_
     public override Task<TestIntf_ParamTest1Result>
     paramTest1Async(Ice.Current current)
     {
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.sb = "D1.sb";
         d1.sd1 = "D1.sd1";
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.pb = d1;
         d2.sb = "D2.sb";
         d2.sd2 = "D2.sd2";
@@ -151,10 +151,10 @@ public sealed class TestI : TestIntfDisp_
     public override Task<TestIntf_ParamTest2Result>
     paramTest2Async(Ice.Current current)
     {
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.sb = "D1.sb";
         d1.sd1 = "D1.sd1";
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.pb = d1;
         d2.sb = "D2.sb";
         d2.sd2 = "D2.sd2";
@@ -167,24 +167,24 @@ public sealed class TestI : TestIntfDisp_
     public override Task<TestIntf_ParamTest3Result>
     paramTest3Async(Ice.Current current)
     {
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.sb = "D2.sb (p1 1)";
         d2.pb = null;
         d2.sd2 = "D2.sd2 (p1 1)";
 
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.sb = "D1.sb (p1 2)";
         d1.pb = null;
         d1.sd1 = "D1.sd2 (p1 2)";
         d1.pd1 = null;
         d2.pd2 = d1;
 
-        D2 d4 = new D2();
+        var d4 = new D2();
         d4.sb = "D2.sb (p2 1)";
         d4.pb = null;
         d4.sd2 = "D2.sd2 (p2 1)";
 
-        D1 d3 = new D1();
+        var d3 = new D1();
         d3.sb = "D1.sb (p2 2)";
         d3.pb = null;
         d3.sd1 = "D1.sd2 (p2 2)";
@@ -197,7 +197,7 @@ public sealed class TestI : TestIntfDisp_
     public override Task<TestIntf_ParamTest4Result>
     paramTest4Async(Ice.Current current)
     {
-        D4 d4 = new D4();
+        var d4 = new D4();
         d4.sb = "D4.sb (1)";
         d4.pb = null;
         d4.p1 = new B();
@@ -210,10 +210,10 @@ public sealed class TestI : TestIntfDisp_
     public override Task<TestIntf_ReturnTest1Result>
     returnTest1Async(Ice.Current current)
     {
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.sb = "D1.sb";
         d1.sd1 = "D1.sd1";
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.pb = d1;
         d2.sb = "D2.sb";
         d2.sd2 = "D2.sd2";
@@ -226,10 +226,10 @@ public sealed class TestI : TestIntfDisp_
     public override Task<TestIntf_ReturnTest2Result>
     returnTest2Async(Ice.Current current)
     {
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.sb = "D1.sb";
         d1.sd1 = "D1.sd1";
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.pb = d1;
         d2.sb = "D2.sb";
         d2.sd2 = "D2.sd2";
@@ -289,7 +289,7 @@ public sealed class TestI : TestIntfDisp_
     public override Task<Preserved>
     PBSUnknownAsPreservedAsync(Ice.Current current)
     {
-        PSUnknown r = new PSUnknown();
+        var r = new PSUnknown();
         r.pi = 5;
         r.ps = "preserved";
         r.psu = "unknown";
@@ -409,7 +409,7 @@ public sealed class TestI : TestIntfDisp_
 
     public override Task throwDerivedAsBaseAsync(Ice.Current current)
     {
-        DerivedException de = new DerivedException();
+        var de = new DerivedException();
         de.sbe = "sbe";
         de.pb = new B();
         de.pb.sb = "sb1";

@@ -229,7 +229,7 @@ internal sealed class OpaqueEndpointI : EndpointI
             return type() < obj.type() ? -1 : 1;
         }
 
-        OpaqueEndpointI p = (OpaqueEndpointI)obj;
+        var p = (OpaqueEndpointI)obj;
         if (this == p)
         {
             return 0;

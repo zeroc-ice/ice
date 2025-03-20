@@ -117,7 +117,7 @@ public abstract class IPEndpointI : EndpointI
         {
             return false;
         }
-        IPEndpointI ipEndpointI = (IPEndpointI)endpoint;
+        var ipEndpointI = (IPEndpointI)endpoint;
         return ipEndpointI.type() == type() &&
             ipEndpointI._normalizedHost == _normalizedHost &&
             ipEndpointI.port_ == port_;
@@ -125,7 +125,7 @@ public abstract class IPEndpointI : EndpointI
 
     public virtual List<Connector> connectors(List<EndPoint> addresses, NetworkProxy proxy)
     {
-        List<Connector> connectors = new List<Connector>();
+        var connectors = new List<Connector>();
         foreach (EndPoint p in addresses)
         {
             connectors.Add(createConnector(p, proxy));
@@ -201,7 +201,7 @@ public abstract class IPEndpointI : EndpointI
             return type() < other.type() ? -1 : 1;
         }
 
-        IPEndpointI p = (IPEndpointI)other;
+        var p = (IPEndpointI)other;
         if (this == p)
         {
             return 0;

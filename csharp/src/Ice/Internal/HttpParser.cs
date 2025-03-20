@@ -258,7 +258,7 @@ internal sealed class HttpParser
                             }
                             Debug.Assert(_headers.ContainsKey(_headerName));
                             string s = _headers[_headerName];
-                            StringBuilder newValue = new StringBuilder(s);
+                            var newValue = new StringBuilder(s);
                             newValue.Append(' ');
                             for (int i = start; i < p; ++i)
                             {
@@ -303,7 +303,7 @@ internal sealed class HttpParser
                 {
                     if (_headerName.Length == 0)
                     {
-                        StringBuilder str = new StringBuilder();
+                        var str = new StringBuilder();
                         for (int i = start; i < p; ++i)
                         {
                             str.Append((char)raw[i]);
@@ -370,7 +370,7 @@ internal sealed class HttpParser
                     Debug.Assert(c == CR || c == LF);
                     if (p > start)
                     {
-                        StringBuilder str = new StringBuilder();
+                        var str = new StringBuilder();
                         for (int i = start; i < p; ++i)
                         {
                             str.Append((char)raw[i]);
@@ -601,7 +601,7 @@ internal sealed class HttpParser
                     {
                         if (p > start)
                         {
-                            StringBuilder str = new StringBuilder();
+                            var str = new StringBuilder();
                             for (int i = start; i < p; ++i)
                             {
                                 str.Append((char)raw[i]);
@@ -685,7 +685,7 @@ internal sealed class HttpParser
 
     internal Dictionary<string, string> getHeaders()
     {
-        Dictionary<string, string> dict = new Dictionary<string, string>();
+        var dict = new Dictionary<string, string>();
         foreach (KeyValuePair<string, string> e in _headers)
         {
             dict[_headerNames[e.Key]] = e.Value.Trim();

@@ -230,7 +230,7 @@ public sealed class InputStream
         }
         _encapsStack.sz = sz;
 
-        EncodingVersion encoding = new EncodingVersion(this);
+        var encoding = new EncodingVersion(this);
         Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
         _encapsStack.setEncoding(encoding);
 
@@ -381,7 +381,7 @@ public sealed class InputStream
         {
             throw new MarshalException(endOfBufferMessage);
         }
-        EncodingVersion encoding = new EncodingVersion(this);
+        var encoding = new EncodingVersion(this);
         try
         {
             _buf.b.position(_buf.b.position() + sz - 6);
@@ -1922,7 +1922,7 @@ public sealed class InputStream
                 return false;
             }
 
-            OptionalFormat format = (OptionalFormat)(v & 0x07); // First 3 bits.
+            var format = (OptionalFormat)(v & 0x07); // First 3 bits.
             int tag = v >> 3;
             if (tag == 30)
             {
@@ -2014,7 +2014,7 @@ public sealed class InputStream
                 return true;
             }
 
-            OptionalFormat format = (OptionalFormat)(v & 0x07); // Read first 3 bits.
+            var format = (OptionalFormat)(v & 0x07); // Read first 3 bits.
             if ((v >> 3) == 30)
             {
                 skipSize();
@@ -2120,7 +2120,7 @@ public sealed class InputStream
             //
             // Try to find a factory registered for the specific type.
             //
-            var userFactory = _valueFactoryManager.find(typeId);
+            ValueFactory userFactory = _valueFactoryManager.find(typeId);
             Value? v = null;
             if (userFactory != null)
             {
@@ -2250,7 +2250,7 @@ public sealed class InputStream
                     // unmarshaled in order to ensure that any instance data members
                     // have been properly patched.
                     //
-                    foreach (var p in _valueList)
+                    foreach (Value p in _valueList)
                     {
                         p.ice_postUnmarshal();
                     }
@@ -2612,7 +2612,7 @@ public sealed class InputStream
                 // at the end of the slice.
                 //
                 _current.indirectPatchList ??= new Stack<IndirectPatchEntry>();
-                IndirectPatchEntry e = new IndirectPatchEntry(index - 1, cb);
+                var e = new IndirectPatchEntry(index - 1, cb);
                 _current.indirectPatchList.Push(e);
             }
             else
@@ -2873,7 +2873,7 @@ public sealed class InputStream
                     //
                     --dataEnd;
                 }
-                var bytes = new byte[dataEnd - start];
+                byte[] bytes = new byte[dataEnd - start];
                 b.position(start);
                 b.get(bytes);
                 b.position(end);
@@ -3045,7 +3045,7 @@ public sealed class InputStream
                 info.instances = new Value[table != null ? table.Length : 0];
                 for (int j = 0; j < info.instances.Length; ++j)
                 {
-                    var cj = j;
+                    int cj = j;
                     addPatchEntry(table![j], (Ice.Value v) => info.instances[cj] = v);
                 }
             }

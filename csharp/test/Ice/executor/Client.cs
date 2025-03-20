@@ -14,7 +14,7 @@ public class Client : Test.TestHelper
     {
         try
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
+            var initData = new Ice.InitializationData();
             initData.properties = createTestProperties(ref args);
             initData.properties.setProperty("Ice.Warn.AMICallback", "0");
             //

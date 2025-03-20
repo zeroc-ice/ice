@@ -112,7 +112,7 @@ public class AllTests : Test.AllTests
             Ice.Value o = testPrx.SBaseAsObjectAsync().Result;
             test(o != null);
             test(o.ice_id() == "::Test::SBase");
-            SBase sb = (SBase)o;
+            var sb = (SBase)o;
             test(sb != null);
             test(sb.sb == "SBase.sb");
         }
@@ -169,7 +169,7 @@ public class AllTests : Test.AllTests
         {
             SBase sb = testPrx.SBSKnownDerivedAsSBaseAsync().Result;
             test(sb.sb == "SBSKnownDerived.sb");
-            SBSKnownDerived sbskd = (SBSKnownDerived)sb;
+            var sbskd = (SBSKnownDerived)sb;
             test(sbskd != null);
             test(sbskd.sbskd == "SBSKnownDerived.sbskd");
         }
@@ -429,7 +429,7 @@ public class AllTests : Test.AllTests
                 test(b1.sb == "D1.sb");
                 test(b1.pb != null);
                 test(b1.pb != b1);
-                D1 d1 = (D1)b1;
+                var d1 = (D1)b1;
                 test(d1 != null);
                 test(d1.sd1 == "D1.sd1");
                 test(d1.pd1 != null);
@@ -459,7 +459,7 @@ public class AllTests : Test.AllTests
             test(b1.sb == "D1.sb");
             test(b1.pb != null);
             test(b1.pb != b1);
-            D1 d1 = (D1)b1;
+            var d1 = (D1)b1;
             test(d1 != null);
             test(d1.sd1 == "D1.sd1");
             test(d1.pd1 != null);
@@ -537,7 +537,7 @@ public class AllTests : Test.AllTests
                 test(b1.ice_id() == "::Test::D1");
                 test(b1.sb == "D1.sb");
                 test(b1.pb == b2);
-                D1 d1 = (D1)b1;
+                var d1 = (D1)b1;
                 test(d1 != null);
                 test(d1.sd1 == "D1.sd1");
                 test(d1.pd1 == b2);
@@ -565,7 +565,7 @@ public class AllTests : Test.AllTests
             test(b1.ice_id() == "::Test::D1");
             test(b1.sb == "D1.sb");
             test(b1.pb == b2);
-            D1 d1 = (D1)b1;
+            var d1 = (D1)b1;
             test(d1 != null);
             test(d1.sd1 == "D1.sd1");
             test(d1.pd1 == b2);
@@ -585,7 +585,7 @@ public class AllTests : Test.AllTests
                 test(b1.ice_id() == "::Test::D1");
                 test(b1.sb == "D1.sb");
                 test(b1.pb == b2);
-                D1 d1 = (D1)b1;
+                var d1 = (D1)b1;
                 test(d1 != null);
                 test(d1.sd1 == "D1.sd1");
                 test(d1.pd1 == b2);
@@ -614,7 +614,7 @@ public class AllTests : Test.AllTests
             test(b1.ice_id() == "::Test::D1");
             test(b1.sb == "D1.sb");
             test(b1.pb == b2);
-            D1 d1 = (D1)b1;
+            var d1 = (D1)b1;
             test(d1 != null);
             test(d1.sd1 == "D1.sd1");
             test(d1.pd1 == b2);
@@ -639,7 +639,7 @@ public class AllTests : Test.AllTests
                 test(b1.ice_id() == "::Test::D1");
                 test(b1.sb == "D1.sb");
                 test(b1.pb == b2);
-                D1 d1 = (D1)b1;
+                var d1 = (D1)b1;
                 test(d1 != null);
                 test(d1.sd1 == "D1.sd1");
                 test(d1.pd1 == b2);
@@ -667,7 +667,7 @@ public class AllTests : Test.AllTests
             test(b1.ice_id() == "::Test::D1");
             test(b1.sb == "D1.sb");
             test(b1.pb == b2);
-            D1 d1 = (D1)b1;
+            var d1 = (D1)b1;
             test(d1 != null);
             test(d1.sd1 == "D1.sd1");
             test(d1.pd1 == b2);
@@ -736,10 +736,10 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                D1 d1 = new D1();
+                var d1 = new D1();
                 d1.sb = "D1.sb";
                 d1.sd1 = "D1.sd1";
-                D3 d3 = new D3();
+                var d3 = new D3();
                 d3.pb = d1;
                 d3.sb = "D3.sb";
                 d3.sd3 = "D3.sd3";
@@ -752,7 +752,7 @@ public class AllTests : Test.AllTests
                 test(b1 != null);
                 test(b1.sb == "D1.sb");
                 test(b1.ice_id() == "::Test::D1");
-                D1 p1 = (D1)b1;
+                var p1 = (D1)b1;
                 test(p1 != null);
                 test(p1.sd1 == "D1.sd1");
                 test(p1.pd1 == b1.pb);
@@ -769,7 +769,7 @@ public class AllTests : Test.AllTests
                 else
                 {
                     test(b2 is D3);
-                    D3 p3 = (D3)b2;
+                    var p3 = (D3)b2;
                     test(p3.pd3 == p1);
                     test(p3.sd3 == "D3.sd3");
                 }
@@ -790,10 +790,10 @@ public class AllTests : Test.AllTests
         output.Write("return value identity for input params known first (AMI)... ");
         output.Flush();
         {
-            D1 d1 = new D1();
+            var d1 = new D1();
             d1.sb = "D1.sb";
             d1.sd1 = "D1.sd1";
-            D3 d3 = new D3();
+            var d3 = new D3();
             d3.pb = d1;
             d3.sb = "D3.sb";
             d3.sd3 = "D3.sd3";
@@ -806,7 +806,7 @@ public class AllTests : Test.AllTests
             test(b1 != null);
             test(b1.sb == "D1.sb");
             test(b1.ice_id() == "::Test::D1");
-            D1 p1 = (D1)b1;
+            var p1 = (D1)b1;
             test(p1 != null);
             test(p1.sd1 == "D1.sd1");
             test(p1.pd1 == b1.pb);
@@ -823,7 +823,7 @@ public class AllTests : Test.AllTests
             else
             {
                 test(b2 is D3);
-                D3 p3 = (D3)b2;
+                var p3 = (D3)b2;
                 test(p3.pd3 == p1);
                 test(p3.sd3 == "D3.sd3");
             }
@@ -840,10 +840,10 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                D1 d1 = new D1();
+                var d1 = new D1();
                 d1.sb = "D1.sb";
                 d1.sd1 = "D1.sd1";
-                D3 d3 = new D3();
+                var d3 = new D3();
                 d3.pb = d1;
                 d3.sb = "D3.sb";
                 d3.sd3 = "D3.sd3";
@@ -861,7 +861,7 @@ public class AllTests : Test.AllTests
                 test(b2.sb == "D1.sb");
                 test(b2.ice_id() == "::Test::D1");
                 test(b2.pb == b1);
-                D1 p3 = (D1)b2;
+                var p3 = (D1)b2;
                 test(p3 != null);
                 test(p3.sd1 == "D1.sd1");
                 test(p3.pd1 == b1);
@@ -873,7 +873,7 @@ public class AllTests : Test.AllTests
                 else
                 {
                     test(b1 is D3);
-                    D3 p1 = (D3)b1;
+                    var p1 = (D3)b1;
                     test(p1.sd3 == "D3.sd3");
                     test(p1.pd3 == b2);
                 }
@@ -894,10 +894,10 @@ public class AllTests : Test.AllTests
         output.Write("return value identity for input params unknown first (AMI)... ");
         output.Flush();
         {
-            D1 d1 = new D1();
+            var d1 = new D1();
             d1.sb = "D1.sb";
             d1.sd1 = "D1.sd1";
-            D3 d3 = new D3();
+            var d3 = new D3();
             d3.pb = d1;
             d3.sb = "D3.sb";
             d3.sd3 = "D3.sd3";
@@ -915,7 +915,7 @@ public class AllTests : Test.AllTests
             test(b2.sb == "D1.sb");
             test(b2.ice_id() == "::Test::D1");
             test(b2.pb == b1);
-            D1 p3 = (D1)b2;
+            var p3 = (D1)b2;
             test(p3 != null);
             test(p3.sd1 == "D1.sd1");
             test(p3.pd1 == b1);
@@ -927,7 +927,7 @@ public class AllTests : Test.AllTests
             else
             {
                 test(b1 is D3);
-                D3 p1 = (D3)b1;
+                var p1 = (D3)b1;
                 test(p1.sd3 == "D3.sd3");
                 test(p1.pd3 == b2);
             }
@@ -1046,17 +1046,17 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                B b1 = new B();
+                var b1 = new B();
                 b1.sb = "B.sb(1)";
                 b1.pb = b1;
 
-                D3 d3 = new D3();
+                var d3 = new D3();
                 d3.sb = "D3.sb";
                 d3.pb = d3;
                 d3.sd3 = "D3.sd3";
                 d3.pd3 = b1;
 
-                B b2 = new B();
+                var b2 = new B();
                 b2.sb = "B.sb(2)";
                 b2.pb = b1;
 
@@ -1073,7 +1073,7 @@ public class AllTests : Test.AllTests
                 else
                 {
                     test(ret is D3);
-                    D3 p3 = (D3)ret;
+                    var p3 = (D3)ret;
                     test(p3.sd3 == "D3.sd3");
                     test(p3.pd3.ice_id() == "::Test::B");
                     test(p3.pd3.sb == "B.sb(1)");
@@ -1091,17 +1091,17 @@ public class AllTests : Test.AllTests
         output.Write("param ptr slicing, instance marshaled in unknown derived as base (AMI)... ");
         output.Flush();
         {
-            B b1 = new B();
+            var b1 = new B();
             b1.sb = "B.sb(1)";
             b1.pb = b1;
 
-            D3 d3 = new D3();
+            var d3 = new D3();
             d3.sb = "D3.sb";
             d3.pb = d3;
             d3.sd3 = "D3.sd3";
             d3.pd3 = b1;
 
-            B b2 = new B();
+            var b2 = new B();
             b2.sb = "B.sb(2)";
             b2.pb = b1;
 
@@ -1118,7 +1118,7 @@ public class AllTests : Test.AllTests
             else
             {
                 test(rv is D3);
-                D3 p3 = (D3)rv;
+                var p3 = (D3)rv;
                 test(p3.sd3 == "D3.sd3");
                 test(p3.pd3.ice_id() == "::Test::B");
                 test(p3.pd3.sb == "B.sb(1)");
@@ -1132,18 +1132,18 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                D1 d11 = new D1();
+                var d11 = new D1();
                 d11.sb = "D1.sb(1)";
                 d11.pb = d11;
                 d11.sd1 = "D1.sd1(1)";
 
-                D3 d3 = new D3();
+                var d3 = new D3();
                 d3.sb = "D3.sb";
                 d3.pb = d3;
                 d3.sd3 = "D3.sd3";
                 d3.pd3 = d11;
 
-                D1 d12 = new D1();
+                var d12 = new D1();
                 d12.sb = "D1.sb(2)";
                 d12.pb = d12;
                 d12.sd1 = "D1.sd1(2)";
@@ -1165,18 +1165,18 @@ public class AllTests : Test.AllTests
         output.Write("param ptr slicing, instance marshaled in unknown derived as derived (AMI)... ");
         output.Flush();
         {
-            D1 d11 = new D1();
+            var d11 = new D1();
             d11.sb = "D1.sb(1)";
             d11.pb = d11;
             d11.sd1 = "D1.sd1(1)";
 
-            D3 d3 = new D3();
+            var d3 = new D3();
             d3.sb = "D3.sb";
             d3.pb = d3;
             d3.sd3 = "D3.sd3";
             d3.pd3 = d11;
 
-            D1 d12 = new D1();
+            var d12 = new D1();
             d12.sb = "D1.sb(2)";
             d12.pb = d12;
             d12.sd1 = "D1.sd1(2)";
@@ -1197,30 +1197,30 @@ public class AllTests : Test.AllTests
             {
                 SS3 ss;
                 {
-                    B ss1b = new B();
+                    var ss1b = new B();
                     ss1b.sb = "B.sb";
                     ss1b.pb = ss1b;
 
-                    D1 ss1d1 = new D1();
+                    var ss1d1 = new D1();
                     ss1d1.sb = "D1.sb";
                     ss1d1.sd1 = "D1.sd1";
                     ss1d1.pb = ss1b;
 
-                    D3 ss1d3 = new D3();
+                    var ss1d3 = new D3();
                     ss1d3.sb = "D3.sb";
                     ss1d3.sd3 = "D3.sd3";
                     ss1d3.pb = ss1b;
 
-                    B ss2b = new B();
+                    var ss2b = new B();
                     ss2b.sb = "B.sb";
                     ss2b.pb = ss1b;
 
-                    D1 ss2d1 = new D1();
+                    var ss2d1 = new D1();
                     ss2d1.sb = "D1.sb";
                     ss2d1.sd1 = "D1.sd1";
                     ss2d1.pb = ss2b;
 
-                    D3 ss2d3 = new D3();
+                    var ss2d3 = new D3();
                     ss2d3.sb = "D3.sb";
                     ss2d3.sd3 = "D3.sd3";
                     ss2d3.pb = ss2b;
@@ -1231,13 +1231,13 @@ public class AllTests : Test.AllTests
                     ss2d1.pd1 = ss1d3;
                     ss2d3.pd3 = ss1d1;
 
-                    SS1 ss1 = new SS1();
+                    var ss1 = new SS1();
                     ss1.s = new B[3];
                     ss1.s[0] = ss1b;
                     ss1.s[1] = ss1d1;
                     ss1.s[2] = ss1d3;
 
-                    SS2 ss2 = new SS2();
+                    var ss2 = new SS2();
                     ss2.s = new B[3];
                     ss2.s[0] = ss2b;
                     ss2.s[1] = ss2d1;
@@ -1295,30 +1295,30 @@ public class AllTests : Test.AllTests
         {
             SS3 ss = null;
             {
-                B ss1b = new B();
+                var ss1b = new B();
                 ss1b.sb = "B.sb";
                 ss1b.pb = ss1b;
 
-                D1 ss1d1 = new D1();
+                var ss1d1 = new D1();
                 ss1d1.sb = "D1.sb";
                 ss1d1.sd1 = "D1.sd1";
                 ss1d1.pb = ss1b;
 
-                D3 ss1d3 = new D3();
+                var ss1d3 = new D3();
                 ss1d3.sb = "D3.sb";
                 ss1d3.sd3 = "D3.sd3";
                 ss1d3.pb = ss1b;
 
-                B ss2b = new B();
+                var ss2b = new B();
                 ss2b.sb = "B.sb";
                 ss2b.pb = ss1b;
 
-                D1 ss2d1 = new D1();
+                var ss2d1 = new D1();
                 ss2d1.sb = "D1.sb";
                 ss2d1.sd1 = "D1.sd1";
                 ss2d1.pb = ss2b;
 
-                D3 ss2d3 = new D3();
+                var ss2d3 = new D3();
                 ss2d3.sb = "D3.sb";
                 ss2d3.sd3 = "D3.sd3";
                 ss2d3.pb = ss2b;
@@ -1329,13 +1329,13 @@ public class AllTests : Test.AllTests
                 ss2d1.pd1 = ss1d3;
                 ss2d3.pd3 = ss1d1;
 
-                SS1 ss1 = new SS1();
+                var ss1 = new SS1();
                 ss1.s = new B[3];
                 ss1.s[0] = ss1b;
                 ss1.s[1] = ss1d1;
                 ss1.s[2] = ss1d3;
 
-                SS2 ss2 = new SS2();
+                var ss2 = new SS2();
                 ss2.s = new B[3];
                 ss2.s[0] = ss2b;
                 ss2.s[1] = ss2d1;
@@ -1387,14 +1387,14 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                Dictionary<int, B> bin = new Dictionary<int, B>();
+                var bin = new Dictionary<int, B>();
                 Dictionary<int, B> bout;
                 Dictionary<int, B> ret;
                 int i;
                 for (i = 0; i < 10; ++i)
                 {
                     string s = "D1." + i.ToString();
-                    D1 d1 = new D1();
+                    var d1 = new D1();
                     d1.sb = s;
                     d1.pb = d1;
                     d1.sd1 = s;
@@ -1424,7 +1424,7 @@ public class AllTests : Test.AllTests
                     string s = "D1." + (i * 20).ToString();
                     test(b.sb.Equals(s));
                     test(b.pb == (i == 0 ? (B)null : ret[(i - 1) * 20]));
-                    D1 d1 = (D1)b;
+                    var d1 = (D1)b;
                     test(d1 != null);
                     test(d1.sd1.Equals(s));
                     test(d1.pd1 == d1);
@@ -1441,14 +1441,14 @@ public class AllTests : Test.AllTests
         output.Write("dictionary slicing (AMI)... ");
         output.Flush();
         {
-            Dictionary<int, B> bin = new Dictionary<int, B>();
+            var bin = new Dictionary<int, B>();
             Dictionary<int, B> bout = null;
             Dictionary<int, B> rv = null;
             int i;
             for (i = 0; i < 10; ++i)
             {
                 string s = "D1." + i.ToString();
-                D1 d1 = new D1();
+                var d1 = new D1();
                 d1.sb = s;
                 d1.pb = d1;
                 d1.sd1 = s;
@@ -1480,7 +1480,7 @@ public class AllTests : Test.AllTests
                 string s = "D1." + (i * 20).ToString();
                 test(b.sb.Equals(s));
                 test(b.pb == (i == 0 ? (B)null : rv[(i - 1) * 20]));
-                D1 d1 = (D1)b;
+                var d1 = (D1)b;
                 test(d1 != null);
                 test(d1.sd1.Equals(s));
                 test(d1.pd1 == d1);
@@ -1523,7 +1523,7 @@ public class AllTests : Test.AllTests
             {
                 try
                 {
-                    BaseException e = (BaseException)ae.InnerException;
+                    var e = (BaseException)ae.InnerException;
                     test(e.sbe == "sbe");
                     test(e.pb != null);
                     test(e.pb.sb == "sb");
@@ -1579,7 +1579,7 @@ public class AllTests : Test.AllTests
             {
                 try
                 {
-                    DerivedException e = (DerivedException)ae.InnerException;
+                    var e = (DerivedException)ae.InnerException;
                     test(e.sbe == "sbe");
                     test(e.pb != null);
                     test(e.pb.sb == "sb1");
@@ -1641,7 +1641,7 @@ public class AllTests : Test.AllTests
             {
                 try
                 {
-                    DerivedException e = (DerivedException)ae.InnerException;
+                    var e = (DerivedException)ae.InnerException;
                     test(e.sbe == "sbe");
                     test(e.pb != null);
                     test(e.pb.sb == "sb1");
@@ -1697,7 +1697,7 @@ public class AllTests : Test.AllTests
             {
                 try
                 {
-                    BaseException e = (BaseException)ae.InnerException;
+                    var e = (BaseException)ae.InnerException;
                     test(e.sbe == "sbe");
                     test(e.pb != null);
                     test(e.pb.sb == "sb d2");
@@ -1754,13 +1754,13 @@ public class AllTests : Test.AllTests
             //
             // Server knows the most-derived class PDerived.
             //
-            PDerived pd = new PDerived();
+            var pd = new PDerived();
             pd.pi = 3;
             pd.ps = "preserved";
             pd.pb = pd;
 
             PBase r = testPrx.exchangePBase(pd);
-            PDerived p2 = r as PDerived;
+            var p2 = r as PDerived;
             test(p2.pi == 3);
             test(p2.ps == "preserved");
             test(p2.pb == p2);
@@ -1774,7 +1774,7 @@ public class AllTests : Test.AllTests
             //
             // Server only knows the base (non-preserved) type, so the object is sliced.
             //
-            PCUnknown pu = new PCUnknown();
+            var pu = new PCUnknown();
             pu.pi = 3;
             pu.pu = "preserved";
 
@@ -1789,7 +1789,7 @@ public class AllTests : Test.AllTests
             else
             {
                 test(r is PCUnknown);
-                PCUnknown p2 = (PCUnknown)r;
+                var p2 = (PCUnknown)r;
                 test(p2 != null);
                 test(p2.pu == "preserved");
             }
@@ -1804,7 +1804,7 @@ public class AllTests : Test.AllTests
             // Server only knows the intermediate type Preserved. The object will be sliced to
             // Preserved for the 1.0 encoding; otherwise it should be returned intact.
             //
-            PCDerived pcd = new PCDerived();
+            var pcd = new PCDerived();
             pcd.pi = 3;
             pcd.pbs = new PBase[] { pcd };
 
@@ -1816,7 +1816,7 @@ public class AllTests : Test.AllTests
             }
             else
             {
-                PCDerived p2 = r as PCDerived;
+                var p2 = r as PCDerived;
                 test(p2.pi == 3);
                 test(p2.pbs[0] == p2);
             }
@@ -1831,7 +1831,7 @@ public class AllTests : Test.AllTests
             // Server only knows the intermediate type Preserved. The object will be sliced to
             // Preserved for the 1.0 encoding; otherwise it should be returned intact.
             //
-            CompactPCDerived pcd = new CompactPCDerived();
+            var pcd = new CompactPCDerived();
             pcd.pi = 3;
             pcd.pbs = new PBase[] { pcd };
 
@@ -1843,7 +1843,7 @@ public class AllTests : Test.AllTests
             }
             else
             {
-                CompactPCDerived p2 = r as CompactPCDerived;
+                var p2 = r as CompactPCDerived;
                 test(p2.pi == 3);
                 test(p2.pbs[0] == p2);
             }
@@ -1858,7 +1858,7 @@ public class AllTests : Test.AllTests
             // Send an object that will have multiple preserved slices in the server.
             // The object will be sliced to Preserved for the 1.0 encoding.
             //
-            PCDerived3 pcd = new PCDerived3();
+            var pcd = new PCDerived3();
             pcd.pi = 3;
             //
             // Sending more than 254 objects exercises the encoding for object ids.
@@ -1867,7 +1867,7 @@ public class AllTests : Test.AllTests
             int i;
             for (i = 0; i < 300; ++i)
             {
-                PCDerived2 p2 = new PCDerived2();
+                var p2 = new PCDerived2();
                 p2.pi = i;
                 p2.pbs = new PBase[] { null }; // Nil reference. This slice should not have an indirection table.
                 p2.pcd2 = i;
@@ -1885,11 +1885,11 @@ public class AllTests : Test.AllTests
             }
             else
             {
-                PCDerived3 p3 = r as PCDerived3;
+                var p3 = r as PCDerived3;
                 test(p3.pi == 3);
                 for (i = 0; i < 300; ++i)
                 {
-                    PCDerived2 p2 = p3.pbs[i] as PCDerived2;
+                    var p2 = p3.pbs[i] as PCDerived2;
                     test(p2.pi == i);
                     test(p2.pbs.Length == 1);
                     test(p2.pbs[0] == null);
@@ -1937,12 +1937,12 @@ public class AllTests : Test.AllTests
             //
             // Server knows the most-derived class PDerived.
             //
-            PDerived pd = new PDerived();
+            var pd = new PDerived();
             pd.pi = 3;
             pd.ps = "preserved";
             pd.pb = pd;
 
-            PDerived p2 = (PDerived)testPrx.exchangePBaseAsync(pd).Result;
+            var p2 = (PDerived)testPrx.exchangePBaseAsync(pd).Result;
             test(p2.pi == 3);
             test(p2.ps == "preserved");
             test(p2.pb == p2);
@@ -1952,7 +1952,7 @@ public class AllTests : Test.AllTests
             //
             // Server only knows the base (non-preserved) type, so the object is sliced.
             //
-            PCUnknown pu = new PCUnknown();
+            var pu = new PCUnknown();
             pu.pi = 3;
             pu.pu = "preserved";
 
@@ -1967,7 +1967,7 @@ public class AllTests : Test.AllTests
             else
             {
                 test(r is PCUnknown);
-                PCUnknown p2 = (PCUnknown)r;
+                var p2 = (PCUnknown)r;
                 test(p2 != null);
                 test(p2.pu == "preserved");
             }
@@ -1978,7 +1978,7 @@ public class AllTests : Test.AllTests
             // Server only knows the intermediate type Preserved. The object will be sliced to
             // Preserved for the 1.0 encoding; otherwise it should be returned intact.
             //
-            PCDerived pcd = new PCDerived();
+            var pcd = new PCDerived();
             pcd.pi = 3;
             pcd.pbs = new PBase[] { pcd };
 
@@ -1991,7 +1991,7 @@ public class AllTests : Test.AllTests
             else
             {
                 PBase r = testPrx.exchangePBaseAsync(pcd).Result;
-                PCDerived p2 = r as PCDerived;
+                var p2 = r as PCDerived;
                 test(p2.pi == 3);
                 test(p2.pbs[0] == p2);
             }
@@ -2002,7 +2002,7 @@ public class AllTests : Test.AllTests
             // Server only knows the intermediate type Preserved. The object will be sliced to
             // Preserved for the 1.0 encoding; otherwise it should be returned intact.
             //
-            CompactPCDerived pcd = new CompactPCDerived();
+            var pcd = new CompactPCDerived();
             pcd.pi = 3;
             pcd.pbs = new PBase[] { pcd };
 
@@ -2015,7 +2015,7 @@ public class AllTests : Test.AllTests
             else
             {
                 PBase r = testPrx.exchangePBaseAsync(pcd).Result;
-                CompactPCDerived p2 = r as CompactPCDerived;
+                var p2 = r as CompactPCDerived;
                 test(p2.pi == 3);
                 test(p2.pbs[0] == p2);
             }
@@ -2026,7 +2026,7 @@ public class AllTests : Test.AllTests
             // Send an object that will have multiple preserved slices in the server.
             // The object will be sliced to Preserved for the 1.0 encoding.
             //
-            PCDerived3 pcd = new PCDerived3();
+            var pcd = new PCDerived3();
             pcd.pi = 3;
             //
             // Sending more than 254 objects exercises the encoding for object ids.
@@ -2034,7 +2034,7 @@ public class AllTests : Test.AllTests
             pcd.pbs = new PBase[300];
             for (int i = 0; i < 300; ++i)
             {
-                PCDerived2 p2 = new PCDerived2();
+                var p2 = new PCDerived2();
                 p2.pi = i;
                 p2.pbs = new PBase[] { null }; // Nil reference. This slice should not have an indirection table.
                 p2.pcd2 = i;
@@ -2053,11 +2053,11 @@ public class AllTests : Test.AllTests
             else
             {
                 PBase r = testPrx.exchangePBaseAsync(pcd).Result;
-                PCDerived3 p3 = r as PCDerived3;
+                var p3 = r as PCDerived3;
                 test(p3.pi == 3);
                 for (int i = 0; i < 300; ++i)
                 {
-                    PCDerived2 p2 = p3.pbs[i] as PCDerived2;
+                    var p2 = p3.pbs[i] as PCDerived2;
                     test(p2.pi == i);
                     test(p2.pbs.Length == 1);
                     test(p2.pbs[0] == null);
@@ -2109,7 +2109,7 @@ public class AllTests : Test.AllTests
             // Relay a graph through the server.
             //
             {
-                PNode c = new PNode();
+                var c = new PNode();
                 c.next = new PNode();
                 c.next.next = new PNode();
                 c.next.next.next = c;

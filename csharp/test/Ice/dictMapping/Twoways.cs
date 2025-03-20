@@ -9,7 +9,7 @@ internal class Twoways
     internal static void twoways(Ice.Communicator communicator, Test.MyClassPrx p)
     {
         {
-            Dictionary<int, int> i = new Dictionary<int, int>
+            var i = new Dictionary<int, int>
             {
                 [0] = 1,
                 [1] = 0
@@ -24,7 +24,7 @@ internal class Twoways
         }
 
         {
-            Dictionary<string, string> i = new Dictionary<string, string>
+            var i = new Dictionary<string, string>
             {
                 ["a"] = "b",
                 ["b"] = "a"
@@ -39,8 +39,8 @@ internal class Twoways
         }
 
         {
-            Dictionary<string, Dictionary<int, int>> i = new Dictionary<string, Dictionary<int, int>>();
-            Dictionary<int, int> id = new Dictionary<int, int>
+            var i = new Dictionary<string, Dictionary<int, int>>();
+            var id = new Dictionary<int, int>
             {
                 [0] = 1,
                 [1] = 0
@@ -60,8 +60,8 @@ internal class Twoways
         }
 
         {
-            Dictionary<string, Dictionary<string, string>> i = new Dictionary<string, Dictionary<string, string>>();
-            Dictionary<string, string> id = new Dictionary<string, string>
+            var i = new Dictionary<string, Dictionary<string, string>>();
+            var id = new Dictionary<string, string>
             {
                 ["a"] = "b",
                 ["b"] = "a"
@@ -82,7 +82,7 @@ internal class Twoways
 
         {
             int[] ii = new int[] { 1, 2 };
-            Dictionary<string, int[]> i = new Dictionary<string, int[]>
+            var i = new Dictionary<string, int[]>
             {
                 ["a"] = ii,
                 ["b"] = ii
@@ -100,10 +100,10 @@ internal class Twoways
         }
 
         {
-            List<int> ii = new List<int>();
+            var ii = new List<int>();
             ii.Add(1);
             ii.Add(2);
-            Dictionary<string, List<int>> i = new Dictionary<string, List<int>>
+            var i = new Dictionary<string, List<int>>
             {
                 ["a"] = ii,
                 ["b"] = ii
@@ -122,7 +122,7 @@ internal class Twoways
 
         {
             string[] ii = new string[] { "a", "b" };
-            Dictionary<string, string[]> i = new Dictionary<string, string[]>
+            var i = new Dictionary<string, string[]>
             {
                 ["a"] = ii,
                 ["b"] = ii
@@ -140,10 +140,10 @@ internal class Twoways
         }
 
         {
-            List<string> ii = new List<string>();
+            var ii = new List<string>();
             ii.Add("a");
             ii.Add("b");
-            Dictionary<string, List<string>> i = new Dictionary<string, List<string>>
+            var i = new Dictionary<string, List<string>>
             {
                 ["a"] = ii,
                 ["b"] = ii

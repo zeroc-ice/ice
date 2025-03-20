@@ -12,8 +12,8 @@ public class Collocated : Test.TestHelper
 {
     public override async Task runAsync(string[] args)
     {
-        CommunicatorObserverI observer = new CommunicatorObserverI();
-        Ice.InitializationData initData = new Ice.InitializationData();
+        var observer = new CommunicatorObserverI();
+        var initData = new Ice.InitializationData();
         initData.observer = observer;
         initData.properties = createTestProperties(ref args);
         initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");

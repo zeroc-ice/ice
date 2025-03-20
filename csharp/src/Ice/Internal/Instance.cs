@@ -729,7 +729,7 @@ public sealed class Instance
                 }
             }
 
-            var classGraphDepthMax = _initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
+            int classGraphDepthMax = _initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
             if (classGraphDepthMax < 1 || classGraphDepthMax > 0x7fffffff)
             {
                 _classGraphDepthMax = 0x7fffffff;
@@ -793,19 +793,19 @@ public sealed class Instance
 
             _endpointFactoryManager = new EndpointFactoryManager(this);
 
-            ProtocolInstance tcpInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp", false);
+            var tcpInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp", false);
             _endpointFactoryManager.add(new TcpEndpointFactory(tcpInstance));
 
-            ProtocolInstance udpInstance = new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp", false);
+            var udpInstance = new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp", false);
             _endpointFactoryManager.add(new UdpEndpointFactory(udpInstance));
 
-            ProtocolInstance wsInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
+            var wsInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
             _endpointFactoryManager.add(new WSEndpointFactory(wsInstance, Ice.TCPEndpointType.value));
 
             var sslInstance = new Ice.SSL.Instance(_sslEngine, Ice.SSLEndpointType.value, "ssl");
             _endpointFactoryManager.add(new Ice.SSL.EndpointFactoryI(sslInstance, Ice.TCPEndpointType.value));
 
-            ProtocolInstance wssInstance = new ProtocolInstance(this, Ice.WSSEndpointType.value, "wss", true);
+            var wssInstance = new ProtocolInstance(this, Ice.WSSEndpointType.value, "wss", true);
             _endpointFactoryManager.add(new WSEndpointFactory(wssInstance, Ice.SSLEndpointType.value));
 
             _pluginManager = new Ice.PluginManagerI(communicator);
@@ -871,7 +871,7 @@ public sealed class Instance
         // Load plug-ins.
         //
         Debug.Assert(_serverThreadPool == null);
-        Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
+        var pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
         pluginManagerImpl.loadPlugins(ref args);
 
         //
@@ -944,7 +944,7 @@ public sealed class Instance
             string metricsFacetName = "Metrics";
             if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(metricsFacetName))
             {
-                CommunicatorObserverI observer = new CommunicatorObserverI(_initData);
+                var observer = new CommunicatorObserverI(_initData);
                 _initData.observer = observer;
                 _adminFacets.Add(metricsFacetName, observer.getFacet());
 
@@ -1123,7 +1123,7 @@ public sealed class Instance
             List<string> unusedProperties = _initData.properties.getUnusedProperties();
             if (unusedProperties.Count != 0)
             {
-                StringBuilder message = new StringBuilder("The following properties were set but never read:");
+                var message = new StringBuilder("The following properties were set but never read:");
                 foreach (string s in unusedProperties)
                 {
                     message.Append("\n    ");
@@ -1246,7 +1246,7 @@ public sealed class Instance
     {
         lock (_mutex)
         {
-            Dictionary<string, Ice.Object> filteredFacets = new Dictionary<string, Ice.Object>();
+            var filteredFacets = new Dictionary<string, Ice.Object>();
 
             foreach (KeyValuePair<string, Ice.Object> entry in _adminFacets)
             {
@@ -1284,7 +1284,7 @@ public sealed class Instance
             {
                 if (_traceLevels.location >= 1)
                 {
-                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    var s = new System.Text.StringBuilder();
                     s.Append("couldn't register server `" + serverId + "' with the locator registry:\n");
                     s.Append("the server is not known to the locator registry");
                     _initData.logger.trace(_traceLevels.locationCat, s.ToString());
@@ -1296,7 +1296,7 @@ public sealed class Instance
             {
                 if (_traceLevels.location >= 1)
                 {
-                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    var s = new System.Text.StringBuilder();
                     s.Append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
                     _initData.logger.trace(_traceLevels.locationCat, s.ToString());
                 }
@@ -1305,7 +1305,7 @@ public sealed class Instance
 
             if (_traceLevels.location >= 1)
             {
-                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                var s = new System.Text.StringBuilder();
                 s.Append("registered server `" + serverId + "' with the locator registry");
                 _initData.logger.trace(_traceLevels.locationCat, s.ToString());
             }

@@ -27,7 +27,7 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
     {
         lock (_mutex)
         {
-            var old = _properties.getPropertiesForPrefix("");
+            Dictionary<string, string> old = _properties.getPropertiesForPrefix("");
             int traceLevel = _properties.getIcePropertyAsInt("Ice.Trace.Admin.Properties");
 
             //
@@ -84,7 +84,7 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
 
             if (traceLevel > 0 && (added.Count > 0 || changed.Count > 0 || removed.Count > 0))
             {
-                System.Text.StringBuilder message = new System.Text.StringBuilder("Summary of property changes");
+                var message = new System.Text.StringBuilder("Summary of property changes");
 
                 if (added.Count > 0)
                 {
@@ -153,7 +153,7 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
 
             if (_updateCallbacks.Count > 0)
             {
-                Dictionary<string, string> changes = new Dictionary<string, string>(added);
+                var changes = new Dictionary<string, string>(added);
                 foreach (KeyValuePair<string, string> e in changed)
                 {
                     changes.Add(e.Key, e.Value);
@@ -164,7 +164,7 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
                 }
 
                 // Copy callbacks to allow callbacks to update callbacks
-                foreach (var callback in new List<System.Action<Dictionary<string, string>>>(_updateCallbacks))
+                foreach (Action<Dictionary<string, string>> callback in new List<System.Action<Dictionary<string, string>>>(_updateCallbacks))
                 {
                     // The callback should not throw any exception.
                     callback(changes);

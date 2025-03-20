@@ -89,7 +89,7 @@ public class Server : Test.TestHelper
                                "test-" + properties.getIceProperty("Ice.Default.Protocol"));
 
         using var communicator = initialize(properties);
-        PluginI plugin = new PluginI(communicator);
+        var plugin = new PluginI(communicator);
         plugin.initialize();
         communicator.getPluginManager().addPlugin("Test", plugin);
 
@@ -112,7 +112,7 @@ public class Server : Test.TestHelper
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
-        BackgroundControllerI backgroundController = new BackgroundControllerI(adapter);
+        var backgroundController = new BackgroundControllerI(adapter);
 
         adapter.add(new BackgroundI(backgroundController), Ice.Util.stringToIdentity("background"));
         adapter.add(new LocatorI(backgroundController), Ice.Util.stringToIdentity("locator"));

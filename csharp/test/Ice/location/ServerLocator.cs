@@ -52,6 +52,6 @@ public class ServerLocator : Test.TestLocatorDisp_
     }
 
     private readonly ServerLocatorRegistry _registry;
-    private Ice.LocatorRegistryPrx _registryPrx;
+    private readonly Ice.LocatorRegistryPrx _registryPrx;
     private int _requestCount;
 }

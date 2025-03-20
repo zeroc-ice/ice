@@ -37,8 +37,8 @@ public sealed class InitialI : Test.InitialDisp_
         current.adapter.getCommunicator().shutdown();
     }
 
-    private Test.MA.IAPrx _ia;
-    private Test.MB.IB1Prx _ib1;
-    private Test.MB.IB2Prx _ib2;
-    private Test.MA.ICPrx _ic;
+    private readonly Test.MA.IAPrx _ia;
+    private readonly Test.MB.IB1Prx _ib1;
+    private readonly Test.MB.IB2Prx _ib2;
+    private readonly Test.MA.ICPrx _ic;
 }

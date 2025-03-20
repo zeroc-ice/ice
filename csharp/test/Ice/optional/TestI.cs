@@ -32,7 +32,7 @@ public class InitialI : Test.InitialDisp_
                                              string b,
                                              Ice.Current current)
     {
-        Test.RequiredException e = new Test.RequiredException();
+        var e = new Test.RequiredException();
         e.a = a;
         e.b = b;
         if (b is not null)

@@ -136,7 +136,7 @@ public class AllTests : global::Test.AllTests
     public static int allTests(global::Test.TestHelper helper)
     {
         var communicator = helper.communicator();
-        MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
+        var factoryWrapper = new MyClassFactoryWrapper();
 
         communicator.getValueFactoryManager().add(factoryWrapper.create, Test.MyClass.ice_staticId());
         Ice.InputStream inS;
@@ -290,7 +290,7 @@ public class AllTests : global::Test.AllTests
             outS.writePendingValues();
             var data = outS.finished();
             inS = new Ice.InputStream(communicator, data);
-            TestReadValueCallback cb = new TestReadValueCallback();
+            var cb = new TestReadValueCallback();
             inS.readValue(cb.invoke);
             inS.readPendingValues();
             var o2 = (Test.OptionalClass)cb.obj;
@@ -862,7 +862,7 @@ public class AllTests : global::Test.AllTests
         {
             int[] arr = { 0x01, 0x11, 0x12, 0x22 };
             outS = new Ice.OutputStream(communicator);
-            LinkedList<int> l = new LinkedList<int>(arr);
+            var l = new LinkedList<int>(arr);
             Test.IntLinkedListHelper.write(outS, l);
             byte[] data = outS.finished();
             inS = new Ice.InputStream(communicator, data);
@@ -873,7 +873,7 @@ public class AllTests : global::Test.AllTests
         {
             Test.MyEnum[] arr = { Test.MyEnum.enum3, Test.MyEnum.enum2, Test.MyEnum.enum1, Test.MyEnum.enum2 };
             outS = new Ice.OutputStream(communicator);
-            LinkedList<Test.MyEnum> l = new LinkedList<Test.MyEnum>(arr);
+            var l = new LinkedList<Test.MyEnum>(arr);
             Test.MyEnumLinkedListHelper.write(outS, l);
             byte[] data = outS.finished();
             inS = new Ice.InputStream(communicator, data);

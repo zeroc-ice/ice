@@ -26,7 +26,7 @@ internal class Twoways
         }
 
         {
-            List<byte> i = new List<byte>(_length);
+            var i = new List<byte>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add((byte)c);
@@ -41,7 +41,7 @@ internal class Twoways
         }
 
         {
-            LinkedList<byte> i = new LinkedList<byte>();
+            var i = new LinkedList<byte>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast((byte)c);
@@ -56,7 +56,7 @@ internal class Twoways
         }
 
         {
-            Queue<byte> i = new Queue<byte>();
+            var i = new Queue<byte>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue((byte)c);
@@ -71,7 +71,7 @@ internal class Twoways
         }
 
         {
-            Stack<byte> i = new Stack<byte>();
+            var i = new Stack<byte>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push((byte)c);
@@ -101,7 +101,7 @@ internal class Twoways
         }
 
         {
-            List<bool> i = new List<bool>(_length);
+            var i = new List<bool>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add(c % 1 == 1);
@@ -116,7 +116,7 @@ internal class Twoways
         }
 
         {
-            LinkedList<bool> i = new LinkedList<bool>();
+            var i = new LinkedList<bool>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast(c % 1 == 1);
@@ -131,7 +131,7 @@ internal class Twoways
         }
 
         {
-            Queue<bool> i = new Queue<bool>();
+            var i = new Queue<bool>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue(c % 1 == 1);
@@ -146,7 +146,7 @@ internal class Twoways
         }
 
         {
-            Stack<bool> i = new Stack<bool>();
+            var i = new Stack<bool>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push(c % 1 == 1);
@@ -177,7 +177,7 @@ internal class Twoways
         }
 
         {
-            List<short> i = new List<short>(_length);
+            var i = new List<short>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add((short)c);
@@ -192,7 +192,7 @@ internal class Twoways
         }
 
         {
-            LinkedList<short> i = new LinkedList<short>();
+            var i = new LinkedList<short>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast((short)c);
@@ -207,7 +207,7 @@ internal class Twoways
         }
 
         {
-            Queue<short> i = new Queue<short>();
+            var i = new Queue<short>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue((short)c);
@@ -222,7 +222,7 @@ internal class Twoways
         }
 
         {
-            Stack<short> i = new Stack<short>();
+            var i = new Stack<short>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push((short)c);
@@ -252,7 +252,7 @@ internal class Twoways
         }
 
         {
-            List<int> i = new List<int>(_length);
+            var i = new List<int>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add((int)c);
@@ -267,7 +267,7 @@ internal class Twoways
         }
 
         {
-            LinkedList<int> i = new LinkedList<int>();
+            var i = new LinkedList<int>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast((int)c);
@@ -282,7 +282,7 @@ internal class Twoways
         }
 
         {
-            Queue<int> i = new Queue<int>();
+            var i = new Queue<int>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue((int)c);
@@ -297,7 +297,7 @@ internal class Twoways
         }
 
         {
-            Stack<int> i = new Stack<int>();
+            var i = new Stack<int>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push((int)c);
@@ -327,7 +327,7 @@ internal class Twoways
         }
 
         {
-            List<long> i = new List<long>(_length);
+            var i = new List<long>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add((long)c);
@@ -342,7 +342,7 @@ internal class Twoways
         }
 
         {
-            LinkedList<long> i = new LinkedList<long>();
+            var i = new LinkedList<long>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast((long)c);
@@ -357,7 +357,7 @@ internal class Twoways
         }
 
         {
-            Queue<long> i = new Queue<long>();
+            var i = new Queue<long>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue((long)c);
@@ -372,7 +372,7 @@ internal class Twoways
         }
 
         {
-            Stack<long> i = new Stack<long>();
+            var i = new Stack<long>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push((long)c);
@@ -402,7 +402,7 @@ internal class Twoways
         }
 
         {
-            List<float> i = new List<float>(_length);
+            var i = new List<float>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add((float)c);
@@ -417,7 +417,7 @@ internal class Twoways
         }
 
         {
-            LinkedList<float> i = new LinkedList<float>();
+            var i = new LinkedList<float>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast((float)c);
@@ -432,7 +432,7 @@ internal class Twoways
         }
 
         {
-            Queue<float> i = new Queue<float>();
+            var i = new Queue<float>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue((float)c);
@@ -447,7 +447,7 @@ internal class Twoways
         }
 
         {
-            Stack<float> i = new Stack<float>();
+            var i = new Stack<float>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push((float)c);
@@ -477,7 +477,7 @@ internal class Twoways
         }
 
         {
-            List<double> i = new List<double>(_length);
+            var i = new List<double>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add((double)c);
@@ -492,7 +492,7 @@ internal class Twoways
         }
 
         {
-            LinkedList<double> i = new LinkedList<double>();
+            var i = new LinkedList<double>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast((double)c);
@@ -507,7 +507,7 @@ internal class Twoways
         }
 
         {
-            Queue<double> i = new Queue<double>();
+            var i = new Queue<double>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue((double)c);
@@ -522,7 +522,7 @@ internal class Twoways
         }
 
         {
-            Stack<double> i = new Stack<double>();
+            var i = new Stack<double>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push((double)c);
@@ -552,7 +552,7 @@ internal class Twoways
         }
 
         {
-            List<string> i = new List<string>(_length);
+            var i = new List<string>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add(c.ToString());
@@ -567,7 +567,7 @@ internal class Twoways
         }
 
         {
-            LinkedList<string> i = new LinkedList<string>();
+            var i = new LinkedList<string>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast(c.ToString());
@@ -582,7 +582,7 @@ internal class Twoways
         }
 
         {
-            Queue<string> i = new Queue<string>();
+            var i = new Queue<string>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue(c.ToString());
@@ -597,7 +597,7 @@ internal class Twoways
         }
 
         {
-            Stack<string> i = new Stack<string>();
+            var i = new Stack<string>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push(c.ToString());
@@ -656,7 +656,7 @@ internal class Twoways
         }
 
         {
-            Ice.ObjectPrx[] i = new Ice.ObjectPrx[_length];
+            var i = new Ice.ObjectPrx[_length];
             for (int c = 0; c < _length; ++c)
             {
                 i[c] = communicator.stringToProxy(c.ToString());
@@ -671,7 +671,7 @@ internal class Twoways
         }
 
         {
-            List<Ice.ObjectPrx> i = new List<Ice.ObjectPrx>(_length);
+            var i = new List<Ice.ObjectPrx>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add(communicator.stringToProxy(c.ToString()));
@@ -686,7 +686,7 @@ internal class Twoways
         }
 
         {
-            LinkedList<Ice.ObjectPrx> i = new LinkedList<Ice.ObjectPrx>();
+            var i = new LinkedList<Ice.ObjectPrx>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast(communicator.stringToProxy(c.ToString()));
@@ -701,7 +701,7 @@ internal class Twoways
         }
 
         {
-            Queue<Ice.ObjectPrx> i = new Queue<Ice.ObjectPrx>();
+            var i = new Queue<Ice.ObjectPrx>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue(communicator.stringToProxy(c.ToString()));
@@ -716,7 +716,7 @@ internal class Twoways
         }
 
         {
-            Stack<Ice.ObjectPrx> i = new Stack<Ice.ObjectPrx>();
+            var i = new Stack<Ice.ObjectPrx>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push(communicator.stringToProxy(c.ToString()));
@@ -1044,7 +1044,7 @@ internal class Twoways
         }
 
         {
-            Test.IPrx[] i = new Test.IPrx[_length];
+            var i = new Test.IPrx[_length];
             for (int c = 0; c < _length; ++c)
             {
                 i[c] = Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString()));
@@ -1059,7 +1059,7 @@ internal class Twoways
         }
 
         {
-            List<Test.IPrx> i = new List<Test.IPrx>(_length);
+            var i = new List<Test.IPrx>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
@@ -1074,7 +1074,7 @@ internal class Twoways
         }
 
         {
-            LinkedList<Test.IPrx> i = new LinkedList<Test.IPrx>();
+            var i = new LinkedList<Test.IPrx>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
@@ -1089,7 +1089,7 @@ internal class Twoways
         }
 
         {
-            Queue<Test.IPrx> i = new Queue<Test.IPrx>();
+            var i = new Queue<Test.IPrx>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
@@ -1104,7 +1104,7 @@ internal class Twoways
         }
 
         {
-            Stack<Test.IPrx> i = new Stack<Test.IPrx>();
+            var i = new Stack<Test.IPrx>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
@@ -1119,7 +1119,7 @@ internal class Twoways
         }
 
         {
-            Custom<int> i = new Custom<int>();
+            var i = new Custom<int>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Add(c);
@@ -1165,10 +1165,10 @@ internal class Twoways
         }
 
         {
-            Custom<Custom<int>> i = new Custom<Custom<int>>();
+            var i = new Custom<Custom<int>>();
             for (int c = 0; c < _length; ++c)
             {
-                Custom<int> inner = new Custom<int>();
+                var inner = new Custom<int>();
                 for (int j = 0; j < c; ++j)
                 {
                     inner.Add(j);

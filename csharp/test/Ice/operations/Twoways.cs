@@ -33,7 +33,7 @@ internal class Twoways
             test(Internal.DictionaryExtensions.DictionaryEqual(_proxy.opContext(), ctx));
         }
 
-        private Test.MyClassPrx _proxy;
+        private readonly Test.MyClassPrx _proxy;
         private Thread _thread;
     }
 
@@ -252,11 +252,11 @@ internal class Twoways
         }
 
         {
-            Test.Structure si1 = new Test.Structure(new Test.AnotherStruct());
+            var si1 = new Test.Structure(new Test.AnotherStruct());
             si1.p = p;
             si1.e = Test.MyEnum.enum3;
             si1.s.s = "abc";
-            Test.Structure si2 = new Test.Structure(new Test.AnotherStruct());
+            var si2 = new Test.Structure(new Test.AnotherStruct());
             si2.p = null;
             si2.e = Test.MyEnum.enum2;
             si2.s.s = "def";
@@ -641,12 +641,12 @@ internal class Twoways
         }
 
         {
-            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>
+            var di1 = new Dictionary<byte, bool>
             {
                 [10] = true,
                 [100] = false
             };
-            Dictionary<byte, bool> di2 = new Dictionary<byte, bool>
+            var di2 = new Dictionary<byte, bool>
             {
                 [10] = true,
                 [11] = false,
@@ -665,12 +665,12 @@ internal class Twoways
         }
 
         {
-            Dictionary<short, int> di1 = new Dictionary<short, int>
+            var di1 = new Dictionary<short, int>
             {
                 [110] = -1,
                 [1100] = 123123
             };
-            Dictionary<short, int> di2 = new Dictionary<short, int>
+            var di2 = new Dictionary<short, int>
             {
                 [110] = -1,
                 [111] = -100,
@@ -689,12 +689,12 @@ internal class Twoways
         }
 
         {
-            Dictionary<long, float> di1 = new Dictionary<long, float>
+            var di1 = new Dictionary<long, float>
             {
                 [999999110L] = -1.1f,
                 [999999111L] = 123123.2f
             };
-            Dictionary<long, float> di2 = new Dictionary<long, float>
+            var di2 = new Dictionary<long, float>
             {
                 [999999110L] = -1.1f,
                 [999999120L] = -100.4f,
@@ -713,12 +713,12 @@ internal class Twoways
         }
 
         {
-            Dictionary<string, string> di1 = new Dictionary<string, string>
+            var di1 = new Dictionary<string, string>
             {
                 ["foo"] = "abc -1.1",
                 ["bar"] = "abc 123123.2"
             };
-            Dictionary<string, string> di2 = new Dictionary<string, string>
+            var di2 = new Dictionary<string, string>
             {
                 ["foo"] = "abc -1.1",
                 ["FOO"] = "abc -100.4",
@@ -811,21 +811,21 @@ internal class Twoways
         }
 
         {
-            Dictionary<byte, bool>[] dsi1 = new Dictionary<byte, bool>[2];
-            Dictionary<byte, bool>[] dsi2 = new Dictionary<byte, bool>[1];
+            var dsi1 = new Dictionary<byte, bool>[2];
+            var dsi2 = new Dictionary<byte, bool>[1];
 
-            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>
+            var di1 = new Dictionary<byte, bool>
             {
                 [10] = true,
                 [100] = false
             };
-            Dictionary<byte, bool> di2 = new Dictionary<byte, bool>
+            var di2 = new Dictionary<byte, bool>
             {
                 [10] = true,
                 [11] = false,
                 [101] = true
             };
-            Dictionary<byte, bool> di3 = new Dictionary<byte, bool>
+            var di3 = new Dictionary<byte, bool>
             {
                 [100] = false,
                 [101] = false
@@ -861,21 +861,21 @@ internal class Twoways
         }
 
         {
-            Dictionary<short, int>[] dsi1 = new Dictionary<short, int>[2];
-            Dictionary<short, int>[] dsi2 = new Dictionary<short, int>[1];
+            var dsi1 = new Dictionary<short, int>[2];
+            var dsi2 = new Dictionary<short, int>[1];
 
-            Dictionary<short, int> di1 = new Dictionary<short, int>
+            var di1 = new Dictionary<short, int>
             {
                 [110] = -1,
                 [1100] = 123123
             };
-            Dictionary<short, int> di2 = new Dictionary<short, int>
+            var di2 = new Dictionary<short, int>
             {
                 [110] = -1,
                 [111] = -100,
                 [1101] = 0
             };
-            Dictionary<short, int> di3 = new Dictionary<short, int>
+            var di3 = new Dictionary<short, int>
             {
                 [100] = -1001
             };
@@ -909,21 +909,21 @@ internal class Twoways
         }
 
         {
-            Dictionary<long, float>[] dsi1 = new Dictionary<long, float>[2];
-            Dictionary<long, float>[] dsi2 = new Dictionary<long, float>[1];
+            var dsi1 = new Dictionary<long, float>[2];
+            var dsi2 = new Dictionary<long, float>[1];
 
-            Dictionary<long, float> di1 = new Dictionary<long, float>
+            var di1 = new Dictionary<long, float>
             {
                 [999999110L] = -1.1f,
                 [999999111L] = 123123.2f
             };
-            Dictionary<long, float> di2 = new Dictionary<long, float>
+            var di2 = new Dictionary<long, float>
             {
                 [999999110L] = -1.1f,
                 [999999120L] = -100.4f,
                 [999999130L] = 0.5f
             };
-            Dictionary<long, float> di3 = new Dictionary<long, float>
+            var di3 = new Dictionary<long, float>
             {
                 [999999140L] = 3.14f
             };
@@ -958,21 +958,21 @@ internal class Twoways
         }
 
         {
-            Dictionary<string, string>[] dsi1 = new Dictionary<string, string>[2];
-            Dictionary<string, string>[] dsi2 = new Dictionary<string, string>[1];
+            var dsi1 = new Dictionary<string, string>[2];
+            var dsi2 = new Dictionary<string, string>[1];
 
-            Dictionary<string, string> di1 = new Dictionary<string, string>
+            var di1 = new Dictionary<string, string>
             {
                 ["foo"] = "abc -1.1",
                 ["bar"] = "abc 123123.2"
             };
-            Dictionary<string, string> di2 = new Dictionary<string, string>
+            var di2 = new Dictionary<string, string>
             {
                 ["foo"] = "abc -1.1",
                 ["FOO"] = "abc -100.4",
                 ["BAR"] = "abc 0.5"
             };
-            Dictionary<string, string> di3 = new Dictionary<string, string>
+            var di3 = new Dictionary<string, string>
             {
                 ["f00"] = "ABC -3.14"
             };
@@ -1457,7 +1457,7 @@ internal class Twoways
         }
 
         {
-            Dictionary<string, string> ctx = new Dictionary<string, string>
+            var ctx = new Dictionary<string, string>
             {
                 ["one"] = "ONE",
                 ["two"] = "TWO",
@@ -1492,13 +1492,13 @@ internal class Twoways
             string[] impls = { "Shared", "PerThread" };
             for (int i = 0; i < 2; i++)
             {
-                Ice.InitializationData initData = new Ice.InitializationData();
+                var initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties().Clone();
                 initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
 
                 Ice.Communicator ic = helper.initialize(initData);
 
-                Dictionary<string, string> ctx = new Dictionary<string, string>
+                var ctx = new Dictionary<string, string>
                 {
                     ["one"] = "ONE",
                     ["two"] = "TWO",
@@ -1519,13 +1519,13 @@ internal class Twoways
                 ctx = ic.getImplicitContext().getContext();
                 test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContext(), ctx));
 
-                Dictionary<string, string> prxContext = new Dictionary<string, string>
+                var prxContext = new Dictionary<string, string>
                 {
                     ["one"] = "UN",
                     ["four"] = "QUATRE"
                 };
 
-                Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+                var combined = new Dictionary<string, string>(prxContext);
                 foreach (KeyValuePair<string, string> e in ctx)
                 {
                     try
@@ -1617,7 +1617,7 @@ internal class Twoways
         {
             p.opMDict1();
 
-            Dictionary<string, string> p1 = new Dictionary<string, string>
+            var p1 = new Dictionary<string, string>
             {
                 ["test"] = "test"
             };

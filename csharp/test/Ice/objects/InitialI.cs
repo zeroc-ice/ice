@@ -191,8 +191,8 @@ public sealed class InitialI : Test.InitialDisp_
     }
 
     private readonly Ice.ObjectAdapter _adapter;
-    private Test.B _b1;
-    private Test.B _b2;
-    private Test.C _c;
-    private Test.D _d;
+    private readonly Test.B _b1;
+    private readonly Test.B _b2;
+    private readonly Test.C _c;
+    private readonly Test.D _d;
 }

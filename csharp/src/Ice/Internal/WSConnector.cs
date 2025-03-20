@@ -34,7 +34,7 @@ internal sealed class WSConnector : Connector
             return true;
         }
 
-        WSConnector p = (WSConnector)obj;
+        var p = (WSConnector)obj;
         if (!_delegate.Equals(p._delegate))
         {
             return false;

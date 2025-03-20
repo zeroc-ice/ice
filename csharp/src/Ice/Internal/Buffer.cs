@@ -167,7 +167,7 @@ public class Buffer
 
         try
         {
-            ByteBuffer buf = ByteBuffer.allocate(_capacity);
+            var buf = ByteBuffer.allocate(_capacity);
 
             if (b == _emptyBuffer)
             {

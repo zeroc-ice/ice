@@ -12,7 +12,7 @@ public class Server : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
+        var initData = new Ice.InitializationData();
         initData.properties = createTestProperties(ref args);
         //
         // Limit the recv buffer size, this test relies on the socket

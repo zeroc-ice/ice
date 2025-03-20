@@ -8,15 +8,15 @@ public class Client : TestHelper
     {
         Console.Out.Write("testing Slice predefined macros... ");
         Console.Out.Flush();
-        Default d = new Default();
+        var d = new Default();
         test(d.x == 10);
         test(d.y == 10);
 
-        NoDefault nd = new NoDefault();
+        var nd = new NoDefault();
         test(nd.x != 10);
         test(nd.y != 10);
 
-        CsOnly c = new CsOnly();
+        var c = new CsOnly();
         test(c.lang == "cs");
         test(c.version == Ice.Util.intVersion());
         Console.Out.WriteLine("ok");

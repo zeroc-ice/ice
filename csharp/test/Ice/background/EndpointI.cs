@@ -125,7 +125,7 @@ internal class EndpointI : Ice.Internal.EndpointI
 
         public void connectors(List<Ice.Internal.Connector> cons)
         {
-            List<Ice.Internal.Connector> connectors = new List<Ice.Internal.Connector>();
+            var connectors = new List<Ice.Internal.Connector>();
             foreach (Ice.Internal.Connector connector in cons)
             {
                 connectors.Add(new Connector(connector));

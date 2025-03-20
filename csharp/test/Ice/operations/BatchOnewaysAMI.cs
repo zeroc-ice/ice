@@ -80,7 +80,7 @@ internal class BatchOnewaysAMI
             _ = batch2.ice_pingAsync();
         }
 
-        Ice.Identity identity = new Ice.Identity("invalid", "");
+        var identity = new Ice.Identity("invalid", "");
         Ice.ObjectPrx batch3 = batch.ice_identity(identity);
         await batch3.ice_pingAsync();
         await batch3.ice_flushBatchRequestsAsync();

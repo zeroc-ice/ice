@@ -35,8 +35,8 @@ internal abstract class Request<T>
     {
         _lookupCount = lookups.Count;
         _failureCount = 0;
-        Ice.Identity id = new Ice.Identity(_requestId, "");
-        foreach (var entry in lookups)
+        var id = new Ice.Identity(_requestId, "");
+        foreach (KeyValuePair<LookupPrx, LookupReplyPrx> entry in lookups)
         {
             invokeWithLookup(
                 domainId,
@@ -121,7 +121,7 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
         }
         else
         {
-            List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>();
+            var endpoints = new List<Ice.Endpoint>();
             Ice.ObjectPrx result = null;
             foreach (Ice.ObjectPrx prx in _proxies)
             {
@@ -156,7 +156,7 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
 
     private void sendResponse(Ice.ObjectPrx proxy)
     {
-        foreach (var cb in callbacks_)
+        foreach (TaskCompletionSource<Ice.ObjectPrx> cb in callbacks_)
         {
             cb.SetResult(proxy);
         }
@@ -187,7 +187,7 @@ internal class ObjectRequest : Request<Ice.Identity>, Ice.Internal.TimerTask
 
     public override void finished(Ice.ObjectPrx proxy)
     {
-        foreach (var cb in callbacks_)
+        foreach (TaskCompletionSource<Ice.ObjectPrx> cb in callbacks_)
         {
             cb.SetResult(proxy);
         }
@@ -234,7 +234,7 @@ internal class LookupI : LookupDisp_
         // datagram on each endpoint.
         //
         var single = new Ice.Endpoint[1];
-        foreach (var endpt in lookup.ice_getEndpoints())
+        foreach (Ice.Endpoint endpt in lookup.ice_getEndpoints())
         {
             single[0] = endpt;
             _lookups[(LookupPrx)lookup.ice_endpoints(single)] = null;
@@ -248,14 +248,14 @@ internal class LookupI : LookupDisp_
         // Use a lookup reply proxy whose address matches the interface used to send multicast datagrams.
         //
         var single = new Ice.Endpoint[1];
-        foreach (var key in new List<LookupPrx>(_lookups.Keys))
+        foreach (LookupPrx key in new List<LookupPrx>(_lookups.Keys))
         {
             var info = (Ice.UDPEndpointInfo)key.ice_getEndpoints()[0].getInfo();
             if (info.mcastInterface.Length > 0)
             {
-                foreach (var q in lookupReply.ice_getEndpoints())
+                foreach (Ice.Endpoint q in lookupReply.ice_getEndpoints())
                 {
-                    var r = q.getInfo();
+                    Ice.EndpointInfo r = q.getInfo();
                     if (r is Ice.IPEndpointInfo &&
                         ((Ice.IPEndpointInfo)r).host.Equals(info.mcastInterface, StringComparison.Ordinal))
                     {
@@ -455,7 +455,7 @@ internal class LookupI : LookupDisp_
             {
                 if (_warnOnce)
                 {
-                    StringBuilder s = new StringBuilder();
+                    var s = new StringBuilder();
                     s.Append("failed to lookup object `");
                     s.Append(_lookup.ice_getCommunicator().identityToString(request.getId()));
                     s.Append("' with lookup proxy `");
@@ -514,7 +514,7 @@ internal class LookupI : LookupDisp_
             {
                 if (_warnOnce)
                 {
-                    StringBuilder s = new StringBuilder();
+                    var s = new StringBuilder();
                     s.Append("failed to lookup adapter `");
                     s.Append(request.getId());
                     s.Append("' with lookup proxy `");
@@ -541,7 +541,7 @@ internal class LookupI : LookupDisp_
     }
 
     private readonly LocatorRegistryI _registry;
-    private LookupPrx _lookup;
+    private readonly LookupPrx _lookup;
     private readonly Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
     private readonly int _timeout;
     private readonly int _retryCount;

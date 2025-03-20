@@ -45,7 +45,7 @@ public class Custom<T> : IEnumerable<T>
     {
         try
         {
-            Custom<T> tmp = (Custom<T>)o;
+            var tmp = (Custom<T>)o;
             IEnumerator<T> e = tmp.GetEnumerator();
             foreach (T elmt in _list)
             {

@@ -232,7 +232,7 @@ public class Client : Test.TestHelper
             Console.Out.Flush();
             CallbackPrx oneway = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway());
             CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
-            Dictionary<string, string> context = new Dictionary<string, string>
+            var context = new Dictionary<string, string>
             {
                 ["_fwd"] = "o"
             };
@@ -244,7 +244,7 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("testing twoway callback... ");
             Console.Out.Flush();
-            Dictionary<string, string> context = new Dictionary<string, string>
+            var context = new Dictionary<string, string>
             {
                 ["_fwd"] = "t"
             };
@@ -256,7 +256,7 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("ditto, but with user exception... ");
             Console.Out.Flush();
-            Dictionary<string, string> context = new Dictionary<string, string>
+            var context = new Dictionary<string, string>
             {
                 ["_fwd"] = "t"
             };
@@ -277,7 +277,7 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("trying twoway callback with fake category... ");
             Console.Out.Flush();
-            Dictionary<string, string> context = new Dictionary<string, string>
+            var context = new Dictionary<string, string>
             {
                 ["_fwd"] = "t"
             };
@@ -295,7 +295,7 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("testing whether other allowed category is accepted... ");
             Console.Out.Flush();
-            Dictionary<string, string> context = new Dictionary<string, string>
+            var context = new Dictionary<string, string>
             {
                 ["_fwd"] = "t"
             };
@@ -309,7 +309,7 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("testing whether disallowed category gets rejected... ");
             Console.Out.Flush();
-            Dictionary<string, string> context = new Dictionary<string, string>
+            var context = new Dictionary<string, string>
             {
                 ["_fwd"] = "t"
             };
@@ -329,7 +329,7 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("testing whether user-id as category is accepted... ");
             Console.Out.Flush();
-            Dictionary<string, string> context = new Dictionary<string, string>
+            var context = new Dictionary<string, string>
             {
                 ["_fwd"] = "t"
             };

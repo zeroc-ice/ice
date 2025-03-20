@@ -91,7 +91,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         public void
         addCallback(Reference @ref, Reference wellKnownRef, TimeSpan ttl, GetEndpointsCallback cb)
         {
-            RequestCallback callback = new RequestCallback(@ref, ttl, cb);
+            var callback = new RequestCallback(@ref, ttl, cb);
             lock (_mutex)
             {
                 if (!_response && _exception == null)
@@ -191,8 +191,8 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
                 {
                     try
                     {
-                        var locator = _locatorInfo.getLocator();
-                        var proxy = await locator.findObjectByIdAsync(_ref.getIdentity()).ConfigureAwait(false);
+                        LocatorPrx locator = _locatorInfo.getLocator();
+                        ObjectPrx proxy = await locator.findObjectByIdAsync(_ref.getIdentity()).ConfigureAwait(false);
                         response(proxy);
                     }
                     catch (Ice.Exception ex)
@@ -218,8 +218,8 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
                 {
                     try
                     {
-                        var locator = _locatorInfo.getLocator();
-                        var proxy = await locator.findAdapterByIdAsync(_ref.getAdapterId()).ConfigureAwait(false);
+                        LocatorPrx locator = _locatorInfo.getLocator();
+                        ObjectPrx proxy = await locator.findAdapterByIdAsync(_ref.getAdapterId()).ConfigureAwait(false);
                         response(proxy);
                     }
                     catch (Ice.Exception ex)
@@ -402,7 +402,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
 
     private void trace(string msg, Reference r, EndpointI[] endpoints)
     {
-        System.Text.StringBuilder s = new System.Text.StringBuilder();
+        var s = new System.Text.StringBuilder();
         s.Append(msg + "\n");
         if (r.getAdapterId().Length > 0)
         {
@@ -431,7 +431,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
     {
         Debug.Assert(r.isWellKnown());
 
-        System.Text.StringBuilder s = new System.Text.StringBuilder();
+        var s = new System.Text.StringBuilder();
         s.Append(msg);
         s.Append('\n');
         s.Append("well-known proxy = ");
@@ -454,7 +454,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
             Instance instance = @ref.getInstance();
             if (instance.traceLevels().location >= 1)
             {
-                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                var s = new System.Text.StringBuilder();
                 s.Append("adapter not found\n");
                 s.Append("adapter = " + @ref.getAdapterId());
                 instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
@@ -467,7 +467,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
             Instance instance = @ref.getInstance();
             if (instance.traceLevels().location >= 1)
             {
-                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                var s = new System.Text.StringBuilder();
                 s.Append("object not found\n");
                 s.Append("object = " + Ice.Util.identityToString(@ref.getIdentity(), instance.toStringMode()));
                 instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
@@ -486,7 +486,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
             Instance instance = @ref.getInstance();
             if (instance.traceLevels().location >= 1)
             {
-                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                var s = new System.Text.StringBuilder();
                 s.Append("couldn't contact the locator to retrieve endpoints\n");
                 if (@ref.getAdapterId().Length > 0)
                 {
@@ -543,7 +543,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         else
         {
             Instance instance = @ref.getInstance();
-            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            var s = new System.Text.StringBuilder();
             s.Append("no endpoints configured for ");
             if (@ref.getAdapterId().Length > 0)
             {
@@ -565,7 +565,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         if (@ref.getInstance().traceLevels().location >= 1)
         {
             Instance instance = @ref.getInstance();
-            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            var s = new System.Text.StringBuilder();
             s.Append("searching for adapter by id\nadapter = ");
             s.Append(@ref.getAdapterId());
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
@@ -591,7 +591,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         if (@ref.getInstance().traceLevels().location >= 1)
         {
             Instance instance = @ref.getInstance();
-            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            var s = new System.Text.StringBuilder();
             s.Append("searching for well-known object\nwell-known proxy = ");
             s.Append(@ref.ToString());
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
@@ -614,7 +614,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
     private void
     finishRequest(Reference @ref, List<Reference> wellKnownRefs, Ice.ObjectPrx proxy, bool notRegistered)
     {
-        Ice.ObjectPrxHelperBase @base = proxy as Ice.ObjectPrxHelperBase;
+        var @base = proxy as Ice.ObjectPrxHelperBase;
         if (proxy == null || @base.iceReference().isIndirect())
         {
             //
@@ -688,7 +688,7 @@ public sealed class LocatorManager
 
         public override bool Equals(object o)
         {
-            LocatorKey k = (LocatorKey)o;
+            var k = (LocatorKey)o;
             if (!k._id.Equals(_id))
             {
                 return false;
@@ -702,7 +702,7 @@ public sealed class LocatorManager
 
         public override int GetHashCode() => HashCode.Combine(_id, _encoding);
 
-        private Ice.Identity _id;
+        private readonly Ice.Identity _id;
         private Ice.EncodingVersion _encoding;
     }
 
@@ -756,7 +756,7 @@ public sealed class LocatorManager
                 // proxy).
                 //
                 LocatorTable table = null;
-                LocatorKey key = new LocatorKey(locator);
+                var key = new LocatorKey(locator);
                 if (!_locatorTables.TryGetValue(key, out table))
                 {
                     table = new LocatorTable();

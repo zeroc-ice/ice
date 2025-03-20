@@ -49,8 +49,8 @@ internal class ControllerI : Test.ControllerDisp_
         _adapter.hold();
         if (to >= 0)
         {
-            ActivateAdapterThread act = new ActivateAdapterThread(_adapter, to);
-            Thread thread = new Thread(new ThreadStart(act.run));
+            var act = new ActivateAdapterThread(_adapter, to);
+            var thread = new Thread(new ThreadStart(act.run));
             thread.Start();
         }
     }

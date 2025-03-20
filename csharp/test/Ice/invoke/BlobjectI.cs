@@ -8,9 +8,9 @@ public class BlobjectI : Ice.Blobject
     ice_invoke(byte[] inParams, out byte[] outParams, Ice.Current current)
     {
         Ice.Communicator communicator = current.adapter.getCommunicator();
-        Ice.InputStream inS = new Ice.InputStream(communicator, inParams);
+        var inS = new Ice.InputStream(communicator, inParams);
         inS.startEncapsulation();
-        Ice.OutputStream outS = new Ice.OutputStream(communicator);
+        var outS = new Ice.OutputStream(communicator);
         outS.startEncapsulation();
         if (current.operation == "opOneway")
         {
@@ -72,9 +72,9 @@ public class BlobjectAsyncI : Ice.BlobjectAsync
     ice_invokeAsync(byte[] inParams, Ice.Current current)
     {
         Ice.Communicator communicator = current.adapter.getCommunicator();
-        Ice.InputStream inS = new Ice.InputStream(communicator, inParams);
+        var inS = new Ice.InputStream(communicator, inParams);
         inS.startEncapsulation();
-        Ice.OutputStream outS = new Ice.OutputStream(communicator);
+        var outS = new Ice.OutputStream(communicator);
         outS.startEncapsulation();
         if (current.operation == "opOneway")
         {
@@ -90,7 +90,7 @@ public class BlobjectAsyncI : Ice.BlobjectAsync
         }
         else if (current.operation == "opException")
         {
-            Test.MyException ex = new Test.MyException();
+            var ex = new Test.MyException();
             outS.writeException(ex);
             outS.endEncapsulation();
             return Task.FromResult(new Ice.Object_Ice_invokeResult(false, outS.finished()));

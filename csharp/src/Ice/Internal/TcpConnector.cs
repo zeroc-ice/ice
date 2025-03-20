@@ -47,7 +47,7 @@ internal sealed class TcpConnector : Connector
             return true;
         }
 
-        TcpConnector p = (TcpConnector)obj;
+        var p = (TcpConnector)obj;
         if (_timeout != p._timeout)
         {
             return false;

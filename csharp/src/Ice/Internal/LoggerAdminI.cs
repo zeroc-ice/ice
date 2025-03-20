@@ -21,7 +21,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 
         Ice.RemoteLoggerPrx remoteLogger = Ice.RemoteLoggerPrxHelper.uncheckedCast(prx.ice_twoway());
 
-        Filters filters = new Filters(messageTypes, categories);
+        var filters = new Filters(messageTypes, categories);
         LinkedList<Ice.LogMessage> initLogMessages = null;
 
         lock (_mutex)
@@ -153,7 +153,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 
         if (logMessages.Count > 0)
         {
-            Filters filters = new Filters(messageTypes, categories);
+            var filters = new Filters(messageTypes, categories);
             filterLogMessages(logMessages, filters.messageTypes, filters.traceCategories, messageMax);
         }
         return logMessages.ToArray();
@@ -211,7 +211,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                         // Need to remove the oldest log from the queue
                         //
                         Debug.Assert(_oldestLog != null);
-                        var next = _oldestLog.Next;
+                        LinkedListNode<LogMessage> next = _oldestLog.Next;
                         _queue.Remove(_oldestLog);
                         _oldestLog = next;
 
@@ -237,7 +237,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                         // Need to remove the oldest trace from the queue
                         //
                         Debug.Assert(_oldestTrace != null);
-                        var next = _oldestTrace.Next;
+                        LinkedListNode<LogMessage> next = _oldestTrace.Next;
                         _queue.Remove(_oldestTrace);
                         _oldestTrace = next;
 
@@ -314,7 +314,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         if (messageTypes.Count > 0 || traceCategories.Count > 0 || messageMax > 0)
         {
             int count = 0;
-            var p = logMessages.Last;
+            LinkedListNode<LogMessage> p = logMessages.Last;
             while (p != null)
             {
                 bool keepIt = false;
@@ -337,7 +337,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                         p = p.Previous;
                         while (p != null)
                         {
-                            var previous = p.Previous;
+                            LinkedListNode<LogMessage> previous = p.Previous;
                             logMessages.Remove(p);
                             p = previous;
                         }
@@ -350,7 +350,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                 }
                 else
                 {
-                    var previous = p.Previous;
+                    LinkedListNode<LogMessage> previous = p.Previous;
                     logMessages.Remove(p);
                     p = previous;
                 }
@@ -375,7 +375,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 
     private static void copyProperties(string prefix, Ice.Properties from, Ice.Properties to)
     {
-        foreach (var p in from.getPropertiesForPrefix(prefix))
+        foreach (KeyValuePair<string, string> p in from.getPropertiesForPrefix(prefix))
         {
             to.setProperty(p.Key, p.Value);
         }
@@ -383,7 +383,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 
     private static Ice.Communicator createSendLogCommunicator(Ice.Communicator communicator, Ice.Logger logger)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
+        var initData = new Ice.InitializationData();
         initData.logger = logger;
         initData.properties = new Ice.Properties();
 

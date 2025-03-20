@@ -50,7 +50,7 @@ public sealed class CallbackReceiverI : CallbackReceiverDisp_
     callbackEx(Ice.Current current)
     {
         callback(current);
-        CallbackException ex = new CallbackException();
+        var ex = new CallbackException();
         ex.someValue = 3.14;
         ex.someString = "3.14";
         throw ex;

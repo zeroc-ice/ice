@@ -150,7 +150,7 @@ public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>
 
     public virtual void initWithOptions(List<string> args)
     {
-        List<string> unknown = new List<string>();
+        var unknown = new List<string>();
 
         string str = "`" + protocol() + " ";
         foreach (string p in args)
