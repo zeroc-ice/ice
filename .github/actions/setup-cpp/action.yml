@@ -17,6 +17,11 @@ runs:
             libbluetooth-dev libdbus-1-dev \
             gdb
 
+    - name: Disable ptrace protection on Linux
+      if: runner.os == 'Linux'
+      shell: bash
+      run: echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
+
     - name: Set macOS MAKEFLAGS
       run: echo "MAKEFLAGS=-j$(sysctl -n hw.ncpu) V=1" >> $GITHUB_ENV
       shell: bash
