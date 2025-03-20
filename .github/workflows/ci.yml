@@ -65,7 +65,7 @@ jobs:
             config: "ios"
             build_flags: "OPTIMIZE=no PLATFORMS='macosx iphonesimulator' CONFIGS='static shared' LANGUAGES='cpp swift'"
             # TODO swift/Ice/udp doesn't work on CI
-            test_flags: "--languages='cpp,swift' --config Debug --platform=iphonesimulator --controller-app --rfilter=swift/Ice/udp"
+            test_flags: "--languages='cpp,swift' --config=debug --platform=iphonesimulator --controller-app --rfilter=swift/Ice/udp"
             build_cpp_and_python: true
 
           # Static builds
