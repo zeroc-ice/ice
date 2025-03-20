@@ -8,7 +8,7 @@ internal class Oneways
 
     internal static void oneways(global::Test.TestHelper helper, Test.MyClassPrx p)
     {
-        Ice.Communicator communicator = helper.communicator();
+        _ = helper.communicator();
         p = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
 
         {

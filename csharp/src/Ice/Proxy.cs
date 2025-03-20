@@ -1658,7 +1658,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
                 var ret = new Object_Ice_invokeResult();
                 if (proxy_.iceReference().isTwoway)
                 {
-                    ret.outEncaps = is_.readEncapsulation(out EncodingVersion encoding);
+                    ret.outEncaps = is_.readEncapsulation(out _);
                 }
                 else
                 {

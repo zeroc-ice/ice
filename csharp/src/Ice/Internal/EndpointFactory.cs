@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice.Internal;
-
 using System.Collections.Generic;
+
+namespace Ice.Internal;
 
 public interface EndpointFactory
 {

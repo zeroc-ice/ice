@@ -477,7 +477,7 @@ public sealed class OutputStream
         }
 
         {
-            if (v is LinkedList<byte> value)
+            if (v is LinkedList<byte>)
             {
                 writeSize(count);
                 expand(count);
@@ -625,7 +625,7 @@ public sealed class OutputStream
         }
 
         {
-            if (v is LinkedList<bool> value)
+            if (v is LinkedList<bool>)
             {
                 writeSize(count);
                 expand(count);
@@ -766,7 +766,7 @@ public sealed class OutputStream
         }
 
         {
-            if (v is LinkedList<short> value)
+            if (v is LinkedList<short>)
             {
                 writeSize(count);
                 expand(count * 2);
@@ -916,7 +916,7 @@ public sealed class OutputStream
         }
 
         {
-            if (v is LinkedList<int> value)
+            if (v is LinkedList<int>)
             {
                 writeSize(count);
                 expand(count * 4);
@@ -1059,7 +1059,7 @@ public sealed class OutputStream
         }
 
         {
-            if (v is LinkedList<long> value)
+            if (v is LinkedList<long>)
             {
                 writeSize(count);
                 expand(count * 8);
@@ -1202,7 +1202,7 @@ public sealed class OutputStream
         }
 
         {
-            if (v is LinkedList<float> value)
+            if (v is LinkedList<float>)
             {
                 writeSize(count);
                 expand(count * 4);
@@ -1345,7 +1345,7 @@ public sealed class OutputStream
         }
 
         {
-            if (v is LinkedList<double> value)
+            if (v is LinkedList<double>)
             {
                 writeSize(count);
                 expand(count * 8);

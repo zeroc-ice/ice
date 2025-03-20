@@ -49,7 +49,7 @@ public class Client : Test.TestHelper
         test(c != null);
         escaped_abstract.@casePrx c1 = null;
         test(c1 == null);
-        c1?.@catch(0, out int c2);
+        c1?.@catch(0, out _);
         escaped_abstract.@decimal d = new decimalI();
         test(d != null);
         escaped_abstract.@decimalPrx d1 = null;
@@ -62,7 +62,7 @@ public class Client : Test.TestHelper
         escaped_abstract.@TotallyDifferentPrx f1 = null;
         if (f1 != null)
         {
-            f1.@catch(0, out c2);
+            f1.@catch(0, out _);
             f1.@default();
         }
         test(f1 == null);

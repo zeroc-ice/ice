@@ -1,12 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice.Internal;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
+
+namespace Ice.Internal;
 
 internal interface IMetricsMap
 {
@@ -518,7 +518,8 @@ internal class MetricsViewI
         Dictionary<string, string> mapsProps = properties.getPropertiesForPrefix(mapsPrefix);
 
         string mapPrefix;
-        var mapProps = new Dictionary<string, string>();
+        _ = new Dictionary<string, string>();
+        Dictionary<string, string> mapProps;
         if (mapsProps.Count > 0)
         {
             mapPrefix = mapsPrefix + mapName + ".";

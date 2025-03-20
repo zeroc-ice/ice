@@ -1,9 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice.retry;
-
 using System.Threading;
 
+namespace Ice.retry;
 public sealed class RetryI : Test.RetryDisp_
 {
     public RetryI()

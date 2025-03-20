@@ -20,15 +20,15 @@ public class AllTests : global::Test.AllTests
 
         {
             byte[] inEncaps;
-            if (!oneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out byte[] outEncaps))
+            if (!oneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out _))
             {
                 test(false);
             }
 
-            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps));
-            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps));
-            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps));
-            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps));
+            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out _));
+            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out _));
+            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out _));
+            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out _));
             batchOneway.ice_flushBatchRequests();
 
             var outS = new Ice.OutputStream(communicator);
@@ -36,8 +36,7 @@ public class AllTests : global::Test.AllTests
             outS.writeString(testString);
             outS.endEncapsulation();
             inEncaps = outS.finished();
-
-            if (cl.ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, out outEncaps))
+            if (cl.ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, out byte[] outEncaps))
             {
                 var inS = new Ice.InputStream(communicator, outEncaps);
                 inS.startEncapsulation();

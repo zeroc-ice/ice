@@ -441,8 +441,8 @@ public sealed class TestI : TestIntfDisp_
     public override Task<Forward>
     useForwardAsync(Ice.Current current)
     {
+        _ = new Forward();
         var f = new Forward();
-        f = new Forward();
         f.h = new Hidden();
         f.h.f = f;
         return Task.FromResult<Forward>(f);

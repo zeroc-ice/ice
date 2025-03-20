@@ -41,7 +41,7 @@ public class BlobjectI : Ice.BlobjectAsync
 
             if (_batchProxy != null)
             {
-                obj.ice_invoke(current.operation, current.mode, inEncaps, out byte[] outEncaps, current.ctx);
+                obj.ice_invoke(current.operation, current.mode, inEncaps, out _, current.ctx);
                 return Task.FromResult(new Ice.Object_Ice_invokeResult(true, new byte[0]));
             }
             else

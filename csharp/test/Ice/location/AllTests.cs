@@ -527,7 +527,7 @@ public class AllTests : global::Test.AllTests
 
         output.Write("testing locator encoding resolution... ");
         output.Flush();
-        hello = Test.HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
+        _ = Test.HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
         count = locator.getRequestCount();
         communicator.stringToProxy("test@TestAdapter").ice_encodingVersion(Ice.Util.Encoding_1_1).ice_ping();
         test(count == locator.getRequestCount());

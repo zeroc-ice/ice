@@ -240,7 +240,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing servant locator...");
         output.Flush();
         @base = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
-        obj = Test.TestIntfPrxHelper.checkedCast(@base);
+        _ = Test.TestIntfPrxHelper.checkedCast(@base);
         try
         {
             Test.TestIntfPrxHelper.checkedCast(communicator.stringToProxy("category/unknown:" + helper.getTestEndpoint(0)));
@@ -253,9 +253,9 @@ public class AllTests : global::Test.AllTests
         output.Write("testing default servant locator...");
         output.Flush();
         @base = communicator.stringToProxy("anothercat/locate:" + helper.getTestEndpoint(0));
-        obj = Test.TestIntfPrxHelper.checkedCast(@base);
+        _ = Test.TestIntfPrxHelper.checkedCast(@base);
         @base = communicator.stringToProxy("locate:" + helper.getTestEndpoint(0));
-        obj = Test.TestIntfPrxHelper.checkedCast(@base);
+        _ = Test.TestIntfPrxHelper.checkedCast(@base);
         try
         {
             Test.TestIntfPrxHelper.checkedCast(communicator.stringToProxy("anothercat/unknown:" + helper.getTestEndpoint(0)));

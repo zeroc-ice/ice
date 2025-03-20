@@ -5,12 +5,11 @@
 // the C++ & Java timers and it's not clear what is the cost of
 // scheduling and cancelling timers.
 //
-
-namespace Ice.Internal;
-
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+
+namespace Ice.Internal;
 
 public interface TimerTask
 {

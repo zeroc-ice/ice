@@ -16,7 +16,7 @@ public class Server : Test.TestHelper
         findAdapterByIdAsync(string adapter, Ice.Current current)
         {
             _controller.checkCallPause(current);
-            Ice.Communicator communicator = current.adapter.getCommunicator();
+            _ = current.adapter.getCommunicator();
             return Task<Ice.ObjectPrx>.FromResult(current.adapter.createDirectProxy(Ice.Util.stringToIdentity("dummy")));
         }
 

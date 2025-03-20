@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice.Internal;
-
 using System.Diagnostics;
+
+namespace Ice.Internal;
 
 // An instance of ByteBuffer cannot grow beyond its initial capacity.
 // This class wraps a ByteBuffer and supports reallocation.
