@@ -31,7 +31,8 @@ IdentAsKeyword.ice:32: interfaces can only be defined within a module
 IdentAsKeyword.ice:33: keyword 'long' cannot be used as interface name
 IdentAsKeyword.ice:33: interfaces can only be defined within a module
 IdentAsKeyword.ice:35: sequences can only be defined within a module
-IdentAsKeyword.ice:36: sequence 'implements' differs only in capitalization from sequence 'impLEments'
+IdentAsKeyword.ice:36: sequence 'extends' differs only in capitalization from sequence 'EXtends'
+IdentAsKeyword.ice:36: keyword 'extends' cannot be used as sequence name
 IdentAsKeyword.ice:37: sequences can only be defined within a module
 IdentAsKeyword.ice:37: keyword 'short' cannot be used as sequence name
 IdentAsKeyword.ice:39: syntax error

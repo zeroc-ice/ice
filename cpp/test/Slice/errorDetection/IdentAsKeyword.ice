@@ -32,8 +32,8 @@ module Test
     interface object { void op(); }
     interface long { void op(); }
 
-    sequence<long> impLEments;
-    sequence<long> implements;
+    sequence<long> EXtends;
+    sequence<long> extends;
     sequence<long> short;
 
     sequence<module> seq1;

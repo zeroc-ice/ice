@@ -1195,8 +1195,7 @@ class Mapping(object):
 
 
 #
-# A Runnable can be used as a "client" for in test cases, it provides
-# implements run, setup and teardown methods.
+# A Runnable can be used as a "client" for in test cases, it provides run, setup, and teardown methods.
 #
 
 
