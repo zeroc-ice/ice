@@ -135,7 +135,7 @@ void
 IcePHP::ResultCallback::unmarshaled(zval* val, zval*, void*)
 {
     // Copy the unmarshaled value into this result callback. This increases the refcount for refcounted values and
-    // coppies non-refcound values.
+    // copies non-refcounted values.
     ZVAL_COPY(&zv, val);
 }
 

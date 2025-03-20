@@ -348,9 +348,6 @@ handleConnectionInfoFreeStorage(zend_object* object)
 bool
 IcePHP::connectionInit(void)
 {
-    // We register an interface and a class that implements the interface. This allows  applications to safely include
-    // the Slice-generated code for the type.
-
     // Register the Connection interface.
     zend_class_entry ce;
     INIT_NS_CLASS_ENTRY(ce, "Ice", "Connection", _interfaceMethods);

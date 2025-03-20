@@ -6,15 +6,13 @@
 
 module Test
 {
+    class F1
+    {
+        string name;
+    }
 
-class F1
-{
-    string name;
-}
-
-interface F2
-{
-    void op();
-}
-
+    interface F2
+    {
+        void op();
+    }
 };

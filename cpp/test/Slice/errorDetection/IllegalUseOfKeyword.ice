@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-//
-
 module Test
 {
     exception module;
@@ -16,14 +14,13 @@ module Test
         int i;
     }
 
-    class interface;
+    class idempotent;
     class struct
     {
-        // void f();
         int i;
     }
 
-    // interface local;
+    interface interface;
     interface extends
     {
         void f();
@@ -31,7 +28,7 @@ module Test
 
     interface Foo
     {
-        void implements();
+        void module();
 
         int bar(string throws, long l, out bool void, out short s);
 
@@ -48,7 +45,7 @@ module Test
 
     sequence<int> Object;
 
-    // dictionary<int, int> LocalObject;
+    dictionary<int, int> dictionary;
 
     enum string
     {

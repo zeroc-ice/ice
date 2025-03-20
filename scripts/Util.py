@@ -296,9 +296,7 @@ class Platform(object):
     def _getBinDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
-            return os.path.join(
-                installDir, "bin", mapping.getTargetFramework(current)
-            )
+            return os.path.join(installDir, "bin", mapping.getTargetFramework(current))
         return os.path.join(installDir, "bin")
 
     def _getLibDir(self, component, process, mapping, current):
@@ -464,9 +462,7 @@ class Windows(Platform):
         )
 
         if isinstance(mapping, CSharpMapping):
-            return os.path.join(
-                installDir, "bin", mapping.getTargetFramework(current)
-            )
+            return os.path.join(installDir, "bin", mapping.getTargetFramework(current))
         elif isinstance(mapping, PhpMapping):
             return os.path.join(
                 self.getNugetPackageDir(component, mapping, current),
@@ -1195,8 +1191,7 @@ class Mapping(object):
 
 
 #
-# A Runnable can be used as a "client" for in test cases, it provides
-# implements run, setup and teardown methods.
+# A Runnable can be used as a "client" for in test cases, it provides run, setup, and teardown methods.
 #
 
 
@@ -3639,16 +3634,18 @@ class CppMapping(Mapping):
         return "{0}/com.zeroc.Cpp-Test-Controller".format(category)
 
     def getIOSAppFullPath(self, current):
-        cmd = "xcodebuild -project '{0}/cpp/test/ios/controller/C++ Test Controller.xcodeproj' \
+        cmd = (
+            "xcodebuild -project '{0}/cpp/test/ios/controller/C++ Test Controller.xcodeproj' \
                           -scheme 'C++ Test Controller' \
                           -configuration {1} \
                           -sdk {2} \
                           -arch arm64 \
                           -showBuildSettings \
                           ".format(
-            toplevel,
-            "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug",
-            current.config.buildPlatform,
+                toplevel,
+                current.config.buildConfig.capitalize(),
+                current.config.buildPlatform,
+            )
         )
         targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
         testDriver = os.path.join(targetBuildDir, "C++ Test Controller.app")
