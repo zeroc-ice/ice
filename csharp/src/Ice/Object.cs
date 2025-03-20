@@ -125,17 +125,6 @@ public abstract class ObjectImpl : Object
     /// <returns>The return value is always ::Ice::Object.</returns>
     public static string ice_staticId() => "::Ice::Object";
 
-    public static void iceCheckMode(OperationMode expected, OperationMode received)
-    {
-        if (received is not OperationMode.Normal && expected is OperationMode.Normal)
-        {
-            // The caller believes the operation is idempotent or non-mutating, but the implementation (the local code)
-            // doesn't. This is a problem, as the Ice runtime could retry automatically when it shouldn't. Other
-            // mismatches are not a concern.
-            throw new MarshalException($"Operation mode mismatch: expected = {expected} received = {received}");
-        }
-    }
-
     /// <inheritdoc />
     public virtual string ice_id(Current current) => ice_staticId();
 

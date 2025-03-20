@@ -771,7 +771,7 @@ namespace Ice
     };
 
     /// Reports a failure that occurred while parsing a string.
-    ///  \headerfile Ice/Ice.h
+    /// \headerfile Ice/Ice.h
     class ICE_API ParseException final : public LocalException
     {
     public:

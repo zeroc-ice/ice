@@ -231,12 +231,12 @@ function marshalParams(os, params, retvalInfo, paramInfo, optParamInfo, usesClas
     }
 }
 
-function checkMode(expected, received) {
-    if (received !== OperationMode.Normal && expected === OperationMode.Normal) {
-        // The caller believes the operation is idempotent or non-mutating, but the implementation (the local code)
-        // doesn't. This is a problem, as the Ice runtime could retry automatically when it shouldn't. Other
-        // mismatches are not a concern.
-        throw new MarshalException(`Operation mode mismatch: expected = ${expected} received = ${received}`);
+// Ensures the operation mode of an incoming request is not idempotent.
+function checkNonIdempotent(current) {
+    if (current.mode !== OperationMode.Normal) {
+        throw new MarshalException(
+            `Operation mode mismatch for operation '${current.operation}': received ${current.node} for non-idempotent operation`,
+        );
     }
 }
 
@@ -247,7 +247,9 @@ function dispatchImpl(servant, op, request) {
     const method = servant[op.servantMethod];
     DEV: console.assert(typeof method === "function");
 
-    checkMode(op.mode, request.current.mode);
+    if (op.mode === OperationMode.Normal) {
+        checkNonIdempotent(request.current);
+    }
 
     //
     // Unmarshal the in params (if any).

@@ -16,7 +16,8 @@ namespace Ice
     using LoggerPtr = std::shared_ptr<Logger>;
 
     /// The Ice message logger. Applications can provide their own logger by implementing this interface and installing
-    /// it in a communicator. \headerfile Ice/Ice.h
+    /// it in a communicator.
+    /// \headerfile Ice/Ice.h
     class ICE_API Logger
     {
     public:

@@ -1582,7 +1582,9 @@ IcePy::SequenceInfo::unmarshal(
 
     for (int32_t i = 0; i < sz; ++i)
     {
-        void* cl = reinterpret_cast<void*>(static_cast<Py_ssize_t>(i));
+        // TODO: rework this code. It appears the pointer is always casted back to an integer but this is not acceptable
+        // code.
+        void* cl = reinterpret_cast<void*>(static_cast<Py_ssize_t>(i)); // NOLINT(performance-no-int-to-ptr)
         elementType->unmarshal(is, sm, result.get(), cl, false);
     }
 

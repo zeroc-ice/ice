@@ -43,7 +43,6 @@ usage(const string& n)
                   "-E                       Print preprocessor output on stdout.\n"
                   "--output-dir DIR         Create files in the directory DIR.\n"
                   "-d, --debug              Print debug messages.\n"
-                  "--depend                 Generate Makefile dependencies.\n"
                   "--depend-xml             Generate dependencies in XML format.\n"
                   "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
                   "--validate               Validate command line options.\n"
@@ -62,7 +61,6 @@ compile(const vector<string>& argv)
     opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("E");
     opts.addOpt("", "output-dir", IceInternal::Options::NeedArg);
-    opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
     opts.addOpt("", "depend-file", IceInternal::Options::NeedArg, "");
     opts.addOpt("", "list-generated");
@@ -120,7 +118,6 @@ compile(const vector<string>& argv)
 
     string output = opts.optArg("output-dir");
 
-    bool depend = opts.isSet("depend");
     bool dependxml = opts.isSet("depend-xml");
     string dependFile = opts.optArg("depend-file");
 
@@ -131,16 +128,6 @@ compile(const vector<string>& argv)
     if (args.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
-        if (!validate)
-        {
-            usage(argv[0]);
-        }
-        return EXIT_FAILURE;
-    }
-
-    if (depend && dependxml)
-    {
-        consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
         if (!validate)
         {
             usage(argv[0]);
@@ -175,7 +162,7 @@ compile(const vector<string>& argv)
             continue;
         }
 
-        if (depend || dependxml)
+        if (dependxml)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2JAVA__");
@@ -194,11 +181,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            if (!icecpp->printMakefileDependencies(
-                    os,
-                    depend ? Preprocessor::Java : Preprocessor::SliceXML,
-                    includePaths,
-                    "-D__SLICE2JAVA__"))
+            if (!icecpp->printMakefileDependencies(os, Preprocessor::SliceXML, includePaths, "-D__SLICE2JAVA__"))
             {
                 return EXIT_FAILURE;
             }
@@ -291,10 +274,6 @@ compile(const vector<string>& argv)
     if (dependxml)
     {
         os << "</dependencies>\n";
-    }
-
-    if (depend || dependxml)
-    {
         writeDependencies(os.str(), dependFile);
     }
 

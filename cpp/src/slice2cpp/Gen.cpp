@@ -3173,7 +3173,10 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     }
     C.dec();
     C << sb;
-    C << nl << "_iceCheckMode(" << operationModeToString(p->mode()) << ", request.current().mode);";
+    if (p->mode() == Operation::Mode::Normal)
+    {
+        C << nl << "checkNonIdempotent(request.current());";
+    }
 
     if (!inParams.empty())
     {
