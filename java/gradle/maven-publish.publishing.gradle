@@ -16,8 +16,8 @@ publishing {
         maven {
             url = mavenRepository
             credentials {
-                username mavenUsername
-                password mavenPassword
+                username = mavenUsername
+                password = mavenPassword
             }
         }
     }
@@ -57,7 +57,7 @@ publishing {
 assemble.dependsOn(generatePomFileForMavenPublication)
 
 signing {
-    required {
+    required  = {
         gradle.taskGraph.hasTask("signArchives") ||
         gradle.taskGraph.hasTask("uploadArchives") ||
         (project.hasProperty('signing.keyId') &&

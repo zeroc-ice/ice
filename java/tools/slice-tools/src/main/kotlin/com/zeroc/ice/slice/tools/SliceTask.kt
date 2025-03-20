@@ -102,6 +102,9 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
     private val generatedXmlFile: File
         get() = File(output.get().asFile, "generated.xml")
 
+    private val workingDir: File = project.projectDir
+    private val taskLogger: Logger = project.logger
+
     init {
         // Ensure the task always runs, preventing Gradle from marking it as UP-TO-DATE. This allow us to check for
         // changes in the Slice files and dependencies.
@@ -175,7 +178,7 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
             // Compile changed Slice files with `slice2java` and track the generated files
             val command = getSlice2JavaCommand(changedFiles, listOf("--list-generated"))
             val process = ProcessBuilder(command)
-                .directory(project.projectDir)
+                .directory(workingDir)
                 .redirectErrorStream(false) // Keep stdout and stderr separate
                 .start()
 
@@ -186,7 +189,7 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
             val errors = stderrReader.readText()
             val exitCode = process.waitFor()
 
-            printErrorsAndWarnings(errors.lineSequence(), project.logger)
+            printErrorsAndWarnings(errors.lineSequence(), taskLogger)
             if (exitCode != 0) {
                 throw GradleException("Command failed: $command (exit code: $exitCode)")
             }
@@ -253,7 +256,7 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
     private fun generateDependencies(sliceFiles: List<File>) {
         val command = getSlice2JavaCommand(sliceFiles, listOf("--depend-xml"))
         val process = ProcessBuilder(command)
-            .directory(project.projectDir)
+            .directory(workingDir)
             .redirectOutput(dependXmlFile) // Write directly to depend.xml
             .redirectErrorStream(false)
             .start()
@@ -261,7 +264,7 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
         val stderrReader = process.errorStream.bufferedReader()
         val errorOutput = stderrReader.readText()
         val exitCode = process.waitFor()
-        printErrorsAndWarnings(errorOutput.lineSequence(), project.logger)
+        printErrorsAndWarnings(errorOutput.lineSequence(), taskLogger)
         if (exitCode != 0) {
             throw GradleException("Command failed: $command (exit code: $exitCode)")
         }
