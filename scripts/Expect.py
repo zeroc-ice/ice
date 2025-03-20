@@ -734,8 +734,6 @@ class Expect(object):
             test(self.exitstatus, exitstatus)
 
     def stackDump(self):
-        print(f"Type of self: {type(self)}")
-
         match platform.system():
             case "Linux":
                 cmd = [
