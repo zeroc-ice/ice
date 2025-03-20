@@ -2820,14 +2820,8 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     StringList ids = p->ids();
 
     H << sp;
-    H << nl << "/// Gets the Slice interfaces supported by this object as a list of type IDs.";
-    H << nl << "/// @param current The Current object of the incoming request.";
-    H << nl << "/// @return The Slice type IDs of the interfaces supported by this object, in alphabetical order.";
     H << nl << "[[nodiscard]] std::vector<std::string> ice_ids(const Ice::Current& current) const override;";
     H << sp;
-    H << nl << "/// Gets the type ID of the most-derived Slice interface supported by this object.";
-    H << nl << "/// @param current The Current object of the incoming request.";
-    H << nl << "/// @return The Slice type ID of the most-derived interface.";
     H << nl << "[[nodiscard]] std::string ice_id(const Ice::Current& current) const override;";
     H << sp;
     H << nl << "/// Gets the type ID of the associated Slice interface.";
