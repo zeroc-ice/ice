@@ -68,6 +68,8 @@ void
 NodeI::init()
 {
     auto self = shared_from_this();
+
+    // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
 
@@ -86,8 +88,10 @@ NodeI::destroy(bool ownsCommunicator)
 {
     unique_lock<mutex> lock(_mutex);
 
+    // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
+
     instance->getCollocatedForwarder()->remove(_subscriberForwarder->ice_getIdentity());
     instance->getCollocatedForwarder()->remove(_publisherForwarder->ice_getIdentity());
 
@@ -150,6 +154,7 @@ NodeI::createSession(
 
     bool isWellKnown = subscriber->ice_getEndpoints().empty() && subscriber->ice_getAdapterId().empty();
 
+    // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
 
@@ -271,8 +276,11 @@ NodeI::confirmCreateSession(
     checkNotNull(publisherSession, __FILE__, __LINE__, current);
 
     unique_lock<mutex> lock(_mutex);
+
+    // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
+
     auto traceLevels = instance->getTraceLevels();
 
     auto p = _subscribers.find(publisher->ice_getIdentity());
@@ -319,6 +327,7 @@ NodeI::createSubscriberSession(
     const ConnectionPtr& subscriberConnection,
     const shared_ptr<PublisherSessionI>& session)
 {
+    // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
 
@@ -344,8 +353,10 @@ NodeI::createPublisherSession(
     const ConnectionPtr& publisherConnection,
     shared_ptr<SubscriberSessionI> session)
 {
+    // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
+
     auto traceLevels = instance->getTraceLevels();
 
     bool isWellKnown = publisher->ice_getEndpoints().empty() && publisher->ice_getAdapterId().empty();
@@ -501,8 +512,11 @@ shared_ptr<SubscriberSessionI>
 NodeI::createSubscriberSessionServant(const NodePrx& node)
 {
     // Called with mutex locked
+
+    // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
+
     auto p = _subscribers.find(node->ice_getIdentity());
     if (p != _subscribers.end())
     {
@@ -537,8 +551,11 @@ shared_ptr<PublisherSessionI>
 NodeI::createPublisherSessionServant(const NodePrx& node)
 {
     // Called with mutex locked
+
+    // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
+    
     auto p = _publishers.find(node->ice_getIdentity());
     if (p != _publishers.end())
     {
