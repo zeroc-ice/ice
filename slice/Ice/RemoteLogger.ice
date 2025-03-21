@@ -103,7 +103,7 @@ module Ice
 
         /// Detaches a RemoteLogger object from the local logger.
         /// @param prx A proxy to the remote logger.
-        /// @return True if the provided remote logger proxy was detached, and false otherwise.
+        /// @return `true` if the provided remote logger proxy was detached, and `false` otherwise.
         bool detachRemoteLogger(RemoteLogger* prx);
 
         /// Retrieves log messages recently logged.

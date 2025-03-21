@@ -76,7 +76,7 @@ namespace Ice
         /// @private
         template<typename C> static long test(...) noexcept;
 
-        /// @c true when @p T is a container, otherwise @c false.
+        /// `true` when @p T is a container, otherwise `false`.
         static const bool value = sizeof(test<T>(nullptr)) == sizeof(char);
     };
 
@@ -92,7 +92,7 @@ namespace Ice
         /// @private
         template<typename C> static long test(...) noexcept;
 
-        /// @c true when @p T is a map, otherwise @c false.
+        /// `true` when @p T is a map, otherwise `false`.
         static const bool value = IsContainer<T>::value && sizeof(test<T>(nullptr)) == sizeof(char);
     };
 

@@ -47,7 +47,7 @@ namespace Ice
         /// Tests whether this object supports a specific Slice interface.
         /// @param s The type ID of the Slice interface to test against.
         /// @param current The Current object of the incoming request.
-        /// @return @c true if this object has the interface specified by @p s or derives from the interface specified
+        /// @return `true` if this object has the interface specified by @p s or derives from the interface specified
         /// by @p s.
         [[nodiscard]] virtual bool ice_isA(std::string s, const Current& current) const;
 
@@ -78,7 +78,7 @@ namespace Ice
         void _iceD_ice_id(IncomingRequest&, std::function<void(OutgoingResponse)>);
 
         /// Gets the type ID of the associated Slice interface.
-        /// @return The string @c "::Ice::Object".
+        /// @return The string `"::Ice::Object"`.
         static const char* ice_staticId() noexcept;
     };
 

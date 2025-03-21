@@ -1582,7 +1582,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     H << sp;
     H << nl << "/// Gets the type ID of the associated Slice interface.";
-    H << nl << "/// @return The string @c \"" << p->scoped() << "\".";
+    H << nl << "/// @return The string `\"" << p->scoped() << "\"`.";
     H << nl << "static const char* ice_staticId() noexcept;";
 
     C << sp;
@@ -2355,7 +2355,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     H << nl << "/// Gets the type ID of the associated Slice exception.";
-    H << nl << "/// @return The string @c \"" << p->scoped() << "\".";
+    H << nl << "/// @return The string `\"" << p->scoped() << "\"`.";
     H << nl << _dllMemberExport << "static const char* ice_staticId() noexcept;";
 
     C << sp << nl << "const char*" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
@@ -2504,7 +2504,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     H << sp;
     H << nl << "/// Gets the type ID of the associated Slice class.";
-    H << nl << "/// @return The string @c \"" << p->scoped() << "\".";
+    H << nl << "/// @return The string `\"" << p->scoped() << "\"`.";
     H << nl << _dllMemberExport << "static const char* ice_staticId() noexcept;";
     C << sp;
     C << nl << "const char*" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
@@ -2877,7 +2877,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H << nl << "[[nodiscard]] std::string ice_id(const Ice::Current& current) const override;";
     H << sp;
     H << nl << "/// Gets the type ID of the associated Slice interface.";
-    H << nl << "/// @return The string @c \"" << p->scoped() << "\".";
+    H << nl << "/// @return The string `\"" << p->scoped() << "\"`.";
     H << nl << "static const char* ice_staticId() noexcept;";
 
     C << sp;

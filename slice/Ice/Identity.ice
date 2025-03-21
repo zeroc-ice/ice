@@ -19,8 +19,8 @@
 /// Full-featured RPC framework.
 module Ice
 {
-    /// The identity of an Ice object. It is comparable to the path of a URI. Its string representation is @c name when
-    /// the category is empty, and @c category/name when the category is not empty.
+    /// The identity of an Ice object. It is comparable to the path of a URI. Its string representation is `name` when
+    /// the category is empty, and `category/name` when the category is not empty.
     ["cpp:custom-print"]
     struct Identity
     {

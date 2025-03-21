@@ -36,12 +36,12 @@ namespace Ice
 
         /// Operator equal to. Checks if this endpoint is equal to the @p rhs endpoint.
         /// @param rhs The endpoint to compare against.
-        /// @return @c true if the endpoints are equal, @c false otherwise.
+        /// @return `true` if the endpoints are equal, `false` otherwise.
         virtual bool operator==(const Endpoint& rhs) const = 0;
 
         /// Operator less than. Checks if this endpoint is less than the @p rhs endpoint.
         /// @param rhs The endpoint to compare against.
-        /// @return @c true if this endpoint is less than the @p rhs endpoint, @c false otherwise.
+        /// @return `true` if this endpoint is less than the @p rhs endpoint, `false` otherwise.
         virtual bool operator<(const Endpoint& rhs) const = 0;
 
         /// Return a string representation of the endpoint.
