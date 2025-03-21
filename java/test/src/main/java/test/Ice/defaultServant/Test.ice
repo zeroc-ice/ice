@@ -5,10 +5,8 @@
 [["java:package:test.Ice.defaultServant"]]
 module Test
 {
-
-interface MyObject
-{
-    string getName();
-}
-
+    interface MyObject
+    {
+        string getName();
+    }
 }

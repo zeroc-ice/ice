@@ -48,6 +48,7 @@
 /// <reference path="./PropertyDict.d.ts" />
 /// <reference path="./EndpointTypes.d.ts" />
 /// <reference path="./Locator.d.ts" />
+/// <reference path="./LocatorRegistry.d.ts" />
 /// <reference path="./Initialize.d.ts" />
 /// <reference path="./Holder.d.ts" />
 /// <reference path="./AsyncResult.d.ts" />

@@ -2291,7 +2291,6 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << nl << "/// Creates a tuple with all the fields of this exception.";
         H << nl << "/// @return A tuple with all the fields of this exception.";
         writeIceTuple(H, p->allDataMembers(), _useWstring);
-        H << sp;
 
         H << sp << nl << _dllMemberExport << "void ice_printFields(std::ostream& os) const override;";
         C << sp << nl << "void" << nl << scoped.substr(2) << "::ice_printFields(std::ostream& os) const";
@@ -2691,6 +2690,11 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
 
     // Use empty scope to get full qualified names in types used with future declarations.
     string scope = "";
+
+    if (!isFirstElement(p))
+    {
+        H << sp;
+    }
 
     writeDocSummary(H, p);
     H << nl << getDeprecatedAttribute(p) << typeToString(p->type(), p->optional(), scope, p->getMetadata(), _useWstring)

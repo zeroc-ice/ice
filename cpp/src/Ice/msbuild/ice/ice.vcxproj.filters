@@ -1101,5 +1101,8 @@
     <SliceCompile Include="..\..\..\..\..\slice\Ice\ReplyStatus.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\LocatorRegistry.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
   </ItemGroup>
 </Project>

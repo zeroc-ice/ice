@@ -73,6 +73,7 @@ import Ice.OperationMode_ice
 import Ice.EndpointTypes_ice
 import Ice.Identity_ice
 import Ice.Locator_ice
+import Ice.LocatorRegistry_ice
 import Ice.Process_ice
 import Ice.PropertiesAdmin_ice
 import Ice.RemoteLogger_ice

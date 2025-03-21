@@ -75,10 +75,7 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
             }
         }
 
-        if (thread != null)
-        {
-            thread.Join();
-        }
+        thread?.Join();
 
         _loggerAdmin.destroy();
     }

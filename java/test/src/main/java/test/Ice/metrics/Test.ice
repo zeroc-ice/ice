@@ -5,40 +5,38 @@
 [["java:package:test.Ice.metrics"]]
 module Test
 {
+    exception UserEx
+    {
+    }
 
-exception UserEx
-{
-}
+    sequence<byte> ByteSeq;
 
-sequence<byte> ByteSeq;
+    interface Metrics
+    {
+        void op();
 
-interface Metrics
-{
-    void op();
+        idempotent void fail();
 
-    idempotent void fail();
+        void opWithUserException()
+            throws UserEx;
 
-    void opWithUserException()
-        throws UserEx;
+        void opWithRequestFailedException();
 
-    void opWithRequestFailedException();
+        void opWithLocalException();
 
-    void opWithLocalException();
+        void opWithUnknownException();
 
-    void opWithUnknownException();
+        void opByteS(ByteSeq bs);
 
-    void opByteS(ByteSeq bs);
+        Object* getAdmin();
 
-    Object* getAdmin();
+        void shutdown();
+    }
 
-    void shutdown();
-}
+    interface Controller
+    {
+        void hold();
 
-interface Controller
-{
-    void hold();
-
-    void resume();
-}
-
+        void resume();
+    }
 }

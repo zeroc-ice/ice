@@ -26,6 +26,6 @@ public sealed class ValueFactoryManagerI : Ice.ValueFactoryManager
         }
     }
 
-    private Dictionary<string, Ice.ValueFactory> _factoryMap = new();
+    private readonly Dictionary<string, Ice.ValueFactory> _factoryMap = new();
     private readonly object _mutex = new();
 }

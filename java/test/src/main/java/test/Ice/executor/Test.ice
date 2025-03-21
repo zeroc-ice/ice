@@ -7,19 +7,17 @@
 [["java:package:test.Ice.executor"]]
 module Test
 {
+    interface TestIntf
+    {
+        void op();
+        void sleep(int to);
+        void opWithPayload(Ice::ByteSeq seq);
+        void shutdown();
+    }
 
-interface TestIntf
-{
-    void op();
-    void sleep(int to);
-    void opWithPayload(Ice::ByteSeq seq);
-    void shutdown();
-}
-
-interface TestIntfController
-{
-    void holdAdapter();
-    void resumeAdapter();
-}
-
+    interface TestIntfController
+    {
+        void holdAdapter();
+        void resumeAdapter();
+    }
 }

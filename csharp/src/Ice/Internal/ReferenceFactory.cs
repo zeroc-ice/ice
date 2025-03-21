@@ -780,8 +780,8 @@ internal class ReferenceFactory
             context);
     }
 
-    private Instance _instance;
-    private Ice.Communicator _communicator;
+    private readonly Instance _instance;
+    private readonly Ice.Communicator _communicator;
     private Ice.RouterPrx _defaultRouter;
     private Ice.LocatorPrx _defaultLocator;
 }

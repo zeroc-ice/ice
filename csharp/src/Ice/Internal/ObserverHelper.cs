@@ -12,10 +12,7 @@ public sealed class ObserverHelper
         if (obsv != null)
         {
             InvocationObserver observer = obsv.getInvocationObserver(null, op, _emptyContext);
-            if (observer != null)
-            {
-                observer.attach();
-            }
+            observer?.attach();
             return observer;
         }
         return null;
@@ -41,14 +38,11 @@ public sealed class ObserverHelper
             {
                 observer = obsv.getInvocationObserver(proxy, op, context);
             }
-            if (observer != null)
-            {
-                observer.attach();
-            }
+            observer?.attach();
             return observer;
         }
         return null;
     }
 
-    private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
+    private static readonly Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
 }

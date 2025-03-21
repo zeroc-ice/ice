@@ -1,4 +1,3 @@
-
 #include "Core.ice"
 
 module User

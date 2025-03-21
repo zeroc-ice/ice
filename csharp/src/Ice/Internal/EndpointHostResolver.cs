@@ -57,10 +57,7 @@ public class EndpointHostResolver
             if (obsv != null)
             {
                 entry.observer = obsv.getEndpointLookupObserver(endpoint);
-                if (entry.observer != null)
-                {
-                    entry.observer.attach();
-                }
+                entry.observer?.attach();
             }
 
             _queue.AddLast(entry);
@@ -80,10 +77,7 @@ public class EndpointHostResolver
 
     public void joinWithThread()
     {
-        if (_thread != null)
-        {
-            _thread.Join();
-        }
+        _thread?.Join();
     }
 
     public void run()
@@ -110,12 +104,9 @@ public class EndpointHostResolver
                 threadObserver = _observer;
             }
 
-            if (threadObserver != null)
-            {
-                threadObserver.stateChanged(
+            threadObserver?.stateChanged(
                     Ice.Instrumentation.ThreadState.ThreadStateIdle,
                     Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
-            }
 
             try
             {
@@ -150,12 +141,9 @@ public class EndpointHostResolver
             }
             finally
             {
-                if (threadObserver != null)
-                {
-                    threadObserver.stateChanged(
+                threadObserver?.stateChanged(
                         Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
                         Ice.Instrumentation.ThreadState.ThreadStateIdle);
-                }
             }
         }
 
@@ -171,10 +159,7 @@ public class EndpointHostResolver
         }
         _queue.Clear();
 
-        if (_observer != null)
-        {
-            _observer.detach();
-        }
+        _observer?.detach();
     }
 
     public void
@@ -190,10 +175,7 @@ public class EndpointHostResolver
                     _thread.getName(),
                     Ice.Instrumentation.ThreadState.ThreadStateIdle,
                     _observer);
-                if (_observer != null)
-                {
-                    _observer.attach();
-                }
+                _observer?.attach();
             }
         }
     }
@@ -211,7 +193,7 @@ public class EndpointHostResolver
     private readonly int _protocol;
     private readonly bool _preferIPv6;
     private bool _destroyed;
-    private LinkedList<ResolveEntry> _queue = new LinkedList<ResolveEntry>();
+    private readonly LinkedList<ResolveEntry> _queue = new LinkedList<ResolveEntry>();
     private Ice.Instrumentation.ThreadObserver _observer;
 
     private sealed class HelperThread
@@ -259,11 +241,11 @@ public class EndpointHostResolver
             return _name;
         }
 
-        private EndpointHostResolver _resolver;
-        private string _name;
+        private readonly EndpointHostResolver _resolver;
+        private readonly string _name;
         private Thread _thread;
     }
 
-    private HelperThread _thread;
+    private readonly HelperThread _thread;
     private readonly object _mutex = new();
 }

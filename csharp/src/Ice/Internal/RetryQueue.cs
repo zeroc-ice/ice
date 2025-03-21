@@ -56,9 +56,9 @@ public class RetryTask : TimerTask, CancellationHandler
         }
     }
 
-    private Instance _instance;
-    private RetryQueue _retryQueue;
-    private ProxyOutgoingAsyncBase _outAsync;
+    private readonly Instance _instance;
+    private readonly RetryQueue _retryQueue;
+    private readonly ProxyOutgoingAsyncBase _outAsync;
 }
 
 public class RetryQueue

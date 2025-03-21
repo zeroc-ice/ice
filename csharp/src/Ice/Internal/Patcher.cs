@@ -63,34 +63,19 @@ public sealed class Patcher
                 return i;
             }
 
-            MethodInfo? am = t.GetMethod("Add", [typeof(T)]);
-            if (am == null)
-            {
+            MethodInfo? am = t.GetMethod("Add", [typeof(T)]) ??
                 throw new Ice.MarshalException("Cannot patch a collection without an Add() method");
-            }
-
-            PropertyInfo? pi = t.GetProperty("Item");
-            if (pi == null)
-            {
+            PropertyInfo? pi = t.GetProperty("Item") ??
                 throw new Ice.MarshalException("Cannot patch a collection without an indexer");
-            }
-            MethodInfo? sm = pi.GetSetMethod();
-            if (sm == null)
-            {
+            MethodInfo? sm = pi.GetSetMethod() ??
                 throw new Ice.MarshalException("Cannot patch a collection without an indexer to set a value");
-            }
-
             pi = t.GetProperty("Count");
             if (pi == null)
             {
                 throw new Ice.MarshalException("Cannot patch a collection without a Count property");
             }
-            MethodInfo? cm = pi.GetGetMethod();
-            if (cm == null)
-            {
+            MethodInfo? cm = pi.GetGetMethod() ??
                 throw new Ice.MarshalException("Cannot patch a collection without a readable Count property");
-            }
-
             i = new InvokeInfo(am, sm, cm);
             _methodTable.Add(t, i);
             return i;
@@ -144,10 +129,10 @@ public sealed class Patcher
             }
         }
 
-        private MethodInfo _addMethod;
-        private MethodInfo _setMethod;
-        private MethodInfo _countMethod;
+        private readonly MethodInfo _addMethod;
+        private readonly MethodInfo _setMethod;
+        private readonly MethodInfo _countMethod;
     }
 
-    private static Dictionary<Type, InvokeInfo> _methodTable = new Dictionary<Type, InvokeInfo>();
+    private static readonly Dictionary<Type, InvokeInfo> _methodTable = new Dictionary<Type, InvokeInfo>();
 }

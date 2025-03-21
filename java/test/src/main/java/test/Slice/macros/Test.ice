@@ -24,28 +24,26 @@
 
 module Test
 {
+    class Default
+    {
+        int x DEFAULT(10);
+        int y DEFAULT(10);
+    }
 
-class Default
-{
-    int x DEFAULT(10);
-    int y DEFAULT(10);
-}
+    class NoDefault
+    {
+        int x NODEFAULT(10);
+        int y NODEFAULT(10);
+    }
 
-class NoDefault
-{
-    int x NODEFAULT(10);
-    int y NODEFAULT(10);
-}
-
-//
-// This class is only defined when compiling with slice2java.
-//
-#ifdef __SLICE2JAVA__
-class JavaOnly
-{
-    string lang DEFAULT("java");
-    int version DEFAULT(ICE_VERSION);
-}
-#endif
-
+    //
+    // This class is only defined when compiling with slice2java.
+    //
+    #ifdef __SLICE2JAVA__
+    class JavaOnly
+    {
+        string lang DEFAULT("java");
+        int version DEFAULT(ICE_VERSION);
+    }
+    #endif
 }

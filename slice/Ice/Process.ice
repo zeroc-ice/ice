@@ -6,26 +6,23 @@
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
 
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:Ice"]]
 
-[["java:package:com.zeroc"]]
+#include "LocatorRegistry.ice"
 
 module Ice
 {
-    /// An administrative interface for process management. Managed servers must implement this interface.
-    /// Note: A servant implementing this interface is a potential target for denial-of-service attacks,
-    /// therefore proper security precautions should be taken. For example, the servant can use a UUID to make its
-    /// identity harder to guess, and be registered in an object adapter with a secured endpoint.
+    /// A server application managed by a locator implementation such as IceGrid hosts a Process object and registers a
+    /// proxy to this object with the locator registry. See {@link LocatorRegistry::setServerProcessProxy}.
     interface Process
     {
-        /// Initiate a graceful shutdown.
-        /// @see Communicator#shutdown
+        /// Initiates a graceful shutdown of the server application.
         void shutdown();
 
-        /// Write a message on the process' stdout or stderr.
-        /// @param message The message.
+        /// Writes a message on the server application's stdout or stderr.
+        /// @param message The message to write.
         /// @param fd 1 for stdout, 2 for stderr.
         void writeMessage(string message, int fd);
     }

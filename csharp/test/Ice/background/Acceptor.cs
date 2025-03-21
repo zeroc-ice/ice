@@ -55,5 +55,5 @@ internal class Acceptor : Ice.Internal.Acceptor
     }
 
     private EndpointI _endpoint;
-    private Ice.Internal.Acceptor _acceptor;
+    private readonly Ice.Internal.Acceptor _acceptor;
 }

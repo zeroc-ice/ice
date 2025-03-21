@@ -23,8 +23,8 @@ public sealed class ObjectAdapter
     private const int StateDestroyed = 7;
 
     private int _state = StateUninitialized;
-    private Instance _instance;
-    private Communicator _communicator;
+    private readonly Instance _instance;
+    private readonly Communicator _communicator;
     private ObjectAdapterFactory? _objectAdapterFactory;
     private Ice.Internal.ThreadPool? _threadPool;
     private readonly ServantManager _servantManager;
@@ -32,13 +32,13 @@ public sealed class ObjectAdapter
     private readonly string _id;
     private readonly string _replicaGroupId;
     private Reference? _reference;
-    private List<IncomingConnectionFactory> _incomingConnectionFactories;
+    private readonly List<IncomingConnectionFactory> _incomingConnectionFactories;
     private RouterInfo? _routerInfo;
     private EndpointI[] _publishedEndpoints;
     private LocatorInfo? _locatorInfo;
     private int _directCount;  // The number of colloc proxies dispatching on this object adapter.
-    private bool _noConfig;
-    private int _messageSizeMax;
+    private readonly bool _noConfig;
+    private readonly int _messageSizeMax;
     private readonly SslServerAuthenticationOptions? _serverAuthenticationOptions;
 
     private readonly Lazy<Object> _dispatchPipeline;
@@ -342,10 +342,7 @@ public sealed class ObjectAdapter
             _threadPool.joinWithAllThreads();
         }
 
-        if (_objectAdapterFactory is not null)
-        {
-            _objectAdapterFactory.removeObjectAdapter(this);
-        }
+        _objectAdapterFactory?.removeObjectAdapter(this);
 
         lock (_mutex)
         {
@@ -913,10 +910,7 @@ public sealed class ObjectAdapter
             threadPool = _threadPool;
         }
 
-        if (threadPool is not null)
-        {
-            threadPool.updateObservers();
-        }
+        threadPool?.updateObservers();
     }
 
     internal void incDirectCount()
@@ -1090,10 +1084,7 @@ public sealed class ObjectAdapter
                 _threadPool = new Ice.Internal.ThreadPool(_instance, _name + ".ThreadPool", 0);
             }
 
-            if (router is null)
-            {
-                router = RouterPrxHelper.uncheckedCast(communicator.propertyToProxy(_name + ".Router"));
-            }
+            router ??= RouterPrxHelper.uncheckedCast(communicator.propertyToProxy(_name + ".Router"));
             if (router is not null)
             {
                 _routerInfo = _instance.routerManager().get(router);
@@ -1299,11 +1290,8 @@ public sealed class ObjectAdapter
             }
 
             string s = endpts.Substring(beg, end - beg);
-            EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints);
-            if (endp is null)
-            {
+            EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints) ??
                 throw new ParseException($"invalid object adapter endpoint '{s}'");
-            }
             endpoints.Add(endp);
 
             ++end;

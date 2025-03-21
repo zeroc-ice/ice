@@ -1556,7 +1556,7 @@ public sealed class InputStream
         }
     }
 
-    private static System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
+    private static readonly System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
 
     /// <summary>
     /// Extracts a string from the stream.
@@ -2096,10 +2096,7 @@ public sealed class InputStream
 
         protected string readTypeId(bool isIndex)
         {
-            if (_typeIdMap == null)
-            {
-                _typeIdMap = new Dictionary<int, string>();
-            }
+            _typeIdMap ??= new Dictionary<int, string>();
 
             if (isIndex)
             {
@@ -2175,10 +2172,7 @@ public sealed class InputStream
                 return;
             }
 
-            if (_patchMap == null)
-            {
-                _patchMap = new Dictionary<int, LinkedList<PatchEntry>>();
-            }
+            _patchMap ??= new Dictionary<int, LinkedList<PatchEntry>>();
 
             //
             // Add patch entry if the instance isn't unmarshaled yet,
@@ -2245,10 +2239,7 @@ public sealed class InputStream
             }
             else
             {
-                if (_valueList == null)
-                {
-                    _valueList = new List<Value>();
-                }
+                _valueList ??= new List<Value>();
                 _valueList.Add(v);
 
                 if (_patchMap == null || _patchMap.Count == 0)
@@ -2279,7 +2270,7 @@ public sealed class InputStream
         // Encapsulation attributes for object unmarshaling.
         //
         protected Dictionary<int, LinkedList<PatchEntry>>? _patchMap;
-        private Dictionary<int, Value> _unmarshaledMap;
+        private readonly Dictionary<int, Value> _unmarshaledMap;
         private Dictionary<int, string>? _typeIdMap;
         private int _typeIdIndex;
         private List<Value>? _valueList;
@@ -2356,10 +2347,7 @@ public sealed class InputStream
                     }
                 }
 
-                if (userEx == null)
-                {
-                    userEx = _stream.createUserException(_typeId);
-                }
+                userEx ??= _stream.createUserException(_typeId);
 
                 //
                 // We found the exception.
@@ -2623,10 +2611,7 @@ public sealed class InputStream
                 // derive an index into the indirection table that we'll read
                 // at the end of the slice.
                 //
-                if (_current.indirectPatchList == null)
-                {
-                    _current.indirectPatchList = new Stack<IndirectPatchEntry>();
-                }
+                _current.indirectPatchList ??= new Stack<IndirectPatchEntry>();
                 IndirectPatchEntry e = new IndirectPatchEntry(index - 1, cb);
                 _current.indirectPatchList.Push(e);
             }
@@ -2666,10 +2651,7 @@ public sealed class InputStream
                     }
                 }
 
-                if (userEx == null)
-                {
-                    userEx = _stream.createUserException(_current!.typeId!);
-                }
+                userEx ??= _stream.createUserException(_current!.typeId!);
 
                 //
                 // We found the exception.
@@ -2709,10 +2691,7 @@ public sealed class InputStream
             {
                 _current.slices.Clear();
             }
-            if (_current.indirectionTables != null)
-            {
-                _current.indirectionTables.Clear();
-            }
+            _current.indirectionTables?.Clear();
             _current = _current.previous;
             return slicedData;
         }
@@ -2906,10 +2885,7 @@ public sealed class InputStream
                     hasOptionalMembers: hasOptionalMembers,
                     isLastSlice: (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0);
 
-                if (_current.slices is null)
-                {
-                    _current.slices = new List<SliceInfo>();
-                }
+                _current.slices ??= new List<SliceInfo>();
                 _current.slices.Add(info);
             }
 
@@ -2919,10 +2895,7 @@ public sealed class InputStream
             // instance.
             //
 
-            if (_current.indirectionTables == null)
-            {
-                _current.indirectionTables = new List<int[]?>();
-            }
+            _current.indirectionTables ??= new List<int[]?>();
 
             if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
@@ -3011,10 +2984,7 @@ public sealed class InputStream
                     // last chance to preserve the instance.
                     //
                     v = newInstance(Value.ice_staticId());
-                    if (v is null)
-                    {
-                        v = new UnknownSlicedValue(mostDerivedId);
-                    }
+                    v ??= new UnknownSlicedValue(mostDerivedId);
 
                     break;
                 }
@@ -3091,7 +3061,7 @@ public sealed class InputStream
             }
             else
             {
-                _current = _current.next == null ? new InstanceData(_current) : _current.next;
+                _current = _current.next ?? new InstanceData(_current);
             }
             _current.sliceType = sliceType;
             _current.skipFirstSlice = false;

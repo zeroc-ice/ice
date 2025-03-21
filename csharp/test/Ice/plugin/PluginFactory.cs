@@ -32,6 +32,6 @@ public class PluginFactory : Ice.PluginFactory
         private static void test(bool b) => global::Test.TestHelper.test(b);
 
         private bool _initialized = false;
-        private string[] _args;
+        private readonly string[] _args;
     }
 }

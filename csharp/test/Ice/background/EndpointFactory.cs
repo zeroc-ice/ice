@@ -44,5 +44,5 @@ internal class EndpointFactory : Ice.Internal.EndpointFactory
         return this;
     }
 
-    private Ice.Internal.EndpointFactory _factory;
+    private readonly Ice.Internal.EndpointFactory _factory;
 }

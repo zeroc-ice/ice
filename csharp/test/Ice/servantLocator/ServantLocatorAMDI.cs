@@ -6,7 +6,7 @@ namespace Ice.servantLocator
     {
         public sealed class ServantLocatorI : Ice.ServantLocator
         {
-            public ServantLocatorI(String category)
+            public ServantLocatorI(string category)
             {
                 _category = category;
                 _deactivated = false;
@@ -53,7 +53,7 @@ namespace Ice.servantLocator
                 return new TestI();
             }
 
-            public void finished(Ice.Current current, Ice.Object servant, System.Object cookie)
+            public void finished(Ice.Current current, Ice.Object servant, object cookie)
             {
                 lock (this)
                 {
@@ -145,7 +145,7 @@ namespace Ice.servantLocator
             }
 
             private bool _deactivated;
-            private string _category;
+            private readonly string _category;
             private int _requestId;
         }
     }

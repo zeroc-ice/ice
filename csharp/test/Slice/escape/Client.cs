@@ -59,17 +59,11 @@ public class Client : Test.TestHelper
         escaped_abstract.@casePrx c1 = null;
         test(c1 == null);
         int c2 = 0;
-        if (c1 != null)
-        {
-            c1.@catch(0, out c2);
-        }
+        c1?.@catch(0, out c2);
         escaped_abstract.@decimal d = new decimalI();
         test(d != null);
         escaped_abstract.@decimalPrx d1 = null;
-        if (d1 != null)
-        {
-            d1.@default();
-        }
+        d1?.@default();
         test(d1 == null);
         escaped_abstract.@delegate e = new escaped_abstract.@delegate();
         test(e != null);

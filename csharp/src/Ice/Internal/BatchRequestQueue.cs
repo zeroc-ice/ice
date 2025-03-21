@@ -217,13 +217,13 @@ internal sealed class BatchRequestQueue
     private readonly object _mutex = new();
 
     private readonly System.Action<BatchRequest, int, int> _interceptor;
-    private OutputStream _batchStream;
+    private readonly OutputStream _batchStream;
     private bool _batchStreamInUse;
     private bool _batchStreamCanFlush;
     private int _batchRequestNum;
     private int _batchMarker;
     private bool _batchCompress;
-    private BatchRequestI _request;
+    private readonly BatchRequestI _request;
     private LocalException _exception;
     private readonly int _maxSize;
     private const int _udpOverhead = 20 + 8;

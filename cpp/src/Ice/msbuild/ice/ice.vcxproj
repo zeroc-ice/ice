@@ -132,6 +132,7 @@
     <SliceCompile Include="..\..\..\..\..\slice\Ice\EndpointTypes.ice" />
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Identity.ice" />
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Locator.ice" />
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\LocatorRegistry.ice" />
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Metrics.ice" />
     <SliceCompile Include="..\..\..\..\..\slice\Ice\OperationMode.ice" />
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Process.ice" />

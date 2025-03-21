@@ -387,7 +387,7 @@ module IceGrid
         /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
         /// @throws BadSignalException Raised if the signal is not recognized by the target server.
         void sendSignal(string id, string signal)
-        throws ServerNotExistException, NodeUnreachableException, DeploymentException, BadSignalException;
+            throws ServerNotExistException, NodeUnreachableException, DeploymentException, BadSignalException;
 
         /// Get all the server ids registered with IceGrid.
         /// @return The server ids.
