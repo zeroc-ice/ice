@@ -176,10 +176,18 @@ NodeI::createSession(
         }
         // else collocated call.
 
+        auto traceLevels = instance->getTraceLevels();
+
         unique_lock<mutex> lock(_mutex);
         session = createPublisherSessionServant(*subscriber);
         if (!session)
         {
+            if (traceLevels->session > 2)
+            {
+                Trace out(traceLevels->logger, traceLevels->sessionCat);
+                out << "node '" << current.id << "' is shutting down, ignoring '" << current.operation
+                    << "' request from '" << subscriber << "'";
+            }
             return; // Shutting down.
         }
 
@@ -194,10 +202,27 @@ NodeI::createSession(
                         // assume the current session connection is being closed and reconnect using the new connection.
                         //
                         // Otherwise, once the current connection is actually closed, we won't be able to reconnect.
+                        if (traceLevels->session > 2)
+                        {
+                            Trace out(traceLevels->logger, traceLevels->sessionCat);
+                            out << "node '" << current.id << "' is discarding current session '" << session->getId()
+                                << "' because subscriber '" << subscriber
+                                << "' (using a well-known proxy) requested creating a session over a new connection";
+                        }
                         session->disconnect();
                         session->reconnect(*subscriber, current.con);
                     }
-                    // else is already connected.
+                    else
+                    {
+                        // The session is already connected.
+                        if (traceLevels->session > 2)
+                        {
+                            Trace out(traceLevels->logger, traceLevels->sessionCat);
+                            out << "node '" << current.id << "' is ignoring '" << current.operation
+                                << "' request from '" << subscriber << "' because session '" << session->getId()
+                                << "' is already connected";
+                        }
+                    }
                     return;
                 }
 
@@ -246,15 +271,32 @@ NodeI::confirmCreateSession(
     checkNotNull(publisherSession, __FILE__, __LINE__, current);
 
     unique_lock<mutex> lock(_mutex);
+    auto instance = _instance.lock();
+    assert(instance);
+    auto traceLevels = instance->getTraceLevels();
+
     auto p = _subscribers.find(publisher->ice_getIdentity());
     if (p == _subscribers.end())
     {
+        if (traceLevels->session > 2)
+        {
+            Trace out(traceLevels->logger, traceLevels->sessionCat);
+            out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from publisher '"
+                << publisher->ice_getIdentity() << "' because no corresponding subscriber session was found";
+        }
         return;
     }
 
     auto session = p->second;
     if (session->checkSession())
     {
+        // The session is already connected.
+        if (traceLevels->session > 2)
+        {
+            Trace out(traceLevels->logger, traceLevels->sessionCat);
+            out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from '" << publisher
+                << "' because session '" << session->getId() << "' is already connected";
+        }
         return;
     }
 
@@ -266,9 +308,6 @@ NodeI::confirmCreateSession(
         publisherSession = publisherSession->ice_fixed(current.con);
     }
     // else collocated call.
-
-    auto instance = _instance.lock();
-    assert(instance);
 
     // Session::connected informs the publisher session of all the topic readers in the current node.
     session->connected(*publisherSession, current.con, instance->getTopicFactory()->getTopicReaders());
@@ -307,6 +346,7 @@ NodeI::createPublisherSession(
 {
     auto instance = _instance.lock();
     assert(instance);
+    auto traceLevels = instance->getTraceLevels();
 
     bool isWellKnown = publisher->ice_getEndpoints().empty() && publisher->ice_getAdapterId().empty();
 
@@ -320,6 +360,12 @@ NodeI::createPublisherSession(
             session = createSubscriberSessionServant(publisher);
             if (!session)
             {
+                if (traceLevels->session > 2)
+                {
+                    Trace out(traceLevels->logger, traceLevels->sessionCat);
+                    out << "node '" << _proxy->ice_getIdentity()
+                        << "' is shutting down, ignoring 'createPublisherSession' request from '" << publisher << "'";
+                }
                 return; // Shutting down.
             }
             else if (session->checkSession())
@@ -331,13 +377,31 @@ NodeI::createPublisherSession(
                     //
                     // Otherwise, once the current connection is actually closed, we won't be able to reconnect.
 
+                    if (traceLevels->session > 2)
+                    {
+                        Trace out(traceLevels->logger, traceLevels->sessionCat);
+                        out << "node '" << _proxy->ice_getIdentity() << "' is discarding current session '"
+                            << session->getId() << "' because publisher '" << publisher
+                            << "' (using a well-known proxy) requested creating a session over a new connection";
+                    }
+
                     // Unlock the mutex to prevent a deadlock, as reconnect() may call createPublisherSession() again.
                     lock.unlock();
 
                     session->disconnect();
                     session->reconnect(publisher, publisherConnection);
                 }
-                // else is already connected.
+                else
+                {
+                    // The session is already connected.
+                    if (traceLevels->session > 2)
+                    {
+                        Trace out(traceLevels->logger, traceLevels->sessionCat);
+                        out << "node '" << _proxy->ice_getIdentity()
+                            << "' is ignoring 'createPublisherSession' request from '" << publisher
+                            << "' because session '" << session->getId() << "' is already connected";
+                    }
+                }
                 return;
             }
         }
