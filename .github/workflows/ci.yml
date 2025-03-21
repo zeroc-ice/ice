@@ -105,7 +105,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           # Collect core dumps with the journal
-          sed -i 's/#Storage=external/Storage=external/' /etc/systemd/coredump.conf
+          sed -i 's/#Storage=external/Storage=journal/' /etc/systemd/coredump.conf
           systemctl restart systemd-journald
         shell: bash
 
