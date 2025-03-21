@@ -2519,7 +2519,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << " * Downcasts a proxy after confirming the target object's type via a remote invocation.";
     _out << nl << " * @param prx The target proxy.";
     _out << nl << " * @param facet A facet name.";
-    _out << nl << " * @param context The context map for the invocation.";
+    _out << nl << " * @param context The request context.";
     _out << nl
          << " * @returns A proxy with the requested type and facet, or nil if the target proxy is nil or the target";
     _out << nl << " * object does not support the requested type.";

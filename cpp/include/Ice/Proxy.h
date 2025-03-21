@@ -272,7 +272,7 @@ namespace Ice
 
         /// Tests whether this object supports a specific Slice interface.
         /// @param typeId The type ID of the Slice interface to test against.
-        /// @param context The context map for the invocation.
+        /// @param context The request context.
         /// @return true if the target object has the interface
         /// specified by id or derives from the interface specified by id.
         [[nodiscard]] bool ice_isA(std::string_view typeId, const Ice::Context& context = Ice::noExplicitContext) const;
@@ -282,7 +282,7 @@ namespace Ice
         /// @param response The response callback.
         /// @param ex The exception callback.
         /// @param sent The sent callback.
-        /// @param context The context map for the invocation.
+        /// @param context The request context.
         /// @return A function that can be called to cancel the invocation locally.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_isAAsync(
@@ -294,25 +294,24 @@ namespace Ice
 
         /// Tests whether this object supports a specific Slice interface.
         /// @param typeId The type ID of the Slice interface to test against.
-        /// @param context The context map for the invocation.
+        /// @param context The request context.
         /// @return The future object for the invocation.
         [[nodiscard]] std::future<bool>
         ice_isAAsync(std::string_view typeId, const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// \cond INTERNAL
+        /// @private
         void _iceI_isA(const std::shared_ptr<IceInternal::OutgoingAsyncT<bool>>&, std::string_view, const Ice::Context&)
             const;
-        /// \endcond
 
         /// Tests whether the target object of this proxy can be reached.
-        /// @param context The context map for the invocation.
+        /// @param context The request context.
         void ice_ping(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// Tests whether the target object of this proxy can be reached.
         /// @param response The response callback.
         /// @param ex The exception callback.
         /// @param sent The sent callback.
-        /// @param context The context map for the invocation.
+        /// @param context The request context.
         /// @return A function that can be called to cancel the invocation locally.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_pingAsync(
@@ -322,24 +321,23 @@ namespace Ice
             const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// Tests whether the target object of this proxy can be reached.
-        /// @param context The context map for the invocation.
+        /// @param context The request context.
         /// @return The future object for the invocation.
         [[nodiscard]] std::future<void> ice_pingAsync(const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// \cond INTERNAL
+        /// @private
         void _iceI_ping(const std::shared_ptr<IceInternal::OutgoingAsyncT<void>>&, const Ice::Context&) const;
-        /// \endcond
 
-        /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
-        /// @param context The context map for the invocation.
-        /// @return The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
+        /// Gets the Slice interfaces supported by this object as a list of type IDs.
+        /// @param context The request context.
+        /// @return The Slice type IDs of the interfaces supported by this object, in alphabetical order.
         [[nodiscard]] std::vector<std::string> ice_ids(const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+        /// Gets the Slice interfaces supported by this object as a list of type IDs.
         /// @param response The response callback.
         /// @param ex The exception callback.
         /// @param sent The sent callback.
-        /// @param context The context map for the invocation.
+        /// @param context The request context.
         /// @return A function that can be called to cancel the invocation locally.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_idsAsync(
@@ -348,28 +346,27 @@ namespace Ice
             std::function<void(bool)> sent = nullptr,
             const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
-        /// @param context The context map for the invocation.
+        /// Gets the Slice interfaces supported by this object as a list of type IDs.
+        /// @param context The request context.
         /// @return The future object for the invocation.
         [[nodiscard]] std::future<std::vector<std::string>>
         ice_idsAsync(const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// \cond INTERNAL
+        /// @private
         void _iceI_ids(
             const std::shared_ptr<IceInternal::OutgoingAsyncT<std::vector<std::string>>>&,
             const Ice::Context&) const;
-        /// \endcond
 
-        /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
-        /// @param context The context map for the invocation.
+        /// Gets the type ID of the most-derived Slice interface supported by this object.
+        /// @param context The request context.
         /// @return The Slice type ID of the most-derived interface.
         [[nodiscard]] std::string ice_id(const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+        /// Gets the type ID of the most-derived Slice interface supported by this object.
         /// @param response The response callback.
         /// @param ex The exception callback.
         /// @param sent The sent callback.
-        /// @param context The context map for the invocation.
+        /// @param context The request context.
         /// @return A function that can be called to cancel the invocation locally.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_idAsync(
@@ -378,21 +375,20 @@ namespace Ice
             std::function<void(bool)> sent = nullptr,
             const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
-        /// @param context The context map for the invocation.
+        /// Gets the type ID of the most-derived Slice interface supported by this object.
+        /// @param context The request context.
         /// @return The future object for the invocation.
         [[nodiscard]] std::future<std::string> ice_idAsync(const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// \cond INTERNAL
+        /// @private
         void _iceI_id(const std::shared_ptr<IceInternal::OutgoingAsyncT<std::string>>&, const Ice::Context&) const;
-        /// \endcond
 
         /// Invokes an operation dynamically.
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
         /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
         /// @param outParams An encapsulation containing the encoded results.
-        /// @param context The context map for the invocation.
+        /// @param context The request context.
         /// @return True if the operation completed successfully, in which case outParams contains
         /// the encoded out parameters. False if the operation raised a user exception, in which
         /// case outParams contains the encoded user exception. If the operation raises a run-time
@@ -408,7 +404,7 @@ namespace Ice
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
         /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
-        /// @param context The context map for the invocation.
+        /// @param context The request context.
         /// @return The future object for the invocation.
         [[nodiscard]] std::future<std::tuple<bool, std::vector<std::byte>>> ice_invokeAsync(
             std::string_view operation,
@@ -423,7 +419,7 @@ namespace Ice
         /// @param response The response callback.
         /// @param ex The exception callback.
         /// @param sent The sent callback.
-        /// @param context The context map for the invocation.
+        /// @param context The request context.
         /// @return A function that can be called to cancel the invocation locally.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_invokeAsync(
@@ -440,7 +436,7 @@ namespace Ice
         /// @param mode The operation mode (normal or idempotent).
         /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
         /// @param outParams An encapsulation containing the encoded results.
-        /// @param context The context map for the invocation.
+        /// @param context The request context.
         /// @return True if the operation completed successfully, in which case outParams contains
         /// the encoded out parameters. False if the operation raised a user exception, in which
         /// case outParams contains the encoded user exception. If the operation raises a run-time
@@ -456,7 +452,7 @@ namespace Ice
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
         /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
-        /// @param context The context map for the invocation.
+        /// @param context The request context.
         /// @return The future object for the invocation.
         [[nodiscard]] std::future<std::tuple<bool, std::vector<std::byte>>> ice_invokeAsync(
             std::string_view operation,
@@ -471,7 +467,7 @@ namespace Ice
         /// @param response The response callback.
         /// @param ex The exception callback.
         /// @param sent The sent callback.
-        /// @param context The context map for the invocation.
+        /// @param context The request context.
         /// @return A function that can be called to cancel the invocation locally.
         // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_invokeAsync(
@@ -507,9 +503,8 @@ namespace Ice
         /// @return The future object for the invocation.
         [[nodiscard]] std::future<Ice::ConnectionPtr> ice_getConnectionAsync() const;
 
-        /// \cond INTERNAL
+        /// @private
         void _iceI_getConnection(const std::shared_ptr<IceInternal::ProxyGetConnection>&) const;
-        /// \endcond
 
         /// Obtains the cached Connection for this proxy. If the proxy does not yet have an established
         /// connection, it does not attempt to create a connection.
@@ -658,9 +653,10 @@ namespace Ice
         /// @return A stringified proxy.
         [[nodiscard]] std::string ice_toString() const;
 
-        /// \cond INTERNAL
+        /// @private
         void _iceI_flushBatchRequests(const std::shared_ptr<IceInternal::ProxyFlushBatchAsync>&) const;
 
+        /// @cond INTERNAL
         static ObjectPrx _fromReference(IceInternal::ReferencePtr ref) { return ObjectPrx(std::move(ref)); }
 
         [[nodiscard]] const IceInternal::ReferencePtr& _getReference() const noexcept { return _reference; }
@@ -674,16 +670,14 @@ namespace Ice
         [[nodiscard]] size_t _hash() const noexcept;
 
         void _write(OutputStream&) const;
-        /// \endcond
 
     protected:
-        /// \cond INTERNAL
         // This constructor is never called; it allows Proxy's default constructor to compile.
         ObjectPrx() = default;
 
         // The constructor used by _fromReference.
         explicit ObjectPrx(IceInternal::ReferencePtr&&);
-        /// \endcond
+        /// @endcond
 
     private:
         template<typename Prx, typename... Bases> friend class Proxy;

@@ -18,7 +18,7 @@ namespace Ice
     /// @param prx The proxy to check.
     /// @param file The source file name.
     /// @param line The source line number.
-    /// @param current The Current object for the invocation.
+    /// @param current The Current object of the incoming request.
     /// @throw MarshalException If the proxy is null.
     template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
     void checkNotNull(const std::optional<Prx>& prx, const char* file, int line, const Current& current)
@@ -88,7 +88,7 @@ namespace Ice
 
     /// Downcasts a proxy after confirming the target object's type via a remote invocation.
     /// @param proxy The source proxy.
-    /// @param context The context map for the invocation.
+    /// @param context The request context.
     /// @return A proxy with the requested type, or nullopt if the target object does not support the requested type.
     template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
     std::optional<Prx> checkedCast(const ObjectPrx& proxy, const Context& context = noExplicitContext)
@@ -105,7 +105,7 @@ namespace Ice
 
     /// Downcasts a proxy after confirming the target object's type via a remote invocation.
     /// @param proxy The source proxy (can be nullopt).
-    /// @param context The context map for the invocation.
+    /// @param context The request context.
     /// @return A proxy with the requested type, or nullopt if the source proxy is nullopt or if the target object does
     /// not support the requested type.
     template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
@@ -117,7 +117,7 @@ namespace Ice
     /// Downcasts a proxy after confirming the target object's type via a remote invocation.
     /// @param proxy The source proxy.
     /// @param facet A facet name.
-    /// @param context The context map for the invocation.
+    /// @param context The request context.
     /// @return A proxy with the requested type and facet, or nullopt if the target facet is not of the requested
     /// type.
     template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
@@ -130,7 +130,7 @@ namespace Ice
     /// Downcasts a proxy after confirming the target object's type via a remote invocation.
     /// @param proxy The source proxy (can be nullopt).
     /// @param facet A facet name.
-    /// @param context The context map for the invocation.
+    /// @param context The request context.
     /// @return A proxy with the requested type and facet, or nullopt if the source proxy is nullopt, or if the target
     /// facet is not of the requested type.
     template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>

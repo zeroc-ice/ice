@@ -475,7 +475,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
                 writeDocCommentLines(out, q->second);
             }
         }
-        out << nl << " * @param " << currentParamName << " The Current object for the invocation.";
+        out << nl << " * @param " << currentParamName << " The Current object of the incoming request.";
         out << nl << " **/";
     }
 
@@ -544,7 +544,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
                     writeDocCommentLines(out, q->second);
                 }
             }
-            out << nl << " * @param " << currentParamName << " The Current object for the invocation.";
+            out << nl << " * @param " << currentParamName << " The Current object of the incoming request.";
             out << nl << " **/";
         }
 
@@ -1583,7 +1583,7 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
 
     map<string, StringList> paramDocs = dc->parameters();
     const string currentParamName = getEscapedParamName(p->parameters(), "current");
-    const string currentParam = " * @param " + currentParamName + " The Current object for the invocation.";
+    const string currentParam = " * @param " + currentParamName + " The Current object of the incoming request.";
 
     out << nl << "/**";
     if (!dc->overview().empty())
