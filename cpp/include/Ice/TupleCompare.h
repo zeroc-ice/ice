@@ -13,7 +13,7 @@ namespace Ice::Tuple
     /// @tparam T The type of the generated struct.
     /// @param lhs The left-hand side.
     /// @param rhs The right-hand side.
-    /// @return @c true if @p lhs is less than @p rhs, @c false otherwise.
+    /// @return `true` if @p lhs is less than @p rhs, `false` otherwise.
     template<
         class T,
         std::enable_if_t<
@@ -28,7 +28,7 @@ namespace Ice::Tuple
     /// @tparam T The type of the generated struct.
     /// @param lhs The left-hand side.
     /// @param rhs The right-hand side.
-    /// @return @c true if @p lhs is less than or equal to @p rhs, @c false otherwise.
+    /// @return `true` if @p lhs is less than or equal to @p rhs, `false` otherwise.
     template<
         class T,
         std::enable_if_t<
@@ -43,7 +43,7 @@ namespace Ice::Tuple
     /// @tparam T The type of the generated struct.
     /// @param lhs The left-hand side.
     /// @param rhs The right-hand side.
-    /// @return @c true if @p lhs is greater than @p rhs, @c false otherwise.
+    /// @return `true` if @p lhs is greater than @p rhs, `false` otherwise.
     template<
         class T,
         std::enable_if_t<
@@ -58,7 +58,7 @@ namespace Ice::Tuple
     /// @tparam T The type of the generated struct.
     /// @param lhs The left-hand side.
     /// @param rhs The right-hand side.
-    /// @return @c true if @p lhs is greater than or equal to @p rhs, @c false otherwise.
+    /// @return `true` if @p lhs is greater than or equal to @p rhs, `false` otherwise.
     template<
         class T,
         std::enable_if_t<
@@ -73,7 +73,7 @@ namespace Ice::Tuple
     /// @tparam T The type of the generated struct.
     /// @param lhs The left-hand side.
     /// @param rhs The right-hand side.
-    /// @return @c true if @p lhs is equal to @p rhs, @c false otherwise.
+    /// @return `true` if @p lhs is equal to @p rhs, `false` otherwise.
     template<
         class T,
         std::enable_if_t<
@@ -88,7 +88,7 @@ namespace Ice::Tuple
     /// @tparam T The type of the generated struct.
     /// @param lhs The left-hand side.
     /// @param rhs The right-hand side.
-    /// @return @c true if @p lhs is not equal to @p rhs, @c false otherwise.
+    /// @return `true` if @p lhs is not equal to @p rhs, `false` otherwise.
     template<
         class T,
         std::enable_if_t<
