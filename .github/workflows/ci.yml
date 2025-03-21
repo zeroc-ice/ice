@@ -106,7 +106,7 @@ jobs:
         run: |
           # Collect core dumps with the journal
           sudo sed -i 's/#Storage=external/Storage=journal/' /etc/systemd/coredump.conf
-          systemctl restart systemd-journald
+          sudo systemctl restart systemd-journald
         shell: bash
 
       - name: Setup C++
