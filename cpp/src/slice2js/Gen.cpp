@@ -109,10 +109,9 @@ namespace
 
     void printHeader(IceInternal::Output& out)
     {
-        out << "// Copyright (c) ZeroC, Inc.\n";
-        out << "//\n";
-        out << "// Ice version " << ICE_STRING_VERSION << "\n";
-        out << "//\n";
+        out << "// Copyright (c) ZeroC, Inc.";
+        out << sp;
+        out << nl << "// slice2js version " << ICE_STRING_VERSION;
     }
 
     string escapeParam(const ParameterList& params, const string& name)
@@ -547,6 +546,7 @@ Slice::Gen::generate(const UnitPtr& p)
     printHeader(_javaScriptOutput);
     printGeneratedHeader(_javaScriptOutput, _fileBase + ".ice");
 
+    _javaScriptOutput << sp;
     _javaScriptOutput << nl << "/* eslint-disable */";
     _javaScriptOutput << nl << "/* jshint ignore: start */";
     _javaScriptOutput << nl;
