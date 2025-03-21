@@ -1287,7 +1287,7 @@ class Process(Runnable):
 
     def run(self, current, args=[], props={}, exitstatus=0, timeout=None):
         class WatchDog:
-            def __init__(self, timeout):
+            def __init__(self):
                 self.lastProgressTime = time.time()
                 self.lock = threading.Lock()
 
@@ -1295,22 +1295,28 @@ class Process(Runnable):
                 with self.lock:
                     self.lastProgressTime = time.time()
 
-            def timedOut(self, timeout):
+            def timedOut(self, timeout: int):
                 with self.lock:
                     return (time.time() - self.lastProgressTime) >= timeout
 
-        watchDog = WatchDog(timeout)
+        watchDog = WatchDog()
         self.start(current, args, props, watchDog=watchDog)
         process = current.processes[self]
 
         if timeout is None:
-            # If it's not a local process use a large timeout as the watch dog might not
-            # get invoked (TODO: improve remote processes to use the watch dog)
-            timeout = 60 if isinstance(process, Expect.Expect) else 480
+            if os.getenv("CI"):
+                # If we're running in CI always use a large timeout. This value is arbitrary and
+                # should be adjusted as needed.
+                timeout = 300
+            else:
+                # If it's not a local process use a large timeout as the watch dog might not
+                # get invoked (TODO: improve remote processes to use the watch dog)
+                timeout = 60 if isinstance(process, Expect.Expect) else 480
 
         if not self.quiet and not current.driver.isWorkerThread():
             # Print out the process output to stdout if we're running the client form the main thread.
             process.trace(self.outfilters)
+
         try:
             while True:
                 try:
@@ -1320,12 +1326,20 @@ class Process(Runnable):
                     current.driver.setInterrupt(True)
                     raise
                 except Expect.TIMEOUT:
-                    if watchDog and watchDog.timedOut(timeout):
+                    assert watchDog
+                    if watchDog.timedOut(timeout):
                         print(
                             "process {0} is hanging - {1}".format(
                                 process, time.strftime("%x %X")
                             )
                         )
+
+                        # If we're running in CI, dump the stack trace and exit
+                        if os.getenv("CI"):
+                            process.stackDump()
+                            self.stop(current, False, exitstatus)
+                            raise
+
                         if current.driver.isInterrupted():
                             self.stop(current, False, exitstatus)
                             raise
@@ -1425,6 +1439,11 @@ class Process(Runnable):
                                     process, time.strftime("%x %X")
                                 )
                             )
+
+                            if os.getenv("CI"):
+                                process.stackDump()
+                                raise
+
                             if current.driver.isInterrupted():
                                 raise
                         except RuntimeError as ex:

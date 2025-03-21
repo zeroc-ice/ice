@@ -18,6 +18,7 @@ void
 Server::run(int argc, char** argv)
 {
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+
     //
     // This test kills connections, so we don't want warnings.
     //
