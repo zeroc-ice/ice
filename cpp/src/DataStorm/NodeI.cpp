@@ -555,7 +555,7 @@ NodeI::createPublisherSessionServant(const NodePrx& node)
     // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
-    
+
     auto p = _publishers.find(node->ice_getIdentity());
     if (p != _publishers.end())
     {
