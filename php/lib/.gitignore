@@ -3,6 +3,7 @@ Ice/Context.php
 Ice/EndpointTypes.php
 Ice/Identity.php
 Ice/Locator.php
+Ice/LocatorRegistry.php
 Ice/Metrics.php
 Ice/OperationMode.php
 Ice/Process.php

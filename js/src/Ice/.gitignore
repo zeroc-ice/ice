@@ -7,6 +7,8 @@ EndpointTypes.d.ts
 EndpointTypes.js
 Locator.d.ts
 Locator.js
+LocatorRegistry.d.ts
+LocatorRegistry.js
 LocatorF.d.ts
 LocatorF.js
 Metrics.d.ts

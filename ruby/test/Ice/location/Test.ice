@@ -3,10 +3,11 @@
 #pragma once
 
 #include "Ice/Locator.ice"
+#include "Ice/LocatorRegistry.ice"
 
 module Test
 {
-    interface TestLocatorRegistry extends ::Ice::LocatorRegistry
+    interface TestLocatorRegistry extends Ice::LocatorRegistry
     {
         //
         // Allow remote addition of objects to the locator registry.

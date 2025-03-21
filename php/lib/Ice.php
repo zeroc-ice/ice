@@ -28,6 +28,7 @@ require_once 'Ice/Identity.php';
 require_once 'Ice/InitializationData.php';
 require_once 'Ice/LocalExceptions.php';
 require_once 'Ice/Locator.php';
+require_once 'Ice/LocatorRegistry.php';
 require_once 'Ice/Metrics.php';
 require_once 'Ice/Process.php';
 require_once 'Ice/RemoteLogger.php';

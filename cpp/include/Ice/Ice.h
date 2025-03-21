@@ -50,6 +50,7 @@
 // Generated header files:
 #    include "Ice/EndpointTypes.h"
 #    include "Ice/Locator.h"
+#    include "Ice/LocatorRegistry.h"
 #    include "Ice/Metrics.h"
 #    include "Ice/Process.h"
 #    include "Ice/PropertiesAdmin.h"
