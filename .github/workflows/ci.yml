@@ -101,6 +101,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Configure coredumpctl
+        if: runner.os == 'Linux'
+        run: |
+          # Collect core dumps with the journal
+          sudo sed -i 's/#Storage=external/Storage=journal/' /etc/systemd/coredump.conf
+          sudo systemctl restart systemd-journald
+        shell: bash
+
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
@@ -199,11 +207,16 @@ jobs:
           if-no-files-found: ignore
         if: always()
 
+      - name: Write coredumpctl status
+        if: runner.os == 'Linux' && always()
+        shell: bash
+        run: coredumpctl info --no-pager ./coredump.log || true
+
       - name: Upload Linux core dumps
         uses: actions/upload-artifact@v4
         with:
           name: core-dumps-${{ matrix.config }}-${{ matrix.os }}
-          path: /var/lib/apport/coredump/*
+          path: ./coredump.log
           if-no-files-found: ignore
         if: runner.os == 'Linux' && always()
 
