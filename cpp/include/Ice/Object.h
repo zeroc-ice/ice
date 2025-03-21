@@ -82,97 +82,95 @@ namespace Ice
         static const char* ice_staticId() noexcept;
     };
 
-    /// Base class for dynamic dispatch servants. A server application derives a concrete servant class
-    /// from Blobject that implements the ice_invoke method.
+    /// Base class for dynamic dispatch servants.
+    /// @remark This class is provided for backwards compatibility. You should consider deriving directly from Object
+    /// and overriding the Object::dispatch function.
     /// \headerfile Ice/Ice.h
     class ICE_API Blobject : public Object
     {
     public:
         /// Dispatches an incoming request.
         /// @param inEncaps An encapsulation containing the encoded in-parameters for the operation.
-        /// @param outEncaps An encapsulation containing the encoded results for the operation.
+        /// @param outEncaps An encapsulation containing the encoded result for the operation.
         /// @param current The Current object of the incoming request.
-        /// @return True if the operation completed successfully, in which case outEncaps contains
-        /// an encapsulation of the encoded results, or false if the operation raised a user exception,
-        /// in which case outEncaps contains an encapsulation of the encoded user exception.
-        /// @throws UserException A user exception can be raised directly and the
-        /// run time will marshal it.
+        /// @return `true` if the dispatch completes successfully, `false` if the dispatch completes with a user
+        /// exception encoded in @p outEncaps.
         virtual bool
         ice_invoke(std::vector<std::byte> inEncaps, std::vector<std::byte>& outEncaps, const Current& current) = 0;
 
-        void dispatch(IncomingRequest&, std::function<void(OutgoingResponse)>) final;
+        /// @private
+        void dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse) final;
     };
 
-    /// Base class for dynamic dispatch servants that uses the array mapping. A server application
-    /// derives a concrete servant class from Blobject that implements the ice_invoke method.
+    /// Base class for dynamic dispatch servants that uses the array mapping.
+    /// @remark This class is provided for backwards compatibility. You should consider deriving directly from Object
+    /// and overriding the Object::dispatch function.
     /// \headerfile Ice/Ice.h
     class ICE_API BlobjectArray : public Object
     {
     public:
         /// Dispatches an incoming request.
         /// @param inEncaps An encapsulation containing the encoded in-parameters for the operation.
-        /// @param outEncaps An encapsulation containing the encoded results for the operation.
+        /// @param outEncaps An encapsulation containing the encoded result for the operation.
         /// @param current The Current object of the incoming request.
-        /// @return True if the operation completed successfully, in which case outEncaps contains
-        /// an encapsulation of the encoded results, or false if the operation raised a user exception,
-        /// in which case outEncaps contains an encapsulation of the encoded user exception.
-        /// @throws UserException A user exception can be raised directly and the
-        /// run time will marshal it.
+        /// @return `true` if the dispatch completes successfully, `false` if the dispatch completes with a user
+        /// exception encoded in @p outEncaps.
         virtual bool ice_invoke(
             std::pair<const std::byte*, const std::byte*> inEncaps,
             std::vector<std::byte>& outEncaps,
             const Current& current) = 0;
 
+        /// @private
         void dispatch(IncomingRequest&, std::function<void(OutgoingResponse)>) final;
     };
 
-    /// Base class for asynchronous dynamic dispatch servants. A server application derives a concrete
-    /// servant class from Blobject that implements the ice_invokeAsync method.
+    /// Base class for asynchronous dynamic dispatch servants.
+    /// @remark This class is provided for backwards compatibility. You should consider deriving directly from Object
+    /// and overriding the Object::dispatch function.
     /// \headerfile Ice/Ice.h
     class ICE_API BlobjectAsync : public Object
     {
     public:
-        /// Dispatch an incoming request asynchronously.
+        /// Dispatches an incoming request asynchronously.
         /// @param inEncaps An encapsulation containing the encoded in-parameters for the operation.
-        /// @param response A callback the implementation should invoke when the invocation completes
-        /// successfully or with a user exception. See the description of Blobject::ice_invoke for
-        /// the semantics.
-        /// @param error A callback the implementation should invoke when the invocation completes
-        /// with an exception.
+        /// @param response The response callback. It accepts:
+        /// - `returnValue` `true` if the operation completed successfully, `false` if it completed with a user
+        ///   exception encoded in @p outEncaps.
+        /// - `outEncaps` An encapsulation containing the encoded result.
+        /// @param exception The exception callback.
         /// @param current The Current object of the incoming request.
-        /// @throws UserException A user exception can be raised directly and the
-        /// run time will marshal it.
         virtual void ice_invokeAsync(
             std::vector<std::byte> inEncaps,
             std::function<void(bool, const std::vector<std::byte>&)> response,
-            std::function<void(std::exception_ptr)> error,
+            std::function<void(std::exception_ptr)> exception,
             const Current& current) = 0;
 
+        /// @private
         void dispatch(IncomingRequest&, std::function<void(OutgoingResponse)>) final;
     };
 
-    /// Base class for asynchronous dynamic dispatch servants that uses the array mapping. A server application
-    /// derives a concrete servant class from Blobject that implements the ice_invokeAsync method.
+    /// Base class for asynchronous dynamic dispatch servants that uses the array mapping.
+    /// @remark This class is provided for backwards compatibility. You should consider deriving directly from Object
+    /// and overriding the Object::dispatch function.
     /// \headerfile Ice/Ice.h
     class ICE_API BlobjectArrayAsync : public Object
     {
     public:
-        /// Dispatch an incoming request asynchronously.
+        /// Dispatches an incoming request asynchronously.
         /// @param inEncaps An encapsulation containing the encoded in-parameters for the operation.
-        /// @param response A callback the implementation should invoke when the invocation completes
-        /// successfully or with a user exception. See the description of Blobject::ice_invoke for
-        /// the semantics.
-        /// @param error A callback the implementation should invoke when the invocation completes
-        /// with an exception.
+        /// @param response The response callback. It accepts:
+        /// - `returnValue` `true` if the operation completed successfully, `false` if it completed with a user
+        ///   exception encoded in @p outEncaps.
+        /// - `outEncaps` An encapsulation containing the encoded result.
+        /// @param exception The exception callback.
         /// @param current The Current object of the incoming request.
-        /// @throws UserException A user exception can be raised directly and the
-        /// run time will marshal it.
         virtual void ice_invokeAsync(
             std::pair<const std::byte*, const std::byte*> inEncaps,
             std::function<void(bool, std::pair<const std::byte*, const std::byte*>)> response,
-            std::function<void(std::exception_ptr)> error,
+            std::function<void(std::exception_ptr)> exception,
             const Current& current) = 0;
 
+        /// @private
         void dispatch(IncomingRequest&, std::function<void(OutgoingResponse)>) final;
     };
 }

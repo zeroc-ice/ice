@@ -2759,7 +2759,7 @@ Slice::InterfaceDecl::checkBasesAreLegal(const string& name, const InterfaceList
 
 Slice::InterfaceDecl::InterfaceDecl(const ContainerPtr& container, const string& name) : Contained(container, name) {}
 
-// Return true if the interface definition `idp` is on one of the interface lists in `gpl`, false otherwise.
+// Return true if the interface definition `idp` is on one of the interface lists in `gpl`, `false` otherwise.
 bool
 Slice::InterfaceDecl::isInList(const GraphPartitionList& gpl, const InterfaceDefPtr& interfaceDef)
 {

@@ -141,7 +141,7 @@ namespace DataStorm
 
         /// Return whether or not the node shutdown has been initiated.
         ///
-        /// @return True if the node is shutdown, false otherwise.
+        /// @return `true` if the node is shutdown, `false` otherwise.
         [[nodiscard]] bool isShutdown() const noexcept;
 
         /// Wait for shutdown to be called.

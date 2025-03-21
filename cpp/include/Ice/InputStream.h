@@ -406,7 +406,7 @@ namespace Ice
         ///
         /// @param tag The tag associated with the value.
         /// @param expectedFormat The optional format for the value.
-        /// @return True if the value is present, false otherwise.
+        /// @return `true` if the value is present, `false` otherwise.
         bool readOptional(std::int32_t tag, OptionalFormat expectedFormat)
         {
             assert(_currentEncaps);

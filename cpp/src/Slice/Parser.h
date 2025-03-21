@@ -416,7 +416,7 @@ namespace Slice
         [[nodiscard]] std::optional<FormatType> parseFormatMetadata() const;
 
         /// Returns true if this item is deprecated, due to the presence of 'deprecated' metadata.
-        /// @return True if this item has 'deprecated' metadata on it, false otherwise.
+        /// @return `true` if this item has 'deprecated' metadata on it, `false` otherwise.
         [[nodiscard]] bool isDeprecated() const;
 
         /// If this item is deprecated, return its deprecation message (if present).
@@ -488,7 +488,7 @@ namespace Slice
 
         bool checkIntroduced(const std::string& scopedName, ContainedPtr namedThing = nullptr);
 
-        /// Returns true if this container is the global scope (i.e. it's of type `Unit`), and false otherwise.
+        /// Returns true if this container is the global scope (i.e. it's of type `Unit`), and `false` otherwise.
         /// If false, we emit an error message. So this function should only be called for types which cannot appear at
         /// global scope... so everything except for `Module`s.
         bool checkForGlobalDefinition(const char* definitionKindPlural);

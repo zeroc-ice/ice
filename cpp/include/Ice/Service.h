@@ -110,7 +110,7 @@ namespace Ice
         static Service* instance();
 
         /// Indicates whether the program is running as a Win32 service or Unix daemon.
-        /// @return True if the program is running as a service, false otherwise.
+        /// @return `true` if the program is running as a service, `false` otherwise.
         [[nodiscard]] bool service() const;
 
         /// Obtains the program name. If the program is running as a Win32
@@ -168,9 +168,9 @@ namespace Ice
         /// filename.
         ///
         /// @param changeDirectory True if the daemon should change its working directory to the root directory,
-        /// false otherwise.
+        /// `false` otherwise.
         /// @param closeFiles True if the daemon should close unnecessary file descriptors (i.e., stdin, stdout, etc.),
-        /// false otherwise.
+        /// `false` otherwise.
         /// @param pidFile If a non-empty string is provided, the daemon writes its process ID to the given file.
         void configureDaemon(bool changeDirectory, bool closeFiles, const std::string& pidFile);
 
@@ -186,7 +186,7 @@ namespace Ice
         /// @param argc Specifies the number of arguments in argv.
         /// @param argv The command-line arguments.
         /// @param status The exit status, which is returned by main
-        /// @return True if startup was successful, false otherwise.
+        /// @return `true` if startup was successful, `false` otherwise.
         virtual bool start(int argc, char* argv[], int& status) = 0;
 
         /// Blocks until the service shuts down. The default implementation

@@ -3192,15 +3192,25 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     if (comment)
     {
         OpDocParamType pt = (amd || p->hasMarshaledResult()) ? OpDocInParams : OpDocAllParams;
-        StringList postParams, returns;
+        StringList postParams;
+        StringList returns;
         if (amd)
         {
-            postParams.push_back("@param " + responsecbParam + " The response callback.");
+            if (ret || !outParams.empty())
+            {
+                postParams.push_back("@param " + responsecbParam + " The response callback. It accepts:");
+                postParams.splice(postParams.end(), createOpOutParamsDoc(p, *comment));
+            }
+            else
+            {
+                postParams.push_back("@param " + responsecbParam + " The response callback.");
+            }
+
             postParams.push_back("@param " + excbParam + " The exception callback.");
         }
         else if (p->hasMarshaledResult())
         {
-            returns.emplace_back("The marshaled result structure.");
+            returns.emplace_back("The marshaled result.");
         }
         else
         {

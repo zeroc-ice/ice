@@ -143,7 +143,7 @@ namespace IceGrid
         /// Remove a replica group filter.
         /// @param id The identifier of the filter.
         /// @param filter The filter implementation.
-        /// @return True of the filter was removed, false otherwise.
+        /// @return `true` of the filter was removed, `false` otherwise.
         virtual bool
         removeReplicaGroupFilter(const std::string& id, const std::shared_ptr<ReplicaGroupFilter>& filter) noexcept = 0;
 
@@ -155,7 +155,7 @@ namespace IceGrid
         /// Remove a type filter.
         /// @param type The type to register this filter with.
         /// @param filter The filter implementation.
-        /// @return True of the filter was removed, false otherwise.
+        /// @return `true` of the filter was removed, `false` otherwise.
         virtual bool removeTypeFilter(const std::string& type, const std::shared_ptr<TypeFilter>& filter) noexcept = 0;
     };
 

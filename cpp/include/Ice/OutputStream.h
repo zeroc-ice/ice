@@ -179,7 +179,7 @@ namespace Ice
         ///
         /// @param typeId The Slice type ID for this slice.
         /// @param compactId The compact ID corresponding to the type, or -1 if no compact ID is used.
-        /// @param last True if this is the last slice, false otherwise.
+        /// @param last True if this is the last slice, `false` otherwise.
         void startSlice(std::string_view typeId, int compactId, bool last)
         {
             assert(_currentEncaps && _currentEncaps->encoder);
@@ -399,7 +399,7 @@ namespace Ice
         /// Writes the tag and format of an optional value.
         /// @param tag The optional tag ID.
         /// @param format The optional format.
-        /// @return True if the current encoding version supports optional values, false otherwise.
+        /// @return `true` if the current encoding version supports optional values, `false` otherwise.
         /// If true, the data associated with the optional value must be written next.
         bool writeOptional(std::int32_t tag, OptionalFormat format)
         {

@@ -179,28 +179,28 @@ namespace Ice
     /// Compares the object identities of two proxies.
     /// @param lhs A proxy.
     /// @param rhs A proxy.
-    /// @return True if the identity in lhs compares less than the identity in rhs, false otherwise.
+    /// @return `true` if the identity in lhs compares less than the identity in rhs, `false` otherwise.
     ICE_API bool proxyIdentityLess(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) noexcept;
 
     /// Compares the object identities of two proxies.
     /// @param lhs A proxy.
     /// @param rhs A proxy.
-    /// @return True if the identity in lhs compares equal to the identity in rhs, false otherwise.
+    /// @return `true` if the identity in lhs compares equal to the identity in rhs, `false` otherwise.
     ICE_API bool proxyIdentityEqual(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) noexcept;
 
     /// Compares the object identities and facets of two proxies.
     /// @param lhs A proxy.
     /// @param rhs A proxy.
-    /// @return True if the identity and facet in lhs compare less than the identity and facet
-    /// in rhs, false otherwise.
+    /// @return `true` if the identity and facet in lhs compare less than the identity and facet
+    /// in rhs, `false` otherwise.
     ICE_API bool
     proxyIdentityAndFacetLess(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) noexcept;
 
     /// Compares the object identities and facets of two proxies.
     /// @param lhs A proxy.
     /// @param rhs A proxy.
-    /// @return True if the identity and facet in lhs compare equal to the identity and facet
-    /// in rhs, false otherwise.
+    /// @return `true` if the identity and facet in lhs compare equal to the identity and facet
+    /// in rhs, `false` otherwise.
     ICE_API bool
     proxyIdentityAndFacetEqual(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) noexcept;
 }

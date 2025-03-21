@@ -587,7 +587,7 @@ namespace Ice
         [[nodiscard]] std::chrono::milliseconds ice_getLocatorCacheTimeout() const noexcept;
 
         /// Determines whether this proxy caches connections.
-        /// @return True if this proxy caches connections, false otherwise.
+        /// @return `true` if this proxy caches connections, `false` otherwise.
         [[nodiscard]] bool ice_isConnectionCached() const noexcept;
 
         /// Obtains the endpoint selection policy for this proxy (randomly or ordered).
@@ -595,7 +595,7 @@ namespace Ice
         [[nodiscard]] Ice::EndpointSelectionType ice_getEndpointSelection() const noexcept;
 
         /// Determines whether this proxy uses only secure endpoints.
-        /// @return True if this proxy communicates only via secure endpoints, false otherwise.
+        /// @return `true` if this proxy communicates only via secure endpoints, `false` otherwise.
         [[nodiscard]] bool ice_isSecure() const noexcept;
 
         /// Obtains the encoding version used to marshal request parameters.
@@ -603,8 +603,8 @@ namespace Ice
         [[nodiscard]] Ice::EncodingVersion ice_getEncodingVersion() const noexcept;
 
         /// Determines whether this proxy prefers secure endpoints.
-        /// @return True if the proxy always attempts to invoke via secure endpoints before it
-        /// attempts to use insecure endpoints, false otherwise.
+        /// @return `true` if the proxy always attempts to invoke via secure endpoints before it
+        /// attempts to use insecure endpoints, `false` otherwise.
         [[nodiscard]] bool ice_isPreferSecure() const noexcept;
 
         /// Obtains the router for this proxy.
@@ -617,7 +617,7 @@ namespace Ice
         [[nodiscard]] std::optional<LocatorPrx> ice_getLocator() const noexcept;
 
         /// Determines whether this proxy uses collocation optimization.
-        /// @return True if the proxy uses collocation optimization, false otherwise.
+        /// @return `true` if the proxy uses collocation optimization, `false` otherwise.
         [[nodiscard]] bool ice_isCollocationOptimized() const noexcept;
 
         /// Obtains the invocation timeout of this proxy.
@@ -625,28 +625,28 @@ namespace Ice
         [[nodiscard]] std::chrono::milliseconds ice_getInvocationTimeout() const noexcept;
 
         /// Determines whether this proxy uses twoway invocations.
-        /// @return True if this proxy uses twoway invocations, false otherwise.
+        /// @return `true` if this proxy uses twoway invocations, `false` otherwise.
         [[nodiscard]] bool ice_isTwoway() const noexcept;
 
         /// Determines whether this proxy uses oneway invocations.
-        /// @return True if this proxy uses oneway invocations, false otherwise.
+        /// @return `true` if this proxy uses oneway invocations, `false` otherwise.
         [[nodiscard]] bool ice_isOneway() const noexcept;
 
         /// Determines whether this proxy uses batch oneway invocations.
-        /// @return True if this proxy uses batch oneway invocations, false otherwise.
+        /// @return `true` if this proxy uses batch oneway invocations, `false` otherwise.
         [[nodiscard]] bool ice_isBatchOneway() const noexcept;
 
         /// Determines whether this proxy uses datagram invocations.
-        /// @return True if this proxy uses datagram invocations, false otherwise.
+        /// @return `true` if this proxy uses datagram invocations, `false` otherwise.
         [[nodiscard]] bool ice_isDatagram() const noexcept;
 
         /// Determines whether this proxy uses batch datagram invocations.
-        /// @return True if this proxy uses batch datagram invocations, false otherwise.
+        /// @return `true` if this proxy uses batch datagram invocations, `false` otherwise.
         [[nodiscard]] bool ice_isBatchDatagram() const noexcept;
 
         /// Obtains the compression override setting of this proxy.
         /// @return The compression override setting. If nullopt is returned, no override is set. Otherwise, true
-        /// if compression is enabled, false otherwise.
+        /// if compression is enabled, `false` otherwise.
         [[nodiscard]] std::optional<bool> ice_getCompress() const noexcept;
 
         /// Obtains the connection ID of this proxy.
@@ -654,7 +654,7 @@ namespace Ice
         [[nodiscard]] std::string ice_getConnectionId() const;
 
         /// Determines whether this proxy is a fixed proxy.
-        /// @return True if this proxy is a fixed proxy, false otherwise.
+        /// @return `true` if this proxy is a fixed proxy, `false` otherwise.
         [[nodiscard]] bool ice_isFixed() const noexcept;
 
         /// Returns the Slice type ID associated with this type.

@@ -160,7 +160,7 @@ module IceGrid
             throws ServerStopException;
 
         /// Check if the given server can be loaded on this node.
-        /// @return True if the server is inactive.
+        /// @return `true` if the server is inactive.
         /// @throws DeploymentException Raised if the server can't be updated.
         bool checkUpdate(InternalServerDescriptor svr, bool noRestart)
             throws DeploymentException;
