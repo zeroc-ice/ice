@@ -68,6 +68,8 @@ void
 NodeI::init()
 {
     auto self = shared_from_this();
+
+    // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
 
@@ -86,8 +88,10 @@ NodeI::destroy(bool ownsCommunicator)
 {
     unique_lock<mutex> lock(_mutex);
 
+    // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
+
     instance->getCollocatedForwarder()->remove(_subscriberForwarder->ice_getIdentity());
     instance->getCollocatedForwarder()->remove(_publisherForwarder->ice_getIdentity());
 
@@ -150,6 +154,7 @@ NodeI::createSession(
 
     bool isWellKnown = subscriber->ice_getEndpoints().empty() && subscriber->ice_getAdapterId().empty();
 
+    // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
 
@@ -176,10 +181,18 @@ NodeI::createSession(
         }
         // else collocated call.
 
+        auto traceLevels = instance->getTraceLevels();
+
         unique_lock<mutex> lock(_mutex);
         session = createPublisherSessionServant(*subscriber);
         if (!session)
         {
+            if (traceLevels->session > 2)
+            {
+                Trace out(traceLevels->logger, traceLevels->sessionCat);
+                out << "node '" << current.id << "' is shutting down, ignoring '" << current.operation
+                    << "' request from '" << subscriber << "'";
+            }
             return; // Shutting down.
         }
 
@@ -194,10 +207,27 @@ NodeI::createSession(
                         // assume the current session connection is being closed and reconnect using the new connection.
                         //
                         // Otherwise, once the current connection is actually closed, we won't be able to reconnect.
+                        if (traceLevels->session > 2)
+                        {
+                            Trace out(traceLevels->logger, traceLevels->sessionCat);
+                            out << "node '" << current.id << "' is discarding current session '" << session->getId()
+                                << "' because subscriber '" << subscriber
+                                << "' (using a well-known proxy) requested creating a session over a new connection";
+                        }
                         session->disconnect();
                         session->reconnect(*subscriber, current.con);
                     }
-                    // else is already connected.
+                    else
+                    {
+                        // The session is already connected.
+                        if (traceLevels->session > 2)
+                        {
+                            Trace out(traceLevels->logger, traceLevels->sessionCat);
+                            out << "node '" << current.id << "' is ignoring '" << current.operation
+                                << "' request from '" << subscriber << "' because session '" << session->getId()
+                                << "' is already connected";
+                        }
+                    }
                     return;
                 }
 
@@ -246,15 +276,35 @@ NodeI::confirmCreateSession(
     checkNotNull(publisherSession, __FILE__, __LINE__, current);
 
     unique_lock<mutex> lock(_mutex);
+
+    // The instance class owns this object, so it is guaranteed to be available.
+    auto instance = _instance.lock();
+    assert(instance);
+
+    auto traceLevels = instance->getTraceLevels();
+
     auto p = _subscribers.find(publisher->ice_getIdentity());
     if (p == _subscribers.end())
     {
+        if (traceLevels->session > 2)
+        {
+            Trace out(traceLevels->logger, traceLevels->sessionCat);
+            out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from publisher '"
+                << publisher->ice_getIdentity() << "' because no corresponding subscriber session was found";
+        }
         return;
     }
 
     auto session = p->second;
     if (session->checkSession())
     {
+        // The session is already connected.
+        if (traceLevels->session > 2)
+        {
+            Trace out(traceLevels->logger, traceLevels->sessionCat);
+            out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from '" << publisher
+                << "' because session '" << session->getId() << "' is already connected";
+        }
         return;
     }
 
@@ -267,9 +317,6 @@ NodeI::confirmCreateSession(
     }
     // else collocated call.
 
-    auto instance = _instance.lock();
-    assert(instance);
-
     // Session::connected informs the publisher session of all the topic readers in the current node.
     session->connected(*publisherSession, current.con, instance->getTopicFactory()->getTopicReaders());
 }
@@ -280,6 +327,7 @@ NodeI::createSubscriberSession(
     const ConnectionPtr& subscriberConnection,
     const shared_ptr<PublisherSessionI>& session)
 {
+    // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
 
@@ -305,8 +353,11 @@ NodeI::createPublisherSession(
     const ConnectionPtr& publisherConnection,
     shared_ptr<SubscriberSessionI> session)
 {
+    // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
+
+    auto traceLevels = instance->getTraceLevels();
 
     bool isWellKnown = publisher->ice_getEndpoints().empty() && publisher->ice_getAdapterId().empty();
 
@@ -320,6 +371,12 @@ NodeI::createPublisherSession(
             session = createSubscriberSessionServant(publisher);
             if (!session)
             {
+                if (traceLevels->session > 2)
+                {
+                    Trace out(traceLevels->logger, traceLevels->sessionCat);
+                    out << "node '" << _proxy->ice_getIdentity()
+                        << "' is shutting down, ignoring 'createPublisherSession' request from '" << publisher << "'";
+                }
                 return; // Shutting down.
             }
             else if (session->checkSession())
@@ -331,13 +388,31 @@ NodeI::createPublisherSession(
                     //
                     // Otherwise, once the current connection is actually closed, we won't be able to reconnect.
 
+                    if (traceLevels->session > 2)
+                    {
+                        Trace out(traceLevels->logger, traceLevels->sessionCat);
+                        out << "node '" << _proxy->ice_getIdentity() << "' is discarding current session '"
+                            << session->getId() << "' because publisher '" << publisher
+                            << "' (using a well-known proxy) requested creating a session over a new connection";
+                    }
+
                     // Unlock the mutex to prevent a deadlock, as reconnect() may call createPublisherSession() again.
                     lock.unlock();
 
                     session->disconnect();
                     session->reconnect(publisher, publisherConnection);
                 }
-                // else is already connected.
+                else
+                {
+                    // The session is already connected.
+                    if (traceLevels->session > 2)
+                    {
+                        Trace out(traceLevels->logger, traceLevels->sessionCat);
+                        out << "node '" << _proxy->ice_getIdentity()
+                            << "' is ignoring 'createPublisherSession' request from '" << publisher
+                            << "' because session '" << session->getId() << "' is already connected";
+                    }
+                }
                 return;
             }
         }
@@ -437,8 +512,11 @@ shared_ptr<SubscriberSessionI>
 NodeI::createSubscriberSessionServant(const NodePrx& node)
 {
     // Called with mutex locked
+
+    // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
+
     auto p = _subscribers.find(node->ice_getIdentity());
     if (p != _subscribers.end())
     {
@@ -473,8 +551,11 @@ shared_ptr<PublisherSessionI>
 NodeI::createPublisherSessionServant(const NodePrx& node)
 {
     // Called with mutex locked
+
+    // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
+
     auto p = _publishers.find(node->ice_getIdentity());
     if (p != _publishers.end())
     {
