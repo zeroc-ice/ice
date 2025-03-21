@@ -451,10 +451,10 @@ namespace
     enum OpDocParamType
     {
         OpDocInParams,
-        OpDocOutParams,
         OpDocAllParams
     };
 
+    // For all parameters or only in parameters.
     void writeOpDocParams(
         Output& out,
         const OperationPtr& op,
@@ -469,9 +469,6 @@ namespace
         {
             case OpDocInParams:
                 params = op->inParameters();
-                break;
-            case OpDocOutParams:
-                params = op->outParameters();
                 break;
             case OpDocAllParams:
                 params = op->parameters();
@@ -504,6 +501,39 @@ namespace
         {
             writeDocLines(out, postParams, true);
         }
+    }
+
+    // Only return + out parameters as a markdown list.
+    StringList createOpOutParamsDoc(const OperationPtr& op, const DocComment& doc)
+    {
+        ParameterList outParams = op->outParameters();
+        StringList result = doc.returns();
+
+        if (!result.empty())
+        {
+            if (outParams.empty())
+            {
+                result.front().insert(0, "- ");
+            }
+            else
+            {
+                result.front().insert(0, "- `returnValue` ");
+            }
+        }
+
+        map<string, StringList> paramDoc = doc.parameters();
+        for (const auto& param : outParams)
+        {
+            auto q = paramDoc.find(param->name());
+            if (q != paramDoc.end()) // it's documented
+            {
+                auto outParamDoc = q->second;
+                outParamDoc.front().insert(0, "- `" + param->mappedName() + "` ");
+                result.splice(result.end(), std::move(outParamDoc));
+            }
+        }
+
+        return result;
     }
 
     void writeOpDocExceptions(Output& out, const OperationPtr& op, const DocComment& doc)
@@ -573,7 +603,6 @@ namespace
                 out << nl << "/// @deprecated";
             }
         }
-        // we don't generate the @deprecated doc-comment for servants
     }
 
     // Returns the client-side result type for an operation - can be void, a single type, or a tuple.
@@ -1739,7 +1768,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     optional<DocComment> comment = DocComment::parseFrom(p, cppLinkFormatter);
     const string contextDoc = "@param " + contextParam + " The request context.";
-    const string futureDoc = "A future holding the result of the invocation.";
 
     if (!isFirstElement(p))
     {
@@ -1811,10 +1839,21 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << sp;
     if (comment)
     {
-        StringList postParams, returns;
-        postParams.push_back(contextDoc);
-        returns.push_back(futureDoc);
-        writeOpDocSummary(H, p, *comment, OpDocInParams, false, {}, StringList{}, postParams, returns);
+        StringList postParamsDoc;
+        postParamsDoc.push_back(contextDoc);
+
+        StringList futureDoc;
+        if (futureOutParams.size() == 0)
+        {
+            futureDoc.push_back("A future that becomes available when the invocation completes.");
+        }
+        else
+        {
+            futureDoc.push_back("A future that becomes available when the invocation completes. This future holds:");
+            futureDoc.splice(futureDoc.end(), createOpOutParamsDoc(p, *comment));
+        }
+
+        writeOpDocSummary(H, p, *comment, OpDocInParams, false, {}, StringList{}, postParamsDoc, futureDoc);
     }
 
     H << nl << deprecatedAttribute << "[[nodiscard]] std::future<" << futureT << "> " << opName << "Async" << spar
@@ -1835,7 +1874,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     //
     // Lambda based asynchronous operation
     //
-
     const string responseParam = escapeParam(inParams, "response");
     const string exceptionParam = escapeParam(inParams, "exception");
     const string sentParam = escapeParam(inParams, "sent");
@@ -1844,11 +1882,22 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << sp;
     if (comment)
     {
-        StringList postParams, returns;
-        postParams.push_back("@param " + responseParam + " The response callback.");
+        StringList postParams;
+        if (lambdaOutParams.size() > 0)
+        {
+            postParams.push_back("@param " + responseParam + " The response callback. It accepts:");
+            postParams.splice(postParams.end(), createOpOutParamsDoc(p, *comment));
+        }
+        else
+        {
+            postParams.push_back("@param " + responseParam + " The response callback.");
+        }
+
         postParams.push_back("@param " + exceptionParam + " The exception callback.");
         postParams.push_back("@param " + sentParam + " The sent callback.");
         postParams.push_back(contextDoc);
+
+        StringList returns;
         returns.emplace_back("A function that can be called to cancel the invocation locally.");
         writeOpDocSummary(H, p, *comment, OpDocInParams, false, {}, StringList{}, postParams, returns);
     }

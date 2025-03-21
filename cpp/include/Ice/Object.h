@@ -30,18 +30,18 @@ namespace Ice
 
         /// Dispatches an incoming request and returns the corresponding outgoing response.
         /// @param request The incoming request.
-        /// @param sendResponse A callback that the implementation calls to return the response. sendResponse does not
-        /// throw any exception and any sendResponse wrapper must not throw any exception. sendResponse can be called by
-        /// the thread that called dispatch (the "dispatch thread") or by another thread. The implementation must call
-        /// sendResponse exactly once or throw an exception.
-        /// @remark Calling sendResponse can be thought as returning the outgoing response. Just like when you return a
-        /// value from a remote operation, you can only return it once and you don't know if the client receives this
-        /// value. In practice, the Ice-provided sendResponse attempts to send the response to the client synchronously,
-        /// but may send it asynchronously. It can also silently fail to send the response back to the client.
-        /// This function is the main building block for the Ice dispatch pipeline. The implementation provided by the
-        /// base Object class dispatches incoming requests to the four Object operations (ice_isA, ice_ping, ice_ids and
-        /// ice_id), and throws OperationNotExistException for all other operations. This base implementation is trivial
-        /// and should be overridden and fully replaced by all derived classes.
+        /// @param sendResponse A callback that the implementation calls to return the response. @p sendResponse does
+        /// not throw any exception and any @p sendResponse wrapper must not throw any exception. @p sendResponse can be
+        /// called by the thread that called dispatch (the "dispatch thread") or by another thread. The implementation
+        /// must call @p sendResponse exactly once or throw an exception.
+        /// @remark Calling @p sendResponse can be thought as returning the outgoing response. Just like when you return
+        /// a value from a remote operation, you can only return it once and you don't know if the client receives this
+        /// value. In practice, the Ice-provided @p sendResponse attempts to send the response to the client
+        /// synchronously, but may send it asynchronously. It can also silently fail to send the response back to the
+        /// client. This function is the main building block for the Ice dispatch pipeline. The implementation provided
+        /// by the base Object class dispatches incoming requests to the four Object operations (ice_isA, ice_ping,
+        /// ice_ids and ice_id), and throws OperationNotExistException for all other operations. This base
+        /// implementation is trivial and should be overridden and fully replaced by all derived classes.
         virtual void dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse);
 
         /// Tests whether this object supports a specific Slice interface.
@@ -89,7 +89,6 @@ namespace Ice
     {
     public:
         /// Dispatches an incoming request.
-        ///
         /// @param inEncaps An encapsulation containing the encoded in-parameters for the operation.
         /// @param outEncaps An encapsulation containing the encoded results for the operation.
         /// @param current The Current object of the incoming request.
@@ -111,7 +110,6 @@ namespace Ice
     {
     public:
         /// Dispatches an incoming request.
-        ///
         /// @param inEncaps An encapsulation containing the encoded in-parameters for the operation.
         /// @param outEncaps An encapsulation containing the encoded results for the operation.
         /// @param current The Current object of the incoming request.
@@ -135,7 +133,6 @@ namespace Ice
     {
     public:
         /// Dispatch an incoming request asynchronously.
-        ///
         /// @param inEncaps An encapsulation containing the encoded in-parameters for the operation.
         /// @param response A callback the implementation should invoke when the invocation completes
         /// successfully or with a user exception. See the description of Blobject::ice_invoke for
@@ -161,7 +158,6 @@ namespace Ice
     {
     public:
         /// Dispatch an incoming request asynchronously.
-        ///
         /// @param inEncaps An encapsulation containing the encoded in-parameters for the operation.
         /// @param response A callback the implementation should invoke when the invocation completes
         /// successfully or with a user exception. See the description of Blobject::ice_invoke for
