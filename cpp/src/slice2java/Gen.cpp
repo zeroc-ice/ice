@@ -111,7 +111,6 @@ namespace
             }
             else
             {
-                // TODO: Revisit this code
                 string sourceScope = JavaGenerator::getPackage(source);
 
                 if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
