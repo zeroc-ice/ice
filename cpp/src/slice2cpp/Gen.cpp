@@ -3147,7 +3147,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         H.dec();
         H << nl << "public:";
         H.inc();
-        H << nl << "/// Marshals the results immediately.";
+        H << nl << "/// Marshals the result immediately.";
         if (ret && comment && !comment->returns().empty())
         {
             H << nl << "/// @param " << returnValueParam << " " << getDocSentence(comment->returns());
@@ -3196,14 +3196,22 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         StringList returns;
         if (amd)
         {
-            if (ret || !outParams.empty())
+            if (p->hasMarshaledResult())
             {
-                postParams.push_back("@param " + responsecbParam + " The response callback. It accepts:");
-                postParams.splice(postParams.end(), createOpOutParamsDoc(p, *comment));
+                postParams.push_back(
+                    "@param " + responsecbParam + " The response callback. It accepts a marshaled result.");
             }
             else
             {
-                postParams.push_back("@param " + responsecbParam + " The response callback.");
+                if (ret || !outParams.empty())
+                {
+                    postParams.push_back("@param " + responsecbParam + " The response callback. It accepts:");
+                    postParams.splice(postParams.end(), createOpOutParamsDoc(p, *comment));
+                }
+                else
+                {
+                    postParams.push_back("@param " + responsecbParam + " The response callback.");
+                }
             }
 
             postParams.push_back("@param " + excbParam + " The exception callback.");
