@@ -43,6 +43,6 @@ public sealed class TestI : TestIntfDisp_
         current.adapter.getCommunicator().shutdown();
     }
 
-    private Process _p;
-    private int _pid;
+    private readonly Process _p;
+    private readonly int _pid;
 }

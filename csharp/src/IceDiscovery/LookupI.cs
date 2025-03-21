@@ -64,7 +64,7 @@ internal abstract class Request<T>
 
     protected abstract void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply);
 
-    private string _requestId;
+    private readonly string _requestId;
 
     protected LookupI lookup_;
     protected int retryCount_;
@@ -125,10 +125,7 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
             Ice.ObjectPrx result = null;
             foreach (Ice.ObjectPrx prx in _proxies)
             {
-                if (result == null)
-                {
-                    result = prx;
-                }
+                result ??= prx;
                 endpoints.AddRange(prx.ice_getEndpoints());
             }
             sendResponse(result.ice_endpoints(endpoints.ToArray()));
@@ -171,8 +168,8 @@ internal class AdapterRequest : Request<string>, Ice.Internal.TimerTask
     // the same proxy if it's accessible through multiple network interfaces and if we
     // also sent the request to multiple interfaces.
     //
-    private HashSet<Ice.ObjectPrx> _proxies = new HashSet<Ice.ObjectPrx>();
-    private long _start;
+    private readonly HashSet<Ice.ObjectPrx> _proxies = new HashSet<Ice.ObjectPrx>();
+    private readonly long _start;
     private long _latency;
 }
 
@@ -543,18 +540,20 @@ internal class LookupI : LookupDisp_
         return _latencyMultiplier;
     }
 
-    private LocatorRegistryI _registry;
+    private readonly LocatorRegistryI _registry;
     private LookupPrx _lookup;
-    private Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
+    private readonly Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
     private readonly int _timeout;
     private readonly int _retryCount;
     private readonly int _latencyMultiplier;
     private readonly string _domainId;
 
-    private Ice.Internal.Timer _timer;
+    private readonly Ice.Internal.Timer _timer;
     private bool _warnOnce = true;
-    private Dictionary<Ice.Identity, ObjectRequest> _objectRequests = new Dictionary<Ice.Identity, ObjectRequest>();
-    private Dictionary<string, AdapterRequest> _adapterRequests = new Dictionary<string, AdapterRequest>();
+    private readonly Dictionary<Ice.Identity, ObjectRequest> _objectRequests =
+        new Dictionary<Ice.Identity, ObjectRequest>();
+
+    private readonly Dictionary<string, AdapterRequest> _adapterRequests = new Dictionary<string, AdapterRequest>();
     private readonly object _mutex = new();
 }
 
@@ -575,5 +574,5 @@ internal class LookupReplyI : LookupReplyDisp_
         _lookup.foundAdapter(adapterId, c.id.name, proxy, isReplicaGroup);
     }
 
-    private LookupI _lookup;
+    private readonly LookupI _lookup;
 }

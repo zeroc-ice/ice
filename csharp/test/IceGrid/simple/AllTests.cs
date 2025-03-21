@@ -9,7 +9,7 @@ public class AllTests : Test.AllTests
         Ice.Communicator communicator = helper.communicator();
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
-        String rf = "test @ TestAdapter";
+        string rf = "test @ TestAdapter";
         Ice.ObjectPrx @base = communicator.stringToProxy(rf);
         test(@base != null);
         Console.Out.WriteLine("ok");

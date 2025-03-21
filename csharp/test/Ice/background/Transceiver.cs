@@ -249,10 +249,10 @@ internal class Transceiver : Ice.Internal.Transceiver
         _buffered = _configuration.buffered();
     }
 
-    private Ice.Internal.Transceiver _transceiver;
-    private Configuration _configuration;
+    private readonly Ice.Internal.Transceiver _transceiver;
+    private readonly Configuration _configuration;
     private bool _initialized;
-    private Ice.Internal.Buffer _readBuffer;
+    private readonly Ice.Internal.Buffer _readBuffer;
     private int _readBufferPos;
-    private bool _buffered;
+    private readonly bool _buffered;
 }

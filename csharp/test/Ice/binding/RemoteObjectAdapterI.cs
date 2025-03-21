@@ -24,6 +24,6 @@ public class RemoteObjectAdapterI : Test.RemoteObjectAdapterDisp_
         _adapter.destroy();
     }
 
-    private Ice.ObjectAdapter _adapter;
+    private readonly Ice.ObjectAdapter _adapter;
     private Test.TestIntfPrx _testIntf;
 }

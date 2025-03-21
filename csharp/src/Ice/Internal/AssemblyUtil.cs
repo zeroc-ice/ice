@@ -49,10 +49,7 @@ public static class AssemblyUtil
         {
             if (!_loadedAssemblies.Contains(a.FullName))
             {
-                if (newAssemblies == null)
-                {
-                    newAssemblies = new List<Assembly>();
-                }
+                newAssemblies ??= new List<Assembly>();
                 newAssemblies.Add(a);
                 _loadedAssemblies[a.FullName] = a;
             }

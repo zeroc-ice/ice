@@ -137,8 +137,8 @@ internal sealed class FileLoggerI : LoggerI
         _writer = new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
     }
 
-    private string _file;
-    private TextWriter _writer;
+    private readonly string _file;
+    private readonly TextWriter _writer;
 }
 
 internal class ConsoleListener : TraceListener
@@ -242,6 +242,6 @@ internal sealed class TraceLoggerI : LoggerI
         return s.ToString();
     }
 
-    private bool _console;
+    private readonly bool _console;
     internal static ConsoleListener _consoleListener = new ConsoleListener();
 }

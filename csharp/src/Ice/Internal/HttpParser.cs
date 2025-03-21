@@ -698,8 +698,8 @@ internal sealed class HttpParser
     private StringBuilder _method = new StringBuilder();
     private StringBuilder _uri = new StringBuilder();
 
-    private Dictionary<string, string> _headers = new Dictionary<string, string>();
-    private Dictionary<string, string> _headerNames = new Dictionary<string, string>();
+    private readonly Dictionary<string, string> _headers = new Dictionary<string, string>();
+    private readonly Dictionary<string, string> _headerNames = new Dictionary<string, string>();
     private string _headerName = "";
 
     private int _versionMajor;

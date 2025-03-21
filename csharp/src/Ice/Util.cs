@@ -527,6 +527,6 @@ public sealed class Util
     public static readonly EncodingVersion Encoding_1_0 = new EncodingVersion(1, 0);
     public static readonly EncodingVersion Encoding_1_1 = new EncodingVersion(1, 1);
 
-    private static object _processLoggerMutex = new object();
+    private static readonly object _processLoggerMutex = new object();
     private static Logger? _processLogger;
 }

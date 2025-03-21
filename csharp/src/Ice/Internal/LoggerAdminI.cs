@@ -185,10 +185,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to
         // remote loggers
         //
-        if (sendLogCommunicator != null)
-        {
-            sendLogCommunicator.destroy();
-        }
+        sendLogCommunicator?.destroy();
     }
 
     internal List<Ice.RemoteLoggerPrx> log(Ice.LogMessage logMessage)
@@ -228,10 +225,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                     {
                         Debug.Assert(_logCount < _maxLogCount);
                         _logCount++;
-                        if (_oldestLog == null)
-                        {
-                            _oldestLog = _queue.Last;
-                        }
+                        _oldestLog ??= _queue.Last;
                     }
                 }
                 else
@@ -257,10 +251,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                     {
                         Debug.Assert(_traceCount < _maxTraceCount);
                         _traceCount++;
-                        if (_oldestTrace == null)
-                        {
-                            _oldestTrace = _queue.Last;
-                        }
+                        _oldestTrace ??= _queue.Last;
                     }
                 }
             }
@@ -277,10 +268,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
                     if (logMessage.type != Ice.LogMessageType.TraceMessage || filters.traceCategories.Count == 0 ||
                        filters.traceCategories.Contains(logMessage.traceCategory))
                     {
-                        if (remoteLoggers == null)
-                        {
-                            remoteLoggers = new List<Ice.RemoteLoggerPrx>();
-                        }
+                        remoteLoggers ??= new List<Ice.RemoteLoggerPrx>();
                         remoteLoggers.Add(p.remoteLogger);
                     }
                 }

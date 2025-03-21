@@ -19,5 +19,5 @@ public sealed class GI : Test.GDisp_
         _communicator.shutdown();
     }
 
-    private Ice.Communicator _communicator;
+    private readonly Ice.Communicator _communicator;
 }

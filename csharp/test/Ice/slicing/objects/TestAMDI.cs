@@ -272,7 +272,7 @@ public sealed class TestI : TestIntfDisp_
             string s = "D1." + (i * 20).ToString();
             var d1 = new D1();
             d1.sb = s;
-            d1.pb = (i == 0 ? null : r[(i - 1) * 20]);
+            d1.pb = i == 0 ? null : r[(i - 1) * 20];
             d1.sd1 = s;
             d1.pd1 = d1;
             r[i * 20] = d1;

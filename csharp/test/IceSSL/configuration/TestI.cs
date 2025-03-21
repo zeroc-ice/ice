@@ -62,7 +62,7 @@ internal sealed class ServerI : ServerDisp_
 
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
-    private Ice.Communicator _communicator;
+    private readonly Ice.Communicator _communicator;
 }
 
 internal sealed class ServerFactoryI : ServerFactoryDisp_
@@ -110,6 +110,6 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
         current.adapter.getCommunicator().shutdown();
     }
 
-    private string _defaultDir;
-    private Hashtable _servers = new Hashtable();
+    private readonly string _defaultDir;
+    private readonly Hashtable _servers = new Hashtable();
 }

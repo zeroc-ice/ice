@@ -1256,7 +1256,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     public RouterPrx? ice_getRouter()
     {
         RouterInfo ri = _reference.getRouterInfo();
-        return ri != null ? ri.getRouter() : null;
+        return ri?.getRouter();
     }
 
     /// <summary>
@@ -1283,7 +1283,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     public LocatorPrx? ice_getLocator()
     {
         var li = _reference.getLocatorInfo();
-        return li != null ? li.getLocator() : null;
+        return li?.getLocator();
     }
 
     /// <summary>

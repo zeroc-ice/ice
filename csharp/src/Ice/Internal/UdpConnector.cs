@@ -91,9 +91,9 @@ internal sealed class UdpConnector : Connector
     }
 
     private readonly ProtocolInstance _instance;
-    private EndPoint _addr;
-    private EndPoint _sourceAddr;
-    private string _mcastInterface;
-    private int _mcastTtl;
-    private string _connectionId;
+    private readonly EndPoint _addr;
+    private readonly EndPoint _sourceAddr;
+    private readonly string _mcastInterface;
+    private readonly int _mcastTtl;
+    private readonly string _connectionId;
 }

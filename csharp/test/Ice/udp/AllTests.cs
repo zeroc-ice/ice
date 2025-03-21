@@ -97,7 +97,7 @@ public class AllTests : global::Test.AllTests
                 seq = new byte[1024];
                 while (true)
                 {
-                    seq = new byte[seq.Length * 2 + 10];
+                    seq = new byte[(seq.Length * 2) + 10];
                     replyI.reset();
 
                     obj.sendByteSeq(seq, reply);

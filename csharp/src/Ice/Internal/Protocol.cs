@@ -38,7 +38,7 @@ public sealed class Protocol
 
     public const byte FLAG_HAS_TYPE_ID_STRING = 1 << 0;
     public const byte FLAG_HAS_TYPE_ID_INDEX = 1 << 1;
-    public const byte FLAG_HAS_TYPE_ID_COMPACT = 1 << 1 | 1 << 0;
+    public const byte FLAG_HAS_TYPE_ID_COMPACT = (1 << 1) | (1 << 0);
     public const byte FLAG_HAS_OPTIONAL_MEMBERS = 1 << 2;
     public const byte FLAG_HAS_INDIRECTION_TABLE = 1 << 3;
     public const byte FLAG_HAS_SLICE_SIZE = 1 << 4;

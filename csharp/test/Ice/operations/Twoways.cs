@@ -169,17 +169,17 @@ internal class Twoways
             test(l == 12);
             test(r == 12L);
 
-            r = p.opShortIntLong(Int16.MinValue, Int32.MinValue, Int64.MinValue, out s, out i, out l);
-            test(s == Int16.MinValue);
-            test(i == Int32.MinValue);
-            test(l == Int64.MinValue);
-            test(r == Int64.MinValue);
+            r = p.opShortIntLong(short.MinValue, int.MinValue, long.MinValue, out s, out i, out l);
+            test(s == short.MinValue);
+            test(i == int.MinValue);
+            test(l == long.MinValue);
+            test(r == long.MinValue);
 
-            r = p.opShortIntLong(Int16.MaxValue, Int32.MaxValue, Int64.MaxValue, out s, out i, out l);
-            test(s == Int16.MaxValue);
-            test(i == Int32.MaxValue);
-            test(l == Int64.MaxValue);
-            test(r == Int64.MaxValue);
+            r = p.opShortIntLong(short.MaxValue, int.MaxValue, long.MaxValue, out s, out i, out l);
+            test(s == short.MaxValue);
+            test(i == int.MaxValue);
+            test(l == long.MaxValue);
+            test(r == long.MaxValue);
         }
 
         {
@@ -192,15 +192,15 @@ internal class Twoways
             test(d == 1.1e10);
             test(r == 1.1e10);
 
-            r = p.opFloatDouble(Single.Epsilon, Double.MinValue, out f, out d);
-            test(f == Single.Epsilon);
-            test(d == Double.MinValue);
-            test(r == Double.MinValue);
+            r = p.opFloatDouble(float.Epsilon, double.MinValue, out f, out d);
+            test(f == float.Epsilon);
+            test(d == double.MinValue);
+            test(r == double.MinValue);
 
-            r = p.opFloatDouble(Single.MaxValue, Double.MaxValue, out f, out d);
-            test(f == Single.MaxValue);
-            test(d == Double.MaxValue);
-            test(r == Double.MaxValue);
+            r = p.opFloatDouble(float.MaxValue, double.MaxValue, out f, out d);
+            test(f == float.MaxValue);
+            test(d == double.MaxValue);
+            test(r == double.MaxValue);
         }
 
         {
@@ -641,13 +641,17 @@ internal class Twoways
         }
 
         {
-            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
-            di1[10] = true;
-            di1[100] = false;
-            Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
-            di2[10] = true;
-            di2[11] = false;
-            di2[101] = true;
+            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>
+            {
+                [10] = true,
+                [100] = false
+            };
+            Dictionary<byte, bool> di2 = new Dictionary<byte, bool>
+            {
+                [10] = true,
+                [11] = false,
+                [101] = true
+            };
 
             Dictionary<byte, bool> _do;
             Dictionary<byte, bool> ro = p.opByteBoolD(di1, di2, out _do);
@@ -661,13 +665,17 @@ internal class Twoways
         }
 
         {
-            Dictionary<short, int> di1 = new Dictionary<short, int>();
-            di1[110] = -1;
-            di1[1100] = 123123;
-            Dictionary<short, int> di2 = new Dictionary<short, int>();
-            di2[110] = -1;
-            di2[111] = -100;
-            di2[1101] = 0;
+            Dictionary<short, int> di1 = new Dictionary<short, int>
+            {
+                [110] = -1,
+                [1100] = 123123
+            };
+            Dictionary<short, int> di2 = new Dictionary<short, int>
+            {
+                [110] = -1,
+                [111] = -100,
+                [1101] = 0
+            };
 
             Dictionary<short, int> _do;
             Dictionary<short, int> ro = p.opShortIntD(di1, di2, out _do);
@@ -681,13 +689,17 @@ internal class Twoways
         }
 
         {
-            Dictionary<long, float> di1 = new Dictionary<long, float>();
-            di1[999999110L] = -1.1f;
-            di1[999999111L] = 123123.2f;
-            Dictionary<long, float> di2 = new Dictionary<long, float>();
-            di2[999999110L] = -1.1f;
-            di2[999999120L] = -100.4f;
-            di2[999999130L] = 0.5f;
+            Dictionary<long, float> di1 = new Dictionary<long, float>
+            {
+                [999999110L] = -1.1f,
+                [999999111L] = 123123.2f
+            };
+            Dictionary<long, float> di2 = new Dictionary<long, float>
+            {
+                [999999110L] = -1.1f,
+                [999999120L] = -100.4f,
+                [999999130L] = 0.5f
+            };
 
             Dictionary<long, float> _do;
             Dictionary<long, float> ro = p.opLongFloatD(di1, di2, out _do);
@@ -701,13 +713,17 @@ internal class Twoways
         }
 
         {
-            Dictionary<string, string> di1 = new Dictionary<string, string>();
-            di1["foo"] = "abc -1.1";
-            di1["bar"] = "abc 123123.2";
-            Dictionary<string, string> di2 = new Dictionary<string, string>();
-            di2["foo"] = "abc -1.1";
-            di2["FOO"] = "abc -100.4";
-            di2["BAR"] = "abc 0.5";
+            Dictionary<string, string> di1 = new Dictionary<string, string>
+            {
+                ["foo"] = "abc -1.1",
+                ["bar"] = "abc 123123.2"
+            };
+            Dictionary<string, string> di2 = new Dictionary<string, string>
+            {
+                ["foo"] = "abc -1.1",
+                ["FOO"] = "abc -100.4",
+                ["BAR"] = "abc 0.5"
+            };
 
             Dictionary<string, string> _do;
             Dictionary<string, string> ro = p.opStringStringD(di1, di2, out _do);
@@ -721,13 +737,17 @@ internal class Twoways
         }
 
         {
-            var di1 = new Dictionary<string, Test.MyEnum>();
-            di1["abc"] = Test.MyEnum.enum1;
-            di1[""] = Test.MyEnum.enum2;
-            var di2 = new Dictionary<string, Test.MyEnum>();
-            di2["abc"] = Test.MyEnum.enum1;
-            di2["qwerty"] = Test.MyEnum.enum3;
-            di2["Hello!!"] = Test.MyEnum.enum2;
+            var di1 = new Dictionary<string, Test.MyEnum>
+            {
+                ["abc"] = Test.MyEnum.enum1,
+                [""] = Test.MyEnum.enum2
+            };
+            var di2 = new Dictionary<string, Test.MyEnum>
+            {
+                ["abc"] = Test.MyEnum.enum1,
+                ["qwerty"] = Test.MyEnum.enum3,
+                ["Hello!!"] = Test.MyEnum.enum2
+            };
 
             Dictionary<string, Test.MyEnum> _do;
             Dictionary<string, Test.MyEnum> ro = p.opStringMyEnumD(di1, di2, out _do);
@@ -741,11 +761,15 @@ internal class Twoways
         }
 
         {
-            var di1 = new Dictionary<Test.MyEnum, string>();
-            di1[Test.MyEnum.enum1] = "abc";
-            var di2 = new Dictionary<Test.MyEnum, string>();
-            di2[Test.MyEnum.enum2] = "Hello!!";
-            di2[Test.MyEnum.enum3] = "qwerty";
+            var di1 = new Dictionary<Test.MyEnum, string>
+            {
+                [Test.MyEnum.enum1] = "abc"
+            };
+            var di2 = new Dictionary<Test.MyEnum, string>
+            {
+                [Test.MyEnum.enum2] = "Hello!!",
+                [Test.MyEnum.enum3] = "qwerty"
+            };
 
             Dictionary<Test.MyEnum, string> _do;
             var ro = p.opMyEnumStringD(di1, di2, out _do);
@@ -760,16 +784,20 @@ internal class Twoways
         {
             var s11 = new Test.MyStruct(1, 1);
             var s12 = new Test.MyStruct(1, 2);
-            var di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-            di1[s11] = Test.MyEnum.enum1;
-            di1[s12] = Test.MyEnum.enum2;
+            var di1 = new Dictionary<Test.MyStruct, Test.MyEnum>
+            {
+                [s11] = Test.MyEnum.enum1,
+                [s12] = Test.MyEnum.enum2
+            };
 
             var s22 = new Test.MyStruct(2, 2);
             var s23 = new Test.MyStruct(2, 3);
-            var di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-            di2[s11] = Test.MyEnum.enum1;
-            di2[s22] = Test.MyEnum.enum3;
-            di2[s23] = Test.MyEnum.enum2;
+            var di2 = new Dictionary<Test.MyStruct, Test.MyEnum>
+            {
+                [s11] = Test.MyEnum.enum1,
+                [s22] = Test.MyEnum.enum3,
+                [s23] = Test.MyEnum.enum2
+            };
 
             Dictionary<Test.MyStruct, Test.MyEnum> _do;
             Dictionary<Test.MyStruct, Test.MyEnum> ro = p.opMyStructMyEnumD(di1, di2, out _do);
@@ -786,16 +814,22 @@ internal class Twoways
             Dictionary<byte, bool>[] dsi1 = new Dictionary<byte, bool>[2];
             Dictionary<byte, bool>[] dsi2 = new Dictionary<byte, bool>[1];
 
-            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
-            di1[10] = true;
-            di1[100] = false;
-            Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
-            di2[10] = true;
-            di2[11] = false;
-            di2[101] = true;
-            Dictionary<byte, bool> di3 = new Dictionary<byte, bool>();
-            di3[100] = false;
-            di3[101] = false;
+            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>
+            {
+                [10] = true,
+                [100] = false
+            };
+            Dictionary<byte, bool> di2 = new Dictionary<byte, bool>
+            {
+                [10] = true,
+                [11] = false,
+                [101] = true
+            };
+            Dictionary<byte, bool> di3 = new Dictionary<byte, bool>
+            {
+                [100] = false,
+                [101] = false
+            };
 
             dsi1[0] = di1;
             dsi1[1] = di2;
@@ -830,15 +864,21 @@ internal class Twoways
             Dictionary<short, int>[] dsi1 = new Dictionary<short, int>[2];
             Dictionary<short, int>[] dsi2 = new Dictionary<short, int>[1];
 
-            Dictionary<short, int> di1 = new Dictionary<short, int>();
-            di1[110] = -1;
-            di1[1100] = 123123;
-            Dictionary<short, int> di2 = new Dictionary<short, int>();
-            di2[110] = -1;
-            di2[111] = -100;
-            di2[1101] = 0;
-            Dictionary<short, int> di3 = new Dictionary<short, int>();
-            di3[100] = -1001;
+            Dictionary<short, int> di1 = new Dictionary<short, int>
+            {
+                [110] = -1,
+                [1100] = 123123
+            };
+            Dictionary<short, int> di2 = new Dictionary<short, int>
+            {
+                [110] = -1,
+                [111] = -100,
+                [1101] = 0
+            };
+            Dictionary<short, int> di3 = new Dictionary<short, int>
+            {
+                [100] = -1001
+            };
 
             dsi1[0] = di1;
             dsi1[1] = di2;
@@ -872,15 +912,21 @@ internal class Twoways
             Dictionary<long, float>[] dsi1 = new Dictionary<long, float>[2];
             Dictionary<long, float>[] dsi2 = new Dictionary<long, float>[1];
 
-            Dictionary<long, float> di1 = new Dictionary<long, float>();
-            di1[999999110L] = -1.1f;
-            di1[999999111L] = 123123.2f;
-            Dictionary<long, float> di2 = new Dictionary<long, float>();
-            di2[999999110L] = -1.1f;
-            di2[999999120L] = -100.4f;
-            di2[999999130L] = 0.5f;
-            Dictionary<long, float> di3 = new Dictionary<long, float>();
-            di3[999999140L] = 3.14f;
+            Dictionary<long, float> di1 = new Dictionary<long, float>
+            {
+                [999999110L] = -1.1f,
+                [999999111L] = 123123.2f
+            };
+            Dictionary<long, float> di2 = new Dictionary<long, float>
+            {
+                [999999110L] = -1.1f,
+                [999999120L] = -100.4f,
+                [999999130L] = 0.5f
+            };
+            Dictionary<long, float> di3 = new Dictionary<long, float>
+            {
+                [999999140L] = 3.14f
+            };
 
             dsi1[0] = di1;
             dsi1[1] = di2;
@@ -915,15 +961,21 @@ internal class Twoways
             Dictionary<string, string>[] dsi1 = new Dictionary<string, string>[2];
             Dictionary<string, string>[] dsi2 = new Dictionary<string, string>[1];
 
-            Dictionary<string, string> di1 = new Dictionary<string, string>();
-            di1["foo"] = "abc -1.1";
-            di1["bar"] = "abc 123123.2";
-            Dictionary<string, string> di2 = new Dictionary<string, string>();
-            di2["foo"] = "abc -1.1";
-            di2["FOO"] = "abc -100.4";
-            di2["BAR"] = "abc 0.5";
-            Dictionary<string, string> di3 = new Dictionary<string, string>();
-            di3["f00"] = "ABC -3.14";
+            Dictionary<string, string> di1 = new Dictionary<string, string>
+            {
+                ["foo"] = "abc -1.1",
+                ["bar"] = "abc 123123.2"
+            };
+            Dictionary<string, string> di2 = new Dictionary<string, string>
+            {
+                ["foo"] = "abc -1.1",
+                ["FOO"] = "abc -100.4",
+                ["BAR"] = "abc 0.5"
+            };
+            Dictionary<string, string> di3 = new Dictionary<string, string>
+            {
+                ["f00"] = "ABC -3.14"
+            };
 
             dsi1[0] = di1;
             dsi1[1] = di2;
@@ -957,15 +1009,21 @@ internal class Twoways
             var dsi1 = new Dictionary<string, Test.MyEnum>[2];
             var dsi2 = new Dictionary<string, Test.MyEnum>[1];
 
-            var di1 = new Dictionary<string, Test.MyEnum>();
-            di1["abc"] = Test.MyEnum.enum1;
-            di1[""] = Test.MyEnum.enum2;
-            var di2 = new Dictionary<string, Test.MyEnum>();
-            di2["abc"] = Test.MyEnum.enum1;
-            di2["qwerty"] = Test.MyEnum.enum3;
-            di2["Hello!!"] = Test.MyEnum.enum2;
-            var di3 = new Dictionary<string, Test.MyEnum>();
-            di3["Goodbye"] = Test.MyEnum.enum1;
+            var di1 = new Dictionary<string, Test.MyEnum>
+            {
+                ["abc"] = Test.MyEnum.enum1,
+                [""] = Test.MyEnum.enum2
+            };
+            var di2 = new Dictionary<string, Test.MyEnum>
+            {
+                ["abc"] = Test.MyEnum.enum1,
+                ["qwerty"] = Test.MyEnum.enum3,
+                ["Hello!!"] = Test.MyEnum.enum2
+            };
+            var di3 = new Dictionary<string, Test.MyEnum>
+            {
+                ["Goodbye"] = Test.MyEnum.enum1
+            };
 
             dsi1[0] = di1;
             dsi1[1] = di2;
@@ -999,13 +1057,19 @@ internal class Twoways
             var dsi1 = new Dictionary<Test.MyEnum, string>[2];
             var dsi2 = new Dictionary<Test.MyEnum, string>[1];
 
-            var di1 = new Dictionary<Test.MyEnum, string>();
-            di1[Test.MyEnum.enum1] = "abc";
-            var di2 = new Dictionary<Test.MyEnum, string>();
-            di2[Test.MyEnum.enum2] = "Hello!!";
-            di2[Test.MyEnum.enum3] = "qwerty";
-            var di3 = new Dictionary<Test.MyEnum, string>();
-            di3[Test.MyEnum.enum1] = "Goodbye";
+            var di1 = new Dictionary<Test.MyEnum, string>
+            {
+                [Test.MyEnum.enum1] = "abc"
+            };
+            var di2 = new Dictionary<Test.MyEnum, string>
+            {
+                [Test.MyEnum.enum2] = "Hello!!",
+                [Test.MyEnum.enum3] = "qwerty"
+            };
+            var di3 = new Dictionary<Test.MyEnum, string>
+            {
+                [Test.MyEnum.enum1] = "Goodbye"
+            };
 
             dsi1[0] = di1;
             dsi1[1] = di2;
@@ -1037,19 +1101,25 @@ internal class Twoways
 
             var s11 = new Test.MyStruct(1, 1);
             var s12 = new Test.MyStruct(1, 2);
-            var di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-            di1[s11] = Test.MyEnum.enum1;
-            di1[s12] = Test.MyEnum.enum2;
+            var di1 = new Dictionary<Test.MyStruct, Test.MyEnum>
+            {
+                [s11] = Test.MyEnum.enum1,
+                [s12] = Test.MyEnum.enum2
+            };
 
             var s22 = new Test.MyStruct(2, 2);
             var s23 = new Test.MyStruct(2, 3);
-            var di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-            di2[s11] = Test.MyEnum.enum1;
-            di2[s22] = Test.MyEnum.enum3;
-            di2[s23] = Test.MyEnum.enum2;
+            var di2 = new Dictionary<Test.MyStruct, Test.MyEnum>
+            {
+                [s11] = Test.MyEnum.enum1,
+                [s22] = Test.MyEnum.enum3,
+                [s23] = Test.MyEnum.enum2
+            };
 
-            var di3 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-            di3[s23] = Test.MyEnum.enum3;
+            var di3 = new Dictionary<Test.MyStruct, Test.MyEnum>
+            {
+                [s23] = Test.MyEnum.enum3
+            };
 
             dsi1[0] = di1;
             dsi1[1] = di2;
@@ -1387,10 +1457,12 @@ internal class Twoways
         }
 
         {
-            Dictionary<string, string> ctx = new Dictionary<string, string>();
-            ctx["one"] = "ONE";
-            ctx["two"] = "TWO";
-            ctx["three"] = "THREE";
+            Dictionary<string, string> ctx = new Dictionary<string, string>
+            {
+                ["one"] = "ONE",
+                ["two"] = "TWO",
+                ["three"] = "THREE"
+            };
             {
                 test(p.ice_getContext().Count == 0);
                 Dictionary<string, string> r = p.opContext();
@@ -1417,7 +1489,7 @@ internal class Twoways
             // Test implicit context propagation
             //
 
-            String[] impls = { "Shared", "PerThread" };
+            string[] impls = { "Shared", "PerThread" };
             for (int i = 0; i < 2; i++)
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
@@ -1426,10 +1498,12 @@ internal class Twoways
 
                 Ice.Communicator ic = helper.initialize(initData);
 
-                Dictionary<string, string> ctx = new Dictionary<string, string>();
-                ctx["one"] = "ONE";
-                ctx["two"] = "TWO";
-                ctx["three"] = "THREE";
+                Dictionary<string, string> ctx = new Dictionary<string, string>
+                {
+                    ["one"] = "ONE",
+                    ["two"] = "TWO",
+                    ["three"] = "THREE"
+                };
 
                 var p3 = Test.MyClassPrxHelper.createProxy(ic, "test:" + helper.getTestEndpoint(0));
 
@@ -1438,16 +1512,18 @@ internal class Twoways
                 test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContext(), ctx));
 
                 test(ic.getImplicitContext().containsKey("zero") == false);
-                String r = ic.getImplicitContext().put("zero", "ZERO");
+                string r = ic.getImplicitContext().put("zero", "ZERO");
                 test(r.Length == 0);
                 test(ic.getImplicitContext().get("zero") == "ZERO");
 
                 ctx = ic.getImplicitContext().getContext();
                 test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContext(), ctx));
 
-                Dictionary<string, string> prxContext = new Dictionary<string, string>();
-                prxContext["one"] = "UN";
-                prxContext["four"] = "QUATRE";
+                Dictionary<string, string> prxContext = new Dictionary<string, string>
+                {
+                    ["one"] = "UN",
+                    ["four"] = "QUATRE"
+                };
 
                 Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
                 foreach (KeyValuePair<string, string> e in ctx)
@@ -1541,8 +1617,10 @@ internal class Twoways
         {
             p.opMDict1();
 
-            Dictionary<string, string> p1 = new Dictionary<string, string>();
-            p1["test"] = "test";
+            Dictionary<string, string> p1 = new Dictionary<string, string>
+            {
+                ["test"] = "test"
+            };
             Dictionary<string, string> p2, p3;
             p3 = p.opMDict2(p1, out p2);
             test(Internal.DictionaryExtensions.DictionaryEqual(p2, p1) &&

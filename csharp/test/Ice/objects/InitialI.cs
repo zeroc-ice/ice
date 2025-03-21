@@ -190,7 +190,7 @@ public sealed class InitialI : Test.InitialDisp_
         return true;
     }
 
-    private Ice.ObjectAdapter _adapter;
+    private readonly Ice.ObjectAdapter _adapter;
     private Test.B _b1;
     private Test.B _b2;
     private Test.C _c;

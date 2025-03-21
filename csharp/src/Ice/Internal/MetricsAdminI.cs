@@ -120,10 +120,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             {
                 ++_object.failures;
                 int count;
-                if (_failures == null)
-                {
-                    _failures = new Dictionary<string, int>();
-                }
+                _failures ??= new Dictionary<string, int>();
                 if (_failures.TryGetValue(exceptionName, out count))
                 {
                     _failures[exceptionName] = count + 1;
@@ -148,10 +145,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
                     {
                         return null;
                     }
-                    if (_subMaps == null)
-                    {
-                        _subMaps = new Dictionary<string, ISubMap>();
-                    }
+                    _subMaps ??= new Dictionary<string, ISubMap>();
                     _subMaps.Add(mapName, m);
                 }
             }
@@ -222,8 +216,8 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             return _object.id;
         }
 
-        private MetricsMap<T> _map;
-        private T _object;
+        private readonly MetricsMap<T> _map;
+        private readonly T _object;
         private Dictionary<string, int> _failures;
         private Dictionary<string, ISubMap> _subMaps;
     }
@@ -494,10 +488,7 @@ public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
             return;
         }
 
-        if (_detachedQueue == null)
-        {
-            _detachedQueue = new LinkedList<Entry>();
-        }
+        _detachedQueue ??= new LinkedList<Entry>();
         Debug.Assert(_detachedQueue.Count <= _retain);
 
         // Compress the queue by removing entries which are no longer detached.
@@ -1022,7 +1013,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
         return updated;
     }
 
-    private Ice.Properties _properties;
+    private readonly Ice.Properties _properties;
 
     private readonly Ice.Logger _logger;
 
@@ -1031,6 +1022,6 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
 
     private Dictionary<string, MetricsViewI> _views = new Dictionary<string, MetricsViewI>();
 
-    private List<string> _disabledViews = new List<string>();
+    private readonly List<string> _disabledViews = new List<string>();
     private readonly object _mutex = new();
 }

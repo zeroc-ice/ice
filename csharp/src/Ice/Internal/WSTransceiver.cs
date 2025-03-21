@@ -798,11 +798,8 @@ internal sealed class WSTransceiver : Transceiver
         val = _parser.getHeader("Sec-WebSocket-Protocol", true);
         if (val != null)
         {
-            string[] protocols = Ice.UtilInternal.StringUtil.splitString(val, ",");
-            if (protocols == null)
-            {
+            string[] protocols = Ice.UtilInternal.StringUtil.splitString(val, ",") ??
                 throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
-            }
             foreach (string p in protocols)
             {
                 if (!p.Trim().Equals(_iceProtocol, StringComparison.Ordinal))
@@ -817,12 +814,8 @@ internal sealed class WSTransceiver : Transceiver
         // "A |Sec-WebSocket-Key| header field with a base64-encoded
         //  value that, when decoded, is 16 bytes in length."
         //
-        string key = _parser.getHeader("Sec-WebSocket-Key", false);
-        if (key == null)
-        {
+        string key = _parser.getHeader("Sec-WebSocket-Key", false) ??
             throw new WebSocketException("missing value for WebSocket key");
-        }
-
         byte[] decodedKey = Convert.FromBase64String(key);
         if (decodedKey.Length != 16)
         {
@@ -1622,9 +1615,9 @@ internal sealed class WSTransceiver : Transceiver
 
     private ProtocolInstance _instance;
     private Transceiver _delegate;
-    private string _host;
+    private readonly string _host;
     private string _resource;
-    private bool _incoming;
+    private readonly bool _incoming;
 
     private const int StateInitializeDelegate = 0;
     private const int StateConnected = 1;
@@ -1712,5 +1705,5 @@ internal sealed class WSTransceiver : Transceiver
     private const string _iceProtocol = "ice.zeroc.com";
     private const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-    private static UTF8Encoding _utf8 = new UTF8Encoding(false, true);
+    private static readonly UTF8Encoding _utf8 = new UTF8Encoding(false, true);
 }

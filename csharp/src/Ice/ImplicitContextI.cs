@@ -71,10 +71,7 @@ internal class SharedImplicitContext : ImplicitContextI
     {
         lock (_mutex)
         {
-            if (key == null)
-            {
-                key = "";
-            }
+            key ??= "";
 
             return _context.ContainsKey(key);
         }
@@ -84,16 +81,9 @@ internal class SharedImplicitContext : ImplicitContextI
     {
         lock (_mutex)
         {
-            if (key == null)
-            {
-                key = "";
-            }
+            key ??= "";
 
-            string val = _context[key];
-            if (val == null)
-            {
-                val = "";
-            }
+            string val = _context[key] ?? "";
             return val;
         }
     }
@@ -102,21 +92,12 @@ internal class SharedImplicitContext : ImplicitContextI
     {
         lock (_mutex)
         {
-            if (key == null)
-            {
-                key = "";
-            }
-            if (value == null)
-            {
-                value = "";
-            }
+            key ??= "";
+            value ??= "";
 
             string oldVal;
             _context.TryGetValue(key, out oldVal);
-            if (oldVal == null)
-            {
-                oldVal = "";
-            }
+            oldVal ??= "";
             _context[key] = value;
 
             return oldVal;
@@ -127,10 +108,7 @@ internal class SharedImplicitContext : ImplicitContextI
     {
         lock (_mutex)
         {
-            if (key == null)
-            {
-                key = "";
-            }
+            key ??= "";
 
             string val = _context[key];
 
@@ -205,10 +183,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
             }
         }
 
-        if (threadContext == null)
-        {
-            threadContext = new Dictionary<string, string>();
-        }
+        threadContext ??= new Dictionary<string, string>();
         return threadContext;
     }
 
@@ -234,10 +209,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
 
     public override bool containsKey(string key)
     {
-        if (key == null)
-        {
-            key = "";
-        }
+        key ??= "";
 
         Dictionary<string, string> threadContext = null;
         lock (_mutex)
@@ -253,10 +225,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
 
     public override string get(string key)
     {
-        if (key == null)
-        {
-            key = "";
-        }
+        key ??= "";
 
         Dictionary<string, string> threadContext = null;
         lock (_mutex)
@@ -267,24 +236,14 @@ internal class PerThreadImplicitContext : ImplicitContextI
             }
         }
 
-        string val = threadContext[key];
-        if (val == null)
-        {
-            val = "";
-        }
+        string val = threadContext[key] ?? "";
         return val;
     }
 
     public override string put(string key, string value)
     {
-        if (key == null)
-        {
-            key = "";
-        }
-        if (value == null)
-        {
-            value = "";
-        }
+        key ??= "";
+        value ??= "";
 
         Dictionary<string, string> threadContext = null;
         lock (_mutex)
@@ -308,10 +267,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
 
     public override string remove(string key)
     {
-        if (key == null)
-        {
-            key = "";
-        }
+        key ??= "";
 
         Dictionary<string, string> threadContext = null;
         lock (_mutex)
@@ -390,6 +346,6 @@ internal class PerThreadImplicitContext : ImplicitContextI
     //
     //  map Thread -> Context
     //
-    private Dictionary<Thread, Dictionary<string, string>> _map = new();
+    private readonly Dictionary<Thread, Dictionary<string, string>> _map = new();
     private readonly object _mutex = new();
 }

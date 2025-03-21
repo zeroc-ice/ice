@@ -16,8 +16,10 @@ public class Client : TestHelper
         S1 def_s = new S1("name");
         string[] def_ss = new string[] { "one", "two", "three" };
         var def_il = new List<int> { 1, 2, 3 };
-        Dictionary<string, string> def_sd = new Dictionary<string, string>();
-        def_sd.Add("abc", "def");
+        Dictionary<string, string> def_sd = new Dictionary<string, string>
+        {
+            { "abc", "def" }
+        };
         Ice.ObjectPrx def_prx = communicator.stringToProxy("test");
         S2 def_s2 = new S2(true, (byte)98, (short)99, 100, 101, (float)1.0, 2.0, "string", def_ss, def_il, def_sd,
                            def_s, def_cls, def_prx);

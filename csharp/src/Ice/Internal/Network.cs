@@ -729,19 +729,13 @@ internal sealed class Network
             s.Append("local address = " + localAddrToString(getLocalAddress(socket)));
             if (proxy != null)
             {
-                if (remote == null)
-                {
-                    remote = proxy.getAddress();
-                }
+                remote ??= proxy.getAddress();
                 s.Append("\n" + proxy.getName() + " proxy address = " + remoteAddrToString(remote));
                 s.Append("\nremote address = " + remoteAddrToString(target));
             }
             else
             {
-                if (remote == null)
-                {
-                    remote = target;
-                }
+                remote ??= target;
                 s.Append("\nremote address = " + remoteAddrToString(remote));
             }
             return s.ToString();

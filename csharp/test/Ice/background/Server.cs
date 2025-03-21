@@ -37,7 +37,7 @@ public class Server : Test.TestHelper
             _controller = controller;
         }
 
-        private BackgroundControllerI _controller;
+        private readonly BackgroundControllerI _controller;
     }
 
     internal class RouterI : Ice.RouterDisp_
@@ -65,7 +65,7 @@ public class Server : Test.TestHelper
             _controller = controller;
         }
 
-        private BackgroundControllerI _controller;
+        private readonly BackgroundControllerI _controller;
     }
 
     public override void run(string[] args)
