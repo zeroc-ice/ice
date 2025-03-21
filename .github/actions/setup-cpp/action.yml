@@ -17,6 +17,7 @@ runs:
             libbluetooth-dev libdbus-1-dev \
             gdb
 
+    # This is needed for GDB to work on Linux runners
     - name: Disable ptrace protection on Linux
       if: runner.os == 'Linux'
       shell: bash
