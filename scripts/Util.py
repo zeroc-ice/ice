@@ -1287,7 +1287,7 @@ class Process(Runnable):
 
     def run(self, current, args=[], props={}, exitstatus=0, timeout=None):
         class WatchDog:
-            def __init__(self, timeout):
+            def __init__(self):
                 self.lastProgressTime = time.time()
                 self.lock = threading.Lock()
 
@@ -1295,18 +1295,22 @@ class Process(Runnable):
                 with self.lock:
                     self.lastProgressTime = time.time()
 
-            def timedOut(self, timeout):
+            def timedOut(self, timeout: int):
                 with self.lock:
                     return (time.time() - self.lastProgressTime) >= timeout
 
-        watchDog = WatchDog(timeout)
+        watchDog = WatchDog()
         self.start(current, args, props, watchDog=watchDog)
         process = current.processes[self]
 
         if timeout is None:
-            # If it's not a local process use a large timeout as the watch dog might not
-            # get invoked (TODO: improve remote processes to use the watch dog)
-            timeout = 60 if isinstance(process, Expect.Expect) else 480
+            if os.getenv("CI"):
+                # If we're running in CI always use a large timeout
+                timeout = 600
+            else:
+                # If it's not a local process use a large timeout as the watch dog might not
+                # get invoked (TODO: improve remote processes to use the watch dog)
+                timeout = 60 if isinstance(process, Expect.Expect) else 480
 
         if not self.quiet and not current.driver.isWorkerThread():
             # Print out the process output to stdout if we're running the client form the main thread.
