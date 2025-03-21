@@ -46,7 +46,7 @@ public sealed class ControllerI : Test.ControllerDisp_
         current.adapter.getCommunicator().shutdown();
     }
 
-    private Dictionary<string, Ice.ObjectAdapter> _adapters = new Dictionary<string, Ice.ObjectAdapter>();
+    private readonly Dictionary<string, Ice.ObjectAdapter> _adapters = new Dictionary<string, Ice.ObjectAdapter>();
 }
 
 public sealed class TestIntfI : Test.TestIntfDisp_

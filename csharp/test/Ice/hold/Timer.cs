@@ -107,8 +107,8 @@ public class Timer
     {
         return _sw.ElapsedMilliseconds;
     }
-    private Stopwatch _sw = Stopwatch.StartNew();
+    private readonly Stopwatch _sw = Stopwatch.StartNew();
 
-    private Thread _t;
-    private List<Entry> _tasks = new List<Entry>();
+    private readonly Thread _t;
+    private readonly List<Entry> _tasks = new List<Entry>();
 }

@@ -536,8 +536,10 @@ public class AllTests : global::Test.AllTests
             myClassArray[i].seq8 = new string[] { "string1", "string2", "string3", "string4" };
             myClassArray[i].seq9 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum2, Test.MyEnum.enum1 };
             myClassArray[i].seq10 = new Test.MyClass[4]; // null elements.
-            myClassArray[i].d = new Dictionary<string, Test.MyClass>();
-            myClassArray[i].d["hi"] = myClassArray[i];
+            myClassArray[i].d = new Dictionary<string, Test.MyClass>
+            {
+                ["hi"] = myClassArray[i]
+            };
         }
 
         {
@@ -644,8 +646,10 @@ public class AllTests : global::Test.AllTests
             c.seq8 = new string[] { "string1", "string2", "string3", "string4" };
             c.seq9 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum2, Test.MyEnum.enum1 };
             c.seq10 = new Test.MyClass[4]; // null elements.
-            c.d = new Dictionary<string, Test.MyClass>();
-            c.d.Add("hi", c);
+            c.d = new Dictionary<string, Test.MyClass>
+            {
+                { "hi", c }
+            };
 
             ex.c = c;
 
@@ -678,9 +682,11 @@ public class AllTests : global::Test.AllTests
         }
 
         {
-            var dict = new Dictionary<byte, bool>();
-            dict.Add(4, true);
-            dict.Add(1, false);
+            var dict = new Dictionary<byte, bool>
+            {
+                { 4, true },
+                { 1, false }
+            };
             outS = new Ice.OutputStream(communicator);
             Test.ByteBoolDHelper.write(outS, dict);
             var data = outS.finished();
@@ -690,9 +696,11 @@ public class AllTests : global::Test.AllTests
         }
 
         {
-            var dict = new Dictionary<short, int>();
-            dict.Add(1, 9);
-            dict.Add(4, 8);
+            var dict = new Dictionary<short, int>
+            {
+                { 1, 9 },
+                { 4, 8 }
+            };
             outS = new Ice.OutputStream(communicator);
             Test.ShortIntDHelper.write(outS, dict);
             var data = outS.finished();
@@ -702,9 +710,11 @@ public class AllTests : global::Test.AllTests
         }
 
         {
-            var dict = new Dictionary<long, float>();
-            dict.Add(123809828, 0.51f);
-            dict.Add(123809829, 0.56f);
+            var dict = new Dictionary<long, float>
+            {
+                { 123809828, 0.51f },
+                { 123809829, 0.56f }
+            };
             outS = new Ice.OutputStream(communicator);
             Test.LongFloatDHelper.write(outS, dict);
             var data = outS.finished();
@@ -714,9 +724,11 @@ public class AllTests : global::Test.AllTests
         }
 
         {
-            var dict = new Dictionary<string, string>();
-            dict.Add("key1", "value1");
-            dict.Add("key2", "value2");
+            var dict = new Dictionary<string, string>
+            {
+                { "key1", "value1" },
+                { "key2", "value2" }
+            };
             outS = new Ice.OutputStream(communicator);
             Test.StringStringDHelper.write(outS, dict);
             var data = outS.finished();
@@ -999,9 +1011,11 @@ public class AllTests : global::Test.AllTests
         }
 
         {
-            var dict = new SortedDictionary<string, string>();
-            dict.Add("key1", "value1");
-            dict.Add("key2", "value2");
+            var dict = new SortedDictionary<string, string>
+            {
+                { "key1", "value1" },
+                { "key2", "value2" }
+            };
             outS = new Ice.OutputStream(communicator);
             Test.SortedStringStringDHelper.write(outS, dict);
             var data = outS.finished();

@@ -180,9 +180,9 @@ public class TestI : Test.TestIntfDisp_
                 v.SetResult(null);
                 return v.Task;
             }
-            else if (_pending != null)
+            else
             {
-                _pending.SetResult(null);
+                _pending?.SetResult(null);
             }
             _pending = new TaskCompletionSource<object>();
             return _pending.Task;
@@ -241,5 +241,5 @@ public class TestControllerI : Test.TestIntfControllerDisp_
         _adapter = adapter;
     }
 
-    private Ice.ObjectAdapter _adapter;
+    private readonly Ice.ObjectAdapter _adapter;
 }

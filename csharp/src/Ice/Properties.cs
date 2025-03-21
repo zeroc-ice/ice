@@ -341,7 +341,8 @@ public sealed class Properties
                     $"Unable to set '{key}': property prefix '{propertyArray.name}' is opt-in and must be explicitly enabled");
             }
 
-            Property prop = findProperty(key[(propertyArray.name.Length + 1)..], propertyArray) ?? throw new PropertyException($"unknown Ice property: {key}");
+            Property prop = findProperty(key[(propertyArray.name.Length + 1)..], propertyArray) ??
+                throw new PropertyException($"unknown Ice property: {key}");
 
             // If the property is deprecated, log a warning.
             if (prop.deprecated)
@@ -642,7 +643,8 @@ public sealed class Properties
         PropertyArray propertyArray = findIcePropertyArray(key) ?? throw new PropertyException($"unknown Ice property: {key}");
 
         // Find the property in the property array.
-        Property prop = findProperty(key[(propertyArray.name.Length + 1)..], propertyArray) ?? throw new PropertyException($"unknown Ice property: {key}");
+        Property prop = findProperty(key[(propertyArray.name.Length + 1)..], propertyArray) ??
+            throw new PropertyException($"unknown Ice property: {key}");
 
         return prop.defaultValue;
     }

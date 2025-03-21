@@ -20,10 +20,7 @@ internal sealed class WSEndpoint : EndpointI
 
         initWithOptions(args);
 
-        if (_resource == null)
-        {
-            _resource = "/";
-        }
+        _resource ??= "/";
     }
 
     internal WSEndpoint(ProtocolInstance instance, EndpointI del, Ice.InputStream s)
@@ -144,9 +141,9 @@ internal sealed class WSEndpoint : EndpointI
         }
 
         private readonly ProtocolInstance _instance;
-        private string _host;
-        private string _resource;
-        private EndpointI_connectors _callback;
+        private readonly string _host;
+        private readonly string _resource;
+        private readonly EndpointI_connectors _callback;
     }
 
     public override void connectors_async(EndpointI_connectors callback)
@@ -274,7 +271,7 @@ internal sealed class WSEndpoint : EndpointI
     }
 
     private readonly ProtocolInstance _instance;
-    private EndpointI _delegate;
+    private readonly EndpointI _delegate;
     private string _resource;
 }
 

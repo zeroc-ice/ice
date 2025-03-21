@@ -231,7 +231,7 @@ public class MetricsHelper<T> where T : Metrics
             _attributes.Add(name, new MemberMethodResolverI(name, method, subMethod));
         }
 
-        private Dictionary<string, Resolver> _attributes = new Dictionary<string, Resolver>();
+        private readonly Dictionary<string, Resolver> _attributes = new Dictionary<string, Resolver>();
     }
 
     protected MetricsHelper(AttributeResolver attributes)
@@ -254,7 +254,7 @@ public class MetricsHelper<T> where T : Metrics
         return null;
     }
 
-    private AttributeResolver _attributes;
+    private readonly AttributeResolver _attributes;
 }
 
 public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Metrics, new()
@@ -321,10 +321,7 @@ public class Observer<T> : Stopwatch, Ice.Instrumentation.Observer where T : Met
             MetricsMap<S>.Entry e = entry.getMatching(mapName, helper);
             if (e != null)
             {
-                if (metricsObjects == null)
-                {
-                    metricsObjects = new List<MetricsMap<S>.Entry>(_objects.Count);
-                }
+                metricsObjects ??= new List<MetricsMap<S>.Entry>(_objects.Count);
                 metricsObjects.Add(e);
             }
         }
@@ -380,10 +377,7 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
 
     public void destroy()
     {
-        if (_metrics != null)
-        {
-            _metrics.unregisterMap(_name);
-        }
+        _metrics?.unregisterMap(_name);
     }
 
     public O getObserver(MetricsHelper<T> helper)
@@ -406,23 +400,17 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
             }
             foreach (MetricsMap<T> m in _maps)
             {
-                MetricsMap<T>.Entry e = m.getMatching(helper, old != null ? old.getEntry(m) : null);
+                MetricsMap<T>.Entry e = m.getMatching(helper, old?.getEntry(m));
                 if (e != null)
                 {
-                    if (metricsObjects == null)
-                    {
-                        metricsObjects = new List<MetricsMap<T>.Entry>(_maps.Count);
-                    }
+                    metricsObjects ??= new List<MetricsMap<T>.Entry>(_maps.Count);
                     metricsObjects.Add(e);
                 }
             }
 
             if (metricsObjects == null)
             {
-                if (old != null)
-                {
-                    old.detach();
-                }
+                old?.detach();
                 return null;
             }
 
@@ -482,7 +470,7 @@ public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T
 
     private readonly MetricsAdminI _metrics;
     private readonly string _name;
-    private List<MetricsMap<T>> _maps = new();
+    private readonly List<MetricsMap<T>> _maps = new();
     private volatile bool _enabled;
     private Action _updater;
     private readonly object _mutex = new();

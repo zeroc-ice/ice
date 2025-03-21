@@ -123,18 +123,9 @@ public sealed class PluginI : Ice.Plugin
 
     public void destroy()
     {
-        if (_multicastAdapter != null)
-        {
-            _multicastAdapter.destroy();
-        }
-        if (_replyAdapter != null)
-        {
-            _replyAdapter.destroy();
-        }
-        if (_locatorAdapter != null)
-        {
-            _locatorAdapter.destroy();
-        }
+        _multicastAdapter?.destroy();
+        _replyAdapter?.destroy();
+        _locatorAdapter?.destroy();
         if (_communicator.getDefaultLocator().Equals(_locator))
         {
             // Restore original default locator proxy, if the user didn't change it in the meantime
@@ -142,7 +133,7 @@ public sealed class PluginI : Ice.Plugin
         }
     }
 
-    private Ice.Communicator _communicator;
+    private readonly Ice.Communicator _communicator;
     private Ice.ObjectAdapter _multicastAdapter;
     private Ice.ObjectAdapter _replyAdapter;
     private Ice.ObjectAdapter _locatorAdapter;

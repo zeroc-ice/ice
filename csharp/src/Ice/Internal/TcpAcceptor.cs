@@ -131,7 +131,7 @@ internal class TcpAcceptor : Acceptor
     private Socket _fd;
     private Socket _acceptFd;
     private Ice.SocketException _acceptError;
-    private int _backlog;
+    private readonly int _backlog;
     private IPEndPoint _addr;
     private IAsyncResult _result;
 }

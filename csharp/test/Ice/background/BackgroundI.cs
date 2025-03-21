@@ -24,5 +24,5 @@ internal class BackgroundI : BackgroundDisp_
         _controller = controller;
     }
 
-    private BackgroundControllerI _controller;
+    private readonly BackgroundControllerI _controller;
 }

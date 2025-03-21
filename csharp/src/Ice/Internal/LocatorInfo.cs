@@ -57,10 +57,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
             {
                 locatorInfo.getEndpointsTrace(_ref, endpoints, false);
             }
-            if (_callback != null)
-            {
-                _callback.setEndpoints(endpoints == null ? [] : endpoints, false);
-            }
+            _callback?.setEndpoints(endpoints ?? [], false);
         }
 
         public void
@@ -72,10 +69,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
             }
             catch (Ice.LocalException ex)
             {
-                if (_callback != null)
-                {
-                    _callback.setException(ex);
-                }
+                _callback?.setException(ex);
             }
         }
 
@@ -173,8 +167,8 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         protected readonly LocatorInfo _locatorInfo;
         protected readonly Reference _ref;
 
-        private List<RequestCallback> _callbacks = new List<RequestCallback>();
-        private List<Reference> _wellKnownRefs = new List<Reference>();
+        private readonly List<RequestCallback> _callbacks = new List<RequestCallback>();
+        private readonly List<Reference> _wellKnownRefs = new List<Reference>();
         private bool _sent;
         private bool _response;
         private Ice.ObjectPrx _proxy;
@@ -367,10 +361,7 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
         {
             getEndpointsTrace(@ref, endpoints, true);
         }
-        if (callback != null)
-        {
-            callback.setEndpoints(endpoints, true);
-        }
+        callback?.setEndpoints(endpoints, true);
     }
 
     public void clearCache(Reference rf)
@@ -679,8 +670,8 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
     private readonly LocatorTable _table;
     private readonly bool _background;
 
-    private Dictionary<string, Request> _adapterRequests = new Dictionary<string, Request>();
-    private Dictionary<Ice.Identity, Request> _objectRequests = new Dictionary<Ice.Identity, Request>();
+    private readonly Dictionary<string, Request> _adapterRequests = new Dictionary<string, Request>();
+    private readonly Dictionary<Ice.Identity, Request> _objectRequests = new Dictionary<Ice.Identity, Request>();
     private readonly object _mutex = new();
 }
 
@@ -780,8 +771,8 @@ public sealed class LocatorManager
         }
     }
 
-    private Dictionary<Ice.LocatorPrx, LocatorInfo> _table;
-    private Dictionary<LocatorKey, LocatorTable> _locatorTables;
+    private readonly Dictionary<Ice.LocatorPrx, LocatorInfo> _table;
+    private readonly Dictionary<LocatorKey, LocatorTable> _locatorTables;
     private readonly bool _background;
     private readonly object _mutex = new();
 }
@@ -927,7 +918,7 @@ internal sealed class LocatorTable
         public Reference reference;
     }
 
-    private Dictionary<string, EndpointTableEntry> _adapterEndpointsTable;
-    private Dictionary<Ice.Identity, ReferenceTableEntry> _objectTable;
+    private readonly Dictionary<string, EndpointTableEntry> _adapterEndpointsTable;
+    private readonly Dictionary<Ice.Identity, ReferenceTableEntry> _objectTable;
     private readonly object _mutex = new();
 }

@@ -459,7 +459,8 @@ internal sealed class UdpTransceiver : Transceiver
         {
             if (_writeEventArgs.SocketError != SocketError.Success)
             {
-                System.Net.Sockets.SocketException ex = new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
+                System.Net.Sockets.SocketException ex =
+                    new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
                 if (Network.connectionRefused(ex))
                 {
                     throw new Ice.ConnectionRefusedException(ex);
@@ -715,14 +716,8 @@ internal sealed class UdpTransceiver : Transceiver
         }
         catch (Ice.LocalException)
         {
-            if (_readEventArgs != null)
-            {
-                _readEventArgs.Dispose();
-            }
-            if (_writeEventArgs != null)
-            {
-                _writeEventArgs.Dispose();
-            }
+            _readEventArgs?.Dispose();
+            _writeEventArgs?.Dispose();
             _fd = null;
             throw;
         }
@@ -843,21 +838,21 @@ internal sealed class UdpTransceiver : Transceiver
     private UdpEndpointI _endpoint;
     private readonly ProtocolInstance _instance;
     private int _state;
-    private bool _incoming;
+    private readonly bool _incoming;
     private int _rcvSize;
     private int _sndSize;
     private Socket _fd;
     private EndPoint _addr;
-    private EndPoint _sourceAddr;
+    private readonly EndPoint _sourceAddr;
     private IPEndPoint _mcastAddr;
     private EndPoint _peerAddr;
-    private string _mcastInterface;
+    private readonly string _mcastInterface;
 
-    private int _port;
+    private readonly int _port;
     private bool _bound;
 
     private SocketAsyncEventArgs _writeEventArgs;
-    private SocketAsyncEventArgs _readEventArgs;
+    private readonly SocketAsyncEventArgs _readEventArgs;
     private AsyncCallback _writeCallback;
     private AsyncCallback _readCallback;
 

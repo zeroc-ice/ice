@@ -15,7 +15,7 @@ public class Client : Test.TestHelper
         Ice.Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.Warn.Connections", "0");
         using var communicator = initialize(properties);
-        List<int> ports = args.Select(v => Int32.Parse(v)).ToList();
+        List<int> ports = args.Select(v => int.Parse(v)).ToList();
         if (ports.Count == 0)
         {
             throw new ArgumentException("Client: no ports specified");

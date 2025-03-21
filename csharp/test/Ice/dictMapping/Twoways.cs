@@ -9,9 +9,11 @@ internal class Twoways
     internal static void twoways(Ice.Communicator communicator, Test.MyClassPrx p)
     {
         {
-            Dictionary<int, int> i = new Dictionary<int, int>();
-            i[0] = 1;
-            i[1] = 0;
+            Dictionary<int, int> i = new Dictionary<int, int>
+            {
+                [0] = 1,
+                [1] = 0
+            };
 
             Dictionary<int, int> o;
             Dictionary<int, int> r;
@@ -22,9 +24,11 @@ internal class Twoways
         }
 
         {
-            Dictionary<string, string> i = new Dictionary<string, string>();
-            i["a"] = "b";
-            i["b"] = "a";
+            Dictionary<string, string> i = new Dictionary<string, string>
+            {
+                ["a"] = "b",
+                ["b"] = "a"
+            };
 
             Dictionary<string, string> o;
             Dictionary<string, string> r;
@@ -36,9 +40,11 @@ internal class Twoways
 
         {
             Dictionary<string, Dictionary<int, int>> i = new Dictionary<string, Dictionary<int, int>>();
-            Dictionary<int, int> id = new Dictionary<int, int>();
-            id[0] = 1;
-            id[1] = 0;
+            Dictionary<int, int> id = new Dictionary<int, int>
+            {
+                [0] = 1,
+                [1] = 0
+            };
             i["a"] = id;
             i["b"] = id;
 
@@ -55,9 +61,11 @@ internal class Twoways
 
         {
             Dictionary<string, Dictionary<string, string>> i = new Dictionary<string, Dictionary<string, string>>();
-            Dictionary<string, string> id = new Dictionary<string, string>();
-            id["a"] = "b";
-            id["b"] = "a";
+            Dictionary<string, string> id = new Dictionary<string, string>
+            {
+                ["a"] = "b",
+                ["b"] = "a"
+            };
             i["a"] = id;
             i["b"] = id;
 
@@ -74,9 +82,11 @@ internal class Twoways
 
         {
             int[] ii = new int[] { 1, 2 };
-            Dictionary<string, int[]> i = new Dictionary<string, int[]>();
-            i["a"] = ii;
-            i["b"] = ii;
+            Dictionary<string, int[]> i = new Dictionary<string, int[]>
+            {
+                ["a"] = ii,
+                ["b"] = ii
+            };
 
             Dictionary<string, int[]> o;
             Dictionary<string, int[]> r;
@@ -93,9 +103,11 @@ internal class Twoways
             List<int> ii = new List<int>();
             ii.Add(1);
             ii.Add(2);
-            Dictionary<string, List<int>> i = new Dictionary<string, List<int>>();
-            i["a"] = ii;
-            i["b"] = ii;
+            Dictionary<string, List<int>> i = new Dictionary<string, List<int>>
+            {
+                ["a"] = ii,
+                ["b"] = ii
+            };
 
             Dictionary<string, List<int>> o;
             Dictionary<string, List<int>> r;
@@ -110,9 +122,11 @@ internal class Twoways
 
         {
             string[] ii = new string[] { "a", "b" };
-            Dictionary<string, string[]> i = new Dictionary<string, string[]>();
-            i["a"] = ii;
-            i["b"] = ii;
+            Dictionary<string, string[]> i = new Dictionary<string, string[]>
+            {
+                ["a"] = ii,
+                ["b"] = ii
+            };
 
             Dictionary<string, string[]> o;
             Dictionary<string, string[]> r;
@@ -129,9 +143,11 @@ internal class Twoways
             List<string> ii = new List<string>();
             ii.Add("a");
             ii.Add("b");
-            Dictionary<string, List<string>> i = new Dictionary<string, List<string>>();
-            i["a"] = ii;
-            i["b"] = ii;
+            Dictionary<string, List<string>> i = new Dictionary<string, List<string>>
+            {
+                ["a"] = ii,
+                ["b"] = ii
+            };
 
             Dictionary<string, List<string>> o;
             Dictionary<string, List<string>> r;

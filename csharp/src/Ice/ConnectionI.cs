@@ -808,10 +808,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                                 // The next read will read the remainder of the message.
                                 _readHeader = false;
 
-                                if (_observer is not null)
-                                {
-                                    _observer.receivedBytes(Protocol.headerSize);
-                                }
+                                _observer?.receivedBytes(Protocol.headerSize);
 
                                 //
                                 // Connection is validated on first message. This is only used by
@@ -2030,10 +2027,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 _writeStream.swap(message.stream);
                 if (message.sent())
                 {
-                    if (callbacks is null)
-                    {
-                        callbacks = new Queue<OutgoingMessage>();
-                    }
+                    callbacks ??= new Queue<OutgoingMessage>();
                     callbacks.Enqueue(message);
                 }
                 _sendStreams.RemoveFirst();
@@ -2158,7 +2152,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             if (message.sent())
             {
                 // If there's a sent callback, indicate the caller that it should invoke the sent callback.
-                status = status | OutgoingAsyncBase.AsyncStatusInvokeSentCallback;
+                status |= OutgoingAsyncBase.AsyncStatusInvokeSentCallback;
             }
 
             return status;
@@ -2675,7 +2669,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             return _info;
         }
 
-        _info = _transceiver.getInfo(incoming: _connector is null, _adapter?.getName() ?? "", _endpoint.connectionId());
+        _info =
+            _transceiver.getInfo(incoming: _connector is null, _adapter?.getName() ?? "", _endpoint.connectionId());
         return _info;
     }
 
@@ -2877,7 +2872,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         internal bool receivedReply;
     }
 
-    private static ConnectionState[] connectionStateMap = [
+    private static readonly ConnectionState[] connectionStateMap = [
         ConnectionState.ConnectionStateValidating,   // StateNotInitialized
         ConnectionState.ConnectionStateValidating,   // StateNotValidated
         ConnectionState.ConnectionStateActive,       // StateActive
@@ -2888,20 +2883,20 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         ConnectionState.ConnectionStateClosed,       // StateFinished
     ];
 
-    private Instance _instance;
+    private readonly Instance _instance;
     private readonly Transceiver _transceiver;
     private readonly IdleTimeoutTransceiverDecorator _idleTimeoutTransceiver; // can be null
 
     private string _desc;
-    private string _type;
+    private readonly string _type;
     private readonly Connector _connector;
-    private EndpointI _endpoint;
+    private readonly EndpointI _endpoint;
 
     private ObjectAdapter _adapter;
 
-    private Logger _logger;
-    private TraceLevels _traceLevels;
-    private Ice.Internal.ThreadPool _threadPool;
+    private readonly Logger _logger;
+    private readonly TraceLevels _traceLevels;
+    private readonly Ice.Internal.ThreadPool _threadPool;
 
     private readonly TimeSpan _connectTimeout;
     private readonly TimeSpan _closeTimeout;
@@ -2914,33 +2909,33 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     // This action must be called outside the ConnectionI lock to avoid lock acquisition deadlocks.
     private readonly Action<ConnectionI> _removeFromFactory;
 
-    private bool _warn;
-    private bool _warnUdp;
+    private readonly bool _warn;
+    private readonly bool _warnUdp;
 
-    private int _compressionLevel;
+    private readonly int _compressionLevel;
 
     private int _nextRequestId;
 
-    private Dictionary<int, OutgoingAsyncBase> _asyncRequests = new Dictionary<int, OutgoingAsyncBase>();
+    private readonly Dictionary<int, OutgoingAsyncBase> _asyncRequests = new Dictionary<int, OutgoingAsyncBase>();
 
     private LocalException _exception;
 
     private readonly int _messageSizeMax;
-    private BatchRequestQueue _batchRequestQueue;
+    private readonly BatchRequestQueue _batchRequestQueue;
 
-    private LinkedList<OutgoingMessage> _sendStreams = new LinkedList<OutgoingMessage>();
+    private readonly LinkedList<OutgoingMessage> _sendStreams = new LinkedList<OutgoingMessage>();
 
     // Contains the message which is being received. If the connection is waiting to receive a message (_readHeader ==
     // true), its size is Protocol.headerSize. Otherwise, its size is the message size specified in the received message
     // header.
-    private InputStream _readStream;
+    private readonly InputStream _readStream;
 
     // When _readHeader is true, the next bytes we'll read are the header of a new message. When false, we're reading
     // next the remainder of a message that was already partially received.
     private bool _readHeader;
 
     // Contains the message which is being sent. The write stream buffer is empty if no message is being sent.
-    private OutputStream _writeStream;
+    private readonly OutputStream _writeStream;
 
     private ConnectionObserver _observer;
     private int _readStreamPos;

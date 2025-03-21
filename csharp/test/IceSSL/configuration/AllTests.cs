@@ -35,9 +35,11 @@ public class AllTests : global::Test.AllTests
     private static Dictionary<string, string>
     createServerProps(Ice.Properties defaultProperties)
     {
-        Dictionary<string, string> result = new Dictionary<string, string>();
-        result["IceSSL.DefaultDir"] = defaultProperties.getIceProperty("IceSSL.DefaultDir");
-        result["Ice.Default.Host"] = defaultProperties.getIceProperty("Ice.Default.Host");
+        Dictionary<string, string> result = new Dictionary<string, string>
+        {
+            ["IceSSL.DefaultDir"] = defaultProperties.getIceProperty("IceSSL.DefaultDir"),
+            ["Ice.Default.Host"] = defaultProperties.getIceProperty("Ice.Default.Host")
+        };
         result["ServerAdapter.PublishedHost"] = result["Ice.Default.Host"];
 
         if (defaultProperties.getIceProperty("Ice.IPv6").Length > 0)

@@ -46,12 +46,8 @@ public sealed class EndpointFactoryManager
 
     public EndpointI create(string str, bool oaEndpoint)
     {
-        string[] arr = Ice.UtilInternal.StringUtil.splitString(str, " \t\r\n");
-        if (arr == null)
-        {
+        string[] arr = Ice.UtilInternal.StringUtil.splitString(str, " \t\r\n") ??
             throw new ParseException($"Failed to parse endpoint '{str}': mismatched quote");
-        }
-
         if (arr.Length == 0)
         {
             throw new ParseException($"Failed to parse endpoint '{str}': value has no non-whitespace characters");
@@ -163,10 +159,7 @@ public sealed class EndpointFactoryManager
             // isn't available. In this case, the factory needs to make sure the stream position
             // is preserved for reading the opaque endpoint.
             //
-            if (e == null)
-            {
-                e = new OpaqueEndpointI(type, s);
-            }
+            e ??= new OpaqueEndpointI(type, s);
 
             s.endEncapsulation();
 

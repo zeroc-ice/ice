@@ -172,9 +172,11 @@ public class AllTests : global::Test.AllTests
             //
             // Test: Verify that Process::shutdown() operation shuts down the communicator.
             //
-            Dictionary<string, string> props = new Dictionary<string, string>();
-            props.Add("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
-            props.Add("Ice.Admin.InstanceName", "Test");
+            Dictionary<string, string> props = new Dictionary<string, string>
+            {
+                { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                { "Ice.Admin.InstanceName", "Test" }
+            };
             var com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
             Ice.ProcessPrx proc = Ice.ProcessPrxHelper.checkedCast(obj, "Process");
@@ -187,12 +189,14 @@ public class AllTests : global::Test.AllTests
         output.Write("testing properties facet... ");
         output.Flush();
         {
-            Dictionary<string, string> props = new Dictionary<string, string>();
-            props.Add("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
-            props.Add("Ice.Admin.InstanceName", "Test");
-            props.Add("Prop1", "1");
-            props.Add("Prop2", "2");
-            props.Add("Prop3", "3");
+            Dictionary<string, string> props = new Dictionary<string, string>
+            {
+                { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                { "Ice.Admin.InstanceName", "Test" },
+                { "Prop1", "1" },
+                { "Prop2", "2" },
+                { "Prop3", "3" }
+            };
             var com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
             Ice.PropertiesAdminPrx pa = Ice.PropertiesAdminPrxHelper.checkedCast(obj, "Properties");
@@ -219,12 +223,14 @@ public class AllTests : global::Test.AllTests
             //
             // Test: PropertiesAdmin::setProperties()
             //
-            Dictionary<string, string> setProps = new Dictionary<string, string>();
-            setProps.Add("Prop1", "10"); // Changed
-            setProps.Add("Prop2", "20"); // Changed
-            setProps.Add("Prop3", ""); // Removed
-            setProps.Add("Prop4", "4"); // Added
-            setProps.Add("Prop5", "5"); // Added
+            Dictionary<string, string> setProps = new Dictionary<string, string>
+            {
+                { "Prop1", "10" }, // Changed
+                { "Prop2", "20" }, // Changed
+                { "Prop3", "" }, // Removed
+                { "Prop4", "4" }, // Added
+                { "Prop5", "5" } // Added
+            };
             pa.setProperties(setProps);
             test(pa.getProperty("Prop1") == "10");
             test(pa.getProperty("Prop2") == "20");
@@ -249,10 +255,12 @@ public class AllTests : global::Test.AllTests
         output.Write("testing logger facet... ");
         output.Flush();
         {
-            Dictionary<String, String> props = new Dictionary<String, String>();
-            props.Add("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
-            props.Add("Ice.Admin.InstanceName", "Test");
-            props.Add("NullLogger", "1");
+            Dictionary<string, string> props = new Dictionary<string, string>
+            {
+                { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                { "Ice.Admin.InstanceName", "Test" },
+                { "NullLogger", "1" }
+            };
             var com = factory.createCommunicator(props);
 
             com.trace("testCat", "trace");
@@ -426,9 +434,11 @@ public class AllTests : global::Test.AllTests
             //
             // Test: Verify that the custom facet is present.
             //
-            Dictionary<string, string> props = new Dictionary<string, string>();
-            props.Add("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
-            props.Add("Ice.Admin.InstanceName", "Test");
+            Dictionary<string, string> props = new Dictionary<string, string>
+            {
+                { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                { "Ice.Admin.InstanceName", "Test" }
+            };
             var com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
             var tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
@@ -444,10 +454,12 @@ public class AllTests : global::Test.AllTests
             // Test: Set Ice.Admin.Facets to expose only the Properties facet,
             // meaning no other facet is available.
             //
-            Dictionary<string, string> props = new Dictionary<string, string>();
-            props.Add("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
-            props.Add("Ice.Admin.InstanceName", "Test");
-            props.Add("Ice.Admin.Facets", "Properties");
+            Dictionary<string, string> props = new Dictionary<string, string>
+            {
+                { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                { "Ice.Admin.InstanceName", "Test" },
+                { "Ice.Admin.Facets", "Properties" }
+            };
             var com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
             try
@@ -475,10 +487,12 @@ public class AllTests : global::Test.AllTests
             // Test: Set Ice.Admin.Facets to expose only the Process facet,
             // meaning no other facet is available.
             //
-            Dictionary<string, string> props = new Dictionary<string, string>();
-            props.Add("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
-            props.Add("Ice.Admin.InstanceName", "Test");
-            props.Add("Ice.Admin.Facets", "Process");
+            Dictionary<string, string> props = new Dictionary<string, string>
+            {
+                { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                { "Ice.Admin.InstanceName", "Test" },
+                { "Ice.Admin.Facets", "Process" }
+            };
             var com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
             try
@@ -506,10 +520,12 @@ public class AllTests : global::Test.AllTests
             // Test: Set Ice.Admin.Facets to expose only the TestFacet facet,
             // meaning no other facet is available.
             //
-            Dictionary<string, string> props = new Dictionary<string, string>();
-            props.Add("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
-            props.Add("Ice.Admin.InstanceName", "Test");
-            props.Add("Ice.Admin.Facets", "TestFacet");
+            Dictionary<string, string> props = new Dictionary<string, string>
+            {
+                { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                { "Ice.Admin.InstanceName", "Test" },
+                { "Ice.Admin.Facets", "TestFacet" }
+            };
             var com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
             try
@@ -537,10 +553,12 @@ public class AllTests : global::Test.AllTests
             // Test: Set Ice.Admin.Facets to expose two facets. Use whitespace to separate the
             // facet names.
             //
-            Dictionary<string, string> props = new Dictionary<string, string>();
-            props.Add("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
-            props.Add("Ice.Admin.InstanceName", "Test");
-            props.Add("Ice.Admin.Facets", "Properties TestFacet");
+            Dictionary<string, string> props = new Dictionary<string, string>
+            {
+                { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                { "Ice.Admin.InstanceName", "Test" },
+                { "Ice.Admin.Facets", "Properties TestFacet" }
+            };
             var com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
             Ice.PropertiesAdminPrx pa = Ice.PropertiesAdminPrxHelper.checkedCast(obj, "Properties");
@@ -563,10 +581,12 @@ public class AllTests : global::Test.AllTests
             // Test: Set Ice.Admin.Facets to expose two facets. Use a comma to separate the
             // facet names.
             //
-            Dictionary<string, string> props = new Dictionary<string, string>();
-            props.Add("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
-            props.Add("Ice.Admin.InstanceName", "Test");
-            props.Add("Ice.Admin.Facets", "TestFacet, Process");
+            Dictionary<string, string> props = new Dictionary<string, string>
+            {
+                { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                { "Ice.Admin.InstanceName", "Test" },
+                { "Ice.Admin.Facets", "TestFacet, Process" }
+            };
             var com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
             try

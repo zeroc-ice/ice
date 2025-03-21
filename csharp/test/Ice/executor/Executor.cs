@@ -82,8 +82,8 @@ public class Executor
 
     private static Executor _instance;
 
-    private Queue<System.Action> _calls = new Queue<System.Action>();
-    private Thread _thread;
+    private readonly Queue<System.Action> _calls = new Queue<System.Action>();
+    private readonly Thread _thread;
     private bool _terminated = false;
     private static readonly object _m = new object();
 }

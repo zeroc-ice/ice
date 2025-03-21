@@ -256,18 +256,16 @@ public class PlatformTests
 
     private sealed class ServerState : IDisposable
     {
-        public X509Certificate2 Certificate => _certificate;
+        public X509Certificate2 Certificate { get; private set; }
 
-        private X509Certificate2 _certificate;
+        public ServerState(string certificatePath) => Certificate = new X509Certificate2(certificatePath, "password");
 
-        public ServerState(string certificatePath) => _certificate = new X509Certificate2(certificatePath, "password");
-
-        public void Dispose() => _certificate?.Dispose();
+        public void Dispose() => Certificate?.Dispose();
 
         public void reloadCertificate(string certificatePath)
         {
-            _certificate?.Dispose();
-            _certificate = new X509Certificate2(certificatePath, "password");
+            Certificate?.Dispose();
+            Certificate = new X509Certificate2(certificatePath, "password");
         }
     }
 

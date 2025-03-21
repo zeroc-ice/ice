@@ -24,5 +24,5 @@ public sealed class HI : Test.HDisp_
         _communicator.shutdown();
     }
 
-    private Ice.Communicator _communicator;
+    private readonly Ice.Communicator _communicator;
 }

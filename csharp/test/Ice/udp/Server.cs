@@ -21,7 +21,7 @@ public class Server : global::Test.TestHelper
         int num = 0;
         try
         {
-            num = args.Length == 1 ? Int32.Parse(args[0]) : 0;
+            num = args.Length == 1 ? int.Parse(args[0]) : 0;
         }
         catch (FormatException)
         {

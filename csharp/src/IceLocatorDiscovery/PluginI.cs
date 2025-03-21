@@ -553,24 +553,24 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
     }
 
     private LookupPrx _lookup;
-    private Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
-    private int _timeout;
-    private Ice.Internal.Timer _timer;
-    private int _traceLevel;
-    private int _retryCount;
-    private int _retryDelay;
+    private readonly Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
+    private readonly int _timeout;
+    private readonly Ice.Internal.Timer _timer;
+    private readonly int _traceLevel;
+    private readonly int _retryCount;
+    private readonly int _retryDelay;
 
     private string _instanceName;
     private bool _warned;
     private Ice.LocatorPrx _locator;
     private Ice.LocatorPrx _voidLocator;
-    private Dictionary<string, Ice.LocatorPrx> _locators = new Dictionary<string, Ice.LocatorPrx>();
+    private readonly Dictionary<string, Ice.LocatorPrx> _locators = new Dictionary<string, Ice.LocatorPrx>();
 
     private bool _pending;
     private int _pendingRetryCount;
     private int _failureCount;
     private bool _warnOnce = true;
-    private List<Request> _pendingRequests = new List<Request>();
+    private readonly List<Request> _pendingRequests = new List<Request>();
     private long _nextRetry;
     private readonly object _mutex = new();
 }
@@ -588,7 +588,7 @@ internal class LookupReplyI : LookupReplyDisp_
         _locator.foundLocator(locator);
     }
 
-    private LocatorI _locator;
+    private readonly LocatorI _locator;
 }
 
 internal class PluginI : Ice.Plugin
@@ -672,14 +672,8 @@ internal class PluginI : Ice.Plugin
     public void
     destroy()
     {
-        if (_replyAdapter != null)
-        {
-            _replyAdapter.destroy();
-        }
-        if (_locatorAdapter != null)
-        {
-            _locatorAdapter.destroy();
-        }
+        _replyAdapter?.destroy();
+        _locatorAdapter?.destroy();
         if (_communicator.getDefaultLocator().Equals(_locatorPrx))
         {
             // Restore original default locator proxy, if the user didn't change it in the meantime
@@ -687,7 +681,7 @@ internal class PluginI : Ice.Plugin
         }
     }
 
-    private Ice.Communicator _communicator;
+    private readonly Ice.Communicator _communicator;
     private Ice.ObjectAdapter _locatorAdapter;
     private Ice.ObjectAdapter _replyAdapter;
     private LocatorI _locator;
