@@ -23,7 +23,10 @@ runs:
       working-directory: ${{ inputs.working_directory }}
       run: |
         ulimit -c unlimited
+        cat /proc/sys/kernel/core_pattern
+        cat /etc/systemd/coredump.conf
         python3 allTests.py --debug --all --workers=4 --export-xml=test-report.xml ${{ inputs.flags }}
+        coredumpctl list
       shell: bash
       if: runner.os == 'Linux'
 
