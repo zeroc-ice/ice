@@ -52,25 +52,6 @@ export class Buffer {
         }
     }
 
-    reset() {
-        if (this._limit > 0 && this._limit * 2 < this.capacity) {
-            //
-            // If the current buffer size is smaller than the
-            // buffer capacity, we shrink the buffer memory to the
-            // current size. This is to avoid holding on to too much
-            // memory if it's not needed anymore.
-            //
-            if (++this._shrinkCounter > 2) {
-                this.reserve(this._limit);
-                this._shrinkCounter = 0;
-            }
-        } else {
-            this._shrinkCounter = 0;
-        }
-        this._limit = this.capacity();
-        this._position = 0;
-    }
-
     reserve(n) {
         if (n > this.capacity) {
             const capacity = Math.max(1024, Math.max(n, 2 * this.capacity));
@@ -290,15 +271,6 @@ export class Buffer {
 
     get limit() {
         return this._limit;
-    }
-
-    set limit(value) {
-        if (value <= this.capacity) {
-            this._limit = value;
-            if (this._position > value) {
-                this._position = value;
-            }
-        }
     }
 
     get capacity() {

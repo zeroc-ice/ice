@@ -31,20 +31,6 @@ export class Timer {
         return token;
     }
 
-    scheduleRepeated(callback, period) {
-        if (this._destroyed) {
-            throw new CommunicatorDestroyedException();
-        }
-        const token = this._tokenId++;
-        const id = Timer.setInterval(() => this.handleInterval(token), period);
-        this._tokens.set(token, {
-            callback: callback,
-            id: id,
-            isInterval: true,
-        });
-        return token;
-    }
-
     cancel(id) {
         if (this._destroyed) {
             return false;
@@ -80,25 +66,8 @@ export class Timer {
             }
         }
     }
-
-    handleInterval(id) {
-        if (this._destroyed) {
-            return;
-        }
-
-        const token = this._tokens.get(id);
-        if (token !== undefined) {
-            try {
-                token.callback();
-            } catch (ex) {
-                this._logger.warning("uncaught exception while executing timer:\n" + ex);
-            }
-        }
-    }
 }
 
 Timer.setTimeout = TimerUtil.setTimeout;
 Timer.clearTimeout = TimerUtil.clearTimeout;
-Timer.setInterval = TimerUtil.setInterval;
-Timer.clearInterval = TimerUtil.clearInterval;
 Timer.setImmediate = TimerUtil.setImmediate;

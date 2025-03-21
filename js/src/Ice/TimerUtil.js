@@ -7,8 +7,6 @@ if (typeof process != "undefined") {
 
     Timer.setTimeout = setTimeout;
     Timer.clearTimeout = clearTimeout;
-    Timer.setInterval = setInterval;
-    Timer.clearInterval = clearInterval;
     Timer.setImmediate = setImmediate;
 } else {
     function isWorker() {
@@ -37,14 +35,6 @@ if (typeof process != "undefined") {
             static clearTimeout(id) {
                 return clearTimeout(id);
             }
-
-            static setInterval(cb, ms) {
-                return setInterval(cb, ms);
-            }
-
-            static clearInterval(id) {
-                return clearInterval(id);
-            }
         };
 
         // Only called for workers
@@ -68,10 +58,8 @@ if (typeof process != "undefined") {
     }
 
     const _SetTimeoutType = 0;
-    const _SetIntervalType = 1;
-    const _SetImmediateType = 2;
-    const _ClearTimeoutType = 3;
-    const _ClearIntervalType = 4;
+    const _SetImmediateType = 1;
+    const _ClearTimeoutType = 2;
 
     let worker;
 
@@ -88,18 +76,6 @@ if (typeof process != "undefined") {
             worker.postMessage({ type: _ClearTimeoutType, id: id });
         }
 
-        static setInterval(cb, ms) {
-            const id = nextId();
-            _timers.set(id, cb);
-            worker.postMessage({ type: _SetIntervalType, id: id, ms: ms });
-            return id;
-        }
-
-        static clearInterval(id) {
-            _timers.delete(id);
-            worker.postMessage({ type: _ClearIntervalType, id: id });
-        }
-
         static setImmediate(cb) {
             const id = nextId();
             _timers.set(id, cb);
@@ -111,9 +87,7 @@ if (typeof process != "undefined") {
             const cb = _timers.get(e.data.id);
             if (cb !== undefined) {
                 cb.call();
-                if (e.data.type !== _SetIntervalType) {
-                    _timers.delete(e.data.id);
-                }
+                _timers.delete(e.data.id);
             }
         }
     };
@@ -126,25 +100,18 @@ if (typeof process != "undefined") {
                 // jshint worker: true
                 //
                 const _wSetTimeoutType = 0;
-                const _wSetIntervalType = 1;
-                const _wSetImmediateType = 2;
-                const _wClearTimeoutType = 3;
-                const _wClearIntervalType = 4;
+                const _wSetImmediateType = 1;
+                const _wClearTimeoutType = 2;
 
                 const timers = {};
 
                 self.onmessage = e => {
                     if (e.data.type == _wSetTimeoutType) {
                         timers[e.data.id] = setTimeout(() => self.postMessage(e.data), e.data.ms);
-                    } else if (e.data.type == _wSetIntervalType) {
-                        timers[e.data.id] = setInterval(() => self.postMessage(e.data), e.data.ms);
                     } else if (e.data.type == _wSetImmediateType) {
                         self.postMessage(e.data);
                     } else if (e.data.type == _wClearTimeoutType) {
                         clearTimeout(timers[e.data.id]);
-                        delete timers[e.data.id];
-                    } else if (e.data.type == _wClearIntervalType) {
-                        clearInterval(timers[e.data.id]);
                         delete timers[e.data.id];
                     }
                 };

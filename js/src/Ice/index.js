@@ -148,6 +148,7 @@ export const Ice = {
     ...Ice_Context.Ice,
     ...Ice_Router.Ice,
     ...Ice_Locator.Ice,
+    ...Ice_LocatorRegistry.Ice,
     ...Ice_EndpointTypes.Ice,
     ...Ice_Identity.Ice,
     ...Ice_OperationMode.Ice,
