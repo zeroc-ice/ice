@@ -11,7 +11,7 @@
 namespace Ice
 {
     /// Base class for the Properties admin facet.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
 
     // This class must be ICE_API with an out-of-line destructor because we dynamic_pointer_cast to it.
     class ICE_API NativePropertiesAdmin

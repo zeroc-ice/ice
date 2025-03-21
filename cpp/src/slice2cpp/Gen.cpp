@@ -443,7 +443,7 @@ namespace
             // include:Ice/Ice.h.
             if (auto headerFile = dc->getMetadataArgs("cpp:doxygen"))
             {
-                out << nl << "/// \\headerfile " << headerFile->substr(8); // remove include: prefix
+                out << nl << "/// @headerfile " << headerFile->substr(8); // remove include: prefix
             }
         }
     }
@@ -731,8 +731,8 @@ Slice::Gen::generate(const UnitPtr& p)
     printGeneratedHeader(C, _base + ".ice");
 
     // Reformatting moves NOLINT comments which is undesirable.
-    H << "\n";
-    H << "// clang-format off\n";
+    H << nl << "// clang-format off";
+    H << sp;
 
     string s = _base + "." + _headerExtension;
     if (_include.size())
@@ -746,8 +746,8 @@ Slice::Gen::generate(const UnitPtr& p)
 
     validateMetadata(p);
 
+    C << sp;
     writeExtraHeaders(C);
-
     if (_dllExport.size())
     {
         C << "\n#ifndef " << _dllExport << "_EXPORTS";
@@ -756,6 +756,7 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 
     C << "\n#define ICE_BUILDING_GENERATED_CODE";
+    C << sp;
     C << "\n#include \"";
     if (_include.size())
     {

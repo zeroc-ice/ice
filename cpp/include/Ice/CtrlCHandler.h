@@ -12,12 +12,12 @@ namespace Ice
     /// The function called by CtrlCHandler when it catches a signal. This function must not throw exceptions. On Linux
     /// and macOS, this function is NOT a signal handler and can call functions that are not async-signal safe.
     /// @param sig The signal number that occurred.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     using CtrlCHandlerCallback = std::function<void(int sig)>;
 
     /// Provides a portable way to handle Ctrl+C and Ctrl+C like signals. On Linux and macOS, the CtrlCHandler handles
     /// SIGHUP, SIGINT and SIGTERM. On Windows, it is a wrapper for SetConsoleCtrlHandler.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API CtrlCHandler
     {
     public:

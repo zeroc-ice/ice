@@ -21,7 +21,7 @@
 namespace Ice
 {
     /// The user-level interface to an endpoint.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API Endpoint
     {
     public:
@@ -54,7 +54,7 @@ namespace Ice
     };
 
     /// Base class providing access to the endpoint details.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API EndpointInfo
     {
     public:
@@ -95,7 +95,7 @@ namespace Ice
 
     /// Provides access to the address details of a IP endpoint.
     /// @see Endpoint
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API IPEndpointInfo : public EndpointInfo
     {
     public:
@@ -124,7 +124,7 @@ namespace Ice
 
     /// Provides access to a TCP endpoint information.
     /// @see Endpoint
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API TCPEndpointInfo final : public IPEndpointInfo
     {
     public:
@@ -158,7 +158,7 @@ namespace Ice
 
     /// Provides access to an UDP endpoint information.
     /// @see Endpoint
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API UDPEndpointInfo final : public IPEndpointInfo
     {
     public:
@@ -191,7 +191,7 @@ namespace Ice
     };
 
     /// Provides access to a WebSocket endpoint information.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API WSEndpointInfo final : public EndpointInfo
     {
     public:
@@ -212,7 +212,7 @@ namespace Ice
     };
 
     /// Provides access to an IAP endpoint information.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class IAPEndpointInfo final : public EndpointInfo
     {
     public:
@@ -263,7 +263,7 @@ namespace Ice
 
     /// Provides access to the details of an opaque endpoint.
     /// @see Endpoint
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API OpaqueEndpointInfo final : public EndpointInfo
     {
     public:
