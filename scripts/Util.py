@@ -1423,7 +1423,7 @@ class Process(Runnable):
                 if not process.isTerminated() and waitSuccess:
                     while True:
                         try:
-                            process.waitSuccess(exitstatus=exitstatus, timeout=5)
+                            process.waitSuccess(exitstatus=exitstatus, timeout=30)
                             break
                         except KeyboardInterrupt:
                             current.driver.setInterrupt(True)

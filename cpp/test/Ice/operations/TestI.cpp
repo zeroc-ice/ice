@@ -35,7 +35,6 @@ MyDerivedClassI::opVoid(const Ice::Current& current)
 uint8_t
 MyDerivedClassI::opByte(uint8_t p1, uint8_t p2, uint8_t& p3, const Ice::Current&)
 {
-    this_thread::sleep_for(chrono::seconds(10000));
     p3 = p1 ^ p2;
     return p1;
 }

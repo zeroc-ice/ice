@@ -18,7 +18,6 @@ public:
 
 void ::Reader::run(int argc, char* argv[])
 {
-    this_thread::sleep_for(chrono::seconds(10000));
     Node node(argc, argv);
 
     ReaderConfig config;

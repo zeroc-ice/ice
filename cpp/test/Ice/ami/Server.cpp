@@ -50,8 +50,6 @@ Server::run(int argc, char** argv)
 
     serverReady();
 
-    this_thread::sleep_for(chrono::seconds(10000));
-
     promise<void> shutdownCompleted;
     communicator->waitForShutdownAsync([&shutdownCompleted]() { shutdownCompleted.set_value(); });
     shutdownCompleted.get_future().wait();
