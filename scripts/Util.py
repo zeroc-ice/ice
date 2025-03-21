@@ -1305,7 +1305,8 @@ class Process(Runnable):
 
         if timeout is None:
             if os.getenv("CI"):
-                # If we're running in CI always use a large timeout
+                # If we're running in CI always use a large timeout. This value is arbitrary and
+                # should be adjusted as needed.
                 timeout = 300
             else:
                 # If it's not a local process use a large timeout as the watch dog might not
