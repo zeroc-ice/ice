@@ -47,24 +47,6 @@ export class ReferenceFactory {
         );
     }
 
-    createWithAdapterId(ident, facet, template, adapterId) {
-        if (ident.name.length === 0 && ident.category.length === 0) {
-            return null;
-        }
-
-        return this.createImpl(
-            ident,
-            facet,
-            template.getMode(),
-            template.getSecure(),
-            template.getProtocol(),
-            template.getEncoding(),
-            null,
-            adapterId,
-            null,
-        );
-    }
-
     createFixed(ident, fixedConnection) {
         if (ident.name.length === 0 && ident.category.length === 0) {
             return null;
