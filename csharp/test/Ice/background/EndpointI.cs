@@ -138,7 +138,7 @@ internal class EndpointI : Ice.Internal.EndpointI
             _callback.exception(exception);
         }
 
-        private Ice.Internal.EndpointI_connectors _callback;
+        private readonly Ice.Internal.EndpointI_connectors _callback;
     }
 
     public override void connectors_async(Ice.Internal.EndpointI_connectors cb)
@@ -238,6 +238,6 @@ internal class EndpointI : Ice.Internal.EndpointI
         return _endpoint;
     }
 
-    private Ice.Internal.EndpointI _endpoint;
-    private Configuration _configuration;
+    private readonly Ice.Internal.EndpointI _endpoint;
+    private readonly Configuration _configuration;
 }

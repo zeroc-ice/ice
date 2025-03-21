@@ -31,5 +31,5 @@ public sealed class ProcessI : Ice.ProcessDisp_
         }
     }
 
-    private Ice.Communicator _communicator;
+    private readonly Ice.Communicator _communicator;
 }

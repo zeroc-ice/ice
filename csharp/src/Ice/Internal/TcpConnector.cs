@@ -85,9 +85,9 @@ internal sealed class TcpConnector : Connector
     }
 
     private readonly ProtocolInstance _instance;
-    private EndPoint _addr;
-    private NetworkProxy _proxy;
-    private EndPoint _sourceAddr;
-    private int _timeout;
-    private string _connectionId;
+    private readonly EndPoint _addr;
+    private readonly NetworkProxy _proxy;
+    private readonly EndPoint _sourceAddr;
+    private readonly int _timeout;
+    private readonly string _connectionId;
 }

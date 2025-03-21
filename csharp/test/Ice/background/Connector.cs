@@ -53,6 +53,6 @@ internal class Connector : Ice.Internal.Connector
         return _connector.GetHashCode();
     }
 
-    private Ice.Internal.Connector _connector;
-    private Configuration _configuration;
+    private readonly Ice.Internal.Connector _connector;
+    private readonly Configuration _configuration;
 }

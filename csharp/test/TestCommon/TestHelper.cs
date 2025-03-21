@@ -81,12 +81,12 @@ public abstract class TestHelper
         return properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
     }
 
-    public String getTestProtocol()
+    public string getTestProtocol()
     {
         return getTestProtocol(_communicator.getProperties());
     }
 
-    public static String getTestProtocol(Ice.Properties properties)
+    public static string getTestProtocol(Ice.Properties properties)
     {
         return properties.getIceProperty("Ice.Default.Protocol");
     }
@@ -142,14 +142,8 @@ public abstract class TestHelper
     public Ice.Communicator initialize(Ice.InitializationData initData)
     {
         Ice.Communicator communicator = Ice.Util.initialize(initData);
-        if (_communicator == null)
-        {
-            _communicator = communicator;
-        }
-        if (_controllerHelper != null)
-        {
-            _controllerHelper.communicatorInitialized(communicator);
-        }
+        _communicator ??= communicator;
+        _controllerHelper?.communicatorInitialized(communicator);
         return communicator;
     }
 
@@ -197,10 +191,7 @@ public abstract class TestHelper
 
     public void serverReady()
     {
-        if (_controllerHelper != null)
-        {
-            _controllerHelper.serverReady();
-        }
+        _controllerHelper?.serverReady();
     }
 
     private Ice.Communicator _communicator;

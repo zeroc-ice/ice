@@ -539,12 +539,16 @@ public class TwowaysAMI
         }
 
         {
-            var di1 = new Dictionary<Test.MyEnum, string>();
-            di1[Test.MyEnum.enum1] = "abc";
-            var di2 = new Dictionary<Test.MyEnum, string>();
-            di2[Test.MyEnum.enum1] = "abc";
-            di2[Test.MyEnum.enum2] = "Hello!!";
-            di2[Test.MyEnum.enum3] = "qwerty";
+            var di1 = new Dictionary<Test.MyEnum, string>
+            {
+                [Test.MyEnum.enum1] = "abc"
+            };
+            var di2 = new Dictionary<Test.MyEnum, string>
+            {
+                [Test.MyEnum.enum1] = "abc",
+                [Test.MyEnum.enum2] = "Hello!!",
+                [Test.MyEnum.enum3] = "qwerty"
+            };
 
             var result = await p.opMyEnumStringDAsync(di1, di2);
 

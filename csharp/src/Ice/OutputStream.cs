@@ -1454,7 +1454,7 @@ public sealed class OutputStream
         }
     }
 
-    private static System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
+    private static readonly System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
 
     /// <summary>
     /// Writes a string to the stream.
@@ -1783,10 +1783,7 @@ public sealed class OutputStream
 
         protected int registerTypeId(string typeId)
         {
-            if (_typeIdMap == null)
-            {
-                _typeIdMap = new Dictionary<string, int>();
-            }
+            _typeIdMap ??= new Dictionary<string, int>();
 
             int p;
             if (_typeIdMap.TryGetValue(typeId, out p))
@@ -2049,7 +2046,7 @@ public sealed class OutputStream
             }
             else
             {
-                _current = _current.next == null ? new InstanceData(_current) : _current.next;
+                _current = _current.next ?? new InstanceData(_current);
             }
             _current.sliceType = sliceType;
             _current.firstSlice = true;

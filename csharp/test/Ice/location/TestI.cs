@@ -44,7 +44,7 @@ public class TestI : Test.TestIntfDisp_
         }
     }
 
-    private Ice.ObjectAdapter _adapter1;
-    private Ice.ObjectAdapter _adapter2;
-    private ServerLocatorRegistry _registry;
+    private readonly Ice.ObjectAdapter _adapter1;
+    private readonly Ice.ObjectAdapter _adapter2;
+    private readonly ServerLocatorRegistry _registry;
 }

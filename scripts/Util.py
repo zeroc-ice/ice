@@ -3657,7 +3657,7 @@ class CppMapping(Mapping):
                           -showBuildSettings \
                           ".format(
                 toplevel,
-                "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug",
+                current.config.buildConfig.capitalize(),
                 current.config.buildPlatform,
             )
         )

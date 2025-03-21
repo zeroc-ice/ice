@@ -22,8 +22,8 @@ public class Server : TestHelper
             return s1;
         }
 
-        public override Dictionary<String, Test.MyStruct>
-        opMyStructMap(Dictionary<String, Test.MyStruct> s1, out Dictionary<String, Test.MyStruct> s2, Ice.Current current)
+        public override Dictionary<string, Test.MyStruct>
+        opMyStructMap(Dictionary<string, Test.MyStruct> s1, out Dictionary<string, Test.MyStruct> s2, Ice.Current current)
         {
             s2 = s1;
             return s1;
@@ -43,8 +43,8 @@ public class Server : TestHelper
             return c1;
         }
 
-        public override Dictionary<String, Test.MyClass>
-        opMyClassMap(Dictionary<String, Test.MyClass> c1, out Dictionary<String, Test.MyClass> c2, Ice.Current current)
+        public override Dictionary<string, Test.MyClass>
+        opMyClassMap(Dictionary<string, Test.MyClass> c1, out Dictionary<string, Test.MyClass> c2, Ice.Current current)
         {
             c2 = c1;
             return c1;
@@ -91,8 +91,8 @@ public class Server : TestHelper
             return s1;
         }
 
-        public override Dictionary<String, Test.Inner.Inner2.MyStruct>
-        opMyStructMap(Dictionary<String, Test.Inner.Inner2.MyStruct> s1, out Dictionary<String, Test.Inner.Inner2.MyStruct> s2,
+        public override Dictionary<string, Test.Inner.Inner2.MyStruct>
+        opMyStructMap(Dictionary<string, Test.Inner.Inner2.MyStruct> s1, out Dictionary<string, Test.Inner.Inner2.MyStruct> s2,
                Ice.Current current)
         {
             s2 = s1;
@@ -113,8 +113,8 @@ public class Server : TestHelper
             return c1;
         }
 
-        public override Dictionary<String, Test.Inner.Inner2.MyClass>
-        opMyClassMap(Dictionary<String, Test.Inner.Inner2.MyClass> c1, out Dictionary<String, Test.Inner.Inner2.MyClass> c2,
+        public override Dictionary<string, Test.Inner.Inner2.MyClass>
+        opMyClassMap(Dictionary<string, Test.Inner.Inner2.MyClass> c1, out Dictionary<string, Test.Inner.Inner2.MyClass> c2,
                Ice.Current current)
         {
             c2 = c1;
@@ -144,8 +144,8 @@ public class Server : TestHelper
             return s1;
         }
 
-        public override Dictionary<String, Test.Inner.Inner2.MyStruct>
-        opMyStructMap(Dictionary<String, Test.Inner.Inner2.MyStruct> s1, out Dictionary<String, Test.Inner.Inner2.MyStruct> s2,
+        public override Dictionary<string, Test.Inner.Inner2.MyStruct>
+        opMyStructMap(Dictionary<string, Test.Inner.Inner2.MyStruct> s1, out Dictionary<string, Test.Inner.Inner2.MyStruct> s2,
                Ice.Current current)
         {
             s2 = s1;
@@ -166,8 +166,8 @@ public class Server : TestHelper
             return c1;
         }
 
-        public override Dictionary<String, Test.Inner.Inner2.MyClass>
-        opMyClassMap(Dictionary<String, Test.Inner.Inner2.MyClass> c1, out Dictionary<String, Test.Inner.Inner2.MyClass> c2,
+        public override Dictionary<string, Test.Inner.Inner2.MyClass>
+        opMyClassMap(Dictionary<string, Test.Inner.Inner2.MyClass> c1, out Dictionary<string, Test.Inner.Inner2.MyClass> c2,
                Ice.Current current)
         {
             c2 = c1;
@@ -197,8 +197,8 @@ public class Server : TestHelper
             return s1;
         }
 
-        public override Dictionary<String, Test.MyStruct>
-        opMyStructMap(Dictionary<String, Test.MyStruct> s1, out Dictionary<String, Test.MyStruct> s2,
+        public override Dictionary<string, Test.MyStruct>
+        opMyStructMap(Dictionary<string, Test.MyStruct> s1, out Dictionary<string, Test.MyStruct> s2,
                Ice.Current current)
         {
             s2 = s1;
@@ -219,8 +219,8 @@ public class Server : TestHelper
             return c1;
         }
 
-        public override Dictionary<String, Test.MyClass>
-        opMyClassMap(Dictionary<String, Test.MyClass> c1, out Dictionary<String, Test.MyClass> c2,
+        public override Dictionary<string, Test.MyClass>
+        opMyClassMap(Dictionary<string, Test.MyClass> c1, out Dictionary<string, Test.MyClass> c2,
                Ice.Current current)
         {
             c2 = c1;

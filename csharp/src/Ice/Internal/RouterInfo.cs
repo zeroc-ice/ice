@@ -68,7 +68,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
         bool? hasRoutingTable;
         var proxy = _router.getClientProxy(out hasRoutingTable);
-        return setClientEndpoints(proxy, hasRoutingTable.HasValue ? hasRoutingTable.Value : true);
+        return setClientEndpoints(proxy, hasRoutingTable ?? true);
     }
 
     public void getClientEndpoints(GetClientEndpointsCallback callback)
@@ -107,12 +107,8 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
     public EndpointI[] getServerEndpoints()
     {
-        Ice.ObjectPrx serverProxy = _router.getServerProxy();
-        if (serverProxy == null)
-        {
+        Ice.ObjectPrx serverProxy = _router.getServerProxy() ??
             throw new NoEndpointException("Router::getServerProxy returned a null proxy.");
-        }
-
         serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
         return ((Ice.ObjectPrxHelperBase)serverProxy).iceReference().getEndpoints();
     }
@@ -241,8 +237,8 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
     private readonly Ice.RouterPrx _router;
     private EndpointI[] _clientEndpoints;
     private Ice.ObjectAdapter _adapter;
-    private HashSet<Ice.Identity> _identities = new HashSet<Ice.Identity>();
-    private List<Ice.Identity> _evictedIdentities = new List<Ice.Identity>();
+    private readonly HashSet<Ice.Identity> _identities = new HashSet<Ice.Identity>();
+    private readonly List<Ice.Identity> _evictedIdentities = new List<Ice.Identity>();
     private bool _hasRoutingTable;
     private readonly object _mutex = new();
 }
@@ -299,6 +295,6 @@ public sealed class RouterManager
         }
     }
 
-    private Dictionary<Ice.RouterPrx, RouterInfo> _table;
+    private readonly Dictionary<Ice.RouterPrx, RouterInfo> _table;
     private readonly object _mutex = new();
 }

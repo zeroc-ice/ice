@@ -51,14 +51,14 @@ public class AllTests : global::Test.AllTests
             test(tcpEndpoint.compress);
             test(!tcpEndpoint.datagram());
 
-            test(tcpEndpoint.type() == Ice.TCPEndpointType.value && !tcpEndpoint.secure() ||
-                 tcpEndpoint.type() == Ice.SSLEndpointType.value && tcpEndpoint.secure() ||
-                 tcpEndpoint.type() == Ice.WSEndpointType.value && !tcpEndpoint.secure() ||
-                 tcpEndpoint.type() == Ice.WSSEndpointType.value && tcpEndpoint.secure());
-            test(tcpEndpoint.type() == Ice.TCPEndpointType.value && info is Ice.TCPEndpointInfo ||
-                 tcpEndpoint.type() == Ice.SSLEndpointType.value && info is Ice.SSL.EndpointInfo ||
-                 tcpEndpoint.type() == Ice.WSEndpointType.value && info is Ice.WSEndpointInfo ||
-                 tcpEndpoint.type() == Ice.WSSEndpointType.value && info is Ice.WSEndpointInfo);
+            test((tcpEndpoint.type() == Ice.TCPEndpointType.value && !tcpEndpoint.secure()) ||
+                 (tcpEndpoint.type() == Ice.SSLEndpointType.value && tcpEndpoint.secure()) ||
+                 (tcpEndpoint.type() == Ice.WSEndpointType.value && !tcpEndpoint.secure()) ||
+                 (tcpEndpoint.type() == Ice.WSSEndpointType.value && tcpEndpoint.secure()));
+            test((tcpEndpoint.type() == Ice.TCPEndpointType.value && info is Ice.TCPEndpointInfo) ||
+                 (tcpEndpoint.type() == Ice.SSLEndpointType.value && info is Ice.SSL.EndpointInfo) ||
+                 (tcpEndpoint.type() == Ice.WSEndpointType.value && info is Ice.WSEndpointInfo) ||
+                 (tcpEndpoint.type() == Ice.WSSEndpointType.value && info is Ice.WSEndpointInfo));
 
             Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endps[1].getInfo();
             test(udpEndpoint.host == "udphost");
@@ -160,7 +160,7 @@ public class AllTests : global::Test.AllTests
             Dictionary<string, string> ctx = testIntf.getEndpointInfoAsContext();
             test(ctx["host"].Equals(tcpinfo.host));
             test(ctx["compress"] == "false");
-            int port = System.Int32.Parse(ctx["port"]);
+            int port = int.Parse(ctx["port"]);
             test(port > 0);
 
             info = @base.ice_datagram().ice_getConnection().getEndpoint().getInfo();

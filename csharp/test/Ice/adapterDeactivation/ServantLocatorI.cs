@@ -28,7 +28,7 @@ public sealed class ServantLocatorI : Ice.ServantLocator
 
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
-    public Ice.Object locate(Ice.Current current, out System.Object cookie)
+    public Ice.Object locate(Ice.Current current, out object cookie)
     {
         lock (this)
         {
@@ -49,7 +49,7 @@ public sealed class ServantLocatorI : Ice.ServantLocator
         return new TestI();
     }
 
-    public void finished(Ice.Current current, Ice.Object servant, System.Object cookie)
+    public void finished(Ice.Current current, Ice.Object servant, object cookie)
     {
         lock (this)
         {
@@ -76,5 +76,5 @@ public sealed class ServantLocatorI : Ice.ServantLocator
     }
 
     private bool _deactivated;
-    private RouterI _router = new RouterI();
+    private readonly RouterI _router = new RouterI();
 }

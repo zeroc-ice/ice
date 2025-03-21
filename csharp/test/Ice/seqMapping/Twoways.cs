@@ -6,7 +6,7 @@ internal class Twoways
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
-    private static int _length = 100;
+    private static readonly int _length = 100;
 
     internal static void twoways(Ice.Communicator communicator, Test.MyClassPrx p)
     {
