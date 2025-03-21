@@ -38,9 +38,9 @@ module Ice
     {
         /// Registers or unregisters the endpoints of an object adapter.
         /// @param id The adapter ID.
-        /// @param proxy A dummy proxy created by the object adapter. @c proxy carries the object adapter's endpoints.
+        /// @param proxy A dummy proxy created by the object adapter. @p proxy carries the object adapter's endpoints.
         /// The locator considers an object adapter to be active after it has registered its endpoints.
-        /// When @c proxy is null, the endpoints are unregistered and the locator considers the object adapter inactive.
+        /// When @p proxy is null, the endpoints are unregistered and the locator considers the object adapter inactive.
         /// @throws AdapterNotFoundException Thrown if the locator only allows registered object adapters to register
         /// their endpoints and no object adapter with this adapter ID was registered with the locator.
         /// @throws AdapterAlreadyActiveException Thrown if an object adapter with the same adapter ID has already
@@ -53,8 +53,8 @@ module Ice
         /// group.
         /// @param adapterId The adapter ID.
         /// @param replicaGroupId The replica group ID.
-        /// @param proxy A dummy proxy created by the object adapter. @c proxy carries the object adapter's endpoints.
-        /// The locator considers an object adapter to be active after it has registered its endpoints. When @c proxy is
+        /// @param proxy A dummy proxy created by the object adapter. @p proxy carries the object adapter's endpoints.
+        /// The locator considers an object adapter to be active after it has registered its endpoints. When @p proxy is
         /// null, the endpoints are unregistered and the locator considers the object adapter inactive.
         /// @throws AdapterNotFoundException Thrown if the locator only allows registered object adapters to register
         /// their endpoints and no object adapter with this adapter ID was registered with the locator.

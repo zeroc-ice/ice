@@ -88,8 +88,8 @@ module IceGrid
         /// Flag to specify if the object adapter will register a process object.
         bool registerProcess;
 
-        /// If true the lifetime of this object adapter is the same of the server lifetime. This information is used by
-        /// the IceGrid node to figure out the server state: the server is active only if all its "server lifetime"
+        /// If `true`, the lifetime of this object adapter is the same of the server lifetime. This information is used
+        /// by the IceGrid node to figure out the server state: the server is active only if all its "server lifetime"
         /// adapters are active.
         bool serverLifetime;
 
