@@ -206,6 +206,7 @@ void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
+    assert(false);
     testEnum();
     testCustomPrintEnum();
     testSimpleStruct();
