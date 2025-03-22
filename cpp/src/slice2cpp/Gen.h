@@ -135,7 +135,7 @@ namespace Slice
         class DataDefVisitor final : public ParserVisitor
         {
         public:
-            DataDefVisitor(IceInternal::Output&, IceInternal::Output&, const std::string&);
+            DataDefVisitor(IceInternal::Output&, IceInternal::Output&, std::string);
             DataDefVisitor(const DataDefVisitor&) = delete;
 
             bool visitModuleStart(const ModulePtr&) final;
@@ -159,8 +159,6 @@ namespace Slice
             IceInternal::Output& C;
 
             std::string _dllExport;
-            std::string _dllClassExport;
-            std::string _dllMemberExport;
             TypeContext _useWstring{TypeContext::None};
             std::list<TypeContext> _useWstringHist;
             bool _firstElement{true};
