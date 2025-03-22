@@ -5,15 +5,14 @@
 [["cpp:dll-export:ICESTORM_API"]]
 [["cpp:doxygen:include:IceStorm/IceStorm.h"]]
 [["cpp:header-ext:h"]]
+
 [["cpp:include:IceStorm/Config.h"]]
 
+[["java:package:com.zeroc.IceStorm"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:IceStorm"]]
 
 #include "Ice/Metrics.ice"
-
-[["java:package:com.zeroc.IceStorm"]]
 
 ["swift:module:IceStorm:MX"]
 module IceMX

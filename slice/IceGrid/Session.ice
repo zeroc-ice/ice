@@ -5,16 +5,15 @@
 [["cpp:dll-export:ICEGRID_API"]]
 [["cpp:doxygen:include:IceGrid/IceGrid.h"]]
 [["cpp:header-ext:h"]]
+
 [["cpp:include:IceGrid/Config.h"]]
 
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:IceGrid"]]
 
-#include "Glacier2/Session.ice"
 #include "Exception.ice"
-
-[["java:package:com.zeroc"]]
+#include "Glacier2/Session.ice"
 
 module IceGrid
 {

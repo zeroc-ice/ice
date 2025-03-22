@@ -5,15 +5,14 @@
 [["cpp:dll-export:GLACIER2_API"]]
 [["cpp:doxygen:include:Glacier2/Glacier2.h"]]
 [["cpp:header-ext:h"]]
+
 [["cpp:include:Glacier2/Config.h"]]
 
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:Glacier2"]]
 
 #include "SSLInfo.ice"
-
-[["java:package:com.zeroc"]]
 
 module Glacier2
 {

@@ -5,15 +5,14 @@
 [["cpp:dll-export:ICEBOX_API"]]
 [["cpp:doxygen:include:IceBox/IceBox.h"]]
 [["cpp:header-ext:h"]]
+
 [["cpp:include:IceBox/Config.h"]]
 
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:IceBox"]]
 
 #include "Ice/BuiltinSequences.ice"
-
-[["java:package:com.zeroc"]]
 
 /// Host multiple independent services in the same Ice server.
 module IceBox

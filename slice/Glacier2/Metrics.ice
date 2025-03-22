@@ -5,15 +5,14 @@
 [["cpp:dll-export:GLACIER2_API"]]
 [["cpp:doxygen:include:Glacier2/Glacier2.h"]]
 [["cpp:header-ext:h"]]
+
 [["cpp:include:Glacier2/Config.h"]]
 
+[["java:package:com.zeroc.Glacier2"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:Glacier2"]]
 
 #include "Ice/Metrics.ice"
-
-[["java:package:com.zeroc.Glacier2"]]
 
 ["swift:module:Glacier2:MX"]
 module IceMX

@@ -6,7 +6,7 @@
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
 
-[["java:package:com.zeroc"]]
+[["java:package:com.zeroc.Ice"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Ice"]]
 

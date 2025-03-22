@@ -5,18 +5,17 @@
 [["cpp:dll-export:ICEGRID_API"]]
 [["cpp:doxygen:include:IceGrid/IceGrid.h"]]
 [["cpp:header-ext:h"]]
+
 [["cpp:include:IceGrid/Config.h"]]
 
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:IceGrid"]]
 
-#include "Exception.ice"
-#include "Session.ice"
 #include "Admin.ice"
+#include "Exception.ice"
 #include "Ice/Locator.ice"
-
-[["java:package:com.zeroc"]]
+#include "Session.ice"
 
 /// Deploy and manage Ice servers.
 module IceGrid

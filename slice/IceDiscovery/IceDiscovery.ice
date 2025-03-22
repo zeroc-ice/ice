@@ -5,13 +5,11 @@
 [["cpp:doxygen:include:IceDiscovery/IceDiscovery.h"]]
 [["cpp:header-ext:h"]]
 
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:IceDiscovery"]]
 
 #include "Ice/Identity.ice"
-
-[["java:package:com.zeroc"]]
 
 module IceDiscovery
 {

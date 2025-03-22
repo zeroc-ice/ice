@@ -5,13 +5,11 @@
 [["cpp:doxygen:include:IceLocatorDiscovery/IceLocatorDiscovery.h"]]
 [["cpp:header-ext:h"]]
 
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:IceLocatorDiscovery"]]
 
 #include "Ice/Locator.ice"
-
-[["java:package:com.zeroc"]]
 
 /// IceLocatorDiscovery is an Ice plug-in that enables the discovery of IceGrid and custom locators via UDP multicast.
 module IceLocatorDiscovery
