@@ -21,7 +21,7 @@ namespace Ice
     /// <em>application-name</em>[.<em>category</em>[.<em>sub-category</em>]].<em>name</em>.
     /// This class is thread-safe: multiple threads can safely read and write the properties without their own
     /// synchronization.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API Properties final
     {
     public:

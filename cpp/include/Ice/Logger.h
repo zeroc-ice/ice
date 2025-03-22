@@ -17,7 +17,7 @@ namespace Ice
 
     /// The Ice message logger. Applications can provide their own logger by implementing this interface and installing
     /// it in a communicator.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API Logger
     {
     public:

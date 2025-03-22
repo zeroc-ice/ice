@@ -20,7 +20,7 @@
 namespace Ice
 {
     /// Encapsulates the details of a slice with an unknown type.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     struct SliceInfo
     {
         /// The Slice type ID for this slice.
@@ -63,7 +63,7 @@ namespace Ice
     };
 
     /// Holds class slices that cannot be unmarshaled because their types are not known locally.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API SlicedData final
     {
     public:
@@ -79,7 +79,7 @@ namespace Ice
     };
 
     /// Represents an instance of an unknown class.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API UnknownSlicedValue final : public Value
     {
     public:

@@ -359,10 +359,9 @@ Slice::ToIfdef::operator()(char c)
 void
 Slice::printHeader(Output& out)
 {
-    out << "// Copyright (c) ZeroC, Inc.\n";
-    out << "//\n";
-    out << "// Ice version " << ICE_STRING_VERSION << "\n";
-    out << "//\n";
+    out << "// Copyright (c) ZeroC, Inc.";
+    out << sp;
+    out << nl << "// slice2cpp version " << ICE_STRING_VERSION;
 }
 
 void

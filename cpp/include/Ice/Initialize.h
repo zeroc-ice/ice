@@ -185,7 +185,7 @@ namespace Ice
 
     /// A special plug-in that installs a thread hook during a communicator's initialization.
     /// Both initialize and destroy are no-op. See InitializationData.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ThreadHookPlugin : public Ice::Plugin
     {
     public:
@@ -203,7 +203,7 @@ namespace Ice
     };
 
     /// Encapsulates data to initialize a communicator.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     struct InitializationData
     {
         /// The properties for the communicator.
@@ -452,7 +452,7 @@ namespace Ice
 
     /// A helper class that uses Resource Acquisition Is Initialization (RAII) to initialize and hold a
     /// communicator instance, and automatically destroy the communicator when the holder goes out of scope.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API CommunicatorHolder
     {
     public:

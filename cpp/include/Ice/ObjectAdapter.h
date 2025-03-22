@@ -23,7 +23,7 @@ namespace Ice
     /// identities, and proxies.
     /// @see Communicator
     /// @see ServantLocator
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ObjectAdapter
     {
     public:

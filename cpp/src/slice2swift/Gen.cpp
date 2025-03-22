@@ -56,6 +56,7 @@ Gen::Gen(const string& base, const vector<string>& includePaths, const string& d
 
     printHeader();
     printGeneratedHeader(_out, _fileBase + ".ice");
+    _out << sp;
 
     _out << nl << "import Foundation";
 }
@@ -92,10 +93,9 @@ Gen::generate(const UnitPtr& p)
 void
 Gen::printHeader()
 {
-    _out << "// Copyright (c) ZeroC, Inc.\n";
-    _out << "//\n";
-    _out << "// Ice version " << ICE_STRING_VERSION << "\n";
-    _out << "//\n";
+    _out << "// Copyright (c) ZeroC, Inc.";
+    _out << sp;
+    _out << nl << "// slice2swift version " << ICE_STRING_VERSION;
 }
 
 Gen::ImportVisitor::ImportVisitor(IceInternal::Output& o) : out(o) {}

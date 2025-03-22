@@ -12,7 +12,7 @@ namespace IceGrid
     /// replica group.
     /// IceGrid provides the list of available adapters. The implementation of this method can use the provided context
     /// and connection to filter and return the filtered set of adapters.
-    /// \headerfile IceGrid/IceGrid.h
+    /// @headerfile IceGrid/IceGrid.h
     class ReplicaGroupFilter
     {
     public:
@@ -34,7 +34,7 @@ namespace IceGrid
     /// The TypeFilter is used by IceGrid to filter well-known proxies returned to the client when it searches a
     /// well-known object by type. IceGrid provides the list of available proxies. The implementation of this method can
     /// use the provided context and connection to filter and return the filtered set of proxies.
-    /// \headerfile IceGrid/IceGrid.h
+    /// @headerfile IceGrid/IceGrid.h
     class TypeFilter
     {
     public:
@@ -56,7 +56,7 @@ namespace IceGrid
     /// The RegistryPluginFacade is implemented by IceGrid and can be used by plugins and filter implementations to
     /// retrieve information from IceGrid about the well-known objects or adapters. It's also used to
     /// register/unregister replica group and type filters.
-    /// \headerfile IceGrid/IceGrid.h
+    /// @headerfile IceGrid/IceGrid.h
     class RegistryPluginFacade
     {
     public:

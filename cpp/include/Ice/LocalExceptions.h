@@ -26,7 +26,7 @@ namespace Ice
 
     /// The dispatch failed. This is the base class for local exceptions that can be marshaled and transmitted "over the
     /// wire".
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API DispatchException : public LocalException
     {
     public:
@@ -52,7 +52,7 @@ namespace Ice
     };
 
     /// The base exception for the 3 NotExist exceptions.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API RequestFailedException : public DispatchException
     {
     public:
@@ -101,7 +101,7 @@ namespace Ice
     };
 
     /// The dispatch could not find a servant for the identity carried by the request.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ObjectNotExistException final : public RequestFailedException
     {
     public:
@@ -123,7 +123,7 @@ namespace Ice
     };
 
     /// The dispatch could not find a servant for the identity + facet carried by the request.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API FacetNotExistException final : public RequestFailedException
     {
     public:
@@ -146,7 +146,7 @@ namespace Ice
 
     /// The dispatch could not find the operation carried by the request on the target servant. This is typically due
     /// to a mismatch in the Slice definitions, such as the client using Slice definitions newer than the server's.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API OperationNotExistException final : public RequestFailedException
     {
     public:
@@ -168,7 +168,7 @@ namespace Ice
     };
 
     /// The dispatch failed with an exception that is not a LocalException or a UserException.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API UnknownException : public DispatchException
     {
     public:
@@ -190,7 +190,7 @@ namespace Ice
     };
 
     /// The dispatch failed with a LocalException that is not one of the special marshal-able local exceptions.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API UnknownLocalException final : public UnknownException
     {
     public:
@@ -204,7 +204,7 @@ namespace Ice
     };
 
     /// The dispatch returned a UserException that was not declared in the operation's exception specification.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API UnknownUserException final : public UnknownException
     {
     public:
@@ -228,7 +228,7 @@ namespace Ice
     //
 
     /// A generic exception base for all kinds of protocol error conditions.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ProtocolException : public LocalException
     {
     public:
@@ -242,7 +242,7 @@ namespace Ice
     /// because the client will automatically retry the operation call in case the server shut down the connection.
     /// However, if upon retry the server shuts down the connection again, and the retry limit has been reached, then
     /// this exception is propagated to the application code.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API CloseConnectionException final : public ProtocolException
     {
     public:
@@ -259,7 +259,7 @@ namespace Ice
 
     /// A datagram exceeds the configured size. This exception is raised if a datagram exceeds the configured send or
     /// receive buffer size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API DatagramLimitException final : public ProtocolException
     {
     public:
@@ -275,7 +275,7 @@ namespace Ice
     };
 
     /// This exception is raised for errors during marshaling or unmarshaling data.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API MarshalException final : public ProtocolException
     {
     public:
@@ -289,7 +289,7 @@ namespace Ice
     //
 
     /// This exception indicates a timeout condition.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API TimeoutException : public LocalException
     {
     public:
@@ -299,7 +299,7 @@ namespace Ice
     };
 
     /// This exception indicates a connection establishment timeout condition.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ConnectTimeoutException final : public TimeoutException
     {
     public:
@@ -315,7 +315,7 @@ namespace Ice
     };
 
     /// This exception indicates a connection closure timeout condition.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API CloseTimeoutException final : public TimeoutException
     {
     public:
@@ -331,7 +331,7 @@ namespace Ice
     };
 
     /// This exception indicates that an invocation failed because it timed out.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API InvocationTimeoutException final : public TimeoutException
     {
     public:
@@ -350,7 +350,7 @@ namespace Ice
     /// This exception is raised if a system error occurred in the server or client process. There are many possible
     /// causes for such a system exception. For details on the cause, {@link SyscallException#error} should be
     /// inspected.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API SyscallException : public LocalException
     {
     public:
@@ -405,7 +405,7 @@ namespace Ice
 
     /// This exception indicates a DNS problem. For details on the cause, {@link DNSException#error} should be
     /// inspected.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API DNSException final : public SyscallException
     {
     public:
@@ -420,7 +420,7 @@ namespace Ice
     };
 
     /// This exception indicates file errors.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API FileException final : public SyscallException
     {
     public:
@@ -439,7 +439,7 @@ namespace Ice
     //
 
     /// This exception indicates socket errors.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API SocketException : public SyscallException
     {
     public:
@@ -475,7 +475,7 @@ namespace Ice
     };
 
     /// This exception indicates connection failures.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ConnectFailedException : public SocketException
     {
     public:
@@ -485,7 +485,7 @@ namespace Ice
     };
 
     /// This exception indicates a lost connection.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ConnectionLostException final : public SocketException
     {
     public:
@@ -499,7 +499,7 @@ namespace Ice
     };
 
     /// This exception indicates a connection failure for which the server host actively refuses a connection.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ConnectionRefusedException final : public ConnectFailedException
     {
     public:
@@ -521,7 +521,7 @@ namespace Ice
     /// An attempt was made to register something more than once with the Ice run time. This exception is raised if an
     /// attempt is made to register a servant, servant locator, facet, value factory, plug-in, object adapter, object,
     /// or user exception factory more than once for the same ID.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API AlreadyRegisteredException final : public LocalException
     {
     public:
@@ -551,7 +551,7 @@ namespace Ice
 
     /// This exception is raised if the {@link Communicator} has been destroyed.
     /// @see Communicator#destroy
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API CommunicatorDestroyedException final : public LocalException
     {
     public:
@@ -567,7 +567,7 @@ namespace Ice
     };
 
     /// This exception indicates that a connection was closed gracefully.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ConnectionAbortedException final : public LocalException
     {
     public:
@@ -593,7 +593,7 @@ namespace Ice
     };
 
     /// This exception indicates that a connection was closed gracefully.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ConnectionClosedException final : public LocalException
     {
     public:
@@ -619,7 +619,7 @@ namespace Ice
     };
 
     /// This exception is raised if an unsupported feature is used.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API FeatureNotSupportedException final : public LocalException
     {
     public:
@@ -629,7 +629,7 @@ namespace Ice
     };
 
     /// This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API FixedProxyException final : public LocalException
     {
     public:
@@ -645,7 +645,7 @@ namespace Ice
     };
 
     /// This exception is raised when a failure occurs during initialization.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API InitializationException final : public LocalException
     {
     public:
@@ -655,7 +655,7 @@ namespace Ice
     };
 
     /// This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API InvocationCanceledException final : public LocalException
     {
     public:
@@ -668,7 +668,7 @@ namespace Ice
     };
 
     /// This exception is raised if no suitable endpoint is available.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API NoEndpointException final : public LocalException
     {
     public:
@@ -688,7 +688,7 @@ namespace Ice
     /// plug-in, object adapter, object, or user exception factory that is not currently registered. It's also raised if
     /// the Ice locator can't find an object or object adapter when resolving an indirect proxy or when an object
     /// adapter is activated.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API NotRegisteredException final : public LocalException
     {
     public:
@@ -719,7 +719,7 @@ namespace Ice
     /// This exception is raised if an attempt is made to use a deactivated {@link ObjectAdapter}.
     /// @see ObjectAdapter#deactivate
     /// @see Communicator#shutdown
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ObjectAdapterDeactivatedException final : public LocalException
     {
     public:
@@ -736,7 +736,7 @@ namespace Ice
     };
 
     /// This exception is raised if an attempt is made to use a destroyed ObjectAdapter.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ObjectAdapterDestroyedException final : public LocalException
     {
     public:
@@ -754,7 +754,7 @@ namespace Ice
 
     /// This exception is raised if an {@link ObjectAdapter} cannot be activated. This happens if the {@link Locator}
     /// detects another active {@link ObjectAdapter} with the same adapter id.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ObjectAdapterIdInUseException final : public LocalException
     {
     public:
@@ -771,7 +771,7 @@ namespace Ice
     };
 
     /// Reports a failure that occurred while parsing a string.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ParseException final : public LocalException
     {
     public:
@@ -781,7 +781,7 @@ namespace Ice
     };
 
     /// This exception indicates that a failure occurred while initializing a plug-in.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API PluginInitializationException final : public LocalException
     {
     public:
@@ -791,7 +791,7 @@ namespace Ice
     };
 
     /// This exception indicates a failure in a security subsystem, such as the IceSSL plug-in.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API SecurityException final : public LocalException
     {
     public:
@@ -804,7 +804,7 @@ namespace Ice
     /// invoke an operation with <code>ice_oneway</code>, <code>ice_batchOneway</code>, <code>ice_datagram</code>, or
     /// <code>ice_batchDatagram</code> and the operation has a return value, out-parameters, or an exception
     /// specification.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API TwowayOnlyException final : public LocalException
     {
     public:

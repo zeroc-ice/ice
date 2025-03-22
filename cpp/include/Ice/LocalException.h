@@ -12,7 +12,7 @@
 namespace Ice
 {
     /// Base class for all Ice exceptions not defined in Slice.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API LocalException : public Exception
     {
     public:

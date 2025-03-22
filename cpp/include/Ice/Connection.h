@@ -45,7 +45,7 @@ namespace Ice
     using CloseCallback = std::function<void(const ConnectionPtr& con)>;
 
     /// The user-level interface to a connection.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API Connection
     {
     public:
@@ -161,7 +161,7 @@ namespace Ice
     };
 
     /// Base class providing access to the connection details.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ConnectionInfo
     {
     public:
@@ -203,7 +203,7 @@ namespace Ice
     };
 
     /// Provides access to the connection details of an IP connection
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API IPConnectionInfo : public ConnectionInfo
     {
     public:
@@ -244,7 +244,7 @@ namespace Ice
     };
 
     /// Provides access to the connection details of a TCP connection
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API TCPConnectionInfo final : public IPConnectionInfo
     {
     public:
@@ -284,7 +284,7 @@ namespace Ice
     };
 
     /// Provides access to the connection details of a UDP connection
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API UDPConnectionInfo final : public IPConnectionInfo
     {
     public:
@@ -335,7 +335,7 @@ namespace Ice
     };
 
     /// Provides access to the connection details of a WebSocket connection
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API WSConnectionInfo final : public ConnectionInfo
     {
     public:
@@ -356,7 +356,7 @@ namespace Ice
     };
 
     /// Provides access to the connection details of an IAP connection
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class IAPConnectionInfo final : public ConnectionInfo
     {
     public:

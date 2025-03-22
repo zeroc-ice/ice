@@ -7,10 +7,10 @@
 
 namespace Ice
 {
-    /// \cond INTERNAL
+    /// @cond INTERNAL
     class ConnectionI;
     using ConnectionIPtr = std::shared_ptr<ConnectionI>;
-    /// \endcond
+    /// @endcond
 }
 
 #endif

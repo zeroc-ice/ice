@@ -18,13 +18,13 @@ namespace Ice
     /// @param typeId The Slice type ID of the class.
     /// @return A new instance of the class identified by typeId, or null if the factory is unable to create this
     /// instance.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     using ValueFactory = std::function<ValuePtr(std::string_view typeId)>;
 
     /// A value factory manager maintains a collection of value factories. An application can supply a custom
     /// implementation during communicator initialization; otherwise Ice provides a default implementation.
     /// @see ValueFactory
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ValueFactoryManager
     {
     public:

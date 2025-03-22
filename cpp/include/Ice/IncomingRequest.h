@@ -15,7 +15,7 @@ namespace Ice
     /// Represents a request received by a connection. It's the argument to the dispatch function on Object.
     /// @remark IncomingRequest is neither copyable nor movable. It can be used only on the dispatch thread.
     /// @see Object::dispatch
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API IncomingRequest final
     {
     public:

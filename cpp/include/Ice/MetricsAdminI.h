@@ -15,10 +15,10 @@
 
 namespace IceMX
 {
-    /// \cond INTERNAL
+    /// @cond INTERNAL
     class Updater;
     template<typename T> class MetricsHelperT;
-    /// \endcond
+    /// @endcond
 }
 
 namespace IceInternal

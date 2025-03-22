@@ -1181,10 +1181,9 @@ generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output
 static void
 printHeader(IceInternal::Output& out)
 {
-    out << "// Copyright (c) ZeroC, Inc.\n";
-    out << "//\n";
-    out << "// Ice version " << ICE_STRING_VERSION << "\n";
-    out << "//\n";
+    out << "// Copyright (c) ZeroC, Inc.";
+    out << sp;
+    out << nl << "// slice2php version " << ICE_STRING_VERSION;
 }
 
 namespace

@@ -27,7 +27,7 @@ namespace Ice
     class ObjectPrx;
 
     /// Interface for output streams used to create a sequence of bytes from Slice types.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API OutputStream : public IceInternal::Buffer
     {
     public:
@@ -105,9 +105,9 @@ namespace Ice
         /// @param other The other stream.
         void swap(OutputStream& other) noexcept;
 
-        /// \cond INTERNAL
+        /// @cond INTERNAL
         void resetEncapsulation();
-        /// \endcond
+        /// @endcond
 
         /// Resizes the stream to a new size.
         ///
@@ -639,9 +639,9 @@ namespace Ice
         /// valid for the lifetime of the stream.
         std::pair<const std::byte*, const std::byte*> finished();
 
-        /// \cond INTERNAL
+        /// @cond INTERNAL
         OutputStream(IceInternal::Instance*, EncodingVersion encoding);
-        /// \endcond
+        /// @endcond
 
     private:
         // Optionals

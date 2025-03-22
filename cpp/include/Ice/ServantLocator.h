@@ -13,7 +13,7 @@ namespace Ice
     /// @see ObjectAdapter
     /// @see ObjectAdapter#addServantLocator
     /// @see ObjectAdapter#findServantLocator
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ServantLocator
     {
     public:

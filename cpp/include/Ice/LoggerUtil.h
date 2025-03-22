@@ -16,7 +16,7 @@
 namespace Ice
 {
     /// Base class for logger output utility classes.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API LoggerOutputBase
     {
     public:
@@ -35,7 +35,7 @@ namespace Ice
         std::ostringstream _os;
     };
 
-    /// \cond INTERNAL
+    /// @cond INTERNAL
     ICE_API LoggerOutputBase& loggerInsert(LoggerOutputBase& out, const Ice::Exception& ex);
 
     template<typename T> struct IsException
@@ -81,10 +81,10 @@ namespace Ice
     }
 
     ICE_API LoggerOutputBase& operator<<(LoggerOutputBase&, std::ios_base& (*)(std::ios_base&));
-    /// \endcond
+    /// @endcond
 
     /// Collects output and flushes it via a logger method.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<class L, class LPtr, void (L::*output)(const std::string&)> class LoggerOutput : public LoggerOutputBase
     {
     public:
@@ -120,7 +120,7 @@ namespace Ice
     using Error = LoggerOutput<Logger, LoggerPtr, &Logger::error>;
 
     /// Flushes output to Logger::trace.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API Trace : public LoggerOutputBase
     {
     public:
@@ -141,7 +141,7 @@ namespace Ice
 
     /// A special plug-in that installs a logger during a communicator's initialization.
     /// Both initialize and destroy are no-op. See Ice::InitializationData.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API LoggerPlugin : public Ice::Plugin
     {
     public:

@@ -910,6 +910,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     printHeader();
     printGeneratedHeader(_out, fileBase + ".ice");
 
+    _out << sp;
     _out << nl << "#nullable enable";
     _out << sp;
     _out << nl << "[assembly:Ice.Slice(\"" << fileBase << ".ice\")]";
@@ -967,7 +968,7 @@ Slice::Gen::printHeader()
 {
     _out << "// Copyright (c) ZeroC, Inc.";
     _out << sp;
-    _out << nl << "// Ice version " << ICE_STRING_VERSION << "\n";
+    _out << nl << "// slice2cs version " << ICE_STRING_VERSION;
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out) {}

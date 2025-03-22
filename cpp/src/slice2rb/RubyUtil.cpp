@@ -1335,8 +1335,7 @@ Slice::Ruby::getAbsolute(const ContainedPtr& cont, IdentStyle style, const strin
 void
 Slice::Ruby::printHeader(IceInternal::Output& out)
 {
-    out << "# Copyright (c) ZeroC, Inc.\n";
-    out << "#\n";
-    out << "# Ice version " << ICE_STRING_VERSION << "\n";
-    out << "#\n";
+    out << "# Copyright (c) ZeroC, Inc.";
+    out << sp;
+    out << nl << "# slice2rb version " << ICE_STRING_VERSION;
 }

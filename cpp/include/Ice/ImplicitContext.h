@@ -27,7 +27,7 @@ namespace Ice
     /// underlying context without first retrieving a copy of the entire context. These operations correspond to a
     /// subset of the <code>java.util.Map</code> methods, with <code>java.lang.Object</code> replaced by
     /// <code>string</code> and null replaced by the empty-string.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ImplicitContext final
     {
     public:

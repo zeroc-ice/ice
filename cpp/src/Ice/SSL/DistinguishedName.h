@@ -62,9 +62,9 @@ namespace Ice::SSL
         operator std::string() const { return toString(); }
 
     protected:
-        /// \cond INTERNAL
+        /// @cond INTERNAL
         void unescape();
-        /// \endcond
+        /// @endcond
 
     private:
         std::list<std::pair<std::string, std::string>> _rdns;
