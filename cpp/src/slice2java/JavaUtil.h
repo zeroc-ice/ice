@@ -187,7 +187,7 @@ namespace Slice
             const MetadataList& = MetadataList());
 
         //
-        // Returns true if the metadata has an entry with the given directive, and `false` otherwise.
+        // Returns` true` if the metadata has an entry with the given directive, and `false` otherwise.
         //
         static bool hasMetadata(const std::string&, const MetadataList&);
 
