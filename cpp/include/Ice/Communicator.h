@@ -66,7 +66,7 @@ namespace Ice
         void waitForShutdownAsync(std::function<void()> completed) noexcept;
 
         /// Check whether communicator has been shut down.
-        /// @return True if the communicator has been shut down; false otherwise.
+        /// @return `true` if the communicator has been shut down; `false` otherwise.
         /// @see #shutdown
         [[nodiscard]] bool isShutdown() const noexcept;
 

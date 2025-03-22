@@ -67,10 +67,10 @@ namespace Ice
         [[nodiscard]] virtual std::int16_t type() const noexcept;
 
         /// Returns true if this endpoint is a datagram endpoint.
-        /// @return True for a datagram endpoint.
+        /// @return `true` for a datagram endpoint.
         [[nodiscard]] virtual bool datagram() const noexcept;
 
-        /// @return True for a secure endpoint.
+        /// @return `true` for a secure endpoint.
         [[nodiscard]] virtual bool secure() const noexcept;
 
         /// The information of the underlying endpoint or null if there's no underlying endpoint.

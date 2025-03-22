@@ -452,7 +452,7 @@ namespace IceBT::DBus
     {
     public:
         //
-        // Return true if message is handled or false otherwise.
+        // Return `true` if message is handled or `false` otherwise.
         //
         virtual bool handleMessage(const ConnectionPtr&, const MessagePtr&) = 0;
     };

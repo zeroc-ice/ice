@@ -41,7 +41,7 @@ namespace Ice
 
         /// Check if this key has an associated value in the underlying context.
         /// @param key The key.
-        /// @return True if the key has an associated value, False otherwise.
+        /// @return `true` if the key has an associated value, `false` otherwise.
         [[nodiscard]] bool containsKey(std::string_view key) const;
 
         /// Get the value associated with the given key in the underlying context. Returns an empty string if no value

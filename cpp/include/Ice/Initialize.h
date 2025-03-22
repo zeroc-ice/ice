@@ -488,7 +488,7 @@ namespace Ice
         CommunicatorHolder& operator=(CommunicatorHolder&& holder) noexcept;
 
         /// Determines whether the holder contains an instance.
-        /// @return True if the holder currently holds an instance, false otherwise.
+        /// @return `true` if the holder currently holds an instance, `false` otherwise.
         explicit operator bool() const;
 
         ~CommunicatorHolder();

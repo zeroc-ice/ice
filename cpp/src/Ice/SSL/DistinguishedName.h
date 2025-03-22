@@ -43,13 +43,13 @@ namespace Ice::SSL
 
         /// Performs a partial match with another DistinguishedName.
         /// @param dn The name to be matched.
-        /// @return True if all of the RDNs in the argument are present in this
+        /// @return `true` if all of the RDNs in the argument are present in this
         /// DistinguishedName and they have the same values.
         [[nodiscard]] bool match(const DistinguishedName& dn) const;
 
         /// Performs a partial match with another DistinguishedName.
         /// @param dn The name to be matched.
-        /// @return True if all of the RDNs in the argument are present in this
+        /// @return `true` if all of the RDNs in the argument are present in this
         /// DistinguishedName and they have the same values.
         [[nodiscard]] bool match(const std::string& dn) const;
 
