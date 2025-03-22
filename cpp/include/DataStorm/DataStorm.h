@@ -4,7 +4,7 @@
 #define DATASTORM_DATASTORM_H
 
 #include "Config.h"
-#include "DataStorm/Sample.h"
+#include "DataStorm/SampleEvent.h"
 #include "InternalI.h"
 #include "InternalT.h"
 #include "Node.h"

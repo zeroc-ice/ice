@@ -4,7 +4,7 @@
 
 #include "Ice/Identity.ice"
 #include "Ice/BuiltinSequences.ice"
-#include "DataStorm/Sample.ice"
+#include "DataStorm/SampleEvent.ice"
 
 [["cpp:include:deque"]]
 
