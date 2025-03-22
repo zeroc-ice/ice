@@ -8,24 +8,22 @@
 /// Data-centric, broker-less publish/subscribe framework. C++ only.
 module DataStorm
 {
-    /// The sample event matches the operation used by the DataWriter to update the data element. It also provides
-    /// information on what to expect from the sample. A sample with the Add or Update event always provide a value
-    /// while a sample with the Remove type doesn't.
+    /// Describes the operation used by a data writer to update a data element.
     enum SampleEvent
     {
-        /// The element has been added.
+        /// The data writer added the element.
         Add,
 
-        /// The element has been updated.
+        /// The data writer updated the element.
         Update,
 
-        /// The element has been partially updated.
+        /// The data writer partially updated the element.
         PartialUpdate,
 
-        /// The element has been removed.
+        /// The data writer partially removed the element.
         Remove,
     }
 
-    /// A sequence of sample event.
+    /// A sequence of sample events.
     sequence<SampleEvent> SampleEventSeq;
 }

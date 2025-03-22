@@ -10,7 +10,7 @@ testDuplicateSymbols()
     // Make sure these don't cause duplicate symbols errors on link
     ostringstream os;
     os << SampleEvent::Add;
-    os << vector<SampleEvent>();
+    os << SampleEventSeq();
     Sample<string, string>* sample = nullptr;
     os << *sample;
 }

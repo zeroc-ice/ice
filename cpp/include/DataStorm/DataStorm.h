@@ -1590,10 +1590,10 @@ namespace DataStorm
 
     /// @private
     template<typename Key, typename Value, typename UpdateTag>
-    std::function<std::function<bool(const Sample<Key, Value, UpdateTag>&)>(const std::vector<SampleEvent>&)>
+    std::function<std::function<bool(const Sample<Key, Value, UpdateTag>&)>(const SampleEventSeq&)>
     makeSampleEventFilter(const Topic<Key, Value, UpdateTag>&)
     {
-        return [](const std::vector<SampleEvent>& criteria)
+        return [](const SampleEventSeq& criteria)
         {
             return [criteria](const Sample<Key, Value, UpdateTag>& sample)
             { return std::find(criteria.begin(), criteria.end(), sample.getEvent()) != criteria.end(); };
