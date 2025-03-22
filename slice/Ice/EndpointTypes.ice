@@ -10,11 +10,9 @@
 [["cpp:include:Ice/Config.h"]]
 [["cpp:include:cstdint"]]
 
-[["js:module:@zeroc/ice"]]
-
-[["python:pkgdir:Ice"]]
-
 [["java:package:com.zeroc"]]
+[["js:module:@zeroc/ice"]]
+[["python:pkgdir:Ice"]]
 
 module Ice
 {

@@ -16,11 +16,9 @@
 [["cpp:include:string"]]
 [["cpp:include:vector"]]
 
-[["js:module:@zeroc/ice"]]
-
-[["python:pkgdir:Ice"]]
-
 [["java:package:com.zeroc"]]
+[["js:module:@zeroc/ice"]]
+[["python:pkgdir:Ice"]]
 
 module Ice
 {
