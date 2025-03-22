@@ -759,10 +759,10 @@ namespace Ice
 
             // Instance attributes
             SliceType _sliceType{NoSlice};
-            bool _skipFirstSlice;
+            bool _skipFirstSlice{false};
 
             // Slice attributes
-            std::int32_t _sliceSize;
+            std::int32_t _sliceSize{0};
             std::string _typeId;
         };
 
@@ -824,19 +824,19 @@ namespace Ice
                 }
 
                 // Instance attributes
-                SliceType sliceType;
-                bool skipFirstSlice;
+                SliceType sliceType{NoSlice};
+                bool skipFirstSlice{false};
                 SliceInfoSeq slices; // Preserved slices.
                 IndexListList indirectionTables;
 
                 // Slice attributes
-                std::uint8_t sliceFlags;
-                std::int32_t sliceSize;
+                std::uint8_t sliceFlags{0};
+                std::int32_t sliceSize{0};
                 std::string typeId;
-                int compactId;
+                int compactId{0};
                 IndirectPatchList indirectPatchList;
 
-                InstanceData* previous;
+                InstanceData* previous{nullptr};
                 InstanceData* next{nullptr};
             };
             InstanceData _preAllocatedInstanceData;
