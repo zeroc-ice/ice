@@ -15,6 +15,7 @@ module Test
 
     interface MyDerivedClass extends MyClass
     {
+        ["php:identifier:_echo"]
         Object* echo(Object* obj);
     }
 }

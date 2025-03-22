@@ -5,11 +5,9 @@
 #include "Proxy.h"
 #include "Types.h"
 #include "Util.h"
-#include "slice2php/PHPUtil.h"
 
 using namespace std;
 using namespace IcePHP;
-using namespace Slice::PHP;
 
 extern "C"
 {
@@ -49,12 +47,21 @@ namespace IcePHP
     class OperationI final : public Operation
     {
     public:
-        OperationI(const char*, Ice::OperationMode, std::optional<Ice::FormatType>, zval*, zval*, zval*, zval*);
+        OperationI(
+            const char*,
+            const char*,
+            Ice::OperationMode,
+            std::optional<Ice::FormatType>,
+            zval*,
+            zval*,
+            zval*,
+            zval*);
         ~OperationI();
 
         zend_function* function() final;
 
-        string name; // On-the-wire name.
+        string sliceName;  // On-the-wire name.
+        string mappedName; // mapped PHP function name.
         Ice::OperationMode mode;
         std::optional<Ice::FormatType> format;
         ParamInfoList inParams;
@@ -147,14 +154,16 @@ IcePHP::ResultCallback::unset(void)
 
 // OperationI implementation.
 IcePHP::OperationI::OperationI(
-    const char* n,
+    const char* name,
+    const char* mapped,
     Ice::OperationMode m,
     std::optional<Ice::FormatType> f,
     zval* in,
     zval* out,
     zval* ret,
     zval* ex)
-    : name(n),
+    : sliceName(name),
+      mappedName(mapped),
       mode(m),
       format(f),
       _zendFunction(0)
@@ -253,11 +262,10 @@ IcePHP::OperationI::function()
             getArgInfo(argInfo[i], *p, true);
         }
 
-        string fixed = fixIdent(name);
-
         _zendFunction = static_cast<zend_internal_function*>(ecalloc(1, sizeof(zend_internal_function)));
         _zendFunction->type = ZEND_INTERNAL_FUNCTION;
-        _zendFunction->function_name = zend_string_init(fixed.c_str(), static_cast<uint32_t>(fixed.length()), 0);
+        _zendFunction->function_name =
+            zend_string_init(mappedName.c_str(), static_cast<uint32_t>(mappedName.length()), 0);
         _zendFunction->scope = proxyClassEntry;
         _zendFunction->fn_flags = ZEND_ACC_PUBLIC;
         _zendFunction->prototype = 0;
@@ -387,7 +395,7 @@ IcePHP::TypedInvocation::prepareRequest(
                 if ((!info->optional || !isUnset(arg)) && !info->type->validate(arg, false))
                 {
                     ostringstream os;
-                    os << "invalid value for argument " << info->pos + 1 << " in operation '" << _op->name << "'";
+                    os << "invalid value for argument " << info->pos + 1 << " in operation '" << _op->mappedName << "'";
                     invalidArgument(os.str());
                     return false;
                 }
@@ -593,7 +601,7 @@ IcePHP::TypedInvocation::checkTwowayOnly(const Ice::ObjectPrx& proxy) const
 {
     if ((_op->returnType || !_op->outParams.empty()) && !proxy->ice_isTwoway())
     {
-        throw Ice::TwowayOnlyException(__FILE__, __LINE__, _op->name);
+        throw Ice::TwowayOnlyException(__FILE__, __LINE__, _op->sliceName);
     }
 }
 
@@ -643,11 +651,11 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         {
             if (hasCtx)
             {
-                status = _prx->ice_invoke(_op->name, _op->mode, params, result, ctx);
+                status = _prx->ice_invoke(_op->sliceName, _op->mode, params, result, ctx);
             }
             else
             {
-                status = _prx->ice_invoke(_op->name, _op->mode, params, result);
+                status = _prx->ice_invoke(_op->sliceName, _op->mode, params, result);
             }
         }
 
@@ -697,8 +705,10 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
 ZEND_FUNCTION(IcePHP_defineOperation)
 {
     zval* cls;
-    char* name;
-    size_t nameLen;
+    char* sliceName;
+    size_t sliceNameLen;
+    char* mappedName;
+    size_t mappedNameLen;
     zend_long mode;
     zend_long format;
     zval* inParams;
@@ -708,10 +718,12 @@ ZEND_FUNCTION(IcePHP_defineOperation)
 
     if (zend_parse_parameters(
             ZEND_NUM_ARGS(),
-            const_cast<char*>("oslla!a!a!a!"),
+            const_cast<char*>("osslla!a!a!a!"),
             &cls,
-            &name,
-            &nameLen,
+            &sliceName,
+            &sliceNameLen,
+            &mappedName,
+            &mappedNameLen,
             &mode,
             &format,
             &inParams,
@@ -733,7 +745,8 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     }
 
     auto op = make_shared<OperationI>(
-        name,
+        sliceName,
+        mappedName,
         static_cast<Ice::OperationMode>(mode),
         cppFormat,
         inParams,
@@ -741,7 +754,7 @@ ZEND_FUNCTION(IcePHP_defineOperation)
         returnType,
         exceptions);
 
-    c->addOperation(name, op);
+    c->addOperation(mappedName, op);
 }
 
 ZEND_FUNCTION(IcePHP_Operation_call)

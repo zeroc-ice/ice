@@ -173,6 +173,7 @@ module Test
         bool hasF3();
     }
 
+    ["php:identifier:_Empty"]
     class Empty
     {
     }

@@ -20,7 +20,7 @@
 
 module Test
 {
-    class Default
+    class YesDefault
     {
         int x DEFAULT(10);
         int y DEFAULT(10);
