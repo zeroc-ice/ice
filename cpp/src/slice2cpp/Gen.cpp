@@ -747,7 +747,10 @@ Slice::Gen::generate(const UnitPtr& p)
     validateMetadata(p);
 
     C << sp;
+
+    // Main use-case: including a "pre-compiled" header at the very top of the implementation file.
     writeExtraHeaders(C);
+
     if (_dllExport.size())
     {
         C << "\n#ifndef " << _dllExport << "_EXPORTS";
@@ -890,6 +893,7 @@ Slice::Gen::writeExtraHeaders(IceInternal::Output& out)
         {
             out << "\n#endif";
         }
+        out << sp;
     }
 }
 
