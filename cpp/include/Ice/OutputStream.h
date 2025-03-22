@@ -179,7 +179,7 @@ namespace Ice
         ///
         /// @param typeId The Slice type ID for this slice.
         /// @param compactId The compact ID corresponding to the type, or -1 if no compact ID is used.
-        /// @param last True if this is the last slice, `false` otherwise.
+        /// @param last `true` if this is the last slice, `false` otherwise.
         void startSlice(std::string_view typeId, int compactId, bool last)
         {
             assert(_currentEncaps && _currentEncaps->encoder);
