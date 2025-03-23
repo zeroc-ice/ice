@@ -44,8 +44,8 @@ module Glacier2
         /// @param userId The user ID.
         /// @param password The password.
         /// @return A proxy for the newly created session, or null if no {@link SessionManager} is configured.
-        /// @throws PermissionDeniedException Thrown if an authentication or authorization failure occurs.
-        /// @throws CannotCreateSessionException Thrown if the session cannot be created.
+        /// @throws PermissionDeniedException Thrown when an authentication or authorization failure occurs.
+        /// @throws CannotCreateSessionException Thrown when the session cannot be created.
         /// @see Session
         /// @see SessionManager
         /// @see PermissionsVerifier
@@ -65,14 +65,14 @@ module Glacier2
         /// @see SessionManager
         /// @see PermissionsVerifier
         /// @return A proxy for the newly created session, or null if no {@link SSLSessionManager} is configured.
-        /// @throws PermissionDeniedException Thrown if an authentication or authorization failure occurs.
-        /// @throws CannotCreateSessionException Thrown if the session cannot be created.
+        /// @throws PermissionDeniedException Thrown when an authentication or authorization failure occurs.
+        /// @throws CannotCreateSessionException Thrown when the session cannot be created.
         ["amd"]
         Session* createSessionFromSecureConnection()
             throws PermissionDeniedException, CannotCreateSessionException;
 
         /// Keeps the session with this router alive.
-        /// @throws SessionNotExistException Thrown if no session exists for the caller (client).
+        /// @throws SessionNotExistException Thrown when no session exists for the caller (client).
         /// @deprecated This operation is provided for backward compatibility with Ice 3.7 and earlier and does nothing
         /// in newer versions of Glacier2.
         ["deprecated"]
@@ -80,7 +80,7 @@ module Glacier2
             throws SessionNotExistException;
 
         /// Destroys the session of the caller with this router.
-        /// @throws SessionNotExistException Thrown if no session exists for the caller (client).
+        /// @throws SessionNotExistException Thrown when no session exists for the caller (client).
         void destroySession()
             throws SessionNotExistException;
 

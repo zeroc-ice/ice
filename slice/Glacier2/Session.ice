@@ -111,7 +111,7 @@ module Glacier2
         /// @param control A proxy to the session control object. This proxy is null when `Glacier2.Server.Endpoints`
         /// is not configured.
         /// @return A proxy to the newly created session. This proxy is never null.
-        /// @throws CannotCreateSessionException Thrown if the session cannot be created.
+        /// @throws CannotCreateSessionException Thrown when the session cannot be created.
         Session* create(string userId, SessionControl* control)
             throws CannotCreateSessionException;
     }
@@ -126,7 +126,7 @@ module Glacier2
         /// @param control A proxy to the session control object. This proxy is null when `Glacier2.Server.Endpoints`
         /// is not configured.
         /// @return A proxy to the newly created session. This proxy is never null.
-        /// @throws CannotCreateSessionException Thrown if the session cannot be created.
+        /// @throws CannotCreateSessionException Thrown when the session cannot be created.
         Session* create(SSLInfo info, SessionControl* control)
             throws CannotCreateSessionException;
     }
