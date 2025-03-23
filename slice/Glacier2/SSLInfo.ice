@@ -16,8 +16,8 @@
 
 module Glacier2
 {
-    /// Represents information gathered from an incoming SSL connection and used for permission verification.
-    /// @see PermissionsVerifier
+    /// Represents information gathered from an incoming SSL connection and used for authentication and authorization.
+    /// @see SSLPermissionsVerifier
     struct SSLInfo
     {
         /// The remote host.

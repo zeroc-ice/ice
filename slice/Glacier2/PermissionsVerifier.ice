@@ -23,7 +23,8 @@ module Glacier2
         string reason;
     }
 
-    /// Represents an object that checks user permissions.
+    /// Represents an object that checks user permissions. The Glacier2 router and other services use a
+    /// {@link PermissionsVerifier} proxy when the user is authenticated using a user ID and password.
     interface PermissionsVerifier
     {
         /// Checks if a user is authorized to establish a session.
@@ -31,23 +32,23 @@ module Glacier2
         /// @param password The user's password.
         /// @param reason The reason why access was denied.
         /// @return `true` if access is granted, `false` otherwise.
-        /// @throws PermissionDeniedException Thrown if the user access is denied. This can be thrown in place of
-        /// returning `false` with a reason set in the reason out parameter.
+        /// @throws PermissionDeniedException Thrown when the user access is denied. This exception can be thrown
+        /// instead of returning `false` with a reason set in the reason out parameter.
         ["cpp:const"]
         idempotent bool checkPermissions(string userId, string password, out string reason)
             throws PermissionDeniedException;
     }
 
-    /// Represents an object that checks user permissions. The user is authenticated through the SSL certificates
-    /// associated with the connection established by the client application.
+    /// Represents an object that checks user permissions. The Glacier2 router and other services use an
+    /// {@link SSLPermissionsVerifier} proxy when the user is authenticated through an SSL certificate.
     interface SSLPermissionsVerifier
     {
         /// Checks if a user is authorized to establish a session.
         /// @param info The SSL information.
         /// @param reason The reason why access was denied.
-        /// @return `true` if access is granted, or `false` otherwise.
-        /// @throws PermissionDeniedException Thrown if the user access is denied. This can be thrown in place of
-        /// returning `false` with a reason set in the reason out parameter.
+        /// @return `true` if access is granted, `false` otherwise.
+        /// @throws PermissionDeniedException Thrown when the user access is denied. This exception can be thrown
+        /// instead of returning `false` with a reason set in the reason out parameter.
         ["cpp:const"]
         idempotent bool authorize(SSLInfo info, out string reason)
             throws PermissionDeniedException;

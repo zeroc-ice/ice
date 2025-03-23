@@ -26,25 +26,25 @@ module Glacier2
     {
     }
 
-    /// The Glacier2 specialization of the Ice::Router interface.
+    /// The Glacier2 specialization of the {@link Ice::Router} interface.
     interface Router extends Ice::Router
     {
         /// Gets a unique category that identifies the client (caller) in the router. This category must be used in the
-        /// identities of all of the client's callback objects.
-        /// @return The category. It's an empty string when the Glacier2 server endpoints are not configured.
+        /// identities of all the client's callback objects.
+        /// @return The category. It's an empty string when `Glacier2.Server.Endpoints` is not configured.
         ["cpp:const"] idempotent string getCategoryForClient();
 
-        /// Creates a session for the client (caller) with the router. If a {@link SessionManager} has been installed,
+        /// Creates a session for the client (caller) with the router. If a {@link SessionManager} is configured,
         /// a proxy to a {@link Session} object is returned to the client. Otherwise, null is returned and only an
         /// internal session (i.e., not visible to the client) is created.
-        /// If a session proxy is returned, it must be configured to route through the router that created it. This will
-        /// happen automatically if the router is configured as the client's default router at the time the session
-        /// proxy is created in the client process, otherwise the client must configure the session proxy explicitly.
-        /// @param userId The user ID for which to check the password.
-        /// @param password The password for the given user id.
+        /// If a non-null session proxy is returned, it must be configured to route through the router that created it.
+        /// This occurs automatically when the router is configured as the client's default router at the time the
+        /// session proxy is created in the client application; otherwise, the client must configure the session proxy
+        /// explicitly.
+        /// @param userId The user ID.
+        /// @param password The password.
         /// @return A proxy for the newly created session, or null if no {@link SessionManager} is configured.
-        /// @throws PermissionDeniedException Thrown if the password for the given user id is not correct, or if the
-        /// user is not allowed access.
+        /// @throws PermissionDeniedException Thrown if an authentication or authorization failure occurs.
         /// @throws CannotCreateSessionException Thrown if the session cannot be created.
         /// @see Session
         /// @see SessionManager
@@ -53,27 +53,29 @@ module Glacier2
         Session* createSession(string userId, string password)
             throws PermissionDeniedException, CannotCreateSessionException;
 
-        /// Creates a per-client session with the router. The user is authenticated through the SSL certificates that
-        /// have been associated with the connection. If a {@link SessionManager} has been installed, a proxy to a
-        /// {@link Session} object is returned to the client. Otherwise, null is returned and only an internal session
-        /// (i.e., not visible to the client) is created.
-        /// If a session proxy is returned, it must be configured to route through the router that created it. This will
-        /// happen automatically if the router is configured as the client's default router at the time the session
-        /// proxy is created in the client process, otherwise the client must configure the session proxy explicitly.
+        /// Creates a per-client session with the router. The user is authenticated through the SSL certificate(s)
+        /// associated with the connection. If an {@link SSLSessionManager} is configured, a proxy to a {@link Session}
+        /// object is returned to the client. Otherwise, null is returned and only an internal session (i.e., not
+        /// visible to the client) is created.
+        /// If a non-null session proxy is returned, it must be configured to route through the router that created it.
+        /// This occurs automatically when the router is configured as the client's default router at the time the
+        /// session proxy is created in the client application; otherwise, the client must configure the session proxy
+        /// explicitly.
         /// @see Session
         /// @see SessionManager
         /// @see PermissionsVerifier
-        /// @return A proxy for the newly created session, or null if no {@link SessionManager} is configured.
-        /// @throws PermissionDeniedException Thrown if the user cannot be authenticated or if the user is not allowed
-        /// access.
+        /// @return A proxy for the newly created session, or null if no {@link SSLSessionManager} is configured.
+        /// @throws PermissionDeniedException Thrown if an authentication or authorization failure occurs.
         /// @throws CannotCreateSessionException Thrown if the session cannot be created.
         ["amd"]
         Session* createSessionFromSecureConnection()
             throws PermissionDeniedException, CannotCreateSessionException;
 
-        /// Keeps the session with this router alive. This operation is provided for backward compatibility with Ice 3.7
-        /// and earlier and does nothing in newer versions of Glacier2.
+        /// Keeps the session with this router alive.
         /// @throws SessionNotExistException Thrown if no session exists for the caller (client).
+        /// @deprecated This operation is provided for backward compatibility with Ice 3.7 and earlier and does nothing
+        /// in newer versions of Glacier2.
+        ["deprecated"]
         void refreshSession()
             throws SessionNotExistException;
 

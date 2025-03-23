@@ -63,7 +63,7 @@ module IceMX
     /// A metrics view is a dictionary of metrics map. The key of the dictionary is the name of the metrics map.
     dictionary<string, MetricsMap> MetricsView;
 
-    /// Thrown if a metrics view cannot be found.
+    /// The exception that is thrown when a metrics view cannot be found.
     exception UnknownMetricsView
     {
     }
@@ -79,13 +79,13 @@ module IceMX
 
         /// Enables a metrics view.
         /// @param name The metrics view name.
-        /// @throws UnknownMetricsView Thrown if the metrics view cannot be found.
+        /// @throws UnknownMetricsView Thrown when the metrics view cannot be found.
         void enableMetricsView(string name)
             throws UnknownMetricsView;
 
         /// Disables a metrics view.
         /// @param name The metrics view name.
-        /// @throws UnknownMetricsView Thrown if the metrics view cannot be found.
+        /// @throws UnknownMetricsView Thrown when the metrics view cannot be found.
         void disableMetricsView(string name)
             throws UnknownMetricsView;
 
@@ -95,7 +95,7 @@ module IceMX
         /// @return The metrics view data, a dictionary of metric maps for each metrics class configured with the view.
         /// The timestamp allows the client to compute averages which are not dependent of the invocation latency for
         /// this operation.
-        /// @throws UnknownMetricsView Thrown if the metrics view cannot be found.
+        /// @throws UnknownMetricsView Thrown when the metrics view cannot be found.
         ["format:sliced"]
         MetricsView getMetricsView(string view, out long timestamp)
             throws UnknownMetricsView;
@@ -104,7 +104,7 @@ module IceMX
         /// @param view The name of the metrics view.
         /// @param map The name of the metrics map.
         /// @return The metrics failures associated with the map.
-        /// @throws UnknownMetricsView Thrown if the metrics view cannot be found.
+        /// @throws UnknownMetricsView Thrown when the metrics view cannot be found.
         MetricsFailuresSeq getMapMetricsFailures(string view, string map)
             throws UnknownMetricsView;
 
@@ -113,7 +113,7 @@ module IceMX
         /// @param map The name of the metrics map.
         /// @param id The ID of the metrics.
         /// @return The metrics failures associated with the metrics.
-        /// @throws UnknownMetricsView Thrown if the metrics view cannot be found.
+        /// @throws UnknownMetricsView Thrown when the metrics view cannot be found.
         MetricsFailures getMetricsFailures(string view, string map, string id)
             throws UnknownMetricsView;
     }
@@ -128,7 +128,7 @@ module IceMX
         int inUseForUser = 0;
 
         /// The number of threads which are currently performing other activities such as DNS lookups, garbage
-        /// collection. These are all the other threads created by the Ice runtime that are not counted in
+        /// collection, etc. These are all the other threads created by the Ice runtime that are not counted in
         /// {@link #inUseForUser} or {@link #inUseForIO}.
         int inUseForOther = 0;
     }

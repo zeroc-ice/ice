@@ -14,8 +14,6 @@ namespace Glacier2
     {
     public:
         void forwarded(bool) override;
-        void queued(bool) override;
-        void overridden(bool) override;
         void routingTableSize(int) override;
     };
 

@@ -40,7 +40,7 @@ module Ice
         /// {@link findAdapterById}.
         /// @param id The identity.
         /// @return A dummy proxy, or null if an object with the requested identity was not found.
-        /// @throws ObjectNotFoundException Thrown if an object with the requested identity was not found. The caller
+        /// @throws ObjectNotFoundException Thrown when an object with the requested identity was not found. The caller
         /// should treat this exception like a null return value.
         ["amd"] ["cpp:const"] idempotent Object* findObjectById(Identity id)
             throws ObjectNotFoundException;
@@ -48,8 +48,8 @@ module Ice
         /// Finds an object adapter by adapter ID and returns a dummy proxy with the object adapter's endpoint(s).
         /// @param id The adapter ID.
         /// @return A dummy proxy with the adapter's endpoints, or null if an object adapter with @p id was not found.
-        /// @throws AdapterNotFoundException Thrown if an object adapter with this adapter ID was not found. The caller
-        /// should treat this exception like a null return value.
+        /// @throws AdapterNotFoundException Thrown when an object adapter with this adapter ID was not found. The
+        /// caller should treat this exception like a null return value.
         ["amd"] ["cpp:const"] idempotent Object* findAdapterById(string id)
             throws AdapterNotFoundException;
 
