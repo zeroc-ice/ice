@@ -18,18 +18,18 @@ module Ice
 {
     interface Process;
 
-    /// This exception is thrown when a server application tries to register endpoints for an object adapter that is
+    /// The exception that is thrown when a server application tries to register endpoints for an object adapter that is
     /// already active.
     exception AdapterAlreadyActiveException
     {
     }
 
-    /// This exception is thrown when the provided replica group is invalid.
+    /// The exception that is thrown when the provided replica group is invalid.
     exception InvalidReplicaGroupIdException
     {
     }
 
-    /// This exception is thrown when a server was not found.
+    /// The exception that is thrown when a server was not found.
     exception ServerNotFoundException
     {
     }

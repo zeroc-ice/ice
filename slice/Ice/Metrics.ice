@@ -41,7 +41,7 @@ module IceMX
         int failures = 0;
     }
 
-    /// A structure to keep track of failures associated with a given metrics.
+    /// Keeps track of failures associated with a given metrics.
     struct MetricsFailures
     {
         /// The identifier of the metrics object associated to the failures.
@@ -54,65 +54,66 @@ module IceMX
     /// A sequence of {@link MetricsFailures}.
     sequence<MetricsFailures> MetricsFailuresSeq;
 
-    /// A metrics map is a sequence of metrics. We use a sequence here instead of a map because the ID of the metrics is
-    /// already included in the Metrics class and using sequences of metrics objects is more efficient than using
-    /// dictionaries since lookup is not necessary.
+    /// A sequence of metrics.
+    /// @remark We use a sequence here instead of a map because the ID of the metrics is already included in the Metrics
+    /// class and using sequences of metrics objects is more efficient than using dictionaries since lookups are not
+    /// necessary.
     sequence<Metrics> MetricsMap;
 
     /// A metrics view is a dictionary of metrics map. The key of the dictionary is the name of the metrics map.
     dictionary<string, MetricsMap> MetricsView;
 
-    /// Raised if a metrics view cannot be found.
+    /// Thrown if a metrics view cannot be found.
     exception UnknownMetricsView
     {
     }
 
-    /// The metrics administrative facet interface. This interface allows remote administrative clients to access
-    /// metrics of an application that enabled the Ice administrative facility and configured some metrics views.
+    /// The metrics administrative facet interface. This interface allows remote administrative clients to access the
+    /// metrics of an application that enabled the Ice administrative facility and configured one or more metrics views.
     interface MetricsAdmin
     {
-        /// Get the names of enabled and disabled metrics.
+        /// Gets the names of enabled and disabled metrics.
         /// @param disabledViews The names of the disabled views.
         /// @return The name of the enabled views.
         Ice::StringSeq getMetricsViewNames(out Ice::StringSeq disabledViews);
 
         /// Enables a metrics view.
         /// @param name The metrics view name.
-        /// @throws UnknownMetricsView Raised if the metrics view cannot be found.
+        /// @throws UnknownMetricsView Thrown if the metrics view cannot be found.
         void enableMetricsView(string name)
             throws UnknownMetricsView;
 
-        /// Disable a metrics view.
+        /// Disables a metrics view.
         /// @param name The metrics view name.
-        /// @throws UnknownMetricsView Raised if the metrics view cannot be found.
+        /// @throws UnknownMetricsView Thrown if the metrics view cannot be found.
         void disableMetricsView(string name)
             throws UnknownMetricsView;
 
-        /// Get the metrics objects for the given metrics view. This returns a dictionary of metric maps for each
-        /// metrics class configured with the view. The timestamp allows the client to compute averages which are not
-        /// dependent of the invocation latency for this operation.
+        /// Gets the metrics objects for the given metrics view.
         /// @param view The name of the metrics view.
         /// @param timestamp The local time of the process when the metrics object were retrieved.
-        /// @return The metrics view data.
-        /// @throws UnknownMetricsView Raised if the metrics view cannot be found.
+        /// @return The metrics view data, a dictionary of metric maps for each metrics class configured with the view.
+        /// The timestamp allows the client to compute averages which are not dependent of the invocation latency for
+        /// this operation.
+        /// @throws UnknownMetricsView Thrown if the metrics view cannot be found.
         ["format:sliced"]
         MetricsView getMetricsView(string view, out long timestamp)
             throws UnknownMetricsView;
 
-        /// Get the metrics failures associated with the given view and map.
+        /// Gets the metrics failures associated with the given view and map.
         /// @param view The name of the metrics view.
         /// @param map The name of the metrics map.
         /// @return The metrics failures associated with the map.
-        /// @throws UnknownMetricsView Raised if the metrics view cannot be found.
+        /// @throws UnknownMetricsView Thrown if the metrics view cannot be found.
         MetricsFailuresSeq getMapMetricsFailures(string view, string map)
             throws UnknownMetricsView;
 
-        /// Get the metrics failure associated for the given metrics.
+        /// Gets the metrics failure associated for the given metrics.
         /// @param view The name of the metrics view.
         /// @param map The name of the metrics map.
         /// @param id The ID of the metrics.
         /// @return The metrics failures associated with the metrics.
-        /// @throws UnknownMetricsView Raised if the metrics view cannot be found.
+        /// @throws UnknownMetricsView Thrown if the metrics view cannot be found.
         MetricsFailures getMetricsFailures(string view, string map, string id)
             throws UnknownMetricsView;
     }
@@ -126,26 +127,27 @@ module IceMX
         /// The number of threads which are currently calling user code (servant dispatch, AMI callbacks, etc).
         int inUseForUser = 0;
 
-        /// The number of threads which are currently performing other activities. These are all other that are not
-        /// counted with {@link #inUseForUser} or {@link #inUseForIO}, such as DNS lookups, garbage collection).
+        /// The number of threads which are currently performing other activities such as DNS lookups, garbage
+        /// collection. These are all the other threads created by the Ice runtime that are not counted in
+        /// {@link #inUseForUser} or {@link #inUseForIO}.
         int inUseForOther = 0;
     }
 
-    /// Provides information on servant dispatch.
+    /// Provides information on servant dispatches.
     class DispatchMetrics extends Metrics
     {
-        /// The number of dispatch that failed with a user exception.
+        /// The number of dispatches that failed with a user exception.
         int userException = 0;
 
-        /// The size of the dispatch. This corresponds to the size of the marshaled input parameters.
+        /// The size of the incoming requests. This corresponds to the size of the marshaled input parameters.
         long size = 0;
 
-        /// The size of the dispatch reply. This corresponds to the size of the marshaled output and return parameters.
+        /// The size of the replies. This corresponds to the size of the marshaled output and return parameters.
         long replySize = 0;
     }
 
     /// Provides information on child invocations. A child invocation is either remote (sent over an Ice connection) or
-    /// collocated. An invocation can have multiple child invocation if it is retried. Child invocation metrics are
+    /// collocated. An invocation can have multiple child invocations if it is retried. Child invocation metrics are
     /// embedded within {@link InvocationMetrics}.
     class ChildInvocationMetrics extends Metrics
     {
@@ -172,7 +174,7 @@ module IceMX
     /// Provide measurements for proxy invocations. Proxy invocations can either be sent over the wire or be collocated.
     class InvocationMetrics extends Metrics
     {
-        /// The number of retries for the invocation(s).
+        /// The number of retries for the invocations.
         int retry = 0;
 
         /// The number of invocations that failed with a user exception.

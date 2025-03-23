@@ -17,17 +17,17 @@
 /// Host multiple independent services in the same Ice server.
 module IceBox
 {
-    /// This exception is thrown if an attempt is made to start an already-started service.
+    /// The exception that is thrown whenan attempt is made to start an already-started service.
     exception AlreadyStartedException
     {
     }
 
-    /// This exception is thrown if an attempt is made to stop an already-stopped service.
+    /// The exception that is thrown whenan attempt is made to stop an already-stopped service.
     exception AlreadyStoppedException
     {
     }
 
-    /// This exception is thrown if a service name does not refer to an existing service.
+    /// The exception that is thrown whena service name does not refer to an existing service.
     exception NoSuchServiceException
     {
     }

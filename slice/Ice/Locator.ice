@@ -16,13 +16,13 @@
 
 module Ice
 {
-    /// This exception is thrown by a {@link Locator} implementation when it cannot find an object adapter with the
+    /// The exception that is thrown by a {@link Locator} implementation when it cannot find an object adapter with the
     /// provided adapter ID.
     exception AdapterNotFoundException
     {
     }
 
-    /// This exception is thrown by a {@link Locator} implementation when it cannot find an object with the provided
+    /// The exception that is thrown by a {@link Locator} implementation when it cannot find an object with the provided
     /// identity.
     exception ObjectNotFoundException
     {

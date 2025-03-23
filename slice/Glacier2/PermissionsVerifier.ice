@@ -16,40 +16,38 @@
 
 module Glacier2
 {
-    /// This exception is raised if a client is denied the ability to create a session with the router.
+    /// The exception that is thrown when a client is not allowed to create a session.
     exception PermissionDeniedException
     {
         /// The reason why permission was denied.
         string reason;
     }
 
-    /// The Glacier2 permissions verifier. This is called through the process of establishing a session.
-    /// @see Router
+    /// Represents an object that checks user permissions.
     interface PermissionsVerifier
     {
-        /// Check whether a user has permission to access the router.
-        /// @param userId The user id for which to check permission.
+        /// Checks if a user is authorized to establish a session.
+        /// @param userId The user ID.
         /// @param password The user's password.
         /// @param reason The reason why access was denied.
-        /// @return `true` if access is granted, or `false` otherwise.
-        /// @throws PermissionDeniedException Raised if the user access is denied. This can be raised in place of
+        /// @return `true` if access is granted, `false` otherwise.
+        /// @throws PermissionDeniedException Thrown if the user access is denied. This can be thrown in place of
         /// returning `false` with a reason set in the reason out parameter.
         ["cpp:const"]
         idempotent bool checkPermissions(string userId, string password, out string reason)
             throws PermissionDeniedException;
     }
 
-    /// The SSL Glacier2 permissions verifier. This is called through the process of establishing a session.
-    /// @see Router
+    /// Represents an object that checks user permissions. The user is authenticated through the SSL certificates
+    /// associated with the connection established by the client application.
     interface SSLPermissionsVerifier
     {
-        /// Check whether a user has permission to access the router.
+        /// Checks if a user is authorized to establish a session.
         /// @param info The SSL information.
         /// @param reason The reason why access was denied.
         /// @return `true` if access is granted, or `false` otherwise.
-        /// @throws PermissionDeniedException Raised if the user access is denied. This can be raised in place of
+        /// @throws PermissionDeniedException Thrown if the user access is denied. This can be thrown in place of
         /// returning `false` with a reason set in the reason out parameter.
-        /// @see SSLInfo
         ["cpp:const"]
         idempotent bool authorize(SSLInfo info, out string reason)
             throws PermissionDeniedException;

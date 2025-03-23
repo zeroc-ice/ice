@@ -20,119 +20,113 @@ module Glacier2
 {
     interface Router; // So that doc-comments can link to `Glacier2::Router`.
 
-    /// This exception is raised if an attempt to create a new session failed.
+    /// The exception that is thrown when an attempt to create a new session failed.
     exception CannotCreateSessionException
     {
-        /// The reason why session creation has failed.
+        /// The reason why the session creation failed.
         string reason;
     }
 
-    /// A client-visible session object, which is tied to the lifecycle of a {@link Router}.
+    /// Represents a session between a client application and the Glacier2 router. With Glacier2, the lifetime of a
+    /// session is tied to the Ice connection between the client and the router: the session is destroyed when the
+    /// connection is closed.
     /// @see Router
     /// @see SessionManager
     interface Session
     {
-        /// Destroy the session. This is called automatically when the router is destroyed.
+        /// Destroys this session.
         void destroy();
     }
 
-    /// An object for managing the set of identity constraints for specific parts of object identity on a
-    /// {@link Session}.
-    /// @see Session
+    /// Manages a set of constraints on a {@link Session}.
     /// @see SessionControl
     interface StringSet
     {
-        /// Add a sequence of strings to this set of constraints. Order is not preserved and duplicates are implicitly
+        /// Adds a sequence of strings to this set of constraints. Order is not preserved and duplicates are implicitly
         /// removed.
-        /// @param additions The sequence of strings to be added.
+        /// @param additions The sequence of strings to add.
         idempotent void add(Ice::StringSeq additions);
 
-        /// Remove a sequence of strings from this set of constraints. No errors are returned if an entry is not found.
-        /// @param deletions The sequence of strings to be removed.
+        /// Removes a sequence of strings from this set of constraints. No errors are returned if an entry is not found.
+        /// @param deletions The sequence of strings to remove.
         idempotent void remove(Ice::StringSeq deletions);
 
-        /// Returns a sequence of strings describing the constraints in this set.
+        /// Gets a sequence of strings describing the constraints in this set.
         /// @return The sequence of strings for this set.
         ["swift:identifier:`get`"]
         idempotent Ice::StringSeq get();
     }
 
-    /// An object for managing the set of object identity constraints on a {@link Session}.
-    /// @see Session
+    /// Manages a set of object identity constraints on a {@link Session}.
     /// @see SessionControl
     interface IdentitySet
     {
-        /// Add a sequence of Ice identities to this set of constraints. Order is not preserved and duplicates are
+        /// Adds a sequence of Ice identities to this set of constraints. Order is not preserved and duplicates are
         /// implicitly removed.
-        /// @param additions The sequence of Ice identities to be added.
+        /// @param additions The sequence of Ice identities to add.
         idempotent void add(Ice::IdentitySeq additions);
 
-        /// Remove a sequence of identities from this set of constraints. No errors are returned if an entry is not
+        /// Removes a sequence of identities from this set of constraints. No errors are returned if an entry is not
         /// found.
-        /// @param deletions The sequence of Ice identities to be removed.
+        /// @param deletions The sequence of Ice identities to remove.
         idempotent void remove(Ice::IdentitySeq deletions);
 
-        /// Returns a sequence of identities describing the constraints in this set.
+        /// Gets a sequence of identities describing the constraints in this set.
         /// @return The sequence of Ice identities for this set.
         ["swift:identifier:`get`"]
         idempotent Ice::IdentitySeq get();
     }
 
-    /// An administrative session control object, which is tied to the lifecycle of a {@link Session}.
-    /// @see Session
+    /// Represents a router-provided object that allows an application-provided session manager to configure the
+    /// routing constraints for a session.
     interface SessionControl
     {
-        /// Access the object that manages the allowable categories for object identities for this session.
-        /// @return A StringSet object. The returned proxy is never null.
+        /// Gets a proxy to the object that manages the allowable categories for object identities for this session.
+        /// @return A proxy to a StringSet object. This proxy is never null.
         StringSet* categories();
 
-        /// Access the object that manages the allowable adapter identities for objects for this session.
-        /// @return A StringSet object. The returned proxy is never null.
+        /// Gets a proxy to the object that manages the allowable adapter identities for objects for this session.
+        /// @return A proxy to StringSet object. This proxy is never null.
         StringSet* adapterIds();
 
-        /// Access the object that manages the allowable object identities for this session.
-        /// @return An IdentitySet object. The returned proxy is never null.
+        /// Gets a proxy to the object that manages the allowable object identities for this session.
+        /// @return A proxy to an IdentitySet object. This proxy is never null.
         IdentitySet* identities();
 
-        /// Get the session timeout.
+        /// Gets the session timeout.
         /// @return The timeout.
         idempotent int getSessionTimeout();
 
-        /// Destroy the associated session.
+        /// Destroys the associated session.
         void destroy();
     }
 
-    /// The session manager for username/password authenticated users that is responsible for managing {@link Session}
-    /// objects. New session objects are created by the {@link Router} object calling on an application-provided
-    /// session manager. If no session manager is provided by the application, no client-visible sessions are passed to
-    /// the client.
-    /// @see Router
-    /// @see Session
+    /// Represents an application-provided factory for session objects. You can configure a Glacier2 router with your
+    /// own SessionManager implementation; this router will then return the sessions created by this session manager to
+    /// its clients.
     interface SessionManager
     {
-        /// Create a new session. The implementation must return a non-null proxy or raise
-        /// {@link CannotCreateSessionException} if the session cannot be created.
-        /// @param userId The user id for the session.
-        /// @param control A proxy to the session control object. The control proxy is null if Glacier2.Server.Endpoints
-        /// are not configured.
-        /// @return A proxy to the newly created session.
-        /// @throws CannotCreateSessionException Raised if the session cannot be created.
+        /// Creates a new session object.
+        /// @param userId The user ID for the session.
+        /// @param control A proxy to the session control object. The control proxy provided is null if
+        /// `Glacier2.Server.Endpoints` is not configured.
+        /// @return A proxy to the newly created session. This proxy is never null.
+        /// @throws CannotCreateSessionException Thrown if the session cannot be created.
         Session* create(string userId, SessionControl* control)
             throws CannotCreateSessionException;
     }
 
-    /// The session manager for SSL authenticated users that is responsible for managing {@link Session} objects. New
-    /// session objects are created by the {@link Router} object calling on an application-provided session manager. If
-    /// no session manager is provided by the application, no client-visible sessions are passed to the client.
-    /// @see Router
-    /// @see Session
+    /// Represents an application-provided factory for session objects. You can configure a Glacier2 router with your
+    /// own SSLSessionManager implementation; this router will then return the sessions created by this session manager
+    /// to its clients.
     interface SSLSessionManager
     {
-        /// Create a new session.
+        /// Creates a new session object.
         /// @param info The SSL info.
-        /// @param control A proxy to the session control object.
-        /// @return A proxy to the newly created session.
-        /// @throws CannotCreateSessionException Raised if the session cannot be created.
+        /// @param control A proxy to the session control object. The control proxy provided is null if
+        /// `Glacier2.Server.Endpoints` is not configured.
+        /// @return A proxy to the newly created session. This proxy is never null.
+        /// @throws CannotCreateSessionException Thrown if the session cannot be created.
         Session* create(SSLInfo info, SessionControl* control)
             throws CannotCreateSessionException;
     }

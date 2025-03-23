@@ -14,8 +14,14 @@
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Ice"]]
 
+// The endpoint types are called transport codes in IceRPC. They are used to encode endpoints (as part of proxies) with
+// the Slice 1.x encoding.
+
 module Ice
 {
+    /// Uniquely identifies endpoints encoded as URI strings. Currently, Ice cannot parse such endpoints.
+    const short UriEndpointType = 0;
+
     /// Uniquely identifies TCP endpoints.
     const short TCPEndpointType = 1;
 

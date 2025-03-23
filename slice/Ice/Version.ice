@@ -19,7 +19,7 @@
 
 module Ice
 {
-    /// A version structure for the protocol version.
+    /// Represents a version of the Ice protocol. The only version implemented and supported by Ice is version 1.0.
     ["cpp:custom-print"]
     struct ProtocolVersion
     {
@@ -30,7 +30,8 @@ module Ice
         byte minor;
     }
 
-    /// A version structure for the encoding version.
+    /// Represents a version of the Ice encoding. Ice supports version 1.0 and 1.1 of this encoding.
+    /// @remark The Ice encoding is also known as the Slice encoding.
     ["cpp:custom-print"]
     struct EncodingVersion
     {

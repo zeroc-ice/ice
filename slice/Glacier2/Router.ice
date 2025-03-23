@@ -19,34 +19,33 @@
 /// Communicate through firewalls and across NATs.
 module Glacier2
 {
-    /// This exception is raised if a client tries to destroy a session with a router, but no session exists for the
-    /// client.
+    /// The exception that is thrown when a client tries to destroy a session with a router, but no session exists for
+    /// this client.
     /// @see Router#destroySession
     exception SessionNotExistException
     {
     }
 
-    /// The Glacier2 specialization of the <code>Ice::Router</code> interface.
+    /// The Glacier2 specialization of the Ice::Router interface.
     interface Router extends Ice::Router
     {
-        /// This category must be used in the identities of all of the client's callback objects. This is necessary in
-        /// order for the router to forward callback requests to the intended client. If the Glacier2 server endpoints
-        /// are not set, the returned category is an empty string.
-        /// @return The category.
+        /// Gets a unique category that identifies the client (caller) in the router. This category must be used in the
+        /// identities of all of the client's callback objects.
+        /// @return The category. It's an empty string when the Glacier2 server endpoints are not configured.
         ["cpp:const"] idempotent string getCategoryForClient();
 
-        /// Create a per-client session with the router. If a {@link SessionManager} has been installed, a proxy to a
-        /// {@link Session} object is returned to the client. Otherwise, null is returned and only an internal session
-        /// (i.e., not visible to the client) is created.
+        /// Creates a session for the client (caller) with the router. If a {@link SessionManager} has been installed,
+        /// a proxy to a {@link Session} object is returned to the client. Otherwise, null is returned and only an
+        /// internal session (i.e., not visible to the client) is created.
         /// If a session proxy is returned, it must be configured to route through the router that created it. This will
         /// happen automatically if the router is configured as the client's default router at the time the session
         /// proxy is created in the client process, otherwise the client must configure the session proxy explicitly.
-        /// @param userId The user id for which to check the password.
+        /// @param userId The user ID for which to check the password.
         /// @param password The password for the given user id.
-        /// @return A proxy for the newly created session, or null if no {@link SessionManager} has been installed.
-        /// @throws PermissionDeniedException Raised if the password for the given user id is not correct, or if the
+        /// @return A proxy for the newly created session, or null if no {@link SessionManager} is configured.
+        /// @throws PermissionDeniedException Thrown if the password for the given user id is not correct, or if the
         /// user is not allowed access.
-        /// @throws CannotCreateSessionException Raised if the session cannot be created.
+        /// @throws CannotCreateSessionException Thrown if the session cannot be created.
         /// @see Session
         /// @see SessionManager
         /// @see PermissionsVerifier
@@ -54,7 +53,7 @@ module Glacier2
         Session* createSession(string userId, string password)
             throws PermissionDeniedException, CannotCreateSessionException;
 
-        /// Create a per-client session with the router. The user is authenticated through the SSL certificates that
+        /// Creates a per-client session with the router. The user is authenticated through the SSL certificates that
         /// have been associated with the connection. If a {@link SessionManager} has been installed, a proxy to a
         /// {@link Session} object is returned to the client. Otherwise, null is returned and only an internal session
         /// (i.e., not visible to the client) is created.
@@ -64,30 +63,30 @@ module Glacier2
         /// @see Session
         /// @see SessionManager
         /// @see PermissionsVerifier
-        /// @return A proxy for the newly created session, or null if no {@link SessionManager} has been installed.
-        /// @throws PermissionDeniedException Raised if the user cannot be authenticated or if the user is not allowed
+        /// @return A proxy for the newly created session, or null if no {@link SessionManager} is configured.
+        /// @throws PermissionDeniedException Thrown if the user cannot be authenticated or if the user is not allowed
         /// access.
-        /// @throws CannotCreateSessionException Raised if the session cannot be created.
+        /// @throws CannotCreateSessionException Thrown if the session cannot be created.
         ["amd"]
         Session* createSessionFromSecureConnection()
             throws PermissionDeniedException, CannotCreateSessionException;
 
-        /// Keep the session with this router alive. This operation is provided for backward compatibility with Ice 3.7
+        /// Keeps the session with this router alive. This operation is provided for backward compatibility with Ice 3.7
         /// and earlier and does nothing in newer versions of Glacier2.
-        /// @throws SessionNotExistException Raised if no session exists for the caller (client).
+        /// @throws SessionNotExistException Thrown if no session exists for the caller (client).
         void refreshSession()
             throws SessionNotExistException;
 
-        /// Destroy the calling client's session with this router.
-        /// @throws SessionNotExistException Raised if no session exists for the calling client.
+        /// Destroys the session of the caller with this router.
+        /// @throws SessionNotExistException Thrown if no session exists for the caller (client).
         void destroySession()
             throws SessionNotExistException;
 
-        /// Get the idle timeout used by the server-side of the connection.
+        /// Gets the idle timeout used by the server-side of the connection.
         /// @return The idle timeout (in seconds).
         ["cpp:const"] idempotent long getSessionTimeout();
 
-        /// Get the idle timeout used by the server-side of the connection.
+        /// Gets the idle timeout used by the server-side of the connection.
         /// @return The idle timeout (in seconds).
         ["cpp:const"] idempotent int getACMTimeout();
     }
