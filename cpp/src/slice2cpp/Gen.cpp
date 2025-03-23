@@ -852,8 +852,8 @@ Slice::Gen::writeExtraHeaders(IceInternal::Output& out)
         string::size_type pos = header.rfind(',');
         if (pos != string::npos)
         {
-            header = header.substr(0, pos);
             guard = header.substr(pos + 1);
+            header = header.substr(0, pos);
         }
         if (!guard.empty())
         {
