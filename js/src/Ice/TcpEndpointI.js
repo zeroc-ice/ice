@@ -130,7 +130,7 @@ export class TcpEndpointI extends IPEndpointI {
 
     connect() {
         DEV: console.assert(!this.secure());
-        return TcpTransceiver.createOutgoing(this._instance, this.getAddress(), this._sourceAddr);
+        return new TcpTransceiver(this._instance, this.getAddress(), this._sourceAddr);
     }
 
     //
@@ -225,7 +225,7 @@ export class TcpEndpointI extends IPEndpointI {
                 let invalid = false;
                 try {
                     this._timeout = StringUtil.toInt(argument);
-                } catch (ex) {
+                } catch {
                     invalid = true;
                 }
                 if (invalid || this._timeout < 1) {

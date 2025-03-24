@@ -5,10 +5,7 @@ using System.Net.Sockets;
 
 internal class Transceiver : Ice.Internal.Transceiver
 {
-    public Socket fd()
-    {
-        return _transceiver.fd();
-    }
+    public Socket fd() => _transceiver.fd();
 
     public int initialize(Ice.Internal.Buffer readBuffer, Ice.Internal.Buffer writeBuffer, ref bool hasMoreData)
     {
@@ -25,20 +22,11 @@ internal class Transceiver : Ice.Internal.Transceiver
         return Ice.Internal.SocketOperation.None;
     }
 
-    public int closing(bool initiator, Ice.LocalException ex)
-    {
-        return _transceiver.closing(initiator, ex);
-    }
+    public int closing(bool initiator, Ice.LocalException ex) => _transceiver.closing(initiator, ex);
 
-    public void close()
-    {
-        _transceiver.close();
-    }
+    public void close() => _transceiver.close();
 
-    public Ice.Internal.EndpointI bind()
-    {
-        return _transceiver.bind();
-    }
+    public Ice.Internal.EndpointI bind() => _transceiver.bind();
 
     public int write(Ice.Internal.Buffer buf)
     {
@@ -196,43 +184,22 @@ internal class Transceiver : Ice.Internal.Transceiver
         _transceiver.finishWrite(buf);
     }
 
-    public string protocol()
-    {
-        return "test-" + _transceiver.protocol();
-    }
+    public string protocol() => "test-" + _transceiver.protocol();
 
     public Ice.ConnectionInfo getInfo(bool incoming, string adapterName, string connectionId) =>
         _transceiver.getInfo(incoming, adapterName, connectionId);
 
-    public override string ToString()
-    {
-        return _transceiver.ToString();
-    }
+    public override string ToString() => _transceiver.ToString();
 
-    public string toDetailedString()
-    {
-        return _transceiver.toDetailedString();
-    }
+    public string toDetailedString() => _transceiver.toDetailedString();
 
-    public void checkSendSize(Ice.Internal.Buffer buf)
-    {
-        _transceiver.checkSendSize(buf);
-    }
+    public void checkSendSize(Ice.Internal.Buffer buf) => _transceiver.checkSendSize(buf);
 
-    public void setBufferSize(int rcvSize, int sndSize)
-    {
-        _transceiver.setBufferSize(rcvSize, sndSize);
-    }
+    public void setBufferSize(int rcvSize, int sndSize) => _transceiver.setBufferSize(rcvSize, sndSize);
 
-    public void destroy()
-    {
-        _transceiver.destroy();
-    }
+    public void destroy() => _transceiver.destroy();
 
-    public Ice.Internal.Transceiver getDelegate()
-    {
-        return _transceiver;
-    }
+    public Ice.Internal.Transceiver getDelegate() => _transceiver;
 
     //
     // Only for use by Connector, Acceptor

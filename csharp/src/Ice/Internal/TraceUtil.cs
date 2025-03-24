@@ -17,10 +17,10 @@ internal sealed class TraceUtil
         if (tl.protocol >= 1)
         {
             int p = str.pos();
-            Ice.InputStream iss = new Ice.InputStream(instance, str.getEncoding(), str.getBuffer(), false);
+            var iss = new Ice.InputStream(instance, str.getEncoding(), str.getBuffer(), false);
             iss.pos(0);
 
-            using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
+            using (var s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
             {
                 byte type = printMessage(s, iss, connection);
 
@@ -37,7 +37,7 @@ internal sealed class TraceUtil
             int p = str.pos();
             str.pos(0);
 
-            using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
+            using (var s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
             {
                 byte type = printMessage(s, str, connection);
 
@@ -73,7 +73,7 @@ internal sealed class TraceUtil
         {
             if (slicingIds.Add(typeId))
             {
-                using StringWriter s = new StringWriter(CultureInfo.CurrentCulture);
+                using var s = new StringWriter(CultureInfo.CurrentCulture);
                 s.Write("unknown " + kind + " type `" + typeId + "'");
                 logger.trace(slicingCat, s.ToString());
             }
@@ -322,21 +322,15 @@ internal sealed class TraceUtil
 
     private static string getMessageTypeAsString(byte type)
     {
-        switch (type)
+        return type switch
         {
-            case Protocol.requestMsg:
-                return "request";
-            case Protocol.requestBatchMsg:
-                return "batch request";
-            case Protocol.replyMsg:
-                return "reply";
-            case Protocol.closeConnectionMsg:
-                return "close connection";
-            case Protocol.validateConnectionMsg:
-                return "validate connection";
-            default:
-                return "unknown";
-        }
+            Protocol.requestMsg => "request",
+            Protocol.requestBatchMsg => "batch request",
+            Protocol.replyMsg => "reply",
+            Protocol.closeConnectionMsg => "close connection",
+            Protocol.validateConnectionMsg => "validate connection",
+            _ => "unknown",
+        };
     }
 
     private static readonly object _globalMutex = new object();

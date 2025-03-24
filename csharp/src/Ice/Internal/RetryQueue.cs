@@ -63,10 +63,7 @@ public class RetryTask : TimerTask, CancellationHandler
 
 public class RetryQueue
 {
-    public RetryQueue(Instance instance)
-    {
-        _instance = instance;
-    }
+    public RetryQueue(Instance instance) => _instance = instance;
 
     public void add(ProxyOutgoingAsyncBase outAsync, int interval)
     {
@@ -76,7 +73,7 @@ public class RetryQueue
             {
                 throw new Ice.CommunicatorDestroyedException();
             }
-            RetryTask task = new RetryTask(_instance, this, outAsync);
+            var task = new RetryTask(_instance, this, outAsync);
             outAsync.cancelable(task); // This will throw if the request is canceled.
             _instance.timer().schedule(task, interval);
             _requests.Add(task, null);
@@ -87,7 +84,7 @@ public class RetryQueue
     {
         lock (_mutex)
         {
-            Dictionary<RetryTask, object> keep = new Dictionary<RetryTask, object>();
+            var keep = new Dictionary<RetryTask, object>();
             foreach (RetryTask task in _requests.Keys)
             {
                 if (_instance.timer().cancel(task))

@@ -179,7 +179,7 @@ public sealed class Util
     /// <returns>The converted object identity.</returns>
     public static Identity stringToIdentity(string s)
     {
-        Identity ident = new Identity();
+        var ident = new Identity();
 
         //
         // Find unescaped separator; note that the string may contain an escaped
@@ -280,10 +280,7 @@ public sealed class Util
     /// </summary>
     /// <returns>A new UUID.</returns>
     [Obsolete("This method is deprecated. Use System.Guid instead.")]
-    public static string generateUUID()
-    {
-        return Guid.NewGuid().ToString().ToUpper(System.Globalization.CultureInfo.InvariantCulture);
-    }
+    public static string generateUUID() => Guid.NewGuid().ToString().ToUpper(System.Globalization.CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Compares the object identities of two proxies.
@@ -410,10 +407,7 @@ public sealed class Util
     /// patch level.
     /// </summary>
     /// <returns>The Ice version.</returns>
-    public static string stringVersion()
-    {
-        return "3.8.0-alpha.0"; // "A.B.C", with A=major, B=minor, C=patch
-    }
+    public static string stringVersion() => "3.8.0-alpha.0"; // "A.B.C", with A=major, B=minor, C=patch
 
     /// <summary>
     /// Returns the Ice version as an integer in the form A.BB.CC, where A
@@ -421,10 +415,7 @@ public sealed class Util
     /// indicates the patch level. For example, for Ice 3.3.1, the returned value is 30301.
     /// </summary>
     /// <returns>The Ice version.</returns>
-    public static int intVersion()
-    {
-        return 30850; // AABBCC, with AA=major, BB=minor, CC=patch
-    }
+    public static int intVersion() => 30850; // AABBCC, with AA=major, BB=minor, CC=patch
 
     /// <summary>
     /// Converts a string to a protocol version.
@@ -433,8 +424,7 @@ public sealed class Util
     /// <returns>The converted protocol version.</returns>
     public static ProtocolVersion stringToProtocolVersion(string version)
     {
-        byte major, minor;
-        stringToMajorMinor(version, out major, out minor);
+        stringToMajorMinor(version, out byte major, out byte minor);
         return new ProtocolVersion(major, minor);
     }
 
@@ -445,8 +435,7 @@ public sealed class Util
     /// <returns>The converted encoding version.</returns>
     public static EncodingVersion stringToEncodingVersion(string version)
     {
-        byte major, minor;
-        stringToMajorMinor(version, out major, out minor);
+        stringToMajorMinor(version, out byte major, out byte minor);
         return new EncodingVersion(major, minor);
     }
 
@@ -455,20 +444,14 @@ public sealed class Util
     /// </summary>
     /// <param name="v">The protocol version to convert.</param>
     /// <returns>The converted string.</returns>
-    public static string protocolVersionToString(Ice.ProtocolVersion v)
-    {
-        return majorMinorToString(v.major, v.minor);
-    }
+    public static string protocolVersionToString(Ice.ProtocolVersion v) => majorMinorToString(v.major, v.minor);
 
     /// <summary>
     /// Converts an encoding version to a string.
     /// </summary>
     /// <param name="v">The encoding version to convert.</param>
     /// <returns>The converted string.</returns>
-    public static string encodingVersionToString(Ice.EncodingVersion v)
-    {
-        return majorMinorToString(v.major, v.minor);
-    }
+    public static string encodingVersionToString(Ice.EncodingVersion v) => majorMinorToString(v.major, v.minor);
 
     private static void stringToMajorMinor(string str, out byte major, out byte minor)
     {
@@ -478,8 +461,8 @@ public sealed class Util
             throw new ParseException($"malformed version value in '{str}'");
         }
 
-        string majStr = str.Substring(0, pos - 0);
-        string minStr = str.Substring(pos + 1, str.Length - (pos + 1));
+        string majStr = str[..pos];
+        string minStr = str[(pos + 1)..];
         int majVersion;
         int minVersion;
         try
@@ -501,15 +484,9 @@ public sealed class Util
         minor = (byte)minVersion;
     }
 
-    private static string majorMinorToString(byte major, byte minor)
-    {
-        return $"{major}.{minor}";
-    }
+    private static string majorMinorToString(byte major, byte minor) => $"{major}.{minor}";
 
-    public static void registerPluginFactory(string name, PluginFactory factory, bool loadOnInit)
-    {
-        PluginManagerI.registerPluginFactory(name, factory, loadOnInit);
-    }
+    public static void registerPluginFactory(string name, PluginFactory factory, bool loadOnInit) => PluginManagerI.registerPluginFactory(name, factory, loadOnInit);
 
     public static readonly ProtocolVersion currentProtocol =
         new ProtocolVersion(Ice.Internal.Protocol.protocolMajor, Ice.Internal.Protocol.protocolMinor);

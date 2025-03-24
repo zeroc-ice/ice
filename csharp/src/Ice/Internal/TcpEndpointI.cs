@@ -57,10 +57,7 @@ internal sealed class TcpEndpointI : IPEndpointI
             type(),
             secure());
 
-    public override int timeout()
-    {
-        return _timeout;
-    }
+    public override int timeout() => _timeout;
 
     public override EndpointI timeout(int timeout)
     {
@@ -74,10 +71,7 @@ internal sealed class TcpEndpointI : IPEndpointI
         }
     }
 
-    public override bool compress()
-    {
-        return _compress;
-    }
+    public override bool compress() => _compress;
 
     public override EndpointI compress(bool compress)
     {
@@ -91,15 +85,9 @@ internal sealed class TcpEndpointI : IPEndpointI
         }
     }
 
-    public override bool datagram()
-    {
-        return false;
-    }
+    public override bool datagram() => false;
 
-    public override Transceiver transceiver()
-    {
-        return null;
-    }
+    public override Transceiver transceiver() => null;
 
     public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions)
     {
@@ -158,7 +146,7 @@ internal sealed class TcpEndpointI : IPEndpointI
             return type() < obj.type() ? -1 : 1;
         }
 
-        TcpEndpointI p = (TcpEndpointI)obj;
+        var p = (TcpEndpointI)obj;
         if (this == p)
         {
             return 0;
@@ -260,15 +248,9 @@ internal sealed class TcpEndpointI : IPEndpointI
         }
     }
 
-    protected override Connector createConnector(EndPoint addr, NetworkProxy proxy)
-    {
-        return new TcpConnector(instance_, addr, proxy, sourceAddr_, _timeout, connectionId_);
-    }
+    protected override Connector createConnector(EndPoint addr, NetworkProxy proxy) => new TcpConnector(instance_, addr, proxy, sourceAddr_, _timeout, connectionId_);
 
-    protected override IPEndpointI createEndpoint(string host, int port, string connectionId)
-    {
-        return new TcpEndpointI(instance_, host, port, sourceAddr_, _timeout, connectionId, _compress);
-    }
+    protected override IPEndpointI createEndpoint(string host, int port, string connectionId) => new TcpEndpointI(instance_, host, port, sourceAddr_, _timeout, connectionId, _compress);
 
     private int _timeout;
     private bool _compress;
@@ -276,24 +258,15 @@ internal sealed class TcpEndpointI : IPEndpointI
 
 internal sealed class TcpEndpointFactory : EndpointFactory
 {
-    internal TcpEndpointFactory(ProtocolInstance instance)
-    {
-        _instance = instance;
-    }
+    internal TcpEndpointFactory(ProtocolInstance instance) => _instance = instance;
 
     public void initialize()
     {
     }
 
-    public short type()
-    {
-        return _instance.type();
-    }
+    public short type() => _instance.type();
 
-    public string protocol()
-    {
-        return _instance.protocol();
-    }
+    public string protocol() => _instance.protocol();
 
     public EndpointI create(List<string> args, bool oaEndpoint)
     {
@@ -302,15 +275,9 @@ internal sealed class TcpEndpointFactory : EndpointFactory
         return endpt;
     }
 
-    public EndpointI read(Ice.InputStream s)
-    {
-        return new TcpEndpointI(_instance, s);
-    }
+    public EndpointI read(Ice.InputStream s) => new TcpEndpointI(_instance, s);
 
-    public EndpointFactory clone(ProtocolInstance instance)
-    {
-        return new TcpEndpointFactory(instance);
-    }
+    public EndpointFactory clone(ProtocolInstance instance) => new TcpEndpointFactory(instance);
 
     private readonly ProtocolInstance _instance;
 }

@@ -78,10 +78,11 @@ function printReply(s, inputStream) {
             printIdentityFacetOperation(s, inputStream);
             break;
 
-        default:
+        default: {
             const message = inputStream.readString();
             s.push(`\nmessage = ${message}`);
             break;
+        }
     }
 }
 

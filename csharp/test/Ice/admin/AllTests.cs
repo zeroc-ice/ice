@@ -90,7 +90,7 @@ public class AllTests : global::Test.AllTests
             //
             // Test: Exercise addAdminFacet, findAdminFacet, removeAdminFacet with a typical configuration.
             //
-            Ice.InitializationData init = new Ice.InitializationData();
+            var init = new Ice.InitializationData();
             init.properties = new Ice.Properties();
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
@@ -102,7 +102,7 @@ public class AllTests : global::Test.AllTests
             //
             // Test: Verify that the operations work correctly in the presence of facet filters.
             //
-            Ice.InitializationData init = new Ice.InitializationData();
+            var init = new Ice.InitializationData();
             init.properties = new Ice.Properties();
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
@@ -123,7 +123,7 @@ public class AllTests : global::Test.AllTests
             //
             // Test: Verify that the operations work correctly with Ice.Admin.Enabled=1
             //
-            Ice.InitializationData init = new Ice.InitializationData();
+            var init = new Ice.InitializationData();
             init.properties = new Ice.Properties();
             init.properties.setProperty("Ice.Admin.Enabled", "1");
             Ice.Communicator com = Ice.Util.initialize(init);
@@ -149,7 +149,7 @@ public class AllTests : global::Test.AllTests
             //
             // Test: Verify that the operations work correctly when creation of the Admin object is delayed.
             //
-            Ice.InitializationData init = new Ice.InitializationData();
+            var init = new Ice.InitializationData();
             init.properties = new Ice.Properties();
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
@@ -172,7 +172,7 @@ public class AllTests : global::Test.AllTests
             //
             // Test: Verify that Process::shutdown() operation shuts down the communicator.
             //
-            Dictionary<string, string> props = new Dictionary<string, string>
+            var props = new Dictionary<string, string>
             {
                 { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
                 { "Ice.Admin.InstanceName", "Test" }
@@ -189,7 +189,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing properties facet... ");
         output.Flush();
         {
-            Dictionary<string, string> props = new Dictionary<string, string>
+            var props = new Dictionary<string, string>
             {
                 { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
                 { "Ice.Admin.InstanceName", "Test" },
@@ -223,7 +223,7 @@ public class AllTests : global::Test.AllTests
             //
             // Test: PropertiesAdmin::setProperties()
             //
-            Dictionary<string, string> setProps = new Dictionary<string, string>
+            var setProps = new Dictionary<string, string>
             {
                 { "Prop1", "10" }, // Changed
                 { "Prop2", "20" }, // Changed
@@ -255,7 +255,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing logger facet... ");
         output.Flush();
         {
-            Dictionary<string, string> props = new Dictionary<string, string>
+            var props = new Dictionary<string, string>
             {
                 { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
                 { "Ice.Admin.InstanceName", "Test" },
@@ -272,12 +272,10 @@ public class AllTests : global::Test.AllTests
             Ice.LoggerAdminPrx logger = Ice.LoggerAdminPrxHelper.checkedCast(obj, "Logger");
             test(logger != null);
 
-            string prefix = null;
-
             //
             // Get all
             //
-            Ice.LogMessage[] logMessages = logger.getLog(null, null, -1, out prefix);
+            Ice.LogMessage[] logMessages = logger.getLog(null, null, -1, out string prefix);
 
             test(logMessages.Length == 4);
             test(prefix == "NullLogger");
@@ -350,7 +348,7 @@ public class AllTests : global::Test.AllTests
             Ice.ObjectAdapter adapter =
                 communicator.createObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost");
 
-            RemoteLoggerI remoteLogger = new RemoteLoggerI();
+            var remoteLogger = new RemoteLoggerI();
 
             Ice.RemoteLoggerPrx myProxy =
                 Ice.RemoteLoggerPrxHelper.uncheckedCast(adapter.addWithUUID(remoteLogger));
@@ -434,7 +432,7 @@ public class AllTests : global::Test.AllTests
             //
             // Test: Verify that the custom facet is present.
             //
-            Dictionary<string, string> props = new Dictionary<string, string>
+            var props = new Dictionary<string, string>
             {
                 { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
                 { "Ice.Admin.InstanceName", "Test" }
@@ -454,7 +452,7 @@ public class AllTests : global::Test.AllTests
             // Test: Set Ice.Admin.Facets to expose only the Properties facet,
             // meaning no other facet is available.
             //
-            Dictionary<string, string> props = new Dictionary<string, string>
+            var props = new Dictionary<string, string>
             {
                 { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
                 { "Ice.Admin.InstanceName", "Test" },
@@ -487,7 +485,7 @@ public class AllTests : global::Test.AllTests
             // Test: Set Ice.Admin.Facets to expose only the Process facet,
             // meaning no other facet is available.
             //
-            Dictionary<string, string> props = new Dictionary<string, string>
+            var props = new Dictionary<string, string>
             {
                 { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
                 { "Ice.Admin.InstanceName", "Test" },
@@ -520,7 +518,7 @@ public class AllTests : global::Test.AllTests
             // Test: Set Ice.Admin.Facets to expose only the TestFacet facet,
             // meaning no other facet is available.
             //
-            Dictionary<string, string> props = new Dictionary<string, string>
+            var props = new Dictionary<string, string>
             {
                 { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
                 { "Ice.Admin.InstanceName", "Test" },
@@ -553,7 +551,7 @@ public class AllTests : global::Test.AllTests
             // Test: Set Ice.Admin.Facets to expose two facets. Use whitespace to separate the
             // facet names.
             //
-            Dictionary<string, string> props = new Dictionary<string, string>
+            var props = new Dictionary<string, string>
             {
                 { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
                 { "Ice.Admin.InstanceName", "Test" },
@@ -581,7 +579,7 @@ public class AllTests : global::Test.AllTests
             // Test: Set Ice.Admin.Facets to expose two facets. Use a comma to separate the
             // facet names.
             //
-            Dictionary<string, string> props = new Dictionary<string, string>
+            var props = new Dictionary<string, string>
             {
                 { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
                 { "Ice.Admin.InstanceName", "Test" },

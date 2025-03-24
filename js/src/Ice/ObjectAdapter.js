@@ -435,7 +435,7 @@ export class ObjectAdapter {
         }
 
         if (this._instance.traceLevels().network >= 1 && endpoints.length > 0) {
-            msg = `published endpoints for object adapter '${this._name}':\n`;
+            let msg = `published endpoints for object adapter '${this._name}':\n`;
             msg += endpoints.map(endpoint => endpoint.toString()).join(":");
             this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat, msg);
         }

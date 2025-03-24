@@ -173,7 +173,7 @@ public class AllTests : global::Test.AllTests
             try
             {
                 // No more than 2 retries before timeout kicks-in
-                Test.RetryPrx prx = (Test.RetryPrx)retry2.ice_invocationTimeout(500);
+                var prx = (Test.RetryPrx)retry2.ice_invocationTimeout(500);
                 await prx.opIdempotentAsync(4);
                 test(false);
             }

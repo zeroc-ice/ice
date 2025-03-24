@@ -60,7 +60,7 @@ public class AllTests : global::Test.AllTests
                  (tcpEndpoint.type() == Ice.WSEndpointType.value && info is Ice.WSEndpointInfo) ||
                  (tcpEndpoint.type() == Ice.WSSEndpointType.value && info is Ice.WSEndpointInfo));
 
-            Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endps[1].getInfo();
+            var udpEndpoint = (Ice.UDPEndpointInfo)endps[1].getInfo();
             test(udpEndpoint.host == "udphost");
             test(udpEndpoint.port == 10001);
             test(udpEndpoint.mcastInterface == "eth0");
@@ -72,7 +72,7 @@ public class AllTests : global::Test.AllTests
             test(udpEndpoint.datagram());
             test(udpEndpoint.type() == 3);
 
-            Ice.OpaqueEndpointInfo opaqueEndpoint = (Ice.OpaqueEndpointInfo)endps[2].getInfo();
+            var opaqueEndpoint = (Ice.OpaqueEndpointInfo)endps[2].getInfo();
             test(opaqueEndpoint.rawBytes.Length > 0);
             test(opaqueEndpoint.rawEncoding.Equals(new Ice.EncodingVersion(1, 8)));
         }
@@ -102,7 +102,7 @@ public class AllTests : global::Test.AllTests
             test(tcpEndpoint.port > 0);
             test(tcpEndpoint.timeout == 15000);
 
-            Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endpoints[1].getInfo();
+            var udpEndpoint = (Ice.UDPEndpointInfo)endpoints[1].getInfo();
             test(udpEndpoint.host.Equals(host));
             test(udpEndpoint.datagram());
             test(udpEndpoint.port > 0);
@@ -164,7 +164,7 @@ public class AllTests : global::Test.AllTests
             test(port > 0);
 
             info = @base.ice_datagram().ice_getConnection().getEndpoint().getInfo();
-            Ice.UDPEndpointInfo udp = (Ice.UDPEndpointInfo)info;
+            var udp = (Ice.UDPEndpointInfo)info;
             test(udp.port == endpointPort);
             test(udp.host.Equals(defaultHost));
         }
@@ -234,7 +234,7 @@ public class AllTests : global::Test.AllTests
             connection = @base.ice_datagram().ice_getConnection();
             connection.setBufferSize(2048, 1024);
 
-            Ice.UDPConnectionInfo udpInfo = (Ice.UDPConnectionInfo)connection.getInfo();
+            var udpInfo = (Ice.UDPConnectionInfo)connection.getInfo();
             test(!udpInfo.incoming);
             test(udpInfo.adapterName.Length == 0);
             test(udpInfo.localPort > 0);

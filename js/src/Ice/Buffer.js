@@ -195,9 +195,12 @@ export class Buffer {
         if (position + length > this._limit) {
             throw new RangeError(bufferUnderflowExceptionMsg);
         }
-        return new Uint8Array(
-            this.b.slice(position, position + length === undefined ? this.b.byteLength - position : length),
-        );
+
+        if (length === undefined) {
+            return new Uint8Array(this.b.slice(position));
+        } else {
+            return new Uint8Array(this.b.slice(position, position + length));
+        }
     }
 
     getShort() {

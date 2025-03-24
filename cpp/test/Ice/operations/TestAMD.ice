@@ -243,7 +243,14 @@ module Test
         StringS opStringLiterals();
         WStringS opWStringLiterals();
 
+        /// Tests the marshaled-result metadata with a simple return value.
+        /// @return A struct.
         ["marshaled-result"] Structure opMStruct1();
+
+        /// Tests the marshaled-result metadata.
+        /// @param p1 The input struct.
+        /// @param p2 The output struct.
+        /// @return Another struct.
         ["marshaled-result"] Structure opMStruct2(Structure p1, out Structure p2);
 
         ["marshaled-result"] StringS opMSeq1();

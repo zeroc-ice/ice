@@ -6,28 +6,19 @@ namespace IceDiscovery;
 
 public static class Util
 {
-    public static void registerIceDiscovery(bool loadOnInitialize)
-    {
-        Ice.Util.registerPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
-    }
+    public static void registerIceDiscovery(bool loadOnInitialize) => Ice.Util.registerPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
 }
 
 public sealed class PluginFactory : Ice.PluginFactory
 {
     public Ice.Plugin
-    create(Ice.Communicator communicator, string name, string[] args)
-    {
-        return new PluginI(communicator);
-    }
+    create(Ice.Communicator communicator, string name, string[] args) => new PluginI(communicator);
 }
 
 public sealed class PluginI : Ice.Plugin
 {
     public
-    PluginI(Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-    }
+    PluginI(Ice.Communicator communicator) => _communicator = communicator;
 
     public void initialize()
     {
@@ -45,7 +36,7 @@ public sealed class PluginI : Ice.Plugin
 
         if (properties.getIceProperty("IceDiscovery.Multicast.Endpoints").Length == 0)
         {
-            StringBuilder s = new StringBuilder();
+            var s = new StringBuilder();
             s.Append("udp -h \"").Append(address).Append("\" -p ").Append(port);
             if (intf.Length != 0)
             {
@@ -58,7 +49,7 @@ public sealed class PluginI : Ice.Plugin
         if (lookupEndpoints.Length == 0)
         {
             int protocol = ipv4 && !preferIPv6 ? Ice.Internal.Network.EnableIPv4 : Ice.Internal.Network.EnableIPv6;
-            var interfaces = Ice.Internal.Network.getInterfacesForMulticast(intf, protocol);
+            List<string> interfaces = Ice.Internal.Network.getInterfacesForMulticast(intf, protocol);
             foreach (string p in interfaces)
             {
                 if (p != interfaces[0])
@@ -88,7 +79,7 @@ public sealed class PluginI : Ice.Plugin
         //
         // Setup locator registry.
         //
-        LocatorRegistryI locatorRegistry = new LocatorRegistryI(_communicator);
+        var locatorRegistry = new LocatorRegistryI(_communicator);
         Ice.LocatorRegistryPrx locatorRegistryPrx = Ice.LocatorRegistryPrxHelper.uncheckedCast(
             _locatorAdapter.addWithUUID(locatorRegistry));
 
@@ -99,11 +90,11 @@ public sealed class PluginI : Ice.Plugin
         //
         // Add lookup and lookup reply Ice objects
         //
-        LookupI lookup = new LookupI(locatorRegistry, LookupPrxHelper.uncheckedCast(lookupPrx), properties);
+        var lookup = new LookupI(locatorRegistry, LookupPrxHelper.uncheckedCast(lookupPrx), properties);
         _multicastAdapter.add(lookup, Ice.Util.stringToIdentity("IceDiscovery/Lookup"));
 
         _replyAdapter.addDefaultServant(new LookupReplyI(lookup), "");
-        Ice.Identity id = new Ice.Identity("dummy", "");
+        var id = new Ice.Identity("dummy", "");
         lookup.setLookupReply(LookupReplyPrxHelper.uncheckedCast(_replyAdapter.createProxy(id).ice_datagram()));
 
         //

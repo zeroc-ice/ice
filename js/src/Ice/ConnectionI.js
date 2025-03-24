@@ -11,8 +11,10 @@ import {
     ConnectionLostException,
     CloseTimeoutException,
     FeatureNotSupportedException,
+    MarshalException,
     UnknownException,
     ObjectNotExistException,
+    ProtocolException,
 } from "./LocalExceptions.js";
 
 import { BatchRequestQueue } from "./BatchRequestQueue.js";
@@ -669,7 +671,7 @@ export class ConnectionI {
                         // If the response has already been received, process it now.
                         message.outAsync.completed(message.response.stream);
                     }
-                    _sendStreams.shift();
+                    this._sendStreams.shift();
                 }
             }
 
@@ -679,7 +681,7 @@ export class ConnectionI {
             // processed by the `finished` implementation.
             for (const message of this._sendStreams) {
                 if (message.requestId > 0) {
-                    this._asyncRequests.delete(p.requestId);
+                    this._asyncRequests.delete(message.requestId);
                 }
                 message.completed(this._exception);
             }
@@ -1092,7 +1094,8 @@ export class ConnectionI {
             );
         }
         this._readStream.readByte(); // Ignore compression status for validate connection.
-        if (this._readStream.readInt() !== Protocol.headerSize) {
+        const size = this._readStream.readInt();
+        if (size !== Protocol.headerSize) {
             throw new MarshalException(`Received ValidateConnection message with unexpected size ${size}.`);
         }
         TraceUtil.traceRecv(this._readStream, this, this._logger, this._traceLevels);

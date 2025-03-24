@@ -273,13 +273,15 @@ namespace Ice
         /// Tests whether this object supports a specific Slice interface.
         /// @param typeId The type ID of the Slice interface to test against.
         /// @param context The request context.
-        /// @return true if the target object has the interface
-        /// specified by id or derives from the interface specified by id.
+        /// @return `true` if the target object has the interface specified by @p typeId or derives from the interface
+        /// specified by @p typeId, `false` otherwise.
         [[nodiscard]] bool ice_isA(std::string_view typeId, const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// Tests whether this object supports a specific Slice interface.
         /// @param typeId The type ID of the Slice interface to test against.
-        /// @param response The response callback.
+        /// @param response The response callback. It accepts:
+        /// - `true` if the target object has the interface specified by @p typeId or derives from the interface
+        /// specified by @p typeId, `false` otherwise.
         /// @param ex The exception callback.
         /// @param sent The sent callback.
         /// @param context The request context.
@@ -295,7 +297,9 @@ namespace Ice
         /// Tests whether this object supports a specific Slice interface.
         /// @param typeId The type ID of the Slice interface to test against.
         /// @param context The request context.
-        /// @return The future object for the invocation.
+        /// @return A future that becomes available when the invocation completes. This future holds:
+        /// - `true` if the target object has the interface specified by @p typeId or derives from the interface
+        /// specified by @p typeId, `false` otherwise.
         [[nodiscard]] std::future<bool>
         ice_isAAsync(std::string_view typeId, const Ice::Context& context = Ice::noExplicitContext) const;
 
@@ -322,7 +326,7 @@ namespace Ice
 
         /// Tests whether the target object of this proxy can be reached.
         /// @param context The request context.
-        /// @return The future object for the invocation.
+        /// @return A future that becomes available when the response is received.
         [[nodiscard]] std::future<void> ice_pingAsync(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// @private
@@ -334,7 +338,8 @@ namespace Ice
         [[nodiscard]] std::vector<std::string> ice_ids(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// Gets the Slice interfaces supported by this object as a list of type IDs.
-        /// @param response The response callback.
+        /// @param response The response callback. It accepts:
+        /// - The Slice type IDs of the interfaces supported by this object, in alphabetical order.
         /// @param ex The exception callback.
         /// @param sent The sent callback.
         /// @param context The request context.
@@ -348,7 +353,8 @@ namespace Ice
 
         /// Gets the Slice interfaces supported by this object as a list of type IDs.
         /// @param context The request context.
-        /// @return The future object for the invocation.
+        /// @return A future that becomes available when the invocation completes. This future holds:
+        /// - The Slice type IDs of the interfaces supported by this object, in alphabetical order.
         [[nodiscard]] std::future<std::vector<std::string>>
         ice_idsAsync(const Ice::Context& context = Ice::noExplicitContext) const;
 
@@ -363,7 +369,8 @@ namespace Ice
         [[nodiscard]] std::string ice_id(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// Gets the type ID of the most-derived Slice interface supported by this object.
-        /// @param response The response callback.
+        /// @param response The response callback. It accepts:
+        /// - The type ID of the most-derived interface.
         /// @param ex The exception callback.
         /// @param sent The sent callback.
         /// @param context The request context.
@@ -377,22 +384,20 @@ namespace Ice
 
         /// Gets the type ID of the most-derived Slice interface supported by this object.
         /// @param context The request context.
-        /// @return The future object for the invocation.
+        /// @return A future that becomes available when the invocation completes. This future holds:
+        /// - The type ID of the most-derived interface.
         [[nodiscard]] std::future<std::string> ice_idAsync(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// @private
         void _iceI_id(const std::shared_ptr<IceInternal::OutgoingAsyncT<std::string>>&, const Ice::Context&) const;
 
-        /// Invokes an operation dynamically.
+        /// Invokes an operation.
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
         /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
-        /// @param outParams An encapsulation containing the encoded results.
+        /// @param outParams An encapsulation containing the encoded result.
         /// @param context The request context.
-        /// @return True if the operation completed successfully, in which case outParams contains
-        /// the encoded out parameters. False if the operation raised a user exception, in which
-        /// case outParams contains the encoded user exception. If the operation raises a run-time
-        /// exception, it throws it directly.
+        /// @return `true` if the operation completed successfully, `false` if it completed with a user exception.
         bool ice_invoke(
             std::string_view operation,
             Ice::OperationMode mode,
@@ -400,23 +405,29 @@ namespace Ice
             std::vector<std::byte>& outParams,
             const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// Invokes an operation dynamically.
+        /// Invokes an operation asynchronously.
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
         /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
         /// @param context The request context.
-        /// @return The future object for the invocation.
+        /// @return A future that becomes available when the invocation completes. This future holds:
+        /// - `returnValue` `true` if the operation completed successfully, `false` if it completed with a user
+        ///    exception.
+        /// - `outParams` An encapsulation containing the encoded result.
         [[nodiscard]] std::future<std::tuple<bool, std::vector<std::byte>>> ice_invokeAsync(
             std::string_view operation,
             Ice::OperationMode mode,
             const std::vector<std::byte>& inParams,
             const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// Invokes an operation dynamically.
+        /// Invokes an operation asynchronously.
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
         /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
-        /// @param response The response callback.
+        /// @param response The response callback. It accepts:
+        /// - `returnValue` `true` if the operation completed successfully, `false` if it completed with a user
+        ///    exception.
+        /// - `outParams` An encapsulation containing the encoded result.
         /// @param ex The exception callback.
         /// @param sent The sent callback.
         /// @param context The request context.
@@ -431,16 +442,13 @@ namespace Ice
             std::function<void(bool)> sent = nullptr,
             const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// Invokes an operation dynamically.
+        /// Invokes an operation.
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
         /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
-        /// @param outParams An encapsulation containing the encoded results.
+        /// @param outParams An encapsulation containing the encoded result.
         /// @param context The request context.
-        /// @return True if the operation completed successfully, in which case outParams contains
-        /// the encoded out parameters. False if the operation raised a user exception, in which
-        /// case outParams contains the encoded user exception. If the operation raises a run-time
-        /// exception, it throws it directly.
+        /// @return `true` if the operation completed successfully, `false` if it completed with a user exception.
         bool ice_invoke(
             std::string_view operation,
             Ice::OperationMode mode,
@@ -448,23 +456,29 @@ namespace Ice
             std::vector<std::byte>& outParams,
             const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// Invokes an operation dynamically.
+        /// Invokes an operation asynchronously.
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
         /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
         /// @param context The request context.
-        /// @return The future object for the invocation.
+        /// @return A future that becomes available when the invocation completes. This future holds:
+        /// - `returnValue` `true` if the operation completed successfully, `false` if it completed with a user
+        ///    exception.
+        /// - `outParams` An encapsulation containing the encoded result.
         [[nodiscard]] std::future<std::tuple<bool, std::vector<std::byte>>> ice_invokeAsync(
             std::string_view operation,
             Ice::OperationMode mode,
             std::pair<const std::byte*, const std::byte*> inParams,
             const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// Invokes an operation dynamically.
+        /// Invokes an operation asynchronously.
         /// @param operation The name of the operation to invoke.
         /// @param mode The operation mode (normal or idempotent).
         /// @param inParams An encapsulation containing the encoded in-parameters for the operation.
-        /// @param response The response callback.
+        /// @param response The response callback. It accepts:
+        /// - `returnValue` `true` if the operation completed successfully, `false` if it completed with a user
+        ///    exception.
+        /// - `outParams` An encapsulation containing the encoded result.
         /// @param ex The exception callback.
         /// @param sent The sent callback.
         /// @param context The request context.
@@ -479,16 +493,17 @@ namespace Ice
             std::function<void(bool)> sent = nullptr,
             const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
+        /// Gets the connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.
         /// @return The connection for this proxy.
         /// @remark You can call this function to establish a connection or associate the proxy with an existing
         /// connection and ignore the return value.
         Ice::ConnectionPtr ice_getConnection() const; // NOLINT(modernize-use-nodiscard)
 
-        /// Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
+        /// Gets the connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.
-        /// @param response The response callback.
+        /// @param response The response callback. It accepts:
+        /// - The connection for this proxy.
         /// @param ex The exception callback.
         /// @param sent The sent callback.
         /// @return A function that can be called to cancel the invocation locally.
@@ -498,9 +513,10 @@ namespace Ice
             std::function<void(std::exception_ptr)> ex = nullptr,
             std::function<void(bool)> sent = nullptr) const;
 
-        /// Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
+        /// Gets the connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.
-        /// @return The future object for the invocation.
+        /// @return A future that becomes available when the invocation completes. This future holds:
+        /// - The connection for this proxy.
         [[nodiscard]] std::future<Ice::ConnectionPtr> ice_getConnectionAsync() const;
 
         /// @private
@@ -525,7 +541,7 @@ namespace Ice
             std::function<void(bool)> sent = nullptr) const;
 
         /// Flushes asynchronously any pending batched requests for this communicator.
-        /// @return The future object for the invocation.
+        /// @return A future that becomes available when the flush completes.
         [[nodiscard]] std::future<void> ice_flushBatchRequestsAsync() const;
 
         /// Obtains the identity embedded in this proxy.
@@ -571,7 +587,7 @@ namespace Ice
         [[nodiscard]] std::chrono::milliseconds ice_getLocatorCacheTimeout() const noexcept;
 
         /// Determines whether this proxy caches connections.
-        /// @return True if this proxy caches connections, false otherwise.
+        /// @return `true` if this proxy caches connections, `false` otherwise.
         [[nodiscard]] bool ice_isConnectionCached() const noexcept;
 
         /// Obtains the endpoint selection policy for this proxy (randomly or ordered).
@@ -579,7 +595,7 @@ namespace Ice
         [[nodiscard]] Ice::EndpointSelectionType ice_getEndpointSelection() const noexcept;
 
         /// Determines whether this proxy uses only secure endpoints.
-        /// @return True if this proxy communicates only via secure endpoints, false otherwise.
+        /// @return `true` if this proxy communicates only via secure endpoints, `false` otherwise.
         [[nodiscard]] bool ice_isSecure() const noexcept;
 
         /// Obtains the encoding version used to marshal request parameters.
@@ -587,8 +603,8 @@ namespace Ice
         [[nodiscard]] Ice::EncodingVersion ice_getEncodingVersion() const noexcept;
 
         /// Determines whether this proxy prefers secure endpoints.
-        /// @return True if the proxy always attempts to invoke via secure endpoints before it
-        /// attempts to use insecure endpoints, false otherwise.
+        /// @return `true` if the proxy always attempts to invoke via secure endpoints before it
+        /// attempts to use insecure endpoints, `false` otherwise.
         [[nodiscard]] bool ice_isPreferSecure() const noexcept;
 
         /// Obtains the router for this proxy.
@@ -601,7 +617,7 @@ namespace Ice
         [[nodiscard]] std::optional<LocatorPrx> ice_getLocator() const noexcept;
 
         /// Determines whether this proxy uses collocation optimization.
-        /// @return True if the proxy uses collocation optimization, false otherwise.
+        /// @return `true` if the proxy uses collocation optimization, `false` otherwise.
         [[nodiscard]] bool ice_isCollocationOptimized() const noexcept;
 
         /// Obtains the invocation timeout of this proxy.
@@ -609,28 +625,28 @@ namespace Ice
         [[nodiscard]] std::chrono::milliseconds ice_getInvocationTimeout() const noexcept;
 
         /// Determines whether this proxy uses twoway invocations.
-        /// @return True if this proxy uses twoway invocations, false otherwise.
+        /// @return `true` if this proxy uses twoway invocations, `false` otherwise.
         [[nodiscard]] bool ice_isTwoway() const noexcept;
 
         /// Determines whether this proxy uses oneway invocations.
-        /// @return True if this proxy uses oneway invocations, false otherwise.
+        /// @return `true` if this proxy uses oneway invocations, `false` otherwise.
         [[nodiscard]] bool ice_isOneway() const noexcept;
 
         /// Determines whether this proxy uses batch oneway invocations.
-        /// @return True if this proxy uses batch oneway invocations, false otherwise.
+        /// @return `true` if this proxy uses batch oneway invocations, `false` otherwise.
         [[nodiscard]] bool ice_isBatchOneway() const noexcept;
 
         /// Determines whether this proxy uses datagram invocations.
-        /// @return True if this proxy uses datagram invocations, false otherwise.
+        /// @return `true` if this proxy uses datagram invocations, `false` otherwise.
         [[nodiscard]] bool ice_isDatagram() const noexcept;
 
         /// Determines whether this proxy uses batch datagram invocations.
-        /// @return True if this proxy uses batch datagram invocations, false otherwise.
+        /// @return `true` if this proxy uses batch datagram invocations, `false` otherwise.
         [[nodiscard]] bool ice_isBatchDatagram() const noexcept;
 
         /// Obtains the compression override setting of this proxy.
         /// @return The compression override setting. If nullopt is returned, no override is set. Otherwise, true
-        /// if compression is enabled, false otherwise.
+        /// if compression is enabled, `false` otherwise.
         [[nodiscard]] std::optional<bool> ice_getCompress() const noexcept;
 
         /// Obtains the connection ID of this proxy.
@@ -638,7 +654,7 @@ namespace Ice
         [[nodiscard]] std::string ice_getConnectionId() const;
 
         /// Determines whether this proxy is a fixed proxy.
-        /// @return True if this proxy is a fixed proxy, false otherwise.
+        /// @return `true` if this proxy is a fixed proxy, `false` otherwise.
         [[nodiscard]] bool ice_isFixed() const noexcept;
 
         /// Returns the Slice type ID associated with this type.

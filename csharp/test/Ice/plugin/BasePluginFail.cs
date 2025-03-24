@@ -9,15 +9,9 @@ public abstract class BasePluginFail : Ice.Plugin
         _destroyed = false;
     }
 
-    public bool isInitialized()
-    {
-        return _initialized;
-    }
+    public bool isInitialized() => _initialized;
 
-    public bool isDestroyed()
-    {
-        return _destroyed;
-    }
+    public bool isDestroyed() => _destroyed;
 
     protected static void test(bool b) => global::Test.TestHelper.test(b);
 

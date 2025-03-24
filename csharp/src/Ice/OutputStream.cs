@@ -104,10 +104,7 @@ public sealed class OutputStream
         other.resetEncapsulation();
     }
 
-    private void resetEncapsulation()
-    {
-        _encapsStack = null;
-    }
+    private void resetEncapsulation() => _encapsStack = null;
 
     /// <summary>
     /// Resizes the stream to a new size.
@@ -256,10 +253,7 @@ public sealed class OutputStream
     /// Determines the current encoding version.
     /// </summary>
     /// <returns>The encoding version.</returns>
-    public EncodingVersion getEncoding()
-    {
-        return _encapsStack != null ? _encapsStack.encoding : _encoding;
-    }
+    public EncodingVersion getEncoding() => _encapsStack != null ? _encapsStack.encoding : _encoding;
 
     /// <summary>
     /// Marks the start of a new slice for a class instance or user exception.
@@ -440,10 +434,7 @@ public sealed class OutputStream
     /// </summary>
     /// <param name="v">The byte to write to the stream.</param>
     /// <param name="dest">The position at which to store the byte in the buffer.</param>
-    public void rewriteByte(byte v, int dest)
-    {
-        _buf.b.put(dest, v);
-    }
+    public void rewriteByte(byte v, int dest) => _buf.b.put(dest, v);
 
     /// <summary>
     /// Writes a byte sequence to the stream.
@@ -478,8 +469,7 @@ public sealed class OutputStream
         }
 
         {
-            List<byte>? value = v as List<byte>;
-            if (value != null)
+            if (v is List<byte> value)
             {
                 writeByteSeq(value.ToArray());
                 return;
@@ -487,8 +477,7 @@ public sealed class OutputStream
         }
 
         {
-            LinkedList<byte>? value = v as LinkedList<byte>;
-            if (value != null)
+            if (v is LinkedList<byte>)
             {
                 writeSize(count);
                 expand(count);
@@ -502,8 +491,7 @@ public sealed class OutputStream
         }
 
         {
-            Queue<byte>? value = v as Queue<byte>;
-            if (value != null)
+            if (v is Queue<byte> value)
             {
                 writeByteSeq(value.ToArray());
                 return;
@@ -511,8 +499,7 @@ public sealed class OutputStream
         }
 
         {
-            Stack<byte>? value = v as Stack<byte>;
-            if (value != null)
+            if (v is Stack<byte> value)
             {
                 writeByteSeq(value.ToArray());
                 return;
@@ -595,10 +582,7 @@ public sealed class OutputStream
     /// </summary>
     /// <param name="v">The boolean to write to the stream.</param>
     /// <param name="dest">The position at which to store the boolean in the buffer.</param>
-    public void rewriteBool(bool v, int dest)
-    {
-        _buf.b.put(dest, v ? (byte)1 : (byte)0);
-    }
+    public void rewriteBool(bool v, int dest) => _buf.b.put(dest, v ? (byte)1 : (byte)0);
 
     /// <summary>
     /// Writes a boolean sequence to the stream.
@@ -633,8 +617,7 @@ public sealed class OutputStream
         }
 
         {
-            List<bool>? value = v as List<bool>;
-            if (value != null)
+            if (v is List<bool> value)
             {
                 writeBoolSeq(value.ToArray());
                 return;
@@ -642,8 +625,7 @@ public sealed class OutputStream
         }
 
         {
-            LinkedList<bool>? value = v as LinkedList<bool>;
-            if (value != null)
+            if (v is LinkedList<bool>)
             {
                 writeSize(count);
                 expand(count);
@@ -657,8 +639,7 @@ public sealed class OutputStream
         }
 
         {
-            Queue<bool>? value = v as Queue<bool>;
-            if (value != null)
+            if (v is Queue<bool> value)
             {
                 writeBoolSeq(value.ToArray());
                 return;
@@ -666,8 +647,7 @@ public sealed class OutputStream
         }
 
         {
-            Stack<bool>? value = v as Stack<bool>;
-            if (value != null)
+            if (v is Stack<bool> value)
             {
                 writeBoolSeq(value.ToArray());
                 return;
@@ -778,8 +758,7 @@ public sealed class OutputStream
         }
 
         {
-            List<short>? value = v as List<short>;
-            if (value != null)
+            if (v is List<short> value)
             {
                 writeShortSeq(value.ToArray());
                 return;
@@ -787,8 +766,7 @@ public sealed class OutputStream
         }
 
         {
-            LinkedList<short>? value = v as LinkedList<short>;
-            if (value != null)
+            if (v is LinkedList<short>)
             {
                 writeSize(count);
                 expand(count * 2);
@@ -802,8 +780,7 @@ public sealed class OutputStream
         }
 
         {
-            Queue<short>? value = v as Queue<short>;
-            if (value != null)
+            if (v is Queue<short> value)
             {
                 writeShortSeq(value.ToArray());
                 return;
@@ -811,8 +788,7 @@ public sealed class OutputStream
         }
 
         {
-            Stack<short>? value = v as Stack<short>;
-            if (value != null)
+            if (v is Stack<short> value)
             {
                 writeShortSeq(value.ToArray());
                 return;
@@ -897,10 +873,7 @@ public sealed class OutputStream
     /// </summary>
     /// <param name="v">The int to write to the stream.</param>
     /// <param name="dest">The position at which to store the int in the buffer.</param>
-    public void rewriteInt(int v, int dest)
-    {
-        _buf.b.putInt(dest, v);
-    }
+    public void rewriteInt(int v, int dest) => _buf.b.putInt(dest, v);
 
     /// <summary>
     /// Writes an int sequence to the stream.
@@ -935,8 +908,7 @@ public sealed class OutputStream
         }
 
         {
-            List<int>? value = v as List<int>;
-            if (value != null)
+            if (v is List<int> value)
             {
                 writeIntSeq(value.ToArray());
                 return;
@@ -944,8 +916,7 @@ public sealed class OutputStream
         }
 
         {
-            LinkedList<int>? value = v as LinkedList<int>;
-            if (value != null)
+            if (v is LinkedList<int>)
             {
                 writeSize(count);
                 expand(count * 4);
@@ -959,8 +930,7 @@ public sealed class OutputStream
         }
 
         {
-            Queue<int>? value = v as Queue<int>;
-            if (value != null)
+            if (v is Queue<int> value)
             {
                 writeIntSeq(value.ToArray());
                 return;
@@ -968,8 +938,7 @@ public sealed class OutputStream
         }
 
         {
-            Stack<int>? value = v as Stack<int>;
-            if (value != null)
+            if (v is Stack<int> value)
             {
                 writeIntSeq(value.ToArray());
                 return;
@@ -1082,8 +1051,7 @@ public sealed class OutputStream
         }
 
         {
-            List<long>? value = v as List<long>;
-            if (value != null)
+            if (v is List<long> value)
             {
                 writeLongSeq(value.ToArray());
                 return;
@@ -1091,8 +1059,7 @@ public sealed class OutputStream
         }
 
         {
-            LinkedList<long>? value = v as LinkedList<long>;
-            if (value != null)
+            if (v is LinkedList<long>)
             {
                 writeSize(count);
                 expand(count * 8);
@@ -1106,8 +1073,7 @@ public sealed class OutputStream
         }
 
         {
-            Queue<long>? value = v as Queue<long>;
-            if (value != null)
+            if (v is Queue<long> value)
             {
                 writeLongSeq(value.ToArray());
                 return;
@@ -1115,8 +1081,7 @@ public sealed class OutputStream
         }
 
         {
-            Stack<long>? value = v as Stack<long>;
-            if (value != null)
+            if (v is Stack<long> value)
             {
                 writeLongSeq(value.ToArray());
                 return;
@@ -1229,8 +1194,7 @@ public sealed class OutputStream
         }
 
         {
-            List<float>? value = v as List<float>;
-            if (value != null)
+            if (v is List<float> value)
             {
                 writeFloatSeq(value.ToArray());
                 return;
@@ -1238,8 +1202,7 @@ public sealed class OutputStream
         }
 
         {
-            LinkedList<float>? value = v as LinkedList<float>;
-            if (value != null)
+            if (v is LinkedList<float>)
             {
                 writeSize(count);
                 expand(count * 4);
@@ -1253,8 +1216,7 @@ public sealed class OutputStream
         }
 
         {
-            Queue<float>? value = v as Queue<float>;
-            if (value != null)
+            if (v is Queue<float> value)
             {
                 writeFloatSeq(value.ToArray());
                 return;
@@ -1262,8 +1224,7 @@ public sealed class OutputStream
         }
 
         {
-            Stack<float>? value = v as Stack<float>;
-            if (value != null)
+            if (v is Stack<float> value)
             {
                 writeFloatSeq(value.ToArray());
                 return;
@@ -1376,8 +1337,7 @@ public sealed class OutputStream
         }
 
         {
-            List<double>? value = v as List<double>;
-            if (value != null)
+            if (v is List<double> value)
             {
                 writeDoubleSeq(value.ToArray());
                 return;
@@ -1385,8 +1345,7 @@ public sealed class OutputStream
         }
 
         {
-            LinkedList<double>? value = v as LinkedList<double>;
-            if (value != null)
+            if (v is LinkedList<double>)
             {
                 writeSize(count);
                 expand(count * 8);
@@ -1400,8 +1359,7 @@ public sealed class OutputStream
         }
 
         {
-            Queue<double>? value = v as Queue<double>;
-            if (value != null)
+            if (v is Queue<double> value)
             {
                 writeDoubleSeq(value.ToArray());
                 return;
@@ -1409,8 +1367,7 @@ public sealed class OutputStream
         }
 
         {
-            Stack<double>? value = v as Stack<double>;
-            if (value != null)
+            if (v is Stack<double> value)
             {
                 writeDoubleSeq(value.ToArray());
                 return;
@@ -1679,46 +1636,31 @@ public sealed class OutputStream
     /// Determines the current position in the stream.
     /// </summary>
     /// <returns>The current position.</returns>
-    public int pos()
-    {
-        return _buf.b.position();
-    }
+    public int pos() => _buf.b.position();
 
     /// <summary>
     /// Sets the current position in the stream.
     /// </summary>
     /// <param name="n">The new position.</param>
-    public void pos(int n)
-    {
-        _buf.b.position(n);
-    }
+    public void pos(int n) => _buf.b.position(n);
 
     /// <summary>
     /// Determines the current size of the stream.
     /// </summary>
     /// <returns>The current size.</returns>
-    public int size()
-    {
-        return _buf.size();
-    }
+    public int size() => _buf.size();
 
     /// <summary>
     /// Determines whether the stream is empty.
     /// </summary>
     /// <returns>True if no data has been written yet, false otherwise.</returns>
-    public bool isEmpty()
-    {
-        return _buf.empty();
-    }
+    public bool isEmpty() => _buf.empty();
 
     /// <summary>
     /// Expand the stream to accept more data.
     /// </summary>
     /// <param name="n">The number of bytes to accommodate in the stream.</param>
-    public void expand(int n)
-    {
-        _buf.expand(n);
-    }
+    public void expand(int n) => _buf.expand(n);
 
     /// <summary>
     /// Prepares the internal data buffer to be written to a socket.
@@ -1734,10 +1676,7 @@ public sealed class OutputStream
     /// Retrieves the internal data buffer.
     /// </summary>
     /// <returns>The buffer.</returns>
-    internal Ice.Internal.Buffer getBuffer()
-    {
-        return _buf;
-    }
+    internal Ice.Internal.Buffer getBuffer() => _buf;
 
     private Ice.Internal.Buffer _buf;
 
@@ -1772,10 +1711,7 @@ public sealed class OutputStream
 
         internal abstract void endSlice();
 
-        internal virtual bool writeOptional(int tag, OptionalFormat format)
-        {
-            return false;
-        }
+        internal virtual bool writeOptional(int tag, OptionalFormat format) => false;
 
         internal virtual void writePendingValues()
         {
@@ -1785,8 +1721,7 @@ public sealed class OutputStream
         {
             _typeIdMap ??= new Dictionary<string, int>();
 
-            int p;
-            if (_typeIdMap.TryGetValue(typeId, out p))
+            if (_typeIdMap.TryGetValue(typeId, out int p))
             {
                 return p;
             }
@@ -1854,10 +1789,7 @@ public sealed class OutputStream
             }
         }
 
-        internal override void startInstance(SliceType sliceType, SlicedData? sliceData)
-        {
-            _sliceType = sliceType;
-        }
+        internal override void startInstance(SliceType sliceType, SlicedData? sliceData) => _sliceType = sliceType;
 
         internal override void endInstance()
         {
@@ -1923,15 +1855,15 @@ public sealed class OutputStream
                 // marshaled instances" into _toBeMarshaledMap while writing
                 // instances.
                 //
-                foreach (var e in _toBeMarshaledMap)
+                foreach (KeyValuePair<Value, int> e in _toBeMarshaledMap)
                 {
                     _marshaledMap.Add(e.Key, e.Value);
                 }
 
-                var savedMap = _toBeMarshaledMap;
+                Dictionary<Value, int> savedMap = _toBeMarshaledMap;
                 _toBeMarshaledMap = new Dictionary<Value, int>();
                 _stream.writeSize(savedMap.Count);
-                foreach (var p in savedMap)
+                foreach (KeyValuePair<Value, int> p in savedMap)
                 {
                     //
                     // Ask the instance to marshal itself. Any new class
@@ -1954,8 +1886,7 @@ public sealed class OutputStream
             //
             // Look for this instance in the to-be-marshaled map.
             //
-            int p;
-            if (_toBeMarshaledMap.TryGetValue(v, out p))
+            if (_toBeMarshaledMap.TryGetValue(v, out int p))
             {
                 return p;
             }
@@ -2014,8 +1945,7 @@ public sealed class OutputStream
                 // If writing an instance within a slice and using the sliced
                 // format, write an index from the instance indirection table.
                 //
-                int index;
-                if (!_current.indirectionMap!.TryGetValue(v, out index))
+                if (!_current.indirectionMap!.TryGetValue(v, out int index))
                 {
                     _current.indirectionTable.Add(v);
                     int idx = _current.indirectionTable.Count; // Position + 1 (0 is reserved for nil)
@@ -2033,10 +1963,7 @@ public sealed class OutputStream
             }
         }
 
-        internal override void writeException(UserException v)
-        {
-            v.iceWrite(_stream);
-        }
+        internal override void writeException(UserException v) => v.iceWrite(_stream);
 
         internal override void startInstance(SliceType sliceType, SlicedData? data)
         {
@@ -2057,10 +1984,7 @@ public sealed class OutputStream
             }
         }
 
-        internal override void endInstance()
-        {
-            _current = _current!.previous;
-        }
+        internal override void endInstance() => _current = _current!.previous;
 
         internal override void startSlice(string typeId, int compactId, bool last)
         {
@@ -2165,7 +2089,7 @@ public sealed class OutputStream
                 // Write the indirect instance table.
                 //
                 _stream.writeSize(_current.indirectionTable.Count);
-                foreach (var v in _current.indirectionTable)
+                foreach (Value v in _current.indirectionTable)
                 {
                     writeInstance(v);
                 }
@@ -2214,7 +2138,7 @@ public sealed class OutputStream
                 return;
             }
 
-            foreach (var info in slicedData.slices)
+            foreach (SliceInfo info in slicedData.slices)
             {
                 startSlice(info.typeId, info.compactId, info.isLastSlice);
 
@@ -2238,7 +2162,7 @@ public sealed class OutputStream
                         _current.indirectionTable = new List<Value>();
                         _current.indirectionMap = new Dictionary<Value, int>();
                     }
-                    foreach (var o in info.instances)
+                    foreach (Value o in info.instances)
                     {
                         _current.indirectionTable.Add(o);
                     }
@@ -2255,8 +2179,7 @@ public sealed class OutputStream
             //
             // If the instance was already marshaled, just write it's ID.
             //
-            int p;
-            if (_marshaledMap.TryGetValue(v, out p))
+            if (_marshaledMap.TryGetValue(v, out int p))
             {
                 _stream.writeSize(p);
                 return;
@@ -2307,10 +2230,7 @@ public sealed class OutputStream
 
     private sealed class Encaps
     {
-        internal void reset()
-        {
-            encoder = null;
-        }
+        internal void reset() => encoder = null;
 
         internal void setEncoding(EncodingVersion encoding)
         {
@@ -2336,10 +2256,7 @@ public sealed class OutputStream
     //
     private EncodingVersion _encoding;
 
-    private bool isEncoding_1_0()
-    {
-        return _encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
-    }
+    private bool isEncoding_1_0() => _encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
 
     private Encaps? _encapsStack;
     private Encaps? _encapsCache;

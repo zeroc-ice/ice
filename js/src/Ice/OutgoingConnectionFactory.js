@@ -417,7 +417,7 @@ export class OutgoingConnectionFactory {
                 try {
                     await connection.waitUntilFinished();
                 } catch (ex) {
-                    DEV: console.assert(false);
+                    DEV: console.assert(false, ex);
                 }
             }),
         );

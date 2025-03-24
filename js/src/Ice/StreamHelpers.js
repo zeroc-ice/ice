@@ -4,6 +4,7 @@ import { OptionalFormat } from "./OptionalFormat.js";
 import { InputStream } from "./InputStream.js";
 import { OutputStream } from "./OutputStream.js";
 import { TypeRegistry } from "./TypeRegistry.js";
+import { Value } from "./Value.js";
 
 const defineProperty = Object.defineProperty;
 
@@ -50,9 +51,6 @@ const MAX_UINT8_VALUE = 0xff;
 
 const MIN_INT16_VALUE = -0x8000;
 const MAX_INT16_VALUE = 0x7fff;
-
-const MIN_UINT32_VALUE = 0x0;
-const MAX_UINT32_VALUE = 0xffffffff;
 
 const MIN_INT32_VALUE = -0x80000000;
 const MAX_INT32_VALUE = 0x7fffffff;
