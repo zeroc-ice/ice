@@ -2,6 +2,7 @@
 
 import io
 import os
+import platform
 import re
 import signal
 import string
@@ -429,6 +430,7 @@ class Expect(object):
         self.logfile = logfile
         self.timeout = timeout
         self.p = None
+        self.cwd = cwd
 
         if self.logfile:
             self.logfile.write('spawn: "%s"\n' % command)
@@ -731,3 +733,54 @@ class Expect(object):
                 test(self.exitstatus, [exitstatus, -self.killed])
         else:
             test(self.exitstatus, exitstatus)
+
+    def stackDump(self):
+        match platform.system():
+            case "Linux":
+                dumpCmd = [
+                    "gdb",
+                    "-q",
+                    "-n",
+                    "-batch",
+                    "-ex",
+                    f"attach {self.p.pid}",
+                    "-ex",
+                    "thread apply all bt",
+                    "-ex",
+                    "detach",
+                    "-ex",
+                    "quit",
+                ]
+            case "Darwin":
+                dumpCmd = [
+                    "lldb",
+                    "-p",
+                    f"{self.p.pid}",
+                    "-o",
+                    "thread backtrace all",
+                    "-o",
+                    "process detach",
+                    "-o",
+                    "quit",
+                ]
+            case _:
+                print(f"stackDump not supported on {platform.system()}")
+                return
+
+        try:
+            # The args should be a list
+            args = self.p.args
+            assert isinstance(args, list)
+            cmd = args[0]
+            # The cmd should be absolute path
+            assert os.path.isabs(cmd)
+
+            exe = os.path.split(cmd)[1]
+            coreDumpFile = os.path.join(
+                self.cwd, f"{exe}-{time.strftime('%m%d%y-%H%M')}-coredump.log"
+            )
+            print(f"(dumping stack for {cmd} to {coreDumpFile})")
+            with open(coreDumpFile, "w") as f:
+                subprocess.run(dumpCmd, stdout=f, stderr=f)
+        except Exception as e:
+            print(e)

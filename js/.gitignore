@@ -41,3 +41,7 @@ bin/windows-x64
 
 # NPM package
 zeroc-ice-*.tgz
+
+# Coverage Reports
+coverage/*
+coverage-report/*

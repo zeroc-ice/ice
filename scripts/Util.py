@@ -654,6 +654,7 @@ class Mapping(object):
             self.openssl = False
             self.browser = ""
             self.worker = False
+            self.coverage = False
             self.dotnet = False
             self.framework = ""
             self.android = False
@@ -1287,7 +1288,7 @@ class Process(Runnable):
 
     def run(self, current, args=[], props={}, exitstatus=0, timeout=None):
         class WatchDog:
-            def __init__(self, timeout):
+            def __init__(self):
                 self.lastProgressTime = time.time()
                 self.lock = threading.Lock()
 
@@ -1295,22 +1296,28 @@ class Process(Runnable):
                 with self.lock:
                     self.lastProgressTime = time.time()
 
-            def timedOut(self, timeout):
+            def timedOut(self, timeout: int):
                 with self.lock:
                     return (time.time() - self.lastProgressTime) >= timeout
 
-        watchDog = WatchDog(timeout)
+        watchDog = WatchDog()
         self.start(current, args, props, watchDog=watchDog)
         process = current.processes[self]
 
         if timeout is None:
-            # If it's not a local process use a large timeout as the watch dog might not
-            # get invoked (TODO: improve remote processes to use the watch dog)
-            timeout = 60 if isinstance(process, Expect.Expect) else 480
+            if os.getenv("CI"):
+                # If we're running in CI always use a large timeout. This value is arbitrary and
+                # should be adjusted as needed.
+                timeout = 300
+            else:
+                # If it's not a local process use a large timeout as the watch dog might not
+                # get invoked (TODO: improve remote processes to use the watch dog)
+                timeout = 60 if isinstance(process, Expect.Expect) else 480
 
         if not self.quiet and not current.driver.isWorkerThread():
             # Print out the process output to stdout if we're running the client form the main thread.
             process.trace(self.outfilters)
+
         try:
             while True:
                 try:
@@ -1320,12 +1327,20 @@ class Process(Runnable):
                     current.driver.setInterrupt(True)
                     raise
                 except Expect.TIMEOUT:
-                    if watchDog and watchDog.timedOut(timeout):
+                    assert watchDog
+                    if watchDog.timedOut(timeout):
                         print(
                             "process {0} is hanging - {1}".format(
                                 process, time.strftime("%x %X")
                             )
                         )
+
+                        # If we're running in CI, dump the stack trace and exit
+                        if os.getenv("CI"):
+                            process.stackDump()
+                            self.stop(current, False, exitstatus)
+                            raise
+
                         if current.driver.isInterrupted():
                             self.stop(current, False, exitstatus)
                             raise
@@ -1425,6 +1440,11 @@ class Process(Runnable):
                                     process, time.strftime("%x %X")
                                 )
                             )
+
+                            if os.getenv("CI"):
+                                process.stackDump()
+                                raise
+
                             if current.driver.isInterrupted():
                                 raise
                         except RuntimeError as ex:
@@ -4200,12 +4220,32 @@ class JavaScriptMixin:
         return os.path.join(self.getPath(), "test", "Common")
 
     def getCommandLine(self, current, process, exe, args):
-        return "node {0}/run.js file://{1} {2} {3}".format(
+
+        coverage = ""
+
+        src_path = os.path.join(self.getPath(), "src")
+        tests_path = os.path.join(self.getPath(), "test")
+
+        if current.config.coverage:
+            report_dir = f"coverage/{current.testcase.getTestSuite().getId()}-{exe}"
+            coverage_parts = [
+                "npx c8",
+                "--clean=true",
+                f'--src="{src_path}"',
+                f'--exclude="{tests_path}"',
+                f'--report-dir="{report_dir}"',
+                "--exclude-after-remap=false"
+            ]
+            coverage = " ".join(coverage_parts)
+
+        node_command = "node {0}/run.js file://{1} {2} {3}".format(
             self.getCommonDir(current),
-            os.path.join(self.getTestCwd(process, current), exe),
+            os.path.join(tests_path, current.testcase.getTestSuite().getId(), exe),
             Path(exe).stem,
             args,
         )
+
+        return f"{coverage} {node_command}".strip()
 
     def getSSLProps(self, process, current):
         return {}
@@ -4225,7 +4265,7 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
     class Config(Mapping.Config):
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["browser=", "worker"])
+            return ("", ["browser=", "worker", "coverage"])
 
         @classmethod
         def usage(self):
@@ -4233,6 +4273,7 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
             print("JavaScript mapping options:")
             print("--browser=<name>      Run with the given browser.")
             print("--worker              Run with Web workers enabled.")
+            print("--coverage            Collect code coverage using c8. Only supported for Node.js.")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
@@ -4254,7 +4295,7 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
         return self.getDefaultSource(processType)
 
     def getTestCwd(self, process, current):
-        return os.path.join(self.path, "test", current.testcase.getTestSuite().getId())
+        return os.path.join(self.path)
 
     def getOptions(self, current):
         options = JavaScriptMixin.getOptions(self, current)
