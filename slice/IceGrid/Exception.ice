@@ -17,21 +17,21 @@
 
 module IceGrid
 {
-    /// This exception is raised if an application does not exist.
+    /// The exception that is thrown when IceGrid does not know an application with the provided name.
     exception ApplicationNotExistException
     {
         /// The name of the application.
         string name;
     }
 
-    /// This exception is raised if a server does not exist.
+    /// The exception that is thrown when IceGrid does not know a server with the provided server ID.
     exception ServerNotExistException
     {
         /// The identifier of the server.
         string id;
     }
 
-    /// This exception is raised if a server failed to start.
+    /// The exception that is thrown when a server failed to start.
     exception ServerStartException
     {
         /// The identifier of the server.
@@ -41,7 +41,7 @@ module IceGrid
         string reason;
     }
 
-    /// This exception is raised if a server failed to stop.
+    /// The exception that is thrown when a server failed to start.
     exception ServerStopException
     {
         /// The identifier of the server.
@@ -51,49 +51,49 @@ module IceGrid
         string reason;
     }
 
-    /// This exception is raised if an adapter does not exist.
+    /// The exception that is thrown when IceGrid does not know an object adapter with the provided adapter ID.
     exception AdapterNotExistException
     {
         /// The id of the object adapter.
         string id;
     }
 
-    /// This exception is raised if an object already exists.
+    /// The exception that is thrown when a well-known object is already registered.
     exception ObjectExistsException
     {
         /// The identity of the object.
         Ice::Identity id;
     }
 
-    /// This exception is raised if an object is not registered.
+    /// The exception that is thrown when a well-known object is not registered.
     exception ObjectNotRegisteredException
     {
         /// The identity of the object.
         Ice::Identity id;
     }
 
-    /// This exception is raised if a node does not exist.
+    /// The exception that is thrown when IceGrid does not know a node with the provided name.
     exception NodeNotExistException
     {
         /// The node name.
         string name;
     }
 
-    /// This exception is raised if a registry does not exist.
+    /// The exception that is thrown when IceGrid does not know a registry with the provided name.
     exception RegistryNotExistException
     {
         /// The registry name.
         string name;
     }
 
-    /// An exception for deployment errors.
+    /// The exception that is thrown when IceGrid cannot deploy a server.
     exception DeploymentException
     {
         /// The reason for the failure.
         string reason;
     }
 
-    /// This exception is raised if a node could not be reached.
+    /// The exception that is thrown when IceGrid cannot reach a node.
     exception NodeUnreachableException
     {
         /// The name of the node that is not reachable.
@@ -103,7 +103,7 @@ module IceGrid
         string reason;
     }
 
-    /// This exception is raised if a server could not be reached.
+    /// The exception that is thrown when IceGrid cannot reach a server.
     exception ServerUnreachableException
     {
         /// The id of the server that is not reachable.
@@ -113,7 +113,7 @@ module IceGrid
         string reason;
     }
 
-    /// This exception is raised if a registry could not be reached.
+    /// The exception that is thrown when IceGrid cannot reach a registry.
     exception RegistryUnreachableException
     {
         /// The name of the registry that is not reachable.
@@ -123,40 +123,40 @@ module IceGrid
         string reason;
     }
 
-    /// This exception is raised if an unknown signal was sent to to a server.
+    /// The exception that is thrown when an unknown signal is sent to a server.
     exception BadSignalException
     {
         /// The details of the unknown signal.
         string reason;
     }
 
-    /// his exception is raised if a registry lock wasn't acquired or is already held by a session.
+    /// The exception that is thrown when the registry update cannot be acquired.
     exception AccessDeniedException
     {
         /// The id of the user holding the lock (if any).
         string lockUserId;
     }
 
-    /// This exception is raised if the allocation of an object failed.
+    /// The exception that is thrown when the allocation of an object failed.
     exception AllocationException
     {
         /// The reason why the object couldn't be allocated.
         string reason;
     }
 
-    /// This exception is raised if the request to allocate an object times out.
+    /// The exception that is thrown when the request to allocate an object times out.
     exception AllocationTimeoutException extends AllocationException
     {
     }
 
-    /// This exception is raised if a client is denied the ability to create a session with IceGrid.
+    /// The exception that is thrown when a client is denied the ability to create a session with IceGrid.
     exception PermissionDeniedException
     {
         /// The reason why permission was denied.
         string reason;
     }
 
-    /// This exception is raised if an observer is already registered with the registry.
+    /// The exception that is thrown when an observer is already registered with the registry.
     /// @see AdminSession#setObservers
     /// @see AdminSession#setObserversByIdentity
     exception ObserverAlreadyRegisteredException
@@ -165,7 +165,7 @@ module IceGrid
         Ice::Identity id;
     }
 
-    /// This exception is raised if a file is not available.
+    /// The exception that is thrown when a log file is not available.
     /// @see AdminSession#openServerStdOut
     /// @see AdminSession#openServerStdErr
     /// @see AdminSession#openNodeStdOut
