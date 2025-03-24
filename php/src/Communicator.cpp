@@ -835,7 +835,7 @@ ZEND_METHOD(Ice_ValueFactoryManager, add)
     ValueFactoryManagerPtr _this = Wrapper<ValueFactoryManagerPtr>::value(getThis());
     assert(_this);
 
-    zend_class_entry* factoryClass = nameToClass("Ice\\ValueFactory");
+    zend_class_entry* factoryClass = nameToClass("\\Ice\\ValueFactory");
     assert(factoryClass);
 
     zval* factory;
