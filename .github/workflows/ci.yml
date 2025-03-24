@@ -116,8 +116,9 @@ jobs:
 
           ulimit -c unlimited
           echo -e '#include <signal.h>\n#include <unistd.h>\nint main() { raise(SIGSEGV); return 0; }' | gcc -x c -o crash - && ./crash > crash.c
-          ./crash
+          ./crash || true
           coredumpctl info
+          journalctl -u systemd-coredump
 
         shell: bash
 
