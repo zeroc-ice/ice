@@ -114,9 +114,8 @@ jobs:
           grep -iE 'SystemMaxUse|SystemKeepFree' /etc/systemd/journald.conf
           journalctl -u systemd-coredump
 
-
           ulimit -c unlimited
-          echo "int main() { abort(); }" > crash.c
+          echo "#include <stdlib.h>\nint main() { abort(); }" > crash.c
           gcc -o crash crash.c
           ./crash
           coredumpctl info
