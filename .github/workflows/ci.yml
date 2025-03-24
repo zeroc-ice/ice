@@ -106,8 +106,8 @@ jobs:
         run: |
           set -x
           # Collect core dumps with the journal
-          sudo sed -i 's/#Storage=external/Storage=journal/' /etc/systemd/coredump.conf
-          sudo systemctl restart systemd-journald
+          # sudo sed -i 's/#Storage=external/Storage=journal/' /etc/systemd/coredump.conf
+          # sudo systemctl restart systemd-journald
           cat /etc/systemd/coredump.conf | grep Storage
           cat /proc/sys/kernel/core_pattern
           sudo systemctl status systemd-journald
