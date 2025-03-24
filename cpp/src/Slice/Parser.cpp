@@ -2360,7 +2360,7 @@ Slice::Module::destroy()
 }
 
 Slice::Module::Module(const ContainerPtr& container, const string& name, bool nestedSyntax)
-    : Contained(container, name)
+    : Contained(container, name),
       usesNestedSyntax(nestedSyntax)
 {}
 
@@ -4991,6 +4991,12 @@ Slice::Unit::unit() const
 {
     ContainerPtr self = const_cast<Unit*>(this)->shared_from_this();
     return dynamic_pointer_cast<Unit>(self);
+}
+
+int
+Slice::Unit::getStatus() const
+{
+    return (_errors? EXIT_FAILURE : EXIT_SUCCESS);
 }
 
 BuiltinPtr

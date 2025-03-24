@@ -1092,6 +1092,9 @@ namespace Slice
         void visit(ParserVisitor* visitor);
         [[nodiscard]] UnitPtr unit() const final;
 
+        /// Returns `EXIT_FAILURE` if 1 or more errors have been reported and `EXIT_SUCCESS` otherwise.
+        int getStatus() const;
+
         // Not const, as builtins are created on the fly. (Lazy initialization.)
         BuiltinPtr createBuiltin(Builtin::Kind kind);
 
