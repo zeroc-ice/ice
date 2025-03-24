@@ -36,8 +36,7 @@ public class AllTests : global::Test.AllTests
             outS.writeString(testString);
             outS.endEncapsulation();
             inEncaps = outS.finished();
-            byte[] outEncaps;
-            if (cl.ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, out outEncaps))
+            if (cl.ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, out byte[] outEncaps))
             {
                 var inS = new Ice.InputStream(communicator, outEncaps);
                 inS.startEncapsulation();
