@@ -1,1 +1,2 @@
-IllegalMetadata.ice:7: file metadata must appear before any definitions
+IllegalMetadata.ice:6: metadata cannot be applied to nested module definitions
+IllegalMetadata.ice:11: metadata cannot be applied to nested module definitions
