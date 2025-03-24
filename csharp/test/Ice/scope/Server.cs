@@ -51,28 +51,16 @@ public class Server : TestHelper
         }
 
         public override Test.MyEnum
-        opMyEnum(Test.MyEnum e1, Ice.Current current)
-        {
-            return e1;
-        }
+        opMyEnum(Test.MyEnum e1, Ice.Current current) => e1;
 
         public override Test.MyOtherStruct
-        opMyOtherStruct(Test.MyOtherStruct s1, Ice.Current current)
-        {
-            return s1;
-        }
+        opMyOtherStruct(Test.MyOtherStruct s1, Ice.Current current) => s1;
 
         public override Test.MyOtherClass
-        opMyOtherClass(Test.MyOtherClass c1, Ice.Current current)
-        {
-            return c1;
-        }
+        opMyOtherClass(Test.MyOtherClass c1, Ice.Current current) => c1;
 
-        override
-        public void shutdown(Ice.Current current)
-        {
-            current.adapter.getCommunicator().shutdown();
-        }
+        public
+        override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
     }
 
     private class MyInterface2 : Test.Inner.MyInterfaceDisp_
@@ -121,11 +109,8 @@ public class Server : TestHelper
             return c1;
         }
 
-        override
-        public void shutdown(Ice.Current current)
-        {
-            current.adapter.getCommunicator().shutdown();
-        }
+        public
+        override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
     }
 
     private class MyInterface3 : Test.Inner.Inner2.MyInterfaceDisp_
@@ -174,11 +159,8 @@ public class Server : TestHelper
             return c1;
         }
 
-        override
-        public void shutdown(Ice.Current current)
-        {
-            current.adapter.getCommunicator().shutdown();
-        }
+        public
+        override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
     }
 
     private class MyInterface4 : Inner.Test.Inner2.MyInterfaceDisp_
@@ -227,10 +209,7 @@ public class Server : TestHelper
             return c1;
         }
 
-        public override void shutdown(Ice.Current current)
-        {
-            current.adapter.getCommunicator().shutdown();
-        }
+        public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
     }
 
     public override void run(string[] args)

@@ -35,16 +35,10 @@ public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
     }
 
     public override void
-    deactivateObjectAdapter(Test.RemoteObjectAdapterPrx adapter, Ice.Current current)
-    {
-        adapter.deactivate(); // Collocated call.
-    }
+    deactivateObjectAdapter(Test.RemoteObjectAdapterPrx adapter, Ice.Current current) => adapter.deactivate(); // Collocated call.
 
     public override void
-    shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
     private int _nextPort = 10;
 }

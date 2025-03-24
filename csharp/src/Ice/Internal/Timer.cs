@@ -1,5 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+
 //
 // NOTE: We don't use C# timers, the API is quite a bit different from
 // the C++ & Java timers and it's not clear what is the cost of
@@ -7,10 +11,6 @@
 //
 
 namespace Ice.Internal;
-
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
 
 public interface TimerTask
 {
@@ -47,7 +47,7 @@ public sealed class Timer
                 throw new Ice.CommunicatorDestroyedException();
             }
 
-            Token token = new Token(Time.currentMonotonicTimeMillis() + delay, ++_tokenId, 0, task);
+            var token = new Token(Time.currentMonotonicTimeMillis() + delay, ++_tokenId, 0, task);
 
             try
             {
@@ -75,7 +75,7 @@ public sealed class Timer
                 throw new Ice.CommunicatorDestroyedException();
             }
 
-            Token token = new Token(Time.currentMonotonicTimeMillis() + period, ++_tokenId, period, task);
+            var token = new Token(Time.currentMonotonicTimeMillis() + period, ++_tokenId, period, task);
 
             try
             {
@@ -103,8 +103,7 @@ public sealed class Timer
                 return false;
             }
 
-            Token token;
-            if (!_tasks.TryGetValue(task, out token))
+            if (!_tasks.TryGetValue(task, out Token token))
             {
                 return false;
             }
@@ -117,10 +116,7 @@ public sealed class Timer
     //
     // Only for use by Instance.
     //
-    internal Timer(Instance instance, ThreadPriority priority = ThreadPriority.Normal)
-    {
-        init(instance, priority, true);
-    }
+    internal Timer(Instance instance, ThreadPriority priority = ThreadPriority.Normal) => init(instance, priority, true);
 
     internal void init(Instance instance, ThreadPriority priority, bool hasPriority)
     {
@@ -286,7 +282,7 @@ public sealed class Timer
             //
             // Token are sorted by scheduled time and token id.
             //
-            Token r = (Token)o;
+            var r = (Token)o;
             if (scheduledTime < r.scheduledTime)
             {
                 return -1;
@@ -314,8 +310,7 @@ public sealed class Timer
             {
                 return true;
             }
-            Token t = o as Token;
-            return t == null ? false : CompareTo(t) == 0;
+            return o is not Token t ? false : CompareTo(t) == 0;
         }
 
         public override int GetHashCode() => HashCode.Combine(id, scheduledTime);

@@ -15,8 +15,8 @@ public class Client : Test.TestHelper
         using var communicator = initialize(ref args);
         Console.Error.Write("testing proxy & endpoint hash algorithm collisions... ");
         Console.Error.Flush();
-        Dictionary<int, Ice.ObjectPrx> seenProxy = new Dictionary<int, Ice.ObjectPrx>();
-        Dictionary<int, Ice.Endpoint> seenEndpoint = new Dictionary<int, Ice.Endpoint>();
+        var seenProxy = new Dictionary<int, Ice.ObjectPrx>();
+        var seenEndpoint = new Dictionary<int, Ice.Endpoint>();
         int proxyCollisions = 0;
         int endpointCollisions = 0;
         int i = 0;
@@ -24,12 +24,12 @@ public class Client : Test.TestHelper
         int maxIterations = 10000;
 
         {
-            Random rand = new Random();
+            var rand = new Random();
             for (i = 0; proxyCollisions < maxCollisions &&
                     endpointCollisions < maxCollisions &&
                     i < maxIterations; ++i)
             {
-                System.IO.StringWriter sw = new System.IO.StringWriter();
+                var sw = new System.IO.StringWriter();
                 sw.Write(i);
                 sw.Write(":tcp -p ");
                 sw.Write(rand.Next(65536));
@@ -41,7 +41,7 @@ public class Client : Test.TestHelper
                 sw.Write(rand.Next(100));
 
                 Ice.ObjectPrx obj = communicator.stringToProxy(sw.ToString());
-                List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>(obj.ice_getEndpoints());
+                var endpoints = new List<Ice.Endpoint>(obj.ice_getEndpoints());
 
                 if (seenProxy.ContainsKey(obj.GetHashCode()))
                 {
@@ -83,12 +83,12 @@ public class Client : Test.TestHelper
             test(proxyCollisions < maxCollisions);
             test(endpointCollisions < maxCollisions);
             {
-                Ice.ProxyIdentityKey comparer = new Ice.ProxyIdentityKey();
+                var comparer = new Ice.ProxyIdentityKey();
                 proxyCollisions = 0;
                 seenProxy = new Dictionary<int, Ice.ObjectPrx>();
                 for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
                 {
-                    System.IO.StringWriter sw = new System.IO.StringWriter();
+                    var sw = new System.IO.StringWriter();
                     sw.Write(i);
                     sw.Write(":tcp -p ");
                     sw.Write(rand.Next(65536));
@@ -119,13 +119,13 @@ public class Client : Test.TestHelper
         }
 
         {
-            Random rand = new Random();
-            Ice.ProxyIdentityFacetKey comparer = new Ice.ProxyIdentityFacetKey();
+            var rand = new Random();
+            var comparer = new Ice.ProxyIdentityFacetKey();
             proxyCollisions = 0;
             seenProxy = new Dictionary<int, Ice.ObjectPrx>();
             for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
             {
-                System.IO.StringWriter sw = new System.IO.StringWriter();
+                var sw = new System.IO.StringWriter();
                 sw.Write(i);
                 sw.Write(" -f demo:tcp -p ");
                 sw.Write(rand.Next(65536));
@@ -154,8 +154,8 @@ public class Client : Test.TestHelper
             test(proxyCollisions < maxCollisions);
         }
 
-        Ice.ProxyIdentityFacetKey iComparer = new Ice.ProxyIdentityFacetKey();
-        Ice.ProxyIdentityFacetKey ifComparer = new Ice.ProxyIdentityFacetKey();
+        var iComparer = new Ice.ProxyIdentityFacetKey();
+        var ifComparer = new Ice.ProxyIdentityFacetKey();
 
         Ice.ObjectPrx prx1 = communicator.stringToProxy("Glacier2/router:tcp -p 10010");
         Ice.ObjectPrx prx2 = communicator.stringToProxy("Glacier2/router:ssl -p 10011");
@@ -168,7 +168,7 @@ public class Client : Test.TestHelper
         Ice.ObjectPrx prx9 = communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000");
         Ice.ObjectPrx prx10 = communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000");
 
-        Dictionary<string, int> proxyMap = new Dictionary<string, int>
+        var proxyMap = new Dictionary<string, int>
         {
             ["prx1"] = prx1.GetHashCode(),
             ["prx2"] = prx2.GetHashCode(),
@@ -242,13 +242,13 @@ public class Client : Test.TestHelper
         Console.Error.Write("testing exceptions hash algorithm collisions... ");
 
         {
-            Dictionary<int, Test.OtherException> seenException = new Dictionary<int, Test.OtherException>();
-            Random rand = new Random();
+            var seenException = new Dictionary<int, Test.OtherException>();
+            var rand = new Random();
 
             int exceptionCollisions = 0;
             for (i = 0; i < maxIterations && exceptionCollisions < maxCollisions; ++i)
             {
-                Test.OtherException ex = new Test.OtherException(rand.Next(100), rand.Next(100), 0, false);
+                var ex = new Test.OtherException(rand.Next(100), rand.Next(100), 0, false);
                 if (seenException.ContainsKey(ex.GetHashCode()))
                 {
                     if (ex.Equals(seenException[ex.GetHashCode()]))
@@ -273,13 +273,13 @@ public class Client : Test.TestHelper
         // Same as above but with numbers in high ranges
         //
         {
-            Dictionary<int, Test.OtherException> seenException = new Dictionary<int, Test.OtherException>();
-            Random rand = new Random();
+            var seenException = new Dictionary<int, Test.OtherException>();
+            var rand = new Random();
 
             int exceptionCollisions = 0;
             for (i = 0; i < maxIterations && exceptionCollisions < maxCollisions; ++i)
             {
-                Test.OtherException ex = new Test.OtherException((rand.Next(100) * 2) ^ 30,
+                var ex = new Test.OtherException((rand.Next(100) * 2) ^ 30,
                                                                  (rand.Next(100) * 2) ^ 30,
                                                                  (rand.Next(100) * 2) ^ 30,
                                                                  false);
@@ -305,8 +305,8 @@ public class Client : Test.TestHelper
         }
 
         {
-            Dictionary<int, Test.BaseException> seenException = new Dictionary<int, Test.BaseException>();
-            Random rand = new Random();
+            var seenException = new Dictionary<int, Test.BaseException>();
+            var rand = new Random();
 
             int exceptionCollisions = 0;
             for (i = 0; i < maxIterations && exceptionCollisions < maxCollisions; ++i)
@@ -356,12 +356,12 @@ public class Client : Test.TestHelper
 
         Console.Error.Write("testing struct hash algorithm collisions... ");
         {
-            Dictionary<int, Test.PointF> seenPointF = new Dictionary<int, Test.PointF>();
-            Random rand = new Random();
+            var seenPointF = new Dictionary<int, Test.PointF>();
+            var rand = new Random();
             int structCollisions = 0;
             for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
             {
-                Test.PointF pf = new Test.PointF((float)rand.NextDouble(),
+                var pf = new Test.PointF((float)rand.NextDouble(),
                                                  (float)rand.NextDouble(),
                                                  (float)rand.NextDouble());
                 if (seenPointF.ContainsKey(pf.GetHashCode()))
@@ -383,11 +383,11 @@ public class Client : Test.TestHelper
             }
             test(structCollisions < maxCollisions);
 
-            Dictionary<int, Test.PointD> seenPointD = new Dictionary<int, Test.PointD>();
+            var seenPointD = new Dictionary<int, Test.PointD>();
             structCollisions = 0;
             for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
             {
-                Test.PointD pd = new Test.PointD(rand.NextDouble(),
+                var pd = new Test.PointD(rand.NextDouble(),
                                                  rand.NextDouble(),
                                                  rand.NextDouble());
                 if (seenPointD.ContainsKey(pd.GetHashCode()))
@@ -409,12 +409,12 @@ public class Client : Test.TestHelper
             }
             test(structCollisions < maxCollisions);
 
-            Dictionary<int, Test.Polyline> seenPolyline = new Dictionary<int, Test.Polyline>();
+            var seenPolyline = new Dictionary<int, Test.Polyline>();
             structCollisions = 0;
             for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
             {
                 var polyline = new Test.Polyline(vertices: []);
-                List<Test.Point> vertices = new List<Test.Point>();
+                var vertices = new List<Test.Point>();
                 for (int j = 0; j < 100; ++j)
                 {
                     vertices.Add(new Test.Point(rand.Next(100), rand.Next(100)));
@@ -440,11 +440,11 @@ public class Client : Test.TestHelper
             }
             test(structCollisions < maxCollisions);
 
-            Dictionary<int, Test.ColorPalette> seenColorPalette = new Dictionary<int, Test.ColorPalette>();
+            var seenColorPalette = new Dictionary<int, Test.ColorPalette>();
             structCollisions = 0;
             for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
             {
-                Test.ColorPalette colorPalette = new Test.ColorPalette(colors: new());
+                var colorPalette = new Test.ColorPalette(colors: new());
                 for (int j = 0; j < 100; ++j)
                 {
                     colorPalette.colors[j] = new Test.Color(rand.Next(255),
@@ -472,11 +472,11 @@ public class Client : Test.TestHelper
             }
             test(structCollisions < maxCollisions);
 
-            Dictionary<int, Test.Color> seenColor = new Dictionary<int, Test.Color>();
+            var seenColor = new Dictionary<int, Test.Color>();
             structCollisions = 0;
             for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
             {
-                Test.Color c = new Test.Color(rand.Next(255), rand.Next(255), rand.Next(255), rand.Next(255));
+                var c = new Test.Color(rand.Next(255), rand.Next(255), rand.Next(255), rand.Next(255));
                 if (seenColor.ContainsKey(c.GetHashCode()))
                 {
                     if (c.Equals(seenColor[c.GetHashCode()]))
@@ -497,11 +497,11 @@ public class Client : Test.TestHelper
             test(structCollisions < maxCollisions);
 
             structCollisions = 0;
-            Dictionary<int, Test.Draw> seenDraw = new Dictionary<int, Test.Draw>();
+            var seenDraw = new Dictionary<int, Test.Draw>();
             structCollisions = 0;
             for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
             {
-                Test.Draw draw = new Test.Draw(
+                var draw = new Test.Draw(
                     new Test.Color(rand.Next(255), rand.Next(255), rand.Next(255), rand.Next(255)),
                     new Test.Pen(rand.Next(10),
                                  new Test.Color(rand.Next(255), rand.Next(255), rand.Next(255), rand.Next(255))),

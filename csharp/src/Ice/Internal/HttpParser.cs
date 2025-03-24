@@ -258,7 +258,7 @@ internal sealed class HttpParser
                             }
                             Debug.Assert(_headers.ContainsKey(_headerName));
                             string s = _headers[_headerName];
-                            StringBuilder newValue = new StringBuilder(s);
+                            var newValue = new StringBuilder(s);
                             newValue.Append(' ');
                             for (int i = start; i < p; ++i)
                             {
@@ -303,7 +303,7 @@ internal sealed class HttpParser
                 {
                     if (_headerName.Length == 0)
                     {
-                        StringBuilder str = new StringBuilder();
+                        var str = new StringBuilder();
                         for (int i = start; i < p; ++i)
                         {
                             str.Append((char)raw[i]);
@@ -370,13 +370,12 @@ internal sealed class HttpParser
                     Debug.Assert(c == CR || c == LF);
                     if (p > start)
                     {
-                        StringBuilder str = new StringBuilder();
+                        var str = new StringBuilder();
                         for (int i = start; i < p; ++i)
                         {
                             str.Append((char)raw[i]);
                         }
-                        string s = null;
-                        if (!_headers.TryGetValue(_headerName, out s) || s.Length == 0)
+                        if (!_headers.TryGetValue(_headerName, out string s) || s.Length == 0)
                         {
                             _headers[_headerName] = str.ToString();
                         }
@@ -601,7 +600,7 @@ internal sealed class HttpParser
                     {
                         if (p > start)
                         {
-                            StringBuilder str = new StringBuilder();
+                            var str = new StringBuilder();
                             for (int i = start; i < p; ++i)
                             {
                                 str.Append((char)raw[i]);
@@ -635,10 +634,7 @@ internal sealed class HttpParser
         return _state == State.Complete;
     }
 
-    internal Type type()
-    {
-        return _type;
-    }
+    internal Type type() => _type;
 
     internal string method()
     {
@@ -652,30 +648,17 @@ internal sealed class HttpParser
         return _uri.ToString();
     }
 
-    internal int versionMajor()
-    {
-        return _versionMajor;
-    }
+    internal int versionMajor() => _versionMajor;
 
-    internal int versionMinor()
-    {
-        return _versionMinor;
-    }
+    internal int versionMinor() => _versionMinor;
 
-    internal int status()
-    {
-        return _status;
-    }
+    internal int status() => _status;
 
-    internal string reason()
-    {
-        return _reason;
-    }
+    internal string reason() => _reason;
 
     internal string getHeader(string name, bool toLower)
     {
-        string s = null;
-        if (_headers.TryGetValue(name.ToLowerInvariant(), out s))
+        if (_headers.TryGetValue(name.ToLowerInvariant(), out string s))
         {
             return toLower ? s.Trim().ToLowerInvariant() : s.Trim();
         }
@@ -685,7 +668,7 @@ internal sealed class HttpParser
 
     internal Dictionary<string, string> getHeaders()
     {
-        Dictionary<string, string> dict = new Dictionary<string, string>();
+        var dict = new Dictionary<string, string>();
         foreach (KeyValuePair<string, string> e in _headers)
         {
             dict[_headerNames[e.Key]] = e.Value.Trim();

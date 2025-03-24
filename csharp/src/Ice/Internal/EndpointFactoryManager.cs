@@ -53,7 +53,7 @@ public sealed class EndpointFactoryManager
             throw new ParseException($"Failed to parse endpoint '{str}': value has no non-whitespace characters");
         }
 
-        List<string> v = new List<string>(arr);
+        var v = new List<string>(arr);
         string protocol = v[0];
         v.RemoveAt(0);
 
@@ -123,7 +123,7 @@ public sealed class EndpointFactoryManager
                 var os = new Ice.OutputStream(Ice.Util.currentProtocolEncoding);
                 os.writeShort(ue.type());
                 ue.streamWrite(os);
-                Ice.InputStream iss =
+                var iss =
                     new Ice.InputStream(_instance, Ice.Util.currentProtocolEncoding, os.getBuffer(), true);
                 iss.pos(0);
                 iss.readShort(); // type

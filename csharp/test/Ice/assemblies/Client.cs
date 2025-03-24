@@ -14,7 +14,7 @@ public class Client : Test.TestHelper
     {
         Console.Out.Write("testing preloading assemblies... ");
         Console.Out.Flush();
-        User.UserInfo info = new User.UserInfo();
+        var info = new User.UserInfo();
 
         Ice.Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.PreloadAssemblies", "0");

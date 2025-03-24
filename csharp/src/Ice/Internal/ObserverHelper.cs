@@ -18,10 +18,7 @@ public sealed class ObserverHelper
         return null;
     }
 
-    public static InvocationObserver get(Ice.ObjectPrx proxy, string op)
-    {
-        return get(proxy, op, null);
-    }
+    public static InvocationObserver get(Ice.ObjectPrx proxy, string op) => get(proxy, op, null);
 
     public static InvocationObserver get(Ice.ObjectPrx proxy, string op, Dictionary<string, string> context)
     {

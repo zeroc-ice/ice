@@ -44,10 +44,7 @@ internal abstract class LoggerI : Logger
         }
     }
 
-    public string getPrefix()
-    {
-        return _prefix;
-    }
+    public string getPrefix() => _prefix;
 
     public abstract Logger cloneWithPrefix(string prefix);
 
@@ -68,7 +65,7 @@ internal abstract class LoggerI : Logger
 
     private string format(string prefix, string category, string message)
     {
-        System.Text.StringBuilder s = new System.Text.StringBuilder(prefix);
+        var s = new System.Text.StringBuilder(prefix);
         s.Append(' ');
         s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
         s.Append(' ');
@@ -91,15 +88,9 @@ internal abstract class LoggerI : Logger
 
 internal sealed class ConsoleLoggerI : LoggerI
 {
-    public override Logger cloneWithPrefix(string prefix)
-    {
-        return new ConsoleLoggerI(prefix);
-    }
+    public override Logger cloneWithPrefix(string prefix) => new ConsoleLoggerI(prefix);
 
-    protected override void write(string message)
-    {
-        System.Console.Error.WriteLine(message);
-    }
+    protected override void write(string message) => System.Console.Error.WriteLine(message);
 
     internal ConsoleLoggerI(string prefix)
         : base(prefix)
@@ -113,10 +104,7 @@ internal sealed class ConsoleLoggerI : LoggerI
 internal sealed class FileLoggerI : LoggerI
 #pragma warning restore CA1001
 {
-    public override Logger cloneWithPrefix(string prefix)
-    {
-        return new FileLoggerI(prefix, _file);
-    }
+    public override Logger cloneWithPrefix(string prefix) => new FileLoggerI(prefix, _file);
 
     public void destroy()
     {
@@ -174,15 +162,9 @@ internal class ConsoleListener : TraceListener
         WriteLine(s.ToString());
     }
 
-    public override void Write(string? message)
-    {
-        System.Console.Error.Write(message);
-    }
+    public override void Write(string? message) => System.Console.Error.Write(message);
 
-    public override void WriteLine(string? message)
-    {
-        System.Console.Error.WriteLine(message);
-    }
+    public override void WriteLine(string? message) => System.Console.Error.WriteLine(message);
 
     internal const string _date = "d";
     internal const string _time = "HH:mm:ss:fff";
@@ -211,10 +193,7 @@ internal sealed class TraceLoggerI : LoggerI
         }
     }
 
-    public override Logger cloneWithPrefix(string prefix)
-    {
-        return new TraceLoggerI(prefix, _console);
-    }
+    public override Logger cloneWithPrefix(string prefix) => new TraceLoggerI(prefix, _console);
 
     protected override void write(string message)
     {
@@ -234,7 +213,7 @@ internal sealed class TraceLoggerI : LoggerI
 
     private string format(string category, string message)
     {
-        System.Text.StringBuilder s = new System.Text.StringBuilder(_formattedPrefix);
+        var s = new System.Text.StringBuilder(_formattedPrefix);
         s.Append(category);
         s.Append(": ");
         s.Append(message);

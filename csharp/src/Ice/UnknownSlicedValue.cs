@@ -13,19 +13,13 @@ public sealed class UnknownSlicedValue : Value
     /// Initializes a new instance of the <see cref="UnknownSlicedValue" /> class.
     /// </summary>
     /// <param name="unknownTypeId">The Slice type ID of the unknown object.</param>
-    public UnknownSlicedValue(string unknownTypeId)
-    {
-        _unknownTypeId = unknownTypeId;
-    }
+    public UnknownSlicedValue(string unknownTypeId) => _unknownTypeId = unknownTypeId;
 
     /// <summary>
     /// Returns the Slice type ID associated with this object.
     /// </summary>
     /// <returns>The type ID.</returns>
-    public override string ice_id()
-    {
-        return _unknownTypeId;
-    }
+    public override string ice_id() => _unknownTypeId;
 
     private readonly string _unknownTypeId;
 }

@@ -15,46 +15,37 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
 {
     public void print(string message)
     {
-        Ice.LogMessage logMessage = new Ice.LogMessage(Ice.LogMessageType.PrintMessage, now(), "", message);
+        var logMessage = new Ice.LogMessage(Ice.LogMessageType.PrintMessage, now(), "", message);
         _localLogger.print(message);
         log(logMessage);
     }
 
     public void trace(string category, string message)
     {
-        Ice.LogMessage logMessage = new Ice.LogMessage(Ice.LogMessageType.TraceMessage, now(), category, message);
+        var logMessage = new Ice.LogMessage(Ice.LogMessageType.TraceMessage, now(), category, message);
         _localLogger.trace(category, message);
         log(logMessage);
     }
 
     public void warning(string message)
     {
-        Ice.LogMessage logMessage = new Ice.LogMessage(Ice.LogMessageType.WarningMessage, now(), "", message);
+        var logMessage = new Ice.LogMessage(Ice.LogMessageType.WarningMessage, now(), "", message);
         _localLogger.warning(message);
         log(logMessage);
     }
 
     public void error(string message)
     {
-        Ice.LogMessage logMessage = new Ice.LogMessage(Ice.LogMessageType.ErrorMessage, now(), "", message);
+        var logMessage = new Ice.LogMessage(Ice.LogMessageType.ErrorMessage, now(), "", message);
         _localLogger.error(message);
         log(logMessage);
     }
 
-    public string getPrefix()
-    {
-        return _localLogger.getPrefix();
-    }
+    public string getPrefix() => _localLogger.getPrefix();
 
-    public Ice.Logger cloneWithPrefix(string prefix)
-    {
-        return _localLogger.cloneWithPrefix(prefix);
-    }
+    public Ice.Logger cloneWithPrefix(string prefix) => _localLogger.cloneWithPrefix(prefix);
 
-    public Ice.Object getFacet()
-    {
-        return _loggerAdmin;
-    }
+    public Ice.Object getFacet() => _loggerAdmin;
 
     public void destroy()
     {
@@ -82,9 +73,7 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
 
     internal LoggerAdminLoggerI(Ice.Properties props, Ice.Logger localLogger)
     {
-        LoggerAdminLoggerI wrapper = localLogger as LoggerAdminLoggerI;
-
-        if (wrapper != null)
+        if (localLogger is LoggerAdminLoggerI wrapper)
         {
             _localLogger = wrapper.getLocalLogger();
         }
@@ -96,10 +85,7 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
         _loggerAdmin = new LoggerAdminI(props, this);
     }
 
-    internal Ice.Logger getLocalLogger()
-    {
-        return _localLogger;
-    }
+    internal Ice.Logger getLocalLogger() => _localLogger;
 
     internal void log(Ice.LogMessage logMessage)
     {
@@ -157,7 +143,7 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
                 job = _jobQueue.Dequeue();
             }
 
-            foreach (var p in job.remoteLoggers)
+            foreach (RemoteLoggerPrx p in job.remoteLoggers)
             {
                 if (_loggerAdmin.getTraceLevel() > 1)
                 {

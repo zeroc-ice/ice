@@ -19,27 +19,27 @@ public class AllTests : global::Test.AllTests
         output.Flush();
 
         {
-            byte[] inEncaps, outEncaps;
-            if (!oneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps))
+            byte[] inEncaps;
+            if (!oneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out _))
             {
                 test(false);
             }
 
-            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps));
-            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps));
-            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps));
-            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps));
+            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out _));
+            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out _));
+            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out _));
+            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out _));
             batchOneway.ice_flushBatchRequests();
 
-            Ice.OutputStream outS = new Ice.OutputStream(communicator);
+            var outS = new Ice.OutputStream(communicator);
             outS.startEncapsulation();
             outS.writeString(testString);
             outS.endEncapsulation();
             inEncaps = outS.finished();
-
+            byte[] outEncaps;
             if (cl.ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, out outEncaps))
             {
-                Ice.InputStream inS = new Ice.InputStream(communicator, outEncaps);
+                var inS = new Ice.InputStream(communicator, outEncaps);
                 inS.startEncapsulation();
                 string s = inS.readString();
                 test(s.Equals(testString));
@@ -55,7 +55,6 @@ public class AllTests : global::Test.AllTests
 
         for (int i = 0; i < 2; ++i)
         {
-            byte[] outEncaps;
             Dictionary<string, string> ctx = null;
             if (i == 1)
             {
@@ -65,13 +64,13 @@ public class AllTests : global::Test.AllTests
                 };
             }
 
-            if (cl.ice_invoke("opException", Ice.OperationMode.Normal, null, out outEncaps, ctx))
+            if (cl.ice_invoke("opException", Ice.OperationMode.Normal, null, out byte[] outEncaps, ctx))
             {
                 test(false);
             }
             else
             {
-                Ice.InputStream inS = new Ice.InputStream(communicator, outEncaps);
+                var inS = new Ice.InputStream(communicator, outEncaps);
                 inS.startEncapsulation();
 
                 try
@@ -104,7 +103,7 @@ public class AllTests : global::Test.AllTests
                 test(false);
             }
 
-            Ice.OutputStream outS = new Ice.OutputStream(communicator);
+            var outS = new Ice.OutputStream(communicator);
             outS.startEncapsulation();
             outS.writeString(testString);
             outS.endEncapsulation();
@@ -114,7 +113,7 @@ public class AllTests : global::Test.AllTests
             var result = cl.ice_invokeAsync("opString", Ice.OperationMode.Normal, inEncaps).Result;
             if (result.returnValue)
             {
-                Ice.InputStream inS = new Ice.InputStream(communicator, result.outEncaps);
+                var inS = new Ice.InputStream(communicator, result.outEncaps);
                 inS.startEncapsulation();
                 string s = inS.readString();
                 test(s.Equals(testString));
@@ -136,7 +135,7 @@ public class AllTests : global::Test.AllTests
             }
             else
             {
-                Ice.InputStream inS = new Ice.InputStream(communicator, result.outEncaps);
+                var inS = new Ice.InputStream(communicator, result.outEncaps);
                 inS.startEncapsulation();
                 try
                 {

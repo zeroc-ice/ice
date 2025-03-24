@@ -50,7 +50,7 @@ internal sealed class PluginManagerI : PluginManager
         //
         // Invoke initialize() on the plug-ins, in the order they were loaded.
         //
-        ArrayList initializedPlugins = new ArrayList();
+        var initializedPlugins = new ArrayList();
         try
         {
             foreach (PluginInfo p in _plugins)
@@ -98,7 +98,7 @@ internal sealed class PluginManagerI : PluginManager
     {
         lock (_mutex)
         {
-            ArrayList names = new ArrayList();
+            var names = new ArrayList();
             foreach (PluginInfo p in _plugins)
             {
                 names.Add(p.name);
@@ -152,7 +152,7 @@ internal sealed class PluginManagerI : PluginManager
             {
                 if (_initialized)
                 {
-                    ArrayList plugins = (ArrayList)_plugins.Clone();
+                    var plugins = (ArrayList)_plugins.Clone();
                     plugins.Reverse();
                     foreach (PluginInfo p in plugins)
                     {
@@ -194,7 +194,7 @@ internal sealed class PluginManagerI : PluginManager
         // entryPoint will be ignored but the rest of the plugin
         // specification might be used.
         //
-        foreach (var name in _loadOnInitialization)
+        foreach (string name in _loadOnInitialization)
         {
             string key = $"Ice.Plugin.{name}";
             plugins.TryGetValue(key, out string? r);
@@ -255,9 +255,9 @@ internal sealed class PluginManagerI : PluginManager
         //
         // Load any remaining plug-ins that weren't specified in PluginLoadOrder.
         //
-        foreach (var entry in plugins)
+        foreach (KeyValuePair<string, string> entry in plugins)
         {
-            loadPlugin(entry.Key.Substring(prefix.Length), entry.Value, ref cmdArgs);
+            loadPlugin(entry.Key[prefix.Length..], entry.Value, ref cmdArgs);
         }
     }
 
@@ -332,10 +332,10 @@ internal sealed class PluginManagerI : PluginManager
                 throw new PluginInitializationException($"{err}invalid entry point format");
             }
 
-            System.Reflection.Assembly? pluginAssembly = null;
-            string assemblyName = entryPoint.Substring(0, sepPos);
-            string className = entryPoint.Substring(sepPos + 1);
+            string assemblyName = entryPoint[..sepPos];
+            string className = entryPoint[(sepPos + 1)..];
 
+            System.Reflection.Assembly? pluginAssembly;
             try
             {
                 //
@@ -373,7 +373,7 @@ internal sealed class PluginManagerI : PluginManager
             //
             // Instantiate the class.
             //
-            System.Type? c = null;
+            Type? c;
             try
             {
                 c = pluginAssembly.GetType(className, true);

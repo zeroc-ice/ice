@@ -5,17 +5,14 @@ using Test;
 
 internal sealed class ServerI : ServerDisp_
 {
-    internal ServerI(Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-    }
+    internal ServerI(Ice.Communicator communicator) => _communicator = communicator;
 
     public override void
     noCert(Ice.Current current)
     {
         try
         {
-            Ice.SSL.ConnectionInfo info = (Ice.SSL.ConnectionInfo)current.con.getInfo();
+            var info = (Ice.SSL.ConnectionInfo)current.con.getInfo();
             test(info.certs.Length == 0);
         }
         catch (Ice.LocalException)
@@ -29,7 +26,7 @@ internal sealed class ServerI : ServerDisp_
     {
         try
         {
-            Ice.SSL.ConnectionInfo info = (Ice.SSL.ConnectionInfo)current.con.getInfo();
+            var info = (Ice.SSL.ConnectionInfo)current.con.getInfo();
             test(info.verified);
             test(info.certs.Length == 1 &&
                  info.certs[0].Subject.Equals(subjectDN) &&
@@ -46,7 +43,7 @@ internal sealed class ServerI : ServerDisp_
     {
         try
         {
-            Ice.SSL.ConnectionInfo info = (Ice.SSL.ConnectionInfo)current.con.getInfo();
+            var info = (Ice.SSL.ConnectionInfo)current.con.getInfo();
             test(info.cipher.Equals(cipher));
         }
         catch (Ice.LocalException)
@@ -55,10 +52,7 @@ internal sealed class ServerI : ServerDisp_
         }
     }
 
-    internal void destroy()
-    {
-        _communicator.destroy();
-    }
+    internal void destroy() => _communicator.destroy();
 
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
@@ -69,14 +63,11 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
-    public ServerFactoryI(string defaultDir)
-    {
-        _defaultDir = defaultDir;
-    }
+    public ServerFactoryI(string defaultDir) => _defaultDir = defaultDir;
 
     public override ServerPrx createServer(Dictionary<string, string> props, Ice.Current current)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
+        var initData = new Ice.InitializationData();
         initData.properties = new Ice.Properties();
         foreach (string key in props.Keys)
         {
@@ -86,7 +77,7 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
         string[] args = new string[0];
         Ice.Communicator communicator = Ice.Util.initialize(ref args, initData);
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
-        ServerI server = new ServerI(communicator);
+        var server = new ServerI(communicator);
         Ice.ObjectPrx obj = adapter.addWithUUID(server);
         _servers[obj.ice_getIdentity()] = server;
         adapter.activate();
@@ -98,7 +89,7 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
         Ice.Identity key = srv.ice_getIdentity();
         if (_servers.Contains(key))
         {
-            ServerI server = _servers[key] as ServerI;
+            var server = _servers[key] as ServerI;
             server.destroy();
             _servers.Remove(key);
         }

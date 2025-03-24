@@ -6,28 +6,25 @@ public sealed class TestI : TestIntfDisp_
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
-    public override void shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
     public override Ice.Value SBaseAsObject(Ice.Current current)
     {
-        SBase sb = new SBase();
+        var sb = new SBase();
         sb.sb = "SBase.sb";
         return sb;
     }
 
     public override SBase SBaseAsSBase(Ice.Current current)
     {
-        SBase sb = new SBase();
+        var sb = new SBase();
         sb.sb = "SBase.sb";
         return sb;
     }
 
     public override SBase SBSKnownDerivedAsSBase(Ice.Current current)
     {
-        SBSKnownDerived sbskd = new SBSKnownDerived();
+        var sbskd = new SBSKnownDerived();
         sbskd.sb = "SBSKnownDerived.sb";
         sbskd.sbskd = "SBSKnownDerived.sbskd";
         return sbskd;
@@ -35,7 +32,7 @@ public sealed class TestI : TestIntfDisp_
 
     public override SBSKnownDerived SBSKnownDerivedAsSBSKnownDerived(Ice.Current current)
     {
-        SBSKnownDerived sbskd = new SBSKnownDerived();
+        var sbskd = new SBSKnownDerived();
         sbskd.sb = "SBSKnownDerived.sb";
         sbskd.sbskd = "SBSKnownDerived.sbskd";
         return sbskd;
@@ -43,7 +40,7 @@ public sealed class TestI : TestIntfDisp_
 
     public override SBase SBSUnknownDerivedAsSBase(Ice.Current current)
     {
-        SBSUnknownDerived sbsud = new SBSUnknownDerived();
+        var sbsud = new SBSUnknownDerived();
         sbsud.sb = "SBSUnknownDerived.sb";
         sbsud.sbsud = "SBSUnknownDerived.sbsud";
         return sbsud;
@@ -51,7 +48,7 @@ public sealed class TestI : TestIntfDisp_
 
     public override SBase SBSUnknownDerivedAsSBaseCompact(Ice.Current current)
     {
-        SBSUnknownDerived sbsud = new SBSUnknownDerived();
+        var sbsud = new SBSUnknownDerived();
         sbsud.sb = "SBSUnknownDerived.sb";
         sbsud.sbsud = "SBSUnknownDerived.sbsud";
         return sbsud;
@@ -59,7 +56,7 @@ public sealed class TestI : TestIntfDisp_
 
     public override Ice.Value SUnknownAsObject(Ice.Current current)
     {
-        SUnknown su = new SUnknown();
+        var su = new SUnknown();
         su.su = "SUnknown.su";
         su.cycle = su;
         return su;
@@ -73,14 +70,14 @@ public sealed class TestI : TestIntfDisp_
         }
         else
         {
-            SUnknown su = obj as SUnknown;
+            var su = obj as SUnknown;
             test(su.su == "SUnknown.su");
         }
     }
 
     public override B oneElementCycle(Ice.Current current)
     {
-        B b = new B();
+        var b = new B();
         b.sb = "B1.sb";
         b.pb = b;
         return b;
@@ -88,9 +85,9 @@ public sealed class TestI : TestIntfDisp_
 
     public override B twoElementCycle(Ice.Current current)
     {
-        B b1 = new B();
+        var b1 = new B();
         b1.sb = "B1.sb";
-        B b2 = new B();
+        var b2 = new B();
         b2.sb = "B2.sb";
         b2.pb = b1;
         b1.pb = b2;
@@ -99,10 +96,10 @@ public sealed class TestI : TestIntfDisp_
 
     public override B D1AsB(Ice.Current current)
     {
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.sb = "D1.sb";
         d1.sd1 = "D1.sd1";
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.pb = d1;
         d2.sb = "D2.sb";
         d2.sd2 = "D2.sd2";
@@ -114,10 +111,10 @@ public sealed class TestI : TestIntfDisp_
 
     public override D1 D1AsD1(Ice.Current current)
     {
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.sb = "D1.sb";
         d1.sd1 = "D1.sd1";
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.pb = d1;
         d2.sb = "D2.sb";
         d2.sd2 = "D2.sd2";
@@ -129,10 +126,10 @@ public sealed class TestI : TestIntfDisp_
 
     public override B D2AsB(Ice.Current current)
     {
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.sb = "D2.sb";
         d2.sd2 = "D2.sd2";
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.pb = d2;
         d1.sb = "D1.sb";
         d1.sd1 = "D1.sd1";
@@ -144,10 +141,10 @@ public sealed class TestI : TestIntfDisp_
 
     public override void paramTest1(out B p1, out B p2, Ice.Current current)
     {
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.sb = "D1.sb";
         d1.sd1 = "D1.sd1";
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.pb = d1;
         d2.sb = "D2.sb";
         d2.sd2 = "D2.sd2";
@@ -158,33 +155,30 @@ public sealed class TestI : TestIntfDisp_
         p2 = d2;
     }
 
-    public override void paramTest2(out B p1, out B p2, Ice.Current current)
-    {
-        paramTest1(out p2, out p1, current);
-    }
+    public override void paramTest2(out B p1, out B p2, Ice.Current current) => paramTest1(out p2, out p1, current);
 
     public override B paramTest3(out B p1, out B p2, Ice.Current current)
     {
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.sb = "D2.sb (p1 1)";
         d2.pb = null;
         d2.sd2 = "D2.sd2 (p1 1)";
         p1 = d2;
 
-        D1 d1 = new D1();
+        var d1 = new D1();
         d1.sb = "D1.sb (p1 2)";
         d1.pb = null;
         d1.sd1 = "D1.sd2 (p1 2)";
         d1.pd1 = null;
         d2.pd2 = d1;
 
-        D2 d4 = new D2();
+        var d4 = new D2();
         d4.sb = "D2.sb (p2 1)";
         d4.pb = null;
         d4.sd2 = "D2.sd2 (p2 1)";
         p2 = d4;
 
-        D1 d3 = new D1();
+        var d3 = new D1();
         d3.sb = "D1.sb (p2 2)";
         d3.pb = null;
         d3.sd1 = "D1.sd2 (p2 2)";
@@ -196,7 +190,7 @@ public sealed class TestI : TestIntfDisp_
 
     public override B paramTest4(out B p1, Ice.Current current)
     {
-        D4 d4 = new D4();
+        var d4 = new D4();
         d4.sb = "D4.sb (1)";
         d4.pb = null;
         d4.p1 = new B();
@@ -219,14 +213,11 @@ public sealed class TestI : TestIntfDisp_
         return p1;
     }
 
-    public override B returnTest3(B p1, B p2, Ice.Current current)
-    {
-        return p1;
-    }
+    public override B returnTest3(B p1, B p2, Ice.Current current) => p1;
 
     public override SS3 sequenceTest(SS1 p1, SS2 p2, Ice.Current current)
     {
-        SS3 ss = new SS3();
+        var ss = new SS3();
         ss.c1 = p1;
         ss.c2 = p2;
         return ss;
@@ -240,18 +231,18 @@ public sealed class TestI : TestIntfDisp_
         for (i = 0; i < 10; ++i)
         {
             B b = bin[i];
-            D2 d2 = new D2();
+            var d2 = new D2();
             d2.sb = b.sb;
             d2.pb = b.pb;
             d2.sd2 = "D2";
             d2.pd2 = d2;
             bout[i * 10] = d2;
         }
-        Dictionary<int, B> r = new Dictionary<int, B>();
+        var r = new Dictionary<int, B>();
         for (i = 0; i < 10; ++i)
         {
             string s = "D1." + (i * 20).ToString();
-            D1 d1 = new D1();
+            var d1 = new D1();
             d1.sb = s;
             d1.pb = i == 0 ? null : r[(i - 1) * 20];
             d1.sd1 = s;
@@ -261,14 +252,11 @@ public sealed class TestI : TestIntfDisp_
         return r;
     }
 
-    public override PBase exchangePBase(PBase pb, Ice.Current current)
-    {
-        return pb;
-    }
+    public override PBase exchangePBase(PBase pb, Ice.Current current) => pb;
 
     public override Preserved PBSUnknownAsPreserved(Ice.Current current)
     {
-        PSUnknown r = new PSUnknown();
+        var r = new PSUnknown();
         r.pi = 5;
         r.ps = "preserved";
         r.psu = "unknown";
@@ -294,7 +282,7 @@ public sealed class TestI : TestIntfDisp_
         }
         else
         {
-            PSUnknown pu = p as PSUnknown;
+            var pu = p as PSUnknown;
             test(pu.pi == 5);
             test(pu.ps == "preserved");
             test(pu.psu == "unknown");
@@ -327,7 +315,7 @@ public sealed class TestI : TestIntfDisp_
         }
         else
         {
-            PSUnknown pu = p as PSUnknown;
+            var pu = p as PSUnknown;
             test(pu.pi == 5);
             test(pu.ps == "preserved");
             test(pu.psu == "unknown");
@@ -357,21 +345,18 @@ public sealed class TestI : TestIntfDisp_
         }
         else
         {
-            PSUnknown2 pu = p as PSUnknown2;
+            var pu = p as PSUnknown2;
             test(pu.pi == 5);
             test(pu.ps == "preserved");
             test(pu.pb == pu);
         }
     }
 
-    public override PNode exchangePNode(PNode pn, Ice.Current current)
-    {
-        return pn;
-    }
+    public override PNode exchangePNode(PNode pn, Ice.Current current) => pn;
 
     public override void throwBaseAsBase(Ice.Current current)
     {
-        BaseException be = new BaseException();
+        var be = new BaseException();
         be.sbe = "sbe";
         be.pb = new B();
         be.pb.sb = "sb";
@@ -381,7 +366,7 @@ public sealed class TestI : TestIntfDisp_
 
     public override void throwDerivedAsBase(Ice.Current current)
     {
-        DerivedException de = new DerivedException();
+        var de = new DerivedException();
         de.sbe = "sbe";
         de.pb = new B();
         de.pb.sb = "sb1";
@@ -397,7 +382,7 @@ public sealed class TestI : TestIntfDisp_
 
     public override void throwDerivedAsDerived(Ice.Current current)
     {
-        DerivedException de = new DerivedException();
+        var de = new DerivedException();
         de.sbe = "sbe";
         de.pb = new B();
         de.pb.sb = "sb1";
@@ -413,13 +398,13 @@ public sealed class TestI : TestIntfDisp_
 
     public override void throwUnknownDerivedAsBase(Ice.Current current)
     {
-        D2 d2 = new D2();
+        var d2 = new D2();
         d2.sb = "sb d2";
         d2.pb = d2;
         d2.sd2 = "sd2 d2";
         d2.pd2 = d2;
 
-        UnknownDerivedException ude = new UnknownDerivedException();
+        var ude = new UnknownDerivedException();
         ude.sbe = "sbe";
         ude.pb = d2;
         ude.sude = "sude";
