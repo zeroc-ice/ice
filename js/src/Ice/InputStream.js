@@ -1083,7 +1083,7 @@ export class InputStream {
 
             try {
                 this._buf.get();
-            } catch (ex) {
+            } catch {
                 throw new MarshalException(endOfBufferMessage);
             }
         }
@@ -1136,7 +1136,7 @@ export class InputStream {
 
         try {
             return [encoding, this._buf.getArray(sz)];
-        } catch (ex) {
+        } catch {
             throw new MarshalException(endOfBufferMessage);
         }
     }
@@ -1159,7 +1159,7 @@ export class InputStream {
         encoding._read(this);
         try {
             this._buf.position = this._buf.position + sz - 6;
-        } catch (ex) {
+        } catch {
             throw new MarshalException(endOfBufferMessage);
         }
         return encoding;
@@ -1212,7 +1212,7 @@ export class InputStream {
                 return v;
             }
             return b;
-        } catch (ex) {
+        } catch {
             throw new MarshalException(endOfBufferMessage);
         }
     }
@@ -1266,7 +1266,7 @@ export class InputStream {
         }
         try {
             return this._buf.getArray(sz);
-        } catch (ex) {
+        } catch {
             throw new MarshalException(endOfBufferMessage);
         }
     }
@@ -1290,7 +1290,7 @@ export class InputStream {
     readByte() {
         try {
             return this._buf.get();
-        } catch (ex) {
+        } catch {
             throw new MarshalException(endOfBufferMessage);
         }
     }
@@ -1302,7 +1302,7 @@ export class InputStream {
     readBool() {
         try {
             return this._buf.get() === 1;
-        } catch (ex) {
+        } catch {
             throw new MarshalException(endOfBufferMessage);
         }
     }
@@ -1310,7 +1310,7 @@ export class InputStream {
     readShort() {
         try {
             return this._buf.getShort();
-        } catch (ex) {
+        } catch {
             throw new MarshalException(endOfBufferMessage);
         }
     }
@@ -1318,7 +1318,7 @@ export class InputStream {
     readInt() {
         try {
             return this._buf.getInt();
-        } catch (ex) {
+        } catch {
             throw new MarshalException(endOfBufferMessage);
         }
     }
@@ -1326,7 +1326,7 @@ export class InputStream {
     readLong() {
         try {
             return this._buf.getLong();
-        } catch (ex) {
+        } catch {
             throw new MarshalException(endOfBufferMessage);
         }
     }
@@ -1334,7 +1334,7 @@ export class InputStream {
     readFloat() {
         try {
             return this._buf.getFloat();
-        } catch (ex) {
+        } catch {
             throw new MarshalException(endOfBufferMessage);
         }
     }
@@ -1342,7 +1342,7 @@ export class InputStream {
     readDouble() {
         try {
             return this._buf.getDouble();
-        } catch (ex) {
+        } catch {
             throw new MarshalException(endOfBufferMessage);
         }
     }
@@ -1361,7 +1361,7 @@ export class InputStream {
 
         try {
             return this._buf.getString(len);
-        } catch (ex) {
+        } catch {
             throw new MarshalException(endOfBufferMessage);
         }
     }

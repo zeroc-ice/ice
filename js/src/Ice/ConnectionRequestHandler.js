@@ -21,7 +21,7 @@ export class ConnectionRequestHandler {
                 //
                 return newHandler;
             }
-        } catch (ex) {
+        } catch {
             // Ignore
         }
         return this;

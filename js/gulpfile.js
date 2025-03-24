@@ -55,9 +55,8 @@ function slice2js(options) {
     defaults.iceHome = path.resolve(__dirname, "..");
     defaults.include = opts.include || [];
     defaults.args = opts.args || [];
-    defaults.jsbundle = opts.jsbundle;
-    defaults.tsbundle = opts.tsbundle;
-    defaults.jsbundleFormat = opts.jsbundleFormat;
+    defaults.jsbundle = false;
+    defaults.tsbundle = false;
     return iceBuilder(defaults);
 }
 
@@ -71,20 +70,17 @@ const excludes = {
 };
 
 function createCleanTask(taskName, patterns, extension, dest = undefined) {
-    gulp.task(taskName, async cb => {
+    gulp.task(taskName, () => {
         const pumpArgs = [gulp.src(patterns), extReplace(extension)];
+
         if (dest !== undefined) {
             pumpArgs.push(gulp.dest(dest));
         }
+
         pumpArgs.push(vinylPaths(deleteAsync));
+
         return new Promise((resolve, reject) => {
-            pump(pumpArgs, err => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
+            pump(pumpArgs, err => (err ? reject(err) : resolve()));
         });
     });
 }
@@ -96,8 +92,6 @@ for (const lib of libs) {
             [
                 gulp.src(slicePatterns),
                 slice2js({
-                    jsbundle: false,
-                    tsbundle: false,
                     args: ["--typescript"],
                 }),
                 gulp.dest(`${root}/src/${lib}`),
@@ -115,17 +109,6 @@ for (const lib of libs) {
 gulp.task("dist", gulp.parallel(libs.map(libName => libTask(libName, "generate"))));
 
 gulp.task("dist:clean", gulp.parallel(libs.map(libName => libTask(libName, "clean"))));
-
-gulp.task("ice:module:package", () => gulp.src(["package.json"]).pipe(gulp.dest("node_modules/@zeroc/ice")));
-
-gulp.task(
-    "ice:module",
-    gulp.series("ice:module:package", cb => {
-        pump([gulp.src([`${root}/src/**/*`]), gulp.dest(`${root}/node_modules/@zeroc/ice/src`)], cb);
-    }),
-);
-
-gulp.task("ice:module:clean", () => deleteAsync("node_modules/@zeroc/ice"));
 
 const tests = [
     "test/Ice/adapterDeactivation",
@@ -177,29 +160,23 @@ function NodeMockupResolver() {
     };
 }
 
-gulp.task("ice:bundle", cb => {
-    return new Promise(async (resolve, reject) => {
-        const plugins = [NodeMockupResolver()];
-        if (optimize) {
-            plugins.push(
-                strip({
-                    labels: ["DEV"],
-                }),
-            );
-        }
-        try {
-            let bundle = await rollup({
-                input: "src/index.js",
-                plugins: plugins,
-            });
-            bundle.write({
-                file: "dist/ice.js",
-                format: "esm",
-            });
-            resolve();
-        } catch (e) {
-            reject(e);
-        }
+gulp.task("ice:bundle", async () => {
+    const plugins = [NodeMockupResolver()];
+    if (optimize) {
+        plugins.push(
+            strip({
+                labels: ["DEV"],
+            }),
+        );
+    }
+
+    let bundle = await rollup({
+        input: "src/index.js",
+        plugins: plugins,
+    });
+    bundle.write({
+        file: "dist/ice.js",
+        format: "esm",
     });
 });
 
@@ -216,23 +193,16 @@ function IceResolver() {
     };
 }
 
-gulp.task("test:common:bundle", cb => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            let bundle = await rollup({
-                input: ["test/Common/ControllerI.js", "test/Common/ControllerWorker.js"],
-                plugins: [IceResolver()],
-            });
-            bundle.write({
-                format: "esm",
-                output: {
-                    dir: "dist/test/Common/",
-                },
-            });
-            resolve();
-        } catch (e) {
-            reject(e);
-        }
+gulp.task("test:common:bundle", async () => {
+    let bundle = await rollup({
+        input: ["test/Common/ControllerI.js", "test/Common/ControllerWorker.js"],
+        plugins: [IceResolver()],
+    });
+    bundle.write({
+        format: "esm",
+        output: {
+            dir: "dist/test/Common/",
+        },
     });
 });
 
@@ -252,8 +222,6 @@ for (const name of tests) {
                 slice2js({
                     include: [outputDirectory],
                     args: ["--typescript"],
-                    jsbundle: false,
-                    tsbundle: false,
                 }),
                 gulp.dest(outputDirectory),
             ],
@@ -278,7 +246,7 @@ for (const name of tests) {
         );
     });
 
-    gulp.task(testTask(name, "bundle"), async cb => {
+    gulp.task(testTask(name, "bundle"), async () => {
         let input = fs.existsSync(`${name}/index.js`) ? `${name}/index.js` : `${name}/Client.js`;
 
         let bundle = await rollup({
@@ -335,6 +303,6 @@ gulp.task(
     ),
 );
 
-gulp.task("build", gulp.series("dist", "ice:module", "test"));
-gulp.task("clean", gulp.series("dist:clean", "ice:module:clean", "test:clean"));
+gulp.task("build", gulp.series("dist", "test"));
+gulp.task("clean", gulp.series("dist:clean", "test:clean"));
 gulp.task("default", gulp.series("build"));

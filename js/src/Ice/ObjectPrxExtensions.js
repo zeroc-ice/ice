@@ -13,7 +13,7 @@ import { Communicator } from "./Communicator.js";
 import { Reference } from "./Reference.js";
 import { RequestHandlerCache } from "./RequestHandlerCache.js";
 
-ObjectPrx.prototype.hashCode = function (r) {
+ObjectPrx.prototype.hashCode = function () {
     return this._reference.hashCode();
 };
 

@@ -16,16 +16,22 @@ let TcpTransceiver = null;
 if (typeof net.createConnection === "function") {
     const StateNeedConnect = 0;
     const StateConnectPending = 1;
-    const StateProxyConnectRequest = 2;
-    const StateProxyConnectRequestPending = 3;
-    const StateConnected = 4;
+    const StateConnected = 2;
 
     TcpTransceiver = class {
-        constructor(instance) {
+        constructor(instance, addr, sourceAddr) {
             this._logger = instance.logger();
             this._readBuffers = [];
             this._readPosition = 0;
             this._maxSendPacketSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1024);
+
+            this._fd = null;
+            this._addr = addr;
+            this._sourceAddr = sourceAddr;
+            this._desc = "local address = <not connected>\nremote address = " + addr.host + ":" + addr.port;
+            this._state = StateNeedConnect;
+            this._registered = false;
+            this._exception = null;
         }
 
         setCallbacks(connectedCallback, bytesAvailableCallback, bytesWrittenCallback) {
@@ -37,7 +43,7 @@ if (typeof net.createConnection === "function") {
         //
         // Returns SocketOperation.None when initialization is complete.
         //
-        initialize(readBuffer, writeBuffer) {
+        initialize() {
             try {
                 if (this._exception) {
                     throw this._exception;
@@ -69,20 +75,7 @@ if (typeof net.createConnection === "function") {
                     //
                     // Socket is connected.
                     //
-                    this._desc = fdToString(this._fd, this._proxy, this._addr);
-                    this._state = StateConnected;
-                } else if (this._state === StateProxyConnectRequest) {
-                    //
-                    // Write completed.
-                    //
-                    this._proxy.endWriteConnectRequest(writeBuffer);
-                    this._state = StateProxyConnectRequestPending; // Wait for proxy response
-                    return SocketOperation.Read;
-                } else if (this._state === StateProxyConnectRequestPending) {
-                    //
-                    // Read completed.
-                    //
-                    this._proxy.endReadConnectRequestResponse(readBuffer);
+                    this._desc = fdToString(this._fd, this._addr);
                     this._state = StateConnected;
                 }
             } catch (err) {
@@ -287,20 +280,6 @@ if (typeof net.createConnection === "function") {
             } else if (this._registered) {
                 this._bytesAvailableCallback();
             }
-        }
-
-        static createOutgoing(instance, addr, sourceAddr) {
-            const transceiver = new TcpTransceiver(instance);
-
-            transceiver._fd = null;
-            transceiver._addr = addr;
-            transceiver._sourceAddr = sourceAddr;
-            transceiver._desc = "local address = <not connected>\nremote address = " + addr.host + ":" + addr.port;
-            transceiver._state = StateNeedConnect;
-            transceiver._registered = false;
-            transceiver._exception = null;
-
-            return transceiver;
         }
     };
 

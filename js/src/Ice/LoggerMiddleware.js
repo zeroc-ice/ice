@@ -38,7 +38,7 @@ export class LoggerMiddleware {
         } catch (ex) {
             if (ex instanceof UserException) {
                 if (this._traceLevel > 0) {
-                    logDispatch(ReplyStatus.UserException, request.current);
+                    this.logDispatch(ReplyStatus.UserException, request.current);
                 }
             } else if (ex instanceof UnknownException) {
                 // Always log when middleware installed.
@@ -111,7 +111,7 @@ function printTarget(output, toStringMode, current) {
         while (connInfo.underlying !== null) {
             connInfo = connInfo.underlying;
         }
-    } catch (ex) {
+    } catch {
         // Thrown by getInfo() when the connection is closed.
     }
 

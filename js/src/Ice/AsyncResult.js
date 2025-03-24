@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import { Promise } from "./Promise.js";
-import { UserException } from "./UserException.js";
 import { InvocationCanceledException } from "./LocalExceptions.js";
 
 export class AsyncResult extends Promise {
@@ -89,34 +88,6 @@ export class AsyncResult extends Promise {
             }
         }
         this._cancellationHandler = handler;
-    }
-
-    startReadParams() {
-        this._is.startEncapsulation();
-        return this._is;
-    }
-
-    endReadParams() {
-        this._is.endEncapsulation();
-    }
-
-    readEmptyParams() {
-        this._is.skipEmptyEncapsulation();
-    }
-
-    throwUserException() {
-        DEV: console.assert((this._state & AsyncResult.Done) !== 0);
-        if ((this._state & AsyncResult.Ok) === 0) {
-            try {
-                this._is.startEncapsulation();
-                this._is.throwException();
-            } catch (ex) {
-                if (ex instanceof UserException) {
-                    this._is.endEncapsulation();
-                }
-                throw ex;
-            }
-        }
     }
 
     get communicator() {

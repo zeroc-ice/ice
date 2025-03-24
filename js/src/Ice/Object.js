@@ -1,17 +1,17 @@
 // Copyright (c) ZeroC, Inc.
 
 export class Object {
-    ice_isA(s, current) {
+    ice_isA(s) {
         return this._iceMostDerivedType()._iceIds.indexOf(s) >= 0;
     }
 
-    ice_ping(current) {}
+    ice_ping() {}
 
-    ice_ids(current) {
+    ice_ids() {
         return this._iceMostDerivedType()._iceIds;
     }
 
-    ice_id(current) {
+    ice_id() {
         return this._iceMostDerivedType()._iceId;
     }
 

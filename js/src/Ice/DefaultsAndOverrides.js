@@ -3,11 +3,11 @@
 import { FormatType } from "./FormatType.js";
 import { EndpointSelectionType } from "./EndpointSelectionType.js";
 import { Protocol, stringToEncodingVersion } from "./Protocol.js";
-import { ParseException } from "./LocalExceptions.js";
+import { ParseException, InitializationException } from "./LocalExceptions.js";
 import { TcpTransceiver } from "./TcpTransceiver.js";
 
 export class DefaultsAndOverrides {
-    constructor(properties, logger) {
+    constructor(properties) {
         this.defaultProtocol = properties.getPropertyWithDefault(
             "Ice.Default.Protocol",
             TcpTransceiver !== null ? "tcp" : "ws",
