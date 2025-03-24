@@ -1088,7 +1088,7 @@ Slice::Container::destroyContents()
 }
 
 ModulePtr
-Slice::Container::createModule(const string& name)
+Slice::Container::createModule(const string& name, bool nestedSyntax)
 {
     ContainedList matches = unit()->findContents(thisScope() + name);
     matches.sort(containedCompare); // Modules can occur many times...
@@ -1136,7 +1136,7 @@ Slice::Container::createModule(const string& name)
         return nullptr;
     }
 
-    ModulePtr q = make_shared<Module>(shared_from_this(), name);
+    ModulePtr q = make_shared<Module>(shared_from_this(), name, nestedSyntax);
     unit()->addContent(q);
     _contents.push_back(q);
     return q;
@@ -2359,7 +2359,10 @@ Slice::Module::destroy()
     destroyContents();
 }
 
-Slice::Module::Module(const ContainerPtr& container, const string& name) : Contained(container, name) {}
+Slice::Module::Module(const ContainerPtr& container, const string& name, bool nestedSyntax)
+    : Contained(container, name)
+      usesNestedSyntax(nestedSyntax)
+{}
 
 // ----------------------------------------------------------------------
 // ClassDecl

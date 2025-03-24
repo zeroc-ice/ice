@@ -448,7 +448,7 @@ namespace Slice
     {
     public:
         void destroyContents();
-        ModulePtr createModule(const std::string& name);
+        ModulePtr createModule(const std::string& name, bool nestedSyntax);
         [[nodiscard]] ClassDefPtr createClassDef(const std::string& name, int id, const ClassDefPtr& base);
         [[nodiscard]] ClassDeclPtr createClassDecl(const std::string& name);
         [[nodiscard]] InterfaceDefPtr createInterfaceDef(const std::string& name, const InterfaceList& bases);
@@ -533,10 +533,12 @@ namespace Slice
     class Module final : public Container, public Contained
     {
     public:
-        Module(const ContainerPtr& container, const std::string& name);
+        Module(const ContainerPtr& container, const std::string& name, bool nestedSyntax);
         [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
         void destroy() final;
+
+        const bool usesNestedSyntax;
     };
 
     // ----------------------------------------------------------------------
