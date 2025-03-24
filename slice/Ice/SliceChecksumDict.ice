@@ -6,16 +6,15 @@
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
 
-[["js:module:@zeroc/ice"]]
-
-[["python:pkgdir:Ice"]]
-
 [["java:package:com.zeroc"]]
+[["js:module:@zeroc/ice"]]
+[["python:pkgdir:Ice"]]
 
 module Ice
 {
-    /// Mapping from type IDs to Slice checksums. The dictionary allows verification at run time that client and server
-    /// use matching Slice definitions. Ice 3.8 no longer generates Slice checksums but we keep the dictionary definition
-    /// for backward compatibility.
-    dictionary<string, string> SliceChecksumDict;
+    /// Mapping from type IDs to Slice checksums. This dictionary allows verification at runtime that a client and a
+    /// server use essentially the same Slice definitions.
+    /// @remark As of Ice 3.8, the Slice compilers no longer generate Slice checksums. This dictionary definition is
+    /// provided for backward compatibility with earlier versions of Ice.
+    ["deprecated"] dictionary<string, string> SliceChecksumDict;
 }

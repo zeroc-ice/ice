@@ -3,7 +3,7 @@
 #ifndef DATASTORM_INTERNALI_H
 #define DATASTORM_INTERNALI_H
 
-#include "DataStorm/Sample.h"
+#include "DataStorm/SampleEvent.h"
 #include "Ice/Ice.h"
 #include "Types.h"
 

@@ -16,7 +16,7 @@ namespace Ice
     /// @remark Object is a stateless polymorphic base class. Its copy constructor, move constructor, copy assignment
     /// operator and move assignment operator are all deleted to prevent accidental slicing. Derived classes can
     /// define these constructors and assignment operators to reenable copying, moving and slicing.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API Object
     {
     public:
@@ -47,7 +47,7 @@ namespace Ice
         /// Tests whether this object supports a specific Slice interface.
         /// @param s The type ID of the Slice interface to test against.
         /// @param current The Current object of the incoming request.
-        /// @return @c true if this object has the interface specified by @p s or derives from the interface specified
+        /// @return `true` if this object has the interface specified by @p s or derives from the interface specified
         /// by @p s.
         [[nodiscard]] virtual bool ice_isA(std::string s, const Current& current) const;
 
@@ -78,13 +78,13 @@ namespace Ice
         void _iceD_ice_id(IncomingRequest&, std::function<void(OutgoingResponse)>);
 
         /// Gets the type ID of the associated Slice interface.
-        /// @return The string @c "::Ice::Object".
+        /// @return The string `"::Ice::Object"`.
         static const char* ice_staticId() noexcept;
     };
 
     /// Base class for dynamic dispatch servants. A server application derives a concrete servant class
     /// from Blobject that implements the ice_invoke method.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API Blobject : public Object
     {
     public:
@@ -106,7 +106,7 @@ namespace Ice
 
     /// Base class for dynamic dispatch servants that uses the array mapping. A server application
     /// derives a concrete servant class from Blobject that implements the ice_invoke method.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API BlobjectArray : public Object
     {
     public:
@@ -130,7 +130,7 @@ namespace Ice
 
     /// Base class for asynchronous dynamic dispatch servants. A server application derives a concrete
     /// servant class from Blobject that implements the ice_invokeAsync method.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API BlobjectAsync : public Object
     {
     public:
@@ -156,7 +156,7 @@ namespace Ice
 
     /// Base class for asynchronous dynamic dispatch servants that uses the array mapping. A server application
     /// derives a concrete servant class from Blobject that implements the ice_invokeAsync method.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API BlobjectArrayAsync : public Object
     {
     public:

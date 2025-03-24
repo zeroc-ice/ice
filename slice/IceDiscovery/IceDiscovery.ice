@@ -5,13 +5,11 @@
 [["cpp:doxygen:include:IceDiscovery/IceDiscovery.h"]]
 [["cpp:header-ext:h"]]
 
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:IceDiscovery"]]
 
 #include "Ice/Identity.ice"
-
-[["java:package:com.zeroc"]]
 
 module IceDiscovery
 {
@@ -27,7 +25,7 @@ module IceDiscovery
         /// @param id The adapter ID.
         /// @param prx The adapter proxy (a dummy proxy created by the adapter). The proxy provides the adapter
         /// endpoints. This proxy is never null.
-        /// @param isReplicaGroup True if the adapter is also a member of a replica group.
+        /// @param isReplicaGroup Indicates whether the adapter is a member of a replica group.
         void foundAdapterById(string id, Object* prx, bool isReplicaGroup);
     }
 

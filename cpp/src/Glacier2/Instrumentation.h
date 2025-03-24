@@ -16,14 +16,6 @@ namespace Glacier2::Instrumentation
         /// @param client True if client request, false if server request.
         virtual void forwarded(bool client) = 0;
 
-        /// Notification of a queued request.
-        /// @param client True if client request, false if server request.
-        virtual void queued(bool client) = 0;
-
-        /// Notification of a overridden request. This implies adding and removing an event to the queue.
-        /// @param client True if client request, false if server request.
-        virtual void overridden(bool client) = 0;
-
         /// Notification of a routing table size change.
         /// @param delta The size adjustment.
         virtual void routingTableSize(int delta) = 0;

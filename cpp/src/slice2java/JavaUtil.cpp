@@ -245,6 +245,8 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
         FileTracker::instance()->addFile(path);
         printHeader();
         printGeneratedHeader(*this, sliceFile);
+        newline();
+
         if (!package.empty())
         {
             separator();
@@ -265,11 +267,7 @@ void
 Slice::JavaOutput::printHeader()
 {
     print("// Copyright (c) ZeroC, Inc.\n");
-    print("//\n");
-    print("// Ice version ");
-    print(ICE_STRING_VERSION);
-    print("\n");
-    print("//\n");
+    print("\n// slice2java version " ICE_STRING_VERSION);
 }
 
 Slice::JavaGenerator::JavaGenerator(string dir) : _dir(std::move(dir)) {}

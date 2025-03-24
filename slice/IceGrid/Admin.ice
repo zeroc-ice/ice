@@ -5,19 +5,18 @@
 [["cpp:dll-export:ICEGRID_API"]]
 [["cpp:doxygen:include:IceGrid/IceGrid.h"]]
 [["cpp:header-ext:h"]]
+
 [["cpp:include:IceGrid/Config.h"]]
 
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:IceGrid"]]
 
-#include "Ice/Identity.ice"
-#include "Ice/BuiltinSequences.ice"
-#include "Glacier2/Session.ice"
-#include "Exception.ice"
 #include "Descriptor.ice"
-
-[["java:package:com.zeroc"]]
+#include "Exception.ice"
+#include "Glacier2/Session.ice"
+#include "Ice/BuiltinSequences.ice"
+#include "Ice/Identity.ice"
 
 module IceGrid
 {
@@ -345,7 +344,7 @@ module IceGrid
         /// state of the server is not persistent: if the node is shut down and restarted, the server will be enabled by
         /// default.
         /// @param id The server id.
-        /// @param enabled True to enable the server, false to disable it.
+        /// @param enabled `true` to enable the server, `false` to disable it.
         /// @throws ServerNotExistException Raised if the server doesn't exist.
         /// @throws NodeUnreachableException Raised if the node could not be reached.
         /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
@@ -354,7 +353,7 @@ module IceGrid
 
         /// Check if the server is enabled or disabled.
         /// @param id The server id.
-        /// @return True if the server is enabled.
+        /// @return `true` if the server is enabled.
         /// @throws ServerNotExistException Raised if the server doesn't exist.
         /// @throws NodeUnreachableException Raised if the node could not be reached.
         /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
@@ -468,7 +467,7 @@ module IceGrid
 
         /// Ping an IceGrid node to see if it is active.
         /// @param name The node name.
-        /// @return true if the node ping succeeded, false otherwise.
+        /// @return `true` if the node ping succeeded, `false` otherwise.
         /// @throws NodeNotExistException Raised if the node doesn't exist.
         ["cpp:const"] idempotent bool pingNode(string name)
             throws NodeNotExistException;
@@ -528,7 +527,7 @@ module IceGrid
 
         /// Ping an IceGrid registry to see if it is active.
         /// @param name The registry name.
-        /// @return true if the registry ping succeeded, false otherwise.
+        /// @return `true` if the registry ping succeeded, `false` otherwise.
         /// @throws RegistryNotExistException Raised if the registry doesn't exist.
         ["cpp:const"] idempotent bool pingRegistry(string name)
             throws RegistryNotExistException;
@@ -572,7 +571,7 @@ module IceGrid
         /// @param lines The lines read from the file. If there was nothing to read from the file since the last call to
         /// read, an empty sequence is returned. The last line of the sequence is always incomplete (and therefore no
         /// '\n' should be added when writing the last line to the to the output device).
-        /// @return True if EOF is encountered.
+        /// @return `true` if EOF is encountered.
         /// @throws FileNotAvailableException Raised if there was a problem to read lines from the file.
         bool read(int size, out Ice::StringSeq lines)
             throws FileNotAvailableException;

@@ -11,16 +11,15 @@
 [["cpp:include:map"]]
 [["cpp:include:string"]]
 
-[["js:module:@zeroc/ice"]]
-
-[["python:pkgdir:Ice"]]
-
 [["java:package:com.zeroc"]]
+[["js:module:@zeroc/ice"]]
+[["python:pkgdir:Ice"]]
 
 module Ice
 {
-    /// A string-string dictionary, used to transmit additional information with an Ice request. This context is only
-    /// transmitted with requests, from clients to servers; the Ice protocol does not provide response contexts.
+    /// Represents additional information carried by an Ice request. This information is filled-in by the application
+    /// and transmitted by Ice as-is, from the client to the server.
+    /// @remark The Ice protocol provides request contexts but does not provide response contexts.
     ["cpp:type:std::map<std::string, std::string, std::less<>>"]
     dictionary<string, string> Context;
 }

@@ -143,37 +143,37 @@ namespace Ice
     /// Operator less-than.
     /// @param lhs The left-hand side proxy.
     /// @param rhs The right-hand side proxy.
-    /// @return @c true if @p lhs is less than @p rhs, @c false otherwise.
+    /// @return `true` if @p lhs is less than @p rhs, `false` otherwise.
     ICE_API bool operator<(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept;
 
     /// Operator equal to.
     /// @param lhs The left-hand side proxy.
     /// @param rhs The right-hand side proxy.
-    /// @return @c true if @p lhs is equal to @p rhs, @c false otherwise.
+    /// @return `true` if @p lhs is equal to @p rhs, `false` otherwise.
     ICE_API bool operator==(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept;
 
     /// Operator greater-than.
     /// @param lhs The left-hand side proxy.
     /// @param rhs The right-hand side proxy.
-    /// @return @c true if @p lhs is greater than @p rhs, @c false otherwise.
+    /// @return `true` if @p lhs is greater than @p rhs, `false` otherwise.
     inline bool operator>(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept { return rhs < lhs; }
 
     /// Operator less-than or equal to.
     /// @param lhs The left-hand side proxy.
     /// @param rhs The right-hand side proxy.
-    /// @return @c true if @p lhs is less than or equal to @p rhs, @c false otherwise.
+    /// @return `true` if @p lhs is less than or equal to @p rhs, `false` otherwise.
     inline bool operator<=(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept { return !(lhs > rhs); }
 
     /// Operator greater-than or equal to.
     /// @param lhs The left-hand side proxy.
     /// @param rhs The right-hand side proxy.
-    /// @return @c true if @p lhs is greater than or equal to @p rhs, @c false otherwise.
+    /// @return `true` if @p lhs is greater than or equal to @p rhs, `false` otherwise.
     inline bool operator>=(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept { return !(lhs < rhs); }
 
     /// Operator not equal to.
     /// @param lhs The left-hand side proxy.
     /// @param rhs The right-hand side proxy.
-    /// @return @c true if @p lhs is not equal to @p rhs, @c false otherwise.
+    /// @return `true` if @p lhs is not equal to @p rhs, `false` otherwise.
     inline bool operator!=(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept { return !(lhs == rhs); }
 
     /// Compares the object identities of two proxies.

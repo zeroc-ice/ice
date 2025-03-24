@@ -45,7 +45,7 @@ namespace
 
         out << nl << "% Copyright (c) ZeroC, Inc.";
         out << nl << "% Generated from " << f << " by slice2matlab version " << ICE_STRING_VERSION;
-        out << nl;
+        out << sp;
     }
 
     void openClass(const string& abs, const string& dir, IceInternal::Output& out)

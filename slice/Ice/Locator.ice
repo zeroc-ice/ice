@@ -5,6 +5,7 @@
 [["cpp:dll-export:ICE_API"]]
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
+
 [["cpp:source-include:Ice/LocatorRegistry.h"]]
 
 [["java:package:com.zeroc"]]
@@ -15,13 +16,13 @@
 
 module Ice
 {
-    /// This exception is thrown by a {@link Locator} implementation when it cannot find an object adapter with the
+    /// The exception that is thrown by a {@link Locator} implementation when it cannot find an object adapter with the
     /// provided adapter ID.
     exception AdapterNotFoundException
     {
     }
 
-    /// This exception is thrown by a {@link Locator} implementation when it cannot find an object with the provided
+    /// The exception that is thrown by a {@link Locator} implementation when it cannot find an object with the provided
     /// identity.
     exception ObjectNotFoundException
     {
@@ -39,7 +40,7 @@ module Ice
         /// {@link findAdapterById}.
         /// @param id The identity.
         /// @return A dummy proxy, or null if an object with the requested identity was not found.
-        /// @throws ObjectNotFoundException Thrown if an object with the requested identity was not found. The caller
+        /// @throws ObjectNotFoundException Thrown when an object with the requested identity was not found. The caller
         /// should treat this exception like a null return value.
         ["amd"] ["cpp:const"] idempotent Object* findObjectById(Identity id)
             throws ObjectNotFoundException;
@@ -47,8 +48,8 @@ module Ice
         /// Finds an object adapter by adapter ID and returns a dummy proxy with the object adapter's endpoint(s).
         /// @param id The adapter ID.
         /// @return A dummy proxy with the adapter's endpoints, or null if an object adapter with @p id was not found.
-        /// @throws AdapterNotFoundException Thrown if an object adapter with this adapter ID was not found. The caller
-        /// should treat this exception like a null return value.
+        /// @throws AdapterNotFoundException Thrown when an object adapter with this adapter ID was not found. The
+        /// caller should treat this exception like a null return value.
         ["amd"] ["cpp:const"] idempotent Object* findAdapterById(string id)
             throws AdapterNotFoundException;
 
@@ -58,7 +59,7 @@ module Ice
     }
 
     /// Provides access to a {@link Locator} object via a fixed identity.
-    /// A LocatorFinder is always registered with identity @c Ice/LocatorFinder. This allows clients to obtain the
+    /// A LocatorFinder is always registered with identity `Ice/LocatorFinder`. This allows clients to obtain the
     /// associated Locator proxy with just the endpoint information of the object. For example, you can use the
     /// LocatorFinder proxy `Ice/LocatorFinder:tcp -h somehost -p 4061` to get the Locator proxy
     /// `MyIceGrid/Locator:tcp -h somehost -p 4061`.

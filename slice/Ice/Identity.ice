@@ -5,6 +5,7 @@
 [["cpp:dll-export:ICE_API"]]
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
+
 [["cpp:no-default-include"]]
 [["cpp:include:Ice/Config.h"]]
 [["cpp:include:Ice/StreamHelpers.h"]]
@@ -19,8 +20,8 @@
 /// Full-featured RPC framework.
 module Ice
 {
-    /// The identity of an Ice object. It is comparable to the path of a URI. Its string representation is @c name when
-    /// the category is empty, and @c category/name when the category is not empty.
+    /// Represents the identity of an Ice object. It is comparable to the path of a URI. Its string representation is
+    /// `name` when the category is empty, and `category/name` when the category is not empty.
     ["cpp:custom-print"]
     struct Identity
     {

@@ -5,19 +5,18 @@
 [["cpp:dll-export:ICE_API"]]
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
+
 [["cpp:include:list"]]
 
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:Ice"]]
 
 #include "BuiltinSequences.ice"
 
-[["java:package:com.zeroc"]]
-
 module Ice
 {
-    /// An enumeration representing the different types of log messages.
+    /// Represents the different types of log messages.
     enum LogMessageType
     {
         /// The {@link RemoteLogger} received a print message.
@@ -40,14 +39,14 @@ module Ice
     /// A sequence of {@link LogMessageType}.
     sequence<LogMessageType> LogMessageTypeSeq;
 
-    /// A complete log message.
+    /// Represents a full log message.
     struct LogMessage
     {
         /// The type of message sent to the {@link RemoteLogger}.
         LogMessageType type;
 
-        /// The date and time when the {@link RemoteLogger} received this message, expressed as the number of microseconds
-        /// since the Unix Epoch (00:00:00 UTC on 1 January 1970).
+        /// The date and time when the {@link RemoteLogger} received this message, expressed as the number of
+        /// microseconds since the Unix Epoch (00:00:00 UTC on 1 January 1970).
         long timestamp;
 
         /// For a message of type trace, the trace category of this log message; otherwise, the empty string.
@@ -61,18 +60,18 @@ module Ice
     ["cpp:type:std::list<LogMessage>"]
     sequence<LogMessage> LogMessageSeq;
 
-    /// The Ice remote logger interface. An application can implement a RemoteLogger to receive the log messages sent
-    /// to the local {@link RemoteLogger} of another Ice application.
+    /// Represents an Ice object that accepts log messages. It's called by the implementation of {@link LoggerAdmin}.
     interface RemoteLogger
     {
-        /// init is called by attachRemoteLogger when a RemoteLogger proxy is attached.
+        /// Attaches a remote logger to the local logger.
         /// @param prefix The prefix of the associated local Logger.
         /// @param logMessages Old log messages generated before "now".
         ["swift:identifier:initialize"]
         void init(string prefix, LogMessageSeq logMessages);
 
-        /// Log a LogMessage. Note that log may be called by LoggerAdmin before init.
+        /// Logs a LogMessage.
         /// @param message The message to log.
+        /// @remark {@link log} may be called by {@link LoggerAdmin} before {@link init}.
         void log(LogMessage message);
     }
 
@@ -81,12 +80,11 @@ module Ice
     {
     }
 
-    /// The interface of the admin object that allows an Ice application the attach its
-    /// {@link RemoteLogger} to the {@link RemoteLogger} of this admin object's Ice communicator.
+    /// Represents the admin facet that allows an Ice application the attach its {@link RemoteLogger} to the local
+    /// logger of an Ice communicator.
     interface LoggerAdmin
     {
-        /// Attaches a RemoteLogger object to the local logger. attachRemoteLogger calls init on the provided
-        /// RemoteLogger proxy.
+        /// Attaches a RemoteLogger object to the local logger. This operation calls {@link RemoteLogger#init} on @p prx.
         /// @param prx A proxy to the remote logger.
         /// @param messageTypes The list of message types that the remote logger wishes to receive. An empty list means
         /// no filtering (send all message types).
@@ -95,15 +93,18 @@ module Ice
         /// trace categories).
         /// @param messageMax The maximum number of log messages (of all types) to be provided to init. A negative
         /// value requests all messages available.
-        /// @throws RemoteLoggerAlreadyAttachedException Raised if this remote logger is already attached to this admin
+        /// @throws RemoteLoggerAlreadyAttachedException Thrown if this remote logger is already attached to this admin
         /// object.
-        void attachRemoteLogger(RemoteLogger* prx, LogMessageTypeSeq messageTypes, StringSeq traceCategories,
-                                int messageMax)
+        void attachRemoteLogger(
+            RemoteLogger* prx,
+            LogMessageTypeSeq messageTypes,
+            StringSeq traceCategories,
+            int messageMax)
             throws RemoteLoggerAlreadyAttachedException;
 
         /// Detaches a RemoteLogger object from the local logger.
         /// @param prx A proxy to the remote logger.
-        /// @return True if the provided remote logger proxy was detached, and false otherwise.
+        /// @return `true` if the provided remote logger proxy was detached, and `false` otherwise.
         bool detachRemoteLogger(RemoteLogger* prx);
 
         /// Retrieves log messages recently logged.

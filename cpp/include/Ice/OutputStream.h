@@ -27,7 +27,7 @@ namespace Ice
     class ObjectPrx;
 
     /// Interface for output streams used to create a sequence of bytes from Slice types.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API OutputStream : public IceInternal::Buffer
     {
     public:
@@ -105,9 +105,9 @@ namespace Ice
         /// @param other The other stream.
         void swap(OutputStream& other) noexcept;
 
-        /// \cond INTERNAL
+        /// @cond INTERNAL
         void resetEncapsulation();
-        /// \endcond
+        /// @endcond
 
         /// Resizes the stream to a new size.
         ///
@@ -639,9 +639,9 @@ namespace Ice
         /// valid for the lifetime of the stream.
         std::pair<const std::byte*, const std::byte*> finished();
 
-        /// \cond INTERNAL
+        /// @cond INTERNAL
         OutputStream(IceInternal::Instance*, EncodingVersion encoding);
-        /// \endcond
+        /// @endcond
 
     private:
         // Optionals
@@ -732,7 +732,7 @@ namespace Ice
             SliceType _sliceType{NoSlice};
 
             // Slice attributes
-            Container::size_type _writeSlice; // Position of the slice data members
+            Container::size_type _writeSlice{0}; // Position of the slice data members
 
             // Encapsulation attributes for value marshaling.
             std::int32_t _valueIdIndex{0};
@@ -781,17 +781,17 @@ namespace Ice
                 }
 
                 // Instance attributes
-                SliceType sliceType;
-                bool firstSlice;
+                SliceType sliceType{NoSlice};
+                bool firstSlice{false};
 
                 // Slice attributes
-                std::uint8_t sliceFlags;
-                Container::size_type writeSlice;    // Position of the slice data members
-                Container::size_type sliceFlagsPos; // Position of the slice flags
+                std::uint8_t sliceFlags{0};
+                Container::size_type writeSlice{0};    // Position of the slice data members
+                Container::size_type sliceFlagsPos{0}; // Position of the slice flags
                 PtrToIndexMap indirectionMap;
                 ValueList indirectionTable;
 
-                InstanceData* previous;
+                InstanceData* previous{nullptr};
                 InstanceData* next{nullptr};
             };
             InstanceData _preAllocatedInstanceData;

@@ -2,20 +2,18 @@
 
 #pragma once
 
+[["cpp:dll-export:ICEGRID_API"]]
 [["cpp:doxygen:include:IceGrid/IceGrid.h"]]
 [["cpp:header-ext:h"]]
+
 [["cpp:include:IceGrid/Config.h"]]
 
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:IceGrid"]]
 
-[["cpp:dll-export:ICEGRID_API"]]
-
-#include "Ice/Identity.ice"
 #include "Ice/BuiltinSequences.ice"
-
-[["java:package:com.zeroc"]]
+#include "Ice/Identity.ice"
 
 module IceGrid
 {
@@ -88,8 +86,8 @@ module IceGrid
         /// Flag to specify if the object adapter will register a process object.
         bool registerProcess;
 
-        /// If true the lifetime of this object adapter is the same of the server lifetime. This information is used by
-        /// the IceGrid node to figure out the server state: the server is active only if all its "server lifetime"
+        /// If `true`, the lifetime of this object adapter is the same of the server lifetime. This information is used
+        /// by the IceGrid node to figure out the server state: the server is active only if all its "server lifetime"
         /// adapters are active.
         bool serverLifetime;
 

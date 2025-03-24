@@ -40,7 +40,7 @@ namespace Ice
     class RouterPrx;
 
     /// Provides typed proxy functions.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<typename Prx, typename... Bases> class Proxy : public virtual Bases...
     {
     public:
@@ -73,7 +73,7 @@ namespace Ice
         [[nodiscard]] Prx ice_batchOneway() const { return fromReference(asPrx()._batchOneway()); }
 
         /// Creates a proxy that is identical to this proxy, except for collocation optimization.
-        /// @param b @c true if the new proxy enables collocation optimization, @c false otherwise.
+        /// @param b `true` if the new proxy enables collocation optimization, `false` otherwise.
         /// @return A proxy with the specified collocation optimization.
         [[nodiscard]] Prx ice_collocationOptimized(bool b) const
         {
@@ -82,12 +82,12 @@ namespace Ice
 
         /// Creates a proxy that is identical to this proxy, except for its compression setting which overrides the
         /// compression setting from the proxy endpoints.
-        /// @param b @c true enables compression for the new proxy, @c false disables compression.
+        /// @param b `true` enables compression for the new proxy, `false` disables compression.
         /// @return A proxy with the specified compression override setting.
         [[nodiscard]] Prx ice_compress(bool b) const { return fromReference(asPrx()._compress(b)); }
 
         /// Creates a proxy that is identical to this proxy, except for connection caching.
-        /// @param b @c true if the new proxy should cache connections, @c false otherwise.
+        /// @param b `true` if the new proxy should cache connections, `false` otherwise.
         /// @return A proxy with the specified caching policy.
         [[nodiscard]] Prx ice_connectionCached(bool b) const { return fromReference(asPrx()._connectionCached(b)); }
 
@@ -192,8 +192,8 @@ namespace Ice
         [[nodiscard]] Prx ice_oneway() const { return fromReference(asPrx()._oneway()); }
 
         /// Creates a proxy that is identical to this proxy, except for its prefer secure policy.
-        /// @param b If @c true, the new proxy will use secure endpoints for invocations and only use nonsecure
-        /// endpoints if an invocation cannot be made via secure endpoints. If @c false, the proxy prefers nonsecure
+        /// @param b If `true`, the new proxy will use secure endpoints for invocations and only use nonsecure
+        /// endpoints if an invocation cannot be made via secure endpoints. If `false`, the proxy prefers nonsecure
         /// endpoints to secure ones.
         /// @return A proxy with the specified prefer secure policy.
         [[nodiscard]] Prx ice_preferSecure(bool b) const { return fromReference(asPrx()._preferSecure(b)); }
@@ -207,8 +207,8 @@ namespace Ice
         }
 
         /// Creates a proxy that is identical to this proxy, except for how it selects endpoints.
-        /// @param b If @c true, only endpoints that use a secure transport are used by the new proxy.
-        /// If @c false, the returned proxy uses both secure and nonsecure endpoints.
+        /// @param b If `true`, only endpoints that use a secure transport are used by the new proxy.
+        /// If `false`, the returned proxy uses both secure and nonsecure endpoints.
         /// @return A proxy with the specified security policy.
         [[nodiscard]] Prx ice_secure(bool b) const { return fromReference(asPrx()._secure(b)); }
 
@@ -240,7 +240,7 @@ namespace Ice
     };
 
     /// The base class for all Ice proxies.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ObjectPrx : public Proxy<ObjectPrx>
     {
     public:

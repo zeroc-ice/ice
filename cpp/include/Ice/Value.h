@@ -17,7 +17,7 @@ namespace Ice
     class InputStream;
 
     /// The base class for instances of Slice-defined classes.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API Value
     {
     public:

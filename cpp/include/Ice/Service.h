@@ -16,7 +16,7 @@
 namespace Ice
 {
     /// A singleton class that helps you write Windows services and Unix daemons using Ice.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API Service
     {
     public:
@@ -153,9 +153,9 @@ namespace Ice
         /// @param name The service name.
         void configureService(const std::string& name);
 
-        /// \cond INTERNAL
+        /// @cond INTERNAL
         static void setModuleHandle(HMODULE);
-        /// \endcond
+        /// @endcond
 
 #else
 
@@ -266,10 +266,10 @@ namespace Ice
         InitializationData _initData;
 
     public:
-        /// \cond INTERNAL
+        /// @cond INTERNAL
         void serviceMain(int, const wchar_t* const[]);
         void control(int);
-        /// \endcond
+        /// @endcond
 
 #else
 

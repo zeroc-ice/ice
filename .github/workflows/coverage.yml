@@ -15,13 +15,13 @@ jobs:
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
-      - name: Generate C++ Coverage
-        working-directory: ./cpp
-        run: ../scripts/generate-cpp-code-coverage.sh
-
       - name: Install testing dependencies from pip
         run: python3 -m pip install passlib cryptography numpy
         shell: bash
+
+      - name: Generate C++ Coverage
+        working-directory: ./cpp
+        run: ../scripts/generate-cpp-code-coverage.sh
 
       - name: Generate C++ Coverage Reports
         working-directory: ./cpp
@@ -39,7 +39,7 @@ jobs:
       # This will perform a full sync of the documentation to S3 every time the workflow is run since
       # the timestamps will always be different. Using --size-only is not sufficient since the
       # documentation may be updated without changing the size of the files. S3 does not offer a hash based sync.
-      - name: Sync Documentation to S3
+      - name: Sync Coverage Report to S3
         working-directory: ./cpp/coverage/html
         run: |
           for coverage_dir in *; do
@@ -92,7 +92,7 @@ jobs:
           reporttypes: Html;Badges
           license: ${{ secrets.REPORT_GENERATOR_LICENSE }}
 
-      - name: Sync Documentation to S3
+      - name: Sync Coverage Report to S3
         working-directory: ./coveragereport
         run: aws s3 sync . s3://${AWS_S3_CODE_BUCKET}/ice/main/coverage/csharp --delete
         env:
@@ -123,9 +123,45 @@ jobs:
         run: |
           ../scripts/generate-java-code-coverage.sh
 
-      - name: Sync Documentation to S3
+      - name: Sync Coverage Report to S3
         working-directory: ./java/coverage
         run: aws s3 sync . s3://${AWS_S3_CODE_BUCKET}/ice/main/coverage/java --delete
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
+          AWS_DEFAULT_REGION: us-east-1
+        if: github.ref == 'refs/heads/main' && github.repository == 'zeroc-ice/ice'
+
+  generate-js-coverage-report:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup Node.js
+        uses: ./.github/actions/setup-node
+
+      - name: Install testing dependencies from pip
+        run: python3 -m pip install passlib cryptography numpy
+        shell: bash
+
+      - name: Build C++ and JavaScript
+        run: |
+          make -C cpp
+          make -C js
+
+      - name: Generate JavaScript Coverage
+        working-directory: ./js
+        run: |
+          ../scripts/generate-js-code-coverage.sh
+
+      - name: Sync Coverage Report to S3
+        working-directory: ./js/coverage-report
+        run: aws s3 sync . s3://${AWS_S3_CODE_BUCKET}/ice/main/coverage/js --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
