@@ -116,7 +116,7 @@ jobs:
 
 
           ulimit -c unlimited
-          cat "int main() { abort(); }" > crash.c
+          echo "int main() { abort(); }" > crash.c
           gcc -o crash crash.c
           ./crash
           coredumpctl info
