@@ -173,8 +173,8 @@ namespace Ice::SSL
         /// @param trust The trust object that contains the client's certificate chain.
         /// @param info The connection info object that provides additional connection-related data. The
         /// `ConnectionInfo` type is an alias for the platform-specific connection info class.
-        /// @return `true` if the certificate chain is valid and the connection should proceed; `false` if the certificate
-        /// chain is invalid and the connection should be aborted.
+        /// @return `true` if the certificate chain is valid and the connection should proceed; `false` if the
+        /// certificate chain is invalid and the connection should be aborted.
         /// @throws Ice::SecurityException if the certificate chain is invalid and the connection should be aborted.
         ///
         /// @see [SecTrustEvaluateWithError]
@@ -252,8 +252,8 @@ namespace Ice::SSL
         /// @param ctx A pointer to an `X509_STORE_CTX` object, which contains the certificate chain to be verified.
         /// @param info The connection info object that provides additional connection-related data. The
         /// `ConnectionInfo` type is an alias for the platform-specific connection info class.
-        /// @return `true` if the certificate chain is valid and the connection should proceed; `false` if the certificate
-        /// chain is invalid and the connection should be aborted.
+        /// @return `true` if the certificate chain is valid and the connection should proceed; `false` if the
+        /// certificate chain is invalid and the connection should be aborted.
         /// @throws Ice::SecurityException if the certificate chain is invalid and the connection should be aborted.
         ///
         /// Example of setting `clientCertificateValidationCallback`:
