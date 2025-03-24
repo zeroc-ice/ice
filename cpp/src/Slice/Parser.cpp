@@ -2362,7 +2362,8 @@ Slice::Module::destroy()
 Slice::Module::Module(const ContainerPtr& container, const string& name, bool nestedSyntax)
     : Contained(container, name),
       usesNestedSyntax(nestedSyntax)
-{}
+{
+}
 
 // ----------------------------------------------------------------------
 // ClassDecl
@@ -4996,7 +4997,7 @@ Slice::Unit::unit() const
 int
 Slice::Unit::getStatus() const
 {
-    return (_errors? EXIT_FAILURE : EXIT_SUCCESS);
+    return (_errors ? EXIT_FAILURE : EXIT_SUCCESS);
 }
 
 BuiltinPtr
