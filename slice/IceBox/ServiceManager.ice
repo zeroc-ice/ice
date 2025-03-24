@@ -22,7 +22,7 @@ module IceBox
     {
     }
 
-    /// The exception that is thrown whenan attempt is made to stop an already-stopped service.
+    /// The exception that is thrown when an attempt is made to stop an already-stopped service.
     exception AlreadyStoppedException
     {
     }
