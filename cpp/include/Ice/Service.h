@@ -167,10 +167,10 @@ namespace Ice
         /// string, the daemon writes its process ID to the given
         /// filename.
         ///
-        /// @param changeDirectory True if the daemon should change its working directory to the root directory,
+        /// @param changeDirectory `true` if the daemon should change its working directory to the root directory,
         /// `false` otherwise.
-        /// @param closeFiles True if the daemon should close unnecessary file descriptors (i.e., stdin, stdout, etc.),
-        /// `false` otherwise.
+        /// @param closeFiles `true` if the daemon should close unnecessary file descriptors (i.e., stdin, stdout,
+        /// etc.), `false` otherwise.
         /// @param pidFile If a non-empty string is provided, the daemon writes its process ID to the given file.
         void configureDaemon(bool changeDirectory, bool closeFiles, const std::string& pidFile);
 

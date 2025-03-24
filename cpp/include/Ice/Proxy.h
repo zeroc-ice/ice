@@ -493,14 +493,14 @@ namespace Ice
             std::function<void(bool)> sent = nullptr,
             const Ice::Context& context = Ice::noExplicitContext) const;
 
-        /// Gets the Connection for this proxy. If the proxy does not yet have an established connection,
+        /// Gets the connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.
         /// @return The connection for this proxy.
         /// @remark You can call this function to establish a connection or associate the proxy with an existing
         /// connection and ignore the return value.
         Ice::ConnectionPtr ice_getConnection() const; // NOLINT(modernize-use-nodiscard)
 
-        /// Gets the Connection for this proxy. If the proxy does not yet have an established connection,
+        /// Gets the connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.
         /// @param response The response callback. It accepts:
         /// - The connection for this proxy.
@@ -513,7 +513,7 @@ namespace Ice
             std::function<void(std::exception_ptr)> ex = nullptr,
             std::function<void(bool)> sent = nullptr) const;
 
-        /// Gets the Connection for this proxy. If the proxy does not yet have an established connection,
+        /// Gets the connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.
         /// @return A future that becomes available when the invocation completes. This future holds:
         /// - The connection for this proxy.

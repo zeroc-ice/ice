@@ -1821,11 +1821,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         StringList futureDoc;
         if (futureOutParams.size() == 0)
         {
-            futureDoc.push_back("A future that becomes available when the invocation completes.");
+            futureDoc.emplace_back("A future that becomes available when the invocation completes.");
         }
         else
         {
-            futureDoc.push_back("A future that becomes available when the invocation completes. This future holds:");
+            futureDoc.emplace_back("A future that becomes available when the invocation completes. This future holds:");
             futureDoc.splice(futureDoc.end(), createOpOutParamsDoc(p, *comment));
         }
 
