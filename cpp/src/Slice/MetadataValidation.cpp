@@ -150,7 +150,7 @@ MetadataVisitor::visitModuleStart(const ModulePtr& p)
     if (p->usesNestedSyntax && !moduleMetadata.empty())
     {
         // Metadata cannot be applied to modules that used nested-module-syntax, since it's ambiguous in meaning.
-        // We issue an error, and clear the metadata, so that we're in a valid state for further validators.
+        // We issue an error, and clear the metadata, so that we're in a valid state for further validation.
         p->unit()->error(p->file(), p->line(), "metadata cannot be applied to nested module definitions");
         p->setMetadata({});
     }

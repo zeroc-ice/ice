@@ -426,7 +426,6 @@ module_def
         ModulePtr module = cont->createModule(currentModuleName, true);
         if (module)
         {
-            usesNestedSyntax-
             cont->checkIntroduced(currentModuleName, module);
             currentUnit->pushContainer(module);
             $$ = cont = module;
