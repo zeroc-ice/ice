@@ -5,6 +5,13 @@ require_once('Ice.php');
 require_once('Key.php');
 require_once('Clash.php');
 
+class echoI extends escapedAnd\_echo
+{
+    public function _else($a, $b)
+    {
+    }
+}
+
 function allTests($helper)
 {
     echo "testing type names... ";
@@ -17,7 +24,7 @@ function allTests($helper)
     $communicator = $helper->communicator();
     $c = escapedAnd\_functionPrxHelper::createProxy($communicator, "test:tcp -p 10000");
     $d = escapedAnd\_diePrxHelper::uncheckedCast($c);
-    $e1 = new _echoI();
+    $e1 = new echoI();
     $f = escapedAnd\_enddeclarePrxHelper::uncheckedCast($c);
     $g = new escapedAnd\_endif();
     $h = new escapedAnd\_endwhile();
