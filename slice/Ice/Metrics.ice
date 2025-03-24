@@ -41,7 +41,7 @@ module IceMX
         int failures = 0;
     }
 
-    /// Keeps track of failures associated with a given metrics.
+    /// Keeps track of metrics failures.
     struct MetricsFailures
     {
         /// The identifier of the metrics object associated to the failures.
