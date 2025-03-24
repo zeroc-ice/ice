@@ -27,7 +27,7 @@ module IceBox
     {
     }
 
-    /// The exception that is thrown whena service name does not refer to an existing service.
+    /// The exception that is thrown when a service name does not refer to an existing service.
     exception NoSuchServiceException
     {
     }
