@@ -82,18 +82,10 @@ namespace
             if (client)
             {
                 ++v->forwardedClient;
-                if (v->queuedClient > 0)
-                {
-                    --v->queuedClient;
-                }
             }
             else
             {
                 ++v->forwardedServer;
-                if (v->queuedServer > 0)
-                {
-                    --v->queuedServer;
-                }
             }
         }
 
@@ -105,32 +97,6 @@ void
 SessionObserverI::forwarded(bool client)
 {
     forEach(ForwardedUpdate(client));
-}
-
-void
-SessionObserverI::queued(bool client)
-{
-    if (client)
-    {
-        forEach(inc(&SessionMetrics::queuedClient));
-    }
-    else
-    {
-        forEach(inc(&SessionMetrics::queuedServer));
-    }
-}
-
-void
-SessionObserverI::overridden(bool client)
-{
-    if (client)
-    {
-        forEach(inc(&SessionMetrics::overriddenClient));
-    }
-    else
-    {
-        forEach(inc(&SessionMetrics::overriddenServer));
-    }
 }
 
 void

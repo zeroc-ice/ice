@@ -16,11 +16,9 @@
 [["cpp:include:string"]]
 [["cpp:include:vector"]]
 
-[["js:module:@zeroc/ice"]]
-
-[["python:pkgdir:Ice"]]
-
 [["java:package:com.zeroc"]]
+[["js:module:@zeroc/ice"]]
+[["python:pkgdir:Ice"]]
 
 module Ice
 {
@@ -48,8 +46,9 @@ module Ice
     /// A sequence of strings.
     sequence<string> StringSeq;
 
-    /// A sequence of objects.
-    sequence<Object> ObjectSeq;
+    /// A sequence of class instances.
+    ["deprecated:Define your own sequence instead and avoid using the term `object` to designate a class instance."]
+    sequence<Value> ObjectSeq;
 
     /// A sequence of object proxies.
     sequence<Object*> ObjectProxySeq;

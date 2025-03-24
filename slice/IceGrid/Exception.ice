@@ -2,20 +2,18 @@
 
 #pragma once
 
+[["cpp:dll-export:ICEGRID_API"]]
 [["cpp:doxygen:include:IceGrid/IceGrid.h"]]
 [["cpp:header-ext:h"]]
+
 [["cpp:include:IceGrid/Config.h"]]
 
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:IceGrid"]]
 
-[["cpp:dll-export:ICEGRID_API"]]
-
-#include "Ice/Identity.ice"
 #include "Ice/BuiltinSequences.ice"
-
-[["java:package:com.zeroc"]]
+#include "Ice/Identity.ice"
 
 module IceGrid
 {

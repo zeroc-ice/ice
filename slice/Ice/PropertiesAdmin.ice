@@ -6,35 +6,33 @@
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
 
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:Ice"]]
 
 #include "PropertyDict.ice"
 
-[["java:package:com.zeroc"]]
-
 module Ice
 {
-    /// The PropertiesAdmin interface provides remote access to the properties of a communicator.
+    /// Provides remote access to the properties of a communicator.
     interface PropertiesAdmin
     {
-        /// Get a property by key. If the property is not set, an empty string is returned.
+        /// Gets a property by key.
         /// @param key The property key.
-        /// @return The property value.
+        /// @return The property value. This value is empty if the property is not set.
         string getProperty(string key);
 
-        /// Get all properties whose keys begin with <em>prefix</em>. If <em>prefix</em> is an empty string then all
-        /// properties are returned.
-        /// @param prefix The prefix to search for (empty string if none).
+        /// Gets all properties whose keys begin with @p prefix. If @p prefix is the empty string then all properties
+        /// are returned.
+        /// @param prefix The prefix to search for. May be empty.
         /// @return The matching property set.
         ["java:type:java.util.TreeMap<String, String>"] PropertyDict getPropertiesForPrefix(string prefix);
 
-        /// Update the communicator's properties with the given property set. If an entry in <em>newProperties</em>
-        /// matches the name of an existing property, that property's value is replaced with the new value. If the new
-        /// value is an empty string, the property is removed. Any existing properties that are not modified or removed
-        /// by the entries in newProperties are retained with their original values.
-        /// @param newProperties Properties to be added, changed, or removed.
+        /// Updates the communicator's properties with the given property set. If an entry in @p newProperties matches
+        /// the name of an existing property, that property's value is replaced with the new value. If the new value is
+        /// the empty string, the property is removed. Existing properties that are not modified or removed by the
+        /// entries in @p newProperties are not affected by this update.
+        /// @param newProperties Properties to add, change, or remove.
         void setProperties(PropertyDict newProperties);
     }
 }

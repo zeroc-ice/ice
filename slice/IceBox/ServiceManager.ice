@@ -5,30 +5,29 @@
 [["cpp:dll-export:ICEBOX_API"]]
 [["cpp:doxygen:include:IceBox/IceBox.h"]]
 [["cpp:header-ext:h"]]
+
 [["cpp:include:IceBox/Config.h"]]
 
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:IceBox"]]
 
 #include "Ice/BuiltinSequences.ice"
 
-[["java:package:com.zeroc"]]
-
 /// Host multiple independent services in the same Ice server.
 module IceBox
 {
-    /// This exception is thrown if an attempt is made to start an already-started service.
+    /// The exception that is thrown when an attempt is made to start an already-started service.
     exception AlreadyStartedException
     {
     }
 
-    /// This exception is thrown if an attempt is made to stop an already-stopped service.
+    /// The exception that is thrown when an attempt is made to stop an already-stopped service.
     exception AlreadyStoppedException
     {
     }
 
-    /// This exception is thrown if a service name does not refer to an existing service.
+    /// The exception that is thrown when a service name does not refer to an existing service.
     exception NoSuchServiceException
     {
     }

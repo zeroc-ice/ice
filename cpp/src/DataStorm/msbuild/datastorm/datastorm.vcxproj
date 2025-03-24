@@ -130,11 +130,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\Contract.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\Sample.cpp">
+    <ClCompile Include="Win32\Debug\SampleEvent.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\Sample.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\SampleEvent.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Contract.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -142,11 +142,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\Contract.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="Win32\Release\Sample.cpp">
+    <ClCompile Include="Win32\Release\SampleEvent.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\Sample.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\SampleEvent.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\Contract.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -154,11 +154,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\Contract.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="x64\Debug\Sample.cpp">
+    <ClCompile Include="x64\Debug\SampleEvent.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\Sample.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\SampleEvent.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Contract.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -166,11 +166,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\Contract.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="x64\Release\Sample.cpp">
+    <ClCompile Include="x64\Release\SampleEvent.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\Sample.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\SampleEvent.ice</SliceCompileSource>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -181,29 +181,29 @@
     <ClInclude Include="..\..\..\..\include\DataStorm\InternalT.h" />
     <ClInclude Include="..\..\..\..\include\DataStorm\Node.h" />
     <ClInclude Include="..\..\..\..\include\DataStorm\Types.h" />
-    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\DataStorm\Sample.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\DataStorm\SampleEvent.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\Sample.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\SampleEvent.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\DataStorm\Sample.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\DataStorm\SampleEvent.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\Sample.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\SampleEvent.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\DataStorm\Sample.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\DataStorm\SampleEvent.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\Sample.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\SampleEvent.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\x64\Release\DataStorm\Sample.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\DataStorm\SampleEvent.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\Sample.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\DataStorm\SampleEvent.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\CallbackExecutor.h" />
     <ClInclude Include="..\..\DataElementI.h" />
@@ -245,7 +245,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\DataStorm\Sample.ice" />
+    <SliceCompile Include="..\..\..\..\..\slice\DataStorm\SampleEvent.ice" />
     <SliceCompile Include="..\..\Contract.ice">
       <HeaderOutputDir>$(Platform)\$(Configuration)\DataStorm</HeaderOutputDir>
     </SliceCompile>

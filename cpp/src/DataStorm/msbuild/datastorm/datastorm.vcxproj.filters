@@ -96,25 +96,25 @@
     <ClCompile Include="..\..\CallbackExecutor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\Sample.cpp">
+    <ClCompile Include="Win32\Debug\SampleEvent.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Contract.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Debug\Sample.cpp">
+    <ClCompile Include="x64\Debug\SampleEvent.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\Contract.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\Sample.cpp">
+    <ClCompile Include="Win32\Release\SampleEvent.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Release\Contract.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\Sample.cpp">
+    <ClCompile Include="x64\Release\SampleEvent.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
     <ClCompile Include="x64\Release\Contract.cpp">
@@ -161,16 +161,16 @@
     <ClInclude Include="..\..\TraceUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\DataStorm\Sample.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\DataStorm\SampleEvent.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\DataStorm\Sample.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\DataStorm\SampleEvent.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\DataStorm\Sample.h">
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\DataStorm\SampleEvent.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\x64\Release\DataStorm\Sample.h">
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\DataStorm\SampleEvent.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\DataStorm\Config.h">
@@ -217,7 +217,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\DataStorm\Sample.ice">
+    <SliceCompile Include="..\..\..\..\..\slice\DataStorm\SampleEvent.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\Contract.ice">

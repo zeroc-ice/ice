@@ -5,16 +5,15 @@
 [["cpp:dll-export:ICESTORM_API"]]
 [["cpp:doxygen:include:IceStorm/IceStorm.h"]]
 [["cpp:header-ext:h"]]
+
 [["cpp:include:IceStorm/Config.h"]]
 
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
-
 [["python:pkgdir:IceStorm"]]
 
 #include "Ice/Identity.ice"
 #include "Metrics.ice"
-
-[["java:package:com.zeroc"]]
 
 /// Lightweight publish/subscribe framework, available for all Ice language mappings.
 module IceStorm
