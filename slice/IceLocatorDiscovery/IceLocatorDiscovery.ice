@@ -15,8 +15,8 @@
 /// multicast.
 module IceLocatorDiscovery
 {
-    /// Represents a callback object implemented by IceLocatorDiscovery clients. It allows IceDiscoIceLocatorDiscovery
-    /// very clients to receive replies to Lookup requests.
+    /// Represents a callback object implemented by IceLocatorDiscovery clients. It allows IceLocatorDiscovery clients
+    /// to receive replies to Lookup requests.
     /// @see Lookup
     interface LookupReply
     {

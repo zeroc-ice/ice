@@ -17,13 +17,13 @@
 ["swift:module:IceStorm:MX"]
 module IceMX
 {
-    /// Provides information about IceStorm topics.
+    /// Provides information about one or more IceStorm topics.
     class TopicMetrics extends Metrics
     {
-        /// The number of events published on topics by publishers.
+        /// The number of events published on the topic(s) by publishers.
         long published = 0;
 
-        /// The number of events forwarded on topics by IceStorm topic links.
+        /// The number of events forwarded on the topic(s) by IceStorm topic links.
         long forwarded = 0;
     }
 
