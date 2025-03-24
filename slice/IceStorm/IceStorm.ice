@@ -167,7 +167,7 @@ module IceStorm
     /// An IceStorm Finder is always registered with identity `IceStorm/Finder`. This allows clients to obtain the
     /// associated TopicManager proxy with just the endpoint information of the object. For example, you can use the
     /// Finder proxy `IceStorm/Finder:tcp -h somehost -p 4061` to get the TopicManager proxy
-    /// `MyStorm/TopicManager:tcp -h somehost -p 4061`.
+    /// `MyIceStorm/TopicManager:tcp -h somehost -p 4061`.
     interface Finder
     {
         /// Gets a proxy to the associated {@link TopicManager}. The proxy might point to several replicas.
