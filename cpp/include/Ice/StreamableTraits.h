@@ -67,7 +67,7 @@ namespace Ice
     /// Determines whether the provided type is a container. The implementation checks if there is a @p T::iterator
     /// typedef using SFINAE.
     /// @tparam T The type to check
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<typename T> struct IsContainer
     {
         /// @private
@@ -83,7 +83,7 @@ namespace Ice
     /// Determines whether the provided type is a map. The implementation checks if there is a @p T::mapped_type typedef
     /// using SFINAE.
     /// @tparam T The type to check
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<typename T> struct IsMap
     {
         /// @private
@@ -99,7 +99,7 @@ namespace Ice
     /// Base traits template. Types with no specialized trait use this trait.
     /// @tparam T The type.
     /// @tparam Enabler The specialization enabler.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<typename T, typename Enabler = void> struct StreamableTraits
     {
         /// The category trait, used for selecting the appropriate StreamHelper.
@@ -120,7 +120,7 @@ namespace Ice
     };
 
     /// Specialization for sequence and dictionary types.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<typename T> struct StreamableTraits<T, std::enable_if_t<IsMap<T>::value || IsContainer<T>::value>>
     {
         /// @copydoc StreamableTraits::helper
@@ -135,7 +135,7 @@ namespace Ice
     };
 
     /// Specialization for exceptions.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<typename T> struct StreamableTraits<T, std::enable_if_t<std::is_base_of_v<UserException, T>>>
     {
         /// @copydoc StreamableTraits::helper
@@ -148,7 +148,7 @@ namespace Ice
     };
 
     /// Specialization for arrays (std::pair<const T*, const T*>).
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<typename T> struct StreamableTraits<std::pair<T*, T*>>
     {
         /// @copydoc StreamableTraits::helper
@@ -163,7 +163,7 @@ namespace Ice
 
     /// Specialization for built-in type (this is needed for sequence
     /// marshaling to figure out the minWireSize of each type).
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<> struct StreamableTraits<bool>
     {
         /// @copydoc StreamableTraits::helper
@@ -178,7 +178,7 @@ namespace Ice
 
     /// Specialization for built-in type (this is needed for sequence
     /// marshaling to figure out the minWireSize of each type).
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::byte>
     {
         /// @copydoc StreamableTraits::helper
@@ -191,7 +191,7 @@ namespace Ice
 
     /// Specialization for built-in type (this is needed for sequence
     /// marshaling to figure out the minWireSize of each type).
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::uint8_t>
     {
         /// @copydoc StreamableTraits::helper
@@ -206,7 +206,7 @@ namespace Ice
 
     /// Specialization for built-in type (this is needed for sequence
     /// marshaling to figure out the minWireSize of each type).
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::int16_t>
     {
         /// @copydoc StreamableTraits::helper
@@ -221,7 +221,7 @@ namespace Ice
 
     /// Specialization for built-in type (this is needed for sequence
     /// marshaling to figure out the minWireSize of each type).
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::int32_t>
     {
         /// @copydoc StreamableTraits::helper
@@ -236,7 +236,7 @@ namespace Ice
 
     /// Specialization for built-in type (this is needed for sequence
     /// marshaling to figure out the minWireSize of each type).
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::int64_t>
     {
         /// @copydoc StreamableTraits::helper
@@ -251,7 +251,7 @@ namespace Ice
 
     /// Specialization for built-in type (this is needed for sequence
     /// marshaling to figure out the minWireSize of each type).
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<> struct StreamableTraits<float>
     {
         /// @copydoc StreamableTraits::helper
@@ -266,7 +266,7 @@ namespace Ice
 
     /// Specialization for built-in type (this is needed for sequence
     /// marshaling to figure out the minWireSize of each type).
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<> struct StreamableTraits<double>
     {
         /// @copydoc StreamableTraits::helper
@@ -281,7 +281,7 @@ namespace Ice
 
     /// Specialization for built-in type (this is needed for sequence
     /// marshaling to figure out the minWireSize of each type).
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::string>
     {
         /// @copydoc StreamableTraits::helper
@@ -296,7 +296,7 @@ namespace Ice
 
     /// Specialization for built-in type (this is needed for sequence
     /// marshaling to figure out the minWireSize of each type).
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::string_view>
     {
         /// @copydoc StreamableTraits::helper
@@ -311,7 +311,7 @@ namespace Ice
 
     /// Specialization for built-in type (this is needed for sequence
     /// marshaling to figure out the minWireSize of each type).
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::wstring>
     {
         /// @copydoc StreamableTraits::helper
@@ -324,7 +324,7 @@ namespace Ice
 
     /// Specialization for built-in type (this is needed for sequence
     /// marshaling to figure out the minWireSize of each type).
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::wstring_view>
     {
         /// @copydoc StreamableTraits::helper
@@ -338,7 +338,7 @@ namespace Ice
     };
 
     /// vector<bool> is a special type in C++: the streams handle it like a built-in type.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<> struct StreamableTraits<std::vector<bool>>
     {
         /// @copydoc StreamableTraits::helper
@@ -352,7 +352,7 @@ namespace Ice
     };
 
     /// Specialization for proxy types.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<typename T> struct StreamableTraits<std::optional<T>, std::enable_if_t<std::is_base_of_v<ObjectPrx, T>>>
     {
         /// @copydoc StreamableTraits::helper
@@ -366,7 +366,7 @@ namespace Ice
     };
 
     /// Specialization for class types.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<typename T> struct StreamableTraits<std::shared_ptr<T>, std::enable_if_t<std::is_base_of_v<Value, T>>>
     {
         /// @copydoc StreamableTraits::helper

@@ -86,10 +86,10 @@ namespace Ice::SSL
         std::function<bool(CtxtHandle context, const ConnectionInfoPtr& info)> clientCertificateValidationCallback;
     };
 
-    /// \cond INTERNAL
+    /// @cond INTERNAL
     /// Alias for the platform-specific implementation of ClientAuthenticationOptions on Windows.
     using ServerAuthenticationOptions = SchannelServerAuthenticationOptions;
-    /// \endcond
+    /// @endcond
 #endif
 
 #if defined(ICE_USE_SECURE_TRANSPORT)
@@ -189,10 +189,10 @@ namespace Ice::SSL
         std::function<bool(SecTrustRef trust, ConnectionInfoPtr info)> clientCertificateValidationCallback;
     };
 
-    /// \cond INTERNAL
+    /// @cond INTERNAL
     // Alias for the platform-specific implementation of ClientAuthenticationOptions on macOS and iOS.
     using ServerAuthenticationOptions = SecureTransportServerAuthenticationOptions;
-/// \endcond
+/// @endcond
 #endif
 
 #if defined(ICE_USE_OPENSSL)
@@ -269,10 +269,10 @@ namespace Ice::SSL
             clientCertificateValidationCallback{};
     };
 
-    /// \cond INTERNAL
+    /// @cond INTERNAL
     // Alias for the platform-specific implementation of ClientAuthenticationOptions on Linux.
     using ServerAuthenticationOptions = OpenSSLServerAuthenticationOptions;
-/// \endcond
+/// @endcond
 #endif
 }
 

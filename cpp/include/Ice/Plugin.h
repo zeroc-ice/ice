@@ -12,7 +12,7 @@ namespace Ice
     /// A communicator plug-in. A plug-in generally adds a feature to a communicator, such as support for a protocol.
     /// The communicator loads its plug-ins in two stages: the first stage creates the plug-ins, and the second stage
     /// invokes {@link Plugin#initialize} on each one.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API Plugin
     {
     public:
@@ -29,7 +29,7 @@ namespace Ice
     using PluginPtr = std::shared_ptr<Plugin>;
 
     /// Each communicator has a plug-in manager to administer the set of plug-ins.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API PluginManager
     {
     public:

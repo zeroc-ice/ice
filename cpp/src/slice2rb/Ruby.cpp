@@ -263,6 +263,7 @@ Slice::Ruby::compile(const vector<string>& argv)
 
                         printHeader(out);
                         printGeneratedHeader(out, base + ".ice", "#");
+                        out << sp;
 
                         //
                         // Generate the Ruby mapping.

@@ -17,7 +17,7 @@ namespace IceBox
 {
     /// This exception is a general failure notification. It is thrown for errors such as a service encountering an
     /// error during initialization, or the service manager being unable to load a service executable.
-    /// \headerfile IceBox/IceBox.h
+    /// @headerfile IceBox/IceBox.h
     class ICEBOX_API FailureException final : public Ice::LocalException
     {
     public:
@@ -27,7 +27,7 @@ namespace IceBox
     };
 
     /// An application service managed by a {@link ServiceManager}.
-    /// \headerfile IceBox/IceBox.h
+    /// @headerfile IceBox/IceBox.h
     class ICEBOX_API Service
     {
     public:

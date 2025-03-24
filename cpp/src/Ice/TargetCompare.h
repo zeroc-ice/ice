@@ -75,7 +75,6 @@ namespace Ice
 
     /// Functor class that compares the contents of two smart pointers (or similar) of the given type using the given
     /// comparator.
-    /// \headerfile Ice/Ice.h
     template<typename T, template<typename> class Compare> struct TargetCompare
     {
         /// Executes the functor to compare the contents of two smart pointers.

@@ -51,7 +51,7 @@ namespace IceInternal
 
 namespace IceMX
 {
-    /// \cond INTERNAL
+    /// @cond INTERNAL
     template<typename T> class MetricsHelperT
     {
     public:
@@ -579,7 +579,7 @@ namespace IceMX
     };
 
     using ObserverI = ObserverT<Metrics>;
-    /// \endcond
+    /// @endcond
 }
 
 #if defined(__clang__)

@@ -18,7 +18,7 @@ namespace IceBT
     using DeviceMap = std::map<std::string, PropertyMap>;
 
     /// Represents the IceBT plug-in object.
-    /// \headerfile IceBT/IceBT.h
+    /// @headerfile IceBT/IceBT.h
     class ICEBT_API Plugin : public Ice::Plugin
     {
     public:
