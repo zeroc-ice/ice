@@ -24,7 +24,7 @@ export class BatchRequestQueue {
         this._batchStream.swap(os);
     }
 
-    finishBatchRequest(os, proxy, operation) {
+    finishBatchRequest(os, proxy /*operation*/) {
         this._batchStream.swap(os);
 
         try {

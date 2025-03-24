@@ -22,3 +22,7 @@ jobs:
       - name: Run JavaScript prettier
         run: npx prettier --check .
         working-directory: js
+
+      - name: Run JavaScript eslint
+        run: npx eslint .
+        working-directory: js

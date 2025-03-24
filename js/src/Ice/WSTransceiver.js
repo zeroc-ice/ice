@@ -25,11 +25,26 @@ if (typeof WebSocket !== "undefined") {
     const StateClosed = 4;
 
     WSTransceiver = class {
-        constructor(instance) {
+        constructor(instance, secure, addr, resource) {
             this._readBuffers = [];
             this._readPosition = 0;
             this._maxSendPacketSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1024);
             this._writeReadyTimeout = 0;
+
+            let url = secure ? "wss" : "ws";
+            url += "://" + addr.host;
+            if (addr.port !== 80) {
+                url += ":" + addr.port;
+            }
+            url += resource ? resource : "/";
+
+            this._url = url;
+            this._fd = null;
+            this._addr = addr;
+            this._desc = "local address = <not available>\nremote address = " + addr.host + ":" + addr.port;
+            this._state = StateNeedConnect;
+            this._secure = secure;
+            this._exception = null;
         }
 
         writeReadyTimeout() {
@@ -47,7 +62,7 @@ if (typeof WebSocket !== "undefined") {
         //
         // Returns SocketOperation.None when initialization is complete.
         //
-        initialize(readBuffer, writeBuffer) {
+        initialize() {
             try {
                 if (this._exception) {
                     throw this._exception;
@@ -266,7 +281,7 @@ if (typeof WebSocket !== "undefined") {
             return this._desc;
         }
 
-        socketConnected(e) {
+        socketConnected() {
             if (this._state == StateClosePending) {
                 this.close();
                 return;
@@ -300,24 +315,6 @@ if (typeof WebSocket !== "undefined") {
             } else if (this._registered) {
                 this._bytesAvailableCallback();
             }
-        }
-
-        static createOutgoing(instance, secure, addr, resource) {
-            const transceiver = new WSTransceiver(instance);
-            let url = secure ? "wss" : "ws";
-            url += "://" + addr.host;
-            if (addr.port !== 80) {
-                url += ":" + addr.port;
-            }
-            url += resource ? resource : "/";
-            transceiver._url = url;
-            transceiver._fd = null;
-            transceiver._addr = addr;
-            transceiver._desc = "local address = <not available>\nremote address = " + addr.host + ":" + addr.port;
-            transceiver._state = StateNeedConnect;
-            transceiver._secure = secure;
-            transceiver._exception = null;
-            return transceiver;
         }
     };
 

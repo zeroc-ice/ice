@@ -78,12 +78,7 @@ export class WSEndpoint extends EndpointI {
     }
 
     connect() {
-        return WSTransceiver.createOutgoing(
-            this._instance,
-            this._delegate.secure(),
-            this._delegate.getAddress(),
-            this._resource,
-        );
+        return new WSTransceiver(this._instance, this._delegate.secure(), this._delegate.getAddress(), this._resource);
     }
 
     hashCode() {

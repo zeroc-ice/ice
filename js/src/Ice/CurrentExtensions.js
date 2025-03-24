@@ -47,7 +47,7 @@ Current.prototype.createEmptyOutgoingResponse = function () {
 Current.prototype.createOutgoingResponseWithException = function (exception) {
     try {
         return createOutgoingResponseCore(this, exception);
-    } catch (ex) {
+    } catch {
         // Try a second time with the marshal exception. This should not fail.
         return createOutgoingResponseCore(this, exception);
     }

@@ -56,14 +56,14 @@ export class OpaqueEndpointI extends EndpointI {
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    changeTimeout(t) {
+    changeTimeout() {
         return this;
     }
 
     //
     // Return a new endpoint with a different connection id.
     //
-    changeConnectionId(connectionId) {
+    changeConnectionId() {
         return this;
     }
 
@@ -80,7 +80,7 @@ export class OpaqueEndpointI extends EndpointI {
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
-    changeCompress(compress) {
+    changeCompress() {
         return this;
     }
 
@@ -124,7 +124,7 @@ export class OpaqueEndpointI extends EndpointI {
     // from this endpoint, for example, if a dynamic port number is
     // assigned.
     //
-    acceptor(endpoint, adapterName) {
+    acceptor(endpoint) {
         endpoint.value = this;
         return null;
     }
@@ -242,7 +242,7 @@ export class OpaqueEndpointI extends EndpointI {
 
                 try {
                     type = StringUtil.toInt(argument);
-                } catch (ex) {
+                } catch {
                     throw new ParseException(`invalid type value '${argument}' in endpoint ${endpoint}`);
                 }
 
