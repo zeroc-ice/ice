@@ -47,7 +47,7 @@ public class EndpointHostResolver
         {
             Debug.Assert(!_destroyed);
 
-            ResolveEntry entry = new ResolveEntry();
+            var entry = new ResolveEntry();
             entry.host = host;
             entry.port = port;
             entry.endpoint = endpoint;
@@ -75,10 +75,7 @@ public class EndpointHostResolver
         }
     }
 
-    public void joinWithThread()
-    {
-        _thread?.Join();
-    }
+    public void joinWithThread() => _thread?.Join();
 
     public void run()
     {
@@ -149,7 +146,7 @@ public class EndpointHostResolver
 
         foreach (ResolveEntry entry in _queue)
         {
-            Ice.CommunicatorDestroyedException ex = new Ice.CommunicatorDestroyedException();
+            var ex = new Ice.CommunicatorDestroyedException();
             if (entry.observer != null)
             {
                 entry.observer.failed(ex.ice_id());
@@ -209,10 +206,7 @@ public class EndpointHostResolver
             _name += "Ice.HostResolver";
         }
 
-        public void Join()
-        {
-            _thread.Join();
-        }
+        public void Join() => _thread.Join();
 
         public void Start(ThreadPriority priority)
         {
@@ -236,10 +230,7 @@ public class EndpointHostResolver
             }
         }
 
-        public string getName()
-        {
-            return _name;
-        }
+        public string getName() => _name;
 
         private readonly EndpointHostResolver _resolver;
         private readonly string _name;

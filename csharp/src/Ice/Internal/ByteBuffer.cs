@@ -6,10 +6,7 @@ namespace Ice.Internal;
 
 public class ByteBuffer
 {
-    public static ByteOrder nativeOrder()
-    {
-        return NativeOrder._o;
-    }
+    public static ByteOrder nativeOrder() => NativeOrder._o;
 
     public static ByteBuffer allocate(int capacity)
     {
@@ -37,10 +34,7 @@ public class ByteBuffer
         return ret;
     }
 
-    public ByteBuffer()
-    {
-        _order = ByteOrder.BigEndian;
-    }
+    public ByteBuffer() => _order = ByteOrder.BigEndian;
 
     /// <summary>
     /// Represents the endianness of the buffer.
@@ -58,10 +52,7 @@ public class ByteBuffer
         LittleEndian
     }
 
-    public ByteOrder order()
-    {
-        return _order;
-    }
+    public ByteOrder order() => _order;
 
     public ByteBuffer order(ByteOrder bo)
     {
@@ -69,10 +60,7 @@ public class ByteBuffer
         return this;
     }
 
-    public int position()
-    {
-        return _position;
-    }
+    public int position() => _position;
 
     public ByteBuffer position(int pos)
     {
@@ -88,10 +76,7 @@ public class ByteBuffer
         return this;
     }
 
-    public int limit()
-    {
-        return _limit;
-    }
+    public int limit() => _limit;
 
     public ByteBuffer limit(int newLimit)
     {
@@ -134,20 +119,11 @@ public class ByteBuffer
         _limit = _capacity;
     }
 
-    public int remaining()
-    {
-        return _limit - _position;
-    }
+    public int remaining() => _limit - _position;
 
-    public bool hasRemaining()
-    {
-        return _position < _limit;
-    }
+    public bool hasRemaining() => _position < _limit;
 
-    public int capacity()
-    {
-        return _capacity;
-    }
+    public int capacity() => _capacity;
 
     public byte[] toArray()
     {
@@ -195,15 +171,9 @@ public class ByteBuffer
         return System.Buffer.GetByte(_bytes, _position++);
     }
 
-    public byte get(int pos)
-    {
-        return System.Buffer.GetByte(_bytes, pos);
-    }
+    public byte get(int pos) => System.Buffer.GetByte(_bytes, pos);
 
-    public ByteBuffer get(byte[] b)
-    {
-        return get(b, 0, System.Buffer.ByteLength(b));
-    }
+    public ByteBuffer get(byte[] b) => get(b, 0, System.Buffer.ByteLength(b));
 
     public ByteBuffer get(byte[] b, int offset, int length)
     {
@@ -234,10 +204,7 @@ public class ByteBuffer
         return this;
     }
 
-    public ByteBuffer put(byte[] b)
-    {
-        return put(b, 0, System.Buffer.ByteLength(b));
-    }
+    public ByteBuffer put(byte[] b) => put(b, 0, System.Buffer.ByteLength(b));
 
     public ByteBuffer put(byte[] b, int offset, int length)
     {
@@ -258,10 +225,7 @@ public class ByteBuffer
         return this;
     }
 
-    public bool getBool()
-    {
-        return get() == 1;
-    }
+    public bool getBool() => get() == 1;
 
     public void getBoolSeq(bool[] seq)
     {
@@ -271,10 +235,7 @@ public class ByteBuffer
         _position += len;
     }
 
-    public ByteBuffer putBool(bool b)
-    {
-        return put(b ? (byte)1 : (byte)0);
-    }
+    public ByteBuffer putBool(bool b) => put(b ? (byte)1 : (byte)0);
 
     public ByteBuffer putBoolSeq(bool[] seq)
     {
@@ -832,10 +793,7 @@ public class ByteBuffer
         return this;
     }
 
-    public byte[] rawBytes()
-    {
-        return _bytes;
-    }
+    public byte[] rawBytes() => _bytes;
 
     public byte[] rawBytes(int offset, int len)
     {
@@ -881,10 +839,7 @@ public class ByteBuffer
 
     private class NativeOrder // Native Order
     {
-        static NativeOrder()
-        {
-            _o = BitConverter.IsLittleEndian ? ByteOrder.LittleEndian : ByteOrder.BigEndian;
-        }
+        static NativeOrder() => _o = BitConverter.IsLittleEndian ? ByteOrder.LittleEndian : ByteOrder.BigEndian;
 
         internal static readonly ByteOrder _o;
 
@@ -893,8 +848,5 @@ public class ByteBuffer
         }
     }
 
-    private static void throwOutOfRange(string param, object value, string message)
-    {
-        throw new ArgumentOutOfRangeException(param, value, message);
-    }
+    private static void throwOutOfRange(string param, object value, string message) => throw new ArgumentOutOfRangeException(param, value, message);
 }

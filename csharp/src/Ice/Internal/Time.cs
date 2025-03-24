@@ -6,15 +6,9 @@ namespace Ice.Internal;
 
 public static class Time
 {
-    static Time()
-    {
-        _stopwatch.Start();
-    }
+    static Time() => _stopwatch.Start();
 
-    public static long currentMonotonicTimeMillis()
-    {
-        return _stopwatch.ElapsedMilliseconds;
-    }
+    public static long currentMonotonicTimeMillis() => _stopwatch.ElapsedMilliseconds;
 
     private static readonly Stopwatch _stopwatch = new();
 }

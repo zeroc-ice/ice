@@ -19,7 +19,7 @@ public class Client : Test.TestHelper
         {
             Console.Write("testing a simple plug-in... ");
             Console.Out.Flush();
-            Ice.Properties properties = new Ice.Properties();
+            var properties = new Ice.Properties();
             properties.setProperty("Ice.Plugin.Test",
                 pluginPath + ":PluginFactory 'C:\\Program Files\\' --DatabasePath " +
                 "'C:\\Program Files\\Application\\db'");
@@ -34,7 +34,7 @@ public class Client : Test.TestHelper
             Console.Out.Flush();
             try
             {
-                Ice.Properties properties = new Ice.Properties();
+                var properties = new Ice.Properties();
                 properties.setProperty("Ice.Plugin.Test", pluginPath + ":PluginInitializeFailFactory");
                 initialize(properties);
                 test(false);
@@ -49,7 +49,7 @@ public class Client : Test.TestHelper
         {
             Console.Write("testing plug-in load order... ");
             Console.Out.Flush();
-            Ice.Properties properties = new Ice.Properties();
+            var properties = new Ice.Properties();
             properties.setProperty("Ice.Plugin.PluginOne", pluginPath + ":PluginOneFactory");
             properties.setProperty("Ice.Plugin.PluginTwo", pluginPath + ":PluginTwoFactory");
             properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
@@ -64,7 +64,7 @@ public class Client : Test.TestHelper
             Console.Write("testing plug-in manager... ");
             Console.Out.Flush();
 
-            Ice.Properties properties = new Ice.Properties();
+            var properties = new Ice.Properties();
             properties.setProperty("Ice.Plugin.PluginOne", pluginPath + ":PluginOneFactory");
             properties.setProperty("Ice.Plugin.PluginTwo", pluginPath + ":PluginTwoFactory");
             properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
@@ -96,7 +96,7 @@ public class Client : Test.TestHelper
             Console.Out.Flush();
             try
             {
-                Ice.Properties properties = new Ice.Properties();
+                var properties = new Ice.Properties();
                 properties.setProperty("Ice.Plugin.PluginOneFail", pluginPath + ":PluginOneFailFactory");
                 properties.setProperty("Ice.Plugin.PluginTwoFail", pluginPath + ":PluginTwoFailFactory");
                 properties.setProperty("Ice.Plugin.PluginThreeFail", pluginPath + ":PluginThreeFailFactory");
@@ -113,25 +113,13 @@ public class Client : Test.TestHelper
 
     internal class MyPlugin : Ice.Plugin
     {
-        public bool isInitialized()
-        {
-            return _initialized;
-        }
+        public bool isInitialized() => _initialized;
 
-        public bool isDestroyed()
-        {
-            return _destroyed;
-        }
+        public bool isDestroyed() => _destroyed;
 
-        public void initialize()
-        {
-            _initialized = true;
-        }
+        public void initialize() => _initialized = true;
 
-        public void destroy()
-        {
-            _destroyed = true;
-        }
+        public void destroy() => _destroyed = true;
 
         private bool _initialized = false;
         private bool _destroyed = false;

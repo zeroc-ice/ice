@@ -95,8 +95,7 @@ internal class SharedImplicitContext : ImplicitContextI
             key ??= "";
             value ??= "";
 
-            string oldVal;
-            _context.TryGetValue(key, out oldVal);
+            _context.TryGetValue(key, out string oldVal);
             oldVal ??= "";
             _context[key] = value;
 
@@ -149,7 +148,7 @@ internal class SharedImplicitContext : ImplicitContextI
     {
         lock (_mutex)
         {
-            Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+            var combined = new Dictionary<string, string>(prxContext);
             foreach (KeyValuePair<string, string> e in _context)
             {
                 try
@@ -198,7 +197,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
         }
         else
         {
-            Dictionary<string, string> threadContext = new Dictionary<string, string>(context);
+            var threadContext = new Dictionary<string, string>(context);
 
             lock (_mutex)
             {
@@ -255,8 +254,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
             }
         }
 
-        string oldVal;
-        if (!threadContext.TryGetValue(key, out oldVal))
+        if (!threadContext.TryGetValue(key, out string oldVal))
         {
             oldVal = "";
         }
@@ -278,8 +276,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
             }
         }
 
-        string val = null;
-        if (!threadContext.TryGetValue(key, out val))
+        if (!threadContext.TryGetValue(key, out string val))
         {
             val = "";
         }
@@ -308,7 +305,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
         }
         else
         {
-            Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+            var combined = new Dictionary<string, string>(prxContext);
             foreach (KeyValuePair<string, string> e in threadContext)
             {
                 try
@@ -335,7 +332,7 @@ internal class PerThreadImplicitContext : ImplicitContextI
             }
         }
 
-        Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+        var combined = new Dictionary<string, string>(prxContext);
         foreach (KeyValuePair<string, string> e in threadContext)
         {
             combined.Add(e.Key, e.Value);

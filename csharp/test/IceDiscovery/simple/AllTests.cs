@@ -9,8 +9,8 @@ public class AllTests : Test.AllTests
     {
         var output = helper.getWriter();
         Ice.Communicator communicator = helper.communicator();
-        List<ControllerPrx> proxies = new List<ControllerPrx>();
-        List<ControllerPrx> indirectProxies = new List<ControllerPrx>();
+        var proxies = new List<ControllerPrx>();
+        var indirectProxies = new List<ControllerPrx>();
         for (int i = 0; i < num; ++i)
         {
             string id = "controller" + i;
@@ -144,10 +144,12 @@ public class AllTests : Test.AllTests
 
             communicator.stringToProxy("object @ rg").ice_ping();
 
-            List<string> adapterIds = new List<string>();
-            adapterIds.Add("oa1");
-            adapterIds.Add("oa2");
-            adapterIds.Add("oa3");
+            var adapterIds = new List<string>
+            {
+                "oa1",
+                "oa2",
+                "oa3"
+            };
             TestIntfPrx intf = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("object"));
             intf = (TestIntfPrx)intf.ice_connectionCached(false).ice_locatorCacheTimeout(0);
             while (adapterIds.Count > 0)
@@ -204,7 +206,7 @@ public class AllTests : Test.AllTests
             }
 
             {
-                Ice.InitializationData initData = new Ice.InitializationData();
+                var initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties().Clone();
                 initData.properties.setProperty("IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
                 Ice.Communicator comm = Ice.Util.initialize(initData);
@@ -220,7 +222,7 @@ public class AllTests : Test.AllTests
                 comm.destroy();
             }
             {
-                Ice.InitializationData initData = new Ice.InitializationData();
+                var initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties().Clone();
                 string intf = initData.properties.getIceProperty("IceDiscovery.Interface");
                 if (intf.Length > 0)

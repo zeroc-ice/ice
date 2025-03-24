@@ -8,10 +8,7 @@ namespace Ice.Internal;
 
 public sealed class Patcher
 {
-    public static System.Action<T?> arrayReadValue<T>(T?[] arr, int index) where T : Ice.Value
-    {
-        return (T? v) => { arr[index] = v; };
-    }
+    public static System.Action<T?> arrayReadValue<T>(T?[] arr, int index) where T : Ice.Value => (T? v) => arr[index] = v;
 
     public static System.Action<T?> listReadValue<T>(List<T?> seq, int index) where T : Ice.Value
     {
@@ -37,7 +34,7 @@ public sealed class Patcher
     {
         return (T? v) =>
         {
-            var info = getInvokeInfo<T>(seq.GetType());
+            InvokeInfo info = getInvokeInfo<T>(seq.GetType());
             int count = info.getCount(seq);
             if (index >= count) // Need to grow the sequence.
             {
@@ -107,7 +104,7 @@ public sealed class Patcher
         {
             try
             {
-                var arg = new object?[] { v };
+                object?[] arg = new object?[] { v };
                 _addMethod.Invoke(seq, arg);
             }
             catch (System.Exception ex)
@@ -120,7 +117,7 @@ public sealed class Patcher
         {
             try
             {
-                var args = new object?[] { index, v };
+                object?[] args = new object?[] { index, v };
                 _setMethod.Invoke(seq, args);
             }
             catch (System.Exception ex)

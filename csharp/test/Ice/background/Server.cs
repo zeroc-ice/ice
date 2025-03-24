@@ -16,7 +16,7 @@ public class Server : Test.TestHelper
         findAdapterByIdAsync(string adapter, Ice.Current current)
         {
             _controller.checkCallPause(current);
-            Ice.Communicator communicator = current.adapter.getCommunicator();
+            _ = current.adapter.getCommunicator();
             return Task<Ice.ObjectPrx>.FromResult(current.adapter.createDirectProxy(Ice.Util.stringToIdentity("dummy")));
         }
 
@@ -27,15 +27,9 @@ public class Server : Test.TestHelper
             return Task<Ice.ObjectPrx>.FromResult(current.adapter.createDirectProxy(id));
         }
 
-        public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current)
-        {
-            return null;
-        }
+        public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current) => null;
 
-        internal LocatorI(BackgroundControllerI controller)
-        {
-            _controller = controller;
-        }
+        internal LocatorI(BackgroundControllerI controller) => _controller = controller;
 
         private readonly BackgroundControllerI _controller;
     }
@@ -55,15 +49,9 @@ public class Server : Test.TestHelper
             return null;
         }
 
-        public override Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)
-        {
-            return new Ice.ObjectPrx[0];
-        }
+        public override Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current) => new Ice.ObjectPrx[0];
 
-        internal RouterI(BackgroundControllerI controller)
-        {
-            _controller = controller;
-        }
+        internal RouterI(BackgroundControllerI controller) => _controller = controller;
 
         private readonly BackgroundControllerI _controller;
     }
@@ -89,7 +77,7 @@ public class Server : Test.TestHelper
                                "test-" + properties.getIceProperty("Ice.Default.Protocol"));
 
         using var communicator = initialize(properties);
-        PluginI plugin = new PluginI(communicator);
+        var plugin = new PluginI(communicator);
         plugin.initialize();
         communicator.getPluginManager().addPlugin("Test", plugin);
 
@@ -112,7 +100,7 @@ public class Server : Test.TestHelper
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
-        BackgroundControllerI backgroundController = new BackgroundControllerI(adapter);
+        var backgroundController = new BackgroundControllerI(adapter);
 
         adapter.add(new BackgroundI(backgroundController), Ice.Util.stringToIdentity("background"));
         adapter.add(new LocatorI(backgroundController), Ice.Util.stringToIdentity("locator"));

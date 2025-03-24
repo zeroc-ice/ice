@@ -6,10 +6,7 @@ namespace Ice.Internal;
 
 public class CollocatedRequestHandler : RequestHandler
 {
-    private static void fillInValue(Ice.OutputStream os, int pos, int value)
-    {
-        os.rewriteInt(value, pos);
-    }
+    private static void fillInValue(Ice.OutputStream os, int pos, int value) => os.rewriteInt(value, pos);
 
     internal CollocatedRequestHandler(Reference reference, Ice.ObjectAdapter adapter)
     {
@@ -29,8 +26,7 @@ public class CollocatedRequestHandler : RequestHandler
     {
         lock (_mutex)
         {
-            int requestId;
-            if (_sendAsyncRequests.TryGetValue(outAsync, out requestId))
+            if (_sendAsyncRequests.TryGetValue(outAsync, out int requestId))
             {
                 if (requestId > 0)
                 {
@@ -46,7 +42,7 @@ public class CollocatedRequestHandler : RequestHandler
             }
             if (outAsync is OutgoingAsync)
             {
-                OutgoingAsync o = (OutgoingAsync)outAsync;
+                var o = (OutgoingAsync)outAsync;
                 Debug.Assert(o != null);
                 foreach (KeyValuePair<int, OutgoingAsyncBase> e in _asyncRequests)
                 {
@@ -167,7 +163,7 @@ public class CollocatedRequestHandler : RequestHandler
             TraceUtil.traceSend(os, _reference.getInstance(), connection: null, _logger, _traceLevels);
         }
 
-        Ice.InputStream iss = new Ice.InputStream(_reference.getInstance(), os.getEncoding(), os.getBuffer(), false);
+        var iss = new Ice.InputStream(_reference.getInstance(), os.getEncoding(), os.getBuffer(), false);
 
         if (requestCount > 0)
         {

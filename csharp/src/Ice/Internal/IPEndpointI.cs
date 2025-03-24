@@ -37,25 +37,13 @@ public abstract class IPEndpointI : EndpointI
         connectionId_ = "";
     }
 
-    public override short type()
-    {
-        return instance_.type();
-    }
+    public override short type() => instance_.type();
 
-    public override string protocol()
-    {
-        return instance_.protocol();
-    }
+    public override string protocol() => instance_.protocol();
 
-    public override bool secure()
-    {
-        return instance_.secure();
-    }
+    public override bool secure() => instance_.secure();
 
-    public override string connectionId()
-    {
-        return connectionId_;
-    }
+    public override string connectionId() => connectionId_;
 
     public override EndpointI connectionId(string connectionId)
     {
@@ -69,10 +57,7 @@ public abstract class IPEndpointI : EndpointI
         }
     }
 
-    public override void connectors_async(EndpointI_connectors callback)
-    {
-        instance_.resolve(host_, port_, this, callback);
-    }
+    public override void connectors_async(EndpointI_connectors callback) => instance_.resolve(host_, port_, this, callback);
 
     public override List<EndpointI> expandHost()
     {
@@ -117,7 +102,7 @@ public abstract class IPEndpointI : EndpointI
         {
             return false;
         }
-        IPEndpointI ipEndpointI = (IPEndpointI)endpoint;
+        var ipEndpointI = (IPEndpointI)endpoint;
         return ipEndpointI.type() == type() &&
             ipEndpointI._normalizedHost == _normalizedHost &&
             ipEndpointI.port_ == port_;
@@ -125,7 +110,7 @@ public abstract class IPEndpointI : EndpointI
 
     public virtual List<Connector> connectors(List<EndPoint> addresses, NetworkProxy proxy)
     {
-        List<Connector> connectors = new List<Connector>();
+        var connectors = new List<Connector>();
         foreach (EndPoint p in addresses)
         {
             connectors.Add(createConnector(p, proxy));
@@ -201,7 +186,7 @@ public abstract class IPEndpointI : EndpointI
             return type() < other.type() ? -1 : 1;
         }
 
-        IPEndpointI p = (IPEndpointI)other;
+        var p = (IPEndpointI)other;
         if (this == p)
         {
             return 0;
@@ -285,11 +270,7 @@ public abstract class IPEndpointI : EndpointI
     {
         if (option == "-h")
         {
-            if (argument == null)
-            {
-                throw new ParseException($"no argument provided for -h option in endpoint '{endpoint}'");
-            }
-            host_ = argument;
+            host_ = argument ?? throw new ParseException($"no argument provided for -h option in endpoint '{endpoint}'");
             _normalizedHost = normalizeHost(host_);
         }
         else if (option == "-p")

@@ -112,7 +112,7 @@ public class AllTests : global::Test.AllTests
         output.Flush();
         {
             var connection = timeout.ice_getConnection();
-            Test.TimeoutPrx to = (Test.TimeoutPrx)timeout.ice_invocationTimeout(100);
+            var to = (Test.TimeoutPrx)timeout.ice_invocationTimeout(100);
             test(connection == to.ice_getConnection());
             try
             {
@@ -139,7 +139,7 @@ public class AllTests : global::Test.AllTests
             //
             // Expect InvocationTimeoutException.
             //
-            Test.TimeoutPrx to = (Test.TimeoutPrx)timeout.ice_invocationTimeout(100);
+            var to = (Test.TimeoutPrx)timeout.ice_invocationTimeout(100);
             try
             {
                 await to.sleepAsync(1000);
@@ -154,7 +154,7 @@ public class AllTests : global::Test.AllTests
             //
             // Expect success.
             //
-            Test.TimeoutPrx to = (Test.TimeoutPrx)timeout.ice_invocationTimeout(1000);
+            var to = (Test.TimeoutPrx)timeout.ice_invocationTimeout(1000);
             await to.sleepAsync(100);
         }
         output.WriteLine("ok");
@@ -227,7 +227,7 @@ public class AllTests : global::Test.AllTests
             {
             }
 
-            Test.TimeoutPrx batchTimeout = (Test.TimeoutPrx)proxy.ice_batchOneway();
+            var batchTimeout = (Test.TimeoutPrx)proxy.ice_batchOneway();
             batchTimeout.ice_ping();
             batchTimeout.ice_ping();
             batchTimeout.ice_ping();

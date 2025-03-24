@@ -139,14 +139,12 @@ internal class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCa
     //
     // Implementation of RouterInfo.AddProxyCallback
     //
-    public void addedProxy()
-    {
+    public void addedProxy() =>
         //
         // The proxy was added to the router info, we're now ready to send the
         // queued requests.
         //
         flushRequests();
-    }
 
     private bool initialized()
     {

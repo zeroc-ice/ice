@@ -7,10 +7,7 @@ public class AllTests : global::Test.AllTests
 {
     private class Callback
     {
-        internal Callback()
-        {
-            _called = false;
-        }
+        internal Callback() => _called = false;
 
         public virtual void check()
         {
@@ -152,10 +149,10 @@ public class AllTests : global::Test.AllTests
 
         {
             output.Write("testing object factory registration exception... ");
-            communicator.getValueFactoryManager().add(_ => { return null; }, "::x");
+            communicator.getValueFactoryManager().add(_ => null, "::x");
             try
             {
-                communicator.getValueFactoryManager().add(_ => { return null; }, "::x");
+                communicator.getValueFactoryManager().add(_ => null, "::x");
                 test(false);
             }
             catch (AlreadyRegisteredException)

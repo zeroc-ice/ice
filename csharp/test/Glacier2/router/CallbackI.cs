@@ -10,30 +10,18 @@ public sealed class CallbackI : Test.CallbackDisp_
     }
 
     public override void
-    initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
-    {
-        proxy.callback(current.ctx);
-    }
+    initiateCallback(CallbackReceiverPrx proxy, Ice.Current current) => proxy.callback(current.ctx);
 
     public override void
-    initiateCallbackEx(CallbackReceiverPrx proxy, Ice.Current current)
-    {
-        proxy.callbackEx(current.ctx);
-    }
+    initiateCallbackEx(CallbackReceiverPrx proxy, Ice.Current current) => proxy.callbackEx(current.ctx);
 
     public override void
-    shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 }
 
 public sealed class CallbackReceiverI : CallbackReceiverDisp_
 {
-    public CallbackReceiverI()
-    {
-        _callback = false;
-    }
+    public CallbackReceiverI() => _callback = false;
 
     public override void
     callback(Ice.Current current)
@@ -50,7 +38,7 @@ public sealed class CallbackReceiverI : CallbackReceiverDisp_
     callbackEx(Ice.Current current)
     {
         callback(current);
-        CallbackException ex = new CallbackException();
+        var ex = new CallbackException();
         ex.someValue = 3.14;
         ex.someString = "3.14";
         throw ex;

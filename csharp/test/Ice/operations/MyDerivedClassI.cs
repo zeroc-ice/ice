@@ -6,20 +6,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
-    public override void shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
-    public override bool supportsCompress(Ice.Current current)
-    {
-        return Ice.Internal.BZip2.isLoaded(current.adapter.getCommunicator().getLogger());
-    }
+    public override bool supportsCompress(Ice.Current current) => Ice.Internal.BZip2.isLoaded(current.adapter.getCommunicator().getLogger());
 
-    public override void opVoid(Ice.Current current)
-    {
-        test(current.mode == Ice.OperationMode.Normal);
-    }
+    public override void opVoid(Ice.Current current) => test(current.mode == Ice.OperationMode.Normal);
 
     public override bool opBool(bool p1, bool p2, out bool p3, Ice.Current current)
     {
@@ -36,7 +27,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         bool[] r = new bool[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return r;
     }
@@ -50,7 +41,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         bool[][] r = new bool[p1.Length][];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return r;
     }
@@ -66,7 +57,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                        Ice.Current current)
     {
         p3 = p1;
-        Dictionary<byte, bool> r = new Dictionary<byte, bool>();
+        var r = new Dictionary<byte, bool>();
         foreach (KeyValuePair<byte, bool> e in p1)
         {
             r[e.Key] = e.Value;
@@ -83,7 +74,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         p3 = new byte[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            p3[i] = p1[p1.Length - (i + 1)];
+            p3[i] = p1[^(i + 1)];
         }
 
         byte[] r = new byte[p1.Length + p2.Length];
@@ -97,7 +88,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         p3 = new byte[p1.Length][];
         for (int i = 0; i < p1.Length; i++)
         {
-            p3[i] = p1[p1.Length - (i + 1)];
+            p3[i] = p1[^(i + 1)];
         }
 
         byte[][] r = new byte[p1.Length + p2.Length][];
@@ -122,7 +113,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         p4 = new double[p2.Length];
         for (int i = 0; i < p2.Length; i++)
         {
-            p4[i] = p2[p2.Length - (i + 1)];
+            p4[i] = p2[^(i + 1)];
         }
 
         double[] r = new double[p2.Length + p1.Length];
@@ -143,7 +134,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         p4 = new double[p2.Length][];
         for (int i = 0; i < p2.Length; i++)
         {
-            p4[i] = p2[p2.Length - (i + 1)];
+            p4[i] = p2[^(i + 1)];
         }
 
         double[][] r = new double[p2.Length + p2.Length][];
@@ -164,7 +155,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                          Ice.Current current)
     {
         p3 = p1;
-        Dictionary<long, float> r = new Dictionary<long, float>();
+        var r = new Dictionary<long, float>();
         foreach (KeyValuePair<long, float> e in p1)
         {
             r[e.Key] = e.Value;
@@ -195,7 +186,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                        out Dictionary<short, int> p3, Ice.Current current)
     {
         p3 = p1;
-        Dictionary<short, int> r = new Dictionary<short, int>();
+        var r = new Dictionary<short, int>();
         foreach (KeyValuePair<short, int> e in p1)
         {
             r[e.Key] = e.Value;
@@ -225,7 +216,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         p5 = new int[p2.Length];
         for (int i = 0; i < p2.Length; i++)
         {
-            p5[i] = p2[p2.Length - (i + 1)];
+            p5[i] = p2[^(i + 1)];
         }
 
         p6 = new long[p3.Length + p3.Length];
@@ -244,7 +235,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         p5 = new int[p2.Length][];
         for (int i = 0; i < p2.Length; i++)
         {
-            p5[i] = p2[p2.Length - (i + 1)];
+            p5[i] = p2[^(i + 1)];
         }
 
         p6 = new long[p3.Length + p3.Length][];
@@ -324,10 +315,10 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         Array.Copy(p2, p3, p2.Length);
         Array.Copy(p1, 0, p3, p2.Length, p1.Length);
 
-        Dictionary<byte, bool>[] r = new Dictionary<byte, bool>[p1.Length];
+        var r = new Dictionary<byte, bool>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return r;
     }
@@ -341,10 +332,10 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         Array.Copy(p2, p3, p2.Length);
         Array.Copy(p1, 0, p3, p2.Length, p1.Length);
 
-        Dictionary<short, int>[] r = new Dictionary<short, int>[p1.Length];
+        var r = new Dictionary<short, int>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return r;
     }
@@ -358,10 +349,10 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         Array.Copy(p2, p3, p2.Length);
         Array.Copy(p1, 0, p3, p2.Length, p1.Length);
 
-        Dictionary<long, float>[] r = new Dictionary<long, float>[p1.Length];
+        var r = new Dictionary<long, float>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return r;
     }
@@ -375,10 +366,10 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         Array.Copy(p2, p3, p2.Length);
         Array.Copy(p1, 0, p3, p2.Length, p1.Length);
 
-        Dictionary<string, string>[] r = new Dictionary<string, string>[p1.Length];
+        var r = new Dictionary<string, string>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return r;
     }
@@ -395,7 +386,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         var r = new Dictionary<string, Test.MyEnum>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return r;
     }
@@ -412,7 +403,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         var r = new Dictionary<Test.MyEnum, string>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return r;
     }
@@ -430,7 +421,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         var r = new Dictionary<Test.MyStruct, Test.MyEnum>[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return r;
     }
@@ -441,7 +432,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                           Ice.Current current)
     {
         p3 = p2;
-        Dictionary<byte, byte[]> r = new Dictionary<byte, byte[]>();
+        var r = new Dictionary<byte, byte[]>();
         foreach (var e in p1)
         {
             r[e.Key] = e.Value;
@@ -459,7 +450,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                           Ice.Current current)
     {
         p3 = p2;
-        Dictionary<bool, bool[]> r = new Dictionary<bool, bool[]>();
+        var r = new Dictionary<bool, bool[]>();
         foreach (KeyValuePair<bool, bool[]> e in p1)
         {
             r[e.Key] = e.Value;
@@ -477,7 +468,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                               Ice.Current current)
     {
         p3 = p2;
-        Dictionary<short, short[]> r = new Dictionary<short, short[]>();
+        var r = new Dictionary<short, short[]>();
         foreach (KeyValuePair<short, short[]> e in p1)
         {
             r[e.Key] = e.Value;
@@ -495,7 +486,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                       Ice.Current current)
     {
         p3 = p2;
-        Dictionary<int, int[]> r = new Dictionary<int, int[]>();
+        var r = new Dictionary<int, int[]>();
         foreach (KeyValuePair<int, int[]> e in p1)
         {
             r[e.Key] = e.Value;
@@ -513,7 +504,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                           Ice.Current current)
     {
         p3 = p2;
-        Dictionary<long, long[]> r = new Dictionary<long, long[]>();
+        var r = new Dictionary<long, long[]>();
         foreach (KeyValuePair<long, long[]> e in p1)
         {
             r[e.Key] = e.Value;
@@ -531,7 +522,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                                 Ice.Current current)
     {
         p3 = p2;
-        Dictionary<string, float[]> r = new Dictionary<string, float[]>();
+        var r = new Dictionary<string, float[]>();
         foreach (KeyValuePair<string, float[]> e in p1)
         {
             r[e.Key] = e.Value;
@@ -549,7 +540,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                                   Ice.Current current)
     {
         p3 = p2;
-        Dictionary<string, double[]> r = new Dictionary<string, double[]>();
+        var r = new Dictionary<string, double[]>();
         foreach (KeyValuePair<string, double[]> e in p1)
         {
             r[e.Key] = e.Value;
@@ -567,7 +558,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                                   Ice.Current current)
     {
         p3 = p2;
-        Dictionary<string, string[]> r = new Dictionary<string, string[]>();
+        var r = new Dictionary<string, string[]>();
         foreach (KeyValuePair<string, string[]> e in p1)
         {
             r[e.Key] = e.Value;
@@ -626,10 +617,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         }
     }
 
-    public override Dictionary<string, string> opContext(Ice.Current current)
-    {
-        return current.ctx == null ? new Dictionary<string, string>() : new Dictionary<string, string>(current.ctx);
-    }
+    public override Dictionary<string, string> opContext(Ice.Current current) => current.ctx == null ? new Dictionary<string, string>() : new Dictionary<string, string>(current.ctx);
 
     public override void opDoubleMarshaling(double p1, double[] p2, Ice.Current current)
     {
@@ -650,7 +638,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         string[] r = new string[p1.Length];
         for (int i = 0; i < p1.Length; i++)
         {
-            r[i] = p1[p1.Length - (i + 1)];
+            r[i] = p1[^(i + 1)];
         }
         return r;
     }
@@ -664,7 +652,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         string[][] r = new string[p2.Length][];
         for (int i = 0; i < p2.Length; i++)
         {
-            r[i] = p2[p2.Length - (i + 1)];
+            r[i] = p2[^(i + 1)];
         }
         return r;
     }
@@ -678,7 +666,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         string[][][] r = new string[p2.Length][][];
         for (int i = 0; i < p2.Length; i++)
         {
-            r[i] = p2[p2.Length - (i + 1)];
+            r[i] = p2[^(i + 1)];
         }
         return r;
     }
@@ -689,7 +677,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
                                                                Ice.Current current)
     {
         p3 = p1;
-        Dictionary<string, string> r = new Dictionary<string, string>();
+        var r = new Dictionary<string, string>();
         foreach (KeyValuePair<string, string> e in p1)
         {
             r[e.Key] = e.Value;
@@ -708,79 +696,37 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return p2;
     }
 
-    public override void opIdempotent(Ice.Current current)
-    {
-        test(current.mode == Ice.OperationMode.Idempotent);
-    }
+    public override void opIdempotent(Ice.Current current) => test(current.mode == Ice.OperationMode.Idempotent);
 
     public override void opDerived(Ice.Current current)
     {
     }
 
-    public override byte opByte1(byte opByte1, Ice.Current current)
-    {
-        return opByte1;
-    }
+    public override byte opByte1(byte opByte1, Ice.Current current) => opByte1;
 
-    public override short opShort1(short opShort1, Ice.Current current)
-    {
-        return opShort1;
-    }
+    public override short opShort1(short opShort1, Ice.Current current) => opShort1;
 
-    public override int opInt1(int opInt1, Ice.Current current)
-    {
-        return opInt1;
-    }
+    public override int opInt1(int opInt1, Ice.Current current) => opInt1;
 
-    public override long opLong1(long opLong1, Ice.Current current)
-    {
-        return opLong1;
-    }
+    public override long opLong1(long opLong1, Ice.Current current) => opLong1;
 
-    public override float opFloat1(float opFloat1, Ice.Current current)
-    {
-        return opFloat1;
-    }
+    public override float opFloat1(float opFloat1, Ice.Current current) => opFloat1;
 
-    public override double opDouble1(double opDouble1, Ice.Current current)
-    {
-        return opDouble1;
-    }
+    public override double opDouble1(double opDouble1, Ice.Current current) => opDouble1;
 
-    public override string opString1(string opString1, Ice.Current current)
-    {
-        return opString1;
-    }
+    public override string opString1(string opString1, Ice.Current current) => opString1;
 
-    public override string[] opStringS1(string[] opStringS1, Ice.Current current)
-    {
-        return opStringS1;
-    }
+    public override string[] opStringS1(string[] opStringS1, Ice.Current current) => opStringS1;
 
-    public override Dictionary<byte, bool> opByteBoolD1(Dictionary<byte, bool> opByteBoolD1, Ice.Current current)
-    {
-        return opByteBoolD1;
-    }
+    public override Dictionary<byte, bool> opByteBoolD1(Dictionary<byte, bool> opByteBoolD1, Ice.Current current) => opByteBoolD1;
 
-    public override string[] opStringS2(string[] opStringS2, Ice.Current current)
-    {
-        return opStringS2;
-    }
+    public override string[] opStringS2(string[] opStringS2, Ice.Current current) => opStringS2;
 
-    public override Dictionary<byte, bool> opByteBoolD2(Dictionary<byte, bool> opByteBoolD2, Ice.Current current)
-    {
-        return opByteBoolD2;
-    }
+    public override Dictionary<byte, bool> opByteBoolD2(Dictionary<byte, bool> opByteBoolD2, Ice.Current current) => opByteBoolD2;
 
-    public override Test.MyClass1 opMyClass1(Test.MyClass1 c, Ice.Current current)
-    {
-        return c;
-    }
+    public override Test.MyClass1 opMyClass1(Test.MyClass1 c, Ice.Current current) => c;
 
-    public override Test.MyStruct1 opMyStruct1(Test.MyStruct1 s, Ice.Current current)
-    {
-        return s;
-    }
+    public override Test.MyStruct1 opMyStruct1(Test.MyStruct1 s, Ice.Current current) => s;
 
     public override string[] opStringLiterals(Ice.Current current)
     {
@@ -823,10 +769,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
             };
     }
 
-    public override string[] opWStringLiterals(Ice.Current current)
-    {
-        return opStringLiterals(current);
-    }
+    public override string[] opWStringLiterals(Ice.Current current) => opStringLiterals(current);
 
     public override Test.MyClass_OpMStruct1MarshaledResult opMStruct1(Ice.Current current)
     {
@@ -834,30 +777,15 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
             new Test.Structure(new Test.AnotherStruct()), current);
     }
 
-    public override Test.MyClass_OpMStruct2MarshaledResult opMStruct2(Test.Structure p1, Ice.Current current)
-    {
-        return new Test.MyClass_OpMStruct2MarshaledResult(p1, p1, current);
-    }
+    public override Test.MyClass_OpMStruct2MarshaledResult opMStruct2(Test.Structure p1, Ice.Current current) => new Test.MyClass_OpMStruct2MarshaledResult(p1, p1, current);
 
-    public override Test.MyClass_OpMSeq1MarshaledResult opMSeq1(Ice.Current current)
-    {
-        return new Test.MyClass_OpMSeq1MarshaledResult(new string[0], current);
-    }
+    public override Test.MyClass_OpMSeq1MarshaledResult opMSeq1(Ice.Current current) => new Test.MyClass_OpMSeq1MarshaledResult(new string[0], current);
 
-    public override Test.MyClass_OpMSeq2MarshaledResult opMSeq2(string[] p1, Ice.Current current)
-    {
-        return new Test.MyClass_OpMSeq2MarshaledResult(p1, p1, current);
-    }
+    public override Test.MyClass_OpMSeq2MarshaledResult opMSeq2(string[] p1, Ice.Current current) => new Test.MyClass_OpMSeq2MarshaledResult(p1, p1, current);
 
-    public override Test.MyClass_OpMDict1MarshaledResult opMDict1(Ice.Current current)
-    {
-        return new Test.MyClass_OpMDict1MarshaledResult(new Dictionary<string, string>(), current);
-    }
+    public override Test.MyClass_OpMDict1MarshaledResult opMDict1(Ice.Current current) => new Test.MyClass_OpMDict1MarshaledResult(new Dictionary<string, string>(), current);
 
-    public override Test.MyClass_OpMDict2MarshaledResult opMDict2(Dictionary<string, string> p1, Ice.Current current)
-    {
-        return new Test.MyClass_OpMDict2MarshaledResult(p1, p1, current);
-    }
+    public override Test.MyClass_OpMDict2MarshaledResult opMDict2(Dictionary<string, string> p1, Ice.Current current) => new Test.MyClass_OpMDict2MarshaledResult(p1, p1, current);
 
     private int _opByteSOnewayCallCount = 0;
 }
