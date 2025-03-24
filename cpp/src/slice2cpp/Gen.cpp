@@ -1819,7 +1819,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         postParamsDoc.push_back(contextDoc);
 
         StringList futureDoc;
-        if (futureOutParams.size() == 0)
+        if (futureOutParams.empty())
         {
             futureDoc.emplace_back("A future that becomes available when the invocation completes.");
         }
@@ -1859,7 +1859,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     if (comment)
     {
         StringList postParams;
-        if (lambdaOutParams.size() > 0)
+        if (!lambdaOutParams.empty())
         {
             postParams.push_back("@param " + responseParam + " The response callback. It accepts:");
             postParams.splice(postParams.end(), createOpOutParamsDoc(p, *comment));
@@ -3177,7 +3177,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             }
             else
             {
-                if (ret || !outParams.empty())
+                if (p->returnsAnyValues())
                 {
                     postParams.push_back("@param " + responsecbParam + " The response callback. It accepts:");
                     postParams.splice(postParams.end(), createOpOutParamsDoc(p, *comment));
