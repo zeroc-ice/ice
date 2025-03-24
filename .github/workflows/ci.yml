@@ -117,8 +117,6 @@ jobs:
           ulimit -c unlimited
           echo -e '#include <signal.h>\n#include <unistd.h>\nint main() { raise(SIGSEGV); return 0; }' | gcc -x c -o crash - && ./crash > crash.c
           ./crash || true
-          coredumpctl info
-          journalctl -u systemd-coredump
 
         shell: bash
 
@@ -223,7 +221,12 @@ jobs:
       - name: Write coredumpctl status
         if: runner.os == 'Linux' && always()
         shell: bash
-        run: sudo coredumpctl info --no-pager ./coredump.log || true
+        run: |
+
+          coredumpctl info --no-pager ./coredump.log || true
+          journalctl -u systemd-coredump
+
+          ls -l /var/lib/systemd/coredump
 
       - name: Upload Linux core dumps
         uses: actions/upload-artifact@v4
