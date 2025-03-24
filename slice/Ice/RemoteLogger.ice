@@ -84,7 +84,7 @@ module Ice
     /// logger of an Ice communicator.
     interface LoggerAdmin
     {
-        /// Attaches a RemoteLogger object to the local logger. This operation calls {@RemoteLogger#init} on @p prx.
+        /// Attaches a RemoteLogger object to the local logger. This operation calls {@link RemoteLogger#init} on @p prx.
         /// @param prx A proxy to the remote logger.
         /// @param messageTypes The list of message types that the remote logger wishes to receive. An empty list means
         /// no filtering (send all message types).
