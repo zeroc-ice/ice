@@ -17,7 +17,7 @@ namespace Ice
     /// @remark OutgoingResponse is movable but not copyable. sendResponse wrappers must move the response to the next
     /// callback.
     /// @see Object::dispatch
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API OutgoingResponse final
     {
     public:

@@ -15,7 +15,7 @@ namespace Ice
 {
     /// Provides bytes to toUTF8. Can raise std::bad_alloc or Ice::MarshalException
     /// when too many bytes are requested.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API UTF8Buffer
     {
     public:
@@ -32,7 +32,7 @@ namespace Ice
     /// It's used by the communicator during marshaling (toUTF8) and unmarshaling (fromUTF8).
     /// It report errors by raising IllegalConversionException or an exception raised
     /// by UTF8Buffer.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<typename charT> class BasicStringConverter
     {
     public:
@@ -134,7 +134,7 @@ namespace Ice
 #endif
 
     /// This exception indicates the failure of a string conversion.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API IllegalConversionException final : public LocalException
     {
     public:

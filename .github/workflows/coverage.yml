@@ -15,13 +15,13 @@ jobs:
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
-      - name: Generate C++ Coverage
-        working-directory: ./cpp
-        run: ../scripts/generate-cpp-code-coverage.sh
-
       - name: Install testing dependencies from pip
         run: python3 -m pip install passlib cryptography numpy
         shell: bash
+
+      - name: Generate C++ Coverage
+        working-directory: ./cpp
+        run: ../scripts/generate-cpp-code-coverage.sh
 
       - name: Generate C++ Coverage Reports
         working-directory: ./cpp

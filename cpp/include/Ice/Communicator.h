@@ -25,7 +25,7 @@ namespace Ice
     /// @see ObjectAdapter
     /// @see Properties
     /// @see ValueFactory
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API Communicator final : public std::enable_shared_from_this<Communicator>
     {
     public:

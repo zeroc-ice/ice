@@ -2361,10 +2361,9 @@ Slice::Python::getMetaTypeReference(const ContainedPtr& p)
 void
 Slice::Python::printHeader(IceInternal::Output& out)
 {
-    out << "# Copyright (c) ZeroC, Inc.\n";
-    out << "#\n";
-    out << "# Ice version " << ICE_STRING_VERSION << "\n";
-    out << "#\n";
+    out << "# Copyright (c) ZeroC, Inc.";
+    out << sp;
+    out << nl << "# slice2py version " << ICE_STRING_VERSION;
 }
 
 void

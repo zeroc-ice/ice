@@ -11,7 +11,7 @@ namespace Ice
     class OutputStream;
 
     /// Abstract base class for all Ice exceptions defined in Slice.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API UserException : public Exception
     {
     public:

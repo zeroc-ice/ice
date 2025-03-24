@@ -40,7 +40,7 @@ namespace Ice
     class RouterPrx;
 
     /// Provides typed proxy functions.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     template<typename Prx, typename... Bases> class Proxy : public virtual Bases...
     {
     public:
@@ -240,7 +240,7 @@ namespace Ice
     };
 
     /// The base class for all Ice proxies.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API ObjectPrx : public Proxy<ObjectPrx>
     {
     public:

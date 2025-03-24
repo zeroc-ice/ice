@@ -17,7 +17,7 @@
 namespace IceBT
 {
     /// Provides access to the details of a Bluetooth connection.
-    /// \headerfile IceBT/IceBT.h
+    /// @headerfile IceBT/IceBT.h
     class ICEBT_API ConnectionInfo final : public Ice::ConnectionInfo
     {
     public:
