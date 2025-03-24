@@ -104,11 +104,11 @@ jobs:
       - name: Configure coredumpctl
         if: runner.os == 'Linux'
         run: |
+          set -x
           # Collect core dumps with the journal
           sudo sed -i 's/#Storage=external/Storage=journal/' /etc/systemd/coredump.conf
           sudo systemctl restart systemd-journald
           cat /etc/systemd/coredump.conf | grep Storage
-          systemctl status systemd-coredump
 
         shell: bash
 
