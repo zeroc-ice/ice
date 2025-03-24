@@ -115,8 +115,7 @@ jobs:
           journalctl -u systemd-coredump
 
           ulimit -c unlimited
-          echo "#include <stdlib.h>\nint main() { abort(); }" > crash.c
-          gcc -o crash crash.c
+          echo -e '#include <signal.h>\n#include <unistd.h>\nint main() { raise(SIGSEGV); return 0; }' | gcc -x c -o crash - && ./crash > crash.c
           ./crash
           coredumpctl info
 
