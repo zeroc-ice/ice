@@ -17,7 +17,7 @@
 /// Host multiple independent services in the same Ice server.
 module IceBox
 {
-    /// The exception that is thrown whenan attempt is made to start an already-started service.
+    /// The exception that is thrown when an attempt is made to start an already-started service.
     exception AlreadyStartedException
     {
     }
