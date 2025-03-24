@@ -203,7 +203,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: core-dumps-${{ matrix.config }}-${{ matrix.os }}
-          path: /var/lib/apport/coredump/*
+          path: /var/lib/systemd/coredump/*
           if-no-files-found: ignore
         if: runner.os == 'Linux' && always()
 
