@@ -281,10 +281,6 @@ if (typeof net.createConnection === "function") {
                 this._bytesAvailableCallback();
             }
         }
-
-        static createOutgoing(instance, addr, sourceAddr) {
-            return new TcpTransceiver(instance, addr, sourceAddr);
-        }
     };
 
     function fdToString(fd, targetAddr) {
