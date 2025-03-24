@@ -101,17 +101,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure coredumpctl
-        if: runner.os == 'Linux'
-        run: |
-          set -x
-          # Collect core dumps with the journal
-          ulimit -c unlimited
-          echo -e '#include <signal.h>\n#include <unistd.h>\nint main() { raise(SIGSEGV); return 0; }' | gcc -x c -o crash - && ./crash > crash.c
-          ./crash || true
-
-        shell: bash
-
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
@@ -210,21 +199,11 @@ jobs:
           if-no-files-found: ignore
         if: always()
 
-      - name: Write coredumpctl status
-        if: runner.os == 'Linux' && always()
-        shell: bash
-        run: |
-
-          coredumpctl info --no-pager ./coredump.log || true
-          journalctl -u systemd-coredump
-
-          ls -l /var/lib/systemd/coredump
-
       - name: Upload Linux core dumps
         uses: actions/upload-artifact@v4
         with:
           name: core-dumps-${{ matrix.config }}-${{ matrix.os }}
-          path: ./coredump.log
+          path: /var/lib/systemd/coredump/*
           if-no-files-found: ignore
         if: runner.os == 'Linux' && always()
 
