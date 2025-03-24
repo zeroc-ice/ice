@@ -17,8 +17,8 @@
 
 module Ice
 {
-    /// Represents optional information carried by all Ice requests. This information is filled-in by the application
-    /// and transmitted by Ice as-is, from the client to the server.
+    /// Represents optional information carried by an Ice request. This information is filled-in by the application and
+    /// transmitted by Ice as-is, from the client to the server.
     /// @remark The Ice protocol provides request contexts but does not provide response contexts.
     ["cpp:type:std::map<std::string, std::string, std::less<>>"]
     dictionary<string, string> Context;

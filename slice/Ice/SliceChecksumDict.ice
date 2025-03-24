@@ -16,5 +16,5 @@ module Ice
     /// server use essentially the same Slice definitions.
     /// @remark As of Ice 3.8, the Slice compilers no longer generate Slice checksums. This dictionary definition is
     /// provided for backward compatibility with earlier versions of Ice.
-    dictionary<string, string> SliceChecksumDict;
+    ["deprecated"] dictionary<string, string> SliceChecksumDict;
 }
