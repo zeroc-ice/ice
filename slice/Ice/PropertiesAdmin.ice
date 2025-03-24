@@ -30,7 +30,7 @@ module Ice
 
         /// Updates the communicator's properties with the given property set. If an entry in @p newProperties matches
         /// the name of an existing property, that property's value is replaced with the new value. If the new value is
-        /// an empty string, the property is removed. Existing properties that are not modified or removed by the
+        /// the empty string, the property is removed. Existing properties that are not modified or removed by the
         /// entries in @p newProperties are not affected by this update.
         /// @param newProperties Properties to add, change, or remove.
         void setProperties(PropertyDict newProperties);

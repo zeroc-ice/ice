@@ -20,7 +20,7 @@ module DataStorm
         /// The data writer partially updated the element.
         PartialUpdate,
 
-        /// The data writer partially removed the element.
+        /// The data writer removed the element.
         Remove,
     }
 
