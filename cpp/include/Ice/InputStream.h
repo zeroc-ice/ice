@@ -33,7 +33,7 @@ namespace Ice
 {
     class ObjectPrx;
 
-    /// \cond INTERNAL
+    /// @cond INTERNAL
     template<typename T> inline void patchValue(void* addr, const ValuePtr& v)
     {
         auto* ptr = static_cast<std::shared_ptr<T>*>(addr);
@@ -43,10 +43,10 @@ namespace Ice
             IceInternal::Ex::throwUOE(__FILE__, __LINE__, std::string{T::ice_staticId()}, v);
         }
     }
-    /// \endcond
+    /// @endcond
 
     /// Interface for input streams used to extract Slice types from a sequence of bytes.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API InputStream final : public IceInternal::Buffer
     {
     public:
@@ -83,14 +83,14 @@ namespace Ice
             EncodingVersion encoding,
             std::pair<const std::byte*, const std::byte*> bytes);
 
-        /// \cond INTERNAL
+        /// @cond INTERNAL
 
         // Constructs a stream with an empty buffer.
         explicit InputStream(IceInternal::Instance* instance, EncodingVersion encoding);
 
         // Constructs a stream with the specified encoding and buffer.
         InputStream(IceInternal::Instance* instance, EncodingVersion encoding, IceInternal::Buffer& buf, bool adopt);
-        /// \endcond
+        /// @endcond
 
         /// Move constructor.
         /// @param other The input stream to move into this input stream.
@@ -118,13 +118,13 @@ namespace Ice
         /// Releases any data retained by encapsulations.
         void clear();
 
-        /// \cond INTERNAL
+        /// @cond INTERNAL
         //
         // Must return Instance*, because we don't hold an InstancePtr for
         // optimization reasons (see comments below).
         //
         [[nodiscard]] IceInternal::Instance* instance() const { return _instance; } // Inlined for performance reasons.
-        /// \endcond
+        /// @endcond
 
         /// Obtains the closure data associated with this stream.
         /// @return The data as a void pointer.
@@ -140,7 +140,7 @@ namespace Ice
         /// @param other The other stream.
         void swap(InputStream& other) noexcept;
 
-        /// \cond INTERNAL
+        /// @cond INTERNAL
         void resetEncapsulation();
 
         /// Resizes the stream to a new size.
@@ -151,7 +151,7 @@ namespace Ice
             b.resize(sz);
             i = b.end();
         }
-        /// \endcond
+        /// @endcond
 
         /// Marks the start of a class instance.
         void startValue()
@@ -618,9 +618,9 @@ namespace Ice
         /// @param p The new position.
         void pos(size_type p) { i = b.begin() + p; }
 
-        /// \cond INTERNAL
+        /// @cond INTERNAL
         bool readOptImpl(std::int32_t, OptionalFormat);
-        /// \endcond
+        /// @endcond
 
     private:
 #if defined(ICE_UNALIGNED) || (defined(_WIN32) && defined(ICE_API_EXPORTS))

@@ -11,7 +11,7 @@
 namespace Ice
 {
     /// Abstract base class for all Ice exceptions. It has only two derived classes: LocalException and UserException.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ICE_API Exception : public std::exception
     {
     public:

@@ -79,7 +79,7 @@ namespace Ice::Instrumentation
     };
 
     /// The object observer interface used by instrumented objects to notify the observer of their existence.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class Observer
     {
     public:
@@ -100,7 +100,7 @@ namespace Ice::Instrumentation
 
     /// The thread observer interface to instrument Ice threads. This can be threads from the Ice thread pool or utility
     /// threads used by the Ice core.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ThreadObserver : public virtual Observer
     {
     public:
@@ -111,7 +111,7 @@ namespace Ice::Instrumentation
     };
 
     /// The connection observer interface to instrument Ice connections.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ConnectionObserver : public virtual Observer
     {
     public:
@@ -125,7 +125,7 @@ namespace Ice::Instrumentation
     };
 
     /// The dispatch observer to instrument servant dispatch.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class DispatchObserver : public virtual Observer
     {
     public:
@@ -138,7 +138,7 @@ namespace Ice::Instrumentation
     };
 
     /// The child invocation observer to instrument remote or collocated invocations.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ChildInvocationObserver : public virtual Observer
     {
     public:
@@ -148,13 +148,13 @@ namespace Ice::Instrumentation
     };
 
     /// The remote observer to instrument invocations that are sent over the wire.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class RemoteObserver : public virtual ChildInvocationObserver
     {
     };
 
     /// The collocated observer to instrument invocations that are collocated.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class CollocatedObserver : public virtual ChildInvocationObserver
     {
     };
@@ -162,7 +162,7 @@ namespace Ice::Instrumentation
     /// The invocation observer to instrument invocations on proxies. A proxy invocation can either result in a
     /// collocated or remote invocation. If it results in a remote invocation, a sub-observer is requested for the
     /// remote invocation.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class InvocationObserver : public virtual Observer
     {
     public:
@@ -195,7 +195,7 @@ namespace Ice::Instrumentation
     /// with the communicator initialization data. The Ice communicator calls {@link
     /// CommunicatorObserver#setObserverUpdater} to provide the observer updater. This interface can be used by add-ins
     /// implementing the {@link CommunicatorObserver} interface to update the observers of connections and threads.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class ObserverUpdater
     {
     public:
@@ -219,7 +219,7 @@ namespace Ice::Instrumentation
     /// objects. This interface should be implemented by add-ins that wish to observe Ice objects in order to collect
     /// statistics. An instance of this interface can be provided to the Ice run-time through the Ice communicator
     /// initialization data.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     class CommunicatorObserver
     {
     public:

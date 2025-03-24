@@ -13,7 +13,7 @@
 namespace Ice
 {
     /// Information about an incoming request being dispatched.
-    /// \headerfile Ice/Ice.h
+    /// @headerfile Ice/Ice.h
     struct Current
     {
         /// The object adapter.
