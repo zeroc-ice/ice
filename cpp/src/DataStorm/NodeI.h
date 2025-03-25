@@ -104,9 +104,6 @@ namespace DataStormI
         // A proxy to a colocated publisher session object that forwards requests to all active publisher sessions.
         DataStormContract::PublisherSessionPrx _publisherForwarder;
 
-        // A map of all publisher sessions, indexed by the identity of each session.
-        std::map<Ice::Identity, std::shared_ptr<PublisherSessionI>> _publisherSessions;
-
         // A map of all subscriber sessions, indexed by the identity of the peer node.
         std::map<Ice::Identity, std::shared_ptr<SubscriberSessionI>> _subscribers;
 

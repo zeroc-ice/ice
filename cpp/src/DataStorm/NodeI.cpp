@@ -61,7 +61,6 @@ NodeI::~NodeI()
     assert(_subscribers.empty());
     assert(_publishers.empty());
     assert(_subscriberSessions.empty());
-    assert(_publisherSessions.empty());
 }
 
 void
@@ -76,11 +75,9 @@ NodeI::init()
     auto adapter = instance->getObjectAdapter();
     adapter->add<NodePrx>(self, _proxy->ice_getIdentity());
 
-    // Register the SessionDispatcher object as the default servant for subscriber and publisher sessions.
-    // The "s" category handles subscriber sessions, and the "p" category handles publisher sessions.
-    auto interceptor = make_shared<SessionDispatcher>(self, instance->getCallbackExecutor());
-    adapter->addDefaultServant(interceptor, "s");
-    adapter->addDefaultServant(interceptor, "p");
+    // Register the SessionDispatcher object as the default servant for subscriber sessions.
+    // The interceptor handles requests sent to subscriber session facets by publishers using a sample filter.
+    adapter->addDefaultServant(make_shared<SessionDispatcher>(self, instance->getCallbackExecutor()), "s");
 }
 
 void
@@ -131,7 +128,6 @@ NodeI::destroy(bool ownsCommunicator)
     _subscribers.clear();
     _publishers.clear();
     _subscriberSessions.clear();
-    _publisherSessions.clear();
 }
 
 void
@@ -464,7 +460,6 @@ NodeI::removePublisherSession(const NodePrx& node, const shared_ptr<PublisherSes
             if (p != _publishers.end() && p->second == session)
             {
                 _publishers.erase(p);
-                _publisherSessions.erase(session->getProxy()->ice_getIdentity());
                 session->destroyImpl(ex);
             }
         }
@@ -489,21 +484,11 @@ shared_ptr<SessionI>
 NodeI::getSession(const Identity& ident) const
 {
     unique_lock<mutex> lock(_mutex);
-    if (ident.category == "s")
+    assert(ident.category == "s");
+    auto p = _subscriberSessions.find(ident);
+    if (p != _subscriberSessions.end())
     {
-        auto p = _subscriberSessions.find(ident);
-        if (p != _subscriberSessions.end())
-        {
-            return p->second;
-        }
-    }
-    else if (ident.category == "p")
-    {
-        auto p = _publisherSessions.find(ident);
-        if (p != _publisherSessions.end())
-        {
-            return p->second;
-        }
+        return p->second;
     }
     return nullptr;
 }
@@ -576,7 +561,6 @@ NodeI::createPublisherSessionServant(const NodePrx& node)
                     ->ice_oneway());
             session->init();
             _publishers.emplace(node->ice_getIdentity(), session);
-            _publisherSessions.emplace(session->getProxy()->ice_getIdentity(), session);
             return session;
         }
         catch (const ObjectAdapterDestroyedException&)
