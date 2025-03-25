@@ -27,14 +27,14 @@ module IceGrid
     /// The exception that is thrown when IceGrid does not know a server with the provided server ID.
     exception ServerNotExistException
     {
-        /// The identifier of the server.
+        /// The server ID.
         string id;
     }
 
     /// The exception that is thrown when a server failed to start.
     exception ServerStartException
     {
-        /// The identifier of the server.
+        /// The server ID.
         string id;
 
         /// The reason for the failure.
@@ -44,7 +44,7 @@ module IceGrid
     /// The exception that is thrown when a server failed to start.
     exception ServerStopException
     {
-        /// The identifier of the server.
+        /// The server ID.
         string id;
 
         /// The reason for the failure.
@@ -54,7 +54,7 @@ module IceGrid
     /// The exception that is thrown when IceGrid does not know an object adapter with the provided adapter ID.
     exception AdapterNotExistException
     {
-        /// The id of the object adapter.
+        /// The adapter ID.
         string id;
     }
 
