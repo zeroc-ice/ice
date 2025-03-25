@@ -1259,12 +1259,8 @@ operation_preamble
         {
             currentUnit->pushContainer(op);
             currentUnit->error("keyword '" + name + "' cannot be used as operation name");
-            $$ = op; // Dummy
         }
-        else
-        {
-            return 0;
-        }
+        $$ = op; // Dummy
     }
     else
     {
