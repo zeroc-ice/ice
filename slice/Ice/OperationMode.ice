@@ -19,9 +19,8 @@ module Ice
     /// Specifies if an operation is idempotent, which affects the retry behavior of the Ice client runtime.
     enum OperationMode
     {
-        /// A non-idempotent operation (the default). Invoking such an operation twice in a row has different semantics
-        /// than invoking it once. The Ice runtime guarantees that it will not violate at-most-once semantics for
-        /// operations with this mode.
+        /// A non-idempotent operation (the default). The Ice client runtime guarantees that it will not violate
+        /// at-most-once semantics for operations with this mode.
         ["swift:identifier:normal"]
         Normal,
 
@@ -30,8 +29,8 @@ module Ice
         ["swift:identifier:nonmutating"]
         Nonmutating,
 
-        /// An idempotent operation. Invoking such an operation twice in a row must result in the same object state
-        /// as invoking it once. For example, `x = 1` is an idempotent statement, whereas `x += 1` is not.
+        /// An idempotent operation. The Ice client runtime does not guarantee at-most-once semantics for such an
+        /// operation.
         /// @remark When an operation is idempotent, the Ice runtime will attempt to transparently recover from certain
         /// runtime errors by re-issuing a failed request transparently.
         ["swift:identifier:idempotent"]
