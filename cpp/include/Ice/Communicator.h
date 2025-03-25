@@ -20,8 +20,7 @@ namespace Ice
     class LocatorPrx;
     class RouterPrx;
 
-    /// Represents the main entry point into the Ice runtime. You create a communicator with
-    /// {@link Ice::initialize(int&, const char*[], InitializationData)} or another `initialize` overload.
+    /// Represents the main entry point into the Ice runtime. You create a communicator with `Ice::initialize`.
     /// @see ::initialize(int&, const char*[], InitializationData)
     /// @see ::initialize(InitializationData)
     /// @headerfile Ice/Ice.h
@@ -34,7 +33,6 @@ namespace Ice
         /// adapters, shuts down this communicator's client functionality, and cleans up memory. Subsequent calls to
         /// #destroy are no-op.
         /// @see CommunicatorHolder
-        /// @see #shutdown
         void destroy() noexcept;
 
         /// Shuts down this communicator. This function calls ObjectAdapter::deactivate on all object adapters created
@@ -67,8 +65,9 @@ namespace Ice
         [[nodiscard]] bool isShutdown() const noexcept;
 
         /// Converts a stringified proxy into a proxy.
+        /// @tparam Prx The type of the proxy to return.
         /// @param str The stringified proxy to convert into a proxy.
-        /// @return The proxy, or nullopt if `str` is an empty string.
+        /// @return The proxy, or nullopt if @p str is an empty string.
         /// @throws ParseException Thrown when @p str is not a valid proxy string.
         /// @see #proxyToString
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
@@ -147,7 +146,7 @@ namespace Ice
         /// calls #createObjectAdapter. It is provided as a convenience function. Calling this operation with an empty
         /// name will result in a UUID being generated for the name.
         /// @param name The object adapter name.
-        /// @param endpoints The endpoints for the object adapter.
+        /// @param endpoints The endpoints of the object adapter.
         /// @param serverAuthenticationOptions The %SSL configuration properties for server connections.
         /// The `SSL::ServerAuthenticationOptions` type is an alias to the platform specific %SSL server authentication
         /// options.
@@ -174,7 +173,7 @@ namespace Ice
         ObjectAdapterPtr createObjectAdapterWithRouter(std::string name, RouterPrx rtr);
 
         /// Gets the object adapter that is associated by default with new outgoing connections created by this
-        /// communicator. This function returns null unless you set a non-null default object adapter using
+        /// communicator. This function returns `nullptr` unless you set a non-null default object adapter using
         /// #setDefaultObjectAdapter.
         /// @return The object adapter associated by default with new outgoing connections.
         /// @throws CommunicatorDestroyedException Thrown when the communicator is destroyed.
@@ -188,69 +187,69 @@ namespace Ice
         void setDefaultObjectAdapter(ObjectAdapterPtr adapter);
 
         /// Gets the implicit context associated with this communicator.
-        /// @return The implicit context associated with this communicator; returns null when the property
+        /// @return The implicit context associated with this communicator; returns `nullptr` when the property
         /// `Ice.ImplicitContext` is not set or is set to None.
         [[nodiscard]] ImplicitContextPtr getImplicitContext() const noexcept;
 
-        /// Gets the properties for this communicator.
+        /// Gets the properties of this communicator.
         /// @return This communicator's properties.
         [[nodiscard]] PropertiesPtr getProperties() const noexcept;
 
-        /// Gets the logger for this communicator.
+        /// Gets the logger of this communicator.
         /// @return This communicator's logger.
         [[nodiscard]] LoggerPtr getLogger() const noexcept;
 
-        /// Gets the observer object for this communicator.
+        /// Gets the observer object of this communicator.
         /// @return This communicator's observer object.
         [[nodiscard]] Instrumentation::CommunicatorObserverPtr getObserver() const noexcept;
 
-        /// Gets the default router for this communicator.
-        /// @return The default router for this communicator.
+        /// Gets the default router of this communicator.
+        /// @return The default router of this communicator.
         /// @throws CommunicatorDestroyedException Thrown when the communicator is destroyed.
         /// @see #setDefaultRouter
         [[nodiscard]] std::optional<RouterPrx> getDefaultRouter() const;
 
-        /// Sets a default router for this communicator. All newly created proxies will use this default router. This
+        /// Sets the default router of this communicator. All newly created proxies will use this default router. This
         /// function has no effect on existing proxies.
-        /// @param rtr The default router to use for this communicator. May be nullopt.
+        /// @param rtr The new default router. Use `nullopt` to remove the default router.
         /// @see #getDefaultRouter
         /// @see #createObjectAdapterWithRouter
         /// @see Router
         void setDefaultRouter(const std::optional<RouterPrx>& rtr);
 
-        /// Gets the default locator for this communicator.
-        /// @return The default locator for this communicator.
+        /// Gets the default locator of this communicator.
+        /// @return The default locator of this communicator.
         /// @see #setDefaultLocator
         /// @see Locator
         [[nodiscard]] std::optional<Ice::LocatorPrx> getDefaultLocator() const;
 
-        /// Sets a default Ice locator for this communicator. This function  has no effect on existing proxies or object
-        /// adapters.
-        /// @param loc The default locator to use for this communicator. May be nullopt.
+        /// Sets the default locator of this communicator. All newly created proxies will use this default locator.
+        /// This function has no effect on existing proxies or object adapters.
+        /// @param loc The new default locator. Use `nullopt` to remove the default locator.
         /// @see #getDefaultLocator
         /// @see Locator
         /// @see ObjectAdapter#setLocator
         void setDefaultLocator(const std::optional<LocatorPrx>& loc);
 
-        /// Gets the plug-in manager for this communicator.
+        /// Gets the plug-in manager of this communicator.
         /// @return This communicator's plug-in manager.
         /// @throws CommunicatorDestroyedException Thrown when the communicator is destroyed.
         /// @see PluginManager
         [[nodiscard]] PluginManagerPtr getPluginManager() const;
 
-        /// Gets the value factory manager for this communicator.
+        /// Gets the value factory manager of this communicator.
         /// @return This communicator's value factory manager.
         /// @see ValueFactoryManager
         [[nodiscard]] ValueFactoryManagerPtr getValueFactoryManager() const noexcept;
 
-        /// Flushes any pending batch requests for this communicator. This means all batch requests invoked on fixed
+        /// Flushes any pending batch requests of this communicator. This means all batch requests invoked on fixed
         /// proxies for all connections associated with the communicator. Errors that occur while flushing a connection
         /// are ignored.
         /// @param compress Specifies whether or not the queued batch requests should be compressed before being sent
         /// over the wire.
         void flushBatchRequests(CompressBatch compress);
 
-        /// Flushes any pending batch requests for this communicator. This means all batch requests invoked on fixed
+        /// Flushes any pending batch requests of this communicator. This means all batch requests invoked on fixed
         /// proxies for all connections associated with the communicator. Errors that occur while flushing a connection
         /// are ignored.
         /// @param compress Specifies whether or not the queued batch requests should be compressed before being sent
@@ -263,7 +262,7 @@ namespace Ice
             std::function<void(std::exception_ptr)> exception,
             std::function<void(bool)> sent = nullptr);
 
-        /// Flushes any pending batch requests for this communicator. This means all batch requests invoked on fixed
+        /// Flushes any pending batch requests of this communicator. This means all batch requests invoked on fixed
         /// proxies for all connections associated with the communicator. Errors that occur while flushing a connection
         /// are ignored.
         /// @param compress Specifies whether or not the queued batch requests should be compressed before being sent
