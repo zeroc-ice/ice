@@ -108,7 +108,7 @@ module IceStorm
         /// @throws LinkExists Thrown when a link to @p linkTo already exists.
         void link(Topic* linkTo, int cost) throws LinkExists;
 
-        /// Destroys a link from this topic.
+        /// Destroys a link from this topic to the provided topic.
         /// @param linkTo The topic to destroy the link to. This proxy is never null.
         /// @throws NoSuchLink Thrown when a link to @p linkTo does not exist.
         void unlink(Topic* linkTo) throws NoSuchLink;
