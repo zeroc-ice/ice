@@ -73,9 +73,6 @@ Gen::~Gen()
 void
 Gen::generate(const UnitPtr& p)
 {
-    SwiftGenerator::validateMetadata(p);
-    SwiftGenerator::validateSwiftModuleMappings(p);
-
     ImportVisitor importVisitor(_out);
     p->visit(&importVisitor);
     importVisitor.writeImports();

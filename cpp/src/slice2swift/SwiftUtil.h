@@ -17,6 +17,12 @@ namespace Slice
     std::string getSwiftModule(const ModulePtr&);
     ModulePtr getTopLevelModule(const ContainedPtr&);
 
+    void validateMetadata(const UnitPtr&);
+
+    // Swift only allows 1 package per file, so this function checks that if there are multiple top-level-modules
+    // within a single Slice file, that they all map to the same Swift package.
+    void validateSwiftModuleMappings(const UnitPtr&);
+
     class SwiftGenerator
     {
     public:
@@ -25,12 +31,6 @@ namespace Slice
         virtual ~SwiftGenerator() = default;
 
         SwiftGenerator& operator=(const SwiftGenerator&) = delete;
-
-        static void validateMetadata(const UnitPtr&);
-
-        // Swift only allows 1 package per file, so this function checks that if there are multiple top-level-modules
-        // within a single Slice file, that they all map to the same Swift package.
-        static void validateSwiftModuleMappings(const UnitPtr&);
 
     protected:
         void writeDocLines(
