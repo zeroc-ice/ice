@@ -10,7 +10,6 @@
 #include "../Slice/Util.h"
 #include "Ice/CtrlCHandler.h"
 #include "Ice/StringUtil.h"
-#include "PHPUtil.h"
 
 #include <algorithm>
 #include <cassert>
@@ -40,17 +39,35 @@
 
 using namespace std;
 using namespace Slice;
-using namespace Slice::PHP;
 using namespace IceInternal;
 
 namespace
 {
-    // Get the fully-qualified name of the given definition. If a suffix is provided, it is prepended to the
-    // definition's unqualified name. If the nameSuffix is provided, it is appended to the container's name.
-    string
-    getAbsolute(const ContainedPtr& cont, const string& pfx = std::string(), const string& suffix = std::string())
+    void validateMetadata(const UnitPtr& unit)
     {
-        return scopedToName(cont->scope() + pfx + cont->name() + suffix, true);
+        map<string, MetadataInfo> knownMetadata;
+
+        // "php:identifier"
+        MetadataInfo identifierInfo = {
+            .validOn =
+                {typeid(InterfaceDecl),
+                 typeid(Operation),
+                 typeid(ClassDecl),
+                 typeid(Slice::Exception),
+                 typeid(Struct),
+                 typeid(Sequence),
+                 typeid(Dictionary),
+                 typeid(Enum),
+                 typeid(Enumerator),
+                 typeid(Const),
+                 typeid(Parameter),
+                 typeid(DataMember)},
+            .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+        };
+        knownMetadata.emplace("php:identifier", std::move(identifierInfo));
+
+        // Pass this information off to the parser's metadata validation logic.
+        Slice::validateMetadata(unit, "php", std::move(knownMetadata));
     }
 }
 
@@ -75,15 +92,9 @@ private:
     void startNamespace(const ContainedPtr&);
     void endNamespace();
 
-    // Return the PHP name for the given Slice type. When using namespaces, this name is a relative (unqualified) name,
-    // otherwise this name is the flattened absolute name.
-    string getName(const ContainedPtr&, const string& = string());
-
     // Return the PHP variable for the given object's type.
-    string getTypeVar(const ContainedPtr&, const string& = string());
+    string getTypeVar(const ContainedPtr&);
 
-    // Emit the array for a Slice type.
-    void writeType(const TypePtr&);
     string getType(const TypePtr&);
 
     // Write a default value for a given type.
@@ -98,9 +109,6 @@ private:
     /// Write constructor parameters with default values.
     void writeConstructorParams(const DataMemberList& members);
 
-    // Convert an operation mode into a string.
-    string getOperationMode(Slice::Operation::Mode);
-
     Output& _out;
     set<string> _classHistory;
 };
@@ -112,12 +120,12 @@ void
 CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
     // Handle forward declarations.
-    string scoped = p->scoped();
+    const string scoped = p->scoped();
     if (_classHistory.count(scoped) == 0)
     {
         startNamespace(p);
 
-        string type = getTypeVar(p);
+        const string type = getTypeVar(p);
         _out << sp << nl << "global " << type << ';';
         _out << nl << type << " = IcePHP_declareClass('" << scoped << "');";
 
@@ -131,14 +139,13 @@ void
 CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
     // Handle forward declarations.
-    string scoped = p->scoped();
+    const string scoped = p->scoped();
     if (_classHistory.count(scoped) == 0)
     {
         startNamespace(p);
 
-        string type = getTypeVar(p);
+        const string type = getTypeVar(p);
         _out << sp << nl << "global " << type << ';';
-
         _out << nl << "global " << type << "Prx;";
         _out << nl << type << "Prx = IcePHP_declareProxy('" << scoped << "');";
 
@@ -152,12 +159,10 @@ bool
 CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const string scoped = p->scoped();
-    const string name = getName(p);
+    const string name = p->mappedName();
     const string type = getTypeVar(p);
-    const string abs = getAbsolute(p);
     const ClassDefPtr base = p->base();
     const DataMemberList members = p->dataMembers();
-    const DataMemberList baseMembers = (base ? base->allDataMembers() : DataMemberList{});
 
     startNamespace(p);
 
@@ -167,7 +172,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << "class " << name;
     if (base)
     {
-        _out << " extends " << getAbsolute(base);
+        _out << " extends " << base->mappedScoped("\\");
     }
     else
     {
@@ -185,13 +190,13 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << nl << "parent::__construct(";
         int count = 0;
-        for (const auto& member : baseMembers)
+        for (const auto& member : base->allDataMembers())
         {
             if (count)
             {
                 _out << ", ";
             }
-            _out << '$' << fixIdent(member->name());
+            _out << '$' << member->mappedName();
             ++count;
         }
         _out << ");";
@@ -229,7 +234,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sp;
         for (const auto& member : members)
         {
-            _out << nl << "public " << "$" << fixIdent(member->name()) << ";";
+            _out << nl << "public " << "$" << member->mappedName() << ";";
         }
     }
 
@@ -262,7 +267,8 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     // Emit the type information.
-    _out << nl << type << " = IcePHP_defineClass('" << scoped << "', '" << escapeName(abs) << "', " << p->compactId()
+    const string abs = p->mappedScoped(R"(\\)");
+    _out << nl << type << " = IcePHP_defineClass('" << scoped << "', '" << abs << "', " << p->compactId()
          << ", false, ";
     if (!base)
     {
@@ -290,8 +296,8 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << ',';
             }
             _out.inc();
-            _out << nl << "array('" << fixIdent((*q)->name()) << "', ";
-            writeType((*q)->type());
+            _out << nl << "array('" << (*q)->mappedName() << "', ";
+            _out << getType((*q)->type());
             _out << ", " << ((*q)->optional() ? "true" : "false") << ", " << ((*q)->optional() ? (*q)->tag() : 0)
                  << ')';
             _out.dec();
@@ -312,15 +318,12 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    string scoped = p->scoped();
-    string name = getName(p);
-    string type = getTypeVar(p);
-    string abs = getAbsolute(p);
-    string prxName = getName(p, "Prx");
-    string prxType = getTypeVar(p, "Prx");
-    string prxAbs = getAbsolute(p, "", "Prx");
-    InterfaceList bases = p->bases();
-    OperationList ops = p->operations();
+    const string scoped = p->scoped();
+    const string type = getTypeVar(p);
+    const string prxName = p->mappedName() + "Prx";
+    const string prxType = type + "Prx";
+    const OperationList ops = p->operations();
+
     startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
@@ -352,26 +355,20 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << eb;
 
-    _out << sp << nl << "global ";
-    _out << "$Ice__t_ObjectPrx";
-    _out << ";";
-    _out << nl << prxType << " = IcePHP_defineProxy('" << scoped << "', ";
-    _out << "$Ice__t_ObjectPrx";
-    _out << ", ";
+    _out << sp;
+    _out << nl << "global $Ice__t_ObjectPrx;";
+    _out << nl << prxType << " = IcePHP_defineProxy('" << scoped << "', " << "$Ice__t_ObjectPrx" << ", ";
 
     // Interfaces
+    const InterfaceList bases = p->bases();
     if (!bases.empty())
     {
-        _out << "array(";
-        for (auto q = bases.begin(); q != bases.end(); ++q)
+        _out << "array" << spar;
+        for (const auto& base : bases)
         {
-            if (q != bases.begin())
-            {
-                _out << ", ";
-            }
-            _out << getTypeVar(*q, "Prx");
+            _out << getTypeVar(base) + "Prx";
         }
-        _out << ')';
+        _out << epar;
     }
     else
     {
@@ -381,10 +378,9 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     // Define each operation. The arguments to IcePHP_defineOperation are:
     //
-    // $ClassType, 'opName', Mode, FormatType, (InParams), (OutParams), ReturnParam, (Exceptions)
+    // $ClassType, 'sliceOpName', 'mappedOpName', Mode, FormatType, (InParams), (OutParams), ReturnParam, (Exceptions)
     //
-    // where InParams and OutParams are arrays of type descriptions, and Exceptions
-    // is an array of exception type ids.
+    // where InParams and OutParams are arrays of type descriptions, and Exceptions is an array of exception type ids.
 
     if (!ops.empty())
     {
@@ -392,10 +388,9 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         vector<string> seenTypes;
         for (const auto& op : ops)
         {
-            ParameterList params = op->parameters();
-            for (const auto& param : params)
+            for (const auto& param : op->parameters())
             {
-                string type = getType(param->type());
+                const string type = getType(param->type());
                 if (find(seenTypes.begin(), seenTypes.end(), type) == seenTypes.end())
                 {
                     seenTypes.push_back(type);
@@ -405,7 +400,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             if (op->returnType())
             {
-                string type = getType(op->returnType());
+                const string type = getType(op->returnType());
                 if (find(seenTypes.begin(), seenTypes.end(), type) == seenTypes.end())
                 {
                     seenTypes.push_back(type);
@@ -428,8 +423,8 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 phpFormat = static_cast<int>(*opFormat);
             }
 
-            _out << nl << "IcePHP_defineOperation(" << prxType << ", '" << op->name() << "', "
-                 << getOperationMode(op->mode()) << ", " << phpFormat << ", ";
+            _out << nl << "IcePHP_defineOperation(" << prxType << ", '" << op->name() << "', '" << op->mappedName()
+                 << "', " << static_cast<int>(op->mode()) << ", " << phpFormat << ", ";
             for (t = params.begin(), count = 0; t != params.end(); ++t)
             {
                 if (!(*t)->isOutParam())
@@ -443,7 +438,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                         _out << ", ";
                     }
                     _out << "array(";
-                    writeType((*t)->type());
+                    _out << getType((*t)->type());
                     if ((*t)->optional())
                     {
                         _out << ", " << (*t)->tag();
@@ -474,7 +469,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                         _out << ", ";
                     }
                     _out << "array(";
-                    writeType((*t)->type());
+                    _out << getType((*t)->type());
                     if ((*t)->optional())
                     {
                         _out << ", " << (*t)->tag();
@@ -499,7 +494,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 //
                 // Type, Optional?, OptionalTag
                 _out << "array(";
-                writeType(returnType);
+                _out << getType(returnType);
                 if (op->returnIsOptional())
                 {
                     _out << ", " << op->returnTag();
@@ -542,21 +537,18 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 bool
 CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    string scoped = p->scoped();
-    string name = getName(p);
-    string type = getTypeVar(p);
-    string abs = getAbsolute(p);
+    const string scoped = p->scoped();
+    const string name = p->mappedName();
+    const string type = getTypeVar(p);
+    const ExceptionPtr base = p->base();
 
     startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
     _out << nl << "class " << name << " extends ";
-    ExceptionPtr base = p->base();
-    string baseName;
     if (base)
     {
-        baseName = getAbsolute(base);
-        _out << baseName;
+        _out << base->mappedScoped("\\");
     }
     else
     {
@@ -585,7 +577,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << sp;
         for (const auto& member : members)
         {
-            _out << nl << "public $" << fixIdent(member->name()) << ";";
+            _out << nl << "public $" << member->mappedName() << ";";
         }
     }
 
@@ -603,7 +595,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     // Emit the type information.
-    _out << sp << nl << type << " = IcePHP_defineException('" << scoped << "', '" << escapeName(abs) << "', ";
+    const string abs = p->mappedScoped("\\\\");
+    _out << sp << nl << type << " = IcePHP_defineException('" << scoped << "', '" << abs << "', ";
     if (!base)
     {
         _out << "null";
@@ -628,8 +621,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
                 _out << ',';
             }
             _out.inc();
-            _out << nl << "array('" << fixIdent((*dmli)->name()) << "', ";
-            writeType((*dmli)->type());
+            _out << nl << "array('" << (*dmli)->mappedName() << "', ";
+            _out << getType((*dmli)->type());
             _out << ", " << ((*dmli)->optional() ? "true" : "false") << ", "
                  << ((*dmli)->optional() ? (*dmli)->tag() : 0) << ')';
             _out.dec();
@@ -651,9 +644,8 @@ bool
 CodeVisitor::visitStructStart(const StructPtr& p)
 {
     const string scoped = p->scoped();
-    const string name = getName(p);
+    const string name = p->mappedName();
     const string type = getTypeVar(p);
-    const string abs = getAbsolute(p);
     const DataMemberList members = p->dataMembers();
 
     startNamespace(p);
@@ -685,7 +677,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
         _out << sp;
         for (const auto& member : members)
         {
-            _out << nl << "public $" << fixIdent(member->name()) << ';';
+            _out << nl << "public $" << member->mappedName() << ';';
         }
     }
 
@@ -704,7 +696,8 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     }
 
     // Emit the type information.
-    _out << nl << type << " = IcePHP_defineStruct('" << scoped << "', '" << escapeName(abs) << "', array(";
+    const string abs = p->mappedScoped("\\\\");
+    _out << nl << type << " = IcePHP_defineStruct('" << scoped << "', '" << abs << "', array(";
 
     // Data members are represented as an array:
     //
@@ -718,9 +711,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
             _out << ",";
         }
         _out.inc();
-        _out << nl << "array('" << fixIdent((*r)->name()) << "', ";
-        writeType((*r)->type());
-        _out << ')';
+        _out << nl << "array('" << (*r)->mappedName() << "', " << getType((*r)->type()) << ')';
         _out.dec();
     }
     _out << "));";
@@ -733,19 +724,18 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 void
 CodeVisitor::visitSequence(const SequencePtr& p)
 {
-    string type = getTypeVar(p);
-    TypePtr content = p->type();
+    const string type = getTypeVar(p);
+    const TypePtr content = p->type();
 
     startNamespace(p);
 
     // Emit the type information.
-    string scoped = p->scoped();
     _out << sp << nl << "global " << type << ';';
     _out << sp << nl << "if(!isset(" << type << "))";
     _out << sb;
     _out << nl << "global " << getType(content) << ";";
-    _out << nl << type << " = IcePHP_defineSequence('" << scoped << "', ";
-    writeType(content);
+    _out << nl << type << " = IcePHP_defineSequence('" << p->scoped() << "', ";
+    _out << getType(content);
     _out << ");";
     _out << eb;
 
@@ -755,51 +745,28 @@ CodeVisitor::visitSequence(const SequencePtr& p)
 void
 CodeVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    TypePtr keyType = p->keyType();
-    BuiltinPtr b = dynamic_pointer_cast<Builtin>(keyType);
-    if (b)
-    {
-        switch (b->kind())
-        {
-            // These types are acceptable as dictionary keys.
-            case Slice::Builtin::KindBool:
-            case Slice::Builtin::KindByte:
-            case Slice::Builtin::KindShort:
-            case Slice::Builtin::KindInt:
-            case Slice::Builtin::KindLong:
-            case Slice::Builtin::KindString:
-                break;
+    const string type = getTypeVar(p);
+    const TypePtr keyType = p->keyType();
+    const TypePtr valueType = p->valueType();
 
-            // These types have already been rejected as illegal key types by the parser.
-            case Slice::Builtin::KindFloat:
-            case Slice::Builtin::KindDouble:
-            case Slice::Builtin::KindObject:
-            case Slice::Builtin::KindObjectProxy:
-            case Slice::Builtin::KindValue:
-                assert(false);
-        }
-    }
-    else if (!dynamic_pointer_cast<Enum>(keyType))
+    if (!dynamic_pointer_cast<Builtin>(keyType) && !dynamic_pointer_cast<Enum>(keyType))
     {
         // See https://github.com/zeroc-ice/ice/issues/254
         p->unit()->warning(p->file(), p->line(), All, "dictionary key type not supported in PHP");
     }
 
-    string type = getTypeVar(p);
-
     startNamespace(p);
 
     // Emit the type information.
-    string scoped = p->scoped();
     _out << sp << nl << "global " << type << ';';
     _out << sp << nl << "if(!isset(" << type << "))";
     _out << sb;
-    _out << nl << "global " << getType(p->keyType()) << ";";
-    _out << nl << "global " << getType(p->valueType()) << ";";
-    _out << nl << type << " = IcePHP_defineDictionary('" << scoped << "', ";
-    writeType(p->keyType());
+    _out << nl << "global " << getType(keyType) << ";";
+    _out << nl << "global " << getType(valueType) << ";";
+    _out << nl << type << " = IcePHP_defineDictionary('" << p->scoped() << "', ";
+    _out << getType(keyType);
     _out << ", ";
-    writeType(p->valueType());
+    _out << getType(valueType);
     _out << ");";
     _out << eb;
 
@@ -809,36 +776,30 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 void
 CodeVisitor::visitEnum(const EnumPtr& p)
 {
-    string scoped = p->scoped();
-    string name = getName(p);
-    string type = getTypeVar(p);
-    string abs = getAbsolute(p);
-    EnumeratorList enumerators = p->enumerators();
+    const string type = getTypeVar(p);
+    const EnumeratorList enumerators = p->enumerators();
 
     startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
-    _out << nl << "class " << name;
+    _out << nl << "class " << p->mappedName();
     _out << sb;
 
     for (const auto& enumerator : enumerators)
     {
-        _out << nl << "const " << fixIdent(enumerator->name()) << " = " << enumerator->value() << ';';
+        _out << nl << "const " << enumerator->mappedName() << " = " << enumerator->value() << ';';
     }
 
     _out << eb;
 
     // Emit the type information.
-    _out << sp << nl << type << " = IcePHP_defineEnum('" << scoped << "', array(";
+    _out << sp << nl << type << " = IcePHP_defineEnum('" << p->scoped() << "', array" << spar;
     for (auto q = enumerators.begin(); q != enumerators.end(); ++q)
     {
-        if (q != enumerators.begin())
-        {
-            _out << ", ";
-        }
-        _out << "'" << (*q)->name() << "', " << (*q)->value();
+        _out << "'" + (*q)->mappedName() + "'";
+        _out << (*q)->value();
     }
-    _out << "));";
+    _out << epar << ");";
 
     endNamespace();
 }
@@ -846,15 +807,11 @@ CodeVisitor::visitEnum(const EnumPtr& p)
 void
 CodeVisitor::visitConst(const ConstPtr& p)
 {
-    string name = getName(p);
-    string type = getTypeVar(p);
-    string abs = getAbsolute(p);
-
     startNamespace(p);
 
-    _out << sp << nl << "if(!defined('" << escapeName(abs) << "'))";
+    _out << sp << nl << "if(!defined('" << p->mappedScoped("\\\\") << "'))";
     _out << sb;
-    _out << sp << nl << "define(__NAMESPACE__ . '\\\\" << name << "', ";
+    _out << sp << nl << "define(__NAMESPACE__ . '\\\\" << p->mappedName() << "', ";
     writeConstantValue(p->type(), p->valueType(), p->value());
 
     _out << ");";
@@ -864,12 +821,12 @@ CodeVisitor::visitConst(const ConstPtr& p)
 }
 
 void
-CodeVisitor::startNamespace(const ContainedPtr& cont)
+CodeVisitor::startNamespace(const ContainedPtr& p)
 {
-    string scope = cont->scope();
-    scope = scope.substr(2);                     // Removing leading '::'
-    scope = scope.substr(0, scope.length() - 2); // Removing trailing '::'
-    _out << sp << nl << "namespace " << scopedToName(scope, true);
+    // This function should only be called on module level elements.
+    ModulePtr container = dynamic_pointer_cast<Module>(p->container());
+    assert(container);
+    _out << sp << nl << "namespace " << container->mappedScoped("\\").substr(1);
     _out << sb;
 }
 
@@ -880,21 +837,9 @@ CodeVisitor::endNamespace()
 }
 
 string
-CodeVisitor::getTypeVar(const ContainedPtr& p, const string& suffix)
+CodeVisitor::getTypeVar(const ContainedPtr& p)
 {
-    return "$" + scopedToName(p->scope() + "_t_" + p->name() + suffix, false);
-}
-
-string
-CodeVisitor::getName(const ContainedPtr& p, const string& suffix)
-{
-    return fixIdent(p->name() + suffix);
-}
-
-void
-CodeVisitor::writeType(const TypePtr& p)
-{
-    _out << getType(p);
+    return "$" + p->mappedScope("_").substr(1) + "_t_" + p->mappedName();
 }
 
 string
@@ -952,7 +897,7 @@ CodeVisitor::getType(const TypePtr& p)
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(p);
     if (prx)
     {
-        return getTypeVar(prx, "Prx");
+        return getTypeVar(prx) + "Prx";
     }
 
     ContainedPtr cont = dynamic_pointer_cast<Contained>(p);
@@ -1007,8 +952,8 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
     EnumPtr en = dynamic_pointer_cast<Enum>(p);
     if (en)
     {
-        string firstEnumerator = en->enumerators().front()->name();
-        _out << getAbsolute(en) << "::" << fixIdent(firstEnumerator);
+        string firstEnumerator = en->enumerators().front()->mappedName();
+        _out << en->mappedScoped("\\") << "::" << firstEnumerator;
         return;
     }
 
@@ -1029,11 +974,11 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
 void
 CodeVisitor::writeAssign(const DataMemberPtr& member)
 {
-    const string memberName = fixIdent(member->name());
+    const string memberName = member->mappedName();
     if (StructPtr st = dynamic_pointer_cast<Struct>(member->type()))
     {
-        _out << nl << "$this->" << memberName << " = is_null($" << memberName << ") ? new " << getAbsolute(st) << " : $"
-             << memberName << ';';
+        _out << nl << "$this->" << memberName << " = is_null($" << memberName << ") ? new " << st->mappedScoped("\\")
+             << " : $" << memberName << ';';
     }
     else
     {
@@ -1047,7 +992,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if (constant)
     {
-        _out << getAbsolute(constant);
+        _out << constant->mappedScoped("\\");
     }
     else
     {
@@ -1097,7 +1042,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
         {
             EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
-            _out << getAbsolute(en) << "::" << fixIdent(lte->name());
+            _out << en->mappedScoped("\\") << "::" << lte->mappedName();
         }
         else
         {
@@ -1118,7 +1063,7 @@ CodeVisitor::writeConstructorParams(const DataMemberList& members)
         }
         isFirst = false;
 
-        _out << '$' << fixIdent(member->name()) << "=";
+        _out << '$' << member->mappedName() << "=";
         if (member->defaultValue())
         {
             writeConstantValue(member->type(), member->defaultValueType(), *member->defaultValue());
@@ -1132,14 +1077,6 @@ CodeVisitor::writeConstructorParams(const DataMemberList& members)
             writeDefaultValue(member);
         }
     }
-}
-
-string
-CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
-{
-    ostringstream ostr;
-    ostr << static_cast<int>(mode);
-    return ostr.str();
 }
 
 static void
@@ -1168,9 +1105,7 @@ generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output
         }
     }
 
-    // 'slice2php' doesn't have any language-specific metadata, so we call `validateMetadata` with an empty list.
-    // This ensures that the validation still runs, and will reject any 'php' metadata the user might think exists.
-    Slice::validateMetadata(un, "php", {});
+    validateMetadata(un);
 
     CodeVisitor codeVisitor(out);
     un->visit(&codeVisitor);

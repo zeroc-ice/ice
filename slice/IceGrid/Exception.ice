@@ -130,7 +130,7 @@ module IceGrid
         string reason;
     }
 
-    /// his exception is raised if a registry lock wasn't acquired or is already held by a session.
+    /// This exception is raised if a registry lock wasn't acquired or is already held by a session.
     exception AccessDeniedException
     {
         /// The id of the user holding the lock (if any).

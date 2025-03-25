@@ -9,7 +9,7 @@ function allTests()
 
     echo "testing Slice predefined macros... ";
     flush();
-    $d = new Test\_Default();
+    $d = new Test\YesDefault();
     test($d->x == 10);
     test($d->y == 10);
 
