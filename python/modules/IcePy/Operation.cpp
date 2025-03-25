@@ -5,6 +5,7 @@
 #include "Communicator.h"
 #include "Connection.h"
 #include "Current.h"
+#include "Future.h"
 #include "Ice/Communicator.h"
 #include "Ice/Initialize.h"
 #include "Ice/LocalExceptions.h"
@@ -381,17 +382,18 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
         return -1;
     }
 
-    self->op = new OperationPtr(make_shared<Operation>(
-        sliceName,
-        mappedName,
-        mode,
-        amd,
-        format,
-        metadata,
-        inParams,
-        outParams,
-        returnType,
-        exceptions));
+    self->op = new OperationPtr(
+        make_shared<Operation>(
+            sliceName,
+            mappedName,
+            mode,
+            amd,
+            format,
+            metadata,
+            inParams,
+            outParams,
+            returnType,
+            exceptions));
     return 0;
 }
 
@@ -1657,7 +1659,7 @@ IcePy::AsyncInvocation::invoke(PyObject* args, PyObject* kwds)
         }
         _future = future.release();
         Py_XINCREF(_future);
-        return _future;
+        return wrapFuture(_communicator, _future);
     }
     else
     {
@@ -1666,7 +1668,7 @@ IcePy::AsyncInvocation::invoke(PyObject* args, PyObject* kwds)
         {
             return nullptr;
         }
-        return future.release();
+        return wrapFuture(_communicator, future.get());
     }
 }
 

@@ -1,51 +1,71 @@
 # Copyright (c) ZeroC, Inc.
 
+
+import asyncio
 import os
 import sys
 import IcePy
+from .InitializationData import InitializationData
 from .Properties import Properties
 from .Communicator import Communicator
-from .InitializationData import InitializationData
+from .LocalExceptions import InitializationException
+from .asyncio.EventLoopAdapter import EventLoopAdapter
 
 __name__ = "Ice"
 
 
-def initialize(args=None, data=None):
+def initialize(args=None, initData=None, configFile=None, eventLoop=None):
     """
-    Initialize a new Ice communicator.
-
-    This method initializes a new Ice communicator. The optional arguments represent
-    an argument list (such as sys.argv) and an instance of InitializationData.
-    You can invoke this function as follows:
-
-    - `Ice.initialize()`
-    - `Ice.initialize(args)`
-    - `Ice.initialize(data)`
-    - `Ice.initialize(args, data)`
-
-    If you supply an argument list, the function removes those arguments from the list that were
-    recognized by the Ice runtime.
+    Creates a new communicator.
 
     Parameters
     ----------
     args : list of str, optional
-        An argument list, such as sys.argv.
-    data : InitializationData, optional
-        An instance of InitializationData.
+        The command-line arguments. This function parses arguments starting with `--` and one of the
+        reserved prefixes (Ice, IceSSL etc.) as properties for the new communicator. If there is an argument starting
+        with `--Ice.Config`, this function loads the specified configuration file. When the same property is set in a
+        configuration file and through a command-line argument, the command-line setting takes precedence.
+    initData : InitializationData, optional
+        Options for the new communicator. This argument and the `configFile` argument are mutually exclusive.
+    configFile : str, optional
+        The path to a configuration file. This argument and the `initData` argument are mutually exclusive.
+    eventLoop : asyncio.AbstractEventLoop, optional
+        An asyncio event loop used to run coroutines and wrap futures. If provided, a new event loop adapter is created
+        and configured with the communicator. This adapter is responsible for executing coroutines returned by Ice
+        asynchronous dispatch methods and for wrapping Ice futures (from Ice Async APIs) into asyncio futures.
 
     Returns
     -------
     Communicator
-        A new communicator instance.
-    """
-    coroutineExecutor = None
-    if isinstance(args, InitializationData):
-        coroutineExecutor = args.coroutineExecutor
-    elif isinstance(data, InitializationData):
-        coroutineExecutor = data.coroutineExecutor
+        The new communicator.
 
-    communicator = IcePy.Communicator(args, data)
-    return Communicator(communicator, coroutineExecutor)
+    .. code-block:: python
+
+    with Ice.initialize(sys.argv, eventLoop=asyncio.get_running_loop()) as communicator:
+        greeter =  VisitorCenter.GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061")
+        await greeter.greetAsync()
+    """
+
+    if args and not isinstance(args, list):
+        raise InitializationException("args must be a list of strings")
+
+    if initData and not isinstance(initData, InitializationData):
+        raise InitializationException("initData must be an instance of Ice.InitializationData")
+
+    if initData and configFile:
+        raise InitializationException("Both initData and configFile arguments cannot be specified")
+
+    eventLoopAdapter = None
+    if eventLoop:
+        if initData and initData.eventLoopAdapter:
+            raise InitializationException("An event loop adapter is already set in the initialization data")
+
+        if not isinstance(eventLoop, asyncio.AbstractEventLoop):
+            raise InitializationException("The event loop must be an instance of asyncio.AbstractEventLoop")
+        eventLoopAdapter = EventLoopAdapter(eventLoop)
+
+    communicator = IcePy.Communicator(args, initData, configFile)
+    return Communicator(communicator, eventLoopAdapter)
 
 def identityToString(identity, toStringMode=None):
     """

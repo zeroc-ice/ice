@@ -44,7 +44,7 @@ def allTests(helper, communicator):
     for x in range(10):
         initData = Ice.InitializationData()
         initData.properties = communicator.getProperties().clone()
-        comm = Ice.initialize(initData)
+        comm = Ice.initialize(initData=initData)
         comm.stringToProxy("test:{0}".format(helper.getTestEndpoint())).ice_pingAsync()
         comm.destroy()
     print("ok")

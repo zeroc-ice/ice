@@ -23,26 +23,10 @@ class InitializationData(object):
         three arguments: a BatchRequest object, an integer representing the number of requests
         in the queue, and an integer representing the number of bytes consumed by the requests
         in the queue. The interceptor must eventually invoke the enqueue method on the BatchRequest object.
-    coroutineExecutor : callable
-        A callable used to execute coroutines returned by servant dispatch methods.
-        It takes a single argument—the coroutine to execute—and must return a Future-like object to track its
-        completion.
-
-        .. code-block:: python
-
-        import asyncio
-        import Ice
-
-        loop = asyncio.get_event_loop()
-
-        def coroutineExecutor(coroutine):
-            return asyncio.run_coroutine_threadsafe(coroutine, loop)
-
-        initData = Ice.InitializationData()
-        initData.coroutineExecutor = coroutineExecutor
-
-        with Ice.initialize(initData) as communicator:
-            # ...
+    eventLoopAdapter : Ice.EventLoopAdapter
+        An event loop adapter used to run coroutines and wrap futures. If provided. This adapter is responsible for
+        executing coroutines returned by Ice asynchronous dispatch methods and for wrapping Ice futures (from Ice
+        Async APIs) into futures that can be awaited in the application's event loop.
     """
 
     def __init__(self):
@@ -53,5 +37,6 @@ class InitializationData(object):
         self.executor = None
         self.batchRequestInterceptor = None
         self.coroutineExecutor = None
+        self.eventLoopAdapter = None
 
     __module__ = "Ice"

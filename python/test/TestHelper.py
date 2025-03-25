@@ -47,7 +47,7 @@ class TestHelper:
         args = properties.parseCommandLineOptions("Test", args)
         return properties
 
-    def initialize(self, initData=None, properties=None, args=[]):
+    def initialize(self, initData=None, properties=None, args=[], eventLoop=None):
         if initData is None:
             initData = Ice.InitializationData()
             if properties:
@@ -55,7 +55,7 @@ class TestHelper:
             else:
                 initData.properties = self.createTestProperties(args)
 
-        communicator = Ice.initialize(initData)
+        communicator = Ice.initialize(initData=initData, eventLoop=eventLoop)
 
         if self._communicator is None:
             self._communicator = communicator
