@@ -25,10 +25,13 @@ namespace Slice::Ruby
     std::string fixIdent(const std::string&, IdentStyle);
 
     //
-    // Get the fully-qualified name of the given definition. If a prefix is provided,
-    // it is prepended to the definition's unqualified name.
+    // Get the fully-qualified name of the given definition.
     //
-    std::string getAbsolute(const Slice::ContainedPtr&, IdentStyle, const std::string& = std::string());
+    std::string getAbsolute(const Slice::ContainedPtr& p);
+
+    std::string getMetaTypeName(const Slice::ContainedPtr& p);
+
+    std::string getMetaTypeReference(const Slice::ContainedPtr& p);
 
     //
     // Emit a comment header.
