@@ -369,7 +369,7 @@ module IceGrid
         /// Stops a server.
         /// @param id The server ID.
         /// @throws ServerNotExistException Thrown when the server doesn't exist.
-        /// @throws ServerStartException Thrown when the server startup failed.
+        /// @throws ServerStopException Thrown when the server stop failed.
         /// @throws NodeUnreachableException Thrown when the node is unreachable.
         /// @throws DeploymentException Thrown when the deployment of the server failed.
         ["amd"]
@@ -843,7 +843,7 @@ module IceGrid
         /// Otherwise, the file is read from the last @p count lines.
         /// @return An iterator to read the file. This proxy is never null.
         /// @throws FileNotAvailableException Thrown when the file can't be read.
-        /// @throws ServerNotExistException Thrown when the server doesn't exist.
+        /// @throws NodeNotExistException Thrown when the node doesn't exist.
         /// @throws NodeUnreachableException Thrown when the node is unreachable.
         FileIterator* openNodeStdErr(string name, int count)
             throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException;
@@ -854,7 +854,7 @@ module IceGrid
         /// Otherwise, the file is read from the last @p count lines.
         /// @return An iterator to read the file. This proxy is never null.
         /// @throws FileNotAvailableException Thrown when the file can't be read.
-        /// @throws ServerNotExistException Thrown when the server doesn't exist.
+        /// @throws NodeNotExistException Thrown when the node doesn't exist.
         /// @throws NodeUnreachableException Thrown when the node is unreachable.
         FileIterator* openNodeStdOut(string name, int count)
             throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException;
@@ -865,7 +865,7 @@ module IceGrid
         /// Otherwise, the file is read from the last @p count lines.
         /// @return An iterator to read the file. This proxy is never null.
         /// @throws FileNotAvailableException Thrown when the file can't be read.
-        /// @throws ServerNotExistException Thrown when the server doesn't exist.
+        /// @throws RegistryNotExistException Thrown when the registry doesn't exist.
         /// @throws RegistryUnreachableException Thrown when the registry is unreachable.
         FileIterator* openRegistryStdErr(string name, int count)
             throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
@@ -876,7 +876,7 @@ module IceGrid
         /// Otherwise, the file is read from the last @p count lines.
         /// @return An iterator to read the file. This proxy is never null.
         /// @throws FileNotAvailableException Thrown when the file can't be read.
-        /// @throws ServerNotExistException Thrown when the server doesn't exist.
+        /// @throws RegistryNotExistException Thrown when the registry doesn't exist.
         /// @throws RegistryUnreachableException Thrown when the registry is unreachable.
         FileIterator * openRegistryStdOut(string name, int count)
             throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
