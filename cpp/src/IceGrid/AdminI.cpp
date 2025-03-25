@@ -213,13 +213,13 @@ AdminI::instantiateServer(string app, string node, ServerInstanceDescriptor desc
 }
 
 ApplicationInfo
-AdminI::getApplicationInfo(string name, const Current&) const
+AdminI::getApplicationInfo(string name, const Current&)
 {
     return _database->getApplicationInfo(name);
 }
 
 ApplicationDescriptor
-AdminI::getDefaultApplicationDescriptor(const Current& current) const
+AdminI::getDefaultApplicationDescriptor(const Current& current)
 {
     auto properties = current.adapter->getCommunicator()->getProperties();
     string path = properties->getIceProperty("IceGrid.Registry.DefaultTemplates");
@@ -267,39 +267,39 @@ AdminI::getDefaultApplicationDescriptor(const Current& current) const
 }
 
 Ice::StringSeq
-AdminI::getAllApplicationNames(const Current&) const
+AdminI::getAllApplicationNames(const Current&)
 {
     return _database->getAllApplications();
 }
 
 ServerInfo
-AdminI::getServerInfo(string id, const Current&) const
+AdminI::getServerInfo(string id, const Current&)
 {
     return _database->getServer(id)->getInfo(true);
 }
 
 ServerState
-AdminI::getServerState(string id, const Current&) const
+AdminI::getServerState(string id, const Current&)
 {
     auto proxy = ServerProxyWrapper::create(_database, std::move(id));
     return proxy.invoke(&ServerPrx::getState);
 }
 
 int
-AdminI::getServerPid(string id, const Current&) const
+AdminI::getServerPid(string id, const Current&)
 {
     auto proxy = ServerProxyWrapper::create(_database, std::move(id));
     return proxy.invoke(&ServerPrx::getPid);
 }
 
 string
-AdminI::getServerAdminCategory(const Current&) const
+AdminI::getServerAdminCategory(const Current&)
 {
     return _registry->getServerAdminCategory();
 }
 
 optional<ObjectPrx>
-AdminI::getServerAdmin(string id, const Current& current) const
+AdminI::getServerAdmin(string id, const Current& current)
 {
     auto proxy = ServerProxyWrapper::create(_database, id); // Ensure that the server exists and loaded on the node.
 
@@ -355,7 +355,7 @@ AdminI::sendSignal(string id, string signal, const Current&)
 }
 
 StringSeq
-AdminI::getAllServerIds(const Current&) const
+AdminI::getAllServerIds(const Current&)
 {
     return _database->getServerCache().getAll("");
 }
@@ -368,14 +368,14 @@ AdminI::enableServer(string id, bool enable, const Ice::Current&)
 }
 
 bool
-AdminI::isServerEnabled(string id, const Ice::Current&) const
+AdminI::isServerEnabled(string id, const Ice::Current&)
 {
     auto proxy = ServerProxyWrapper::create(_database, std::move(id));
     return proxy.invoke(&ServerPrx::isEnabled);
 }
 
 AdapterInfoSeq
-AdminI::getAdapterInfo(string id, const Current&) const
+AdminI::getAdapterInfo(string id, const Current&)
 {
     return _database->getAdapterInfo(id);
 }
@@ -388,7 +388,7 @@ AdminI::removeAdapter(string adapterId, const Ice::Current&)
 }
 
 StringSeq
-AdminI::getAllAdapterIds(const Current&) const
+AdminI::getAllAdapterIds(const Current&)
 {
     return _database->getAllAdapters();
 }
@@ -473,31 +473,31 @@ AdminI::removeObject(Ice::Identity id, const Ice::Current&)
 }
 
 ObjectInfo
-AdminI::getObjectInfo(Ice::Identity id, const Ice::Current&) const
+AdminI::getObjectInfo(Ice::Identity id, const Ice::Current&)
 {
     return _database->getObjectInfo(id);
 }
 
 ObjectInfoSeq
-AdminI::getObjectInfosByType(string type, const Ice::Current&) const
+AdminI::getObjectInfosByType(string type, const Ice::Current&)
 {
     return _database->getObjectInfosByType(type);
 }
 
 ObjectInfoSeq
-AdminI::getAllObjectInfos(string expression, const Ice::Current&) const
+AdminI::getAllObjectInfos(string expression, const Ice::Current&)
 {
     return _database->getAllObjectInfos(expression);
 }
 
 NodeInfo
-AdminI::getNodeInfo(string name, const Ice::Current&) const
+AdminI::getNodeInfo(string name, const Ice::Current&)
 {
     return toNodeInfo(_database->getNode(name)->getInfo());
 }
 
 optional<ObjectPrx>
-AdminI::getNodeAdmin(string name, const Current& current) const
+AdminI::getNodeAdmin(string name, const Current& current)
 {
     //
     // Check if the node exists
@@ -508,7 +508,7 @@ AdminI::getNodeAdmin(string name, const Current& current) const
 }
 
 bool
-AdminI::pingNode(string name, const Current&) const
+AdminI::pingNode(string name, const Current&)
 {
     try
     {
@@ -530,7 +530,7 @@ AdminI::pingNode(string name, const Current&) const
 }
 
 LoadInfo
-AdminI::getNodeLoad(string name, const Current&) const
+AdminI::getNodeLoad(string name, const Current&)
 {
     try
     {
@@ -549,7 +549,7 @@ AdminI::getNodeLoad(string name, const Current&) const
 }
 
 int
-AdminI::getNodeProcessorSocketCount(string name, const Current&) const
+AdminI::getNodeProcessorSocketCount(string name, const Current&)
 {
     try
     {
@@ -593,7 +593,7 @@ AdminI::shutdownNode(string name, const Current&)
 }
 
 string
-AdminI::getNodeHostname(string name, const Current&) const
+AdminI::getNodeHostname(string name, const Current&)
 {
     try
     {
@@ -612,13 +612,13 @@ AdminI::getNodeHostname(string name, const Current&) const
 }
 
 StringSeq
-AdminI::getAllNodeNames(const Current&) const
+AdminI::getAllNodeNames(const Current&)
 {
     return _database->getNodeCache().getAll("");
 }
 
 RegistryInfo
-AdminI::getRegistryInfo(string name, const Ice::Current&) const
+AdminI::getRegistryInfo(string name, const Ice::Current&)
 {
     if (name == _registry->getName())
     {
@@ -631,7 +631,7 @@ AdminI::getRegistryInfo(string name, const Ice::Current&) const
 }
 
 optional<ObjectPrx>
-AdminI::getRegistryAdmin(string name, const Current& current) const
+AdminI::getRegistryAdmin(string name, const Current& current)
 {
     if (name != _registry->getName())
     {
@@ -645,7 +645,7 @@ AdminI::getRegistryAdmin(string name, const Current& current) const
 }
 
 bool
-AdminI::pingRegistry(string name, const Current&) const
+AdminI::pingRegistry(string name, const Current&)
 {
     if (name == _registry->getName())
     {
@@ -693,7 +693,7 @@ AdminI::shutdownRegistry(string name, const Current&)
 }
 
 StringSeq
-AdminI::getAllRegistryNames(const Current&) const
+AdminI::getAllRegistryNames(const Current&)
 {
     Ice::StringSeq replicas = _database->getReplicaCache().getAll("");
     replicas.push_back(_registry->getName());

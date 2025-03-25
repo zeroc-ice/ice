@@ -199,43 +199,43 @@ NodeI::replicaRemoved(optional<InternalRegistryPrx> replica, const Ice::Current&
 }
 
 std::string
-NodeI::getName(const Ice::Current&) const
+NodeI::getName(const Ice::Current&)
 {
     return _name;
 }
 
 std::string
-NodeI::getHostname(const Ice::Current&) const
+NodeI::getHostname(const Ice::Current&)
 {
     return _platform.getHostname();
 }
 
 LoadInfo
-NodeI::getLoad(const Ice::Current&) const
+NodeI::getLoad(const Ice::Current&)
 {
     return _platform.getLoadInfo();
 }
 
 int
-NodeI::getProcessorSocketCount(const Ice::Current&) const
+NodeI::getProcessorSocketCount(const Ice::Current&)
 {
     return _platform.getProcessorSocketCount();
 }
 
 void
-NodeI::shutdown(const Ice::Current&) const
+NodeI::shutdown(const Ice::Current&)
 {
     _activator->shutdown();
 }
 
 int64_t
-NodeI::getOffsetFromEnd(string filename, int count, const Ice::Current&) const
+NodeI::getOffsetFromEnd(string filename, int count, const Ice::Current&)
 {
     return _fileCache->getOffsetFromEnd(getFilePath(filename), count);
 }
 
 bool
-NodeI::read(string filename, int64_t pos, int size, int64_t& newPos, Ice::StringSeq& lines, const Ice::Current&) const
+NodeI::read(string filename, int64_t pos, int size, int64_t& newPos, Ice::StringSeq& lines, const Ice::Current&)
 {
     return _fileCache->read(getFilePath(filename), pos, size, newPos, lines);
 }

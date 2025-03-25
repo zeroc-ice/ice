@@ -795,13 +795,13 @@ LocatorI::getRegistry(const Ice::Current&) const
 }
 
 optional<RegistryPrx>
-LocatorI::getLocalRegistry(const Ice::Current&) const
+LocatorI::getLocalRegistry(const Ice::Current&)
 {
     return _localRegistry;
 }
 
 optional<QueryPrx>
-LocatorI::getLocalQuery(const Ice::Current&) const
+LocatorI::getLocalQuery(const Ice::Current&)
 {
     return _localQuery;
 }

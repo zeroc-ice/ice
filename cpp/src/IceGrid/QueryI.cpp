@@ -15,7 +15,7 @@ QueryI::QueryI(CommunicatorPtr communicator, const shared_ptr<Database>& databas
 }
 
 optional<Ice::ObjectPrx>
-QueryI::findObjectById(Ice::Identity id, const Ice::Current&) const
+QueryI::findObjectById(Ice::Identity id, const Ice::Current&)
 {
     try
     {
@@ -28,25 +28,25 @@ QueryI::findObjectById(Ice::Identity id, const Ice::Current&) const
 }
 
 optional<Ice::ObjectPrx>
-QueryI::findObjectByType(string type, const Ice::Current& current) const
+QueryI::findObjectByType(string type, const Ice::Current& current)
 {
     return _database->getObjectByType(type, current.con, current.ctx);
 }
 
 optional<Ice::ObjectPrx>
-QueryI::findObjectByTypeOnLeastLoadedNode(string type, LoadSample sample, const Ice::Current& current) const
+QueryI::findObjectByTypeOnLeastLoadedNode(string type, LoadSample sample, const Ice::Current& current)
 {
     return _database->getObjectByTypeOnLeastLoadedNode(type, sample, current.con, current.ctx);
 }
 
 Ice::ObjectProxySeq
-QueryI::findAllObjectsByType(string type, const Ice::Current& current) const
+QueryI::findAllObjectsByType(string type, const Ice::Current& current)
 {
     return _database->getObjectsByType(type, current.con, current.ctx);
 }
 
 Ice::ObjectProxySeq
-QueryI::findAllReplicas(optional<Ice::ObjectPrx> proxy, const Ice::Current& current) const
+QueryI::findAllReplicas(optional<Ice::ObjectPrx> proxy, const Ice::Current& current)
 {
     if (!proxy)
     {

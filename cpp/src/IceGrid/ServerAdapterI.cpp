@@ -102,7 +102,7 @@ ServerAdapterI::activateAsync(
 }
 
 optional<Ice::ObjectPrx>
-ServerAdapterI::getDirectProxy(const Ice::Current&) const
+ServerAdapterI::getDirectProxy(const Ice::Current&)
 {
     lock_guard lock(_mutex);
 

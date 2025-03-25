@@ -117,7 +117,7 @@ module IceGrid
         /// Get the adapter direct proxy. The adapter direct proxy is a proxy created with the object adapter. The proxy
         /// contains the last known adapter endpoints.
         /// @return A direct proxy containing the last known adapter endpoints if the adapter is already active.
-        ["cpp:const"] idempotent Object* getDirectProxy()
+        idempotent Object* getDirectProxy()
             throws AdapterNotActiveException;
 
         /// Set the direct proxy for this adapter.
@@ -140,11 +140,11 @@ module IceGrid
     interface FileReader
     {
         /// Count the number of given lines from the end of the file and return the file offset.
-        ["cpp:const"] idempotent long getOffsetFromEnd(string filename, int lines)
+        idempotent long getOffsetFromEnd(string filename, int lines)
             throws FileNotAvailableException;
 
         /// Read lines (or size bytes) at the specified position from the given file.
-        ["cpp:const"] idempotent bool read(string filename, long pos, int size, out long newPos, out Ice::StringSeq lines)
+        idempotent bool read(string filename, long pos, int size, out long newPos, out Ice::StringSeq lines)
             throws FileNotAvailableException;
     }
 
@@ -169,7 +169,7 @@ module IceGrid
         void setEnabled(bool enable);
 
         /// Check if the server is enabled.
-        ["cpp:const"] idempotent bool isEnabled();
+        idempotent bool isEnabled();
 
         /// Send signal to the server
         void sendSignal(string signal)
@@ -181,11 +181,11 @@ module IceGrid
         /// Return the server state.
         /// @return The server state.
         /// @see ServerState
-        ["cpp:const"] idempotent ServerState getState();
+        idempotent ServerState getState();
 
         /// Get the server pid. Note that the value returned by this method is system dependant. On Unix operating systems,
         /// it's the pid value returned by the fork() system call and converted to an integer.
-        ["cpp:const"] idempotent int getPid();
+        idempotent int getPid();
 
         /// Set the process proxy.
         ["amd"] void setProcess(Ice::Process* proc);
@@ -240,19 +240,19 @@ module IceGrid
         void registerWithReplica(InternalRegistry* replica);
 
         /// Get the node name.
-        ["cpp:const"] idempotent string getName();
+        idempotent string getName();
 
         /// Get the node hostname.
-        ["cpp:const"] idempotent string getHostname();
+        idempotent string getHostname();
 
         /// Get the node load.
-        ["cpp:const"] idempotent LoadInfo getLoad();
+        idempotent LoadInfo getLoad();
 
         /// Get the number of processor sockets for the machine where this node is running.
-        ["cpp:const"] idempotent int getProcessorSocketCount();
+        idempotent int getProcessorSocketCount();
 
         /// Shutdown the node.
-        ["cpp:const"] idempotent void shutdown();
+        idempotent void shutdown();
     }
 
     sequence<Node*> NodePrxSeq;
@@ -272,21 +272,21 @@ module IceGrid
         void setReplicaObserver(ReplicaObserver* observer);
 
         /// Return the node session timeout.
-        ["cpp:const"] idempotent int getTimeout();
+        idempotent int getTimeout();
 
         /// Return the node observer.
-        ["cpp:const"] idempotent NodeObserver* getObserver();
+        idempotent NodeObserver* getObserver();
 
         /// Ask the registry to load the servers on the node.
-        ["amd"] ["cpp:const"] idempotent void loadServers();
+        ["amd"] idempotent void loadServers();
 
         /// Get the name of the servers deployed on the node.
-        ["cpp:const"] idempotent Ice::StringSeq getServers();
+        idempotent Ice::StringSeq getServers();
 
         /// Wait for the application update to complete (the application is completely updated once all the registry
         /// replicas have been updated). This is used by the node to ensure that before to start a server all the
         /// replicas have the up-to-date descriptor of the server.
-        ["amd"] ["cpp:const"] void waitForApplicationUpdate(string application, int revision);
+        ["amd"] void waitForApplicationUpdate(string application, int revision);
 
         /// Destroy the session.
         void destroy();
@@ -318,7 +318,7 @@ module IceGrid
         void keepAlive();
 
         /// Return the replica session timeout.
-        ["cpp:const"] idempotent int getTimeout();
+        idempotent int getTimeout();
 
         /// Set the database observer. Once the observer is subscribed, it will receive the database and database updates.
         idempotent void setDatabaseObserver(DatabaseObserver* dbObs, optional(1) StringLongDict serials)
@@ -414,17 +414,17 @@ module IceGrid
         void registerWithReplica(InternalRegistry* prx);
 
         /// Return the proxies of all the nodes known by this registry.
-        ["cpp:const"] idempotent NodePrxSeq getNodes();
+        idempotent NodePrxSeq getNodes();
 
         /// Return the proxies of all the registry replicas known by this registry.
-        ["cpp:const"] idempotent InternalRegistryPrxSeq getReplicas();
+        idempotent InternalRegistryPrxSeq getReplicas();
 
         /// Return applications, adapters, objects from this replica.
-        ["cpp:const"] idempotent ApplicationInfoSeq getApplications(out long serial);
-        ["cpp:const"] idempotent AdapterInfoSeq getAdapters(out long serial);
-        ["cpp:const"] idempotent ObjectInfoSeq getObjects(out long serial);
+        idempotent ApplicationInfoSeq getApplications(out long serial);
+        idempotent AdapterInfoSeq getAdapters(out long serial);
+        idempotent ObjectInfoSeq getObjects(out long serial);
 
         /// Shutdown this registry.
-        ["cpp:const"] idempotent void shutdown();
+        idempotent void shutdown();
     }
 }

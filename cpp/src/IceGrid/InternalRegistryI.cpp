@@ -129,7 +129,7 @@ InternalRegistryI::registerWithReplica(optional<InternalRegistryPrx> replica, co
 }
 
 NodePrxSeq
-InternalRegistryI::getNodes(const Ice::Current&) const
+InternalRegistryI::getNodes(const Ice::Current&)
 {
     NodePrxSeq nodes;
     for (const auto& proxy : _database->getInternalObjectsByType(string{Node::ice_staticId()}))
@@ -141,7 +141,7 @@ InternalRegistryI::getNodes(const Ice::Current&) const
 }
 
 InternalRegistryPrxSeq
-InternalRegistryI::getReplicas(const Ice::Current&) const
+InternalRegistryI::getReplicas(const Ice::Current&)
 {
     InternalRegistryPrxSeq replicas;
     for (const auto& proxy : _database->getObjectsByType(string{InternalRegistry::ice_staticId()}))
@@ -153,31 +153,31 @@ InternalRegistryI::getReplicas(const Ice::Current&) const
 }
 
 ApplicationInfoSeq
-InternalRegistryI::getApplications(int64_t& serial, const Ice::Current&) const
+InternalRegistryI::getApplications(int64_t& serial, const Ice::Current&)
 {
     return _database->getApplications(serial);
 }
 
 AdapterInfoSeq
-InternalRegistryI::getAdapters(int64_t& serial, const Ice::Current&) const
+InternalRegistryI::getAdapters(int64_t& serial, const Ice::Current&)
 {
     return _database->getAdapters(serial);
 }
 
 ObjectInfoSeq
-InternalRegistryI::getObjects(int64_t& serial, const Ice::Current&) const
+InternalRegistryI::getObjects(int64_t& serial, const Ice::Current&)
 {
     return _database->getObjects(serial);
 }
 
 void
-InternalRegistryI::shutdown(const Ice::Current& /*current*/) const
+InternalRegistryI::shutdown(const Ice::Current&)
 {
     _registry->shutdown();
 }
 
 int64_t
-InternalRegistryI::getOffsetFromEnd(string filename, int count, const Ice::Current&) const
+InternalRegistryI::getOffsetFromEnd(string filename, int count, const Ice::Current&)
 {
     return _fileCache->getOffsetFromEnd(getFilePath(filename), count);
 }
@@ -189,7 +189,7 @@ InternalRegistryI::read(
     int size,
     int64_t& newPos,
     Ice::StringSeq& lines,
-    const Ice::Current&) const
+    const Ice::Current&)
 {
     return _fileCache->read(getFilePath(filename), pos, size, newPos, lines);
 }

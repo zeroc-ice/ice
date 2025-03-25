@@ -35,17 +35,17 @@ namespace IceGrid
 
         void registerWithReplica(std::optional<InternalRegistryPrx>, const Ice::Current&) final;
 
-        [[nodiscard]] NodePrxSeq getNodes(const Ice::Current&) const final;
-        [[nodiscard]] InternalRegistryPrxSeq getReplicas(const Ice::Current&) const final;
+        [[nodiscard]] NodePrxSeq getNodes(const Ice::Current&) final;
+        [[nodiscard]] InternalRegistryPrxSeq getReplicas(const Ice::Current&) final;
 
-        ApplicationInfoSeq getApplications(std::int64_t&, const Ice::Current&) const final;
-        AdapterInfoSeq getAdapters(std::int64_t&, const Ice::Current&) const final;
-        ObjectInfoSeq getObjects(std::int64_t&, const Ice::Current&) const final;
+        ApplicationInfoSeq getApplications(std::int64_t&, const Ice::Current&) final;
+        AdapterInfoSeq getAdapters(std::int64_t&, const Ice::Current&) final;
+        ObjectInfoSeq getObjects(std::int64_t&, const Ice::Current&) final;
 
-        void shutdown(const Ice::Current&) const final;
+        void shutdown(const Ice::Current&) final;
 
-        [[nodiscard]] std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const final;
-        bool read(std::string, std::int64_t, int, std::int64_t&, Ice::StringSeq&, const Ice::Current&) const final;
+        [[nodiscard]] std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) final;
+        bool read(std::string, std::int64_t, int, std::int64_t&, Ice::StringSeq&, const Ice::Current&) final;
 
     private:
         [[nodiscard]] std::string getFilePath(const std::string&) const;

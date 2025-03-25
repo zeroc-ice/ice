@@ -118,13 +118,13 @@ AdminSessionI::_register(
 }
 
 optional<AdminPrx>
-AdminSessionI::getAdmin(const Ice::Current&) const
+AdminSessionI::getAdmin(const Ice::Current&)
 {
     return _admin;
 }
 
 std::optional<Ice::ObjectPrx>
-AdminSessionI::getAdminCallbackTemplate(const Ice::Current&) const
+AdminSessionI::getAdminCallbackTemplate(const Ice::Current&)
 {
     return _adminCallbackTemplate;
 }
@@ -243,7 +243,7 @@ AdminSessionI::finishUpdate(const Ice::Current&)
 }
 
 string
-AdminSessionI::getReplicaName(const Ice::Current&) const
+AdminSessionI::getReplicaName(const Ice::Current&)
 {
     return _replicaName;
 }

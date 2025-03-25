@@ -43,13 +43,13 @@ module IceGrid
         /// Find a well-known object by identity.
         /// @param id The identity.
         /// @return The proxy or null if no such object has been found.
-        ["cpp:const"] idempotent Object* findObjectById(Ice::Identity id);
+        idempotent Object* findObjectById(Ice::Identity id);
 
         /// Find a well-known object by type. If there are several objects registered for the given type, the object is
         /// randomly selected.
         /// @param type The object type.
         /// @return The proxy or null, if no such object has been found.
-        ["cpp:const"] idempotent Object* findObjectByType(string type);
+        idempotent Object* findObjectByType(string type);
 
         /// Find a well-known object by type on the least-loaded node. If the registry does not know which node hosts
         /// the object (for example, because the object was registered with a direct proxy), the registry assumes the
@@ -57,20 +57,19 @@ module IceGrid
         /// @param type The object type.
         /// @param sample The sampling interval.
         /// @return The proxy or null, if no such object has been found.
-        ["cpp:const"]
         idempotent Object* findObjectByTypeOnLeastLoadedNode(string type, LoadSample sample);
 
         /// Find all the well-known objects with the given type.
         /// @param type The object type.
         /// @return The proxies or an empty sequence, if no such objects have been found.
-        ["cpp:const"] idempotent Ice::ObjectProxySeq findAllObjectsByType(string type);
+        idempotent Ice::ObjectProxySeq findAllObjectsByType(string type);
 
         /// Find all the object replicas associated with the given proxy. If the given proxy is not an indirect proxy
         /// from a replica group, an empty sequence is returned.
         /// @param proxy The object proxy.
         /// @return The proxies of each object replica or an empty sequence, if the given proxy is not from a replica
         /// group.
-        ["cpp:const"] idempotent Ice::ObjectProxySeq findAllReplicas(Object* proxy);
+        idempotent Ice::ObjectProxySeq findAllReplicas(Object* proxy);
     }
 
     /// The IceGrid registry allows clients create sessions directly with the registry.
@@ -114,7 +113,7 @@ module IceGrid
         /// send heartbeats (using ACM) or call {@link Session#keepAlive} (resp. {@link AdminSession#keepAlive}) to keep
         /// a session alive in the IceGrid registry.
         /// @return The session timeout (in seconds).
-        ["cpp:const"] ["deprecated"] idempotent int getSessionTimeout();
+        ["deprecated"] idempotent int getSessionTimeout();
     }
 
     /// The IceGrid locator interface provides access to the {@link Query} and {@link Registry} object of the IceGrid
@@ -125,10 +124,10 @@ module IceGrid
     {
         /// Get the proxy of the registry object hosted by this IceGrid registry.
         /// @return The proxy of the registry object. The returned proxy is never null.
-        ["cpp:const"] idempotent Registry* getLocalRegistry();
+        idempotent Registry* getLocalRegistry();
 
         /// Get the proxy of the query object hosted by this IceGrid registry.
         /// @return The proxy of the query object. The returned proxy is never null.
-        ["cpp:const"] idempotent Query* getLocalQuery();
+        idempotent Query* getLocalQuery();
     }
 }

@@ -46,7 +46,7 @@ namespace IceGrid
         std::optional<SessionPrx> createSessionFromSecureConnection(const Ice::Current&) override;
         std::optional<AdminSessionPrx> createAdminSessionFromSecureConnection(const Ice::Current&) override;
 
-        [[nodiscard]] int getSessionTimeout(const Ice::Current&) const override;
+        [[nodiscard]] int getSessionTimeout(const Ice::Current&) override;
 
         [[nodiscard]] std::string getName() const;
         [[nodiscard]] RegistryInfo getInfo() const;

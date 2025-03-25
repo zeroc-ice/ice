@@ -116,20 +116,20 @@ NodeSessionI::setReplicaObserver(std::optional<ReplicaObserverPrx> observer, con
 }
 
 int
-NodeSessionI::getTimeout(const Ice::Current&) const
+NodeSessionI::getTimeout(const Ice::Current&)
 {
     return secondsToInt(_timeout);
 }
 
 optional<NodeObserverPrx>
-NodeSessionI::getObserver(const Ice::Current&) const
+NodeSessionI::getObserver(const Ice::Current&)
 {
     return dynamic_pointer_cast<NodeObserverTopic>(_database->getObserverTopic(TopicName::NodeObserver))
         ->getPublisher();
 }
 
 void
-NodeSessionI::loadServersAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current&) const
+NodeSessionI::loadServersAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current&)
 {
     //
     // No need to wait for the servers to be loaded. If we were
@@ -151,7 +151,7 @@ NodeSessionI::loadServersAsync(function<void()> response, function<void(exceptio
 }
 
 Ice::StringSeq
-NodeSessionI::getServers(const Ice::Current&) const
+NodeSessionI::getServers(const Ice::Current&)
 {
     auto servers = _database->getNode(_info->name)->getServers();
     Ice::StringSeq names;
@@ -168,7 +168,7 @@ NodeSessionI::waitForApplicationUpdateAsync(
     int revision,
     function<void()> response,
     function<void(exception_ptr)> exception,
-    const Ice::Current&) const
+    const Ice::Current&)
 {
     _database->waitForApplicationUpdate(application, revision, std::move(response), std::move(exception));
 }

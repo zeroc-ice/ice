@@ -59,19 +59,19 @@ namespace IceGrid
         void sendSignal(std::string, const Ice::Current&) override;
         void writeMessage(std::string, int, const Ice::Current&) override;
 
-        [[nodiscard]] ServerState getState(const Ice::Current&) const override;
-        [[nodiscard]] int getPid(const Ice::Current&) const override;
+        [[nodiscard]] ServerState getState(const Ice::Current&) override;
+        [[nodiscard]] int getPid(const Ice::Current&) override;
 
         void setEnabled(bool, const Ice::Current&) override;
-        [[nodiscard]] bool isEnabled(const Ice::Current&) const override;
+        [[nodiscard]] bool isEnabled(const Ice::Current&) override;
         void setProcessAsync(
             std::optional<Ice::ProcessPrx>,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) override;
 
-        [[nodiscard]] std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
-        bool read(std::string, std::int64_t, int, std::int64_t&, Ice::StringSeq&, const Ice::Current&) const override;
+        [[nodiscard]] std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) override;
+        bool read(std::string, std::int64_t, int, std::int64_t&, Ice::StringSeq&, const Ice::Current&) override;
 
         [[nodiscard]] bool isAdapterActivatable(const std::string&) const;
         [[nodiscard]] const std::string& getId() const;

@@ -23,7 +23,7 @@ namespace IceGrid
             std::chrono::seconds);
 
         void keepAlive(const Ice::Current&) override;
-        [[nodiscard]] int getTimeout(const Ice::Current&) const override;
+        [[nodiscard]] int getTimeout(const Ice::Current&) override;
         void setDatabaseObserver(std::optional<DatabaseObserverPrx>, std::optional<StringLongDict>, const Ice::Current&)
             final;
         void setEndpoints(StringObjectProxyDict, const Ice::Current&) override;

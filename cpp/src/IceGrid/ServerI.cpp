@@ -790,7 +790,7 @@ ServerI::writeMessage(string message, int fd, const Ice::Current&)
 }
 
 ServerState
-ServerI::getState(const Ice::Current&) const
+ServerI::getState(const Ice::Current&)
 {
     lock_guard lock(_mutex);
     checkDestroyed();
@@ -798,7 +798,7 @@ ServerI::getState(const Ice::Current&) const
 }
 
 int32_t
-ServerI::getPid(const Ice::Current&) const
+ServerI::getPid(const Ice::Current&)
 {
     return _node->getActivator()->getServerPid(_id);
 }
@@ -876,7 +876,7 @@ ServerI::setEnabled(bool enabled, const Ice::Current&)
 }
 
 bool
-ServerI::isEnabled(const Ice::Current&) const
+ServerI::isEnabled(const Ice::Current&)
 {
     lock_guard lock(_mutex);
     checkDestroyed();
@@ -937,13 +937,13 @@ ServerI::setProcessAsync(
 }
 
 int64_t
-ServerI::getOffsetFromEnd(string filename, int count, const Ice::Current&) const
+ServerI::getOffsetFromEnd(string filename, int count, const Ice::Current&)
 {
     return _node->getFileCache()->getOffsetFromEnd(getFilePath(filename), count);
 }
 
 bool
-ServerI::read(string filename, int64_t pos, int size, int64_t& newPos, Ice::StringSeq& lines, const Ice::Current&) const
+ServerI::read(string filename, int64_t pos, int size, int64_t& newPos, Ice::StringSeq& lines, const Ice::Current&)
 {
     return _node->getFileCache()->read(getFilePath(filename), pos, size, newPos, lines);
 }

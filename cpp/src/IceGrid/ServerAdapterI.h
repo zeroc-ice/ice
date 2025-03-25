@@ -20,7 +20,7 @@ namespace IceGrid
             std::function<void(const std::optional<Ice::ObjectPrx>&)>, // TODO: pass by value!
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) override;
-        [[nodiscard]] std::optional<Ice::ObjectPrx> getDirectProxy(const Ice::Current&) const override;
+        [[nodiscard]] std::optional<Ice::ObjectPrx> getDirectProxy(const Ice::Current&) override;
         void setDirectProxy(std::optional<Ice::ObjectPrx>, const Ice::Current&) override;
 
         void destroy();

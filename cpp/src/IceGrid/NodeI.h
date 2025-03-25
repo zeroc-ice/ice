@@ -87,14 +87,14 @@ namespace IceGrid
         void replicaAdded(std::optional<InternalRegistryPrx>, const Ice::Current&) override;
         void replicaRemoved(std::optional<InternalRegistryPrx>, const Ice::Current&) override;
 
-        [[nodiscard]] std::string getName(const Ice::Current&) const override;
-        [[nodiscard]] std::string getHostname(const Ice::Current&) const override;
-        [[nodiscard]] LoadInfo getLoad(const Ice::Current&) const override;
-        [[nodiscard]] int getProcessorSocketCount(const Ice::Current&) const override;
-        void shutdown(const Ice::Current&) const override;
+        [[nodiscard]] std::string getName(const Ice::Current&) override;
+        [[nodiscard]] std::string getHostname(const Ice::Current&) override;
+        [[nodiscard]] LoadInfo getLoad(const Ice::Current&) override;
+        [[nodiscard]] int getProcessorSocketCount(const Ice::Current&) override;
+        void shutdown(const Ice::Current&) override;
 
-        [[nodiscard]] std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
-        bool read(std::string, std::int64_t, int, std::int64_t&, Ice::StringSeq&, const Ice::Current&) const override;
+        [[nodiscard]] std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) override;
+        bool read(std::string, std::int64_t, int, std::int64_t&, Ice::StringSeq&, const Ice::Current&) override;
 
         void shutdown();
 

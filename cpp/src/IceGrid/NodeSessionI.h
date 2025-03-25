@@ -23,17 +23,17 @@ namespace IceGrid
 
         void keepAlive(LoadInfo, const Ice::Current&) final;
         void setReplicaObserver(std::optional<ReplicaObserverPrx>, const Ice::Current&) final;
-        [[nodiscard]] int getTimeout(const Ice::Current&) const final;
-        [[nodiscard]] std::optional<NodeObserverPrx> getObserver(const Ice::Current&) const final;
-        void loadServersAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&)
-            const final;
-        [[nodiscard]] Ice::StringSeq getServers(const Ice::Current&) const final;
+        [[nodiscard]] int getTimeout(const Ice::Current&) final;
+        [[nodiscard]] std::optional<NodeObserverPrx> getObserver(const Ice::Current&) final;
+        void
+        loadServersAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
+        [[nodiscard]] Ice::StringSeq getServers(const Ice::Current&) final;
         void waitForApplicationUpdateAsync(
             std::string,
             int,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
-            const Ice::Current&) const final;
+            const Ice::Current&) final;
         void destroy(const Ice::Current&) final;
 
         [[nodiscard]] std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept;

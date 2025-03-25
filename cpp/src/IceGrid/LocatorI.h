@@ -50,8 +50,8 @@ namespace IceGrid
             const Ice::Current&) const override;
 
         [[nodiscard]] std::optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const override;
-        [[nodiscard]] std::optional<RegistryPrx> getLocalRegistry(const Ice::Current&) const override;
-        [[nodiscard]] std::optional<QueryPrx> getLocalQuery(const Ice::Current&) const override;
+        [[nodiscard]] std::optional<RegistryPrx> getLocalRegistry(const Ice::Current&) override;
+        [[nodiscard]] std::optional<QueryPrx> getLocalQuery(const Ice::Current&) override;
 
         [[nodiscard]] const Ice::CommunicatorPtr& getCommunicator() const;
         [[nodiscard]] const std::shared_ptr<TraceLevels>& getTraceLevels() const;

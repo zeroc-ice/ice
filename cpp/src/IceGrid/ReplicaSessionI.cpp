@@ -97,7 +97,7 @@ ReplicaSessionI::keepAlive(const Ice::Current&)
 }
 
 int
-ReplicaSessionI::getTimeout(const Ice::Current&) const
+ReplicaSessionI::getTimeout(const Ice::Current&)
 {
     return secondsToInt(_timeout);
 }

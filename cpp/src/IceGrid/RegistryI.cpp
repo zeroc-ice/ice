@@ -1064,7 +1064,7 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
 }
 
 int
-RegistryI::getSessionTimeout(const Ice::Current&) const
+RegistryI::getSessionTimeout(const Ice::Current&)
 {
     // getSessionTimeout is called by clients that create sessions (resource allocation sessions aka client sessions and
     // admin sessions) directly using the IceGrid::Registry interface. These sessions are hosted by the
