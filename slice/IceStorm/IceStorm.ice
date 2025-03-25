@@ -102,7 +102,7 @@ module IceStorm
         /// @see #subscribeAndGetPublisher
         idempotent void unsubscribe(Object* subscriber);
 
-        /// Creates a link to another topic. All events originating on this topic will also be sent to this other topic.
+        /// Creates a link to another topic. All events originating on this topic will also be sent to the other topic.
         /// @param linkTo The topic to link to. This proxy is never null.
         /// @param cost The cost of the link.
         /// @throws LinkExists Thrown when a link to @p linkTo already exists.
