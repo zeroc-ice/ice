@@ -75,7 +75,7 @@ export class TestHelper {
     }
 
     createTestProperties(args = []) {
-        const properties = Ice.createProperties(args);
+        const properties = new Ice.Properties(args);
         args = properties.parseCommandLineOptions("Test", args);
         return [properties, args];
     }

@@ -76,8 +76,4 @@ export class BatchRequestQueue {
     destroy(ex) {
         this._exception = ex;
     }
-
-    isEmpty() {
-        return this._batchStream.size === Protocol.requestBatchHdr.length;
-    }
 }
