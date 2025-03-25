@@ -92,7 +92,7 @@ TransientTopicManagerImpl::retrieveAll(const Ice::Current&)
 }
 
 optional<IceStormElection::NodePrx>
-TransientTopicManagerImpl::getReplicaNode(const Ice::Current&) const
+TransientTopicManagerImpl::getReplicaNode(const Ice::Current&)
 {
     return nullopt;
 }

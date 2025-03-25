@@ -31,7 +31,7 @@ namespace Glacier2
         std::optional<Ice::ObjectPrx> getClientProxy(std::optional<bool>&, const Ice::Current&) const final;
         [[nodiscard]] std::optional<Ice::ObjectPrx> getServerProxy(const Ice::Current&) const final;
         Ice::ObjectProxySeq addProxies(Ice::ObjectProxySeq, const Ice::Current&) final;
-        [[nodiscard]] std::string getCategoryForClient(const Ice::Current&) const final;
+        [[nodiscard]] std::string getCategoryForClient(const Ice::Current&) final;
         void createSessionAsync(
             std::string,
             std::string,
@@ -44,8 +44,8 @@ namespace Glacier2
             const Ice::Current&) final;
         void refreshSession(const Ice::Current&) final {}
         void destroySession(const Ice::Current&) final;
-        [[nodiscard]] std::int64_t getSessionTimeout(const Ice::Current&) const final;
-        [[nodiscard]] int getACMTimeout(const Ice::Current&) const final;
+        [[nodiscard]] std::int64_t getSessionTimeout(const Ice::Current&) final;
+        [[nodiscard]] int getACMTimeout(const Ice::Current&) final;
 
         [[nodiscard]] std::shared_ptr<ClientBlobject> getClientBlobject() const;
         [[nodiscard]] std::shared_ptr<ServerBlobject> getServerBlobject() const;

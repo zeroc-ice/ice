@@ -36,11 +36,11 @@ namespace IceStormElection
         void ready(int, std::string, std::optional<Ice::ObjectPrx>, int, std::int64_t, const Ice::Current&) final;
         void
         accept(int, std::string, Ice::IntSeq, std::optional<Ice::ObjectPrx>, LogUpdate, int, const Ice::Current&) final;
-        [[nodiscard]] bool areYouCoordinator(const Ice::Current&) const final;
-        [[nodiscard]] bool areYouThere(std::string, int, const Ice::Current&) const final;
-        [[nodiscard]] std::optional<Ice::ObjectPrx> sync(const Ice::Current&) const final;
-        [[nodiscard]] NodeInfoSeq nodes(const Ice::Current&) const final;
-        [[nodiscard]] QueryInfo query(const Ice::Current&) const final;
+        [[nodiscard]] bool areYouCoordinator(const Ice::Current&) final;
+        [[nodiscard]] bool areYouThere(std::string, int, const Ice::Current&) final;
+        [[nodiscard]] std::optional<Ice::ObjectPrx> sync(const Ice::Current&) final;
+        [[nodiscard]] NodeInfoSeq nodes(const Ice::Current&) final;
+        [[nodiscard]] QueryInfo query(const Ice::Current&) final;
         void recovery(std::int64_t = -1);
 
         void destroy();

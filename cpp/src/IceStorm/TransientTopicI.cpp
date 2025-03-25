@@ -107,14 +107,14 @@ TransientTopicImpl::TransientTopicImpl(shared_ptr<Instance> instance, std::strin
 }
 
 string
-TransientTopicImpl::getName(const Ice::Current&) const
+TransientTopicImpl::getName(const Ice::Current&)
 {
     // Immutable
     return _name;
 }
 
 optional<Ice::ObjectPrx>
-TransientTopicImpl::getPublisher(const Ice::Current&) const
+TransientTopicImpl::getPublisher(const Ice::Current&)
 {
     // Immutable
     assert(_publisherPrx);
@@ -122,7 +122,7 @@ TransientTopicImpl::getPublisher(const Ice::Current&) const
 }
 
 optional<Ice::ObjectPrx>
-TransientTopicImpl::getNonReplicatedPublisher(const Ice::Current&) const
+TransientTopicImpl::getNonReplicatedPublisher(const Ice::Current&)
 {
     // Immutable
     assert(_publisherPrx);
@@ -292,7 +292,7 @@ TransientTopicImpl::unlink(optional<TopicPrx> topic, const Ice::Current&)
 }
 
 LinkInfoSeq
-TransientTopicImpl::getLinkInfoSeq(const Ice::Current&) const
+TransientTopicImpl::getLinkInfoSeq(const Ice::Current&)
 {
     lock_guard lock(_mutex);
 
@@ -313,7 +313,7 @@ TransientTopicImpl::getLinkInfoSeq(const Ice::Current&) const
 }
 
 Ice::IdentitySeq
-TransientTopicImpl::getSubscribers(const Ice::Current&) const
+TransientTopicImpl::getSubscribers(const Ice::Current&)
 {
     lock_guard lock(_mutex);
 

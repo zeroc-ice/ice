@@ -111,7 +111,7 @@ Glacier2::RouterI::addProxies(ObjectProxySeq proxies, const Current& current)
 }
 
 string
-Glacier2::RouterI::getCategoryForClient(const Current&) const
+Glacier2::RouterI::getCategoryForClient(const Current&)
 {
     assert(false); // Must not be called in this router implementation.
     return {};
@@ -144,14 +144,14 @@ Glacier2::RouterI::destroySession(const Current&)
 }
 
 int64_t
-Glacier2::RouterI::getSessionTimeout(const Current&) const
+Glacier2::RouterI::getSessionTimeout(const Current&)
 {
     assert(false); // Must not be called in this router implementation.
     return 0;
 }
 
 int32_t
-Glacier2::RouterI::getACMTimeout(const Current&) const
+Glacier2::RouterI::getACMTimeout(const Current&)
 {
     assert(false); // Must not be called in this router implementation.
     return 0;

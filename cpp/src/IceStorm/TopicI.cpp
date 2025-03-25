@@ -90,21 +90,21 @@ namespace
         {
         }
 
-        [[nodiscard]] string getName(const Ice::Current&) const override
+        [[nodiscard]] string getName(const Ice::Current&) override
         {
             // Use cached reads.
             CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
             return _impl->getName();
         }
 
-        [[nodiscard]] optional<Ice::ObjectPrx> getPublisher(const Ice::Current&) const override
+        [[nodiscard]] optional<Ice::ObjectPrx> getPublisher(const Ice::Current&) override
         {
             // Use cached reads.
             CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
             return _impl->getPublisher();
         }
 
-        [[nodiscard]] optional<Ice::ObjectPrx> getNonReplicatedPublisher(const Ice::Current&) const override
+        [[nodiscard]] optional<Ice::ObjectPrx> getNonReplicatedPublisher(const Ice::Current&) override
         {
             // Use cached reads.
             CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
@@ -261,14 +261,14 @@ namespace
             }
         }
 
-        [[nodiscard]] LinkInfoSeq getLinkInfoSeq(const Ice::Current&) const override
+        [[nodiscard]] LinkInfoSeq getLinkInfoSeq(const Ice::Current&) override
         {
             // Use cached reads.
             CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
             return _impl->getLinkInfoSeq();
         }
 
-        [[nodiscard]] Ice::IdentitySeq getSubscribers(const Ice::Current&) const override
+        [[nodiscard]] Ice::IdentitySeq getSubscribers(const Ice::Current&) override
         {
             return _impl->getSubscribers();
         }

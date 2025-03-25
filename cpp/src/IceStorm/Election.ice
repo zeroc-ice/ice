@@ -170,24 +170,24 @@ module IceStormElection
 
         /// Determine if this node is a coordinator.
         /// @return `true` if the node is a coordinator, `false` otherwise.
-        ["cpp:const"] idempotent bool areYouCoordinator();
+        idempotent bool areYouCoordinator();
 
         /// Determine if the node is a member of the given group with the given coordinator.
         /// @param gn The group name.
         /// @param j The group coordinator.
         /// @return `true` if the node is a member, `false` otherwise.
-        ["cpp:const"] idempotent bool areYouThere(string gn, int j);
+        idempotent bool areYouThere(string gn, int j);
 
         /// Get the sync object for the replica hosted by this node.
         /// @return The sync object.
-        ["cpp:const"] idempotent Object* sync();
+        idempotent Object* sync();
 
         /// Get the replication group information.
         /// @return The set of configured nodes and the associated priority.
-        ["cpp:const"] idempotent NodeInfoSeq nodes();
+        idempotent NodeInfoSeq nodes();
 
         /// Get the query information for the given node.
         /// @return The query information.
-        ["cpp:const"] idempotent QueryInfo query();
+        idempotent QueryInfo query();
     }
 }

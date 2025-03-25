@@ -19,7 +19,7 @@ namespace IceStorm
         std::optional<TopicPrx> create(std::string, const Ice::Current&) final;
         std::optional<TopicPrx> retrieve(std::string, const Ice::Current&) final;
         TopicDict retrieveAll(const Ice::Current&) final;
-        [[nodiscard]] std::optional<IceStormElection::NodePrx> getReplicaNode(const Ice::Current&) const final;
+        [[nodiscard]] std::optional<IceStormElection::NodePrx> getReplicaNode(const Ice::Current&) final;
 
         void reap();
         void shutdown();

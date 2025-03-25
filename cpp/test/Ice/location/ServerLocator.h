@@ -67,7 +67,7 @@ public:
 
     [[nodiscard]] std::optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const final;
 
-    [[nodiscard]] int getRequestCount(const Ice::Current&) const final;
+    [[nodiscard]] int getRequestCount(const Ice::Current&) final;
 
 private:
     ServerLocatorRegistryPtr _registry;

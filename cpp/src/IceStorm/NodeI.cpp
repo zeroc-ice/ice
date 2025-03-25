@@ -904,27 +904,27 @@ NodeI::accept(
 }
 
 bool
-NodeI::areYouCoordinator(const Ice::Current&) const
+NodeI::areYouCoordinator(const Ice::Current&)
 {
     lock_guard lock(_mutex);
     return _state != NodeState::NodeStateElection && _state != NodeState::NodeStateReorganization && _coord == _id;
 }
 
 bool
-NodeI::areYouThere(string gn, int j, const Ice::Current&) const
+NodeI::areYouThere(string gn, int j, const Ice::Current&)
 {
     lock_guard lock(_mutex);
     return _group == gn && _coord == _id && _up.find(GroupNodeInfo(j)) != _up.end();
 }
 
 optional<Ice::ObjectPrx>
-NodeI::sync(const Ice::Current&) const
+NodeI::sync(const Ice::Current&)
 {
     return _replica->getSync();
 }
 
 NodeInfoSeq
-NodeI::nodes(const Ice::Current&) const
+NodeI::nodes(const Ice::Current&)
 {
     NodeInfoSeq seq;
     for (const auto& n : _nodes)
@@ -936,7 +936,7 @@ NodeI::nodes(const Ice::Current&) const
 }
 
 QueryInfo
-NodeI::query(const Ice::Current&) const
+NodeI::query(const Ice::Current&)
 {
     lock_guard lock(_mutex);
     QueryInfo info;

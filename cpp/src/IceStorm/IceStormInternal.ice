@@ -65,6 +65,6 @@ module IceStorm
     {
         /// Return the replica node proxy for this topic manager.
         /// @return The replica proxy, or null if this instance is not replicated.
-        ["cpp:const"] idempotent IceStormElection::Node* getReplicaNode();
+        idempotent IceStormElection::Node* getReplicaNode();
     }
 } // End module IceStorm

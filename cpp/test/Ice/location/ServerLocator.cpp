@@ -147,7 +147,7 @@ ServerLocator::getRegistry(const Current&) const
 }
 
 int
-ServerLocator::getRequestCount(const Current&) const
+ServerLocator::getRequestCount(const Current&)
 {
     return _requestCount;
 }

@@ -579,7 +579,7 @@ SessionRouterI::addProxies(ObjectProxySeq proxies, const Current& current)
 }
 
 string
-SessionRouterI::getCategoryForClient(const Ice::Current& current) const
+SessionRouterI::getCategoryForClient(const Ice::Current& current)
 {
     // Forward to the per-client router.
     if (_instance->serverObjectAdapter())
@@ -738,13 +738,13 @@ SessionRouterI::destroySession(const ConnectionPtr& connection)
 }
 
 int64_t
-SessionRouterI::getSessionTimeout(const Ice::Current& current) const
+SessionRouterI::getSessionTimeout(const Ice::Current& current)
 {
     return getACMTimeout(current);
 }
 
 int
-SessionRouterI::getACMTimeout(const Ice::Current&) const
+SessionRouterI::getACMTimeout(const Ice::Current&)
 {
     int idleTimeout = _instance->properties()->getIcePropertyAsInt("Ice.Connection.Server.IdleTimeout");
     return _instance->properties()->getPropertyAsIntWithDefault("Glacier2.Client.Connection.IdleTimeout", idleTimeout);

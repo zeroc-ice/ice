@@ -20,7 +20,7 @@ module Test
         //
         // Returns the number of request on the locator interface.
         //
-        ["cpp:const"] idempotent int getRequestCount();
+        idempotent int getRequestCount();
     }
 
     interface ServerManager
