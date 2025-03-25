@@ -1106,7 +1106,7 @@ Slice::Ruby::CodeVisitor::writeConstantValue(
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if (constant)
     {
-        _out << fixIdent(constant->scoped(), IdentToUpper);
+        _out << fixScopedIdent(constant->scoped());
     }
     else
     {
@@ -1233,56 +1233,23 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, const vector<string>& include
 }
 
 string
-Slice::Ruby::fixIdent(const string& ident, IdentStyle style)
+Slice::Ruby::fixScopedIdent(const string& ident)
 {
     assert(!ident.empty());
-    if (ident[0] != ':')
-    {
-        string id = ident;
-        switch (style)
-        {
-            case IdentNormal:
-                break;
-            case IdentToUpper:
-                // Special case BEGIN & END for class/module names.
-                if (id == "BEGIN" || id == "END")
-                {
-                    return id + "_";
-                }
-                if (id[0] >= 'a' && id[0] <= 'z')
-                {
-                    id[0] += 'A' - 'a';
-                }
-                break;
-            case IdentToLower:
-                if (id[0] >= 'A' && id[0] <= 'Z')
-                {
-                    id[0] += 'a' - 'A';
-                }
-                break;
-        }
-        return lookupKwd(id);
-    }
+    assert(ident.find(':') != string::npos);
 
     vector<string> ids = splitScopedName(ident, false);
     assert(!ids.empty());
 
     ostringstream result;
 
-    for (vector<string>::size_type i = 0; i < ids.size() - 1; ++i)
+    for (const auto& id : ids)
     {
-        //
-        // We assume all intermediate names must be upper-case (i.e., they represent
-        // the names of modules or classes).
-        //
-        result << "::" << fixIdent(ids[i], IdentToUpper);
+        // We assume all intermediate names must be upper-case (i.e., they represent the names of modules or classes).
+        result << "::" << fixIdent(id, IdentToUpper);
     }
 
-    result << "::" << fixIdent(ids[ids.size() - 1], style);
-
-    //
     // Preserve trailing scope resolution operator if necessary.
-    //
     if (ident.rfind("::") == ident.size() - 2)
     {
         result << "::";
@@ -1292,9 +1259,41 @@ Slice::Ruby::fixIdent(const string& ident, IdentStyle style)
 }
 
 string
+Slice::Ruby::fixIdent(const string& ident, IdentStyle style)
+{
+    assert(!ident.empty());
+    assert(ident.find(':') == string::npos);
+
+    string id = ident;
+    switch (style)
+    {
+        case IdentNormal:
+            break;
+        case IdentToUpper:
+            // Special case BEGIN & END for class/module names.
+            if (id == "BEGIN" || id == "END")
+            {
+                return id + "_";
+            }
+            if (id[0] >= 'a' && id[0] <= 'z')
+            {
+                id[0] += 'A' - 'a';
+            }
+            break;
+        case IdentToLower:
+            if (id[0] >= 'A' && id[0] <= 'Z')
+            {
+                id[0] += 'a' - 'A';
+            }
+            break;
+    }
+    return lookupKwd(id);
+}
+
+string
 Slice::Ruby::getAbsolute(const ContainedPtr& p)
 {
-    const string scope = fixIdent(p->scope(), IdentToUpper);
+    const string scope = fixScopedIdent(p->scope());
     return scope + fixIdent(p->name(), IdentToUpper);
 }
 
@@ -1307,7 +1306,7 @@ Slice::Ruby::getMetaTypeName(const ContainedPtr& p)
 string
 Slice::Ruby::getMetaTypeReference(const ContainedPtr& p)
 {
-    return fixIdent(p->scope(), IdentToUpper) + getMetaTypeName(p);
+    return fixScopedIdent(p->scope()) + getMetaTypeName(p);
 }
 
 void
