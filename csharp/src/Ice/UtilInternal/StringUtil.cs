@@ -12,10 +12,7 @@ public sealed class StringUtil
     // appear in match, starting from 0. Returns -1 if none is
     // found.
     //
-    public static int findFirstOf(string str, string match)
-    {
-        return findFirstOf(str, match, 0);
-    }
+    public static int findFirstOf(string str, string match) => findFirstOf(str, match, 0);
 
     //
     // Return the index of the first character in str to
@@ -42,10 +39,7 @@ public sealed class StringUtil
     // not appear in match, starting from 0. Returns -1 if none is
     // found.
     //
-    public static int findFirstNotOf(string str, string match)
-    {
-        return findFirstNotOf(str, match, 0);
-    }
+    public static int findFirstNotOf(string str, string match) => findFirstNotOf(str, match, 0);
 
     //
     // Return the index of the first character in str which does
@@ -221,10 +215,10 @@ public sealed class StringUtil
         {
             // Encode UTF-8 bytes
 
-            UTF8Encoding utf8 = new UTF8Encoding();
+            var utf8 = new UTF8Encoding();
             byte[] bytes = utf8.GetBytes(s);
 
-            StringBuilder result = new StringBuilder(bytes.Length);
+            var result = new StringBuilder(bytes.Length);
             for (int i = 0; i < bytes.Length; i++)
             {
                 encodeChar((char)bytes[i], result, special, toStringMode);
@@ -234,7 +228,7 @@ public sealed class StringUtil
         }
         else
         {
-            StringBuilder result = new StringBuilder(s.Length);
+            var result = new StringBuilder(s.Length);
 
             for (int i = 0; i < s.Length; i++)
             {
@@ -379,7 +373,7 @@ public sealed class StringUtil
                     while (size > 0 && start < end)
                     {
                         c = s[start++];
-                        int charVal = 0;
+                        int charVal;
                         if (c >= '0' && c <= '9')
                         {
                             charVal = c - '0';
@@ -443,7 +437,7 @@ public sealed class StringUtil
                             while (size > 0 && start < end)
                             {
                                 c = s[start++];
-                                int charVal = 0;
+                                int charVal;
                                 if (c >= '0' && c <= '9')
                                 {
                                     charVal = c - '0';
@@ -548,12 +542,12 @@ public sealed class StringUtil
             {
                 checkChar(s, p++);
             }
-            return s.Substring(start, end - start);
+            return s[start..end];
         }
         else
         {
-            StringBuilder sb = new StringBuilder(end - start);
-            UTF8Encoding utf8Encoding = new UTF8Encoding(false, true);
+            var sb = new StringBuilder(end - start);
+            var utf8Encoding = new UTF8Encoding(false, true);
             while (start < end)
             {
                 start = decodeChar(s, start, end, special, sb, utf8Encoding);
@@ -567,7 +561,7 @@ public sealed class StringUtil
     //
     public static string[] splitString(string str, string delim)
     {
-        List<string> l = new List<string>();
+        var l = new List<string>();
         char[] arr = new char[str.Length];
         int pos = 0;
 
@@ -626,10 +620,7 @@ public sealed class StringUtil
         return l.ToArray();
     }
 
-    public static int checkQuote(string s)
-    {
-        return checkQuote(s, 0);
-    }
+    public static int checkQuote(string s) => checkQuote(s, 0);
 
     //
     // If a single or double quotation mark is found at the start position,
@@ -676,7 +667,7 @@ public sealed class StringUtil
         // Make sure start of the strings match
         //
         if (beginIndex > s.Length ||
-            !s.Substring(0, beginIndex).Equals(pat.Substring(0, beginIndex), StringComparison.Ordinal))
+            !s[..beginIndex].Equals(pat[..beginIndex], StringComparison.Ordinal))
         {
             return false;
         }
@@ -699,7 +690,7 @@ public sealed class StringUtil
         //
         // Make sure end of the strings match
         //
-        if (!s.Substring(endIndex, s.Length - endIndex).Equals(
+        if (!s[endIndex..].Equals(
                pat.Substring(beginIndex + 1, pat.Length - beginIndex - 1),
                StringComparison.Ordinal))
         {
@@ -711,10 +702,7 @@ public sealed class StringUtil
 
     private class OrdinalStringComparerImpl : IComparer<string>
     {
-        public int Compare(string l, string r)
-        {
-            return string.CompareOrdinal(l, r);
-        }
+        public int Compare(string l, string r) => string.CompareOrdinal(l, r);
     }
 
     public static IComparer<string> OrdinalStringComparer = new OrdinalStringComparerImpl();

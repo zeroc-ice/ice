@@ -41,10 +41,7 @@ public sealed class ControllerI : Test.ControllerDisp_
     }
 
     public override void
-    shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
     private readonly Dictionary<string, Ice.ObjectAdapter> _adapters = new Dictionary<string, Ice.ObjectAdapter>();
 }
@@ -52,8 +49,5 @@ public sealed class ControllerI : Test.ControllerDisp_
 public sealed class TestIntfI : Test.TestIntfDisp_
 {
     public override string
-    getAdapterId(Ice.Current current)
-    {
-        return current.adapter.getCommunicator().getProperties().getProperty(current.adapter.getName() + ".AdapterId");
-    }
+    getAdapterId(Ice.Current current) => current.adapter.getCommunicator().getProperties().getProperty(current.adapter.getName() + ".AdapterId");
 }

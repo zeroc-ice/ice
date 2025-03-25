@@ -130,7 +130,7 @@ module IceGrid
         string reason;
     }
 
-    /// The exception that is thrown when the registry update cannot be acquired.
+    /// The exception that is thrown when the registry update lock cannot be acquired.
     exception AccessDeniedException
     {
         /// The id of the user holding the lock (if any).

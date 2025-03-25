@@ -56,7 +56,7 @@ public class AllTests : global::Test.AllTests
             output.Flush();
             for (int i = 0; i < 10; ++i)
             {
-                Ice.InitializationData initData = new Ice.InitializationData();
+                var initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties().Clone();
                 Ice.Communicator comm = Ice.Util.initialize(initData);
                 _ = comm.stringToProxy("test:" + helper.getTestEndpoint(0)).ice_pingAsync();
@@ -77,7 +77,7 @@ public class AllTests : global::Test.AllTests
                 communicator.stringToProxy("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000");
             adapter.setPublishedEndpoints(prx.ice_getEndpoints());
             test(adapter.getPublishedEndpoints().Length == 2);
-            Ice.Identity id = new Ice.Identity("dummy", "");
+            var id = new Ice.Identity("dummy", "");
             test(Enumerable.SequenceEqual(adapter.createProxy(id).ice_getEndpoints(), prx.ice_getEndpoints()));
             test(Enumerable.SequenceEqual(adapter.getPublishedEndpoints(), prx.ice_getEndpoints()));
             adapter.destroy();
@@ -263,7 +263,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing object adapter with router... ");
         output.Flush();
         {
-            Ice.Identity routerId = new Ice.Identity("router", "");
+            var routerId = new Ice.Identity("router", "");
             Ice.RouterPrx router =
                 Ice.RouterPrxHelper.uncheckedCast(@base.ice_identity(routerId).ice_connectionId("rc"));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithRouter("", router);

@@ -17,26 +17,26 @@
 ["swift:module:IceStorm:MX"]
 module IceMX
 {
-    /// Provides information on IceStorm topics.
+    /// Provides information about one or more IceStorm topics.
     class TopicMetrics extends Metrics
     {
-        /// Number of events published on the topic by publishers.
+        /// The number of events published on the topic(s) by publishers.
         long published = 0;
 
-        /// Number of events forwarded on the topic by IceStorm topic links.
+        /// The number of events forwarded on the topic(s) by IceStorm topic links.
         long forwarded = 0;
     }
 
-    /// Provides information on IceStorm subscribers.
+    /// Provides information about IceStorm subscribers.
     class SubscriberMetrics extends Metrics
     {
-        /// Number of queued events.
+        /// The number of queued events.
         int queued = 0;
 
-        /// Number of outstanding events.
+        /// The number of outstanding events.
         int outstanding = 0;
 
-        /// Number of forwarded events.
+        /// The number of forwarded events.
         long delivered = 0;
     }
 }

@@ -45,10 +45,7 @@ internal sealed class OpaqueEndpointI : EndpointI
         s.endEncapsulation();
     }
 
-    public override void streamWriteImpl(Ice.OutputStream s)
-    {
-        Debug.Assert(false);
-    }
+    public override void streamWriteImpl(Ice.OutputStream s) => Debug.Assert(false);
 
     //
     // Convert the endpoint to its string form
@@ -67,120 +64,78 @@ internal sealed class OpaqueEndpointI : EndpointI
     //
     // Return the endpoint type
     //
-    public override short type()
-    {
-        return _type;
-    }
+    public override short type() => _type;
 
     //
     // Return the protocol name;
     //
-    public override string protocol()
-    {
-        return "opaque";
-    }
+    public override string protocol() => "opaque";
 
     //
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
-    public override int timeout()
-    {
-        return -1;
-    }
+    public override int timeout() => -1;
 
     //
     // Return a new endpoint with a different timeout value, provided
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    public override EndpointI timeout(int t)
-    {
-        return this;
-    }
+    public override EndpointI timeout(int t) => this;
 
-    public override string connectionId()
-    {
-        return "";
-    }
+    public override string connectionId() => "";
 
     //
     // Return a new endpoint with a different connection id.
     //
-    public override EndpointI connectionId(string id)
-    {
-        return this;
-    }
+    public override EndpointI connectionId(string id) => this;
 
     //
     // Return true if the endpoints support bzip2 compress, or false
     // otherwise.
     //
-    public override bool compress()
-    {
-        return false;
-    }
+    public override bool compress() => false;
 
     //
     // Return a new endpoint with a different compression value,
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
-    public override EndpointI compress(bool compress)
-    {
-        return this;
-    }
+    public override EndpointI compress(bool compress) => this;
 
     //
     // Return true if the endpoint is datagram-based.
     //
-    public override bool datagram()
-    {
-        return false;
-    }
+    public override bool datagram() => false;
 
     //
     // Return true if the endpoint is secure.
     //
-    public override bool secure()
-    {
-        return false;
-    }
+    public override bool secure() => false;
 
     //
     // Get the encoded endpoint.
     //
-    public byte[] rawBytes()
-    {
-        return _rawBytes;
-    }
+    public byte[] rawBytes() => _rawBytes;
 
     //
     // Return a server side transceiver for this endpoint, or null if a
     // transceiver can only be created by an acceptor.
     //
-    public override Transceiver transceiver()
-    {
-        return null;
-    }
+    public override Transceiver transceiver() => null;
 
     //
     // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
-    public override void connectors_async(EndpointI_connectors callback)
-    {
-        callback.connectors(new List<Connector>());
-    }
+    public override void connectors_async(EndpointI_connectors callback) => callback.connectors(new List<Connector>());
 
     //
     // Return an acceptor for this endpoint, or null if no acceptors
     // is available.
     //
-    public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions)
-    {
-        return null;
-    }
+    public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions) => null;
 
     public override List<EndpointI> expandHost() => [this];
 
@@ -191,10 +146,7 @@ internal sealed class OpaqueEndpointI : EndpointI
     //
     // Check whether the endpoint is equivalent to another one.
     //
-    public override bool equivalent(EndpointI endpoint)
-    {
-        return false;
-    }
+    public override bool equivalent(EndpointI endpoint) => false;
 
     public override int GetHashCode()
     {
@@ -229,7 +181,7 @@ internal sealed class OpaqueEndpointI : EndpointI
             return type() < obj.type() ? -1 : 1;
         }
 
-        OpaqueEndpointI p = (OpaqueEndpointI)obj;
+        var p = (OpaqueEndpointI)obj;
         if (this == p)
         {
             return 0;

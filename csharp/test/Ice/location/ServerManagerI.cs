@@ -30,7 +30,7 @@ public class ServerManagerI : Test.ServerManagerDisp_
         // its endpoints with the locator and create references containing
         // the adapter id instead of the endpoints.
         //
-        Ice.InitializationData initData = new Ice.InitializationData();
+        var initData = new Ice.InitializationData();
         initData.properties = _helper.communicator().getProperties().Clone();
         initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
         initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");

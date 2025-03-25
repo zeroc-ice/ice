@@ -5,10 +5,7 @@ public class Client : Test.TestHelper
     public sealed class caseI : escaped_abstract.caseDisp_
     {
         public override Task<int>
-        catchAsync(int @checked, Ice.Current current)
-        {
-            return Task<int>.FromResult(0);
-        }
+        catchAsync(int @checked, Ice.Current current) => Task<int>.FromResult(0);
     }
 
     public sealed class decimalI : escaped_abstract.decimalDisp_
@@ -21,15 +18,9 @@ public class Client : Test.TestHelper
     public sealed class TotallyDifferentI : escaped_abstract.TotallyDifferentDisp_
     {
         public override Task<int>
-        catchAsync(int @checked, Ice.Current current)
-        {
-            return Task<int>.FromResult(0);
-        }
+        catchAsync(int @checked, Ice.Current current) => Task<int>.FromResult(0);
 
-        public override void @default(Ice.Current current)
-        {
-            test(current.operation == "default");
-        }
+        public override void @default(Ice.Current current) => test(current.operation == "default");
     }
 
     public sealed class Test1I : escaped_abstract.System.TestDisp_
@@ -51,37 +42,36 @@ public class Client : Test.TestHelper
     {
         escaped_abstract.@as a = escaped_abstract.@as.@base;
         test(a == escaped_abstract.@as.@base);
-        escaped_abstract.@break b = new escaped_abstract.@break();
+        var b = new escaped_abstract.@break();
         b.@readonly = 0;
         test(b.@readonly == 0);
         escaped_abstract.@case c = new caseI();
         test(c != null);
         escaped_abstract.@casePrx c1 = null;
         test(c1 == null);
-        int c2 = 0;
-        c1?.@catch(0, out c2);
+        c1?.@catch(0, out _);
         escaped_abstract.@decimal d = new decimalI();
         test(d != null);
         escaped_abstract.@decimalPrx d1 = null;
         d1?.@default();
         test(d1 == null);
-        escaped_abstract.@delegate e = new escaped_abstract.@delegate();
+        var e = new escaped_abstract.@delegate();
         test(e != null);
         escaped_abstract.@delegate e1 = null;
         test(e1 == null);
         escaped_abstract.@TotallyDifferentPrx f1 = null;
         if (f1 != null)
         {
-            f1.@catch(0, out c2);
+            f1.@catch(0, out _);
             f1.@default();
         }
         test(f1 == null);
-        Dictionary<string, escaped_abstract.@break> g2 = new Dictionary<string, escaped_abstract.@break>();
+        var g2 = new Dictionary<string, escaped_abstract.@break>();
         test(g2 != null);
-        escaped_abstract.@fixed h = new escaped_abstract.@fixed();
+        var h = new escaped_abstract.@fixed();
         h.@for = 0;
         test(h != null);
-        escaped_abstract.@foreach i = new escaped_abstract.@foreach();
+        var i = new escaped_abstract.@foreach();
         i.@for = 0;
         i.@goto = 1;
         i.@if = 2;

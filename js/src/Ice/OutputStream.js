@@ -662,10 +662,7 @@ export class OutputStream {
     writePendingValues() {
         if (this._encapsStack !== null && this._encapsStack.encoder !== null) {
             this._encapsStack.encoder.writePendingValues();
-        } else if (
-            (this._encapsStack !== null && this._encapsStack.encoding_1_0) ||
-            (this._encapsStack === null && this._encoding.equals(Encoding_1_0))
-        ) {
+        } else if (this._encapsStack !== null ? this._encapsStack.encoding_1_0 : this._encoding.equals(Encoding_1_0)) {
             //
             // If using the 1.0 encoding and no instances were written, we
             // still write an empty sequence for pending instances if
@@ -891,17 +888,6 @@ export class OutputStream {
         }
     }
 
-    //
-    // Sets the encoding format for class and exception instances.
-    //
-    get format() {
-        return this._format;
-    }
-
-    set format(value) {
-        this._format = value;
-    }
-
     get pos() {
         return this._buf.position;
     }
@@ -912,14 +898,6 @@ export class OutputStream {
 
     get size() {
         return this._buf.limit;
-    }
-
-    get closure() {
-        return this._closure;
-    }
-
-    set closure(value) {
-        this._closure = value;
     }
 
     get buffer() {

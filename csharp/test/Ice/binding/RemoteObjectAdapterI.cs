@@ -13,17 +13,11 @@ public class RemoteObjectAdapterI : Test.RemoteObjectAdapterDisp_
     }
 
     public override Test.TestIntfPrx
-    getTestIntf(Ice.Current current)
-    {
-        return _testIntf;
-    }
+    getTestIntf(Ice.Current current) => _testIntf;
 
     public override void
-    deactivate(Ice.Current current)
-    {
-        _adapter.destroy();
-    }
+    deactivate(Ice.Current current) => _adapter.destroy();
 
     private readonly Ice.ObjectAdapter _adapter;
-    private Test.TestIntfPrx _testIntf;
+    private readonly Test.TestIntfPrx _testIntf;
 }

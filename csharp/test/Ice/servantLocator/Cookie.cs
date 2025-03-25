@@ -4,8 +4,5 @@ namespace Ice.servantLocator;
 
 public sealed class Cookie
 {
-    public string message()
-    {
-        return "blahblah";
-    }
+    public string message() => "blahblah";
 }

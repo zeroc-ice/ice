@@ -22,3 +22,20 @@ jobs:
       - name: Run JavaScript prettier
         run: npx prettier --check .
         working-directory: js
+
+  eslint:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "latest"
+
+      - name: Run JavaScript eslint
+        run: |
+          npm install
+          npx eslint
+        working-directory: js

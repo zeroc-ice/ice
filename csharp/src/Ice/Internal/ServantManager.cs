@@ -123,8 +123,7 @@ internal sealed class ServantManager : Object
         {
             facet ??= "";
 
-            Dictionary<string, Object>? m = null;
-            _servantMapMap.TryGetValue(ident, out m);
+            _servantMapMap.TryGetValue(ident, out Dictionary<string, Object>? m);
             Object? obj = null;
             if (m is null || !m.TryGetValue(facet, out Object? value))
             {

@@ -540,28 +540,19 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Returns a hash code for this proxy.
     /// </summary>
     /// <returns>The hash code.</returns>
-    public override int GetHashCode()
-    {
-        return _reference.GetHashCode();
-    }
+    public override int GetHashCode() => _reference.GetHashCode();
 
     /// <summary>
     /// Gets the communicator that created this proxy.
     /// </summary>
     /// <returns>The communicator that created this proxy.</returns>
-    public Communicator ice_getCommunicator()
-    {
-        return _reference.getCommunicator();
-    }
+    public Communicator ice_getCommunicator() => _reference.getCommunicator();
 
     /// <summary>
     /// Gets the stringified form of this proxy.
     /// </summary>
     /// <returns>The stringified proxy.</returns>
-    public override string ToString()
-    {
-        return _reference.ToString();
-    }
+    public override string ToString() => _reference.ToString();
 
     /// <summary>
     /// Tests whether this object supports a specific Slice interface.
@@ -594,10 +585,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         string id,
         Dictionary<string, string>? context = null,
         IProgress<bool>? progress = null,
-        CancellationToken cancel = default)
-    {
-        return iceI_ice_isAAsync(id, context, synchronous: false, progress, cancel);
-    }
+        CancellationToken cancel = default) => iceI_ice_isAAsync(id, context, synchronous: false, progress, cancel);
 
     private Task<bool>
     iceI_ice_isAAsync(
@@ -628,9 +616,9 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
             FormatType.CompactFormat,
             context,
             synchronous,
-            (OutputStream os) => { os.writeString(id); },
+            (OutputStream os) => os.writeString(id),
             null,
-            (InputStream iss) => { return iss.readBool(); });
+            (InputStream iss) => iss.readBool());
     }
 
     /// <summary>
@@ -659,10 +647,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     public Task ice_pingAsync(
         Dictionary<string, string>? context = null,
         IProgress<bool>? progress = null,
-        CancellationToken cancel = default)
-    {
-        return iceI_ice_pingAsync(context, synchronous: false, progress, cancel);
-    }
+        CancellationToken cancel = default) => iceI_ice_pingAsync(context, synchronous: false, progress, cancel);
 
     private Task
     iceI_ice_pingAsync(
@@ -720,10 +705,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     ice_idsAsync(
         Dictionary<string, string>? context = null,
         IProgress<bool>? progress = null,
-        CancellationToken cancel = default)
-    {
-        return iceI_ice_idsAsync(context, synchronous: false, progress, cancel);
-    }
+        CancellationToken cancel = default) => iceI_ice_idsAsync(context, synchronous: false, progress, cancel);
 
     private Task<string[]> iceI_ice_idsAsync(
         Dictionary<string, string>? context,
@@ -751,7 +733,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
             FormatType.CompactFormat,
             context,
             synchronous,
-            read: (InputStream iss) => { return iss.readStringSeq(); });
+            read: (InputStream iss) => iss.readStringSeq());
     }
 
     /// <summary>
@@ -781,10 +763,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     public Task<string> ice_idAsync(
         Dictionary<string, string>? context = null,
         IProgress<bool>? progress = null,
-        CancellationToken cancel = default)
-    {
-        return iceI_ice_idAsync(context, synchronous: false, progress, cancel);
-    }
+        CancellationToken cancel = default) => iceI_ice_idAsync(context, synchronous: false, progress, cancel);
 
     private Task<string>
     iceI_ice_idAsync(
@@ -812,7 +791,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
             FormatType.CompactFormat,
             context,
             synchronous,
-            read: (InputStream iss) => { return iss.readString(); });
+            read: (InputStream iss) => iss.readString());
     }
 
     /// <summary>
@@ -838,7 +817,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     {
         try
         {
-            var result = iceI_ice_invokeAsync(
+            Object_Ice_invokeResult result = iceI_ice_invokeAsync(
                 operation,
                 mode,
                 inEncaps,
@@ -872,10 +851,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         byte[] inEncaps,
         Dictionary<string, string>? context = null,
         IProgress<bool>? progress = null,
-        CancellationToken cancel = default)
-    {
-        return iceI_ice_invokeAsync(operation, mode, inEncaps, context, synchronous: false, progress, cancel);
-    }
+        CancellationToken cancel = default) => iceI_ice_invokeAsync(operation, mode, inEncaps, context, synchronous: false, progress, cancel);
 
     private Task<Object_Ice_invokeResult>
     iceI_ice_invokeAsync(
@@ -898,10 +874,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         byte[] inEncaps,
         Dictionary<string, string>? context,
         OutgoingAsyncCompletionCallback completed,
-        bool synchronous)
-    {
-        getInvokeOutgoingAsync(completed).invoke(operation, mode, inEncaps, context, synchronous);
-    }
+        bool synchronous) => getInvokeOutgoingAsync(completed).invoke(operation, mode, inEncaps, context, synchronous);
 
     /// <summary>
     /// Gets the identity embedded in this proxy.
@@ -936,30 +909,21 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <returns>The per-proxy context. If the proxy does not have a per-proxy (implicit) context, the return value
     /// is null.</returns>
-    public Dictionary<string, string> ice_getContext()
-    {
-        return new Dictionary<string, string>(_reference.getContext());
-    }
+    public Dictionary<string, string> ice_getContext() => new Dictionary<string, string>(_reference.getContext());
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the per-proxy context.
     /// </summary>
     /// <param name="newContext">The context for the new proxy.</param>
     /// <returns>The proxy with the new per-proxy context.</returns>
-    public ObjectPrx ice_context(Dictionary<string, string> newContext)
-    {
-        return iceNewInstance(_reference.changeContext(newContext));
-    }
+    public ObjectPrx ice_context(Dictionary<string, string> newContext) => iceNewInstance(_reference.changeContext(newContext));
 
     /// <summary>
     /// Gets the facet for this proxy.
     /// </summary>
     /// <returns>The facet for this proxy. If the proxy uses the default facet, the return value is the
     /// empty string.</returns>
-    public string ice_getFacet()
-    {
-        return _reference.getFacet();
-    }
+    public string ice_getFacet() => _reference.getFacet();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the facet.
@@ -985,10 +949,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <returns>The adapter ID. If the proxy does not have an adapter ID, the return value is the
     /// empty string.</returns>
-    public string ice_getAdapterId()
-    {
-        return _reference.getAdapterId();
-    }
+    public string ice_getAdapterId() => _reference.getAdapterId();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the adapter ID.
@@ -1013,10 +974,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Gets the endpoints used by this proxy.
     /// </summary>
     /// <returns>The endpoints used by this proxy.</returns>
-    public Endpoint[] ice_getEndpoints()
-    {
-        return (Endpoint[])_reference.getEndpoints().Clone();
-    }
+    public Endpoint[] ice_getEndpoints() => (Endpoint[])_reference.getEndpoints().Clone();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the endpoints.
@@ -1046,20 +1004,14 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Gets the locator cache timeout of this proxy.
     /// </summary>
     /// <returns>The locator cache timeout value.</returns>
-    public TimeSpan ice_getLocatorCacheTimeout()
-    {
-        return _reference.getLocatorCacheTimeout();
-    }
+    public TimeSpan ice_getLocatorCacheTimeout() => _reference.getLocatorCacheTimeout();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
     /// </summary>
     /// <param name="newTimeout">The new locator cache timeout (in seconds).</param>
     /// <returns>The new proxy with the specified locator cache timeout.</returns>
-    public ObjectPrx ice_locatorCacheTimeout(int newTimeout)
-    {
-        return ice_locatorCacheTimeout(TimeSpan.FromSeconds(newTimeout));
-    }
+    public ObjectPrx ice_locatorCacheTimeout(int newTimeout) => ice_locatorCacheTimeout(TimeSpan.FromSeconds(newTimeout));
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
@@ -1082,20 +1034,14 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Gets the invocation timeout of this proxy.
     /// </summary>
     /// <returns>The invocation timeout value.</returns>
-    public TimeSpan ice_getInvocationTimeout()
-    {
-        return _reference.getInvocationTimeout();
-    }
+    public TimeSpan ice_getInvocationTimeout() => _reference.getInvocationTimeout();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     /// </summary>
     /// <param name="newTimeout">The new invocation timeout (in milliseconds).</param>
     /// <returns>The new proxy with the specified invocation timeout.</returns>
-    public ObjectPrx ice_invocationTimeout(int newTimeout)
-    {
-        return ice_invocationTimeout(TimeSpan.FromMilliseconds(newTimeout));
-    }
+    public ObjectPrx ice_invocationTimeout(int newTimeout) => ice_invocationTimeout(TimeSpan.FromMilliseconds(newTimeout));
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
@@ -1118,10 +1064,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Returns whether this proxy caches connections.
     /// </summary>
     /// <returns>True if this proxy caches connections; false, otherwise.</returns>
-    public bool ice_isConnectionCached()
-    {
-        return _reference.getCacheConnection();
-    }
+    public bool ice_isConnectionCached() => _reference.getCacheConnection();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for connection caching.
@@ -1144,10 +1087,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Returns how this proxy selects endpoints (randomly or ordered).
     /// </summary>
     /// <returns>The endpoint selection policy.</returns>
-    public EndpointSelectionType ice_getEndpointSelection()
-    {
-        return _reference.getEndpointSelection();
-    }
+    public EndpointSelectionType ice_getEndpointSelection() => _reference.getEndpointSelection();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the endpoint selection policy.
@@ -1170,10 +1110,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Returns whether this proxy communicates only via secure endpoints.
     /// </summary>
     /// <returns>True if this proxy communicates only vi secure endpoints; false, otherwise.</returns>
-    public bool ice_isSecure()
-    {
-        return _reference.getSecure();
-    }
+    public bool ice_isSecure() => _reference.getSecure();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for how it selects endpoints.
@@ -1214,20 +1151,14 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
 
     /// <summary>Gets the encoding version used to marshal requests parameters.</summary>
     /// <returns>The encoding version.</returns>
-    public EncodingVersion ice_getEncodingVersion()
-    {
-        return _reference.getEncoding();
-    }
+    public EncodingVersion ice_getEncodingVersion() => _reference.getEncoding();
 
     /// <summary>
     /// Returns whether this proxy prefers secure endpoints.
     /// </summary>
     /// <returns>True if the proxy always attempts to invoke via secure endpoints before it
     /// attempts to use insecure endpoints; false, otherwise.</returns>
-    public bool ice_isPreferSecure()
-    {
-        return _reference.getPreferSecure();
-    }
+    public bool ice_isPreferSecure() => _reference.getPreferSecure();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for its endpoint selection policy.
@@ -1282,7 +1213,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <returns>The locator for this proxy. If no locator is configured, the return value is null.</returns>
     public LocatorPrx? ice_getLocator()
     {
-        var li = _reference.getLocatorInfo();
+        LocatorInfo li = _reference.getLocatorInfo();
         return li?.getLocator();
     }
 
@@ -1307,10 +1238,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Returns whether this proxy uses collocation optimization.
     /// </summary>
     /// <returns>True if the proxy uses collocation optimization; false, otherwise.</returns>
-    public bool ice_isCollocationOptimized()
-    {
-        return _reference.getCollocationOptimized();
-    }
+    public bool ice_isCollocationOptimized() => _reference.getCollocationOptimized();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for collocation optimization.
@@ -1371,10 +1299,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Returns whether this proxy uses oneway invocations.
     /// </summary>
     /// <returns>True if this proxy uses oneway invocations; false, otherwise.</returns>
-    public bool ice_isOneway()
-    {
-        return _reference.getMode() == Reference.Mode.ModeOneway;
-    }
+    public bool ice_isOneway() => _reference.getMode() == Reference.Mode.ModeOneway;
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, but uses batch oneway invocations.
@@ -1396,10 +1321,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Returns whether this proxy uses batch oneway invocations.
     /// </summary>
     /// <returns>True if this proxy uses batch oneway invocations; false, otherwise.</returns>
-    public bool ice_isBatchOneway()
-    {
-        return _reference.getMode() == Reference.Mode.ModeBatchOneway;
-    }
+    public bool ice_isBatchOneway() => _reference.getMode() == Reference.Mode.ModeBatchOneway;
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, but uses datagram invocations.
@@ -1421,10 +1343,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Returns whether this proxy uses datagram invocations.
     /// </summary>
     /// <returns>True if this proxy uses datagram invocations; false, otherwise.</returns>
-    public bool ice_isDatagram()
-    {
-        return _reference.getMode() == Reference.Mode.ModeDatagram;
-    }
+    public bool ice_isDatagram() => _reference.getMode() == Reference.Mode.ModeDatagram;
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, but uses batch datagram invocations.
@@ -1446,10 +1365,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Returns whether this proxy uses batch datagram invocations.
     /// </summary>
     /// <returns>True if this proxy uses batch datagram invocations; false, otherwise.</returns>
-    public bool ice_isBatchDatagram()
-    {
-        return _reference.getMode() == Reference.Mode.ModeBatchDatagram;
-    }
+    public bool ice_isBatchDatagram() => _reference.getMode() == Reference.Mode.ModeBatchDatagram;
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for compression.
@@ -1473,10 +1389,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <returns>The compression override setting. If no optional value is present, no override is
     /// set. Otherwise, true if compression is enabled, false otherwise.</returns>
-    public bool? ice_getCompress()
-    {
-        return _reference.getCompress();
-    }
+    public bool? ice_getCompress() => _reference.getCompress();
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for its connection ID.
@@ -1500,10 +1413,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// Gets the connection id of this proxy.
     /// </summary>
     /// <returns>The connection id.</returns>
-    public string ice_getConnectionId()
-    {
-        return _reference.getConnectionId();
-    }
+    public string ice_getConnectionId() => _reference.getConnectionId();
 
     /// <summary>
     /// Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
@@ -1537,10 +1447,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <returns>True if this is a fixed proxy, false otherwise.
     /// </returns>
-    public bool ice_isFixed()
-    {
-        return _reference is Ice.Internal.FixedReference;
-    }
+    public bool ice_isFixed() => _reference is Ice.Internal.FixedReference;
 
     public class GetConnectionTaskCompletionCallback : TaskCompletionCallback<Connection?>
     {
@@ -1551,10 +1458,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         {
         }
 
-        public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
-        {
-            SetResult(((ProxyGetConnection)og).getConnection());
-        }
+        public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og) => SetResult(((ProxyGetConnection)og).getConnection());
     }
 
     public Connection? ice_getConnection()
@@ -1628,10 +1532,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         outgoing.invoke(_ice_flushBatchRequests_name, synchronous);
     }
 
-    public System.Threading.Tasks.TaskScheduler ice_scheduler()
-    {
-        return _reference.getThreadPool();
-    }
+    public System.Threading.Tasks.TaskScheduler ice_scheduler() => _reference.getThreadPool();
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public void iceWrite(OutputStream os)
@@ -1755,10 +1656,9 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
             try
             {
                 var ret = new Object_Ice_invokeResult();
-                EncodingVersion encoding;
                 if (proxy_.iceReference().isTwoway)
                 {
-                    ret.outEncaps = is_.readEncapsulation(out encoding);
+                    ret.outEncaps = is_.readEncapsulation(out _);
                 }
                 else
                 {
@@ -1797,10 +1697,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
             }
         }
 
-        public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
-        {
-            SetResult(((InvokeOutgoingAsyncT)og).getResult(ok));
-        }
+        public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og) => SetResult(((InvokeOutgoingAsyncT)og).getResult(ok));
     }
 
     private InvokeOutgoingAsyncT
@@ -1962,10 +1859,7 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// with this proxy class.
     /// </summary>
     /// <returns>The type id, "::Ice::Object".</returns>
-    public static string ice_staticId()
-    {
-        return ObjectImpl.ice_staticId();
-    }
+    public static string ice_staticId() => ObjectImpl.ice_staticId();
 
     protected override ObjectPrxHelperBase iceNewInstance(Reference reference) => new ObjectPrxHelper(reference);
 

@@ -17,7 +17,7 @@ class RetryTask {
     destroy() {
         try {
             this._outAsync.abort(new CommunicatorDestroyedException());
-        } catch (ex) {
+        } catch {
             // Abort shouldn't throw if there's no callback, ignore.
         }
     }

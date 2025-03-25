@@ -31,11 +31,11 @@ public class AllTests : global::Test.AllTests
         r = oa.findDefaultServant("bar");
         test(r == null);
 
-        Ice.Identity identity = new Ice.Identity("", "foo");
+        var identity = new Ice.Identity("", "foo");
 
         string[] names = new string[] { "foo", "bar", "x", "y", "abcdefg" };
 
-        Test.MyObjectPrx prx = null;
+        Test.MyObjectPrx prx;
         for (int idx = 0; idx < 5; ++idx)
         {
             identity.name = names[idx];

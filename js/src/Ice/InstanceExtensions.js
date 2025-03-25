@@ -277,7 +277,7 @@ Instance.prototype.finishSetup = function (communicator) {
 
                 try {
                     v = StringUtil.toInt(retryIntervals[i]);
-                } catch (ex) {
+                } catch {
                     v = 0;
                 }
 

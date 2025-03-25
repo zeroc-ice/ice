@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice.Internal;
-
 using System.Diagnostics;
+
+namespace Ice.Internal;
 
 // An instance of ByteBuffer cannot grow beyond its initial capacity.
 // This class wraps a ByteBuffer and supports reallocation.
@@ -63,15 +63,9 @@ public class Buffer
         }
     }
 
-    public int size()
-    {
-        return _size;
-    }
+    public int size() => _size;
 
-    public bool empty()
-    {
-        return _size == 0;
-    }
+    public bool empty() => _size == 0;
 
     public void clear()
     {
@@ -167,7 +161,7 @@ public class Buffer
 
         try
         {
-            ByteBuffer buf = ByteBuffer.allocate(_capacity);
+            var buf = ByteBuffer.allocate(_capacity);
 
             if (b == _emptyBuffer)
             {

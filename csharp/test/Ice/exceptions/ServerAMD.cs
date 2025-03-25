@@ -24,15 +24,9 @@ namespace Ice.exceptions
             {
             }
 
-            public string getPrefix()
-            {
-                return "";
-            }
+            public string getPrefix() => "";
 
-            public Ice.Logger cloneWithPrefix(string prefix)
-            {
-                return new DummyLogger();
-            }
+            public Ice.Logger cloneWithPrefix(string prefix) => new DummyLogger();
         }
 
         public class Server : TestHelper

@@ -18,16 +18,10 @@ public class TestI : Test.TestIntfDisp_
     }
 
     public override int
-    opWithResult(Ice.Current current)
-    {
-        return 15;
-    }
+    opWithResult(Ice.Current current) => 15;
 
     public override void
-    opWithUE(Ice.Current current)
-    {
-        throw new Test.TestIntfException();
-    }
+    opWithUE(Ice.Current current) => throw new Test.TestIntfException();
 
     public override void
     opWithPayload(byte[] seq, Ice.Current current)
@@ -87,16 +81,10 @@ public class TestI : Test.TestIntfDisp_
         }
     }
 
-    public override void abortConnection(Ice.Current current)
-    {
-        current.con.abort();
-    }
+    public override void abortConnection(Ice.Current current) => current.con.abort();
 
     public override void
-    sleep(int ms, Ice.Current current)
-    {
-        Thread.Sleep(ms);
-    }
+    sleep(int ms, Ice.Current current) => Thread.Sleep(ms);
 
     public override void
     shutdown(Ice.Current current)
@@ -114,16 +102,10 @@ public class TestI : Test.TestIntfDisp_
     }
 
     public override bool
-    supportsFunctionalTests(Ice.Current current)
-    {
-        return false;
-    }
+    supportsFunctionalTests(Ice.Current current) => false;
 
     public override bool
-    supportsBackPressureTests(Ice.Current current)
-    {
-        return true;
-    }
+    supportsBackPressureTests(Ice.Current current) => true;
 
     public override Task opAsyncDispatchAsync(Ice.Current current) => Task.CompletedTask;
 
@@ -162,10 +144,7 @@ public class TestI : Test.TestIntfDisp_
     }
 
     private Test.TestIntfPrx
-    self(Ice.Current current)
-    {
-        return Test.TestIntfPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
-    }
+    self(Ice.Current current) => Test.TestIntfPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
 
     public override Task
     startDispatchAsync(Ice.Current current)
@@ -224,22 +203,13 @@ public class TestII : Test.Outer.Inner.TestIntfDisp_
 public class TestControllerI : Test.TestIntfControllerDisp_
 {
     public override void
-    holdAdapter(Ice.Current current)
-    {
-        _adapter.hold();
-    }
+    holdAdapter(Ice.Current current) => _adapter.hold();
 
     public override void
-    resumeAdapter(Ice.Current current)
-    {
-        _adapter.activate();
-    }
+    resumeAdapter(Ice.Current current) => _adapter.activate();
 
     public
-    TestControllerI(Ice.ObjectAdapter adapter)
-    {
-        _adapter = adapter;
-    }
+    TestControllerI(Ice.ObjectAdapter adapter) => _adapter = adapter;
 
     private readonly Ice.ObjectAdapter _adapter;
 }
