@@ -97,7 +97,7 @@ module IceStorm
         Object* subscribeAndGetPublisher(QoS theQoS, Object* subscriber)
             throws AlreadySubscribed, BadQoS;
 
-        /// Unsubscribes from this topic.
+        /// Unsubscribes the provided @p subscriber from this topic.
         /// @param subscriber A proxy to an existing subscriber. This proxy is never null.
         /// @see #subscribeAndGetPublisher
         idempotent void unsubscribe(Object* subscriber);
