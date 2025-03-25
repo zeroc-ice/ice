@@ -375,10 +375,6 @@ export class Properties {
         return unused;
     }
 
-    static createProperties(args, defaults) {
-        return new Properties(args, defaults);
-    }
-
     static findProperty(key, propertyArray) {
         for (const prop of propertyArray.properties) {
             // If the key is an exact match, return the property unless it has a property class which is prefix only.
