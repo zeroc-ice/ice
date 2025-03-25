@@ -76,11 +76,9 @@ NodeI::init()
     auto adapter = instance->getObjectAdapter();
     adapter->add<NodePrx>(self, _proxy->ice_getIdentity());
 
-    // Register the SessionDispatcher object as the default servant for subscriber and publisher sessions.
-    // The "s" category handles subscriber sessions, and the "p" category handles publisher sessions.
-    auto interceptor = make_shared<SessionDispatcher>(self, instance->getCallbackExecutor());
-    adapter->addDefaultServant(interceptor, "s");
-    adapter->addDefaultServant(interceptor, "p");
+    // Register the SessionDispatcher object as the default servant for subscriber sessions.
+    // The interceptor handles requests sent to subscriber session facets by publishers using a sample filter.
+    adapter->addDefaultServant(make_shared<SessionDispatcher>(self, instance->getCallbackExecutor()), "s");
 }
 
 void

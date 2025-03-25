@@ -2,7 +2,7 @@
 
 import { ArrayUtil } from "./ArrayUtil.js";
 import { BatchRequestQueue } from "./BatchRequestQueue.js";
-import { ConnectionRequestHandler } from "./ConnectionRequestHandler.js";
+import { FixedRequestHandler } from "./FixedRequestHandler.js";
 import { EndpointSelectionType } from "./EndpointSelectionType.js";
 import { HashUtil } from "./HashUtil.js";
 import { Ice as Ice_Identity } from "./Identity.js";
@@ -530,8 +530,7 @@ export class FixedReference extends Reference {
 
         this._fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
-        // TODO: rename ConnectionRequestHandler to FixedRequestHandler
-        return new ConnectionRequestHandler(this, this._fixedConnection);
+        return new FixedRequestHandler(this, this._fixedConnection);
     }
 
     get batchRequestQueue() {

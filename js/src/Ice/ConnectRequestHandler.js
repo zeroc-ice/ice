@@ -32,16 +32,14 @@ export class ConnectRequestHandler {
         }
 
         if (!this.initialized()) {
-            for (let i = 0; i < this._requests.length; i++) {
-                if (this._requests[i] === out) {
-                    out.completedEx(ex);
-                    this._requests.splice(i, 1);
-                    return;
-                }
-            }
-            DEV: console.assert(false); // The request has to be queued if it timed out and we're not initialized yet.
+            const i = this._requests.indexOf(out);
+            // The request has to be queued if it timed out and we're not initialized yet.
+            DEV: console.assert(i != -1);
+            out.completedEx(ex);
+            this._requests.splice(i, 1);
+        } else {
+            this._connection.asyncRequestCanceled(out, ex);
         }
-        this._connection.asyncRequestCanceled(out, ex);
     }
 
     getConnection() {
@@ -59,7 +57,7 @@ export class ConnectRequestHandler {
     //
     // Implementation of Reference_GetConnectionCallback
     //
-    setConnection(connection) {
+    async setConnection(connection) {
         DEV: console.assert(this._exception === null && this._connection === null);
 
         this._connection = connection;
@@ -68,11 +66,12 @@ export class ConnectRequestHandler {
         // object.
         const ri = this._reference.getRouterInfo();
         if (ri !== null) {
-            ri.addProxy(this._reference).then(
-                // The proxy was added to the router info, we're now ready to send the queued requests.
-                () => this.flushRequests(),
-                ex => this.setException(ex),
-            );
+            try {
+                await ri.addProxy(this._reference);
+                this.flushRequests();
+            } catch (ex) {
+                this.setException(ex);
+            }
             return; // The request handler will be initialized once addProxy completes.
         }
 

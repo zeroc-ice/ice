@@ -45,8 +45,8 @@ module Ice
         /// @throws AdapterNotFoundException Thrown when the locator only allows registered object adapters to register
         /// their endpoints and no object adapter with this adapter ID was registered with the locator.
         /// @throws AdapterAlreadyActiveException Thrown when an object adapter with the same adapter ID has already
-        /// registered its endpoints.
-        // Note: idempotent is not correct but kept for backwards compatibility with old implementations.
+        /// registered its endpoints. Since this operation is marked idempotent, this exception may be thrown when the
+        /// Ice client runtime retries an invocation with a non-null @p proxy.
         ["amd"] idempotent void setAdapterDirectProxy(string id, Object* proxy)
             throws AdapterNotFoundException, AdapterAlreadyActiveException;
 
@@ -60,10 +60,10 @@ module Ice
         /// @throws AdapterNotFoundException Thrown when the locator only allows registered object adapters to register
         /// their endpoints and no object adapter with this adapter ID was registered with the locator.
         /// @throws AdapterAlreadyActiveException Thrown when an object adapter with the same adapter ID has already
-        /// registered its endpoints.
+        /// registered its endpoints. Since this operation is marked idempotent, this exception may be thrown when the
+        /// Ice client runtime retries an invocation with a non-null @p proxy.
         /// @throws InvalidReplicaGroupIdException Thrown when the given replica group does not match the replica group
         /// associated with the adapter ID in the locator's database.
-        // Note: idempotent is not correct but kept for backwards compatibility with old implementations.
         ["amd"] idempotent void setReplicatedAdapterDirectProxy(string adapterId, string replicaGroupId, Object* proxy)
             throws AdapterNotFoundException, AdapterAlreadyActiveException, InvalidReplicaGroupIdException;
 
