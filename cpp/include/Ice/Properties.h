@@ -117,7 +117,7 @@ namespace Ice
         /// @see #setProperty
         StringSeq getPropertyAsListWithDefault(std::string_view key, const StringSeq& value);
 
-        /// Gets all properties whose keys begins with @p prefix. If @p prefix is an empty string, then all properties
+        /// Gets all properties whose keys begins with @p prefix. If @p prefix is the empty string, then all properties
         /// are returned.
         /// @param prefix The prefix to search for (empty string if none).
         /// @return The matching property set.
@@ -137,7 +137,7 @@ namespace Ice
         /// Converts a sequence of command-line options into properties. All options that start with `--prefix.` are
         /// converted into properties. If the prefix is empty, all options that begin with `--` are converted to
         /// properties.
-        /// @param prefix The property prefix, or an empty string to convert all options starting with `--`.
+        /// @param prefix The property prefix, or the empty string to convert all options starting with `--`.
         /// @param options The command-line options.
         /// @return The command-line options that do not start with the specified prefix, in their original order.
         StringSeq parseCommandLineOptions(std::string_view prefix, const StringSeq& options);

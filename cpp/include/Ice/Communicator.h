@@ -42,8 +42,8 @@ namespace Ice
         void shutdown() noexcept;
 
         /// Waits for shutdown to complete. In particular, this function waits for all operation dispatches to complete.
-        /// In a client application, without no operation dispatch, this function returns as soon as another thread
-        /// calls #shutdown or #destroy on this communicator.
+        /// In a client application that does not perform any operation dispatch, this function returns as soon as
+        /// another thread calls #shutdown or #destroy on this communicator.
         /// @see #shutdown
         /// @see ObjectAdapter::waitForDeactivate
         void waitForShutdown() noexcept;
@@ -172,7 +172,7 @@ namespace Ice
         /// communicator. This function returns `nullptr` unless you set a non-null default object adapter using
         /// #setDefaultObjectAdapter.
         /// @return The object adapter associated by default with new outgoing connections.
-        /// @throws CommunicatorDestroyedException Thrown when the communicator is destroyed.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         /// @see Connection::getAdapter
         [[nodiscard]] ObjectAdapterPtr getDefaultObjectAdapter() const;
 
@@ -201,7 +201,7 @@ namespace Ice
 
         /// Gets the default router of this communicator.
         /// @return The default router of this communicator.
-        /// @throws CommunicatorDestroyedException Thrown when the communicator is destroyed.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         /// @see #setDefaultRouter
         [[nodiscard]] std::optional<RouterPrx> getDefaultRouter() const;
 
@@ -229,7 +229,7 @@ namespace Ice
 
         /// Gets the plug-in manager of this communicator.
         /// @return This communicator's plug-in manager.
-        /// @throws CommunicatorDestroyedException Thrown when the communicator is destroyed.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         /// @see PluginManager
         [[nodiscard]] PluginManagerPtr getPluginManager() const;
 
@@ -269,8 +269,9 @@ namespace Ice
         /// Adds the Admin object with all its facets to the provided object adapter. If `Ice.Admin.ServerId`
         /// is set and the provided object adapter has a Locator, #createAdmin registers the Admin's Process facet with
         /// the Locator's LocatorRegistry.
-        /// @param adminAdapter The object adapter used to host the Admin object; when null and `Ice.Admin.Endpoints` is
-        /// set, this function uses instead the `Ice.Admin` object adapter, after creating and activating this adapter.
+        /// @param adminAdapter The object adapter used to host the Admin object; if it is null and
+        /// `Ice.Admin.Endpoints` is set, this function uses the `Ice.Admin` object adapter, after creating and
+        /// activating this adapter.
         /// @param adminId The identity of the Admin object.
         /// @return A proxy to the main ("") facet of the Admin object.
         /// @throws InitializationException Thrown when #createAdmin is called more than once.
@@ -283,7 +284,7 @@ namespace Ice
         /// `{UUID}/admin` when `Ice.Admin.InstanceName` is not set. If `Ice.Admin.DelayCreation` is `0` or not set,
         /// #getAdmin is called by the communicator initialization, after initialization of all plugins.
         /// @return A proxy to the main ("") facet of the Admin object, or nullopt if no Admin object is configured.
-        /// @throws CommunicatorDestroyedException Thrown when the communicator is destroyed.
+        /// @throws CommunicatorDestroyedException Thrown when the communicator has been destroyed.
         /// @see #createAdmin
         std::optional<ObjectPrx> getAdmin() const; // NOLINT(modernize-use-nodiscard)
 
