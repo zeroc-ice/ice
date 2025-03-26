@@ -14,14 +14,13 @@ class Server(TestHelper):
     def run(self, args):
 
         async def runAsync():
+
+            loop = asyncio.get_running_loop()
+
             initData = Ice.InitializationData()
             initData.properties = self.createTestProperties(args)
             initData.properties.setProperty("Ice.Warn.Dispatch", "0")
-
-            loop = asyncio.get_event_loop()
-            def coroutineExecutor(coroutine):
-                return asyncio.run_coroutine_threadsafe(coroutine, loop)
-            initData.coroutineExecutor = coroutineExecutor
+            initData.eventLoopAdapter = Ice.asyncio.EventLoopAdapter(loop)
 
             with self.initialize(initData) as communicator:
                 communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())

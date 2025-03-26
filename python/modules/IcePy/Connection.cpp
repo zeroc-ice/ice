@@ -4,6 +4,7 @@
 #include "Communicator.h"
 #include "ConnectionInfo.h"
 #include "Endpoint.h"
+#include "Future.h"
 #include "ObjectAdapter.h"
 #include "Operation.h"
 #include "Proxy.h"
@@ -431,7 +432,7 @@ connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
         return nullptr;
     }
     callback->setFuture(future.get());
-    return future.release();
+    return IcePy::wrapFuture(*self->communicator, future.get());
 }
 
 extern "C" PyObject*

@@ -55,7 +55,7 @@ class TestHelper:
             else:
                 initData.properties = self.createTestProperties(args)
 
-        communicator = Ice.initialize(initData)
+        communicator = Ice.initialize(initData=initData)
 
         if self._communicator is None:
             self._communicator = communicator
