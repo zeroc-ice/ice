@@ -17,7 +17,8 @@ public class Server : Test.TestHelper
         {
             _controller.checkCallPause(current);
             _ = current.adapter.getCommunicator();
-            return Task<Ice.ObjectPrx>.FromResult(current.adapter.createDirectProxy(Ice.Util.stringToIdentity("dummy")));
+            return Task<Ice.ObjectPrx>.FromResult(
+                current.adapter.createDirectProxy(Ice.Util.stringToIdentity("dummy")));
         }
 
         public override Task<Ice.ObjectPrx>
@@ -49,7 +50,8 @@ public class Server : Test.TestHelper
             return null;
         }
 
-        public override Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current) => new Ice.ObjectPrx[0];
+        public override Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current) =>
+            new Ice.ObjectPrx[0];
 
         internal RouterI(BackgroundControllerI controller) => _controller = controller;
 

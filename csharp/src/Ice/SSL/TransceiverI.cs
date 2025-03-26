@@ -490,7 +490,8 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
 
         if (errors != 0)
         {
-            _errorDescription = message.Length > 0 ? $"SSL authentication failure{message}." : "SSL authentication failure.";
+            _errorDescription =
+                message.Length > 0 ? $"SSL authentication failure{message}." : "SSL authentication failure.";
             if (traceLevel >= 1)
             {
                 logger.trace(traceCategory, _errorDescription);

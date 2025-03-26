@@ -227,7 +227,9 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
             //
             if (_pendingRequests.Count > 0 &&
                _locator != null &&
-               !locator.ice_getIdentity().category.Equals(_locator.ice_getIdentity().category, StringComparison.Ordinal))
+               !locator.ice_getIdentity().category.Equals(
+                   _locator.ice_getIdentity().category,
+                   StringComparison.Ordinal))
             {
                 if (!_warned)
                 {
@@ -674,5 +676,6 @@ internal class PluginI : Ice.Plugin
 public static class Util
 {
     public static void
-    registerIceLocatorDiscovery(bool loadOnInitialize) => Ice.Util.registerPluginFactory("IceLocatorDiscovery", new PluginFactory(), loadOnInitialize);
+    registerIceLocatorDiscovery(bool loadOnInitialize) =>
+        Ice.Util.registerPluginFactory("IceLocatorDiscovery", new PluginFactory(), loadOnInitialize);
 }

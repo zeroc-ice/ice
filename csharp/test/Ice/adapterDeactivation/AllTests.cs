@@ -68,13 +68,15 @@ public class AllTests : global::Test.AllTests
         output.Write("testing object adapter published endpoints... ");
         output.Flush();
         {
-            communicator.getProperties().setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
+            communicator.getProperties().setProperty(
+                "PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("PAdapter");
             test(adapter.getPublishedEndpoints().Length == 1);
             Ice.Endpoint endpt = adapter.getPublishedEndpoints()[0];
             test(endpt.ToString() == "tcp -h localhost -p 12345 -t 30000");
             Ice.ObjectPrx prx =
-                communicator.stringToProxy("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000");
+                communicator.stringToProxy(
+                    "dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000");
             adapter.setPublishedEndpoints(prx.ice_getEndpoints());
             test(adapter.getPublishedEndpoints().Length == 2);
             var id = new Ice.Identity("dummy", "");

@@ -144,7 +144,8 @@ public class AllTests : Test.AllTests
     }
 
     private static string
-    getPort(Ice.PropertiesAdminPrx p, int testPort = 0) => TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), testPort).ToString();
+    getPort(Ice.PropertiesAdminPrx p, int testPort = 0) =>
+        TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), testPort).ToString();
 
     private static Dictionary<string, string>
     getClientProps(Ice.PropertiesAdminPrx p, Dictionary<string, string> orig, string m)
@@ -365,7 +366,8 @@ public class AllTests : Test.AllTests
                   string map,
                   string attr,
                   string value,
-                  TextWriter output) => testAttributeAsync(metrics, props, update, map, attr, value, () => Task.CompletedTask, output);
+                  TextWriter output) =>
+                    testAttributeAsync(metrics, props, update, map, attr, value, () => Task.CompletedTask, output);
 
     private static void
     updateProps(Ice.PropertiesAdminPrx cprops,
@@ -672,16 +674,51 @@ public class AllTests : Test.AllTests
             var m = (MetricsPrx)metrics.ice_connectionId("Con1");
             m.ice_ping();
 
-            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "parent", "Communicator", output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "Connection",
+                "parent",
+                "Communicator",
+                output);
             // await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "id", "");
             await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpoint",
                           endpoint + " -t infinite", output);
 
             await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpointType", type, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpointIsDatagram", "False", output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpointIsSecure", isSecure, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpointTimeout", "-1", output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpointCompress", "False", output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "Connection",
+                "endpointIsDatagram",
+                "False",
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "Connection",
+                "endpointIsSecure",
+                isSecure,
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "Connection",
+                "endpointTimeout",
+                "-1",
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "Connection",
+                "endpointCompress",
+                "False",
+                output);
             await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpointHost", host, output);
             await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpointPort", port, output);
 
@@ -737,21 +774,90 @@ public class AllTests : Test.AllTests
             checkFailure(clientMetrics, "ConnectionEstablishment", m1.id, "::Ice::ConnectTimeoutException", 2, output);
 
             System.Func<Task> c = () => connectAsync(metrics);
-            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", hostAndPort, c, output);
+            await testAttributeAsync(
+                clientMetrics, 
+                clientProps,
+                update,
+                "ConnectionEstablishment",
+                "parent",
+                "Communicator",
+                c,
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "ConnectionEstablishment",
+                "id", 
+                hostAndPort,
+                c,
+                output);
             await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
                           endpoint, c, output);
 
-            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointType", type, c, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "False",
-                          c, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", isSecure,
-                          c, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", "60000", c, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "False",
-                          c, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", host, c, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointPort", port, c, output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "ConnectionEstablishment",
+                "endpointType",
+                type,
+                c,
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "ConnectionEstablishment",
+                "endpointIsDatagram",
+                "False",
+                c,
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "ConnectionEstablishment",
+                "endpointIsSecure",
+                isSecure,
+                c,
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "ConnectionEstablishment",
+                "endpointTimeout",
+                "60000",
+                c,
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "ConnectionEstablishment",
+                "endpointCompress",
+                "False",
+                c,
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "ConnectionEstablishment",
+                "endpointHost",
+                host,
+                c,
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "ConnectionEstablishment",
+                "endpointPort",
+                port,
+                c,
+                output);
 
             output.WriteLine("ok");
 
@@ -808,16 +914,88 @@ public class AllTests : Test.AllTests
 
             string expected = $"{protocol} -h localhost -p {port} -t 500";
 
-            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "parent", "Communicator", c, output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "EndpointLookup",
+                "parent",
+                "Communicator",
+                c,
+                output);
             await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "id", expected, c, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "endpoint", expected, c, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "endpointType", type, c, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "False", c, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsSecure", isSecure, c, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "endpointTimeout", "500", c, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "endpointCompress", "False", c, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "endpointHost", "localhost", c, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "EndpointLookup", "endpointPort", port, c, output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "EndpointLookup",
+                "endpoint",
+                expected,
+                c,
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "EndpointLookup",
+                "endpointType",
+                type,
+                c,
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "EndpointLookup",
+                "endpointIsDatagram",
+                "False",
+                c,
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "EndpointLookup",
+                "endpointIsSecure",
+                isSecure,
+                c,
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update, 
+                "EndpointLookup",
+                "endpointTimeout",
+                "500",
+                c,
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "EndpointLookup",
+                "endpointCompress",
+                "False",
+                c,
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "EndpointLookup",
+                "endpointHost",
+                "localhost",
+                c,
+                output);
+            await testAttributeAsync(
+                clientMetrics,
+                clientProps,
+                update,
+                "EndpointLookup",
+                "endpointPort", 
+                port,
+                c,
+                output);
 
             output.WriteLine("ok");
         }
@@ -911,15 +1089,55 @@ public class AllTests : Test.AllTests
             // await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
 
             await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointType", type, op, output);
-            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointIsDatagram", "False", op, output);
-            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointIsSecure", isSecure, op, output);
-            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointTimeout", "60000", op, output);
-            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointCompress", "False", op, output);
+            await testAttributeAsync(
+                serverMetrics,
+                serverProps,
+                update,
+                "Dispatch",
+                "endpointIsDatagram",
+                "False",
+                op,
+                output);
+            await testAttributeAsync(
+                serverMetrics,
+                serverProps,
+                update,
+                "Dispatch",
+                "endpointIsSecure",
+                isSecure,
+                op,
+                output);
+            await testAttributeAsync(
+                serverMetrics,
+                serverProps,
+                update,
+                "Dispatch",
+                "endpointTimeout",
+                "60000",
+                op,
+                output);
+            await testAttributeAsync(
+                serverMetrics,
+                serverProps,
+                update,
+                "Dispatch",
+                "endpointCompress",
+                "False",
+                op,
+                output);
             await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointHost", host, op, output);
             await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointPort", port, op, output);
 
             await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "incoming", "True", op, output);
-            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "adapterName", "TestAdapter", op, output);
+            await testAttributeAsync(
+                serverMetrics,
+                serverProps,
+                update,
+                "Dispatch",
+                "adapterName",
+                "TestAdapter",
+                op,
+                output);
             await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "connectionId", "", op, output);
             await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "localHost", host, op, output);
             await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "localPort", port, op, output);
@@ -944,8 +1162,24 @@ public class AllTests : Test.AllTests
         output.Flush();
         MetricsPrx indirectMetrics = MetricsPrxHelper.createProxy(communicator, "metrics:" + forwardingEndpoint);
         System.Func<Task> secondOp = () => invokeOpAsync(indirectMetrics);
-        await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "parent", "ForwardingAdapter", secondOp, output);
-        await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "id", "metrics [op]", secondOp, output);
+        await testAttributeAsync(
+            serverMetrics,
+            serverProps,
+            update,
+            "Dispatch",
+            "parent",
+            "ForwardingAdapter",
+            secondOp,
+            output);
+        await testAttributeAsync(
+            serverMetrics,
+            serverProps,
+            update,
+            "Dispatch",
+            "id",
+            "metrics [op]",
+            secondOp,
+            output);
         output.WriteLine("ok");
 
         output.Write("testing invocation metrics... ");
@@ -1109,7 +1343,15 @@ public class AllTests : Test.AllTests
             checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::ConnectionLostException", 2, output);
         }
 
-        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op, output);
+        await testAttributeAsync(
+            clientMetrics,
+            clientProps,
+            update,
+            "Invocation",
+            "parent",
+            "Communicator",
+            op,
+            output);
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "id", "metrics [op]", op, output);
 
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "operation", "op", op, output);
@@ -1117,9 +1359,25 @@ public class AllTests : Test.AllTests
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "facet", "", op, output);
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "encoding", "1.1", op, output);
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "mode", "twoway", op, output);
-        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "proxy", "metrics:" + endpoint, op, output);
+        await testAttributeAsync(
+            clientMetrics,
+            clientProps,
+            update,
+            "Invocation",
+            "proxy",
+            "metrics:" + endpoint,
+            op,
+            output);
 
-        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op, output);
+        await testAttributeAsync(
+            clientMetrics,
+            clientProps,
+            update,
+            "Invocation",
+            "context.entry1",
+            "test",
+            op,
+            output);
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op, output);
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "context.entry3", "", op, output);
 

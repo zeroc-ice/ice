@@ -851,7 +851,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         byte[] inEncaps,
         Dictionary<string, string>? context = null,
         IProgress<bool>? progress = null,
-        CancellationToken cancel = default) => iceI_ice_invokeAsync(operation, mode, inEncaps, context, synchronous: false, progress, cancel);
+        CancellationToken cancel = default) =>
+            iceI_ice_invokeAsync(operation,mode, inEncaps, context, synchronous: false, progress, cancel);
 
     private Task<Object_Ice_invokeResult>
     iceI_ice_invokeAsync(
@@ -916,7 +917,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <param name="newContext">The context for the new proxy.</param>
     /// <returns>The proxy with the new per-proxy context.</returns>
-    public ObjectPrx ice_context(Dictionary<string, string> newContext) => iceNewInstance(_reference.changeContext(newContext));
+    public ObjectPrx ice_context(Dictionary<string, string> newContext) =>
+        iceNewInstance(_reference.changeContext(newContext));
 
     /// <summary>
     /// Gets the facet for this proxy.
@@ -1011,7 +1013,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <param name="newTimeout">The new locator cache timeout (in seconds).</param>
     /// <returns>The new proxy with the specified locator cache timeout.</returns>
-    public ObjectPrx ice_locatorCacheTimeout(int newTimeout) => ice_locatorCacheTimeout(TimeSpan.FromSeconds(newTimeout));
+    public ObjectPrx ice_locatorCacheTimeout(int newTimeout) =>
+        ice_locatorCacheTimeout(TimeSpan.FromSeconds(newTimeout));
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
@@ -1041,7 +1044,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// </summary>
     /// <param name="newTimeout">The new invocation timeout (in milliseconds).</param>
     /// <returns>The new proxy with the specified invocation timeout.</returns>
-    public ObjectPrx ice_invocationTimeout(int newTimeout) => ice_invocationTimeout(TimeSpan.FromMilliseconds(newTimeout));
+    public ObjectPrx ice_invocationTimeout(int newTimeout) =>
+        ice_invocationTimeout(TimeSpan.FromMilliseconds(newTimeout));
 
     /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
@@ -1458,7 +1462,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         {
         }
 
-        public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og) => SetResult(((ProxyGetConnection)og).getConnection());
+        public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og) =>
+            SetResult(((ProxyGetConnection)og).getConnection());
     }
 
     public Connection? ice_getConnection()
@@ -1697,7 +1702,8 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
             }
         }
 
-        public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og) => SetResult(((InvokeOutgoingAsyncT)og).getResult(ok));
+        public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og) =>
+            SetResult(((InvokeOutgoingAsyncT)og).getResult(ok));
     }
 
     private InvokeOutgoingAsyncT
@@ -1819,7 +1825,9 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <param name="proxy">The proxy to cast to ObjectPrx.</param>
     /// <param name="context">The Context map for the invocation.</param>
     /// <returns>proxy.</returns>
-    public static async Task<ObjectPrx?> checkedCastAsync(ObjectPrx proxy, Dictionary<string, string>? context = null) =>
+    public static async Task<ObjectPrx?> checkedCastAsync(
+        ObjectPrx proxy,
+        Dictionary<string, string>? context = null) =>
        await proxy.ice_isAAsync("::Ice::Object", context).ConfigureAwait(false) ? proxy : null;
 
     /// <summary>
@@ -1832,7 +1840,10 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <param name="facet">The facet for the new proxy.</param>
     /// <param name="context">The Context map for the invocation.</param>
     /// <returns>The new proxy with the specified facet.</returns>
-    public static Task<ObjectPrx?> checkedCastAsync(ObjectPrx proxy, string facet, Dictionary<string, string>? context = null) =>
+    public static Task<ObjectPrx?> checkedCastAsync(
+        ObjectPrx proxy,
+        string facet,
+        Dictionary<string, string>? context = null) =>
         checkedCastAsync(proxy.ice_facet(facet), context);
 
     /// <summary>

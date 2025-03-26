@@ -16,9 +16,11 @@ internal sealed class Network
 
     internal static SocketError socketErrorCode(System.Net.Sockets.SocketException ex) => ex.SocketErrorCode;
 
-    internal static bool interrupted(System.Net.Sockets.SocketException ex) => socketErrorCode(ex) == SocketError.Interrupted;
+    internal static bool interrupted(System.Net.Sockets.SocketException ex) =>
+        socketErrorCode(ex) == SocketError.Interrupted;
 
-    internal static bool wouldBlock(System.Net.Sockets.SocketException ex) => socketErrorCode(ex) == SocketError.WouldBlock;
+    internal static bool wouldBlock(System.Net.Sockets.SocketException ex) =>
+        socketErrorCode(ex) == SocketError.WouldBlock;
 
     internal static bool connectionLost(System.Net.Sockets.SocketException ex)
     {
@@ -64,9 +66,11 @@ internal sealed class Network
         return false;
     }
 
-    internal static bool connectionRefused(System.Net.Sockets.SocketException ex) => socketErrorCode(ex) == SocketError.ConnectionRefused;
+    internal static bool 
+    connectionRefused(System.Net.Sockets.SocketException ex) => socketErrorCode(ex) == SocketError.ConnectionRefused;
 
-    internal static bool recvTruncated(System.Net.Sockets.SocketException ex) => socketErrorCode(ex) == SocketError.MessageSize;
+    internal static bool 
+    recvTruncated(System.Net.Sockets.SocketException ex) =>socketErrorCode(ex) == SocketError.MessageSize;
 
     internal static bool timeout(System.IO.IOException ex) =>
         //
@@ -444,7 +448,8 @@ internal sealed class Network
         }
     }
 
-    internal static int getProtocolSupport(IPAddress addr) => addr.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
+    internal static int getProtocolSupport(IPAddress addr) =>
+        addr.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
 
     internal static EndPoint getAddressForServer(string host, int port, int protocol, bool preferIPv6)
     {

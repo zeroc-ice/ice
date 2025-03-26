@@ -2256,7 +2256,8 @@ public sealed class OutputStream
     //
     private EncodingVersion _encoding;
 
-    private bool isEncoding_1_0() => _encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
+    private bool isEncoding_1_0() => _encapsStack !=
+        null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
 
     private Encaps? _encapsStack;
     private Encaps? _encapsCache;

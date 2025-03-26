@@ -194,20 +194,29 @@ public class MetricsHelper<T> where T : Metrics
             return resolver.resolveImpl(helper);
         }
 
-        public void
-        add(string name, System.Reflection.MethodInfo method) => _attributes.Add(name, new MethodResolverI(name, method));
+        public void add(
+            string name, 
+            System.Reflection.MethodInfo method) => _attributes.Add(name, new MethodResolverI(name, method));
+
+        public void add(
+            string name,
+            System.Reflection.FieldInfo field) => _attributes.Add(name, new FieldResolverI(name, field));
+
+        public void add(
+            string name,
+            System.Reflection.MethodInfo method, System.Reflection.FieldInfo field) =>
+                _attributes.Add(name, new MemberFieldResolverI(name, method, field));
+
+        public void add(
+            string name,
+            System.Reflection.MethodInfo method, System.Reflection.PropertyInfo property) =>
+                _attributes.Add(name, new MemberPropertyResolverI(name, method, property));
 
         public void
-        add(string name, System.Reflection.FieldInfo field) => _attributes.Add(name, new FieldResolverI(name, field));
-
-        public void
-        add(string name, System.Reflection.MethodInfo method, System.Reflection.FieldInfo field) => _attributes.Add(name, new MemberFieldResolverI(name, method, field));
-
-        public void add(string name, System.Reflection.MethodInfo method, System.Reflection.PropertyInfo property) =>
-            _attributes.Add(name, new MemberPropertyResolverI(name, method, property));
-
-        public void
-        add(string name, System.Reflection.MethodInfo method, System.Reflection.MethodInfo subMethod) => _attributes.Add(name, new MemberMethodResolverI(name, method, subMethod));
+        add(
+            string name,
+            System.Reflection.MethodInfo method, System.Reflection.MethodInfo subMethod) =>
+                _attributes.Add(name, new MemberMethodResolverI(name, method, subMethod));
 
         private readonly Dictionary<string, Resolver> _attributes = new Dictionary<string, Resolver>();
     }

@@ -19,10 +19,12 @@ namespace Ice.seqMapping
             opLByteSAsync(List<byte> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpLByteSResult(i, i));
 
             public override Task<Test.MyClass_OpKByteSResult>
-            opKByteSAsync(LinkedList<byte> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpKByteSResult(i, i));
+            opKByteSAsync(LinkedList<byte> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpKByteSResult(i, i));
 
             public override Task<Test.MyClass_OpQByteSResult>
-            opQByteSAsync(Queue<byte> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpQByteSResult(i, i));
+            opQByteSAsync(Queue<byte> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpQByteSResult(i, i));
 
             public override Task<Test.MyClass_OpSByteSResult>
             opSByteSAsync(Stack<byte> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpSByteSResult(i, i));
@@ -34,28 +36,35 @@ namespace Ice.seqMapping
             opLBoolSAsync(List<bool> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpLBoolSResult(i, i));
 
             public override Task<Test.MyClass_OpKBoolSResult>
-            opKBoolSAsync(LinkedList<bool> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpKBoolSResult(i, i));
+            opKBoolSAsync(LinkedList<bool> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpKBoolSResult(i, i));
 
             public override Task<Test.MyClass_OpQBoolSResult>
-            opQBoolSAsync(Queue<bool> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpQBoolSResult(i, i));
+            opQBoolSAsync(Queue<bool> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpQBoolSResult(i, i));
 
             public override Task<Test.MyClass_OpSBoolSResult>
-            opSBoolSAsync(Stack<bool> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpSBoolSResult(i, i));
+            opSBoolSAsync(Stack<bool> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpSBoolSResult(i, i));
 
             public override Task<Test.MyClass_OpAShortSResult>
             opAShortSAsync(short[] i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpAShortSResult(i, i));
 
             public override Task<Test.MyClass_OpLShortSResult>
-            opLShortSAsync(List<short> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpLShortSResult(i, i));
+            opLShortSAsync(List<short> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpLShortSResult(i, i));
 
             public override Task<Test.MyClass_OpKShortSResult>
-            opKShortSAsync(LinkedList<short> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpKShortSResult(i, i));
+            opKShortSAsync(LinkedList<short> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpKShortSResult(i, i));
 
             public override Task<Test.MyClass_OpQShortSResult>
-            opQShortSAsync(Queue<short> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpQShortSResult(i, i));
+            opQShortSAsync(Queue<short> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpQShortSResult(i, i));
 
             public override Task<Test.MyClass_OpSShortSResult>
-            opSShortSAsync(Stack<short> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpSShortSResult(i, i));
+            opSShortSAsync(Stack<short> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpSShortSResult(i, i));
 
             public override Task<Test.MyClass_OpAIntSResult>
             opAIntSAsync(int[] i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpAIntSResult(i, i));
@@ -64,7 +73,8 @@ namespace Ice.seqMapping
             opLIntSAsync(List<int> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpLIntSResult(i, i));
 
             public override Task<Test.MyClass_OpKIntSResult>
-            opKIntSAsync(LinkedList<int> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpKIntSResult(i, i));
+            opKIntSAsync(LinkedList<int> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpKIntSResult(i, i));
 
             public override Task<Test.MyClass_OpQIntSResult>
             opQIntSAsync(Queue<int> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpQIntSResult(i, i));
@@ -79,7 +89,8 @@ namespace Ice.seqMapping
             opLLongSAsync(List<long> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpLLongSResult(i, i));
 
             public override Task<Test.MyClass_OpKLongSResult>
-            opKLongSAsync(LinkedList<long> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpKLongSResult(i, i));
+            opKLongSAsync(LinkedList<long> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpKLongSResult(i, i));
 
             public override Task<Test.MyClass_OpQLongSResult>
             opQLongSAsync(Queue<long> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpQLongSResult(i, i));
@@ -91,96 +102,129 @@ namespace Ice.seqMapping
             opAFloatSAsync(float[] i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpAFloatSResult(i, i));
 
             public override Task<Test.MyClass_OpLFloatSResult>
-            opLFloatSAsync(List<float> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpLFloatSResult(i, i));
+            opLFloatSAsync(List<float> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpLFloatSResult(i, i));
 
             public override Task<Test.MyClass_OpKFloatSResult>
-            opKFloatSAsync(LinkedList<float> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpKFloatSResult(i, i));
+            opKFloatSAsync(LinkedList<float> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpKFloatSResult(i, i));
 
             public override Task<Test.MyClass_OpQFloatSResult>
-            opQFloatSAsync(Queue<float> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpQFloatSResult(i, i));
+            opQFloatSAsync(Queue<float> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpQFloatSResult(i, i));
 
             public override Task<Test.MyClass_OpSFloatSResult>
-            opSFloatSAsync(Stack<float> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpSFloatSResult(i, i));
+            opSFloatSAsync(Stack<float> i, Ice.Current current) => 
+                ask.FromResult(new Test.MyClass_OpSFloatSResult(i, i));
 
             public override Task<Test.MyClass_OpADoubleSResult>
-            opADoubleSAsync(double[] i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpADoubleSResult(i, i));
+            opADoubleSAsync(double[] i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpADoubleSResult(i, i));
 
             public override Task<Test.MyClass_OpLDoubleSResult>
-            opLDoubleSAsync(List<double> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpLDoubleSResult(i, i));
+            opLDoubleSAsync(List<double> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpLDoubleSResult(i, i));
 
             public override Task<Test.MyClass_OpKDoubleSResult>
-            opKDoubleSAsync(LinkedList<double> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpKDoubleSResult(i, i));
+            opKDoubleSAsync(LinkedList<double> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpKDoubleSResult(i, i));
 
             public override Task<Test.MyClass_OpQDoubleSResult>
-            opQDoubleSAsync(Queue<double> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpQDoubleSResult(i, i));
+            opQDoubleSAsync(Queue<double> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpQDoubleSResult(i, i));
 
             public override Task<Test.MyClass_OpSDoubleSResult>
-            opSDoubleSAsync(Stack<double> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpSDoubleSResult(i, i));
+            opSDoubleSAsync(Stack<double> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpSDoubleSResult(i, i));
 
             public override Task<Test.MyClass_OpAStringSResult>
-            opAStringSAsync(string[] i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpAStringSResult(i, i));
+            opAStringSAsync(string[] i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpAStringSResult(i, i));
 
             public override Task<Test.MyClass_OpLStringSResult>
-            opLStringSAsync(List<string> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpLStringSResult(i, i));
+            opLStringSAsync(List<string> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpLStringSResult(i, i));
 
             public override Task<Test.MyClass_OpKStringSResult>
-            opKStringSAsync(LinkedList<string> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpKStringSResult(i, i));
+            opKStringSAsync(LinkedList<string> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpKStringSResult(i, i));
 
             public override Task<Test.MyClass_OpQStringSResult>
-            opQStringSAsync(Queue<string> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpQStringSResult(i, i));
+            opQStringSAsync(Queue<string> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpQStringSResult(i, i));
 
             public override Task<Test.MyClass_OpSStringSResult>
-            opSStringSAsync(Stack<string> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpSStringSResult(i, i));
+            opSStringSAsync(Stack<string> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpSStringSResult(i, i));
 
-            public override Task<Test.MyClass_OpAObjectSResult> opAObjectSAsync(Ice.Value[] i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpAObjectSResult(i, i));
+            public override Task<Test.MyClass_OpAObjectSResult> opAObjectSAsync(
+                Ice.Value[] i,
+                Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpAObjectSResult(i, i));
 
             public override Task<Test.MyClass_OpLObjectSResult>
-            opLObjectSAsync(List<Ice.Value> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpLObjectSResult(i, i));
+            opLObjectSAsync(List<Ice.Value> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpLObjectSResult(i, i));
 
             public override Task<Test.MyClass_OpAObjectPrxSResult>
-            opAObjectPrxSAsync(Ice.ObjectPrx[] i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpAObjectPrxSResult(i, i));
+            opAObjectPrxSAsync(Ice.ObjectPrx[] i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpAObjectPrxSResult(i, i));
 
             public override Task<Test.MyClass_OpLObjectPrxSResult>
-            opLObjectPrxSAsync(List<Ice.ObjectPrx> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpLObjectPrxSResult(i, i));
+            opLObjectPrxSAsync(List<Ice.ObjectPrx> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpLObjectPrxSResult(i, i));
 
             public override Task<Test.MyClass_OpKObjectPrxSResult>
-            opKObjectPrxSAsync(LinkedList<Ice.ObjectPrx> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpKObjectPrxSResult(i, i));
+            opKObjectPrxSAsync(LinkedList<Ice.ObjectPrx> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpKObjectPrxSResult(i, i));
 
             public override Task<Test.MyClass_OpQObjectPrxSResult>
-            opQObjectPrxSAsync(Queue<Ice.ObjectPrx> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpQObjectPrxSResult(i, i));
+            opQObjectPrxSAsync(Queue<Ice.ObjectPrx> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpQObjectPrxSResult(i, i));
 
             public override Task<Test.MyClass_OpSObjectPrxSResult>
-            opSObjectPrxSAsync(Stack<Ice.ObjectPrx> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpSObjectPrxSResult(i, i));
+            opSObjectPrxSAsync(Stack<Ice.ObjectPrx> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpSObjectPrxSResult(i, i));
 
             public override Task<Test.MyClass_OpAStructSResult>
-            opAStructSAsync(Test.S[] i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpAStructSResult(i, i));
+            opAStructSAsync(Test.S[] i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpAStructSResult(i, i));
 
             public override Task<Test.MyClass_OpLStructSResult>
-            opLStructSAsync(List<Test.S> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpLStructSResult(i, i));
+            opLStructSAsync(List<Test.S> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpLStructSResult(i, i));
 
             public override Task<Test.MyClass_OpKStructSResult>
-            opKStructSAsync(LinkedList<Test.S> i, Ice.Current current) => Task.FromResult<Test.MyClass_OpKStructSResult>(new Test.MyClass_OpKStructSResult(i, i));
+            opKStructSAsync(LinkedList<Test.S> i, Ice.Current current) =>
+                Task.FromResult<Test.MyClass_OpKStructSResult>(new Test.MyClass_OpKStructSResult(i, i));
 
             public override Task<Test.MyClass_OpQStructSResult>
-            opQStructSAsync(Queue<Test.S> i, Ice.Current current) => Task.FromResult<Test.MyClass_OpQStructSResult>(new Test.MyClass_OpQStructSResult(i, i));
+            opQStructSAsync(Queue<Test.S> i, Ice.Current current) =>
+                Task.FromResult<Test.MyClass_OpQStructSResult>(new Test.MyClass_OpQStructSResult(i, i));
 
             public override Task<Test.MyClass_OpSStructSResult>
-            opSStructSAsync(Stack<Test.S> i, Ice.Current current) => Task.FromResult<Test.MyClass_OpSStructSResult>(new Test.MyClass_OpSStructSResult(i, i));
+            opSStructSAsync(Stack<Test.S> i, Ice.Current current) =>
+                Task.FromResult<Test.MyClass_OpSStructSResult>(new Test.MyClass_OpSStructSResult(i, i));
 
             public override Task<Test.MyClass_OpAStructSDResult>
-            opAStructSDAsync(Test.SD[] i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpAStructSDResult(i, i));
+            opAStructSDAsync(Test.SD[] i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpAStructSDResult(i, i));
 
             public override Task<Test.MyClass_OpLStructSDResult>
-            opLStructSDAsync(List<Test.SD> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpLStructSDResult(i, i));
+            opLStructSDAsync(List<Test.SD> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpLStructSDResult(i, i));
 
             public override Task<Test.MyClass_OpKStructSDResult>
-            opKStructSDAsync(LinkedList<Test.SD> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpKStructSDResult(i, i));
+            opKStructSDAsync(LinkedList<Test.SD> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpKStructSDResult(i, i));
 
             public override Task<Test.MyClass_OpQStructSDResult>
-            opQStructSDAsync(Queue<Test.SD> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpQStructSDResult(i, i));
+            opQStructSDAsync(Queue<Test.SD> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpQStructSDResult(i, i));
 
             public override Task<Test.MyClass_OpSStructSDResult>
-            opSStructSDAsync(Stack<Test.SD> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpSStructSDResult(i, i));
+            opSStructSDAsync(Stack<Test.SD> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpSStructSDResult(i, i));
 
             public override Task<Test.MyClass_OpACVSResult>
             opACVSAsync(Test.CV[] i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpACVSResult(i, i));
@@ -189,19 +233,24 @@ namespace Ice.seqMapping
             opLCVSAsync(List<Test.CV> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpLCVSResult(i, i));
 
             public override Task<Test.MyClass_OpAIPrxSResult>
-            opAIPrxSAsync(Test.IPrx[] i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpAIPrxSResult(i, i));
+            opAIPrxSAsync(Test.IPrx[] i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpAIPrxSResult(i, i));
 
             public override Task<Test.MyClass_OpLIPrxSResult>
-            opLIPrxSAsync(List<Test.IPrx> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpLIPrxSResult(i, i));
+            opLIPrxSAsync(List<Test.IPrx> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpLIPrxSResult(i, i));
 
             public override Task<Test.MyClass_OpKIPrxSResult>
-            opKIPrxSAsync(LinkedList<Test.IPrx> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpKIPrxSResult(i, i));
+            opKIPrxSAsync(LinkedList<Test.IPrx> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpKIPrxSResult(i, i));
 
             public override Task<Test.MyClass_OpQIPrxSResult>
-            opQIPrxSAsync(Queue<Test.IPrx> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpQIPrxSResult(i, i));
+            opQIPrxSAsync(Queue<Test.IPrx> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpQIPrxSResult(i, i));
 
             public override Task<Test.MyClass_OpSIPrxSResult>
-            opSIPrxSAsync(Stack<Test.IPrx> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpSIPrxSResult(i, i));
+            opSIPrxSAsync(Stack<Test.IPrx> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpSIPrxSResult(i, i));
 
             public override Task<Test.MyClass_OpACRSResult>
             opACRSAsync(Test.CR[] i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpACRSResult(i, i));
@@ -209,13 +258,15 @@ namespace Ice.seqMapping
             public override Task<Test.MyClass_OpLCRSResult>
             opLCRSAsync(List<Test.CR> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpLCRSResult(i, i));
 
-            public override Task<Test.MyClass_OpAEnSResult> opAEnSAsync(Test.En[] i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpAEnSResult(i, i));
+            public override Task<Test.MyClass_OpAEnSResult> opAEnSAsync(Test.En[] i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpAEnSResult(i, i));
 
             public override Task<Test.MyClass_OpLEnSResult>
             opLEnSAsync(List<Test.En> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpLEnSResult(i, i));
 
             public override Task<Test.MyClass_OpKEnSResult>
-            opKEnSAsync(LinkedList<Test.En> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpKEnSResult(i, i));
+            opKEnSAsync(LinkedList<Test.En> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpKEnSResult(i, i));
 
             public override Task<Test.MyClass_OpQEnSResult>
             opQEnSAsync(Queue<Test.En> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpQEnSResult(i, i));
@@ -224,16 +275,20 @@ namespace Ice.seqMapping
             opSEnSAsync(Stack<Test.En> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpSEnSResult(i, i));
 
             public override Task<Test.MyClass_OpCustomIntSResult>
-            opCustomIntSAsync(Custom<int> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpCustomIntSResult(i, i));
+            opCustomIntSAsync(Custom<int> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpCustomIntSResult(i, i));
 
             public override Task<Test.MyClass_OpCustomCVSResult>
-            opCustomCVSAsync(Custom<Test.CV> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpCustomCVSResult(i, i));
+            opCustomCVSAsync(Custom<Test.CV> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpCustomCVSResult(i, i));
 
             public override Task<Test.MyClass_OpCustomIntSSResult>
-            opCustomIntSSAsync(Custom<Custom<int>> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpCustomIntSSResult(i, i));
+            opCustomIntSSAsync(Custom<Custom<int>> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpCustomIntSSResult(i, i));
 
             public override Task<Test.MyClass_OpCustomCVSSResult>
-            opCustomCVSSAsync(Custom<Custom<Test.CV>> i, Ice.Current current) => Task.FromResult(new Test.MyClass_OpCustomCVSSResult(i, i));
+            opCustomCVSSAsync(Custom<Custom<Test.CV>> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpCustomCVSSResult(i, i));
         }
     }
 }
