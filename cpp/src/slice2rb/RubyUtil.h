@@ -22,8 +22,6 @@ namespace Slice::Ruby
         IdentToUpper, // Mapped identifier must begin with an upper-case letter.
         IdentToLower  // Mapped identifier must begin with a lower-case letter.
     };
-    std::string fixScopedIdent(const std::string&);
-    std::string fixIdent(const std::string&, IdentStyle);
 
     //
     // Get the fully-qualified name of the given definition.
