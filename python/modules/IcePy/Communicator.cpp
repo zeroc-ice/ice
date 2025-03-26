@@ -200,7 +200,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     if (argList != Py_None)
     {
         // Clear the list.
-        if (PyList_Clear(argList) == -1)
+        if (PyList_SetSlice(argList, 0, PY_SSIZE_T_MAX, nullptr) == -1)
         {
             return -1;
         }
