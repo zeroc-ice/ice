@@ -763,8 +763,7 @@ module IceGrid
     interface AdminSession extends Glacier2::Session
     {
         /// Keeps the session alive.
-        /// @deprecated As of Ice 3.8, there is no need to call this operation, and its implementation does nothing.
-        ["deprecated"]
+        ["deprecated:As of Ice 3.8, there is no need to call this operation, and its implementation does nothing."]
         idempotent void keepAlive();
 
         /// Gets a proxy to the IceGrid admin object. The admin object returned by this operation can only be accessed

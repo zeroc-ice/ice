@@ -74,9 +74,7 @@ module Glacier2
 
         /// Keeps the session with this router alive.
         /// @throws SessionNotExistException Thrown when no session exists for the caller (client).
-        /// @deprecated This operation is provided for backward compatibility with Ice 3.7 and earlier and does nothing
-        /// in newer versions of Glacier2.
-        ["deprecated"]
+        ["deprecated:As of Ice 3.8, this operation does nothing."]
         void refreshSession()
             throws SessionNotExistException;
 

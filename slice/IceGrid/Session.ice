@@ -24,8 +24,7 @@ module IceGrid
     interface Session extends Glacier2::Session
     {
         /// Keeps the session alive.
-        /// @deprecated As of Ice 3.8, there is no need to call this operation, and its implementation does nothing.
-        ["deprecated"]
+        ["deprecated:As of Ice 3.8, there is no need to call this operation, and its implementation does nothing."]
         idempotent void keepAlive();
 
         /// Allocates an object.
@@ -48,7 +47,7 @@ module IceGrid
         ["amd"] Object* allocateObjectByType(string type)
             throws AllocationException;
 
-        /// Releases an object that was allocated using {@link #allocateObjectById} or {@link #allocateObjectByType}.
+        /// Releases an object that was allocated using {@link allocateObjectById} or {@link allocateObjectByType}.
         /// @param id The identity of the object to release.
         /// @throws ObjectNotRegisteredException Thrown when an object with the given identity is not registered with
         /// the registry.
@@ -58,7 +57,7 @@ module IceGrid
             throws ObjectNotRegisteredException, AllocationException;
 
         /// Sets the allocation timeout. When no object is immediately available for an allocation request, the
-        /// implementation of {@link #allocateObjectById} and {@link #allocateObjectByType} waits for the duration of
+        /// implementation of {@link allocateObjectById} and {@link allocateObjectByType} waits for the duration of
         /// this timeout.
         /// @param timeout The timeout in milliseconds.
         idempotent void setAllocationTimeout(int timeout);

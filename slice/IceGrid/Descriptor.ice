@@ -120,9 +120,7 @@ module IceGrid
     }
 
     /// Describes a distribution.
-    /// @deprecated This descriptor is no longer used. It's provided only for schema compatibility with Ice 3.7 and
-    /// earlier releases.
-    ["deprecated"]
+    ["deprecated:This descriptor is provided for schema compatibility. It is no longer used as of Ice 3.8."]
     struct DistributionDescriptor
     {
         /// The proxy of the IcePatch2 server.
@@ -143,7 +141,7 @@ module IceGrid
         string exe;
 
         /// The Ice version used by this server. This is only required if backward compatibility with servers using old
-        /// Ice versions is needed (otherwise the registry assume the server is using the same Ice version as the
+        /// Ice versions is needed (otherwise the registry assumes the server is using the same Ice version as the
         /// registry itself). For example "3.7.5".
         string iceVersion;
 

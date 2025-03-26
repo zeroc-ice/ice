@@ -87,9 +87,9 @@ module IceGrid
             throws PermissionDeniedException;
 
         /// Creates an administrative session.
-        /// @return A proxy for the newly created session. This proxy is never null.
         /// @param userId The user ID.
         /// @param password The password for the given user.
+        /// @return A proxy for the newly created session. This proxy is never null.
         /// @throws PermissionDeniedException Thrown when authentication or authorization fails.
         AdminSession* createAdminSession(string userId, string password)
             throws PermissionDeniedException;
