@@ -3,6 +3,7 @@
 # Copyright (c) ZeroC, Inc.
 
 import asyncio
+import Ice
 from TestHelper import TestHelper
 TestHelper.loadSlice("Test.ice")
 import AllTests
@@ -13,7 +14,11 @@ class Client(TestHelper):
     def run(self, args):
 
         async def runAsync():
-            with self.initialize(properties=self.createTestProperties(args)) as communicator:
+            initData = Ice.InitializationData()
+            initData.properties = self.createTestProperties(args)
+            initData.eventLoopAdapter = Ice.asyncio.EventLoopAdapter(asyncio.get_running_loop())
+
+            with self.initialize(initData) as communicator:
                 await AllTests.allTestsAsync(self, communicator)
 
         asyncio.run(runAsync(), debug=True)

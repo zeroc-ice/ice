@@ -3469,7 +3469,7 @@ class Driver:
         # initData.properties.setProperty("Ice.Trace.Protocol", "1")
         # initData.properties.setProperty("Ice.Trace.Network", "2")
         # initData.properties.setProperty("Ice.StdErr", "allTests.log")
-        self.communicator = Ice.initialize(initData)
+        self.communicator = Ice.initialize(initData=initData)
 
     def getProcessController(self, current, process=None):
         processController = None

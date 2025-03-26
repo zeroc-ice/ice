@@ -35,6 +35,7 @@
     <ClCompile Include="..\ConnectionInfo.cpp" />
     <ClCompile Include="..\Current.cpp" />
     <ClCompile Include="..\Executor.cpp" />
+    <ClCompile Include="..\Future.cpp" />
     <ClCompile Include="..\Endpoint.cpp" />
     <ClCompile Include="..\EndpointInfo.cpp" />
     <ClCompile Include="..\ImplicitContext.cpp" />
@@ -62,6 +63,7 @@
     <ClInclude Include="..\Executor.h" />
     <ClInclude Include="..\Endpoint.h" />
     <ClInclude Include="..\EndpointInfo.h" />
+    <ClInclude Include="..\Future.h" />
     <ClInclude Include="..\ImplicitContext.h" />
     <ClInclude Include="..\Logger.h" />
     <ClInclude Include="..\ObjectAdapter.h" />

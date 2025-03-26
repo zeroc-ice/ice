@@ -30,16 +30,29 @@ class Communicator:
 
     __module__ = "Ice"
 
-    def __init__(self, impl, coroutineExecutor=None):
+    def __init__(self, impl, eventLoopAdapter=None):
         self._impl = impl
         impl._setWrapper(self)
-        self._coroutineExecutor = coroutineExecutor
+        self._eventLoopAdapter = eventLoopAdapter
 
     def __enter__(self):
         return self
 
     def __exit__(self, type, value, traceback):
         self._impl.destroy()
+
+    @property
+    def eventLoopAdapter(self):
+        """
+        The event loop adapter associated with this communicator, or None if the communicator does not have one.
+
+        Returns
+        -------
+        Ice.EventLoopAdapter or None
+            The event loop adapter used for integrating Ice with a custom event loop.
+        """
+
+        return self._eventLoopAdapter
 
     def _getImpl(self):
         return self._impl
@@ -537,15 +550,3 @@ class Communicator:
             A dictionary where the keys are facet names (str) and the values are the associated servants (Ice.Object).
         """
         return self._impl.findAllAdminFacets()
-
-    def getCoroutineExecutor(self):
-        """
-        Returns the coroutine executor for this communicator.
-
-        Returns
-        -------
-        callable or None
-            The custom coroutine executor function, if set. It takes a single argument—the coroutine to
-            execute—and must return a Future-like object to track its completion.
-        """
-        return self._coroutineExecutor
