@@ -1,7 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
 import asyncio
-import Ice
 import Test
 
 
