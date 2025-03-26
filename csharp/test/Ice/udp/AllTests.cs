@@ -194,7 +194,7 @@ public class AllTests : global::Test.AllTests
                 break;
             }
             replyI = new PingReplyI();
-            reply = 
+            reply =
                 (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         }
         test(ret);

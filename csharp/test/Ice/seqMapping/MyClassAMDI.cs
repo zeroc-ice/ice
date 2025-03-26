@@ -114,8 +114,8 @@ namespace Ice.seqMapping
                 Task.FromResult(new Test.MyClass_OpQFloatSResult(i, i));
 
             public override Task<Test.MyClass_OpSFloatSResult>
-            opSFloatSAsync(Stack<float> i, Ice.Current current) => 
-                ask.FromResult(new Test.MyClass_OpSFloatSResult(i, i));
+            opSFloatSAsync(Stack<float> i, Ice.Current current) =>
+                Task.FromResult(new Test.MyClass_OpSFloatSResult(i, i));
 
             public override Task<Test.MyClass_OpADoubleSResult>
             opADoubleSAsync(double[] i, Ice.Current current) =>

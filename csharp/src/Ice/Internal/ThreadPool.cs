@@ -366,8 +366,9 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
     public bool serialize() => _serialize;
 
     protected sealed override void QueueTask(
-        System.Threading.Tasks.Task task) => execute(() => TryExecuteTask(task),
-        null);
+        System.Threading.Tasks.Task task) => execute(
+            () => TryExecuteTask(task),
+            null);
 
     protected sealed override bool TryExecuteTaskInline(System.Threading.Tasks.Task task, bool taskWasPreviouslyQueued)
     {

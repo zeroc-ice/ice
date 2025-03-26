@@ -852,7 +852,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
         Dictionary<string, string>? context = null,
         IProgress<bool>? progress = null,
         CancellationToken cancel = default) =>
-            iceI_ice_invokeAsync(operation,mode, inEncaps, context, synchronous: false, progress, cancel);
+            iceI_ice_invokeAsync(operation, mode, inEncaps, context, synchronous: false, progress, cancel);
 
     private Task<Object_Ice_invokeResult>
     iceI_ice_invokeAsync(

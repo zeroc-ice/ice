@@ -55,11 +55,12 @@ internal sealed class PropertyNames
                 defaultValue: "",
                 deprecated: false,
                 propertyArray: ProxyProps),
-            new(pattern: @"CollocationOptimized",
-            usesRegex: false,
-            defaultValue: "",
-            deprecated: false,
-            propertyArray: null),
+            new(
+                pattern: @"CollocationOptimized",
+                usesRegex: false,
+                defaultValue: "",
+                deprecated: false,
+                propertyArray: null),
             new(
                 pattern: @"^Context\.[^\s]+$",
                 usesRegex: true,
@@ -75,10 +76,10 @@ internal sealed class PropertyNames
         [
             new(
                 pattern: @"CloseTimeout",
-            usesRegex: false,
-            defaultValue: "10",
-            deprecated: false,
-            propertyArray: null),
+                usesRegex: false,
+                defaultValue: "10",
+                deprecated: false,
+                propertyArray: null),
             new(
                 pattern: @"ConnectTimeout",
                 usesRegex: false,
@@ -95,7 +96,7 @@ internal sealed class PropertyNames
                 pattern: @"IdleTimeout",
                 usesRegex: false,
                 defaultValue: "60",
-                deprecated: false, 
+                deprecated: false,
                 propertyArray: null),
             new(
                 pattern: @"InactivityTimeout",
@@ -196,7 +197,7 @@ internal sealed class PropertyNames
                 pattern: @"Admin.DelayCreation",
                 usesRegex: false,
                 defaultValue: "0",
-                deprecated: false, 
+                deprecated: false,
                 propertyArray: null),
             new(
                 pattern: @"Admin.Enabled",
@@ -299,7 +300,7 @@ internal sealed class PropertyNames
             new(
                 pattern: @"Default.EndpointSelection",
                 usesRegex: false,
-                defaultValue: "Random"
+                defaultValue: "Random",
                 deprecated: false,
                 propertyArray: null),
             new(pattern: @"Default.Host", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
@@ -309,12 +310,11 @@ internal sealed class PropertyNames
                 defaultValue: "",
                 deprecated: false,
                 propertyArray: ProxyProps),
-                
             new(
                 pattern: @"Default.LocatorCacheTimeout",
                 usesRegex: false,
                 defaultValue: "-1",
-                deprecated: false, 
+                deprecated: false,
                 propertyArray: null),
             new(
                 pattern: @"Default.InvocationTimeout",
@@ -548,7 +548,8 @@ internal sealed class PropertyNames
                 pattern: @"Warn.Connections",
                 usesRegex: false,
                 defaultValue: "0",
-                deprecated: false, propertyArray: null),
+                deprecated: false,
+                propertyArray: null),
             new(
                 pattern: @"Warn.Datagrams",
                 usesRegex: false,

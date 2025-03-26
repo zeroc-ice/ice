@@ -775,7 +775,7 @@ public class AllTests : Test.AllTests
 
             System.Func<Task> c = () => connectAsync(metrics);
             await testAttributeAsync(
-                clientMetrics, 
+                clientMetrics,
                 clientProps,
                 update,
                 "ConnectionEstablishment",
@@ -788,7 +788,7 @@ public class AllTests : Test.AllTests
                 clientProps,
                 update,
                 "ConnectionEstablishment",
-                "id", 
+                "id",
                 hostAndPort,
                 c,
                 output);
@@ -963,7 +963,7 @@ public class AllTests : Test.AllTests
             await testAttributeAsync(
                 clientMetrics,
                 clientProps,
-                update, 
+                update,
                 "EndpointLookup",
                 "endpointTimeout",
                 "500",
@@ -992,7 +992,7 @@ public class AllTests : Test.AllTests
                 clientProps,
                 update,
                 "EndpointLookup",
-                "endpointPort", 
+                "endpointPort",
                 port,
                 c,
                 output);

@@ -833,7 +833,7 @@ internal sealed class OutgoingConnectionFactory
                     Debug.Assert(_current is not null);
 
                     if (
-                        _factory._instance.initializationData().observer is 
+                        _factory._instance.initializationData().observer is
                         Instrumentation.CommunicatorObserver observer)
                     {
                         _observer = observer.getConnectionEstablishmentObserver(
