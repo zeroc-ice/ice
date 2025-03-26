@@ -41,12 +41,9 @@ namespace Ice
         /// @see ObjectAdapter::deactivate
         void shutdown() noexcept;
 
-        /// Waits until the application has called #shutdown or #destroy. On the server side, this function blocks the
-        /// calling thread until all currently-executing dispatches have completed. On the client-side, the function
-        /// simply blocks until another thread has called #shutdown or #destroy.
-        /// A typical use of this function is to call it from the main thread, which then waits until some other thread
-        /// calls #shutdown. After shutdown is complete, the main thread returns and can do some cleanup work before it
-        /// finally calls #destroy to shut down the client functionality, and then exits the application.
+        /// Waits for shutdown to complete. In particular, this function waits for all operation dispatches to complete.
+        /// In a client application, without no operation dispatch, this function returns as soon as another thread
+        /// calls #shutdown or #destroy on this communicator.
         /// @see #shutdown
         /// @see ObjectAdapter::waitForDeactivate
         void waitForShutdown() noexcept;
@@ -59,8 +56,8 @@ namespace Ice
         /// @see #shutdown
         void waitForShutdownAsync(std::function<void()> completed) noexcept;
 
-        /// Checks whether this communicator has been shut down.
-        /// @return `true` if the communicator has been shut down, `false` otherwise.
+        /// Checks whether or not #shutdown was called on this communicator.
+        /// @return `true` if #shutdown was called on this communicator, `false` otherwise.
         /// @see #shutdown
         [[nodiscard]] bool isShutdown() const noexcept;
 
@@ -125,8 +122,7 @@ namespace Ice
         /// Creates a new object adapter. The endpoints for the object adapter are taken from the property
         /// `name.Endpoints`.
         /// It is legal to create an object adapter with the empty string as its name. Such an object adapter is
-        /// accessible via bidirectional connections or by collocated invocations that originate from the same
-        /// communicator as is used by the adapter.
+        /// accessible via bidirectional connections or by collocated invocations.
         /// @param name The object adapter name.
         /// @param serverAuthenticationOptions The %SSL configuration properties for server connections.
         /// The `SSL::ServerAuthenticationOptions` type is an alias to the platform specific %SSL server authentication
@@ -188,7 +184,7 @@ namespace Ice
 
         /// Gets the implicit context associated with this communicator.
         /// @return The implicit context associated with this communicator; returns `nullptr` when the property
-        /// `Ice.ImplicitContext` is not set or is set to None.
+        /// `Ice.ImplicitContext` is not set or is set to `None`.
         [[nodiscard]] ImplicitContextPtr getImplicitContext() const noexcept;
 
         /// Gets the properties of this communicator.
@@ -273,8 +269,8 @@ namespace Ice
         /// Adds the Admin object with all its facets to the provided object adapter. If `Ice.Admin.ServerId`
         /// is set and the provided object adapter has a Locator, #createAdmin registers the Admin's Process facet with
         /// the Locator's LocatorRegistry.
-        /// @param adminAdapter The object adapter used to host the Admin object; if null and `Ice.Admin.Endpoints` is
-        /// set, create, activate and use the `Ice.Admin` object adapter.
+        /// @param adminAdapter The object adapter used to host the Admin object; when null and `Ice.Admin.Endpoints` is
+        /// set, this function uses instead the `Ice.Admin` object adapter, after creating and activating this adapter.
         /// @param adminId The identity of the Admin object.
         /// @return A proxy to the main ("") facet of the Admin object.
         /// @throws InitializationException Thrown when #createAdmin is called more than once.

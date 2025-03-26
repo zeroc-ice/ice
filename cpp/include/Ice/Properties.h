@@ -134,7 +134,7 @@ namespace Ice
         /// @return The command line options for this property set.
         StringSeq getCommandLineOptions();
 
-        /// Converts a sequence of command-line options into properties. All options that begin with `--prefix.` are
+        /// Converts a sequence of command-line options into properties. All options that start with `--prefix.` are
         /// converted into properties. If the prefix is empty, all options that begin with `--` are converted to
         /// properties.
         /// @param prefix The property prefix, or an empty string to convert all options starting with `--`.
@@ -142,11 +142,11 @@ namespace Ice
         /// @return The command-line options that do not start with the specified prefix, in their original order.
         StringSeq parseCommandLineOptions(std::string_view prefix, const StringSeq& options);
 
-        /// Converts a sequence of command-line options into properties. All options that begin with one of the
-        /// following prefixes are converted into properties: `--Ice`, `--IceBox`, `--IceGrid`, `--IceSSL`,
-        /// `--IceStorm`, and `--Glacier2`.
+        /// Converts a sequence of command-line options into properties. All options that start with one of the
+        /// reserved Ice prefixes (`--Ice`, `--IceSSL`, etc.) are converted into properties.
         /// @param options The command-line options.
-        /// @return The command-line options that do not start with one of the listed prefixes, in their original order.
+        /// @return The command-line options that do not start with one of the reserved prefixes, in their original
+        /// order.
         StringSeq parseIceCommandLineOptions(const StringSeq& options);
 
         /// Loads properties from a file.

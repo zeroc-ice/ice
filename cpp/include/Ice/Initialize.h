@@ -126,16 +126,12 @@ namespace Ice
         std::optional<SSL::ClientAuthenticationOptions> clientAuthenticationOptions{};
     };
 
-    /// @name Communicator
-    /// Communicator initialization functions.
-    /// @{
-
     /// Creates a new communicator.
     /// @param[in,out] argc The number of arguments in @p argv. When this function parses properties from @p argv, it
     /// reshuffles the arguments so that the remaining arguments start at the beginning of @p argv, and updates @p argc
     /// accordingly.
     /// @param argv The command-line arguments. This function parses arguments starting with `--` and one of the
-    /// reserved prefixes (Ice, IceSSL etc.) as properties for the new communicator. If there is an argument starting
+    /// reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument starting
     /// with `--Ice.Config`, this function loads the specified configuration file. When the same property is set in a
     /// configuration file and through a command-line argument, the command-line setting takes precedence.
     /// @param initData Options for the new communicator.
@@ -210,8 +206,6 @@ namespace Ice
     /// @param configFile The name of an Ice configuration file.
     /// @return The new communicator.
     ICE_API CommunicatorPtr initialize(std::string_view configFile);
-
-    /// @}
 
     /// Gets the per-process logger. This logger is used by all communicators that do not have their own specific logger
     /// configured at the time the communicator is created.
