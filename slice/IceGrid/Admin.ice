@@ -547,7 +547,7 @@ module IceGrid
         /// @return `true` if the registry ping succeeded, `false` otherwise.
         /// @throws RegistryNotExistException Thrown when the registry doesn't exist.
         ["cpp:const"]
-idempotent bool pingRegistry(string name)
+        idempotent bool pingRegistry(string name)
             throws RegistryNotExistException;
 
         /// Gets the registry information of an IceGrid registry.
@@ -556,7 +556,7 @@ idempotent bool pingRegistry(string name)
         /// @throws RegistryNotExistException Thrown when the registry doesn't exist.
         /// @throws RegistryUnreachableException Thrown when the registry is unreachable.
         ["cpp:const"]
-idempotent RegistryInfo getRegistryInfo(string name)
+        idempotent RegistryInfo getRegistryInfo(string name)
             throws RegistryNotExistException, RegistryUnreachableException;
 
         /// Gets a proxy to the admin object of an IceGrid registry.
@@ -564,7 +564,7 @@ idempotent RegistryInfo getRegistryInfo(string name)
         /// @return A proxy to the admin object of an IceGrid registry. This proxy is never null.
         /// @throws RegistryNotExistException Thrown when the registry doesn't exist.
         ["cpp:const"]
-idempotent Object* getRegistryAdmin(string name)
+        idempotent Object* getRegistryAdmin(string name)
             throws RegistryNotExistException;
 
         /// Shuts down an IceGrid registry.
@@ -577,7 +577,7 @@ idempotent Object* getRegistryAdmin(string name)
         /// Gets the names of all the IceGrid registries currently registered.
         /// @return The registry names.
         ["cpp:const"]
-idempotent Ice::StringSeq getAllRegistryNames();
+        idempotent Ice::StringSeq getAllRegistryNames();
 
         /// Shuts down the IceGrid registry.
         void shutdown();

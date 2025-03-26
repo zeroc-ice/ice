@@ -33,7 +33,7 @@ module Glacier2
         /// identities of all the client's callback objects.
         /// @return The category. It's an empty string when `Glacier2.Server.Endpoints` is not configured.
         ["cpp:const"]
-idempotent string getCategoryForClient();
+        idempotent string getCategoryForClient();
 
         /// Creates a session for the client (caller) with the router. If a {@link SessionManager} is configured,
         /// a proxy to a {@link Session} object is returned to the client. Otherwise, null is returned and only an
@@ -88,11 +88,11 @@ idempotent string getCategoryForClient();
         /// Gets the idle timeout used by the server-side of the connection.
         /// @return The idle timeout (in seconds).
         ["cpp:const"]
-idempotent long getSessionTimeout();
+        idempotent long getSessionTimeout();
 
         /// Gets the idle timeout used by the server-side of the connection.
         /// @return The idle timeout (in seconds).
         ["cpp:const"]
-idempotent int getACMTimeout();
+        idempotent int getACMTimeout();
     }
 }
