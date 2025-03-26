@@ -73,7 +73,7 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
         #
         # Initialize a new communicator.
         #
-        communicator = Ice.initialize(init)
+        communicator = Ice.initialize(initData=init)
 
         #
         # Install a custom admin facet.
