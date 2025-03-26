@@ -269,7 +269,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "if not defined?(" << getAbsolute(p) << "Prx)";
     _out.inc();
 
-    string name = getMappedName(p, IdentToUpper);
+    string proxyName = getMappedName(p, IdentToUpper) + "Prx";
     InterfaceList bases = p->bases();
     OperationList ops = p->operations();
 
@@ -278,7 +278,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // operations and a class for the proxy itself.
     //
 
-    _out << nl << "module " << name << "Prx_mixin";
+    _out << nl << "module " << proxyName << "_mixin";
     _out.inc();
     for (const auto& base : bases)
     {
@@ -321,7 +321,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         const string contextParamName = getEscapedParamName(op, "context");
         _out << contextParamName << "=nil)";
         _out.inc();
-        _out << nl << name << "Prx_mixin::OP_" << op->name() << ".invoke(self, [" << inParams;
+        _out << nl << proxyName << "_mixin::OP_" << op->name() << ".invoke(self, [" << inParams;
         _out << "], " << contextParamName << ")";
         _out.dec();
         _out << nl << "end";
@@ -329,10 +329,10 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out.dec();
     _out << nl << "end"; // End of mix-in module for proxy.
 
-    _out << sp << nl << "class " << name << "Prx < Ice::ObjectPrx";
+    _out << sp << nl << "class " << proxyName << " < Ice::ObjectPrx";
     _out.inc();
     _out << nl << "include Ice::Proxy_mixin";
-    _out << nl << "include " << name << "Prx_mixin";
+    _out << nl << "include " << proxyName << "_mixin";
     _out.dec();
     _out << nl << "end"; // End of proxy class.
 
@@ -344,7 +344,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // where InParams and OutParams are arrays of type descriptions, and Exceptions
     // is an array of exception types.
     //
-    _out << sp << nl << getMetaTypeName(p) << "Prx.defineProxy(" << name << "Prx, ";
+    _out << sp << nl << getMetaTypeName(p) << "Prx.defineProxy(" << proxyName << ", ";
     _out << "nil";
 
     //
@@ -371,9 +371,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     for (const auto& op : ops)
     {
-        ParameterList params = op->parameters();
-        ParameterList::const_iterator t;
-        int count;
+        const string opName = op->name();
         string format;
         optional<FormatType> opFormat = op->format();
         if (opFormat)
@@ -395,7 +393,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             format = "nil";
         }
 
-        _out << nl << name << "Prx_mixin::OP_" << op->name() << " = Ice::__defineOperation('" << op->name() << "', '" << op->mappedName() << "', ";
+        _out << nl << proxyName << "_mixin::OP_" << opName << " = Ice::__defineOperation('" << opName << "', '" << op->mappedName() << "', ";
         switch (op->mode())
         {
             case Operation::Normal:
@@ -406,36 +404,32 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 break;
         }
         _out << ", " << format << ", [";
-        for (t = params.begin(), count = 0; t != params.end(); ++t)
+        bool isFirst = true;
+        for (const auto& param : op->inParameters())
         {
-            if (!(*t)->isOutParam())
+            if (!isFirst)
             {
-                if (count > 0)
-                {
-                    _out << ", ";
-                }
-                _out << '[';
-                writeType((*t)->type());
-                _out << ", " << ((*t)->optional() ? "true" : "false") << ", " << ((*t)->optional() ? (*t)->tag() : 0)
-                     << ']';
-                ++count;
+                _out << ", ";
             }
+            isFirst = false;
+            _out << '[';
+            writeType(param->type());
+            _out << ", " << (param->optional() ? "true" : "false") << ", " << (param->optional() ? param->tag() : 0)
+                    << ']';
         }
         _out << "], [";
-        for (t = params.begin(), count = 0; t != params.end(); ++t)
+        isFirst = true;
+        for (const auto& param : op->outParameters())
         {
-            if ((*t)->isOutParam())
+            if (!isFirst)
             {
-                if (count > 0)
-                {
-                    _out << ", ";
-                }
-                _out << '[';
-                writeType((*t)->type());
-                _out << ", " << ((*t)->optional() ? "true" : "false") << ", " << ((*t)->optional() ? (*t)->tag() : 0)
-                     << ']';
-                ++count;
+                _out << ", ";
             }
+            isFirst = false;
+            _out << '[';
+            writeType(param->type());
+            _out << ", " << (param->optional() ? "true" : "false") << ", " << (param->optional() ? param->tag() : 0)
+                    << ']';
         }
         _out << "], ";
         TypePtr returnType = op->returnType();
@@ -455,23 +449,21 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             _out << "nil";
         }
-        _out << ", [";
-        ExceptionList exceptions = op->throws();
-        for (auto u = exceptions.begin(); u != exceptions.end(); ++u)
+        _out << ", ";
+        _out.spar("[");
+        isFirst = true;
+        for (const auto& ex : op->throws())
         {
-            if (u != exceptions.begin())
-            {
-                _out << ", ";
-            }
-            _out << getMetaTypeReference(*u);
+            _out << getMetaTypeReference(ex);
         }
-        _out << "])";
+        _out.epar("]");
+        _out << ")";
 
         if (op->isDeprecated())
         {
             // Get the deprecation reason if present, or default to an empty string.
             string reason = op->getDeprecationReason().value_or("");
-            _out << nl << name << "Prx_mixin::OP_" << op->name() << ".deprecate(\"" << reason << "\")";
+            _out << nl << proxyName << "_mixin::OP_" << opName << ".deprecate(\"" << reason << "\")";
         }
     }
 
@@ -492,11 +484,9 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out.inc();
     _out << nl << "class " << name << " < ";
     ExceptionPtr base = p->base();
-    string baseName;
     if (base)
     {
-        baseName = getAbsolute(base);
-        _out << baseName;
+        _out << getAbsolute(base);
     }
     else
     {
@@ -603,8 +593,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.inc();
         for (const auto& member : members)
         {
-            _out << nl << '@' << getMappedName(member) << " = "
-                 << getMappedName(member, IdentToLower);
+            _out << nl << '@' << getMappedName(member) << " = " << getMappedName(member, IdentToLower);
         }
         _out.dec();
         _out << nl << "end";
@@ -618,8 +607,8 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "_h = 0";
     for (const auto& member : members)
     {
-        const string lowerName = "@" + getMappedName(member);
-        _out << nl << "_h = 5 * _h + " << lowerName << ".hash";
+        const string memberName = "@" + getMappedName(member);
+        _out << nl << "_h = 5 * _h + " << memberName << ".hash";
     }
     _out << nl << "_h % 0x7fffffff";
     _out.dec();
@@ -713,14 +702,11 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Ruby::CodeVisitor::visitSequence(const SequencePtr& p)
 {
-    //
     // Emit the type information.
-    //
-    string scoped = p->scoped();
     outputElementSp();
     _out << nl << "if not defined?(" << getMetaTypeReference(p) << ')';
     _out.inc();
-    _out << nl << getMetaTypeName(p) << " = Ice::__defineSequence('" << scoped << "', ";
+    _out << nl << getMetaTypeName(p) << " = Ice::__defineSequence('" << p->scoped() << "', ";
     writeType(p->type());
     _out << ")";
     _out.dec();
@@ -730,14 +716,11 @@ Slice::Ruby::CodeVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Ruby::CodeVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    //
     // Emit the type information.
-    //
-    string scoped = p->scoped();
     outputElementSp();
     _out << nl << "if not defined?(" << getMetaTypeReference(p) << ')';
     _out.inc();
-    _out << nl << getMetaTypeName(p) << " = Ice::__defineDictionary('" << scoped << "', ";
+    _out << nl << getMetaTypeName(p) << " = Ice::__defineDictionary('" << p->scoped() << "', ";
     writeType(p->keyType());
     _out << ", ";
     writeType(p->valueType());
@@ -749,9 +732,7 @@ Slice::Ruby::CodeVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
 {
-    string scoped = p->scoped();
     string name = getMappedName(p, IdentToUpper);
-    EnumeratorList enumerators = p->enumerators();
 
     outputElementSp();
     _out << nl << "if not defined?(" << getAbsolute(p) << ')';
@@ -769,15 +750,11 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     // from_int
     //
-    {
-        _out << sp << nl << "def " << name << ".from_int(val)";
-        ostringstream sz;
-        sz << enumerators.size() - 1;
-        _out.inc();
-        _out << nl << "@@_enumerators[val]"; // Evaluates to nil if the key is not found
-        _out.dec();
-        _out << nl << "end";
-    }
+    _out << sp << nl << "def " << name << ".from_int(val)";
+    _out.inc();
+    _out << nl << "@@_enumerators[val]"; // Evaluates to nil if the key is not found
+    _out.dec();
+    _out << nl << "end";
 
     //
     // to_s
@@ -830,25 +807,19 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     // Constant for each enumerator.
     //
     _out << sp;
-    int i = 0;
-    for (auto q = enumerators.begin(); q != enumerators.end(); ++q, ++i)
+    EnumeratorList enumerators = p->enumerators();
+    for (const auto& enumerator : enumerators)
     {
-        ostringstream idx;
-        idx << i;
-        _out << nl << getMappedName(*q, IdentToUpper) << " = " << name << ".new(\"" << (*q)->name() << "\", "
-             << (*q)->value() << ')';
+        _out << nl << getMappedName(enumerator, IdentToUpper) << " = " << name << ".new(\"" << enumerator->name()
+             << "\", " << enumerator->value() << ')';
     }
-
-    _out << sp << nl << "@@_enumerators = {";
-    for (auto q = enumerators.begin(); q != enumerators.end(); ++q)
+    _out << sp << nl << "@@_enumerators = ";
+    _out.epar("{");
+    for (const auto& enumerator : enumerators)
     {
-        if (q != enumerators.begin())
-        {
-            _out << ", ";
-        }
-        _out << (*q)->value() << "=>" << getMappedName(*q, IdentToUpper);
+        _out << to_string(enumerator->value()) + "=>" + getMappedName(enumerator, IdentToUpper);
     }
-    _out << '}';
+    _out.epar("}");
 
     _out << sp << nl << "def " << name << "._enumerators";
     _out.inc();
@@ -864,7 +835,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     // Emit the type information.
     //
-    _out << sp << nl << getMetaTypeName(p) << " = Ice::__defineEnum('" << scoped << "', " << name << ", " << name
+    _out << sp << nl << getMetaTypeName(p) << " = Ice::__defineEnum('" << p->scoped() << "', " << name << ", " << name
          << "::_enumerators)";
 
     _out.dec();
@@ -874,12 +845,9 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
 void
 Slice::Ruby::CodeVisitor::visitConst(const ConstPtr& p)
 {
-    Slice::TypePtr type = p->type();
-    string name = getMappedName(p, IdentToUpper);
-
     outputElementSp();
-    _out << nl << name << " = ";
-    writeConstantValue(type, p->valueType(), p->value());
+    _out << nl << getMappedName(p, IdentToUpper) << " = ";
+    writeConstantValue(p->type(), p->valueType(), p->value());
 }
 
 void
@@ -961,8 +929,8 @@ string
 Slice::Ruby::CodeVisitor::getInitializer(const DataMemberPtr& m)
 {
     TypePtr p = m->type();
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
-    if (builtin)
+
+    if (BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p))
     {
         switch (builtin->kind())
         {
@@ -995,15 +963,13 @@ Slice::Ruby::CodeVisitor::getInitializer(const DataMemberPtr& m)
         }
     }
 
-    EnumPtr en = dynamic_pointer_cast<Enum>(p);
-    if (en)
+    if (EnumPtr en = dynamic_pointer_cast<Enum>(p))
     {
-        EnumeratorPtr firstEnumerator = en->enumerators().front();
-        return getAbsolute(en) + "::" + getMappedName(firstEnumerator, IdentToUpper);
+        const EnumeratorPtr firstEnumerator = en->enumerators().front();
+        return getAbsolute(firstEnumerator);
     }
 
-    StructPtr st = dynamic_pointer_cast<Struct>(p);
-    if (st)
+    if (StructPtr st = dynamic_pointer_cast<Struct>(p))
     {
         return getAbsolute(st) + ".new";
     }
@@ -1017,53 +983,47 @@ Slice::Ruby::CodeVisitor::writeConstantValue(
     const SyntaxTreeBasePtr& valueType,
     const string& value)
 {
-    ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
-    if (constant)
+    if (ConstPtr constant = dynamic_pointer_cast<Const>(valueType))
     {
         _out << getAbsolute(constant);
     }
+    else if (BuiltinPtr b = dynamic_pointer_cast<Builtin>(type))
+    {
+        switch (b->kind())
+        {
+            case Builtin::KindBool:
+            case Builtin::KindByte:
+            case Builtin::KindShort:
+            case Builtin::KindInt:
+            case Builtin::KindFloat:
+            case Builtin::KindDouble:
+            case Builtin::KindLong:
+            {
+                _out << value;
+                break;
+            }
+            case Builtin::KindString:
+            {
+                // RubyUCN available in Ruby 1.9 or greater
+                _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\x20\x1b", "", EC6UCN, 0) << "\"";
+                break;
+            }
+
+            case Builtin::KindValue:
+            case Builtin::KindObject:
+            case Builtin::KindObjectProxy:
+                assert(false);
+        }
+    }
+    else if (EnumPtr en = dynamic_pointer_cast<Enum>(type))
+    {
+        EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
+        assert(lte);
+        _out << getAbsolute(lte);
+    }
     else
     {
-        Slice::BuiltinPtr b = dynamic_pointer_cast<Slice::Builtin>(type);
-        Slice::EnumPtr en = dynamic_pointer_cast<Slice::Enum>(type);
-        if (b)
-        {
-            switch (b->kind())
-            {
-                case Slice::Builtin::KindBool:
-                case Slice::Builtin::KindByte:
-                case Slice::Builtin::KindShort:
-                case Slice::Builtin::KindInt:
-                case Slice::Builtin::KindFloat:
-                case Slice::Builtin::KindDouble:
-                case Slice::Builtin::KindLong:
-                {
-                    _out << value;
-                    break;
-                }
-                case Slice::Builtin::KindString:
-                {
-                    // RubyUCN available in Ruby 1.9 or greater
-                    _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\x20\x1b", "", EC6UCN, 0) << "\"";
-                    break;
-                }
-
-                case Slice::Builtin::KindValue:
-                case Slice::Builtin::KindObject:
-                case Slice::Builtin::KindObjectProxy:
-                    assert(false);
-            }
-        }
-        else if (en)
-        {
-            EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
-            assert(lte);
-            _out << getAbsolute(lte);
-        }
-        else
-        {
-            assert(false); // Unknown const type.
-        }
+        assert(false); // Unknown const type.
     }
 }
 
