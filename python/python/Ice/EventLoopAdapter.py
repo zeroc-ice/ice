@@ -28,7 +28,8 @@ class EventLoopAdapter(ABC):
     @abstractmethod
     def wrapFuture(self, future):
         """
-        Wraps an Ice.Future so that it can be awaited in the application event loop.
+        Wraps an Ice.Future so that it can be awaited in the application event loop. The Ice run time calls this method
+        before returning a future to the application.
 
         Parameters
         ----------
