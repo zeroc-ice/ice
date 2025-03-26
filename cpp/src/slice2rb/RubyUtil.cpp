@@ -19,7 +19,7 @@ namespace
     {
         for (const auto& param : p->parameters())
         {
-            if (param->name() == name)
+            if (Slice::Ruby::getMappedName(param) == name)
             {
                 return name + "_";
             }
@@ -79,87 +79,6 @@ namespace Slice::Ruby
     };
 }
 
-static string
-lookupKwd(const string& name)
-{
-    //
-    // Keyword list. *Must* be kept in alphabetical order.
-    //
-    // This list only contains keywords that might conflict with a Slice
-    // identifier, so keywords like "defined?" are not necessary.
-    //
-    // This list also contains the names of methods on Object that might
-    // conflict with a Slice identifier, so names such as "inspect" and
-    // "send" are included but "to_s" is not.
-    //
-    static const string keywordList[] = {
-        "BEGIN",
-        "END",
-        "alias",
-        "and",
-        "begin",
-        "break",
-        "case",
-        "class",
-        "clone",
-        "def",
-        "display",
-        "do",
-        "dup",
-        "else",
-        "elsif",
-        "end",
-        "ensure",
-        "extend",
-        "false",
-        "for",
-        "freeze",
-        "hash",
-        "if",
-        "in",
-        "initialize_copy",
-        "inspect",
-        "instance_eval",
-        "instance_variable_get",
-        "instance_variable_set",
-        "instance_variables",
-        "method",
-        "method_missing",
-        "methods",
-        "module",
-        "new",
-        "next",
-        "nil",
-        "not",
-        "object_id",
-        "or",
-        "private_methods",
-        "protected_methods",
-        "public_methods",
-        "redo",
-        "rescue",
-        "retry",
-        "return",
-        "self",
-        "send",
-        "singleton_methods",
-        "super",
-        "taint",
-        "then",
-        "to_a",
-        "to_s",
-        "true",
-        "undef",
-        "unless",
-        "untaint",
-        "until",
-        "when",
-        "while",
-        "yield"};
-    bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
-    return found ? "_" + name : name;
-}
-
 //
 // CodeVisitor implementation.
 //
@@ -174,7 +93,7 @@ Slice::Ruby::CodeVisitor::visitModuleStart(const ModulePtr& p)
     {
         _out << "::";
     }
-    _out << fixIdent(p->name(), IdentToUpper);
+    _out << getMappedName(p, IdentToUpper);
     _out.inc();
     return true;
 }
@@ -189,10 +108,8 @@ Slice::Ruby::CodeVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Ruby::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    //
     // Emit forward declarations.
-    //
-    string scoped = p->scoped();
+    const string scoped = p->scoped();
     if (_classHistory.count(scoped) == 0)
     {
         outputElementSp();
@@ -209,10 +126,8 @@ Slice::Ruby::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 void
 Slice::Ruby::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
-    //
     // Emit forward declarations.
-    //
-    string scoped = p->scoped();
+    const string scoped = p->scoped();
     if (_classHistory.count(scoped) == 0)
     {
         outputElementSp();
@@ -233,7 +148,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "if not defined?(" << getAbsolute(p) << ')';
     _out.inc();
 
-    const string name = fixIdent(p->name(), IdentToUpper);
+    const string name = getMappedName(p, IdentToUpper);
     const ClassDefPtr base = p->base();
     const DataMemberList members = p->dataMembers();
     const DataMemberList baseMembers = (base ? base->allDataMembers() : DataMemberList{});
@@ -265,15 +180,14 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "super" << spar;
             for (const auto& member : baseMembers)
             {
-                _out << fixIdent(member->name(), IdentToLower);
+                _out << getMappedName(member, IdentToLower);
             }
             _out << epar;
         }
 
         for (const auto& member : members)
         {
-            const string memberName = member->name();
-            _out << nl << '@' << fixIdent(memberName, IdentNormal) << " = " << fixIdent(memberName, IdentToLower);
+            _out << nl << '@' << getMappedName(member) << " = " << getMappedName(member, IdentToLower);
         }
 
         _out.dec();
@@ -292,7 +206,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 _out << ", ";
             }
-            _out << ":" << fixIdent((*q)->name(), IdentNormal);
+            _out << ":" << getMappedName(*q);
         }
     }
 
@@ -331,7 +245,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << ',' << nl;
         }
-        _out << "['" << fixIdent((*q)->name(), IdentNormal) << "', ";
+        _out << "['" << getMappedName(*q) << "', ";
         writeType((*q)->type());
         _out << ", " << ((*q)->optional() ? "true" : "false") << ", " << ((*q)->optional() ? (*q)->tag() : 0) << ']';
     }
@@ -355,7 +269,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "if not defined?(" << getAbsolute(p) << "Prx)";
     _out.inc();
 
-    string name = fixIdent(p->name(), IdentToUpper);
+    string name = getMappedName(p, IdentToUpper);
     InterfaceList bases = p->bases();
     OperationList ops = p->operations();
 
@@ -373,7 +287,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     for (const auto& op : ops)
     {
-        string fixedOpName = fixIdent(op->name(), IdentNormal);
+        string fixedOpName = getMappedName(op);
         if (fixedOpName == "checkedCast" || fixedOpName == "uncheckedCast")
         {
             fixedOpName.insert(0, "_");
@@ -390,7 +304,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 {
                     inParams.append(", ");
                 }
-                inParams.append(fixIdent(q->name(), IdentToLower));
+                inParams.append(getMappedName(q, IdentToLower));
             }
         }
 
@@ -425,7 +339,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     // Define each operation. The arguments to __defineOperation are:
     //
-    // 'opName', Mode, FormatType, [InParams], [OutParams], ReturnParam, [Exceptions]
+    // 'sliceOpName', 'mappedOpName', Mode, FormatType, [InParams], [OutParams], ReturnParam, [Exceptions]
     //
     // where InParams and OutParams are arrays of type descriptions, and Exceptions
     // is an array of exception types.
@@ -481,7 +395,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             format = "nil";
         }
 
-        _out << nl << name << "Prx_mixin::OP_" << op->name() << " = Ice::__defineOperation('" << op->name() << "', ";
+        _out << nl << name << "Prx_mixin::OP_" << op->name() << " = Ice::__defineOperation('" << op->name() << "', '" << op->mappedName() << "', ";
         switch (op->mode())
         {
             case Operation::Normal:
@@ -571,7 +485,7 @@ bool
 Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     string scoped = p->scoped();
-    string name = fixIdent(p->name(), IdentToUpper);
+    string name = getMappedName(p, IdentToUpper);
 
     outputElementSp();
     _out << nl << "if not defined?(" << getAbsolute(p) << ')';
@@ -612,7 +526,7 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             {
                 _out << ", ";
             }
-            _out << ':' << fixIdent((*dmli)->name(), IdentNormal);
+            _out << ':' << getMappedName(*dmli);
         }
     }
 
@@ -650,7 +564,7 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             _out << ',' << nl;
         }
-        _out << "[\"" << fixIdent((*dmli)->name(), IdentNormal) << "\", ";
+        _out << "[\"" << getMappedName(*dmli) << "\", ";
         writeType((*dmli)->type());
         _out << ", " << ((*dmli)->optional() ? "true" : "false") << ", " << ((*dmli)->optional() ? (*dmli)->tag() : 0)
              << ']';
@@ -672,7 +586,7 @@ bool
 Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
 {
     const string scoped = p->scoped();
-    const string name = fixIdent(p->name(), IdentToUpper);
+    const string name = getMappedName(p, IdentToUpper);
     const DataMemberList members = p->dataMembers();
 
     outputElementSp();
@@ -689,8 +603,8 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.inc();
         for (const auto& member : members)
         {
-            _out << nl << '@' << fixIdent(member->name(), IdentNormal) << " = "
-                 << fixIdent(member->name(), IdentToLower);
+            _out << nl << '@' << getMappedName(member) << " = "
+                 << getMappedName(member, IdentToLower);
         }
         _out.dec();
         _out << nl << "end";
@@ -704,7 +618,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "_h = 0";
     for (const auto& member : members)
     {
-        const string lowerName = "@" + fixIdent(member->name(), IdentNormal);
+        const string lowerName = "@" + getMappedName(member);
         _out << nl << "_h = 5 * _h + " << lowerName << ".hash";
     }
     _out << nl << "_h % 0x7fffffff";
@@ -721,7 +635,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << " !other.is_a? " << getAbsolute(p);
     for (const auto& member : members)
     {
-        const string memberName = fixIdent(member->name(), IdentNormal);
+        const string memberName = getMappedName(member);
         _out << " or" << nl << "@" << memberName << " != other." << memberName;
     }
     _out.dec();
@@ -749,7 +663,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.spar("");
         for (const auto& member : members)
         {
-            _out << (":" + fixIdent(member->name(), IdentNormal));
+            _out << (":" + getMappedName(member));
         }
         _out.epar("");
     }
@@ -779,7 +693,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
         {
             _out << ',' << nl;
         }
-        _out << "[\"" << fixIdent((*r)->name(), IdentNormal) << "\", ";
+        _out << "[\"" << getMappedName(*r) << "\", ";
         writeType((*r)->type());
         _out << ']';
     }
@@ -836,7 +750,7 @@ void
 Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
 {
     string scoped = p->scoped();
-    string name = fixIdent(p->name(), IdentToUpper);
+    string name = getMappedName(p, IdentToUpper);
     EnumeratorList enumerators = p->enumerators();
 
     outputElementSp();
@@ -921,7 +835,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     {
         ostringstream idx;
         idx << i;
-        _out << nl << fixIdent((*q)->name(), IdentToUpper) << " = " << name << ".new(\"" << (*q)->name() << "\", "
+        _out << nl << getMappedName(*q, IdentToUpper) << " = " << name << ".new(\"" << (*q)->name() << "\", "
              << (*q)->value() << ')';
     }
 
@@ -932,7 +846,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
         {
             _out << ", ";
         }
-        _out << (*q)->value() << "=>" << fixIdent((*q)->name(), IdentToUpper);
+        _out << (*q)->value() << "=>" << getMappedName(*q, IdentToUpper);
     }
     _out << '}';
 
@@ -961,7 +875,7 @@ void
 Slice::Ruby::CodeVisitor::visitConst(const ConstPtr& p)
 {
     Slice::TypePtr type = p->type();
-    string name = fixIdent(p->name(), IdentToUpper);
+    string name = getMappedName(p, IdentToUpper);
 
     outputElementSp();
     _out << nl << name << " = ";
@@ -1084,8 +998,8 @@ Slice::Ruby::CodeVisitor::getInitializer(const DataMemberPtr& m)
     EnumPtr en = dynamic_pointer_cast<Enum>(p);
     if (en)
     {
-        string firstEnumerator = en->enumerators().front()->name();
-        return getAbsolute(en) + "::" + fixIdent(firstEnumerator, IdentToUpper);
+        EnumeratorPtr firstEnumerator = en->enumerators().front();
+        return getAbsolute(en) + "::" + getMappedName(firstEnumerator, IdentToUpper);
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(p);
@@ -1165,7 +1079,7 @@ Slice::Ruby::CodeVisitor::writeConstructorParams(const DataMemberList& members)
         }
         isFirst = false;
 
-        _out << fixIdent(member->name(), IdentToLower) << "=";
+        _out << getMappedName(member, IdentToLower) << "=";
         if (member->defaultValue())
         {
             writeConstantValue(member->type(), member->defaultValueType(), *member->defaultValue());
@@ -1258,6 +1172,7 @@ Slice::Ruby::fixScopedIdent(const string& ident)
     return result.str();
 }
 
+// TODOAUSTIN this isn't using mapped names!
 string
 Slice::Ruby::fixIdent(const string& ident, IdentStyle style)
 {
@@ -1291,16 +1206,29 @@ Slice::Ruby::fixIdent(const string& ident, IdentStyle style)
 }
 
 string
+Slice::Ruby::getMappedName(const ContainedPtr& p, IdentStyle style)
+{
+    if (auto customName = p->getMetadataArgs("ruby:identifier"))
+    {
+        return *customName;
+    }
+    else
+    {
+        return fixIdent(p->name(), style);
+    }
+}
+
+string
 Slice::Ruby::getAbsolute(const ContainedPtr& p)
 {
     const string scope = fixScopedIdent(p->scope());
-    return scope + fixIdent(p->name(), IdentToUpper);
+    return scope + getMappedName(p, IdentToUpper);
 }
 
 string
 Slice::Ruby::getMetaTypeName(const ContainedPtr& p)
 {
-    return "T_" + fixIdent(p->name(), IdentToUpper);
+    return "T_" + getMappedName(p, IdentToUpper);
 }
 
 string
@@ -1315,4 +1243,86 @@ Slice::Ruby::printHeader(IceInternal::Output& out)
     out << "# Copyright (c) ZeroC, Inc.";
     out << sp;
     out << nl << "# slice2rb version " << ICE_STRING_VERSION;
+}
+
+
+static string
+lookupKwd(const string& name)
+{
+    //
+    // Keyword list. *Must* be kept in alphabetical order.
+    //
+    // This list only contains keywords that might conflict with a Slice
+    // identifier, so keywords like "defined?" are not necessary.
+    //
+    // This list also contains the names of methods on Object that might
+    // conflict with a Slice identifier, so names such as "inspect" and
+    // "send" are included but "to_s" is not.
+    //
+    static const string keywordList[] = {
+        "BEGIN",
+        "END",
+        "alias",
+        "and",
+        "begin",
+        "break",
+        "case",
+        "class",
+        "clone",
+        "def",
+        "display",
+        "do",
+        "dup",
+        "else",
+        "elsif",
+        "end",
+        "ensure",
+        "extend",
+        "false",
+        "for",
+        "freeze",
+        "hash",
+        "if",
+        "in",
+        "initialize_copy",
+        "inspect",
+        "instance_eval",
+        "instance_variable_get",
+        "instance_variable_set",
+        "instance_variables",
+        "method",
+        "method_missing",
+        "methods",
+        "module",
+        "new",
+        "next",
+        "nil",
+        "not",
+        "object_id",
+        "or",
+        "private_methods",
+        "protected_methods",
+        "public_methods",
+        "redo",
+        "rescue",
+        "retry",
+        "return",
+        "self",
+        "send",
+        "singleton_methods",
+        "super",
+        "taint",
+        "then",
+        "to_a",
+        "to_s",
+        "true",
+        "undef",
+        "unless",
+        "untaint",
+        "until",
+        "when",
+        "while",
+        "yield"};
+    bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
+    return found ? "_" + name : name;
 }

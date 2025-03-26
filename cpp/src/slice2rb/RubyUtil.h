@@ -28,10 +28,11 @@ namespace Slice::Ruby
     //
     // Get the fully-qualified name of the given definition.
     //
+
+    // TODO Comment on why we aren't using mappedName
+    std::string getMappedName(const Slice::ContainedPtr& p, IdentStyle style = IdentNormal);
     std::string getAbsolute(const Slice::ContainedPtr& p);
-
     std::string getMetaTypeName(const Slice::ContainedPtr& p);
-
     std::string getMetaTypeReference(const Slice::ContainedPtr& p);
 
     //

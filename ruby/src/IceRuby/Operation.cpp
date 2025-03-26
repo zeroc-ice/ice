@@ -16,7 +16,6 @@
 
 using namespace std;
 using namespace IceRuby;
-using namespace Slice::Ruby;
 
 static VALUE _operationClass;
 
@@ -38,13 +37,14 @@ namespace IceRuby
     class OperationI final : public Operation
     {
     public:
-        OperationI(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
+        OperationI(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
 
         VALUE invoke(const Ice::ObjectPrx&, VALUE, VALUE) final;
         void deprecate(const string&) final;
 
     private:
-        string _name;
+        string _sliceName;
+        string _mappedName;
         Ice::OperationMode _mode;
         std::optional<Ice::FormatType> _format;
         ParamInfoList _inParams;
@@ -86,7 +86,8 @@ static const rb_data_type_t IceRuby_OperationType = {
 extern "C" VALUE
 IceRuby_defineOperation(
     VALUE /*self*/,
-    VALUE name,
+    VALUE sliceName,
+    VALUE mappedName,
     VALUE mode,
     VALUE format,
     VALUE inParams,
@@ -96,7 +97,7 @@ IceRuby_defineOperation(
 {
     ICE_RUBY_TRY
     {
-        OperationIPtr op = make_shared<OperationI>(name, mode, format, inParams, outParams, returnType, exceptions);
+        OperationIPtr op = make_shared<OperationI>(sliceName, mappedName, mode, format, inParams, outParams, returnType, exceptions);
         return TypedData_Wrap_Struct(_operationClass, &IceRuby_OperationType, new OperationPtr(op));
     }
     ICE_RUBY_CATCH
@@ -153,6 +154,7 @@ IceRuby::ParamInfo::unmarshaled(VALUE val, VALUE target, void* closure)
 //
 IceRuby::OperationI::OperationI(
     VALUE name,
+    VALUE mapped,
     VALUE mode,
     VALUE format,
     VALUE inParams,
@@ -160,7 +162,8 @@ IceRuby::OperationI::OperationI(
     VALUE returnType,
     VALUE exceptions)
 {
-    _name = getString(name);
+    _sliceName = getString(name);
+    _mappedName = getString(mapped);
 
     //
     // mode
@@ -276,11 +279,11 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
             throw RubyException(rb_eArgError, "context argument must be nil or a hash");
         }
 
-        status = proxy->ice_invoke(_name, _mode, params, result, ctx);
+        status = proxy->ice_invoke(_sliceName, _mode, params, result, ctx);
     }
     else
     {
-        status = proxy->ice_invoke(_name, _mode, params, result);
+        status = proxy->ice_invoke(_sliceName, _mode, params, result);
     }
 
     //
@@ -327,7 +330,7 @@ IceRuby::OperationI::deprecate(const string& msg)
     }
     else
     {
-        _deprecateMessage = "operation " + _name + " is deprecated";
+        _deprecateMessage = "operation " + _mappedName + " is deprecated";
     }
 }
 
@@ -375,8 +378,7 @@ IceRuby::OperationI::prepareRequest(
     long paramCount = static_cast<long>(_inParams.size());
     if (argc != paramCount)
     {
-        string fixedName = fixIdent(_name, IdentNormal);
-        throw RubyException(rb_eArgError, "%s expects %ld in parameters", fixedName.c_str(), paramCount);
+        throw RubyException(rb_eArgError, "%s expects %ld in parameters", _mappedName.c_str(), paramCount);
     }
 
     if (!_inParams.empty())
@@ -398,12 +400,11 @@ IceRuby::OperationI::prepareRequest(
             volatile VALUE arg = RARRAY_AREF(args, info->pos);
             if ((!info->optional || arg != Qnil) && !info->type->validate(arg))
             {
-                string opName = fixIdent(_name, IdentNormal);
                 throw RubyException(
                     rb_eTypeError,
                     "invalid value for argument %ld in operation `%s'",
                     info->pos + 1,
-                    opName.c_str());
+                    _mappedName.c_str());
             }
         }
 
@@ -597,14 +598,14 @@ IceRuby::OperationI::checkTwowayOnly(const Ice::ObjectPrx& proxy) const
 {
     if ((_returnType != 0 || !_outParams.empty()) && !proxy->ice_isTwoway())
     {
-        throw Ice::TwowayOnlyException{__FILE__, __LINE__, _name};
+        throw Ice::TwowayOnlyException{__FILE__, __LINE__, _sliceName};
     }
 }
 
 bool
 IceRuby::initOperation(VALUE iceModule)
 {
-    rb_define_module_function(iceModule, "__defineOperation", CAST_METHOD(IceRuby_defineOperation), 7);
+    rb_define_module_function(iceModule, "__defineOperation", CAST_METHOD(IceRuby_defineOperation), 8);
 
     //
     // Define a class to represent an operation.
