@@ -480,6 +480,14 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                     string msg = "no Slice element with identifier '" + linkText + "' could be found in this context";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 }
+                if (dynamic_pointer_cast<Parameter>(linkTarget))
+                {
+                    // We don't support linking to parameters with '@link' tags.
+                    // Parameter links must be done with '@p' tags, and can only appear on the enclosing operation.
+                    string msg = "cannot link parameter '" + linkText + "'; parameters can only be referenced with @p";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    linkTarget = nullptr;
+                }
 
                 // Finally, insert a correctly formatted link where the '{@link foo}' used to be.
                 string formattedLink = linkFormatter(linkText, p, linkTarget);
