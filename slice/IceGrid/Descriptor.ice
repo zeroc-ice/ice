@@ -20,7 +20,7 @@ module IceGrid
     /// A mapping of string to string.
     dictionary<string, string> StringStringDict;
 
-    /// Property descriptor.
+    /// Describes an Ice property.
     struct PropertyDescriptor
     {
         /// The name of the property.
@@ -30,8 +30,9 @@ module IceGrid
         string value;
     }
 
-    /// A sequence of property descriptors.
-    ["java:type:java.util.LinkedList<PropertyDescriptor>"] sequence<PropertyDescriptor> PropertyDescriptorSeq;
+    /// A sequence of PropertyDescriptor.
+    ["java:type:java.util.LinkedList<PropertyDescriptor>"]
+    sequence<PropertyDescriptor> PropertyDescriptorSeq;
 
     /// A property set descriptor.
     struct PropertySetDescriptor
@@ -47,7 +48,7 @@ module IceGrid
     /// A mapping of property set name to property set descriptor.
     dictionary<string, PropertySetDescriptor> PropertySetDescriptorDict;
 
-    /// An Ice object descriptor.
+    /// Describes a well-known Ice object.
     struct ObjectDescriptor
     {
         /// The identity of the object.
@@ -56,55 +57,56 @@ module IceGrid
         /// The object type.
         string type;
 
-        /// Proxy options to use with the proxy created for this Ice object. If empty, the proxy will be created with
-        /// the proxy options specified on the object adapter or replica group.
+        /// The proxy options to use when creating a proxy for this well-known object. If empty, the proxy is created
+        /// with the proxy options specified on the object adapter or replica group.
         string proxyOptions;
     }
 
-    /// A sequence of object descriptors.
-    ["java:type:java.util.LinkedList<ObjectDescriptor>"] sequence<ObjectDescriptor> ObjectDescriptorSeq;
+    /// A sequence of ObjectDescriptor.
+    ["java:type:java.util.LinkedList<ObjectDescriptor>"]
+    sequence<ObjectDescriptor> ObjectDescriptorSeq;
 
-    /// An Ice object adapter descriptor.
+    /// Describes an indirect object adapter.
     struct AdapterDescriptor
     {
         /// The object adapter name.
         string name;
 
-        /// The description of this object adapter.
+        /// A description of this object adapter.
         string description;
 
-        /// The object adapter id.
+        /// The adapter ID.
         string id;
 
-        /// The replica id of this adapter.
+        /// The replica group ID. It's empty when the adapter is not part of a replica group.
         string replicaGroupId;
 
-        /// The adapter priority. This is eventually used when the adapter is member of a replica group to sort the
-        /// adapter endpoints by priority.
+        /// The adapter priority. Only relevant when the adapter is in a replica group.
         string priority;
 
-        /// Flag to specify if the object adapter will register a process object.
+        /// When `true`, the object adapter registers a process object.
         bool registerProcess;
 
-        /// If `true`, the lifetime of this object adapter is the same of the server lifetime. This information is used
-        /// by the IceGrid node to figure out the server state: the server is active only if all its "server lifetime"
+        /// When `true`, the lifetime of this object adapter is the same of the server lifetime. This information is
+        /// used by the IceGrid node to figure out the server state: the server is active when all its "server lifetime"
         /// adapters are active.
         bool serverLifetime;
 
-        /// The well-known object descriptors associated with this object adapter.
+        /// The descriptors of well-known objects.
         ObjectDescriptorSeq objects;
 
-        /// The allocatable object descriptors associated with this object adapter.
+        /// The descriptors of allocatable objects
         ObjectDescriptorSeq allocatables;
     }
 
-    /// A sequence of adapter descriptors.
-    ["java:type:java.util.LinkedList<AdapterDescriptor>"] sequence<AdapterDescriptor> AdapterDescriptorSeq;
+    /// A sequence of AdapterDescriptor.
+    ["java:type:java.util.LinkedList<AdapterDescriptor>"]
+    sequence<AdapterDescriptor> AdapterDescriptorSeq;
 
-    /// A communicator descriptor.
+    /// Describes an Ice communicator.
     class CommunicatorDescriptor
     {
-        /// The object adapters.
+        /// The indirect object adapters.
         AdapterDescriptorSeq adapters;
 
         /// The property set.
@@ -117,54 +119,62 @@ module IceGrid
         string description;
     }
 
-    /// A distribution descriptor defines an IcePatch2 server and the directories to retrieve from the patch server.
-    /// This descriptor is no longer used. It's provided only for schema compatibility with Ice 3.7 and earlier
-    /// releases.
+    /// Describes a distribution.
+    /// @deprecated This descriptor is no longer used. It's provided only for schema compatibility with Ice 3.7 and
+    /// earlier releases.
+    ["deprecated"]
     struct DistributionDescriptor
     {
         /// The proxy of the IcePatch2 server.
         string icepatch;
 
         /// The source directories.
-        ["java:type:java.util.LinkedList<String>"] Ice::StringSeq directories;
+        ["java:type:java.util.LinkedList<String>"]
+        Ice::StringSeq directories;
     }
 
-    /// An Ice server descriptor.
+    /// Describes an Ice server.
     class ServerDescriptor extends CommunicatorDescriptor
     {
-        /// The server id.
+        /// The server ID.
         string id;
 
         /// The path of the server executable.
         string exe;
 
         /// The Ice version used by this server. This is only required if backward compatibility with servers using old
-        /// Ice versions is needed (otherwise the registry will assume the server is using the same Ice version).
-        /// For example "3.1.1", "3.2", "3.3.0".
+        /// Ice versions is needed (otherwise the registry assume the server is using the same Ice version as the
+        /// registry itself). For example "3.7.5".
         string iceVersion;
 
         /// The path to the server working directory.
         string pwd;
 
         /// The command line options to pass to the server executable.
-        ["java:type:java.util.LinkedList<String>"] Ice::StringSeq options;
+        ["java:type:java.util.LinkedList<String>"]
+        Ice::StringSeq options;
 
         /// The server environment variables.
-        ["java:type:java.util.LinkedList<String>"] Ice::StringSeq envs;
+        ["java:type:java.util.LinkedList<String>"]
+        Ice::StringSeq envs;
 
-        //// The server activation mode (possible values are "on-demand" or "manual").
+        //// The server activation mode. Possible values are "on-demand" and "manual".
         string activation;
 
-        /// The activation timeout (an integer value representing the number of seconds to wait for activation).
+        /// The activation timeout. It's an integer (in string format) that represents the number of seconds to wait for
+        /// activation.
         string activationTimeout;
 
-        /// The deactivation timeout (an integer value representing the number of seconds to wait for deactivation).
+        /// The deactivation timeout. It's an integer (in string format) that represents the number of seconds to wait
+        /// for deactivation.
         string deactivationTimeout;
 
         /// Specifies if the server depends on the application distribution.
-        bool applicationDistrib;
+        ["deprecated"]
+        bool applicationDistrib = false;
 
         /// The distribution descriptor.
+        ["deprecated"]
         DistributionDescriptor distrib;
 
         /// Specifies if the server is allocatable.
@@ -174,10 +184,11 @@ module IceGrid
         string user;
     }
 
-    /// A sequence of server descriptors.
-    ["java:type:java.util.LinkedList<ServerDescriptor>"] sequence<ServerDescriptor> ServerDescriptorSeq;
+    /// A sequence of ServerDescriptor.
+    ["java:type:java.util.LinkedList<ServerDescriptor>"]
+    sequence<ServerDescriptor> ServerDescriptorSeq;
 
-    /// An IceBox service descriptor.
+    /// Describes an IceBox service.
     class ServiceDescriptor extends CommunicatorDescriptor
     {
         /// The service name.
@@ -187,13 +198,14 @@ module IceGrid
         string entry;
     }
 
-    /// A sequence of service descriptors.
-    ["java:type:java.util.LinkedList<ServiceDescriptor>"] sequence<ServiceDescriptor> ServiceDescriptorSeq;
+    /// A sequence of ServiceDescriptor.
+    ["java:type:java.util.LinkedList<ServiceDescriptor>"]
+    sequence<ServiceDescriptor> ServiceDescriptorSeq;
 
-    /// A server template instance descriptor.
+    /// Describes a template instantiation that creates a server.
     struct ServerInstanceDescriptor
     {
-        /// The template used by this instance.
+        /// The template used by this instance. It's never empty.
         ["cpp:identifier:templateName"]
         string template;
 
@@ -203,23 +215,24 @@ module IceGrid
         /// The property set.
         PropertySetDescriptor propertySet;
 
-        /// The services property sets. It's only valid to set these property sets if the template is an IceBox server
+        /// The services property sets. It's only valid to set these property sets when the template is an IceBox server
         /// template.
         PropertySetDescriptorDict servicePropertySets;
     }
 
-    /// A sequence of server instance descriptors.
+    /// A sequence of ServerInstanceDescriptor.
     ["java:type:java.util.LinkedList<ServerInstanceDescriptor>"]
     sequence<ServerInstanceDescriptor> ServerInstanceDescriptorSeq;
 
-    /// A template descriptor for server or service templates.
+    /// Describes a template for a server or an IceBox service.
     struct TemplateDescriptor
     {
-        /// The template.
+        /// The communicator.
         CommunicatorDescriptor descriptor;
 
         /// The parameters required to instantiate the template.
-        ["java:type:java.util.LinkedList<String>"] Ice::StringSeq parameters;
+        ["java:type:java.util.LinkedList<String>"]
+        Ice::StringSeq parameters;
 
         /// The parameters default values.
         StringStringDict parameterDefaults;
@@ -228,10 +241,10 @@ module IceGrid
     /// A mapping of template identifier to template descriptor.
     dictionary<string, TemplateDescriptor> TemplateDescriptorDict;
 
-    /// A service template instance descriptor.
+    /// Describes an IceBox service.
     struct ServiceInstanceDescriptor
     {
-        /// The template used by this instance.
+        /// The template used by this instance. It's empty when this instance does not use a template.
         ["cpp:identifier:templateName"]
         string template;
 
@@ -245,27 +258,28 @@ module IceGrid
         PropertySetDescriptor propertySet;
     }
 
-    /// A sequence of service instance descriptors.
+    /// A sequence of ServiceInstanceDescriptor.
     ["java:type:java.util.LinkedList<ServiceInstanceDescriptor>"]
     sequence<ServiceInstanceDescriptor> ServiceInstanceDescriptorSeq;
 
-    /// An IceBox server descriptor.
+    /// Describes an IceBox server.
     class IceBoxDescriptor extends ServerDescriptor
     {
         /// The service instances.
         ServiceInstanceDescriptorSeq services;
     }
 
-    /// A node descriptor.
+    /// Describes an IceGrid node.
     struct NodeDescriptor
     {
         /// The variables defined for the node.
-        ["java:type:java.util.TreeMap<String, String>"] StringStringDict variables;
+        ["java:type:java.util.TreeMap<String, String>"]
+        StringStringDict variables;
 
-        /// The server instances.
+        /// The server instances (template instances).
         ServerInstanceDescriptorSeq serverInstances;
 
-        /// Servers (which are not template instances).
+        /// Servers that are not template instances.
         ServerDescriptorSeq servers;
 
         /// Load factor of the node.
@@ -281,29 +295,29 @@ module IceGrid
     /// Mapping of node name to node descriptor.
     dictionary<string, NodeDescriptor> NodeDescriptorDict;
 
-    /// A base class for load balancing policies.
+    /// The base class for load balancing policies.
     class LoadBalancingPolicy
     {
         /// The number of replicas that will be used to gather the endpoints of a replica group.
         string nReplicas;
     }
 
-    /// Random load balancing policy.
+    /// The load balancing policy that returns endpoints in a random order.
     class RandomLoadBalancingPolicy extends LoadBalancingPolicy
     {
     }
 
-    /// Ordered load balancing policy.
+    /// The load balancing policy that returns endpoints in order.
     class OrderedLoadBalancingPolicy extends LoadBalancingPolicy
     {
     }
 
-    /// Round robin load balancing policy.
+    /// The load balancing policy that returns endpoints using round-robin.
     class RoundRobinLoadBalancingPolicy extends LoadBalancingPolicy
     {
     }
 
-    /// Adaptive load balancing policy.
+    /// The load balancing policy that returns the endpoints of the server(s) with the lowest load average.
     class AdaptiveLoadBalancingPolicy extends LoadBalancingPolicy
     {
         /// The load sample to use for the load balancing. The allowed values for this attribute are "1", "5" and "15",
@@ -311,10 +325,10 @@ module IceGrid
         string loadSample;
     }
 
-    /// A replica group descriptor.
+    /// Describes a replica group.
     struct ReplicaGroupDescriptor
     {
-        /// The id of the replica group.
+        /// The replica group ID.
         string id;
 
         /// The load balancing policy.
@@ -323,7 +337,7 @@ module IceGrid
         /// Default options for proxies created for the replica group.
         string proxyOptions;
 
-        /// The object descriptors associated with this object adapter.
+        /// The descriptors for the well-known objects.
         ObjectDescriptorSeq objects;
 
         /// The description of this replica group.
@@ -333,18 +347,19 @@ module IceGrid
         string filter;
     }
 
-    /// A sequence of replica groups.
+    /// A sequence of ReplicaGroupDescriptor.
     ["java:type:java.util.LinkedList<ReplicaGroupDescriptor>"]
     sequence<ReplicaGroupDescriptor> ReplicaGroupDescriptorSeq;
 
-    /// An application descriptor.
+    /// Describes an application.
     struct ApplicationDescriptor
     {
         /// The application name.
         string name;
 
         /// The variables defined in the application descriptor.
-        ["java:type:java.util.TreeMap<String, String>"] StringStringDict variables;
+        ["java:type:java.util.TreeMap<String, String>"]
+        StringStringDict variables;
 
         /// The replica groups.
         ReplicaGroupDescriptorSeq replicaGroups;
@@ -355,10 +370,11 @@ module IceGrid
         /// The service templates.
         TemplateDescriptorDict serviceTemplates;
 
-        /// The application nodes.
+        /// The node descriptors.
         NodeDescriptorDict nodes;
 
         /// The application distribution.
+        ["deprecated"]
         DistributionDescriptor distrib;
 
         /// The description of this application.
@@ -368,7 +384,7 @@ module IceGrid
         PropertySetDescriptorDict propertySets;
     }
 
-    /// A sequence of application descriptors.
+    /// A sequence of ApplicationDescriptor.
     ["java:type:java.util.LinkedList<ApplicationDescriptor>"]
     sequence<ApplicationDescriptor> ApplicationDescriptorSeq;
 
@@ -379,7 +395,7 @@ module IceGrid
         string value;
     }
 
-    /// A node update descriptor to describe the updates to apply to a node of a deployed application.
+    /// Describes the updates to apply to a node in a deployed application.
     struct NodeUpdateDescriptor
     {
         /// The name of the node to update.
@@ -389,7 +405,8 @@ module IceGrid
         BoxedString description;
 
         /// The variables to update.
-        ["java:type:java.util.TreeMap<String, String>"] StringStringDict variables;
+        ["java:type:java.util.TreeMap<String, String>"]
+        StringStringDict variables;
 
         /// The variables to remove.
         Ice::StringSeq removeVariables;
@@ -406,17 +423,19 @@ module IceGrid
         /// The servers which are not template instances to update.
         ServerDescriptorSeq servers;
 
-        /// The ids of the servers to remove.
+        /// The IDs of the servers to remove.
         Ice::StringSeq removeServers;
 
         /// The updated load factor of the node (or null if the load factor was not updated).
         BoxedString loadFactor;
     }
 
-    /// A sequence of node update descriptors.
-    ["java:type:java.util.LinkedList<NodeUpdateDescriptor>"] sequence<NodeUpdateDescriptor> NodeUpdateDescriptorSeq;
+    /// A sequence of NodeUpdateDescriptor.
+    ["java:type:java.util.LinkedList<NodeUpdateDescriptor>"]
+    sequence<NodeUpdateDescriptor> NodeUpdateDescriptorSeq;
 
     /// A "boxed" distribution descriptor.
+    ["deprecated"]
     class BoxedDistributionDescriptor
     {
         /// The value of the boxed distribution descriptor.
@@ -436,7 +455,8 @@ module IceGrid
         BoxedDistributionDescriptor distrib;
 
         /// The variables to update.
-        ["java:type:java.util.TreeMap<String, String>"] StringStringDict variables;
+        ["java:type:java.util.TreeMap<String, String>"]
+        StringStringDict variables;
 
         /// The variables to remove.
         Ice::StringSeq removeVariables;
@@ -456,13 +476,13 @@ module IceGrid
         /// The server templates to update.
         TemplateDescriptorDict serverTemplates;
 
-        /// The ids of the server template to remove.
+        /// The IDs of the server template to remove.
         Ice::StringSeq removeServerTemplates;
 
         /// The service templates to update.
         TemplateDescriptorDict serviceTemplates;
 
-        /// The ids of the service template to remove.
+        /// The IDs of the service template to remove.
         Ice::StringSeq removeServiceTemplates;
 
         /// The application nodes to update.

@@ -686,7 +686,6 @@ allTests(Test::TestHelper* helper)
     ServerDescriptorPtr server = dynamic_pointer_cast<ServerDescriptor>(templ.descriptor);
     server->id = "test";
     server->exe = "${test.dir}/server";
-    server->applicationDistrib = false;
     server->allocatable = false;
     ApplicationDescriptor desc;
     desc.name = "App";
