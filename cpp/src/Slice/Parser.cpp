@@ -422,7 +422,7 @@ namespace
 
         // Then, before checking for user-defined types, we determine which scope we'll be searching relative to.
         ContainerPtr linkSourceScope = dynamic_pointer_cast<Container>(source);
-        if (!linkSourceScope)
+        if (!linkSourceScope || dynamic_pointer_cast<Operation>(source))
         {
             linkSourceScope = source->container();
         }
