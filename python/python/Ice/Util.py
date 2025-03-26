@@ -33,6 +33,8 @@ def initialize(args=None, initData=None, configFile=None, eventLoop=None):
         An asyncio event loop used to run coroutines and wrap futures. If provided, a new event loop adapter is created
         and configured with the communicator. This adapter is responsible for executing coroutines returned by Ice
         asynchronous dispatch methods and for wrapping Ice futures (from Ice Async APIs) into asyncio futures.
+        This argument and the `initData` argument are mutually exclusive. If the `initData` argument is provided, the
+        event loop adapter can be set using the InitializationData.eventLoopAdapter member.
 
     Returns
     -------
@@ -42,7 +44,7 @@ def initialize(args=None, initData=None, configFile=None, eventLoop=None):
     .. code-block:: python
 
     with Ice.initialize(sys.argv, eventLoop=asyncio.get_running_loop()) as communicator:
-        greeter =  VisitorCenter.GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061")
+        greeter = VisitorCenter.GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061")
         await greeter.greetAsync()
     """
 
@@ -55,10 +57,11 @@ def initialize(args=None, initData=None, configFile=None, eventLoop=None):
     if initData and configFile:
         raise InitializationException("Both initData and configFile arguments cannot be specified")
 
-    eventLoopAdapter = None
+    if initData and eventLoop:
+        raise InitializationException("Both initData and eventLoop arguments cannot be specified")
+
+    eventLoopAdapter = initData.eventLoopAdapter if initData else None
     if eventLoop:
-        if initData and initData.eventLoopAdapter:
-            raise InitializationException("An event loop adapter is already set in the initialization data")
 
         if not isinstance(eventLoop, asyncio.AbstractEventLoop):
             raise InitializationException("The event loop must be an instance of asyncio.AbstractEventLoop")

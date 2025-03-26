@@ -15,7 +15,9 @@ IcePy::wrapFuture(const Ice::CommunicatorPtr& communicator, PyObject* future)
 PyObject*
 IcePy::wrapFuture(PyObject* communicator, PyObject* future)
 {
+    // Create a new reference to the Ice.Future object.
     PyObjectHandle futureHandle{Py_NewRef(future)};
+
     PyObjectHandle eventLoopAdapter{getAttr(communicator, "eventLoopAdapter", false)};
     if (eventLoopAdapter.get())
     {
@@ -24,7 +26,11 @@ IcePy::wrapFuture(PyObject* communicator, PyObject* future)
         {
             return nullptr;
         }
+
+        // Let the caller take ownership of the wrapped future object.
         return wrappedFuture.release();
     }
+
+    // Let the caller take ownership of the Ice.Future object.
     return futureHandle.release();
 }

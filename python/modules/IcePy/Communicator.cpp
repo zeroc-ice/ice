@@ -85,6 +85,9 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         return -1;
     }
 
+    // The initData and configFile are mutually exclusive. The caller Ice.initialize validates this.
+    assert(initData == Py_None || configFile == Py_None);
+
     Ice::StringSeq seq;
     if (argList != Py_None && !listToStringSeq(argList, seq))
     {
