@@ -863,8 +863,7 @@ proxyIceGetEncodingVersion(ProxyObject* self, PyObject* /*args*/)
         return nullptr;
     }
 
-    Py_INCREF(version);
-    return version;
+    return Py_NewRef(version);
 }
 
 extern "C" PyObject*
@@ -905,19 +904,15 @@ proxyIceIsPreferSecure(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isPreferSecure() ? Py_True : Py_False;
+        return (*self->proxy)->ice_isPreferSecure() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1093,19 +1088,15 @@ proxyIceIsTwoway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isTwoway() ? Py_True : Py_False;
+        return (*self->proxy)->ice_isTwoway() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1132,19 +1123,15 @@ proxyIceIsOneway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isOneway() ? Py_True : Py_False;
+        return (*self->proxy)->ice_isOneway() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1171,19 +1158,15 @@ proxyIceIsBatchOneway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isBatchOneway() ? Py_True : Py_False;
+        return (*self->proxy)->ice_isBatchOneway() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1209,20 +1192,15 @@ extern "C" PyObject*
 proxyIceIsDatagram(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
-
-    PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isDatagram() ? Py_True : Py_False;
+        return (*self->proxy)->ice_isDatagram() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1248,20 +1226,15 @@ extern "C" PyObject*
 proxyIceIsBatchDatagram(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
-
-    PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isBatchDatagram() ? Py_True : Py_False;
+        return (*self->proxy)->ice_isBatchDatagram() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1299,18 +1272,16 @@ extern "C" PyObject*
 proxyIceGetCompress(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
-
-    PyObject* b;
     try
     {
         optional<bool> compress = (*self->proxy)->ice_getCompress();
         if (compress)
         {
-            b = *compress ? Py_True : Py_False;
+            return *compress ? Py_True : Py_False;
         }
         else
         {
-            b = Py_None;
+            return Py_None;
         }
     }
     catch (...)
@@ -1318,8 +1289,6 @@ proxyIceGetCompress(ProxyObject* self, PyObject* /*args*/)
         setPythonException(current_exception());
         return nullptr;
     }
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1327,19 +1296,15 @@ proxyIceIsCollocationOptimized(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isCollocationOptimized() ? Py_True : Py_False;
+        return (*self->proxy)->ice_isCollocationOptimized() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1445,19 +1410,15 @@ proxyIceIsFixed(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isFixed() ? Py_True : Py_False;
+        return (*self->proxy)->ice_isFixed() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*

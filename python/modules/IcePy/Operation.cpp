@@ -582,7 +582,7 @@ asyncInvocationContextCallLater(AsyncInvocationContextObject* self, PyObject* ar
     class CallbackWrapper final
     {
     public:
-        CallbackWrapper(PyObject* callback) : _callback(callback) { Py_XINCREF(callback); }
+        CallbackWrapper(PyObject* callback) : _callback(Py_NewRef(callback)) {}
 
         ~CallbackWrapper()
         {
@@ -700,8 +700,7 @@ IcePy::ParamInfo::unmarshaled(PyObject* val, PyObject* target, void* closure)
 {
     assert(PyTuple_Check(target));
     auto i = reinterpret_cast<Py_ssize_t>(closure);
-    Py_XINCREF(val);
-    PyTuple_SET_ITEM(target, i, val); // PyTuple_SET_ITEM steals a reference.
+    PyTuple_SET_ITEM(target, i, Py_NewRef(val)); // PyTuple_SET_ITEM steals a reference.
 }
 
 //
@@ -844,8 +843,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
     PyObjectHandle t;
     if (numResults > 1)
     {
-        Py_XINCREF(result);
-        t = PyObjectHandle{result};
+        t = PyObjectHandle{Py_NewRef(result)};
     }
     else
     {
@@ -854,8 +852,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         {
             throw AbortMarshaling();
         }
-        Py_XINCREF(result);
-        PyTuple_SET_ITEM(t.get(), 0, result);
+        PyTuple_SET_ITEM(t.get(), 0, Py_NewRef(result));
     }
 
     ObjectMap objectMap;
@@ -1356,8 +1353,7 @@ IcePy::Invocation::unmarshalException(const OperationPtr& op, pair<const byte*, 
 
         if (validateException(op, ex))
         {
-            Py_XINCREF(ex);
-            return ex;
+            return Py_NewRef(ex);
         }
         else
         {
@@ -1509,8 +1505,7 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
                     }
                     else
                     {
-                        Py_XINCREF(ret);
-                        return ret;
+                        return Py_NewRef(ret);
                     }
                 }
             }
@@ -1535,12 +1530,11 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
 //
 IcePy::AsyncInvocation::AsyncInvocation(const Ice::ObjectPrx& prx, PyObject* pyProxy, string operation)
     : Invocation(prx),
-      _pyProxy(pyProxy),
+      _pyProxy(Py_NewRef(pyProxy)),
       _operation(std::move(operation)),
       _twoway(prx->ice_isTwoway())
 
 {
-    Py_INCREF(_pyProxy);
 }
 
 IcePy::AsyncInvocation::~AsyncInvocation()
@@ -1656,8 +1650,7 @@ IcePy::AsyncInvocation::invoke(PyObject* args, PyObject* kwds)
                 }
             }
         }
-        _future = future.release();
-        Py_XINCREF(_future);
+        _future = Py_NewRef(future.release());
         return wrapFuture(_communicator, _future);
     }
     else
@@ -1891,8 +1884,8 @@ IcePy::AsyncTypedInvocation::handleResponse(PyObject* future, bool ok, pair<cons
             {
                 // PyTuple_GET_ITEM steals a reference.
                 PyObject* obj = PyTuple_GET_ITEM(args.get(), 0);
-                Py_XINCREF(obj);
-                r = PyObjectHandle{obj};
+                assert(obj);
+                r = PyObjectHandle{Py_NewRef(obj)};
             }
             else
             {
@@ -2112,9 +2105,8 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
     // lookupType() returns a borrowed reference.
     PyObject* dispatchMethod{lookupType("Ice.Dispatch.dispatch")};
     assert(dispatchMethod);
-    Py_INCREF(dispatchMethod);
     // Ensure we release the reference when this method exist.
-    PyObjectHandle dispatchMethodHandle{dispatchMethod};
+    PyObjectHandle dispatchMethodHandle{Py_NewRef(dispatchMethod)};
 
     PyObjectHandle dispatchArgs{PyTuple_New(3)};
     if (!dispatchArgs.get())
@@ -2130,8 +2122,7 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
     callback->upcall = new UpcallPtr(shared_from_this());
     PyTuple_SET_ITEM(dispatchArgs.get(), 0, reinterpret_cast<PyObject*>(callback)); // Steals a reference.
     PyTuple_SET_ITEM(dispatchArgs.get(), 1, servantMethod.release());               // Steals a reference.
-    Py_XINCREF(args);
-    PyTuple_SET_ITEM(dispatchArgs.get(), 2, args); // Steals a reference.
+    PyTuple_SET_ITEM(dispatchArgs.get(), 2, Py_NewRef(args));                       // Steals a reference.
 
     //
     // Ignore the return value of dispatch -- it will use the dispatch callback.
@@ -2563,8 +2554,7 @@ IcePy::FlushAsyncCallback::setFuture(PyObject* future)
     }
     else
     {
-        Py_XINCREF(future);
-        _future = future;
+        _future = Py_NewRef(future);
     }
 }
 
@@ -2657,8 +2647,7 @@ IcePy::GetConnectionAsyncCallback::setFuture(PyObject* future)
     }
     else
     {
-        Py_XINCREF(future);
-        _future = future;
+        _future = Py_NewRef(future);
     }
 }
 
@@ -2709,7 +2698,7 @@ IcePy::GetConnectionAsyncCallback::exception(std::exception_ptr ex)
 //
 // ServantWrapper implementation.
 //
-IcePy::ServantWrapper::ServantWrapper(PyObject* servant) : _servant(servant) { Py_INCREF(_servant); }
+IcePy::ServantWrapper::ServantWrapper(PyObject* servant) : _servant(Py_NewRef(servant)) {}
 
 IcePy::ServantWrapper::~ServantWrapper()
 {
@@ -2721,8 +2710,7 @@ IcePy::ServantWrapper::~ServantWrapper()
 PyObject*
 IcePy::ServantWrapper::getObject()
 {
-    Py_INCREF(_servant);
-    return _servant;
+    return Py_NewRef(_servant);
 }
 
 //
@@ -2858,8 +2846,7 @@ IcePy::createFuture(const string& operation, PyObject* asyncInvocationContext)
         return nullptr;
     }
     PyTuple_SET_ITEM(initArgs.get(), 0, createString(operation));
-    Py_XINCREF(asyncInvocationContext);
-    PyTuple_SET_ITEM(initArgs.get(), 1, asyncInvocationContext);
+    PyTuple_SET_ITEM(initArgs.get(), 1, Py_NewRef(asyncInvocationContext));
 
     // Call the Ice.InvocationFuture.__init__ method.
     type->tp_init(future.get(), initArgs.get(), nullptr);

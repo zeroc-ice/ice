@@ -404,10 +404,9 @@ communicatorShutdownCompleted(CommunicatorObject* self, PyObject* /*args*/)
     // Call Ice.Future.__init__
     type->tp_init(future.get(), emptyArgs.get(), nullptr);
 
-    // Create a strong reference to prevent premature release of the future object. The reference will be released by
+    // Create a new reference to prevent premature release of the future object. The reference will be released by
     // the callback.
-    PyObject* futureObject = future.get();
-    Py_INCREF(futureObject);
+    PyObject* futureObject = Py_NewRef(future.get());
 
     (*self->communicator)
         ->waitForShutdownAsync(
@@ -956,9 +955,7 @@ communicatorSetWrapper(CommunicatorObject* self, PyObject* args)
     }
 
     assert(!self->wrapper);
-    self->wrapper = wrapper;
-    Py_INCREF(self->wrapper);
-
+    self->wrapper = Py_NewRef(wrapper);
     return Py_None;
 }
 
@@ -966,8 +963,7 @@ extern "C" PyObject*
 communicatorGetWrapper(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->wrapper);
-    Py_INCREF(self->wrapper);
-    return self->wrapper;
+    return Py_NewRef(self->wrapper);
 }
 
 extern "C" PyObject*
@@ -1013,9 +1009,7 @@ communicatorGetLogger(CommunicatorObject* self, PyObject* /*args*/)
     LoggerWrapperPtr wrapper = dynamic_pointer_cast<LoggerWrapper>(logger);
     if (wrapper)
     {
-        PyObject* obj = wrapper->getObject();
-        Py_INCREF(obj);
-        return obj;
+        return Py_NewRef(wrapper->getObject());
     }
 
     return createLogger(logger);
@@ -1509,8 +1503,7 @@ IcePy::createCommunicator(const Ice::CommunicatorPtr& communicator)
     auto p = communicatorMap.find(communicator);
     if (p != communicatorMap.end())
     {
-        Py_INCREF(p->second);
-        return p->second;
+        return Py_NewRef(p->second);
     }
 
     CommunicatorObject* obj = communicatorNew(&CommunicatorType, nullptr, nullptr);
@@ -1529,8 +1522,7 @@ IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
     auto* obj = reinterpret_cast<CommunicatorObject*>(p->second);
     if (obj->wrapper)
     {
-        Py_INCREF(obj->wrapper);
-        return obj->wrapper;
+        return Py_NewRef(obj->wrapper);
     }
     else
     {
