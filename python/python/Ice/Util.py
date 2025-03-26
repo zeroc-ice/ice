@@ -9,7 +9,7 @@ from .InitializationData import InitializationData
 from .Properties import Properties
 from .Communicator import Communicator
 from .LocalExceptions import InitializationException
-from .asyncio.EventLoopAdapter import EventLoopAdapter
+from .asyncio.EventLoopAdapter import EventLoopAdapter as AsyncIOEventLoopAdapter
 
 __name__ = "Ice"
 
@@ -34,7 +34,7 @@ def initialize(args=None, initData=None, configFile=None, eventLoop=None):
         and configured with the communicator. This adapter is responsible for executing coroutines returned by Ice
         asynchronous dispatch methods and for wrapping Ice futures (from Ice Async APIs) into asyncio futures.
         This argument and the `initData` argument are mutually exclusive. If the `initData` argument is provided, the
-        event loop adapter can be set using the InitializationData.eventLoopAdapter member.
+        event loop adapter can be set using the InitializationData.eventLoopAdapter attribute.
 
     Returns
     -------
@@ -65,7 +65,7 @@ def initialize(args=None, initData=None, configFile=None, eventLoop=None):
 
         if not isinstance(eventLoop, asyncio.AbstractEventLoop):
             raise InitializationException("The event loop must be an instance of asyncio.AbstractEventLoop")
-        eventLoopAdapter = EventLoopAdapter(eventLoop)
+        eventLoopAdapter = AsyncIOEventLoopAdapter(eventLoop)
 
     communicator = IcePy.Communicator(args, initData, configFile)
     return Communicator(communicator, eventLoopAdapter)
