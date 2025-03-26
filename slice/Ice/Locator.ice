@@ -42,7 +42,8 @@ module Ice
         /// @return A dummy proxy, or null if an object with the requested identity was not found.
         /// @throws ObjectNotFoundException Thrown when an object with the requested identity was not found. The caller
         /// should treat this exception like a null return value.
-        ["amd"] ["cpp:const"] idempotent Object* findObjectById(Identity id)
+        ["amd"] ["cpp:const"]
+idempotent Object* findObjectById(Identity id)
             throws ObjectNotFoundException;
 
         /// Finds an object adapter by adapter ID and returns a dummy proxy with the object adapter's endpoint(s).
@@ -50,12 +51,14 @@ module Ice
         /// @return A dummy proxy with the adapter's endpoints, or null if an object adapter with @p id was not found.
         /// @throws AdapterNotFoundException Thrown when an object adapter with this adapter ID was not found. The
         /// caller should treat this exception like a null return value.
-        ["amd"] ["cpp:const"] idempotent Object* findAdapterById(string id)
+        ["amd"] ["cpp:const"]
+idempotent Object* findAdapterById(string id)
             throws AdapterNotFoundException;
 
         /// Gets a proxy to the locator registry.
         /// @return A proxy to the locator registry, or null if this locator has no associated registry.
-        ["cpp:const"] idempotent LocatorRegistry* getRegistry();
+        ["cpp:const"]
+idempotent LocatorRegistry* getRegistry();
     }
 
     /// Provides access to a {@link Locator} object via a fixed identity.

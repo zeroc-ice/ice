@@ -149,7 +149,7 @@ module IceGrid
     {
     }
 
-    /// The exception that is thrown when a client is denied the ability to create a session with IceGrid.
+    /// The exception that is thrown when a client is not allowed to create a session.
     exception PermissionDeniedException
     {
         /// The reason why permission was denied.

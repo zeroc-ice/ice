@@ -17,53 +17,49 @@
 
 module IceGrid
 {
-    interface Registry; // So that doc-comments can link to `IceGrid::Registry`.
+    interface Registry; // For doc-comments.
 
-    /// A session object is used by IceGrid clients to allocate and release objects. Client sessions are created either
-    /// via the {@link Registry} object or via the registry client <code>SessionManager</code> object.
-    /// @see Registry
+    /// Represents a session object used by IceGrid clients to allocate and release objects. Client sessions are created
+    /// either via the {@link Registry} object or via the registry client `SessionManager` object.
     interface Session extends Glacier2::Session
     {
-        /// Keep the session alive.
-        /// As of Ice 3.8, there is no need to call this operation, and its implementation does nothing.
+        /// Keeps the session alive.
+        /// @deprecated As of Ice 3.8, there is no need to call this operation, and its implementation does nothing.
         ["deprecated"]
         idempotent void keepAlive();
 
-        /// Allocate an object. Depending on the allocation timeout, this operation might hang until the object is
-        /// available or until the timeout is reached.
+        /// Allocates an object.
         /// @param id The identity of the object to allocate.
-        /// @return The proxy of the allocated object. The returned proxy is never null.
-        /// @throws ObjectNotRegisteredException Raised if the object with the given identity is not registered with
+        /// @return A proxy to the allocated object. This proxy is never null.
+        /// @throws ObjectNotRegisteredException Thrown when an object with the given identity is not registered with
         /// the registry.
-        /// @throws AllocationException Raised if the object can't be allocated.
+        /// @throws AllocationException Thrown when the allocation fails.
         /// @see #setAllocationTimeout
         /// @see #releaseObject
         ["amd"] Object* allocateObjectById(Ice::Identity id)
             throws ObjectNotRegisteredException, AllocationException;
 
-        /// Allocate an object with the given type. Depending on the allocation timeout, this operation can block until
-        /// an object becomes available or until the timeout is reached.
+        /// Allocates an object with the given type.
         /// @param type The type of the object.
-        /// @return The proxy of the allocated object. The returned proxy is never null.
-        /// @throws AllocationException Raised if the object could not be allocated.
+        /// @return A proxy to the allocated object. This proxy is never null.
+        /// @throws AllocationException Thrown when the allocation fails.
         /// @see #setAllocationTimeout
         /// @see #releaseObject
         ["amd"] Object* allocateObjectByType(string type)
             throws AllocationException;
 
-        /// Release an object that was allocated using <code>allocateObjectById</code> or
-        /// <code>allocateObjectByType</code>.
+        /// Releases an object that was allocated using {@link #allocateObjectById} or {@link #allocateObjectByType}.
         /// @param id The identity of the object to release.
-        /// @throws ObjectNotRegisteredException Raised if the object with the given identity is not registered with
+        /// @throws ObjectNotRegisteredException Thrown when an object with the given identity is not registered with
         /// the registry.
-        /// @throws AllocationException Raised if the given object can't be released. This might happen if the object
-        /// isn't allocatable or isn't allocated by the session.
+        /// @throws AllocationException Thrown when the object can't be released. This can happen when the object is not
+        /// allocatable or is not allocated by this session.
         void releaseObject(Ice::Identity id)
             throws ObjectNotRegisteredException, AllocationException;
 
-        /// Set the allocation timeout. If no objects are available for an allocation request, a call to
-        /// <code>allocateObjectById</code> or <code>allocateObjectByType</code> will block for the duration of this
-        /// timeout.
+        /// Sets the allocation timeout. When no object is immediately available for an allocation request, the
+        /// implementation of {@link #allocateObjectById} and {@link #allocateObjectByType} waits for the duration of
+        /// this timeout.
         /// @param timeout The timeout in milliseconds.
         idempotent void setAllocationTimeout(int timeout);
     }
