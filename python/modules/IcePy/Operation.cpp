@@ -817,10 +817,8 @@ IcePy::Operation::Operation(
 void
 Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
 {
-    //
-    // Marshal the results. If there is more than one value to be returned, then they must be
-    // returned in a tuple of the form (result, outParam1, ...).
-    //
+    // Marshal the results. If there is more than one value to be returned, then they must be returned in a tuple of
+    // the form (result, outParam1, ...).
 
     auto numResults = static_cast<Py_ssize_t>(outParams.size());
     if (returnType)
@@ -836,23 +834,21 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
     }
 
-    //
     // Normalize the result value. When there are multiple result values, result is already a tuple.
     // Otherwise, we create a tuple to make the code a little simpler.
-    //
-    PyObjectHandle t;
+    PyObjectHandle resultTuple;
     if (numResults > 1)
     {
-        t = PyObjectHandle{Py_NewRef(result)};
+        resultTuple = PyObjectHandle{Py_NewRef(result)};
     }
     else
     {
-        t = PyObjectHandle{PyTuple_New(1)};
-        if (!t.get())
+        resultTuple = PyObjectHandle{PyTuple_New(1)};
+        if (!resultTuple.get())
         {
             throw AbortMarshaling();
         }
-        PyTuple_SET_ITEM(t.get(), 0, Py_NewRef(result));
+        PyTuple_SET_ITEM(resultTuple.get(), 0, Py_NewRef(result));
     }
 
     ObjectMap objectMap;
@@ -881,6 +877,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
             }
         }
     }
+
     if (returnType)
     {
         PyObject* res = PyTuple_GET_ITEM(t.get(), 0);
@@ -900,30 +897,25 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         }
     }
 
-    //
     // Marshal the required out parameters.
-    //
     for (const auto& info : outParams)
     {
         if (!info->optional)
         {
-            PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
+            PyObject* arg = PyTuple_GET_ITEM(resultTuple.get(), info->pos);
             info->type->marshal(arg, &os, &objectMap, false, &info->metadata);
         }
     }
 
-    //
+
     // Marshal the required return value, if any.
-    //
     if (returnType && !returnType->optional)
     {
-        PyObject* res = PyTuple_GET_ITEM(t.get(), 0);
+        PyObject* res = PyTuple_GET_ITEM(resultTuple.get(), 0);
         returnType->type->marshal(res, &os, &objectMap, false, &metadata);
     }
 
-    //
     // Marshal the optional results.
-    //
     for (const auto& info : optionalOutParams)
     {
         PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
