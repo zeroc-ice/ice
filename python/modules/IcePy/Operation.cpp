@@ -859,7 +859,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
     //
     for (const auto& info : outParams)
     {
-        PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
+        PyObject* arg = PyTuple_GET_ITEM(resultTuple.get(), info->pos);
         if ((!info->optional || arg != Py_None) && !info->type->validate(arg))
         {
             try
@@ -880,7 +880,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
 
     if (returnType)
     {
-        PyObject* res = PyTuple_GET_ITEM(t.get(), 0);
+        PyObject* res = PyTuple_GET_ITEM(resultTuple.get(), 0);
         if ((!returnType->optional || res != Py_None) && !returnType->type->validate(res))
         {
             try
@@ -917,7 +917,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
     // Marshal the optional results.
     for (const auto& info : optionalOutParams)
     {
-        PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
+        PyObject* arg = PyTuple_GET_ITEM(resultTuple.get(), info->pos);
         if (arg != Py_None && os.writeOptional(info->tag, info->type->optionalFormat()))
         {
             info->type->marshal(arg, &os, &objectMap, true, &info->metadata);
