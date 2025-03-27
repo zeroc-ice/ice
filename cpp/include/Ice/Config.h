@@ -17,7 +17,7 @@
 
 #ifndef ICE_API
 #    if defined(ICE_BUILDING_SLICE_COMPILERS) // Only defined for Windows builds.
-#        define ICE_API /**/
+#        define ICE_API                       /**/
 #    elif defined(ICE_API_EXPORTS)
 #        define ICE_API ICE_DECLSPEC_EXPORT
 #    else
