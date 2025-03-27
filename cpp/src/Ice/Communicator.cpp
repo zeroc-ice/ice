@@ -358,3 +358,38 @@ Ice::Communicator::finishSetup(int& argc, const char* argv[])
         throw;
     }
 }
+
+Ice::CommunicatorHolder::CommunicatorHolder(CommunicatorPtr communicator) noexcept
+    : _communicator(std::move(communicator))
+{
+}
+
+Ice::CommunicatorHolder&
+Ice::CommunicatorHolder::operator=(CommunicatorPtr communicator) noexcept
+{
+    if (_communicator)
+    {
+        _communicator->destroy();
+    }
+    _communicator = std::move(communicator);
+    return *this;
+}
+
+Ice::CommunicatorHolder&
+Ice::CommunicatorHolder::operator=(CommunicatorHolder&& other) noexcept
+{
+    if (_communicator)
+    {
+        _communicator->destroy();
+    }
+    _communicator = std::move(other._communicator);
+    return *this;
+}
+
+Ice::CommunicatorHolder::~CommunicatorHolder()
+{
+    if (_communicator)
+    {
+        _communicator->destroy();
+    }
+}

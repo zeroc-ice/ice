@@ -26,160 +26,32 @@ namespace Ice
     ICE_API StringSeq argsToStringSeq(int argc, const char* const argv[]);
 
 #ifdef _WIN32
-    /// Converts an argument vector into a string sequence.
-    /// @param argc The number of arguments in argv.
-    /// @param argv The arguments.
-    /// @return A string sequence containing the arguments.
+    /// @copydoc argsToStringSeq(int, const char* const[])
     ICE_API StringSeq argsToStringSeq(int argc, const wchar_t* const argv[]);
 #endif
 
-    /// Updates the argument vector to match the contents of the string sequence.
-    /// This function assumes that the string sequence only contains
-    /// elements of the argument vector. The function shifts the
-    /// the argument vector elements so that the vector matches the
-    /// contents of the sequence.
-    /// @param seq The string sequence returned from a call to argsToStringSeq.
-    /// @param argc Updated to reflect the size of the sequence.
-    /// @param argv Elements are shifted to match the sequence.
+    /// Updates @p argv to match the contents of @p seq. This function assumes that @p seq contains only elements of
+    /// @p argv. The function shifts the argument vector elements so that the vector matches the contents of the
+    /// sequence.
+    /// @param seq The string sequence returned from a call to #argsToStringSeq.
+    /// @param[in,out] argc The number of arguments, updated to reflect the size of the sequence.
+    /// @param argv The arguments, shifted to match @p seq.
     ICE_API void stringSeqToArgs(const StringSeq& seq, int& argc, const char* argv[]);
 
-    /// Updates the argument vector to match the contents of the string sequence.
-    /// This function assumes that the string sequence only contains
-    /// elements of the argument vector. The function shifts the
-    /// the argument vector elements so that the vector matches the
-    /// contents of the sequence.
-    /// @param seq The string sequence returned from a call to argsToStringSeq.
-    /// @param argc Updated to reflect the size of the sequence.
-    /// @param argv Elements are shifted to match the sequence.
+    /// @copydoc stringSeqToArgs(const StringSeq&, int&, const char*[])
     inline void stringSeqToArgs(const StringSeq& seq, int& argc, char* argv[])
     {
         return stringSeqToArgs(seq, argc, const_cast<const char**>(argv));
     }
 
 #ifdef _WIN32
-    /// Updates the argument vector to match the contents of the string sequence.
-    /// This function assumes that the string sequence only contains
-    /// elements of the argument vector. The function shifts the
-    /// the argument vector elements so that the vector matches the
-    /// contents of the sequence.
-    /// @param seq The string sequence returned from a call to argsToStringSeq.
+    /// @copydoc stringSeqToArgs(const StringSeq&, int&, const char*[])
     ICE_API void stringSeqToArgs(const StringSeq& seq, int& argc, const wchar_t* argv[]);
 
-    /// Updates the argument vector to match the contents of the string sequence.
-    /// This function assumes that the string sequence only contains
-    /// elements of the argument vector. The function shifts the
-    /// the argument vector elements so that the vector matches the
-    /// contents of the sequence.
-    /// @param seq The string sequence returned from a call to argsToStringSeq.
+    /// @copydoc stringSeqToArgs(const StringSeq&, int&, const char*[])
     inline void stringSeqToArgs(const StringSeq& seq, int& argc, wchar_t* argv[])
     {
         return stringSeqToArgs(seq, argc, const_cast<const wchar_t**>(argv));
-    }
-#endif
-
-    /// Creates a new empty property set.
-    ///
-    /// @return A new empty property set.
-    ICE_API PropertiesPtr createProperties();
-
-    /// Creates a property set initialized from command-line arguments
-    /// and a default property set.
-    ///
-    /// @param seq Command-line arguments, possibly containing
-    /// options to set properties. If the arguments include
-    /// a <code>--Ice.Config</code> option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the arguments, the arguments take precedence.
-    /// Recognized options are removed from this container upon return.
-    ///
-    /// @param defaults Default values for the property set. Settings in
-    /// configuration files and the arguments override these defaults.
-    ///
-    /// @return A new property set initialized with the property settings
-    /// that were removed from the argument vector.
-    ICE_API PropertiesPtr createProperties(StringSeq& seq, const PropertiesPtr& defaults = nullptr);
-
-    /// Creates a property set initialized from command-line arguments
-    /// and a default property set.
-    ///
-    /// @param argc The number of arguments in argv. Upon return, this argument
-    /// is updated to reflect the arguments still remaining in argv.
-    /// @param argv Command-line arguments, possibly containing
-    /// options to set properties. If the arguments include
-    /// a <code>--Ice.Config</code> option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the arguments, the arguments take precedence.
-    /// Recognized options are removed from this vector upon return.
-    ///
-    /// @param defaults Default values for the property set. Settings in
-    /// configuration files and the arguments override these defaults.
-    ///
-    /// @return A new property set initialized with the property settings
-    /// that were removed from the argument vector.
-    ICE_API PropertiesPtr createProperties(int& argc, const char* argv[], const PropertiesPtr& defaults = nullptr);
-
-    /// Creates a property set initialized from command-line arguments
-    /// and a default property set.
-    ///
-    /// @param argc The number of arguments in argv. Upon return, this argument
-    /// is updated to reflect the arguments still remaining in argv.
-    /// @param argv Command-line arguments, possibly containing
-    /// options to set properties. If the arguments include
-    /// a <code>--Ice.Config</code> option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the arguments, the arguments take precedence.
-    /// Recognized options are removed from this vector upon return.
-    ///
-    /// @param defaults Default values for the property set. Settings in
-    /// configuration files and the arguments override these defaults.
-    ///
-    /// @return A new property set initialized with the property settings
-    /// that were removed from the argument vector.
-    inline PropertiesPtr createProperties(int& argc, char* argv[], const PropertiesPtr& defaults = nullptr)
-    {
-        return createProperties(argc, const_cast<const char**>(argv), defaults);
-    }
-
-#ifdef _WIN32
-    /// Creates a property set initialized from command-line arguments
-    /// and a default property set.
-    ///
-    /// @param argc The number of arguments in argv. Upon return, this argument
-    /// is updated to reflect the arguments still remaining in argv.
-    /// @param argv Command-line arguments, possibly containing
-    /// options to set properties. If the arguments include
-    /// a <code>--Ice.Config</code> option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the arguments, the arguments take precedence.
-    /// Recognized options are removed from this vector upon return.
-    ///
-    /// @param defaults Default values for the property set. Settings in
-    /// configuration files and the arguments override these defaults.
-    ///
-    /// @return A new property set initialized with the property settings
-    /// that were removed from the argument vector.
-    ICE_API PropertiesPtr createProperties(int& argc, const wchar_t* argv[], const PropertiesPtr& defaults = nullptr);
-
-    /// Creates a property set initialized from command-line arguments
-    /// and a default property set.
-    ///
-    /// @param argc The number of arguments in argv. Upon return, this argument
-    /// is updated to reflect the arguments still remaining in argv.
-    /// @param argv Command-line arguments, possibly containing
-    /// options to set properties. If the arguments include
-    /// a <code>--Ice.Config</code> option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the arguments, the arguments take precedence.
-    /// Recognized options are removed from this vector upon return.
-    ///
-    /// @param defaults Default values for the property set. Settings in
-    /// configuration files and the arguments override these defaults.
-    ///
-    /// @return A new property set initialized with the property settings
-    /// that were removed from the argument vector.
-    inline PropertiesPtr createProperties(int& argc, wchar_t* argv[], const PropertiesPtr& defaults = nullptr)
-    {
-        return createProperties(argc, const_cast<const wchar_t**>(argv), defaults);
     }
 #endif
 
@@ -195,14 +67,12 @@ namespace Ice
         /// @param stop The stop callback.
         ThreadHookPlugin(const CommunicatorPtr& communicator, std::function<void()> start, std::function<void()> stop);
 
-        /// Not used.
         void initialize() override;
 
-        /// Not used.
         void destroy() override;
     };
 
-    /// Encapsulates data to initialize a communicator.
+    /// Represents a set of options that you can specify when initializing a communicator.
     /// @headerfile Ice/Ice.h
     struct InitializationData
     {
@@ -212,7 +82,7 @@ namespace Ice
         /// The logger for the communicator.
         LoggerPtr logger{};
 
-        /// The communicator observer used by the Ice run-time.
+        /// The communicator observer used by the Ice runtime.
         Instrumentation::CommunicatorObserverPtr observer{};
 
 #if defined(__clang__)
@@ -220,35 +90,21 @@ namespace Ice
 #    pragma clang diagnostic ignored "-Wdocumentation" // param/return is not recognized for std::function data members
 #endif
 
-        /// Called whenever the communicator starts a new thread.
+        /// A function that the communicator calls when it starts a new thread.
         std::function<void()> threadStart{};
 
-        /// Called whenever a thread created by the communicator is about to be destroyed.
+        /// A function that the communicator calls when it destroys a thread.
         std::function<void()> threadStop{};
 
-        /// You can control which thread receives operation dispatches and async invocation
-        /// callbacks by supplying an executor.
-        ///
-        /// For example, you can use this execution facility to ensure that
-        /// all dispatches and invocation callbacks are executed in a GUI event loop
-        /// thread so that it is safe to invoke directly on GUI objects.
-        ///
-        /// The executor is responsible for running the dispatch or async invocation callback on its favorite thread.
-        /// @param call Represents the function to execute. The execute must eventually execute this function.
-        /// @param con The connection associated with this call, or null if no connection is associated with it.
+        /// A function that the communicator calls to execute dispatches and async invocation callbacks.
+        /// @param call Represents the function to execute. The executor must eventually execute this function.
+        /// @param con The connection associated with this call. May be null.
         std::function<void(std::function<void()> call, const Ice::ConnectionPtr& con)> executor{};
 
-        /// Applications that make use of compact type IDs to conserve space
-        /// when marshaling class instances, and also use the streaming API to
-        /// extract such classes, can intercept the translation between compact
-        /// type IDs and their corresponding string type IDs by installing a
-        /// compact ID resolver.
-        /// @param id The compact ID.
-        /// @return The fully-scoped type ID such as "::Module::Class", or an empty string if
-        /// the compact ID is unknown.
+        /// @private
         std::function<std::string(int id)> compactIdResolver{};
 
-        /// The batch request interceptor, which is called by the Ice run time to enqueue a batch request.
+        /// The batch request interceptor, which is called by the Ice runtime to enqueue a batch request.
         /// @param req An object representing the batch request.
         /// @param count The number of requests currently in the queue.
         /// @param size The number of bytes consumed by the requests currently in the queue.
@@ -262,174 +118,102 @@ namespace Ice
         ValueFactoryManagerPtr valueFactoryManager{};
 
         /// The authentication options for %SSL client connections. When set, the %SSL transport ignores all IceSSL
-        /// configuration properties and uses the provided options.
-        ///
-        /// The `SSL::ClientAuthenticationOptions` type is an alias to the platform specific %SSL client authentication
-        /// options.
-        ///
+        /// configuration properties and uses these options. The `SSL::ClientAuthenticationOptions` type is an alias for
+        /// the platform specific %SSL client authentication options.
         /// @see SSL::OpenSSLClientAuthenticationOptions
         /// @see SSL::SecureTransportClientAuthenticationOptions
         /// @see SSL::SchannelClientAuthenticationOptions
         std::optional<SSL::ClientAuthenticationOptions> clientAuthenticationOptions{};
     };
 
-    /// Initializes a new communicator.
-    /// @param argc The number of arguments in argv. Upon return, this argument
-    /// is updated to reflect the arguments still remaining in argv.
-    /// @param argv Command-line arguments, possibly containing
-    /// options to set properties. If the arguments include
-    /// a <code>--Ice.Config</code> option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the arguments, the arguments take precedence.
-    /// Recognized options are removed from this vector upon return.
-    /// @param initData Configuration data for the new Communicator.
+    /// Creates a new communicator.
+    /// @param[in,out] argc The number of arguments in @p argv. When this function parses properties from @p argv, it
+    /// reshuffles the arguments so that the remaining arguments start at the beginning of @p argv, and updates @p argc
+    /// accordingly.
+    /// @param argv The command-line arguments. This function parses arguments starting with `--` and one of the
+    /// reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument starting
+    /// with `--Ice.Config`, this function loads the specified configuration file. When the same property is set in a
+    /// configuration file and through a command-line argument, the command-line setting takes precedence.
+    /// @param initData Options for the new communicator.
     /// @return The new communicator.
     ICE_API CommunicatorPtr initialize(int& argc, const char* argv[], InitializationData initData = {});
 
-    /// Initializes a new communicator.
-    /// @param argc The number of arguments in argv. Upon return, this argument
-    /// is updated to reflect the arguments still remaining in argv.
-    /// @param argv Command-line arguments, possibly containing
-    /// options to set properties. If the arguments include
-    /// a <code>--Ice.Config</code> option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the arguments, the arguments take precedence.
-    /// Recognized options are removed from this vector upon return.
-    /// @param initData Configuration data for the new Communicator.
-    /// @return The new communicator.
+    /// @copydoc initialize(int&, const char*[], InitializationData)
     inline CommunicatorPtr initialize(int& argc, char* argv[], InitializationData initData = {})
     {
         return initialize(argc, const_cast<const char**>(argv), std::move(initData));
     }
 
-    /// Initializes a new communicator.
-    /// @param argc The number of arguments in argv. Upon return, this argument
-    /// is updated to reflect the arguments still remaining in argv.
-    /// @param argv Command-line arguments, possibly containing
-    /// options to set properties. If the arguments include
-    /// a <code>--Ice.Config</code> option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the arguments, the arguments take precedence.
-    /// Recognized options are removed from this vector upon return.
+    /// Creates a new communicator.
+    /// @param[in,out] argc The number of arguments in @p argv. When this function parses properties from @p argv, it
+    /// reshuffles the arguments so that the remaining arguments start at the beginning of @p argv, and updates @p argc.
+    /// @param argv The command-line arguments. This function parses arguments starting with `--` and one of the
+    /// reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator.
     /// @param configFile The name of an Ice configuration file.
     /// @return The new communicator.
     ICE_API CommunicatorPtr initialize(int& argc, const char* argv[], std::string_view configFile);
 
-    /// Initializes a new communicator.
-    /// @param argc The number of arguments in argv. Upon return, this argument
-    /// is updated to reflect the arguments still remaining in argv.
-    /// @param argv Command-line arguments, possibly containing
-    /// options to set properties. If the arguments include
-    /// a <code>--Ice.Config</code> option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the arguments, the arguments take precedence.
-    /// Recognized options are removed from this vector upon return.
-    /// @param configFile The name of an Ice configuration file.
-    /// @return The new communicator.
+    /// @copydoc initialize(int&, const char*[], std::string_view)
     inline CommunicatorPtr initialize(int& argc, char* argv[], std::string_view configFile)
     {
         return initialize(argc, const_cast<const char**>(argv), configFile);
     }
 
 #ifdef _WIN32
-    /// Initializes a new communicator.
-    /// @param argc The number of arguments in argv. Upon return, this argument
-    /// is updated to reflect the arguments still remaining in argv.
-    /// @param argv Command-line arguments, possibly containing
-    /// options to set properties. If the arguments include
-    /// a <code>--Ice.Config</code> option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the arguments, the arguments take precedence.
-    /// Recognized options are removed from this vector upon return.
-    /// @param initData Configuration data for the new Communicator.
-    /// @return The new communicator.
+    /// @copydoc initialize(int&, const char*[], InitializationData)
     ICE_API CommunicatorPtr initialize(int& argc, const wchar_t* argv[], InitializationData initData = {});
 
-    /// Initializes a new communicator.
-    /// @param argc The number of arguments in argv. Upon return, this argument
-    /// is updated to reflect the arguments still remaining in argv.
-    /// @param argv Command-line arguments, possibly containing
-    /// options to set properties. If the arguments include
-    /// a <code>--Ice.Config</code> option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the arguments, the arguments take precedence.
-    /// Recognized options are removed from this vector upon return.
-    /// @param initData Configuration data for the new Communicator.
-    /// @return The new communicator.
+    /// @copydoc initialize(int&, const char*[], InitializationData)
     inline CommunicatorPtr initialize(int& argc, wchar_t* argv[], InitializationData initData = {})
     {
         return initialize(argc, const_cast<const wchar_t**>(argv), std::move(initData));
     }
 
-    /// Initializes a new communicator.
-    /// @param argc The number of arguments in argv. Upon return, this argument
-    /// is updated to reflect the arguments still remaining in argv.
-    /// @param argv Command-line arguments, possibly containing
-    /// options to set properties. If the arguments include
-    /// a <code>--Ice.Config</code> option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the arguments, the arguments take precedence.
-    /// Recognized options are removed from this vector upon return.
-    /// @param configFile The name of an Ice configuration file.
-    /// @return The new communicator.
+    // @copydoc initialize(int&, const char*[], std::string_view)
     ICE_API CommunicatorPtr initialize(int& argc, const wchar_t* argv[], std::string_view configFile);
 
-    /// Initializes a new communicator.
-    /// @param argc The number of arguments in argv. Upon return, this argument
-    /// is updated to reflect the arguments still remaining in argv.
-    /// @param argv Command-line arguments, possibly containing
-    /// options to set properties. If the arguments include
-    /// a <code>--Ice.Config</code> option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the arguments, the arguments take precedence.
-    /// Recognized options are removed from this vector upon return.
-    /// @param configFile The name of an Ice configuration file.
-    /// @return The new communicator.
+    // @copydoc initialize(int&, const char*[], std::string_view)
     inline CommunicatorPtr initialize(int& argc, wchar_t* argv[], std::string_view configFile)
     {
         return initialize(argc, const_cast<const wchar_t**>(argv), configFile);
     }
 #endif
 
-    /// Initializes a new communicator.
-    /// @param seq Command-line arguments, possibly containing
-    /// options to set properties. If the arguments include
-    /// a <code>--Ice.Config</code> option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the arguments, the arguments take precedence.
-    /// Recognized options are removed from this container upon return.
-    /// @param initData Configuration data for the new Communicator.
+    /// Creates a new communicator.
+    /// @param[in,out] seq The command-line arguments. This function parses arguments starting with `--` and one of the
+    /// reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator and removes these elements from the
+    /// list. If there is an argument starting with `--Ice.Config`, this function loads the specified configuration
+    /// file. When the same property is set in a configuration file and through a command-line argument, the
+    /// command-line setting takes precedence.
+    /// @param initData Options for the new communicator.
     /// @return The new communicator.
     ICE_API CommunicatorPtr initialize(StringSeq& seq, InitializationData initData = {});
 
-    /// Initializes a new communicator.
-    /// @param seq Command-line arguments, possibly containing
-    /// options to set properties. If the arguments include
-    /// a <code>--Ice.Config</code> option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the arguments, the arguments take precedence.
-    /// Recognized options are removed from this container upon return.
+    /// Creates a new communicator.
+    /// @param[in,out] seq The command-line arguments. This function parses arguments starting with `--` and one of the
+    /// reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator and removes these elements from the
+    /// list.
     /// @param configFile The name of an Ice configuration file.
     /// @return The new communicator.
     ICE_API CommunicatorPtr initialize(StringSeq& seq, std::string_view configFile);
 
-    /// Initializes a new communicator.
-    /// @param initData Configuration data for the new Communicator.
+    /// Creates a new communicator.
+    /// @param initData Options for the new communicator.
     /// @return The new communicator.
     ICE_API CommunicatorPtr initialize(InitializationData initData = {});
 
-    /// Initializes a new communicator.
+    /// Creates a new communicator.
     /// @param configFile The name of an Ice configuration file.
     /// @return The new communicator.
     ICE_API CommunicatorPtr initialize(std::string_view configFile);
 
-    /// Obtains the per-process logger. This logger is used by all communicators that do not have their
-    /// own specific logger established at the time a communicator is created.
+    /// Gets the per-process logger. This logger is used by all communicators that do not have their own specific logger
+    /// configured at the time the communicator is created.
     /// @return The current per-process logger instance.
     ICE_API LoggerPtr getProcessLogger();
 
-    /// Sets the per-process logger. This logger is used by all communicators that do not have their
-    /// own specific logger established at the time a communicator is created.
+    /// Sets the per-process logger. This logger is used by all communicators that do not have their own specific logger
+    /// configured at the time the communicator is created.
     /// @param logger The new per-process logger instance.
     ICE_API void setProcessLogger(const LoggerPtr& logger);
 
@@ -437,86 +221,27 @@ namespace Ice
     /// @param communicator The communicator in which the plug-in will be installed.
     /// @param name The name assigned to the plug-in.
     /// @param args Additional arguments included in the plug-in's configuration.
-    /// @return The new plug-in object. Returning nil will cause the run time to raise PluginInitializationException.
+    /// @return The new plug-in object.
     using PluginFactory = Ice::Plugin* (*)(const Ice::CommunicatorPtr& communicator,
                                            const std::string& name,
                                            const Ice::StringSeq& args);
 
-    /// Manually registers a plug-in factory function.
+    /// Registers a plug-in factory function.
     /// @param name The name assigned to the plug-in.
     /// @param factory The factory function.
-    /// @param loadOnInit If true, the plug-in is always loaded (created) during communicator initialization,
-    /// even if Ice.Plugin.name is not set. When false, the plug-in is loaded (created) during communication
-    /// initialization only if Ice.Plugin.name is set to a non-empty value (e.g.: Ice.Plugin.IceSSL=1).
+    /// @param loadOnInit If `true`, the plug-in is always loaded (created) during communicator initialization, even if
+    /// `Ice.Plugin.name` is not set. When `false`, the plug-in is loaded (created) during communicator initialization
+    /// only when `Ice.Plugin.name` is set to a non-empty value.
     ICE_API void registerPluginFactory(std::string name, PluginFactory factory, bool loadOnInit);
-
-    /// A helper class that uses Resource Acquisition Is Initialization (RAII) to initialize and hold a
-    /// communicator instance, and automatically destroy the communicator when the holder goes out of scope.
-    /// @headerfile Ice/Ice.h
-    class ICE_API CommunicatorHolder
-    {
-    public:
-        /// The holder's initial state is empty.
-        CommunicatorHolder();
-
-        /// Calls initialize to create a communicator with the provided arguments.
-        /// This constructor accepts all of the same overloaded argument styles as
-        /// initialize.
-        template<class... T>
-        explicit CommunicatorHolder(T&&... args) : _communicator(std::move(initialize(std::forward<T>(args)...)))
-        {
-        }
-
-        /// Adopts the given communicator.
-        /// @param communicator The new communicator instance to hold.
-        CommunicatorHolder(CommunicatorPtr communicator);
-
-        /// Adopts the given communicator. If this holder currently holds a communicator,
-        /// it will be destroyed.
-        /// @param communicator The new communicator instance to hold.
-        CommunicatorHolder& operator=(CommunicatorPtr communicator);
-
-        CommunicatorHolder(const CommunicatorHolder&) = delete;
-
-        /// Move constructor. Constructs a CommunicatorHolder with the contents of @p other using move semantics.
-        /// @param other The holder to move from.
-        CommunicatorHolder(CommunicatorHolder&& other) = default;
-
-        /// Adopts the communicator in the given holder. If this holder currently holds a communicator,
-        /// it will be destroyed.
-        /// @param holder The holder from which to adopt a communicator.
-        CommunicatorHolder& operator=(CommunicatorHolder&& holder) noexcept;
-
-        /// Determines whether the holder contains an instance.
-        /// @return `true` if the holder currently holds an instance, `false` otherwise.
-        explicit operator bool() const;
-
-        ~CommunicatorHolder();
-
-        /// Obtains the communicator instance.
-        /// @return The communicator held by this holder, or nil if the holder is empty.
-        [[nodiscard]] const CommunicatorPtr& communicator() const;
-
-        /// Obtains the communicator instance.
-        /// @return The communicator held by this holder, or nil if the holder is empty.
-        const CommunicatorPtr& operator->() const;
-
-        /// Obtains the communicator instance and clears the reference held by the holder.
-        /// @return The communicator held by this holder, or nil if the holder is empty.
-        CommunicatorPtr release();
-
-    private:
-        CommunicatorPtr _communicator;
-    };
 
     /// Converts a stringified identity into an Identity.
     /// @param str The stringified identity.
-    /// @return An Identity structure containing the name and category components.
+    /// @return An Identity containing the name and category components.
     ICE_API Identity stringToIdentity(std::string_view str);
 
-    /// Converts an Identity structure into a string using the specified mode.
-    /// @param id The identity structure.
-    /// @param mode Affects the handling of non-ASCII characters and non-printable ASCII characters.
+    /// Converts an Identity into a string using the specified mode.
+    /// @param id The identity.
+    /// @param mode Specifies how to handle non-ASCII characters and non-printable ASCII characters.
     /// @return The stringified identity.
     ICE_API std::string identityToString(const Identity& id, ToStringMode mode = ToStringMode::Unicode);
 }
