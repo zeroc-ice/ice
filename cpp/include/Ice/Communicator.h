@@ -323,12 +323,12 @@ namespace Ice
         [[nodiscard]] IceInternal::ReferencePtr _propertyToProxy(std::string_view property) const;
 
         /// @cond INTERNAL
-        friend ICE_API CommunicatorPtr initialize(int&, const char*[], InitializationData);
-        friend ICE_API CommunicatorPtr initialize(InitializationData);
+        friend ICE_API_FRIEND CommunicatorPtr initialize(int&, const char*[], InitializationData);
+        friend ICE_API_FRIEND CommunicatorPtr initialize(InitializationData);
         /// @endcond
 
-        friend ICE_API IceInternal::InstancePtr IceInternal::getInstance(const Ice::CommunicatorPtr&);
-        friend ICE_API IceInternal::TimerPtr IceInternal::getInstanceTimer(const Ice::CommunicatorPtr&);
+        friend ICE_API_FRIEND IceInternal::InstancePtr IceInternal::getInstance(const Ice::CommunicatorPtr&);
+        friend ICE_API_FRIEND IceInternal::TimerPtr IceInternal::getInstanceTimer(const Ice::CommunicatorPtr&);
 
         const IceInternal::InstancePtr _instance;
     };
