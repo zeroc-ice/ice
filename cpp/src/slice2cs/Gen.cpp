@@ -166,7 +166,7 @@ namespace
             // Replace any '#' scope separators with '.'s.
             replace(targetS.begin(), targetS.end(), '#', '.');
             // Remove any leading scope separators.
-            if (targetS.find(".") == 0)
+            if (targetS.find('.') == 0)
             {
                 targetS.erase(0, 1);
             }
