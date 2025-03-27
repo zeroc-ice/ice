@@ -8,8 +8,8 @@
 #    define ICE_DECLSPEC_EXPORT __declspec(dllexport)
 #    define ICE_DECLSPEC_IMPORT __declspec(dllimport)
 #elif defined(__GNUC__) || defined(__clang__)
-#    define ICE_DECLSPEC_EXPORT __attribute__((visibility("default")))
-#    define ICE_DECLSPEC_IMPORT __attribute__((visibility("default")))
+#    define ICE_DECLSPEC_EXPORT [[gnu::visibility("default")]]
+#    define ICE_DECLSPEC_IMPORT [[gnu::visibility("default")]]
 #else
 #    define ICE_DECLSPEC_EXPORT /**/
 #    define ICE_DECLSPEC_IMPORT /**/

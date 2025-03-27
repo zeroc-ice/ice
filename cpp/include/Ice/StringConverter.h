@@ -48,12 +48,10 @@ namespace Ice
     };
 
 #if defined(__clang__)
-    //
     // Explicit template instantiation so that dynamic_cast of derived exported
     // classes works well with clang, see ICE-7473.
-    //
-    template class ICE_API BasicStringConverter<char>;
-    template class ICE_API BasicStringConverter<wchar_t>;
+    template class __attribute__((visibility("default"))) BasicStringConverter<char>;
+    template class __attribute__((visibility("default"))) BasicStringConverter<wchar_t>;
 #endif
 
     /// A narrow string converter.
