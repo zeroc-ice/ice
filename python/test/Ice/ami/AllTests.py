@@ -620,7 +620,7 @@ def allTestsFuture(helper, communicator, collocated):
     if p.ice_getConnection():
         initData = Ice.InitializationData()
         initData.properties = communicator.getProperties().clone()
-        ic = Ice.initialize(initData)
+        ic = Ice.initialize(initData=initData)
         obj = ic.stringToProxy(p.ice_toString())
         p2 = Test.TestIntfPrx.checkedCast(obj)
         ic.destroy()

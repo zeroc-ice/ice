@@ -14,21 +14,21 @@
 
 module IceGrid
 {
-    /// This exception is raised if a user account for a given session identifier can't be found.
+    /// The exception that is thrown when a user account for a given session identifier can't be found.
     exception UserAccountNotFoundException
     {
     }
 
-    /// A user account mapper object is used by IceGrid nodes to map session identifiers to user accounts.
+    /// Maps user strings in server descriptors to actual user account names. You can configure the user account mapper
+    /// of an IceGrid node with the property `IceGrid.Node.UserAccountMapper`.
     interface UserAccountMapper
     {
-        /// Get the name of the user account for the given user. This is used by IceGrid nodes to figure out the user
+        /// Gets the name of the user account for the given user. This is used by IceGrid nodes to figure out the user
         /// account to use to run servers.
-        /// @param user The value of the server descriptor's <code>user</code> attribute. If this attribute is not
-        /// defined, and the server's activation mode is <code>session</code>, the default value of <code>user</code>
-        /// is the session identifier.
+        /// @param user The value of the server descriptor's `user` attribute. When this attribute is not defined, and
+        /// the server's activation mode is `session`, the default value for `user` is the session identifier.
         /// @return The user account name.
-        /// @throws UserAccountNotFoundException Raised if no user account is found for the given user.
+        /// @throws UserAccountNotFoundException Thrown when no user account is found for the given user.
         string getUserAccount(string user)
             throws UserAccountNotFoundException;
     }

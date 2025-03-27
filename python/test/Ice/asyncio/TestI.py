@@ -1,7 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
 import asyncio
-import Ice
 import Test
 
 
@@ -43,8 +42,8 @@ class TestIntfI(Test.TestIntf):
 
     async def callOpOn(self, proxy, current):
         # ensure that awaiting proxy invocations works
-        await Ice.wrap_future(proxy.sleepAsync(10))
-        return await Ice.wrap_future(proxy.opAsync())
+        await proxy.sleepAsync(10)
+        return await proxy.opAsync()
 
     async def shutdown(self, current):
         await asyncio.sleep(0)

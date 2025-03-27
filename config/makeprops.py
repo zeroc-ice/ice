@@ -293,6 +293,7 @@ using namespace IceInternal;
     @override
     def closeFiles(self):
         self.hFile.write(f"""
+        /// Property arrays defined using sections in PropertyNames.xml.
         static const std::array<PropertyArray, {len(self.generatedPropertyArrays())}> validProps;
     }};
 }}
