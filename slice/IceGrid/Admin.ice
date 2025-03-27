@@ -546,7 +546,8 @@ module IceGrid
         /// @param name The registry name.
         /// @return `true` if the registry ping succeeded, `false` otherwise.
         /// @throws RegistryNotExistException Thrown when the registry doesn't exist.
-        ["cpp:const"] idempotent bool pingRegistry(string name)
+        ["cpp:const"]
+        idempotent bool pingRegistry(string name)
             throws RegistryNotExistException;
 
         /// Gets the registry information of an IceGrid registry.
@@ -554,14 +555,16 @@ module IceGrid
         /// @return The registry information.
         /// @throws RegistryNotExistException Thrown when the registry doesn't exist.
         /// @throws RegistryUnreachableException Thrown when the registry is unreachable.
-        ["cpp:const"] idempotent RegistryInfo getRegistryInfo(string name)
+        ["cpp:const"]
+        idempotent RegistryInfo getRegistryInfo(string name)
             throws RegistryNotExistException, RegistryUnreachableException;
 
         /// Gets a proxy to the admin object of an IceGrid registry.
         /// @param name The registry name.
         /// @return A proxy to the admin object of an IceGrid registry. This proxy is never null.
         /// @throws RegistryNotExistException Thrown when the registry doesn't exist.
-        ["cpp:const"] idempotent Object* getRegistryAdmin(string name)
+        ["cpp:const"]
+        idempotent Object* getRegistryAdmin(string name)
             throws RegistryNotExistException;
 
         /// Shuts down an IceGrid registry.
@@ -573,7 +576,8 @@ module IceGrid
 
         /// Gets the names of all the IceGrid registries currently registered.
         /// @return The registry names.
-        ["cpp:const"] idempotent Ice::StringSeq getAllRegistryNames();
+        ["cpp:const"]
+        idempotent Ice::StringSeq getAllRegistryNames();
 
         /// Shuts down the IceGrid registry.
         void shutdown();
@@ -759,8 +763,7 @@ module IceGrid
     interface AdminSession extends Glacier2::Session
     {
         /// Keeps the session alive.
-        /// @deprecated As of Ice 3.8, there is no need to call this operation, and its implementation does nothing.
-        ["deprecated"]
+        ["deprecated:As of Ice 3.8, there is no need to call this operation, and its implementation does nothing."]
         idempotent void keepAlive();
 
         /// Gets a proxy to the IceGrid admin object. The admin object returned by this operation can only be accessed

@@ -88,7 +88,6 @@ allTests(Test::TestHelper* helper)
         server->id = "Server";
         server->exe = properties->getProperty("ServerDir") + "/server";
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
         addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         AdapterDescriptor adapter;
@@ -155,7 +154,6 @@ allTests(Test::TestHelper* helper)
         server->id = "${name}";
         server->exe = "${test.dir}/server";
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
         addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         adapter = AdapterDescriptor();
@@ -546,7 +544,6 @@ allTests(Test::TestHelper* helper)
         server->id = "IceBox";
         server->exe = properties->getProperty("IceBoxExe");
 
-        server->applicationDistrib = false;
         server->allocatable = false;
         addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         server->services.resize(3);
@@ -712,7 +709,6 @@ allTests(Test::TestHelper* helper)
         server->id = "${name}";
         server->exe = "server";
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
 
         addProperty(server, "ApplicationVar", "${appvar}");
@@ -887,7 +883,6 @@ allTests(Test::TestHelper* helper)
         server->id = "${name}";
         server->exe = "server";
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
         server->propertySet.references.emplace_back("ApplicationPropertySet");
         server->propertySet.references.emplace_back("NodePropertySet");
@@ -1092,7 +1087,6 @@ allTests(Test::TestHelper* helper)
         server->id = "node-${index}";
         server->exe = properties->getProperty("IceGridNodeExe");
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
         server->options.emplace_back("--nowarn");
 
@@ -1155,7 +1149,6 @@ allTests(Test::TestHelper* helper)
         server->id = "Server";
         server->exe = properties->getProperty("ServerDir") + "/server";
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
         addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         AdapterDescriptor adapter;
