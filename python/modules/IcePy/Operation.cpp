@@ -907,7 +907,6 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         }
     }
 
-
     // Marshal the required return value, if any.
     if (returnType && !returnType->optional)
     {
