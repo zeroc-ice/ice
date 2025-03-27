@@ -186,8 +186,8 @@ namespace Ice
 
         /// Looks up a servant.
         /// @param id The identity of an Ice object.
-        /// @return The servant that implements the Ice object with the given identity, or null if no such servant has
-        /// been found.
+        /// @return The servant that implements the Ice object with the given identity, or nullptr if no such servant
+        /// has been found.
         /// @remark This function only tries to find the servant in the ASM and among the default servants. It does not
         /// attempt to locate a servant using servant locators.
         [[nodiscard]] virtual ObjectPtr find(const Identity& id) const = 0;
@@ -206,7 +206,7 @@ namespace Ice
 
         /// Looks up a servant with an identity and a facet. It's equivalent to calling #findFacet.
         /// @param proxy The proxy that provides the identity and facet to search.
-        /// @return The servant that matches the identity and facet carried by @p proxy, or null if no such servant
+        /// @return The servant that matches the identity and facet carried by @p proxy, or nullptr if no such servant
         /// has been found.
         [[nodiscard]] virtual ObjectPtr findByProxy(const ObjectPrx& proxy) const = 0;
 
