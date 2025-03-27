@@ -125,7 +125,7 @@ static struct PyModuleDef iceModule = {
     IcePy_cleanup};
 
 #if defined(__GNUC__)
-extern "C" [[gnu::visibility("default")]] PyObject*
+extern "C" __attribute__((visibility("default"))) PyObject*
 #elif defined(_WIN32) // On Windows, PyMoDINIT_FUNC already defines dllexport
 PyMODINIT_FUNC
 #else
@@ -136,7 +136,7 @@ PyInit_IcePy(void)
     Ice::registerIceDiscovery(false);
     Ice::registerIceLocatorDiscovery(false);
 
-    // Create the IcePy module.
+    // Create the IcePy  module.
     PyObject* module{PyModule_Create(&iceModule)};
 
     // Initialize the IcePy built-in types.
