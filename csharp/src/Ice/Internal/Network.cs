@@ -66,8 +66,8 @@ internal sealed class Network
         return false;
     }
 
-    internal static bool
-    connectionRefused(System.Net.Sockets.SocketException ex) => socketErrorCode(ex) == SocketError.ConnectionRefused;
+    internal static bool connectionRefused(System.Net.Sockets.SocketException ex) =>
+        socketErrorCode(ex) == SocketError.ConnectionRefused;
 
     internal static bool
     recvTruncated(System.Net.Sockets.SocketException ex) => socketErrorCode(ex) == SocketError.MessageSize;
