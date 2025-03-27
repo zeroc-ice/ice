@@ -830,3 +830,35 @@ Ice::Properties::loadConfig()
         _properties["Ice.Config"] = pv;
     }
 }
+
+PropertiesPtr
+Ice::createProperties()
+{
+    return make_shared<Properties>();
+}
+
+PropertiesPtr
+Ice::createProperties(StringSeq& args, const PropertiesPtr& defaults)
+{
+    return make_shared<Properties>(args, defaults);
+}
+
+PropertiesPtr
+Ice::createProperties(int& argc, const char* argv[], const PropertiesPtr& defaults)
+{
+    StringSeq args = argsToStringSeq(argc, argv);
+    PropertiesPtr properties = createProperties(args, defaults);
+    stringSeqToArgs(args, argc, argv);
+    return properties;
+}
+
+#ifdef _WIN32
+PropertiesPtr
+Ice::createProperties(int& argc, const wchar_t* argv[], const PropertiesPtr& defaults)
+{
+    StringSeq args = argsToStringSeq(argc, argv);
+    PropertiesPtr properties = createProperties(args, defaults);
+    stringSeqToArgs(args, argc, argv);
+    return properties;
+}
+#endif
