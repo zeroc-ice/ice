@@ -16,35 +16,35 @@ namespace Ice
     /// @headerfile Ice/Ice.h
     struct Current
     {
-        /// The object adapter.
+        /// The object adapter. This value is never nullptr when this Current is provided by an object adapter.
         ObjectAdapterPtr adapter;
 
-        /// Information about the connection over which the current method invocation was received. If the invocation is
-        /// direct due to collocation optimization, this value is set to null.
+        /// The connection that received the request. It's nullptr for collocation-optimized dispatches.
         ConnectionPtr con;
 
-        /// The Ice object identity.
+        /// The identity of the target Ice object.
         Identity id;
 
-        /// The facet.
+        /// The facet of the target Ice object.
         std::string facet;
 
         /// The operation name.
         std::string operation;
 
-        /// The mode of the operation.
+        /// The mode of the operation (see ::Ice::checkNonIdempotent).
         OperationMode mode;
 
-        /// The request context, as received from the client.
+        /// The request context.
         Context ctx;
 
-        /// The request id unless oneway (0).
+        /// The request ID. `0` means the request is one-way.
         int requestId;
 
-        /// The encoding version used to encode the input and output parameters.
+        /// The Ice encoding version used to marshal the payload of the request.
         EncodingVersion encoding;
     };
 
+    /// @private
     /// A default-initialized Current instance.
     ICE_API extern const Current emptyCurrent;
 
