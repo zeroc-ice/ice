@@ -937,8 +937,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         const string sliceName = operation->name();
 
         _out << nl << className << "._op_" << sliceName << " = IcePy.Operation('" << sliceName << "', '"
-             << operation->mappedName() << "', " << getOperationMode(operation->mode()) << ", "
-             << ((p->hasMetadata("amd") || operation->hasMetadata("amd")) ? "True" : "False") << ", " << format << ", ";
+             << operation->mappedName() << "', " << getOperationMode(operation->mode()) << ", " << format << ", ";
         writeMetadata(operation->getMetadata());
         _out << ", (";
         for (t = params.begin(), count = 0; t != params.end(); ++t)

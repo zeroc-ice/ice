@@ -52,7 +52,6 @@ namespace IcePy
             const char*,
             const char*,
             PyObject*,
-            int,
             PyObject*,
             PyObject*,
             PyObject*,
@@ -67,7 +66,6 @@ namespace IcePy
         string sliceName;
         string mappedName;
         Ice::OperationMode mode;
-        bool amd;
         std::optional<Ice::FormatType> format;
         Ice::StringSeq metadata;
         ParamInfoList inParams;
@@ -353,7 +351,6 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
     PyObject* modeType = lookupType("Ice.OperationMode");
     assert(modeType);
     PyObject* mode;
-    int amd;
     PyObject* format;
     PyObject* metadata;
     PyObject* inParams;
@@ -362,12 +359,11 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
     PyObject* exceptions;
     if (!PyArg_ParseTuple(
             args,
-            "ssO!iOO!O!O!OO!",
+            "ssO!OO!O!O!OO!",
             &sliceName,
             &mappedName,
             modeType,
             &mode,
-            &amd,
             &format,
             &PyTuple_Type,
             &metadata,
@@ -382,17 +378,9 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
         return -1;
     }
 
-    self->op = new OperationPtr(make_shared<Operation>(
-        sliceName,
-        mappedName,
-        mode,
-        amd,
-        format,
-        metadata,
-        inParams,
-        outParams,
-        returnType,
-        exceptions));
+    self->op = new OperationPtr(
+        make_shared<
+            Operation>(sliceName, mappedName, mode, format, metadata, inParams, outParams, returnType, exceptions));
     return 0;
 }
 
@@ -710,7 +698,6 @@ IcePy::Operation::Operation(
     const char* name,
     const char* mapped,
     PyObject* m,
-    int amdFlag,
     PyObject* fmt,
     PyObject* meta,
     PyObject* in,
@@ -727,11 +714,6 @@ IcePy::Operation::Operation(
     PyObjectHandle modeValue{getAttr(m, "value", true)};
     mode = static_cast<Ice::OperationMode>(PyLong_AsLong(modeValue.get()));
     assert(!PyErr_Occurred());
-
-    //
-    // amd
-    //
-    amd = amdFlag ? true : false;
 
     //
     // format
