@@ -17,11 +17,20 @@
 
 #ifndef ICE_API
 #    if defined(ICE_BUILDING_SLICE_COMPILERS) // Only defined for Windows builds.
-#        define ICE_API                       /**/
+#        define ICE_API /**/
 #    elif defined(ICE_API_EXPORTS)
 #        define ICE_API ICE_DECLSPEC_EXPORT
 #    else
 #        define ICE_API ICE_DECLSPEC_IMPORT
+#    endif
+#endif
+
+// For friend declarations on Windows. Not compatible with the standard c++ attribute syntax.
+#ifndef ICE_API_FRIEND
+#    if defined(_MSC_VER)
+#        define ICE_API_FRIEND ICE_API
+#    else
+#        define ICE_API_FRIEND /**/
 #    endif
 #endif
 
