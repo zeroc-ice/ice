@@ -298,8 +298,8 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
             throw AbortMarshaling();
         }
 
-        PyTuple_SET_ITEM(slices.get(), i++, slice.get());
-        Py_INCREF(slice.get()); // PyTuple_SET_ITEM steals a reference.
+        // PyTuple_SET_ITEM steals a reference.
+        PyTuple_SET_ITEM(slices.get(), i++, Py_NewRef(slice.get()));
 
         //
         // typeId
@@ -362,8 +362,8 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
             assert(r);
             PyObject* pobj = r->getObject();
             assert(pobj != Py_None); // Should be non-nil.
-            PyTuple_SET_ITEM(instances.get(), j++, pobj);
-            Py_INCREF(pobj); // PyTuple_SET_ITEM steals a reference.
+            // PyTuple_SET_ITEM steals a reference.
+            PyTuple_SET_ITEM(instances.get(), j++, Py_NewRef(pobj));
         }
 
         //
@@ -422,8 +422,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
             Py_ssize_t sz = PyTuple_GET_SIZE(sl.get());
             for (Py_ssize_t i = 0; i < sz; ++i)
             {
-                PyObjectHandle s{PyTuple_GET_ITEM(sl.get(), i)};
-                Py_INCREF(s.get());
+                PyObjectHandle s{Py_NewRef(PyTuple_GET_ITEM(sl.get(), i))};
 
                 PyObjectHandle typeId{getAttr(s.get(), "typeId", false)};
                 assert(typeId.get());
@@ -913,9 +912,8 @@ IcePy::EnumInfo::EnumInfo(string ident, PyObject* t, PyObject* e) : id(std::move
         const auto val = static_cast<int32_t>(PyLong_AsLong(key));
         assert(enumerators.find(val) == enumerators.end());
 
-        Py_INCREF(value);
         assert(PyObject_IsInstance(value, t));
-        const_cast<EnumeratorMap&>(enumerators)[val] = value;
+        const_cast<EnumeratorMap&>(enumerators)[val] = Py_NewRef(value);
 
         if (val > maxValue)
         {
@@ -1050,9 +1048,7 @@ IcePy::EnumInfo::enumeratorForValue(int32_t v) const
     {
         return nullptr;
     }
-    PyObject* r = p->second.get();
-    Py_INCREF(r);
-    return r;
+    return Py_NewRef(p->second.get());
 }
 
 //
@@ -2446,14 +2442,14 @@ IcePy::SequenceInfo::SequenceMapping::unmarshaled(PyObject* val, PyObject* targe
     auto i = reinterpret_cast<Py_ssize_t>(closure);
     if (type == SEQ_DEFAULT || type == SEQ_LIST)
     {
-        PyList_SET_ITEM(target, i, val);
-        Py_INCREF(val); // PyList_SET_ITEM steals a reference.
+        // PyList_SET_ITEM steals a reference.
+        PyList_SET_ITEM(target, i, Py_NewRef(val));
     }
     else
     {
         assert(type == SEQ_TUPLE);
-        PyTuple_SET_ITEM(target, i, val);
-        Py_INCREF(val); // PyTuple_SET_ITEM steals a reference.
+        // PyTuple_SET_ITEM steals a reference.
+        PyTuple_SET_ITEM(target, i, Py_NewRef(val));
     }
 }
 
@@ -2484,14 +2480,14 @@ IcePy::SequenceInfo::SequenceMapping::setItem(PyObject* cont, int i, PyObject* v
 {
     if (type == SEQ_DEFAULT || type == SEQ_LIST)
     {
-        Py_INCREF(val);
-        PyList_SET_ITEM(cont, i, val); // PyList_SET_ITEM steals a reference.
+        // PyList_SET_ITEM steals a reference.
+        PyList_SET_ITEM(cont, i, Py_NewRef(val));
     }
     else
     {
         assert(type == SEQ_TUPLE);
-        Py_INCREF(val);
-        PyTuple_SET_ITEM(cont, i, val); // PyTuple_SET_ITEM steals a reference.
+        // PyTuple_SET_ITEM steals a reference.
+        PyTuple_SET_ITEM(cont, i, Py_NewRef(val));
     }
 }
 
@@ -2723,8 +2719,7 @@ IcePy::DictionaryInfo::print(PyObject* value, IceInternal::Output& out, PrintObj
 void
 IcePy::DictionaryInfo::KeyCallback::unmarshaled(PyObject* val, PyObject*, void*)
 {
-    key = val;
-    Py_INCREF(val);
+    key = Py_NewRef(val);
 }
 
 void
@@ -3120,11 +3115,10 @@ IcePy::ProxyInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHi
 // ValueWriter implementation.
 //
 IcePy::ValueWriter::ValueWriter(PyObject* object, ObjectMap* objectMap, ValueInfoPtr formal)
-    : _object(object),
+    : _object(Py_NewRef(object)),
       _map(objectMap),
       _formal(std::move(formal))
 {
-    Py_INCREF(object);
     if (!_formal || !_formal->interface)
     {
         PyObjectHandle iceType{getAttr(object, "_ice_type", false)};
@@ -3253,9 +3247,10 @@ IcePy::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& me
 //
 // ValueReader implementation.
 //
-IcePy::ValueReader::ValueReader(PyObject* object, ValueInfoPtr info) : _object(object), _info(std::move(info))
+IcePy::ValueReader::ValueReader(PyObject* object, ValueInfoPtr info)
+    : _object(Py_NewRef(object)),
+      _info(std::move(info))
 {
-    Py_INCREF(object);
 }
 
 void
@@ -4021,8 +4016,7 @@ IcePy_declareProxy(PyObject*, PyObject* args)
     }
     else
     {
-        Py_INCREF(info->typeObj);
-        return info->typeObj;
+        return Py_NewRef(info->typeObj);
     }
 }
 
@@ -4052,8 +4046,7 @@ IcePy_defineProxy(PyObject*, PyObject* args)
     else
     {
         info->define(type);
-        Py_INCREF(info->typeObj);
-        return info->typeObj;
+        return Py_NewRef(info->typeObj);
     }
 }
 
@@ -4075,8 +4068,7 @@ IcePy_declareValue(PyObject*, PyObject* args)
     }
     else
     {
-        Py_INCREF(info->typeObj);
-        return info->typeObj;
+        return Py_NewRef(info->typeObj);
     }
 }
 
@@ -4113,8 +4105,7 @@ IcePy_defineValue(PyObject*, PyObject* args)
     }
     else
     {
-        Py_INCREF(info->typeObj);
-        r = info->typeObj;
+        r = Py_NewRef(info->typeObj);
     }
 
     info->define(type, compactId, interface ? true : false, base, members);

@@ -74,14 +74,12 @@ IcePy::initExecutor(PyObject* module)
     return true;
 }
 
-IcePy::Executor::Executor(PyObject* executor) : _executor(executor)
+IcePy::Executor::Executor(PyObject* executor) : _executor(Py_NewRef(executor))
 {
     if (!PyCallable_Check(executor))
     {
         throw Ice::InitializationException(__FILE__, __LINE__, "executor must be a callable");
     }
-
-    Py_INCREF(executor);
 }
 
 void

@@ -82,9 +82,7 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
                     }
                 });
 
-    (*self->callbacks).emplace_back(callback, remover);
-    Py_INCREF(callback);
-
+    (*self->callbacks).emplace_back(Py_NewRef(callback), remover);
     return Py_None;
 }
 

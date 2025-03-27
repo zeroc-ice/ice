@@ -17,7 +17,7 @@ namespace IcePy
     };
 }
 
-IcePy::LoggerWrapper::LoggerWrapper(PyObject* logger) : _logger(logger) { Py_INCREF(logger); }
+IcePy::LoggerWrapper::LoggerWrapper(PyObject* logger) : _logger(Py_NewRef(logger)) {}
 
 void
 IcePy::LoggerWrapper::print(const string& message)
@@ -299,9 +299,7 @@ loggerCloneWithPrefix(LoggerObject* self, PyObject* args)
     auto wrapper = dynamic_pointer_cast<LoggerWrapper>(clone);
     if (wrapper)
     {
-        PyObject* obj = wrapper->getObject();
-        Py_INCREF(obj);
-        return obj;
+        return Py_NewRef(wrapper->getObject());
     }
 
     return createLogger(clone);
@@ -395,9 +393,7 @@ IcePy_getProcessLogger(PyObject* /*self*/, PyObject* /*args*/)
     auto wrapper = dynamic_pointer_cast<LoggerWrapper>(logger);
     if (wrapper)
     {
-        PyObject* obj = wrapper->getObject();
-        Py_INCREF(obj);
-        return obj;
+        return Py_NewRef(wrapper->getObject());
     }
 
     return createLogger(logger);
