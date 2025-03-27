@@ -21,7 +21,7 @@ static VALUE iceModule;
 
 extern "C"
 {
-    void ICE_DECLSPEC_EXPORT Init_IceRuby()
+    ICE_DECLSPEC_EXPORT void Init_IceRuby()
     {
         Ice::registerIceDiscovery(false);
         Ice::registerIceLocatorDiscovery(false);
