@@ -41,17 +41,19 @@ namespace Ice
         [[nodiscard]] virtual CommunicatorPtr getCommunicator() const noexcept = 0;
 
         /// Starts receiving and dispatching requests received over incoming connections.
-        /// @see #hold
         /// @see #deactivate
         virtual void activate() = 0;
 
-        /// Temporarily holds receiving and dispatching requests. The object adapter can be reactivated with #activate.
-        /// @remark Holding is not immediate, i.e., after #hold}returns, the object adapter might still be active for
-        /// some time. You can use #waitForHold to wait until holding is complete.
+        /// Stops reading requests from incoming connections. Outstanding dispatches are not affected. The object
+        /// adapter can be reactivated with #activate.
+        /// @remark This function is provided for backward compatibility with older versions of Ice. Don't use it in
+        /// new applications.
         virtual void hold() = 0;
 
-        /// Waits until the object adapter holds requests. Calling #hold initiates holding of requests, and
-        /// #waitForHold only returns when holding is complete.
+        /// Waits until the object adapter is in the holding state (see #hold) and the dispatch of requests received
+        /// over incoming connection has completed.
+        /// @remark This function is provided for backward compatibility with older versions of Ice. Don't use it in
+        /// new applications.
         virtual void waitForHold() = 0;
 
         /// Deactivates this object adapter: stops accepting new connections from clients and closes gracefully all
@@ -116,8 +118,8 @@ namespace Ice
             return uncheckedCast<Prx>(_addFacet(std::move(servant), std::move(id), std::move(facet)));
         }
 
-        /// Adds a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its
-        /// identity.
+        /// Adds a servant to this object adapter's Active Servant Map (ASM), using an automatically generated UUID as
+        /// its identity.
         /// @tparam Prx The type of the proxy to return.
         /// @param servant The servant to add.
         /// @return A proxy with the generated UUID identity created by this object adapter.
@@ -127,8 +129,8 @@ namespace Ice
             return uncheckedCast<Prx>(_addWithUUID(std::move(servant)));
         }
 
-        /// Adds a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its
-        /// identity. Also specifies a facet.
+        /// Adds a servant to this object adapter's Active Servant Map (ASM), using an automatically generated UUID as
+        /// its identity. Also specifies a facet.
         /// @tparam Prx The type of the proxy to return.
         /// @param servant The servant to add.
         /// @param facet The facet of the Ice object that is implemented by the servant.
