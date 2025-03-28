@@ -946,9 +946,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\Service.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\SHA1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\SlicedData.h">
       <Filter>Header Files</Filter>
     </ClInclude>

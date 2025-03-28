@@ -1011,7 +1011,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\RequestHandlerF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\ServantLocator.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Service.h" />
-    <ClInclude Include="..\..\..\..\include\Ice\SHA1.h" />
     <ClInclude Include="..\..\..\..\include\Ice\SlicedData.h" />
     <ClInclude Include="..\..\..\..\include\Ice\SlicedDataF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\StreamHelpers.h" />

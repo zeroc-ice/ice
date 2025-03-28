@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-#include "Ice/SHA1.h"
+#include "SHA1.h"
 
 #if defined(_WIN32)
 #    include "Ice/LocalExceptions.h"
