@@ -2,10 +2,10 @@
 
 #include "Instance.h"
 #include "../Ice/InstrumentationI.h"
+#include "../Ice/Timer.h"
 #include "../Ice/TraceUtil.h"
 #include "Ice/Communicator.h"
 #include "Ice/Properties.h"
-#include "Ice/Timer.h"
 #include "InstrumentationI.h"
 #include "NodeI.h"
 #include "Observers.h"

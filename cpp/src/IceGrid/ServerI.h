@@ -3,8 +3,8 @@
 #ifndef ICEGRID_SERVER_I_H
 #define ICEGRID_SERVER_I_H
 
+#include "../Ice/Timer.h"
 #include "Activator.h"
-#include "Ice/Timer.h"
 #include "Internal.h"
 
 #include <optional>

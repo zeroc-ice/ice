@@ -7,7 +7,6 @@
 #include "CommunicatorF.h"
 #include "Connection.h"
 #include "Ice/BuiltinSequences.h"
-#include "Ice/Timer.h"
 #include "InstanceF.h"
 #include "Instrumentation.h"
 #include "Logger.h"
@@ -15,6 +14,7 @@
 #include "PropertiesF.h"
 #include "SSL/ClientAuthenticationOptions.h"
 #include "StringUtil.h"
+#include "TimerTask.h"
 #include "ValueFactory.h"
 
 namespace Ice

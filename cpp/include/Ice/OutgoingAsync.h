@@ -6,7 +6,6 @@
 #include "CommunicatorF.h"
 #include "ConnectionF.h"
 #include "ConnectionIF.h"
-#include "Ice/Timer.h"
 #include "InputStream.h"
 #include "LocalExceptions.h"
 #include "ObjectAdapterF.h"
@@ -14,6 +13,7 @@
 #include "OutputStream.h"
 #include "Proxy.h"
 #include "RequestHandlerF.h"
+#include "TimerTask.h"
 
 #include <cassert>
 #include <exception>

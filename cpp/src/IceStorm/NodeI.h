@@ -3,9 +3,9 @@
 #ifndef ICESTORM_NODE_I_H
 #define ICESTORM_NODE_I_H
 
+#include "../Ice/Timer.h"
 #include "Election.h"
 #include "Ice/Ice.h"
-#include "Ice/Timer.h"
 #include "Instance.h"
 #include "Replica.h"
 
