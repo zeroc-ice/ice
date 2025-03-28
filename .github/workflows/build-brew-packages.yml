@@ -89,6 +89,7 @@ jobs:
             --upload-file ice-*.bottle.*tar.gz \
             --output /dev/null \
             --silent \
+            --retry 3 \
             --fail \
             --show-error \
             ${{ inputs.repository_url }}/nightly/ || { echo "Upload failed"; exit 1; }
@@ -101,6 +102,7 @@ jobs:
                 --upload-file "$file" \
                 --output /dev/null \
                 --silent \
+                --retry 3 \
                 --fail \
                 --show-error \
                 ${{ inputs.repository_url }}/nightly/homebrew-nightly.git/$file || { echo "Upload failed"; exit 1; }

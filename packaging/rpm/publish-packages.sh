@@ -17,6 +17,7 @@ find . -type f -name "*.rpm" | while read -r file; do
          --upload-file "$file" \
          --output /dev/null \
          --silent \
+         --retry 3 \
          --fail \
          --show-error \
          "${REPOSITORY_URL}" || { echo "Upload failed: $file"; exit 1; }

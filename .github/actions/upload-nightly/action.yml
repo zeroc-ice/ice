@@ -19,6 +19,7 @@ runs:
              --upload-file ${{ inputs.upload_file }} \
              --output /dev/null \
              --silent \
+             --retry 3 \
              --fail \
              --show-error \
              ${{ inputs.repository_url }}/nightly/ || { echo "Upload failed"; exit 1; }
