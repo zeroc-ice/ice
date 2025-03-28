@@ -100,7 +100,6 @@ Glacier2::RouterI::getClientProxy(optional<bool>& hasRoutingTable, const Current
 optional<ObjectPrx>
 Glacier2::RouterI::getServerProxy(const Current&) const
 {
-    // No mutex lock necessary, _serverProxy is immutable and is never destroyed.
     return _serverProxy;
 }
 

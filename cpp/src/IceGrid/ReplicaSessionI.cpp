@@ -240,9 +240,15 @@ ReplicaSessionI::receivedUpdate(TopicName topicName, int serial, string failure,
 }
 
 void
-ReplicaSessionI::destroy(const Ice::Current&)
+ReplicaSessionI::destroy()
 {
     destroyImpl(false);
+}
+
+void
+ReplicaSessionI::destroy(const Ice::Current&)
+{
+    destroy();
 }
 
 optional<chrono::steady_clock::time_point>

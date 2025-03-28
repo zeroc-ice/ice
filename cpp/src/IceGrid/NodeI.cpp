@@ -466,7 +466,7 @@ NodeI::observerUpdateServer(const ServerDynamicInfo& info)
         {
             queueUpdate(
                 observer.second,
-                [observer = observer.second, info, name = getName(Ice::emptyCurrent)](auto&& response, auto&& exception)
+                [observer = observer.second, info, name = _name](auto&& response, auto&& exception)
                 { observer->updateServerAsync(name, info, std::move(response), std::move(exception)); });
 
             sent.insert(observer.second);
@@ -501,7 +501,7 @@ NodeI::observerUpdateAdapter(const AdapterDynamicInfo& info)
         {
             queueUpdate(
                 observer.second,
-                [observer = observer.second, info, name = getName(Ice::emptyCurrent)](auto&& response, auto&& exception)
+                [observer = observer.second, info, name = _name](auto&& response, auto&& exception)
                 { observer->updateAdapterAsync(name, info, std::move(response), std::move(exception)); });
             sent.insert(observer.second);
         }

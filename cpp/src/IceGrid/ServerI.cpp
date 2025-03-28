@@ -733,8 +733,10 @@ ServerI::startAsync(function<void()> response, function<void(exception_ptr)> exc
 }
 
 void
-ServerI::stopAsync(function<void()> response, function<void(exception_ptr)> exception, const Ice::Current&)
+ServerI::stopAsync(function<void()> response, function<void(exception_ptr)> exception)
 {
+    // response and exception can be null when this function is called directly.
+
     shared_ptr<ServerCommand> command;
     {
         lock_guard lock(_mutex);
@@ -767,6 +769,12 @@ ServerI::stopAsync(function<void()> response, function<void(exception_ptr)> exce
 }
 
 void
+ServerI::stopAsync(function<void()> response, function<void(exception_ptr)> exception, const Ice::Current&)
+{
+    return stopAsync(std::move(response), std::move(exception));
+}
+
+void
 ServerI::sendSignal(string signal, const Ice::Current&)
 {
     _node->getActivator()->sendSignal(_id, signal);
@@ -790,11 +798,17 @@ ServerI::writeMessage(string message, int fd, const Ice::Current&)
 }
 
 ServerState
-ServerI::getState(const Ice::Current&) const
+ServerI::getState() const
 {
     lock_guard lock(_mutex);
     checkDestroyed();
     return toServerState(_state);
+}
+
+ServerState
+ServerI::getState(const Ice::Current&) const
+{
+    return getState();
 }
 
 int32_t
@@ -876,11 +890,17 @@ ServerI::setEnabled(bool enabled, const Ice::Current&)
 }
 
 bool
-ServerI::isEnabled(const Ice::Current&) const
+ServerI::isEnabled() const
 {
     lock_guard lock(_mutex);
     checkDestroyed();
     return _activation != Disabled;
+}
+
+bool
+ServerI::isEnabled(const Ice::Current&) const
+{
+    return isEnabled();
 }
 
 void
@@ -1774,7 +1794,7 @@ ServerI::terminated(const string& msg, int status)
     {
         try
         {
-            adpt.second->setDirectProxy(nullopt, Ice::emptyCurrent);
+            adpt.second->setDirectProxy(nullopt);
         }
         catch (const Ice::ObjectNotExistException&)
         {
