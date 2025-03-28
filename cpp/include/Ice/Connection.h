@@ -25,26 +25,27 @@
 
 namespace Ice
 {
-    /// The batch compression option when flushing queued batch requests.
+    /// Represents batch compression options when flushing queued batch requests.
     enum class CompressBatch : std::uint8_t
     {
         /// Compress the batch requests.
         Yes,
+
         /// Don't compress the batch requests.
         No,
+
         /// Compress the batch requests if at least one request was made on a compressed proxy.
         BasedOnProxy
     };
 
-    /// A collection of HTTP headers.
+    /// Represents a collection of HTTP headers.
     using HeaderDict = std::map<std::string, std::string>;
 
-    /// This method is called by the connection when the connection is closed. If the callback needs more information
-    /// about the closure, it can call {@link Connection#throwException}.
-    /// @param con The connection that closed.
+    /// The callback function given to Connection::setCloseCallback.
+    /// @param con The connection that was closed.
     using CloseCallback = std::function<void(const ConnectionPtr& con)>;
 
-    /// The user-level interface to a connection.
+    /// Represents a connection that uses the Ice protocol.
     /// @headerfile Ice/Ice.h
     class ICE_API Connection
     {
@@ -57,24 +58,22 @@ namespace Ice
         /// Starts a graceful closure of this connection once all outstanding invocations have completed.
         /// @param response A callback that the implementation calls when the connection is closed gracefully.
         /// @param exception A callback that the implementation calls when the connection closure failed. Its
-        /// exception_ptr parameter is always non-null and describes the reason for the closure.
+        /// `exception_ptr` parameter is always non-null and describes the reason for the failure.
         /// @remark The response and exception callbacks may be called synchronously (from the calling thread); in
-        /// particular, this occurs when you call close on a connection that is already closed. The implementation
+        /// particular, this occurs when you call `close` on a connection that is already closed. The implementation
         /// always calls one of the two callbacks once; it never calls both. If closing the connection takes longer than
         /// the configured close timeout, the connection is aborted with a CloseTimeoutException.
         virtual void
         close(std::function<void()> response, std::function<void(std::exception_ptr)> exception) noexcept = 0;
 
         /// Starts a graceful closure of this connection once all outstanding invocations have completed.
-        /// @return A future that completes then the connection is closed.
+        /// @return A future that becomes available when the connection is closed.
         [[nodiscard]] std::future<void> close();
 
-        /// Create a special proxy that always uses this connection. This can be used for callbacks from a server to a
-        /// client if the server cannot directly establish a connection to the client, for example because of firewalls.
-        /// In this case, the server would create a proxy using an already established connection from the client.
-        /// @param id The identity for which a proxy is to be created.
-        /// @return A proxy that matches the given identity and uses this connection.
-        /// @see #setAdapter
+        /// Creates a special proxy (a "fixed proxy") that always uses this connection.
+        /// @tparam Prx The type of the proxy to create.
+        /// @param id The identity of the target object.
+        /// @return A fixed proxy with the provided identity.
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         [[nodiscard]] Prx createProxy(Identity id) const
         {
@@ -87,7 +86,7 @@ namespace Ice
         /// The default object adapter of an incoming connection is the object adapter that created this connection;
         /// the default object adapter of an outgoing connection is the communicator's default object adapter.
         /// @param adapter The object adapter to associate with this connection.
-        /// @see Communicator#getDefaultObjectAdapter
+        /// @see Communicator::getDefaultObjectAdapter
         /// @see #getAdapter
         virtual void setAdapter(const ObjectAdapterPtr& adapter) = 0;
 
@@ -96,18 +95,18 @@ namespace Ice
         /// @see #setAdapter
         [[nodiscard]] virtual ObjectAdapterPtr getAdapter() const noexcept = 0;
 
-        /// Get the endpoint from which the connection was created.
+        /// Gets the endpoint from which the connection was created.
         /// @return The endpoint from which the connection was created.
         [[nodiscard]] virtual EndpointPtr getEndpoint() const noexcept = 0;
 
-        /// Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
-        /// associated with the connection.
+        /// Flushes any pending batch requests for this connection. This corresponds to all batch requests invoked on
+        /// fixed proxies associated with the connection.
         /// @param compress Specifies whether or not the queued batch requests should be compressed before being sent
         /// over the wire.
         void flushBatchRequests(CompressBatch compress);
 
-        /// Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
-        /// associated with the connection.
+        /// Flushes any pending batch requests for this connection. This corresponds to all batch requests invoked on
+        /// fixed proxies associated with the connection.
         /// @param compress Specifies whether or not the queued batch requests should be compressed before being sent
         /// over the wire.
         /// @param exception The exception callback.
@@ -118,24 +117,23 @@ namespace Ice
             std::function<void(std::exception_ptr)> exception,
             std::function<void(bool)> sent = nullptr) = 0;
 
-        /// Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
-        /// associated with the connection.
+        /// Flushes any pending batch requests for this connection. This corresponds to all batch requests invoked on
+        /// fixed proxies associated with the connection.
         /// @param compress Specifies whether or not the queued batch requests should be compressed before being sent
         /// over the wire.
-        /// @return The future object for the invocation.
+        /// @return A future that becomes available when the flush completes.
         [[nodiscard]] std::future<void> flushBatchRequestsAsync(CompressBatch compress);
 
-        /// Set a close callback on the connection. The callback is called by the connection when it's closed. The
-        /// callback is called from the Ice thread pool associated with the connection. If the callback needs more
-        /// information about the closure, it can call {@link Connection#throwException}.
+        /// Sets a close callback on the connection. The callback is called by the connection when it's closed. The
+        /// callback is called from the Ice thread pool associated with the connection.
         /// @param callback The close callback object.
         virtual void setCloseCallback(CloseCallback callback) = 0;
 
-        /// Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
+        /// Returns the connection type. This corresponds to the endpoint type, such as "tcp", "udp", etc.
         /// @return The type of the connection.
         [[nodiscard]] virtual const std::string& type() const noexcept = 0;
 
-        /// Return a description of the connection as human readable text, suitable for logging or error messages.
+        /// Returns a description of the connection as human readable text, suitable for logging or error messages.
         /// @return The description of the connection as human readable text.
         /// @remark This function remains usable after the connection is closed or aborted.
         [[nodiscard]] virtual std::string toString() const = 0;
@@ -144,15 +142,15 @@ namespace Ice
         /// @return The connection information.
         [[nodiscard]] virtual ConnectionInfoPtr getInfo() const = 0;
 
-        /// Set the connection buffer receive/send size.
-        /// @param rcvSize The connection receive buffer size.
-        /// @param sndSize The connection send buffer size.
+        /// Sets the size of the connection received and send buffers.
+        /// @param rcvSize The size of the receive buffer.
+        /// @param sndSize The size of the send buffer.
         virtual void setBufferSize(int rcvSize, int sndSize) = 0;
 
-        /// Throw an exception indicating the reason for connection closure. For example,
-        /// {@link CloseConnectionException} is raised if the connection was closed gracefully by the peer, whereas
-        /// {@link ConnectionAbortedException} or {@link ConnectionClosedException} is raised if the connection was
-        /// manually closed by the application. This operation does nothing if the connection is not yet closed.
+        /// Throws an exception that provides the reason for the closure of this connection. For example, this function
+        /// throw CloseConnectionException when the connection was closed gracefully by the peer; it throws
+        /// ConnectionAbortedException when the connection is aborted with #abort. This function does nothing if the
+        /// connection is not yet closed.
         virtual void throwException() const = 0;
 
     protected:
@@ -160,7 +158,7 @@ namespace Ice
         [[nodiscard]] virtual ObjectPrx _createProxy(Identity id) const = 0;
     };
 
-    /// Base class providing access to the connection details.
+    /// Base class for all connection info classes.
     /// @headerfile Ice/Ice.h
     class ICE_API ConnectionInfo
     {
@@ -171,16 +169,16 @@ namespace Ice
         ConnectionInfo(const ConnectionInfo&) = delete;
         ConnectionInfo& operator=(const ConnectionInfo&) = delete;
 
-        /// The information of the underlying transport or null if there's no underlying transport.
+        /// The information of the underlying transport or nullptr if there's no underlying transport.
         const ConnectionInfoPtr underlying;
 
-        /// Whether or not the connection is an incoming or outgoing connection.
+        /// Indicates whether the connection is an incoming connection.
         const bool incoming;
 
         /// The name of the adapter associated with the connection.
         const std::string adapterName;
 
-        /// The connection id.
+        /// The connection ID.
         const std::string connectionId;
 
     protected:
@@ -202,7 +200,7 @@ namespace Ice
         }
     };
 
-    /// Provides access to the connection details of an IP connection
+    /// Provides access to the connection details of an IP connection.
     /// @headerfile Ice/Ice.h
     class ICE_API IPConnectionInfo : public ConnectionInfo
     {
@@ -243,7 +241,7 @@ namespace Ice
         }
     };
 
-    /// Provides access to the connection details of a TCP connection
+    /// Provides access to the connection details of a TCP connection.
     /// @headerfile Ice/Ice.h
     class ICE_API TCPConnectionInfo final : public IPConnectionInfo
     {
@@ -252,12 +250,12 @@ namespace Ice
         TCPConnectionInfo(const TCPConnectionInfo&) = delete;
         TCPConnectionInfo& operator=(const TCPConnectionInfo&) = delete;
 
-        /// The connection buffer receive size.
+        /// The size of the receive buffer.
         const int rcvSize;
-        /// The connection buffer send size.
+
+        /// The size of the send buffer.
         const int sndSize;
 
-        // internal constructor
         /// @private
         TCPConnectionInfo(
             bool incoming,
@@ -275,7 +273,6 @@ namespace Ice
         {
         }
 
-        // internal constructor
         /// @private
         TCPConnectionInfo(bool incoming, std::string adapterName, std::string connectionId)
             : TCPConnectionInfo{incoming, std::move(adapterName), std::move(connectionId), "", -1, "", -1, 0, 0}
@@ -283,7 +280,7 @@ namespace Ice
         }
     };
 
-    /// Provides access to the connection details of a UDP connection
+    /// Provides access to the connection details of a UDP connection.
     /// @headerfile Ice/Ice.h
     class ICE_API UDPConnectionInfo final : public IPConnectionInfo
     {
@@ -298,13 +295,12 @@ namespace Ice
         /// The multicast port.
         const int mcastPort;
 
-        /// The connection buffer receive size.
+        /// The size of the receive buffer.
         const int rcvSize;
 
-        /// The connection buffer send size.
+        /// The size of the send buffer.
         const int sndSize;
 
-        // internal constructor
         /// @private
         UDPConnectionInfo(
             bool incoming,
@@ -326,7 +322,6 @@ namespace Ice
         {
         }
 
-        // internal constructor
         /// @private
         UDPConnectionInfo(bool incoming, std::string adapterName, std::string connectionId)
             : UDPConnectionInfo{incoming, std::move(adapterName), std::move(connectionId), "", -1, "", -1, "", -1, 0, 0}
@@ -334,7 +329,7 @@ namespace Ice
         }
     };
 
-    /// Provides access to the connection details of a WebSocket connection
+    /// Provides access to the connection details of a WebSocket connection.
     /// @headerfile Ice/Ice.h
     class ICE_API WSConnectionInfo final : public ConnectionInfo
     {
@@ -346,7 +341,6 @@ namespace Ice
         /// The headers from the HTTP upgrade request.
         const HeaderDict headers;
 
-        // internal constructor
         /// @private
         WSConnectionInfo(ConnectionInfoPtr underlying, HeaderDict headers)
             : ConnectionInfo{std::move(underlying)},
@@ -355,7 +349,7 @@ namespace Ice
         }
     };
 
-    /// Provides access to the connection details of an IAP connection
+    /// Provides access to the connection details of an IAP connection.
     /// @headerfile Ice/Ice.h
     class IAPConnectionInfo final : public ConnectionInfo
     {
@@ -382,7 +376,6 @@ namespace Ice
         /// The protocol used by the accessory.
         const std::string protocol;
 
-        // internal constructor
         /// @private
         IAPConnectionInfo(
             std::string adapterName,
