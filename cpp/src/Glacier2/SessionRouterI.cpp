@@ -941,7 +941,7 @@ SessionRouterI::finishCreateSession(const ConnectionPtr& connection, const share
 
     if (_instance->serverObjectAdapter())
     {
-        string category = router->getServerProxy(Ice::emptyCurrent)->ice_getIdentity().category;
+        string category = router->serverProxy()->ice_getIdentity().category;
         assert(!category.empty());
         auto rc = _routersByCategory.insert({category, router});
         assert(rc.second);

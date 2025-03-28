@@ -55,14 +55,18 @@ namespace IceGrid
         void waitForApplicationUpdateCompleted();
 
         void startAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
+
+        void stopAsync(std::function<void()>, std::function<void(std::exception_ptr)>);
         void stopAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
         void sendSignal(std::string, const Ice::Current&) override;
         void writeMessage(std::string, int, const Ice::Current&) override;
 
+        [[nodiscard]] ServerState getState() const;
         [[nodiscard]] ServerState getState(const Ice::Current&) const override;
         [[nodiscard]] int getPid(const Ice::Current&) const override;
 
         void setEnabled(bool, const Ice::Current&) override;
+        [[nodiscard]] bool isEnabled() const;
         [[nodiscard]] bool isEnabled(const Ice::Current&) const override;
         void setProcessAsync(
             std::optional<Ice::ProcessPrx>,

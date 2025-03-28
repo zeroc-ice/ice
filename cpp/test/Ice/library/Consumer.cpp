@@ -27,7 +27,10 @@ consume(const Ice::ObjectPtr& o, const Ice::ObjectPrx& p)
     test(proxy);
 
     proxy->op(false);
+#include "Ice/PushDisableWarnings.h"
+    // emptyCurrent is deprecated
     servant->op(false, Ice::emptyCurrent);
+#include "Ice/PopDisableWarnings.h"
 
     cout << "ok" << endl;
 
@@ -48,7 +51,7 @@ consume(const Ice::ObjectPtr& o, const Ice::ObjectPrx& p)
 
     try
     {
-        servant->op(true, Ice::emptyCurrent);
+        servant->op(true, Ice::Current{});
     }
     catch (const Test::UserError&)
     {

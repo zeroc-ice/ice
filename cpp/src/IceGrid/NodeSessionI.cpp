@@ -174,9 +174,15 @@ NodeSessionI::waitForApplicationUpdateAsync(
 }
 
 void
-NodeSessionI::destroy(const Ice::Current&)
+NodeSessionI::destroy()
 {
     destroyImpl(false);
+}
+
+void
+NodeSessionI::destroy(const Ice::Current&)
+{
+    destroy();
 }
 
 optional<chrono::steady_clock::time_point>
