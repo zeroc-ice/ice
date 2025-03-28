@@ -7,7 +7,14 @@
 
 using namespace std;
 
+#if defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 const Ice::Current Ice::emptyCurrent{};
+#if defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 
 void
 Ice::checkNonIdempotent(const Current& current)
