@@ -991,9 +991,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\Logger.h" />
     <ClInclude Include="..\..\..\..\include\Ice\LoggerUtil.h" />
     <ClInclude Include="..\..\..\..\include\Ice\MarshaledResult.h" />
-    <ClInclude Include="..\..\..\..\include\Ice\MetricsAdminI.h" />
-    <ClInclude Include="..\..\..\..\include\Ice\MetricsFunctional.h" />
-    <ClInclude Include="..\..\..\..\include\Ice\MetricsObserverI.h" />
     <ClInclude Include="..\..\..\..\include\Ice\NativePropertiesAdmin.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Object.h" />
     <ClInclude Include="..\..\..\..\include\Ice\ObjectAdapter.h" />
