@@ -273,15 +273,15 @@ namespace Ice
         /// Tests whether this object supports a specific Slice interface.
         /// @param typeId The type ID of the Slice interface to test against.
         /// @param context The request context.
-        /// @return `true` if the target object has the interface specified by @p typeId or derives from the interface
-        /// specified by @p typeId, `false` otherwise.
+        /// @return `true` if the target object implements the Slice interface specified by @p typeId or implements a
+        /// derived interface, `false` otherwise.
         [[nodiscard]] bool ice_isA(std::string_view typeId, const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// Tests whether this object supports a specific Slice interface.
         /// @param typeId The type ID of the Slice interface to test against.
         /// @param response The response callback. It accepts:
-        /// - `true` if the target object has the interface specified by @p typeId or derives from the interface
-        /// specified by @p typeId, `false` otherwise.
+        /// - `true` if the target object implements the Slice interface specified by @p typeId or implements a
+        /// derived interface, `false` otherwise.
         /// @param ex The exception callback.
         /// @param sent The sent callback.
         /// @param context The request context.
@@ -298,8 +298,8 @@ namespace Ice
         /// @param typeId The type ID of the Slice interface to test against.
         /// @param context The request context.
         /// @return A future that becomes available when the invocation completes. This future holds:
-        /// - `true` if the target object has the interface specified by @p typeId or derives from the interface
-        /// specified by @p typeId, `false` otherwise.
+        /// - `true` if the target object implements the Slice interface specified by @p typeId or implements a
+        /// derived interface, `false` otherwise.
         [[nodiscard]] std::future<bool>
         ice_isAAsync(std::string_view typeId, const Ice::Context& context = Ice::noExplicitContext) const;
 
