@@ -19,6 +19,7 @@ find . -maxdepth 1 -type f \( -name "*.deb" -o -name "*.ddeb" \) | while read -r
          --data-binary "@${file}" \
          --output /dev/null \
          --silent \
+         --retry 3 \
          --fail \
          --show-error \
          "${REPOSITORY_URL}" || { echo "Upload failed: $file"; exit 1; }

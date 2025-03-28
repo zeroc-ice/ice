@@ -56,6 +56,7 @@ jobs:
                 --upload-file "$file" \
                 --output /dev/null \
                 --silent \
+                --retry 3 \
                 --fail \
                 --show-error \
                 ${{ inputs.repository_url }}/ice-swift.git/$file || { echo "Upload failed"; exit 1; }
