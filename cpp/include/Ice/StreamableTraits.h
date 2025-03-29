@@ -92,7 +92,7 @@ namespace Ice
 
         template<typename C> static long test(...) noexcept;
 
-        static const bool value = sizeof(test<T>(nullptr)) == sizeof(char);
+        static constexpr bool value = sizeof(test<T>(nullptr)) == sizeof(char);
     };
 
     /// @private
@@ -105,7 +105,7 @@ namespace Ice
 
         template<typename C> static long test(...) noexcept;
 
-        static const bool value = IsContainer<T>::value && sizeof(test<T>(nullptr)) == sizeof(char);
+        static constexpr bool value = IsContainer<T>::value && sizeof(test<T>(nullptr)) == sizeof(char);
     };
 
     /// @private
@@ -113,36 +113,36 @@ namespace Ice
     template<typename T, typename Enabler = void> struct StreamableTraits
     {
         /// The category trait, used for selecting the appropriate StreamHelper.
-        static const StreamHelperCategory helper = StreamHelperCategoryUnknown;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryUnknown;
 
         // When extracting a sequence<T> from a stream, we can ensure the
         // stream has at least StreamableTraits<T>::minWireSize * size bytes
         // For containers, the minWireSize is 1 (just 1 byte for an empty container).
 
         /// The minimum number of bytes needed to marshal this type.
-        // static const int minWireSize;
+        // static constexpr int minWireSize;
 
         /// Indicates if the type is always encoded on a fixed number of bytes.
         // Only used for marshaling/unmarshaling optional data members and parameters.
-        // static const bool fixedLength;
+        // static constexpr bool fixedLength;
     };
 
     /// @private
     /// Specialization for sequence and dictionary types.
     template<typename T> struct StreamableTraits<T, std::enable_if_t<IsMap<T>::value || IsContainer<T>::value>>
     {
-        static const StreamHelperCategory helper =
+        static constexpr StreamHelperCategory helper =
             IsMap<T>::value ? StreamHelperCategoryDictionary : StreamHelperCategorySequence;
 
-        static const int minWireSize = 1;
-        static const bool fixedLength = false;
+        static constexpr int minWireSize = 1;
+        static constexpr bool fixedLength = false;
     };
 
     /// @private
     template<typename T> struct StreamableTraits<T, std::enable_if_t<std::is_base_of_v<UserException, T>>>
     {
         /// @copydoc StreamableTraits::helper
-        static const StreamHelperCategory helper = StreamHelperCategoryUserException;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryUserException;
 
         // There is no sequence/dictionary of UserException (so no need for minWireSize) and no optional UserException
         // (so no need for fixedLength)
@@ -152,9 +152,9 @@ namespace Ice
     /// Specialization for arrays (std::pair<const T*, const T*>).
     template<typename T> struct StreamableTraits<std::pair<T*, T*>>
     {
-        static const StreamHelperCategory helper = StreamHelperCategorySequence;
-        static const int minWireSize = 1;
-        static const bool fixedLength = false;
+        static constexpr StreamHelperCategory helper = StreamHelperCategorySequence;
+        static constexpr int minWireSize = 1;
+        static constexpr bool fixedLength = false;
     };
 
     //
@@ -165,106 +165,106 @@ namespace Ice
     /// @private
     template<> struct StreamableTraits<bool>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 1;
-        static const bool fixedLength = true;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
+        static constexpr int minWireSize = 1;
+        static constexpr bool fixedLength = true;
     };
 
     /// @private
     template<> struct StreamableTraits<std::byte>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 1;
-        static const bool fixedLength = true;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
+        static constexpr int minWireSize = 1;
+        static constexpr bool fixedLength = true;
     };
 
     /// @private
     template<> struct StreamableTraits<std::uint8_t>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 1;
-        static const bool fixedLength = true;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
+        static constexpr int minWireSize = 1;
+        static constexpr bool fixedLength = true;
     };
 
     /// @private
     template<> struct StreamableTraits<std::int16_t>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 2;
-        static const bool fixedLength = true;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
+        static constexpr int minWireSize = 2;
+        static constexpr bool fixedLength = true;
     };
 
     /// @private
     template<> struct StreamableTraits<std::int32_t>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 4;
-        static const bool fixedLength = true;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
+        static constexpr int minWireSize = 4;
+        static constexpr bool fixedLength = true;
     };
 
     /// @private
     template<> struct StreamableTraits<std::int64_t>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 8;
-        static const bool fixedLength = true;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
+        static constexpr int minWireSize = 8;
+        static constexpr bool fixedLength = true;
     };
 
     /// @private
     template<> struct StreamableTraits<float>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 4;
-        static const bool fixedLength = true;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
+        static constexpr int minWireSize = 4;
+        static constexpr bool fixedLength = true;
     };
 
     /// @private
     template<> struct StreamableTraits<double>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 8;
-        static const bool fixedLength = true;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
+        static constexpr int minWireSize = 8;
+        static constexpr bool fixedLength = true;
     };
 
     /// @private
     template<> struct StreamableTraits<std::string>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltin;
-        static const int minWireSize = 1;
-        static const bool fixedLength = false;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltin;
+        static constexpr int minWireSize = 1;
+        static constexpr bool fixedLength = false;
     };
 
     /// @private
     template<> struct StreamableTraits<std::string_view>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 1;
-        static const bool fixedLength = false;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
+        static constexpr int minWireSize = 1;
+        static constexpr bool fixedLength = false;
     };
 
     /// @private
     template<> struct StreamableTraits<std::wstring>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltin;
-        static const int minWireSize = 1;
-        static const bool fixedLength = false;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltin;
+        static constexpr int minWireSize = 1;
+        static constexpr bool fixedLength = false;
     };
 
     /// @private
     template<> struct StreamableTraits<std::wstring_view>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
-        static const int minWireSize = 1;
-        static const bool fixedLength = false;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
+        static constexpr int minWireSize = 1;
+        static constexpr bool fixedLength = false;
     };
 
     /// @private
     /// vector<bool> is a special type in C++: the streams handle it like a built-in type.
     template<> struct StreamableTraits<std::vector<bool>>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryBuiltin;
-        static const int minWireSize = 1;
-        static const bool fixedLength = false;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltin;
+        static constexpr int minWireSize = 1;
+        static constexpr bool fixedLength = false;
     };
 
     //
@@ -274,17 +274,17 @@ namespace Ice
     /// @private
     template<typename T> struct StreamableTraits<std::optional<T>, std::enable_if_t<std::is_base_of_v<ObjectPrx, T>>>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryProxy;
-        static const int minWireSize = 2;
-        static const bool fixedLength = false;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryProxy;
+        static constexpr int minWireSize = 2;
+        static constexpr bool fixedLength = false;
     };
 
     /// @private
     template<typename T> struct StreamableTraits<std::shared_ptr<T>, std::enable_if_t<std::is_base_of_v<Value, T>>>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryClass;
-        static const int minWireSize = 1;
-        static const bool fixedLength = false;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryClass;
+        static constexpr int minWireSize = 1;
+        static constexpr bool fixedLength = false;
     };
 
     template<typename T, StreamHelperCategory st> struct StreamHelper;

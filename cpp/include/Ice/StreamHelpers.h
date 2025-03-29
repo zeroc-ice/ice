@@ -421,49 +421,49 @@ namespace Ice
     /// Specialization for 1-byte built-in fixed-length types.
     template<> struct GetOptionalFormat<StreamHelperCategoryBuiltinValue, 1, true>
     {
-        static const OptionalFormat value = OptionalFormat::F1;
+        static constexpr OptionalFormat value = OptionalFormat::F1;
     };
 
     /// @private
     /// Specialization for 2-byte built-in fixed-length types.
     template<> struct GetOptionalFormat<StreamHelperCategoryBuiltinValue, 2, true>
     {
-        static const OptionalFormat value = OptionalFormat::F2;
+        static constexpr OptionalFormat value = OptionalFormat::F2;
     };
 
     /// @private
     /// Specialization for 4-byte built-in fixed-length types.
     template<> struct GetOptionalFormat<StreamHelperCategoryBuiltinValue, 4, true>
     {
-        static const OptionalFormat value = OptionalFormat::F4;
+        static constexpr OptionalFormat value = OptionalFormat::F4;
     };
 
     /// @private
     /// Specialization for 8-byte built-in fixed-length types.
     template<> struct GetOptionalFormat<StreamHelperCategoryBuiltinValue, 8, true>
     {
-        static const OptionalFormat value = OptionalFormat::F8;
+        static constexpr OptionalFormat value = OptionalFormat::F8;
     };
 
     /// @private
     /// Specialization for built-in variable-length types.
     template<> struct GetOptionalFormat<StreamHelperCategoryBuiltinValue, 1, false>
     {
-        static const OptionalFormat value = OptionalFormat::VSize;
+        static constexpr OptionalFormat value = OptionalFormat::VSize;
     };
 
     /// @private
     /// Specialization for built-in variable-length types.
     template<> struct GetOptionalFormat<StreamHelperCategoryBuiltin, 1, false>
     {
-        static const OptionalFormat value = OptionalFormat::VSize;
+        static constexpr OptionalFormat value = OptionalFormat::VSize;
     };
 
     /// @private
     /// Specialization for enum types.
     template<int minWireSize> struct GetOptionalFormat<StreamHelperCategoryEnum, minWireSize, false>
     {
-        static const OptionalFormat value = OptionalFormat::Size;
+        static constexpr OptionalFormat value = OptionalFormat::Size;
     };
 
     /// @private
@@ -478,7 +478,7 @@ namespace Ice
         // with straight calls to write/read on the stream), or define your own
         // StreamOptionalHelper specialization (which gives you more control over marshaling)
         //
-        static const OptionalFormat optionalFormat = GetOptionalFormat<st, Traits::minWireSize, fixedLength>::value;
+        static constexpr OptionalFormat optionalFormat = GetOptionalFormat<st, Traits::minWireSize, fixedLength>::value;
 
         static void write(OutputStream* stream, const T& v) { stream->write(v); }
 
@@ -489,7 +489,7 @@ namespace Ice
     /// Helper to write fixed-size structs.
     template<typename T> struct StreamOptionalHelper<T, StreamHelperCategoryStruct, true>
     {
-        static const OptionalFormat optionalFormat = OptionalFormat::VSize;
+        static constexpr OptionalFormat optionalFormat = OptionalFormat::VSize;
 
         static void write(OutputStream* stream, const T& v)
         {
@@ -508,7 +508,7 @@ namespace Ice
     /// Helper to write variable-size structs.
     template<typename T> struct StreamOptionalHelper<T, StreamHelperCategoryStruct, false>
     {
-        static const OptionalFormat optionalFormat = OptionalFormat::FSize;
+        static constexpr OptionalFormat optionalFormat = OptionalFormat::FSize;
 
         static void write(OutputStream* stream, const T& v)
         {
@@ -537,7 +537,7 @@ namespace Ice
     // This is the same encoding as variable size structs so we just re-use its implementation.
     template<typename T, int sz> struct StreamOptionalContainerHelper<T, false, sz>
     {
-        static const OptionalFormat optionalFormat = OptionalFormat::FSize;
+        static constexpr OptionalFormat optionalFormat = OptionalFormat::FSize;
 
         static void write(OutputStream* stream, const T& v, std::int32_t)
         {
@@ -555,7 +555,7 @@ namespace Ice
     /// container before encoding.
     template<typename T, int sz> struct StreamOptionalContainerHelper<T, true, sz>
     {
-        static const OptionalFormat optionalFormat = OptionalFormat::VSize;
+        static constexpr OptionalFormat optionalFormat = OptionalFormat::VSize;
 
         static void write(OutputStream* stream, const T& v, std::int32_t n)
         {
@@ -580,7 +580,7 @@ namespace Ice
     // an additional size for those, the number of elements of the container can be used to skip the optional.
     template<typename T> struct StreamOptionalContainerHelper<T, true, 1>
     {
-        static const OptionalFormat optionalFormat = OptionalFormat::VSize;
+        static constexpr OptionalFormat optionalFormat = OptionalFormat::VSize;
 
         static void write(OutputStream* stream, const T& v, std::int32_t) { stream->write(v); }
 
@@ -592,12 +592,12 @@ namespace Ice
     template<typename T> struct StreamOptionalHelper<T, StreamHelperCategorySequence, false>
     {
         using E = typename T::value_type;
-        static const int size = StreamableTraits<E>::minWireSize;
-        static const bool fixedLength = StreamableTraits<E>::fixedLength;
+        static constexpr int size = StreamableTraits<E>::minWireSize;
+        static constexpr bool fixedLength = StreamableTraits<E>::fixedLength;
 
         // The optional type of a sequence depends on whether or not elements are fixed
         // or variable size elements and their size.
-        static const OptionalFormat optionalFormat =
+        static constexpr OptionalFormat optionalFormat =
             StreamOptionalContainerHelper<T, fixedLength, size>::optionalFormat;
 
         static void write(OutputStream* stream, const T& v)
@@ -616,12 +616,12 @@ namespace Ice
     template<typename T> struct StreamOptionalHelper<std::pair<const T*, const T*>, StreamHelperCategorySequence, false>
     {
         using P = std::pair<const T*, const T*>;
-        static const int size = StreamableTraits<T>::minWireSize;
-        static const bool fixedLength = StreamableTraits<T>::fixedLength;
+        static constexpr int size = StreamableTraits<T>::minWireSize;
+        static constexpr bool fixedLength = StreamableTraits<T>::fixedLength;
 
         // The optional type of a sequence depends on whether or not elements are fixed
         // or variable size elements and their size.
-        static const OptionalFormat optionalFormat =
+        static constexpr OptionalFormat optionalFormat =
             StreamOptionalContainerHelper<P, fixedLength, size>::optionalFormat;
 
         static void write(OutputStream* stream, const P& v)
@@ -643,12 +643,12 @@ namespace Ice
         using K = typename T::key_type;
         using V = typename T::mapped_type;
 
-        static const int size = StreamableTraits<K>::minWireSize + StreamableTraits<V>::minWireSize;
-        static const bool fixedLength = StreamableTraits<K>::fixedLength && StreamableTraits<V>::fixedLength;
+        static constexpr int size = StreamableTraits<K>::minWireSize + StreamableTraits<V>::minWireSize;
+        static constexpr bool fixedLength = StreamableTraits<K>::fixedLength && StreamableTraits<V>::fixedLength;
 
         // The optional type of a dictionary depends on whether or not elements are fixed
         // or variable size elements.
-        static const OptionalFormat optionalFormat =
+        static constexpr OptionalFormat optionalFormat =
             StreamOptionalContainerHelper<T, fixedLength, size>::optionalFormat;
 
         static void write(OutputStream* stream, const T& v)
@@ -667,9 +667,9 @@ namespace Ice
     /// @private
     template<> struct StreamableTraits<ProtocolVersion>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryStruct;
-        static const int minWireSize = 2;
-        static const bool fixedLength = true;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryStruct;
+        static constexpr int minWireSize = 2;
+        static constexpr bool fixedLength = true;
     };
 
     /// @private
@@ -681,9 +681,9 @@ namespace Ice
     /// @private
     template<> struct StreamableTraits<EncodingVersion>
     {
-        static const StreamHelperCategory helper = StreamHelperCategoryStruct;
-        static const int minWireSize = 2;
-        static const bool fixedLength = true;
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryStruct;
+        static constexpr int minWireSize = 2;
+        static constexpr bool fixedLength = true;
     };
 
     /// @private
