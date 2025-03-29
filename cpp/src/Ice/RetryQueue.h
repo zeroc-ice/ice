@@ -4,9 +4,9 @@
 #define ICE_RETRY_QUEUE_H
 
 #include "Ice/InstanceF.h"
-#include "Ice/Timer.h"
 #include "RequestHandler.h" // For CancellationHandler
 #include "RetryQueueF.h"
+#include "Timer.h"
 
 #include <mutex>
 

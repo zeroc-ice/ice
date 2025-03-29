@@ -18,7 +18,6 @@
 #include "Ice/Plugin.h"
 #include "Ice/Process.h"
 #include "Ice/StringConverter.h"
-#include "Ice/Timer.h"
 #include "LocatorInfoF.h"
 #include "NetworkF.h"
 #include "NetworkProxyF.h"
@@ -29,6 +28,7 @@
 #include "RouterInfoF.h"
 #include "SSL/SSLEngineF.h"
 #include "ThreadPoolF.h"
+#include "Timer.h"
 #include "TraceLevelsF.h"
 
 #include <list>

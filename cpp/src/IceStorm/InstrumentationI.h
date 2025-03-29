@@ -3,7 +3,7 @@
 #ifndef ICESTORM_INSTRUMENTATION_I_H
 #define ICESTORM_INSTRUMENTATION_I_H
 
-#include "Ice/MetricsObserverI.h"
+#include "../Ice/MetricsObserverI.h"
 #include "IceStorm/Metrics.h"
 #include "Instrumentation.h"
 

@@ -3,7 +3,7 @@
 #ifndef ICE_SHA1_H
 #define ICE_SHA1_H
 
-#include "Config.h"
+#include "Ice/Config.h"
 
 #include <memory>
 #include <vector>

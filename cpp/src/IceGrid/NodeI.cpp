@@ -2,9 +2,9 @@
 
 #include "NodeI.h"
 #include "../Ice/FileUtil.h"
+#include "../Ice/Timer.h"
 #include "Activator.h"
 #include "Ice/Ice.h"
-#include "Ice/Timer.h"
 #include "NodeSessionManager.h"
 #include "ServerAdapterI.h"
 #include "ServerI.h"

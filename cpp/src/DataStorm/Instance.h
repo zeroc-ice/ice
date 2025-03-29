@@ -3,6 +3,7 @@
 #ifndef DATASTORM_INSTANCE_H
 #define DATASTORM_INSTANCE_H
 
+#include "../Ice/Timer.h"
 #include "DataStorm/Config.h"
 #include "DataStorm/Contract.h"
 #include "Ice/Ice.h"

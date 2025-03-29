@@ -20,8 +20,8 @@
 #include "Ice/OutgoingAsync.h"
 #include "Ice/OutgoingResponse.h"
 #include "Ice/OutputStream.h"
-#include "Ice/Timer.h"
 #include "RequestHandler.h"
+#include "Timer.h"
 #include "TraceLevelsF.h"
 #include "TransceiverF.h"
 

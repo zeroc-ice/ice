@@ -3,9 +3,9 @@
 #ifndef ICEGRID_REGISTRYI_H
 #define ICEGRID_REGISTRYI_H
 
+#include "../Ice/Timer.h"
 #include "../IceStorm/Service.h"
 #include "Glacier2/PermissionsVerifier.h"
-#include "Ice/Timer.h"
 #include "IceGrid/PluginFacade.h"
 #include "IceGrid/Registry.h"
 #include "Internal.h"

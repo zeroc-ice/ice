@@ -3,10 +3,10 @@
 #ifndef ICE_METRICS_ADMIN_I_H
 #define ICE_METRICS_ADMIN_I_H
 
-#include "Config.h"
+#include "Ice/Config.h"
+#include "Ice/Initialize.h"
 #include "Ice/Metrics.h"
-#include "Initialize.h"
-#include "Properties.h"
+#include "Ice/Properties.h"
 
 #include <cassert>
 #include <list>
@@ -15,10 +15,8 @@
 
 namespace IceMX
 {
-    /// @cond INTERNAL
     class Updater;
     template<typename T> class MetricsHelperT;
-    /// @endcond
 }
 
 namespace IceInternal
