@@ -257,6 +257,8 @@ compile(const vector<string>& argv)
                         break;
                     }
                 }
+
+                status |= p->getStatus();
                 p->destroy();
             }
         }

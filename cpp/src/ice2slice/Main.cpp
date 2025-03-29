@@ -222,6 +222,7 @@ compile(const vector<string>& argv)
                 }
             }
 
+            status |= p->getStatus();
             p->destroy();
         }
         ++i;
