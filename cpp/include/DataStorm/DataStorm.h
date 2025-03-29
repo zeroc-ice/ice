@@ -839,29 +839,27 @@ namespace DataStorm
         /// @param writer The writer.
         SingleKeyWriter& operator=(SingleKeyWriter&& writer) noexcept;
 
-        /// Add the data element. This generates an {@link Add} sample with the
-        /// given value.
+        /// Add the data element. This generates an SampleEvent::Add sample with the given value.
         ///
         /// @param value The data element value.
         void add(const Value& value);
 
-        /// Update the data element. This generates an {@link Update} sample with the
-        /// given value.
+        /// Update the data element. This generates an SampleEvent::Update sample with the given value.
         ///
         /// @param value The data element value.
         void update(const Value& value);
 
         /// Get a partial update generator function for the given partial update tag. When called, the returned
-        /// function generates a {@link PartialUpdate} sample with the given partial update value.
+        /// function generates a SampleEvent::PartialUpdate sample with the given partial update value.
         ///
         /// The UpdateValue template parameter must match the UpdateValue type used to register the updater with
-        /// the {@link Topic::setUpdater} method.
+        /// the Topic::setUpdater method.
         ///
         /// @param tag The partial update tag.
         template<typename UpdateValue>
         [[nodiscard]] std::function<void(const UpdateValue&)> partialUpdate(const UpdateTag& tag);
 
-        /// Remove the data element. This generates a {@link Remove} sample.
+        /// Remove the data element. This generates a SampleEvent::Remove sample.
         void remove() noexcept;
 
     private:
@@ -899,29 +897,29 @@ namespace DataStorm
         /// @param writer The writer.
         MultiKeyWriter& operator=(MultiKeyWriter&& writer) noexcept;
 
-        /// Add the data element. This generates an {@link Add} sample with the given value.
+        /// Add the data element. This generates a SampleEvent::Add sample with the given value.
         ///
         /// @param key The key
         /// @param value The data element value.
         void add(const Key& key, const Value& value);
 
-        /// Update the data element. This generates an {@link Update} sample with the given value.
+        /// Update the data element. This generates a SampleEvent::Update sample with the given value.
         ///
         /// @param key The key
         /// @param value The data element value.
         void update(const Key& key, const Value& value);
 
         /// Get a partial update generator function for the given partial update tag. When called, the returned
-        /// function generates a {@link PartialUpdate} sample with the given partial update value.
+        /// function generates a SampleEvent::PartialUpdate sample with the given partial update value.
         ///
         /// The UpdateValue template parameter must match the UpdateValue type used to register the updater with
-        /// the {@link Topic::setUpdater} method.
+        /// the Topic::setUpdater method.
         ///
         /// @param tag The partial update tag.
         template<typename UpdateValue>
         [[nodiscard]] std::function<void(const Key&, const UpdateValue&)> partialUpdate(const UpdateTag& tag);
 
-        /// Remove the data element. This generates a {@link Remove} sample.
+        /// Remove the data element. This generates a TopicEvent::Remove sample.
 
         /// @param key The key
         void remove(const Key& key) noexcept;
