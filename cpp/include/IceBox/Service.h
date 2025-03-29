@@ -26,20 +26,19 @@ namespace IceBox
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// An application service managed by a {@link ServiceManager}.
+    /// An application service managed by an IceBox service manager.
     /// @headerfile IceBox/IceBox.h
     class ICEBOX_API Service
     {
     public:
         virtual ~Service();
 
-        /// Start the service. The given communicator is created by the {@link ServiceManager} for use by the service.
-        /// This communicator may also be used by other services, depending on the service configuration. <p
-        /// class="Note">The {@link ServiceManager} owns this communicator, and is responsible for destroying it.
+        /// Start the service. The given communicator is created by the service manager for use by the service.
+        /// This communicator may also be used by other services, depending on the service configuration.
+        /// @remark The service manager owns this communicator, and is responsible for destroying it.
         /// @param name The service's name, as determined by the configuration.
         /// @param communicator A communicator for use by the service.
         /// @param args The service arguments that were not converted into properties.
-        /// @throws IceBox::FailureException Raised if {@link #start} failed.
         virtual void
         start(const std::string& name, const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& args) = 0;
 

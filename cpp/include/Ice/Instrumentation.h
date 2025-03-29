@@ -191,10 +191,10 @@ namespace Ice::Instrumentation
     };
 
     /// The observer updater interface. This interface is implemented by the Ice run-time and an instance of this
-    /// interface is provided by the Ice communicator on initialization to the {@link CommunicatorObserver} object set
-    /// with the communicator initialization data. The Ice communicator calls {@link
-    /// CommunicatorObserver#setObserverUpdater} to provide the observer updater. This interface can be used by add-ins
-    /// implementing the {@link CommunicatorObserver} interface to update the observers of connections and threads.
+    /// interface is provided by the Ice communicator on initialization to the CommunicatorObserver object set
+    /// with the communicator initialization data. The Ice communicator calls CommunicatorObserver::setObserverUpdater
+    /// to provide the observer updater. This interface can be used by add-ins implementing the CommunicatorObserver
+    /// interface to update the observers of connections and threads.
     /// @headerfile Ice/Ice.h
     class ObserverUpdater
     {
@@ -204,13 +204,13 @@ namespace Ice::Instrumentation
         /// Update connection observers associated with each of the Ice connection from the communicator and its object
         /// adapters.
         /// When called, this method goes through all the connections and for each connection
-        /// {@link CommunicatorObserver#getConnectionObserver} is called. The implementation of getConnectionObserver
+        /// CommunicatorObserver::getConnectionObserver is called. The implementation of getConnectionObserver
         /// has the possibility to return an updated observer if necessary.
         virtual void updateConnectionObservers() = 0;
 
         /// Update thread observers associated with each of the Ice thread from the communicator and its object
         /// adapters. When called, this method goes through all the threads and for each thread
-        /// {@link CommunicatorObserver#getThreadObserver} is called. The implementation of getThreadObserver has the
+        /// CommunicatorObserver::getThreadObserver is called. The implementation of getThreadObserver has the
         /// possibility to return an updated observer if necessary.
         virtual void updateThreadObservers() = 0;
     };
@@ -243,7 +243,7 @@ namespace Ice::Instrumentation
 
         /// This method should return a connection observer for the given connection. The Ice run-time calls this method
         /// for each new connection and for all the Ice communicator connections when
-        /// {@link ObserverUpdater#updateConnectionObservers} is called.
+        /// ObserverUpdater::updateConnectionObservers is called.
         /// @param c The connection information.
         /// @param e The connection endpoint.
         /// @param s The state of the connection.
@@ -256,8 +256,8 @@ namespace Ice::Instrumentation
             const ConnectionObserverPtr& o) = 0;
 
         /// This method should return a thread observer for the given thread. The Ice run-time calls this method for
-        /// each new thread and for all the Ice communicator threads when {@link ObserverUpdater#updateThreadObservers}
-        /// is called.
+        /// each new thread and for all the Ice communicator threads when ObserverUpdater::updateThreadObservers is
+        /// called.
         /// @param parent The parent of the thread.
         /// @param id The ID of the thread to observe.
         /// @param s The state of the thread.
