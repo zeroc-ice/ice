@@ -253,7 +253,8 @@ internal class SSLEngine
 
         if (_checkCRL == 1)
         {
-            authenticationOptions.CertificateChainPolicy.VerificationFlags |= X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown;
+            authenticationOptions.CertificateChainPolicy.VerificationFlags |=
+                X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown;
         }
         authenticationOptions.CertificateChainPolicy.RevocationMode =
             _checkCRL == 0 ? X509RevocationMode.NoCheck : X509RevocationMode.Online;
@@ -295,7 +296,8 @@ internal class SSLEngine
             _checkCRL == 0 ? X509RevocationMode.NoCheck : X509RevocationMode.Online;
         if (_checkCRL == 1)
         {
-            authenticationOptions.CertificateChainPolicy.VerificationFlags |= X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown;
+            authenticationOptions.CertificateChainPolicy.VerificationFlags |=
+                X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown;
         }
         return authenticationOptions;
     }

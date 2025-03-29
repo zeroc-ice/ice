@@ -190,8 +190,10 @@ public class Client : Test.TestHelper
         test(communicator.stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012").GetHashCode() == proxyMap["prx6"]);
         test(communicator.stringToProxy("Glacier2/router:tcp -p 10010 -t 10000").GetHashCode() == proxyMap["prx7"]);
         test(communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000").GetHashCode() == proxyMap["prx8"]);
-        test(communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000").GetHashCode() == proxyMap["prx9"]);
-        test(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000").GetHashCode() == proxyMap["prx10"]);
+        test(communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000").GetHashCode() ==
+            proxyMap["prx9"]);
+        test(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000").GetHashCode() ==
+            proxyMap["prx10"]);
 
         test(iComparer.GetHashCode(prx1) == iComparer.GetHashCode(prx1));
         test(ifComparer.GetHashCode(prx1) == ifComparer.GetHashCode(prx1));

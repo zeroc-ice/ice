@@ -742,7 +742,8 @@ public class AllTests : global::Test.AllTests
                 test(cl.ice_fixed(connection).ice_getContext().Count == 0);
                 test(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().Count == 2);
                 test(cl.ice_fixed(connection).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
-                test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(10));
+                test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() ==
+                    TimeSpan.FromMilliseconds(10));
                 test(cl.ice_fixed(connection).ice_getConnection() == connection);
                 test(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection);
                 test(cl.ice_compress(true).ice_fixed(connection).ice_getCompress().Value);
@@ -997,18 +998,21 @@ public class AllTests : global::Test.AllTests
         }
 
         // Legal TCP endpoint expressed as opaque endpoint
-        Ice.ObjectPrx p1 = communicator.stringToProxy("test -e 1.1:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+        Ice.ObjectPrx p1 =
+            communicator.stringToProxy("test -e 1.1:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
         string pstr = communicator.proxyToString(p1);
         test(pstr == "test:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
         // Opaque endpoint encoded with 1.1 encoding.
-        Ice.ObjectPrx p2 = communicator.stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+        Ice.ObjectPrx p2 =
+            communicator.stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
         test(communicator.proxyToString(p2) == "test:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
         if (communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") == 0)
         {
             // Two legal TCP endpoints expressed as opaque endpoints
-            p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
+            p1 = communicator.stringToProxy(
+                "test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
             pstr = communicator.proxyToString(p1);
             test(pstr == "test -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 

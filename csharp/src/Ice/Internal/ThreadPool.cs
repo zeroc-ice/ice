@@ -365,7 +365,10 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
     public bool serialize() => _serialize;
 
-    protected sealed override void QueueTask(System.Threading.Tasks.Task task) => execute(() => TryExecuteTask(task), null);
+    protected sealed override void QueueTask(
+        System.Threading.Tasks.Task task) => execute(
+            () => TryExecuteTask(task),
+            null);
 
     protected sealed override bool TryExecuteTaskInline(System.Threading.Tasks.Task task, bool taskWasPreviouslyQueued)
     {
@@ -379,7 +382,8 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
     protected sealed override bool TryDequeue(System.Threading.Tasks.Task task) => false;
 
-    protected sealed override IEnumerable<System.Threading.Tasks.Task> GetScheduledTasks() => Array.Empty<System.Threading.Tasks.Task>();
+    protected sealed override IEnumerable<System.Threading.Tasks.Task> GetScheduledTasks() =>
+        Array.Empty<System.Threading.Tasks.Task>();
 
     private void queueReadyForIOHandler(EventHandler handler, int operation)
     {

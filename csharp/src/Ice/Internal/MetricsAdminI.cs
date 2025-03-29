@@ -87,7 +87,10 @@ internal class SubMapFactory<S> : ISubMapFactory where S : IceMX.Metrics, new()
 {
     internal SubMapFactory(System.Reflection.FieldInfo field) => _field = field;
 
-    public ISubMapCloneFactory createCloneFactory(string subMapPrefix, Ice.Properties properties) => new SubMapCloneFactory<S>(new MetricsMap<S>(subMapPrefix, properties, null), _field);
+    public ISubMapCloneFactory createCloneFactory(
+        string subMapPrefix,
+        Ice.Properties properties) =>
+        new SubMapCloneFactory<S>(new MetricsMap<S>(subMapPrefix, properties, null), _field);
 
     private readonly System.Reflection.FieldInfo _field;
 }
@@ -666,7 +669,8 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_
             _updater();
         }
 
-        public IMetricsMap create(string mapPrefix, Ice.Properties properties) => new MetricsMap<T>(mapPrefix, properties, _subMaps);
+        public IMetricsMap create(string mapPrefix, Ice.Properties properties) =>
+            new MetricsMap<T>(mapPrefix, properties, _subMaps);
 
         public void registerSubMap<S>(string subMap, System.Reflection.FieldInfo field)
             where S : IceMX.Metrics, new() => _subMaps.Add(subMap, new SubMapFactory<S>(field));

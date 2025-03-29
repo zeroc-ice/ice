@@ -27,7 +27,8 @@ public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
 
     public override void print(string message, Ice.Current current) => _communicator.getLogger().print(message);
 
-    public override void trace(string category, string message, Ice.Current current) => _communicator.getLogger().trace(category, message);
+    public override void trace(string category, string message, Ice.Current current) =>
+        _communicator.getLogger().trace(category, message);
 
     public override void warning(string message, Ice.Current current) => _communicator.getLogger().warning(message);
 
@@ -58,7 +59,9 @@ public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
 
 public class RemoteCommunicatorFactoryI : Test.RemoteCommunicatorFactoryDisp_
 {
-    public override Test.RemoteCommunicatorPrx createCommunicator(Dictionary<string, string> props, Ice.Current current)
+    public override Test.RemoteCommunicatorPrx createCommunicator(
+        Dictionary<string, string> props,
+        Ice.Current current)
     {
         //
         // Prepare the property set using the given properties.

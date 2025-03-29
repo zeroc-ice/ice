@@ -233,7 +233,8 @@ internal sealed class TcpEndpointI : IPEndpointI
             {
                 if (argument != null)
                 {
-                    throw new ParseException($"unexpected argument '{argument}' provided for -z option in endpoint '{endpoint}'");
+                    throw new ParseException(
+                        $"unexpected argument '{argument}' provided for -z option in endpoint '{endpoint}'");
                 }
 
                 _compress = true;
@@ -248,9 +249,11 @@ internal sealed class TcpEndpointI : IPEndpointI
         }
     }
 
-    protected override Connector createConnector(EndPoint addr, NetworkProxy proxy) => new TcpConnector(instance_, addr, proxy, sourceAddr_, _timeout, connectionId_);
+    protected override Connector createConnector(EndPoint addr, NetworkProxy proxy) =>
+        new TcpConnector(instance_, addr, proxy, sourceAddr_, _timeout, connectionId_);
 
-    protected override IPEndpointI createEndpoint(string host, int port, string connectionId) => new TcpEndpointI(instance_, host, port, sourceAddr_, _timeout, connectionId, _compress);
+    protected override IPEndpointI createEndpoint(string host, int port, string connectionId) =>
+        new TcpEndpointI(instance_, host, port, sourceAddr_, _timeout, connectionId, _compress);
 
     private int _timeout;
     private bool _compress;

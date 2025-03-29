@@ -504,7 +504,8 @@ public class AllTests : global::Test.AllTests
                     var b1 = Test.TestIntfPrxHelper.uncheckedCast(
                         p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     var b2 = Test.TestIntfPrxHelper.uncheckedCast(
-                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
+                        p.ice_connectionId("2").ice_getConnection().createProxy(
+                            p.ice_getIdentity()).ice_batchOneway());
 
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
@@ -533,7 +534,8 @@ public class AllTests : global::Test.AllTests
                     var b1 = Test.TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
                                                                          p.ice_getIdentity()).ice_batchOneway());
                     var b2 = Test.TestIntfPrxHelper.uncheckedCast(
-                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
+                        p.ice_connectionId("2").ice_getConnection().createProxy(
+                            p.ice_getIdentity()).ice_batchOneway());
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
@@ -558,7 +560,8 @@ public class AllTests : global::Test.AllTests
                     var b1 = Test.TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
                                                                          p.ice_getIdentity()).ice_batchOneway());
                     var b2 = Test.TestIntfPrxHelper.uncheckedCast(
-                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
+                        p.ice_connectionId("2").ice_getConnection().createProxy(
+                            p.ice_getIdentity()).ice_batchOneway());
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();

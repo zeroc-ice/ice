@@ -18,7 +18,8 @@ namespace Ice.proxy
                 return Task.CompletedTask;
             }
 
-            public override Task<Dictionary<string, string>> getContextAsync(Ice.Current current) => Task.FromResult(_ctx);
+            public override Task<Dictionary<string, string>> getContextAsync(Ice.Current current) =>
+                Task.FromResult(_ctx);
 
             public bool ice_isA(string s, Ice.Current current)
             {

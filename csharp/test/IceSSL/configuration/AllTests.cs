@@ -11,7 +11,8 @@ using Test;
 
 public class AllTests : global::Test.AllTests
 {
-    private static X509Certificate2 createCertificate(string certPEM) => new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
+    private static X509Certificate2 createCertificate(string certPEM) =>
+        new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
 
     private static Ice.InitializationData
     createClientProps(Ice.Properties defaultProperties)
@@ -123,7 +124,8 @@ public class AllTests : global::Test.AllTests
             catch (CryptographicException)
             {
                 store.Open(OpenFlags.ReadOnly);
-                Console.Out.WriteLine("warning: some test requires administrator privileges, run as Administrator to run all the tests.");
+                Console.Out.WriteLine(
+                    "warning: some test requires administrator privileges, run as Administrator to run all the tests.");
             }
         }
 
@@ -745,7 +747,8 @@ public class AllTests : global::Test.AllTests
                     initData = createClientProps(defaultProperties, "c_rsa_ca1", "");
                     initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
                     Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-                    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    Test.ServerFactoryPrx fact =
+                        Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
                     d = createServerProps(defaultProperties, "s_rsa_ca2", "");
                     d["IceSSL.VerifyPeer"] = "2";
@@ -1563,7 +1566,8 @@ public class AllTests : global::Test.AllTests
                         initData.properties.setProperty("IceSSL.TrustOnly", "CN=Server");
                         Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
-                        Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        Test.ServerFactoryPrx fact =
+                            Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                         d = createServerProps(defaultProperties, "", "cacert1");
 
                         d["IceSSL.FindCert"] = serverFindCertProperties[i];

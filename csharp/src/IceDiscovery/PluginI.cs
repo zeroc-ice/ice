@@ -6,7 +6,8 @@ namespace IceDiscovery;
 
 public static class Util
 {
-    public static void registerIceDiscovery(bool loadOnInitialize) => Ice.Util.registerPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
+    public static void registerIceDiscovery(bool loadOnInitialize) =>
+        Ice.Util.registerPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
 }
 
 public sealed class PluginFactory : Ice.PluginFactory

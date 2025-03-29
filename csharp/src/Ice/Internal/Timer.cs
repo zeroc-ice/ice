@@ -116,7 +116,8 @@ public sealed class Timer
     //
     // Only for use by Instance.
     //
-    internal Timer(Instance instance, ThreadPriority priority = ThreadPriority.Normal) => init(instance, priority, true);
+    internal Timer(Instance instance, ThreadPriority priority = ThreadPriority.Normal) =>
+        init(instance, priority, true);
 
     internal void init(Instance instance, ThreadPriority priority, bool hasPriority)
     {

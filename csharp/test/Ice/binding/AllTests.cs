@@ -53,7 +53,8 @@ public class AllTests : global::Test.AllTests
     {
         Ice.Communicator communicator = helper.communicator();
         string @ref = "communicator:" + helper.getTestEndpoint(0);
-        Test.RemoteCommunicatorPrx com = Test.RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
+        Test.RemoteCommunicatorPrx com =
+            Test.RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
 
         var rand = new Random(unchecked((int)DateTime.Now.Ticks));
         var output = helper.getWriter();

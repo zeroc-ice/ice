@@ -76,7 +76,13 @@ internal sealed class LoggerMiddleware : Object
         }
     }
 
-    internal LoggerMiddleware(Object next, Logger logger, int traceLevel, string traceCat, int warningLevel, ToStringMode toStringMode)
+    internal LoggerMiddleware(
+        Object next,
+        Logger logger,
+        int traceLevel,
+        string traceCat,
+        int warningLevel,
+        ToStringMode toStringMode)
     {
         _next = next;
         _logger = logger;

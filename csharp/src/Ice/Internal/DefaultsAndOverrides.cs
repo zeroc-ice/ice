@@ -77,7 +77,8 @@ public sealed class DefaultsAndOverrides
         }
         else
         {
-            throw new ParseException($"illegal value '{val}' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
+            throw new ParseException(
+                $"illegal value '{val}' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
         }
 
         {

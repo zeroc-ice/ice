@@ -848,5 +848,6 @@ public class ByteBuffer
         }
     }
 
-    private static void throwOutOfRange(string param, object value, string message) => throw new ArgumentOutOfRangeException(param, value, message);
+    private static void throwOutOfRange(string param, object value, string message) =>
+        throw new ArgumentOutOfRangeException(param, value, message);
 }

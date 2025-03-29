@@ -253,7 +253,12 @@ public sealed class Options
                                     const string octalDigits = "01234567";
                                     short s = 0;
                                     int j;
-                                    for (j = i; j < i + 3 && j < l.Length && octalDigits.Contains(c = l[j], StringComparison.Ordinal); ++j)
+                                    for (
+                                        j = i;
+                                        j < i + 3 &&
+                                            j < l.Length &&
+                                            octalDigits.Contains(c = l[j], StringComparison.Ordinal);
+                                        ++j)
                                     {
                                         s = (short)((s * 8) + c - '0');
                                     }
@@ -277,8 +282,11 @@ public sealed class Options
 
                                     short s = 0;
                                     int j;
-                                    for (j = i + 1;
-                                        j < i + 3 && j < l.Length && hexDigits.Contains(c = l[j], StringComparison.Ordinal);
+                                    for (
+                                        j = i + 1;
+                                        j < i + 3 &&
+                                            j < l.Length &&
+                                            hexDigits.Contains(c = l[j], StringComparison.Ordinal);
                                         ++j)
                                     {
                                         s *= 16;
@@ -306,7 +314,9 @@ public sealed class Options
                                 case 'c':
                                 {
                                     c = l[++i];
-                                    if ((char.ToUpper(c, CultureInfo.InvariantCulture) >= 'A' && char.ToUpper(c, CultureInfo.InvariantCulture) <= 'Z') ||
+                                    if (
+                                        (char.ToUpper(c, CultureInfo.InvariantCulture) >= 'A' &&
+                                        char.ToUpper(c, CultureInfo.InvariantCulture) <= 'Z') ||
                                        c == '@' ||
                                        (c >= '[' && c <= '_'))
                                     {

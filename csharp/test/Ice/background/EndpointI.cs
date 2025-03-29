@@ -123,7 +123,8 @@ internal class EndpointI : Ice.Internal.EndpointI
 
     public override Ice.Internal.Acceptor acceptor(
         string adapterName,
-        SslServerAuthenticationOptions serverAuthenticationOptions) => new Acceptor(this, _endpoint.acceptor(adapterName, serverAuthenticationOptions));
+        SslServerAuthenticationOptions serverAuthenticationOptions) =>
+            new Acceptor(this, _endpoint.acceptor(adapterName, serverAuthenticationOptions));
 
     public EndpointI endpoint(Ice.Internal.EndpointI delEndp)
     {

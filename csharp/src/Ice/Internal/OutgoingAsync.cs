@@ -916,7 +916,8 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                     {
                         if (facetPath.Length > 1)
                         {
-                            throw new MarshalException($"Received invalid facet path with {facetPath.Length} elements.");
+                            throw new MarshalException(
+                                $"Received invalid facet path with {facetPath.Length} elements.");
                         }
                         facet = facetPath[0];
                     }
@@ -1554,7 +1555,8 @@ public class OperationTaskCompletionCallback<T> : TaskCompletionCallback<T>
     {
     }
 
-    public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og) => SetResult(((OutgoingAsyncT<T>)og).getResult(ok));
+    public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og) =>
+        SetResult(((OutgoingAsyncT<T>)og).getResult(ok));
 }
 
 public class FlushBatchTaskCompletionCallback : TaskCompletionCallback<object>

@@ -23,7 +23,10 @@ public class Server : TestHelper
         }
 
         public override Dictionary<string, Test.MyStruct>
-        opMyStructMap(Dictionary<string, Test.MyStruct> s1, out Dictionary<string, Test.MyStruct> s2, Ice.Current current)
+        opMyStructMap(
+            Dictionary<string, Test.MyStruct> s1,
+            out Dictionary<string, Test.MyStruct> s2,
+            Ice.Current current)
         {
             s2 = s1;
             return s1;
@@ -80,8 +83,10 @@ public class Server : TestHelper
         }
 
         public override Dictionary<string, Test.Inner.Inner2.MyStruct>
-        opMyStructMap(Dictionary<string, Test.Inner.Inner2.MyStruct> s1, out Dictionary<string, Test.Inner.Inner2.MyStruct> s2,
-               Ice.Current current)
+        opMyStructMap(
+            Dictionary<string, Test.Inner.Inner2.MyStruct> s1,
+            out Dictionary<string, Test.Inner.Inner2.MyStruct> s2,
+            Ice.Current current)
         {
             s2 = s1;
             return s1;
@@ -102,8 +107,10 @@ public class Server : TestHelper
         }
 
         public override Dictionary<string, Test.Inner.Inner2.MyClass>
-        opMyClassMap(Dictionary<string, Test.Inner.Inner2.MyClass> c1, out Dictionary<string, Test.Inner.Inner2.MyClass> c2,
-               Ice.Current current)
+        opMyClassMap(
+            Dictionary<string, Test.Inner.Inner2.MyClass> c1,
+            out Dictionary<string, Test.Inner.Inner2.MyClass> c2,
+            Ice.Current current)
         {
             c2 = c1;
             return c1;
@@ -130,8 +137,9 @@ public class Server : TestHelper
         }
 
         public override Dictionary<string, Test.Inner.Inner2.MyStruct>
-        opMyStructMap(Dictionary<string, Test.Inner.Inner2.MyStruct> s1, out Dictionary<string, Test.Inner.Inner2.MyStruct> s2,
-               Ice.Current current)
+        opMyStructMap(Dictionary<string, Test.Inner.Inner2.MyStruct> s1,
+        out Dictionary<string, Test.Inner.Inner2.MyStruct> s2,
+            Ice.Current current)
         {
             s2 = s1;
             return s1;
@@ -152,8 +160,9 @@ public class Server : TestHelper
         }
 
         public override Dictionary<string, Test.Inner.Inner2.MyClass>
-        opMyClassMap(Dictionary<string, Test.Inner.Inner2.MyClass> c1, out Dictionary<string, Test.Inner.Inner2.MyClass> c2,
-               Ice.Current current)
+        opMyClassMap(Dictionary<string, Test.Inner.Inner2.MyClass> c1,
+        out Dictionary<string, Test.Inner.Inner2.MyClass> c2,
+            Ice.Current current)
         {
             c2 = c1;
             return c1;

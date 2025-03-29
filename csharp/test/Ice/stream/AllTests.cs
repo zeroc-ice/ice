@@ -497,7 +497,8 @@ public class AllTests : global::Test.AllTests
             largeStructArray[i].d = 6.0;
             largeStructArray[i].str = "7";
             largeStructArray[i].e = Test.MyEnum.enum2;
-            largeStructArray[i].p = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
+            largeStructArray[i].p =
+                Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
         }
 
         var myClassArray = new Test.MyClass[4];

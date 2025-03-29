@@ -457,7 +457,19 @@ public class FixedReference : Reference
         Ice.ConnectionI connection,
         TimeSpan invocationTimeout,
         Dictionary<string, string> context)
-    : base(instance, communicator, identity, facet, mode, secure, compress, protocol, encoding, invocationTimeout, context) => _fixedConnection = connection;
+    : base(
+        instance,
+        communicator,
+        identity,
+        facet,
+        mode,
+        secure,
+        compress,
+        protocol,
+        encoding,
+        invocationTimeout,
+        context) =>
+        _fixedConnection = connection;
 
     public override EndpointI[] getEndpoints() => _emptyEndpoints;
 
@@ -491,13 +503,15 @@ public class FixedReference : Reference
 
     public override Reference changeRouter(Ice.RouterPrx newRouter) => throw new Ice.FixedProxyException();
 
-    public override Reference changeCollocationOptimized(bool newCollocationOptimized) => throw new Ice.FixedProxyException();
+    public override Reference changeCollocationOptimized(bool newCollocationOptimized) =>
+        throw new Ice.FixedProxyException();
 
     public override Reference changeCacheConnection(bool newCache) => throw new Ice.FixedProxyException();
 
     public override Reference changePreferSecure(bool newPreferSecure) => throw new Ice.FixedProxyException();
 
-    public override Reference changeEndpointSelection(Ice.EndpointSelectionType newType) => throw new Ice.FixedProxyException();
+    public override Reference changeEndpointSelection(Ice.EndpointSelectionType newType) =>
+        throw new Ice.FixedProxyException();
 
     public override Reference changeLocatorCacheTimeout(TimeSpan newTimeout) => throw new Ice.FixedProxyException();
 
@@ -1000,7 +1014,8 @@ public class RoutableReference : Reference
             _cached = cached;
         }
 
-        public void setConnection(Ice.ConnectionI connection, bool compress) => _cb.setConnection(connection, compress);
+        public void setConnection(Ice.ConnectionI connection, bool compress) =>
+            _cb.setConnection(connection, compress);
 
         public void setException(Ice.LocalException exc)
         {

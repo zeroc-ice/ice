@@ -243,7 +243,8 @@ public class AllTests : global::Test.AllTests
         _ = Test.TestIntfPrxHelper.checkedCast(@base);
         try
         {
-            Test.TestIntfPrxHelper.checkedCast(communicator.stringToProxy("category/unknown:" + helper.getTestEndpoint(0)));
+            Test.TestIntfPrxHelper.checkedCast(
+                communicator.stringToProxy("category/unknown:" + helper.getTestEndpoint(0)));
         }
         catch (Ice.ObjectNotExistException)
         {
@@ -258,7 +259,8 @@ public class AllTests : global::Test.AllTests
         _ = Test.TestIntfPrxHelper.checkedCast(@base);
         try
         {
-            Test.TestIntfPrxHelper.checkedCast(communicator.stringToProxy("anothercat/unknown:" + helper.getTestEndpoint(0)));
+            Test.TestIntfPrxHelper.checkedCast(
+                communicator.stringToProxy("anothercat/unknown:" + helper.getTestEndpoint(0)));
         }
         catch (Ice.ObjectNotExistException)
         {

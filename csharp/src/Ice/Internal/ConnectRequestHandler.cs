@@ -200,7 +200,9 @@ internal class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCa
         {
             try
             {
-                if ((outAsync.invokeRemote(_connection, _compress, _response) & OutgoingAsyncBase.AsyncStatusInvokeSentCallback) != 0)
+                if (
+                    (outAsync.invokeRemote(_connection, _compress, _response) &
+                    OutgoingAsyncBase.AsyncStatusInvokeSentCallback) != 0)
                 {
                     outAsync.invokeSentAsync();
                 }

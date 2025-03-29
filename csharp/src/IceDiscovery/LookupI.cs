@@ -371,7 +371,9 @@ internal class LookupI : LookupDisp_
     {
         lock (_mutex)
         {
-            if (_adapterRequests.TryGetValue(adapterId, out AdapterRequest request) && request.getRequestId() == requestId)
+            if (
+                _adapterRequests.TryGetValue(adapterId, out AdapterRequest request) &&
+                request.getRequestId() == requestId)
             {
                 if (request.response(proxy, isReplicaGroup))
                 {
@@ -522,9 +524,11 @@ internal class LookupReplyI : LookupReplyDisp_
 {
     public LookupReplyI(LookupI lookup) => _lookup = lookup;
 
-    public override void foundObjectById(Ice.Identity id, Ice.ObjectPrx proxy, Ice.Current c) => _lookup.foundObject(id, c.id.name, proxy);
+    public override void foundObjectById(Ice.Identity id, Ice.ObjectPrx proxy, Ice.Current c) =>
+        _lookup.foundObject(id, c.id.name, proxy);
 
-    public override void foundAdapterById(string adapterId, Ice.ObjectPrx proxy, bool isReplicaGroup, Ice.Current c) => _lookup.foundAdapter(adapterId, c.id.name, proxy, isReplicaGroup);
+    public override void foundAdapterById(string adapterId, Ice.ObjectPrx proxy, bool isReplicaGroup, Ice.Current c) =>
+        _lookup.foundAdapter(adapterId, c.id.name, proxy, isReplicaGroup);
 
     private readonly LookupI _lookup;
 }

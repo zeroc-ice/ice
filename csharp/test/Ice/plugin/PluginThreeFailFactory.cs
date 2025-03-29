@@ -2,7 +2,8 @@
 
 public class PluginThreeFailFactory : Ice.PluginFactory
 {
-    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args) => new PluginThreeFail(communicator);
+    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args) =>
+        new PluginThreeFail(communicator);
 
     internal class PluginThreeFail : BasePluginFail
     {

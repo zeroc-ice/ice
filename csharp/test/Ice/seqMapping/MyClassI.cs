@@ -338,7 +338,10 @@ public sealed class MyClassI : Test.MyClassDisp_
         return i;
     }
 
-    public override LinkedList<Test.SD> opKStructSD(LinkedList<Test.SD> i, out LinkedList<Test.SD> o, Ice.Current current)
+    public override LinkedList<Test.SD> opKStructSD(
+        LinkedList<Test.SD> i,
+        out LinkedList<Test.SD> o,
+        Ice.Current current)
     {
         o = i;
         return i;
@@ -422,7 +425,10 @@ public sealed class MyClassI : Test.MyClassDisp_
         return i;
     }
 
-    public override LinkedList<Test.IPrx> opKIPrxS(LinkedList<Test.IPrx> i, out LinkedList<Test.IPrx> o, Ice.Current current)
+    public override LinkedList<Test.IPrx> opKIPrxS(
+        LinkedList<Test.IPrx> i,
+        out LinkedList<Test.IPrx> o,
+        Ice.Current current)
     {
         o = i;
         return i;

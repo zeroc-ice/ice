@@ -2,7 +2,8 @@
 
 public class PluginOneFailFactory : Ice.PluginFactory
 {
-    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args) => new PluginOneFail(communicator);
+    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args) =>
+        new PluginOneFail(communicator);
 
     internal class PluginOneFail : BasePluginFail
     {

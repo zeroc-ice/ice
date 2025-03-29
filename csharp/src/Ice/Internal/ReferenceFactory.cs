@@ -218,7 +218,8 @@ internal class ReferenceFactory
                     end = Ice.UtilInternal.StringUtil.checkQuote(s, beg);
                     if (end == -1)
                     {
-                        throw new ParseException($"mismatched quotes around value for {option} option in proxy string '{s}'");
+                        throw new ParseException(
+                            $"mismatched quotes around value for {option} option in proxy string '{s}'");
                     }
                     else if (end == 0)
                     {
@@ -266,7 +267,8 @@ internal class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        throw new ParseException($"unexpected argument '{argument}' provided for -t option in proxy string '{s}'");
+                        throw new ParseException(
+                            $"unexpected argument '{argument}' provided for -t option in proxy string '{s}'");
                     }
                     mode = Reference.Mode.ModeTwoway;
                     break;
@@ -276,7 +278,8 @@ internal class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        throw new ParseException($"unexpected argument '{argument}' provided for -o option in proxy string '{s}'");
+                        throw new ParseException(
+                            $"unexpected argument '{argument}' provided for -o option in proxy string '{s}'");
                     }
                     mode = Reference.Mode.ModeOneway;
                     break;
@@ -286,7 +289,8 @@ internal class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        throw new ParseException($"unexpected argument '{argument}' provided for -O option in proxy string '{s}'");
+                        throw new ParseException(
+                            $"unexpected argument '{argument}' provided for -O option in proxy string '{s}'");
                     }
                     mode = Reference.Mode.ModeBatchOneway;
                     break;
@@ -296,7 +300,8 @@ internal class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        throw new ParseException($"unexpected argument '{argument}' provided for -d option in proxy string '{s}'");
+                        throw new ParseException(
+                            $"unexpected argument '{argument}' provided for -d option in proxy string '{s}'");
                     }
                     mode = Reference.Mode.ModeDatagram;
                     break;
@@ -306,7 +311,8 @@ internal class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        throw new ParseException($"unexpected argument '{argument}' provided for -D option in proxy string '{s}'");
+                        throw new ParseException(
+                            $"unexpected argument '{argument}' provided for -D option in proxy string '{s}'");
                     }
                     mode = Reference.Mode.ModeBatchDatagram;
                     break;
@@ -316,7 +322,8 @@ internal class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        throw new ParseException($"unexpected argument '{argument}' provided for -s option in proxy string '{s}'");
+                        throw new ParseException(
+                            $"unexpected argument '{argument}' provided for -s option in proxy string '{s}'");
                     }
                     secure = true;
                     break;
@@ -725,7 +732,8 @@ internal class ReferenceFactory
                 }
                 else
                 {
-                    throw new ParseException($"illegal value '{type}' in property '{property}'; expected 'Random' or 'Ordered'");
+                    throw new ParseException(
+                        $"illegal value '{type}' in property '{property}'; expected 'Random' or 'Ordered'");
                 }
             }
 

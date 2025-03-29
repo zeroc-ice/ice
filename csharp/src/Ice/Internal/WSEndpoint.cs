@@ -134,7 +134,8 @@ internal sealed class WSEndpoint : EndpointI
         _delegate.connectors_async(new EndpointI_connectorsI(_instance, host, _resource, callback));
     }
 
-    public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions) => new WSAcceptor(this, _instance, _delegate.acceptor(adapterName, serverAuthenticationOptions));
+    public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions) =>
+        new WSAcceptor(this, _instance, _delegate.acceptor(adapterName, serverAuthenticationOptions));
 
     public WSEndpoint endpoint(EndpointI delEndp)
     {
@@ -225,7 +226,8 @@ internal sealed class WSEndpoint : EndpointI
         {
             case 'r':
             {
-                _resource = argument ?? throw new ParseException($"no argument provided for -r option in endpoint '{endpoint}{_delegate.options()}'");
+                _resource = argument ?? throw new ParseException(
+                    $"no argument provided for -r option in endpoint '{endpoint}{_delegate.options()}'");
                 return true;
             }
 
@@ -248,9 +250,12 @@ public class WSEndpointFactory : EndpointFactoryWithUnderlying
     {
     }
 
-    public override EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying) => new WSEndpointFactory(instance, underlying);
+    public override EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying) =>
+        new WSEndpointFactory(instance, underlying);
 
-    protected override EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint) => new WSEndpoint(instance_, underlying, args);
+    protected override EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint) =>
+        new WSEndpoint(instance_, underlying, args);
 
-    protected override EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s) => new WSEndpoint(instance_, underlying, s);
+    protected override EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s) =>
+        new WSEndpoint(instance_, underlying, s);
 }

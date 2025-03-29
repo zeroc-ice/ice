@@ -5,7 +5,8 @@ namespace IceDiscovery;
 internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
 {
     public
-    LocatorRegistryI(Ice.Communicator com) => _wellKnownProxy = com.stringToProxy("p").ice_locator(null).ice_router(null).ice_collocationOptimized(true);
+    LocatorRegistryI(Ice.Communicator com) =>
+        _wellKnownProxy = com.stringToProxy("p").ice_locator(null).ice_router(null).ice_collocationOptimized(true);
 
     public override Task
     setAdapterDirectProxyAsync(string adapterId, Ice.ObjectPrx proxy, Ice.Current current)

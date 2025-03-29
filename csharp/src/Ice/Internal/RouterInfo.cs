@@ -135,7 +135,8 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
         {
             try
             {
-                ObjectPrx[] evictedProxies = await router.addProxiesAsync([new ObjectPrxHelper(reference)]).ConfigureAwait(false);
+                ObjectPrx[] evictedProxies =
+                    await router.addProxiesAsync([new ObjectPrxHelper(reference)]).ConfigureAwait(false);
                 addAndEvictProxies(identity, evictedProxies);
                 callback.addedProxy();
             }

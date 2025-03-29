@@ -157,7 +157,9 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
                 }
 
                 // Copy callbacks to allow callbacks to update callbacks
-                foreach (Action<Dictionary<string, string>> callback in new List<System.Action<Dictionary<string, string>>>(_updateCallbacks))
+                foreach (
+                    Action<Dictionary<string, string>> callback in
+                    new List<System.Action<Dictionary<string, string>>>(_updateCallbacks))
                 {
                     // The callback should not throw any exception.
                     callback(changes);

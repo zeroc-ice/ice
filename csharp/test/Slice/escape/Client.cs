@@ -102,7 +102,8 @@ public class Client : Test.TestHelper
         Console.Out.Write("testing System as module name... ");
         Console.Out.Flush();
         escaped_abstract.System.TestPrx t1 =
-            escaped_abstract.System.TestPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test1")));
+            escaped_abstract.System.TestPrxHelper.uncheckedCast(
+                adapter.createProxy(Ice.Util.stringToIdentity("test1")));
         t1.op();
 
         System.TestPrx t2 =

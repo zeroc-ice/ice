@@ -2,7 +2,8 @@
 
 public class PluginFactory : Ice.PluginFactory
 {
-    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args) => new Plugin(communicator, args);
+    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args) =>
+        new Plugin(communicator, args);
 
     internal class Plugin : Ice.Plugin
     {

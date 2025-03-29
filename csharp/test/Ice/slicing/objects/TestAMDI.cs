@@ -15,19 +15,24 @@ public sealed class TestI : TestIntfDisp_
     public override Task<Ice.Value>
     SBaseAsObjectAsync(Ice.Current current) => Task.FromResult<Ice.Value>(new SBase("SBase.sb"));
 
-    public override Task<SBase> SBaseAsSBaseAsync(Ice.Current current) => Task.FromResult<SBase>(new SBase("SBase.sb"));
+    public override Task<SBase> SBaseAsSBaseAsync(Ice.Current current) =>
+        Task.FromResult<SBase>(new SBase("SBase.sb"));
 
     public override Task<SBase>
-    SBSKnownDerivedAsSBaseAsync(Ice.Current current) => Task.FromResult<SBase>(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
+    SBSKnownDerivedAsSBaseAsync(Ice.Current current) =>
+        Task.FromResult<SBase>(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
 
     public override Task<SBSKnownDerived>
-    SBSKnownDerivedAsSBSKnownDerivedAsync(Ice.Current current) => Task.FromResult<SBSKnownDerived>(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
+    SBSKnownDerivedAsSBSKnownDerivedAsync(Ice.Current current) =>
+        Task.FromResult<SBSKnownDerived>(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
 
     public override Task<SBase>
-    SBSUnknownDerivedAsSBaseAsync(Ice.Current current) => Task.FromResult<SBase>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
+    SBSUnknownDerivedAsSBaseAsync(Ice.Current current) =>
+        Task.FromResult<SBase>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
 
     public override Task<SBase>
-    SBSUnknownDerivedAsSBaseCompactAsync(Ice.Current current) => Task.FromResult<SBase>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
+    SBSUnknownDerivedAsSBaseCompactAsync(Ice.Current current) =>
+        Task.FromResult<SBase>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
 
     public override Task<Ice.Value> SUnknownAsObjectAsync(Ice.Current current)
     {
