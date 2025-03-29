@@ -839,12 +839,12 @@ namespace DataStorm
         /// @param writer The writer.
         SingleKeyWriter& operator=(SingleKeyWriter&& writer) noexcept;
 
-        /// Add the data element. This generates an SampleEvent::Add sample with the given value.
+        /// Add the data element. This generates a SampleEvent::Add sample with the given value.
         ///
         /// @param value The data element value.
         void add(const Value& value);
 
-        /// Update the data element. This generates an SampleEvent::Update sample with the given value.
+        /// Update the data element. This generates a SampleEvent::Update sample with the given value.
         ///
         /// @param value The data element value.
         void update(const Value& value);
