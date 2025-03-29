@@ -3385,18 +3385,12 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
         H << sp;
     }
 
-    H << nl << "/// @private"; // No need to pollute the doc with all these specializations.
-    H << nl << "/// Specialization of StreamableTraits for " << p->mappedScoped() << ".";
+    H << nl << "/// @private";
     H << nl << "template<>";
     H << nl << "struct StreamableTraits<" << p->mappedScoped() << ">";
     H << sb;
-    H << nl << "/// @copydoc StreamableTraits::helper";
     H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryStruct;";
-    H << sp;
-    H << nl << "/// The minimum number of bytes needed to marshal this type.";
     H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
-    H << sp;
-    H << nl << "/// Indicates if the type is always encoded on a fixed number of bytes.";
     H << nl << "static const bool fixedLength = " << (p->isVariableLength() ? "false" : "true") << ";";
     H << eb << ";" << nl;
 
@@ -3416,24 +3410,14 @@ Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
         H << sp;
     }
 
-    H << nl << "/// @private"; // No need to pollute the doc with all these specializations.
-    H << nl << "/// Specialization of StreamableTraits for " << p->mappedScoped() << ".";
+    H << nl << "/// @private";
     H << nl << "template<>";
     H << nl << "struct StreamableTraits<" << p->mappedScoped() << ">";
     H << sb;
-    H << nl << "/// @copydoc StreamableTraits::helper";
     H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryEnum;";
-    H << sp;
-    H << nl << "/// The minimum value of this enum.";
     H << nl << "static const int minValue = " << p->minValue() << ";";
-    H << sp;
-    H << nl << "/// The maximum value of this enum.";
     H << nl << "static const int maxValue = " << p->maxValue() << ";";
-    H << sp;
-    H << nl << "/// The minimum number of bytes needed to marshal this type.";
     H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
-    H << sp;
-    H << nl << "/// Indicates if the type is always encoded on a fixed number of bytes.";
     H << nl << "static const bool fixedLength = false;";
     H << eb << ";";
 }
