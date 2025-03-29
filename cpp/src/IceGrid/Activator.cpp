@@ -1120,7 +1120,7 @@ Activator::destroy()
         //
         try
         {
-            proc.server->stopAsync(nullptr, nullptr, Ice::emptyCurrent);
+            proc.server->stopAsync(nullptr, nullptr);
         }
         catch (const ServerStopException&)
         {

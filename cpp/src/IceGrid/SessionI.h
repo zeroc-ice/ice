@@ -69,6 +69,8 @@ namespace IceGrid
             const Ice::Current& current) final;
         void releaseObject(Ice::Identity, const Ice::Current&) final;
         void setAllocationTimeout(int, const Ice::Current&) final;
+
+        void destroy();
         void destroy(const Ice::Current&) final;
 
         [[nodiscard]] int getAllocationTimeout() const;

@@ -67,8 +67,8 @@ ServerAdapterI::activateAsync(
         {
             return;
         }
-        _activateAfterDeactivating = _server->getState(Ice::emptyCurrent) >= ServerState::Deactivating &&
-                                     _server->getState(Ice::emptyCurrent) < ServerState::Destroying;
+        _activateAfterDeactivating =
+            _server->getState() >= ServerState::Deactivating && _server->getState() < ServerState::Destroying;
     }
 
     //
@@ -121,7 +121,7 @@ ServerAdapterI::getDirectProxy(const Ice::Current&) const
 }
 
 void
-ServerAdapterI::setDirectProxy(optional<Ice::ObjectPrx> proxy, const Ice::Current&)
+ServerAdapterI::setDirectProxy(optional<Ice::ObjectPrx> proxy)
 {
     lock_guard lock(_mutex);
 
@@ -133,7 +133,7 @@ ServerAdapterI::setDirectProxy(optional<Ice::ObjectPrx> proxy, const Ice::Curren
     {
         if (proxy && _proxy)
         {
-            if (_server->getState(Ice::emptyCurrent) == ServerState::Active)
+            if (_server->getState() == ServerState::Active)
             {
                 throw AdapterActiveException();
             }
@@ -149,8 +149,8 @@ ServerAdapterI::setDirectProxy(optional<Ice::ObjectPrx> proxy, const Ice::Curren
     // now. The server is going to be activated again and the adapter
     // activated.
     //
-    if (_server->getState(Ice::emptyCurrent) < ServerState::Deactivating ||
-        _server->getState(Ice::emptyCurrent) >= ServerState::Destroying || !_activateAfterDeactivating)
+    if (_server->getState() < ServerState::Deactivating || _server->getState() >= ServerState::Destroying ||
+        !_activateAfterDeactivating)
     {
         for (const auto& response : _activateCB)
         {
@@ -185,6 +185,12 @@ ServerAdapterI::setDirectProxy(optional<Ice::ObjectPrx> proxy, const Ice::Curren
 }
 
 void
+ServerAdapterI::setDirectProxy(optional<Ice::ObjectPrx> proxy, const Ice::Current&)
+{
+    setDirectProxy(std::move(proxy));
+}
+
+void
 ServerAdapterI::destroy()
 {
     activationFailed("adapter destroyed");
@@ -202,7 +208,7 @@ void
 ServerAdapterI::updateEnabled()
 {
     lock_guard lock(_mutex);
-    _enabled = _server->isEnabled(Ice::emptyCurrent);
+    _enabled = _server->isEnabled();
 }
 
 void
