@@ -42,7 +42,7 @@ namespace Ice
     using HeaderDict = std::map<std::string, std::string>;
 
     /// The callback function given to Connection::setCloseCallback.
-    /// @param con The connection that was closed.
+    /// @param con The connection that was closed. It's never a nullptr.
     using CloseCallback = std::function<void(const ConnectionPtr& con)>;
 
     /// Represents a connection that uses the Ice protocol.
@@ -142,7 +142,7 @@ namespace Ice
         /// @return The connection information.
         [[nodiscard]] virtual ConnectionInfoPtr getInfo() const = 0;
 
-        /// Sets the size of the connection received and send buffers.
+        /// Sets the size of the receive and send buffers.
         /// @param rcvSize The size of the receive buffer.
         /// @param sndSize The size of the send buffer.
         virtual void setBufferSize(int rcvSize, int sndSize) = 0;

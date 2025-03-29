@@ -28,8 +28,8 @@ namespace Ice
         // send the message to C APIs that require null-terminated strings.
         // The message itself is also often constructed from a string produced by an ostringstream.
 
-        /// Prints a message. The message is printed literally, without any decorations such as executable name or time
-        /// stamp.
+        /// Prints a message. The message is printed literally, without any decorations such as executable name or
+        /// timestamp.
         /// @param message The message to log.
         virtual void print(const std::string& message) = 0;
 
