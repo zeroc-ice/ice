@@ -20,7 +20,8 @@
 
 namespace Ice
 {
-    /// The user-level interface to an endpoint.
+    /// An endpoint specifies the address of the server-end of an Ice connection: an object adapter listens on one or
+    /// more endpoints and a client establishes a connection to an endpoint.
     /// @headerfile Ice/Ice.h
     class ICE_API Endpoint
     {
@@ -28,7 +29,6 @@ namespace Ice
         /// Default constructor.
         Endpoint() = default;
 
-        /// Destructor.
         virtual ~Endpoint();
 
         Endpoint(const Endpoint&) = delete;
@@ -44,8 +44,8 @@ namespace Ice
         /// @return `true` if this endpoint is less than the @p rhs endpoint, `false` otherwise.
         virtual bool operator<(const Endpoint& rhs) const = 0;
 
-        /// Return a string representation of the endpoint.
-        /// @return The string representation of the endpoint.
+        /// Returns a string representation of this endpoint.
+        /// @return The string representation of this endpoint.
         [[nodiscard]] virtual std::string toString() const noexcept = 0;
 
         /// Returns the endpoint information.
@@ -53,7 +53,7 @@ namespace Ice
         [[nodiscard]] virtual EndpointInfoPtr getInfo() const noexcept = 0;
     };
 
-    /// Base class providing access to the endpoint details.
+    /// Base class for the endpoint info classes.
     /// @headerfile Ice/Ice.h
     class ICE_API EndpointInfo
     {
@@ -66,17 +66,20 @@ namespace Ice
         /// @return The endpoint type.
         [[nodiscard]] virtual std::int16_t type() const noexcept;
 
-        /// Returns true if this endpoint is a datagram endpoint.
-        /// @return `true` for a datagram endpoint.
+        /// Returns `true` if this endpoint's transport is a datagram transport (namely, UDP), `false` otherwise.
+        /// @return `true` for a UDP endpoint, `false` otherwise.
         [[nodiscard]] virtual bool datagram() const noexcept;
 
-        /// @return `true` for a secure endpoint.
+        /// Returns `true` if this endpoint's transport uses SSL, `false` otherwise.
+        /// @return `true` for SSL and SSL-based transports, `false` otherwise.
         [[nodiscard]] virtual bool secure() const noexcept;
 
-        /// The information of the underlying endpoint or null if there's no underlying endpoint.
+        /// The information of the underlying endpoint or nullptr if there's no underlying endpoint.
         const EndpointInfoPtr underlying;
+
         /// The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
         const int timeout;
+
         /// Specifies whether or not compression should be used if available when using this endpoint.
         const bool compress;
 
@@ -93,7 +96,7 @@ namespace Ice
         EndpointInfo(int timeout, bool compress) : timeout(timeout), compress(compress) {}
     };
 
-    /// Provides access to the address details of a IP endpoint.
+    /// Provides access to the address details of an IP endpoint.
     /// @see Endpoint
     /// @headerfile Ice/Ice.h
     class ICE_API IPEndpointInfo : public EndpointInfo
@@ -106,8 +109,10 @@ namespace Ice
 
         /// The host or address configured with the endpoint.
         const std::string host;
+
         /// The port number.
         const int port;
+
         /// The source IP address.
         const std::string sourceAddress;
 
@@ -135,7 +140,6 @@ namespace Ice
         [[nodiscard]] std::int16_t type() const noexcept final { return _type; }
         [[nodiscard]] bool secure() const noexcept final { return _secure; }
 
-        // internal constructor
         /// @private
         TCPEndpointInfo(
             int timeout,
@@ -168,13 +172,13 @@ namespace Ice
 
         /// The multicast interface.
         const std::string mcastInterface;
+
         /// The multicast time-to-live (or hops).
         const int mcastTtl;
 
         [[nodiscard]] std::int16_t type() const noexcept final { return UDPEndpointType; }
         [[nodiscard]] bool datagram() const noexcept final { return true; }
 
-        // internal constructor
         /// @private
         UDPEndpointInfo(
             bool compress,
@@ -202,7 +206,6 @@ namespace Ice
         /// The URI configured with the endpoint.
         const std::string resource;
 
-        // internal constructor
         /// @private
         WSEndpointInfo(EndpointInfoPtr underlying, std::string resource)
             : EndpointInfo{std::move(underlying)},
@@ -223,19 +226,18 @@ namespace Ice
         [[nodiscard]] std::int16_t type() const noexcept final { return _type; }
         [[nodiscard]] bool secure() const noexcept final { return _secure; }
 
-        /// The accessory manufacturer or empty to not match against
-        /// a manufacturer.
+        /// The accessory manufacturer. Can be empty.
         const std::string manufacturer;
-        /// The accessory model number or empty to not match against
-        /// a model number.
+
+        /// The accessory model number. Can be empty.
         const std::string modelNumber;
-        /// The accessory name or empty to not match against
-        /// the accessory name.
+
+        /// The accessory name. Can be empty.
         const std::string name;
+
         /// The protocol supported by the accessory.
         const std::string protocol;
 
-        // internal constructor
         /// @private
         IAPEndpointInfo(
             int timeout,
@@ -275,10 +277,10 @@ namespace Ice
 
         /// The encoding version of the opaque endpoint (to decode or encode the rawBytes).
         const Ice::EncodingVersion rawEncoding;
+
         /// The raw encoding of the opaque endpoint.
         const std::vector<std::byte> rawBytes;
 
-        // internal constructor
         /// @private
         OpaqueEndpointInfo(std::int16_t type, Ice::EncodingVersion rawEncoding, std::vector<std::byte> rawBytes)
             : EndpointInfo{-1, false},
