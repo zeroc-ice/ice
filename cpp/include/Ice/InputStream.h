@@ -353,7 +353,7 @@ namespace Ice
 
         /// @cond INTERNAL
 
-        // We don't document (in Doxygen) all the read "specializations". But we do keep them mostly documented for
+        // We don't document all the read "specializations" in Doxygen. But we do keep them mostly documented for
         // tool-tips.
 
         /// Reads an optional value from the stream.

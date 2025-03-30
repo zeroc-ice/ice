@@ -339,7 +339,7 @@ namespace Ice
 
         /// @cond INTERNAL
 
-        // We don't document (in Doxygen) all the write "specializations". But we do keep them mostly documented for
+        // We don't document all the write "specializations" in Doxygen. But we do keep them mostly documented for
         // tool-tips.
 
         /// Writes an optional value to the stream.
