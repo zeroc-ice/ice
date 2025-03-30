@@ -63,7 +63,7 @@ module IceBox
         void stopService(string service)
             throws AlreadyStoppedException, NoSuchServiceException;
 
-        /// Registers a new observer with this ServiceManager.
+        /// Registers a new observer with this service manager.
         /// @param observer The new observer.
         void addObserver(ServiceObserver* observer);
 
