@@ -38,7 +38,7 @@ namespace DataStormI
         template<typename, typename> static auto testD(...) -> std::false_type;
 
     public:
-        static const bool value =
+        static constexpr bool value =
             decltype(testE<DataStorm::Encoder<T>, T>(0))::value && decltype(testD<DataStorm::Decoder<T>, T>(0))::value;
     };
 
@@ -82,7 +82,7 @@ namespace DataStormI
         template<typename, typename> static auto test(...) noexcept -> std::false_type;
 
     public:
-        static const bool value = decltype(test<T, std::ostream>(0))::value;
+        static constexpr bool value = decltype(test<T, std::ostream>(0))::value;
     };
 
     template<typename T, typename Enabler = void> struct Stringifier
