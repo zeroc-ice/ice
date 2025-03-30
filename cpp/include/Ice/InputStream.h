@@ -181,19 +181,20 @@ namespace Ice
         EncodingVersion skipEmptyEncapsulation();
 
         /// Returns a blob of bytes representing an encapsulation.
-        /// @param v A pointer into the internal marshaling buffer representing the start of the encoded encapsulation.
-        /// @param sz The number of bytes in the encapsulation.
+        /// @param[out] v A pointer into the internal marshaling buffer representing the start of the encoded
+        /// encapsulation.
+        /// @param[out] sz The number of bytes in the encapsulation.
         /// @return encoding The encapsulation's encoding version.
         EncodingVersion readEncapsulation(const std::byte*& v, std::int32_t& sz);
 
-        /// Determines the current encoding version.
+        /// Gets the current encoding version.
         /// @return The encoding version.
         [[nodiscard]] const EncodingVersion& getEncoding() const
         {
             return _currentEncaps ? _currentEncaps->encoding : _encoding;
         }
 
-        /// Determines the size of the current encapsulation, excluding the encapsulation header.
+        /// Gets the size of the current encapsulation, excluding the encapsulation header.
         /// @return The size of the encapsulated data.
         std::int32_t getEncapsulationSize();
 
@@ -328,7 +329,7 @@ namespace Ice
             readAll(tags, ve...);
         }
 
-        /// Determines if an optional value is available for reading.
+        /// Checks if an optional value is available for reading.
         /// @param tag The tag associated with the value.
         /// @param expectedFormat The optional format for the value.
         /// @return `true` if the value is present, `false` otherwise.
@@ -516,21 +517,21 @@ namespace Ice
 
         /// Reads a string from the stream.
         /// @param[out] v The unmarshaled string.
-        /// @param convert Determines whether the string is processed by the string converter, if one is installed. The
-        /// default behavior is to convert strings.
+        /// @param convert `true` to process the unmarshaled string through the string converter (if installed on the
+        /// communicator), `false` otherwise.
         void read(std::string& v, bool convert = true);
 
         /// Reads a string from the stream.
         /// @param[out] vdata A pointer to the beginning of the string.
         /// @param[out] vsize The number of bytes in the string.
-        /// @param convert Determines whether the string is processed by the string converter, if one is installed. The
-        /// default behavior is to convert strings.
+        /// @param convert `true` to process the unmarshaled string through the string converter (if installed on the
+        /// communicator), `false` otherwise.
         void read(const char*& vdata, size_t& vsize, bool convert = true);
 
         /// Reads a sequence of strings from the stream.
         /// @param[out] v The unmarshaled string sequence.
-        /// @param convert Determines whether strings are processed by the string converter, if one is installed. The
-        /// default behavior is to convert the strings.
+        /// @param convert `true` to process the unmarshaled string through the string converter (if installed on the
+        /// communicator), `false` otherwise.
         void read(std::vector<std::string>& v, bool convert = true);
 
         /// @cond INTERNAL
