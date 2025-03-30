@@ -108,26 +108,36 @@ namespace Ice
         static constexpr bool value = IsContainer<T>::value && sizeof(test<T>(nullptr)) == sizeof(char);
     };
 
-    /// @private
-    /// Base traits template. Types with no specialized trait use this trait.
+#ifdef ICE_DOXYGEN
+    // For documentation purposes only.
+
+    /// Provides traits for a type that can be marshaled or unmarshaled to/from a stream of bytes using the Slice
+    /// encoding. This template is specialized for each type that can be marshaled/unmarshaled.
+    /// @tparam T The type to provide the traits for.
+    /// @tparam Enabler A type used to enable a partial specialization for several types. It should not be used in the
+    /// partial specialization itself.
     template<typename T, typename Enabler = void> struct StreamableTraits
     {
         /// The category trait, used for selecting the appropriate StreamHelper.
-        static constexpr StreamHelperCategory helper = StreamHelperCategoryUnknown;
-
-        // When extracting a sequence<T> from a stream, we can ensure the
-        // stream has at least StreamableTraits<T>::minWireSize * size bytes
-        // For containers, the minWireSize is 1 (just 1 byte for an empty container).
+        static constexpr StreamHelperCategory helper;
 
         /// The minimum number of bytes needed to marshal this type.
-        // static constexpr int minWireSize;
+        static constexpr int minWireSize;
 
         /// Indicates if the type is always encoded on a fixed number of bytes.
         // Only used for marshaling/unmarshaling optional data members and parameters.
-        // static constexpr bool fixedLength;
+        static constexpr bool fixedLength;
+    };
+#endif
+
+    /// @cond INTERNAL
+
+    /// Base traits template. Types with no specialized trait use this trait.
+    template<typename T, typename Enabler = void> struct StreamableTraits
+    {
+        static constexpr StreamHelperCategory helper = StreamHelperCategoryUnknown;
     };
 
-    /// @private
     /// Specialization for sequence and dictionary types.
     template<typename T> struct StreamableTraits<T, std::enable_if_t<IsMap<T>::value || IsContainer<T>::value>>
     {
@@ -138,17 +148,14 @@ namespace Ice
         static constexpr bool fixedLength = false;
     };
 
-    /// @private
     template<typename T> struct StreamableTraits<T, std::enable_if_t<std::is_base_of_v<UserException, T>>>
     {
-        /// @copydoc StreamableTraits::helper
         static constexpr StreamHelperCategory helper = StreamHelperCategoryUserException;
 
         // There is no sequence/dictionary of UserException (so no need for minWireSize) and no optional UserException
         // (so no need for fixedLength)
     };
 
-    /// @private
     /// Specialization for arrays (std::pair<const T*, const T*>).
     template<typename T> struct StreamableTraits<std::pair<T*, T*>>
     {
@@ -162,7 +169,6 @@ namespace Ice
     // type).
     //
 
-    /// @private
     template<> struct StreamableTraits<bool>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
@@ -170,7 +176,6 @@ namespace Ice
         static constexpr bool fixedLength = true;
     };
 
-    /// @private
     template<> struct StreamableTraits<std::byte>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
@@ -178,7 +183,6 @@ namespace Ice
         static constexpr bool fixedLength = true;
     };
 
-    /// @private
     template<> struct StreamableTraits<std::uint8_t>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
@@ -186,7 +190,6 @@ namespace Ice
         static constexpr bool fixedLength = true;
     };
 
-    /// @private
     template<> struct StreamableTraits<std::int16_t>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
@@ -194,7 +197,6 @@ namespace Ice
         static constexpr bool fixedLength = true;
     };
 
-    /// @private
     template<> struct StreamableTraits<std::int32_t>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
@@ -202,15 +204,12 @@ namespace Ice
         static constexpr bool fixedLength = true;
     };
 
-    /// @private
     template<> struct StreamableTraits<std::int64_t>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
         static constexpr int minWireSize = 8;
         static constexpr bool fixedLength = true;
     };
-
-    /// @private
     template<> struct StreamableTraits<float>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
@@ -218,7 +217,6 @@ namespace Ice
         static constexpr bool fixedLength = true;
     };
 
-    /// @private
     template<> struct StreamableTraits<double>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
@@ -226,7 +224,6 @@ namespace Ice
         static constexpr bool fixedLength = true;
     };
 
-    /// @private
     template<> struct StreamableTraits<std::string>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltin;
@@ -234,7 +231,6 @@ namespace Ice
         static constexpr bool fixedLength = false;
     };
 
-    /// @private
     template<> struct StreamableTraits<std::string_view>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
@@ -242,7 +238,6 @@ namespace Ice
         static constexpr bool fixedLength = false;
     };
 
-    /// @private
     template<> struct StreamableTraits<std::wstring>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltin;
@@ -250,7 +245,6 @@ namespace Ice
         static constexpr bool fixedLength = false;
     };
 
-    /// @private
     template<> struct StreamableTraits<std::wstring_view>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
@@ -258,7 +252,6 @@ namespace Ice
         static constexpr bool fixedLength = false;
     };
 
-    /// @private
     /// vector<bool> is a special type in C++: the streams handle it like a built-in type.
     template<> struct StreamableTraits<std::vector<bool>>
     {
@@ -271,7 +264,6 @@ namespace Ice
     // Specialization for proxies and classes.
     //
 
-    /// @private
     template<typename T> struct StreamableTraits<std::optional<T>, std::enable_if_t<std::is_base_of_v<ObjectPrx, T>>>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryProxy;
@@ -279,7 +271,6 @@ namespace Ice
         static constexpr bool fixedLength = false;
     };
 
-    /// @private
     template<typename T> struct StreamableTraits<std::shared_ptr<T>, std::enable_if_t<std::is_base_of_v<Value, T>>>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryClass;
@@ -288,6 +279,8 @@ namespace Ice
     };
 
     template<typename T, StreamHelperCategory st> struct StreamHelper;
+
+    /// @endcond
 
     /// @private
     template<typename T, StreamHelperCategory st, bool fixedLength> struct StreamOptionalHelper;
