@@ -116,6 +116,8 @@ namespace Ice
     /// @tparam T The type to provide the traits for.
     /// @tparam Enabler A type used to enable a partial specialization for several types. It should not be used in the
     /// partial specialization itself.
+    /// @remark Streamable traits for enumeration types provide two additional traits: `minValue` and `maxValue`.
+    /// @headerfile Ice/Ice.h
     template<typename T, typename Enabler = void> struct StreamableTraits
     {
         /// The category trait, used for selecting the appropriate StreamHelper.
@@ -138,7 +140,7 @@ namespace Ice
         static constexpr StreamHelperCategory helper = StreamHelperCategoryUnknown;
     };
 
-    /// Specialization for sequence and dictionary types.
+    /// Partial specialization for sequence and dictionary types.
     template<typename T> struct StreamableTraits<T, std::enable_if_t<IsMap<T>::value || IsContainer<T>::value>>
     {
         static constexpr StreamHelperCategory helper =
@@ -148,6 +150,7 @@ namespace Ice
         static constexpr bool fixedLength = false;
     };
 
+    /// Partial specialization for user exceptions.
     template<typename T> struct StreamableTraits<T, std::enable_if_t<std::is_base_of_v<UserException, T>>>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryUserException;
@@ -156,7 +159,7 @@ namespace Ice
         // (so no need for fixedLength)
     };
 
-    /// Specialization for arrays (std::pair<const T*, const T*>).
+    /// Partial specialization for arrays (std::pair<const T*, const T*>).
     template<typename T> struct StreamableTraits<std::pair<T*, T*>>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategorySequence;
@@ -261,7 +264,7 @@ namespace Ice
     };
 
     //
-    // Specialization for proxies and classes.
+    // Partial specialization for proxies and classes.
     //
 
     template<typename T> struct StreamableTraits<std::optional<T>, std::enable_if_t<std::is_base_of_v<ObjectPrx, T>>>

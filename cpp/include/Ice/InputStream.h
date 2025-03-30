@@ -33,7 +33,7 @@ namespace Ice
 {
     class ObjectPrx;
 
-    /// @cond INTERNAL
+    /// @private
     template<typename T> inline void patchValue(void* addr, const ValuePtr& v)
     {
         auto* ptr = static_cast<std::shared_ptr<T>*>(addr);
@@ -43,54 +43,45 @@ namespace Ice
             IceInternal::Ex::throwUOE(__FILE__, __LINE__, std::string{T::ice_staticId()}, v);
         }
     }
-    /// @endcond
 
-    /// Interface for input streams used to extract Slice types from a sequence of bytes.
+    /// Represents a byte buffer used for unmarshaling data encoded using the Slice encoding.
     /// @headerfile Ice/Ice.h
     class ICE_API InputStream final : public IceInternal::Buffer
     {
     public:
-        /// The size type for the underlying byte buffer.
+        /// The size type for this byte buffer.
         using size_type = std::size_t;
 
-        /// Signature for a patch function, used to receive an unmarshaled value.
-        /// @param addr The target address.
-        /// @param v The unmarshaled value.
+        /// @private
         using PatchFunc = std::function<void(void* addr, const ValuePtr& v)>;
 
-        /// Constructs a stream using the communicator's default encoding version.
+        /// Constructs an InputStream using a communicator and this communicator's default encoding version.
         /// @param communicator The communicator to use for unmarshaling tasks.
         /// @param bytes The encoded data.
         InputStream(const CommunicatorPtr& communicator, const std::vector<std::byte>& bytes);
 
-        /// Constructs a stream using the communicator's default encoding version.
-        /// @param communicator The communicator to use for unmarshaling tasks.
-        /// @param bytes The encoded data.
+        /// @copydoc InputStream(const CommunicatorPtr&, const std::vector<std::byte>&)
         InputStream(const CommunicatorPtr& communicator, std::pair<const std::byte*, const std::byte*> bytes);
 
-        /// Constructs a stream using the given communicator and encoding version.
+        /// Constructs an InputStream using a communicator and encoding version.
         /// @param communicator The communicator to use for unmarshaling tasks.
         /// @param encoding The encoding version used to encode the data to be unmarshaled.
         /// @param bytes The encoded data.
         InputStream(const CommunicatorPtr& communicator, EncodingVersion encoding, const std::vector<std::byte>& bytes);
 
-        /// Constructs a stream using the given communicator and encoding version.
-        /// @param communicator The communicator to use for unmarshaling tasks.
-        /// @param encoding The encoding version used to encode the data to be unmarshaled.
-        /// @param bytes The encoded data.
+        /// @copydoc InputStream(const CommunicatorPtr&, EncodingVersion, const std::vector<std::byte>&)
         InputStream(
             const CommunicatorPtr& communicator,
             EncodingVersion encoding,
             std::pair<const std::byte*, const std::byte*> bytes);
 
-        /// @cond INTERNAL
+        /// @private
+        /// Constructs a stream with an empty buffer.
+        InputStream(IceInternal::Instance* instance, EncodingVersion encoding);
 
-        // Constructs a stream with an empty buffer.
-        explicit InputStream(IceInternal::Instance* instance, EncodingVersion encoding);
-
-        // Constructs a stream with the specified encoding and buffer.
+        /// @private
+        /// Constructs a stream with the specified encoding and buffer.
         InputStream(IceInternal::Instance* instance, EncodingVersion encoding, IceInternal::Buffer& buf, bool adopt);
-        /// @endcond
 
         /// Move constructor.
         /// @param other The input stream to move into this input stream.
@@ -98,6 +89,7 @@ namespace Ice
 
         /// Move assignment operator.
         /// @param other The input stream to move into this input stream.
+        /// @return A reference to this input stream.
         InputStream& operator=(InputStream&& other) noexcept;
 
         ~InputStream()
@@ -118,33 +110,28 @@ namespace Ice
         /// Releases any data retained by encapsulations.
         void clear();
 
-        /// @cond INTERNAL
-        //
-        // Must return Instance*, because we don't hold an InstancePtr for
-        // optimization reasons (see comments below).
-        //
+        /// @private
+        // Must return Instance*, because we don't hold an InstancePtr for optimization reasons (see comments below).
         [[nodiscard]] IceInternal::Instance* instance() const { return _instance; } // Inlined for performance reasons.
-        /// @endcond
-
-        /// Obtains the closure data associated with this stream.
-        /// @return The data as a void pointer.
-        [[nodiscard]] void* getClosure() const;
-
-        /// Associates closure data with this stream.
-        /// @param p The data as a void pointer.
-        /// @return The previous closure data, or nil.
-        void* setClosure(void* p);
 
         /// Swaps the contents of one stream with another.
-        ///
         /// @param other The other stream.
         void swap(InputStream& other) noexcept;
 
         /// @cond INTERNAL
+
+        /// Obtains the closure associated with this stream.
+        /// @return The closure.
+        [[nodiscard]] void* getClosure() const;
+
+        /// Associates a closure data with this stream.
+        /// @param p The closure.
+        /// @return The previous closure, or nullptr.
+        void* setClosure(void* p);
+
         void resetEncapsulation();
 
         /// Resizes the stream to a new size.
-        ///
         /// @param sz The new size.
         void resize(Container::size_type sz)
         {
@@ -161,7 +148,6 @@ namespace Ice
         }
 
         /// Marks the end of a class instance.
-        ///
         /// @return An object that encapsulates the unknown slice data.
         SlicedDataPtr endValue()
         {
@@ -184,7 +170,6 @@ namespace Ice
         }
 
         /// Reads the start of an encapsulation.
-        ///
         /// @return The encoding version used by the encapsulation.
         const EncodingVersion& startEncapsulation();
 
@@ -192,19 +177,16 @@ namespace Ice
         void endEncapsulation();
 
         /// Skips an empty encapsulation.
-        ///
         /// @return The encapsulation's encoding version.
         EncodingVersion skipEmptyEncapsulation();
 
         /// Returns a blob of bytes representing an encapsulation.
-        ///
         /// @param v A pointer into the internal marshaling buffer representing the start of the encoded encapsulation.
         /// @param sz The number of bytes in the encapsulation.
         /// @return encoding The encapsulation's encoding version.
         EncodingVersion readEncapsulation(const std::byte*& v, std::int32_t& sz);
 
         /// Determines the current encoding version.
-        ///
         /// @return The encoding version.
         [[nodiscard]] const EncodingVersion& getEncoding() const
         {
@@ -212,17 +194,14 @@ namespace Ice
         }
 
         /// Determines the size of the current encapsulation, excluding the encapsulation header.
-        ///
         /// @return The size of the encapsulated data.
         std::int32_t getEncapsulationSize();
 
         /// Skips over an encapsulation.
-        ///
         /// @return The encoding version of the skipped encapsulation.
         EncodingVersion skipEncapsulation();
 
         /// Reads the start of a value or exception slice.
-        ///
         /// @return The Slice type ID for this slice.
         std::string startSlice()
         {
@@ -245,13 +224,12 @@ namespace Ice
         }
 
         /// Indicates that unmarshaling is complete, except for any class instances. The application must call this
-        /// method only if the stream actually contains class instances. Calling readPendingValues triggers the patch
-        /// callbacks to inform the application that unmarshaling of an instance is complete.
+        /// function only when the stream actually contains class instances. Calling `readPendingValues` triggers the
+        /// patch callbacks to inform the application that unmarshaling of an instance is complete.
         void readPendingValues();
 
-        /// Extracts a size from the stream.
-        ///
-        /// @return The extracted size.
+        /// Reads a size from the stream.
+        /// @return The unmarshaled size.
         std::int32_t readSize() // Inlined for performance reasons.
         {
             std::uint8_t byte;
@@ -274,20 +252,17 @@ namespace Ice
         }
 
         /// Reads and validates a sequence size.
-        ///
         /// @param minSize The minimum size required by the sequence type.
         /// @return The extracted size.
         std::int32_t readAndCheckSeqSize(int minSize);
 
         /// Reads a blob of bytes from the stream.
-        ///
-        /// @param bytes The vector to hold a copy of the bytes from the marshaling buffer.
+        /// @param[out] bytes The vector to hold a copy of the bytes from the marshaling buffer.
         /// @param sz The number of bytes to read.
         void readBlob(std::vector<std::byte>& bytes, std::int32_t sz);
 
         /// Reads a blob of bytes from the stream.
-        ///
-        /// @param v A pointer into the internal marshaling buffer representing the start of the blob.
+        /// @param[out] v A pointer into the internal marshaling buffer representing the start of the blob.
         /// @param sz The number of bytes to read.
         void readBlob(const std::byte*& v, Container::size_type sz)
         {
@@ -306,13 +281,79 @@ namespace Ice
             }
         }
 
-        /// Reads a data value from the stream.
-        /// @param v Holds the extracted data.
+        /// Reads a value from the stream.
+        /// @tparam T The type of the value to read.
+        /// @param[out] v The unmarshaled value.
         template<typename T> void read(T& v) { StreamHelper<T, StreamableTraits<T>::helper>::read(this, v); }
 
-        /// Reads an optional data value from the stream. For all types except proxies.
+#ifdef ICE_DOXYGEN
+        /// Reads an optional value from the stream.
+        /// @tparam T The type of the value to read.
         /// @param tag The tag ID.
-        /// @param v Holds the extracted data (if any).
+        /// @param[out] v The unmarshaled value.
+        template<typename T> void read(std::int32_t tag, T& v);
+#endif
+
+        /// @private
+        template<typename T> void readAll(T& v) { read(v); }
+
+        /// Reads a list of values from the stream.
+        /// @tparam T The type of the first value.
+        /// @tparam Te The types of the remaining values.
+        /// @param[out] v The first unmarshaled value
+        /// @param[out] ve The remaining unmarshaled values.
+        template<typename T, typename... Te> void readAll(T& v, Te&... ve)
+        {
+            read(v);
+            readAll(ve...);
+        }
+
+        /// @private
+        template<typename T> void readAll(std::initializer_list<std::int32_t> tags, std::optional<T>& v)
+        {
+            read(*(tags.begin() + tags.size() - 1), v);
+        }
+
+        /// Reads a list of optional values from the stream.
+        /// @tparam T The type of the first value.
+        /// @tparam Te The types of the remaining values.
+        /// @param tags The tag list.
+        /// @param[out] v The first unmarshaled value
+        /// @param[out] ve The remaining unmarshaled values.
+        template<typename T, typename... Te>
+        void readAll(std::initializer_list<std::int32_t> tags, std::optional<T>& v, std::optional<Te>&... ve)
+        {
+            size_t index = tags.size() - sizeof...(ve) - 1;
+            read(*(tags.begin() + index), v);
+            readAll(tags, ve...);
+        }
+
+        /// Determines if an optional value is available for reading.
+        /// @param tag The tag associated with the value.
+        /// @param expectedFormat The optional format for the value.
+        /// @return `true` if the value is present, `false` otherwise.
+        bool readOptional(std::int32_t tag, OptionalFormat expectedFormat)
+        {
+            assert(_currentEncaps);
+            if (_currentEncaps->decoder)
+            {
+                return _currentEncaps->decoder->readOptional(tag, expectedFormat);
+            }
+            else
+            {
+                return readOptImpl(tag, expectedFormat);
+            }
+        }
+
+        /// @cond INTERNAL
+
+        // We don't document (in Doxygen) all the read "specializations". But we do keep them mostly documented for
+        // tool-tips.
+
+        /// Reads an optional value from the stream.
+        /// @tparam T The type of the value to read.
+        /// @param tag The tag ID.
+        /// @param[out] v The unmarshaled value.
         template<typename T, std::enable_if_t<!std::is_base_of_v<ObjectPrx, T>, bool> = true>
         void read(std::int32_t tag, std::optional<T>& v)
         {
@@ -331,8 +372,9 @@ namespace Ice
         }
 
         /// Reads an optional proxy from the stream.
+        /// @tparam T The type of the value to read.
         /// @param tag The tag ID.
-        /// @param v The proxy unmarshaled by this function. If nullopt, the proxy was not present in the stream or
+        /// @param[out] v The proxy unmarshaled by this function. If nullopt, the proxy was not present in the stream or
         /// was set to nullopt (set to nullopt is supported for backward compatibility with Ice 3.7 and earlier
         /// releases).
         template<typename T, std::enable_if_t<std::is_base_of_v<ObjectPrx, T>, bool> = true>
@@ -349,8 +391,8 @@ namespace Ice
             }
         }
 
-        /// Extracts a sequence of data values from the stream.
-        /// @param v A pair of pointers representing the beginning and end of the sequence elements.
+        /// Reads a sequence from the stream.
+        /// @param[out] v A pair of pointers representing the beginning and end of the sequence elements.
         template<typename T> void read(std::pair<const T*, const T*>& v)
         {
             auto holder = new std::vector<T>;
@@ -377,51 +419,8 @@ namespace Ice
         void read(std::pair<const double*, const double*>& v) { unalignedRead(v); }
 #endif
 
-        /// Reads a list of mandatory data values.
-        template<typename T> void readAll(T& v) { read(v); }
-
-        /// Reads a list of mandatory data values.
-        template<typename T, typename... Te> void readAll(T& v, Te&... ve)
-        {
-            read(v);
-            readAll(ve...);
-        }
-
-        /// Reads a list of optional data values.
-        template<typename T> void readAll(std::initializer_list<std::int32_t> tags, std::optional<T>& v)
-        {
-            read(*(tags.begin() + tags.size() - 1), v);
-        }
-
-        /// Reads a list of optional data values.
-        template<typename T, typename... Te>
-        void readAll(std::initializer_list<std::int32_t> tags, std::optional<T>& v, std::optional<Te>&... ve)
-        {
-            size_t index = tags.size() - sizeof...(ve) - 1;
-            read(*(tags.begin() + index), v);
-            readAll(tags, ve...);
-        }
-
-        /// Determine if an optional value is available for reading.
-        ///
-        /// @param tag The tag associated with the value.
-        /// @param expectedFormat The optional format for the value.
-        /// @return `true` if the value is present, `false` otherwise.
-        bool readOptional(std::int32_t tag, OptionalFormat expectedFormat)
-        {
-            assert(_currentEncaps);
-            if (_currentEncaps->decoder)
-            {
-                return _currentEncaps->decoder->readOptional(tag, expectedFormat);
-            }
-            else
-            {
-                return readOptImpl(tag, expectedFormat);
-            }
-        }
-
         /// Reads a byte from the stream.
-        /// @param v The extracted byte.
+        /// @param[out] v The extracted byte.
         void read(std::byte& v)
         {
             if (i >= b.end())
@@ -432,7 +431,7 @@ namespace Ice
         }
 
         /// Reads a byte from the stream.
-        /// @param v The extracted byte.
+        /// @param[out] v The extracted byte.
         void read(std::uint8_t& v)
         {
             if (i >= b.end())
@@ -443,16 +442,16 @@ namespace Ice
         }
 
         /// Reads a sequence of bytes from the stream.
-        /// @param v A vector to hold a copy of the bytes.
+        /// @param[out] v A vector to hold a copy of the bytes.
         void read(std::vector<std::byte>& v);
 
         /// Reads a sequence of bytes from the stream.
-        /// @param v A pair of pointers into the internal marshaling buffer representing the start and end of the
+        /// @param[out] v A pair of pointers into the internal marshaling buffer representing the start and end of the
         /// sequence elements.
         void read(std::pair<const std::byte*, const std::byte*>& v);
 
         /// Reads a bool from the stream.
-        /// @param v The extracted bool.
+        /// @param[out] v The extracted bool.
         void read(bool& v)
         {
             if (i >= b.end())
@@ -463,82 +462,90 @@ namespace Ice
         }
 
         /// Reads a sequence of boolean values from the stream.
-        /// @param v A vector to hold a copy of the boolean values.
+        /// @param[out] v A vector to hold a copy of the boolean values.
         void read(std::vector<bool>& v);
 
         /// Reads a sequence of boolean values from the stream.
-        /// @param v A pair of pointers into the internal marshaling buffer representing the start and end of the
+        /// @param[out] v A pair of pointers into the internal marshaling buffer representing the start and end of the
         /// sequence elements.
         void read(std::pair<const bool*, const bool*>& v);
 
-        /// Unmarshals a Slice short into an int16_t.
-        /// @param v The extracted int16_t.
+        /// Reads a short into an int16_t.
+        /// @param[out] v The extracted int16_t.
         void read(std::int16_t& v);
 
-        /// Unmarshals a sequence of Slice shorts into a vector of int16_t.
-        /// @param v A vector to hold a copy of the int16_t values.
+        /// Reads a sequence of Slice shorts into a vector of int16_t.
+        /// @param[out] v A vector to hold a copy of the int16_t values.
         void read(std::vector<std::int16_t>& v);
 
         /// Reads an int from the stream.
-        /// @param v The extracted int.
+        /// @param[out] v The extracted int.
         void read(std::int32_t& v);
 
         /// Reads a sequence of ints from the stream.
-        /// @param v A vector to hold a copy of the int values.
+        /// @param[out] v A vector to hold a copy of the int values.
         void read(std::vector<std::int32_t>& v);
 
         /// Reads a long from the stream.
-        /// @param v The extracted long.
+        /// @param[out]v The extracted long.
         void read(std::int64_t& v);
 
         /// Reads a sequence of longs from the stream.
-        /// @param v A vector to hold a copy of the long values.
+        /// @param[out] v A vector to hold a copy of the long values.
         void read(std::vector<std::int64_t>& v);
 
-        /// Unmarshals a Slice float into a float.
-        /// @param v The extracted float.
+        /// Read a float into a float.
+        /// @param[out] v The extracted float.
         void read(float& v);
 
-        /// Unmarshals a sequence of Slice floats into a vector of float.
-        /// @param v An output vector filled by this function.
+        /// Reads a sequence of floats into a vector of float.
+        /// @param[out] v An output vector filled by this function.
         void read(std::vector<float>& v);
 
-        /// Unmarshals a Slice double into a double.
-        /// @param v The extracted double.
+        /// Reads a double into a double.
+        /// @param[out] v The extracted double.
         void read(double& v);
 
-        /// Unmarshals a sequence of Slice doubles into a vector of double.
-        /// @param v An output vector filled by this function.
+        /// Reads a sequence of doubles into a vector of double.
+        /// @param[out] v An output vector filled by this function.
         void read(std::vector<double>& v);
 
+        /// @endcond
+
+        // We document read functions with an extra parameter.
+
         /// Reads a string from the stream.
-        /// @param v The extracted string.
-        /// @param convert Determines whether the string is processed by the string converter, if one
-        /// is installed. The default behavior is to convert strings.
+        /// @param[out] v The unmarshaled string.
+        /// @param convert Determines whether the string is processed by the string converter, if one is installed. The
+        /// default behavior is to convert strings.
         void read(std::string& v, bool convert = true);
 
         /// Reads a string from the stream.
-        /// @param vdata A pointer to the beginning of the string.
-        /// @param vsize The number of bytes in the string.
-        /// @param convert Determines whether the string is processed by the string converter, if one
-        /// is installed. The default behavior is to convert strings.
+        /// @param[out] vdata A pointer to the beginning of the string.
+        /// @param[out] vsize The number of bytes in the string.
+        /// @param convert Determines whether the string is processed by the string converter, if one is installed. The
+        /// default behavior is to convert strings.
         void read(const char*& vdata, size_t& vsize, bool convert = true);
 
         /// Reads a sequence of strings from the stream.
-        /// @param v The extracted string sequence.
-        /// @param convert Determines whether strings are processed by the string converter, if one
-        /// is installed. The default behavior is to convert the strings.
+        /// @param[out] v The unmarshaled string sequence.
+        /// @param convert Determines whether strings are processed by the string converter, if one is installed. The
+        /// default behavior is to convert the strings.
         void read(std::vector<std::string>& v, bool convert = true);
 
+        /// @cond INTERNAL
+
         /// Reads a wide string from the stream.
-        /// @param v The extracted string.
+        /// @param[out] v The extracted string.
         void read(std::wstring& v);
 
         /// Reads a sequence of wide strings from the stream.
-        /// @param v The extracted sequence.
+        /// @param[out] v The extracted sequence.
         void read(std::vector<std::wstring>& v);
+
         /// Reads a typed proxy from the stream.
-        /// @param v The proxy as a user-defined type.
+        /// @tparam Prx The type of the value to read.
+        /// @param[out] v The unmarshaled proxy.
         template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         void read(std::optional<Prx>& v)
         {
@@ -553,13 +560,15 @@ namespace Ice
             }
         }
 
-        /// Reads a value (instance of a Slice class) from the stream (New mapping).
-        /// @param v The instance.
+        /// Reads an instance of a Slice class from the stream.
+        /// @tparam T The type of the value to read.
+        /// @param[out] v The unmarshaled instance.
         template<typename T, std::enable_if_t<std::is_base_of_v<Value, T>>* = nullptr> void read(std::shared_ptr<T>& v)
         {
             read(patchValue<T>, &v);
         }
 
+        /// @private
         /// Reads a value (instance of a Slice class) from the stream.
         /// @param patchFunc The patch callback function.
         /// @param patchAddr Closure data passed to the callback.
@@ -569,15 +578,17 @@ namespace Ice
             _currentEncaps->decoder->read(std::move(patchFunc), patchAddr);
         }
 
+        /// @endcond
+
         /// Reads an enumerator from the stream.
         /// @param maxValue The maximum enumerator value in the definition.
         /// @return The enumerator value.
         std::int32_t readEnum(std::int32_t maxValue);
 
-        /// Extracts a user exception from the stream and throws it.
-        /// @param factory If provided, this factory is given the first opportunity to instantiate
-        /// the exception. If not provided, or if the factory does not throw an exception when invoked,
-        /// the stream will attempt to instantiate the exception using static type information.
+        /// Reads a user exception from the stream and throws it.
+        /// @param factory If provided, this factory is given the first opportunity to instantiate the exception. If not
+        /// provided, or if the factory does not throw an exception when invoked, the stream will attempt to instantiate
+        /// the exception using static type information.
         /// @throws UserException The user exception that was unmarshaled.
         void throwException(UserExceptionFactory factory = nullptr);
 
@@ -618,9 +629,8 @@ namespace Ice
         /// @param p The new position.
         void pos(size_type p) { i = b.begin() + p; }
 
-        /// @cond INTERNAL
+        /// @private
         bool readOptImpl(std::int32_t, OptionalFormat);
-        /// @endcond
 
     private:
 #if defined(ICE_UNALIGNED) || (defined(_WIN32) && defined(ICE_API_EXPORTS))

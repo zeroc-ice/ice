@@ -26,12 +26,12 @@ namespace Ice
 {
     class ObjectPrx;
 
-    /// Interface for output streams used to create a sequence of bytes from Slice types.
+    /// Represents a byte buffer used for marshaling data using the Slice encoding.
     /// @headerfile Ice/Ice.h
     class ICE_API OutputStream : public IceInternal::Buffer
     {
     public:
-        /// The size type for the underlying byte buffer.
+        /// The size type for this byte buffer.
         using size_type = std::size_t;
 
         /// Constructs an OutputStream.

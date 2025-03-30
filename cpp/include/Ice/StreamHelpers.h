@@ -59,8 +59,9 @@ namespace Ice
         /// @remark Each specialization chooses whether @p v is passed by value or by const reference.
         static void print(std::ostream& stream, T v);
     };
+#endif
 
-#else
+    /// @cond INTERNAL
 
     /// Prints a value with a pass-by-value type (such as `bool`, `int32`, or an enumeration) to a stream.
     /// @tparam T The type of the value.
@@ -137,9 +138,6 @@ namespace Ice
         }
     }
 
-#endif // ICE_DOXYGEN
-
-    /// @private
     template<typename T> struct StreamHelper<T, StreamHelperCategoryBuiltinValue>
     {
         static void write(OutputStream* stream, T v) { stream->write(v); }
@@ -149,25 +147,21 @@ namespace Ice
         static void print(std::ostream& stream, T v) { stream << v; }
     };
 
-    /// @private
     template<> struct StreamHelper<bool, StreamHelperCategoryBuiltinValue>
     {
         static void print(std::ostream& stream, bool v) { stream << (v ? "true" : "false"); }
     };
 
-    /// @private
     template<> struct StreamHelper<std::uint8_t, StreamHelperCategoryBuiltinValue>
     {
         static void print(std::ostream& stream, std::uint8_t v) { stream << static_cast<int>(v); }
     };
 
-    /// @private
     template<> struct StreamHelper<std::byte, StreamHelperCategoryBuiltinValue>
     {
         static void print(std::ostream& stream, std::byte v) { stream << static_cast<int>(v); }
     };
 
-    /// @private
     template<> struct StreamHelper<std::string_view, StreamHelperCategoryBuiltinValue>
     {
         static void write(OutputStream* stream, std::string_view v) { stream->write(v); }
@@ -176,7 +170,6 @@ namespace Ice
         // No print: we only print fields.
     };
 
-    /// @private
     template<> struct StreamHelper<std::wstring_view, StreamHelperCategoryBuiltinValue>
     {
         static void write(OutputStream* stream, std::wstring_view v) { stream->write(v); }
@@ -185,7 +178,6 @@ namespace Ice
         // No print: we only print fields.
     };
 
-    /// @private
     /// Helper for built-in types that are not passed by value.
     template<typename T> struct StreamHelper<T, StreamHelperCategoryBuiltin>
     {
@@ -196,13 +188,11 @@ namespace Ice
         static void print(std::ostream& stream, const T& v) { stream << v; }
     };
 
-    /// @private
     template<> struct StreamHelper<std::wstring, StreamHelperCategoryBuiltin>
     {
         static void print(std::ostream& stream, const std::wstring& v) { stream << Ice::wstringToString(v); }
     };
 
-    /// @private
     template<> struct StreamHelper<std::vector<bool>, StreamHelperCategoryBuiltin>
     {
         static void print(std::ostream& stream, const std::vector<bool>& v)
@@ -226,11 +216,9 @@ namespace Ice
     // "helpers" for the StreamHelper<T, StreamHelperCategoryStruct>. slice2cpp generates specializations as needed.
     //
 
-    /// @private
     /// Reader used/generated for structs. Always specialized.
     template<typename T> struct StreamReader;
 
-    /// @private
     template<typename T> struct StreamHelper<T, StreamHelperCategoryStruct>
     {
         static void write(OutputStream* stream, const T& v) { stream->writeAll(v.ice_tuple()); }
@@ -240,7 +228,6 @@ namespace Ice
         static void print(std::ostream& stream, const T& v) { stream << v; }
     };
 
-    /// @private
     template<typename T> struct StreamHelper<T, StreamHelperCategoryEnum>
     {
         static void write(OutputStream* stream, T v)
@@ -266,7 +253,6 @@ namespace Ice
         static void print(std::ostream& stream, T v) { stream << v; }
     };
 
-    /// @private
     template<typename T> struct StreamHelper<T, StreamHelperCategorySequence>
     {
         static void write(OutputStream* stream, const T& v)
@@ -305,7 +291,6 @@ namespace Ice
         }
     };
 
-    /// @private
     /// Helper the array custom sequence mapping.
     template<typename T> struct StreamHelper<std::pair<const T*, const T*>, StreamHelperCategorySequence>
     {
@@ -317,7 +302,6 @@ namespace Ice
     };
 
 #ifdef __cpp_lib_span
-    /// @private
     /// Helper for span (C++20 or later).
     template<typename T> struct StreamHelper<std::span<T>, StreamHelperCategorySequence>
     {
@@ -328,7 +312,6 @@ namespace Ice
     };
 #endif
 
-    /// @private
     template<typename T> struct StreamHelper<T, StreamHelperCategoryDictionary>
     {
         static void write(OutputStream* stream, const T& v)
@@ -375,7 +358,6 @@ namespace Ice
         }
     };
 
-    /// @private
     template<typename T> struct StreamHelper<T, StreamHelperCategoryUserException>
     {
         static void write(OutputStream* stream, const T& v) { stream->writeException(v); }
@@ -386,7 +368,6 @@ namespace Ice
         static void print(std::ostream& stream, const T& v) { stream << v; }
     };
 
-    /// @private
     template<typename T> struct StreamHelper<T, StreamHelperCategoryProxy>
     {
         static void write(OutputStream* stream, const T& v) { stream->write(v); }
@@ -396,7 +377,6 @@ namespace Ice
         static void print(std::ostream& stream, const T& v) { stream << v; }
     };
 
-    /// @private
     template<typename T> struct StreamHelper<T, StreamHelperCategoryClass>
     {
         static void write(OutputStream* stream, const T& v) { stream->write(v); }
@@ -410,63 +390,54 @@ namespace Ice
     // Helpers to read/write optional fields and arguments.
     //
 
-    /// @private
     /// Extracts / computes the optionalFormat.
     // This is used _only_ for the base StreamOptionalHelper below.
     // /!\ Do not use in StreamOptionalHelper specializations, and do not provide specialization not handled by the
     // base StreamOptionalHelper.
     template<StreamHelperCategory st, int minWireSize, bool fixedLength> struct GetOptionalFormat;
 
-    /// @private
     /// Specialization for 1-byte built-in fixed-length types.
     template<> struct GetOptionalFormat<StreamHelperCategoryBuiltinValue, 1, true>
     {
         static constexpr OptionalFormat value = OptionalFormat::F1;
     };
 
-    /// @private
     /// Specialization for 2-byte built-in fixed-length types.
     template<> struct GetOptionalFormat<StreamHelperCategoryBuiltinValue, 2, true>
     {
         static constexpr OptionalFormat value = OptionalFormat::F2;
     };
 
-    /// @private
     /// Specialization for 4-byte built-in fixed-length types.
     template<> struct GetOptionalFormat<StreamHelperCategoryBuiltinValue, 4, true>
     {
         static constexpr OptionalFormat value = OptionalFormat::F4;
     };
 
-    /// @private
     /// Specialization for 8-byte built-in fixed-length types.
     template<> struct GetOptionalFormat<StreamHelperCategoryBuiltinValue, 8, true>
     {
         static constexpr OptionalFormat value = OptionalFormat::F8;
     };
 
-    /// @private
     /// Specialization for built-in variable-length types.
     template<> struct GetOptionalFormat<StreamHelperCategoryBuiltinValue, 1, false>
     {
         static constexpr OptionalFormat value = OptionalFormat::VSize;
     };
 
-    /// @private
     /// Specialization for built-in variable-length types.
     template<> struct GetOptionalFormat<StreamHelperCategoryBuiltin, 1, false>
     {
         static constexpr OptionalFormat value = OptionalFormat::VSize;
     };
 
-    /// @private
     /// Specialization for enum types.
     template<int minWireSize> struct GetOptionalFormat<StreamHelperCategoryEnum, minWireSize, false>
     {
         static constexpr OptionalFormat value = OptionalFormat::Size;
     };
 
-    /// @private
     /// Base helper template for reading and writing optional values. The default implementations reads/writes the
     /// value as-is.
     template<typename T, StreamHelperCategory st, bool fixedLength> struct StreamOptionalHelper
@@ -485,7 +456,6 @@ namespace Ice
         static void read(InputStream* stream, T& v) { stream->read(v); }
     };
 
-    /// @private
     /// Helper to write fixed-size structs.
     template<typename T> struct StreamOptionalHelper<T, StreamHelperCategoryStruct, true>
     {
@@ -504,7 +474,6 @@ namespace Ice
         }
     };
 
-    /// @private
     /// Helper to write variable-size structs.
     template<typename T> struct StreamOptionalHelper<T, StreamHelperCategoryStruct, false>
     {
@@ -527,11 +496,9 @@ namespace Ice
     // InputStream and OutputStream have special logic for optional proxies that does not rely on the
     // StreamOptional helpers.
 
-    /// @private
     /// Helper to read/write optional sequences or dictionaries.
     template<typename T, bool fixedLength, int sz> struct StreamOptionalContainerHelper;
 
-    /// @private
     /// Encodes containers of variable-size elements with the FSize optional type, since we can't easily figure out the
     /// size of the container before encoding.
     // This is the same encoding as variable size structs so we just re-use its implementation.
@@ -550,7 +517,6 @@ namespace Ice
         }
     };
 
-    /// @private
     /// Encodes containers of fixed-size elements with the VSize optional type since we can figure out the size of the
     /// container before encoding.
     template<typename T, int sz> struct StreamOptionalContainerHelper<T, true, sz>
@@ -575,7 +541,6 @@ namespace Ice
         }
     };
 
-    /// @private
     // Optimization: containers of 1 byte elements are encoded with the  VSize optional type. There's no need to encode
     // an additional size for those, the number of elements of the container can be used to skip the optional.
     template<typename T> struct StreamOptionalContainerHelper<T, true, 1>
@@ -587,7 +552,6 @@ namespace Ice
         static void read(InputStream* stream, T& v) { stream->read(v); }
     };
 
-    /// @private
     // Helper to write sequences, delegates to the optional container helper template partial specializations.
     template<typename T> struct StreamOptionalHelper<T, StreamHelperCategorySequence, false>
     {
@@ -611,7 +575,6 @@ namespace Ice
         }
     };
 
-    /// @private
     // Helper to write sequences, delegates to the optional container helper template partial specializations.
     template<typename T> struct StreamOptionalHelper<std::pair<const T*, const T*>, StreamHelperCategorySequence, false>
     {
@@ -636,7 +599,6 @@ namespace Ice
         }
     };
 
-    /// @private
     // Helper to write dictionaries, delegates to the optional container helper template partial specializations.
     template<typename T> struct StreamOptionalHelper<T, StreamHelperCategoryDictionary, false>
     {
@@ -663,8 +625,6 @@ namespace Ice
     };
 
     // Specializations for ProtocolVersion and EncodingVersion
-
-    /// @private
     template<> struct StreamableTraits<ProtocolVersion>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryStruct;
@@ -672,13 +632,11 @@ namespace Ice
         static constexpr bool fixedLength = true;
     };
 
-    /// @private
     template<> struct StreamReader<ProtocolVersion>
     {
         static void read(InputStream* istr, ProtocolVersion& v) { istr->readAll(v.major, v.minor); }
     };
 
-    /// @private
     template<> struct StreamableTraits<EncodingVersion>
     {
         static constexpr StreamHelperCategory helper = StreamHelperCategoryStruct;
@@ -686,11 +644,12 @@ namespace Ice
         static constexpr bool fixedLength = true;
     };
 
-    /// @private
     template<> struct StreamReader<EncodingVersion>
     {
         static void read(InputStream* istr, EncodingVersion& v) { istr->readAll(v.major, v.minor); }
     };
+
+    /// @endcond
 }
 
 #endif

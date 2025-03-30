@@ -3385,16 +3385,18 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
         H << sp;
     }
 
-    H << nl << "/// @private";
+    H << nl << "/// @cond INTERNAL";
     H << nl << "template<>";
     H << nl << "struct StreamableTraits<" << p->mappedScoped() << ">";
     H << sb;
     H << nl << "static constexpr StreamHelperCategory helper = StreamHelperCategoryStruct;";
     H << nl << "static constexpr int minWireSize = " << p->minWireSize() << ";";
     H << nl << "static constexpr bool fixedLength = " << (p->isVariableLength() ? "false" : "true") << ";";
-    H << eb << ";" << nl;
+    H << eb << ";";
+    H << sp;
 
     writeStreamReader(H, p, p->dataMembers());
+    H << nl << "/// @endcond";
     return false;
 }
 
@@ -3410,7 +3412,7 @@ Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
         H << sp;
     }
 
-    H << nl << "/// @private";
+    H << nl << "/// @cond INTERNAL";
     H << nl << "template<>";
     H << nl << "struct StreamableTraits<" << p->mappedScoped() << ">";
     H << sb;
@@ -3420,4 +3422,5 @@ Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
     H << nl << "static constexpr int minWireSize = " << p->minWireSize() << ";";
     H << nl << "static constexpr bool fixedLength = false;";
     H << eb << ";";
+    H << nl << "/// @endcond";
 }
