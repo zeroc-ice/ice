@@ -109,8 +109,6 @@ namespace Ice
     };
 
 #ifdef ICE_DOXYGEN
-    // For documentation purposes only.
-
     /// Provides traits for a type that can be marshaled or unmarshaled to/from a stream of bytes using the Slice
     /// encoding. This template is specialized for each type that can be marshaled/unmarshaled.
     /// @tparam T The type to provide the traits for.

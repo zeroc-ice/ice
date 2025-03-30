@@ -120,11 +120,11 @@ namespace Ice
 
         /// @cond INTERNAL
 
-        /// Obtains the closure associated with this stream.
+        /// Gets the closure associated with this stream.
         /// @return The closure.
         [[nodiscard]] void* getClosure() const;
 
-        /// Associates a closure data with this stream.
+        /// Associates a closure with this stream.
         /// @param p The closure.
         /// @return The previous closure, or nullptr.
         void* setClosure(void* p);
@@ -295,7 +295,9 @@ namespace Ice
         template<typename T> void read(std::int32_t tag, T& v);
 #endif
 
-        /// @private
+        /// Reads a value (single element list) from the stream.
+        /// @tparam T The type of value.
+        /// @param[out] v The unmarshaled value
         template<typename T> void readAll(T& v) { read(v); }
 
         /// Reads a list of values from the stream.
@@ -309,7 +311,10 @@ namespace Ice
             readAll(ve...);
         }
 
-        /// @private
+        /// Reads an optional value (single element list) from the stream.
+        /// @tparam T The type of the value.
+        /// @param tags The tag list.
+        /// @param[out] v The unmarshaled value.
         template<typename T> void readAll(std::initializer_list<std::int32_t> tags, std::optional<T>& v)
         {
             read(*(tags.begin() + tags.size() - 1), v);
@@ -319,7 +324,7 @@ namespace Ice
         /// @tparam T The type of the first value.
         /// @tparam Te The types of the remaining values.
         /// @param tags The tag list.
-        /// @param[out] v The first unmarshaled value
+        /// @param[out] v The first unmarshaled value.
         /// @param[out] ve The remaining unmarshaled values.
         template<typename T, typename... Te>
         void readAll(std::initializer_list<std::int32_t> tags, std::optional<T>& v, std::optional<Te>&... ve)
@@ -353,7 +358,7 @@ namespace Ice
 
         /// Reads an optional value from the stream.
         /// @tparam T The type of the value to read.
-        /// @param tag The tag ID.
+        /// @param tag The tag.
         /// @param[out] v The unmarshaled value.
         template<typename T, std::enable_if_t<!std::is_base_of_v<ObjectPrx, T>, bool> = true>
         void read(std::int32_t tag, std::optional<T>& v)
@@ -374,7 +379,7 @@ namespace Ice
 
         /// Reads an optional proxy from the stream.
         /// @tparam T The type of the value to read.
-        /// @param tag The tag ID.
+        /// @param tag The tag.
         /// @param[out] v The proxy unmarshaled by this function. If nullopt, the proxy was not present in the stream or
         /// was set to nullopt (set to nullopt is supported for backward compatibility with Ice 3.7 and earlier
         /// releases).
@@ -622,7 +627,7 @@ namespace Ice
             }
         }
 
-        /// Obtains the current position of the stream.
+        /// Gets the current position of the stream.
         /// @return The current position.
         size_type pos() { return static_cast<size_t>(i - b.begin()); }
 
