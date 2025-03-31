@@ -14,6 +14,7 @@
 #    endif
 #endif
 
+/// The Bluetooth transport plug-in.
 namespace IceBT
 {
     /// Indicates a failure in the Bluetooth plug-in.
