@@ -348,8 +348,7 @@ namespace Ice
     //
 
     /// This exception is raised if a system error occurred in the server or client process. There are many possible
-    /// causes for such a system exception. For details on the cause, {@link SyscallException#error} should be
-    /// inspected.
+    /// causes for such a system exception. For details on the cause, SyscallException::error should be inspected.
     /// @headerfile Ice/Ice.h
     class ICE_API SyscallException : public LocalException
     {
@@ -403,8 +402,7 @@ namespace Ice
         ErrorCode _error;
     };
 
-    /// This exception indicates a DNS problem. For details on the cause, {@link DNSException#error} should be
-    /// inspected.
+    /// This exception indicates a DNS problem.
     /// @headerfile Ice/Ice.h
     class ICE_API DNSException final : public SyscallException
     {
@@ -549,7 +547,7 @@ namespace Ice
         std::shared_ptr<std::string> _id;
     };
 
-    /// This exception is raised if the {@link Communicator} has been destroyed.
+    /// This exception is raised if the Communicator has been destroyed.
     /// @see Communicator#destroy
     /// @headerfile Ice/Ice.h
     class ICE_API CommunicatorDestroyedException final : public LocalException
@@ -716,7 +714,7 @@ namespace Ice
         std::shared_ptr<std::string> _id;
     };
 
-    /// This exception is raised if an attempt is made to use a deactivated {@link ObjectAdapter}.
+    /// This exception is raised if an attempt is made to use a deactivated ObjectAdapter.
     /// @see ObjectAdapter#deactivate
     /// @see Communicator#shutdown
     /// @headerfile Ice/Ice.h
@@ -752,8 +750,8 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// This exception is raised if an {@link ObjectAdapter} cannot be activated. This happens if the {@link Locator}
-    /// detects another active {@link ObjectAdapter} with the same adapter id.
+    /// This exception is raised if an ObjectAdapter cannot be activated. This happens if the Locator
+    /// detects another active ObjectAdapter with the same adapter id.
     /// @headerfile Ice/Ice.h
     class ICE_API ObjectAdapterIdInUseException final : public LocalException
     {

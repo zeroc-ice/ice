@@ -282,7 +282,7 @@ namespace
         }
         else
         {
-            return "{@link " + rawLink + "}";
+            return rawLink; // rely on doxygen autolink.
         }
     }
 
