@@ -101,4 +101,6 @@ alljavadoc.dependsOn = exportedProjects.collect { project(it).assemble.dependsOn
 
 checkstyle {
     toolVersion = '10.21.4'
+    ignoreFailures = false
+    showViolations = true
 }
