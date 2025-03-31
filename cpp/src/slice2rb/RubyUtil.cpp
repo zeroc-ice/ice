@@ -479,7 +479,6 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << ", ";
         _out.spar("[");
-        isFirst = true;
         for (const auto& ex : op->throws())
         {
             _out << getMetaTypeReference(ex);
@@ -1184,7 +1183,7 @@ Slice::Ruby::getMetaTypeReference(const ContainedPtr& p)
     string absolute = getAbsolute(p);
 
     // Append a "T_" in front of the last name segment.
-    auto pos = absolute.rfind(":");
+    auto pos = absolute.rfind(':');
     pos = (pos == string::npos ? 0 : pos + 1);
     absolute.insert(pos, "T_");
 
