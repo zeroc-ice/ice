@@ -812,7 +812,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
              << "\", " << enumerator->value() << ')';
     }
     _out << sp << nl << "@@_enumerators = ";
-    _out.epar("{");
+    _out.spar("{");
     for (const auto& enumerator : enumerators)
     {
         _out << to_string(enumerator->value()) + "=>" + getMappedName(enumerator, IdentToUpper);
