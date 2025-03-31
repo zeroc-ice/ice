@@ -212,7 +212,7 @@ public class MetricsHelper<T> where T : Metrics
             string name,
             System.Reflection.MethodInfo method,
             System.Reflection.PropertyInfo property) =>
-                _attributes.Add(name, new MemberPropertyResolverI(name, method, property));
+      _attributes.Add(name, new MemberPropertyResolverI(name, method, property));
 
         public void
         add(
