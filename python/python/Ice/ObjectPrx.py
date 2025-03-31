@@ -112,12 +112,12 @@ class ObjectPrx(IcePy.ObjectPrx):
     @staticmethod
     def ice_staticId():
         """
-        Gets the Slice type id of the interface or class associated with this proxy class.
+        Gets the Slice type ID of the interface associated with this proxy.
 
         Returns
         -------
         str
-            The type id, "::Ice::Object".
+            The type ID, "::Ice::Object".
         """
         return "::Ice::Object"
 
