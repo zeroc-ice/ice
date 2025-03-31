@@ -2,11 +2,57 @@
 import IcePy
 
 def checkedCast(type, proxy, facet=None, context=None):
+    """
+    Downcasts a proxy after confirming the target object's type via a remote invocation.
+
+    Parameters
+    ----------
+    type : type
+        The proxy target type.
+    proxy : ObjectPrx
+        The source proxy (can be None).
+
+    facet : str, optional
+        A facet name.
+
+    context : dict, optional
+        The request context.
+
+    Returns
+    -------
+    ObjectPrx|None
+        A proxy with the requested type, or None if the target object does not support the requested type.
+    """
+    if proxy is None:
+        return None
     if facet is not None:
         proxy = proxy.ice_facet(facet)
     return type.uncheckedCast(proxy) if proxy.ice_isA(type.ice_staticId(), context=context) else None
 
 async def checkedCastAsync(type, proxy, facet=None, context=None):
+    """
+    Downcasts a proxy after confirming the target object's type via a remote invocation.
+
+    Parameters
+    ----------
+    type : type
+        The proxy target type.
+    proxy : ObjectPrx
+        The source proxy (can be None).
+
+    facet : str, optional
+        A facet name.
+
+    context : dict, optional
+        The request context.
+
+    Returns
+    -------
+    ObjectPrx|None
+        A proxy with the requested type, or None if the target object does not support the requested type.
+    """
+    if proxy is None:
+        return None
     if facet is not None:
         proxy = proxy.ice_facet(facet)
     b = await proxy.ice_isAAsync(type.ice_staticId(), context=context)
@@ -19,10 +65,48 @@ class ObjectPrx(IcePy.ObjectPrx):
 
     @staticmethod
     def checkedCast(proxy, facet=None, context=None):
+        """
+        Downcasts a proxy after confirming the target object's type via a remote invocation.
+
+        Parameters
+        ----------
+        proxy : ObjectPrx
+            The source proxy (can be None).
+
+        facet : str, optional
+            A facet name.
+
+        context : dict, optional
+            The request context.
+
+        Returns
+        -------
+        ObjectPrx|None
+            A proxy with the requested type, or None if the target object does not support the requested type.
+        """
         return checkedCast(ObjectPrx, proxy, facet, context)
 
     @staticmethod
     def checkedCastAsync(proxy, facet=None, context=None):
+        """
+        Downcasts a proxy after confirming the target object's type via a remote invocation.
+
+        Parameters
+        ----------
+        proxy : ObjectPrx
+            The source proxy (can be None).
+
+        facet : str, optional
+            A facet name.
+
+        context : dict, optional
+            The request context.
+
+        Returns
+        -------
+        ObjectPrx|None
+            A proxy with the requested type, or None if the target object does not support the requested type.
+        """
         return checkedCastAsync(ObjectPrx, proxy, facet, context)
 
     @staticmethod
