@@ -3,6 +3,13 @@
 plugins {
     id 'com.zeroc.ice.slice-tools' apply false
     id 'checkstyle'
+    id 'org.openrewrite.rewrite' version '7.3.0'
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
 }
 
 subprojects {
@@ -103,4 +110,16 @@ checkstyle {
     toolVersion = '10.21.4'
     ignoreFailures = false
     showViolations = true
+}
+
+rewrite {
+    activeRecipe(
+        'org.openrewrite.staticanalysis.CodeCleanup',
+    )
+    checkstyleConfigFile = file("checkstyle.xml")
+    setExportDatatables(true)
+}
+
+dependencies {
+    rewrite("org.openrewrite.recipe:rewrite-static-analysis:2.5.1")
 }

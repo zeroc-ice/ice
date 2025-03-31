@@ -10,8 +10,11 @@ plugins {
     // Apply the Kotlin JVM plugin
      id("org.jetbrains.kotlin.jvm") version "2.1.0"
 
-    // Code formatting with Checkstyle
+    // Code format parsing with Checkstyle
     id("checkstyle")
+
+    // Automated code formatting based on Checkstyle with OpenRewrite
+    id("org.openrewrite.rewrite") version "7.3.0"
 }
 
 
@@ -103,4 +106,10 @@ tasks.named<Task>("check") {
 // Configure unit tests to use JUnit Jupiter
 tasks.named<Test>("test") {
     useJUnitPlatform()
+}
+
+rewrite {
+  activeRecipe(
+      "org.openrewrite.java.OrderImports",
+  )
 }
