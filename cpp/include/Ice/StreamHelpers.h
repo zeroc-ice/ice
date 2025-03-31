@@ -499,8 +499,8 @@ namespace Ice
     /// Helper to read/write optional sequences or dictionaries.
     template<typename T, bool fixedLength, int sz> struct StreamOptionalContainerHelper;
 
-    /// Encodes containers of variable-size elements with the FSize optional type, since we can't easily figure out the
-    /// size of the container before encoding.
+    /// Encodes containers of variable-size elements with the FSize optional type, since we can't easily figure out
+    /// total number of bytes we're about to write.
     // This is the same encoding as variable size structs so we just re-use its implementation.
     template<typename T, int sz> struct StreamOptionalContainerHelper<T, false, sz>
     {
@@ -517,19 +517,16 @@ namespace Ice
         }
     };
 
-    /// Encodes containers of fixed-size elements with the VSize optional type since we can figure out the size of the
-    /// container before encoding.
+    /// Encodes containers of fixed-size elements with the VSize optional type since we can figure out the total number
+    /// of bytes we're about to write.
     template<typename T, int sz> struct StreamOptionalContainerHelper<T, true, sz>
     {
         static constexpr OptionalFormat optionalFormat = OptionalFormat::VSize;
 
         static void write(OutputStream* stream, const T& v, std::int32_t n)
         {
-            //
-            // The container size is the number of elements * the size of
-            // an element and the size-encoded number of elements (1 or
-            // 5 depending on the number of elements).
-            //
+            // The total number of bytes is the number of elements * the size of an element and the size-encoded number
+            // of elements (1 or 5 depending on the number of elements).
             stream->writeSize(sz * n + (n < 255 ? 1 : 5));
             stream->write(v);
         }
@@ -541,7 +538,7 @@ namespace Ice
         }
     };
 
-    // Optimization: containers of 1 byte elements are encoded with the  VSize optional type. There's no need to encode
+    // Optimization: containers of 1 byte elements are encoded with the VSize optional type. There's no need to encode
     // an additional size for those, the number of elements of the container can be used to skip the optional.
     template<typename T> struct StreamOptionalContainerHelper<T, true, 1>
     {
