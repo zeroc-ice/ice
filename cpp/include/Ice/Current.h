@@ -44,8 +44,8 @@ namespace Ice
         EncodingVersion encoding;
     };
 
-    /// @private
     /// A default-initialized Current instance.
+    [[deprecated("Avoid calling generated functions with a trailing Current parameter.")]]
     ICE_API extern const Current emptyCurrent;
 
     /// Makes sure the operation mode of an incoming request is not idempotent.

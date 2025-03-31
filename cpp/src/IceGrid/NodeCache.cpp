@@ -144,7 +144,7 @@ NodeEntry::setSession(const shared_ptr<NodeSessionI>& session)
                 {
                     try
                     {
-                        s->destroy(Ice::emptyCurrent);
+                        s->destroy();
                     }
                     catch (const Ice::ObjectNotExistException&)
                     {
@@ -313,7 +313,7 @@ NodeEntry::loadServer(
             unique_lock lock(_mutex);
             checkSession(lock);
             node = _session->getNode();
-            sessionTimeout = chrono::seconds(_session->getTimeout(Ice::emptyCurrent));
+            sessionTimeout = _session->timeout();
 
             //
             // Check if we should use a specific timeout (the load

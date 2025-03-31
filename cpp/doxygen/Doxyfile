@@ -1027,7 +1027,6 @@ EXCLUDE_PATTERNS       =
 
 EXCLUDE_SYMBOLS        = DataStormI \
                          IceInternal \
-                         IceUtilInternal \
                          Glacier2Internal \
                          std \
                          Glacier2::IdentitySet \

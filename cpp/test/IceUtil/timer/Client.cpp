@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "../../src/Ice/Random.h"
-#include "Ice/Timer.h"
+#include "../../src/Ice/Timer.h"
 #include "TestHelper.h"
 
 #include <chrono>

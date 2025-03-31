@@ -215,7 +215,6 @@
     <ClInclude Include="..\..\NodeSessionManager.h" />
     <ClInclude Include="..\..\SessionI.h" />
     <ClInclude Include="..\..\ConnectionManager.h" />
-    <ClInclude Include="..\..\Timer.h" />
     <ClInclude Include="..\..\TopicFactoryI.h" />
     <ClInclude Include="..\..\TopicI.h" />
     <ClInclude Include="..\..\TraceUtil.h" />

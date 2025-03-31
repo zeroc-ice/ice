@@ -8,10 +8,10 @@
 #include "Ice/Connection.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
-#include "Ice/SHA1.h"
 #include "Ice/StringUtil.h"
 #include "ProtocolInstance.h"
 #include "Random.h"
+#include "SHA1.h"
 
 #include <climits>
 #include <cstdint>

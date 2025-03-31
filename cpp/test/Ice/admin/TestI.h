@@ -14,6 +14,7 @@ public:
     std::optional<Ice::ObjectPrx> getAdmin(const Ice::Current&) final;
     Ice::PropertyDict getChanges(const Ice::Current&) final;
 
+    void addUpdateCallback();
     void addUpdateCallback(const Ice::Current&) final;
     void removeUpdateCallback(const Ice::Current&) final;
 

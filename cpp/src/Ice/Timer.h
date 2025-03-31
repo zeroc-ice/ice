@@ -3,7 +3,8 @@
 #ifndef ICE_TIMER_H
 #define ICE_TIMER_H
 
-#include "Config.h"
+#include "Ice/Config.h"
+#include "Ice/TimerTask.h"
 
 #include <cassert>
 #include <chrono>
@@ -18,18 +19,6 @@
 
 namespace IceInternal
 {
-    class Timer;
-    using TimerPtr = std::shared_ptr<Timer>;
-
-    class ICE_API TimerTask
-    {
-    public:
-        virtual ~TimerTask();
-
-        virtual void runTimerTask() = 0;
-    };
-    using TimerTaskPtr = std::shared_ptr<TimerTask>;
-
 #ifdef __clang__
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wweak-vtables"

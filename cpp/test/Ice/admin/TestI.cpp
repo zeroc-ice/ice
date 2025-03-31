@@ -58,7 +58,7 @@ RemoteCommunicatorI::getChanges(const Current&)
 }
 
 void
-RemoteCommunicatorI::addUpdateCallback(const Current&)
+RemoteCommunicatorI::addUpdateCallback()
 {
     lock_guard lock(_mutex);
 
@@ -69,6 +69,12 @@ RemoteCommunicatorI::addUpdateCallback(const Current&)
         assert(admin);
         _removeCallback = admin->addUpdateCallback([this](const PropertyDict& changes) { updated(changes); });
     }
+}
+
+void
+RemoteCommunicatorI::addUpdateCallback(const Current&)
+{
+    addUpdateCallback();
 }
 
 void
@@ -171,7 +177,7 @@ RemoteCommunicatorFactoryI::createCommunicator(PropertyDict props, const Current
     // Set the callback on the admin facet.
     //
     RemoteCommunicatorIPtr servant = make_shared<RemoteCommunicatorI>(communicator);
-    servant->addUpdateCallback(emptyCurrent);
+    servant->addUpdateCallback();
 
     return current.adapter->addWithUUID<RemoteCommunicatorPrx>(servant);
 }

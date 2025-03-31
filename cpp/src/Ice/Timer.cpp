@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-#include "Ice/Timer.h"
+#include "Timer.h"
 #include "ConsoleUtil.h"
 #include "Ice/Exception.h"
 

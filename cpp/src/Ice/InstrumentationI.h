@@ -4,7 +4,7 @@
 #define ICE_INSTRUMENTATION_I_H
 
 #include "Ice/Connection.h"
-#include "Ice/MetricsObserverI.h"
+#include "MetricsObserverI.h"
 
 namespace IceInternal
 {
