@@ -23,6 +23,7 @@ namespace Ice
     class ObjectPrx;
 }
 
+/// Observers for objects created by the Ice runtime.
 namespace Ice::Instrumentation
 {
     class Observer;
