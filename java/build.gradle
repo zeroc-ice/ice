@@ -63,7 +63,6 @@ subprojects {
         //        checkstyleClasspath = project.configurations.checkstyleOverride
         //}
     }
-    
 }
 
 task clean(type: Delete) {

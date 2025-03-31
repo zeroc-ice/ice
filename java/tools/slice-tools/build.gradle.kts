@@ -17,8 +17,6 @@ plugins {
     id("org.openrewrite.rewrite") version "7.3.0"
 }
 
-
-
 /*tasks.withType<Checkstyle>().configureEach {
     reports {
         xml.required = false
@@ -66,7 +64,6 @@ tasks.withType<Jar> {
 }
 
 // Publishing
-
 publishing {
     repositories {
         val mavenRepoUrl = findProperty("mavenRepository") as String? ?: System.getenv("MAVEN_REPOSITORY")
