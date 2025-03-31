@@ -24,8 +24,8 @@ namespace Ice
     // reply message. Other local exceptions can't be marshaled.
     //
 
-    /// The dispatch failed. This is the base class for local exceptions that can be marshaled and transmitted "over the
-    /// wire".
+    /// The exception that is thrown when a dispatch failed. This is the base class for local exceptions that can be
+    /// marshaled and transmitted "over the wire".
     /// @headerfile Ice/Ice.h
     class ICE_API DispatchException : public LocalException
     {
@@ -51,7 +51,7 @@ namespace Ice
         ReplyStatus _replyStatus;
     };
 
-    /// The base exception for the 3 NotExist exceptions.
+    /// The base class for the 3 NotExist exceptions.
     /// @headerfile Ice/Ice.h
     class ICE_API RequestFailedException : public DispatchException
     {
@@ -100,7 +100,7 @@ namespace Ice
         std::shared_ptr<std::string> _operation;
     };
 
-    /// The dispatch could not find a servant for the identity carried by the request.
+    /// The exception that is thrown when a dispatch cannot find a servant for the identity carried by the request.
     /// @headerfile Ice/Ice.h
     class ICE_API ObjectNotExistException final : public RequestFailedException
     {
@@ -122,7 +122,8 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// The dispatch could not find a servant for the identity + facet carried by the request.
+    /// The exception that is thrown when a dispatch cannot find a servant for the identity + facet carried by the
+    /// request.
     /// @headerfile Ice/Ice.h
     class ICE_API FacetNotExistException final : public RequestFailedException
     {
@@ -144,8 +145,9 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// The dispatch could not find the operation carried by the request on the target servant. This is typically due
-    /// to a mismatch in the Slice definitions, such as the client using Slice definitions newer than the server's.
+    /// The exception that is thrown when a dispatch cannot find the operation carried by the request on the target
+    /// servant. This is typically due to a mismatch in the Slice definitions, such as the client using Slice
+    /// definitions newer than the server's.
     /// @headerfile Ice/Ice.h
     class ICE_API OperationNotExistException final : public RequestFailedException
     {
@@ -167,7 +169,8 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// The dispatch failed with an exception that is not a LocalException or a UserException.
+    /// The exception that is thrown when a dispatch failed with an exception that is not a LocalException or a
+    /// UserException.
     /// @headerfile Ice/Ice.h
     class ICE_API UnknownException : public DispatchException
     {
@@ -189,7 +192,8 @@ namespace Ice
         UnknownException(const char* file, int line, ReplyStatus replyStatus, std::string message);
     };
 
-    /// The dispatch failed with a LocalException that is not one of the special marshal-able local exceptions.
+    /// The exception that is thrown when a dispatch failed with a LocalException that is not one of the special
+    /// marshal-able local exceptions.
     /// @headerfile Ice/Ice.h
     class ICE_API UnknownLocalException final : public UnknownException
     {
@@ -203,7 +207,8 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// The dispatch returned a UserException that was not declared in the operation's exception specification.
+    /// The exception that is thrown when a client receives a UserException that was not declared in the operation's
+    /// exception specification.
     /// @headerfile Ice/Ice.h
     class ICE_API UnknownUserException final : public UnknownException
     {
@@ -227,7 +232,7 @@ namespace Ice
     // Protocol exceptions
     //
 
-    /// A generic exception base for all kinds of protocol error conditions.
+    /// The base class for exceptions related to the Ice protocol.
     /// @headerfile Ice/Ice.h
     class ICE_API ProtocolException : public LocalException
     {
@@ -237,11 +242,11 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept override;
     };
 
-    /// This exception indicates that the connection has been gracefully shut down by the server. The operation call
-    /// that caused this exception has not been executed by the server. In most cases you will not get this exception,
-    /// because the client will automatically retry the operation call in case the server shut down the connection.
-    /// However, if upon retry the server shuts down the connection again, and the retry limit has been reached, then
-    /// this exception is propagated to the application code.
+    /// The exception that is thrown when the connection has been gracefully shut down by the server. The request
+    /// that returned this exception has not been executed by the server. In most cases you will not get this exception,
+    /// because the client will automatically retry the invocation. However, if upon retry the server shuts down the
+    /// connection again, and the retry limit has been reached, then this exception is propagated to the application
+    /// code.
     /// @headerfile Ice/Ice.h
     class ICE_API CloseConnectionException final : public ProtocolException
     {
@@ -257,8 +262,8 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// A datagram exceeds the configured size. This exception is raised if a datagram exceeds the configured send or
-    /// receive buffer size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
+    /// The exception that is thrown when a datagram exceeds the configured send or receive buffer size, or exceeds the
+    /// maximum payload size of a UDP packet (65507 bytes).
     /// @headerfile Ice/Ice.h
     class ICE_API DatagramLimitException final : public ProtocolException
     {
@@ -274,7 +279,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// This exception is raised for errors during marshaling or unmarshaling data.
+    /// The exception that is thrown when an error occurs during marshaling or unmarshaling.
     /// @headerfile Ice/Ice.h
     class ICE_API MarshalException final : public ProtocolException
     {
@@ -288,7 +293,7 @@ namespace Ice
     // Timeout exceptions
     //
 
-    /// This exception indicates a timeout condition.
+    /// The exception that is thrown to report a timeout.
     /// @headerfile Ice/Ice.h
     class ICE_API TimeoutException : public LocalException
     {
@@ -298,7 +303,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept override;
     };
 
-    /// This exception indicates a connection establishment timeout condition.
+    /// The exception that is thrown when a connection establishment times out.
     /// @headerfile Ice/Ice.h
     class ICE_API ConnectTimeoutException final : public TimeoutException
     {
@@ -314,7 +319,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// This exception indicates a connection closure timeout condition.
+    /// The exception that is thrown when a graceful connection closure times out.
     /// @headerfile Ice/Ice.h
     class ICE_API CloseTimeoutException final : public TimeoutException
     {
@@ -330,7 +335,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// This exception indicates that an invocation failed because it timed out.
+    /// The exception that is thrown when an invocation times out.
     /// @headerfile Ice/Ice.h
     class ICE_API InvocationTimeoutException final : public TimeoutException
     {
@@ -347,8 +352,7 @@ namespace Ice
     // Syscall exceptions
     //
 
-    /// This exception is raised if a system error occurred in the server or client process. There are many possible
-    /// causes for such a system exception. For details on the cause, SyscallException::error should be inspected.
+    /// The exception that is thrown to report the failure of a system call.
     /// @headerfile Ice/Ice.h
     class ICE_API SyscallException : public LocalException
     {
@@ -402,7 +406,7 @@ namespace Ice
         ErrorCode _error;
     };
 
-    /// This exception indicates a DNS problem.
+    /// The exception that is thrown to report a DNS resolution failure.
     /// @headerfile Ice/Ice.h
     class ICE_API DNSException final : public SyscallException
     {
@@ -417,7 +421,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// This exception indicates file errors.
+    /// The exception that is thrown to report a file system error.
     /// @headerfile Ice/Ice.h
     class ICE_API FileException final : public SyscallException
     {
@@ -436,7 +440,7 @@ namespace Ice
     // Socket exceptions
     //
 
-    /// This exception indicates socket errors.
+    /// The exception that is thrown to report a socket error.
     /// @headerfile Ice/Ice.h
     class ICE_API SocketException : public SyscallException
     {
@@ -472,7 +476,7 @@ namespace Ice
         using SyscallException::SyscallException;
     };
 
-    /// This exception indicates connection failures.
+    /// The exception that is thrown when a connection establishment fails.
     /// @headerfile Ice/Ice.h
     class ICE_API ConnectFailedException : public SocketException
     {
@@ -482,7 +486,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept override;
     };
 
-    /// This exception indicates a lost connection.
+    /// The exception that is thrown when an established connection is lost.
     /// @headerfile Ice/Ice.h
     class ICE_API ConnectionLostException final : public SocketException
     {
@@ -496,7 +500,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// This exception indicates a connection failure for which the server host actively refuses a connection.
+    /// The exception that is thrown when the server host actively refuses a connection.
     /// @headerfile Ice/Ice.h
     class ICE_API ConnectionRefusedException final : public ConnectFailedException
     {
@@ -516,9 +520,7 @@ namespace Ice
     // Other leaf local exceptions in alphabetical order.
     //
 
-    /// An attempt was made to register something more than once with the Ice run time. This exception is raised if an
-    /// attempt is made to register a servant, servant locator, facet, value factory, plug-in, object adapter, object,
-    /// or user exception factory more than once for the same ID.
+    /// The exception that is thrown when you attempt to register an object more than once with the Ice runtime.
     /// @headerfile Ice/Ice.h
     class ICE_API AlreadyRegisteredException final : public LocalException
     {
@@ -547,7 +549,7 @@ namespace Ice
         std::shared_ptr<std::string> _id;
     };
 
-    /// This exception is raised if the Communicator has been destroyed.
+    /// The exception that is thrown when an operation fails because the communicator has been destroyed.
     /// @see Communicator#destroy
     /// @headerfile Ice/Ice.h
     class ICE_API CommunicatorDestroyedException final : public LocalException
@@ -564,7 +566,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// This exception indicates that a connection was closed gracefully.
+    /// The exception that is thrown when an operation fails because the connection has been aborted.
     /// @headerfile Ice/Ice.h
     class ICE_API ConnectionAbortedException final : public LocalException
     {
@@ -590,7 +592,7 @@ namespace Ice
         bool _closedByApplication;
     };
 
-    /// This exception indicates that a connection was closed gracefully.
+    /// The exception that is thrown when an operation fails because the connection has been closed gracefully.
     /// @headerfile Ice/Ice.h
     class ICE_API ConnectionClosedException final : public LocalException
     {
@@ -616,7 +618,7 @@ namespace Ice
         bool _closedByApplication;
     };
 
-    /// This exception is raised if an unsupported feature is used.
+    /// The exception that is thrown when attempting to use an unsupported feature.
     /// @headerfile Ice/Ice.h
     class ICE_API FeatureNotSupportedException final : public LocalException
     {
@@ -626,7 +628,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
+    /// The exception that is thrown when attempting to change the connection properties of a fixed proxy.
     /// @headerfile Ice/Ice.h
     class ICE_API FixedProxyException final : public LocalException
     {
@@ -642,7 +644,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// This exception is raised when a failure occurs during initialization.
+    /// The exception that is thrown when communicator initialization fails.
     /// @headerfile Ice/Ice.h
     class ICE_API InitializationException final : public LocalException
     {
@@ -652,7 +654,8 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
+    /// The exception that is thrown when an asynchronous invocation fails because it was canceled explicitly by the
+    /// user.
     /// @headerfile Ice/Ice.h
     class ICE_API InvocationCanceledException final : public LocalException
     {
@@ -665,7 +668,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// This exception is raised if no suitable endpoint is available.
+    /// The exception that is thrown when the Ice runtime cannot find a suitable endpoint to connect to.
     /// @headerfile Ice/Ice.h
     class ICE_API NoEndpointException final : public LocalException
     {
@@ -681,11 +684,8 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// An attempt was made to find or deregister something that is not registered with the Ice run time or Ice locator.
-    /// This exception is raised if an attempt is made to remove a servant, servant locator, facet, value factory,
-    /// plug-in, object adapter, object, or user exception factory that is not currently registered. It's also raised if
-    /// the Ice locator can't find an object or object adapter when resolving an indirect proxy or when an object
-    /// adapter is activated.
+    /// The exception that is thrown when you attempt to find or deregister something that is not registered with the
+    /// Ice runtime or Ice locator.
     /// @headerfile Ice/Ice.h
     class ICE_API NotRegisteredException final : public LocalException
     {
@@ -714,7 +714,7 @@ namespace Ice
         std::shared_ptr<std::string> _id;
     };
 
-    /// This exception is raised if an attempt is made to use a deactivated ObjectAdapter.
+    /// The exception that is thrown when attempting to use an ObjectAdapter that has been deactivated.
     /// @see ObjectAdapter#deactivate
     /// @see Communicator#shutdown
     /// @headerfile Ice/Ice.h
@@ -733,7 +733,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// This exception is raised if an attempt is made to use a destroyed ObjectAdapter.
+    /// The exception that is thrown when attempting to use an ObjectAdapter that has been destroyed.
     /// @headerfile Ice/Ice.h
     class ICE_API ObjectAdapterDestroyedException final : public LocalException
     {
@@ -750,8 +750,8 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// This exception is raised if an ObjectAdapter cannot be activated. This happens if the Locator
-    /// detects another active ObjectAdapter with the same adapter id.
+    /// The exception that is thrown when an ObjectAdapter cannot be activated. This can happen when the locator
+    /// implementation detects another active ObjectAdapter with the same adapter ID.
     /// @headerfile Ice/Ice.h
     class ICE_API ObjectAdapterIdInUseException final : public LocalException
     {
@@ -768,7 +768,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// Reports a failure that occurred while parsing a string.
+    /// The exception that is thrown when the parsing of a string fails.
     /// @headerfile Ice/Ice.h
     class ICE_API ParseException final : public LocalException
     {
@@ -778,7 +778,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// This exception indicates that a failure occurred while initializing a plug-in.
+    /// The exception that is thrown when the initialization of an Ice plugin fails.
     /// @headerfile Ice/Ice.h
     class ICE_API PluginInitializationException final : public LocalException
     {
@@ -788,7 +788,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// This exception indicates a failure in a security subsystem, such as the IceSSL plug-in.
+    /// The exception that is thrown when a failure occurs in the security subsystem; this includes IceSSL errors.
     /// @headerfile Ice/Ice.h
     class ICE_API SecurityException final : public LocalException
     {
@@ -798,9 +798,8 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// The operation can only be invoked with a twoway request. This exception is raised if an attempt is made to
-    /// invoke an operation with <code>ice_oneway</code>, <code>ice_batchOneway</code>, <code>ice_datagram</code>, or
-    /// <code>ice_batchDatagram</code> and the operation has a return value, out-parameters, or an exception
+    /// The exception that is thrown when attempting to invoke an operation with `ice_oneway`, `ice_batchOneway`,
+    /// `ice_datagram`, or `ice_batchDatagram`, and the operation has a return value, an out parameter, or an exception
     /// specification.
     /// @headerfile Ice/Ice.h
     class ICE_API TwowayOnlyException final : public LocalException
@@ -822,8 +821,8 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// This exception is raised when there is an error while getting or setting a property. For example, when
-    /// trying to set an unknown Ice property.
+    /// The exception that is thrown when a property cannot be set or retrieved. For example, this exception is thrown
+    /// when attempting to set an unknown Ice property.
     class ICE_API PropertyException final : public LocalException
     {
     public:
