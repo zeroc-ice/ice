@@ -1104,120 +1104,36 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, const vector<string>& include
     out << nl; // Trailing newline.
 }
 
-namespace {
-    static string
-    lookupKwd(const string& name)
-    {
-        //
-        // Keyword list. *Must* be kept in alphabetical order.
-        //
-        // This list only contains keywords that might conflict with a Slice
-        // identifier, so keywords like "defined?" are not necessary.
-        //
-        // This list also contains the names of methods on Object that might
-        // conflict with a Slice identifier, so names such as "inspect" and
-        // "send" are included but "to_s" is not.
-        //
-        static const string keywordList[] = {
-            "BEGIN",
-            "END",
-            "alias",
-            "and",
-            "begin",
-            "break",
-            "case",
-            "class",
-            "clone",
-            "def",
-            "display",
-            "do",
-            "dup",
-            "else",
-            "elsif",
-            "end",
-            "ensure",
-            "extend",
-            "false",
-            "for",
-            "freeze",
-            "hash",
-            "if",
-            "in",
-            "initialize_copy",
-            "inspect",
-            "instance_eval",
-            "instance_variable_get",
-            "instance_variable_set",
-            "instance_variables",
-            "method",
-            "method_missing",
-            "methods",
-            "module",
-            "new",
-            "next",
-            "nil",
-            "not",
-            "object_id",
-            "or",
-            "private_methods",
-            "protected_methods",
-            "public_methods",
-            "redo",
-            "rescue",
-            "retry",
-            "return",
-            "self",
-            "send",
-            "singleton_methods",
-            "super",
-            "taint",
-            "then",
-            "to_a",
-            "to_s",
-            "true",
-            "undef",
-            "unless",
-            "untaint",
-            "until",
-            "when",
-            "while",
-            "yield"};
-        bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
-        return found ? "_" + name : name;
-    }
-}
-
 string
 Slice::Ruby::getMappedName(const ContainedPtr& p, IdentStyle style)
 {
+    // If the user provided a specific identifier through metadata, we use it without any changes.
     if (auto customName = p->getMetadataArgs("ruby:identifier"))
     {
         return *customName;
     }
 
+    // Otherwise, we get the element's name and apply any necessary case-correction to it.
     string ident = p->name();
     switch (style)
     {
         case Slice::Ruby::IdentNormal:
             break;
         case Slice::Ruby::IdentToUpper:
-            // Special case BEGIN & END for class/module names.
-            if (ident == "BEGIN" || ident == "END")
-            {
-                return ident + "_";
-            }
             ident[0] = (char)toupper(ident[0]);
             break;
         case Slice::Ruby::IdentToLower:
             ident[0] = (char)tolower(ident[0]);
             break;
     }
-    return lookupKwd(ident);
+    return ident;
 }
 
 string
 Slice::Ruby::getAbsolute(const ContainedPtr& p)
 {
+    // We construct the absolutely scoped name from the inside-out. Starting with the element,
+    // and working up through its parents, we continually insert "::name" to the front of a string.
     string result;
     ContainedPtr currentElement = p;
     while (currentElement)
