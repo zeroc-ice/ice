@@ -119,88 +119,6 @@ Slice::getTopLevelModule(const ContainedPtr& cont)
 }
 
 void
-Slice::validateMetadata(const UnitPtr& u)
-{
-    map<string, MetadataInfo> knownMetadata;
-
-    // "swift:attribute"
-    MetadataInfo attributeInfo = {
-        .validOn = {typeid(ClassDecl), typeid(Struct), typeid(Slice::Exception), typeid(Enum)},
-        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
-        .mustBeUnique = false,
-    };
-    knownMetadata.emplace("swift:attribute", attributeInfo);
-
-    // "swift:class-resolver-prefix"
-    MetadataInfo classResolverPrefixInfo = {
-        .validOn = {typeid(Unit)},
-        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
-    };
-    knownMetadata.emplace("swift:class-resolver-prefix", classResolverPrefixInfo);
-
-    // "swift:identifier"
-    MetadataInfo identifierInfo = {
-        .validOn =
-            {typeid(InterfaceDecl),
-             typeid(Operation),
-             typeid(ClassDecl),
-             typeid(Slice::Exception),
-             typeid(Struct),
-             typeid(Sequence),
-             typeid(Dictionary),
-             typeid(Enum),
-             typeid(Enumerator),
-             typeid(Const),
-             typeid(Parameter),
-             typeid(DataMember)},
-        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
-    };
-    knownMetadata.emplace("swift:identifier", std::move(identifierInfo));
-
-    // "swift:module"
-    MetadataInfo moduleInfo = {
-        .validOn = {typeid(Module)},
-        // Even though it's really 'module:prefix' the validator sees this as a single argument since there's no commas.
-        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
-    };
-    knownMetadata.emplace("swift:module", moduleInfo);
-
-    // Pass this information off to the parser's metadata validation logic.
-    Slice::validateMetadata(u, "swift", std::move(knownMetadata));
-}
-
-void
-Slice::validateSwiftModuleMappings(const UnitPtr& unit)
-{
-    // Each Slice unit has to map all top-level modules to a single Swift module.
-    string mappedModuleName = "";
-
-    // Any modules that are directly contained on the unit are (by definition) top-level modules.
-    // And since there is only one unit per compilation, this must be all the top-level modules.
-    for (const auto& mod : unit->modules())
-    {
-        // We only check modules that are in the file we're compiling. We don't check modules from included files.
-        if (mod->includeLevel() != 0)
-        {
-            continue;
-        }
-
-        const string swiftModule = getSwiftModule(mod);
-        if (mappedModuleName.empty())
-        {
-            mappedModuleName = swiftModule;
-        }
-        else if (swiftModule != mappedModuleName)
-        {
-            ostringstream os;
-            os << "invalid module mapping: Slice module '" << mod->scoped() << "' should map to Swift module '"
-               << mappedModuleName << "'" << endl;
-            unit->error(mod->file(), mod->line(), os.str());
-        }
-    }
-}
-
-void
 SwiftGenerator::writeDocLines(IceInternal::Output& out, const StringList& lines, bool commentFirst, const string& space)
 {
     StringList l = lines;
@@ -564,6 +482,88 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
                     writeDocSentence(out, opdocOverview);
                 }
             }
+        }
+    }
+}
+
+void
+SwiftGenerator::validateMetadata(const UnitPtr& u)
+{
+    map<string, MetadataInfo> knownMetadata;
+
+    // "swift:attribute"
+    MetadataInfo attributeInfo = {
+        .validOn = {typeid(ClassDecl), typeid(Struct), typeid(Slice::Exception), typeid(Enum)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .mustBeUnique = false,
+    };
+    knownMetadata.emplace("swift:attribute", attributeInfo);
+
+    // "swift:class-resolver-prefix"
+    MetadataInfo classResolverPrefixInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("swift:class-resolver-prefix", classResolverPrefixInfo);
+
+    // "swift:identifier"
+    MetadataInfo identifierInfo = {
+        .validOn =
+            {typeid(InterfaceDecl),
+             typeid(Operation),
+             typeid(ClassDecl),
+             typeid(Slice::Exception),
+             typeid(Struct),
+             typeid(Sequence),
+             typeid(Dictionary),
+             typeid(Enum),
+             typeid(Enumerator),
+             typeid(Const),
+             typeid(Parameter),
+             typeid(DataMember)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("swift:identifier", std::move(identifierInfo));
+
+    // "swift:module"
+    MetadataInfo moduleInfo = {
+        .validOn = {typeid(Module)},
+        // Even though it's really 'module:prefix' the validator sees this as a single argument since there's no commas.
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("swift:module", moduleInfo);
+
+    // Pass this information off to the parser's metadata validation logic.
+    Slice::validateMetadata(u, "swift", std::move(knownMetadata));
+}
+
+void
+SwiftGenerator::validateSwiftModuleMappings(const UnitPtr& unit)
+{
+    // Each Slice unit has to map all top-level modules to a single Swift module.
+    string mappedModuleName = "";
+
+    // Any modules that are directly contained on the unit are (by definition) top-level modules.
+    // And since there is only one unit per compilation, this must be all the top-level modules.
+    for (const auto& mod : unit->modules())
+    {
+        // We only check modules that are in the file we're compiling. We don't check modules from included files.
+        if (mod->includeLevel() != 0)
+        {
+            continue;
+        }
+
+        const string swiftModule = getSwiftModule(mod);
+        if (mappedModuleName.empty())
+        {
+            mappedModuleName = swiftModule;
+        }
+        else if (swiftModule != mappedModuleName)
+        {
+            ostringstream os;
+            os << "invalid module mapping: Slice module '" << mod->scoped() << "' should map to Swift module '"
+               << mappedModuleName << "'" << endl;
+            unit->error(mod->file(), mod->line(), os.str());
         }
     }
 }

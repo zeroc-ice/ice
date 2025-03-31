@@ -235,12 +235,12 @@ compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr unit = Unit::createUnit("swift", false);
-                int parseStatus = unit->parse(*i, cppHandle, debug);
+                UnitPtr u = Unit::createUnit("swift", false);
+                int parseStatus = u->parse(*i, cppHandle, debug);
 
                 if (!icecpp->close())
                 {
-                    unit->destroy();
+                    u->destroy();
                     return EXIT_FAILURE;
                 }
 
@@ -250,9 +250,6 @@ compile(const vector<string>& argv)
                 }
                 else
                 {
-                    Slice::validateMetadata(unit);
-                    Slice::validateSwiftModuleMappings(unit);
-
                     string base = icecpp->getBaseName();
                     string::size_type pos = base.find_last_of("/\\");
                     if (pos != string::npos)
@@ -263,7 +260,7 @@ compile(const vector<string>& argv)
                     try
                     {
                         Gen gen(icecpp->getBaseName(), includePaths, output);
-                        gen.generate(unit);
+                        gen.generate(u);
                     }
                     catch (const Slice::FileException& ex)
                     {
@@ -271,14 +268,14 @@ compile(const vector<string>& argv)
                         // If a file could not be created, then cleanup any created files.
                         //
                         FileTracker::instance()->cleanup();
-                        unit->destroy();
+                        u->destroy();
                         consoleErr << argv[0] << ": error: " << ex.what() << endl;
                         status = EXIT_FAILURE;
                         break;
                     }
                 }
 
-                unit->destroy();
+                u->destroy();
             }
         }
 
