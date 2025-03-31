@@ -14,7 +14,8 @@ internal class EndpointFactory : Ice.Internal.EndpointFactory
 
     public string protocol() => "test-" + _factory.protocol();
 
-    public Ice.Internal.EndpointI create(List<string> args, bool server) => new EndpointI(_factory.create(args, server));
+    public Ice.Internal.EndpointI create(List<string> args, bool server) =>
+        new EndpointI(_factory.create(args, server));
 
     public Ice.Internal.EndpointI read(Ice.InputStream s)
     {

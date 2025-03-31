@@ -8,7 +8,8 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
 
     public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
-    public override bool supportsCompress(Ice.Current current) => Ice.Internal.BZip2.isLoaded(current.adapter.getCommunicator().getLogger());
+    public override bool supportsCompress(Ice.Current current) =>
+        Ice.Internal.BZip2.isLoaded(current.adapter.getCommunicator().getLogger());
 
     public override void opVoid(Ice.Current current) => test(current.mode == Ice.OperationMode.Normal);
 
@@ -617,7 +618,8 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         }
     }
 
-    public override Dictionary<string, string> opContext(Ice.Current current) => current.ctx == null ? new Dictionary<string, string>() : new Dictionary<string, string>(current.ctx);
+    public override Dictionary<string, string> opContext(Ice.Current current) =>
+        current.ctx == null ? new Dictionary<string, string>() : new Dictionary<string, string>(current.ctx);
 
     public override void opDoubleMarshaling(double p1, double[] p2, Ice.Current current)
     {
@@ -689,7 +691,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return r;
     }
 
-    public override Test.Structure opStruct(Test.Structure p1, Test.Structure p2, out Test.Structure p3, Ice.Current current)
+    public override Test.Structure opStruct(
+        Test.Structure p1,
+        Test.Structure p2,
+        out Test.Structure p3,
+        Ice.Current current)
     {
         p3 = p1;
         p3.s.s = "a new string";
@@ -718,11 +724,13 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
 
     public override string[] opStringS1(string[] opStringS1, Ice.Current current) => opStringS1;
 
-    public override Dictionary<byte, bool> opByteBoolD1(Dictionary<byte, bool> opByteBoolD1, Ice.Current current) => opByteBoolD1;
+    public override Dictionary<byte, bool> opByteBoolD1(Dictionary<byte, bool> opByteBoolD1, Ice.Current current) =>
+        opByteBoolD1;
 
     public override string[] opStringS2(string[] opStringS2, Ice.Current current) => opStringS2;
 
-    public override Dictionary<byte, bool> opByteBoolD2(Dictionary<byte, bool> opByteBoolD2, Ice.Current current) => opByteBoolD2;
+    public override Dictionary<byte, bool> opByteBoolD2(Dictionary<byte, bool> opByteBoolD2, Ice.Current current) =>
+        opByteBoolD2;
 
     public override Test.MyClass1 opMyClass1(Test.MyClass1 c, Ice.Current current) => c;
 
@@ -777,15 +785,20 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
             new Test.Structure(new Test.AnotherStruct()), current);
     }
 
-    public override Test.MyClass_OpMStruct2MarshaledResult opMStruct2(Test.Structure p1, Ice.Current current) => new Test.MyClass_OpMStruct2MarshaledResult(p1, p1, current);
+    public override Test.MyClass_OpMStruct2MarshaledResult opMStruct2(Test.Structure p1, Ice.Current current) =>
+        new Test.MyClass_OpMStruct2MarshaledResult(p1, p1, current);
 
-    public override Test.MyClass_OpMSeq1MarshaledResult opMSeq1(Ice.Current current) => new Test.MyClass_OpMSeq1MarshaledResult(new string[0], current);
+    public override Test.MyClass_OpMSeq1MarshaledResult opMSeq1(Ice.Current current) =>
+        new Test.MyClass_OpMSeq1MarshaledResult(new string[0], current);
 
-    public override Test.MyClass_OpMSeq2MarshaledResult opMSeq2(string[] p1, Ice.Current current) => new Test.MyClass_OpMSeq2MarshaledResult(p1, p1, current);
+    public override Test.MyClass_OpMSeq2MarshaledResult opMSeq2(string[] p1, Ice.Current current) =>
+        new Test.MyClass_OpMSeq2MarshaledResult(p1, p1, current);
 
-    public override Test.MyClass_OpMDict1MarshaledResult opMDict1(Ice.Current current) => new Test.MyClass_OpMDict1MarshaledResult(new Dictionary<string, string>(), current);
+    public override Test.MyClass_OpMDict1MarshaledResult opMDict1(Ice.Current current) =>
+        new Test.MyClass_OpMDict1MarshaledResult(new Dictionary<string, string>(), current);
 
-    public override Test.MyClass_OpMDict2MarshaledResult opMDict2(Dictionary<string, string> p1, Ice.Current current) => new Test.MyClass_OpMDict2MarshaledResult(p1, p1, current);
+    public override Test.MyClass_OpMDict2MarshaledResult opMDict2(Dictionary<string, string> p1, Ice.Current current) =>
+        new Test.MyClass_OpMDict2MarshaledResult(p1, p1, current);
 
     private int _opByteSOnewayCallCount = 0;
 }

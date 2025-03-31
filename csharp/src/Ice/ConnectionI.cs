@@ -2652,7 +2652,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         return _info;
     }
 
-    private void warning(string msg, System.Exception ex) => _logger.warning(msg + ":\n" + ex + "\n" + _transceiver.ToString());
+    private void warning(string msg, System.Exception ex) => _logger.warning($"{msg}:\n{ex}\n{_transceiver}");
 
     private void observerStartRead(Ice.Internal.Buffer buf)
     {

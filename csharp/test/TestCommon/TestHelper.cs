@@ -47,7 +47,8 @@ public abstract class TestHelper
         return Task.CompletedTask;
     }
 
-    public string getTestEndpoint(int num = 0, string protocol = "") => getTestEndpoint(_communicator.getProperties(), num, protocol);
+    public string getTestEndpoint(int num = 0, string protocol = "") =>
+        getTestEndpoint(_communicator.getProperties(), num, protocol);
 
     public static string getTestEndpoint(Ice.Properties properties, int num = 0, string protocol = "")
     {
@@ -61,15 +62,18 @@ public abstract class TestHelper
 
     public string getTestHost() => getTestHost(_communicator.getProperties());
 
-    public static string getTestHost(Ice.Properties properties) => properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
+    public static string getTestHost(Ice.Properties properties) =>
+        properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
 
     public string getTestProtocol() => getTestProtocol(_communicator.getProperties());
 
-    public static string getTestProtocol(Ice.Properties properties) => properties.getIceProperty("Ice.Default.Protocol");
+    public static string getTestProtocol(Ice.Properties properties) =>
+        properties.getIceProperty("Ice.Default.Protocol");
 
     public int getTestPort(int num) => getTestPort(_communicator.getProperties(), num);
 
-    public static int getTestPort(Ice.Properties properties, int num) => properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
+    public static int getTestPort(Ice.Properties properties, int num) =>
+        properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
 
     public TextWriter getWriter()
     {
