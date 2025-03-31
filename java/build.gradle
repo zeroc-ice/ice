@@ -2,6 +2,7 @@
 
 plugins {
     id 'com.zeroc.ice.slice-tools' apply false
+    id 'checkstyle'
 }
 
 subprojects {
@@ -10,6 +11,7 @@ subprojects {
     project.version = iceVersion
     project.group = "com.zeroc"
 
+    apply plugin: 'checkstyle'
     apply plugin: 'java'
     apply plugin: 'com.zeroc.ice.slice-tools'
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
@@ -36,6 +38,25 @@ subprojects {
         options.encoding = "UTF-8"
         options.deprecation = true
     }
+
+    tasks.withType(Checkstyle) {
+        //doLast {
+        //    ignoreFailures = true
+        //    source 'src'
+        //    test 'test'
+        //    include "**/*.java"
+        //    reports {
+        //        xml.enabled = false
+        //        html.enabled = false
+                //html {
+                //    destination file("$project.buildDir/reports/checkstyle/${project.name}.html")
+                //}
+            //}
+        //    classpath = files()
+        //        checkstyleClasspath = project.configurations.checkstyleOverride
+        //}
+    }
+    
 }
 
 task clean(type: Delete) {
@@ -77,3 +98,7 @@ task alljavadoc(type: Javadoc) {
     options.docTitle = "Ice ${iceVersion} API Reference"
 }
 alljavadoc.dependsOn = exportedProjects.collect { project(it).assemble.dependsOn }
+
+checkstyle {
+    toolVersion = '8.29'
+}
