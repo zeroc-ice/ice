@@ -97,7 +97,8 @@ IceRuby_defineOperation(
 {
     ICE_RUBY_TRY
     {
-        OperationIPtr op = make_shared<OperationI>(sliceName, mappedName, mode, format, inParams, outParams, returnType, exceptions);
+        OperationIPtr op =
+            make_shared<OperationI>(sliceName, mappedName, mode, format, inParams, outParams, returnType, exceptions);
         return TypedData_Wrap_Struct(_operationClass, &IceRuby_OperationType, new OperationPtr(op));
     }
     ICE_RUBY_CATCH

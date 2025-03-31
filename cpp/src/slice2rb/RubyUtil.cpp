@@ -420,7 +420,8 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             format = "nil";
         }
 
-        _out << nl << proxyName << "_mixin::OP_" << opName << " = Ice::__defineOperation('" << opName << "', '" << op->mappedName() << "', ";
+        _out << nl << proxyName << "_mixin::OP_" << opName << " = Ice::__defineOperation('" << opName << "', '"
+             << op->mappedName() << "', ";
         switch (op->mode())
         {
             case Operation::Normal:
@@ -442,7 +443,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << '[';
             writeType(param->type());
             _out << ", " << (param->optional() ? "true" : "false") << ", " << (param->optional() ? param->tag() : 0)
-                    << ']';
+                 << ']';
         }
         _out << "], [";
         isFirst = true;
@@ -456,7 +457,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << '[';
             writeType(param->type());
             _out << ", " << (param->optional() ? "true" : "false") << ", " << (param->optional() ? param->tag() : 0)
-                    << ']';
+                 << ']';
         }
         _out << "], ";
         TypePtr returnType = op->returnType();
