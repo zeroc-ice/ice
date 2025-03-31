@@ -547,6 +547,8 @@ namespace
         // Convert the exception's typeId to its mapped Ruby type by removing the leading "::".
         // This function should only ever be called on a specific list of Ice local exceptions.
         string className = string{typeId}.substr(2);
+        assert(className.starts_with("Ice::"))
+
         VALUE rubyClass;
         try
         {
