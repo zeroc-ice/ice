@@ -477,7 +477,7 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
         }
 
         const string currentParamName = getEscapedParamName(operation, "current");
-        _out << ", " << currentParamName << "=None";
+        _out << ", " << currentParamName;
         _out << "):";
         _out.inc();
 
@@ -791,13 +791,13 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp << nl << "@staticmethod";
     _out << nl << "def checkedCast(proxy, facet=None, context=None):";
     _out.inc();
-    _out << nl << "return " << prxAbs << ".ice_checkedCast(proxy, '" << scoped << "', facet, context)";
+    _out << nl << "return Ice.checkedCast(" << prxAbs << ", proxy, facet, context)";
     _out.dec();
 
     _out << sp << nl << "@staticmethod";
     _out << nl << "def checkedCastAsync(proxy, facet=None, context=None):";
     _out.inc();
-    _out << nl << "return " << prxAbs << ".ice_checkedCastAsync(proxy, '" << scoped << "', facet, context)";
+    _out << nl << "return Ice.checkedCastAsync(" << prxAbs << ", proxy, facet, context)";
     _out.dec();
 
     _out << sp << nl << "@staticmethod";
@@ -858,7 +858,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // ice_ids
     //
     StringList ids = p->ids();
-    _out << sp << nl << "def ice_ids(self, current=None):";
+    _out << sp << nl << "def ice_ids(self, current):";
     _out.inc();
     _out << nl << "return (";
     for (auto q = ids.begin(); q != ids.end(); ++q)
@@ -875,7 +875,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     // ice_id
     //
-    _out << sp << nl << "def ice_id(self, current=None):";
+    _out << sp << nl << "def ice_id(self, current):";
     _out.inc();
     _out << nl << "return '" << scoped << "'";
     _out.dec();

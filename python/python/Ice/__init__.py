@@ -13,7 +13,7 @@ from .EnumBase import EnumBase
 #
 # Add some symbols to the Ice module.
 #
-from .ObjectPrx import ObjectPrx
+from .ObjectPrx import ObjectPrx, checkedCast, checkedCastAsync
 stringVersion = IcePy.stringVersion
 intVersion = IcePy.intVersion
 currentProtocol = IcePy.currentProtocol

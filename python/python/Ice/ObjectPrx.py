@@ -1,10 +1,41 @@
 
 import IcePy
 
+def checkedCast(type, proxy, facet=None, context=None):
+    if facet is not None:
+        proxy = proxy.ice_facet(facet)
+    return type.uncheckedCast(proxy) if proxy.ice_isA(type.ice_staticId(), context=context) else None
+
+async def checkedCastAsync(type, proxy, facet=None, context=None):
+    if facet is not None:
+        proxy = proxy.ice_facet(facet)
+    b = await proxy.ice_isAAsync(type.ice_staticId(), context=context)
+    return type.uncheckedCast(proxy) if b else None
+
 class ObjectPrx(IcePy.ObjectPrx):
     """
     The base class for all proxies.
     """
+
+    @staticmethod
+    def checkedCast(proxy, facet=None, context=None):
+        return checkedCast(ObjectPrx, proxy, facet, context)
+
+    @staticmethod
+    def checkedCastAsync(proxy, facet=None, context=None):
+        return checkedCastAsync(ObjectPrx, proxy, facet, context)
+
+    @staticmethod
+    def ice_staticId():
+        """
+        Gets the Slice type id of the interface or class associated with this proxy class.
+
+        Returns
+        -------
+        str
+            The type id, "::Ice::Object".
+        """
+        return "::Ice::Object"
 
     def ice_getCommunicator(self):
         """
@@ -37,6 +68,27 @@ class ObjectPrx(IcePy.ObjectPrx):
             return super().ice_isA(id)
         else:
             return super().ice_isA(id, context)
+
+    def ice_isAAsync(self, id, context=None):
+        """
+        Test whether this object supports a specific Slice interface.
+
+        Parameters
+        ----------
+        id : str
+            The type ID of the Slice interface to test against.
+        context : dict, optional
+            The context dictionary for the invocation.
+
+        Returns
+        -------
+        bool
+            True if the target object has the interface specified by id or derives from the interface specified by id.
+        """
+        if context is None:
+            return super().ice_isAAsync(id)
+        else:
+            return super().ice_isAAsync(id, context)
 
     def ice_ping(self, context=None):
         """
