@@ -4,6 +4,7 @@
 #include "Communicator.h"
 #include "Connection.h"
 #include "Endpoint.h"
+#include "Future.h"
 #include "Ice/Communicator.h"
 #include "Ice/DisableWarnings.h"
 #include "Ice/LocalExceptions.h"
@@ -1561,7 +1562,7 @@ proxyIceFlushBatchRequestsAsync(ProxyObject* self, PyObject* /*args*/, PyObject*
         return nullptr;
     }
     callback->setFuture(future.get());
-    return future.release();
+    return IcePy::wrapFuture(*self->communicator, future.get());
 }
 
 extern "C" PyObject*
@@ -1620,18 +1621,93 @@ checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx
     return Py_None;
 }
 
+static PyObject*
+checkedCastAsyncImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx, PyObject* type)
+{
+    auto futureType = reinterpret_cast<PyTypeObject*>(lookupType("Ice.Future"));
+    assert(futureType);
+
+    PyObjectHandle emptyArgs{PyTuple_New(0)};
+    PyObjectHandle future{futureType->tp_new(futureType, emptyArgs.get(), nullptr)};
+    if (!future.get())
+    {
+        return nullptr;
+    }
+
+    // Call Ice.Future.__init__
+    futureType->tp_init(future.get(), emptyArgs.get(), nullptr);
+
+    // Create a new reference to prevent premature release of the future object. The reference will be released by
+    // either the success or exception callback, depending on the outcome of the close operation.
+    PyObject* futureObject = Py_NewRef(future.get());
+
+    optional<Ice::ObjectPrx> target;
+    if (!facet || facet == Py_None)
+    {
+        target = *p->proxy;
+    }
+    else
+    {
+        string facetStr = getString(facet);
+        target = (*p->proxy)->ice_facet(facetStr);
+    }
+    assert(target);
+
+    try
+    {
+        Ice::Context c;
+        if (ctx && ctx != Py_None)
+        {
+            if (!dictionaryToContext(ctx, c))
+            {
+                return nullptr;
+            }
+        }
+
+        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
+        target->ice_isAAsync(
+            id,
+            [futureObject, p, target, type](bool b)
+            {
+                // Ensure the current thread is able to call into Python.
+                AdoptThread adoptThread;
+                // Adopt the future object so it is released within this scope.
+                PyObjectHandle futureGuard{futureObject};
+                PyObjectHandle discard{callMethod(
+                    futureGuard.get(),
+                    "set_result",
+                    b ? createProxy(target.value(), *p->communicator, type) : Py_None)};
+            },
+            [futureObject](exception_ptr ex)
+            {
+                // Ensure the current thread is able to call into Python.
+                AdoptThread adoptThread;
+                // Adopt the future object so it is released within this scope.
+                PyObjectHandle futureGuard{futureObject};
+                PyObjectHandle exHandle{convertException(ex)};
+                PyObjectHandle discard{callMethod(futureGuard.get(), "set_exception", exHandle.get())};
+            },
+            nullptr,
+            (!ctx || ctx == Py_None) ? Ice::noExplicitContext : c);
+    }
+    catch (...)
+    {
+        setPythonException(current_exception());
+        return nullptr;
+    }
+
+    return IcePy::wrapFuture(*p->communicator, future.get());
+}
+
 extern "C" PyObject*
 proxyIceCheckedCast(PyObject* type, PyObject* args)
 {
-    //
-    // ice_checkedCast is called from generated code, therefore we always expect
-    // to receive four arguments.
-    //
+    // ice_checkedCast is called from generated code, therefore we always expect to receive four arguments.
     PyObject* obj{nullptr};
     char* id{nullptr};
-    PyObject* facetOrContext{nullptr};
+    PyObject* facet{nullptr};
     PyObject* ctx{nullptr};
-    if (!PyArg_ParseTuple(args, "OsOO", &obj, &id, &facetOrContext, &ctx))
+    if (!PyArg_ParseTuple(args, "OsOO", &obj, &id, &facet, &ctx))
     {
         return nullptr;
     }
@@ -1647,24 +1723,9 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
         return nullptr;
     }
 
-    PyObject* facet{nullptr};
-
-    if (checkString(facetOrContext))
+    if (facet != Py_None && !checkString(facet))
     {
-        facet = facetOrContext;
-    }
-    else if (PyDict_Check(facetOrContext))
-    {
-        if (ctx != Py_None)
-        {
-            PyErr_Format(PyExc_ValueError, "facet argument to checkedCast must be a string");
-            return nullptr;
-        }
-        ctx = facetOrContext;
-    }
-    else if (facetOrContext != Py_None)
-    {
-        PyErr_Format(PyExc_ValueError, "second argument to checkedCast must be a facet or context");
+        PyErr_Format(PyExc_ValueError, "facet argument to checkedCast must be a string");
         return nullptr;
     }
 
@@ -1675,6 +1736,45 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
     }
 
     return checkedCastImpl(reinterpret_cast<ProxyObject*>(obj), id, facet, ctx, type);
+}
+
+extern "C" PyObject*
+proxyIceCheckedCastAsync(PyObject* type, PyObject* args)
+{
+    // ice_checkedCast is called from generated code, therefore we always expect to receive four arguments.
+    PyObject* obj{nullptr};
+    char* id{nullptr};
+    PyObject* facet{nullptr};
+    PyObject* ctx{nullptr};
+    if (!PyArg_ParseTuple(args, "OsOO", &obj, &id, &facet, &ctx))
+    {
+        return nullptr;
+    }
+
+    if (obj == Py_None)
+    {
+        return Py_None;
+    }
+
+    if (!checkProxy(obj))
+    {
+        PyErr_Format(PyExc_ValueError, "ice_checkedCast requires a proxy argument");
+        return nullptr;
+    }
+
+    if (facet != Py_None && !checkString(facet))
+    {
+        PyErr_Format(PyExc_ValueError, "facet argument to checkedCast must be a string");
+        return nullptr;
+    }
+
+    if (ctx != Py_None && !PyDict_Check(ctx))
+    {
+        PyErr_Format(PyExc_ValueError, "context argument to checkedCast must be a dictionary");
+        return nullptr;
+    }
+
+    return checkedCastAsyncImpl(reinterpret_cast<ProxyObject*>(obj), id, facet, ctx, type);
 }
 
 extern "C" PyObject*
@@ -2065,7 +2165,11 @@ static PyMethodDef ProxyMethods[] = {
     {"ice_checkedCast",
      reinterpret_cast<PyCFunction>(proxyIceCheckedCast),
      METH_VARARGS | METH_CLASS,
-     PyDoc_STR("ice_checkedCast(proxy, id[, facetOrContext[, context]]) -> proxy")},
+     PyDoc_STR("ice_checkedCast(proxy, id, facet, context) -> proxy")},
+    {"ice_checkedCastAsync",
+     reinterpret_cast<PyCFunction>(proxyIceCheckedCastAsync),
+     METH_VARARGS | METH_CLASS,
+     PyDoc_STR("ice_checkedCastAsync(proxy, id[, facet, context) -> Ice.Future")},
     {"ice_uncheckedCast",
      reinterpret_cast<PyCFunction>(proxyIceUncheckedCast),
      METH_VARARGS | METH_CLASS,

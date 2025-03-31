@@ -789,9 +789,15 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     _out << sp << nl << "@staticmethod";
-    _out << nl << "def checkedCast(proxy, facetOrContext=None, context=None):";
+    _out << nl << "def checkedCast(proxy, facet=None, context=None):";
     _out.inc();
-    _out << nl << "return " << prxAbs << ".ice_checkedCast(proxy, '" << scoped << "', facetOrContext, context)";
+    _out << nl << "return " << prxAbs << ".ice_checkedCast(proxy, '" << scoped << "', facet, context)";
+    _out.dec();
+
+    _out << sp << nl << "@staticmethod";
+    _out << nl << "def checkedCastAsync(proxy, facet=None, context=None):";
+    _out.inc();
+    _out << nl << "return " << prxAbs << ".ice_checkedCastAsync(proxy, '" << scoped << "', facet, context)";
     _out.dec();
 
     _out << sp << nl << "@staticmethod";
