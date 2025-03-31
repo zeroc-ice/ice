@@ -544,6 +544,8 @@ namespace
     template<size_t N>
     VALUE createRubyException(const char* typeId, std::array<VALUE, N> args, bool fallbackToLocalException = false)
     {
+        // Convert the exception's typeId to its mapped Ruby type by removing the leading "::".
+        // This function should only ever be called on a specific list of Ice local exceptions.
         string className = string{typeId}.substr(2);
         VALUE rubyClass;
         try

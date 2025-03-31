@@ -336,14 +336,6 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out.dec();
     _out << nl << "end"; // End of proxy class.
 
-    //
-    // Define each operation. The arguments to __defineOperation are:
-    //
-    // 'sliceOpName', 'mappedOpName', Mode, FormatType, [InParams], [OutParams], ReturnParam, [Exceptions]
-    //
-    // where InParams and OutParams are arrays of type descriptions, and Exceptions
-    // is an array of exception types.
-    //
     _out << sp << nl << getMetaTypeName(p) << "Prx.defineProxy(" << proxyName << ", ";
     _out << "nil";
 
@@ -365,6 +357,14 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     _out << "])";
 
+    //
+    // Define each operation. The arguments to __defineOperation are:
+    //
+    // 'sliceOpName', 'mappedOpName', Mode, FormatType, [InParams], [OutParams], ReturnParam, [Exceptions]
+    //
+    // where InParams and OutParams are arrays of type descriptions, and Exceptions
+    // is an array of exception types.
+    //
     if (!ops.empty())
     {
         _out << sp;
@@ -510,14 +510,12 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     if (!members.empty())
     {
         _out << sp << nl << "attr_accessor ";
-        for (auto dmli = members.begin(); dmli != members.end(); ++dmli)
+        _out.spar("");
+        for (const auto& member : members)
         {
-            if (dmli != members.begin())
-            {
-                _out << ", ";
-            }
-            _out << ':' << getMappedName(*dmli);
+            _out << ":" + getMappedName(member);
         }
+        _out.epar("");
     }
 
     _out.dec();

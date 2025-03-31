@@ -12,7 +12,6 @@
 using namespace std;
 using namespace IceRuby;
 using namespace Slice;
-using namespace Slice::Ruby;
 
 extern "C" VALUE
 IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
@@ -107,7 +106,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
         for (vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
         {
             string file = *p;
-            Slice::PreprocessorPtr icecpp = Slice::Preprocessor::create("icecpp", file, cppArgs);
+            PreprocessorPtr icecpp = Preprocessor::create("icecpp", file, cppArgs);
             FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2RB__");
 
             if (cppHandle == 0)
@@ -115,7 +114,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
                 throw RubyException(rb_eArgError, "Slice preprocessing failed for `%s'", cmd.c_str());
             }
 
-            UnitPtr u = Slice::Unit::createUnit("ruby", all);
+            UnitPtr u = Unit::createUnit("ruby", all);
             int parseStatus = u->parse(file, cppHandle, debug);
 
             if (!icecpp->close() || parseStatus == EXIT_FAILURE)
