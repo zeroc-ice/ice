@@ -100,5 +100,5 @@ task alljavadoc(type: Javadoc) {
 alljavadoc.dependsOn = exportedProjects.collect { project(it).assemble.dependsOn }
 
 checkstyle {
-    toolVersion = '8.29'
+    toolVersion = '10.21.4'
 }
