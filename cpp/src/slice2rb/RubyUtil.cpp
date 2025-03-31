@@ -1098,7 +1098,7 @@ Slice::Ruby::generate(const UnitPtr& unit, bool all, const vector<string>& inclu
 {
     out << nl << "require 'Ice'";
 
-    validateMetadata(unit);
+    ::validateMetadata(unit);
 
     if (!all)
     {

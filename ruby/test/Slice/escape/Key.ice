@@ -6,41 +6,49 @@ module EscapedBEGIN
     ["ruby:identifier:END_"]
     enum END
     {
-        ["ruby:identifier:_alias"]
         alias
     }
 
-    ["ruby:identifier:_and"]
+    ["ruby:identifier:AndStruct"]
     struct and
     {
+        ["ruby:identifier:_begin"]
         int begin;
     }
 
-    ["ruby:identifier:_next"]
+    ["ruby:identifier:NextException"]
     exception next
     {
         ["ruby:identifier:_new"]
         int new;
     }
 
-    ["ruby:identifier:_nil"]
+    ["ruby:identifier:NIL"]
     exception nil extends next
     {
         ["ruby:identifier:_not"] int not;
         ["ruby:identifier:_or"] and or;
     }
 
-    ["ruby:identifier:_break"]
+    ["ruby:identifier:MyBreak"]
     interface break
     {
         ["ruby:identifier:_case"]
         void case(["ruby:identifier:_clone"] int clone, out ["ruby:identifier:_def"] int def);
 
-        ["ruby:identifier:my_operation"]
+        ["ruby:identifier:PascalOperation"]
         END instance_variables();
     }
 
-    ["ruby:identifier:_elsif"]
+    ["ruby:identifier:Display"]
+    class display
+    {
+        ["ruby:identifier:_when"] and when;
+        ["ruby:identifier:_dup"] break* dup;
+        ["ruby:identifier:_else"] int else;
+    }
+
+    ["ruby:identifier:Els_if_"]
     interface elsif extends break
     {
         ["ruby:identifier:_for"]
@@ -51,19 +59,11 @@ module EscapedBEGIN
         ) throws nil;
     }
 
-    ["ruby:identifier:_display"]
-    class display
-    {
-        ["ruby:identifier:_when"] and when;
-        ["ruby:identifier:_dup"] break* dup;
-        ["ruby:identifier:_else"] int else;
-    }
-
     ["ruby:identifier:_rescue"]
     sequence<END> rescue;
     ["ruby:identifier:_ensure"]
     dictionary<string, END> ensure;
 
-    ["ruby:identifier:_redo"]
+    ["ruby:identifier:REDO"]
     const int redo = 1;
 }
