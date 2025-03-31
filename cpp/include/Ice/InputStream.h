@@ -290,7 +290,7 @@ namespace Ice
 #ifdef ICE_DOXYGEN
         /// Reads an optional value from the stream.
         /// @tparam T The type of the value to read.
-        /// @param tag The tag ID.
+        /// @param tag The tag.
         /// @param[out] v The unmarshaled value.
         template<typename T> void read(std::int32_t tag, T& v);
 #endif
