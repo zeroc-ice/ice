@@ -118,6 +118,11 @@ rewrite {
     )
     checkstyleConfigFile = file("checkstyle.xml")
     setExportDatatables(true)
+    exclusion(
+        '**/*.gradle',
+        'com/zeroc/Ice/PropertyNames.java',
+        '**/*.kts'
+    )
 }
 
 dependencies {
