@@ -17,11 +17,11 @@ using namespace IceInternal;
 
 bool
 Ice::Object::ice_isA(
-    string s, // NOLINT(performance-unnecessary-value-param)
+    string typeId, // NOLINT(performance-unnecessary-value-param)
     const Current& current) const
 {
     vector<string> allTypeIds = ice_ids(current); // sorted type IDs
-    return std::binary_search(allTypeIds.begin(), allTypeIds.end(), s);
+    return std::binary_search(allTypeIds.begin(), allTypeIds.end(), typeId);
 }
 
 void
