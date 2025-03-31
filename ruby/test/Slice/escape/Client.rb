@@ -10,28 +10,25 @@ class Client < ::TestHelper
         self.init(args:args) do |communicator|
             print "testing type names... "
             STDOUT.flush
-            a = BEGIN_::END_::Alias
-            b = BEGIN_::And.new
+            a = EscapedBEGIN::END_::Alias
+            b = EscapedBEGIN::And.new
             b._begin = 0;
-            c = BEGIN_::BreakPrx::new(communicator, "test:tcp")
+            c = EscapedBEGIN::BreakPrx::new(communicator, "test:tcp")
             test(c.method(:_case))
-            test(c.method(:_to_a))
-            test(c.method(:_instance_variable_set))
-            test(c.method(:_instance_variables))
-            d1 = BEGIN_::Display.new
-            d1._when = 0
-            d1._do = 0
+            test(c.method(:my_operation))
+            d1 = EscapedBEGIN::Display.new
+            d1._when._begin = 0
             d1._dup = communicator.stringToProxy("test:tcp")
             d1._else = 0
-            e = BEGIN_::ElsifPrx::new(communicator, "test:tcp")
+            e = EscapedBEGIN::ElsifPrx::new(communicator, "test:tcp")
             test(e.method(:_case))
-            f = BEGIN_::Next.new
+            f = EscapedBEGIN::Next.new
             f._new = 0
-            g = BEGIN_::Nil.new
+            g = EscapedBEGIN::Nil.new
             g._new = 0
             g._not = 0
-            g._or = 0
-            i = BEGIN_::Redo
+            g._or._begin = 0
+            i = EscapedBEGIN::Redo
             puts "ok"
         end
     end

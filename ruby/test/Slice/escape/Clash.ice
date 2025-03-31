@@ -37,7 +37,7 @@ module Clash
         string istr;
         string ostr;
         string inS;
-        string in;
+        ["ruby:identifier:_in"] string in;
         string proxy;
     }
 
