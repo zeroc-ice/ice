@@ -1206,10 +1206,10 @@ Slice::Ruby::getMappedName(const ContainedPtr& p, IdentStyle style)
             {
                 return ident + "_";
             }
-            ident[0] = toupper(ident[0]);
+            ident[0] = (char)toupper(ident[0]);
             break;
         case Slice::Ruby::IdentToLower:
-            ident[0] = tolower(ident[0]);
+            ident[0] = (char)tolower(ident[0]);
             break;
     }
     return lookupKwd(ident);
