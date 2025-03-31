@@ -15,6 +15,33 @@ using namespace IceInternal;
 
 namespace
 {
+    void validateMetadata(const UnitPtr& unit)
+    {
+        map<string, MetadataInfo> knownMetadata;
+
+        // "ruby:identifier"
+        MetadataInfo identifierInfo = {
+            .validOn =
+                {typeid(InterfaceDecl),
+                 typeid(Operation),
+                 typeid(ClassDecl),
+                 typeid(Slice::Exception),
+                 typeid(Struct),
+                 typeid(Sequence),
+                 typeid(Dictionary),
+                 typeid(Enum),
+                 typeid(Enumerator),
+                 typeid(Const),
+                 typeid(Parameter),
+                 typeid(DataMember)},
+            .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+        };
+        knownMetadata.emplace("ruby:identifier", std::move(identifierInfo));
+
+        // Pass this information off to the parser's metadata validation logic.
+        Slice::validateMetadata(unit, "ruby", std::move(knownMetadata));
+    }
+
     string getEscapedParamName(const OperationPtr& p, const string& name)
     {
         for (const auto& param : p->parameters())
@@ -1067,13 +1094,11 @@ Slice::Ruby::CodeVisitor::outputElementSp()
 }
 
 void
-Slice::Ruby::generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output& out)
+Slice::Ruby::generate(const UnitPtr& unit, bool all, const vector<string>& includePaths, Output& out)
 {
     out << nl << "require 'Ice'";
 
-    // 'slice2rb' doesn't have any language-specific metadata, so we call `validateMetadata` with an empty list.
-    // This ensures that the validation still runs, and will reject any 'rb' metadata the user might think exists.
-    Slice::validateMetadata(un, "ruby", {});
+    validateMetadata(unit);
 
     if (!all)
     {
@@ -1083,7 +1108,7 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, const vector<string>& include
             path = fullPath(path);
         }
 
-        for (string file : un->includeFiles())
+        for (string file : unit->includeFiles())
         {
             if (isAbsolutePath(file))
             {
@@ -1099,7 +1124,7 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, const vector<string>& include
     }
 
     CodeVisitor codeVisitor(out);
-    un->visit(&codeVisitor);
+    unit->visit(&codeVisitor);
 
     out << nl; // Trailing newline.
 }
