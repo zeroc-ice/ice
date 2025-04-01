@@ -135,6 +135,11 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
             //
             out << "# encoding: utf-8\n";
             generate(u, all, includePaths, out);
+            if (u->getStatus() == EXIT_FAILURE)
+            {
+                u->destroy();
+                throw RubyException(rb_eArgError, "Slice validation failed for `%s'", cmd.c_str());
+            }
             u->destroy();
 
             string code = codeStream.str();
