@@ -1145,10 +1145,10 @@ Slice::Ruby::getMappedName(const ContainedPtr& p, IdentStyle style)
         case Slice::Ruby::IdentNormal:
             break;
         case Slice::Ruby::IdentToUpper:
-            ident[0] = (char)toupper(ident[0]);
+            ident[0] = static_cast<char>(toupper(ident[0]));
             break;
         case Slice::Ruby::IdentToLower:
-            ident[0] = (char)tolower(ident[0]);
+            ident[0] = static_cast<char>(tolower(ident[0]));
             break;
     }
     return ident;

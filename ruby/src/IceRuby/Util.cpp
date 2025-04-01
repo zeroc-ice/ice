@@ -545,7 +545,7 @@ namespace
     VALUE createRubyException(const char* typeId, std::array<VALUE, N> args, bool fallbackToLocalException = false)
     {
         // Convert the exception's typeId to its mapped Ruby type by removing the leading "::".
-        // This function should only ever be called on a specific list of Ice local exceptions.
+        // This function should only ever be called on Ice local exceptions which don't use 'ruby:identifier'.
         string className = string{typeId}.substr(2);
         assert(className.starts_with("Ice::"));
 
