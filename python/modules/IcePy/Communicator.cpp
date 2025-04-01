@@ -3,6 +3,7 @@
 #include "Communicator.h"
 #include "BatchRequestInterceptor.h"
 #include "Executor.h"
+#include "Future.h"
 #include "Ice/DisableWarnings.h"
 #include "Ice/Initialize.h"
 #include "Ice/LocalExceptions.h"
@@ -70,112 +71,25 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     return self;
 }
 
+// Only called by Ice.Initialize
+// IcePy.Communicator(args: [str]|None, initData: Ice.InitializationData|None, configFile: str|None)
+
 extern "C" int
 communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 {
-    //
-    // The argument options are:
-    //
-    // Ice.initialize()
-    // Ice.initialize(args)
-    // Ice.initialize(initData)
-    // Ice.initialize(configFile)
-    // Ice.initialize(args, initData)
-    // Ice.initialize(args, configFile)
-    //
-
-    PyObject* arg1{nullptr};
-    PyObject* arg2{nullptr};
-    if (!PyArg_ParseTuple(args, "|OO", &arg1, &arg2))
-    {
-        return -1;
-    }
-
     PyObject* argList{nullptr};
     PyObject* initData{nullptr};
     PyObject* configFile{nullptr};
-
-    if (arg1 == Py_None)
+    if (!PyArg_ParseTuple(args, "OOO", &argList, &initData, &configFile))
     {
-        arg1 = nullptr;
-    }
-
-    if (arg2 == Py_None)
-    {
-        arg2 = nullptr;
-    }
-
-    PyObject* initDataType = lookupType("Ice.InitializationData");
-
-    if (arg1)
-    {
-        if (PyList_Check(arg1))
-        {
-            argList = arg1;
-        }
-        else if (PyObject_IsInstance(arg1, initDataType))
-        {
-            initData = arg1;
-        }
-        else if (checkString(arg1))
-        {
-            configFile = arg1;
-        }
-        else
-        {
-            PyErr_Format(
-                PyExc_ValueError,
-                "initialize expects an argument list, Ice.InitializationData or a configuration filename");
-            return -1;
-        }
-    }
-
-    if (arg2)
-    {
-        if (PyList_Check(arg2))
-        {
-            if (argList)
-            {
-                PyErr_Format(PyExc_ValueError, "unexpected list argument to initialize");
-                return -1;
-            }
-            argList = arg2;
-        }
-        else if (PyObject_IsInstance(arg2, initDataType))
-        {
-            if (initData)
-            {
-                PyErr_Format(PyExc_ValueError, "unexpected Ice.InitializationData argument to initialize");
-                return -1;
-            }
-            initData = arg2;
-        }
-        else if (checkString(arg2))
-        {
-            if (configFile)
-            {
-                PyErr_Format(PyExc_ValueError, "unexpected string argument to initialize");
-                return -1;
-            }
-            configFile = arg2;
-        }
-        else
-        {
-            PyErr_Format(
-                PyExc_ValueError,
-                "initialize expects an argument list, Ice.InitializationData or a configuration filename");
-            return -1;
-        }
-    }
-
-    if (initData && configFile)
-    {
-        PyErr_Format(PyExc_ValueError, "initialize accepts either Ice.InitializationData or a configuration filename");
         return -1;
     }
 
+    // The initData and configFile are mutually exclusive. The caller Ice.initialize validates this.
+    assert(initData == Py_None || configFile == Py_None);
+
     Ice::StringSeq seq;
-    if (argList && !listToStringSeq(argList, seq))
+    if (argList != Py_None && !listToStringSeq(argList, seq))
     {
         return -1;
     }
@@ -185,7 +99,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
     try
     {
-        if (initData)
+        if (initData != Py_None)
         {
             PyObjectHandle properties{getAttr(initData, "properties", false)};
             PyObjectHandle logger{getAttr(initData, "logger", false)};
@@ -233,9 +147,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
             }
         }
 
-        //
         // We always supply our own implementation of ValueFactoryManager.
-        //
         data.valueFactoryManager = ValueFactoryManager::create();
 
         if (!data.properties)
@@ -243,12 +155,12 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
             data.properties = Ice::createProperties();
         }
 
-        if (configFile)
+        if (configFile != Py_None)
         {
             data.properties->load(getString(configFile));
         }
 
-        if (argList)
+        if (argList != Py_None)
         {
             data.properties = Ice::createProperties(seq, data.properties);
         }
@@ -259,19 +171,6 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         return -1;
     }
 
-    //
-    // Remaining command line options are passed to the communicator
-    // as an argument vector in case they contain plug-in properties.
-    //
-    int argc = static_cast<int>(seq.size());
-    char** argv = new char*[static_cast<size_t>(argc) + 1];
-    int i = 0;
-    for (const auto& s : seq)
-    {
-        argv[i++] = strdup(s.c_str());
-    }
-    argv[argc] = nullptr;
-
     data.compactIdResolver = resolveCompactId;
 
     // Always accept cycles in Python
@@ -281,9 +180,11 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     try
     {
         AllowThreads allowThreads;
-        if (argList)
+        if (argList != Py_None)
         {
-            communicator = Ice::initialize(argc, argv, data);
+            // Remaining command line options are passed to the communicator as an argument vector in case they
+            // contain plug-in properties.
+            communicator = Ice::initialize(seq, data);
         }
         else
         {
@@ -292,12 +193,6 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     }
     catch (...)
     {
-        for (i = 0; i < argc; ++i)
-        {
-            free(argv[i]);
-        }
-        delete[] argv;
-
         setPythonException(current_exception());
         return -1;
     }
@@ -305,22 +200,20 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     //
     // Replace the contents of the given argument list with the filtered arguments.
     //
-    if (argList)
+    if (argList != Py_None)
     {
-        PyList_SetSlice(argList, 0, PyList_Size(argList), nullptr); // Clear the list.
-
-        for (i = 0; i < argc; ++i)
+        // Clear the list.
+        if (PyList_SetSlice(argList, 0, PY_SSIZE_T_MAX, nullptr) == -1)
         {
-            PyObjectHandle str{Py_BuildValue("s", argv[i])};
+            return -1;
+        }
+
+        for (const string& arg : seq)
+        {
+            PyObjectHandle str{Py_BuildValue("s", arg.c_str())};
             PyList_Append(argList, str.get());
         }
     }
-
-    for (i = 0; i < argc; ++i)
-    {
-        free(argv[i]);
-    }
-    delete[] argv;
 
     self->communicator = new Ice::CommunicatorPtr(communicator);
     communicatorMap.insert(CommunicatorMap::value_type(communicator, reinterpret_cast<PyObject*>(self)));
@@ -511,10 +404,9 @@ communicatorShutdownCompleted(CommunicatorObject* self, PyObject* /*args*/)
     // Call Ice.Future.__init__
     type->tp_init(future.get(), emptyArgs.get(), nullptr);
 
-    // Create a strong reference to prevent premature release of the future object. The reference will be released by
+    // Create a new reference to prevent premature release of the future object. The reference will be released by
     // the callback.
-    PyObject* futureObject = future.get();
-    Py_INCREF(futureObject);
+    PyObject* futureObject = Py_NewRef(future.get());
 
     (*self->communicator)
         ->waitForShutdownAsync(
@@ -526,9 +418,7 @@ communicatorShutdownCompleted(CommunicatorObject* self, PyObject* /*args*/)
                 PyObjectHandle discard{callMethod(futureGuard.get(), "set_result", Py_None)};
             });
 
-    // Release the reference to the future object and let the caller take ownership.
-    // The callback maintains its own strong reference to the future.
-    return future.release();
+    return IcePy::wrapFuture(*self->communicator, future.get());
 }
 
 extern "C" PyObject*
@@ -803,7 +693,7 @@ communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, Py
         return nullptr;
     }
     callback->setFuture(future.get());
-    return future.release();
+    return IcePy::wrapFuture(*self->communicator, future.get());
 }
 
 extern "C" PyObject*
@@ -1065,9 +955,7 @@ communicatorSetWrapper(CommunicatorObject* self, PyObject* args)
     }
 
     assert(!self->wrapper);
-    self->wrapper = wrapper;
-    Py_INCREF(self->wrapper);
-
+    self->wrapper = Py_NewRef(wrapper);
     return Py_None;
 }
 
@@ -1075,8 +963,7 @@ extern "C" PyObject*
 communicatorGetWrapper(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->wrapper);
-    Py_INCREF(self->wrapper);
-    return self->wrapper;
+    return Py_NewRef(self->wrapper);
 }
 
 extern "C" PyObject*
@@ -1122,9 +1009,7 @@ communicatorGetLogger(CommunicatorObject* self, PyObject* /*args*/)
     LoggerWrapperPtr wrapper = dynamic_pointer_cast<LoggerWrapper>(logger);
     if (wrapper)
     {
-        PyObject* obj = wrapper->getObject();
-        Py_INCREF(obj);
-        return obj;
+        return Py_NewRef(wrapper->getObject());
     }
 
     return createLogger(logger);
@@ -1618,8 +1503,7 @@ IcePy::createCommunicator(const Ice::CommunicatorPtr& communicator)
     auto p = communicatorMap.find(communicator);
     if (p != communicatorMap.end())
     {
-        Py_INCREF(p->second);
-        return p->second;
+        return Py_NewRef(p->second);
     }
 
     CommunicatorObject* obj = communicatorNew(&CommunicatorType, nullptr, nullptr);
@@ -1638,14 +1522,11 @@ IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
     auto* obj = reinterpret_cast<CommunicatorObject*>(p->second);
     if (obj->wrapper)
     {
-        Py_INCREF(obj->wrapper);
-        return obj->wrapper;
+        return Py_NewRef(obj->wrapper);
     }
     else
     {
-        //
         // Communicator must have been destroyed already.
-        //
         return Py_None;
     }
 }

@@ -14,10 +14,10 @@ ImplicitContext::getContext() const
 }
 
 void
-ImplicitContext::setContext(const Context& newContext)
+ImplicitContext::setContext(Context newContext)
 {
     lock_guard lock(_mutex);
-    _context = newContext;
+    _context = std::move(newContext);
 }
 
 bool

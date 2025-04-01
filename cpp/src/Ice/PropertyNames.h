@@ -58,6 +58,7 @@ namespace IceInternal
         static const PropertyArray Glacier2Props;
         static const PropertyArray DataStormProps;
 
+        /// Property arrays defined using sections in PropertyNames.xml.
         static const std::array<PropertyArray, 15> validProps;
     };
 }

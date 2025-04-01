@@ -31,6 +31,8 @@ namespace IceGrid
         void
         setAdapterDirectProxy(std::string, std::string, std::optional<Ice::ObjectPrx>, const Ice::Current&) override;
         void receivedUpdate(TopicName, int, std::string, const Ice::Current&) override;
+
+        void destroy();
         void destroy(const Ice::Current&) override;
 
         [[nodiscard]] std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept;

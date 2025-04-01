@@ -30,19 +30,19 @@ module IceMX
         int routingTableSize = 0;
 
         /// The number of client requests queued.
-        /// @deprecated As of Ice 3.8, the Glacier2 router no longer queues requests.
-        ["deprecated"] int queuedClient = 0;
+        ["deprecated:As of Ice 3.8, the Glacier2 router no longer queues requests."]
+        int queuedClient = 0;
 
         /// The number of server requests queued.
-        /// @deprecated As of Ice 3.8, the Glacier2 router no longer queues requests.
-        ["deprecated"] int queuedServer = 0;
+        ["deprecated:As of Ice 3.8, the Glacier2 router no longer queues requests."]
+        int queuedServer = 0;
 
         /// The number of client requests overridden.
-        /// @deprecated As of Ice 3.8, the Glacier2 router no longer overrides requests.
-        ["deprecated"] int overriddenClient = 0;
+        ["deprecated:As of Ice 3.8, the Glacier2 router no longer queues requests."]
+        int overriddenClient = 0;
 
         /// The number of server requests overridden.
-         /// @deprecated As of Ice 3.8, the Glacier2 router no longer overrides requests.
-        ["deprecated"] int overriddenServer = 0;
+        ["deprecated:As of Ice 3.8, the Glacier2 router no longer queues requests."]
+        int overriddenServer = 0;
     }
 }

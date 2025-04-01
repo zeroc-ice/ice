@@ -138,38 +138,6 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, const wchar_t* argv[])
 }
 #endif
 
-PropertiesPtr
-Ice::createProperties()
-{
-    return make_shared<Properties>();
-}
-
-PropertiesPtr
-Ice::createProperties(StringSeq& args, const PropertiesPtr& defaults)
-{
-    return make_shared<Properties>(args, defaults);
-}
-
-PropertiesPtr
-Ice::createProperties(int& argc, const char* argv[], const PropertiesPtr& defaults)
-{
-    StringSeq args = argsToStringSeq(argc, argv);
-    PropertiesPtr properties = createProperties(args, defaults);
-    stringSeqToArgs(args, argc, argv);
-    return properties;
-}
-
-#ifdef _WIN32
-PropertiesPtr
-Ice::createProperties(int& argc, const wchar_t* argv[], const PropertiesPtr& defaults)
-{
-    StringSeq args = argsToStringSeq(argc, argv);
-    PropertiesPtr properties = createProperties(args, defaults);
-    stringSeqToArgs(args, argc, argv);
-    return properties;
-}
-#endif
-
 Ice::ThreadHookPlugin::ThreadHookPlugin(
     const CommunicatorPtr& communicator,
     function<void()> threadStart,
@@ -300,64 +268,6 @@ Ice::registerPluginFactory(std::string name, PluginFactory factory, bool loadOnI
 {
     lock_guard lock(globalMutex);
     PluginManagerI::registerPluginFactory(std::move(name), factory, loadOnInitialize);
-}
-
-//
-// CommunicatorHolder
-//
-
-Ice::CommunicatorHolder::CommunicatorHolder() = default;
-
-Ice::CommunicatorHolder::CommunicatorHolder(CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
-
-Ice::CommunicatorHolder&
-Ice::CommunicatorHolder::operator=(CommunicatorPtr communicator)
-{
-    if (_communicator)
-    {
-        _communicator->destroy();
-    }
-    _communicator = std::move(communicator);
-    return *this;
-}
-
-Ice::CommunicatorHolder&
-Ice::CommunicatorHolder::operator=(CommunicatorHolder&& other) noexcept
-{
-    if (_communicator)
-    {
-        _communicator->destroy();
-    }
-    _communicator = std::move(other._communicator);
-    return *this;
-}
-
-Ice::CommunicatorHolder::~CommunicatorHolder()
-{
-    if (_communicator)
-    {
-        _communicator->destroy();
-    }
-}
-
-Ice::CommunicatorHolder::operator bool() const { return _communicator != nullptr; }
-
-const Ice::CommunicatorPtr&
-Ice::CommunicatorHolder::communicator() const
-{
-    return _communicator;
-}
-
-const Ice::CommunicatorPtr&
-Ice::CommunicatorHolder::operator->() const
-{
-    return _communicator;
-}
-
-Ice::CommunicatorPtr
-Ice::CommunicatorHolder::release()
-{
-    return std::move(_communicator);
 }
 
 InstancePtr

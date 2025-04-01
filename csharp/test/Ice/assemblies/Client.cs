@@ -25,12 +25,16 @@ public class Client : Test.TestHelper
 
         using (var communicator = initialize(properties))
         {
-            test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) => e.CodeBase.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase)) == null);
+            test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) => e.CodeBase.EndsWith(
+                assembly,
+                StringComparison.InvariantCultureIgnoreCase)) == null);
         }
         properties.setProperty("Ice.PreloadAssemblies", "1");
         using (var communicator = initialize(properties))
         {
-            test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) => e.CodeBase.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase)) != null);
+            test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) => e.CodeBase.EndsWith(
+                assembly,
+                StringComparison.InvariantCultureIgnoreCase)) != null);
         }
         Console.Out.WriteLine("ok");
 #pragma warning restore SYSLIB0012 // Type or member is obsolete

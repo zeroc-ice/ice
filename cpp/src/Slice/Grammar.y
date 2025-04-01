@@ -370,7 +370,7 @@ module_def
 
     auto ident = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
-    ModulePtr module = cont->createModule(ident->v);
+    ModulePtr module = cont->createModule(ident->v, false);
     if (module)
     {
         cont->checkIntroduced(ident->v, module);
@@ -423,7 +423,7 @@ module_def
     for (size_t i = 0; i < modules.size(); i++)
     {
         const auto currentModuleName = modules[i];
-        ModulePtr module = cont->createModule(currentModuleName);
+        ModulePtr module = cont->createModule(currentModuleName, true);
         if (module)
         {
             cont->checkIntroduced(currentModuleName, module);
@@ -436,7 +436,7 @@ module_def
             // errors as possible, we still 'create' any remaining modules, which will run _some_ validation on them.
             for (size_t j = (i + 1); j < modules.size(); j++)
             {
-                cont->createModule(modules[j]); // Dummy
+                cont->createModule(modules[j], true); // Dummy
             }
 
             // Then we roll back the chain, i.e. pop the successfully-created-modules off the container stack.

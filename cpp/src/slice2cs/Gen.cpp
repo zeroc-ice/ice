@@ -155,8 +155,21 @@ namespace
             // Replace "::"" by "." in the raw link. This is for the situation where the user passes a Slice type
             // reference but (a) the source Slice file does not include this type and (b) there is no cs:identifier or
             // other identifier renaming.
-            string targetS = joinString(splitScopedName(rawLink, false), ".");
+            string targetS = rawLink;
+            // Replace any "::" scope separators with '.'s.
+            auto pos = targetS.find("::");
+            while (pos != string::npos)
+            {
+                targetS.replace(pos, 2, ".");
+                pos = targetS.find("::", pos);
+            }
+            // Replace any '#' scope separators with '.'s.
             replace(targetS.begin(), targetS.end(), '#', '.');
+            // Remove any leading scope separators.
+            if (targetS.find('.') == 0)
+            {
+                targetS.erase(0, 1);
+            }
             result << "cref=\"" << targetS << "\"";
         }
 

@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
-#ifndef ICEPY_DISPATCHER_H
-#define ICEPY_DISPATCHER_H
+#ifndef ICEPY_EXECUTOR_H
+#define ICEPY_EXECUTOR_H
 
 #include "Config.h"
 #include "Ice/CommunicatorF.h"

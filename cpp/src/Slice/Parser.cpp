@@ -422,7 +422,7 @@ namespace
 
         // Then, before checking for user-defined types, we determine which scope we'll be searching relative to.
         ContainerPtr linkSourceScope = dynamic_pointer_cast<Container>(source);
-        if (!linkSourceScope)
+        if (!linkSourceScope || dynamic_pointer_cast<Operation>(source))
         {
             linkSourceScope = source->container();
         }
@@ -479,6 +479,14 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 {
                     string msg = "no Slice element with identifier '" + linkText + "' could be found in this context";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                }
+                if (dynamic_pointer_cast<Parameter>(linkTarget))
+                {
+                    // We don't support linking to parameters with '@link' tags.
+                    // Parameter links must be done with '@p' tags, and can only appear on the enclosing operation.
+                    string msg = "cannot link parameter '" + linkText + "'; parameters can only be referenced with @p";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    linkTarget = nullptr;
                 }
 
                 // Finally, insert a correctly formatted link where the '{@link foo}' used to be.
@@ -1088,7 +1096,7 @@ Slice::Container::destroyContents()
 }
 
 ModulePtr
-Slice::Container::createModule(const string& name)
+Slice::Container::createModule(const string& name, bool nestedSyntax)
 {
     ContainedList matches = unit()->findContents(thisScope() + name);
     matches.sort(containedCompare); // Modules can occur many times...
@@ -1136,7 +1144,7 @@ Slice::Container::createModule(const string& name)
         return nullptr;
     }
 
-    ModulePtr q = make_shared<Module>(shared_from_this(), name);
+    ModulePtr q = make_shared<Module>(shared_from_this(), name, nestedSyntax);
     unit()->addContent(q);
     _contents.push_back(q);
     return q;
@@ -2359,7 +2367,11 @@ Slice::Module::destroy()
     destroyContents();
 }
 
-Slice::Module::Module(const ContainerPtr& container, const string& name) : Contained(container, name) {}
+Slice::Module::Module(const ContainerPtr& container, const string& name, bool nestedSyntax)
+    : Contained(container, name),
+      usesNestedSyntax(nestedSyntax)
+{
+}
 
 // ----------------------------------------------------------------------
 // ClassDecl
@@ -4928,7 +4940,7 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debugMode)
 
     slice_in = file;
     int status = slice_parse();
-    if (_errors)
+    if (_errors > 0)
     {
         status = EXIT_FAILURE;
     }
@@ -4988,6 +5000,12 @@ Slice::Unit::unit() const
 {
     ContainerPtr self = const_cast<Unit*>(this)->shared_from_this();
     return dynamic_pointer_cast<Unit>(self);
+}
+
+int
+Slice::Unit::getStatus() const
+{
+    return (_errors > 0 ? EXIT_FAILURE : EXIT_SUCCESS);
 }
 
 BuiltinPtr

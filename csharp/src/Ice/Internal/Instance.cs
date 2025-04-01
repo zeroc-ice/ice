@@ -366,7 +366,9 @@ public sealed class Instance
                 {
                     return null;
                 }
-                adminIdentity = new Ice.Identity("admin", _initData.properties.getIceProperty("Ice.Admin.InstanceName"));
+                adminIdentity = new Ice.Identity(
+                    "admin",
+                    _initData.properties.getIceProperty("Ice.Admin.InstanceName"));
                 if (adminIdentity.category.Length == 0)
                 {
                     adminIdentity.category = System.Guid.NewGuid().ToString();
@@ -719,7 +721,8 @@ public sealed class Instance
             }
             else
             {
-                throw new Ice.InitializationException("The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
+                throw new Ice.InitializationException(
+                    "The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
             }
 
             _cacheMessageBuffers = _initData.properties.getIcePropertyAsInt("Ice.CacheMessageBuffers");

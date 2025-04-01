@@ -1,16 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-#ifndef ICE_DISABLEWARNINGS_H
-#define ICE_DISABLEWARNINGS_H
+#ifndef ICE_DISABLE_WARNINGS_H
+#define ICE_DISABLE_WARNINGS_H
 
-//
-// This header file disables various compiler warnings that we don't want.
-//
-// IMPORTANT: Do *not* include this header file in another public header file!
-//            Doing this may potentially disable the warnings in the source
-//            code of our customers, which would be bad. Only include this
-//            header file in Ice *source* files!
-//
+// Disable mostly deprecated warnings.
 
 //
 // Microsoft Visual C++

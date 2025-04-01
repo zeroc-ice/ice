@@ -3,7 +3,7 @@
 #ifndef ICEGRID_ALLOCATABLE_H
 #define ICEGRID_ALLOCATABLE_H
 
-#include "Ice/Timer.h"
+#include "../Ice/Timer.h"
 #include "IceGrid/Session.h"
 
 #include <list>

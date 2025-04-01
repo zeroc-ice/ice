@@ -69,6 +69,7 @@ jobs:
               --upload-file "$framework_zip" \
               --output /dev/null \
               --silent \
+              --retry 3 \
               --fail \
               --show-error \
               ${{ inputs.repository_url }}/nightly/ || { echo "Upload failed"; exit 1; }

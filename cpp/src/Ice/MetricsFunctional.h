@@ -39,7 +39,6 @@ namespace IceInternal
 
 namespace IceMX
 {
-    /// @cond INTERNAL
     template<class T, typename Y, typename Func> struct ApplyOnMember
     {
         ApplyOnMember(Y T::* m, Func f) : func(f), member(m) {}
@@ -88,7 +87,6 @@ namespace IceMX
     {
         return applyOnMember(member, Decrement<Y>());
     }
-    /// @endcond
 }
 
 #endif

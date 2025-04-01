@@ -271,8 +271,8 @@ IcePy::PyException::PyException() { ex = PyErr_GetRaisedException(); }
 
 IcePy::PyException::PyException(PyObject* raisedException)
 {
-    Py_XINCREF(raisedException);
-    ex = raisedException;
+    assert(raisedException);
+    ex = Py_NewRef(raisedException);
 }
 
 namespace
@@ -723,11 +723,8 @@ IcePy::setPythonException(std::exception_ptr ex)
 void
 IcePy::setPythonException(PyObject* ex)
 {
-    //
     // PyErr_SetRaisedException steals a reference.
-    //
-    Py_INCREF(ex);
-    PyErr_SetRaisedException(ex);
+    PyErr_SetRaisedException(Py_NewRef(ex));
 }
 
 void
@@ -750,8 +747,7 @@ IcePy::handleSystemExit(PyObject* ex)
     }
     else
     {
-        code = PyObjectHandle{ex};
-        Py_INCREF(ex);
+        code = PyObjectHandle{Py_NewRef(ex)};
     }
 
     int status;
@@ -885,10 +881,9 @@ IcePy::callMethod(PyObject* method, PyObject* arg1, PyObject* arg2)
         {
             return nullptr;
         }
-        Py_XINCREF(arg1);
-        PyTuple_SET_ITEM(args.get(), 0, arg1);
-        Py_XINCREF(arg2);
-        PyTuple_SET_ITEM(args.get(), 1, arg2);
+
+        PyTuple_SET_ITEM(args.get(), 0, Py_NewRef(arg1));
+        PyTuple_SET_ITEM(args.get(), 1, Py_NewRef(arg2));
     }
     else if (arg1)
     {
@@ -897,21 +892,12 @@ IcePy::callMethod(PyObject* method, PyObject* arg1, PyObject* arg2)
         {
             return nullptr;
         }
-        Py_XINCREF(arg1);
-        PyTuple_SET_ITEM(args.get(), 0, arg1);
-    }
-    else if (arg2)
-    {
-        args = PyTuple_New(1);
-        if (!args.get())
-        {
-            return nullptr;
-        }
-        Py_XINCREF(arg2);
-        PyTuple_SET_ITEM(args.get(), 0, arg2);
+
+        PyTuple_SET_ITEM(args.get(), 0, Py_NewRef(arg1));
     }
     else
     {
+        assert(!arg1 && !arg2);
         args = PyTuple_New(0);
         if (!args.get())
         {

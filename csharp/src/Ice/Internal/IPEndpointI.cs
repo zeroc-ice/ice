@@ -57,7 +57,8 @@ public abstract class IPEndpointI : EndpointI
         }
     }
 
-    public override void connectors_async(EndpointI_connectors callback) => instance_.resolve(host_, port_, this, callback);
+    public override void connectors_async(EndpointI_connectors callback) =>
+        instance_.resolve(host_, port_, this, callback);
 
     public override List<EndpointI> expandHost()
     {
@@ -270,7 +271,8 @@ public abstract class IPEndpointI : EndpointI
     {
         if (option == "-h")
         {
-            host_ = argument ?? throw new ParseException($"no argument provided for -h option in endpoint '{endpoint}'");
+            host_ = argument ?? throw new ParseException(
+                $"no argument provided for -h option in endpoint '{endpoint}'");
             _normalizedHost = normalizeHost(host_);
         }
         else if (option == "-p")

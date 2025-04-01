@@ -53,8 +53,7 @@ batchRequestGetSize(BatchRequestObject* self, PyObject* /*args*/)
 
         self->size = PyLong_FromLong(size);
     }
-    Py_INCREF(self->size);
-    return self->size;
+    return Py_NewRef(self->size);
 }
 
 extern "C" PyObject*
@@ -76,8 +75,7 @@ batchRequestGetOperation(BatchRequestObject* self, PyObject* /*args*/)
 
         self->operation = createString(operation);
     }
-    Py_INCREF(self->operation);
-    return self->operation;
+    return Py_NewRef(self->operation);
 }
 
 extern "C" PyObject*
@@ -100,8 +98,7 @@ batchRequestGetProxy(BatchRequestObject* self, PyObject* /*args*/)
 
         self->proxy = createProxy(proxy.value(), proxy->ice_getCommunicator());
     }
-    Py_INCREF(self->proxy);
-    return self->proxy;
+    return Py_NewRef(self->proxy);
 }
 
 extern "C" PyObject*
@@ -167,7 +164,8 @@ IcePy::initBatchRequest(PyObject* module)
     return true;
 }
 
-IcePy::BatchRequestInterceptorWrapper::BatchRequestInterceptorWrapper(PyObject* interceptor) : _interceptor(interceptor)
+IcePy::BatchRequestInterceptorWrapper::BatchRequestInterceptorWrapper(PyObject* interceptor)
+    : _interceptor(Py_NewRef(interceptor))
 {
     if (!PyCallable_Check(interceptor) && !PyObject_HasAttrString(interceptor, "enqueue"))
     {
@@ -176,8 +174,6 @@ IcePy::BatchRequestInterceptorWrapper::BatchRequestInterceptorWrapper(PyObject* 
             __LINE__,
             "batch request interceptor must either be a callable or an object with an 'enqueue' method");
     }
-
-    Py_INCREF(interceptor);
 }
 
 void

@@ -478,7 +478,10 @@ public sealed class StringUtil
                             }
                             if (val > 255)
                             {
-                                string msg = "octal value \\" + System.Convert.ToString(val, 8) + " (" + val + ") is out of range";
+                                string msg =
+                                    "octal value \\" +
+                                    System.Convert.ToString(val, 8) +
+                                    " (" + val + ") is out of range";
                                 throw new System.ArgumentException(msg);
                             }
                         }

@@ -949,7 +949,6 @@ allTests(Test::TestHelper* helper)
         server->id = "Server";
         server->exe = communicator->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
         PropertyDescriptor prop{"Ice.Admin.Endpoints", "tcp -h 127.0.0.1"};
         server->propertySet.properties.push_back(prop);
@@ -1186,7 +1185,6 @@ allTests(Test::TestHelper* helper)
         server->id = "Server";
         server->exe = communicator->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
         PropertyDescriptor prop{"Ice.Admin.Endpoints", "tcp -h 127.0.0.1"};
         server->propertySet.properties.push_back(prop);
@@ -1323,7 +1321,6 @@ allTests(Test::TestHelper* helper)
         server->id = "Server";
         server->exe = communicator->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
         PropertyDescriptor prop{"Ice.Admin.Endpoints", "tcp -h 127.0.0.1"};
         server->propertySet.properties.push_back(prop);
@@ -1384,7 +1381,6 @@ allTests(Test::TestHelper* helper)
         server->id = "Server1";
         server->exe = communicator->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
         server->propertySet.properties.push_back(PropertyDescriptor{"Ice.Admin.Endpoints", "tcp -h 127.0.0.1"});
         server->activation = "on-demand";

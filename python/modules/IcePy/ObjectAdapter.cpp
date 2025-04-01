@@ -105,9 +105,8 @@ namespace
 //
 // ServantLocatorWrapper implementation.
 //
-IcePy::ServantLocatorWrapper::ServantLocatorWrapper(PyObject* locator) : _locator(locator)
+IcePy::ServantLocatorWrapper::ServantLocatorWrapper(PyObject* locator) : _locator(Py_NewRef(locator))
 {
-    Py_INCREF(_locator);
     _objectType = lookupType("Ice.Object");
 }
 
@@ -194,8 +193,7 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, shared_ptr<voi
 
     // Save state in our cookie and return a wrapper for the servant.
     c->servant = createServantWrapper(servantObj);
-    c->cookie = cookieObj;
-    Py_INCREF(c->cookie);
+    c->cookie = Py_NewRef(cookieObj);
     cookie = c;
     return c->servant;
 }
@@ -259,8 +257,7 @@ IcePy::ServantLocatorWrapper::deactivate(string_view category)
 PyObject*
 IcePy::ServantLocatorWrapper::getObject()
 {
-    Py_INCREF(_locator);
-    return _locator;
+    return Py_NewRef(_locator);
 }
 
 IcePy::ServantLocatorWrapper::Cookie::~Cookie()

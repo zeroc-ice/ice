@@ -1027,9 +1027,48 @@ EXCLUDE_PATTERNS       =
 
 EXCLUDE_SYMBOLS        = DataStormI \
                          IceInternal \
-                         IceUtilInternal \
                          Glacier2Internal \
-                         std
+                         std \
+                         Glacier2::IdentitySet \
+                         Glacier2::IdentitySetPtr \
+                         Glacier2::Router \
+                         Glacier2::RouterPtr \
+                         Glacier2::SessionControl \
+                         Glacier2::SessionControlPtr \
+                         Glacier2::StringSet \
+                         Glacier2::StringSetPtr \
+                         Ice::LoggerAdmin \
+                         Ice::LoggerAdminPtr \
+                         Ice::Process \
+                         Ice::ProcessPtr \
+                         Ice::PropertiesAdmin \
+                         Ice::PropertiesAdminPtr \
+                         IceMX::MetricsAdmin \
+                         IceMX::MetricsAdminPtr \
+                         IceBox::ServiceManager \
+                         IceBox::ServiceManagerPtr \
+                         IceGrid::Admin \
+                         IceGrid::AdminPtr \
+                         IceGrid::AdminSession \
+                         IceGrid::AdminSessionPtr \
+                         IceGrid::FileIterator \
+                         IceGrid::FileIteratorPtr \
+                         IceGrid::FileParser \
+                         IceGrid::FileParserPtr \
+                         IceGrid::Locator \
+                         IceGrid::LocatorPtr \
+                         IceGrid::Query \
+                         IceGrid::QueryPtr \
+                         IceGrid::Registry \
+                         IceGrid::RegistryPtr \
+                         IceGrid::Session \
+                         IceGrid::SessionPtr \
+                         IceStorm::Finder \
+                         IceStorm::FinderPtr \
+                         IceStorm::Topic \
+                         IceStorm::TopicPtr \
+                         IceStorm::TopicManager \
+                         IceStorm::TopicManagerPtr
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories
 # that contain example code fragments that are included (see the \include
@@ -2370,7 +2409,7 @@ INCLUDE_FILE_PATTERNS  =
 # recursively expanded use the := operator instead of the = operator.
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
-PREDEFINED             = ICE_USE_SCHANNEL ICE_USE_SECURE_TRANSPORT ICE_USE_OPENSSL
+PREDEFINED             = ICE_USE_SCHANNEL ICE_USE_SECURE_TRANSPORT ICE_USE_OPENSSL ICE_DOXYGEN
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The

@@ -80,6 +80,7 @@ jobs:
              --upload-file ice/packaging/msi/bin/x64/Release/*.msi \
              --output /dev/null \
              --silent \
+             --retry 3 \
              --fail \
              --show-error \
              ${{ inputs.repository_url }}/ || { echo "Upload failed"; exit 1; }

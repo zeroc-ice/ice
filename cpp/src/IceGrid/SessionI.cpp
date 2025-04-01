@@ -165,9 +165,15 @@ SessionI::setAllocationTimeout(int timeout, const Ice::Current&)
 }
 
 void
-SessionI::destroy(const Ice::Current&)
+SessionI::destroy()
 {
     destroyImpl(false);
+}
+
+void
+SessionI::destroy(const Ice::Current&)
+{
+    destroy();
 }
 
 int

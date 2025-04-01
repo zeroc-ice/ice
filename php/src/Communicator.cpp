@@ -9,7 +9,6 @@
 
 #include "Ice/Options.h"
 #include "Ice/StringUtil.h"
-#include "Ice/Timer.h"
 
 #include <chrono>
 #include <condition_variable>

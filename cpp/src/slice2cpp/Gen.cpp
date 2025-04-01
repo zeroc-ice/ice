@@ -282,7 +282,7 @@ namespace
         }
         else
         {
-            return "{@link " + rawLink + "}";
+            return rawLink; // rely on doxygen autolink.
         }
     }
 
@@ -3385,22 +3385,18 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
         H << sp;
     }
 
-    H << nl << "/// @private"; // No need to pollute the doc with all these specializations.
-    H << nl << "/// Specialization of StreamableTraits for " << p->mappedScoped() << ".";
+    H << nl << "/// @cond INTERNAL";
     H << nl << "template<>";
     H << nl << "struct StreamableTraits<" << p->mappedScoped() << ">";
     H << sb;
-    H << nl << "/// @copydoc StreamableTraits::helper";
-    H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryStruct;";
+    H << nl << "static constexpr StreamHelperCategory helper = StreamHelperCategoryStruct;";
+    H << nl << "static constexpr int minWireSize = " << p->minWireSize() << ";";
+    H << nl << "static constexpr bool fixedLength = " << (p->isVariableLength() ? "false" : "true") << ";";
+    H << eb << ";";
     H << sp;
-    H << nl << "/// The minimum number of bytes needed to marshal this type.";
-    H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
-    H << sp;
-    H << nl << "/// Indicates if the type is always encoded on a fixed number of bytes.";
-    H << nl << "static const bool fixedLength = " << (p->isVariableLength() ? "false" : "true") << ";";
-    H << eb << ";" << nl;
 
     writeStreamReader(H, p, p->dataMembers());
+    H << nl << "/// @endcond";
     return false;
 }
 
@@ -3416,24 +3412,15 @@ Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
         H << sp;
     }
 
-    H << nl << "/// @private"; // No need to pollute the doc with all these specializations.
-    H << nl << "/// Specialization of StreamableTraits for " << p->mappedScoped() << ".";
+    H << nl << "/// @cond INTERNAL";
     H << nl << "template<>";
     H << nl << "struct StreamableTraits<" << p->mappedScoped() << ">";
     H << sb;
-    H << nl << "/// @copydoc StreamableTraits::helper";
-    H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryEnum;";
-    H << sp;
-    H << nl << "/// The minimum value of this enum.";
-    H << nl << "static const int minValue = " << p->minValue() << ";";
-    H << sp;
-    H << nl << "/// The maximum value of this enum.";
-    H << nl << "static const int maxValue = " << p->maxValue() << ";";
-    H << sp;
-    H << nl << "/// The minimum number of bytes needed to marshal this type.";
-    H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
-    H << sp;
-    H << nl << "/// Indicates if the type is always encoded on a fixed number of bytes.";
-    H << nl << "static const bool fixedLength = false;";
+    H << nl << "static constexpr StreamHelperCategory helper = StreamHelperCategoryEnum;";
+    H << nl << "static constexpr int minValue = " << p->minValue() << ";";
+    H << nl << "static constexpr int maxValue = " << p->maxValue() << ";";
+    H << nl << "static constexpr int minWireSize = " << p->minWireSize() << ";";
+    H << nl << "static constexpr bool fixedLength = false;";
     H << eb << ";";
+    H << nl << "/// @endcond";
 }

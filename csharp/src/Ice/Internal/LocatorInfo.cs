@@ -219,7 +219,8 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
                     try
                     {
                         LocatorPrx locator = _locatorInfo.getLocator();
-                        ObjectPrx proxy = await locator.findAdapterByIdAsync(_ref.getAdapterId()).ConfigureAwait(false);
+                        ObjectPrx proxy =
+                            await locator.findAdapterByIdAsync(_ref.getAdapterId()).ConfigureAwait(false);
                         response(proxy);
                     }
                     catch (Ice.Exception ex)
@@ -296,7 +297,8 @@ public sealed class LocatorInfo : IEquatable<LocatorInfo>
     }
 
     public void
-    getEndpoints(Reference @ref, TimeSpan ttl, GetEndpointsCallback callback) => getEndpoints(@ref, null, ttl, callback);
+    getEndpoints(Reference @ref, TimeSpan ttl, GetEndpointsCallback callback) =>
+        getEndpoints(@ref, null, ttl, callback);
 
     public void
     getEndpoints(Reference @ref, Reference wellKnownRef, TimeSpan ttl, GetEndpointsCallback callback)

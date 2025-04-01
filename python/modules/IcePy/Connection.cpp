@@ -4,6 +4,7 @@
 #include "Communicator.h"
 #include "ConnectionInfo.h"
 #include "Endpoint.h"
+#include "Future.h"
 #include "ObjectAdapter.h"
 #include "Operation.h"
 #include "Proxy.h"
@@ -67,11 +68,7 @@ namespace IcePy
     class CloseCallbackWrapper final
     {
     public:
-        CloseCallbackWrapper(PyObject* cb, PyObject* con) : _cb(cb), _con(con)
-        {
-            Py_INCREF(cb);
-            Py_INCREF(con);
-        }
+        CloseCallbackWrapper(PyObject* cb, PyObject* con) : _cb(Py_NewRef(cb)), _con(Py_NewRef(con)) {}
 
         ~CloseCallbackWrapper()
         {
@@ -224,10 +221,9 @@ connectionClose(ConnectionObject* self, PyObject* /* args */)
     // Call Ice.Future.__init__
     type->tp_init(future.get(), emptyArgs.get(), nullptr);
 
-    // Create a strong reference to prevent premature release of the future object. The reference will be released by
+    // Create a new reference to prevent premature release of the future object. The reference will be released by
     // either the success or exception callback, depending on the outcome of the close operation.
-    PyObject* futureObject = future.get();
-    Py_INCREF(futureObject);
+    PyObject* futureObject = Py_NewRef(future.get());
 
     try
     {
@@ -260,9 +256,7 @@ connectionClose(ConnectionObject* self, PyObject* /* args */)
         return nullptr;
     }
 
-    // Release the reference to the future object and let the caller take ownership.
-    // The callbacks maintain their own strong reference to the future.
-    return future.release();
+    return IcePy::wrapFuture(*self->communicator, future.get());
 }
 
 extern "C" PyObject*
@@ -431,7 +425,7 @@ connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
         return nullptr;
     }
     callback->setFuture(future.get());
-    return future.release();
+    return IcePy::wrapFuture(*self->communicator, future.get());
 }
 
 extern "C" PyObject*

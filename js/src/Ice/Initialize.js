@@ -46,7 +46,7 @@ export function initialize(arg1, arg2) {
     } else {
         initData = initData.clone();
     }
-    initData.properties = createProperties(args, initData.properties);
+    initData.properties = new Properties(args, initData.properties);
 
     return new Communicator(initData);
 }

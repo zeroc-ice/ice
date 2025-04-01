@@ -51,7 +51,7 @@ namespace IceInternal
         TypeIdTable _typeIdTable;
     };
 
-    extern ICE_API FactoryTable* factoryTable;
+    ICE_API extern FactoryTable* factoryTable;
 
     template<class E> void defaultUserExceptionFactory([[maybe_unused]] std::string_view typeId)
     {

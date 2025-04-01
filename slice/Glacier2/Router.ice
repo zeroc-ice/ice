@@ -32,7 +32,8 @@ module Glacier2
         /// Gets a unique category that identifies the client (caller) in the router. This category must be used in the
         /// identities of all the client's callback objects.
         /// @return The category. It's an empty string when `Glacier2.Server.Endpoints` is not configured.
-        ["cpp:const"] idempotent string getCategoryForClient();
+        ["cpp:const"]
+        idempotent string getCategoryForClient();
 
         /// Creates a session for the client (caller) with the router. If a {@link SessionManager} is configured,
         /// a proxy to a {@link Session} object is returned to the client. Otherwise, null is returned and only an
@@ -73,9 +74,7 @@ module Glacier2
 
         /// Keeps the session with this router alive.
         /// @throws SessionNotExistException Thrown when no session exists for the caller (client).
-        /// @deprecated This operation is provided for backward compatibility with Ice 3.7 and earlier and does nothing
-        /// in newer versions of Glacier2.
-        ["deprecated"]
+        ["deprecated:As of Ice 3.8, this operation does nothing."]
         void refreshSession()
             throws SessionNotExistException;
 
@@ -86,10 +85,12 @@ module Glacier2
 
         /// Gets the idle timeout used by the server-side of the connection.
         /// @return The idle timeout (in seconds).
-        ["cpp:const"] idempotent long getSessionTimeout();
+        ["cpp:const"]
+        idempotent long getSessionTimeout();
 
         /// Gets the idle timeout used by the server-side of the connection.
         /// @return The idle timeout (in seconds).
-        ["cpp:const"] idempotent int getACMTimeout();
+        ["cpp:const"]
+        idempotent int getACMTimeout();
     }
 }

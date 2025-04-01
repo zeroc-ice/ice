@@ -1,11 +1,11 @@
 // Copyright (c) ZeroC, Inc.
 
-#include "Ice/MetricsAdminI.h"
+#include "MetricsAdminI.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
-#include "Ice/MetricsObserverI.h"
 #include "Ice/Properties.h"
 #include "Ice/StringUtil.h"
+#include "MetricsObserverI.h"
 
 #include <chrono>
 #include <stdexcept>

@@ -1,0 +1,25 @@
+{
+    // Use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "runArgs": [
+        // "--cpuset-cpus=0-1", // Limit CPU usage
+        // "--shm-size=4gb" // Limit memory usage
+    ],
+    // Configure tool-specific properties
+    "customizations": {
+        "vscode": {
+            /* spell-checker:disable */
+            "extensions": [
+                "davidson.vscode-markdownlint",
+                "editorconfig.editorconfig",
+                "ms-azuretools.vscode-docker",
+                "streetsidesoftware.code-spell-checker",
+                "zerocinc.slice",
+                "ms-vscode.cpptools-extension-pack"
+            ]
+            /* spell-checker:enable */
+        }
+    }
+}

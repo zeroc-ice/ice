@@ -758,7 +758,8 @@ internal class Twoways
                 [s23] = Test.MyEnum.enum2
             };
 
-            Dictionary<Test.MyStruct, Test.MyEnum> ro = p.opMyStructMyEnumD(di1, di2, out Dictionary<Test.MyStruct, Test.MyEnum> _do);
+            Dictionary<Test.MyStruct, Test.MyEnum> ro =
+                p.opMyStructMyEnumD(di1, di2, out Dictionary<Test.MyStruct, Test.MyEnum> _do);
 
             test(Internal.DictionaryExtensions.DictionaryEqual(_do, di1));
             test(ro.Count == 4);
@@ -983,7 +984,8 @@ internal class Twoways
             dsi1[1] = di2;
             dsi2[0] = di3;
 
-            Dictionary<string, Test.MyEnum>[] ro = p.opStringMyEnumDS(dsi1, dsi2, out Dictionary<string, Test.MyEnum>[] _do);
+            Dictionary<string, Test.MyEnum>[] ro =
+                p.opStringMyEnumDS(dsi1, dsi2, out Dictionary<string, Test.MyEnum>[] _do);
 
             test(ro.Length == 2);
             test(ro[0].Count == 3);
@@ -1359,7 +1361,8 @@ internal class Twoways
             sdi1[Test.MyEnum.enum2] = si2;
             sdi2[Test.MyEnum.enum1] = si3;
 
-            Dictionary<Test.MyEnum, Test.MyEnum[]> ro = p.opMyEnumMyEnumSD(sdi1, sdi2, out Dictionary<Test.MyEnum, Test.MyEnum[]> _do);
+            Dictionary<Test.MyEnum, Test.MyEnum[]> ro =
+                p.opMyEnumMyEnumSD(sdi1, sdi2, out Dictionary<Test.MyEnum, Test.MyEnum[]> _do);
 
             test(_do.Count == 1);
             test(_do[Test.MyEnum.enum1].Length == 2);

@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "../Ice/Network.h" // For getInterfacesForMulticast
+#include "../Ice/Timer.h"
 #include "Ice/Ice.h"
 #include "Ice/LoggerUtil.h"
 #include "IceLocatorDiscovery.h"
