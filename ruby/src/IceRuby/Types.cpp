@@ -1040,9 +1040,8 @@ IceRuby::StructInfo::print(VALUE value, IceInternal::Output& out, PrintObjectHis
     }
 
     out.sb();
-    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& member : members)
     {
-        DataMemberPtr member = *q;
         out << nl << member->name << " = ";
         if (callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
         {
@@ -2133,11 +2132,8 @@ IceRuby::ClassInfo::printMembers(VALUE value, IceInternal::Output& out, PrintObj
         base->printMembers(value, out, history);
     }
 
-    DataMemberList::const_iterator q;
-
-    for (q = members.begin(); q != members.end(); ++q)
+    for (const auto& member : members)
     {
-        DataMemberPtr member = *q;
         out << nl << member->name << " = ";
         if (callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
         {
@@ -2150,9 +2146,8 @@ IceRuby::ClassInfo::printMembers(VALUE value, IceInternal::Output& out, PrintObj
         }
     }
 
-    for (q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+    for (const auto& member : optionalMembers)
     {
-        DataMemberPtr member = *q;
         out << nl << member->name << " = ";
         if (callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
         {
@@ -2728,11 +2723,8 @@ IceRuby::ExceptionInfo::printMembers(VALUE value, IceInternal::Output& out, Prin
         base->printMembers(value, out, history);
     }
 
-    DataMemberList::const_iterator q;
-
-    for (q = members.begin(); q != members.end(); ++q)
+    for (const auto& member : members)
     {
-        DataMemberPtr member = *q;
         out << nl << member->name << " = ";
         if (callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
         {
@@ -2745,9 +2737,8 @@ IceRuby::ExceptionInfo::printMembers(VALUE value, IceInternal::Output& out, Prin
         }
     }
 
-    for (q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+    for (const auto& member : optionalMembers)
     {
-        DataMemberPtr member = *q;
         out << nl << member->name << " = ";
         if (callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
         {

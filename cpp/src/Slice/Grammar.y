@@ -1176,12 +1176,8 @@ operation_preamble
         {
             interface->checkIntroduced(name, op);
             currentUnit->pushContainer(op);
-            $$ = op;
         }
-        else
-        {
-            $$ = nullptr;
-        }
+        $$ = op;
     }
     else
     {
@@ -1206,12 +1202,8 @@ operation_preamble
         {
             interface->checkIntroduced(name, op);
             currentUnit->pushContainer(op);
-            $$ = op;
         }
-        else
-        {
-            $$ = nullptr;
-        }
+        $$ = op;
     }
     else
     {
@@ -1230,12 +1222,8 @@ operation_preamble
         {
             currentUnit->pushContainer(op);
             currentUnit->error("keyword '" + name + "' cannot be used as operation name");
-            $$ = op; // Dummy
         }
-        else
-        {
-            $$ = nullptr;
-        }
+        $$ = op; // Dummy
     }
     else
     {
@@ -1259,12 +1247,8 @@ operation_preamble
         {
             currentUnit->pushContainer(op);
             currentUnit->error("keyword '" + name + "' cannot be used as operation name");
-            $$ = op; // Dummy
         }
-        else
-        {
-            return 0;
-        }
+        $$ = op; // Dummy
     }
     else
     {

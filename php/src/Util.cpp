@@ -432,7 +432,7 @@ namespace
     zend_class_entry* createPHPException(zval* ex, const char* typeId, bool fallbackToLocalException = false)
     {
         // Convert the exception's typeId to its mapped Python type by replacing "::Ice::" with "\Ice\".
-        // This function should only ever be called on a specific list of Ice local exceptions.
+        // This function should only ever be called on Ice local exceptions which don't use 'php:identifier'.
         string result = typeId;
         assert(result.find("::Ice::") == 0);
         result.replace(0, 7, "\\Ice\\");

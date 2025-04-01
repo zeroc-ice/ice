@@ -84,6 +84,7 @@ module Test
 
     class PNode
     {
+        ["ruby:identifier:_next"]
         PNode next;
     }
 
