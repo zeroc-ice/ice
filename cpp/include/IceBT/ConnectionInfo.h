@@ -46,7 +46,6 @@ namespace IceBT
         /// The connection buffer send size.
         const int sndSize;
 
-        // internal constructor
         /// @private
         ConnectionInfo(
             bool incoming,
@@ -70,7 +69,6 @@ namespace IceBT
         {
         }
 
-        // internal constructor
         /// @private
         ConnectionInfo(bool incoming, std::string adapterName, std::string connectionId)
             : ConnectionInfo{incoming, std::move(adapterName), std::move(connectionId), "", -1, "", -1, "", 0, 0}
@@ -78,6 +76,7 @@ namespace IceBT
         }
     };
 
+    /// A shared pointer to a ConnectionInfo.
     using ConnectionInfoPtr = std::shared_ptr<ConnectionInfo>;
 }
 
