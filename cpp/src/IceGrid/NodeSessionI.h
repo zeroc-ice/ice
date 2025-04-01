@@ -34,6 +34,8 @@ namespace IceGrid
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) const final;
+
+        void destroy();
         void destroy(const Ice::Current&) final;
 
         [[nodiscard]] std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept;
@@ -45,6 +47,8 @@ namespace IceGrid
         [[nodiscard]] NodeSessionPrx getProxy() const;
 
         [[nodiscard]] bool isDestroyed() const;
+
+        [[nodiscard]] std::chrono::seconds timeout() const noexcept { return _timeout; }
 
     private:
         NodeSessionI(

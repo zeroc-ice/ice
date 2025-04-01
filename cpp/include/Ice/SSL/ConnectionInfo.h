@@ -19,6 +19,7 @@
 // `#if defined(ICE_USE_XXX)/#endif` directives are used to include the appropriate structure based on the platform. We
 // avoid using `#elif` directives because, we want to define all the classes when building the doxygen documentation.
 
+/// Secure connections with SSL/TLS.
 namespace Ice::SSL
 {
 #if defined(ICE_USE_SCHANNEL)

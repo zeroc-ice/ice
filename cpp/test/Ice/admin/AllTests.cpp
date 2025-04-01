@@ -192,20 +192,6 @@ allTests(Test::TestHelper* helper)
         init.properties->setProperty("Ice.Admin.InstanceName", "Test");
         CommunicatorHolder ich(init);
         testFacets(ich.communicator());
-
-        // Test move assignment on CommunicatorHolder
-        CommunicatorHolder ich2;
-        test(!ich2.communicator());
-        ich2 = std::move(ich);
-        test(ich2.communicator());
-        test(!ich.communicator());
-
-        // Equivalent with = and release
-        CommunicatorHolder ich3;
-        test(!ich3.communicator());
-        ich3 = ich2.release();
-        test(ich3.communicator());
-        test(!ich2.communicator());
     }
     {
         //

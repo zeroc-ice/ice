@@ -43,7 +43,7 @@ namespace Ice
         static char testex(Ice::Exception*) noexcept;
         static long testex(...) noexcept;
 
-        static const bool value = sizeof(testex(static_cast<T*>(nullptr))) == sizeof(char);
+        static constexpr bool value = sizeof(testex(static_cast<T*>(nullptr))) == sizeof(char);
     };
 
     template<typename T, bool = false> struct LoggerOutputInserter

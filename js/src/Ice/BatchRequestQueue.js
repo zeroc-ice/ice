@@ -24,7 +24,7 @@ export class BatchRequestQueue {
         this._batchStream.swap(os);
     }
 
-    finishBatchRequest(os, proxy, operation) {
+    finishBatchRequest(os, proxy) {
         this._batchStream.swap(os);
 
         try {
@@ -75,9 +75,5 @@ export class BatchRequestQueue {
 
     destroy(ex) {
         this._exception = ex;
-    }
-
-    isEmpty() {
-        return this._batchStream.size === Protocol.requestBatchHdr.length;
     }
 }

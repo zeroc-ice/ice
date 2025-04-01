@@ -3,7 +3,7 @@
 #ifndef ICEGRID_SESSIONI_H
 #define ICEGRID_SESSIONI_H
 
-#include "Ice/Timer.h"
+#include "../Ice/Timer.h"
 #include "IceGrid/Session.h"
 #include "ReapThread.h"
 #include "SessionServantManager.h"
@@ -69,6 +69,8 @@ namespace IceGrid
             const Ice::Current& current) final;
         void releaseObject(Ice::Identity, const Ice::Current&) final;
         void setAllocationTimeout(int, const Ice::Current&) final;
+
+        void destroy();
         void destroy(const Ice::Current&) final;
 
         [[nodiscard]] int getAllocationTimeout() const;

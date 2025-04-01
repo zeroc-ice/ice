@@ -2,7 +2,7 @@
 
 import { ArrayUtil } from "./ArrayUtil.js";
 import { BatchRequestQueue } from "./BatchRequestQueue.js";
-import { ConnectionRequestHandler } from "./ConnectionRequestHandler.js";
+import { FixedRequestHandler } from "./FixedRequestHandler.js";
 import { EndpointSelectionType } from "./EndpointSelectionType.js";
 import { HashUtil } from "./HashUtil.js";
 import { Ice as Ice_Identity } from "./Identity.js";
@@ -95,60 +95,6 @@ export class Reference {
         return this._communicator;
     }
 
-    getEndpoints() {
-        // Abstract
-        DEV: console.assert(false);
-        return null;
-    }
-
-    getAdapterId() {
-        // Abstract
-        DEV: console.assert(false);
-        return "";
-    }
-
-    getRouterInfo() {
-        // Abstract
-        DEV: console.assert(false);
-        return null;
-    }
-
-    getLocatorInfo() {
-        // Abstract
-        DEV: console.assert(false);
-        return null;
-    }
-
-    getCacheConnection() {
-        // Abstract
-        DEV: console.assert(false);
-        return false;
-    }
-
-    getPreferSecure() {
-        // Abstract
-        DEV: console.assert(false);
-        return false;
-    }
-
-    getEndpointSelection() {
-        // Abstract
-        DEV: console.assert(false);
-        return null;
-    }
-
-    getLocatorCacheTimeout() {
-        // Abstract
-        DEV: console.assert(false);
-        return 0;
-    }
-
-    getConnectionId() {
-        // Abstract
-        DEV: console.assert(false);
-        return "";
-    }
-
     //
     // The change* methods (here and in derived classes) create
     // a new reference based on the existing one, with the
@@ -203,66 +149,6 @@ export class Reference {
         return r;
     }
 
-    changeAdapterId(newAdapterId) {
-        // Abstract
-        DEV: console.assert(false);
-        return null;
-    }
-
-    changeEndpoints(newEndpoints) {
-        // Abstract
-        DEV: console.assert(false);
-        return null;
-    }
-
-    changeLocator(newLocator) {
-        // Abstract
-        DEV: console.assert(false);
-        return null;
-    }
-
-    changeRouter(newRouter) {
-        // Abstract
-        DEV: console.assert(false);
-        return null;
-    }
-
-    changeCacheConnection(newCache) {
-        // Abstract
-        DEV: console.assert(false);
-        return null;
-    }
-
-    changePreferSecure(newPreferSecure) {
-        // Abstract
-        DEV: console.assert(false);
-        return null;
-    }
-
-    changeEndpointSelection(newType) {
-        // Abstract
-        DEV: console.assert(false);
-        return null;
-    }
-
-    changeLocatorCacheTimeout(newTimeout) {
-        // Abstract
-        DEV: console.assert(false);
-        return null;
-    }
-
-    changeConnectionId(connectionId) {
-        // Abstract
-        DEV: console.assert(false);
-        return null;
-    }
-
-    changeConnection(connection) {
-        // Abstract
-        DEV: console.assert(false);
-        return null;
-    }
-
     hashCode() {
         let h = 5381;
         h = HashUtil.addNumber(h, this._mode);
@@ -286,18 +172,6 @@ export class Reference {
     // Utility methods
     //
     isFixed() {
-        return false;
-    }
-
-    isIndirect() {
-        // Abstract
-        DEV: console.assert(false);
-        return false;
-    }
-
-    isWellKnown() {
-        // Abstract
-        DEV: console.assert(false);
         return false;
     }
 
@@ -435,20 +309,6 @@ export class Reference {
         // Derived class writes the remainder of the string.
     }
 
-    //
-    // Convert the reference to its property form.
-    //
-    toProperty(prefix) {
-        // Abstract
-        DEV: console.assert(false);
-        return null;
-    }
-
-    getRequestHandler(proxy) {
-        // Abstract
-        DEV: console.assert(false);
-    }
-
     equals(r) {
         //
         // Note: if(this === r) and type test are performed by each non-abstract derived class.
@@ -487,12 +347,6 @@ export class Reference {
         }
 
         return true;
-    }
-
-    clone() {
-        // Abstract
-        DEV: console.assert(false);
-        return null;
     }
 
     copyMembers(r) {
@@ -557,39 +411,39 @@ export class FixedReference extends Reference {
         return "";
     }
 
-    changeAdapterId(newAdapterId) {
+    changeAdapterId() {
         throw new FixedProxyException();
     }
 
-    changeEndpoints(newEndpoints) {
+    changeEndpoints() {
         throw new FixedProxyException();
     }
 
-    changeLocator(newLocator) {
+    changeLocator() {
         throw new FixedProxyException();
     }
 
-    changeRouter(newRouter) {
+    changeRouter() {
         throw new FixedProxyException();
     }
 
-    changeCacheConnection(newCache) {
+    changeCacheConnection() {
         throw new FixedProxyException();
     }
 
-    changePreferSecure(prefSec) {
+    changePreferSecure() {
         throw new FixedProxyException();
     }
 
-    changeEndpointSelection(newType) {
+    changeEndpointSelection() {
         throw new FixedProxyException();
     }
 
-    changeLocatorCacheTimeout(newTimeout) {
+    changeLocatorCacheTimeout() {
         throw new FixedProxyException();
     }
 
-    changeConnectionId(connectionId) {
+    changeConnectionId() {
         throw new FixedProxyException();
     }
 
@@ -611,11 +465,11 @@ export class FixedReference extends Reference {
         return false;
     }
 
-    streamWrite(s) {
+    streamWrite() {
         throw new FixedProxyException();
     }
 
-    toProperty(prefix) {
+    toProperty() {
         throw new FixedProxyException();
     }
 
@@ -676,8 +530,7 @@ export class FixedReference extends Reference {
 
         this._fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
-        // TODO: rename ConnectionRequestHandler to FixedRequestHandler
-        return new ConnectionRequestHandler(this, this._fixedConnection);
+        return new FixedRequestHandler(this, this._fixedConnection);
     }
 
     get batchRequestQueue() {

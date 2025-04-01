@@ -36,8 +36,6 @@ class ControllerHelper {
         await test.run(process.argv);
     } catch (ex) {
         console.log(ex);
-        /* eslint-disable no-process-exit */
         process.exit(1);
-        /* eslint-enable no-process-exit */
     }
 })();

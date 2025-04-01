@@ -23,15 +23,9 @@ public interface OutgoingAsyncCompletionCallback
 
 public abstract class OutgoingAsyncBase
 {
-    public virtual bool sent()
-    {
-        return sentImpl(true);
-    }
+    public virtual bool sent() => sentImpl(true);
 
-    public virtual bool exception(Ice.Exception ex)
-    {
-        return exceptionImpl(ex);
-    }
+    public virtual bool exception(Ice.Exception ex) => exceptionImpl(ex);
 
     public virtual bool response()
     {
@@ -55,23 +49,19 @@ public abstract class OutgoingAsyncBase
         }
     }
 
-    public void invokeExceptionAsync()
-    {
+    public void invokeExceptionAsync() =>
         //
         // CommunicatorDestroyedCompleted is the only exception that can propagate directly
         // from this method.
         //
         instance_.clientThreadPool().execute(invokeException, cachedConnection_);
-    }
 
-    public void invokeResponseAsync()
-    {
+    public void invokeResponseAsync() =>
         //
         // CommunicatorDestroyedCompleted is the only exception that can propagate directly
         // from this method.
         //
         instance_.clientThreadPool().execute(invokeResponse, cachedConnection_);
-    }
 
     public void invokeSent()
     {
@@ -174,10 +164,7 @@ public abstract class OutgoingAsyncBase
         }
     }
 
-    public void cancel()
-    {
-        cancel(new Ice.InvocationCanceledException());
-    }
+    public void cancel() => cancel(new Ice.InvocationCanceledException());
 
     public void attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId)
     {
@@ -201,15 +188,9 @@ public abstract class OutgoingAsyncBase
         }
     }
 
-    public Ice.OutputStream getOs()
-    {
-        return os_;
-    }
+    public Ice.OutputStream getOs() => os_;
 
-    public Ice.InputStream getIs()
-    {
-        return is_;
-    }
+    public Ice.InputStream getIs() => is_;
 
     public virtual void throwUserException()
     {
@@ -219,10 +200,7 @@ public abstract class OutgoingAsyncBase
     {
     }
 
-    public bool isSynchronous()
-    {
-        return synchronous_;
-    }
+    public bool isSynchronous() => synchronous_;
 
     protected OutgoingAsyncBase(
         Instance instance,
@@ -360,15 +338,9 @@ public abstract class OutgoingAsyncBase
     // This virtual method is necessary for the communicator flush
     // batch requests implementation.
     //
-    protected virtual Ice.Instrumentation.InvocationObserver getObserver()
-    {
-        return observer_;
-    }
+    protected virtual Ice.Instrumentation.InvocationObserver getObserver() => observer_;
 
-    public bool sentSynchronously()
-    {
-        return sentSynchronously_;
-    }
+    public bool sentSynchronously() => sentSynchronously_;
 
     protected Instance instance_;
     protected Ice.Connection cachedConnection_;
@@ -466,10 +438,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
         }
     }
 
-    public void retry()
-    {
-        invokeImpl(false);
-    }
+    public void retry() => invokeImpl(false);
 
     public void abort(Ice.Exception ex)
     {
@@ -683,7 +652,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
             throw ex;
         }
 
-        Ice.ObjectNotExistException one = ex as Ice.ObjectNotExistException;
+        var one = ex as Ice.ObjectNotExistException;
         if (one is not null)
         {
             if (@ref.getRouterInfo() != null && one.operation == "ice_add_proxy")
@@ -770,7 +739,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
         ++_cnt;
         Debug.Assert(_cnt > 0);
 
-        var retryIntervals = instance.retryIntervals;
+        int[] retryIntervals = instance.retryIntervals;
 
         int interval;
         if (_cnt == (retryIntervals.Length + 1) && ex is Ice.CloseConnectionException)
@@ -900,10 +869,7 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
         }
     }
 
-    public override bool sent()
-    {
-        return sentImpl(!proxy_.ice_isTwoway()); // done = true if it's not a two-way proxy
-    }
+    public override bool sent() => sentImpl(!proxy_.ice_isTwoway()); // done = true if it's not a two-way proxy
 
     public override bool response()
     {
@@ -950,7 +916,8 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                     {
                         if (facetPath.Length > 1)
                         {
-                            throw new MarshalException($"Received invalid facet path with {facetPath.Length} elements.");
+                            throw new MarshalException(
+                                $"Received invalid facet path with {facetPath.Length} elements.");
                         }
                         facet = facetPath[0];
                     }
@@ -1148,7 +1115,7 @@ public class OutgoingAsyncT<T> : OutgoingAsync
                     {
                         is_.skipEmptyEncapsulation();
                     }
-                    return default(T);
+                    return default;
                 }
                 else
                 {
@@ -1161,7 +1128,7 @@ public class OutgoingAsyncT<T> : OutgoingAsync
             else
             {
                 throwUserException();
-                return default(T); // make compiler happy
+                return default; // make compiler happy
             }
         }
         finally
@@ -1269,10 +1236,7 @@ internal class ProxyGetConnection : ProxyOutgoingAsyncBase
         return AsyncStatusSent;
     }
 
-    public Ice.Connection getConnection()
-    {
-        return cachedConnection_;
-    }
+    public Ice.Connection getConnection() => cachedConnection_;
 
     public void invoke(string operation, bool synchronous)
     {
@@ -1295,10 +1259,7 @@ internal class ConnectionFlushBatchAsync : OutgoingAsyncBase
         Ice.ConnectionI connection,
         Instance instance,
         OutgoingAsyncCompletionCallback completionCallback)
-        : base(instance, completionCallback)
-    {
-        _connection = connection;
-    }
+        : base(instance, completionCallback) => _connection = connection;
 
     public void invoke(string operation, Ice.CompressBatch compressBatch, bool synchronous)
     {
@@ -1307,8 +1268,7 @@ internal class ConnectionFlushBatchAsync : OutgoingAsyncBase
         try
         {
             int status;
-            bool compress;
-            int batchRequestNum = _connection.getBatchRequestQueue().swap(os_, out compress);
+            int batchRequestNum = _connection.getBatchRequestQueue().swap(os_, out bool compress);
             if (batchRequestNum == 0)
             {
                 status = AsyncStatusSent;
@@ -1410,25 +1370,20 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
         }
 
         protected override Ice.Instrumentation.InvocationObserver
-        getObserver()
-        {
-            return _observer;
-        }
+        getObserver() => _observer;
 
         private readonly CommunicatorFlushBatchAsync _outAsync;
         private readonly Ice.Instrumentation.InvocationObserver _observer;
     }
 
     public CommunicatorFlushBatchAsync(Instance instance, OutgoingAsyncCompletionCallback callback)
-        : base(instance, callback)
-    {
+        : base(instance, callback) =>
         //
         // _useCount is initialized to 1 to prevent premature callbacks.
         // The caller must invoke ready() after all flush requests have
         // been initiated.
         //
         _useCount = 1;
-    }
 
     internal void flushConnection(Ice.ConnectionI con, Ice.CompressBatch compressBatch)
     {
@@ -1440,8 +1395,7 @@ public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
         try
         {
             var flushBatch = new FlushBatch(this, instance_, observer_);
-            bool compress;
-            int batchRequestNum = con.getBatchRequestQueue().swap(flushBatch.getOs(), out compress);
+            int batchRequestNum = con.getBatchRequestQueue().swap(flushBatch.getOs(), out bool compress);
             if (batchRequestNum == 0)
             {
                 flushBatch.sent();
@@ -1585,10 +1539,7 @@ public abstract class TaskCompletionCallback<T> : TaskCompletionSource<T>, Outgo
         }
     }
 
-    public void handleInvokeException(Ice.Exception ex, OutgoingAsyncBase og)
-    {
-        SetException(ex);
-    }
+    public void handleInvokeException(Ice.Exception ex, OutgoingAsyncBase og) => SetException(ex);
 
     public abstract void handleInvokeResponse(bool ok, OutgoingAsyncBase og);
 
@@ -1604,10 +1555,8 @@ public class OperationTaskCompletionCallback<T> : TaskCompletionCallback<T>
     {
     }
 
-    public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
-    {
+    public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og) =>
         SetResult(((OutgoingAsyncT<T>)og).getResult(ok));
-    }
 }
 
 public class FlushBatchTaskCompletionCallback : TaskCompletionCallback<object>
@@ -1619,8 +1568,5 @@ public class FlushBatchTaskCompletionCallback : TaskCompletionCallback<object>
     {
     }
 
-    public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
-    {
-        SetResult(null);
-    }
+    public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og) => SetResult(null);
 }

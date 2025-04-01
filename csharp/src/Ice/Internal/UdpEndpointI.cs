@@ -64,29 +64,20 @@ internal sealed class UdpEndpointI : IPEndpointI
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
-    public override int timeout()
-    {
-        return -1;
-    }
+    public override int timeout() => -1;
 
     //
     // Return a new endpoint with a different timeout value, provided
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    public override EndpointI timeout(int timeout)
-    {
-        return this;
-    }
+    public override EndpointI timeout(int timeout) => this;
 
     //
     // Return true if the endpoints support bzip2 compress, or false
     // otherwise.
     //
-    public override bool compress()
-    {
-        return _compress;
-    }
+    public override bool compress() => _compress;
 
     //
     // Return a new endpoint with a different compression value,
@@ -116,19 +107,13 @@ internal sealed class UdpEndpointI : IPEndpointI
     //
     // Return true if the endpoint is datagram-based.
     //
-    public override bool datagram()
-    {
-        return true;
-    }
+    public override bool datagram() => true;
 
     //
     // Return a server side transceiver for this endpoint, or null if a
     // transceiver can only be created by an acceptor.
     //
-    public override Transceiver transceiver()
-    {
-        return new UdpTransceiver(this, instance_, host_, port_, _mcastInterface);
-    }
+    public override Transceiver transceiver() => new UdpTransceiver(this, instance_, host_, port_, _mcastInterface);
 
     //
     // Return an acceptor for this endpoint, or null if no acceptors
@@ -227,7 +212,7 @@ internal sealed class UdpEndpointI : IPEndpointI
             return type() < obj.type() ? -1 : 1;
         }
 
-        UdpEndpointI p = (UdpEndpointI)obj;
+        var p = (UdpEndpointI)obj;
         if (this == p)
         {
             return 0;
@@ -298,7 +283,8 @@ internal sealed class UdpEndpointI : IPEndpointI
         {
             if (argument != null)
             {
-                throw new ParseException($"unexpected argument '{argument}' provided for -z option in endpoint '{endpoint}'");
+                throw new ParseException(
+                    $"unexpected argument '{argument}' provided for -z option in endpoint '{endpoint}'");
             }
 
             _compress = true;
@@ -346,11 +332,8 @@ internal sealed class UdpEndpointI : IPEndpointI
         }
         else if (option == "--interface")
         {
-            if (argument == null)
-            {
+            _mcastInterface = argument ??
                 throw new ParseException($"no argument provided for --interface option in endpoint '{endpoint}'");
-            }
-            _mcastInterface = argument;
         }
         else
         {
@@ -360,10 +343,8 @@ internal sealed class UdpEndpointI : IPEndpointI
         return true;
     }
 
-    protected override Connector createConnector(EndPoint addr, NetworkProxy proxy)
-    {
-        return new UdpConnector(instance_, addr, sourceAddr_, _mcastInterface, _mcastTtl, connectionId_);
-    }
+    protected override Connector createConnector(EndPoint addr, NetworkProxy proxy) =>
+        new UdpConnector(instance_, addr, sourceAddr_, _mcastInterface, _mcastTtl, connectionId_);
 
     protected override IPEndpointI createEndpoint(string host, int port, string connectionId)
     {
@@ -385,24 +366,15 @@ internal sealed class UdpEndpointI : IPEndpointI
 
 internal sealed class UdpEndpointFactory : EndpointFactory
 {
-    internal UdpEndpointFactory(ProtocolInstance instance)
-    {
-        _instance = instance;
-    }
+    internal UdpEndpointFactory(ProtocolInstance instance) => _instance = instance;
 
     public void initialize()
     {
     }
 
-    public short type()
-    {
-        return _instance.type();
-    }
+    public short type() => _instance.type();
 
-    public string protocol()
-    {
-        return _instance.protocol();
-    }
+    public string protocol() => _instance.protocol();
 
     public EndpointI create(List<string> args, bool oaEndpoint)
     {
@@ -411,15 +383,9 @@ internal sealed class UdpEndpointFactory : EndpointFactory
         return endpt;
     }
 
-    public EndpointI read(Ice.InputStream s)
-    {
-        return new UdpEndpointI(_instance, s);
-    }
+    public EndpointI read(Ice.InputStream s) => new UdpEndpointI(_instance, s);
 
-    public EndpointFactory clone(ProtocolInstance instance)
-    {
-        return new UdpEndpointFactory(instance);
-    }
+    public EndpointFactory clone(ProtocolInstance instance) => new UdpEndpointFactory(instance);
 
     private readonly ProtocolInstance _instance;
 }

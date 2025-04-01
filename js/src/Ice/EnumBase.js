@@ -13,22 +13,6 @@ class EnumBase {
         this._value = value;
     }
 
-    equals(rhs) {
-        if (this === rhs) {
-            return true;
-        }
-
-        if (!(rhs instanceof Object.getPrototypeOf(this).constructor)) {
-            return false;
-        }
-
-        return this._value == rhs._value;
-    }
-
-    hashCode() {
-        return this._value;
-    }
-
     toString() {
         return this._name;
     }

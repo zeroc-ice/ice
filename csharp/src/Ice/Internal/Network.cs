@@ -14,20 +14,13 @@ internal sealed class Network
     public const int EnableIPv6 = 1;
     public const int EnableBoth = 2;
 
-    internal static SocketError socketErrorCode(System.Net.Sockets.SocketException ex)
-    {
-        return ex.SocketErrorCode;
-    }
+    internal static SocketError socketErrorCode(System.Net.Sockets.SocketException ex) => ex.SocketErrorCode;
 
-    internal static bool interrupted(System.Net.Sockets.SocketException ex)
-    {
-        return socketErrorCode(ex) == SocketError.Interrupted;
-    }
+    internal static bool interrupted(System.Net.Sockets.SocketException ex) =>
+        socketErrorCode(ex) == SocketError.Interrupted;
 
-    internal static bool wouldBlock(System.Net.Sockets.SocketException ex)
-    {
-        return socketErrorCode(ex) == SocketError.WouldBlock;
-    }
+    internal static bool wouldBlock(System.Net.Sockets.SocketException ex) =>
+        socketErrorCode(ex) == SocketError.WouldBlock;
 
     internal static bool connectionLost(System.Net.Sockets.SocketException ex)
     {
@@ -73,24 +66,18 @@ internal sealed class Network
         return false;
     }
 
-    internal static bool connectionRefused(System.Net.Sockets.SocketException ex)
-    {
-        return socketErrorCode(ex) == SocketError.ConnectionRefused;
-    }
+    internal static bool connectionRefused(System.Net.Sockets.SocketException ex) =>
+        socketErrorCode(ex) == SocketError.ConnectionRefused;
 
-    internal static bool recvTruncated(System.Net.Sockets.SocketException ex)
-    {
-        return socketErrorCode(ex) == SocketError.MessageSize;
-    }
+    internal static bool recvTruncated(System.Net.Sockets.SocketException ex) =>
+        socketErrorCode(ex) == SocketError.MessageSize;
 
-    internal static bool timeout(System.IO.IOException ex)
-    {
+    internal static bool timeout(System.IO.IOException ex) =>
         //
         // TODO: Instead of testing for an English substring, we need to examine the inner
         // exception (if there is one).
         //
-        return ex.Message.Contains("period of time", StringComparison.Ordinal);
-    }
+        ex.Message.Contains("period of time", StringComparison.Ordinal);
 
     internal static bool noMoreFds(System.Exception ex)
     {
@@ -138,7 +125,7 @@ internal sealed class Network
     {
         try
         {
-            using Socket socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+            using var socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
             closeSocketNoThrow(socket);
             return true;
         }
@@ -308,7 +295,7 @@ internal sealed class Network
 
     internal static int getRecvBufferSize(Socket socket)
     {
-        int sz = 0;
+        int sz;
         try
         {
             sz = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
@@ -461,10 +448,8 @@ internal sealed class Network
         }
     }
 
-    internal static int getProtocolSupport(IPAddress addr)
-    {
-        return addr.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
-    }
+    internal static int getProtocolSupport(IPAddress addr) =>
+        addr.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
 
     internal static EndPoint getAddressForServer(string host, int port, int protocol, bool preferIPv6)
     {
@@ -489,7 +474,7 @@ internal sealed class Network
         bool preferIPv6,
         bool blocking)
     {
-        List<EndPoint> addresses = new List<EndPoint>();
+        var addresses = new List<EndPoint>();
         if (host.Length == 0)
         {
             foreach (IPAddress a in getLoopbackAddresses(protocol))
@@ -520,7 +505,7 @@ internal sealed class Network
             //
             try
             {
-                IPAddress addr = IPAddress.Parse(host);
+                var addr = IPAddress.Parse(host);
                 if ((addr.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
                    (addr.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
                 {
@@ -698,9 +683,8 @@ internal sealed class Network
 
     internal static List<string> getInterfacesForMulticast(string intf, int protocol)
     {
-        List<string> interfaces = new List<string>();
-        bool ipv4Wildcard = false;
-        if (isWildcard(intf, out ipv4Wildcard))
+        var interfaces = new List<string>();
+        if (isWildcard(intf, out bool ipv4Wildcard))
         {
             foreach (IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, true))
             {
@@ -725,7 +709,7 @@ internal sealed class Network
 
             EndPoint remote = getRemoteAddress(socket);
 
-            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            var s = new System.Text.StringBuilder();
             s.Append("local address = " + localAddrToString(getLocalAddress(socket)));
             if (proxy != null)
             {
@@ -754,7 +738,7 @@ internal sealed class Network
             {
                 return "<closed>";
             }
-            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            var s = new System.Text.StringBuilder();
             s.Append("local address = " + localAddrToString(getLocalAddress(socket)));
             s.Append("\nremote address = " + remoteAddrToString(getRemoteAddress(socket)));
             return s.ToString();
@@ -766,10 +750,7 @@ internal sealed class Network
     }
 
     internal static string
-    addrToString(EndPoint addr)
-    {
-        return endpointAddressToString(addr) + ":" + endpointPort(addr);
-    }
+    addrToString(EndPoint addr) => endpointAddressToString(addr) + ":" + endpointPort(addr);
 
     internal static string localAddrToString(EndPoint endpoint)
     {
@@ -919,7 +900,7 @@ internal sealed class Network
         NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
         try
         {
-            IPAddress addr = IPAddress.Parse(iface);
+            var addr = IPAddress.Parse(iface);
             foreach (NetworkInterface ni in nics)
             {
                 IPInterfaceProperties ipProps = ni.GetIPProperties();
@@ -1007,7 +988,7 @@ internal sealed class Network
 
         try
         {
-            IPAddress addr = IPAddress.Parse(address);
+            var addr = IPAddress.Parse(address);
             if (addr.Equals(IPAddress.Any))
             {
                 ipv4Wildcard = true;
@@ -1024,7 +1005,7 @@ internal sealed class Network
 
     internal static List<IPAddress> getLoopbackAddresses(int protocol)
     {
-        List<IPAddress> addresses = new List<IPAddress>();
+        var addresses = new List<IPAddress>();
         if (protocol != EnableIPv4)
         {
             addresses.Add(IPAddress.IPv6Loopback);
@@ -1063,7 +1044,7 @@ internal sealed class Network
         {
             if (endpoint is IPEndPoint)
             {
-                IPEndPoint ipEndpoint = (IPEndPoint)endpoint;
+                var ipEndpoint = (IPEndPoint)endpoint;
                 return ipEndpoint.Address.ToString();
             }
         }
@@ -1076,7 +1057,7 @@ internal sealed class Network
         {
             if (endpoint is IPEndPoint)
             {
-                IPEndPoint ipEndpoint = (IPEndPoint)endpoint;
+                var ipEndpoint = (IPEndPoint)endpoint;
                 return ipEndpoint.Port;
             }
         }
@@ -1085,10 +1066,7 @@ internal sealed class Network
 
     private class EndPointComparator : IComparer<EndPoint>
     {
-        public EndPointComparator(bool ipv6)
-        {
-            _ipv6 = ipv6;
-        }
+        public EndPointComparator(bool ipv6) => _ipv6 = ipv6;
 
         public int Compare(EndPoint lhs, EndPoint rhs)
         {

@@ -3,14 +3,12 @@
 #include "Util.h"
 #include "Ice/UUID.h"
 #include "Ice/VersionFunctions.h"
-#include "slice2php/PHPUtil.h"
 
 #include <algorithm>
 #include <ctype.h>
 
 using namespace std;
 using namespace IcePHP;
-using namespace Slice::PHP;
 
 namespace
 {
@@ -78,7 +76,7 @@ namespace
             return false;
         }
 
-        zend_class_entry* cls = idToClass(type);
+        zend_class_entry* cls = nameToClass(type);
         assert(cls);
 
         zend_class_entry* ce = Z_OBJCE_P(zv);
@@ -134,7 +132,7 @@ namespace
 
     template<typename T> bool createVersion(zval* zv, const T& version, const char* type)
     {
-        zend_class_entry* cls = idToClass(type);
+        zend_class_entry* cls = nameToClass(type);
         assert(cls);
 
         if (object_init_ex(zv, cls) != SUCCESS)
@@ -187,8 +185,8 @@ namespace
         return false;
     }
 
-    char Ice_ProtocolVersion[] = "::Ice::ProtocolVersion";
-    char Ice_EncodingVersion[] = "::Ice::EncodingVersion";
+    char Ice_ProtocolVersionType[] = "\\Ice\\ProtocolVersion";
+    char Ice_EncodingVersionType[] = "\\Ice\\EncodingVersion";
 }
 
 void*
@@ -215,13 +213,6 @@ IcePHP::extractWrapper(zval* zv)
 }
 
 zend_class_entry*
-IcePHP::idToClass(const string& id)
-{
-    string cls = scopedToName(id, true);
-    return nameToClass(cls);
-}
-
-zend_class_entry*
 IcePHP::nameToClass(const string& name)
 {
     zend_class_entry* result;
@@ -234,7 +225,7 @@ IcePHP::nameToClass(const string& name)
 bool
 IcePHP::createIdentity(zval* zv, const Ice::Identity& id)
 {
-    zend_class_entry* cls = idToClass("::Ice::Identity");
+    zend_class_entry* cls = nameToClass("\\Ice\\Identity");
     assert(cls);
 
     if (object_init_ex(zv, cls) != SUCCESS)
@@ -258,7 +249,7 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id)
         return false;
     }
 
-    zend_class_entry* cls = idToClass("::Ice::Identity");
+    zend_class_entry* cls = nameToClass("\\Ice\\Identity");
     assert(cls);
 
     zend_class_entry* ce = Z_OBJCE_P(zv);
@@ -419,19 +410,19 @@ IcePHP::extractStringArray(zval* zv, Ice::StringSeq& seq)
 bool
 IcePHP::createProtocolVersion(zval* zv, const Ice::ProtocolVersion& v)
 {
-    return createVersion<Ice::ProtocolVersion>(zv, v, Ice_ProtocolVersion);
+    return createVersion<Ice::ProtocolVersion>(zv, v, Ice_ProtocolVersionType);
 }
 
 bool
 IcePHP::createEncodingVersion(zval* zv, const Ice::EncodingVersion& v)
 {
-    return createVersion<Ice::EncodingVersion>(zv, v, Ice_EncodingVersion);
+    return createVersion<Ice::EncodingVersion>(zv, v, Ice_EncodingVersionType);
 }
 
 bool
 IcePHP::extractEncodingVersion(zval* zv, Ice::EncodingVersion& v)
 {
-    return getVersion<Ice::EncodingVersion>(zv, v, Ice_EncodingVersion);
+    return getVersion<Ice::EncodingVersion>(zv, v, Ice_EncodingVersionType);
 }
 
 namespace
@@ -440,12 +431,19 @@ namespace
 
     zend_class_entry* createPHPException(zval* ex, const char* typeId, bool fallbackToLocalException = false)
     {
-        zend_class_entry* cls = idToClass(typeId);
+        // Convert the exception's typeId to its mapped Python type by replacing "::Ice::" with "\Ice\".
+        // This function should only ever be called on a specific list of Ice local exceptions.
+        string result = typeId;
+        assert(result.find("::Ice::") == 0);
+        result.replace(0, 7, "\\Ice\\");
+        assert(result.find(':') == string::npos); // Assert that there weren't any intermediate scopes.
+
+        zend_class_entry* cls = nameToClass(result);
         if (!cls)
         {
             if (fallbackToLocalException)
             {
-                cls = idToClass(localExceptionTypeId);
+                cls = nameToClass("\\Ice\\LocalException");
                 assert(cls);
             }
             else
@@ -803,7 +801,7 @@ ZEND_FUNCTION(Ice_currentEncoding)
 
 ZEND_FUNCTION(Ice_protocolVersionToString)
 {
-    zend_class_entry* versionClass = idToClass(Ice_ProtocolVersion);
+    zend_class_entry* versionClass = nameToClass(Ice_ProtocolVersionType);
     assert(versionClass);
 
     zval zv;
@@ -812,7 +810,7 @@ ZEND_FUNCTION(Ice_protocolVersionToString)
         RETURN_NULL();
     }
 
-    if (!versionToString<Ice::ProtocolVersion>(&zv, return_value, Ice_ProtocolVersion))
+    if (!versionToString<Ice::ProtocolVersion>(&zv, return_value, Ice_ProtocolVersionType))
     {
         RETURN_NULL();
     }
@@ -828,7 +826,7 @@ ZEND_FUNCTION(Ice_stringToProtocolVersion)
     }
     string s(str, strLen);
 
-    if (!stringToVersion<Ice::ProtocolVersion>(s, return_value, Ice_ProtocolVersion))
+    if (!stringToVersion<Ice::ProtocolVersion>(s, return_value, Ice_ProtocolVersionType))
     {
         RETURN_NULL();
     }
@@ -836,7 +834,7 @@ ZEND_FUNCTION(Ice_stringToProtocolVersion)
 
 ZEND_FUNCTION(Ice_encodingVersionToString)
 {
-    zend_class_entry* versionClass = idToClass(Ice_EncodingVersion);
+    zend_class_entry* versionClass = nameToClass(Ice_EncodingVersionType);
     assert(versionClass);
 
     zval* zv;
@@ -845,7 +843,7 @@ ZEND_FUNCTION(Ice_encodingVersionToString)
         RETURN_NULL();
     }
 
-    if (!versionToString<Ice::EncodingVersion>(zv, return_value, Ice_EncodingVersion))
+    if (!versionToString<Ice::EncodingVersion>(zv, return_value, Ice_EncodingVersionType))
     {
         RETURN_NULL();
     }
@@ -861,7 +859,7 @@ ZEND_FUNCTION(Ice_stringToEncodingVersion)
     }
     string s(str, strLen);
 
-    if (!stringToVersion<Ice::EncodingVersion>(s, return_value, Ice_EncodingVersion))
+    if (!stringToVersion<Ice::EncodingVersion>(s, return_value, Ice_EncodingVersionType))
     {
         RETURN_NULL();
     }

@@ -22,7 +22,7 @@ module IceGrid
 {
     interface Registry; // So that doc-comments can link to `IceGrid::Registry`.
 
-    /// An enumeration representing the state of the server.
+    /// Represents the state of a server.
     enum ServerState
     {
         /// The server is not running.
@@ -34,7 +34,7 @@ module IceGrid
         ["swift:identifier:activating"]
         Activating,
 
-        /// The activation timed out state indicates that the server activation timed out.
+        /// The server activation timed out.
         ["swift:identifier:activationTimedOut"]
         ActivationTimedOut,
 
@@ -55,10 +55,10 @@ module IceGrid
         Destroyed
     }
 
-    /// A dictionary of proxies.
+    /// A dictionary of string to proxies.
     dictionary<string, Object*> StringObjectProxyDict;
 
-    /// Information about an Ice object.
+    /// Information about an Ice well-known object.
     struct ObjectInfo
     {
         /// The proxy of the object.
@@ -68,44 +68,44 @@ module IceGrid
         string type;
     }
 
-    /// A sequence of object information structures.
+    /// A sequence of ObjectInfo.
     sequence<ObjectInfo> ObjectInfoSeq;
 
     /// Information about an adapter registered with the IceGrid registry.
     struct AdapterInfo
     {
-        /// The id of the adapter.
+        /// The ID of the adapter.
         string id;
 
         /// A dummy direct proxy that contains the adapter endpoints.
         Object* proxy;
 
-        /// The replica group id of the object adapter, or empty if the adapter doesn't belong to a replica group.
+        /// The replica group ID of the object adapter, or empty if the adapter doesn't belong to a replica group.
         string replicaGroupId;
     }
 
-    /// A sequence of adapter information structures.
+    /// A sequence of AdapterInfo.
     sequence<AdapterInfo> AdapterInfoSeq;
 
     /// Information about a server managed by an IceGrid node.
     struct ServerInfo
     {
-        /// The server application.
+        /// The application to which this server belongs.
         string application;
 
-        /// The application uuid.
+        /// The application UUID.
         string uuid;
 
         /// The application revision.
         int revision;
 
-        /// The server node.
+        /// The IceGrid node where this server is deployed.
         string node;
 
         /// The server descriptor.
         ServerDescriptor descriptor;
 
-        /// The id of the session which allocated the server.
+        /// The ID of the session which allocated the server.
         string sessionId;
     }
 
@@ -118,20 +118,20 @@ module IceGrid
         /// The operating system name.
         string os;
 
-        /// The network name of the host running this node (as defined in uname()).
+        /// The network name of the host running this node.
         string hostname;
 
-        /// The operation system release level (as defined in uname()).
+        /// The operation system release level.
         string release;
 
-        /// The operation system version (as defined in uname()).
+        /// The operation system version.
         string version;
 
-        /// The machine hardware type (as defined in uname()).
+        /// The machine hardware type.
         string machine;
 
         /// The number of processor threads on the node. For example, nProcessors is 8 on a computer with a single
-        /// quad-core processor and two HT threads per core.
+        /// quad-core processor and two threads per core.
         int nProcessors;
 
         /// The path to the node data directory.
@@ -144,11 +144,11 @@ module IceGrid
         /// The name of the registry.
         string name;
 
-        /// The network name of the host running this registry (as defined in uname()).
+        /// The network name of the host running this registry.
         string hostname;
     }
 
-    /// A sequence of {@link RegistryInfo} structures.
+    /// A sequence of {@link RegistryInfo}.
     sequence<RegistryInfo> RegistryInfoSeq;
 
     /// Information about the load of a node.
@@ -176,7 +176,7 @@ module IceGrid
         /// The user who created the application.
         string createUser;
 
-        /// The update time.
+        /// The last update time.
         long updateTime;
 
         /// The user who updated the application.
@@ -189,8 +189,9 @@ module IceGrid
         ApplicationDescriptor descriptor;
     }
 
-    /// A sequence of {@link ApplicationInfo} structures.
-    ["java:type:java.util.LinkedList<ApplicationInfo>"] sequence<ApplicationInfo> ApplicationInfoSeq;
+    /// A sequence of {@link ApplicationInfo}.
+    ["java:type:java.util.LinkedList<ApplicationInfo>"]
+    sequence<ApplicationInfo> ApplicationInfoSeq;
 
     /// Information about updates to an IceGrid application.
     struct ApplicationUpdateInfo
@@ -208,361 +209,381 @@ module IceGrid
         ApplicationUpdateDescriptor descriptor;
     }
 
-    /// The IceGrid administrative interface. Warning: Allowing access to this interface is a security risk!
-    /// Please see the IceGrid documentation for further information.
+    /// Provides administrative access to an IceGrid deployment.
     interface Admin
     {
-        /// Add an application to IceGrid.
+        /// Adds an application to IceGrid.
         /// @param descriptor The application descriptor.
-        /// @throws AccessDeniedException Raised if the session doesn't hold the exclusive lock or if another session is
-        /// holding the lock.
-        /// @throws DeploymentException Raised if application deployment failed.
+        /// @throws AccessDeniedException Thrown when the session doesn't hold the exclusive lock or when another
+        /// session is holding the lock.
+        /// @throws DeploymentException Thrown when the application deployment failed.
         void addApplication(ApplicationDescriptor descriptor)
             throws AccessDeniedException, DeploymentException;
 
-        /// Synchronize a deployed application with the given application descriptor. This operation will replace the
-        /// current descriptor with this new descriptor.
-        /// @param descriptor The application descriptor.
-        /// @throws AccessDeniedException Raised if the session doesn't hold the exclusive lock or if another session is
-        /// holding the lock.
-        /// @throws DeploymentException Raised if application deployment failed.
-        /// @throws ApplicationNotExistException Raised if the application doesn't exist.
+        /// Synchronizes a deployed application. This operation replaces the current descriptor with a new descriptor.
+        /// @param descriptor The new application descriptor.
+        /// @throws AccessDeniedException Thrown when the session doesn't hold the exclusive lock or when another
+        /// session is holding the lock.
+        /// @throws DeploymentException Thrown when the application deployment failed.
+        /// @throws ApplicationNotExistException Thrown when the application doesn't exist.
         void syncApplication(ApplicationDescriptor descriptor)
             throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
-        /// Update a deployed application with the given update application descriptor.
+        /// Updates a deployed application.
         /// @param descriptor The update descriptor.
-        /// @throws AccessDeniedException Raised if the session doesn't hold the exclusive lock or if another session is
-        /// holding the lock.
-        /// @throws DeploymentException Raised if application deployment failed.
-        /// @throws ApplicationNotExistException Raised if the application doesn't exist.
+        /// @throws AccessDeniedException Thrown when the session doesn't hold the exclusive lock or when another
+        /// session is holding the lock.
+        /// @throws DeploymentException Thrown when the application deployment failed.
+        /// @throws ApplicationNotExistException Thrown when the application doesn't exist.
         void updateApplication(ApplicationUpdateDescriptor descriptor)
             throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
-        /// Synchronize a deployed application with the given application descriptor. This operation will replace the
-        /// current descriptor with this new descriptor only if no server restarts are necessary for the update of the
-        /// application. If some servers need to be restarted, the synchronization is rejected with a
-        /// DeploymentException.
+        /// Synchronizes a deployed application. This operation replaces the current descriptor with a new descriptor
+        /// only if no server restarts are necessary for the update of the application. If some servers need to be
+        /// restarted, the synchronization is rejected with a DeploymentException.
         /// @param descriptor The application descriptor.
-        /// @throws AccessDeniedException Raised if the session doesn't hold the exclusive lock or if another session is
-        /// holding the lock.
-        /// @throws DeploymentException Raised if application deployment failed.
-        /// @throws ApplicationNotExistException Raised if the application doesn't exist.
+        /// @throws AccessDeniedException Thrown when the session doesn't hold the exclusive lock or when another
+        /// session is holding the lock.
+        /// @throws DeploymentException Thrown when the application deployment failed.
+        /// @throws ApplicationNotExistException Thrown when the application doesn't exist.
         void syncApplicationWithoutRestart(ApplicationDescriptor descriptor)
             throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
-        /// Update a deployed application with the given update application descriptor only if no server restarts are
-        /// necessary for the update of the application. If some servers need to be restarted, the synchronization is
-        /// rejected with a DeploymentException.
+        /// Updates a deployed application. This operation succeeds only when no server restarts are necessary for the
+        /// update of the application. If some servers need to be restarted, the synchronization is rejected with a
+        /// DeploymentException.
         /// @param descriptor The update descriptor.
-        /// @throws AccessDeniedException Raised if the session doesn't hold the exclusive lock or if another session is
-        /// holding the lock.
-        /// @throws DeploymentException Raised if application deployment failed.
-        /// @throws ApplicationNotExistException Raised if the application doesn't exist.
+        /// @throws AccessDeniedException Thrown when the session doesn't hold the exclusive lock or when another
+        /// session is holding the lock.
+        /// @throws DeploymentException Thrown when the application deployment failed.
+        /// @throws ApplicationNotExistException Thrown when the application doesn't exist.
         void updateApplicationWithoutRestart(ApplicationUpdateDescriptor descriptor)
             throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
-        /// Remove an application from IceGrid.
+        /// Removes an application from IceGrid.
         /// @param name The application name.
-        /// @throws AccessDeniedException Raised if the session doesn't hold the exclusive lock or if another session is
-        /// holding the lock.
-        /// @throws DeploymentException Raised if application deployment failed.
-        /// @throws ApplicationNotExistException Raised if the application doesn't exist.
+        /// @throws AccessDeniedException Thrown when the session doesn't hold the exclusive lock or when another
+        /// session is holding the lock.
+        /// @throws DeploymentException Thrown when the application deployment failed.
+        /// @throws ApplicationNotExistException Thrown when the application doesn't exist.
         void removeApplication(string name)
             throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
-        /// Instantiate a server template from an application on the given node.
+        /// Instantiates a server template.
         /// @param application The application name.
         /// @param node The name of the node where the server will be deployed.
         /// @param desc The descriptor of the server instance to deploy.
-        /// @throws AccessDeniedException Raised if the session doesn't hold the exclusive lock or if another session is
-        /// holding the lock.
-        /// @throws DeploymentException Raised if server instantiation failed.
-        /// @throws ApplicationNotExistException Raised if the application doesn't exist.
+        /// @throws AccessDeniedException Thrown when the session doesn't hold the exclusive lock or when another
+        /// session is holding the lock.
+        /// @throws DeploymentException Thrown when the application deployment failed.
+        /// @throws ApplicationNotExistException Thrown when the application doesn't exist.
         void instantiateServer(string application, string node, ServerInstanceDescriptor desc)
             throws AccessDeniedException, ApplicationNotExistException, DeploymentException;
 
-        /// Get an application descriptor.
+        /// Gets an application descriptor.
         /// @param name The application name.
         /// @return The application descriptor.
-        /// @throws ApplicationNotExistException Raised if the application doesn't exist.
-        ["cpp:const"] idempotent ApplicationInfo getApplicationInfo(string name)
+        /// @throws ApplicationNotExistException Thrown when the application doesn't exist.
+        ["cpp:const"]
+        idempotent ApplicationInfo getApplicationInfo(string name)
             throws ApplicationNotExistException;
 
-        /// Get the default application descriptor.
+        /// Gets the default application descriptor.
         /// @return The default application descriptor.
-        /// @throws DeploymentException Raised if the default application descriptor can't be accessed or is invalid.
-        ["cpp:const"] idempotent ApplicationDescriptor getDefaultApplicationDescriptor()
+        /// @throws DeploymentException Thrown when the default application descriptor is invalid or unreachable.
+        ["cpp:const"]
+        idempotent ApplicationDescriptor getDefaultApplicationDescriptor()
             throws DeploymentException;
 
-        /// Get all the IceGrid applications currently registered.
+        /// Gets all the IceGrid applications currently registered.
         /// @return The application names.
-        ["cpp:const"] idempotent Ice::StringSeq getAllApplicationNames();
+        ["cpp:const"]
+        idempotent Ice::StringSeq getAllApplicationNames();
 
-        /// Get the server information for the server with the given id.
-        /// @param id The server id.
-        /// @throws ServerNotExistException Raised if the server doesn't exist.
+        /// Gets information about a server.
+        /// @param id The server ID.
+        /// @throws ServerNotExistException Thrown when the server doesn't exist.
         /// @return The server information.
-        ["cpp:const"] idempotent ServerInfo getServerInfo(string id)
+        ["cpp:const"]
+        idempotent ServerInfo getServerInfo(string id)
             throws ServerNotExistException;
 
-        /// Get a server's state.
-        /// @param id The server id.
+        /// Gets the state of a server.
+        /// @param id The server ID.
         /// @return The server state.
-        /// @throws ServerNotExistException Raised if the server doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
-        /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
-        ["cpp:const"] idempotent ServerState getServerState(string id)
+        /// @throws ServerNotExistException Thrown when the server doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
+        /// @throws DeploymentException Thrown when the deployment of the server failed.
+        ["cpp:const"]
+        idempotent ServerState getServerState(string id)
             throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
-        /// Get a server's system process id. The process id is operating system dependent.
-        /// @param id The server id.
-        /// @return The server's process id.
-        /// @throws ServerNotExistException Raised if the server doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
-        /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
-        ["cpp:const"] idempotent int getServerPid(string id)
+        /// Gets the system process ID of a server. The process ID is operating system dependent.
+        /// @param id The server ID.
+        /// @return The process ID.
+        /// @throws ServerNotExistException Thrown when the server doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
+        /// @throws DeploymentException Thrown when the deployment of the server failed.
+        ["cpp:const"]
+        idempotent int getServerPid(string id)
             throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
-        /// Get the category for server admin objects. You can manufacture a server admin proxy from the admin proxy by
+        /// Gets the category for server admin objects. You can manufacture a server admin proxy from the admin proxy by
         /// changing its identity: use the server ID as name and the returned category as category.
         /// @return The category for server admin objects.
         ["cpp:const"]
         idempotent string getServerAdminCategory();
 
-        /// Get a proxy to the server's admin object.
-        /// @param id The server id.
-        /// @return A proxy to the server's admin object. The returned proxy is never null.
-        /// @throws ServerNotExistException Raised if the server doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
-        /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
+        /// Gets a proxy to the admin object of a server.
+        /// @param id The server ID.
+        /// @return A proxy to the admin object of the server. This proxy is never null.
+        /// @throws ServerNotExistException Thrown when the server doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
+        /// @throws DeploymentException Thrown when the deployment of the server failed.
         ["cpp:const"]
         idempotent Object* getServerAdmin(string id)
             throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
-        /// Enable or disable a server. A disabled server can't be started on demand or administratively. The enable
+        /// Enables or disables a server. A disabled server can't be started on demand or administratively. The enable
         /// state of the server is not persistent: if the node is shut down and restarted, the server will be enabled by
         /// default.
-        /// @param id The server id.
+        /// @param id The server ID.
         /// @param enabled `true` to enable the server, `false` to disable it.
-        /// @throws ServerNotExistException Raised if the server doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
-        /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
+        /// @throws ServerNotExistException Thrown when the server doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
+        /// @throws DeploymentException Thrown when the deployment of the server failed.
         idempotent void enableServer(string id, bool enabled)
             throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
-        /// Check if the server is enabled or disabled.
-        /// @param id The server id.
-        /// @return `true` if the server is enabled.
-        /// @throws ServerNotExistException Raised if the server doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
-        /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
-        ["cpp:const"] idempotent bool isServerEnabled(string id)
+        /// Checks if the server is enabled or disabled.
+        /// @param id The server ID.
+        /// @return `true` if the server is enabled, `false` otherwise.
+        /// @throws ServerNotExistException Thrown when the server doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
+        /// @throws DeploymentException Thrown when the deployment of the server failed.
+        ["cpp:const"]
+        idempotent bool isServerEnabled(string id)
             throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
-        /// Start a server and wait for its activation.
+        /// Starts a server and waits for its activation.
         /// @param id The server id.
-        /// @throws ServerNotExistException Raised if the server doesn't exist.
-        /// @throws ServerStartException Raised if the server couldn't be started.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
-        /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
-        ["amd"] void startServer(string id)
+        /// @throws ServerNotExistException Thrown when the server doesn't exist.
+        /// @throws ServerStartException Thrown when the server startup failed.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
+        /// @throws DeploymentException Thrown when the deployment of the server failed.
+        ["amd"]
+        void startServer(string id)
             throws ServerNotExistException, ServerStartException, NodeUnreachableException, DeploymentException;
 
-        /// Stop a server.
-        /// @param id The server id.
-        /// @throws ServerNotExistException Raised if the server doesn't exist.
-        /// @throws ServerStopException Raised if the server couldn't be stopped.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
-        /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
-        ["amd"] void stopServer(string id)
+        /// Stops a server.
+        /// @param id The server ID.
+        /// @throws ServerNotExistException Thrown when the server doesn't exist.
+        /// @throws ServerStopException Thrown when the server stop failed.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
+        /// @throws DeploymentException Thrown when the deployment of the server failed.
+        ["amd"]
+        void stopServer(string id)
             throws ServerNotExistException, ServerStopException, NodeUnreachableException, DeploymentException;
 
-        /// Send signal to a server.
-        /// @param id The server id.
+        /// Sends a signal to a server.
+        /// @param id The server ID.
         /// @param signal The signal, for example SIGTERM or 15.
-        /// @throws ServerNotExistException Raised if the server doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
-        /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
-        /// @throws BadSignalException Raised if the signal is not recognized by the target server.
+        /// @throws ServerNotExistException Thrown when the server doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
+        /// @throws DeploymentException Thrown when the deployment of the server failed.
+        /// @throws BadSignalException Thrown when the signal is not recognized by the target server.
         void sendSignal(string id, string signal)
             throws ServerNotExistException, NodeUnreachableException, DeploymentException, BadSignalException;
 
-        /// Get all the server ids registered with IceGrid.
-        /// @return The server ids.
-        ["cpp:const"] idempotent Ice::StringSeq getAllServerIds();
+        /// Gets the IDs of all the servers registered with IceGrid.
+        /// @return The server IDs.
+        ["cpp:const"]
+        idempotent Ice::StringSeq getAllServerIds();
 
-        /// Get the adapter information for the replica group or adapter with the given id.
-        /// @param id The adapter id.
-        /// @return A sequence of adapter information structures. If the given id refers to an adapter, this sequence
-        /// will contain only one element. If the given id refers to a replica group, the sequence will contain the
-        /// adapter information of each member of the replica group.
-        /// @throws AdapterNotExistException Raised if the adapter or replica group doesn't exist.
-        ["cpp:const"] idempotent AdapterInfoSeq getAdapterInfo(string id)
+        /// Gets adapter information for the replica group or adapter with the given ID.
+        /// @param id The adapter or replica group ID.
+        /// @return A sequence of AdapterInfo. If @p id refers to an adapter, this sequence contains a single element.
+        /// If @p id refers to a replica group, this sequence contains adapter information for each member of the
+        /// replica group.
+        /// @throws AdapterNotExistException Thrown when the adapter or replica group doesn't exist.
+        ["cpp:const"]
+        idempotent AdapterInfoSeq getAdapterInfo(string id)
             throws AdapterNotExistException;
 
-        /// Remove the adapter with the given id.
-        /// @param id The adapter id.
-        /// @throws AdapterNotExistException Raised if the adapter doesn't exist.
-        /// @throws DeploymentException Raised if application deployment failed.
+        /// Removes the adapter with the given ID.
+        /// @param id The adapter ID.
+        /// @throws AdapterNotExistException Thrown when the adapter doesn't exist.
+        /// @throws DeploymentException Thrown when the application deployment failed.
         void removeAdapter(string id)
             throws AdapterNotExistException, DeploymentException;
 
-        /// Get all the adapter ids registered with IceGrid.
-        /// @return The adapter ids.
-        ["cpp:const"] idempotent Ice::StringSeq getAllAdapterIds();
+        /// Gets the IDs of all adapters registered with IceGrid.
+        /// @return The adapter IDs.
+        ["cpp:const"]
+        idempotent Ice::StringSeq getAllAdapterIds();
 
-        /// Add an object to the object registry. IceGrid will get the object type by calling <code>ice_id</code> on the
-        /// given proxy. The object must be reachable.
-        /// @param obj The object to be added to the registry.
-        /// @throws ObjectExistsException Raised if the object is already registered.
-        /// @throws DeploymentException Raised if the object can't be added. This might be raised if the invocation on
-        /// the proxy to get the object type failed.
+        /// Adds an object to the object registry. IceGrid gets the object type by calling `ice_id` on @p obj. The
+        /// object must be reachable.
+        /// @param obj A proxy to the object. This proxy is never null.
+        /// @throws ObjectExistsException Thrown when the object is already registered.
+        /// @throws DeploymentException Thrown when the object can't be added.
         void addObject(Object* obj)
             throws ObjectExistsException, DeploymentException;
 
-        /// Update an object in the object registry. Only objects added with this interface can be updated with this
+        /// Updates an object in the object registry. Only objects added with this interface can be updated with this
         /// operation. Objects added with deployment descriptors should be updated with the deployment mechanism.
-        /// @param obj The object to be updated to the registry.
-        /// @throws ObjectNotRegisteredException Raised if the object isn't registered with the registry.
-        /// @throws DeploymentException Raised if the object can't be updated. This might happen if the object was added
-        /// with a deployment descriptor.
+        /// @param obj A proxy to the object. This proxy is never null.
+        /// @throws ObjectNotRegisteredException Thrown when the object isn't registered with the registry.
+        /// @throws DeploymentException Thrown when the object can't be updated.
         void updateObject(Object* obj)
             throws ObjectNotRegisteredException, DeploymentException;
 
-        /// Add an object to the object registry and explicitly specify its type.
+        /// Adds an object to the object registry and explicitly specifies its type.
         /// @param obj The object to be added to the registry. The proxy is never null.
-        /// @param type The object type.
-        /// @throws ObjectExistsException Raised if the object is already registered.
-        /// @throws DeploymentException Raised if application deployment failed.
+        /// @param type The type name.
+        /// @throws ObjectExistsException Thrown when the object is already registered.
+        /// @throws DeploymentException Thrown when the application deployment failed.
         void addObjectWithType(Object* obj, string type)
             throws ObjectExistsException, DeploymentException;
 
-        /// Remove an object from the object registry. Only objects added with this interface can be removed with this
+        /// Removes an object from the object registry. Only objects added with this interface can be removed with this
         /// operation. Objects added with deployment descriptors should be removed with the deployment mechanism.
-        /// @param id The identity of the object to be removed from the registry.
-        /// @throws ObjectNotRegisteredException Raised if the object isn't registered with the registry.
-        /// @throws DeploymentException Raised if the object can't be removed. This might happen if the object was added
-        /// with a deployment descriptor.
+        /// @param id The identity of the object to remove.
+        /// @throws ObjectNotRegisteredException Thrown when the object isn't registered with the registry.
+        /// @throws DeploymentException Thrown when the object can't be removed.
         void removeObject(Ice::Identity id)
             throws ObjectNotRegisteredException, DeploymentException;
 
-        /// Get the object info for the object with the given identity.
+        /// Gets the object info for the object.
         /// @param id The identity of the object.
         /// @return The object info.
-        /// @throws ObjectNotRegisteredException Raised if the object isn't registered with the registry.
-        ["cpp:const"] idempotent ObjectInfo getObjectInfo(Ice::Identity id)
+        /// @throws ObjectNotRegisteredException Thrown when the object isn't registered with the registry.
+        ["cpp:const"]
+        idempotent ObjectInfo getObjectInfo(Ice::Identity id)
             throws ObjectNotRegisteredException;
 
-        /// Get the object info of all the registered objects with the given type.
-        /// @param type The type of the object.
+        /// Gets the object info of all the registered objects with a given type.
+        /// @param type The type name.
         /// @return The object infos.
-        ["cpp:const"] idempotent ObjectInfoSeq getObjectInfosByType(string type);
+        ["cpp:const"]
+        idempotent ObjectInfoSeq getObjectInfosByType(string type);
 
-        /// Get the object info of all the registered objects whose stringified identities match the given expression.
+        /// Gets the object info of all the registered objects whose stringified identities match the given expression.
         /// @param expr The expression to match against the stringified identities of registered objects. The expression
-        /// may contain a trailing wildcard (<code>*</code>) character.
+        /// may contain a trailing wildcard (`*`) character.
         /// @return All the object infos with a stringified identity matching the given expression.
-        ["cpp:const"] idempotent ObjectInfoSeq getAllObjectInfos(string expr);
+        ["cpp:const"]
+        idempotent ObjectInfoSeq getAllObjectInfos(string expr);
 
-        /// Ping an IceGrid node to see if it is active.
+        /// Pings an IceGrid node to see if it is active.
         /// @param name The node name.
         /// @return `true` if the node ping succeeded, `false` otherwise.
-        /// @throws NodeNotExistException Raised if the node doesn't exist.
-        ["cpp:const"] idempotent bool pingNode(string name)
+        /// @throws NodeNotExistException Thrown when the node doesn't exist.
+        ["cpp:const"]
+        idempotent bool pingNode(string name)
             throws NodeNotExistException;
 
-        /// Get the load averages of the node.
+        /// Gets the load averages of a node.
         /// @param name The node name.
         /// @return The node load information.
-        /// @throws NodeNotExistException Raised if the node doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
-        ["cpp:const"] idempotent LoadInfo getNodeLoad(string name)
+        /// @throws NodeNotExistException Thrown when the node doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
+        ["cpp:const"]
+        idempotent LoadInfo getNodeLoad(string name)
             throws NodeNotExistException, NodeUnreachableException;
 
-        /// Get the node information for the node with the given name.
+        /// Gets the node information of a node.
         /// @param name The node name.
         /// @return The node information.
-        /// @throws NodeNotExistException Raised if the node doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
-        ["cpp:const"] idempotent NodeInfo getNodeInfo(string name)
+        /// @throws NodeNotExistException Thrown when the node doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
+        ["cpp:const"]
+        idempotent NodeInfo getNodeInfo(string name)
             throws NodeNotExistException, NodeUnreachableException;
 
-        /// Get a proxy to the IceGrid node's admin object.
+        /// Gets a proxy to the admin object of an IceGrid node.
         /// @param name The IceGrid node name.
-        /// @return A proxy to the IceGrid node's admin object. The returned proxy is never null.
-        /// @throws NodeNotExistException Raised if the node doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
-        ["cpp:const"] idempotent Object* getNodeAdmin(string name)
+        /// @return A proxy to the IceGrid node's admin object. This proxy is never null.
+        /// @throws NodeNotExistException Thrown when the node doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
+        ["cpp:const"]
+        idempotent Object* getNodeAdmin(string name)
             throws NodeNotExistException, NodeUnreachableException;
 
-        /// Get the number of physical processor sockets for the machine running the node with the given name.
-        /// Note that this method will return 1 on operating systems where this can't be automatically determined and
-        /// where the IceGrid.Node.ProcessorSocketCount property for the node is not set.
+        /// Gets the number of physical processor sockets in the computer where an IceGrid node is deployed.
+        /// Note that this operation returns 1 on operating systems where this can't be automatically determined and
+        /// where the `IceGrid.Node.ProcessorSocketCount` property for the node is not set.
         /// @param name The node name.
-        /// @return The number of processor sockets or 1 if the number of sockets can't determined.
-        /// @throws NodeNotExistException Raised if the node doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
-        ["cpp:const"] idempotent int getNodeProcessorSocketCount(string name)
+        /// @return The number of processor sockets or 1 if the number of sockets can't be determined.
+        /// @throws NodeNotExistException Thrown when the node doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
+        ["cpp:const"]
+        idempotent int getNodeProcessorSocketCount(string name)
             throws NodeNotExistException, NodeUnreachableException;
 
-        /// Shutdown an IceGrid node.
+        /// Shuts down an IceGrid node.
         /// @param name The node name.
-        /// @throws NodeNotExistException Raised if the node doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
+        /// @throws NodeNotExistException Thrown when the node doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
         void shutdownNode(string name)
             throws NodeNotExistException, NodeUnreachableException;
 
-        /// Get the hostname of this node.
+        /// Get the hostname of a node.
         /// @param name The node name.
         /// @return The node hostname.
-        /// @throws NodeNotExistException Raised if the node doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
-        ["cpp:const"] idempotent string getNodeHostname(string name)
+        /// @throws NodeNotExistException Thrown when the node doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
+        ["cpp:const"]
+        idempotent string getNodeHostname(string name)
             throws NodeNotExistException, NodeUnreachableException;
 
-        /// Get all the IceGrid nodes currently registered.
+        /// Gets the names of all IceGrid nodes currently registered.
         /// @return The node names.
-        ["cpp:const"] idempotent Ice::StringSeq getAllNodeNames();
+        ["cpp:const"]
+        idempotent Ice::StringSeq getAllNodeNames();
 
-        /// Ping an IceGrid registry to see if it is active.
+        /// Pings an IceGrid registry to see if it is active.
         /// @param name The registry name.
         /// @return `true` if the registry ping succeeded, `false` otherwise.
-        /// @throws RegistryNotExistException Raised if the registry doesn't exist.
-        ["cpp:const"] idempotent bool pingRegistry(string name)
+        /// @throws RegistryNotExistException Thrown when the registry doesn't exist.
+        ["cpp:const"]
+        idempotent bool pingRegistry(string name)
             throws RegistryNotExistException;
 
-        /// Get the registry information for the registry with the given name.
+        /// Gets the registry information of an IceGrid registry.
         /// @param name The registry name.
         /// @return The registry information.
-        /// @throws RegistryNotExistException Raised if the registry doesn't exist.
-        /// @throws RegistryUnreachableException Raised if the registry could not be reached.
-        ["cpp:const"] idempotent RegistryInfo getRegistryInfo(string name)
+        /// @throws RegistryNotExistException Thrown when the registry doesn't exist.
+        /// @throws RegistryUnreachableException Thrown when the registry is unreachable.
+        ["cpp:const"]
+        idempotent RegistryInfo getRegistryInfo(string name)
             throws RegistryNotExistException, RegistryUnreachableException;
 
-        /// Get a proxy to the IceGrid registry's admin object.
+        /// Gets a proxy to the admin object of an IceGrid registry.
         /// @param name The registry name.
-        /// @return A proxy to the IceGrid registry's admin object. The returned proxy is never null.
-        /// @throws RegistryNotExistException Raised if the registry doesn't exist.
-        ["cpp:const"] idempotent Object* getRegistryAdmin(string name)
+        /// @return A proxy to the admin object of an IceGrid registry. This proxy is never null.
+        /// @throws RegistryNotExistException Thrown when the registry doesn't exist.
+        ["cpp:const"]
+        idempotent Object* getRegistryAdmin(string name)
             throws RegistryNotExistException;
 
-        /// Shutdown an IceGrid registry.
+        /// Shuts down an IceGrid registry.
         /// @param name The registry name.
-        /// @throws RegistryNotExistException Raised if the registry doesn't exist.
-        /// @throws RegistryUnreachableException Raised if the registry could not be reached.
+        /// @throws RegistryNotExistException Thrown when the registry doesn't exist.
+        /// @throws RegistryUnreachableException Thrown when the registry is unreachable.
         idempotent void shutdownRegistry(string name)
             throws RegistryNotExistException, RegistryUnreachableException;
 
-        /// Get all the IceGrid registries currently registered.
+        /// Gets the names of all the IceGrid registries currently registered.
         /// @return The registry names.
-        ["cpp:const"] idempotent Ice::StringSeq getAllRegistryNames();
+        ["cpp:const"]
+        idempotent Ice::StringSeq getAllRegistryNames();
 
-        /// Shut down the IceGrid registry.
+        /// Shuts down the IceGrid registry.
         void shutdown();
     }
 
-    /// This interface provides access to IceGrid log file contents.
+    /// Iterates over an IceGrid log file.
     interface FileIterator
     {
         /// Read lines from the log file.
@@ -572,32 +593,33 @@ module IceGrid
         /// read, an empty sequence is returned. The last line of the sequence is always incomplete (and therefore no
         /// '\n' should be added when writing the last line to the to the output device).
         /// @return `true` if EOF is encountered.
-        /// @throws FileNotAvailableException Raised if there was a problem to read lines from the file.
+        /// @throws FileNotAvailableException Thrown when the implementation failed to read from the file.
         bool read(int size, out Ice::StringSeq lines)
             throws FileNotAvailableException;
 
-        /// Destroy the iterator.
+        /// Destroys the iterator.
         void destroy();
     }
 
     /// Dynamic information about the state of a server.
     struct ServerDynamicInfo
     {
-        /// The id of the server.
+        /// The ID of the server.
         string id;
 
         /// The state of the server.
         ServerState state;
 
-        /// The process id of the server.
+        /// The process ID of the server.
         int pid;
 
         /// Indicates whether the server is enabled.
         bool enabled;
     }
 
-    /// A sequence of server dynamic information structures.
-    ["java:type:java.util.LinkedList<ServerDynamicInfo>"] sequence<ServerDynamicInfo> ServerDynamicInfoSeq;
+    /// A sequence of ServerDynamicInfo.
+    ["java:type:java.util.LinkedList<ServerDynamicInfo>"]
+    sequence<ServerDynamicInfo> ServerDynamicInfoSeq;
 
     /// Dynamic information about the state of an adapter.
     struct AdapterDynamicInfo
@@ -609,8 +631,9 @@ module IceGrid
         Object* proxy;
     }
 
-    /// A sequence of adapter dynamic information structures.
-    ["java:type:java.util.LinkedList<AdapterDynamicInfo>"] sequence<AdapterDynamicInfo> AdapterDynamicInfoSeq;
+    /// A sequence of AdapterDynamicInfo.
+    ["java:type:java.util.LinkedList<AdapterDynamicInfo>"]
+    sequence<AdapterDynamicInfo> AdapterDynamicInfoSeq;
 
     /// Dynamic information about the state of a node.
     struct NodeDynamicInfo
@@ -625,160 +648,143 @@ module IceGrid
         AdapterDynamicInfoSeq adapters;
     }
 
-    /// This interface allows applications to monitor changes the state of the registry.
+    /// Monitors changes to the state of the registries.
     interface RegistryObserver
     {
-        /// The <code>registryInit</code> operation is called after registration of an observer to indicate the state of
-        /// the registries.
+        /// Provides the initial state of the registries to the observer.
         /// @param registries The current state of the registries.
         void registryInit(RegistryInfoSeq registries);
 
-        /// The <code>registryUp</code> operation is called to notify an observer that a registry replica came up.
+        /// Notifies the observer that a registry replica came up.
         /// @param registryReplica The registry state.
         void registryUp(RegistryInfo registryReplica);
 
-        /// The <code>registryDown</code> operation is called to notify an observer that a registry replica went down.
+        /// Notifies the observer that a registry replica went down.
         /// @param name The registry name.
         void registryDown(string name);
     }
 
-    /// A sequence of node dynamic information structures.
+    /// A sequence of NodeDynamicInfo.
     sequence<NodeDynamicInfo> NodeDynamicInfoSeq;
 
-    /// The node observer interface. Observers should implement this interface to receive information about the state of
-    /// the IceGrid nodes.
+    /// Monitors changes to the state of the nodes.
     interface NodeObserver
     {
-        /// The <code>nodeInit</code> operation indicates the current state of nodes. It is called after the
-        /// registration of an observer.
+        /// Provides the initial state of the nodes to the observer.
         /// @param nodes The current state of the nodes.
         void nodeInit(NodeDynamicInfoSeq nodes);
 
-        /// The <code>nodeUp</code> operation is called to notify an observer that a node came up.
+        /// Notifies the observer that a node came up.
         /// @param node The node state.
         void nodeUp(NodeDynamicInfo node);
 
-        /// The <code>nodeDown</code> operation is called to notify an observer that a node went down.
+        /// Notifies the observer that a node went down.
         /// @param name The node name.
         void nodeDown(string name);
 
-        /// The <code>updateServer</code> operation is called to notify an observer that the state of a server changed.
+        /// Notifies the observer that the state of a server changed.
         /// @param node The node hosting the server.
         /// @param updatedInfo The new server state.
         void updateServer(string node, ServerDynamicInfo updatedInfo);
 
-        /// The <code>updateAdapter</code> operation is called to notify an observer that the state of an adapter
-        /// changed.
+        /// Notifies the observer that the state of an object adapter changed.
         /// @param node The node hosting the adapter.
         /// @param updatedInfo The new adapter state.
         void updateAdapter(string node, AdapterDynamicInfo updatedInfo);
     }
 
-    /// The database observer interface. Observers should implement this interface to receive information about the
-    /// state of the IceGrid registry database.
+    /// Monitors applications.
     interface ApplicationObserver
     {
-        /// <code>applicationInit</code> is called after the registration of an observer to indicate the state of the
-        /// registry.
+        /// Provides the initial application infos to the observer.
         /// @param serial The current serial number of the registry database. This serial number allows observers to
         /// make sure that their internal state is synchronized with the registry.
         /// @param applications The applications currently registered with the registry.
         void applicationInit(int serial, ApplicationInfoSeq applications);
 
-        /// The <code>applicationAdded</code> operation is called to notify an observer that an application was added.
+        /// Notifies the observer that an application was added.
         /// @param serial The new serial number of the registry database.
         /// @param desc The descriptor of the new application.
         void applicationAdded(int serial, ApplicationInfo desc);
 
-        /// The <code>applicationRemoved</code> operation is called to notify an observer that an application was
-        /// removed.
+        /// Notifies the observer that an application was removed.
         /// @param serial The new serial number of the registry database.
         /// @param name The name of the application that was removed.
         void applicationRemoved(int serial, string name);
 
-        /// The <code>applicationUpdated</code> operation is called to notify an observer that an application was
-        /// updated.
+        /// Notifies the observer that an application was updated.
         /// @param serial The new serial number of the registry database.
         /// @param desc The descriptor of the update.
         void applicationUpdated(int serial, ApplicationUpdateInfo desc);
     }
 
-    /// This interface allows applications to monitor the state of object adapters that are registered with IceGrid.
+    /// Monitors dynamically-registered object adapters.
     interface AdapterObserver
     {
-        /// <code>adapterInit</code> is called after registration of an observer to indicate the state of the registry.
-        /// @param adpts The adapters that were dynamically registered with the registry (not through the deployment
-        /// mechanism).
+        /// Provides the initial list of dynamically registered adapters to the observer.
+        /// @param adpts The adapters that were dynamically registered with the registry.
         void adapterInit(AdapterInfoSeq adpts);
 
-        /// The <code>adapterAdded</code> operation is called to notify an observer when a dynamically-registered
-        /// adapter was added.
+        /// Notifies the observer that a dynamically-registered adapter was added.
         /// @param info The details of the new adapter.
         void adapterAdded(AdapterInfo info);
 
-        /// The adapterUpdated operation is called to notify an observer when a dynamically-registered adapter was
-        /// updated.
+        // Notifies the observer that a dynamically-registered adapter was updated.
         /// @param info The details of the updated adapter.
         void adapterUpdated(AdapterInfo info);
 
-        /// The adapterRemoved operation is called to notify an observer when a dynamically-registered adapter was
-        /// removed.
+        /// Notifies the observer that a dynamically-registered adapter was removed.
         /// @param id The ID of the removed adapter.
         void adapterRemoved(string id);
     }
 
-    /// This interface allows applications to monitor IceGrid well-known objects.
+    /// Monitors well-known objects that are added, updated or removed using {@link Admin}.
     interface ObjectObserver
     {
-        /// <code>objectInit</code> is called after the registration of an observer to indicate the state of the
-        /// registry.
-        /// @param objects The objects registered with the {@link Admin} interface (not through the deployment
-        /// mechanism).
+        /// Provides the initial list of well-known objects to the observer.
+        /// @param objects The well-known objects registered using {@link Admin}.
         void objectInit(ObjectInfoSeq objects);
 
-        /// The <code>objectAdded</code> operation is called to notify an observer when an object was added to the
-        /// {@link Admin} interface.
-        /// @param info The details of the added object.
+        /// Notifies the observer that a well-known object was added.
+        /// @param info The details of the new object.
         void objectAdded(ObjectInfo info);
 
-        /// <code>objectUpdated</code> is called to notify an observer when an object registered with the {@link Admin}
-        /// interface was updated.
+        /// Notifies the observer that a well-known object was updated.
         /// @param info The details of the updated object.
         void objectUpdated(ObjectInfo info);
 
-        /// <code>objectRemoved</code> is called to notify an observer when an object registered with the {@link Admin}
-        /// interface was removed.
+       /// Notifies the observer that a well-known object was removed.
         /// @param id The identity of the removed object.
         void objectRemoved(Ice::Identity id);
     }
 
-    /// Used by administrative clients to view, update, and receive observer updates from the IceGrid registry. Admin
-    /// sessions are created either via the {@link Registry} object or via the registry admin
-    /// <code>SessionManager</code> object.
+    /// Represents an administrative session between an admin tool and an IceGrid registry.
     /// @see Registry
     interface AdminSession extends Glacier2::Session
     {
-        /// Keep the session alive.
-        /// As of Ice 3.8, there is no need to call this operation, and its implementation does nothing.
-        ["deprecated"]
+        /// Keeps the session alive.
+        ["deprecated:As of Ice 3.8, there is no need to call this operation, and its implementation does nothing."]
         idempotent void keepAlive();
 
-        /// Get the admin interface. The admin object returned by this operation can only be accessed by the session.
-        /// @return The admin interface proxy. The returned proxy is never null.
-        ["cpp:const"] idempotent Admin* getAdmin();
+        /// Gets a proxy to the IceGrid admin object. The admin object returned by this operation can only be accessed
+        /// by the session.
+        /// @return A proxy to the IceGrid admin object. This proxy is never null.
+        ["cpp:const"]
+        idempotent Admin* getAdmin();
 
-        /// Get a "template" proxy for admin callback objects. An Admin client uses this proxy to set the category of
+        /// Gets a "template" proxy for admin callback objects. An Admin client uses this proxy to set the category of
         /// its callback objects, and the published endpoints of the object adapter hosting the admin callback objects.
         /// @return A template proxy. The returned proxy is null when the Admin session was established using Glacier2.
-        ["cpp:const"] idempotent Object* getAdminCallbackTemplate();
+        ["cpp:const"]
+        idempotent Object* getAdminCallbackTemplate();
 
-        /// Set the observer proxies that receive notifications when the state of the registry or nodes changes.
+        /// Sets the observer proxies that receive notifications when the state of the registry or nodes changes.
         /// @param registryObs The registry observer.
         /// @param nodeObs The node observer.
         /// @param appObs The application observer.
         /// @param adptObs The adapter observer.
         /// @param objObs The object observer.
-        /// @throws ObserverAlreadyRegisteredException Raised if an observer is already registered with this registry.
+        /// @throws ObserverAlreadyRegisteredException Thrown when an observer is already registered with this registry.
         idempotent void setObservers(
             RegistryObserver* registryObs,
             NodeObserver* nodeObs,
@@ -787,15 +793,15 @@ module IceGrid
             ObjectObserver* objObs)
             throws ObserverAlreadyRegisteredException;
 
-        /// Set the observer identities that receive notifications the state of the registry or nodes changes. This
-        /// operation should be used by clients that are using a bidirectional connection to communicate with the
+        /// Sets the observer identities that receive notifications when the state of the registry or nodes changes.
+        /// This operation should be used by clients that are using a bidirectional connection to communicate with the
         /// session.
         /// @param registryObs The registry observer identity.
         /// @param nodeObs The node observer identity.
         /// @param appObs The application observer.
         /// @param adptObs The adapter observer.
         /// @param objObs The object observer.
-        /// @throws ObserverAlreadyRegisteredException Raised if an observer is already registered with this registry.
+        /// @throws ObserverAlreadyRegisteredException Thrown when an observer is already registered with this registry.
         idempotent void setObserversByIdentity(
             Ice::Identity registryObs,
             Ice::Identity nodeObs,
@@ -806,99 +812,100 @@ module IceGrid
 
         /// Acquires an exclusive lock to start updating the registry applications.
         /// @return The current serial.
-        /// @throws AccessDeniedException Raised if the exclusive lock can't be acquired. This might happen if the lock
-        /// is currently acquired by another session.
+        /// @throws AccessDeniedException Thrown when the exclusive lock can't be acquired. This might happen if the
+        /// lock is currently acquired by another session.
         int startUpdate()
             throws AccessDeniedException;
 
-        /// Finish updating the registry and release the exclusive lock.
-        /// @throws AccessDeniedException Raised if the session doesn't hold the exclusive lock.
+        /// Finishes updating the registry and releases the exclusive lock.
+        /// @throws AccessDeniedException Thrown when the session doesn't hold the exclusive lock.
         void finishUpdate()
             throws AccessDeniedException;
 
-        /// Get the name of the registry replica hosting this session.
+        /// Gets the name of the registry replica hosting this session.
         /// @return The replica name of the registry.
-        ["cpp:const"] idempotent string getReplicaName();
+        ["cpp:const"]
+        idempotent string getReplicaName();
 
-        /// Open the given server log file for reading. The file can be read with the returned file iterator.
-        /// @param id The server id.
+        /// Opens a server log file for reading.
+        /// @param id The server ID.
         /// @param path The path of the log file. A log file can be opened only if it's declared in the server or
         /// service deployment descriptor.
         /// @param count Specifies where to start reading the file. If negative, the file is read from the beginning.
-        /// If 0 or positive, the file is read from the last <code>count</code> lines.
-        /// @return An iterator to read the file. The returned proxy is never null.
-        /// @throws FileNotAvailableException Raised if the file can't be read.
-        /// @throws ServerNotExistException Raised if the server doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
-        /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
+        /// Otherwise, the file is read from the last @p count lines.
+        /// @return An iterator to read the file. This proxy is never null.
+        /// @throws FileNotAvailableException Thrown when the file can't be read.
+        /// @throws ServerNotExistException Thrown when the server doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
+        /// @throws DeploymentException Thrown when the server couldn't be deployed on the node.
         FileIterator* openServerLog(string id, string path, int count)
             throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException;
 
-        /// Open the given server stderr file for reading. The file can be read with the returned file iterator.
-        /// @param id The server id.
+        /// Opens a server stderr file for reading.
+        /// @param id The server ID.
         /// @param count Specifies where to start reading the file. If negative, the file is read from the beginning.
-        /// If 0 or positive, the file is read from the last <code>count</code> lines.
-        /// @return An iterator to read the file. The returned proxy is never null.
-        /// @throws FileNotAvailableException Raised if the file can't be read.
-        /// @throws ServerNotExistException Raised if the server doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
-        /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
+        /// Otherwise, the file is read from the last @p count lines.
+        /// @return An iterator to read the file. This proxy is never null.
+        /// @throws FileNotAvailableException Thrown when the file can't be read.
+        /// @throws ServerNotExistException Thrown when the server doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
+        /// @throws DeploymentException Thrown when the server couldn't be deployed on the node.
         FileIterator* openServerStdErr(string id, int count)
             throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException;
 
-        /// Open the given server stdout file for reading. The file can be read with the returned file iterator.
+        /// Opens a server stdout file for reading.
         /// @param id The server id.
         /// @param count Specifies where to start reading the file. If negative, the file is read from the beginning.
-        /// If 0 or positive, the file is read from the last <code>count</code> lines.
-        /// @return An iterator to read the file. The returned proxy is never null.
-        /// @throws FileNotAvailableException Raised if the file can't be read.
-        /// @throws ServerNotExistException Raised if the server doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
-        /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
+        /// Otherwise, the file is read from the last @p count lines.
+        /// @return An iterator to read the file. This proxy is never null.
+        /// @throws FileNotAvailableException Thrown when the file can't be read.
+        /// @throws ServerNotExistException Thrown when the server doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
+        /// @throws DeploymentException Thrown when the server couldn't be deployed on the node.
         FileIterator* openServerStdOut(string id, int count)
             throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException;
 
-        /// Open the given node stderr file for reading. The file can be read with the returned file iterator.
+        /// Opens a node stderr file for reading.
         /// @param name The node name.
         /// @param count Specifies where to start reading the file. If negative, the file is read from the beginning.
-        /// If 0 or positive, the file is read from the last <code>count</code> lines.
-        /// @return An iterator to read the file. The returned proxy is never null.
-        /// @throws FileNotAvailableException Raised if the file can't be read.
-        /// @throws NodeNotExistException Raised if the node doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
+        /// Otherwise, the file is read from the last @p count lines.
+        /// @return An iterator to read the file. This proxy is never null.
+        /// @throws FileNotAvailableException Thrown when the file can't be read.
+        /// @throws NodeNotExistException Thrown when the node doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
         FileIterator* openNodeStdErr(string name, int count)
             throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException;
 
-        /// Open the given node stdout file for reading. The file can be read with the returned file iterator.
+        /// Opens a node stdout file for reading.
         /// @param name The node name.
         /// @param count Specifies where to start reading the file. If negative, the file is read from the beginning.
-        /// If 0 or positive, the file is read from the last <code>count</code> lines.
-        /// @return An iterator to read the file. The returned proxy is never null.
-        /// @throws FileNotAvailableException Raised if the file can't be read.
-        /// @throws NodeNotExistException Raised if the node doesn't exist.
-        /// @throws NodeUnreachableException Raised if the node could not be reached.
+        /// Otherwise, the file is read from the last @p count lines.
+        /// @return An iterator to read the file. This proxy is never null.
+        /// @throws FileNotAvailableException Thrown when the file can't be read.
+        /// @throws NodeNotExistException Thrown when the node doesn't exist.
+        /// @throws NodeUnreachableException Thrown when the node is unreachable.
         FileIterator* openNodeStdOut(string name, int count)
             throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException;
 
-        /// Open the given registry stderr file for reading. The file can be read with the returned file iterator.
+        /// Opens a registry stderr file for reading.
         /// @param name The registry name.
         /// @param count Specifies where to start reading the file. If negative, the file is read from the beginning.
-        /// If 0 or positive, the file is read from the last <code>count</code> lines.
-        /// @return An iterator to read the file. The returned proxy is never null.
-        /// @throws FileNotAvailableException Raised if the file can't be read.
-        /// @throws RegistryNotExistException Raised if the registry doesn't exist.
-        /// @throws RegistryUnreachableException Raised if the registry could not be reached.
+        /// Otherwise, the file is read from the last @p count lines.
+        /// @return An iterator to read the file. This proxy is never null.
+        /// @throws FileNotAvailableException Thrown when the file can't be read.
+        /// @throws RegistryNotExistException Thrown when the registry doesn't exist.
+        /// @throws RegistryUnreachableException Thrown when the registry is unreachable.
         FileIterator* openRegistryStdErr(string name, int count)
             throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
 
-        /// Open the given registry stdout file for reading. The file can be read with the returned file iterator.
+        /// Opens a registry stdout file for reading.
         /// @param name The registry name.
         /// @param count Specifies where to start reading the file. If negative, the file is read from the beginning.
-        /// If 0 or positive, the file is read from the last <code>count</code> lines.
-        /// @return An iterator to read the file. The returned proxy is never null.
-        /// @throws FileNotAvailableException Raised if the file can't be read.
-        /// @throws RegistryNotExistException Raised if the registry doesn't exist.
-        /// @throws RegistryUnreachableException Raised if the registry could not be reached.
+        /// Otherwise, the file is read from the last @p count lines.
+        /// @return An iterator to read the file. This proxy is never null.
+        /// @throws FileNotAvailableException Thrown when the file can't be read.
+        /// @throws RegistryNotExistException Thrown when the registry doesn't exist.
+        /// @throws RegistryUnreachableException Thrown when the registry is unreachable.
         FileIterator * openRegistryStdOut(string name, int count)
             throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
     }

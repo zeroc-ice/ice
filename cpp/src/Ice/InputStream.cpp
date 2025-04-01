@@ -1539,7 +1539,7 @@ Ice::InputStream::EncapsDecoder10::read(PatchFunc patchFunc, void* patchAddr)
 }
 
 void
-Ice::InputStream::EncapsDecoder10::throwException(UserExceptionFactory factory)
+Ice::InputStream::EncapsDecoder10::throwException(UserExceptionFactory exceptionFactory)
 {
     assert(_sliceType == NoSlice);
 
@@ -1561,7 +1561,6 @@ Ice::InputStream::EncapsDecoder10::throwException(UserExceptionFactory factory)
     //
     startSlice();
     const string mostDerivedId = _typeId;
-    UserExceptionFactory exceptionFactory = factory;
     while (true)
     {
         //
@@ -1841,7 +1840,7 @@ Ice::InputStream::EncapsDecoder11::read(PatchFunc patchFunc, void* patchAddr)
 }
 
 void
-Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory factory)
+Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory exceptionFactory)
 {
     assert(!_current);
 
@@ -1852,7 +1851,6 @@ Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory factory)
     //
     startSlice();
     const string mostDerivedId = _current->typeId;
-    UserExceptionFactory exceptionFactory = factory;
     while (true)
     {
         //

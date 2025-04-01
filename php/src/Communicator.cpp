@@ -9,7 +9,6 @@
 
 #include "Ice/Options.h"
 #include "Ice/StringUtil.h"
-#include "Ice/Timer.h"
 
 #include <chrono>
 #include <condition_variable>
@@ -516,7 +515,7 @@ ZEND_METHOD(Ice_Communicator, identityToString)
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
     assert(_this);
 
-    zend_class_entry* identityClass = idToClass("::Ice::Identity");
+    zend_class_entry* identityClass = nameToClass("\\Ice\\Identity");
     assert(identityClass);
 
     zval* zv;
@@ -835,7 +834,7 @@ ZEND_METHOD(Ice_ValueFactoryManager, add)
     ValueFactoryManagerPtr _this = Wrapper<ValueFactoryManagerPtr>::value(getThis());
     assert(_this);
 
-    zend_class_entry* factoryClass = idToClass("Ice::ValueFactory");
+    zend_class_entry* factoryClass = nameToClass("\\Ice\\ValueFactory");
     assert(factoryClass);
 
     zval* factory;
@@ -1051,7 +1050,7 @@ ZEND_FUNCTION(Ice_initialize)
         RETURN_NULL();
     }
 
-    zend_class_entry* initClass = idToClass("::Ice::InitializationData");
+    zend_class_entry* initClass = nameToClass("\\Ice\\InitializationData");
     assert(initClass);
 
     //
@@ -1411,7 +1410,7 @@ ZEND_FUNCTION(Ice_getProperties)
 
 ZEND_FUNCTION(Ice_identityToString)
 {
-    zend_class_entry* identityClass = idToClass("::Ice::Identity");
+    zend_class_entry* identityClass = nameToClass("\\Ice\\Identity");
     assert(identityClass);
 
     zval* zv;

@@ -13,7 +13,7 @@ from .EnumBase import EnumBase
 #
 # Add some symbols to the Ice module.
 #
-from .ObjectPrx import ObjectPrx
+from .ObjectPrx import ObjectPrx, checkedCast, checkedCastAsync
 stringVersion = IcePy.stringVersion
 intVersion = IcePy.intVersion
 currentProtocol = IcePy.currentProtocol
@@ -35,6 +35,7 @@ IcePy._t_ObjectPrx = IcePy.declareProxy("::Ice::Object")
 #
 # Import local definitions that are part of the Ice module public API.
 #
+from .EventLoopAdapter import *
 from .Current import *
 from .Future import *
 from .InvocationFuture import *

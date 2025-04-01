@@ -4,6 +4,7 @@
 #include "Communicator.h"
 #include "Connection.h"
 #include "Endpoint.h"
+#include "Future.h"
 #include "Ice/Communicator.h"
 #include "Ice/DisableWarnings.h"
 #include "Ice/LocalExceptions.h"
@@ -863,8 +864,7 @@ proxyIceGetEncodingVersion(ProxyObject* self, PyObject* /*args*/)
         return nullptr;
     }
 
-    Py_INCREF(version);
-    return version;
+    return Py_NewRef(version);
 }
 
 extern "C" PyObject*
@@ -905,19 +905,15 @@ proxyIceIsPreferSecure(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isPreferSecure() ? Py_True : Py_False;
+        return (*self->proxy)->ice_isPreferSecure() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1093,19 +1089,15 @@ proxyIceIsTwoway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isTwoway() ? Py_True : Py_False;
+        return (*self->proxy)->ice_isTwoway() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1132,19 +1124,15 @@ proxyIceIsOneway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isOneway() ? Py_True : Py_False;
+        return (*self->proxy)->ice_isOneway() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1171,19 +1159,15 @@ proxyIceIsBatchOneway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isBatchOneway() ? Py_True : Py_False;
+        return (*self->proxy)->ice_isBatchOneway() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1209,20 +1193,15 @@ extern "C" PyObject*
 proxyIceIsDatagram(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
-
-    PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isDatagram() ? Py_True : Py_False;
+        return (*self->proxy)->ice_isDatagram() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1248,20 +1227,15 @@ extern "C" PyObject*
 proxyIceIsBatchDatagram(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
-
-    PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isBatchDatagram() ? Py_True : Py_False;
+        return (*self->proxy)->ice_isBatchDatagram() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1299,18 +1273,16 @@ extern "C" PyObject*
 proxyIceGetCompress(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
-
-    PyObject* b;
     try
     {
         optional<bool> compress = (*self->proxy)->ice_getCompress();
         if (compress)
         {
-            b = *compress ? Py_True : Py_False;
+            return *compress ? Py_True : Py_False;
         }
         else
         {
-            b = Py_None;
+            return Py_None;
         }
     }
     catch (...)
@@ -1318,8 +1290,6 @@ proxyIceGetCompress(ProxyObject* self, PyObject* /*args*/)
         setPythonException(current_exception());
         return nullptr;
     }
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1327,19 +1297,15 @@ proxyIceIsCollocationOptimized(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isCollocationOptimized() ? Py_True : Py_False;
+        return (*self->proxy)->ice_isCollocationOptimized() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1445,19 +1411,15 @@ proxyIceIsFixed(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_isFixed() ? Py_True : Py_False;
+        return (*self->proxy)->ice_isFixed() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    Py_INCREF(b);
-    return b;
 }
 
 extern "C" PyObject*
@@ -1600,7 +1562,7 @@ proxyIceFlushBatchRequestsAsync(ProxyObject* self, PyObject* /*args*/, PyObject*
         return nullptr;
     }
     callback->setFuture(future.get());
-    return future.release();
+    return IcePy::wrapFuture(*self->communicator, future.get());
 }
 
 extern "C" PyObject*
@@ -1613,107 +1575,6 @@ extern "C" PyObject*
 proxyIceInvokeAsync(ProxyObject* self, PyObject* args, PyObject* /*kwds*/)
 {
     return iceInvokeAsync(reinterpret_cast<PyObject*>(self), args);
-}
-
-static PyObject*
-checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx, PyObject* type)
-{
-    optional<Ice::ObjectPrx> target;
-    if (!facet || facet == Py_None)
-    {
-        target = *p->proxy;
-    }
-    else
-    {
-        string facetStr = getString(facet);
-        target = (*p->proxy)->ice_facet(facetStr);
-    }
-    assert(target);
-
-    bool b = false;
-    try
-    {
-        Ice::Context c;
-        if (ctx && ctx != Py_None)
-        {
-            if (!dictionaryToContext(ctx, c))
-            {
-                return nullptr;
-            }
-        }
-
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-        b = target->ice_isA(id, (!ctx || ctx == Py_None) ? Ice::noExplicitContext : c);
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
-        return nullptr;
-    }
-
-    if (b)
-    {
-        return createProxy(target.value(), *p->communicator, type);
-    }
-
-    return Py_None;
-}
-
-extern "C" PyObject*
-proxyIceCheckedCast(PyObject* type, PyObject* args)
-{
-    //
-    // ice_checkedCast is called from generated code, therefore we always expect
-    // to receive four arguments.
-    //
-    PyObject* obj{nullptr};
-    char* id{nullptr};
-    PyObject* facetOrContext{nullptr};
-    PyObject* ctx{nullptr};
-    if (!PyArg_ParseTuple(args, "OsOO", &obj, &id, &facetOrContext, &ctx))
-    {
-        return nullptr;
-    }
-
-    if (obj == Py_None)
-    {
-        return Py_None;
-    }
-
-    if (!checkProxy(obj))
-    {
-        PyErr_Format(PyExc_ValueError, "ice_checkedCast requires a proxy argument");
-        return nullptr;
-    }
-
-    PyObject* facet{nullptr};
-
-    if (checkString(facetOrContext))
-    {
-        facet = facetOrContext;
-    }
-    else if (PyDict_Check(facetOrContext))
-    {
-        if (ctx != Py_None)
-        {
-            PyErr_Format(PyExc_ValueError, "facet argument to checkedCast must be a string");
-            return nullptr;
-        }
-        ctx = facetOrContext;
-    }
-    else if (facetOrContext != Py_None)
-    {
-        PyErr_Format(PyExc_ValueError, "second argument to checkedCast must be a facet or context");
-        return nullptr;
-    }
-
-    if (ctx != Py_None && !PyDict_Check(ctx))
-    {
-        PyErr_Format(PyExc_ValueError, "context argument to checkedCast must be a dictionary");
-        return nullptr;
-    }
-
-    return checkedCastImpl(reinterpret_cast<ProxyObject*>(obj), id, facet, ctx, type);
 }
 
 extern "C" PyObject*
@@ -1751,80 +1612,6 @@ proxyIceUncheckedCast(PyObject* type, PyObject* args)
     {
         return createProxy(*p->proxy, *p->communicator, type);
     }
-}
-
-extern "C" PyObject*
-proxyCheckedCast(PyObject* /*self*/, PyObject* args)
-{
-    PyObject* obj;
-    PyObject* arg1{nullptr};
-    PyObject* arg2{nullptr};
-    if (!PyArg_ParseTuple(args, "O|OO", &obj, &arg1, &arg2))
-    {
-        return nullptr;
-    }
-
-    if (obj == Py_None)
-    {
-        return Py_None;
-    }
-
-    if (!checkProxy(obj))
-    {
-        PyErr_Format(PyExc_ValueError, "checkedCast requires a proxy argument");
-        return nullptr;
-    }
-
-    PyObject* facet{nullptr};
-    PyObject* ctx{nullptr};
-
-    if (arg1 && arg2)
-    {
-        if (arg1 == Py_None)
-        {
-            arg1 = nullptr;
-        }
-
-        if (arg2 == Py_None)
-        {
-            arg2 = nullptr;
-        }
-
-        if (arg1)
-        {
-            if (!checkString(arg1))
-            {
-                PyErr_Format(PyExc_ValueError, "facet argument to checkedCast must be a string");
-                return nullptr;
-            }
-            facet = arg1;
-        }
-
-        if (arg2 && !PyDict_Check(arg2))
-        {
-            PyErr_Format(PyExc_ValueError, "context argument to checkedCast must be a dictionary");
-            return nullptr;
-        }
-        ctx = arg2;
-    }
-    else if (arg1 && arg1 != Py_None)
-    {
-        if (checkString(arg1))
-        {
-            facet = arg1;
-        }
-        else if (PyDict_Check(arg1))
-        {
-            ctx = arg1;
-        }
-        else
-        {
-            PyErr_Format(PyExc_ValueError, "second argument to checkedCast must be a facet or context");
-            return nullptr;
-        }
-    }
-
-    return checkedCastImpl(reinterpret_cast<ProxyObject*>(obj), "::Ice::Object", facet, ctx, nullptr);
 }
 
 extern "C" PyObject*
@@ -2101,18 +1888,10 @@ static PyMethodDef ProxyMethods[] = {
      reinterpret_cast<PyCFunction>(proxyIceInvokeAsync),
      METH_VARARGS | METH_KEYWORDS,
      PyDoc_STR("ice_invokeAsync(op, mode, inParams[, context]) -> Ice.Future")},
-    {"ice_checkedCast",
-     reinterpret_cast<PyCFunction>(proxyIceCheckedCast),
-     METH_VARARGS | METH_CLASS,
-     PyDoc_STR("ice_checkedCast(proxy, id[, facetOrContext[, context]]) -> proxy")},
     {"ice_uncheckedCast",
      reinterpret_cast<PyCFunction>(proxyIceUncheckedCast),
      METH_VARARGS | METH_CLASS,
      PyDoc_STR("ice_uncheckedCast(proxy) -> proxy")},
-    {"checkedCast",
-     reinterpret_cast<PyCFunction>(proxyCheckedCast),
-     METH_VARARGS | METH_STATIC,
-     PyDoc_STR("checkedCast(proxy) -> proxy")},
     {"uncheckedCast",
      reinterpret_cast<PyCFunction>(proxyUncheckedCast),
      METH_VARARGS | METH_STATIC,

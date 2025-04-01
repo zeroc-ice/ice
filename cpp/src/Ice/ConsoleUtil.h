@@ -70,8 +70,8 @@ namespace IceInternal
 
 #else
 
-    extern ICE_API std::ostream& consoleOut;
-    extern ICE_API std::ostream& consoleErr;
+    ICE_API extern std::ostream& consoleOut;
+    ICE_API extern std::ostream& consoleErr;
 
 #endif
 }

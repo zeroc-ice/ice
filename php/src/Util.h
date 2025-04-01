@@ -65,7 +65,6 @@ namespace IcePHP
         zend_object zobj;
     };
 
-    zend_class_entry* idToClass(const std::string&);
     zend_class_entry* nameToClass(const std::string&);
 
     bool createIdentity(zval*, const Ice::Identity&);

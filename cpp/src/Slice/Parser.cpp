@@ -422,7 +422,7 @@ namespace
 
         // Then, before checking for user-defined types, we determine which scope we'll be searching relative to.
         ContainerPtr linkSourceScope = dynamic_pointer_cast<Container>(source);
-        if (!linkSourceScope)
+        if (!linkSourceScope || dynamic_pointer_cast<Operation>(source))
         {
             linkSourceScope = source->container();
         }
@@ -479,6 +479,14 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 {
                     string msg = "no Slice element with identifier '" + linkText + "' could be found in this context";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                }
+                if (dynamic_pointer_cast<Parameter>(linkTarget))
+                {
+                    // We don't support linking to parameters with '@link' tags.
+                    // Parameter links must be done with '@p' tags, and can only appear on the enclosing operation.
+                    string msg = "cannot link parameter '" + linkText + "'; parameters can only be referenced with @p";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    linkTarget = nullptr;
                 }
 
                 // Finally, insert a correctly formatted link where the '{@link foo}' used to be.
@@ -2763,7 +2771,7 @@ Slice::InterfaceDecl::checkBasesAreLegal(const string& name, const InterfaceList
 
 Slice::InterfaceDecl::InterfaceDecl(const ContainerPtr& container, const string& name) : Contained(container, name) {}
 
-// Return true if the interface definition `idp` is on one of the interface lists in `gpl`, false otherwise.
+// Return `true` if the interface definition `idp` is on one of the interface lists in `gpl`, `false` otherwise.
 bool
 Slice::InterfaceDecl::isInList(const GraphPartitionList& gpl, const InterfaceDefPtr& interfaceDef)
 {

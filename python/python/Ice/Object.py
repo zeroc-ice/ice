@@ -37,7 +37,7 @@ class Object(object):
         """
         pass
 
-    def ice_ids(self, current=None):
+    def ice_ids(self, current):
         """
         Obtain the type IDs corresponding to the Slice interfaces that are supported by the target object.
 
@@ -53,7 +53,7 @@ class Object(object):
         """
         return [self.ice_id(current)]
 
-    def ice_id(self, current=None):
+    def ice_id(self, current):
         """
         Obtain the type ID corresponding to the most-derived Slice interface supported by the target object.
 
@@ -85,7 +85,6 @@ Object._op_ice_isA = IcePy.Operation(
     "ice_isA",
     "ice_isA",
     Ice.OperationMode.Idempotent,
-    False,
     None,
     (),
     (((), IcePy._t_string, False, 0),),
@@ -93,11 +92,11 @@ Object._op_ice_isA = IcePy.Operation(
     ((), IcePy._t_bool, False, 0),
     (),
 )
+
 Object._op_ice_ping = IcePy.Operation(
     "ice_ping",
     "ice_ping",
     Ice.OperationMode.Idempotent,
-    False,
     None,
     (),
     (),
@@ -105,11 +104,11 @@ Object._op_ice_ping = IcePy.Operation(
     None,
     (),
 )
+
 Object._op_ice_ids = IcePy.Operation(
     "ice_ids",
     "ice_ids",
     Ice.OperationMode.Idempotent,
-    False,
     None,
     (),
     (),
@@ -117,11 +116,11 @@ Object._op_ice_ids = IcePy.Operation(
     ((), Ice._t_StringSeq, False, 0),
     (),
 )
+
 Object._op_ice_id = IcePy.Operation(
     "ice_id",
     "ice_id",
     Ice.OperationMode.Idempotent,
-    False,
     None,
     (),
     (),

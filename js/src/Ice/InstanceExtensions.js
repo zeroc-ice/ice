@@ -171,7 +171,7 @@ Instance.prototype.setLogger = function (logger) {
 Instance.prototype.finishSetup = function (communicator) {
     try {
         if (this._initData.properties === null) {
-            this._initData.properties = Properties.createProperties();
+            this._initData.properties = new Properties();
         }
 
         this._clientConnectionOptions = new ConnectionOptions(
@@ -277,7 +277,7 @@ Instance.prototype.finishSetup = function (communicator) {
 
                 try {
                     v = StringUtil.toInt(retryIntervals[i]);
-                } catch (ex) {
+                } catch {
                     v = 0;
                 }
 

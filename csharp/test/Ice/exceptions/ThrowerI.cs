@@ -9,20 +9,11 @@ public sealed class ThrowerI : Test.ThrowerDisp_
     {
     }
 
-    public override void shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
-    public override bool supportsUndeclaredExceptions(Ice.Current current)
-    {
-        return true;
-    }
+    public override bool supportsUndeclaredExceptions(Ice.Current current) => true;
 
-    public override bool supportsAssertException(Ice.Current current)
-    {
-        return false;
-    }
+    public override bool supportsAssertException(Ice.Current current) => false;
 
     public override void throwAasA(int a, Ice.Current current)
     {
@@ -47,10 +38,7 @@ public sealed class ThrowerI : Test.ThrowerDisp_
         }
     }
 
-    public override void throwBasA(int a, int b, Ice.Current current)
-    {
-        throwBasB(a, b, current);
-    }
+    public override void throwBasA(int a, int b, Ice.Current current) => throwBasB(a, b, current);
 
     public override void throwBasB(int a, int b, Ice.Current current)
     {
@@ -60,15 +48,9 @@ public sealed class ThrowerI : Test.ThrowerDisp_
         throw ex;
     }
 
-    public override void throwCasA(int a, int b, int c, Ice.Current current)
-    {
-        throwCasC(a, b, c, current);
-    }
+    public override void throwCasA(int a, int b, int c, Ice.Current current) => throwCasC(a, b, c, current);
 
-    public override void throwCasB(int a, int b, int c, Ice.Current current)
-    {
-        throwCasC(a, b, c, current);
-    }
+    public override void throwCasB(int a, int b, int c, Ice.Current current) => throwCasC(a, b, c, current);
 
     public override void throwCasC(int a, int b, int c, Ice.Current current)
     {
@@ -79,30 +61,15 @@ public sealed class ThrowerI : Test.ThrowerDisp_
         throw ex;
     }
 
-    public override void throwLocalException(Ice.Current current)
-    {
-        throw new Ice.TimeoutException();
-    }
+    public override void throwLocalException(Ice.Current current) => throw new Ice.TimeoutException();
 
-    public override void throwNonIceException(Ice.Current current)
-    {
-        throw new System.Exception();
-    }
+    public override void throwNonIceException(Ice.Current current) => throw new System.Exception();
 
-    public override void throwAssertException(Ice.Current current)
-    {
-        Debug.Assert(false);
-    }
+    public override void throwAssertException(Ice.Current current) => Debug.Assert(false);
 
-    public override byte[] throwMemoryLimitException(byte[] seq, Ice.Current current)
-    {
-        return new byte[1024 * 20]; // 20KB is over the configured 10KB message size max.
-    }
+    public override byte[] throwMemoryLimitException(byte[] seq, Ice.Current current) => new byte[1024 * 20]; // 20KB is over the configured 10KB message size max.
 
-    public override void throwLocalExceptionIdempotent(Ice.Current current)
-    {
-        throw new Ice.TimeoutException();
-    }
+    public override void throwLocalExceptionIdempotent(Ice.Current current) => throw new Ice.TimeoutException();
 
     public override void throwUndeclaredA(int a, Ice.Current current)
     {
@@ -138,11 +105,9 @@ public sealed class ThrowerI : Test.ThrowerDisp_
         //
     }
 
-    public override void throwAfterException(Ice.Current current)
-    {
+    public override void throwAfterException(Ice.Current current) =>
         //
         // Only relevant for AMD.
         //
         throw new Test.A();
-    }
 }

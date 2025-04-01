@@ -4,35 +4,24 @@ namespace Ice.optional;
 
 public class InitialI : Test.InitialDisp_
 {
-    public override void shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
-    public override Ice.Value pingPong(Ice.Value obj, Ice.Current current)
-    {
-        return obj;
-    }
+    public override Ice.Value pingPong(Ice.Value obj, Ice.Current current) => obj;
 
     public override void opOptionalException(int? a,
                                              string b,
-                                             Ice.Current current)
-    {
-        throw new Test.OptionalException(false, a, b);
-    }
+                                             Ice.Current current) => throw new Test.OptionalException(false, a, b);
 
     public override void opDerivedException(int? a,
                                             string b,
-                                            Ice.Current current)
-    {
-        throw new Test.DerivedException(false, a, b, "d1", b, "d2");
-    }
+                                            Ice.Current current) =>
+                                                throw new Test.DerivedException(false, a, b, "d1", b, "d2");
 
     public override void opRequiredException(int? a,
                                              string b,
                                              Ice.Current current)
     {
-        Test.RequiredException e = new Test.RequiredException();
+        var e = new Test.RequiredException();
         e.a = a;
         e.b = b;
         if (b is not null)
@@ -284,53 +273,31 @@ public class InitialI : Test.InitialDisp_
     {
     }
 
-    public override Test.G opG(Test.G g, Ice.Current current)
-    {
-        return g;
-    }
+    public override Test.G opG(Test.G g, Ice.Current current) => g;
 
     public override void opVoid(Ice.Current current)
     {
     }
 
     public override Test.Initial_OpMStruct1MarshaledResult
-    opMStruct1(Ice.Current current)
-    {
-        return new Test.Initial_OpMStruct1MarshaledResult(new Test.SmallStruct(), current);
-    }
+    opMStruct1(Ice.Current current) => new Test.Initial_OpMStruct1MarshaledResult(new Test.SmallStruct(), current);
 
     public override Test.Initial_OpMStruct2MarshaledResult
-    opMStruct2(Test.SmallStruct? p1, Ice.Current current)
-    {
-        return new Test.Initial_OpMStruct2MarshaledResult(p1, p1, current);
-    }
+    opMStruct2(Test.SmallStruct? p1, Ice.Current current) =>
+        new Test.Initial_OpMStruct2MarshaledResult(p1, p1, current);
 
     public override Test.Initial_OpMSeq1MarshaledResult
-    opMSeq1(Ice.Current current)
-    {
-        return new Test.Initial_OpMSeq1MarshaledResult(new string[0], current);
-    }
+    opMSeq1(Ice.Current current) => new Test.Initial_OpMSeq1MarshaledResult(new string[0], current);
 
     public override Test.Initial_OpMSeq2MarshaledResult
-    opMSeq2(string[] p1, Ice.Current current)
-    {
-        return new Test.Initial_OpMSeq2MarshaledResult(p1, p1, current);
-    }
+    opMSeq2(string[] p1, Ice.Current current) => new Test.Initial_OpMSeq2MarshaledResult(p1, p1, current);
 
     public override Test.Initial_OpMDict1MarshaledResult
-    opMDict1(Ice.Current current)
-    {
-        return new Test.Initial_OpMDict1MarshaledResult(new Dictionary<string, int>(), current);
-    }
+    opMDict1(Ice.Current current) => new Test.Initial_OpMDict1MarshaledResult(new Dictionary<string, int>(), current);
 
     public override Test.Initial_OpMDict2MarshaledResult
-    opMDict2(Dictionary<string, int> p1, Ice.Current current)
-    {
-        return new Test.Initial_OpMDict2MarshaledResult(p1, p1, current);
-    }
+    opMDict2(Dictionary<string, int> p1, Ice.Current current) =>
+        new Test.Initial_OpMDict2MarshaledResult(p1, p1, current);
 
-    public override bool supportsJavaSerializable(Ice.Current current)
-    {
-        return false;
-    }
+    public override bool supportsJavaSerializable(Ice.Current current) => false;
 }

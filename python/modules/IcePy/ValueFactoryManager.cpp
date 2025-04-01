@@ -116,9 +116,7 @@ IcePy::ValueFactoryManager::findValueFactory(string_view id) const
 PyObject*
 IcePy::ValueFactoryManager::getObject() const
 {
-    PyObject* obj = _self.get();
-    Py_INCREF(obj);
-    return obj;
+    return Py_NewRef(_self.get());
 }
 
 void
@@ -133,9 +131,8 @@ IcePy::ValueFactoryManager::destroy()
     }
 }
 
-IcePy::CustomValueFactory::CustomValueFactory(PyObject* valueFactory) : _valueFactory(valueFactory)
+IcePy::CustomValueFactory::CustomValueFactory(PyObject* valueFactory) : _valueFactory(Py_NewRef(valueFactory))
 {
-    Py_INCREF(_valueFactory);
     assert(_valueFactory != Py_None); // This should always be present.
 }
 
@@ -176,8 +173,7 @@ IcePy::CustomValueFactory::create(string_view id)
 PyObject*
 IcePy::CustomValueFactory::getValueFactory() const
 {
-    Py_INCREF(_valueFactory);
-    return _valueFactory;
+    return Py_NewRef(_valueFactory);
 }
 
 shared_ptr<Ice::Value>

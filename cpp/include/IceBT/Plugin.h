@@ -9,6 +9,7 @@
 #include <functional>
 #include <map>
 
+/// The Bluetooth transport plug-in.
 namespace IceBT
 {
     /// A name-value map.

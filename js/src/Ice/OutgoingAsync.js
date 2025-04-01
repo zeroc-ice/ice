@@ -182,7 +182,7 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
                 return this.checkRetryAfterException(ex);
             } catch (e) {
                 if (e instanceof CommunicatorDestroyedException) {
-                    e = ex; // The communicator is already destroyed, so we cannot retry.
+                    throw ex; // The communicator is already destroyed, so we cannot retry.
                 }
                 throw e;
             }
@@ -456,7 +456,7 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
                     }
                 }
 
-                default:
+                default: {
                     const message = this._is.readString();
                     switch (replyStatus) {
                         case ReplyStatus.UnknownException:
@@ -468,6 +468,7 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
                         default:
                             throw new DispatchException(replyStatus, message);
                     }
+                }
             }
 
             this.markFinished(replyStatus == ReplyStatus.Ok, this._completed);
@@ -547,7 +548,7 @@ export class ProxyFlushBatch extends ProxyOutgoingAsyncBase {
 }
 
 export class ProxyGetConnection extends ProxyOutgoingAsyncBase {
-    invokeRemote(connection, response) {
+    invokeRemote(connection) {
         this.markFinished(true, r => r.resolve(connection));
         return AsyncStatus.Sent;
     }

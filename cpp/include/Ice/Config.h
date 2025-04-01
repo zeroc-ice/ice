@@ -8,8 +8,8 @@
 #    define ICE_DECLSPEC_EXPORT __declspec(dllexport)
 #    define ICE_DECLSPEC_IMPORT __declspec(dllimport)
 #elif defined(__GNUC__) || defined(__clang__)
-#    define ICE_DECLSPEC_EXPORT __attribute__((visibility("default")))
-#    define ICE_DECLSPEC_IMPORT __attribute__((visibility("default")))
+#    define ICE_DECLSPEC_EXPORT [[gnu::visibility("default")]]
+#    define ICE_DECLSPEC_IMPORT [[gnu::visibility("default")]]
 #else
 #    define ICE_DECLSPEC_EXPORT /**/
 #    define ICE_DECLSPEC_IMPORT /**/
@@ -22,6 +22,15 @@
 #        define ICE_API ICE_DECLSPEC_EXPORT
 #    else
 #        define ICE_API ICE_DECLSPEC_IMPORT
+#    endif
+#endif
+
+// For friend declarations on Windows. Not compatible with the standard c++ attribute syntax.
+#ifndef ICE_API_FRIEND
+#    if defined(_MSC_VER)
+#        define ICE_API_FRIEND ICE_API
+#    else
+#        define ICE_API_FRIEND /**/
 #    endif
 #endif
 

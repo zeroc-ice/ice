@@ -85,7 +85,7 @@ public sealed class Properties
                 {
                     line += "=1";
                 }
-                parseLine(line.Substring(2));
+                parseLine(line[2..]);
                 loadConfigFiles = true;
 
                 string[] arr = new string[args.Length - 1];
@@ -421,7 +421,7 @@ public sealed class Properties
                     opt += "=1";
                 }
 
-                parseLine(opt.Substring(2));
+                parseLine(opt[2..]);
             }
             else
             {
@@ -523,7 +523,10 @@ public sealed class Properties
     /// <param name="properties">The properties to consider. </param>
     /// <param name="propertyArray">The property array to search against.</param>
     /// <exception cref="PropertyException"> Thrown if unknown properties are found.</exception>
-    internal static void validatePropertiesWithPrefix(string prefix, Properties properties, PropertyArray propertyArray)
+    internal static void validatePropertiesWithPrefix(
+        string prefix,
+        Properties properties,
+        PropertyArray propertyArray)
     {
         // Do not check for unknown properties if Ice prefix, ie Ice, Glacier2, etc
         foreach (string? name in PropertyNames.validProps.Select(p => p.name))
@@ -640,7 +643,8 @@ public sealed class Properties
     private static string getDefaultProperty(string key)
     {
         // Find the property, don't log any warnings.
-        PropertyArray propertyArray = findIcePropertyArray(key) ?? throw new PropertyException($"unknown Ice property: {key}");
+        PropertyArray propertyArray = findIcePropertyArray(key) ??
+            throw new PropertyException($"unknown Ice property: {key}");
 
         // Find the property in the property array.
         Property prop = findProperty(key[(propertyArray.name.Length + 1)..], propertyArray) ??

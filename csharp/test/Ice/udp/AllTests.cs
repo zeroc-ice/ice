@@ -54,8 +54,8 @@ public class AllTests : global::Test.AllTests
         Ice.Communicator communicator = helper.communicator();
         communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
-        PingReplyI replyI = new PingReplyI();
-        Test.PingReplyPrx reply =
+        var replyI = new PingReplyI();
+        var reply =
           (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         adapter.activate();
 
@@ -81,7 +81,8 @@ public class AllTests : global::Test.AllTests
             // If the 3 datagrams were not received within the 2 seconds, we try again to
             // receive 3 new datagrams using a new object. We give up after 5 retries.
             replyI = new PingReplyI();
-            reply = (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+            reply =
+                (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         }
         test(ret == true);
 
@@ -143,7 +144,7 @@ public class AllTests : global::Test.AllTests
 
         Console.Out.Write("testing udp multicast... ");
         Console.Out.Flush();
-        StringBuilder endpoint = new StringBuilder();
+        var endpoint = new StringBuilder();
         //
         // Use loopback to prevent other machines to answer.
         //
@@ -193,7 +194,8 @@ public class AllTests : global::Test.AllTests
                 break;
             }
             replyI = new PingReplyI();
-            reply = (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+            reply =
+                (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         }
         test(ret);
         Console.Out.WriteLine("ok");
@@ -216,7 +218,8 @@ public class AllTests : global::Test.AllTests
                 break; // Success
             }
             replyI = new PingReplyI();
-            reply = (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+            reply =
+                (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         }
         test(ret);
         Console.Out.WriteLine("ok");

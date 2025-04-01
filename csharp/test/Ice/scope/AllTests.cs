@@ -13,35 +13,31 @@ public class AllTests : global::Test.AllTests
             var i = Test.MyInterfacePrxHelper.createProxy(communicator, "i1:" + helper.getTestEndpoint());
 
             var s1 = new Test.MyStruct(0);
-            Test.MyStruct s2;
-            var s3 = i.opMyStruct(s1, out s2);
+            var s3 = i.opMyStruct(s1, out Test.MyStruct s2);
             test(s2.Equals(s1));
             test(s3.Equals(s1));
 
             var sseq1 = new Test.MyStruct[] { s1 };
-            Test.MyStruct[] sseq2;
-            var sseq3 = i.opMyStructSeq(sseq1, out sseq2);
+            var sseq3 = i.opMyStructSeq(sseq1, out Test.MyStruct[] sseq2);
             test(sseq2[0].Equals(s1));
             test(sseq3[0].Equals(s1));
 
-            Dictionary<string, Test.MyStruct> smap1 = new Dictionary<string, Test.MyStruct>
+            var smap1 = new Dictionary<string, Test.MyStruct>
             {
                 ["a"] = s1
             };
-            Dictionary<string, Test.MyStruct> smap2;
-            Dictionary<string, Test.MyStruct> smap3 = i.opMyStructMap(smap1, out smap2);
+            Dictionary<string, Test.MyStruct> smap3 =
+                i.opMyStructMap(smap1, out Dictionary<string, Test.MyStruct> smap2);
             test(smap2["a"].Equals(s1));
             test(smap3["a"].Equals(s1));
 
             var c1 = new Test.MyClass(s1);
-            Test.MyClass c2;
-            var c3 = i.opMyClass(c1, out c2);
+            var c3 = i.opMyClass(c1, out Test.MyClass c2);
             test(c2.s.Equals(c1.s));
             test(c3.s.Equals(c1.s));
 
             var cseq1 = new Test.MyClass[] { c1 };
-            Test.MyClass[] cseq2;
-            var cseq3 = i.opMyClassSeq(cseq1, out cseq2);
+            var cseq3 = i.opMyClassSeq(cseq1, out Test.MyClass[] cseq2);
             test(cseq2[0].s.Equals(s1));
             test(cseq3[0].s.Equals(s1));
 
@@ -49,8 +45,7 @@ public class AllTests : global::Test.AllTests
             {
                 ["a"] = c1
             };
-            Dictionary<string, Test.MyClass> cmap2;
-            var cmap3 = i.opMyClassMap(cmap1, out cmap2);
+            var cmap3 = i.opMyClassMap(cmap1, out Dictionary<string, Test.MyClass> cmap2);
             test(cmap2["a"].s.Equals(s1));
             test(cmap3["a"].s.Equals(s1));
 
@@ -119,45 +114,41 @@ public class AllTests : global::Test.AllTests
         {
             var i = Test.Inner.MyInterfacePrxHelper.createProxy(communicator, "i2:" + helper.getTestEndpoint());
 
-            Test.Inner.Inner2.MyStruct s1 = new Test.Inner.Inner2.MyStruct(0);
-            Test.Inner.Inner2.MyStruct s2;
-            Test.Inner.Inner2.MyStruct s3 = i.opMyStruct(s1, out s2);
+            var s1 = new Test.Inner.Inner2.MyStruct(0);
+            Test.Inner.Inner2.MyStruct s3 = i.opMyStruct(s1, out Test.Inner.Inner2.MyStruct s2);
             test(s2.Equals(s1));
             test(s3.Equals(s1));
 
-            Test.Inner.Inner2.MyStruct[] sseq1 = new Test.Inner.Inner2.MyStruct[] { s1 };
-            Test.Inner.Inner2.MyStruct[] sseq2;
-            Test.Inner.Inner2.MyStruct[] sseq3 = i.opMyStructSeq(sseq1, out sseq2);
+            var sseq1 = new Test.Inner.Inner2.MyStruct[] { s1 };
+            Test.Inner.Inner2.MyStruct[] sseq3 = i.opMyStructSeq(sseq1, out Test.Inner.Inner2.MyStruct[] sseq2);
             test(sseq2[0].Equals(s1));
             test(sseq3[0].Equals(s1));
 
-            Dictionary<string, Test.Inner.Inner2.MyStruct> smap1 = new Dictionary<string, Test.Inner.Inner2.MyStruct>
+            var smap1 = new Dictionary<string, Test.Inner.Inner2.MyStruct>
             {
                 ["a"] = s1
             };
-            Dictionary<string, Test.Inner.Inner2.MyStruct> smap2;
-            Dictionary<string, Test.Inner.Inner2.MyStruct> smap3 = i.opMyStructMap(smap1, out smap2);
+            Dictionary<string, Test.Inner.Inner2.MyStruct> smap3 =
+                i.opMyStructMap(smap1, out Dictionary<string, Test.Inner.Inner2.MyStruct> smap2);
             test(smap2["a"].Equals(s1));
             test(smap3["a"].Equals(s1));
 
-            Test.Inner.Inner2.MyClass c1 = new Test.Inner.Inner2.MyClass(s1);
-            Test.Inner.Inner2.MyClass c2;
-            Test.Inner.Inner2.MyClass c3 = i.opMyClass(c1, out c2);
+            var c1 = new Test.Inner.Inner2.MyClass(s1);
+            Test.Inner.Inner2.MyClass c3 = i.opMyClass(c1, out Test.Inner.Inner2.MyClass c2);
             test(c2.s.Equals(c1.s));
             test(c3.s.Equals(c1.s));
 
-            Test.Inner.Inner2.MyClass[] cseq1 = new Test.Inner.Inner2.MyClass[] { c1 };
-            Test.Inner.Inner2.MyClass[] cseq2;
-            Test.Inner.Inner2.MyClass[] cseq3 = i.opMyClassSeq(cseq1, out cseq2);
+            var cseq1 = new Test.Inner.Inner2.MyClass[] { c1 };
+            Test.Inner.Inner2.MyClass[] cseq3 = i.opMyClassSeq(cseq1, out Test.Inner.Inner2.MyClass[] cseq2);
             test(cseq2[0].s.Equals(s1));
             test(cseq3[0].s.Equals(s1));
 
-            Dictionary<string, Test.Inner.Inner2.MyClass> cmap1 = new Dictionary<string, Test.Inner.Inner2.MyClass>
+            var cmap1 = new Dictionary<string, Test.Inner.Inner2.MyClass>
             {
                 ["a"] = c1
             };
-            Dictionary<string, Test.Inner.Inner2.MyClass> cmap2;
-            Dictionary<string, Test.Inner.Inner2.MyClass> cmap3 = i.opMyClassMap(cmap1, out cmap2);
+            Dictionary<string, Test.Inner.Inner2.MyClass> cmap3 =
+                i.opMyClassMap(cmap1, out Dictionary<string, Test.Inner.Inner2.MyClass> cmap2);
             test(cmap2["a"].s.Equals(s1));
             test(cmap3["a"].s.Equals(s1));
         }
@@ -167,17 +158,17 @@ public class AllTests : global::Test.AllTests
 
             Task.Run(async () =>
                 {
-                    Test.Inner.Inner2.MyStruct s1 = new Test.Inner.Inner2.MyStruct(0);
+                    var s1 = new Test.Inner.Inner2.MyStruct(0);
                     Test.Inner.MyInterface_OpMyStructResult opMyStructResult = await i.opMyStructAsync(s1);
                     test(s1.Equals(opMyStructResult.returnValue));
                     test(s1.Equals(opMyStructResult.s2));
 
-                    Test.Inner.Inner2.MyStruct[] sseq1 = new Test.Inner.Inner2.MyStruct[] { s1 };
+                    var sseq1 = new Test.Inner.Inner2.MyStruct[] { s1 };
                     Test.Inner.MyInterface_OpMyStructSeqResult opMyStructSeqResult = await i.opMyStructSeqAsync(sseq1);
                     test(opMyStructSeqResult.returnValue[0].Equals(s1));
                     test(opMyStructSeqResult.s2[0].Equals(s1));
 
-                    Dictionary<string, Test.Inner.Inner2.MyStruct> smap1 = new Dictionary<string, Test.Inner.Inner2.MyStruct>
+                    var smap1 = new Dictionary<string, Test.Inner.Inner2.MyStruct>
                     {
                         ["a"] = s1
                     };
@@ -185,17 +176,17 @@ public class AllTests : global::Test.AllTests
                     test(opMyStructMapResult.returnValue["a"].Equals(s1));
                     test(opMyStructMapResult.s2["a"].Equals(s1));
 
-                    Test.Inner.Inner2.MyClass c1 = new Test.Inner.Inner2.MyClass(s1);
+                    var c1 = new Test.Inner.Inner2.MyClass(s1);
                     Test.Inner.MyInterface_OpMyClassResult opMyClassResult = await i.opMyClassAsync(c1);
                     test(c1.s.Equals(opMyClassResult.returnValue.s));
                     test(c1.s.Equals(opMyClassResult.c2.s));
 
-                    Test.Inner.Inner2.MyClass[] cseq1 = new Test.Inner.Inner2.MyClass[] { c1 };
+                    var cseq1 = new Test.Inner.Inner2.MyClass[] { c1 };
                     Test.Inner.MyInterface_OpMyClassSeqResult opMyClassSeqResult = await i.opMyClassSeqAsync(cseq1);
                     test(opMyClassSeqResult.returnValue[0].s.Equals(s1));
                     test(opMyClassSeqResult.c2[0].s.Equals(s1));
 
-                    Dictionary<string, Test.Inner.Inner2.MyClass> cmap1 = new Dictionary<string, Test.Inner.Inner2.MyClass>
+                    var cmap1 = new Dictionary<string, Test.Inner.Inner2.MyClass>
                     {
                         ["a"] = c1
                     };
@@ -208,45 +199,41 @@ public class AllTests : global::Test.AllTests
         {
             var i = Test.Inner.Inner2.MyInterfacePrxHelper.createProxy(communicator, "i3:" + helper.getTestEndpoint());
 
-            Test.Inner.Inner2.MyStruct s1 = new Test.Inner.Inner2.MyStruct(0);
-            Test.Inner.Inner2.MyStruct s2;
-            Test.Inner.Inner2.MyStruct s3 = i.opMyStruct(s1, out s2);
+            var s1 = new Test.Inner.Inner2.MyStruct(0);
+            Test.Inner.Inner2.MyStruct s3 = i.opMyStruct(s1, out Test.Inner.Inner2.MyStruct s2);
             test(s2.Equals(s1));
             test(s3.Equals(s1));
 
-            Test.Inner.Inner2.MyStruct[] sseq1 = new Test.Inner.Inner2.MyStruct[] { s1 };
-            Test.Inner.Inner2.MyStruct[] sseq2;
-            Test.Inner.Inner2.MyStruct[] sseq3 = i.opMyStructSeq(sseq1, out sseq2);
+            var sseq1 = new Test.Inner.Inner2.MyStruct[] { s1 };
+            Test.Inner.Inner2.MyStruct[] sseq3 = i.opMyStructSeq(sseq1, out Test.Inner.Inner2.MyStruct[] sseq2);
             test(sseq2[0].Equals(s1));
             test(sseq3[0].Equals(s1));
 
-            Dictionary<string, Test.Inner.Inner2.MyStruct> smap1 = new Dictionary<string, Test.Inner.Inner2.MyStruct>
+            var smap1 = new Dictionary<string, Test.Inner.Inner2.MyStruct>
             {
                 ["a"] = s1
             };
-            Dictionary<string, Test.Inner.Inner2.MyStruct> smap2;
-            Dictionary<string, Test.Inner.Inner2.MyStruct> smap3 = i.opMyStructMap(smap1, out smap2);
+            Dictionary<string, Test.Inner.Inner2.MyStruct> smap3 =
+                i.opMyStructMap(smap1, out Dictionary<string, Test.Inner.Inner2.MyStruct> smap2);
             test(smap2["a"].Equals(s1));
             test(smap3["a"].Equals(s1));
 
-            Test.Inner.Inner2.MyClass c1 = new Test.Inner.Inner2.MyClass(s1);
-            Test.Inner.Inner2.MyClass c2;
-            Test.Inner.Inner2.MyClass c3 = i.opMyClass(c1, out c2);
+            var c1 = new Test.Inner.Inner2.MyClass(s1);
+            Test.Inner.Inner2.MyClass c3 = i.opMyClass(c1, out Test.Inner.Inner2.MyClass c2);
             test(c2.s.Equals(c1.s));
             test(c3.s.Equals(c1.s));
 
-            Test.Inner.Inner2.MyClass[] cseq1 = new Test.Inner.Inner2.MyClass[] { c1 };
-            Test.Inner.Inner2.MyClass[] cseq2;
-            Test.Inner.Inner2.MyClass[] cseq3 = i.opMyClassSeq(cseq1, out cseq2);
+            var cseq1 = new Test.Inner.Inner2.MyClass[] { c1 };
+            Test.Inner.Inner2.MyClass[] cseq3 = i.opMyClassSeq(cseq1, out Test.Inner.Inner2.MyClass[] cseq2);
             test(cseq2[0].s.Equals(s1));
             test(cseq3[0].s.Equals(s1));
 
-            Dictionary<string, Test.Inner.Inner2.MyClass> cmap1 = new Dictionary<string, Test.Inner.Inner2.MyClass>
+            var cmap1 = new Dictionary<string, Test.Inner.Inner2.MyClass>
             {
                 ["a"] = c1
             };
-            Dictionary<string, Test.Inner.Inner2.MyClass> cmap2;
-            Dictionary<string, Test.Inner.Inner2.MyClass> cmap3 = i.opMyClassMap(cmap1, out cmap2);
+            Dictionary<string, Test.Inner.Inner2.MyClass> cmap3 =
+                i.opMyClassMap(cmap1, out Dictionary<string, Test.Inner.Inner2.MyClass> cmap2);
             test(cmap2["a"].s.Equals(s1));
             test(cmap3["a"].s.Equals(s1));
         }
@@ -256,39 +243,43 @@ public class AllTests : global::Test.AllTests
 
             Task.Run(async () =>
                 {
-                    Test.Inner.Inner2.MyStruct s1 = new Test.Inner.Inner2.MyStruct(0);
+                    var s1 = new Test.Inner.Inner2.MyStruct(0);
                     Test.Inner.Inner2.MyInterface_OpMyStructResult opMyStructResult = await i.opMyStructAsync(s1);
                     test(s1.Equals(opMyStructResult.returnValue));
                     test(s1.Equals(opMyStructResult.s2));
 
-                    Test.Inner.Inner2.MyStruct[] sseq1 = new Test.Inner.Inner2.MyStruct[] { s1 };
-                    Test.Inner.Inner2.MyInterface_OpMyStructSeqResult opMyStructSeqResult = await i.opMyStructSeqAsync(sseq1);
+                    var sseq1 = new Test.Inner.Inner2.MyStruct[] { s1 };
+                    Test.Inner.Inner2.MyInterface_OpMyStructSeqResult opMyStructSeqResult =
+                        await i.opMyStructSeqAsync(sseq1);
                     test(opMyStructSeqResult.returnValue[0].Equals(s1));
                     test(opMyStructSeqResult.s2[0].Equals(s1));
 
-                    Dictionary<string, Test.Inner.Inner2.MyStruct> smap1 = new Dictionary<string, Test.Inner.Inner2.MyStruct>
+                    var smap1 = new Dictionary<string, Test.Inner.Inner2.MyStruct>
                     {
                         ["a"] = s1
                     };
-                    Test.Inner.Inner2.MyInterface_OpMyStructMapResult opMyStructMapResult = await i.opMyStructMapAsync(smap1);
+                    Test.Inner.Inner2.MyInterface_OpMyStructMapResult opMyStructMapResult =
+                        await i.opMyStructMapAsync(smap1);
                     test(opMyStructMapResult.returnValue["a"].Equals(s1));
                     test(opMyStructMapResult.s2["a"].Equals(s1));
 
-                    Test.Inner.Inner2.MyClass c1 = new Test.Inner.Inner2.MyClass(s1);
+                    var c1 = new Test.Inner.Inner2.MyClass(s1);
                     Test.Inner.Inner2.MyInterface_OpMyClassResult opMyClassResult = await i.opMyClassAsync(c1);
                     test(c1.s.Equals(opMyClassResult.returnValue.s));
                     test(c1.s.Equals(opMyClassResult.c2.s));
 
-                    Test.Inner.Inner2.MyClass[] cseq1 = new Test.Inner.Inner2.MyClass[] { c1 };
-                    Test.Inner.Inner2.MyInterface_OpMyClassSeqResult opMyClassSeqResult = await i.opMyClassSeqAsync(cseq1);
+                    var cseq1 = new Test.Inner.Inner2.MyClass[] { c1 };
+                    Test.Inner.Inner2.MyInterface_OpMyClassSeqResult opMyClassSeqResult =
+                        await i.opMyClassSeqAsync(cseq1);
                     test(opMyClassSeqResult.returnValue[0].s.Equals(s1));
                     test(opMyClassSeqResult.c2[0].s.Equals(s1));
 
-                    Dictionary<string, Test.Inner.Inner2.MyClass> cmap1 = new Dictionary<string, Test.Inner.Inner2.MyClass>
+                    var cmap1 = new Dictionary<string, Test.Inner.Inner2.MyClass>
                     {
                         ["a"] = c1
                     };
-                    Test.Inner.Inner2.MyInterface_OpMyClassMapResult opMyClassMapResult = await i.opMyClassMapAsync(cmap1);
+                    Test.Inner.Inner2.MyInterface_OpMyClassMapResult opMyClassMapResult =
+                        await i.opMyClassMapAsync(cmap1);
                     test(opMyClassMapResult.returnValue["a"].s.Equals(s1));
                     test(opMyClassMapResult.c2["a"].s.Equals(s1));
                 }).Wait();
@@ -297,45 +288,40 @@ public class AllTests : global::Test.AllTests
         {
             var i = Inner.Test.Inner2.MyInterfacePrxHelper.createProxy(communicator, "i4:" + helper.getTestEndpoint());
 
-            Test.MyStruct s1 = new Test.MyStruct(0);
-            Test.MyStruct s2;
-            Test.MyStruct s3 = i.opMyStruct(s1, out s2);
+            var s1 = new Test.MyStruct(0);
+            Test.MyStruct s3 = i.opMyStruct(s1, out Test.MyStruct s2);
             test(s2.Equals(s1));
             test(s3.Equals(s1));
 
-            Test.MyStruct[] sseq1 = new Test.MyStruct[] { s1 };
-            Test.MyStruct[] sseq2;
-            Test.MyStruct[] sseq3 = i.opMyStructSeq(sseq1, out sseq2);
+            var sseq1 = new Test.MyStruct[] { s1 };
+            Test.MyStruct[] sseq3 = i.opMyStructSeq(sseq1, out Test.MyStruct[] sseq2);
             test(sseq2[0].Equals(s1));
             test(sseq3[0].Equals(s1));
 
-            Dictionary<string, Test.MyStruct> smap1 = new Dictionary<string, Test.MyStruct>
+            var smap1 = new Dictionary<string, Test.MyStruct>
             {
                 ["a"] = s1
             };
-            Dictionary<string, Test.MyStruct> smap2;
-            Dictionary<string, Test.MyStruct> smap3 = i.opMyStructMap(smap1, out smap2);
+            Dictionary<string, Test.MyStruct> smap3 =
+                i.opMyStructMap(smap1, out Dictionary<string, Test.MyStruct> smap2);
             test(smap2["a"].Equals(s1));
             test(smap3["a"].Equals(s1));
 
-            Test.MyClass c1 = new Test.MyClass(s1);
-            Test.MyClass c2;
-            Test.MyClass c3 = i.opMyClass(c1, out c2);
+            var c1 = new Test.MyClass(s1);
+            Test.MyClass c3 = i.opMyClass(c1, out Test.MyClass c2);
             test(c2.s.Equals(c1.s));
             test(c3.s.Equals(c1.s));
 
-            Test.MyClass[] cseq1 = new Test.MyClass[] { c1 };
-            Test.MyClass[] cseq2;
-            Test.MyClass[] cseq3 = i.opMyClassSeq(cseq1, out cseq2);
+            var cseq1 = new Test.MyClass[] { c1 };
+            Test.MyClass[] cseq3 = i.opMyClassSeq(cseq1, out Test.MyClass[] cseq2);
             test(cseq2[0].s.Equals(s1));
             test(cseq3[0].s.Equals(s1));
 
-            Dictionary<string, Test.MyClass> cmap1 = new Dictionary<string, Test.MyClass>
+            var cmap1 = new Dictionary<string, Test.MyClass>
             {
                 ["a"] = c1
             };
-            Dictionary<string, Test.MyClass> cmap2;
-            Dictionary<string, Test.MyClass> cmap3 = i.opMyClassMap(cmap1, out cmap2);
+            Dictionary<string, Test.MyClass> cmap3 = i.opMyClassMap(cmap1, out Dictionary<string, Test.MyClass> cmap2);
             test(cmap2["a"].s.Equals(s1));
             test(cmap3["a"].s.Equals(s1));
         }
@@ -345,39 +331,43 @@ public class AllTests : global::Test.AllTests
 
             Task.Run(async () =>
                 {
-                    Test.MyStruct s1 = new Test.MyStruct(0);
+                    var s1 = new Test.MyStruct(0);
                     Inner.Test.Inner2.MyInterface_OpMyStructResult opMyStructResult = await i.opMyStructAsync(s1);
                     test(s1.Equals(opMyStructResult.returnValue));
                     test(s1.Equals(opMyStructResult.s2));
 
-                    Test.MyStruct[] sseq1 = new Test.MyStruct[] { s1 };
-                    Inner.Test.Inner2.MyInterface_OpMyStructSeqResult opMyStructSeqResult = await i.opMyStructSeqAsync(sseq1);
+                    var sseq1 = new Test.MyStruct[] { s1 };
+                    Inner.Test.Inner2.MyInterface_OpMyStructSeqResult opMyStructSeqResult =
+                        await i.opMyStructSeqAsync(sseq1);
                     test(opMyStructSeqResult.returnValue[0].Equals(s1));
                     test(opMyStructSeqResult.s2[0].Equals(s1));
 
-                    Dictionary<string, Test.MyStruct> smap1 = new Dictionary<string, Test.MyStruct>
+                    var smap1 = new Dictionary<string, Test.MyStruct>
                     {
                         ["a"] = s1
                     };
-                    Inner.Test.Inner2.MyInterface_OpMyStructMapResult opMyStructMapResult = await i.opMyStructMapAsync(smap1);
+                    Inner.Test.Inner2.MyInterface_OpMyStructMapResult opMyStructMapResult =
+                        await i.opMyStructMapAsync(smap1);
                     test(opMyStructMapResult.returnValue["a"].Equals(s1));
                     test(opMyStructMapResult.s2["a"].Equals(s1));
 
-                    Test.MyClass c1 = new Test.MyClass(s1);
+                    var c1 = new Test.MyClass(s1);
                     Inner.Test.Inner2.MyInterface_OpMyClassResult opMyClassResult = await i.opMyClassAsync(c1);
                     test(c1.s.Equals(opMyClassResult.returnValue.s));
                     test(c1.s.Equals(opMyClassResult.c2.s));
 
-                    Test.MyClass[] cseq1 = new Test.MyClass[] { c1 };
-                    Inner.Test.Inner2.MyInterface_OpMyClassSeqResult opMyClassSeqResult = await i.opMyClassSeqAsync(cseq1);
+                    var cseq1 = new Test.MyClass[] { c1 };
+                    Inner.Test.Inner2.MyInterface_OpMyClassSeqResult opMyClassSeqResult =
+                        await i.opMyClassSeqAsync(cseq1);
                     test(opMyClassSeqResult.returnValue[0].s.Equals(s1));
                     test(opMyClassSeqResult.c2[0].s.Equals(s1));
 
-                    Dictionary<string, Test.MyClass> cmap1 = new Dictionary<string, Test.MyClass>
+                    var cmap1 = new Dictionary<string, Test.MyClass>
                     {
                         ["a"] = c1
                     };
-                    Inner.Test.Inner2.MyInterface_OpMyClassMapResult opMyClassMapResult = await i.opMyClassMapAsync(cmap1);
+                    Inner.Test.Inner2.MyInterface_OpMyClassMapResult opMyClassMapResult =
+                        await i.opMyClassMapAsync(cmap1);
                     test(opMyClassMapResult.returnValue["a"].s.Equals(s1));
                     test(opMyClassMapResult.c2["a"].s.Equals(s1));
                 }).Wait();

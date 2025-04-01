@@ -25,34 +25,23 @@ public sealed class Instance
 {
     private class ObserverUpdaterI : Ice.Instrumentation.ObserverUpdater
     {
-        public ObserverUpdaterI(Instance instance)
-        {
-            _instance = instance;
-        }
+        public ObserverUpdaterI(Instance instance) => _instance = instance;
 
-        public void updateConnectionObservers()
-        {
-            _instance.updateConnectionObservers();
-        }
+        public void updateConnectionObservers() => _instance.updateConnectionObservers();
 
-        public void updateThreadObservers()
-        {
-            _instance.updateThreadObservers();
-        }
+        public void updateThreadObservers() => _instance.updateThreadObservers();
 
         private readonly Instance _instance;
     }
 
-    public Ice.InitializationData initializationData()
-    {
+    public Ice.InitializationData initializationData() =>
         //
         // No check for destruction. It must be possible to access the
         // initialization data after destruction.
         //
         // No mutex lock, immutable.
         //
-        return _initData;
-    }
+        _initData;
 
     public TraceLevels traceLevels()
     {
@@ -138,20 +127,11 @@ public sealed class Instance
         }
     }
 
-    public int protocolSupport()
-    {
-        return _protocolSupport;
-    }
+    public int protocolSupport() => _protocolSupport;
 
-    public bool preferIPv6()
-    {
-        return _preferIPv6;
-    }
+    public bool preferIPv6() => _preferIPv6;
 
-    public NetworkProxy networkProxy()
-    {
-        return _networkProxy;
-    }
+    public NetworkProxy networkProxy() => _networkProxy;
 
     public ThreadPool clientThreadPool()
     {
@@ -262,41 +242,28 @@ public sealed class Instance
         }
     }
 
-    public int messageSizeMax()
-    {
+    public int messageSizeMax() =>
         // No mutex lock, immutable.
-        return _messageSizeMax;
-    }
+        _messageSizeMax;
 
-    public int batchAutoFlushSize()
-    {
+    public int batchAutoFlushSize() =>
         // No mutex lock, immutable.
-        return _batchAutoFlushSize;
-    }
+        _batchAutoFlushSize;
 
-    public int classGraphDepthMax()
-    {
+    public int classGraphDepthMax() =>
         // No mutex lock, immutable.
-        return _classGraphDepthMax;
-    }
+        _classGraphDepthMax;
 
     public Ice.ToStringMode
-    toStringMode()
-    {
+    toStringMode() =>
         // No mutex lock, immutable
-        return _toStringMode;
-    }
+        _toStringMode;
 
-    public int cacheMessageBuffers()
-    {
+    public int cacheMessageBuffers() =>
         // No mutex lock, immutable.
-        return _cacheMessageBuffers;
-    }
+        _cacheMessageBuffers;
 
-    public Ice.ImplicitContextI getImplicitContext()
-    {
-        return _implicitContext;
-    }
+    public Ice.ImplicitContextI getImplicitContext() => _implicitContext;
 
     public Ice.ObjectPrx createAdmin(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
     {
@@ -399,7 +366,9 @@ public sealed class Instance
                 {
                     return null;
                 }
-                adminIdentity = new Ice.Identity("admin", _initData.properties.getIceProperty("Ice.Admin.InstanceName"));
+                adminIdentity = new Ice.Identity(
+                    "admin",
+                    _initData.properties.getIceProperty("Ice.Admin.InstanceName"));
                 if (adminIdentity.category.Length == 0)
                 {
                     adminIdentity.category = System.Guid.NewGuid().ToString();
@@ -583,13 +552,11 @@ public sealed class Instance
     }
 
     public void
-    setLogger(Ice.Logger logger)
-    {
+    setLogger(Ice.Logger logger) =>
         //
         // No locking, as it can only be called during plug-in loading
         //
         _initData.logger = logger;
-    }
 
     public void
     setThreadHook(System.Action threadStart, System.Action threadStop)
@@ -729,7 +696,7 @@ public sealed class Instance
                 }
             }
 
-            var classGraphDepthMax = _initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
+            int classGraphDepthMax = _initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
             if (classGraphDepthMax < 1 || classGraphDepthMax > 0x7fffffff)
             {
                 _classGraphDepthMax = 0x7fffffff;
@@ -754,7 +721,8 @@ public sealed class Instance
             }
             else
             {
-                throw new Ice.InitializationException("The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
+                throw new Ice.InitializationException(
+                    "The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
             }
 
             _cacheMessageBuffers = _initData.properties.getIcePropertyAsInt("Ice.CacheMessageBuffers");
@@ -793,19 +761,19 @@ public sealed class Instance
 
             _endpointFactoryManager = new EndpointFactoryManager(this);
 
-            ProtocolInstance tcpInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp", false);
+            var tcpInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp", false);
             _endpointFactoryManager.add(new TcpEndpointFactory(tcpInstance));
 
-            ProtocolInstance udpInstance = new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp", false);
+            var udpInstance = new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp", false);
             _endpointFactoryManager.add(new UdpEndpointFactory(udpInstance));
 
-            ProtocolInstance wsInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
+            var wsInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
             _endpointFactoryManager.add(new WSEndpointFactory(wsInstance, Ice.TCPEndpointType.value));
 
             var sslInstance = new Ice.SSL.Instance(_sslEngine, Ice.SSLEndpointType.value, "ssl");
             _endpointFactoryManager.add(new Ice.SSL.EndpointFactoryI(sslInstance, Ice.TCPEndpointType.value));
 
-            ProtocolInstance wssInstance = new ProtocolInstance(this, Ice.WSSEndpointType.value, "wss", true);
+            var wssInstance = new ProtocolInstance(this, Ice.WSSEndpointType.value, "wss", true);
             _endpointFactoryManager.add(new WSEndpointFactory(wssInstance, Ice.SSLEndpointType.value));
 
             _pluginManager = new Ice.PluginManagerI(communicator);
@@ -871,7 +839,7 @@ public sealed class Instance
         // Load plug-ins.
         //
         Debug.Assert(_serverThreadPool == null);
-        Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
+        var pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
         pluginManagerImpl.loadPlugins(ref args);
 
         //
@@ -944,7 +912,7 @@ public sealed class Instance
             string metricsFacetName = "Metrics";
             if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(metricsFacetName))
             {
-                CommunicatorObserverI observer = new CommunicatorObserverI(_initData);
+                var observer = new CommunicatorObserverI(_initData);
                 _initData.observer = observer;
                 _adminFacets.Add(metricsFacetName, observer.getFacet());
 
@@ -1123,7 +1091,7 @@ public sealed class Instance
             List<string> unusedProperties = _initData.properties.getUnusedProperties();
             if (unusedProperties.Count != 0)
             {
-                StringBuilder message = new StringBuilder("The following properties were set but never read:");
+                var message = new StringBuilder("The following properties were set but never read:");
                 foreach (string s in unusedProperties)
                 {
                     message.Append("\n    ");
@@ -1246,7 +1214,7 @@ public sealed class Instance
     {
         lock (_mutex)
         {
-            Dictionary<string, Ice.Object> filteredFacets = new Dictionary<string, Ice.Object>();
+            var filteredFacets = new Dictionary<string, Ice.Object>();
 
             foreach (KeyValuePair<string, Ice.Object> entry in _adminFacets)
             {
@@ -1284,7 +1252,7 @@ public sealed class Instance
             {
                 if (_traceLevels.location >= 1)
                 {
-                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    var s = new System.Text.StringBuilder();
                     s.Append("couldn't register server `" + serverId + "' with the locator registry:\n");
                     s.Append("the server is not known to the locator registry");
                     _initData.logger.trace(_traceLevels.locationCat, s.ToString());
@@ -1296,7 +1264,7 @@ public sealed class Instance
             {
                 if (_traceLevels.location >= 1)
                 {
-                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    var s = new System.Text.StringBuilder();
                     s.Append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
                     _initData.logger.trace(_traceLevels.locationCat, s.ToString());
                 }
@@ -1305,7 +1273,7 @@ public sealed class Instance
 
             if (_traceLevels.location >= 1)
             {
-                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                var s = new System.Text.StringBuilder();
                 s.Append("registered server `" + serverId + "' with the locator registry");
                 _initData.logger.trace(_traceLevels.locationCat, s.ToString());
             }

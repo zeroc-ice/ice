@@ -104,12 +104,13 @@ internal class ReferenceFactory
             throw new ParseException($"no non-whitespace characters found in proxy string '{s}'");
         }
 
+        end = Ice.UtilInternal.StringUtil.checkQuote(s, beg);
+
         //
         // Extract the identity, which may be enclosed in single
         // or double quotation marks.
         //
-        string idstr = null;
-        end = Ice.UtilInternal.StringUtil.checkQuote(s, beg);
+        string idstr;
         if (end == -1)
         {
             throw new ParseException($"mismatched quotes around identity in proxy string '{s}'");
@@ -121,12 +122,12 @@ internal class ReferenceFactory
             {
                 end = s.Length;
             }
-            idstr = s.Substring(beg, end - beg);
+            idstr = s[beg..end];
         }
         else
         {
             beg++; // Skip leading quote
-            idstr = s.Substring(beg, end - beg);
+            idstr = s[beg..end];
             end++; // Skip trailing quote
         }
 
@@ -171,8 +172,6 @@ internal class ReferenceFactory
         bool secure = false;
         Ice.EncodingVersion encoding = _instance.defaultsAndOverrides().defaultEncoding;
         Ice.ProtocolVersion protocol = Ice.Util.Protocol_1_0;
-        string adapter = "";
-
         while (true)
         {
             beg = Ice.UtilInternal.StringUtil.findFirstNotOf(s, delim, end);
@@ -197,7 +196,7 @@ internal class ReferenceFactory
                 break;
             }
 
-            string option = s.Substring(beg, end - beg);
+            string option = s[beg..end];
             if (option.Length != 2 || option[0] != '-')
             {
                 throw new ParseException($"expected a proxy option but found '{option}' in proxy string '{s}'");
@@ -219,7 +218,8 @@ internal class ReferenceFactory
                     end = Ice.UtilInternal.StringUtil.checkQuote(s, beg);
                     if (end == -1)
                     {
-                        throw new ParseException($"mismatched quotes around value for {option} option in proxy string '{s}'");
+                        throw new ParseException(
+                            $"mismatched quotes around value for {option} option in proxy string '{s}'");
                     }
                     else if (end == 0)
                     {
@@ -228,12 +228,12 @@ internal class ReferenceFactory
                         {
                             end = s.Length;
                         }
-                        argument = s.Substring(beg, end - beg);
+                        argument = s[beg..end];
                     }
                     else
                     {
                         beg++; // Skip leading quote
-                        argument = s.Substring(beg, end - beg);
+                        argument = s[beg..end];
                         end++; // Skip trailing quote
                     }
                 }
@@ -267,7 +267,8 @@ internal class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        throw new ParseException($"unexpected argument '{argument}' provided for -t option in proxy string '{s}'");
+                        throw new ParseException(
+                            $"unexpected argument '{argument}' provided for -t option in proxy string '{s}'");
                     }
                     mode = Reference.Mode.ModeTwoway;
                     break;
@@ -277,7 +278,8 @@ internal class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        throw new ParseException($"unexpected argument '{argument}' provided for -o option in proxy string '{s}'");
+                        throw new ParseException(
+                            $"unexpected argument '{argument}' provided for -o option in proxy string '{s}'");
                     }
                     mode = Reference.Mode.ModeOneway;
                     break;
@@ -287,7 +289,8 @@ internal class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        throw new ParseException($"unexpected argument '{argument}' provided for -O option in proxy string '{s}'");
+                        throw new ParseException(
+                            $"unexpected argument '{argument}' provided for -O option in proxy string '{s}'");
                     }
                     mode = Reference.Mode.ModeBatchOneway;
                     break;
@@ -297,7 +300,8 @@ internal class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        throw new ParseException($"unexpected argument '{argument}' provided for -d option in proxy string '{s}'");
+                        throw new ParseException(
+                            $"unexpected argument '{argument}' provided for -d option in proxy string '{s}'");
                     }
                     mode = Reference.Mode.ModeDatagram;
                     break;
@@ -307,7 +311,8 @@ internal class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        throw new ParseException($"unexpected argument '{argument}' provided for -D option in proxy string '{s}'");
+                        throw new ParseException(
+                            $"unexpected argument '{argument}' provided for -D option in proxy string '{s}'");
                     }
                     mode = Reference.Mode.ModeBatchDatagram;
                     break;
@@ -317,7 +322,8 @@ internal class ReferenceFactory
                 {
                     if (argument != null)
                     {
-                        throw new ParseException($"unexpected argument '{argument}' provided for -s option in proxy string '{s}'");
+                        throw new ParseException(
+                            $"unexpected argument '{argument}' provided for -s option in proxy string '{s}'");
                     }
                     secure = true;
                     break;
@@ -371,11 +377,11 @@ internal class ReferenceFactory
             return create(ident, facet, mode, secure, protocol, encoding, null, null, propertyPrefix);
         }
 
-        List<EndpointI> endpoints = new List<EndpointI>();
+        var endpoints = new List<EndpointI>();
 
         if (s[beg] == ':')
         {
-            List<string> unknownEndpoints = new List<string>();
+            var unknownEndpoints = new List<string>();
             end = beg;
 
             while (end < s.Length && s[end] == ':')
@@ -425,7 +431,7 @@ internal class ReferenceFactory
                     }
                 }
 
-                string es = s.Substring(beg, end - beg);
+                string es = s[beg..end];
                 EndpointI endp = _instance.endpointFactoryManager().create(es, false);
                 if (endp != null)
                 {
@@ -444,7 +450,7 @@ internal class ReferenceFactory
             else if (unknownEndpoints.Count != 0 &&
                     _instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Endpoints") > 0)
             {
-                StringBuilder msg = new StringBuilder("Proxy contains unknown endpoints:");
+                var msg = new StringBuilder("Proxy contains unknown endpoints:");
                 int sz = unknownEndpoints.Count;
                 for (int idx = 0; idx < sz; ++idx)
                 {
@@ -466,8 +472,9 @@ internal class ReferenceFactory
                 throw new ParseException($"missing adapter ID in proxy string '{s}'");
             }
 
-            string adapterstr = null;
             end = Ice.UtilInternal.StringUtil.checkQuote(s, beg);
+
+            string adapterstr;
             if (end == -1)
             {
                 throw new ParseException($"mismatched quotes around adapter ID in proxy string '{s}'");
@@ -479,12 +486,12 @@ internal class ReferenceFactory
                 {
                     end = s.Length;
                 }
-                adapterstr = s.Substring(beg, end - beg);
+                adapterstr = s[beg..end];
             }
             else
             {
                 beg++; // Skip leading quote
-                adapterstr = s.Substring(beg, end - beg);
+                adapterstr = s[beg..end];
                 end++; // Skip trailing quote
             }
 
@@ -493,6 +500,7 @@ internal class ReferenceFactory
                 throw new ParseException($"invalid characters after adapter ID in proxy string '{s}'");
             }
 
+            string adapter;
             try
             {
                 adapter = Ice.UtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.Length, "");
@@ -589,16 +597,13 @@ internal class ReferenceFactory
             return this;
         }
 
-        ReferenceFactory factory = new ReferenceFactory(_instance, _communicator);
+        var factory = new ReferenceFactory(_instance, _communicator);
         factory._defaultLocator = _defaultLocator;
         factory._defaultRouter = defaultRouter;
         return factory;
     }
 
-    internal Ice.RouterPrx getDefaultRouter()
-    {
-        return _defaultRouter;
-    }
+    internal Ice.RouterPrx getDefaultRouter() => _defaultRouter;
 
     internal ReferenceFactory setDefaultLocator(Ice.LocatorPrx defaultLocator)
     {
@@ -607,16 +612,13 @@ internal class ReferenceFactory
             return this;
         }
 
-        ReferenceFactory factory = new ReferenceFactory(_instance, _communicator);
+        var factory = new ReferenceFactory(_instance, _communicator);
         factory._defaultLocator = defaultLocator;
         factory._defaultRouter = _defaultRouter;
         return factory;
     }
 
-    internal Ice.LocatorPrx getDefaultLocator()
-    {
-        return _defaultLocator;
-    }
+    internal Ice.LocatorPrx getDefaultLocator() => _defaultLocator;
 
     //
     // Only for use by Instance
@@ -730,7 +732,8 @@ internal class ReferenceFactory
                 }
                 else
                 {
-                    throw new ParseException($"illegal value '{type}' in property '{property}'; expected 'Random' or 'Ordered'");
+                    throw new ParseException(
+                        $"illegal value '{type}' in property '{property}'; expected 'Random' or 'Ordered'");
                 }
             }
 
@@ -749,7 +752,7 @@ internal class ReferenceFactory
                 context = new Dictionary<string, string>();
                 foreach (KeyValuePair<string, string> e in contexts)
                 {
-                    context.Add(e.Key.Substring(property.Length), e.Value);
+                    context.Add(e.Key[property.Length..], e.Value);
                 }
             }
         }

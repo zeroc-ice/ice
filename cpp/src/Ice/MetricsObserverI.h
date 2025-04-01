@@ -3,10 +3,10 @@
 #ifndef ICEMX_METRICS_OBSERVER_I_H
 #define ICEMX_METRICS_OBSERVER_I_H
 
-#include "Connection.h"
-#include "Endpoint.h"
+#include "Ice/Connection.h"
+#include "Ice/Endpoint.h"
+#include "Ice/Instrumentation.h"
 #include "Ice/Metrics.h"
-#include "Instrumentation.h"
 #include "MetricsAdminI.h"
 #include "MetricsFunctional.h"
 
@@ -51,7 +51,6 @@ namespace IceInternal
 
 namespace IceMX
 {
-    /// @cond INTERNAL
     template<typename T> class MetricsHelperT
     {
     public:
@@ -579,7 +578,6 @@ namespace IceMX
     };
 
     using ObserverI = ObserverT<Metrics>;
-    /// @endcond
 }
 
 #if defined(__clang__)

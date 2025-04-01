@@ -25,15 +25,9 @@ public abstract class TestHelper
     // A custom trace listener that always aborts the application upon failure.
     internal class TestTraceListener : DefaultTraceListener
     {
-        public override void Fail(string message)
-        {
-            TestHelper.fail(message, null);
-        }
+        public override void Fail(string message) => TestHelper.fail(message, null);
 
-        public override void Fail(string message, string detailMessage)
-        {
-            TestHelper.fail(message, detailMessage);
-        }
+        public override void Fail(string message, string detailMessage) => TestHelper.fail(message, detailMessage);
     }
 
     static TestHelper()
@@ -45,10 +39,7 @@ public abstract class TestHelper
         Trace.Listeners.Add(new TestTraceListener());
     }
 
-    public virtual void run(string[] args)
-    {
-        throw new NotImplementedException();
-    }
+    public virtual void run(string[] args) => throw new NotImplementedException();
 
     public virtual Task runAsync(string[] args)
     {
@@ -56,14 +47,12 @@ public abstract class TestHelper
         return Task.CompletedTask;
     }
 
-    public string getTestEndpoint(int num = 0, string protocol = "")
-    {
-        return getTestEndpoint(_communicator.getProperties(), num, protocol);
-    }
+    public string getTestEndpoint(int num = 0, string protocol = "") =>
+        getTestEndpoint(_communicator.getProperties(), num, protocol);
 
     public static string getTestEndpoint(Ice.Properties properties, int num = 0, string protocol = "")
     {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.Append(protocol.Length == 0 ? properties.getIceProperty("Ice.Default.Protocol") :
                                    protocol);
         sb.Append(" -p ");
@@ -71,35 +60,20 @@ public abstract class TestHelper
         return sb.ToString();
     }
 
-    public string getTestHost()
-    {
-        return getTestHost(_communicator.getProperties());
-    }
+    public string getTestHost() => getTestHost(_communicator.getProperties());
 
-    public static string getTestHost(Ice.Properties properties)
-    {
-        return properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
-    }
+    public static string getTestHost(Ice.Properties properties) =>
+        properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
 
-    public string getTestProtocol()
-    {
-        return getTestProtocol(_communicator.getProperties());
-    }
+    public string getTestProtocol() => getTestProtocol(_communicator.getProperties());
 
-    public static string getTestProtocol(Ice.Properties properties)
-    {
-        return properties.getIceProperty("Ice.Default.Protocol");
-    }
+    public static string getTestProtocol(Ice.Properties properties) =>
+        properties.getIceProperty("Ice.Default.Protocol");
 
-    public int getTestPort(int num)
-    {
-        return getTestPort(_communicator.getProperties(), num);
-    }
+    public int getTestPort(int num) => getTestPort(_communicator.getProperties(), num);
 
-    public static int getTestPort(Ice.Properties properties, int num)
-    {
-        return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
-    }
+    public static int getTestPort(Ice.Properties properties, int num) =>
+        properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
 
     public TextWriter getWriter()
     {
@@ -113,28 +87,25 @@ public abstract class TestHelper
         }
     }
 
-    public void setWriter(TextWriter writer)
-    {
-        _writer = writer;
-    }
+    public void setWriter(TextWriter writer) => _writer = writer;
 
     public Ice.Properties createTestProperties(ref string[] args)
     {
-        Ice.Properties properties = new Ice.Properties(ref args);
+        var properties = new Ice.Properties(ref args);
         args = properties.parseCommandLineOptions("Test", args);
         return properties;
     }
 
     public Ice.Communicator initialize(ref string[] args)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
+        var initData = new Ice.InitializationData();
         initData.properties = createTestProperties(ref args);
         return initialize(initData);
     }
 
     public Ice.Communicator initialize(Ice.Properties properties)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
+        var initData = new Ice.InitializationData();
         initData.properties = properties;
         return initialize(initData);
     }
@@ -147,10 +118,7 @@ public abstract class TestHelper
         return communicator;
     }
 
-    public Ice.Communicator communicator()
-    {
-        return _communicator;
-    }
+    public Ice.Communicator communicator() => _communicator;
 
     public static void test(bool b)
     {
@@ -184,15 +152,9 @@ public abstract class TestHelper
         Environment.Exit(1);
     }
 
-    public void setControllerHelper(ControllerHelper controllerHelper)
-    {
-        _controllerHelper = controllerHelper;
-    }
+    public void setControllerHelper(ControllerHelper controllerHelper) => _controllerHelper = controllerHelper;
 
-    public void serverReady()
-    {
-        _controllerHelper?.serverReady();
-    }
+    public void serverReady() => _controllerHelper?.serverReady();
 
     private Ice.Communicator _communicator;
     private ControllerHelper _controllerHelper;

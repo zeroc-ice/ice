@@ -387,23 +387,6 @@ export class OutgoingConnectionFactory {
         }
     }
 
-    handleException(ex, hasMore) {
-        const traceLevels = this._instance.traceLevels();
-        if (traceLevels.network >= 2) {
-            const s = [];
-            s.push("couldn't resolve endpoint host");
-            if (ex instanceof CommunicatorDestroyedException) {
-                s.push("\n");
-            } else if (hasMore) {
-                s.push(", trying next endpoint\n");
-            } else {
-                s.push(" and no more endpoints to try\n");
-            }
-            s.push(ex.toString());
-            this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
-        }
-    }
-
     async checkFinished() {
         //
         // Can't continue until the factory is destroyed and there are no pending connections.
@@ -417,7 +400,7 @@ export class OutgoingConnectionFactory {
                 try {
                     await connection.waitUntilFinished();
                 } catch (ex) {
-                    DEV: console.assert(false);
+                    DEV: console.assert(false, ex);
                 }
             }),
         );

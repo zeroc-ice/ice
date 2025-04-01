@@ -1,72 +1,73 @@
 // Copyright (c) ZeroC, Inc.
 
-module and
+// TODO find a better way to escape module names.
+module escapedAnd
 {
+    ["php:identifier:another_name"]
+    const int require_once = 1;
+
+    ["php:identifier:_array"]
     enum array
     {
-        as
+        ["php:identifier:_clone"]
+        clone = require_once
     }
 
+    ["php:identifier:_endfor"]
+    sequence<array> endfor;
+    ["php:identifier:_endforeach"]
+    dictionary<string, array> endforeach;
+
+    ["php:identifier:_xor"]
     struct xor
     {
-        int abstract;
-        int clone;
-        int private;
-        int protected;
-        int public;
-        int this;
-        int throw;
-        int use;
-        int var;
+        ["php:identifier:_abstract"] int abstract;
+        ["php:identifier:_var"] int var = require_once;
     }
 
-    interface break
+    ["php:identifier:_endif"]
+    exception endif
     {
-        void case(int catch, out int try);
+        ["php:identifier:_switch"] int switch;
     }
 
+    ["php:identifier:_endwhile"]
+    exception endwhile extends endif
+    {
+        ["php:identifier:_eval"] int eval;
+        ["php:identifier:_exit"] int exit = require_once;
+    }
+
+    ["php:identifier:_function"]
     interface function
     {
-        void continue(int declare, int default);
+        ["php:identifier:_continue"]
+        void continue(["php:identifier:_declare"] int declare, ["php:identifier:_default"] int default);
     }
 
+    ["php:identifier:_die"]
     interface die
     {
+        ["php:identifier:_do"]
         void do();
     }
 
+    ["php:identifier:_echo"]
     class echo
     {
-        int if;
-        int else;
-        die* elseif;
-        int empty;
+        ["php:identifier:_if"] int if;
+        ["php:identifier:_empty"] die* empty;
     }
 
+    ["php:identifier:_enddeclare"]
     interface enddeclare extends die, function
     {
+        ["php:identifier:foreach"]
+        array foreach(
+            ["php:identifier:_global"] echo global,
+            ["php:identifier:_include"] optional(require_once) function* include,
+            out ["php:identifier:_new"] endfor new,
+            out ["php:identifier:_static"] optional(2) endforeach static
+        ) throws endif, endwhile;
     }
-    sequence<array> endfor;
-    dictionary<string,array> endforeach;
-
-    exception endif
-    {
-        int endswitch;
-    }
-
-    exception endwhile extends endif
-    {
-        int eval;
-        int exit;
-    }
-
-    interface for
-    {
-        array foreach(break* if, echo global, function* include,
-            die* return, enddeclare* list, int new, int static) throws endif, endwhile;
-    }
-
-    const int or = 0;
-    const int print = 0;
-    const int require_once = 0;
 }

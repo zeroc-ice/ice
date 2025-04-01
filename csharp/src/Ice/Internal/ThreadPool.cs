@@ -80,20 +80,11 @@ public class ThreadPoolCurrent
 
     public int operation;
 
-    public bool ioCompleted()
-    {
-        return _threadPool.ioCompleted(this);
-    }
+    public bool ioCompleted() => _threadPool.ioCompleted(this);
 
-    public bool startMessage()
-    {
-        return _threadPool.startMessage(this);
-    }
+    public bool startMessage() => _threadPool.startMessage(this);
 
-    public void finishMessage()
-    {
-        _threadPool.finishMessage(this);
-    }
+    public void finishMessage() => _threadPool.finishMessage(this);
 
     internal readonly ThreadPool _threadPool;
     internal readonly ThreadPool.WorkerThread _thread;
@@ -252,10 +243,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         handler._registered = 0;
     }
 
-    public void register(EventHandler handler, int op)
-    {
-        update(handler, SocketOperation.None, op);
-    }
+    public void register(EventHandler handler, int op) => update(handler, SocketOperation.None, op);
 
     public void update(EventHandler handler, int remove, int add)
     {
@@ -290,10 +278,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         }
     }
 
-    public void unregister(EventHandler handler, int op)
-    {
-        update(handler, op, SocketOperation.None);
-    }
+    public void unregister(EventHandler handler, int op) => update(handler, op, SocketOperation.None);
 
     public void finish(EventHandler handler)
     {
@@ -376,40 +361,29 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
         }
     }
 
-    public string prefix()
-    {
-        return _prefix;
-    }
+    public string prefix() => _prefix;
 
-    public bool serialize()
-    {
-        return _serialize;
-    }
+    public bool serialize() => _serialize;
 
-    protected sealed override void QueueTask(System.Threading.Tasks.Task task)
-    {
-        execute(() => { TryExecuteTask(task); }, null);
-    }
+    protected sealed override void QueueTask(
+        System.Threading.Tasks.Task task) => execute(
+            () => TryExecuteTask(task),
+            null);
 
     protected sealed override bool TryExecuteTaskInline(System.Threading.Tasks.Task task, bool taskWasPreviouslyQueued)
     {
         if (!taskWasPreviouslyQueued)
         {
-            executeFromThisThread(() => { TryExecuteTask(task); }, null);
+            executeFromThisThread(() => TryExecuteTask(task), null);
             return true;
         }
         return false;
     }
 
-    protected sealed override bool TryDequeue(System.Threading.Tasks.Task task)
-    {
-        return false;
-    }
+    protected sealed override bool TryDequeue(System.Threading.Tasks.Task task) => false;
 
-    protected sealed override IEnumerable<System.Threading.Tasks.Task> GetScheduledTasks()
-    {
-        return Array.Empty<System.Threading.Tasks.Task>();
-    }
+    protected sealed override IEnumerable<System.Threading.Tasks.Task> GetScheduledTasks() =>
+        Array.Empty<System.Threading.Tasks.Task>();
 
     private void queueReadyForIOHandler(EventHandler handler, int operation)
     {
@@ -469,11 +443,9 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
                                 _threads.Remove(thread);
                                 _workItems.Enqueue(c =>
-                                    {
                                         // No call to ioCompleted, this shouldn't block (and we don't want to cause
                                         // a new thread to be started).
-                                        thread.join();
-                                    });
+                                        thread.join());
                                 Monitor.Pulse(_mutex);
                                 return;
                             }
@@ -719,15 +691,9 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
             _state = s;
         }
 
-        public Thread getThread()
-        {
-            return _thread;
-        }
+        public Thread getThread() => _thread;
 
-        public void join()
-        {
-            _thread.Join();
-        }
+        public void join() => _thread.Join();
 
         public void start(ThreadPriority priority)
         {

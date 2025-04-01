@@ -275,7 +275,7 @@ public interface CommunicatorObserver
     /// <param name="ctx">The context specified by the user.
     /// </param>
     /// <returns>The invocation observer to instrument the invocation.</returns>
-    InvocationObserver getInvocationObserver(ObjectPrx prx, string operation, System.Collections.Generic.Dictionary<string, string> ctx);
+    InvocationObserver getInvocationObserver(ObjectPrx prx, string operation, Dictionary<string, string> ctx);
 
     /// <summary>
     /// This method should return a dispatch observer for the given dispatch.

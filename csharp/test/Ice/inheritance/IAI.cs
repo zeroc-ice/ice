@@ -8,8 +8,5 @@ public sealed class IAI : Test.MA.IADisp_
     {
     }
 
-    public override Test.MA.IAPrx iaop(Test.MA.IAPrx p, Ice.Current current)
-    {
-        return p;
-    }
+    public override Test.MA.IAPrx iaop(Test.MA.IAPrx p, Ice.Current current) => p;
 }

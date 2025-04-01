@@ -11,15 +11,13 @@ using Test;
 
 public class AllTests : global::Test.AllTests
 {
-    private static X509Certificate2 createCertificate(string certPEM)
-    {
-        return new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
-    }
+    private static X509Certificate2 createCertificate(string certPEM) =>
+        new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
 
     private static Ice.InitializationData
     createClientProps(Ice.Properties defaultProperties)
     {
-        Ice.InitializationData result = new Ice.InitializationData();
+        var result = new Ice.InitializationData();
         result.properties = new Ice.Properties();
 
         result.properties.setProperty("IceSSL.DefaultDir", defaultProperties.getIceProperty("IceSSL.DefaultDir"));
@@ -35,7 +33,7 @@ public class AllTests : global::Test.AllTests
     private static Dictionary<string, string>
     createServerProps(Ice.Properties defaultProperties)
     {
-        Dictionary<string, string> result = new Dictionary<string, string>
+        var result = new Dictionary<string, string>
         {
             ["IceSSL.DefaultDir"] = defaultProperties.getIceProperty("IceSSL.DefaultDir"),
             ["Ice.Default.Host"] = defaultProperties.getIceProperty("Ice.Default.Host")
@@ -108,13 +106,13 @@ public class AllTests : global::Test.AllTests
         //
         string caCert1File = defaultDir + "/cacert1.pem";
         string caCert2File = defaultDir + "/cacert2.pem";
-        X509Certificate2 caCert1 = new X509Certificate2(caCert1File);
-        X509Certificate2 caCert2 = new X509Certificate2(caCert2File);
+        var caCert1 = new X509Certificate2(caCert1File);
+        var caCert2 = new X509Certificate2(caCert2File);
 
         test(Enumerable.SequenceEqual(createCertificate(File.ReadAllText(caCert1File)).RawData, caCert1.RawData));
         test(Enumerable.SequenceEqual(createCertificate(File.ReadAllText(caCert2File)).RawData, caCert2.RawData));
 
-        X509Store store = new X509Store(StoreName.AuthRoot, StoreLocation.LocalMachine);
+        var store = new X509Store(StoreName.AuthRoot, StoreLocation.LocalMachine);
         bool isAdministrator = false;
         if (Ice.Internal.AssemblyUtil.isWindows)
         {
@@ -126,7 +124,8 @@ public class AllTests : global::Test.AllTests
             catch (CryptographicException)
             {
                 store.Open(OpenFlags.ReadOnly);
-                Console.Out.WriteLine("warning: some test requires administrator privileges, run as Administrator to run all the tests.");
+                Console.Out.WriteLine(
+                    "warning: some test requires administrator privileges, run as Administrator to run all the tests.");
             }
         }
 
@@ -278,15 +277,15 @@ public class AllTests : global::Test.AllTests
                 server = fact.createServer(d);
                 try
                 {
-                    X509Certificate2 clientCert =
+                    var clientCert =
                         new X509Certificate2(defaultDir + "/c_rsa_ca1.p12", "password");
                     server.checkCert(clientCert.Subject, clientCert.Issuer);
 
-                    X509Certificate2 serverCert =
+                    var serverCert =
                         new X509Certificate2(defaultDir + "/s_rsa_ca1.p12", "password");
-                    X509Certificate2 caCert = new X509Certificate2(defaultDir + "/cacert1.pem");
+                    var caCert = new X509Certificate2(defaultDir + "/cacert1.pem");
 
-                    Ice.SSL.ConnectionInfo info = (Ice.SSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                    var info = (Ice.SSL.ConnectionInfo)server.ice_getConnection().getInfo();
                     test(info.certs.Length == 1);
                     test(info.verified);
 
@@ -307,7 +306,7 @@ public class AllTests : global::Test.AllTests
                 server = fact.createServer(d);
                 try
                 {
-                    X509Certificate2 clientCert = new X509Certificate2(defaultDir + "/c_rsa_ca1.p12", "password");
+                    var clientCert = new X509Certificate2(defaultDir + "/c_rsa_ca1.p12", "password");
                     server.checkCert(clientCert.Subject, clientCert.Issuer);
                 }
                 catch (Exception ex)
@@ -748,7 +747,8 @@ public class AllTests : global::Test.AllTests
                     initData = createClientProps(defaultProperties, "c_rsa_ca1", "");
                     initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
                     Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-                    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    Test.ServerFactoryPrx fact =
+                        Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
                     d = createServerProps(defaultProperties, "s_rsa_ca2", "");
                     d["IceSSL.VerifyPeer"] = "2";
@@ -1545,7 +1545,7 @@ public class AllTests : global::Test.AllTests
 
                 string[] certificates = new string[] { "/s_rsa_ca1.p12", "/c_rsa_ca1.p12" };
 
-                X509Store certStore = new X509Store("My", StoreLocation.CurrentUser);
+                var certStore = new X509Store("My", StoreLocation.CurrentUser);
                 certStore.Open(OpenFlags.ReadWrite);
                 var storageFlags = X509KeyStorageFlags.DefaultKeySet;
                 try
@@ -1566,7 +1566,8 @@ public class AllTests : global::Test.AllTests
                         initData.properties.setProperty("IceSSL.TrustOnly", "CN=Server");
                         Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
-                        Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        Test.ServerFactoryPrx fact =
+                            Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                         d = createServerProps(defaultProperties, "", "cacert1");
 
                         d["IceSSL.FindCert"] = serverFindCertProperties[i];
@@ -1705,7 +1706,7 @@ public class AllTests : global::Test.AllTests
                 {
                     try
                     {
-                        Ice.SSL.ConnectionInfo info = (Ice.SSL.ConnectionInfo)p.ice_getConnection().getInfo().underlying;
+                        var info = (Ice.SSL.ConnectionInfo)p.ice_getConnection().getInfo().underlying;
                         test(info.verified);
                         break;
                     }

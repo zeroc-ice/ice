@@ -3,8 +3,8 @@
 #ifndef ICEGRID_NODE_I_H
 #define ICEGRID_NODE_I_H
 
+#include "../Ice/Timer.h"
 #include "FileCache.h"
-#include "Ice/Timer.h"
 #include "IceGrid/UserAccountMapper.h"
 #include "Internal.h"
 #include "PlatformInfo.h"

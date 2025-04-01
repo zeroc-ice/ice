@@ -65,10 +65,7 @@ public class Timer
         }
     }
 
-    public void waitForShutdown()
-    {
-        _t.Join();
-    }
+    public void waitForShutdown() => _t.Join();
 
     private void run()
     {
@@ -103,10 +100,7 @@ public class Timer
 
     }
 
-    private long currentMonotonicTimeMillis()
-    {
-        return _sw.ElapsedMilliseconds;
-    }
+    private long currentMonotonicTimeMillis() => _sw.ElapsedMilliseconds;
     private readonly Stopwatch _sw = Stopwatch.StartNew();
 
     private readonly Thread _t;

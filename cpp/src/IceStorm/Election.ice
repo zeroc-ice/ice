@@ -169,13 +169,13 @@ module IceStormElection
         void accept(int j, string gn, Ice::IntSeq forwardedInvites, Object* observer, LogUpdate llu, int max);
 
         /// Determine if this node is a coordinator.
-        /// @return True if the node is a coordinator, false otherwise.
+        /// @return `true` if the node is a coordinator, `false` otherwise.
         ["cpp:const"] idempotent bool areYouCoordinator();
 
         /// Determine if the node is a member of the given group with the given coordinator.
         /// @param gn The group name.
         /// @param j The group coordinator.
-        /// @return True if the node is a member, false otherwise.
+        /// @return `true` if the node is a member, `false` otherwise.
         ["cpp:const"] idempotent bool areYouThere(string gn, int j);
 
         /// Get the sync object for the replica hosted by this node.

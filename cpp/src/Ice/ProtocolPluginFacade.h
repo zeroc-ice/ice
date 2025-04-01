@@ -48,7 +48,7 @@ namespace IceInternal
         [[nodiscard]] EndpointFactoryPtr getEndpointFactory(std::int16_t) const;
 
     private:
-        friend ICE_API ProtocolPluginFacadePtr getProtocolPluginFacade(const Ice::CommunicatorPtr&);
+        friend ICE_API_FRIEND ProtocolPluginFacadePtr getProtocolPluginFacade(const Ice::CommunicatorPtr&);
 
         InstancePtr _instance;
         Ice::CommunicatorPtr _communicator;

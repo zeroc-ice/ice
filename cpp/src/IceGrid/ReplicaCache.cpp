@@ -68,7 +68,7 @@ ReplicaCache::add(const string& name, const shared_ptr<ReplicaSessionI>& session
             {
                 try
                 {
-                    s->destroy(Ice::emptyCurrent);
+                    s->destroy();
                 }
                 catch (const Ice::LocalException&)
                 {

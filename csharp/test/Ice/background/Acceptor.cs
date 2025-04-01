@@ -2,10 +2,7 @@
 
 internal class Acceptor : Ice.Internal.Acceptor
 {
-    public void close()
-    {
-        _acceptor.close();
-    }
+    public void close() => _acceptor.close();
 
     public Ice.Internal.EndpointI listen()
     {
@@ -13,40 +10,20 @@ internal class Acceptor : Ice.Internal.Acceptor
         return _endpoint;
     }
 
-    public bool startAccept(Ice.Internal.AsyncCallback callback, object state)
-    {
-        return _acceptor.startAccept(callback, state);
-    }
+    public bool startAccept(Ice.Internal.AsyncCallback callback, object state) =>
+        _acceptor.startAccept(callback, state);
 
-    public void finishAccept()
-    {
-        _acceptor.finishAccept();
-    }
+    public void finishAccept() => _acceptor.finishAccept();
 
-    public Ice.Internal.Transceiver accept()
-    {
-        return new Transceiver(_acceptor.accept());
-    }
+    public Ice.Internal.Transceiver accept() => new Transceiver(_acceptor.accept());
 
-    public string protocol()
-    {
-        return _acceptor.protocol();
-    }
+    public string protocol() => _acceptor.protocol();
 
-    public override string ToString()
-    {
-        return _acceptor.ToString();
-    }
+    public override string ToString() => _acceptor.ToString();
 
-    public string toDetailedString()
-    {
-        return _acceptor.toDetailedString();
-    }
+    public string toDetailedString() => _acceptor.toDetailedString();
 
-    public Ice.Internal.Acceptor getDelegate()
-    {
-        return _acceptor;
-    }
+    public Ice.Internal.Acceptor getDelegate() => _acceptor;
 
     internal Acceptor(EndpointI endpoint, Ice.Internal.Acceptor acceptor)
     {

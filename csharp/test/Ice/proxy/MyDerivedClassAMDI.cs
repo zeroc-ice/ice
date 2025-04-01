@@ -10,10 +10,7 @@ namespace Ice.proxy
             {
             }
 
-            public override Task<Ice.ObjectPrx> echoAsync(Ice.ObjectPrx obj, Ice.Current c)
-            {
-                return Task.FromResult(obj);
-            }
+            public override Task<Ice.ObjectPrx> echoAsync(Ice.ObjectPrx obj, Ice.Current c) => Task.FromResult(obj);
 
             public override Task shutdownAsync(Ice.Current current)
             {
@@ -21,10 +18,8 @@ namespace Ice.proxy
                 return Task.CompletedTask;
             }
 
-            public override Task<Dictionary<string, string>> getContextAsync(Ice.Current current)
-            {
-                return Task.FromResult(_ctx);
-            }
+            public override Task<Dictionary<string, string>> getContextAsync(Ice.Current current) =>
+                Task.FromResult(_ctx);
 
             public bool ice_isA(string s, Ice.Current current)
             {

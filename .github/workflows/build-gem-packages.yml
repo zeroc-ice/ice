@@ -72,6 +72,7 @@ jobs:
             --upload-file ruby/zeroc-ice-*.gem \
             --output /dev/null \
             --silent \
+            --retry 3 \
             --fail \
             --show-error \
             ${{ inputs.repository_url }} || { echo "Upload zeroc-ice-*.gem failed"; exit 1; }

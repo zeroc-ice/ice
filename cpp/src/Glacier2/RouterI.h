@@ -56,6 +56,8 @@ namespace Glacier2
 
         [[nodiscard]] std::string toString() const;
 
+        [[nodiscard]] const std::optional<Ice::ObjectPrx>& serverProxy() const noexcept { return _serverProxy; }
+
     private:
         const std::shared_ptr<Instance> _instance;
         const std::shared_ptr<RoutingTable> _routingTable;

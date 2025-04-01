@@ -2,17 +2,12 @@
 
 public class PluginFactory : Ice.PluginFactory
 {
-    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args)
-    {
-        return new Plugin(communicator, args);
-    }
+    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args) =>
+        new Plugin(communicator, args);
 
     internal class Plugin : Ice.Plugin
     {
-        public Plugin(Ice.Communicator communicator, string[] args)
-        {
-            _args = args;
-        }
+        public Plugin(Ice.Communicator communicator, string[] args) => _args = args;
 
         public void initialize()
         {
@@ -24,10 +19,7 @@ public class PluginFactory : Ice.PluginFactory
             test(_args[2] == "C:\\Program Files\\Application\\db");
         }
 
-        public void destroy()
-        {
-            test(_initialized);
-        }
+        public void destroy() => test(_initialized);
 
         private static void test(bool b) => global::Test.TestHelper.test(b);
 

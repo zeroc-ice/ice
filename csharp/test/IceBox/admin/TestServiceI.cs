@@ -4,7 +4,7 @@ public class TestServiceI : IceBox.Service
 {
     public TestServiceI(Ice.Communicator serviceManagerCommunicator)
     {
-        TestFacetI facet = new TestFacetI();
+        var facet = new TestFacetI();
 
         //
         // Install a custom admin facet.
@@ -17,7 +17,7 @@ public class TestServiceI : IceBox.Service
         Ice.Object propFacet = serviceManagerCommunicator.findAdminFacet("IceBox.Service.TestService.Properties");
         if (propFacet != null)
         {
-            Ice.NativePropertiesAdmin admin = (Ice.NativePropertiesAdmin)propFacet;
+            var admin = (Ice.NativePropertiesAdmin)propFacet;
             admin.addUpdateCallback(facet.updated);
         }
     }

@@ -8,15 +8,9 @@ internal class Twoways
 
     private class PerThreadContextInvokeThread
     {
-        public PerThreadContextInvokeThread(Test.MyClassPrx proxy)
-        {
-            _proxy = proxy;
-        }
+        public PerThreadContextInvokeThread(Test.MyClassPrx proxy) => _proxy = proxy;
 
-        public void Join()
-        {
-            _thread.Join();
-        }
+        public void Join() => _thread.Join();
 
         public void Start()
         {
@@ -33,7 +27,7 @@ internal class Twoways
             test(Internal.DictionaryExtensions.DictionaryEqual(_proxy.opContext(), ctx));
         }
 
-        private Test.MyClassPrx _proxy;
+        private readonly Test.MyClassPrx _proxy;
         private Thread _thread;
     }
 
@@ -140,30 +134,25 @@ internal class Twoways
         }
 
         {
-            byte b;
             byte r;
 
-            r = p.opByte(0xff, 0x0f, out b);
+            r = p.opByte(0xff, 0x0f, out byte b);
             test(b == 0xf0);
             test(r == 0xff);
         }
 
         {
-            bool b;
             bool r;
 
-            r = p.opBool(true, false, out b);
+            r = p.opBool(true, false, out bool b);
             test(b);
             test(!r);
         }
 
         {
-            short s;
-            int i;
-            long l;
             long r;
 
-            r = p.opShortIntLong(10, 11, 12L, out s, out i, out l);
+            r = p.opShortIntLong(10, 11, 12L, out short s, out int i, out long l);
             test(s == 10);
             test(i == 11);
             test(l == 12);
@@ -183,11 +172,9 @@ internal class Twoways
         }
 
         {
-            float f;
-            double d;
             double r;
 
-            r = p.opFloatDouble(3.14f, 1.1e10, out f, out d);
+            r = p.opFloatDouble(3.14f, 1.1e10, out float f, out double d);
             test(f == 3.14f);
             test(d == 1.1e10);
             test(r == 1.1e10);
@@ -204,29 +191,25 @@ internal class Twoways
         }
 
         {
-            string s;
             string r;
 
-            r = p.opString("hello", "world", out s);
+            r = p.opString("hello", "world", out string s);
             test(s == "world hello");
             test(r == "hello world");
         }
 
         {
-            Test.MyEnum e;
             Test.MyEnum r;
 
-            r = p.opMyEnum(Test.MyEnum.enum2, out e);
+            r = p.opMyEnum(Test.MyEnum.enum2, out Test.MyEnum e);
             test(e == Test.MyEnum.enum2);
             test(r == Test.MyEnum.enum3);
         }
 
         {
-            Test.MyClassPrx c1;
-            Test.MyClassPrx c2;
             Test.MyClassPrx r;
 
-            r = p.opMyClass(p, out c1, out c2);
+            r = p.opMyClass(p, out Test.MyClassPrx c1, out Test.MyClassPrx c2);
             test(Ice.Util.proxyIdentityAndFacetCompare(c1, p) == 0);
             test(Ice.Util.proxyIdentityAndFacetCompare(c2, p) != 0);
             test(Ice.Util.proxyIdentityAndFacetCompare(r, p) == 0);
@@ -252,17 +235,16 @@ internal class Twoways
         }
 
         {
-            Test.Structure si1 = new Test.Structure(new Test.AnotherStruct());
+            var si1 = new Test.Structure(new Test.AnotherStruct());
             si1.p = p;
             si1.e = Test.MyEnum.enum3;
             si1.s.s = "abc";
-            Test.Structure si2 = new Test.Structure(new Test.AnotherStruct());
+            var si2 = new Test.Structure(new Test.AnotherStruct());
             si2.p = null;
             si2.e = Test.MyEnum.enum2;
             si2.s.s = "def";
 
-            Test.Structure so;
-            Test.Structure rso = p.opStruct(si1, si2, out so);
+            Test.Structure rso = p.opStruct(si1, si2, out Test.Structure so);
             test(rso.p == null);
             test(rso.e == Test.MyEnum.enum2);
             test(rso.s.s == "def");
@@ -289,10 +271,9 @@ internal class Twoways
             byte[] bsi1 = new byte[] { 0x01, 0x11, 0x12, 0x22 };
             byte[] bsi2 = new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 };
 
-            byte[] bso;
             byte[] rso;
 
-            rso = p.opByteS(bsi1, bsi2, out bso);
+            rso = p.opByteS(bsi1, bsi2, out byte[] bso);
             test(bso.Length == 4);
             test(bso[0] == 0x22);
             test(bso[1] == 0x12);
@@ -313,10 +294,9 @@ internal class Twoways
             bool[] bsi1 = new bool[] { true, true, false };
             bool[] bsi2 = new bool[] { false };
 
-            bool[] bso;
             bool[] rso;
 
-            rso = p.opBoolS(bsi1, bsi2, out bso);
+            rso = p.opBoolS(bsi1, bsi2, out bool[] bso);
             test(bso.Length == 4);
             test(bso[0]);
             test(bso[1]);
@@ -333,12 +313,9 @@ internal class Twoways
             int[] isi = new int[] { 5, 6, 7, 8 };
             long[] lsi = new long[] { 10, 30, 20 };
 
-            short[] sso;
-            int[] iso;
-            long[] lso;
             long[] rso;
 
-            rso = p.opShortIntLongS(ssi, isi, lsi, out sso, out iso, out lso);
+            rso = p.opShortIntLongS(ssi, isi, lsi, out short[] sso, out int[] iso, out long[] lso);
             test(sso.Length == 3);
             test(sso[0] == 1);
             test(sso[1] == 2);
@@ -365,11 +342,9 @@ internal class Twoways
             float[] fsi = new float[] { 3.14f, 1.11f };
             double[] dsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
 
-            float[] fso;
-            double[] dso;
             double[] rso;
 
-            rso = p.opFloatDoubleS(fsi, dsi, out fso, out dso);
+            rso = p.opFloatDoubleS(fsi, dsi, out float[] fso, out double[] dso);
             test(fso.Length == 2);
             test(fso[0] == 3.14f);
             test(fso[1] == 1.11f);
@@ -389,10 +364,9 @@ internal class Twoways
             string[] ssi1 = new string[] { "abc", "de", "fghi" };
             string[] ssi2 = new string[] { "xyz" };
 
-            string[] sso;
             string[] rso;
 
-            rso = p.opStringS(ssi1, ssi2, out sso);
+            rso = p.opStringS(ssi1, ssi2, out string[] sso);
             test(sso.Length == 4);
             test(sso[0] == "abc");
             test(sso[1] == "de");
@@ -413,10 +387,9 @@ internal class Twoways
             byte[] s22 = new byte[] { 0xf2, 0xf1 };
             byte[][] bsi2 = new byte[][] { s21, s22 };
 
-            byte[][] bso;
             byte[][] rso;
 
-            rso = p.opByteSS(bsi1, bsi2, out bso);
+            rso = p.opByteSS(bsi1, bsi2, out byte[][] bso);
             test(bso.Length == 2);
             test(bso[0].Length == 1);
             test(bso[0][0] == 0xff);
@@ -448,9 +421,8 @@ internal class Twoways
             bool[][] bsi2 = new bool[][] { s21 };
 
             bool[][] rso;
-            bool[][] bso;
 
-            rso = p.opBoolSS(bsi1, bsi2, out bso);
+            rso = p.opBoolSS(bsi1, bsi2, out bool[][] bso);
             test(bso.Length == 4);
             test(bso[0].Length == 1);
             test(bso[0][0]);
@@ -486,12 +458,9 @@ internal class Twoways
             long[] l11 = new long[] { 496, 1729 };
             long[][] lsi = new long[][] { l11 };
 
-            short[][] sso;
-            int[][] iso;
-            long[][] lso;
             long[][] rso;
 
-            rso = p.opShortIntLongSS(ssi, isi, lsi, out sso, out iso, out lso);
+            rso = p.opShortIntLongSS(ssi, isi, lsi, out short[][] sso, out int[][] iso, out long[][] lso);
             test(rso.Length == 1);
             test(rso[0].Length == 2);
             test(rso[0][0] == 496);
@@ -528,11 +497,9 @@ internal class Twoways
             double[] d11 = new double[] { 1.1e10, 1.2e10, 1.3e10 };
             double[][] dsi = new double[][] { d11 };
 
-            float[][] fso;
-            double[][] dso;
             double[][] rso;
 
-            rso = p.opFloatDoubleSS(fsi, dsi, out fso, out dso);
+            rso = p.opFloatDoubleSS(fsi, dsi, out float[][] fso, out double[][] dso);
             test(fso.Length == 3);
             test(fso[0].Length == 1);
             test(fso[0][0] == 3.14f);
@@ -565,10 +532,9 @@ internal class Twoways
             string[] s23 = new string[] { "xyz" };
             string[][] ssi2 = new string[][] { s21, s22, s23 };
 
-            string[][] sso;
             string[][] rso;
 
-            rso = p.opStringSS(ssi1, ssi2, out sso);
+            rso = p.opStringSS(ssi1, ssi2, out string[][] sso);
             test(sso.Length == 5);
             test(sso[0].Length == 1);
             test(sso[0][0] == "abc");
@@ -602,10 +568,9 @@ internal class Twoways
             string[][] ss23 = new string[][] { };
             string[][][] sssi2 = new string[][][] { ss21, ss22, ss23 };
 
-            string[][][] ssso;
             string[][][] rsso;
 
-            rsso = p.opStringSSS(sssi1, sssi2, out ssso);
+            rsso = p.opStringSSS(sssi1, sssi2, out string[][][] ssso);
             test(ssso.Length == 5);
             test(ssso[0].Length == 2);
             test(ssso[0][0].Length == 2);
@@ -641,20 +606,19 @@ internal class Twoways
         }
 
         {
-            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>
+            var di1 = new Dictionary<byte, bool>
             {
                 [10] = true,
                 [100] = false
             };
-            Dictionary<byte, bool> di2 = new Dictionary<byte, bool>
+            var di2 = new Dictionary<byte, bool>
             {
                 [10] = true,
                 [11] = false,
                 [101] = true
             };
 
-            Dictionary<byte, bool> _do;
-            Dictionary<byte, bool> ro = p.opByteBoolD(di1, di2, out _do);
+            Dictionary<byte, bool> ro = p.opByteBoolD(di1, di2, out Dictionary<byte, bool> _do);
 
             test(Internal.DictionaryExtensions.DictionaryEqual(_do, di1));
             test(ro.Count == 4);
@@ -665,20 +629,19 @@ internal class Twoways
         }
 
         {
-            Dictionary<short, int> di1 = new Dictionary<short, int>
+            var di1 = new Dictionary<short, int>
             {
                 [110] = -1,
                 [1100] = 123123
             };
-            Dictionary<short, int> di2 = new Dictionary<short, int>
+            var di2 = new Dictionary<short, int>
             {
                 [110] = -1,
                 [111] = -100,
                 [1101] = 0
             };
 
-            Dictionary<short, int> _do;
-            Dictionary<short, int> ro = p.opShortIntD(di1, di2, out _do);
+            Dictionary<short, int> ro = p.opShortIntD(di1, di2, out Dictionary<short, int> _do);
 
             test(Internal.DictionaryExtensions.DictionaryEqual(_do, di1));
             test(ro.Count == 4);
@@ -689,20 +652,19 @@ internal class Twoways
         }
 
         {
-            Dictionary<long, float> di1 = new Dictionary<long, float>
+            var di1 = new Dictionary<long, float>
             {
                 [999999110L] = -1.1f,
                 [999999111L] = 123123.2f
             };
-            Dictionary<long, float> di2 = new Dictionary<long, float>
+            var di2 = new Dictionary<long, float>
             {
                 [999999110L] = -1.1f,
                 [999999120L] = -100.4f,
                 [999999130L] = 0.5f
             };
 
-            Dictionary<long, float> _do;
-            Dictionary<long, float> ro = p.opLongFloatD(di1, di2, out _do);
+            Dictionary<long, float> ro = p.opLongFloatD(di1, di2, out Dictionary<long, float> _do);
 
             test(Internal.DictionaryExtensions.DictionaryEqual(_do, di1));
             test(ro.Count == 4);
@@ -713,20 +675,19 @@ internal class Twoways
         }
 
         {
-            Dictionary<string, string> di1 = new Dictionary<string, string>
+            var di1 = new Dictionary<string, string>
             {
                 ["foo"] = "abc -1.1",
                 ["bar"] = "abc 123123.2"
             };
-            Dictionary<string, string> di2 = new Dictionary<string, string>
+            var di2 = new Dictionary<string, string>
             {
                 ["foo"] = "abc -1.1",
                 ["FOO"] = "abc -100.4",
                 ["BAR"] = "abc 0.5"
             };
 
-            Dictionary<string, string> _do;
-            Dictionary<string, string> ro = p.opStringStringD(di1, di2, out _do);
+            Dictionary<string, string> ro = p.opStringStringD(di1, di2, out Dictionary<string, string> _do);
 
             test(Internal.DictionaryExtensions.DictionaryEqual(_do, di1));
             test(ro.Count == 4);
@@ -749,8 +710,7 @@ internal class Twoways
                 ["Hello!!"] = Test.MyEnum.enum2
             };
 
-            Dictionary<string, Test.MyEnum> _do;
-            Dictionary<string, Test.MyEnum> ro = p.opStringMyEnumD(di1, di2, out _do);
+            Dictionary<string, Test.MyEnum> ro = p.opStringMyEnumD(di1, di2, out Dictionary<string, Test.MyEnum> _do);
 
             test(Internal.DictionaryExtensions.DictionaryEqual(_do, di1));
             test(ro.Count == 4);
@@ -771,8 +731,7 @@ internal class Twoways
                 [Test.MyEnum.enum3] = "qwerty"
             };
 
-            Dictionary<Test.MyEnum, string> _do;
-            var ro = p.opMyEnumStringD(di1, di2, out _do);
+            var ro = p.opMyEnumStringD(di1, di2, out Dictionary<Test.MyEnum, string> _do);
 
             test(Internal.DictionaryExtensions.DictionaryEqual(_do, di1));
             test(ro.Count == 3);
@@ -799,8 +758,8 @@ internal class Twoways
                 [s23] = Test.MyEnum.enum2
             };
 
-            Dictionary<Test.MyStruct, Test.MyEnum> _do;
-            Dictionary<Test.MyStruct, Test.MyEnum> ro = p.opMyStructMyEnumD(di1, di2, out _do);
+            Dictionary<Test.MyStruct, Test.MyEnum> ro =
+                p.opMyStructMyEnumD(di1, di2, out Dictionary<Test.MyStruct, Test.MyEnum> _do);
 
             test(Internal.DictionaryExtensions.DictionaryEqual(_do, di1));
             test(ro.Count == 4);
@@ -811,21 +770,21 @@ internal class Twoways
         }
 
         {
-            Dictionary<byte, bool>[] dsi1 = new Dictionary<byte, bool>[2];
-            Dictionary<byte, bool>[] dsi2 = new Dictionary<byte, bool>[1];
+            var dsi1 = new Dictionary<byte, bool>[2];
+            var dsi2 = new Dictionary<byte, bool>[1];
 
-            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>
+            var di1 = new Dictionary<byte, bool>
             {
                 [10] = true,
                 [100] = false
             };
-            Dictionary<byte, bool> di2 = new Dictionary<byte, bool>
+            var di2 = new Dictionary<byte, bool>
             {
                 [10] = true,
                 [11] = false,
                 [101] = true
             };
-            Dictionary<byte, bool> di3 = new Dictionary<byte, bool>
+            var di3 = new Dictionary<byte, bool>
             {
                 [100] = false,
                 [101] = false
@@ -835,8 +794,7 @@ internal class Twoways
             dsi1[1] = di2;
             dsi2[0] = di3;
 
-            Dictionary<byte, bool>[] _do;
-            Dictionary<byte, bool>[] ro = p.opByteBoolDS(dsi1, dsi2, out _do);
+            Dictionary<byte, bool>[] ro = p.opByteBoolDS(dsi1, dsi2, out Dictionary<byte, bool>[] _do);
 
             test(ro.Length == 2);
             test(ro[0].Count == 3);
@@ -861,21 +819,21 @@ internal class Twoways
         }
 
         {
-            Dictionary<short, int>[] dsi1 = new Dictionary<short, int>[2];
-            Dictionary<short, int>[] dsi2 = new Dictionary<short, int>[1];
+            var dsi1 = new Dictionary<short, int>[2];
+            var dsi2 = new Dictionary<short, int>[1];
 
-            Dictionary<short, int> di1 = new Dictionary<short, int>
+            var di1 = new Dictionary<short, int>
             {
                 [110] = -1,
                 [1100] = 123123
             };
-            Dictionary<short, int> di2 = new Dictionary<short, int>
+            var di2 = new Dictionary<short, int>
             {
                 [110] = -1,
                 [111] = -100,
                 [1101] = 0
             };
-            Dictionary<short, int> di3 = new Dictionary<short, int>
+            var di3 = new Dictionary<short, int>
             {
                 [100] = -1001
             };
@@ -884,8 +842,7 @@ internal class Twoways
             dsi1[1] = di2;
             dsi2[0] = di3;
 
-            Dictionary<short, int>[] _do;
-            Dictionary<short, int>[] ro = p.opShortIntDS(dsi1, dsi2, out _do);
+            Dictionary<short, int>[] ro = p.opShortIntDS(dsi1, dsi2, out Dictionary<short, int>[] _do);
 
             test(ro.Length == 2);
             test(ro[0].Count == 3);
@@ -909,21 +866,21 @@ internal class Twoways
         }
 
         {
-            Dictionary<long, float>[] dsi1 = new Dictionary<long, float>[2];
-            Dictionary<long, float>[] dsi2 = new Dictionary<long, float>[1];
+            var dsi1 = new Dictionary<long, float>[2];
+            var dsi2 = new Dictionary<long, float>[1];
 
-            Dictionary<long, float> di1 = new Dictionary<long, float>
+            var di1 = new Dictionary<long, float>
             {
                 [999999110L] = -1.1f,
                 [999999111L] = 123123.2f
             };
-            Dictionary<long, float> di2 = new Dictionary<long, float>
+            var di2 = new Dictionary<long, float>
             {
                 [999999110L] = -1.1f,
                 [999999120L] = -100.4f,
                 [999999130L] = 0.5f
             };
-            Dictionary<long, float> di3 = new Dictionary<long, float>
+            var di3 = new Dictionary<long, float>
             {
                 [999999140L] = 3.14f
             };
@@ -932,8 +889,7 @@ internal class Twoways
             dsi1[1] = di2;
             dsi2[0] = di3;
 
-            Dictionary<long, float>[] _do;
-            Dictionary<long, float>[] ro = p.opLongFloatDS(dsi1, dsi2, out _do);
+            Dictionary<long, float>[] ro = p.opLongFloatDS(dsi1, dsi2, out Dictionary<long, float>[] _do);
 
             test(ro.Length == 2);
             test(ro[0].Count == 3);
@@ -958,21 +914,21 @@ internal class Twoways
         }
 
         {
-            Dictionary<string, string>[] dsi1 = new Dictionary<string, string>[2];
-            Dictionary<string, string>[] dsi2 = new Dictionary<string, string>[1];
+            var dsi1 = new Dictionary<string, string>[2];
+            var dsi2 = new Dictionary<string, string>[1];
 
-            Dictionary<string, string> di1 = new Dictionary<string, string>
+            var di1 = new Dictionary<string, string>
             {
                 ["foo"] = "abc -1.1",
                 ["bar"] = "abc 123123.2"
             };
-            Dictionary<string, string> di2 = new Dictionary<string, string>
+            var di2 = new Dictionary<string, string>
             {
                 ["foo"] = "abc -1.1",
                 ["FOO"] = "abc -100.4",
                 ["BAR"] = "abc 0.5"
             };
-            Dictionary<string, string> di3 = new Dictionary<string, string>
+            var di3 = new Dictionary<string, string>
             {
                 ["f00"] = "ABC -3.14"
             };
@@ -981,8 +937,7 @@ internal class Twoways
             dsi1[1] = di2;
             dsi2[0] = di3;
 
-            Dictionary<string, string>[] _do;
-            Dictionary<string, string>[] ro = p.opStringStringDS(dsi1, dsi2, out _do);
+            Dictionary<string, string>[] ro = p.opStringStringDS(dsi1, dsi2, out Dictionary<string, string>[] _do);
 
             test(ro.Length == 2);
             test(ro[0].Count == 3);
@@ -1029,8 +984,8 @@ internal class Twoways
             dsi1[1] = di2;
             dsi2[0] = di3;
 
-            Dictionary<string, Test.MyEnum>[] _do;
-            Dictionary<string, Test.MyEnum>[] ro = p.opStringMyEnumDS(dsi1, dsi2, out _do);
+            Dictionary<string, Test.MyEnum>[] ro =
+                p.opStringMyEnumDS(dsi1, dsi2, out Dictionary<string, Test.MyEnum>[] _do);
 
             test(ro.Length == 2);
             test(ro[0].Count == 3);
@@ -1075,8 +1030,7 @@ internal class Twoways
             dsi1[1] = di2;
             dsi2[0] = di3;
 
-            Dictionary<Test.MyEnum, string>[] _do;
-            var ro = p.opMyEnumStringDS(dsi1, dsi2, out _do);
+            var ro = p.opMyEnumStringDS(dsi1, dsi2, out Dictionary<Test.MyEnum, string>[] _do);
 
             test(ro.Length == 2);
             test(ro[0].Count == 2);
@@ -1125,8 +1079,7 @@ internal class Twoways
             dsi1[1] = di2;
             dsi2[0] = di3;
 
-            Dictionary<Test.MyStruct, Test.MyEnum>[] _do;
-            var ro = p.opMyStructMyEnumDS(dsi1, dsi2, out _do);
+            var ro = p.opMyStructMyEnumDS(dsi1, dsi2, out Dictionary<Test.MyStruct, Test.MyEnum>[] _do);
 
             test(ro.Length == 2);
             test(ro[0].Count == 3);
@@ -1161,8 +1114,7 @@ internal class Twoways
             sdi1[0x22] = si2;
             sdi2[0xf1] = si3;
 
-            Dictionary<byte, byte[]> _do;
-            var ro = p.opByteByteSD(sdi1, sdi2, out _do);
+            var ro = p.opByteByteSD(sdi1, sdi2, out Dictionary<byte, byte[]> _do);
 
             test(_do.Count == 1);
             test(_do[0xf1].Length == 2);
@@ -1191,8 +1143,7 @@ internal class Twoways
             sdi1[true] = si2;
             sdi2[false] = si1;
 
-            Dictionary<bool, bool[]> _do;
-            var ro = p.opBoolBoolSD(sdi1, sdi2, out _do);
+            var ro = p.opBoolBoolSD(sdi1, sdi2, out Dictionary<bool, bool[]> _do);
 
             test(_do.Count == 1);
             test(_do[false].Length == 2);
@@ -1220,8 +1171,7 @@ internal class Twoways
             sdi1[2] = si2;
             sdi2[4] = si3;
 
-            Dictionary<short, short[]> _do;
-            var ro = p.opShortShortSD(sdi1, sdi2, out _do);
+            var ro = p.opShortShortSD(sdi1, sdi2, out Dictionary<short, short[]> _do);
 
             test(_do.Count == 1);
             test(_do[4].Length == 2);
@@ -1253,8 +1203,7 @@ internal class Twoways
             sdi1[200] = si2;
             sdi2[400] = si3;
 
-            Dictionary<int, int[]> _do;
-            var ro = p.opIntIntSD(sdi1, sdi2, out _do);
+            var ro = p.opIntIntSD(sdi1, sdi2, out Dictionary<int, int[]> _do);
 
             test(_do.Count == 1);
             test(_do[400].Length == 2);
@@ -1286,8 +1235,7 @@ internal class Twoways
             sdi1[999999991L] = si2;
             sdi2[999999992L] = si3;
 
-            Dictionary<long, long[]> _do;
-            var ro = p.opLongLongSD(sdi1, sdi2, out _do);
+            var ro = p.opLongLongSD(sdi1, sdi2, out Dictionary<long, long[]> _do);
 
             test(_do.Count == 1);
             test(_do[999999992L].Length == 2);
@@ -1318,8 +1266,7 @@ internal class Twoways
             sdi1["ABC"] = si2;
             sdi2["aBc"] = si3;
 
-            Dictionary<string, float[]> _do;
-            var ro = p.opStringFloatSD(sdi1, sdi2, out _do);
+            var ro = p.opStringFloatSD(sdi1, sdi2, out Dictionary<string, float[]> _do);
 
             test(_do.Count == 1);
             test(_do["aBc"].Length == 2);
@@ -1351,8 +1298,7 @@ internal class Twoways
             sdi1["Goodbye"] = si2;
             sdi2[""] = si3;
 
-            Dictionary<string, double[]> _do;
-            var ro = p.opStringDoubleSD(sdi1, sdi2, out _do);
+            var ro = p.opStringDoubleSD(sdi1, sdi2, out Dictionary<string, double[]> _do);
 
             test(_do.Count == 1);
             test(_do[""].Length == 2);
@@ -1383,8 +1329,7 @@ internal class Twoways
             sdi1["def"] = si2;
             sdi2["ghi"] = si3;
 
-            Dictionary<string, string[]> _do;
-            var ro = p.opStringStringSD(sdi1, sdi2, out _do);
+            var ro = p.opStringStringSD(sdi1, sdi2, out Dictionary<string, string[]> _do);
 
             test(_do.Count == 1);
             test(_do["ghi"].Length == 2);
@@ -1416,8 +1361,8 @@ internal class Twoways
             sdi1[Test.MyEnum.enum2] = si2;
             sdi2[Test.MyEnum.enum1] = si3;
 
-            Dictionary<Test.MyEnum, Test.MyEnum[]> _do;
-            Dictionary<Test.MyEnum, Test.MyEnum[]> ro = p.opMyEnumMyEnumSD(sdi1, sdi2, out _do);
+            Dictionary<Test.MyEnum, Test.MyEnum[]> ro =
+                p.opMyEnumMyEnumSD(sdi1, sdi2, out Dictionary<Test.MyEnum, Test.MyEnum[]> _do);
 
             test(_do.Count == 1);
             test(_do[Test.MyEnum.enum1].Length == 2);
@@ -1457,7 +1402,7 @@ internal class Twoways
         }
 
         {
-            Dictionary<string, string> ctx = new Dictionary<string, string>
+            var ctx = new Dictionary<string, string>
             {
                 ["one"] = "ONE",
                 ["two"] = "TWO",
@@ -1492,13 +1437,13 @@ internal class Twoways
             string[] impls = { "Shared", "PerThread" };
             for (int i = 0; i < 2; i++)
             {
-                Ice.InitializationData initData = new Ice.InitializationData();
+                var initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties().Clone();
                 initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
 
                 Ice.Communicator ic = helper.initialize(initData);
 
-                Dictionary<string, string> ctx = new Dictionary<string, string>
+                var ctx = new Dictionary<string, string>
                 {
                     ["one"] = "ONE",
                     ["two"] = "TWO",
@@ -1519,13 +1464,13 @@ internal class Twoways
                 ctx = ic.getImplicitContext().getContext();
                 test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContext(), ctx));
 
-                Dictionary<string, string> prxContext = new Dictionary<string, string>
+                var prxContext = new Dictionary<string, string>
                 {
                     ["one"] = "UN",
                     ["four"] = "QUATRE"
                 };
 
-                Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+                var combined = new Dictionary<string, string>(prxContext);
                 foreach (KeyValuePair<string, string> e in ctx)
                 {
                     try
@@ -1599,8 +1544,8 @@ internal class Twoways
         {
             var p1 = p.opMStruct1();
             p1.e = Test.MyEnum.enum3;
-            Test.Structure p2, p3;
-            p3 = p.opMStruct2(p1, out p2);
+            Test.Structure p3;
+            p3 = p.opMStruct2(p1, out Test.Structure p2);
             test(p2.Equals(p1) && p3.Equals(p1));
         }
 
@@ -1609,20 +1554,20 @@ internal class Twoways
 
             string[] p1 = new string[1];
             p1[0] = "test";
-            string[] p2, p3;
-            p3 = p.opMSeq2(p1, out p2);
+            string[] p3;
+            p3 = p.opMSeq2(p1, out string[] p2);
             test(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
         }
 
         {
             p.opMDict1();
 
-            Dictionary<string, string> p1 = new Dictionary<string, string>
+            var p1 = new Dictionary<string, string>
             {
                 ["test"] = "test"
             };
-            Dictionary<string, string> p2, p3;
-            p3 = p.opMDict2(p1, out p2);
+            Dictionary<string, string> p3;
+            p3 = p.opMDict2(p1, out Dictionary<string, string> p2);
             test(Internal.DictionaryExtensions.DictionaryEqual(p2, p1) &&
                  Internal.DictionaryExtensions.DictionaryEqual(p3, p1));
         }

@@ -146,7 +146,7 @@ namespace DataStorm
 
         /// Indicates whether or not writers are online.
         ///
-        /// @return True if writers are connected, false otherwise.
+        /// @return `true` if writers are connected, `false` otherwise.
         [[nodiscard]] bool hasWriters() const noexcept;
 
         /// Wait for given number of writers to be online.
@@ -182,7 +182,7 @@ namespace DataStorm
 
         /// Returns whether or not unread samples are available.
         ///
-        /// @return True if there unread samples are queued, false otherwise.
+        /// @return `true` if there unread samples are queued, `false` otherwise.
         [[nodiscard]] bool hasUnread() const noexcept;
 
         /// Returns the next unread sample.
@@ -265,7 +265,7 @@ namespace DataStorm
 
         /// Indicates whether or not readers are online.
         ///
-        /// @return True if readers are connected, false otherwise.
+        /// @return `true` if readers are connected, `false` otherwise.
         [[nodiscard]] bool hasReaders() const noexcept;
 
         /// Wait for given number of readers to be online.
@@ -393,7 +393,7 @@ namespace DataStorm
 
         /// Indicates whether or not data writers are online.
         ///
-        /// @return True if data writers are connected, false otherwise.
+        /// @return `true` if data writers are connected, `false` otherwise.
         [[nodiscard]] bool hasWriters() const noexcept;
 
         /// Wait for given number of data writers to be online.
@@ -414,7 +414,7 @@ namespace DataStorm
 
         /// Indicates whether or not data readers are online.
         ///
-        /// @return True if data readers are connected, false otherwise.
+        /// @return `true` if data readers are connected, `false` otherwise.
         [[nodiscard]] bool hasReaders() const noexcept;
 
         /// Wait for given number of data readers to be online.
@@ -443,7 +443,7 @@ namespace DataStorm
         void setUpdater(const UpdateTag& tag, std::function<void(Value&, UpdateValue)> updater) noexcept;
 
         /// Set a key filter factory. The given factory function must return a filter function that returns true if
-        /// the key matches the filter criteria, false otherwise.
+        /// the key matches the filter criteria, `false` otherwise.
         ///
         /// @param name The name of the key filter.
         /// @param factory The filter factory function.
@@ -453,7 +453,7 @@ namespace DataStorm
             std::function<std::function<bool(const Key&)>(const Criteria&)> factory) noexcept;
 
         /// Set a sample filter factory. The given factory function must return a filter function that returns true
-        /// if the sample matches the filter criteria, false otherwise.
+        /// if the sample matches the filter criteria, `false` otherwise.
         ///
         /// @param name The name of the sample filter.
         /// @param factory The filter factory function.
@@ -839,29 +839,27 @@ namespace DataStorm
         /// @param writer The writer.
         SingleKeyWriter& operator=(SingleKeyWriter&& writer) noexcept;
 
-        /// Add the data element. This generates an {@link Add} sample with the
-        /// given value.
+        /// Add the data element. This generates a SampleEvent::Add sample with the given value.
         ///
         /// @param value The data element value.
         void add(const Value& value);
 
-        /// Update the data element. This generates an {@link Update} sample with the
-        /// given value.
+        /// Update the data element. This generates a SampleEvent::Update sample with the given value.
         ///
         /// @param value The data element value.
         void update(const Value& value);
 
         /// Get a partial update generator function for the given partial update tag. When called, the returned
-        /// function generates a {@link PartialUpdate} sample with the given partial update value.
+        /// function generates a SampleEvent::PartialUpdate sample with the given partial update value.
         ///
         /// The UpdateValue template parameter must match the UpdateValue type used to register the updater with
-        /// the {@link Topic::setUpdater} method.
+        /// the Topic::setUpdater method.
         ///
         /// @param tag The partial update tag.
         template<typename UpdateValue>
         [[nodiscard]] std::function<void(const UpdateValue&)> partialUpdate(const UpdateTag& tag);
 
-        /// Remove the data element. This generates a {@link Remove} sample.
+        /// Remove the data element. This generates a SampleEvent::Remove sample.
         void remove() noexcept;
 
     private:
@@ -899,29 +897,29 @@ namespace DataStorm
         /// @param writer The writer.
         MultiKeyWriter& operator=(MultiKeyWriter&& writer) noexcept;
 
-        /// Add the data element. This generates an {@link Add} sample with the given value.
+        /// Add the data element. This generates a SampleEvent::Add sample with the given value.
         ///
         /// @param key The key
         /// @param value The data element value.
         void add(const Key& key, const Value& value);
 
-        /// Update the data element. This generates an {@link Update} sample with the given value.
+        /// Update the data element. This generates a SampleEvent::Update sample with the given value.
         ///
         /// @param key The key
         /// @param value The data element value.
         void update(const Key& key, const Value& value);
 
         /// Get a partial update generator function for the given partial update tag. When called, the returned
-        /// function generates a {@link PartialUpdate} sample with the given partial update value.
+        /// function generates a SampleEvent::PartialUpdate sample with the given partial update value.
         ///
         /// The UpdateValue template parameter must match the UpdateValue type used to register the updater with
-        /// the {@link Topic::setUpdater} method.
+        /// the Topic::setUpdater method.
         ///
         /// @param tag The partial update tag.
         template<typename UpdateValue>
         [[nodiscard]] std::function<void(const Key&, const UpdateValue&)> partialUpdate(const UpdateTag& tag);
 
-        /// Remove the data element. This generates a {@link Remove} sample.
+        /// Remove the data element. This generates a TopicEvent::Remove sample.
 
         /// @param key The key
         void remove(const Key& key) noexcept;

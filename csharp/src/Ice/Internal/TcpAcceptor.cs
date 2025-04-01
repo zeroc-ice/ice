@@ -88,22 +88,13 @@ internal class TcpAcceptor : Acceptor
         return new TcpTransceiver(_instance, new StreamSocket(_instance, acceptFd));
     }
 
-    public string protocol()
-    {
-        return _instance.protocol();
-    }
+    public string protocol() => _instance.protocol();
 
-    public override string ToString()
-    {
-        return Network.addrToString(_addr);
-    }
+    public override string ToString() => Network.addrToString(_addr);
 
     public string toDetailedString() => $"local address = {this}";
 
-    internal int effectivePort()
-    {
-        return _addr.Port;
-    }
+    internal int effectivePort() => _addr.Port;
 
     internal TcpAcceptor(TcpEndpointI endpoint, ProtocolInstance instance, string host, int port)
     {

@@ -2,10 +2,7 @@
 
 internal class PluginI : Ice.Plugin
 {
-    internal PluginI(Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-    }
+    internal PluginI(Ice.Communicator communicator) => _communicator = communicator;
 
     public void initialize()
     {

@@ -3,8 +3,8 @@
 #ifndef LOOKUPI_H
 #define LOOKUPI_H
 
+#include "../Ice/Timer.h"
 #include "Ice/Properties.h"
-#include "Ice/Timer.h"
 #include "IceDiscovery.h"
 #include "LocatorI.h"
 

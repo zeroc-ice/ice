@@ -3,6 +3,9 @@
 #include "Test.h"
 #include "TestHelper.h"
 
+#include <chrono>
+#include <thread>
+
 using namespace std;
 using namespace Ice;
 using namespace Test;

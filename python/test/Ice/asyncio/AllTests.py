@@ -17,31 +17,41 @@ async def allTestsAsync(helper, communicator):
 
     sys.stdout.write("testing invocation... ")
     sys.stdout.flush()
-    test(await Ice.wrap_future(p.opAsync()) == 5)
-    await Ice.wrap_future(p.sleepAsync(0))
-    await Ice.wrap_future(p.sleepAsync(20))
-    test(await Ice.wrap_future(p.callOpOnAsync(p)) == 5)
+    test(await p.opAsync() == 5)
+    await p.sleepAsync(0)
+    await p.sleepAsync(20)
+    test(await p.callOpOnAsync(p) == 5)
+    print("ok")
+
+    sys.stdout.write("testing builtin in operations... ")
+    sys.stdout.flush()
+    await p.ice_pingAsync()
+    test(await p.ice_isAAsync("::Test::TestIntf"))
+    test(await p.ice_idsAsync() == ["::Ice::Object", "::Test::TestIntf"])
+    test(await p.ice_idAsync() == "::Test::TestIntf")
+    p1 = await Test.TestIntfPrx.checkedCastAsync(p)
+    test(p1 is not None)
     print("ok")
 
     sys.stdout.write("testing exceptions... ")
     sys.stdout.flush()
     try:
-        await Ice.wrap_future(p.throwUserException1Async())
+        await p.throwUserException1Async()
         test(False)
     except Test.TestException:
         pass
     try:
-        await Ice.wrap_future(p.throwUserException2Async())
+        await p.throwUserException2Async()
         test(False)
     except Test.TestException:
         pass
     try:
-        await Ice.wrap_future(p.throwUnhandledException1Async())
+        await p.throwUnhandledException1Async()
         test(False)
     except Ice.UnknownException:
         pass
     try:
-        await Ice.wrap_future(p.throwUnhandledException2Async())
+        await p.throwUnhandledException2Async()
         test(False)
     except Ice.UnknownException:
         pass
@@ -51,40 +61,38 @@ async def allTestsAsync(helper, communicator):
     sys.stdout.flush()
 
     future = p.sleepAsync(500)
-    asyncioFuture = Ice.wrap_future(future)
     future.cancel()
     try:
-        await asyncioFuture
+        await future
         test(False)
     except asyncio.CancelledError:
-        test(future.cancelled() and asyncioFuture.cancelled())
+        test(future.cancelled() and future.cancelled())
 
     future = p.sleepAsync(500)
-    asyncioFuture = Ice.wrap_future(future)
-    asyncioFuture.cancel()
+    future.cancel()
     try:
-        await asyncioFuture
+        await future
         test(False)
     except asyncio.CancelledError:
         # Wait a little to ensure the cancellation propagates to the Ice future
         await asyncio.sleep(0.01)
-        test(future.cancelled() and asyncioFuture.cancelled())
+        test(future.cancelled() and future.cancelled())
 
     # Try to cancel a done future
     future = p.opAsync()
     while not future.done():
         await asyncio.sleep(0.01)
-    Ice.wrap_future(future).cancel()
+    future.cancel()
 
     print("ok")
 
-    await Ice.wrap_future(p.shutdownAsync())
+    await p.shutdownAsync()
 
     sys.stdout.write("testing communicator shutdownCompleted... ")
     sys.stdout.flush()
 
-    testCommunicator = Ice.initialize()
-    shutdownCompletedFuture = Ice.wrap_future(testCommunicator.shutdownCompleted())
+    testCommunicator = Ice.initialize(eventLoop=asyncio.get_running_loop())
+    shutdownCompletedFuture = testCommunicator.shutdownCompleted()
     test(not shutdownCompletedFuture.done())
     test(not testCommunicator.isShutdown())
 

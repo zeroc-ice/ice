@@ -68,10 +68,10 @@ namespace IceInternal
     };
 
     class ICE_API NextLine{};
-    extern ICE_API NextLine nl;
+    ICE_API extern NextLine nl;
 
     class ICE_API Separator{};
-    extern ICE_API Separator sp;
+    ICE_API extern Separator sp;
 
     // ----------------------------------------------------------------------
     // Output
@@ -131,7 +131,7 @@ namespace IceInternal
     }
 
     class ICE_API StartBlock{};
-    extern ICE_API StartBlock sb;
+    ICE_API extern StartBlock sb;
 
     template<> inline Output& operator<<(Output& o, const StartBlock&)
     {
@@ -140,7 +140,7 @@ namespace IceInternal
     }
 
     class ICE_API EndBlock{};
-    extern ICE_API EndBlock eb;
+    ICE_API extern EndBlock eb;
 
     template<> inline Output& operator<<(Output& o, const EndBlock&)
     {
@@ -149,7 +149,7 @@ namespace IceInternal
     }
 
     class ICE_API StartPar{};
-    extern ICE_API StartPar spar;
+    ICE_API extern StartPar spar;
 
     template<> inline Output& operator<<(Output& o, const StartPar&)
     {
@@ -158,7 +158,7 @@ namespace IceInternal
     }
 
     class ICE_API EndPar{};
-    extern ICE_API EndPar epar;
+    ICE_API extern EndPar epar;
 
     template<> inline Output& operator<<(Output& o, const EndPar&)
     {

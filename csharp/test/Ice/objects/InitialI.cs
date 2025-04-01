@@ -35,30 +35,15 @@ public sealed class InitialI : Test.InitialDisp_
         d = _d;
     }
 
-    public override Test.B getB1(Ice.Current current)
-    {
-        return _b1;
-    }
+    public override Test.B getB1(Ice.Current current) => _b1;
 
-    public override Test.B getB2(Ice.Current current)
-    {
-        return _b2;
-    }
+    public override Test.B getB2(Ice.Current current) => _b2;
 
-    public override Test.C getC(Ice.Current current)
-    {
-        return _c;
-    }
+    public override Test.C getC(Ice.Current current) => _c;
 
-    public override Test.D getD(Ice.Current current)
-    {
-        return _d;
-    }
+    public override Test.D getD(Ice.Current current) => _d;
 
-    public override Test.K getK(Ice.Current current)
-    {
-        return new Test.K(new Test.L("l"));
-    }
+    public override Test.K getK(Ice.Current current) => new Test.K(new Test.L("l"));
 
     public override Ice.Value opValue(Ice.Value v1, out Ice.Value v2, Ice.Current current)
     {
@@ -88,20 +73,12 @@ public sealed class InitialI : Test.InitialDisp_
     {
     }
 
-    public override bool acceptsClassCycles(Ice.Current current)
-    {
-        return true;
-    }
+    public override bool acceptsClassCycles(Ice.Current current) => true;
 
-    public override Test.D1 getD1(Test.D1 d1, Ice.Current current)
-    {
-        return d1;
-    }
+    public override Test.D1 getD1(Test.D1 d1, Ice.Current current) => d1;
 
-    public override void throwEDerived(Ice.Current current)
-    {
+    public override void throwEDerived(Ice.Current current) =>
         throw new Test.EDerived(new Test.A1("a1"), new Test.A1("a2"), new Test.A1("a3"), new Test.A1("a4"));
-    }
 
     public override void setG(Test.G theG, Ice.Current current)
     {
@@ -113,47 +90,25 @@ public sealed class InitialI : Test.InitialDisp_
         return inS;
     }
 
-    public override Test.Compact getCompact(Ice.Current current)
-    {
-        return new Test.CompactExt();
-    }
+    public override Test.Compact getCompact(Ice.Current current) => new Test.CompactExt();
 
-    public override void shutdown(Ice.Current current)
-    {
-        _adapter.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => _adapter.getCommunicator().shutdown();
 
     public override Test.Inner.A
-    getInnerA(Ice.Current current)
-    {
-        return new Test.Inner.A(_b1);
-    }
+    getInnerA(Ice.Current current) => new Test.Inner.A(_b1);
 
     public override Test.Inner.Sub.A
-    getInnerSubA(Ice.Current current)
-    {
-        return new Test.Inner.Sub.A(new Test.Inner.A(_b1));
-    }
+    getInnerSubA(Ice.Current current) => new Test.Inner.Sub.A(new Test.Inner.A(_b1));
 
-    public override void throwInnerEx(Ice.Current current)
-    {
-        throw new Test.Inner.Ex("Inner::Ex");
-    }
+    public override void throwInnerEx(Ice.Current current) => throw new Test.Inner.Ex("Inner::Ex");
 
-    public override void throwInnerSubEx(Ice.Current current)
-    {
-        throw new Test.Inner.Sub.Ex("Inner::Sub::Ex");
-    }
+    public override void throwInnerSubEx(Ice.Current current) => throw new Test.Inner.Sub.Ex("Inner::Sub::Ex");
 
-    public override Test.Initial_GetMBMarshaledResult getMB(Ice.Current current)
-    {
-        return new Test.Initial_GetMBMarshaledResult(_b1, current);
-    }
+    public override Test.Initial_GetMBMarshaledResult getMB(Ice.Current current) =>
+        new Test.Initial_GetMBMarshaledResult(_b1, current);
 
-    public override Task<Test.Initial_GetAMDMBMarshaledResult> getAMDMBAsync(Ice.Current current)
-    {
-        return Task.FromResult(new Test.Initial_GetAMDMBMarshaledResult(_b1, current));
-    }
+    public override Task<Test.Initial_GetAMDMBMarshaledResult> getAMDMBAsync(Ice.Current current) =>
+        Task.FromResult(new Test.Initial_GetAMDMBMarshaledResult(_b1, current));
 
     public override Test.M
     opM(Test.M v1, out Test.M v2, Ice.Current current)
@@ -185,14 +140,11 @@ public sealed class InitialI : Test.InitialDisp_
     }
 
     public override bool
-    hasF3(Ice.Current current)
-    {
-        return true;
-    }
+    hasF3(Ice.Current current) => true;
 
     private readonly Ice.ObjectAdapter _adapter;
-    private Test.B _b1;
-    private Test.B _b2;
-    private Test.C _c;
-    private Test.D _d;
+    private readonly Test.B _b1;
+    private readonly Test.B _b2;
+    private readonly Test.C _c;
+    private readonly Test.D _d;
 }

@@ -132,10 +132,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         {
             _readResult = _sslStream.ReadAsync(buf.b.rawBytes(), buf.b.position(), packetSz);
             _readResult.ContinueWith(
-                task =>
-                {
-                    callback(state);
-                },
+                task => callback(state),
                 TaskScheduler.Default);
             return false;
         }
@@ -393,10 +390,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
                     _sslHandshakeCts.Token);
             }
             _writeResult.ContinueWith(
-                task =>
-                {
-                    callback(state);
-                },
+                task => callback(state),
                 TaskScheduler.Default);
         }
         catch (IOException ex)
@@ -496,7 +490,8 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
 
         if (errors != 0)
         {
-            _errorDescription = message.Length > 0 ? $"SSL authentication failure{message}." : "SSL authentication failure.";
+            _errorDescription =
+                message.Length > 0 ? $"SSL authentication failure{message}." : "SSL authentication failure.";
             if (traceLevel >= 1)
             {
                 logger.trace(traceCategory, _errorDescription);

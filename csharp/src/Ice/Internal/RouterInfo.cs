@@ -48,13 +48,11 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
     public override int GetHashCode() => _router.GetHashCode();
 
-    public Ice.RouterPrx getRouter()
-    {
+    public Ice.RouterPrx getRouter() =>
         //
         // No mutex lock necessary, _router is immutable.
         //
-        return _router;
-    }
+        _router;
 
     public EndpointI[] getClientEndpoints()
     {
@@ -66,8 +64,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
             }
         }
 
-        bool? hasRoutingTable;
-        var proxy = _router.getClientProxy(out hasRoutingTable);
+        ObjectPrx proxy = _router.getClientProxy(out bool? hasRoutingTable);
         return setClientEndpoints(proxy, hasRoutingTable ?? true);
     }
 
@@ -90,7 +87,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
         {
             try
             {
-                var r = await router.getClientProxyAsync().ConfigureAwait(false);
+                Router_GetClientProxyResult r = await router.getClientProxyAsync().ConfigureAwait(false);
                 callback.setEndpoints(setClientEndpoints(r.returnValue, r.hasRoutingTable ?? true));
             }
             catch (Ice.LocalException ex)
@@ -138,7 +135,8 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
         {
             try
             {
-                var evictedProxies = await router.addProxiesAsync([new ObjectPrxHelper(reference)]).ConfigureAwait(false);
+                ObjectPrx[] evictedProxies =
+                    await router.addProxiesAsync([new ObjectPrxHelper(reference)]).ConfigureAwait(false);
                 addAndEvictProxies(identity, evictedProxies);
                 callback.addedProxy();
             }
@@ -245,10 +243,7 @@ public sealed class RouterInfo : IEquatable<RouterInfo>
 
 public sealed class RouterManager
 {
-    internal RouterManager()
-    {
-        _table = new Dictionary<Ice.RouterPrx, RouterInfo>();
-    }
+    internal RouterManager() => _table = new Dictionary<Ice.RouterPrx, RouterInfo>();
 
     internal void destroy()
     {
@@ -275,8 +270,7 @@ public sealed class RouterManager
 
         lock (_mutex)
         {
-            RouterInfo info = null;
-            if (!_table.TryGetValue(router, out info))
+            if (!_table.TryGetValue(router, out RouterInfo info))
             {
                 info = new RouterInfo(router);
                 _table.Add(router, info);

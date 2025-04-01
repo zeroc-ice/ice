@@ -123,8 +123,7 @@ internal sealed class ServantManager : Object
         {
             facet ??= "";
 
-            Dictionary<string, Object>? m = null;
-            _servantMapMap.TryGetValue(ident, out m);
+            _servantMapMap.TryGetValue(ident, out Dictionary<string, Object>? m);
             Object? obj = null;
             if (m is null || !m.TryGetValue(facet, out Object? value))
             {
@@ -166,7 +165,9 @@ internal sealed class ServantManager : Object
         {
             if (!_servantMapMap.TryGetValue(ident, out Dictionary<string, Object>? m))
             {
-                throw new NotRegisteredException("servant", Ice.Util.identityToString(ident, _instance.toStringMode()));
+                throw new NotRegisteredException(
+                    "servant",
+                    Ice.Util.identityToString(ident, _instance.toStringMode()));
             }
             _servantMapMap.Remove(ident);
 

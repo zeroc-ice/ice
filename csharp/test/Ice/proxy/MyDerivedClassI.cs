@@ -8,20 +8,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_, Ice.Object
     {
     }
 
-    public override Ice.ObjectPrx echo(Ice.ObjectPrx obj, Ice.Current c)
-    {
-        return obj;
-    }
+    public override Ice.ObjectPrx echo(Ice.ObjectPrx obj, Ice.Current c) => obj;
 
-    public override void shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
+    public override void shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
 
-    public override Dictionary<string, string> getContext(Ice.Current current)
-    {
-        return _ctx;
-    }
+    public override Dictionary<string, string> getContext(Ice.Current current) => _ctx;
 
     public bool ice_isA(string s, Ice.Current current)
     {

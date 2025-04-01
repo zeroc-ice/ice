@@ -42,11 +42,11 @@ def dispatch(cb, method, args):
     if inspect.iscoroutine(result):
         assert (len(args) > 0), "args must have at least one argument, current"
         current = args[-1]
-        coroutineExecutor = current.adapter.getCommunicator().getCoroutineExecutor()
-        if coroutineExecutor:
-            result = coroutineExecutor(result)
+        eventLoopAdapter = current.adapter.getCommunicator().eventLoopAdapter
+        if eventLoopAdapter:
+            result = eventLoopAdapter.runCoroutine(result)
             if not is_future(result):
-                raise TypeError("The coroutine executor must return a Future-like object")
+                raise TypeError("The runCoroutine implementation must return a Future-like object")
 
     # If the result is a future, attach a done callback to handle dispatch completion.
     if is_future(result):

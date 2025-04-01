@@ -97,6 +97,9 @@
     <ClCompile Include="..\Executor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Future.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\cpp\src\slice2py\Python.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -166,6 +169,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Executor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Future.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\cpp\src\slice2py\PythonUtil.h">

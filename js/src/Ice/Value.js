@@ -86,7 +86,7 @@ function writeImpl(obj, os, type) {
         Object.prototype.hasOwnProperty.call(type, "_iceCompactId") ? type._iceCompactId : -1,
         Object.getPrototypeOf(type) === Value,
     );
-    if (type.prototype.hasOwnProperty("_iceWriteMemberImpl")) {
+    if (Object.hasOwn(type.prototype, "_iceWriteMemberImpl")) {
         type.prototype._iceWriteMemberImpl.call(obj, os);
     }
     os.endSlice();
@@ -105,7 +105,7 @@ function readImpl(obj, is, type) {
     }
 
     is.startSlice();
-    if (type.prototype.hasOwnProperty("_iceReadMemberImpl")) {
+    if (Object.hasOwn(type.prototype, "_iceReadMemberImpl")) {
         type.prototype._iceReadMemberImpl.call(obj, is);
     }
     is.endSlice();

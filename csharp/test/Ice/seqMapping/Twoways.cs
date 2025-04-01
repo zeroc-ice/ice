@@ -16,70 +16,65 @@ internal class Twoways
             {
                 i[c] = (byte)c;
             }
-            byte[] o;
             byte[] r;
 
-            r = p.opAByteS(i, out o);
+            r = p.opAByteS(i, out byte[] o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            List<byte> i = new List<byte>(_length);
+            var i = new List<byte>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add((byte)c);
             }
-            List<byte> o;
             List<byte> r;
 
-            r = p.opLByteS(i, out o);
+            r = p.opLByteS(i, out List<byte> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            LinkedList<byte> i = new LinkedList<byte>();
+            var i = new LinkedList<byte>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast((byte)c);
             }
-            LinkedList<byte> o;
             LinkedList<byte> r;
 
-            r = p.opKByteS(i, out o);
+            r = p.opKByteS(i, out LinkedList<byte> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Queue<byte> i = new Queue<byte>();
+            var i = new Queue<byte>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue((byte)c);
             }
-            Queue<byte> o;
             Queue<byte> r;
 
-            r = p.opQByteS(i, out o);
+            r = p.opQByteS(i, out Queue<byte> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Stack<byte> i = new Stack<byte>();
+            var i = new Stack<byte>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push((byte)c);
             }
-            Stack<byte> o;
             Stack<byte> r;
 
-            r = p.opSByteS(i, out o);
+            r = p.opSByteS(i, out Stack<byte> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -91,70 +86,65 @@ internal class Twoways
             {
                 i[c] = c % 1 == 1;
             }
-            bool[] o;
             bool[] r;
 
-            r = p.opABoolS(i, out o);
+            r = p.opABoolS(i, out bool[] o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            List<bool> i = new List<bool>(_length);
+            var i = new List<bool>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add(c % 1 == 1);
             }
-            List<bool> o;
             List<bool> r;
 
-            r = p.opLBoolS(i, out o);
+            r = p.opLBoolS(i, out List<bool> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            LinkedList<bool> i = new LinkedList<bool>();
+            var i = new LinkedList<bool>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast(c % 1 == 1);
             }
-            LinkedList<bool> o;
             LinkedList<bool> r;
 
-            r = p.opKBoolS(i, out o);
+            r = p.opKBoolS(i, out LinkedList<bool> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Queue<bool> i = new Queue<bool>();
+            var i = new Queue<bool>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue(c % 1 == 1);
             }
-            Queue<bool> o;
             Queue<bool> r;
 
-            r = p.opQBoolS(i, out o);
+            r = p.opQBoolS(i, out Queue<bool> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Stack<bool> i = new Stack<bool>();
+            var i = new Stack<bool>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push(c % 1 == 1);
             }
-            Stack<bool> o;
             Stack<bool> r;
 
-            r = p.opSBoolS(i, out o);
+            r = p.opSBoolS(i, out Stack<bool> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -177,60 +167,56 @@ internal class Twoways
         }
 
         {
-            List<short> i = new List<short>(_length);
+            var i = new List<short>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add((short)c);
             }
-            List<short> o;
             List<short> r;
 
-            r = p.opLShortS(i, out o);
+            r = p.opLShortS(i, out List<short> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            LinkedList<short> i = new LinkedList<short>();
+            var i = new LinkedList<short>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast((short)c);
             }
-            LinkedList<short> o;
             LinkedList<short> r;
 
-            r = p.opKShortS(i, out o);
+            r = p.opKShortS(i, out LinkedList<short> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Queue<short> i = new Queue<short>();
+            var i = new Queue<short>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue((short)c);
             }
-            Queue<short> o;
             Queue<short> r;
 
-            r = p.opQShortS(i, out o);
+            r = p.opQShortS(i, out Queue<short> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Stack<short> i = new Stack<short>();
+            var i = new Stack<short>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push((short)c);
             }
-            Stack<short> o;
             Stack<short> r;
 
-            r = p.opSShortS(i, out o);
+            r = p.opSShortS(i, out Stack<short> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -242,70 +228,65 @@ internal class Twoways
             {
                 i[c] = (int)c;
             }
-            int[] o;
             int[] r;
 
-            r = p.opAIntS(i, out o);
+            r = p.opAIntS(i, out int[] o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            List<int> i = new List<int>(_length);
+            var i = new List<int>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add((int)c);
             }
-            List<int> o;
             List<int> r;
 
-            r = p.opLIntS(i, out o);
+            r = p.opLIntS(i, out List<int> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            LinkedList<int> i = new LinkedList<int>();
+            var i = new LinkedList<int>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast((int)c);
             }
-            LinkedList<int> o;
             LinkedList<int> r;
 
-            r = p.opKIntS(i, out o);
+            r = p.opKIntS(i, out LinkedList<int> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Queue<int> i = new Queue<int>();
+            var i = new Queue<int>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue((int)c);
             }
-            Queue<int> o;
             Queue<int> r;
 
-            r = p.opQIntS(i, out o);
+            r = p.opQIntS(i, out Queue<int> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Stack<int> i = new Stack<int>();
+            var i = new Stack<int>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push((int)c);
             }
-            Stack<int> o;
             Stack<int> r;
 
-            r = p.opSIntS(i, out o);
+            r = p.opSIntS(i, out Stack<int> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -317,70 +298,65 @@ internal class Twoways
             {
                 i[c] = (long)c;
             }
-            long[] o;
             long[] r;
 
-            r = p.opALongS(i, out o);
+            r = p.opALongS(i, out long[] o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            List<long> i = new List<long>(_length);
+            var i = new List<long>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add((long)c);
             }
-            List<long> o;
             List<long> r;
 
-            r = p.opLLongS(i, out o);
+            r = p.opLLongS(i, out List<long> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            LinkedList<long> i = new LinkedList<long>();
+            var i = new LinkedList<long>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast((long)c);
             }
-            LinkedList<long> o;
             LinkedList<long> r;
 
-            r = p.opKLongS(i, out o);
+            r = p.opKLongS(i, out LinkedList<long> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Queue<long> i = new Queue<long>();
+            var i = new Queue<long>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue((long)c);
             }
-            Queue<long> o;
             Queue<long> r;
 
-            r = p.opQLongS(i, out o);
+            r = p.opQLongS(i, out Queue<long> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Stack<long> i = new Stack<long>();
+            var i = new Stack<long>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push((long)c);
             }
-            Stack<long> o;
             Stack<long> r;
 
-            r = p.opSLongS(i, out o);
+            r = p.opSLongS(i, out Stack<long> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -392,70 +368,65 @@ internal class Twoways
             {
                 i[c] = (float)c;
             }
-            float[] o;
             float[] r;
 
-            r = p.opAFloatS(i, out o);
+            r = p.opAFloatS(i, out float[] o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            List<float> i = new List<float>(_length);
+            var i = new List<float>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add((float)c);
             }
-            List<float> o;
             List<float> r;
 
-            r = p.opLFloatS(i, out o);
+            r = p.opLFloatS(i, out List<float> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            LinkedList<float> i = new LinkedList<float>();
+            var i = new LinkedList<float>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast((float)c);
             }
-            LinkedList<float> o;
             LinkedList<float> r;
 
-            r = p.opKFloatS(i, out o);
+            r = p.opKFloatS(i, out LinkedList<float> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Queue<float> i = new Queue<float>();
+            var i = new Queue<float>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue((float)c);
             }
-            Queue<float> o;
             Queue<float> r;
 
-            r = p.opQFloatS(i, out o);
+            r = p.opQFloatS(i, out Queue<float> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Stack<float> i = new Stack<float>();
+            var i = new Stack<float>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push((float)c);
             }
-            Stack<float> o;
             Stack<float> r;
 
-            r = p.opSFloatS(i, out o);
+            r = p.opSFloatS(i, out Stack<float> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -467,70 +438,65 @@ internal class Twoways
             {
                 i[c] = (double)c;
             }
-            double[] o;
             double[] r;
 
-            r = p.opADoubleS(i, out o);
+            r = p.opADoubleS(i, out double[] o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            List<double> i = new List<double>(_length);
+            var i = new List<double>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add((double)c);
             }
-            List<double> o;
             List<double> r;
 
-            r = p.opLDoubleS(i, out o);
+            r = p.opLDoubleS(i, out List<double> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            LinkedList<double> i = new LinkedList<double>();
+            var i = new LinkedList<double>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast((double)c);
             }
-            LinkedList<double> o;
             LinkedList<double> r;
 
-            r = p.opKDoubleS(i, out o);
+            r = p.opKDoubleS(i, out LinkedList<double> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Queue<double> i = new Queue<double>();
+            var i = new Queue<double>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue((double)c);
             }
-            Queue<double> o;
             Queue<double> r;
 
-            r = p.opQDoubleS(i, out o);
+            r = p.opQDoubleS(i, out Queue<double> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Stack<double> i = new Stack<double>();
+            var i = new Stack<double>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push((double)c);
             }
-            Stack<double> o;
             Stack<double> r;
 
-            r = p.opSDoubleS(i, out o);
+            r = p.opSDoubleS(i, out Stack<double> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -542,70 +508,65 @@ internal class Twoways
             {
                 i[c] = c.ToString();
             }
-            string[] o;
             string[] r;
 
-            r = p.opAStringS(i, out o);
+            r = p.opAStringS(i, out string[] o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            List<string> i = new List<string>(_length);
+            var i = new List<string>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add(c.ToString());
             }
-            List<string> o;
             List<string> r;
 
-            r = p.opLStringS(i, out o);
+            r = p.opLStringS(i, out List<string> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            LinkedList<string> i = new LinkedList<string>();
+            var i = new LinkedList<string>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast(c.ToString());
             }
-            LinkedList<string> o;
             LinkedList<string> r;
 
-            r = p.opKStringS(i, out o);
+            r = p.opKStringS(i, out LinkedList<string> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Queue<string> i = new Queue<string>();
+            var i = new Queue<string>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue(c.ToString());
             }
-            Queue<string> o;
             Queue<string> r;
 
-            r = p.opQStringS(i, out o);
+            r = p.opQStringS(i, out Queue<string> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Stack<string> i = new Stack<string>();
+            var i = new Stack<string>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push(c.ToString());
             }
-            Stack<string> o;
             Stack<string> r;
 
-            r = p.opSStringS(i, out o);
+            r = p.opSStringS(i, out Stack<string> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -617,10 +578,9 @@ internal class Twoways
             {
                 i[c] = new Test.CV(c);
             }
-            Ice.Value[] o;
             Ice.Value[] r;
 
-            r = p.opAObjectS(i, out o);
+            r = p.opAObjectS(i, out Value[] o);
 
             System.Collections.IEnumerator eo = o.GetEnumerator();
             System.Collections.IEnumerator er = r.GetEnumerator();
@@ -639,10 +599,9 @@ internal class Twoways
             {
                 i.Add(new Test.CV(c));
             }
-            List<Ice.Value> o;
             List<Ice.Value> r;
 
-            r = p.opLObjectS(i, out o);
+            r = p.opLObjectS(i, out List<Value> o);
 
             var eo = o.GetEnumerator();
             var er = r.GetEnumerator();
@@ -656,75 +615,70 @@ internal class Twoways
         }
 
         {
-            Ice.ObjectPrx[] i = new Ice.ObjectPrx[_length];
+            var i = new Ice.ObjectPrx[_length];
             for (int c = 0; c < _length; ++c)
             {
                 i[c] = communicator.stringToProxy(c.ToString());
             }
-            Ice.ObjectPrx[] o;
             Ice.ObjectPrx[] r;
 
-            r = p.opAObjectPrxS(i, out o);
+            r = p.opAObjectPrxS(i, out ObjectPrx[] o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            List<Ice.ObjectPrx> i = new List<Ice.ObjectPrx>(_length);
+            var i = new List<Ice.ObjectPrx>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add(communicator.stringToProxy(c.ToString()));
             }
-            List<Ice.ObjectPrx> o;
             List<Ice.ObjectPrx> r;
 
-            r = p.opLObjectPrxS(i, out o);
+            r = p.opLObjectPrxS(i, out List<ObjectPrx> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            LinkedList<Ice.ObjectPrx> i = new LinkedList<Ice.ObjectPrx>();
+            var i = new LinkedList<Ice.ObjectPrx>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast(communicator.stringToProxy(c.ToString()));
             }
-            LinkedList<Ice.ObjectPrx> o;
             LinkedList<Ice.ObjectPrx> r;
 
-            r = p.opKObjectPrxS(i, out o);
+            r = p.opKObjectPrxS(i, out LinkedList<ObjectPrx> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Queue<Ice.ObjectPrx> i = new Queue<Ice.ObjectPrx>();
+            var i = new Queue<Ice.ObjectPrx>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue(communicator.stringToProxy(c.ToString()));
             }
-            Queue<Ice.ObjectPrx> o;
             Queue<Ice.ObjectPrx> r;
 
-            r = p.opQObjectPrxS(i, out o);
+            r = p.opQObjectPrxS(i, out Queue<ObjectPrx> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Stack<Ice.ObjectPrx> i = new Stack<Ice.ObjectPrx>();
+            var i = new Stack<Ice.ObjectPrx>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push(communicator.stringToProxy(c.ToString()));
             }
-            Stack<Ice.ObjectPrx> o;
             Stack<Ice.ObjectPrx> r;
 
-            r = p.opSObjectPrxS(i, out o);
+            r = p.opSObjectPrxS(i, out Stack<ObjectPrx> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -736,10 +690,9 @@ internal class Twoways
             {
                 i[c].i = c;
             }
-            Test.S[] o;
             Test.S[] r;
 
-            r = p.opAStructS(i, out o);
+            r = p.opAStructS(i, out Test.S[] o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -751,10 +704,9 @@ internal class Twoways
             {
                 i.Add(new Test.S(c));
             }
-            List<Test.S> o;
             List<Test.S> r;
 
-            r = p.opLStructS(i, out o);
+            r = p.opLStructS(i, out List<Test.S> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -766,10 +718,9 @@ internal class Twoways
             {
                 i.AddLast(new Test.S(c));
             }
-            LinkedList<Test.S> o;
             LinkedList<Test.S> r;
 
-            r = p.opKStructS(i, out o);
+            r = p.opKStructS(i, out LinkedList<Test.S> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -781,10 +732,9 @@ internal class Twoways
             {
                 i.Enqueue(new Test.S(c));
             }
-            Queue<Test.S> o;
             Queue<Test.S> r;
 
-            r = p.opQStructS(i, out o);
+            r = p.opQStructS(i, out Queue<Test.S> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -796,10 +746,9 @@ internal class Twoways
             {
                 i.Push(new Test.S(c));
             }
-            Stack<Test.S> o;
             Stack<Test.S> r;
 
-            r = p.opSStructS(i, out o);
+            r = p.opSStructS(i, out Stack<Test.S> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -811,10 +760,9 @@ internal class Twoways
             {
                 i[c] = new Test.SD(c);
             }
-            Test.SD[] o;
             Test.SD[] r;
 
-            r = p.opAStructSD(i, out o);
+            r = p.opAStructSD(i, out Test.SD[] o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -826,10 +774,9 @@ internal class Twoways
             {
                 i.Add(new Test.SD(c));
             }
-            List<Test.SD> o;
             List<Test.SD> r;
 
-            r = p.opLStructSD(i, out o);
+            r = p.opLStructSD(i, out List<Test.SD> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -841,10 +788,9 @@ internal class Twoways
             {
                 i.AddLast(new Test.SD(c));
             }
-            LinkedList<Test.SD> o;
             LinkedList<Test.SD> r;
 
-            r = p.opKStructSD(i, out o);
+            r = p.opKStructSD(i, out LinkedList<Test.SD> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -856,10 +802,9 @@ internal class Twoways
             {
                 i.Enqueue(new Test.SD(c));
             }
-            Queue<Test.SD> o;
             Queue<Test.SD> r;
 
-            r = p.opQStructSD(i, out o);
+            r = p.opQStructSD(i, out Queue<Test.SD> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -871,10 +816,9 @@ internal class Twoways
             {
                 i.Push(new Test.SD(c));
             }
-            Stack<Test.SD> o;
             Stack<Test.SD> r;
 
-            r = p.opSStructSD(i, out o);
+            r = p.opSStructSD(i, out Stack<Test.SD> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -886,10 +830,9 @@ internal class Twoways
             {
                 i[c] = new Test.CV(c);
             }
-            Test.CV[] o;
             Test.CV[] r;
 
-            r = p.opACVS(i, out o);
+            r = p.opACVS(i, out Test.CV[] o);
 
             System.Collections.IEnumerator eo = o.GetEnumerator();
             System.Collections.IEnumerator er = r.GetEnumerator();
@@ -908,10 +851,9 @@ internal class Twoways
             {
                 i.Add(new Test.CV(c));
             }
-            List<Test.CV> o;
             List<Test.CV> r;
 
-            r = p.opLCVS(i, out o);
+            r = p.opLCVS(i, out List<Test.CV> o);
 
             IEnumerator<Test.CV> eo = o.GetEnumerator();
             IEnumerator<Test.CV> er = r.GetEnumerator();
@@ -930,10 +872,9 @@ internal class Twoways
             {
                 i[c] = new Test.CR(new Test.CV(c));
             }
-            Test.CR[] o;
             Test.CR[] r;
 
-            r = p.opACRS(i, out o);
+            r = p.opACRS(i, out Test.CR[] o);
 
             System.Collections.IEnumerator eo = o.GetEnumerator();
             System.Collections.IEnumerator er = r.GetEnumerator();
@@ -952,10 +893,9 @@ internal class Twoways
             {
                 i.Add(new Test.CR(new Test.CV(c)));
             }
-            List<Test.CR> o;
             List<Test.CR> r;
 
-            r = p.opLCRS(i, out o);
+            r = p.opLCRS(i, out List<Test.CR> o);
 
             IEnumerator<Test.CR> eo = o.GetEnumerator();
             IEnumerator<Test.CR> er = r.GetEnumerator();
@@ -974,10 +914,9 @@ internal class Twoways
             {
                 i[c] = (Test.En)(c % 3);
             }
-            Test.En[] o;
             Test.En[] r;
 
-            r = p.opAEnS(i, out o);
+            r = p.opAEnS(i, out Test.En[] o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -989,10 +928,9 @@ internal class Twoways
             {
                 i.Add((Test.En)(c % 3));
             }
-            List<Test.En> o;
             List<Test.En> r;
 
-            r = p.opLEnS(i, out o);
+            r = p.opLEnS(i, out List<Test.En> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -1004,10 +942,9 @@ internal class Twoways
             {
                 i.AddLast((Test.En)(c % 3));
             }
-            LinkedList<Test.En> o;
             LinkedList<Test.En> r;
 
-            r = p.opKEnS(i, out o);
+            r = p.opKEnS(i, out LinkedList<Test.En> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -1019,10 +956,9 @@ internal class Twoways
             {
                 i.Enqueue((Test.En)(c % 3));
             }
-            Queue<Test.En> o;
             Queue<Test.En> r;
 
-            r = p.opQEnS(i, out o);
+            r = p.opQEnS(i, out Queue<Test.En> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -1034,100 +970,93 @@ internal class Twoways
             {
                 i.Push((Test.En)(c % 3));
             }
-            Stack<Test.En> o;
             Stack<Test.En> r;
 
-            r = p.opSEnS(i, out o);
+            r = p.opSEnS(i, out Stack<Test.En> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Test.IPrx[] i = new Test.IPrx[_length];
+            var i = new Test.IPrx[_length];
             for (int c = 0; c < _length; ++c)
             {
                 i[c] = Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString()));
             }
-            Test.IPrx[] o;
             Test.IPrx[] r;
 
-            r = p.opAIPrxS(i, out o);
+            r = p.opAIPrxS(i, out Test.IPrx[] o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            List<Test.IPrx> i = new List<Test.IPrx>(_length);
+            var i = new List<Test.IPrx>(_length);
             for (int c = 0; c < _length; ++c)
             {
                 i.Add(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
             }
-            List<Test.IPrx> o;
             List<Test.IPrx> r;
 
-            r = p.opLIPrxS(i, out o);
+            r = p.opLIPrxS(i, out List<Test.IPrx> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            LinkedList<Test.IPrx> i = new LinkedList<Test.IPrx>();
+            var i = new LinkedList<Test.IPrx>();
             for (int c = 0; c < _length; ++c)
             {
                 i.AddLast(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
             }
-            LinkedList<Test.IPrx> o;
             LinkedList<Test.IPrx> r;
 
-            r = p.opKIPrxS(i, out o);
+            r = p.opKIPrxS(i, out LinkedList<Test.IPrx> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Queue<Test.IPrx> i = new Queue<Test.IPrx>();
+            var i = new Queue<Test.IPrx>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Enqueue(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
             }
-            Queue<Test.IPrx> o;
             Queue<Test.IPrx> r;
 
-            r = p.opQIPrxS(i, out o);
+            r = p.opQIPrxS(i, out Queue<Test.IPrx> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Stack<Test.IPrx> i = new Stack<Test.IPrx>();
+            var i = new Stack<Test.IPrx>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Push(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
             }
-            Stack<Test.IPrx> o;
             Stack<Test.IPrx> r;
 
-            r = p.opSIPrxS(i, out o);
+            r = p.opSIPrxS(i, out Stack<Test.IPrx> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
         }
 
         {
-            Custom<int> i = new Custom<int>();
+            var i = new Custom<int>();
             for (int c = 0; c < _length; ++c)
             {
                 i.Add(c);
             }
-            Custom<int> o;
             Custom<int> r;
 
-            r = p.opCustomIntS(i, out o);
+            r = p.opCustomIntS(i, out Custom<int> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -1140,10 +1069,9 @@ internal class Twoways
                 i.Add(new Test.CV(c));
             }
             i.Add(null);
-            Custom<Test.CV> o;
             Custom<Test.CV> r;
 
-            r = p.opCustomCVS(i, out o);
+            r = p.opCustomCVS(i, out Custom<Test.CV> o);
 
             var eo = o.GetEnumerator();
             var er = r.GetEnumerator();
@@ -1165,20 +1093,19 @@ internal class Twoways
         }
 
         {
-            Custom<Custom<int>> i = new Custom<Custom<int>>();
+            var i = new Custom<Custom<int>>();
             for (int c = 0; c < _length; ++c)
             {
-                Custom<int> inner = new Custom<int>();
+                var inner = new Custom<int>();
                 for (int j = 0; j < c; ++j)
                 {
                     inner.Add(j);
                 }
                 i.Add(inner);
             }
-            Custom<Custom<int>> o;
             Custom<Custom<int>> r;
 
-            r = p.opCustomIntSS(i, out o);
+            r = p.opCustomIntSS(i, out Custom<Custom<int>> o);
 
             test(Enumerable.SequenceEqual(i, o));
             test(Enumerable.SequenceEqual(i, r));
@@ -1195,10 +1122,9 @@ internal class Twoways
                 }
                 i.Add(inner);
             }
-            Custom<Custom<Test.CV>> o;
             Custom<Custom<Test.CV>> r;
 
-            r = p.opCustomCVSS(i, out o);
+            r = p.opCustomCVSS(i, out Custom<Custom<Test.CV>> o);
 
             var eo = o.GetEnumerator();
             var er = r.GetEnumerator();

@@ -52,62 +52,29 @@ public abstract class Reference : IEquatable<Reference>
 
     internal bool isTwoway => _mode is Mode.ModeTwoway;
 
-    public Mode getMode()
-    {
-        return _mode;
-    }
+    public Mode getMode() => _mode;
 
-    public bool getSecure()
-    {
-        return secure_;
-    }
+    public bool getSecure() => secure_;
 
-    public Ice.ProtocolVersion getProtocol()
-    {
-        return _protocol;
-    }
+    public Ice.ProtocolVersion getProtocol() => _protocol;
 
-    public Ice.EncodingVersion getEncoding()
-    {
-        return _encoding;
-    }
+    public Ice.EncodingVersion getEncoding() => _encoding;
 
-    public Ice.Identity getIdentity()
-    {
-        return _identity;
-    }
+    public Ice.Identity getIdentity() => _identity;
 
-    public string getFacet()
-    {
-        return _facet;
-    }
+    public string getFacet() => _facet;
 
-    public Instance getInstance()
-    {
-        return _instance;
-    }
+    public Instance getInstance() => _instance;
 
-    public Dictionary<string, string> getContext()
-    {
-        return _context;
-    }
+    public Dictionary<string, string> getContext() => _context;
 
     public TimeSpan
-    getInvocationTimeout()
-    {
-        return _invocationTimeout;
-    }
+    getInvocationTimeout() => _invocationTimeout;
 
     public bool?
-    getCompress()
-    {
-        return _compress;
-    }
+    getCompress() => _compress;
 
-    public Ice.Communicator getCommunicator()
-    {
-        return _communicator;
-    }
+    public Ice.Communicator getCommunicator() => _communicator;
 
     public abstract EndpointI[] getEndpoints();
 
@@ -284,7 +251,7 @@ public abstract class Reference : IEquatable<Reference>
         // these features. Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
         //
-        StringBuilder s = new StringBuilder();
+        var s = new StringBuilder();
 
         Ice.ToStringMode toStringMode = _instance.toStringMode();
 
@@ -490,120 +457,65 @@ public class FixedReference : Reference
         Ice.ConnectionI connection,
         TimeSpan invocationTimeout,
         Dictionary<string, string> context)
-    : base(instance, communicator, identity, facet, mode, secure, compress, protocol, encoding, invocationTimeout, context)
-    {
+    : base(
+        instance,
+        communicator,
+        identity,
+        facet,
+        mode,
+        secure,
+        compress,
+        protocol,
+        encoding,
+        invocationTimeout,
+        context) =>
         _fixedConnection = connection;
-    }
 
-    public override EndpointI[] getEndpoints()
-    {
-        return _emptyEndpoints;
-    }
+    public override EndpointI[] getEndpoints() => _emptyEndpoints;
 
-    public override string getAdapterId()
-    {
-        return "";
-    }
+    public override string getAdapterId() => "";
 
-    public override LocatorInfo getLocatorInfo()
-    {
-        return null;
-    }
+    public override LocatorInfo getLocatorInfo() => null;
 
-    public override RouterInfo getRouterInfo()
-    {
-        return null;
-    }
+    public override RouterInfo getRouterInfo() => null;
 
-    public override bool getCollocationOptimized()
-    {
-        return false;
-    }
+    public override bool getCollocationOptimized() => false;
 
-    public override bool getCacheConnection()
-    {
-        return true;
-    }
+    public override bool getCacheConnection() => true;
 
-    public override bool getPreferSecure()
-    {
-        return false;
-    }
+    public override bool getPreferSecure() => false;
 
-    public override Ice.EndpointSelectionType getEndpointSelection()
-    {
-        return Ice.EndpointSelectionType.Random;
-    }
+    public override Ice.EndpointSelectionType getEndpointSelection() => Ice.EndpointSelectionType.Random;
 
-    public override TimeSpan getLocatorCacheTimeout()
-    {
-        return TimeSpan.Zero;
-    }
+    public override TimeSpan getLocatorCacheTimeout() => TimeSpan.Zero;
 
-    public override string getConnectionId()
-    {
-        return "";
-    }
+    public override string getConnectionId() => "";
 
-    public override ThreadPool getThreadPool()
-    {
-        return _fixedConnection.getThreadPool();
-    }
+    public override ThreadPool getThreadPool() => _fixedConnection.getThreadPool();
 
-    public override Connection getConnection()
-    {
-        return _fixedConnection;
-    }
+    public override Connection getConnection() => _fixedConnection;
 
-    public override Reference changeEndpoints(EndpointI[] newEndpoints)
-    {
+    public override Reference changeEndpoints(EndpointI[] newEndpoints) => throw new Ice.FixedProxyException();
+
+    public override Reference changeAdapterId(string newAdapterId) => throw new Ice.FixedProxyException();
+
+    public override Reference changeLocator(Ice.LocatorPrx newLocator) => throw new Ice.FixedProxyException();
+
+    public override Reference changeRouter(Ice.RouterPrx newRouter) => throw new Ice.FixedProxyException();
+
+    public override Reference changeCollocationOptimized(bool newCollocationOptimized) =>
         throw new Ice.FixedProxyException();
-    }
 
-    public override Reference changeAdapterId(string newAdapterId)
-    {
-        throw new Ice.FixedProxyException();
-    }
+    public override Reference changeCacheConnection(bool newCache) => throw new Ice.FixedProxyException();
 
-    public override Reference changeLocator(Ice.LocatorPrx newLocator)
-    {
-        throw new Ice.FixedProxyException();
-    }
+    public override Reference changePreferSecure(bool newPreferSecure) => throw new Ice.FixedProxyException();
 
-    public override Reference changeRouter(Ice.RouterPrx newRouter)
-    {
+    public override Reference changeEndpointSelection(Ice.EndpointSelectionType newType) =>
         throw new Ice.FixedProxyException();
-    }
 
-    public override Reference changeCollocationOptimized(bool newCollocationOptimized)
-    {
-        throw new Ice.FixedProxyException();
-    }
+    public override Reference changeLocatorCacheTimeout(TimeSpan newTimeout) => throw new Ice.FixedProxyException();
 
-    public override Reference changeCacheConnection(bool newCache)
-    {
-        throw new Ice.FixedProxyException();
-    }
-
-    public override Reference changePreferSecure(bool newPreferSecure)
-    {
-        throw new Ice.FixedProxyException();
-    }
-
-    public override Reference changeEndpointSelection(Ice.EndpointSelectionType newType)
-    {
-        throw new Ice.FixedProxyException();
-    }
-
-    public override Reference changeLocatorCacheTimeout(TimeSpan newTimeout)
-    {
-        throw new Ice.FixedProxyException();
-    }
-
-    public override Reference changeConnectionId(string connectionId)
-    {
-        throw new Ice.FixedProxyException();
-    }
+    public override Reference changeConnectionId(string connectionId) => throw new Ice.FixedProxyException();
 
     public override Reference changeConnection(Ice.ConnectionI connection)
     {
@@ -611,30 +523,18 @@ public class FixedReference : Reference
         {
             return this;
         }
-        FixedReference r = (FixedReference)getInstance().referenceFactory().copy(this);
+        var r = (FixedReference)getInstance().referenceFactory().copy(this);
         r._fixedConnection = connection;
         return r;
     }
 
-    public override bool isIndirect()
-    {
-        return false;
-    }
+    public override bool isIndirect() => false;
 
-    public override bool isWellKnown()
-    {
-        return false;
-    }
+    public override bool isWellKnown() => false;
 
-    public override void streamWrite(Ice.OutputStream s)
-    {
-        throw new Ice.FixedProxyException();
-    }
+    public override void streamWrite(Ice.OutputStream s) => throw new Ice.FixedProxyException();
 
-    public override Dictionary<string, string> toProperty(string prefix)
-    {
-        throw new Ice.FixedProxyException();
-    }
+    public override Dictionary<string, string> toProperty(string prefix) => throw new Ice.FixedProxyException();
 
     internal override RequestHandler getRequestHandler()
     {
@@ -696,7 +596,7 @@ public class FixedReference : Reference
         {
             return true;
         }
-        FixedReference rhs = other as FixedReference;
+        var rhs = other as FixedReference;
         return rhs is not null && base.Equals(rhs) && _fixedConnection.Equals(rhs._fixedConnection);
     }
 
@@ -708,55 +608,25 @@ public class RoutableReference : Reference
 {
     internal override BatchRequestQueue batchRequestQueue => _batchRequestQueue;
 
-    public override EndpointI[] getEndpoints()
-    {
-        return _endpoints;
-    }
+    public override EndpointI[] getEndpoints() => _endpoints;
 
-    public override string getAdapterId()
-    {
-        return _adapterId;
-    }
+    public override string getAdapterId() => _adapterId;
 
-    public override LocatorInfo getLocatorInfo()
-    {
-        return _locatorInfo;
-    }
+    public override LocatorInfo getLocatorInfo() => _locatorInfo;
 
-    public override RouterInfo getRouterInfo()
-    {
-        return _routerInfo;
-    }
+    public override RouterInfo getRouterInfo() => _routerInfo;
 
-    public override bool getCollocationOptimized()
-    {
-        return _collocationOptimized;
-    }
+    public override bool getCollocationOptimized() => _collocationOptimized;
 
-    public override bool getCacheConnection()
-    {
-        return _cacheConnection;
-    }
+    public override bool getCacheConnection() => _cacheConnection;
 
-    public override bool getPreferSecure()
-    {
-        return _preferSecure;
-    }
+    public override bool getPreferSecure() => _preferSecure;
 
-    public override Ice.EndpointSelectionType getEndpointSelection()
-    {
-        return _endpointSelection;
-    }
+    public override Ice.EndpointSelectionType getEndpointSelection() => _endpointSelection;
 
-    public override TimeSpan getLocatorCacheTimeout()
-    {
-        return _locatorCacheTimeout;
-    }
+    public override TimeSpan getLocatorCacheTimeout() => _locatorCacheTimeout;
 
-    public override string getConnectionId()
-    {
-        return _connectionId;
-    }
+    public override string getConnectionId() => _connectionId;
 
     public override Reference changeMode(Mode newMode)
     {
@@ -765,19 +635,13 @@ public class RoutableReference : Reference
         return r;
     }
 
-    public override ThreadPool getThreadPool()
-    {
-        return getInstance().clientThreadPool();
-    }
+    public override ThreadPool getThreadPool() => getInstance().clientThreadPool();
 
-    public override Connection getConnection()
-    {
-        return null;
-    }
+    public override Connection getConnection() => null;
 
     public override Reference changeEncoding(Ice.EncodingVersion newEncoding)
     {
-        RoutableReference r = (RoutableReference)base.changeEncoding(newEncoding);
+        var r = (RoutableReference)base.changeEncoding(newEncoding);
         if (r != this)
         {
             LocatorInfo locInfo = r._locatorInfo;
@@ -792,10 +656,10 @@ public class RoutableReference : Reference
 
     public override Reference changeCompress(bool newCompress)
     {
-        RoutableReference r = (RoutableReference)base.changeCompress(newCompress);
+        var r = (RoutableReference)base.changeCompress(newCompress);
         if (r != this && _endpoints.Length > 0) // Also override the compress flag on the endpoints if it was updated
         {
-            EndpointI[] newEndpoints = new EndpointI[_endpoints.Length];
+            var newEndpoints = new EndpointI[_endpoints.Length];
             for (int i = 0; i < _endpoints.Length; i++)
             {
                 newEndpoints[i] = _endpoints[i].compress(newCompress);
@@ -807,7 +671,7 @@ public class RoutableReference : Reference
 
     public override Reference changeEndpoints(EndpointI[] newEndpoints)
     {
-        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        var r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._endpoints = newEndpoints;
         r._adapterId = "";
         r.applyOverrides(ref r._endpoints);
@@ -816,7 +680,7 @@ public class RoutableReference : Reference
 
     public override Reference changeAdapterId(string newAdapterId)
     {
-        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        var r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._adapterId = newAdapterId;
         r._endpoints = _emptyEndpoints;
         return r;
@@ -824,60 +688,60 @@ public class RoutableReference : Reference
 
     public override Reference changeLocator(Ice.LocatorPrx newLocator)
     {
-        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        var r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._locatorInfo = getInstance().locatorManager().get(newLocator);
         return r;
     }
 
     public override Reference changeRouter(Ice.RouterPrx newRouter)
     {
-        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        var r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._routerInfo = getInstance().routerManager().get(newRouter);
         return r;
     }
 
     public override Reference changeCollocationOptimized(bool newCollocationOptimized)
     {
-        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        var r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._collocationOptimized = newCollocationOptimized;
         return r;
     }
 
     public override Reference changeCacheConnection(bool newCache)
     {
-        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        var r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._cacheConnection = newCache;
         return r;
     }
 
     public override Reference changePreferSecure(bool newPreferSecure)
     {
-        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        var r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._preferSecure = newPreferSecure;
         return r;
     }
 
     public override Reference changeEndpointSelection(Ice.EndpointSelectionType newType)
     {
-        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        var r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._endpointSelection = newType;
         return r;
     }
 
     public override Reference changeLocatorCacheTimeout(TimeSpan newTimeout)
     {
-        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        var r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._locatorCacheTimeout = newTimeout;
         return r;
     }
 
     public override Reference changeConnectionId(string connectionId)
     {
-        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        var r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._connectionId = connectionId;
         if (_endpoints.Length > 0)
         {
-            EndpointI[] newEndpoints = new EndpointI[_endpoints.Length];
+            var newEndpoints = new EndpointI[_endpoints.Length];
             for (int i = 0; i < _endpoints.Length; i++)
             {
                 newEndpoints[i] = _endpoints[i].connectionId(connectionId);
@@ -904,15 +768,9 @@ public class RoutableReference : Reference
             getContext());
     }
 
-    public override bool isIndirect()
-    {
-        return _endpoints.Length == 0;
-    }
+    public override bool isIndirect() => _endpoints.Length == 0;
 
-    public override bool isWellKnown()
-    {
-        return _endpoints.Length == 0 && _adapterId.Length == 0;
-    }
+    public override bool isWellKnown() => _endpoints.Length == 0 && _adapterId.Length == 0;
 
     public override void streamWrite(Ice.OutputStream s)
     {
@@ -943,7 +801,7 @@ public class RoutableReference : Reference
         // these features. Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
         //
-        StringBuilder s = new StringBuilder();
+        var s = new StringBuilder();
         s.Append(base.ToString());
 
         if (_endpoints.Length > 0)
@@ -984,7 +842,7 @@ public class RoutableReference : Reference
 
     public override Dictionary<string, string> toProperty(string prefix)
     {
-        Dictionary<string, string> properties = new Dictionary<string, string>
+        var properties = new Dictionary<string, string>
         {
             [prefix] = ToString(),
             [prefix + ".CollocationOptimized"] = _collocationOptimized ? "1" : "0",
@@ -1000,7 +858,7 @@ public class RoutableReference : Reference
 
         if (_routerInfo != null)
         {
-            Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)_routerInfo.getRouter();
+            var h = (Ice.ObjectPrxHelperBase)_routerInfo.getRouter();
             Dictionary<string, string> routerProperties = h.iceReference().toProperty(prefix + ".Router");
             foreach (KeyValuePair<string, string> entry in routerProperties)
             {
@@ -1010,7 +868,7 @@ public class RoutableReference : Reference
 
         if (_locatorInfo != null)
         {
-            Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)_locatorInfo.getLocator();
+            var h = (Ice.ObjectPrxHelperBase)_locatorInfo.getLocator();
             Dictionary<string, string> locatorProperties = h.iceReference().toProperty(prefix + ".Locator");
             foreach (KeyValuePair<string, string> entry in locatorProperties)
             {
@@ -1026,7 +884,7 @@ public class RoutableReference : Reference
         var hash = new HashCode();
         hash.Add(base.GetHashCode());
         hash.Add(_adapterId);
-        foreach (var endpoint in _endpoints)
+        foreach (EndpointI endpoint in _endpoints)
         {
             hash.Add(endpoint);
         }
@@ -1084,10 +942,7 @@ public class RoutableReference : Reference
             }
         }
 
-        public void setException(Ice.LocalException ex)
-        {
-            _cb.setException(ex);
-        }
+        public void setException(Ice.LocalException ex) => _cb.setException(ex);
 
         private readonly RoutableReference _ir;
         private readonly GetConnectionCallback _cb;
@@ -1144,10 +999,7 @@ public class RoutableReference : Reference
             _ir.createConnection(endpoints, new ConnectionCallback(_ir, _cb, cached));
         }
 
-        public void setException(Ice.LocalException ex)
-        {
-            _cb.setException(ex);
-        }
+        public void setException(Ice.LocalException ex) => _cb.setException(ex);
 
         private readonly RoutableReference _ir;
         private readonly GetConnectionCallback _cb;
@@ -1162,10 +1014,8 @@ public class RoutableReference : Reference
             _cached = cached;
         }
 
-        public void setConnection(Ice.ConnectionI connection, bool compress)
-        {
+        public void setConnection(Ice.ConnectionI connection, bool compress) =>
             _cb.setConnection(connection, compress);
-        }
 
         public void setException(Ice.LocalException exc)
         {
@@ -1287,7 +1137,7 @@ public class RoutableReference : Reference
 
     private EndpointI[] filterEndpoints(EndpointI[] allEndpoints)
     {
-        List<EndpointI> endpoints = new List<EndpointI>();
+        var endpoints = new List<EndpointI>();
 
         //
         // Filter out unknown endpoints.
@@ -1312,7 +1162,7 @@ public class RoutableReference : Reference
                 //
                 // Filter out datagram endpoints.
                 //
-                List<EndpointI> tmp = new List<EndpointI>();
+                var tmp = new List<EndpointI>();
                 foreach (EndpointI endpoint in endpoints)
                 {
                     if (!endpoint.datagram())
@@ -1330,7 +1180,7 @@ public class RoutableReference : Reference
                 //
                 // Filter out non-datagram endpoints.
                 //
-                List<EndpointI> tmp = new List<EndpointI>();
+                var tmp = new List<EndpointI>();
                 foreach (EndpointI endpoint in endpoints)
                 {
                     if (endpoint.datagram())
@@ -1388,7 +1238,7 @@ public class RoutableReference : Reference
         DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
         if (overrides.overrideSecure ?? getSecure())
         {
-            List<EndpointI> tmp = new List<EndpointI>();
+            var tmp = new List<EndpointI>();
             foreach (EndpointI endpoint in endpoints)
             {
                 if (endpoint.secure())
@@ -1407,7 +1257,7 @@ public class RoutableReference : Reference
             UtilInternal.Collections.Sort(ref endpoints, _preferNonSecureEndpointComparator);
         }
 
-        EndpointI[] arr = new EndpointI[endpoints.Count];
+        var arr = new EndpointI[endpoints.Count];
         endpoints.CopyTo(arr);
         return arr;
     }
@@ -1504,10 +1354,7 @@ public class RoutableReference : Reference
 
     private class EndpointComparator : IComparer<EndpointI>
     {
-        public EndpointComparator(bool preferSecure)
-        {
-            _preferSecure = preferSecure;
-        }
+        public EndpointComparator(bool preferSecure) => _preferSecure = preferSecure;
 
         public int Compare(EndpointI le, EndpointI re)
         {

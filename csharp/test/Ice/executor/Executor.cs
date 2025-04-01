@@ -75,10 +75,7 @@ public class Executor
         _instance._thread.Join();
     }
 
-    public static bool isExecutorThread()
-    {
-        return Thread.CurrentThread == _instance._thread;
-    }
+    public static bool isExecutorThread() => Thread.CurrentThread == _instance._thread;
 
     private static Executor _instance;
 
