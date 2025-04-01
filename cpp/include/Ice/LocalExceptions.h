@@ -293,7 +293,7 @@ namespace Ice
     // Timeout exceptions
     //
 
-    /// The exception that is thrown to report a timeout.
+    /// The exception that is thrown when a timeout occurs. This is the base class for all timeout exceptions.
     /// @headerfile Ice/Ice.h
     class ICE_API TimeoutException : public LocalException
     {
@@ -628,7 +628,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// The exception that is thrown when attempting to change the connection properties of a fixed proxy.
+    /// The exception that is thrown when attempting to change a connection-related property on a fixed proxy.
     /// @headerfile Ice/Ice.h
     class ICE_API FixedProxyException final : public LocalException
     {
@@ -788,7 +788,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// The exception that is thrown when a failure occurs in the security subsystem; this includes IceSSL errors.
+    /// The exception that is thrown when a failure occurs in the security subsystem. This includes IceSSL errors.
     /// @headerfile Ice/Ice.h
     class ICE_API SecurityException final : public LocalException
     {
