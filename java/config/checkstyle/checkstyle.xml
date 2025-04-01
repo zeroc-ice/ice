@@ -16,6 +16,14 @@
     Authors: Max Vetrenko, Mauryan Kansara, Ruslan Diachenko, Roman Ivanov.
  -->
 
+<!--
+    A number of the modules in here (particularly the ones relating to names) conflict with how
+    some stylizations have already been standardized. Notably, the ones regarding underscores.
+    As fixing this manually is outside of the scope of this PR, I am disabling modules that
+    instigate manual fixes. All disabled modules are commented out.
+    -Lilith
+ -->
+
 <module name="Checker">
 
   <property name="charset" value="UTF-8"/>
@@ -206,12 +214,12 @@
       <property name="tokens" value="METHOD_REF"/>
       <property name="option" value="nl"/>
     </module>
-    <module name="PackageName">
+    <!--<module name="PackageName">
       <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
       <message key="name.invalidPattern"
              value="Package name ''{0}'' must match pattern ''{1}''."/>
-    </module>
-    <module name="TypeName">
+    </module>-->
+    <!--<module name="TypeName">
       <property name="tokens" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
                     ANNOTATION_DEF, RECORD_DEF"/>
       <message key="name.invalidPattern"
@@ -222,11 +230,16 @@
       <message key="name.invalidPattern"
              value="Member name ''{0}'' must match pattern ''{1}''."/>
     </module>
-    <module name="ParameterName">
+    <module name="MethodName">
+      <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9]*$"/>
+      <message key="name.invalidPattern"
+             value="Method name ''{0}'' must match pattern ''{1}''."/>
+    </module>-->
+    <!--<module name="ParameterName">
       <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
              value="Parameter name ''{0}'' must match pattern ''{1}''."/>
-    </module>
+    </module>-->
     <module name="LambdaParameterName">
       <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
@@ -237,21 +250,21 @@
       <message key="name.invalidPattern"
              value="Catch parameter name ''{0}'' must match pattern ''{1}''."/>
     </module>
-    <module name="LocalVariableName">
+    <!--<module name="LocalVariableName">
       <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
              value="Local variable name ''{0}'' must match pattern ''{1}''."/>
-    </module>
+    </module>-->
     <module name="PatternVariableName">
       <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
              value="Pattern variable name ''{0}'' must match pattern ''{1}''."/>
     </module>
-    <module name="ClassTypeParameterName">
+    <!--<module name="ClassTypeParameterName">
       <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
       <message key="name.invalidPattern"
              value="Class type name ''{0}'' must match pattern ''{1}''."/>
-    </module>
+    </module>-->
     <module name="RecordComponentName">
       <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
@@ -262,16 +275,16 @@
       <message key="name.invalidPattern"
                value="Record type name ''{0}'' must match pattern ''{1}''."/>
     </module>
-    <module name="MethodTypeParameterName">
+    <!--<module name="MethodTypeParameterName">
       <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
       <message key="name.invalidPattern"
              value="Method type name ''{0}'' must match pattern ''{1}''."/>
-    </module>
-    <module name="InterfaceTypeParameterName">
+    </module>-->
+    <!-- <module name="InterfaceTypeParameterName">
       <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
       <message key="name.invalidPattern"
              value="Interface type name ''{0}'' must match pattern ''{1}''."/>
-    </module>
+    </module> -->
     <module name="NoFinalizer"/>
     <module name="GenericWhitespace">
       <message key="ws.followed"
@@ -282,14 +295,16 @@
              value="GenericWhitespace ''{0}'' should followed by whitespace."/>
       <message key="ws.notPreceded"
              value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
-    </module>
+    </module> 
+    <!-- Indentations adjusted for consistency with the indentation patterns we already use.
+         Sorry, Google. -->
     <module name="Indentation">
-      <property name="basicOffset" value="2"/>
-      <property name="braceAdjustment" value="2"/>
-      <property name="caseIndent" value="2"/>
+      <property name="basicOffset" value="4"/>
+      <property name="braceAdjustment" value="4"/>
+      <property name="caseIndent" value="4"/>
       <property name="throwsIndent" value="4"/>
       <property name="lineWrappingIndentation" value="4"/>
-      <property name="arrayInitIndent" value="2"/>
+      <property name="arrayInitIndent" value="4"/>
     </module>
     <!-- Suppression for block code until we find a way to detect them properly
          until https://github.com/checkstyle/checkstyle/issues/15769 -->
@@ -298,14 +313,14 @@
       <property name="query" value="//SLIST[not(parent::CASE_GROUP)]/SLIST
                                    | //SLIST[not(parent::CASE_GROUP)]/SLIST/RCURLY"/>
     </module>
-    <module name="AbbreviationAsWordInName">
+    <!--<module name="AbbreviationAsWordInName">
       <property name="ignoreFinal" value="false"/>
       <property name="allowedAbbreviationLength" value="0"/>
       <property name="tokens"
                value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, ANNOTATION_DEF, ANNOTATION_FIELD_DEF,
                     PARAMETER_DEF, VARIABLE_DEF, METHOD_DEF, PATTERN_VARIABLE_DEF, RECORD_DEF,
                     RECORD_COMPONENT_DEF"/>
-    </module>
+    </module>-->
     <module name="NoWhitespaceBeforeCaseDefaultColon"/>
     <module name="OverloadMethodsDeclarationOrder"/>
     <module name="ConstructorsDeclarationGrouping"/>
@@ -397,11 +412,6 @@
                 value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
                       RECORD_DEF, ANNOTATION_DEF"/>
       <property name="excludeScope" value="nothing"/>
-    </module>
-    <module name="MethodName">
-      <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9]*$"/>
-      <message key="name.invalidPattern"
-             value="Method name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="SuppressionXpathSingleFilter">
       <property name="checks" value="MethodName"/>

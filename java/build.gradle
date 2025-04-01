@@ -46,22 +46,12 @@ subprojects {
         options.deprecation = true
     }
 
+    //makes checkstyle wait for rewrite. hopefully
     tasks.withType(Checkstyle) {
-        //doLast {
-        //    ignoreFailures = true
-        //    source 'src'
-        //    test 'test'
-        //    include "**/*.java"
-        //    reports {
-        //        xml.enabled = false
-        //        html.enabled = false
-                //html {
-                //    destination file("$project.buildDir/reports/checkstyle/${project.name}.html")
-                //}
-            //}
-        //    classpath = files()
-        //        checkstyleClasspath = project.configurations.checkstyleOverride
-        //}
+        dependsOn(rewriteRun)
+    reports {
+        sarif.required = true
+    }
     }
 }
 
@@ -113,9 +103,29 @@ checkstyle {
 
 rewrite {
     activeRecipe(
-        'org.openrewrite.staticanalysis.CodeCleanup',
+        'org.openrewrite.staticanalysis.DefaultComesLast',
+        'org.openrewrite.staticanalysis.EmptyBlock',
+        'org.openrewrite.java.format.EmptyNewlineAtEndOfFile',
+        'org.openrewrite.staticanalysis.ForLoopControlVariablePostfixOperators',
+        //'org.openrewrite.staticanalysis.FinalizePrivateFields',
+        'org.openrewrite.java.format.MethodParamPad',
+        'org.openrewrite.java.format.NoWhitespaceAfter',
+        'org.openrewrite.java.format.NoWhitespaceBefore',
+        'org.openrewrite.java.format.PadEmptyForLoopComponents',
+        'org.openrewrite.staticanalysis.TypecastParenPad',
+        'org.openrewrite.staticanalysis.EqualsAvoidsNull',
+        'org.openrewrite.staticanalysis.ExplicitInitialization',
+        'org.openrewrite.staticanalysis.FallThrough',
+        'org.openrewrite.staticanalysis.HideUtilityClassConstructor',
+        'org.openrewrite.staticanalysis.NeedBraces',
+        'org.openrewrite.staticanalysis.OperatorWrap',
+        'org.openrewrite.staticanalysis.UnnecessaryParentheses',
+        'org.openrewrite.staticanalysis.ReplaceThreadRunWithThreadStart',
+        'org.openrewrite.staticanalysis.ChainStringBuilderAppendCalls',
+        'org.openrewrite.staticanalysis.ReplaceStringBuilderWithString',
+        //'org.openrewrite.java.ShortenFullyQualifiedTypeReferences',
     )
-    checkstyleConfigFile = file("checkstyle.xml")
+    checkstyleConfigFile = file("config/checkstyle/checkstyle.xml")
     setExportDatatables(true)
     exclusion(
         '**/*.gradle',
