@@ -44,17 +44,6 @@ allocateProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communica
     {
         return nullptr;
     }
-
-    //
-    // Disabling collocation optimization can cause subtle problems with proxy
-    // comparison (such as in RouterInfo::get) if a proxy from IcePy is
-    // compared with a proxy from Ice/C++.
-    //
-    // if(proxy)
-    //{
-    //    p->proxy = new Ice::ObjectPrx(proxy->ice_collocationOptimized(false));
-    //}
-    //
     p->proxy = new Ice::ObjectPrx(proxy);
     p->communicator = new Ice::CommunicatorPtr(communicator);
 
@@ -185,144 +174,6 @@ extern "C" PyObject*
 proxyIceGetCommunicator(ProxyObject* self, PyObject* /*args*/)
 {
     return getCommunicatorWrapper(*self->communicator);
-}
-
-extern "C" PyObject*
-proxyIceIsA(ProxyObject* self, PyObject* args)
-{
-    PyObject* type{nullptr};
-    PyObject* ctx{Py_None};
-    if (!PyArg_ParseTuple(args, "O|O!", &type, &PyDict_Type, &ctx))
-    {
-        return nullptr;
-    }
-
-    //
-    // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
-    //
-    PyObjectHandle newArgs{Py_BuildValue("((O), O)", type, ctx)};
-
-    return invokeBuiltin(reinterpret_cast<PyObject*>(self), "ice_isA", newArgs.get());
-}
-
-extern "C" PyObject*
-proxyIceIsAAsync(ProxyObject* self, PyObject* args)
-{
-    PyObject* type{nullptr};
-    PyObject* ctx{Py_None};
-    if (!PyArg_ParseTuple(args, "O|O!", &type, &PyDict_Type, &ctx))
-    {
-        return nullptr;
-    }
-
-    //
-    // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
-    //
-    PyObjectHandle newArgs{Py_BuildValue("((O), O)", type, ctx)};
-
-    return invokeBuiltinAsync(reinterpret_cast<PyObject*>(self), "ice_isA", newArgs.get());
-}
-
-extern "C" PyObject*
-proxyIcePing(ProxyObject* self, PyObject* args)
-{
-    PyObject* ctx{Py_None};
-    if (!PyArg_ParseTuple(args, "|O!", &PyDict_Type, &ctx))
-    {
-        return nullptr;
-    }
-
-    //
-    // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
-    //
-    PyObjectHandle newArgs{Py_BuildValue("((), O)", ctx)};
-
-    return invokeBuiltin(reinterpret_cast<PyObject*>(self), "ice_ping", newArgs.get());
-}
-
-extern "C" PyObject*
-proxyIcePingAsync(ProxyObject* self, PyObject* args)
-{
-    PyObject* ctx{Py_None};
-    if (!PyArg_ParseTuple(args, "|O!", &PyDict_Type, &ctx))
-    {
-        return nullptr;
-    }
-
-    //
-    // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
-    //
-    PyObjectHandle newArgs{Py_BuildValue("((), O)", ctx)};
-
-    return invokeBuiltinAsync(reinterpret_cast<PyObject*>(self), "ice_ping", newArgs.get());
-}
-
-extern "C" PyObject*
-proxyIceIds(ProxyObject* self, PyObject* args)
-{
-    PyObject* ctx{Py_None};
-    if (!PyArg_ParseTuple(args, "|O!", &PyDict_Type, &ctx))
-    {
-        return nullptr;
-    }
-
-    //
-    // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
-    //
-    PyObjectHandle newArgs{Py_BuildValue("((), O)", ctx)};
-
-    return invokeBuiltin(reinterpret_cast<PyObject*>(self), "ice_ids", newArgs.get());
-}
-
-extern "C" PyObject*
-proxyIceIdsAsync(ProxyObject* self, PyObject* args)
-{
-    PyObject* ctx{Py_None};
-    if (!PyArg_ParseTuple(args, "|O!", &PyDict_Type, &ctx))
-    {
-        return nullptr;
-    }
-
-    //
-    // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
-    //
-    PyObjectHandle newArgs{Py_BuildValue("((), O)", ctx)};
-
-    return invokeBuiltinAsync(reinterpret_cast<PyObject*>(self), "ice_ids", newArgs.get());
-}
-
-extern "C" PyObject*
-proxyIceId(ProxyObject* self, PyObject* args)
-{
-    PyObject* ctx{Py_None};
-    if (!PyArg_ParseTuple(args, "|O!", &PyDict_Type, &ctx))
-    {
-        return nullptr;
-    }
-
-    //
-    // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
-    //
-    PyObjectHandle newArgs{Py_BuildValue("((), O)", ctx)};
-
-    return invokeBuiltin(reinterpret_cast<PyObject*>(self), "ice_id", newArgs.get());
-}
-
-extern "C" PyObject*
-proxyIceIdAsync(ProxyObject* self, PyObject* args)
-{
-    PyObject* ctx = Py_None;
-    if (!PyArg_ParseTuple(args, "|O!", &PyDict_Type, &ctx))
-    {
-        return nullptr;
-    }
-
-    //
-    // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
-    //
-    PyObjectHandle newArgs{Py_BuildValue("((), O)", ctx)};
-
-    return invokeBuiltinAsync(reinterpret_cast<PyObject*>(self), "ice_id", newArgs.get());
 }
 
 extern "C" PyObject*
@@ -1578,49 +1429,18 @@ proxyIceInvokeAsync(ProxyObject* self, PyObject* args, PyObject* /*kwds*/)
 }
 
 extern "C" PyObject*
-proxyIceUncheckedCast(PyObject* type, PyObject* args)
+proxyNewProxy(PyObject*, PyObject* args)
 {
-    //
-    // ice_uncheckedCast is called from generated code, therefore we always expect
-    // to receive two arguments.
-    //
-    PyObject* obj;
-    char* facet{nullptr};
-    if (!PyArg_ParseTuple(args, "Oz", &obj, &facet))
-    {
-        return nullptr;
-    }
-
-    if (obj == Py_None)
-    {
-        return Py_None;
-    }
-
-    if (!checkProxy(obj))
-    {
-        PyErr_Format(PyExc_ValueError, "ice_uncheckedCast requires a proxy argument");
-        return nullptr;
-    }
-
-    auto* p = reinterpret_cast<ProxyObject*>(obj);
-
-    if (facet)
-    {
-        return createProxy((*p->proxy)->ice_facet(facet), *p->communicator, type);
-    }
-    else
-    {
-        return createProxy(*p->proxy, *p->communicator, type);
-    }
-}
-
-extern "C" PyObject*
-proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
-{
+    PyObject* proxyType{nullptr};
     PyObject* obj{nullptr};
-    PyObject* facetObj{nullptr};
-    if (!PyArg_ParseTuple(args, "O|O", &obj, &facetObj))
+    if (!PyArg_ParseTuple(args, "OO", &proxyType, &obj))
     {
+        return nullptr;
+    }
+
+    if (proxyType == Py_None)
+    {
+        PyErr_Format(PyExc_ValueError, "newProxy 1st argument must be a proxy type");
         return nullptr;
     }
 
@@ -1629,37 +1449,14 @@ proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
         return Py_None;
     }
 
-    string facet;
-    if (facetObj)
-    {
-        if (!getStringArg(facetObj, "facet", facet))
-        {
-            return nullptr;
-        }
-    }
-
     if (!checkProxy(obj))
     {
-        PyErr_Format(PyExc_ValueError, "uncheckedCast requires a proxy argument");
+        PyErr_Format(PyExc_ValueError, "newProxy 2nd argument must be a proxy");
         return nullptr;
     }
 
     auto* p = reinterpret_cast<ProxyObject*>(obj);
-
-    if (facetObj)
-    {
-        return createProxy((*p->proxy)->ice_facet(facet), *p->communicator);
-    }
-    else
-    {
-        return createProxy(*p->proxy, *p->communicator);
-    }
-}
-
-extern "C" PyObject*
-proxyIceStaticId(PyObject* /*self*/, PyObject* /*args*/)
-{
-    return createString(Ice::Object::ice_staticId());
+    return createProxy(*p->proxy, *p->communicator, proxyType);
 }
 
 static PyMethodDef ProxyMethods[] = {
@@ -1668,26 +1465,6 @@ static PyMethodDef ProxyMethods[] = {
      METH_NOARGS,
      PyDoc_STR("ice_getCommunicator() -> Ice.Communicator")},
     {"ice_toString", reinterpret_cast<PyCFunction>(proxyRepr), METH_NOARGS, PyDoc_STR("ice_toString() -> string")},
-    {"ice_isA", reinterpret_cast<PyCFunction>(proxyIceIsA), METH_VARARGS, PyDoc_STR("ice_isA(type, [ctx]) -> bool")},
-    {"ice_isAAsync",
-     reinterpret_cast<PyCFunction>(proxyIceIsAAsync),
-     METH_VARARGS,
-     PyDoc_STR("ice_isAAsync(type, [ctx]) -> Ice.Future")},
-    {"ice_ping", reinterpret_cast<PyCFunction>(proxyIcePing), METH_VARARGS, PyDoc_STR("ice_ping([ctx]) -> None")},
-    {"ice_pingAsync",
-     reinterpret_cast<PyCFunction>(proxyIcePingAsync),
-     METH_VARARGS,
-     PyDoc_STR("ice_pingAsync([ctx]) -> Ice.Future")},
-    {"ice_ids", reinterpret_cast<PyCFunction>(proxyIceIds), METH_VARARGS, PyDoc_STR("ice_ids([ctx]) -> list")},
-    {"ice_idsAsync",
-     reinterpret_cast<PyCFunction>(proxyIceIdsAsync),
-     METH_VARARGS,
-     PyDoc_STR("ice_idsAsync([ctx]) -> Ice.Future")},
-    {"ice_id", reinterpret_cast<PyCFunction>(proxyIceId), METH_VARARGS, PyDoc_STR("ice_id([ctx]) -> string")},
-    {"ice_idAsync",
-     reinterpret_cast<PyCFunction>(proxyIceIdAsync),
-     METH_VARARGS,
-     PyDoc_STR("ice_idAsync([ctx]) -> Ice.Future")},
     {"ice_getIdentity",
      reinterpret_cast<PyCFunction>(proxyIceGetIdentity),
      METH_NOARGS,
@@ -1888,18 +1665,10 @@ static PyMethodDef ProxyMethods[] = {
      reinterpret_cast<PyCFunction>(proxyIceInvokeAsync),
      METH_VARARGS | METH_KEYWORDS,
      PyDoc_STR("ice_invokeAsync(op, mode, inParams[, context]) -> Ice.Future")},
-    {"ice_uncheckedCast",
-     reinterpret_cast<PyCFunction>(proxyIceUncheckedCast),
-     METH_VARARGS | METH_CLASS,
-     PyDoc_STR("ice_uncheckedCast(proxy) -> proxy")},
-    {"uncheckedCast",
-     reinterpret_cast<PyCFunction>(proxyUncheckedCast),
+    {"newProxy",
+     reinterpret_cast<PyCFunction>(proxyNewProxy),
      METH_VARARGS | METH_STATIC,
-     PyDoc_STR("uncheckedCast(proxy) -> proxy")},
-    {"ice_staticId",
-     reinterpret_cast<PyCFunction>(proxyIceStaticId),
-     METH_NOARGS | METH_STATIC,
-     PyDoc_STR("ice_staticId() -> string")},
+     PyDoc_STR("newProxy(proxyType, proxy) -> proxy")},
     {} /* sentinel */
 };
 

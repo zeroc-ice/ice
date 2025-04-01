@@ -17,10 +17,6 @@ namespace IcePy
 
     extern PyTypeObject AsyncInvocationContextType;
 
-    // Builtin operations.
-    PyObject* invokeBuiltin(PyObject*, const std::string&, PyObject*);
-    PyObject* invokeBuiltinAsync(PyObject*, const std::string&, PyObject*);
-
     // Blobject invocations.
     PyObject* iceInvoke(PyObject*, PyObject*);
     PyObject* iceInvokeAsync(PyObject*, PyObject*);
