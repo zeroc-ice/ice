@@ -19,7 +19,7 @@ def uncheckedCast(type, proxy, facet=None):
     Returns
     -------
     ObjectPrx|None
-        A proxy with the requested type and facet.
+        A proxy with the requested type.
     """
     if proxy is None:
         return None
@@ -47,7 +47,7 @@ def checkedCast(type, proxy, facet=None, context=None):
     Returns
     -------
     ObjectPrx|None
-        A proxy with the requested type and facet, or None if the target object does not support the requested type.
+        A proxy with the requested type, or None if the target object does not support the requested type.
     """
     if proxy is None:
         return None
@@ -75,7 +75,7 @@ async def checkedCastAsync(type, proxy, facet=None, context=None):
     Returns
     -------
     ObjectPrx|None
-        A proxy with the requested type and facet, or None if the target object does not support the requested type.
+        A proxy with the requested type, or None if the target object does not support the requested type.
     """
     if proxy is None:
         return None
@@ -105,7 +105,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         Returns
         -------
         ObjectPrx|None
-            A proxy with the requested type and facet, or None if the target object does not support the requested type.
+            A proxy with the requested type, or None if the target object does not support the requested type.
         """
         return uncheckedCast(ObjectPrx, proxy, facet)
 
@@ -128,7 +128,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         Returns
         -------
         ObjectPrx|None
-            A proxy with the requested type and facet, or None if the target object does not support the requested type.
+            A proxy with the requested type, or None if the target object does not support the requested type.
         """
         return checkedCast(ObjectPrx, proxy, facet, context)
 

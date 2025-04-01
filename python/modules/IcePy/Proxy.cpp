@@ -1451,12 +1451,11 @@ proxyNewProxy(PyObject*, PyObject* args)
 
     if (!checkProxy(obj))
     {
-        PyErr_Format(PyExc_ValueError, "newProxy requires a proxy argument");
+        PyErr_Format(PyExc_ValueError, "newProxy 2nd argument must be a proxy");
         return nullptr;
     }
 
     auto* p = reinterpret_cast<ProxyObject*>(obj);
-
     return createProxy(*p->proxy, *p->communicator, proxyType);
 }
 
