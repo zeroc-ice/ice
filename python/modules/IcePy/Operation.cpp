@@ -308,13 +308,6 @@ namespace IcePy
 
 namespace
 {
-    OperationPtr getOperation(PyObject* p)
-    {
-        assert(PyObject_IsInstance(p, reinterpret_cast<PyObject*>(&OperationType)) == 1);
-        auto* obj = reinterpret_cast<OperationObject*>(p);
-        return *obj->op;
-    }
-
     void handleException()
     {
         assert(PyErr_Occurred());
@@ -2425,40 +2418,6 @@ IcePy::BlobjectUpcall::exception(PyException& ex)
     {
         _error(current_exception());
     }
-}
-
-PyObject*
-IcePy::invokeBuiltin(PyObject* proxy, const string& builtin, PyObject* args)
-{
-    string name = "_op_" + builtin;
-    PyObject* objectType{lookupType("Ice.Object")};
-    assert(objectType);
-    PyObjectHandle obj{getAttr(objectType, name, false)};
-    assert(obj.get());
-
-    OperationPtr op = getOperation(obj.get());
-    assert(op);
-
-    Ice::ObjectPrx prx = getProxy(proxy);
-    InvocationPtr i = make_shared<SyncTypedInvocation>(prx, op);
-    return i->invoke(args);
-}
-
-PyObject*
-IcePy::invokeBuiltinAsync(PyObject* proxy, const string& builtin, PyObject* args)
-{
-    string name = "_op_" + builtin;
-    PyObject* objectType{lookupType("Ice.Object")};
-    assert(objectType);
-    PyObjectHandle obj{getAttr(objectType, name, false)};
-    assert(obj.get());
-
-    OperationPtr op = getOperation(obj.get());
-    assert(op);
-
-    Ice::ObjectPrx prx = getProxy(proxy);
-    InvocationPtr i = make_shared<AsyncTypedInvocation>(prx, proxy, op);
-    return i->invoke(args);
 }
 
 PyObject*

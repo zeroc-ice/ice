@@ -1,2 +1,2 @@
-IllegalMetadata.ice:6: metadata cannot be applied to modules defined with nested module syntax
-IllegalMetadata.ice:11: metadata cannot be applied to modules defined with nested module syntax
+IllegalMetadata.ice:6: metadata cannot be applied to modules defined using nested module syntax
+IllegalMetadata.ice:11: metadata cannot be applied to modules defined using nested module syntax
