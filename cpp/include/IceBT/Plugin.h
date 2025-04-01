@@ -43,6 +43,8 @@ namespace IceBT
         /// @return A map containing properties for each known device.
         [[nodiscard]] virtual DeviceMap getDevices() const = 0;
     };
+
+    /// A shared pointer to a Plugin.
     using PluginPtr = std::shared_ptr<Plugin>;
 }
 
