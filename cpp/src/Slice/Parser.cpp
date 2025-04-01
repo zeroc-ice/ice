@@ -4932,7 +4932,7 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debugMode)
 
     slice_in = file;
     int status = slice_parse();
-    if (_errors)
+    if (_errors > 0)
     {
         status = EXIT_FAILURE;
     }
@@ -4997,7 +4997,7 @@ Slice::Unit::unit() const
 int
 Slice::Unit::getStatus() const
 {
-    return (_errors ? EXIT_FAILURE : EXIT_SUCCESS);
+    return (_errors > 0 ? EXIT_FAILURE : EXIT_SUCCESS);
 }
 
 BuiltinPtr

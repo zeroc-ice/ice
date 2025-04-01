@@ -154,7 +154,7 @@ MetadataVisitor::visitModuleStart(const ModulePtr& p)
         p->unit()->error(
             p->file(),
             p->line(),
-            "metadata cannot be applied to modules defined with nested module syntax");
+            "metadata cannot be applied to modules defined using nested module syntax");
         p->setMetadata({});
     }
     else
