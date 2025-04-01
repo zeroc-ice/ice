@@ -803,7 +803,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp << nl << "@staticmethod";
     _out << nl << "def uncheckedCast(proxy, facet=None):";
     _out.inc();
-    _out << nl << "return " << prxAbs << ".ice_uncheckedCast(proxy, facet)";
+    _out << nl << "return Ice.uncheckedCast(" << prxAbs << ", proxy, facet)";
     _out.dec();
 
     //

@@ -175,6 +175,7 @@ module IceMX
     class InvocationMetrics extends Metrics
     {
         /// The number of retries for the invocations.
+        ["ruby:identifier:retryCount"]
         int retry = 0;
 
         /// The number of invocations that failed with a user exception.
