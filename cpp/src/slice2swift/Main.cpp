@@ -275,6 +275,7 @@ compile(const vector<string>& argv)
                     }
                 }
 
+                status |= u->getStatus();
                 u->destroy();
             }
         }
