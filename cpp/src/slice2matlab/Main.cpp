@@ -1017,7 +1017,8 @@ namespace
         // "matlab:identifier"
         MetadataInfo identifierInfo = {
             .validOn =
-                {typeid(InterfaceDecl),
+                {typeid(Module),
+                 typeid(InterfaceDecl),
                  typeid(Operation),
                  typeid(Struct),
                  typeid(Sequence),

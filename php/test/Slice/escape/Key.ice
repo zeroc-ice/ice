@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
-// TODO find a better way to escape module names.
-module escapedAnd
+["php:identifier:escapedAnd"]
+module and
 {
     ["php:identifier:another_name"]
     const int require_once = 1;

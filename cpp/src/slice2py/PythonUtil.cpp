@@ -2404,7 +2404,8 @@ Slice::Python::validateMetadata(const UnitPtr& unit)
     // "python:identifier"
     MetadataInfo identifierInfo = {
         .validOn =
-            {typeid(InterfaceDecl),
+            {typeid(Module),
+             typeid(InterfaceDecl),
              typeid(Operation),
              typeid(ClassDecl),
              typeid(Slice::Exception),

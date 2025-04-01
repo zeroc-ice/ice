@@ -22,7 +22,8 @@ namespace
         // "ruby:identifier"
         MetadataInfo identifierInfo = {
             .validOn =
-                {typeid(InterfaceDecl),
+                {typeid(Module),
+                 typeid(InterfaceDecl),
                  typeid(Operation),
                  typeid(ClassDecl),
                  typeid(Slice::Exception),
