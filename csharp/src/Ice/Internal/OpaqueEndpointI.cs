@@ -135,7 +135,8 @@ internal sealed class OpaqueEndpointI : EndpointI
     // Return an acceptor for this endpoint, or null if no acceptors
     // is available.
     //
-    public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions) => null;
+    public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions) =>
+        null;
 
     public override List<EndpointI> expandHost() => [this];
 

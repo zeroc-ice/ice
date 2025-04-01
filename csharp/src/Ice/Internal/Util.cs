@@ -6,7 +6,8 @@ public sealed class Util
 {
     public static Instance getInstance(Ice.Communicator communicator) => communicator.instance;
 
-    public static ProtocolPluginFacade getProtocolPluginFacade(Ice.Communicator communicator) => new ProtocolPluginFacadeI(communicator);
+    public static ProtocolPluginFacade getProtocolPluginFacade(Ice.Communicator communicator) =>
+        new ProtocolPluginFacadeI(communicator);
 
     public static ThreadPriority stringToThreadPriority(string s)
     {

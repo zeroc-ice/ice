@@ -20,7 +20,9 @@ namespace Ice
     class ICE_API Object
     {
     public:
+        /// Default constructor.
         Object() noexcept = default;
+
         virtual ~Object() = default;
 
         Object(const Object&) = delete;
@@ -39,17 +41,17 @@ namespace Ice
         /// value. In practice, the Ice-provided @p sendResponse attempts to send the response to the client
         /// synchronously, but may send it asynchronously. It can also silently fail to send the response back to the
         /// client. This function is the main building block for the Ice dispatch pipeline. The implementation provided
-        /// by the base Object class dispatches incoming requests to the four Object operations (ice_isA, ice_ping,
-        /// ice_ids and ice_id), and throws OperationNotExistException for all other operations. This base
-        /// implementation is trivial and should be overridden and fully replaced by all derived classes.
+        /// by the base class (Object) dispatches incoming requests to the four `Object` operations (`ice_isA`,
+        /// `ice_ping`, `ice_ids` and `ice_id`), and throws OperationNotExistException for all other operations. This
+        /// base implementation is trivial and should be overridden and fully replaced by all derived classes.
         virtual void dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse);
 
         /// Tests whether this object supports a specific Slice interface.
-        /// @param s The type ID of the Slice interface to test against.
+        /// @param typeId The type ID of the Slice interface to test against.
         /// @param current The Current object of the incoming request.
-        /// @return `true` if this object has the interface specified by @p s or derives from the interface specified
-        /// by @p s.
-        [[nodiscard]] virtual bool ice_isA(std::string s, const Current& current) const;
+        /// @return `true` if this object implements the Slice interface specified by @p typeId or implements a derived
+        /// interface, `false` otherwise.
+        [[nodiscard]] virtual bool ice_isA(std::string typeId, const Current& current) const;
 
         /// @private
         void _iceD_ice_isA(IncomingRequest&, std::function<void(OutgoingResponse)>);
@@ -109,12 +111,7 @@ namespace Ice
     class ICE_API BlobjectArray : public Object
     {
     public:
-        /// Dispatches an incoming request.
-        /// @param inEncaps An encapsulation containing the encoded in-parameters for the operation.
-        /// @param outEncaps An encapsulation containing the encoded result for the operation.
-        /// @param current The Current object of the incoming request.
-        /// @return `true` if the dispatch completes successfully, `false` if the dispatch completes with a user
-        /// exception encoded in @p outEncaps.
+        /// @copydoc Blobject::ice_invoke
         virtual bool ice_invoke(
             std::pair<const std::byte*, const std::byte*> inEncaps,
             std::vector<std::byte>& outEncaps,
@@ -156,14 +153,7 @@ namespace Ice
     class ICE_API BlobjectArrayAsync : public Object
     {
     public:
-        /// Dispatches an incoming request asynchronously.
-        /// @param inEncaps An encapsulation containing the encoded in-parameters for the operation.
-        /// @param response The response callback. It accepts:
-        /// - `returnValue` `true` if the operation completed successfully, `false` if it completed with a user
-        ///   exception encoded in @p outEncaps.
-        /// - `outEncaps` An encapsulation containing the encoded result.
-        /// @param exception The exception callback.
-        /// @param current The Current object of the incoming request.
+        /// @copydoc BlobjectAsync::ice_invokeAsync
         virtual void ice_invokeAsync(
             std::pair<const std::byte*, const std::byte*> inEncaps,
             std::function<void(bool, std::pair<const std::byte*, const std::byte*>)> response,

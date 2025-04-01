@@ -23,6 +23,16 @@ async def allTestsAsync(helper, communicator):
     test(await p.callOpOnAsync(p) == 5)
     print("ok")
 
+    sys.stdout.write("testing builtin in operations... ")
+    sys.stdout.flush()
+    await p.ice_pingAsync()
+    test(await p.ice_isAAsync("::Test::TestIntf"))
+    test(await p.ice_idsAsync() == ["::Ice::Object", "::Test::TestIntf"])
+    test(await p.ice_idAsync() == "::Test::TestIntf")
+    p1 = await Test.TestIntfPrx.checkedCastAsync(p)
+    test(p1 is not None)
+    print("ok")
+
     sys.stdout.write("testing exceptions... ")
     sys.stdout.flush()
     try:

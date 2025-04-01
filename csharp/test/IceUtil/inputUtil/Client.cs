@@ -51,9 +51,11 @@ public class Client : Test.TestHelper
             test(args.Length == 1 && args[0] == "-Dir=C:\\oest\\oile"); // -Dir=C:\oest\oile
             args = Ice.UtilInternal.Options.split("-Dir=$'C:\\oest\\oilewith\"quote'"); // -Dir=$'C:\oest\oilewith"quote'
             test(args.Length == 1 && args[0].Equals("-Dir=C:\\oest\\oilewith\"quote")); // -Dir=C:\oest\oilewith"quote
-            args = Ice.UtilInternal.Options.split("-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
+            args = Ice.UtilInternal.Options.split(
+                "-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
             test(args.Length == 1 && args[0] == "-Dir=C:\\test\\file"); // -Dir=C:\test\file
-            args = Ice.UtilInternal.Options.split("-Dir=$'\\x43\\x3A\\x5C\\x74\\x65\\x73\\x74\\x5C\\x66\\x69\\x6C\\x65'");
+            args = Ice.UtilInternal.Options.split(
+                "-Dir=$'\\x43\\x3A\\x5C\\x74\\x65\\x73\\x74\\x5C\\x66\\x69\\x6C\\x65'");
             test(args.Length == 1 && args[0] == "-Dir=C:\\test\\file"); // -Dir=C:\test\file
             args = Ice.UtilInternal.Options.split("-Dir=$'\\cM\\c_'"); // Control characters
             test(args.Length == 1 && args[0] == "-Dir=\x0D\x1F");

@@ -165,7 +165,9 @@ internal sealed class ServantManager : Object
         {
             if (!_servantMapMap.TryGetValue(ident, out Dictionary<string, Object>? m))
             {
-                throw new NotRegisteredException("servant", Ice.Util.identityToString(ident, _instance.toStringMode()));
+                throw new NotRegisteredException(
+                    "servant",
+                    Ice.Util.identityToString(ident, _instance.toStringMode()));
             }
             _servantMapMap.Remove(ident);
 

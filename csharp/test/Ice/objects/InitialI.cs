@@ -77,7 +77,8 @@ public sealed class InitialI : Test.InitialDisp_
 
     public override Test.D1 getD1(Test.D1 d1, Ice.Current current) => d1;
 
-    public override void throwEDerived(Ice.Current current) => throw new Test.EDerived(new Test.A1("a1"), new Test.A1("a2"), new Test.A1("a3"), new Test.A1("a4"));
+    public override void throwEDerived(Ice.Current current) =>
+        throw new Test.EDerived(new Test.A1("a1"), new Test.A1("a2"), new Test.A1("a3"), new Test.A1("a4"));
 
     public override void setG(Test.G theG, Ice.Current current)
     {
@@ -103,9 +104,11 @@ public sealed class InitialI : Test.InitialDisp_
 
     public override void throwInnerSubEx(Ice.Current current) => throw new Test.Inner.Sub.Ex("Inner::Sub::Ex");
 
-    public override Test.Initial_GetMBMarshaledResult getMB(Ice.Current current) => new Test.Initial_GetMBMarshaledResult(_b1, current);
+    public override Test.Initial_GetMBMarshaledResult getMB(Ice.Current current) =>
+        new Test.Initial_GetMBMarshaledResult(_b1, current);
 
-    public override Task<Test.Initial_GetAMDMBMarshaledResult> getAMDMBAsync(Ice.Current current) => Task.FromResult(new Test.Initial_GetAMDMBMarshaledResult(_b1, current));
+    public override Task<Test.Initial_GetAMDMBMarshaledResult> getAMDMBAsync(Ice.Current current) =>
+        Task.FromResult(new Test.Initial_GetAMDMBMarshaledResult(_b1, current));
 
     public override Test.M
     opM(Test.M v1, out Test.M v2, Ice.Current current)
