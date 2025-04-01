@@ -1460,12 +1460,6 @@ proxyNewProxy(PyObject*, PyObject* args)
     return createProxy(*p->proxy, *p->communicator, proxyType);
 }
 
-extern "C" PyObject*
-proxyIceStaticId(PyObject* /*self*/, PyObject* /*args*/)
-{
-    return createString(Ice::Object::ice_staticId());
-}
-
 static PyMethodDef ProxyMethods[] = {
     {"ice_getCommunicator",
      reinterpret_cast<PyCFunction>(proxyIceGetCommunicator),
@@ -1676,10 +1670,6 @@ static PyMethodDef ProxyMethods[] = {
      reinterpret_cast<PyCFunction>(proxyNewProxy),
      METH_VARARGS | METH_STATIC,
      PyDoc_STR("newProxy(proxyType, proxy) -> proxy")},
-    {"ice_staticId",
-     reinterpret_cast<PyCFunction>(proxyIceStaticId),
-     METH_NOARGS | METH_STATIC,
-     PyDoc_STR("ice_staticId() -> string")},
     {} /* sentinel */
 };
 
