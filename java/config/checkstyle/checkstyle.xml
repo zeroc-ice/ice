@@ -46,6 +46,8 @@
     <property name="optional" value="true"/>
   </module>
 
+  <module name="SuppressWarningsFilter"/>
+
   <!-- https://checkstyle.org/filters/suppresswithnearbytextfilter.html -->
   <module name="SuppressWithNearbyTextFilter">
     <property name="nearbyTextPattern"
@@ -68,6 +70,7 @@
   </module>
 
   <module name="TreeWalker">
+  <module name="SuppressWarningsHolder"/>
     <module name="OuterTypeFilename"/>
     <module name="IllegalTokenText">
       <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
