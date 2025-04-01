@@ -10,10 +10,7 @@ namespace DataStorm
 {
     template<typename, typename, typename> class Topic;
 
-    /// The exception NodeShutdownException. It's raised by methods which might block waiting for a condition to
-    /// occur and after the node has been shutdown. It informs the application that the condition won't occur
-    /// because the DataStorm node is being shutdown and will disconnect from other nodes.
-    ///
+    /// The exception that is thrown when a blocking operation is interrupted by the shutdown of the node.
     /// @headerfile DataStorm/DataStorm.h
     class DATASTORM_API NodeShutdownException final : public std::exception
     {
