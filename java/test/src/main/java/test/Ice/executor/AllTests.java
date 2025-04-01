@@ -66,8 +66,8 @@ public class AllTests {
         test(obj != null);
 
         int mult = 1;
-        if (!communicator.getProperties().getIceProperty("Ice.Default.Protocol").equals("tcp")
-                || helper.isAndroid()) {
+        if (!"tcp".equals(communicator.getProperties().getIceProperty("Ice.Default.Protocol")) ||
+                helper.isAndroid()) {
             mult = 4;
         }
 
@@ -243,5 +243,8 @@ public class AllTests {
         }
         out.println("ok");
         p.shutdown();
+    }
+
+    private AllTests() {
     }
 }

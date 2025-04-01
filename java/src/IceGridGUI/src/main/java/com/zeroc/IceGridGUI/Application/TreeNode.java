@@ -62,7 +62,7 @@ public abstract class TreeNode extends TreeNodeBase {
     }
 
     static String[] createAttribute(String name, String value) {
-        return new String[] {name, value};
+        return new String[]{name, value};
     }
 
     static void writeVariables(XMLWriter writer, java.util.Map<String, String> variables)

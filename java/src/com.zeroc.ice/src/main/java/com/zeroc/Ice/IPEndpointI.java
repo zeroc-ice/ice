@@ -105,9 +105,9 @@ abstract class IPEndpointI extends EndpointI {
         }
 
         IPEndpointI ipEndpointI = (IPEndpointI) endpoint;
-        return ipEndpointI.type() == type()
-                && ipEndpointI._normalizedHost.equals(_normalizedHost)
-                && ipEndpointI._port == _port;
+        return ipEndpointI.type() == type() &&
+                ipEndpointI._normalizedHost.equals(_normalizedHost) &&
+                ipEndpointI._port == _port;
     }
 
     public java.util.List<Connector> connectors(
@@ -215,7 +215,7 @@ abstract class IPEndpointI extends EndpointI {
         if (_host == null || _host.isEmpty()) {
             _host = _instance.defaultHost();
             _normalizedHost = normalizeHost(_host);
-        } else if (_host.equals("*")) {
+        } else if ("*".equals(_host)) {
             if (oaEndpoint) {
                 _host = "";
                 _normalizedHost = "";
@@ -242,14 +242,14 @@ abstract class IPEndpointI extends EndpointI {
 
     @Override
     protected boolean checkOption(String option, String argument, String endpoint) {
-        if (option.equals("-h")) {
+        if ("-h".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
                         "no argument provided for -h option in endpoint '" + endpoint + "'");
             }
             _host = argument;
             _normalizedHost = normalizeHost(argument);
-        } else if (option.equals("-p")) {
+        } else if ("-p".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
                         "no argument provided for -p option in endpoint '" + endpoint + "'");
@@ -264,25 +264,25 @@ abstract class IPEndpointI extends EndpointI {
 
             if (_port < 0 || _port > 65535) {
                 throw new ParseException(
-                        "port value '"
-                                + argument
-                                + "' out of range in endpoint '"
-                                + endpoint
-                                + "'");
+                        "port value '" +
+                                argument +
+                                "' out of range in endpoint '" +
+                                endpoint +
+                                "'");
             }
-        } else if (option.equals("--sourceAddress")) {
+        } else if ("--sourceAddress".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for --sourceAddress option in endpoint '"
-                                + endpoint
-                                + "'");
+                        "no argument provided for --sourceAddress option in endpoint '" +
+                                endpoint +
+                                "'");
             }
             _sourceAddr = Network.getNumericAddress(argument);
             if (_sourceAddr == null) {
                 throw new ParseException(
-                        "invalid IP address provided for --sourceAddress option in endpoint '"
-                                + endpoint
-                                + "'");
+                        "invalid IP address provided for --sourceAddress option in endpoint '" +
+                                endpoint +
+                                "'");
             }
         } else {
             return false;

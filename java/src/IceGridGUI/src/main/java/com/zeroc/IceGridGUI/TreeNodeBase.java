@@ -140,7 +140,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
 
         String id = newChild.getId();
         int i;
-        for (i = 0; i < children.size(); ++i) {
+        for (i = 0; i < children.size(); i++) {
             String otherId = children.get(i).getId();
             int cmp = id.compareTo(otherId);
 
@@ -152,7 +152,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
         }
         children.add(i, newChild);
         if (treeModel != null) {
-            treeModel.nodesWereInserted(this, new int[] {getIndex(newChild)});
+            treeModel.nodesWereInserted(this, new int[]{getIndex(newChild)});
         }
         return true;
     }
@@ -173,7 +173,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
 
         int i = 0;
         boolean checkInsert = true;
-        for (int j = 0; j < children.length; ++j) {
+        for (int j = 0; j < children.length; j++) {
             String id = children[j].getId();
 
             if (checkInsert) {

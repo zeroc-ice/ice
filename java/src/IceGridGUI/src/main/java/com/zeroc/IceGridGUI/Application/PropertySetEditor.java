@@ -160,7 +160,7 @@ class PropertySetEditor extends Editor {
 
     @Override
     protected boolean validate() {
-        return check(new String[] {_idLabel.getText(), getIdText()});
+        return check(new String[]{_idLabel.getText(), getIdText()});
     }
 
     void show(String unsubstitutedId, PropertySet nps) {
@@ -168,7 +168,7 @@ class PropertySetEditor extends Editor {
         _target = nps;
 
         Utils.Resolver resolver = getDetailResolver();
-        boolean isEditable = (resolver == null);
+        boolean isEditable = resolver == null;
 
         PropertySetDescriptor descriptor = (PropertySetDescriptor) nps.getDescriptor();
 

@@ -43,12 +43,12 @@ public final class ServantLocatorI implements ServantLocator {
             test(!_deactivated);
         }
 
-        if (current.id.name.equals("router")) {
+        if ("router".equals(current.id.name)) {
             return new ServantLocator.LocateResult(_router, null);
         }
 
         test(current.id.category.isEmpty());
-        test(current.id.name.equals("test"));
+        test("test".equals(current.id.name));
 
         return new ServantLocator.LocateResult(new TestI(), new Cookie());
     }
@@ -59,12 +59,12 @@ public final class ServantLocatorI implements ServantLocator {
             test(!_deactivated);
         }
 
-        if (current.id.name.equals("router")) {
+        if ("router".equals(current.id.name)) {
             return;
         }
 
         Cookie co = (Cookie) cookie;
-        test(co.message().equals("blahblah"));
+        test("blahblah".equals(co.message()));
     }
 
     public synchronized void deactivate(String category) {

@@ -110,24 +110,24 @@ class TrustManager {
                                 .getLogger()
                                 .trace(
                                         "Security",
-                                        "trust manager evaluating client:\n"
-                                                + "subject = "
-                                                + subjectName
-                                                + "\n"
-                                                + "adapter = "
-                                                + info.adapterName
-                                                + "\n"
-                                                + desc);
+                                        "trust manager evaluating client:\n" +
+                                                "subject = " +
+                                                subjectName +
+                                                "\n" +
+                                                "adapter = " +
+                                                info.adapterName +
+                                                "\n" +
+                                                desc);
                     } else {
                         _communicator
                                 .getLogger()
                                 .trace(
                                         "Security",
-                                        "trust manager evaluating server:\n"
-                                                + "subject = "
-                                                + subjectName
-                                                + "\n"
-                                                + desc);
+                                        "trust manager evaluating server:\n" +
+                                                "subject = " +
+                                                subjectName +
+                                                "\n" +
+                                                desc);
                     }
                 }
                 java.util.List<RFC2253.RDNPair> dn = RFC2253.parseStrict(subjectName);
@@ -163,10 +163,10 @@ class TrustManager {
                 _communicator
                         .getLogger()
                         .warning(
-                                "Ice.SSL: unable to parse certificate DN `"
-                                        + subjectName
-                                        + "'\nreason: "
-                                        + ex.getMessage());
+                                "Ice.SSL: unable to parse certificate DN `" +
+                                        subjectName +
+                                        "'\nreason: " +
+                                        ex.getMessage());
             }
 
             //

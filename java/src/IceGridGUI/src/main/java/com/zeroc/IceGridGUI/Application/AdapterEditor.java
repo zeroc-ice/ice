@@ -72,12 +72,12 @@ class AdapterEditor extends CommunicatorChildEditor {
                 };
         _registerProcess = new JCheckBox(checkRegisterProcess);
         _registerProcess.setToolTipText(
-                "<html>This setting is ignored for servers running Ice<br>"
-                        + "version 3.3 or greater.<br>"
-                        + "During activation, create a Process object<br>"
-                        + "in this adapter and register it with IceGrid<br>"
-                        + "to enable clean shutdown; you should register<br>"
-                        + "exactly one Process object per server.</html>");
+                "<html>This setting is ignored for servers running Ice<br>" +
+                        "version 3.3 or greater.<br>" +
+                        "During activation, create a Process object<br>" +
+                        "in this adapter and register it with IceGrid<br>" +
+                        "to enable clean shutdown; you should register<br>" +
+                        "exactly one Process object per server.</html>");
 
         Action checkServerLifetime =
                 new AbstractAction("Server Lifetime") {
@@ -88,10 +88,10 @@ class AdapterEditor extends CommunicatorChildEditor {
                 };
         _serverLifetime = new JCheckBox(checkServerLifetime);
         _serverLifetime.setToolTipText(
-                "<html>Is the adapter lifetime the same as the server<br>"
-                        + "lifetime? The server is considered to be active<br>"
-                        + "only if all the adapters with this attribute set<br>"
-                        + "to true are active.</html>");
+                "<html>Is the adapter lifetime the same as the server<br>" +
+                        "lifetime? The server is considered to be active<br>" +
+                        "only if all the adapters with this attribute set<br>" +
+                        "to true are active.</html>");
 
         // Associate updateListener with various fields
         _name.getDocument()
@@ -125,13 +125,13 @@ class AdapterEditor extends CommunicatorChildEditor {
 
         _endpoints.getDocument().addDocumentListener(_updateListener);
         _endpoints.setToolTipText(
-                "<html>The network interface(s) on which this object adapter receives requests;<br>"
-                        + "for example:<br>"
-                        + " tcp (listen on all local interfaces using a random port)<br>"
-                        + " tcp -h venus.foo.com (listen on just one interface)<br>"
-                        + " tcp -t 10000 (sets a timeout of 10,000 milliseconds)<br>"
-                        + " ssl -h venus.foo.com (accepts SSL connections instead of plain TCP)"
-                        + "</html>");
+                "<html>The network interface(s) on which this object adapter receives requests;<br>" +
+                        "for example:<br>" +
+                        " tcp (listen on all local interfaces using a random port)<br>" +
+                        " tcp -h venus.foo.com (listen on just one interface)<br>" +
+                        " tcp -t 10000 (sets a timeout of 10,000 milliseconds)<br>" +
+                        " ssl -h venus.foo.com (accepts SSL connections instead of plain TCP)" +
+                        "</html>");
 
         _proxyOptions.getDocument().addDocumentListener(_updateListener);
         _proxyOptions.setToolTipText(
@@ -151,8 +151,8 @@ class AdapterEditor extends CommunicatorChildEditor {
 
         _priority.getDocument().addDocumentListener(_updateListener);
         _priority.setToolTipText(
-                "The priority of this adapter; see the Ordered load-balancing "
-                        + "policy in Replica Groups");
+                "The priority of this adapter; see the Ordered load-balancing " +
+                        "policy in Replica Groups");
 
         JTextField publishedEndpointsTextField =
                 (JTextField) _publishedEndpoints.getEditor().getEditorComponent();
@@ -324,7 +324,7 @@ class AdapterEditor extends CommunicatorChildEditor {
 
     private void refreshId() {
         Object id = _id.getSelectedItem();
-        _id.setModel(new DefaultComboBoxModel(new Object[] {DEFAULT_ADAPTER_ID}));
+        _id.setModel(new DefaultComboBoxModel(new Object[]{DEFAULT_ADAPTER_ID}));
         _id.setSelectedItem(id);
     }
 
@@ -374,7 +374,7 @@ class AdapterEditor extends CommunicatorChildEditor {
         }
 
         return check(
-                new String[] {
+                new String[]{
                     "Adapter Name", _name.getText().trim(),
                     "Adapter ID", getIdAsString(),
                     "Endpoints", _endpoints.getText().trim()
@@ -428,12 +428,12 @@ class AdapterEditor extends CommunicatorChildEditor {
                     public void itemStateChanged(ItemEvent e) {
                         if (e.getStateChange() == ItemEvent.SELECTED) {
                             Object item = e.getItem();
-                            boolean enabled = (item instanceof ReplicaGroup);
+                            boolean enabled = item instanceof ReplicaGroup;
                             if (!enabled && item != NOT_REPLICATED) {
                                 if (resolver != null) {
                                     String replicaGroupId =
                                             resolver.substitute(item.toString().trim());
-                                    enabled = (replicaGroups.findChild(replicaGroupId) != null);
+                                    enabled = replicaGroups.findChild(replicaGroupId) != null;
                                 }
                             }
                             _replicaGroupButton.setEnabled(enabled);
@@ -507,7 +507,7 @@ class AdapterEditor extends CommunicatorChildEditor {
         for (ObjectDescriptor p : objects) {
             String k = communicator.identityToString(p.id);
             result.put(
-                    k, new String[] {p.type, getAdapter().lookupPropertyValue(k), p.proxyOptions});
+                    k, new String[]{p.type, getAdapter().lookupPropertyValue(k), p.proxyOptions});
         }
         return result;
     }
@@ -554,14 +554,14 @@ class AdapterEditor extends CommunicatorChildEditor {
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
 
-    private JComboBox _id = new JComboBox(new Object[] {DEFAULT_ADAPTER_ID});
+    private JComboBox _id = new JComboBox(new Object[]{DEFAULT_ADAPTER_ID});
     private JComboBox _replicaGroupId = new JComboBox();
     private JButton _replicaGroupButton;
 
     private JTextField _priority = new JTextField(20);
 
     private JTextField _endpoints = new JTextField(20);
-    private JComboBox _publishedEndpoints = new JComboBox(new Object[] {PUBLISH_ACTUAL});
+    private JComboBox _publishedEndpoints = new JComboBox(new Object[]{PUBLISH_ACTUAL});
     private JTextField _proxyOptions = new JTextField(20);
 
     private JTextField _currentStatus = new JTextField(20);

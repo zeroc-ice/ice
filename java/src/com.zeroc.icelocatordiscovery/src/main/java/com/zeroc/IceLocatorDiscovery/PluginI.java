@@ -74,7 +74,7 @@ class PluginI implements Plugin {
         }
 
         private final LocatorI _locator;
-        private com.zeroc.Ice.LocalException _exception = null;
+        private com.zeroc.Ice.LocalException _exception;
         private final String _operation;
         private final com.zeroc.Ice.OperationMode _mode;
         private final java.util.Map<String, String> _context;
@@ -155,8 +155,8 @@ class PluginI implements Plugin {
                 if (!info.mcastInterface.isEmpty()) {
                     for (com.zeroc.Ice.Endpoint q : lookupReply.ice_getEndpoints()) {
                         com.zeroc.Ice.EndpointInfo r = q.getInfo();
-                        if (r instanceof com.zeroc.Ice.IPEndpointInfo
-                                && ((com.zeroc.Ice.IPEndpointInfo) r)
+                        if (r instanceof com.zeroc.Ice.IPEndpointInfo &&
+                                ((com.zeroc.Ice.IPEndpointInfo) r)
                                         .host.equals(info.mcastInterface)) {
                             single[0] = q;
                             entry.setValue((LookupReplyPrx) lookupReply.ice_endpoints(single));
@@ -222,8 +222,8 @@ class PluginI implements Plugin {
                 return;
             }
 
-            if (!_instanceName.isEmpty()
-                    && !locator.ice_getIdentity().category.equals(_instanceName)) {
+            if (!_instanceName.isEmpty() &&
+                    !locator.ice_getIdentity().category.equals(_instanceName)) {
                 if (_traceLevel > 2) {
                     StringBuffer s =
                             new StringBuffer(
@@ -237,9 +237,9 @@ class PluginI implements Plugin {
 
             // If we already have a locator assigned, ensure the given locator has the same
             // identity, otherwise ignore it.
-            if (!_pendingRequests.isEmpty()
-                    && _locator != null
-                    && !locator.ice_getIdentity()
+            if (!_pendingRequests.isEmpty() &&
+                    _locator != null &&
+                    !locator.ice_getIdentity()
                             .category
                             .equals(_locator.ice_getIdentity().category)) {
                 if (!_warned) {
@@ -248,17 +248,17 @@ class PluginI implements Plugin {
                     locator.ice_getCommunicator()
                             .getLogger()
                             .warning(
-                                    "received Ice locator with different instance name:\n"
-                                            + "using = `"
-                                            + _locator.ice_getIdentity().category
-                                            + "'\n"
-                                            + "received = `"
-                                            + locator.ice_getIdentity().category
-                                            + "'\n"
-                                            + "This is typically the case if multiple Ice locators"
-                                            + " with different instance names are deployed and the"
-                                            + " property `IceLocatorDiscovery.InstanceName'is not"
-                                            + " set.");
+                                    "received Ice locator with different instance name:\n" +
+                                            "using = `" +
+                                            _locator.ice_getIdentity().category +
+                                            "'\n" +
+                                            "received = `" +
+                                            locator.ice_getIdentity().category +
+                                            "'\n" +
+                                            "This is typically the case if multiple Ice locators" +
+                                            " with different instance names are deployed and the" +
+                                            " property `IceLocatorDiscovery.InstanceName'is not" +
+                                            " set.");
                 }
                 return;
             }
@@ -281,8 +281,8 @@ class PluginI implements Plugin {
             }
 
             com.zeroc.Ice.LocatorPrx l =
-                    _pendingRequests.isEmpty()
-                            ? _locators.get(locator.ice_getIdentity().category)
+                    _pendingRequests.isEmpty() ?
+                            _locators.get(locator.ice_getIdentity().category)
                             : _locator;
             if (l != null) {
                 // We found another locator replica, append its endpoints to the
@@ -332,8 +332,8 @@ class PluginI implements Plugin {
         public synchronized void invoke(com.zeroc.Ice.LocatorPrx locator, Request request) {
             if (request != null && _locator != null && _locator != locator) {
                 request.invoke(_locator);
-            } else if (request != null
-                    && com.zeroc.Ice.Time.currentMonotonicTimeMillis() < _nextRetry) {
+            } else if (request != null &&
+                    com.zeroc.Ice.Time.currentMonotonicTimeMillis() < _nextRetry) {
                 request.invoke(
                         _voidLocator); // Don't retry to find a locator before the retry delay
                 // expires

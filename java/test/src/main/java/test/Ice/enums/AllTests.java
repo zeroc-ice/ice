@@ -118,10 +118,10 @@ public class AllTests {
         byte[] bytes;
 
         final boolean encoding_1_0 =
-                communicator
+                "1.0"
+                        .equals(communicator
                         .getProperties()
-                        .getIceProperty("Ice.Default.EncodingVersion")
-                        .equals("1.0");
+                        .getIceProperty("Ice.Default.EncodingVersion"));
 
         os = new com.zeroc.Ice.OutputStream(communicator);
         ByteEnum.ice_write(os, ByteEnum.benum11);
@@ -195,7 +195,7 @@ public class AllTests {
 
             TestIntf.OpByteSeqResult r = proxy.opByteSeq(b1);
 
-            for (int i = 0; i < b1.length; ++i) {
+            for (int i = 0; i < b1.length; i++) {
                 test(b1[i] == r.b2[i]);
                 test(b1[i] == r.returnValue[i]);
             }
@@ -212,7 +212,7 @@ public class AllTests {
 
             TestIntf.OpShortSeqResult r = proxy.opShortSeq(s1);
 
-            for (int i = 0; i < s1.length; ++i) {
+            for (int i = 0; i < s1.length; i++) {
                 test(s1[i] == r.s2[i]);
                 test(s1[i] == r.returnValue[i]);
             }
@@ -227,7 +227,7 @@ public class AllTests {
 
             TestIntf.OpIntSeqResult r = proxy.opIntSeq(i1);
 
-            for (int i = 0; i < i1.length; ++i) {
+            for (int i = 0; i < i1.length; i++) {
                 test(i1[i] == r.i2[i]);
                 test(i1[i] == r.returnValue[i]);
             }
@@ -238,7 +238,7 @@ public class AllTests {
 
             TestIntf.OpSimpleSeqResult r = proxy.opSimpleSeq(s1);
 
-            for (int i = 0; i < s1.length; ++i) {
+            for (int i = 0; i < s1.length; i++) {
                 test(s1[i] == r.s2[i]);
                 test(s1[i] == r.returnValue[i]);
             }
@@ -322,5 +322,8 @@ public class AllTests {
         out.println("ok");
 
         return proxy;
+    }
+
+    private AllTests() {
     }
 }

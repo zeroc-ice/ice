@@ -196,7 +196,7 @@ public class AllTests {
             //
             // Test: PropertiesAdmin::getProperty()
             //
-            test(pa.getProperty("Prop2").equals("2"));
+            test("2".equals(pa.getProperty("Prop2")));
             test(pa.getProperty("Bogus").isEmpty());
 
             //
@@ -204,11 +204,11 @@ public class AllTests {
             //
             java.util.Map<String, String> pd = pa.getPropertiesForPrefix("");
             test(pd.size() == 5);
-            test(pd.get("Ice.Admin.Endpoints").equals("tcp -h 127.0.0.1"));
-            test(pd.get("Ice.Admin.InstanceName").equals("Test"));
-            test(pd.get("Prop1").equals("1"));
-            test(pd.get("Prop2").equals("2"));
-            test(pd.get("Prop3").equals("3"));
+            test("tcp -h 127.0.0.1".equals(pd.get("Ice.Admin.Endpoints")));
+            test("Test".equals(pd.get("Ice.Admin.InstanceName")));
+            test("1".equals(pd.get("Prop1")));
+            test("2".equals(pd.get("Prop2")));
+            test("3".equals(pd.get("Prop3")));
 
             java.util.Map<String, String> changes;
 
@@ -222,18 +222,18 @@ public class AllTests {
             setProps.put("Prop4", "4"); // Added
             setProps.put("Prop5", "5"); // Added
             pa.setProperties(setProps);
-            test(pa.getProperty("Prop1").equals("10"));
-            test(pa.getProperty("Prop2").equals("20"));
+            test("10".equals(pa.getProperty("Prop1")));
+            test("20".equals(pa.getProperty("Prop2")));
             test(pa.getProperty("Prop3").isEmpty());
-            test(pa.getProperty("Prop4").equals("4"));
-            test(pa.getProperty("Prop5").equals("5"));
+            test("4".equals(pa.getProperty("Prop4")));
+            test("5".equals(pa.getProperty("Prop5")));
             changes = rcom.getChanges();
             test(changes.size() == 5);
-            test(changes.get("Prop1").equals("10"));
-            test(changes.get("Prop2").equals("20"));
+            test("10".equals(changes.get("Prop1")));
+            test("20".equals(changes.get("Prop2")));
             test(changes.get("Prop3").isEmpty());
-            test(changes.get("Prop4").equals("4"));
-            test(changes.get("Prop5").equals("5"));
+            test("4".equals(changes.get("Prop4")));
+            test("5".equals(changes.get("Prop5")));
             pa.setProperties(setProps);
             changes = rcom.getChanges();
             test(changes.isEmpty());
@@ -267,13 +267,13 @@ public class AllTests {
             com.zeroc.Ice.LoggerAdmin.GetLogResult r = logger.getLog(null, null, -1);
 
             test(r.returnValue.length == 4);
-            test(r.prefix.equals("NullLogger"));
+            test("NullLogger".equals(r.prefix));
             test(
-                    r.returnValue[0].traceCategory.equals("testCat")
-                            && r.returnValue[0].message.equals("trace"));
-            test(r.returnValue[1].message.equals("warning"));
-            test(r.returnValue[2].message.equals("error"));
-            test(r.returnValue[3].message.equals("print"));
+                    "testCat".equals(r.returnValue[0].traceCategory) &&
+                            "trace".equals(r.returnValue[0].message));
+            test("warning".equals(r.returnValue[1].message));
+            test("error".equals(r.returnValue[2].message));
+            test("print".equals(r.returnValue[3].message));
 
             //
             // Get only errors and warnings
@@ -289,12 +289,12 @@ public class AllTests {
 
             r = logger.getLog(messageTypes, null, -1);
             test(r.returnValue.length == 4);
-            test(r.prefix.equals("NullLogger"));
+            test("NullLogger".equals(r.prefix));
 
             for (com.zeroc.Ice.LogMessage msg : java.util.Arrays.asList(r.returnValue)) {
                 test(
-                        msg.type == LogMessageType.ErrorMessage
-                                || msg.type == LogMessageType.WarningMessage);
+                        msg.type == LogMessageType.ErrorMessage ||
+                                msg.type == LogMessageType.WarningMessage);
             }
 
             //
@@ -305,17 +305,17 @@ public class AllTests {
             rcom.trace("testCat2", "B");
 
             messageTypes =
-                    new LogMessageType[] {LogMessageType.ErrorMessage, LogMessageType.TraceMessage};
+                    new LogMessageType[]{LogMessageType.ErrorMessage, LogMessageType.TraceMessage};
             String[] categories = {"testCat"};
             r = logger.getLog(messageTypes, categories, -1);
             test(r.returnValue.length == 5);
-            test(r.prefix.equals("NullLogger"));
+            test("NullLogger".equals(r.prefix));
 
             for (com.zeroc.Ice.LogMessage msg : java.util.Arrays.asList(r.returnValue)) {
                 test(
-                        msg.type == LogMessageType.ErrorMessage
-                                || (msg.type == LogMessageType.TraceMessage
-                                        && msg.traceCategory.equals("testCat")));
+                        msg.type == LogMessageType.ErrorMessage ||
+                                (msg.type == LogMessageType.TraceMessage &&
+                                        "testCat".equals(msg.traceCategory)));
             }
 
             //
@@ -325,10 +325,10 @@ public class AllTests {
 
             r = logger.getLog(messageTypes, categories, 2);
             test(r.returnValue.length == 2);
-            test(r.prefix.equals("NullLogger"));
+            test("NullLogger".equals(r.prefix));
 
-            test(r.returnValue[0].message.equals("trace3"));
-            test(r.returnValue[1].message.equals("error3"));
+            test("trace3".equals(r.returnValue[0].message));
+            test("error3".equals(r.returnValue[1].message));
 
             //
             // Now, test RemoteLogger
@@ -356,7 +356,7 @@ public class AllTests {
             }
             remoteLogger.wait(1);
 
-            for (int i = 0; i < r.returnValue.length; ++i) {
+            for (int i = 0; i < r.returnValue.length; i++) {
                 com.zeroc.Ice.LogMessage m = r.returnValue[i];
                 remoteLogger.checkNextInit(r.prefix, m.type, m.message, m.traceCategory);
             }
@@ -389,7 +389,7 @@ public class AllTests {
             }
             remoteLogger.wait(1);
 
-            for (int i = 0; i < r.returnValue.length; ++i) {
+            for (int i = 0; i < r.returnValue.length; i++) {
                 com.zeroc.Ice.LogMessage m = r.returnValue[i];
                 remoteLogger.checkNextInit(r.prefix, m.type, m.message, m.traceCategory);
             }
@@ -527,7 +527,7 @@ public class AllTests {
             RemoteCommunicatorPrx rcom = factory.createCommunicator(props);
             com.zeroc.Ice.ObjectPrx obj = rcom.getAdmin();
             PropertiesAdminPrx pa = PropertiesAdminPrx.checkedCast(obj, "Properties");
-            test(pa.getProperty("Ice.Admin.InstanceName").equals("Test"));
+            test("Test".equals(pa.getProperty("Ice.Admin.InstanceName")));
             TestFacetPrx tf = TestFacetPrx.checkedCast(obj, "TestFacet");
             tf.op();
             try {
@@ -566,5 +566,8 @@ public class AllTests {
         out.flush();
 
         factory.shutdown();
+    }
+
+    private AllTests() {
     }
 }

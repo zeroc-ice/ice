@@ -26,56 +26,56 @@ class ServerSubEditor extends CommunicatorSubEditor {
 
         _exe.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _exe.setToolTipText(
-                "<html>Path to this server's executable, e.g.:<br>"
-                        + "icebox<br>"
-                        + "java<br>"
-                        + "myHelloServer<br>"
-                        + "C:\\testbed\\hello\\server</html>");
+                "<html>Path to this server's executable, e.g.:<br>" +
+                        "icebox<br>" +
+                        "java<br>" +
+                        "myHelloServer<br>" +
+                        "C:\\testbed\\hello\\server</html>");
 
         _iceVersion.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _iceVersion.setToolTipText(
-                "<html>The Ice version used by this server;<br>"
-                        + "blank means 'same version as the IceGrid registry'.</html>");
+                "<html>The Ice version used by this server;<br>" +
+                        "blank means 'same version as the IceGrid registry'.</html>");
 
         _pwd.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _pwd.setToolTipText(
-                "<html>If not set, the server will start in "
-                        + "<i>node data dir</i>/servers/<i>server-id</i>;<br>"
-                        + "relative directories are relative to the current directory"
-                        + " of the icegridnode process.</html>");
+                "<html>If not set, the server will start in " +
+                        "<i>node data dir</i>/servers/<i>server-id</i>;<br>" +
+                        "relative directories are relative to the current directory" +
+                        " of the icegridnode process.</html>");
 
         _options.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _options.setToolTipText(
-                "<html>Command-line arguments for this server.<br>"
-                        + "Use whitespace as separator; use double-quotes around arguments containing whitespace</html>");
+                "<html>Command-line arguments for this server.<br>" +
+                        "Use whitespace as separator; use double-quotes around arguments containing whitespace</html>");
 
         _user.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _user.setToolTipText(
-                "<html>Run the server using this user account.<br>"
-                        + "This feature is only available on Unix/Linux, when the IceGrid node runs as root.</html>");
+                "<html>Run the server using this user account.<br>" +
+                        "This feature is only available on Unix/Linux, when the IceGrid node runs as root.</html>");
 
         _envs = new SimpleMapField(mainEditor, true, "Name", "Value");
 
-        _activation = new JComboBox(new String[] {ALWAYS, MANUAL, ON_DEMAND, SESSION});
+        _activation = new JComboBox(new String[]{ALWAYS, MANUAL, ON_DEMAND, SESSION});
         _activation.setToolTipText(
-                "<html>always: IceGrid starts and keeps the server up all the time<br>"
-                        + "manual: you start the server yourself<br>"
-                        + "on-demand: IceGrid starts the server when a client needs it<br>"
-                        + "session: IceGrid starts and shuts down the server for each session</html>");
+                "<html>always: IceGrid starts and keeps the server up all the time<br>" +
+                        "manual: you start the server yourself<br>" +
+                        "on-demand: IceGrid starts the server when a client needs it<br>" +
+                        "session: IceGrid starts and shuts down the server for each session</html>");
 
         JTextField activationTextField = (JTextField) _activation.getEditor().getEditorComponent();
         activationTextField.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
 
         _activationTimeout.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _activationTimeout.setToolTipText(
-                "<html>Number of seconds; if not set or set to 0, "
-                        + "the IceGrid Node<br> uses the value of its "
-                        + "IceGrid.Node.WaitTime property</html>");
+                "<html>Number of seconds; if not set or set to 0, " +
+                        "the IceGrid Node<br> uses the value of its " +
+                        "IceGrid.Node.WaitTime property</html>");
         _deactivationTimeout.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _deactivationTimeout.setToolTipText(
-                "<html>Number of seconds; if not set or set to 0, "
-                        + "the IceGrid Node<br> uses the value of its "
-                        + "IceGrid.Node.WaitTime property</html>");
+                "<html>Number of seconds; if not set or set to 0, " +
+                        "the IceGrid Node<br> uses the value of its " +
+                        "IceGrid.Node.WaitTime property</html>");
 
         Action allocatable =
                 new AbstractAction("Allocatable") {
@@ -86,8 +86,8 @@ class ServerSubEditor extends CommunicatorSubEditor {
                 };
         allocatable.putValue(
                 Action.SHORT_DESCRIPTION,
-                "<html>Check this box to ensure that the well-known objects<br>"
-                        + "of this server can only be allocated by one session at a time.</html>");
+                "<html>Check this box to ensure that the well-known objects<br>" +
+                        "of this server can only be allocated by one session at a time.</html>");
         _allocatable = new JCheckBox(allocatable);
     }
 
@@ -177,7 +177,7 @@ class ServerSubEditor extends CommunicatorSubEditor {
 
     boolean validate() {
         return _mainEditor.check(
-                new String[] {
+                new String[]{
                     "Server ID", _id.getText().trim(),
                     "Path to Executable", _exe.getText().trim()
                 });
@@ -225,13 +225,13 @@ class ServerSubEditor extends CommunicatorSubEditor {
 
         _activation.setEnabled(true);
         _activation.setEditable(true);
-        if (activation.equals(ALWAYS)) {
+        if (ALWAYS.equals(activation)) {
             _activation.setSelectedItem(ALWAYS);
-        } else if (activation.equals(MANUAL)) {
+        } else if (MANUAL.equals(activation)) {
             _activation.setSelectedItem(MANUAL);
-        } else if (activation.equals(ON_DEMAND)) {
+        } else if (ON_DEMAND.equals(activation)) {
             _activation.setSelectedItem(ON_DEMAND);
-        } else if (activation.equals(SESSION)) {
+        } else if (SESSION.equals(activation)) {
             _activation.setSelectedItem(SESSION);
         } else {
             _activation.setSelectedItem(activation);

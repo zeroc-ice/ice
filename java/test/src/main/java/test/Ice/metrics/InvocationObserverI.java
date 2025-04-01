@@ -50,6 +50,6 @@ class InvocationObserverI extends ObserverI
     int userExceptionCount;
     int retriedCount;
 
-    RemoteObserverI remoteObserver = null;
-    CollocatedObserverI collocatedObserver = null;
+    RemoteObserverI remoteObserver;
+    CollocatedObserverI collocatedObserver;
 }

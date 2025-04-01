@@ -88,7 +88,7 @@ public class AllTests {
 
         int oldPid = 0;
         boolean ami = false;
-        for (int i = 1, j = 0; i <= ports.length; ++i, ++j) {
+        for (int i = 1, j = 0; i <= ports.length; i++, j++) {
             if (j > 3) {
                 j = 0;
                 ami = !ami;
@@ -167,11 +167,11 @@ public class AllTests {
             } else if (j == 2 || j == 3) {
                 if (!ami) {
                     out.print(
-                            "aborting server #"
-                                    + i
-                                    + " and #"
-                                    + (i + 1)
-                                    + " with idempotent call... ");
+                            "aborting server #" +
+                                    i +
+                                    " and #" +
+                                    (i + 1) +
+                                    " with idempotent call... ");
                     out.flush();
                     try {
                         obj.idempotentAbort();
@@ -185,11 +185,11 @@ public class AllTests {
                     }
                 } else {
                     out.print(
-                            "aborting server #"
-                                    + i
-                                    + " and #"
-                                    + (i + 1)
-                                    + " with idempotent AMI call... ");
+                            "aborting server #" +
+                                    i +
+                                    " and #" +
+                                    (i + 1) +
+                                    " with idempotent AMI call... ");
                     out.flush();
                     AbortCallback cb = new AbortCallback();
                     obj.idempotentAbortAsync()
@@ -204,7 +204,7 @@ public class AllTests {
 
                 ++i;
             } else {
-                assert (false);
+                assert false;
             }
         }
 
@@ -216,5 +216,8 @@ public class AllTests {
         } catch (com.zeroc.Ice.LocalException ex) {
             out.println("ok");
         }
+    }
+
+    private AllTests() {
     }
 }

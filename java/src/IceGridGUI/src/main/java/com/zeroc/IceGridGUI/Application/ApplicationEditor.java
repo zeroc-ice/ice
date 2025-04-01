@@ -104,8 +104,8 @@ class ApplicationEditor extends Editor {
 
     boolean isSimpleUpdate() {
         ApplicationDescriptor descriptor = (ApplicationDescriptor) _target.getDescriptor();
-        return descriptor.name.equals(_name.getText().trim())
-                && _variables.get().equals(descriptor.variables);
+        return descriptor.name.equals(_name.getText().trim()) &&
+                _variables.get().equals(descriptor.variables);
     }
 
     void writeDescriptor() {
@@ -117,7 +117,7 @@ class ApplicationEditor extends Editor {
 
     @Override
     protected boolean validate() {
-        return check(new String[] {"Name", _name.getText().trim()});
+        return check(new String[]{"Name", _name.getText().trim()});
     }
 
     void show(Root root) {
@@ -125,7 +125,7 @@ class ApplicationEditor extends Editor {
         _target = root;
 
         Utils.Resolver resolver = getDetailResolver();
-        boolean isEditable = (resolver == null);
+        boolean isEditable = resolver == null;
 
         ApplicationDescriptor descriptor = (ApplicationDescriptor) root.getDescriptor();
 

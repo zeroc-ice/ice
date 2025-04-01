@@ -10,8 +10,8 @@ final class Base64 {
             return "";
         }
 
-        int base64Bytes = (((plainSeq.length * 4) / 3) + 1);
-        int newlineBytes = (((base64Bytes * 2) / 76) + 1);
+        int base64Bytes = ((plainSeq.length * 4) / 3) + 1;
+        int newlineBytes = ((base64Bytes * 2) / 76) + 1;
         int totalBytes = base64Bytes + newlineBytes;
 
         StringBuilder retval = new StringBuilder(totalBytes);
@@ -81,11 +81,11 @@ final class Base64 {
                 newStr.append(c);
             } else {
                 throw new IllegalArgumentException(
-                        "invalid base64 character `"
-                                + str.charAt(j)
-                                + "' (ordinal "
-                                + ((int) str.charAt(j))
-                                + ")");
+                        "invalid base64 character `" +
+                                str.charAt(j) +
+                                "' (ordinal " +
+                                ((int) str.charAt(j)) +
+                                ")");
             }
         }
 
@@ -221,5 +221,8 @@ final class Base64 {
         }
 
         return 63;
+    }
+
+    private Base64() {
     }
 }

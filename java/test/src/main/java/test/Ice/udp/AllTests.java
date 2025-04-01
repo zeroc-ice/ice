@@ -120,11 +120,11 @@ public class AllTests {
         out.flush();
         {
             StringBuilder endpoint = new StringBuilder();
-            if (communicator.getProperties().getIceProperty("Ice.IPv6").equals("1")) {
+            if ("1".equals(communicator.getProperties().getIceProperty("Ice.IPv6"))) {
                 endpoint.append("udp -h \"ff15::1:1\" -p ");
                 endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
-                if (System.getProperty("os.name").contains("OS X")
-                        || System.getProperty("os.name").startsWith("Windows")) {
+                if (System.getProperty("os.name").contains("OS X") ||
+                        System.getProperty("os.name").startsWith("Windows")) {
                     endpoint.append(
                             " --interface \"::1\""); // Use loopback to prevent other machines to
                     // answer.
@@ -132,8 +132,8 @@ public class AllTests {
             } else {
                 endpoint.append("udp -h 239.255.1.1 -p ");
                 endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
-                if (System.getProperty("os.name").contains("OS X")
-                        || System.getProperty("os.name").startsWith("Windows")) {
+                if (System.getProperty("os.name").contains("OS X") ||
+                        System.getProperty("os.name").startsWith("Windows")) {
                     endpoint.append(
                             " --interface 127.0.0.1"); // Use loopback to prevent other machines to
                     // answer.
@@ -154,7 +154,7 @@ public class AllTests {
                 try {
                     objMcast.ping(reply);
                 } catch (com.zeroc.Ice.SocketException ex) {
-                    if (communicator.getProperties().getIceProperty("Ice.IPv6").equals("1")) {
+                    if ("1".equals(communicator.getProperties().getIceProperty("Ice.IPv6"))) {
                         // Multicast IPv6 not supported on the platform. This occurs for example on
                         // macOS Big Sur
                         out.print("(not supported) ");
@@ -196,5 +196,8 @@ public class AllTests {
             test(ret);
         }
         out.println("ok");
+    }
+
+    private AllTests() {
     }
 }

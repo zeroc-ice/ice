@@ -256,4 +256,7 @@ public class AllTests {
 
         controller.shutdown();
     }
+
+    private AllTests() {
+    }
 }

@@ -12,10 +12,10 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             createAcceptor();
         } catch (Exception ex) {
             String s =
-                    "acceptor creation failed:\n"
-                            + ex.getCause().getMessage()
-                            + '\n'
-                            + _acceptor.toString();
+                    "acceptor creation failed:\n" +
+                            ex.getCause().getMessage() +
+                            '\n' +
+                            _acceptor.toString();
             _instance.initializationData().logger.error(s);
             _instance
                     .timer()
@@ -213,7 +213,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                         // Ignore, could be a class loading error.
                     }
 
-                    assert (_acceptorStarted);
+                    assert _acceptorStarted;
                     _acceptorStarted = false;
                     if (_adapter.getThreadPool().finish(this, true)) {
                         closeAcceptor();
@@ -334,8 +334,8 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
 
         // Meaningful only for non-datagram (non-UDP) connections.
         _maxConnections =
-                endpoint.datagram()
-                        ? 0
+                endpoint.datagram() ?
+                        0
                         : instance.initializationData()
                                 .properties
                                 .getPropertyAsInt(adapter.getName() + ".MaxConnections");
@@ -346,8 +346,8 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                 _instance
                                 .initializationData()
                                 .properties
-                                .getIcePropertyAsInt("Ice.Warn.Connections")
-                        > 0;
+                                .getIcePropertyAsInt("Ice.Warn.Connections") >
+                        0;
         _state = StateHolding;
         _acceptorStarted = false;
 

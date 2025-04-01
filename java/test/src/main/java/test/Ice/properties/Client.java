@@ -19,10 +19,10 @@ public class Client extends test.TestHelper {
             System.out.print("testing load properties from UTF-8 path... ");
             Properties properties = new Properties();
             properties.load(configPath);
-            test(properties.getIceProperty("Ice.Trace.Network").equals("1"));
-            test(properties.getIceProperty("Ice.Trace.Protocol").equals("1"));
-            test(properties.getProperty("Config.Path").equals(configPath));
-            test(properties.getIceProperty("Ice.ProgramName").equals("PropertiesClient"));
+            test("1".equals(properties.getIceProperty("Ice.Trace.Network")));
+            test("1".equals(properties.getIceProperty("Ice.Trace.Protocol")));
+            test(configPath.equals(properties.getProperty("Config.Path")));
+            test("PropertiesClient".equals(properties.getIceProperty("Ice.ProgramName")));
             System.out.println("ok");
         }
 
@@ -32,21 +32,21 @@ public class Client extends test.TestHelper {
             //
             System.out.print("testing using Ice.Config with multiple config files... ");
             String[] args1 =
-                    new String[] {"--Ice.Config=config/config.1, config/config.2, config/config.3"};
+                    new String[]{"--Ice.Config=config/config.1, config/config.2, config/config.3"};
             Properties properties = new Properties(args1);
-            test(properties.getProperty("Config1").equals("Config1"));
-            test(properties.getProperty("Config2").equals("Config2"));
-            test(properties.getProperty("Config3").equals("Config3"));
+            test("Config1".equals(properties.getProperty("Config1")));
+            test("Config2".equals(properties.getProperty("Config2")));
+            test("Config3".equals(properties.getProperty("Config3")));
             System.out.println("ok");
         }
 
         {
             System.out.print("testing configuration file escapes... ");
-            String[] args1 = new String[] {"--Ice.Config=config/escapes.cfg"};
+            String[] args1 = new String[]{"--Ice.Config=config/escapes.cfg"};
             Properties properties = new Properties(args1);
 
             String[] props =
-                    new String[] {
+                    new String[]{
                         "Foo\tBar", "3",
                         "Foo\\tBar", "4",
                         "Escape\\ Space", "2",
@@ -82,14 +82,14 @@ public class Client extends test.TestHelper {
             Properties properties = new Properties();
 
             String toStringMode = properties.getIceProperty("Ice.ToStringMode");
-            test(toStringMode.equals("Unicode"));
+            test("Unicode".equals(toStringMode));
 
             int closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.Client.CloseTimeout");
             test(closeTimeout == 10);
 
             String[] retryIntervals = properties.getIcePropertyAsList("Ice.RetryIntervals");
             test(retryIntervals.length == 1);
-            test(retryIntervals[0].equals("0"));
+            test("0".equals(retryIntervals[0]));
 
             System.out.println("ok");
         }
@@ -137,8 +137,8 @@ public class Client extends test.TestHelper {
                 var properties = communicator.getProperties();
 
                 System.out.print(
-                        "testing that creating an object adapter with unknown properties throws an"
-                                + " exception...");
+                        "testing that creating an object adapter with unknown properties throws an" +
+                                " exception...");
                 properties.setProperty("FooOA.Endpoints", "tcp -h 127.0.0.1");
                 properties.setProperty("FooOA.UnknownProperty", "bar");
                 try {
@@ -149,8 +149,8 @@ public class Client extends test.TestHelper {
                 System.out.println("ok");
 
                 System.out.print(
-                        "testing that creating a proxy with unknown properties throws an"
-                                + " exception...");
+                        "testing that creating a proxy with unknown properties throws an" +
+                                " exception...");
                 properties.setProperty("FooProxy", "test:tcp -h 127.0.0.1 -p 10000");
                 properties.setProperty("FooProxy.UnknownProperty", "bar");
                 try {
@@ -161,8 +161,8 @@ public class Client extends test.TestHelper {
                 System.out.println("ok");
 
                 System.out.print(
-                        "testing that setting a property in an opt-in prefix that is not configured"
-                                + " throws an exception...");
+                        "testing that setting a property in an opt-in prefix that is not configured" +
+                                " throws an exception...");
                 System.out.flush();
                 try {
                     properties.setProperty("IceGrid.InstanceName", "TestGrid");
@@ -175,12 +175,12 @@ public class Client extends test.TestHelper {
 
         {
             System.out.print(
-                    "testing that passing a property multiple times on the command line uses the"
-                            + " last value... ");
+                    "testing that passing a property multiple times on the command line uses the" +
+                            " last value... ");
             System.out.flush();
             String[] commandLineArgs = {"--Ice.MessageSizeMax=10", "--Ice.MessageSizeMax=20"};
             Properties properties = new Properties(commandLineArgs);
-            test(properties.getIceProperty("Ice.MessageSizeMax").equals("20"));
+            test("20".equals(properties.getIceProperty("Ice.MessageSizeMax")));
             System.out.println("ok");
         }
 

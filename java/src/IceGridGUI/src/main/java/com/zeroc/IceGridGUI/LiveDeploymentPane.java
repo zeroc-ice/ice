@@ -90,8 +90,8 @@ public class LiveDeploymentPane extends JSplitPane implements Tab {
         TreeNode previousNode = null;
         do {
             previousNode = _previousNodes.removeLast();
-        } while (!_previousNodes.isEmpty()
-                && (previousNode == _currentNode || !_root.hasNode(previousNode)));
+        } while (!_previousNodes.isEmpty() &&
+                (previousNode == _currentNode || !_root.hasNode(previousNode)));
 
         if (_previousNodes.isEmpty()) {
             _root.getCoordinator().getBackAction().setEnabled(false);

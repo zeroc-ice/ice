@@ -75,16 +75,16 @@ public class AllTests {
 
         out.print("changing state between active and hold rapidly... ");
         out.flush();
-        for (int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 100; i++) {
             hold.putOnHold(0);
         }
-        for (int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 100; i++) {
             holdOneway.putOnHold(0);
         }
-        for (int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 100; i++) {
             holdSerialized.putOnHold(0);
         }
-        for (int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 100; i++) {
             holdSerializedOneway.putOnHold(0);
         }
         out.println("ok");
@@ -147,7 +147,7 @@ public class AllTests {
             r.join();
             test(cond.value());
 
-            for (int i = 0; i < 10000; ++i) {
+            for (int i = 0; i < 10000; i++) {
                 holdSerializedOneway.setOneway(value + 1, value);
                 ++value;
                 if ((i % 100) == 0) {
@@ -169,7 +169,7 @@ public class AllTests {
             // We use the same proxy for all oneway calls.
             holdSerializedOneway = holdSerialized.ice_oneway();
 
-            for (int i = 0; i < max; ++i) {
+            for (int i = 0; i < max; i++) {
                 r = holdSerializedOneway.setOnewayAsync(value + 1, value);
                 f = com.zeroc.Ice.Util.getInvocationFuture(r);
                 ++value;
@@ -188,7 +188,7 @@ public class AllTests {
         {
             hold.waitForHold();
             hold.waitForHold();
-            for (int i = 0; i < 1000; ++i) {
+            for (int i = 0; i < 1000; i++) {
                 holdOneway.ice_ping();
                 if ((i % 20) == 0) {
                     hold.putOnHold(0);
@@ -205,5 +205,8 @@ public class AllTests {
         out.flush();
         hold.shutdown();
         out.println("ok");
+    }
+
+    private AllTests() {
     }
 }

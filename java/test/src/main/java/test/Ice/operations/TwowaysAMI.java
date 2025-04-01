@@ -48,8 +48,8 @@ class TwowaysAMI {
     static void twowaysAMI(test.TestHelper helper, MyClassPrx p) {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
         final boolean bluetooth =
-                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
-                        == 0;
+                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt") ==
+                        0;
 
         {
             Callback cb = new Callback();
@@ -174,8 +174,8 @@ class TwowaysAMI {
                     .whenComplete(
                             (result, ex) -> {
                                 test(ex == null);
-                                test(result.p3.equals("world hello"));
-                                test(result.returnValue.equals("hello world"));
+                                test("world hello".equals(result.p3));
+                                test("hello world".equals(result.returnValue));
                                 cb.called();
                             });
             cb.check();
@@ -222,8 +222,8 @@ class TwowaysAMI {
                                 if (communicator
                                                 .getProperties()
                                                 .getIcePropertyAsInt(
-                                                        "Ice.ThreadPool.Client.Serialize")
-                                        == 0) {
+                                                        "Ice.ThreadPool.Client.Serialize") ==
+                                        0) {
                                     result.returnValue.opVoid();
                                     result.p2.opVoid();
                                     try {
@@ -256,15 +256,15 @@ class TwowaysAMI {
                                 test(ex == null);
                                 test(result.returnValue.p == null);
                                 test(result.returnValue.e == MyEnum.enum2);
-                                test(result.returnValue.s.s.equals("def"));
+                                test("def".equals(result.returnValue.s.s));
                                 test(result.p3.e == MyEnum.enum3);
-                                test(result.p3.s.s.equals("a new string"));
+                                test("a new string".equals(result.p3.s.s));
                                 // We can't do the callbacks below in connection serialization mode.
                                 if (communicator
                                                 .getProperties()
                                                 .getIcePropertyAsInt(
-                                                        "Ice.ThreadPool.Client.Serialize")
-                                        == 0) {
+                                                        "Ice.ThreadPool.Client.Serialize") ==
+                                        0) {
                                     result.p3.p.opVoid();
                                 }
                                 cb.called();
@@ -395,14 +395,14 @@ class TwowaysAMI {
                             (result, ex) -> {
                                 test(ex == null);
                                 test(result.p3.length == 4);
-                                test(result.p3[0].equals("abc"));
-                                test(result.p3[1].equals("de"));
-                                test(result.p3[2].equals("fghi"));
-                                test(result.p3[3].equals("xyz"));
+                                test("abc".equals(result.p3[0]));
+                                test("de".equals(result.p3[1]));
+                                test("fghi".equals(result.p3[2]));
+                                test("xyz".equals(result.p3[3]));
                                 test(result.returnValue.length == 3);
-                                test(result.returnValue[0].equals("fghi"));
-                                test(result.returnValue[1].equals("de"));
-                                test(result.returnValue[2].equals("abc"));
+                                test("fghi".equals(result.returnValue[0]));
+                                test("de".equals(result.returnValue[1]));
+                                test("abc".equals(result.returnValue[2]));
                                 cb.called();
                             });
             cb.check();
@@ -575,17 +575,17 @@ class TwowaysAMI {
                                 test(ex == null);
                                 test(result.p3.length == 5);
                                 test(result.p3[0].length == 1);
-                                test(result.p3[0][0].equals("abc"));
+                                test("abc".equals(result.p3[0][0]));
                                 test(result.p3[1].length == 2);
-                                test(result.p3[1][0].equals("de"));
-                                test(result.p3[1][1].equals("fghi"));
+                                test("de".equals(result.p3[1][0]));
+                                test("fghi".equals(result.p3[1][1]));
                                 test(result.p3[2].length == 0);
                                 test(result.p3[3].length == 0);
                                 test(result.p3[4].length == 1);
-                                test(result.p3[4][0].equals("xyz"));
+                                test("xyz".equals(result.p3[4][0]));
                                 test(result.returnValue.length == 3);
                                 test(result.returnValue[0].length == 1);
-                                test(result.returnValue[0][0].equals("xyz"));
+                                test("xyz".equals(result.returnValue[0][0]));
                                 test(result.returnValue[1].length == 0);
                                 test(result.returnValue[2].length == 0);
                                 cb.called();
@@ -628,13 +628,13 @@ class TwowaysAMI {
                                 test(result.p3[3].length == 1);
                                 test(result.p3[3][0].length == 1);
                                 test(result.p3[4].length == 0);
-                                test(result.p3[0][0][0].equals("abc"));
-                                test(result.p3[0][0][1].equals("de"));
-                                test(result.p3[0][1][0].equals("xyz"));
-                                test(result.p3[1][0][0].equals("hello"));
+                                test("abc".equals(result.p3[0][0][0]));
+                                test("de".equals(result.p3[0][0][1]));
+                                test("xyz".equals(result.p3[0][1][0]));
+                                test("hello".equals(result.p3[1][0][0]));
                                 test(result.p3[2][0][0].isEmpty());
                                 test(result.p3[2][0][1].isEmpty());
-                                test(result.p3[2][1][0].equals("abcd"));
+                                test("abcd".equals(result.p3[2][1][0]));
                                 test(result.p3[3][0][0].isEmpty());
 
                                 test(result.returnValue.length == 3);
@@ -647,7 +647,7 @@ class TwowaysAMI {
                                 test(result.returnValue[1][0][0].isEmpty());
                                 test(result.returnValue[2][0][0].isEmpty());
                                 test(result.returnValue[2][0][1].isEmpty());
-                                test(result.returnValue[2][1][0].equals("abcd"));
+                                test("abcd".equals(result.returnValue[2][1][0]));
                                 cb.called();
                             });
             cb.check();
@@ -744,10 +744,10 @@ class TwowaysAMI {
                                 test(ex == null);
                                 test(result.p3.equals(di1));
                                 test(result.returnValue.size() == 4);
-                                test(result.returnValue.get("foo").equals("abc -1.1"));
-                                test(result.returnValue.get("FOO").equals("abc -100.4"));
-                                test(result.returnValue.get("bar").equals("abc 123123.2"));
-                                test(result.returnValue.get("BAR").equals("abc 0.5"));
+                                test("abc -1.1".equals(result.returnValue.get("foo")));
+                                test("abc -100.4".equals(result.returnValue.get("FOO")));
+                                test("abc 123123.2".equals(result.returnValue.get("bar")));
+                                test("abc 0.5".equals(result.returnValue.get("BAR")));
                                 cb.called();
                             });
             cb.check();
@@ -792,9 +792,9 @@ class TwowaysAMI {
                                 test(ex == null);
                                 test(result.p3.equals(di1));
                                 test(result.returnValue.size() == 3);
-                                test(result.returnValue.get(MyEnum.enum1).equals("abc"));
-                                test(result.returnValue.get(MyEnum.enum2).equals("Hello!!"));
-                                test(result.returnValue.get(MyEnum.enum3).equals("qwerty"));
+                                test("abc".equals(result.returnValue.get(MyEnum.enum1)));
+                                test("Hello!!".equals(result.returnValue.get(MyEnum.enum2)));
+                                test("qwerty".equals(result.returnValue.get(MyEnum.enum3)));
                                 cb.called();
                             });
             cb.check();
@@ -997,23 +997,23 @@ class TwowaysAMI {
                                 test(ex == null);
                                 test(result.returnValue.size() == 2);
                                 test(result.returnValue.get(0).size() == 3);
-                                test(result.returnValue.get(0).get("foo").equals("abc -1.1"));
-                                test(result.returnValue.get(0).get("FOO").equals("abc -100.4"));
-                                test(result.returnValue.get(0).get("BAR").equals("abc 0.5"));
+                                test("abc -1.1".equals(result.returnValue.get(0).get("foo")));
+                                test("abc -100.4".equals(result.returnValue.get(0).get("FOO")));
+                                test("abc 0.5".equals(result.returnValue.get(0).get("BAR")));
                                 test(result.returnValue.get(1).size() == 2);
-                                test(result.returnValue.get(1).get("foo").equals("abc -1.1"));
-                                test(result.returnValue.get(1).get("bar").equals("abc 123123.2"));
+                                test("abc -1.1".equals(result.returnValue.get(1).get("foo")));
+                                test("abc 123123.2".equals(result.returnValue.get(1).get("bar")));
 
                                 test(result.p3.size() == 3);
                                 test(result.p3.get(0).size() == 1);
-                                test(result.p3.get(0).get("f00").equals("ABC -3.14"));
+                                test("ABC -3.14".equals(result.p3.get(0).get("f00")));
                                 test(result.p3.get(1).size() == 2);
-                                test(result.p3.get(1).get("foo").equals("abc -1.1"));
-                                test(result.p3.get(1).get("bar").equals("abc 123123.2"));
+                                test("abc -1.1".equals(result.p3.get(1).get("foo")));
+                                test("abc 123123.2".equals(result.p3.get(1).get("bar")));
                                 test(result.p3.get(2).size() == 3);
-                                test(result.p3.get(2).get("foo").equals("abc -1.1"));
-                                test(result.p3.get(2).get("FOO").equals("abc -100.4"));
-                                test(result.p3.get(2).get("BAR").equals("abc 0.5"));
+                                test("abc -1.1".equals(result.p3.get(2).get("foo")));
+                                test("abc -100.4".equals(result.p3.get(2).get("FOO")));
+                                test("abc 0.5".equals(result.p3.get(2).get("BAR")));
                                 cb.called();
                             });
             cb.check();
@@ -1089,19 +1089,19 @@ class TwowaysAMI {
                                 test(ex == null);
                                 test(result.returnValue.size() == 2);
                                 test(result.returnValue.get(0).size() == 2);
-                                test(result.returnValue.get(0).get(MyEnum.enum2).equals("Hello!!"));
-                                test(result.returnValue.get(0).get(MyEnum.enum3).equals("qwerty"));
+                                test("Hello!!".equals(result.returnValue.get(0).get(MyEnum.enum2)));
+                                test("qwerty".equals(result.returnValue.get(0).get(MyEnum.enum3)));
                                 test(result.returnValue.get(1).size() == 1);
-                                test(result.returnValue.get(1).get(MyEnum.enum1).equals("abc"));
+                                test("abc".equals(result.returnValue.get(1).get(MyEnum.enum1)));
 
                                 test(result.p3.size() == 3);
                                 test(result.p3.get(0).size() == 1);
-                                test(result.p3.get(0).get(MyEnum.enum1).equals("Goodbye"));
+                                test("Goodbye".equals(result.p3.get(0).get(MyEnum.enum1)));
                                 test(result.p3.get(1).size() == 1);
-                                test(result.p3.get(1).get(MyEnum.enum1).equals("abc"));
+                                test("abc".equals(result.p3.get(1).get(MyEnum.enum1)));
                                 test(result.p3.get(2).size() == 2);
-                                test(result.p3.get(2).get(MyEnum.enum2).equals("Hello!!"));
-                                test(result.p3.get(2).get(MyEnum.enum3).equals("qwerty"));
+                                test("Hello!!".equals(result.p3.get(2).get(MyEnum.enum2)));
+                                test("qwerty".equals(result.p3.get(2).get(MyEnum.enum3)));
                                 cb.called();
                             });
             cb.check();
@@ -1380,9 +1380,9 @@ class TwowaysAMI {
             java.util.Map<String, double[]> sdi1 = new java.util.HashMap<>();
             java.util.Map<String, double[]> sdi2 = new java.util.HashMap<>();
 
-            double[] si1 = new double[] {1.1E10, 1.2E10, 1.3E10};
-            double[] si2 = new double[] {1.4E10, 1.5E10};
-            double[] si3 = new double[] {1.6E10, 1.7E10};
+            double[] si1 = new double[]{1.1E10, 1.2E10, 1.3E10};
+            double[] si2 = new double[]{1.4E10, 1.5E10};
+            double[] si3 = new double[]{1.6E10, 1.7E10};
 
             sdi1.put("Hello!!", si1);
             sdi1.put("Goodbye", si2);
@@ -1417,9 +1417,9 @@ class TwowaysAMI {
             java.util.Map<String, String[]> sdi1 = new java.util.HashMap<>();
             java.util.Map<String, String[]> sdi2 = new java.util.HashMap<>();
 
-            String[] si1 = new String[] {"abc", "de", "fghi"};
-            String[] si2 = new String[] {"xyz", "or"};
-            String[] si3 = new String[] {"and", "xor"};
+            String[] si1 = new String[]{"abc", "de", "fghi"};
+            String[] si2 = new String[]{"xyz", "or"};
+            String[] si3 = new String[]{"and", "xor"};
 
             sdi1.put("abc", si1);
             sdi1.put("def", si2);
@@ -1432,19 +1432,19 @@ class TwowaysAMI {
                                 test(ex == null);
                                 test(result.p3.size() == 1);
                                 test(result.p3.get("ghi").length == 2);
-                                test(result.p3.get("ghi")[0].equals("and"));
-                                test(result.p3.get("ghi")[1].equals("xor"));
+                                test("and".equals(result.p3.get("ghi")[0]));
+                                test("xor".equals(result.p3.get("ghi")[1]));
                                 test(result.returnValue.size() == 3);
                                 test(result.returnValue.get("abc").length == 3);
-                                test(result.returnValue.get("abc")[0].equals("abc"));
-                                test(result.returnValue.get("abc")[1].equals("de"));
-                                test(result.returnValue.get("abc")[2].equals("fghi"));
+                                test("abc".equals(result.returnValue.get("abc")[0]));
+                                test("de".equals(result.returnValue.get("abc")[1]));
+                                test("fghi".equals(result.returnValue.get("abc")[2]));
                                 test(result.returnValue.get("def").length == 2);
-                                test(result.returnValue.get("def")[0].equals("xyz"));
-                                test(result.returnValue.get("def")[1].equals("or"));
+                                test("xyz".equals(result.returnValue.get("def")[0]));
+                                test("or".equals(result.returnValue.get("def")[1]));
                                 test(result.returnValue.get("ghi").length == 2);
-                                test(result.returnValue.get("ghi")[0].equals("and"));
-                                test(result.returnValue.get("ghi")[1].equals("xor"));
+                                test("and".equals(result.returnValue.get("ghi")[0]));
+                                test("xor".equals(result.returnValue.get("ghi")[1]));
                                 cb.called();
                             });
             cb.check();
@@ -1454,9 +1454,9 @@ class TwowaysAMI {
             java.util.Map<MyEnum, MyEnum[]> sdi1 = new java.util.HashMap<>();
             java.util.Map<MyEnum, MyEnum[]> sdi2 = new java.util.HashMap<>();
 
-            final MyEnum[] si1 = new MyEnum[] {MyEnum.enum1, MyEnum.enum1, MyEnum.enum2};
-            final MyEnum[] si2 = new MyEnum[] {MyEnum.enum1, MyEnum.enum2};
-            final MyEnum[] si3 = new MyEnum[] {MyEnum.enum3, MyEnum.enum3};
+            final MyEnum[] si1 = new MyEnum[]{MyEnum.enum1, MyEnum.enum1, MyEnum.enum2};
+            final MyEnum[] si2 = new MyEnum[]{MyEnum.enum1, MyEnum.enum2};
+            final MyEnum[] si3 = new MyEnum[]{MyEnum.enum3, MyEnum.enum3};
 
             sdi1.put(MyEnum.enum3, si1);
             sdi1.put(MyEnum.enum2, si2);
@@ -1492,7 +1492,7 @@ class TwowaysAMI {
 
             for (int l : lengths) {
                 int[] s = new int[l];
-                for (int i = 0; i < s.length; ++i) {
+                for (int i = 0; i < s.length; i++) {
                     s[i] = i;
                 }
                 Callback cb = new Callback();
@@ -1501,7 +1501,7 @@ class TwowaysAMI {
                                 (result, ex) -> {
                                     test(ex == null);
                                     test(result.length == l);
-                                    for (int j = 0; j < result.length; ++j) {
+                                    for (int j = 0; j < result.length; j++) {
                                         test(result[j] == -j);
                                     }
                                     cb.called();
@@ -1578,7 +1578,7 @@ class TwowaysAMI {
 
                     java.util.Map<String, String> combined = new java.util.HashMap<>(ctx);
                     combined.putAll(prxContext);
-                    test(combined.get("one").equals("UN"));
+                    test("UN".equals(combined.get("one")));
 
                     p3 = p3.ice_context(prxContext);
 
@@ -1715,7 +1715,7 @@ class TwowaysAMI {
                     .whenComplete(
                             (result, ex) -> {
                                 test(ex == null);
-                                test(result.equals("opString1"));
+                                test("opString1".equals(result));
                                 cb.called();
                             });
             cb.check();
@@ -1744,5 +1744,8 @@ class TwowaysAMI {
                             });
             cb.check();
         }
+    }
+
+    private TwowaysAMI() {
     }
 }

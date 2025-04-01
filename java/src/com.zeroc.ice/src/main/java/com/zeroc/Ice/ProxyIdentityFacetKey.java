@@ -56,9 +56,9 @@ public class ProxyIdentityFacetKey {
 
         if (obj instanceof ProxyIdentityFacetKey) {
             ProxyIdentityFacetKey other = (ProxyIdentityFacetKey) obj;
-            return (_hashCode == other._hashCode)
-                    && _identity.equals(other._identity)
-                    && _facet.equals(other._facet);
+            return (_hashCode == other._hashCode) &&
+                    _identity.equals(other._identity) &&
+                    _facet.equals(other._facet);
         }
 
         return false;

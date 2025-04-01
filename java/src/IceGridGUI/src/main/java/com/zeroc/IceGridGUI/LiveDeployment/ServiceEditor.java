@@ -43,8 +43,8 @@ class ServiceEditor extends CommunicatorEditor {
         Server server = (Server) service.getParent();
         int iceIntVersion = server.getIceVersion();
 
-        if (server.getState() == ServerState.Active
-                && (iceIntVersion == 0 || iceIntVersion >= 30300)) {
+        if (server.getState() == ServerState.Active &&
+                (iceIntVersion == 0 || iceIntVersion >= 30300)) {
             showRuntimeProperties(previous);
         } else {
             clearRuntimeProperties("");

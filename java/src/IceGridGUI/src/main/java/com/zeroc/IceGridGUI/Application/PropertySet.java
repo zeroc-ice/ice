@@ -150,7 +150,7 @@ class PropertySet extends TreeNode {
             PropertySetDescriptor descriptor) {
         super(parent, id);
         _unsubstitutedId = unsubstitutedId;
-        _inServerInstance = (parent instanceof ServerInstance);
+        _inServerInstance = parent instanceof ServerInstance;
         _ephemeral = false;
         _editable = new Editable(brandNew);
         rebuild(descriptor);
@@ -160,7 +160,7 @@ class PropertySet extends TreeNode {
             TreeNode parent, String id, String unsubstitutedId, PropertySetDescriptor descriptor) {
         super(parent, id);
         _unsubstitutedId = unsubstitutedId;
-        _inServerInstance = (parent instanceof ServerInstance);
+        _inServerInstance = parent instanceof ServerInstance;
         _ephemeral = false;
         _editable = null;
         rebuild(descriptor);
@@ -169,7 +169,7 @@ class PropertySet extends TreeNode {
     PropertySet(TreeNode parent, String id, PropertySetDescriptor descriptor) {
         super(parent, id);
         _unsubstitutedId = id;
-        _inServerInstance = (parent instanceof ServerInstance);
+        _inServerInstance = parent instanceof ServerInstance;
         _ephemeral = true;
         _editable = null;
         rebuild(descriptor);

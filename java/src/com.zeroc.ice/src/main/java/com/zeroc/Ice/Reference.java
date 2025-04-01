@@ -201,8 +201,8 @@ public abstract class Reference implements Cloneable {
     public java.util.Optional<Boolean> getCompressOverride() {
         DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
 
-        return defaultsAndOverrides.overrideCompress.isPresent()
-                ? defaultsAndOverrides.overrideCompress
+        return defaultsAndOverrides.overrideCompress.isPresent() ?
+                defaultsAndOverrides.overrideCompress
                 : _compress;
     }
 
@@ -338,8 +338,8 @@ public abstract class Reference implements Cloneable {
 
         // We print the encoding if it's not 1.1 or if Ice.Default.EncodingVersion is set to
         // something other than 1.1.
-        if (!_encoding.equals(Util.Encoding_1_1)
-                || !_instance.defaultsAndOverrides().defaultEncoding.equals(Util.Encoding_1_1)) {
+        if (!_encoding.equals(Util.Encoding_1_1) ||
+                !_instance.defaultsAndOverrides().defaultEncoding.equals(Util.Encoding_1_1)) {
             s.append(" -e ");
             s.append(Util.encodingVersionToString(_encoding));
         }

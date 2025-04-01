@@ -46,9 +46,9 @@ class PlainService extends Communicator implements Service, Cloneable {
         actions[COPY] = !_ephemeral;
 
         Object clipboard = getCoordinator().getClipboard();
-        if (clipboard != null
-                && (clipboard instanceof ServiceInstanceDescriptor
-                        || clipboard instanceof Adapter.AdapterCopy)) {
+        if (clipboard != null &&
+                (clipboard instanceof ServiceInstanceDescriptor ||
+                        clipboard instanceof Adapter.AdapterCopy)) {
             actions[PASTE] = true;
         }
 

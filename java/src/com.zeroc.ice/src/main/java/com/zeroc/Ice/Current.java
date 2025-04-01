@@ -242,8 +242,8 @@ public final class Current implements Cloneable {
         } else {
             replyStatus = ReplyStatus.UnknownException.value();
             exceptionId =
-                    exc.getClass().getName() != null
-                            ? exc.getClass().getName()
+                    exc.getClass().getName() != null ?
+                            exc.getClass().getName()
                             : "java.lang.Exception";
         }
 
@@ -253,8 +253,8 @@ public final class Current implements Cloneable {
             // We can't use ReplyStatus to marshal a possibly unknown reply status value.
             ostr.writeByte((byte) replyStatus);
 
-            if (replyStatus >= ReplyStatus.ObjectNotExist.value()
-                    && replyStatus <= ReplyStatus.OperationNotExist.value()) {
+            if (replyStatus >= ReplyStatus.ObjectNotExist.value() &&
+                    replyStatus <= ReplyStatus.OperationNotExist.value()) {
 
                 Identity objectId = new Identity();
                 String objectFacet = "";
@@ -275,9 +275,9 @@ public final class Current implements Cloneable {
                 Identity.ice_write(ostr, objectId);
 
                 if (objectFacet.isEmpty()) {
-                    ostr.writeStringSeq(new String[] {});
+                    ostr.writeStringSeq(new String[]{});
                 } else {
-                    ostr.writeStringSeq(new String[] {objectFacet});
+                    ostr.writeStringSeq(new String[]{objectFacet});
                 }
                 ostr.writeString(operationName);
                 // and we don't use the dispatchExceptionMessage.

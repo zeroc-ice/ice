@@ -304,10 +304,10 @@ final class UdpMulticastServerTransceiver implements Transceiver {
                     _instance
                             .logger()
                             .warning(
-                                    "UDP receive buffer size: requested size of "
-                                            + _newSize
-                                            + " adjusted to "
-                                            + _size);
+                                    "UDP receive buffer size: requested size of " +
+                                            _newSize +
+                                            " adjusted to " +
+                                            _size);
                     _instance.setRcvBufSizeWarn(UDPEndpointType.value, _newSize);
                 }
             }
@@ -411,7 +411,7 @@ final class UdpMulticastServerTransceiver implements Transceiver {
         }
     }
 
-    private UdpEndpointI _endpoint = null;
+    private UdpEndpointI _endpoint;
     private final ProtocolInstance _instance;
 
     private int _size;

@@ -150,11 +150,11 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 }
             }
 
-            if (!(_exception instanceof ConnectionClosedException
-                    || _exception instanceof CloseConnectionException
-                    || _exception instanceof CommunicatorDestroyedException
-                    || _exception instanceof ObjectAdapterDeactivatedException
-                    || _exception instanceof ObjectAdapterDestroyedException)) {
+            if (!(_exception instanceof ConnectionClosedException ||
+                    _exception instanceof CloseConnectionException ||
+                    _exception instanceof CommunicatorDestroyedException ||
+                    _exception instanceof ObjectAdapterDeactivatedException ||
+                    _exception instanceof ObjectAdapterDestroyedException)) {
                 assert (_exception != null);
                 throw _exception;
             }
@@ -459,7 +459,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         // Create a reference and return a reverse proxy for this reference.
         //
         var ref = _instance.referenceFactory().create(ident, this);
-        return (ref == null) ? null : new com.zeroc.Ice._ObjectPrxI(ref);
+        return ref == null ? null : new com.zeroc.Ice._ObjectPrxI(ref);
     }
 
     synchronized void setAdapterFromAdapter(ObjectAdapter adapter) {
@@ -566,19 +566,19 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                             m[1] = _readStream.readByte();
                             m[2] = _readStream.readByte();
                             m[3] = _readStream.readByte();
-                            if (m[0] != Protocol.magic[0]
-                                    || m[1] != Protocol.magic[1]
-                                    || m[2] != Protocol.magic[2]
-                                    || m[3] != Protocol.magic[3]) {
+                            if (m[0] != Protocol.magic[0] ||
+                                    m[1] != Protocol.magic[1] ||
+                                    m[2] != Protocol.magic[2] ||
+                                    m[3] != Protocol.magic[3]) {
                                 throw new ProtocolException(
-                                        "Bad magic in message header: "
-                                                + Integer.toHexString(m[0])
-                                                + " "
-                                                + Integer.toHexString(m[1])
-                                                + " "
-                                                + Integer.toHexString(m[2])
-                                                + " "
-                                                + Integer.toHexString(m[3]));
+                                        "Bad magic in message header: " +
+                                                Integer.toHexString(m[0]) +
+                                                " " +
+                                                Integer.toHexString(m[1]) +
+                                                " " +
+                                                Integer.toHexString(m[2]) +
+                                                " " +
+                                                Integer.toHexString(m[3]));
                             }
 
                             _readProtocol.ice_readMembers(_readStream);
@@ -869,10 +869,10 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         // we're not going to call code that will potentially block (this avoids promoting a new
         // leader and unnecessary thread creation, especially if this is called on shutdown).
         //
-        if (_startCallback == null
-                && _sendStreams.isEmpty()
-                && _asyncRequests.isEmpty()
-                && _closeCallback == null) {
+        if (_startCallback == null &&
+                _sendStreams.isEmpty() &&
+                _asyncRequests.isEmpty() &&
+                _closeCallback == null) {
             finish(close);
             return;
         }
@@ -919,12 +919,12 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 //
                 // Trace the cause of unexpected connection closures
                 //
-                if (!(_exception instanceof CloseConnectionException
-                        || _exception instanceof ConnectionAbortedException
-                        || _exception instanceof ConnectionClosedException
-                        || _exception instanceof CommunicatorDestroyedException
-                        || _exception instanceof ObjectAdapterDeactivatedException
-                        || _exception instanceof ObjectAdapterDestroyedException)) {
+                if (!(_exception instanceof CloseConnectionException ||
+                        _exception instanceof ConnectionAbortedException ||
+                        _exception instanceof ConnectionClosedException ||
+                        _exception instanceof CommunicatorDestroyedException ||
+                        _exception instanceof ObjectAdapterDeactivatedException ||
+                        _exception instanceof ObjectAdapterDestroyedException)) {
                     s.append("\n");
                     s.append(_exception);
                 }
@@ -1076,18 +1076,18 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         .logger
                         .trace(
                                 _instance.traceLevels().networkCat,
-                                "connection aborted by the idle check because it did not receive any bytes for "
-                                        + idleTimeout
-                                        + "s\n"
-                                        + _transceiver.toDetailedString());
+                                "connection aborted by the idle check because it did not receive any bytes for " +
+                                        idleTimeout +
+                                        "s\n" +
+                                        _transceiver.toDetailedString());
             }
 
             setState(
                     StateClosed,
                     new ConnectionAbortedException(
-                            "Connection aborted by the idle check because it did not receive any bytes for "
-                                    + idleTimeout
-                                    + "s.",
+                            "Connection aborted by the idle check because it did not receive any bytes for " +
+                                    idleTimeout +
+                                    "s.",
                             false));
         }
         // else nothing to do
@@ -1112,8 +1112,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 // pending outgoing message is a heartbeat.
 
                 // The stream of the first _sendStreams message is in _writeStream.
-                if (_sendStreams.isEmpty()
-                        || _writeStream.getBuffer().b.get(8) == Protocol.validateConnectionMsg) {
+                if (_sendStreams.isEmpty() ||
+                        _writeStream.getBuffer().b.get(8) == Protocol.validateConnectionMsg) {
                     scheduleInactivityTimer();
                 }
             }
@@ -1175,8 +1175,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         _removeFromFactory = removeFromFactory;
         _warn = initData.properties.getIcePropertyAsInt("Ice.Warn.Connections") > 0;
         _warnUdp =
-                instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Datagrams")
-                        > 0;
+                instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Datagrams") >
+                        0;
         _nextRequestId = 1;
         _messageSizeMax = connector == null ? adapter.messageSizeMax() : instance.messageSizeMax();
         _batchRequestQueue = new BatchRequestQueue(instance, _endpoint.datagram());
@@ -1281,14 +1281,14 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 //
                 // Don't warn about certain expected exceptions.
                 //
-                if (!(_exception instanceof CloseConnectionException
-                        || _exception instanceof ConnectionAbortedException
-                        || _exception instanceof ConnectionClosedException
-                        || _exception instanceof CommunicatorDestroyedException
-                        || _exception instanceof ObjectAdapterDeactivatedException
-                        || _exception instanceof ObjectAdapterDestroyedException
-                        || (_exception instanceof ConnectionLostException
-                                && _state >= StateClosing))) {
+                if (!(_exception instanceof CloseConnectionException ||
+                        _exception instanceof ConnectionAbortedException ||
+                        _exception instanceof ConnectionClosedException ||
+                        _exception instanceof CommunicatorDestroyedException ||
+                        _exception instanceof ObjectAdapterDeactivatedException ||
+                        _exception instanceof ObjectAdapterDestroyedException ||
+                        (_exception instanceof ConnectionLostException &&
+                                _state >= StateClosing))) {
                     warning("connection exception", _exception);
                 }
             }
@@ -1331,7 +1331,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             switch (state) {
                 case StateNotInitialized:
                     {
-                        assert (false);
+                        assert false;
                         break;
                     }
 
@@ -1370,8 +1370,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         if (_state != StateActive && _state != StateNotValidated) {
                             return;
                         }
-                        if (_state == StateActive
-                                && (_maxDispatches <= 0 || _dispatchCount < _maxDispatches)) {
+                        if (_state == StateActive &&
+                                (_maxDispatches <= 0 || _dispatchCount < _maxDispatches)) {
                             _threadPool.unregister(this, SocketOperation.Read);
                             if (_idleTimeoutTransceiver != null) {
                                 _idleTimeoutTransceiver.disableIdleCheck();
@@ -1446,14 +1446,14 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 }
             }
             if (_observer != null && state == StateClosed && _exception != null) {
-                if (!(_exception instanceof CloseConnectionException
-                        || _exception instanceof ConnectionAbortedException
-                        || _exception instanceof ConnectionClosedException
-                        || _exception instanceof CommunicatorDestroyedException
-                        || _exception instanceof ObjectAdapterDeactivatedException
-                        || _exception instanceof ObjectAdapterDestroyedException
-                        || (_exception instanceof ConnectionLostException
-                                && _state >= StateClosing))) {
+                if (!(_exception instanceof CloseConnectionException ||
+                        _exception instanceof ConnectionAbortedException ||
+                        _exception instanceof ConnectionClosedException ||
+                        _exception instanceof CommunicatorDestroyedException ||
+                        _exception instanceof ObjectAdapterDeactivatedException ||
+                        _exception instanceof ObjectAdapterDestroyedException ||
+                        (_exception instanceof ConnectionLostException &&
+                                _state >= StateClosing))) {
                     _observer.failed(_exception.ice_id());
                 }
             }
@@ -1587,19 +1587,19 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 assert (_readStream.pos() == Protocol.headerSize);
                 _readStream.pos(0);
                 byte[] m = _readStream.readBlob(4);
-                if (m[0] != Protocol.magic[0]
-                        || m[1] != Protocol.magic[1]
-                        || m[2] != Protocol.magic[2]
-                        || m[3] != Protocol.magic[3]) {
+                if (m[0] != Protocol.magic[0] ||
+                        m[1] != Protocol.magic[1] ||
+                        m[2] != Protocol.magic[2] ||
+                        m[3] != Protocol.magic[3]) {
                     throw new ProtocolException(
-                            "Bad magic in message header: "
-                                    + Integer.toHexString(m[0])
-                                    + " "
-                                    + Integer.toHexString(m[1])
-                                    + " "
-                                    + Integer.toHexString(m[2])
-                                    + " "
-                                    + Integer.toHexString(m[3]));
+                            "Bad magic in message header: " +
+                                    Integer.toHexString(m[0]) +
+                                    " " +
+                                    Integer.toHexString(m[1]) +
+                                    " " +
+                                    Integer.toHexString(m[2]) +
+                                    " " +
+                                    Integer.toHexString(m[3]));
                 }
 
                 _readProtocol.ice_readMembers(_readStream);
@@ -1611,17 +1611,17 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 byte messageType = _readStream.readByte();
                 if (messageType != Protocol.validateConnectionMsg) {
                     throw new ProtocolException(
-                            "Received message of type "
-                                    + messageType
-                                    + " over a connection that is not yet validated.");
+                            "Received message of type " +
+                                    messageType +
+                                    " over a connection that is not yet validated.");
                 }
                 _readStream.readByte(); // Ignore compression status for validate connection.
                 int size = _readStream.readInt();
                 if (size != Protocol.headerSize) {
                     throw new MarshalException(
-                            "Received ValidateConnection message with unexpected size "
-                                    + size
-                                    + ".");
+                            "Received ValidateConnection message with unexpected size " +
+                                    size +
+                                    ".");
                 }
                 TraceUtil.traceRecv(_readStream, this, _logger, _traceLevels);
 
@@ -1941,8 +1941,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         if (_endpoint.datagram()) {
                             if (_warn) {
                                 _logger.warning(
-                                        "ignoring close connection message for datagram connection:\n"
-                                                + _desc);
+                                        "ignoring close connection message for datagram connection:\n" +
+                                                _desc);
                             }
                         } else {
                             setState(StateClosingPending, new CloseConnectionException());
@@ -1997,9 +1997,9 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                             if (info.requestCount < 0) {
                                 info.requestCount = 0;
                                 throw new MarshalException(
-                                        "Received batch request with "
-                                                + info.requestCount
-                                                + "batches.");
+                                        "Received batch request with " +
+                                                info.requestCount +
+                                                "batches.");
                             }
                             info.adapter = _adapter;
                             info.upcallCount += info.requestCount;
@@ -2160,9 +2160,9 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                             sendMessage(new OutgoingMessage(outputStream, compress != 0));
                         }
 
-                        if (_state == StateActive
-                                && _maxDispatches > 0
-                                && _dispatchCount == _maxDispatches) {
+                        if (_state == StateActive &&
+                                _maxDispatches > 0 &&
+                                _dispatchCount == _maxDispatches) {
                             // Resume reading if the connection is active and the dispatch count is
                             // about to be less than _maxDispatches.
                             _threadPool.update(this, SocketOperation.None, SocketOperation.Read);
@@ -2220,8 +2220,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
     private ConnectionInfo initConnectionInfo() {
         // Called in synchronization
 
-        if (_state > StateNotInitialized
-                && _info != null) // Update the connection information until it's initialized
+        if (_state > StateNotInitialized &&
+                _info != null) // Update the connection information until it's initialized
         {
             return _info;
         }
@@ -2460,7 +2460,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
     private final java.util.concurrent.ScheduledExecutorService _timer;
 
-    private StartCallback _startCallback = null;
+    private StartCallback _startCallback;
 
     private final Consumer<ConnectionI> _removeFromFactory;
 
@@ -2514,9 +2514,9 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
     private final int _maxDispatches;
 
     private int _state; // The current state.
-    private boolean _shutdownInitiated = false;
-    private boolean _initialized = false;
-    private boolean _validated = false;
+    private boolean _shutdownInitiated;
+    private boolean _initialized;
+    private boolean _validated;
 
     // When true, the application called close and Connection must close the
     // connection when it receives the reply for the last outstanding invocation.

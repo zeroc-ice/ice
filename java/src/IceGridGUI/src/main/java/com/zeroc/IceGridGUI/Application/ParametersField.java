@@ -26,7 +26,7 @@ public class ParametersField extends JTable {
         _columnNames.add("Name");
         _columnNames.add("Default value");
 
-        JComboBox comboBox = new JComboBox(new String[] {_noDefault});
+        JComboBox comboBox = new JComboBox(new String[]{_noDefault});
         comboBox.setEditable(true);
         _cellEditor = new DefaultCellEditor(comboBox);
 
@@ -88,8 +88,8 @@ public class ParametersField extends JTable {
                     @Override
                     public void tableChanged(TableModelEvent e) {
                         Object lastKey = _model.getValueAt(_model.getRowCount() - 1, 0);
-                        if (lastKey != null && !lastKey.equals("")) {
-                            _model.addRow(new Object[] {"", _noDefault});
+                        if (lastKey != null && !"".equals(lastKey)) {
+                            _model.addRow(new Object[]{"", _noDefault});
                         }
 
                         _editor.updated();

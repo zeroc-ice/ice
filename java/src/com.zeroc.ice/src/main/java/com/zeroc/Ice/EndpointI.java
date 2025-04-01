@@ -141,7 +141,7 @@ public abstract class EndpointI implements Endpoint, Comparable<EndpointI> {
         }
         str += "'";
 
-        for (int n = 0; n < args.size(); ++n) {
+        for (int n = 0; n < args.size(); n++) {
             String option = args.get(n);
             if (option.length() < 2 || option.charAt(0) != '-') {
                 unknown.add(option);

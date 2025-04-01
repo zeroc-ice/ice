@@ -104,23 +104,23 @@ class ShowIceLogDialog extends JDialog {
                                                 java.util.Vector<Object> row =
                                                         (java.util.Vector<Object>) p;
                                                 String txt =
-                                                        "\""
-                                                                + renderDate(
+                                                        "\"" +
+                                                                renderDate(
                                                                         (java.util.Date)
-                                                                                row.elementAt(0))
-                                                                + "\","
-                                                                + renderLogMessageType(
+                                                                                row.elementAt(0)) +
+                                                                "\"," +
+                                                                renderLogMessageType(
                                                                         (LogMessageType)
-                                                                                row.elementAt(1))
-                                                                + ",\""
-                                                                + row.elementAt(2)
+                                                                                row.elementAt(1)) +
+                                                                ",\"" +
+                                                                row.elementAt(2)
                                                                         .toString()
-                                                                        .replace("\"", "\"\"")
-                                                                + "\",\""
-                                                                + row.elementAt(3)
+                                                                        .replace("\"", "\"\"") +
+                                                                "\",\"" +
+                                                                row.elementAt(3)
                                                                         .toString()
-                                                                        .replace("\"", "\"\"")
-                                                                + "\"";
+                                                                        .replace("\"", "\"\"") +
+                                                                "\"";
 
                                                 txt += "\r\n";
                                                 os.write(txt, 0, txt.length());
@@ -171,17 +171,17 @@ class ShowIceLogDialog extends JDialog {
                                 int j = _table.convertRowIndexToModel(i);
 
                                 txt +=
-                                        renderDate((java.util.Date) _tableModel.getValueAt(j, 0))
-                                                + "\t"
-                                                + renderLogMessageType(
+                                        renderDate((java.util.Date) _tableModel.getValueAt(j, 0)) +
+                                                "\t" +
+                                                renderLogMessageType(
                                                         (LogMessageType)
-                                                                _tableModel.getValueAt(j, 1))
-                                                + "\t"
-                                                + _tableModel.getValueAt(j, 2).toString()
-                                                + "\t"
-                                                + renderMessage(
-                                                        _tableModel.getValueAt(j, 3).toString())
-                                                + "\n";
+                                                                _tableModel.getValueAt(j, 1)) +
+                                                "\t" +
+                                                _tableModel.getValueAt(j, 2).toString() +
+                                                "\t" +
+                                                renderMessage(
+                                                        _tableModel.getValueAt(j, 3).toString()) +
+                                                "\n";
                             }
 
                             var ss = new StringSelection(txt);
@@ -264,8 +264,8 @@ class ShowIceLogDialog extends JDialog {
 
             if (!_destroyed) {
                 _rowCount =
-                        logMessages.length + _queue.size() < _maxRows
-                                ? logMessages.length + _queue.size()
+                        logMessages.length + _queue.size() < _maxRows ?
+                                logMessages.length + _queue.size()
                                 : _maxRows;
 
                 final Object[][] data = new Object[_rowCount][];
@@ -370,9 +370,9 @@ class ShowIceLogDialog extends JDialog {
         }
 
         private boolean _paused = true;
-        private boolean _destroyed = false;
+        private boolean _destroyed;
         private final java.util.Deque<LogMessage> _queue = new java.util.ArrayDeque<>();
-        private int _rowCount = 0;
+        private int _rowCount;
         private int _maxRows = _maxMessages;
     }
 
@@ -597,9 +597,9 @@ class ShowIceLogDialog extends JDialog {
             _pause.setEnabled(false); // Init will enable Pause
 
             String id =
-                    _loggerAdmin.ice_getIdentity().name
-                            + "-"
-                            + java.util.UUID.randomUUID().toString();
+                    _loggerAdmin.ice_getIdentity().name +
+                            "-" +
+                            java.util.UUID.randomUUID().toString();
             _remoteLogger = new RemoteLoggerI();
             _remoteLoggerPrx =
                     RemoteLoggerPrx.uncheckedCast(
@@ -648,9 +648,9 @@ class ShowIceLogDialog extends JDialog {
         if (_remoteLogger != null) {
             if (detach) {
                 final String prefix =
-                        "Detaching remote logger from "
-                                + _loggerAdmin.ice_getIdentity().name
-                                + "...";
+                        "Detaching remote logger from " +
+                                _loggerAdmin.ice_getIdentity().name +
+                                "...";
                 _parent.getRoot().getCoordinator().getStatusBar().setText(prefix);
 
                 try {
@@ -790,7 +790,7 @@ class ShowIceLogDialog extends JDialog {
     private JToggleButton _stopButton;
 
     private final Object[] _columnNames =
-            new Object[] {"Timestamp", "Type", "Trace Category", "Log Message"};
+            new Object[]{"Timestamp", "Type", "Trace Category", "Log Message"};
     private final DefaultTableModel _tableModel;
     private final JTable _table;
 

@@ -117,7 +117,7 @@ public class MetricsMap<T extends Metrics> {
             try {
                 _field.set(metrics, _map.getMetrics());
             } catch (Exception ex) {
-                assert (false);
+                assert false;
             }
         }
 
@@ -333,7 +333,7 @@ public class MetricsMap<T extends Metrics> {
                     e = new Entry(t);
                     _objects.put(key, e);
                 } catch (Exception ex) {
-                    assert (false);
+                    assert false;
                 }
             }
             e.attach(helper);

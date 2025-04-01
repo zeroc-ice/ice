@@ -24,4 +24,7 @@ class Oneways {
         } catch (com.zeroc.Ice.TwowayOnlyException ex) {
         }
     }
+
+    private Oneways() {
+    }
 }

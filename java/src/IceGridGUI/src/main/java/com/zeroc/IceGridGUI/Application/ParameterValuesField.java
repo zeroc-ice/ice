@@ -49,7 +49,7 @@ public class ParameterValuesField extends JTable {
             java.util.Vector<String> row = new java.util.Vector<>(2);
             row.add(name);
 
-            _hasDefault[i] = (defaultValues.get(name) != null);
+            _hasDefault[i] = defaultValues.get(name) != null;
 
             String val = values.get(name);
             if (val == null) {
@@ -128,9 +128,9 @@ public class ParameterValuesField extends JTable {
 
     private static final String _notSet = "Not set";
 
-    private JComboBox _useDefaultCombo = new JComboBox(new String[] {_useDefault});
+    private JComboBox _useDefaultCombo = new JComboBox(new String[]{_useDefault});
 
-    private JComboBox _notSetCombo = new JComboBox(new String[] {_notSet});
+    private JComboBox _notSetCombo = new JComboBox(new String[]{_notSet});
 
     private TableCellEditor _useDefaultEditor = new DefaultCellEditor(_useDefaultCombo);
     private TableCellEditor _notSetEditor = new DefaultCellEditor(_notSetCombo);

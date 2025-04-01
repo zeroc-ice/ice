@@ -71,8 +71,8 @@ class ServiceInstanceEditor extends CommunicatorChildEditor {
         ServiceInstanceDescriptor descriptor = getDescriptor();
         ServiceTemplate t = (ServiceTemplate) _template.getSelectedItem();
 
-        return descriptor.template.equals(t.getId())
-                && descriptor.parameterValues.equals(_parameters.getValues());
+        return descriptor.template.equals(t.getId()) &&
+                descriptor.parameterValues.equals(_parameters.getValues());
     }
 
     @Override

@@ -171,7 +171,7 @@ final class UdpEndpointI extends IPEndpointI {
     public void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint) {
         super.initWithOptions(args, oaEndpoint);
 
-        if (_mcastInterface.equals("*")) {
+        if ("*".equals(_mcastInterface)) {
             if (oaEndpoint) {
                 _mcastInterface = "";
             } else {
@@ -290,25 +290,25 @@ final class UdpEndpointI extends IPEndpointI {
             return true;
         }
 
-        if (option.equals("-z")) {
+        if ("-z".equals(option)) {
             if (argument != null) {
                 throw new ParseException(
-                        "unexpected argument '"
-                                + argument
-                                + "' provided for -z option in '"
-                                + endpoint
-                                + "'");
+                        "unexpected argument '" +
+                                argument +
+                                "' provided for -z option in '" +
+                                endpoint +
+                                "'");
             }
 
             _compress = true;
-        } else if (option.equals("-v") || option.equals("-e")) {
+        } else if ("-v".equals(option) || "-e".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for "
-                                + option
-                                + " option in endpoint '"
-                                + endpoint
-                                + "'");
+                        "no argument provided for " +
+                                option +
+                                " option in endpoint '" +
+                                endpoint +
+                                "'");
             }
 
             try {
@@ -320,7 +320,7 @@ final class UdpEndpointI extends IPEndpointI {
                 throw new ParseException(
                         "invalid version '" + argument + "' in endpoint '" + endpoint + "'", ex);
             }
-        } else if (option.equals("--ttl")) {
+        } else if ("--ttl".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
                         "no argument provided for --ttl option in endpoint '" + endpoint + "'");
@@ -337,12 +337,12 @@ final class UdpEndpointI extends IPEndpointI {
                 throw new ParseException(
                         "TTL value '" + argument + "' out of range in endpoint '" + endpoint + "'");
             }
-        } else if (option.equals("--interface")) {
+        } else if ("--interface".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for --interface option in endpoint '"
-                                + endpoint
-                                + "'");
+                        "no argument provided for --interface option in endpoint '" +
+                                endpoint +
+                                "'");
             }
             _mcastInterface = argument;
         } else {

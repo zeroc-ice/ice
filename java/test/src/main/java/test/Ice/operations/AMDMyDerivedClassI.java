@@ -508,7 +508,7 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
     @Override
     public CompletionStage<int[]> opIntSAsync(int[] s, Current current) {
         int[] r = new int[s.length];
-        for (int i = 0; i < r.length; ++i) {
+        for (int i = 0; i < r.length; i++) {
             r[i] = -s[i];
         }
         return CompletableFuture.completedFuture(r);
@@ -536,7 +536,7 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
     public CompletionStage<Void> opDoubleMarshalingAsync(double p1, double[] p2, Current current) {
         double d = 1278312346.0 / 13.0;
         test(p1 == d);
-        for (int i = 0; i < p2.length; ++i) {
+        for (int i = 0; i < p2.length; i++) {
             test(p2[i] == d);
         }
         return CompletableFuture.completedFuture((Void) null);
@@ -689,7 +689,7 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
     @Override
     public CompletionStage<String[]> opStringLiteralsAsync(Current current) {
         return CompletableFuture.completedFuture(
-                new String[] {
+                new String[]{
                     s0.value,
                     s1.value,
                     s2.value,
@@ -765,5 +765,5 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
     }
 
     private Thread _opVoidThread;
-    private int _opByteSOnewayCallCount = 0;
+    private int _opByteSOnewayCallCount;
 }

@@ -860,9 +860,9 @@ public class Coordinator {
     public void accessDenied(AccessDeniedException e) {
         JOptionPane.showMessageDialog(
                 _mainFrame,
-                "Another session (username = "
-                        + e.lockUserId
-                        + ") has exclusive write access to the registry",
+                "Another session (username = " +
+                        e.lockUserId +
+                        ") has exclusive write access to the registry",
                 "Access Denied",
                 JOptionPane.ERROR_MESSAGE);
     }
@@ -922,10 +922,10 @@ public class Coordinator {
                                                 (result, ex) -> {
                                                     if (_traceSaveToRegistry) {
                                                         traceSaveToRegistry(
-                                                                "removeApplication for application "
-                                                                        + name
-                                                                        + (ex == null
-                                                                                ? ": success"
+                                                                "removeApplication for application " +
+                                                                        name +
+                                                                        (ex == null ?
+                                                                                ": success"
                                                                                 : ": failed"));
                                                     }
 
@@ -935,20 +935,19 @@ public class Coordinator {
                                                                     release();
                                                                     getStatusBar()
                                                                             .setText(
-                                                                                    prefix
-                                                                                            + "done.");
+                                                                                    prefix +
+                                                                                            "done.");
                                                                 });
                                                     } else {
-                                                        if (ex
-                                                                instanceof
+                                                        if (ex instanceof
                                                                 com.zeroc.Ice.UserException) {
                                                             SwingUtilities.invokeLater(
                                                                     () -> {
                                                                         handleFailure(
                                                                                 prefix,
                                                                                 "Delete failed",
-                                                                                "IceGrid exception: "
-                                                                                        + ex
+                                                                                "IceGrid exception: " +
+                                                                                        ex
                                                                                                 .toString());
                                                                     });
                                                         } else {
@@ -957,8 +956,8 @@ public class Coordinator {
                                                                         handleFailure(
                                                                                 prefix,
                                                                                 "Delete failed",
-                                                                                "Communication exception: "
-                                                                                        + ex
+                                                                                "Communication exception: " +
+                                                                                        ex
                                                                                                 .toString());
                                                                     });
                                                         }
@@ -968,8 +967,8 @@ public class Coordinator {
                             } catch (com.zeroc.Ice.LocalException e) {
                                 if (_traceSaveToRegistry) {
                                     traceSaveToRegistry(
-                                            "Ice communications exception while removing application "
-                                                    + name);
+                                            "Ice communications exception while removing application " +
+                                                    name);
                                 }
 
                                 JOptionPane.showMessageDialog(
@@ -995,10 +994,10 @@ public class Coordinator {
         } catch (com.zeroc.Ice.LocalException e) {
             JOptionPane.showMessageDialog(
                     _mainFrame,
-                    "Could not remove application '"
-                            + name
-                            + "' from IceGrid registry:\n"
-                            + e.toString(),
+                    "Could not remove application '" +
+                            name +
+                            "' from IceGrid registry:\n" +
+                            e.toString(),
                     "Trouble with IceGrid registry",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -1070,8 +1069,8 @@ public class Coordinator {
             } catch (com.zeroc.Ice.LocalException e) {
                 JOptionPane.showMessageDialog(
                         _mainFrame,
-                        "Could not release exclusive write access on the IceGrid registry:\n"
-                                + e.toString(),
+                        "Could not release exclusive write access on the IceGrid registry:\n" +
+                                e.toString(),
                         "Trouble with IceGrid registry",
                         JOptionPane.ERROR_MESSAGE);
             }
@@ -1330,7 +1329,7 @@ public class Coordinator {
                                     new LdapName(
                                             serverCertificate.getSubjectX500Principal().getName());
                             for (Rdn rdn : dn.getRdns()) {
-                                if (rdn.getType().toUpperCase().equals("CN")) {
+                                if ("CN".equals(rdn.getType().toUpperCase())) {
                                     CN = rdn.getValue().toString();
                                     break;
                                 }
@@ -1338,7 +1337,7 @@ public class Coordinator {
                             _trustedServerKeyStore.setCertificateEntry(CN, serverCertificate);
                             _trustedServerKeyStore.store(
                                     new FileOutputStream(getDataDirectory() + "/ServerCerts.jks"),
-                                    new char[] {});
+                                    new char[]{});
                             sessionKeeper.certificateManager(parent).load();
                             System.out.println("Trust always");
                             return;
@@ -1374,8 +1373,8 @@ public class Coordinator {
             private KeyStore _trustedServerKeyStore;
         }
 
-        if (info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType
-                | info.getUseX509Certificate()) {
+        if (info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType |
+                info.getUseX509Certificate()) {
             TrustManagerFactory trustManagerFactory;
             try {
                 trustManagerFactory =
@@ -1461,7 +1460,7 @@ public class Coordinator {
                 // The trust managers array would be empty if the trusted CA KeyStore is empty. In
                 // this case, we install a trust manager that rejects all peer certificates.
                 trustManagers =
-                        new javax.net.ssl.TrustManager[] {
+                        new javax.net.ssl.TrustManager[]{
                             new javax.net.ssl.X509TrustManager() {
                                 @Override
                                 public void checkClientTrusted(
@@ -1486,7 +1485,7 @@ public class Coordinator {
             }
 
             // Wrap the trust managers to allow the user to accept invalid certificates.
-            for (int i = 0; i < trustManagers.length; ++i) {
+            for (int i = 0; i < trustManagers.length; i++) {
                 trustManagers[i] =
                         new TrustManagerI(
                                 trustedServerKeyStore,
@@ -1528,15 +1527,15 @@ public class Coordinator {
         }
 
         final String finderStr =
-                "Ice/"
-                        + (info.getDirect() ? "LocatorFinder" : "RouterFinder")
-                        + ":"
-                        + (info.getDefaultEndpoint()
-                                ? ((info.getSSL() ? "ssl" : "tcp")
-                                        + " -h "
-                                        + info.getHost()
-                                        + " -p "
-                                        + info.getPort())
+                "Ice/" +
+                        (info.getDirect() ? "LocatorFinder" : "RouterFinder") +
+                        ":" +
+                        (info.getDefaultEndpoint() ?
+                                ((info.getSSL() ? "ssl" : "tcp") +
+                                        " -h " +
+                                        info.getHost() +
+                                        " -p " +
+                                        info.getPort())
                                 : info.getEndpoint());
 
         class ConnectionCallback {
@@ -1583,7 +1582,7 @@ public class Coordinator {
 
             private AdminSessionPrx _session;
             private String _replicaName;
-            private boolean _failed = false;
+            private boolean _failed;
         }
 
         if (!info.getDirect()) {
@@ -1611,8 +1610,8 @@ public class Coordinator {
                                     _communicator.setDefaultRouter(router);
 
                                     com.zeroc.Glacier2.SessionPrx s;
-                                    if (info.getAuth()
-                                            == SessionKeeper.AuthType.X509CertificateAuthType) {
+                                    if (info.getAuth() ==
+                                            SessionKeeper.AuthType.X509CertificateAuthType) {
                                         router =
                                                 com.zeroc.Glacier2.RouterPrx.uncheckedCast(
                                                         router.ice_secure(true));
@@ -1624,10 +1623,10 @@ public class Coordinator {
                                                     () -> {
                                                         JOptionPane.showMessageDialog(
                                                                 parent,
-                                                                "createSessionFromSecureConnection returned a null session: \n"
-                                                                        + "verify that Glacier2.SSLSessionManager is set to "
-                                                                        + "<IceGridInstanceName>/AdminSSLSessionManager in your Glacier2 "
-                                                                        + "router configuration",
+                                                                "createSessionFromSecureConnection returned a null session: \n" +
+                                                                        "verify that Glacier2.SSLSessionManager is set to " +
+                                                                        "<IceGridInstanceName>/AdminSSLSessionManager in your Glacier2 " +
+                                                                        "router configuration",
                                                                 "Login failed",
                                                                 JOptionPane.ERROR_MESSAGE);
                                                         cb.loginFailed();
@@ -1642,8 +1641,8 @@ public class Coordinator {
                                         s =
                                                 router.createSession(
                                                         info.getUsername(),
-                                                        info.getPassword() != null
-                                                                ? new String(info.getPassword())
+                                                        info.getPassword() != null ?
+                                                                new String(info.getPassword())
                                                                 : "");
 
                                         if (s == null) {
@@ -1651,10 +1650,10 @@ public class Coordinator {
                                                     () -> {
                                                         JOptionPane.showMessageDialog(
                                                                 parent,
-                                                                "createSession returned a null session: \n"
-                                                                        + "verify that Glacier2.SessionManager is set to "
-                                                                        + "<IceGridInstanceName>/AdminSessionManager in your Glacier2 "
-                                                                        + "router configuration",
+                                                                "createSession returned a null session: \n" +
+                                                                        "verify that Glacier2.SessionManager is set to " +
+                                                                        "<IceGridInstanceName>/AdminSessionManager in your Glacier2 " +
+                                                                        "router configuration",
                                                                 "Login failed",
                                                                 JOptionPane.ERROR_MESSAGE);
                                                         cb.loginFailed();
@@ -1672,15 +1671,15 @@ public class Coordinator {
                                                 String msg = e.reason;
                                                 if (msg.isEmpty()) {
                                                     msg =
-                                                            info.getAuth()
-                                                                            == SessionKeeper
+                                                            info.getAuth() ==
+                                                                            SessionKeeper
                                                                                     .AuthType
-                                                                                    .X509CertificateAuthType
-                                                                    ? "Invalid credentials"
+                                                                                    .X509CertificateAuthType ?
+                                                                    "Invalid credentials"
                                                                     : "Invalid username/password";
                                                 }
-                                                if (info.getAuth()
-                                                        == SessionKeeper.AuthType
+                                                if (info.getAuth() ==
+                                                        SessionKeeper.AuthType
                                                                 .X509CertificateAuthType) {
                                                     JOptionPane.showMessageDialog(
                                                             parent,
@@ -1798,8 +1797,8 @@ public class Coordinator {
                                                     () -> {
                                                         JOptionPane.showMessageDialog(
                                                                 parent,
-                                                                "This version of IceGrid GUI requires an IceGrid Registry "
-                                                                        + "version 3.3 or higher",
+                                                                "This version of IceGrid GUI requires an IceGrid Registry " +
+                                                                        "version 3.3 or higher",
                                                                 "Version Mismatch",
                                                                 JOptionPane.ERROR_MESSAGE);
                                                         cb.loginFailed();
@@ -1823,8 +1822,8 @@ public class Coordinator {
                                                 () -> {
                                                     JOptionPane.showMessageDialog(
                                                             parent,
-                                                            "Could not create session: "
-                                                                    + e.toString(),
+                                                            "Could not create session: " +
+                                                                    e.toString(),
                                                             "Login failed",
                                                             JOptionPane.ERROR_MESSAGE);
                                                     cb.loginFailed();
@@ -1833,11 +1832,11 @@ public class Coordinator {
                                     }
 
                                     cb.setRegistry(cb.getCurrentRegistry());
-                                    if (info.getConnectToMaster()
-                                            && !cb.getCurrentRegistry()
+                                    if (info.getConnectToMaster() &&
+                                            !"Registry"
+                                                    .equals(cb.getCurrentRegistry()
                                                     .ice_getIdentity()
-                                                    .name
-                                                    .equals("Registry")) {
+                                                    .name)) {
                                         com.zeroc.Ice.Identity masterRegistryId =
                                                 new com.zeroc.Ice.Identity();
                                         masterRegistryId.category = info.getInstanceName();
@@ -1846,10 +1845,10 @@ public class Coordinator {
                                         cb.setRegistry(
                                                 RegistryPrx.createProxy(
                                                         _communicator,
-                                                        "\""
-                                                                + _communicator.identityToString(
-                                                                        masterRegistryId)
-                                                                + "\""));
+                                                        "\"" +
+                                                                _communicator.identityToString(
+                                                                        masterRegistryId) +
+                                                                "\""));
                                     }
 
                                     //
@@ -1882,8 +1881,8 @@ public class Coordinator {
                                                     () -> {
                                                         JOptionPane.showMessageDialog(
                                                                 parent,
-                                                                "Could not create session: "
-                                                                        + e.toString(),
+                                                                "Could not create session: " +
+                                                                        e.toString(),
                                                                 "Login failed",
                                                                 JOptionPane.ERROR_MESSAGE);
                                                         cb.loginFailed();
@@ -1893,8 +1892,8 @@ public class Coordinator {
                                     }
                                     do {
                                         try {
-                                            if (info.getAuth()
-                                                    == SessionKeeper.AuthType
+                                            if (info.getAuth() ==
+                                                    SessionKeeper.AuthType
                                                             .X509CertificateAuthType) {
                                                 cb.setRegistry(cb.getRegistry().ice_secure(true));
                                                 cb.setSession(
@@ -1909,8 +1908,8 @@ public class Coordinator {
                                                         cb.getRegistry()
                                                                 .createAdminSession(
                                                                         info.getUsername(),
-                                                                        info.getPassword() != null
-                                                                                ? new String(
+                                                                        info.getPassword() != null ?
+                                                                                new String(
                                                                                         info
                                                                                                 .getPassword())
                                                                                 : ""));
@@ -1924,21 +1923,21 @@ public class Coordinator {
                                                         String msg = e.reason;
                                                         if (msg.isEmpty()) {
                                                             msg =
-                                                                    info.getAuth()
-                                                                                    == SessionKeeper
+                                                                    info.getAuth() ==
+                                                                                    SessionKeeper
                                                                                             .AuthType
-                                                                                            .X509CertificateAuthType
-                                                                            ? "Invalid credentials"
+                                                                                            .X509CertificateAuthType ?
+                                                                            "Invalid credentials"
                                                                             : "Invalid username/password";
                                                         }
 
-                                                        if (info.getAuth()
-                                                                == SessionKeeper.AuthType
+                                                        if (info.getAuth() ==
+                                                                SessionKeeper.AuthType
                                                                         .X509CertificateAuthType) {
                                                             JOptionPane.showMessageDialog(
                                                                     parent,
-                                                                    "Permission denied: "
-                                                                            + e.reason,
+                                                                    "Permission denied: " +
+                                                                            e.reason,
                                                                     "Login failed",
                                                                     JOptionPane.ERROR_MESSAGE);
                                                             cb.loginFailed();
@@ -1957,8 +1956,8 @@ public class Coordinator {
                                                         () -> {
                                                             JOptionPane.showMessageDialog(
                                                                     parent,
-                                                                    "Could not create session: "
-                                                                            + e.toString(),
+                                                                    "Could not create session: " +
+                                                                            e.toString(),
                                                                     "Login failed",
                                                                     JOptionPane.ERROR_MESSAGE);
                                                             cb.loginFailed();
@@ -1972,16 +1971,16 @@ public class Coordinator {
                                                                     if (JOptionPane
                                                                                     .showConfirmDialog(
                                                                                             parent,
-                                                                                            "Unable to connect to the Master Registry:\n "
-                                                                                                    + e
-                                                                                                            .toString()
-                                                                                                    + "\n\nDo you want to connect to a Slave Registry?",
+                                                                                            "Unable to connect to the Master Registry:\n " +
+                                                                                                    e
+                                                                                                            .toString() +
+                                                                                                    "\n\nDo you want to connect to a Slave Registry?",
                                                                                             "Cannot connect to Master Registry",
                                                                                             JOptionPane
                                                                                                     .YES_NO_OPTION,
                                                                                             JOptionPane
-                                                                                                    .QUESTION_MESSAGE)
-                                                                            == JOptionPane
+                                                                                                    .QUESTION_MESSAGE) ==
+                                                                            JOptionPane
                                                                                     .YES_OPTION) {
                                                                         cb.setRegistry(
                                                                                 cb
@@ -2322,11 +2321,11 @@ public class Coordinator {
                 new FileFilter() {
                     @Override
                     public boolean accept(File f) {
-                        return f.isDirectory()
-                                || f.getName().endsWith(".out")
-                                || f.getName().endsWith(".err")
-                                || f.getName().endsWith(".log")
-                                || f.getName().endsWith(".txt");
+                        return f.isDirectory() ||
+                                f.getName().endsWith(".out") ||
+                                f.getName().endsWith(".err") ||
+                                f.getName().endsWith(".log") ||
+                                f.getName().endsWith(".txt");
                     }
 
                     @Override
@@ -2387,8 +2386,8 @@ public class Coordinator {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (!_graphViews.isEmpty()) {
-                            if (JOptionPane.YES_OPTION
-                                    != JOptionPane.showConfirmDialog(
+                            if (JOptionPane.YES_OPTION !=
+                                    JOptionPane.showConfirmDialog(
                                             getMainFrame(),
                                             "Close all open Metrics Graph Views and logout?",
                                             "Confirm logout",
@@ -2477,7 +2476,7 @@ public class Coordinator {
                                                     names.get(0));
 
                             if (appName != null) {
-                                if (appName.equals("<All>")) {
+                                if ("<All>".equals(appName)) {
                                     _liveDeploymentRoot.setApplicationNameFilter(null);
                                 } else {
                                     _liveDeploymentRoot.setApplicationNameFilter(appName);
@@ -2881,10 +2880,10 @@ public class Coordinator {
 
             try {
                 Constructor<?> ctor =
-                        c1.getConstructor(new Class[] {Coordinator.class, String.class});
+                        c1.getConstructor(new Class[]{Coordinator.class, String.class});
                 view =
                         (IGraphView)
-                                ctor.newInstance(new Object[] {Coordinator.this, title.toString()});
+                                ctor.newInstance(new Object[]{Coordinator.this, title.toString()});
                 _graphViews.add(view);
             } catch (NoSuchMethodException ex) {
             } catch (InstantiationException ex) {
@@ -2937,15 +2936,15 @@ public class Coordinator {
         } catch (DeploymentException e) {
             JOptionPane.showMessageDialog(
                     _mainFrame,
-                    "The default application descriptor from the IceGrid registry is invalid:\n"
-                            + e.reason,
+                    "The default application descriptor from the IceGrid registry is invalid:\n" +
+                            e.reason,
                     "Deployment Exception",
                     JOptionPane.ERROR_MESSAGE);
         } catch (com.zeroc.Ice.LocalException e) {
             JOptionPane.showMessageDialog(
                     _mainFrame,
-                    "Could not retrieve the default application descriptor from the IceGrid registry: \n"
-                            + e.toString(),
+                    "Could not retrieve the default application descriptor from the IceGrid registry: \n" +
+                            e.toString(),
                     "Trouble with IceGrid registry",
                     JOptionPane.ERROR_MESSAGE);
         } finally {
@@ -2976,9 +2975,9 @@ public class Coordinator {
             try {
                 desktop.browse(
                         new URI(
-                                "https://doc.zeroc.com/ice/"
-                                        + version
-                                        + "/ice-services/icegrid/icegrid-gui-tool"));
+                                "https://doc.zeroc.com/ice/" +
+                                        version +
+                                        "/ice-services/icegrid/icegrid-gui-tool"));
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(
                         null,
@@ -2992,10 +2991,10 @@ public class Coordinator {
 
     private void about() {
         String text =
-                "IceGrid GUI version "
-                        + com.zeroc.Ice.Util.stringVersion()
-                        + "\n"
-                        + "Copyright \u00A9 ZeroC, Inc.\n";
+                "IceGrid GUI version " +
+                        com.zeroc.Ice.Util.stringVersion() +
+                        "\n" +
+                        "Copyright \u00A9 ZeroC, Inc.\n";
 
         JOptionPane.showMessageDialog(
                 _mainFrame, text, "About - IceGrid GUI", JOptionPane.INFORMATION_MESSAGE);
@@ -3017,8 +3016,8 @@ public class Coordinator {
 
     void exit(int status) {
         if (!_graphViews.isEmpty()) {
-            if (JOptionPane.YES_OPTION
-                    != JOptionPane.showConfirmDialog(
+            if (JOptionPane.YES_OPTION !=
+                    JOptionPane.showConfirmDialog(
                             getMainFrame(),
                             "Close all open windows and exit?",
                             "Confirm exit",
@@ -3107,8 +3106,8 @@ public class Coordinator {
         _appMenu.setEnabled(true);
 
         _metricsViewMenu.setEnabled(
-                availableActions[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ENABLE_METRICS_VIEW]
-                        || availableActions[
+                availableActions[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ENABLE_METRICS_VIEW] ||
+                        availableActions[
                                 com.zeroc.IceGridGUI.LiveDeployment.TreeNode.DISABLE_METRICS_VIEW]);
 
         _nodeMenu.setEnabled(
@@ -3124,16 +3123,16 @@ public class Coordinator {
                 availableActions[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.OPEN_DEFINITION]);
 
         _serviceMenu.setEnabled(
-                node instanceof com.zeroc.IceGridGUI.LiveDeployment.Service
-                        && (availableActions[
+                node instanceof com.zeroc.IceGridGUI.LiveDeployment.Service &&
+                        (availableActions[
                                         com.zeroc.IceGridGUI.LiveDeployment.TreeNode
-                                                .RETRIEVE_ICE_LOG]
-                                || availableActions[
+                                                .RETRIEVE_ICE_LOG] ||
+                                availableActions[
                                         com.zeroc.IceGridGUI.LiveDeployment.TreeNode
-                                                .RETRIEVE_LOG_FILE]
-                                || availableActions[
-                                        com.zeroc.IceGridGUI.LiveDeployment.TreeNode.START]
-                                || availableActions[
+                                                .RETRIEVE_LOG_FILE] ||
+                                availableActions[
+                                        com.zeroc.IceGridGUI.LiveDeployment.TreeNode.START] ||
+                                availableActions[
                                         com.zeroc.IceGridGUI.LiveDeployment.TreeNode.STOP]));
     }
 
@@ -3142,25 +3141,25 @@ public class Coordinator {
         _liveActionsForMenu.setTarget(null);
 
         _newServerMenu.setEnabled(
-                availableActions[com.zeroc.IceGridGUI.Application.TreeNode.NEW_SERVER]
-                        || availableActions[
-                                com.zeroc.IceGridGUI.Application.TreeNode.NEW_SERVER_ICEBOX]
-                        || availableActions[
+                availableActions[com.zeroc.IceGridGUI.Application.TreeNode.NEW_SERVER] ||
+                        availableActions[
+                                com.zeroc.IceGridGUI.Application.TreeNode.NEW_SERVER_ICEBOX] ||
+                        availableActions[
                                 com.zeroc.IceGridGUI.Application.TreeNode
                                         .NEW_SERVER_FROM_TEMPLATE]);
 
         _newServiceMenu.setEnabled(
-                availableActions[com.zeroc.IceGridGUI.Application.TreeNode.NEW_SERVICE]
-                        || availableActions[
+                availableActions[com.zeroc.IceGridGUI.Application.TreeNode.NEW_SERVICE] ||
+                        availableActions[
                                 com.zeroc.IceGridGUI.Application.TreeNode
                                         .NEW_SERVICE_FROM_TEMPLATE]);
 
         _newTemplateMenu.setEnabled(
-                availableActions[com.zeroc.IceGridGUI.Application.TreeNode.NEW_TEMPLATE_SERVER]
-                        || availableActions[
+                availableActions[com.zeroc.IceGridGUI.Application.TreeNode.NEW_TEMPLATE_SERVER] ||
+                        availableActions[
                                 com.zeroc.IceGridGUI.Application.TreeNode
-                                        .NEW_TEMPLATE_SERVER_ICEBOX]
-                        || availableActions[
+                                        .NEW_TEMPLATE_SERVER_ICEBOX] ||
+                        availableActions[
                                 com.zeroc.IceGridGUI.Application.TreeNode.NEW_TEMPLATE_SERVICE]);
 
         _appMenu.setEnabled(false);
@@ -3215,7 +3214,7 @@ public class Coordinator {
             try {
                 java.lang.Process process =
                         Runtime.getRuntime()
-                                .exec(new String[] {"reg", "query", regKey, "/v", "Personal"});
+                                .exec(new String[]{"reg", "query", regKey, "/v", "Personal"});
                 process.waitFor();
                 if (process.exitValue() != 0) {
                     JOptionPane.showMessageDialog(
@@ -3245,9 +3244,9 @@ public class Coordinator {
                 if (oldDataDir == null) {
                     JOptionPane.showMessageDialog(
                             getMainFrame(),
-                            "Could not get Documents dir from Windows registry key `"
-                                    + regKey
-                                    + "'",
+                            "Could not get Documents dir from Windows registry key `" +
+                                    regKey +
+                                    "'",
                             "Initialization Exception",
                             JOptionPane.ERROR_MESSAGE);
                     return;
@@ -3280,10 +3279,10 @@ public class Coordinator {
 
         if (oldDataDir != null) {
             String dataDir = getDataDirectory();
-            if (new File(dataDir).isDirectory()
-                    && new File(dataDir).list().length == 0
-                    && new File(oldDataDir).isDirectory()
-                    && new File(oldDataDir).list().length > 0) {
+            if (new File(dataDir).isDirectory() &&
+                    new File(dataDir).list().length == 0 &&
+                    new File(oldDataDir).isDirectory() &&
+                    new File(oldDataDir).list().length > 0) {
                 for (File f : new File(oldDataDir).listFiles()) {
                     try {
                         Files.copy(
@@ -3293,12 +3292,12 @@ public class Coordinator {
                     } catch (java.io.IOException ex) {
                         JOptionPane.showMessageDialog(
                                 getMainFrame(),
-                                "Could not move `"
-                                        + Paths.get(oldDataDir, f.getName()).toString()
-                                        + "' to "
-                                        + "`"
-                                        + Paths.get(oldDataDir, f.getName()).toString()
-                                        + "'",
+                                "Could not move `" +
+                                        Paths.get(oldDataDir, f.getName()).toString() +
+                                        "' to " +
+                                        "`" +
+                                        Paths.get(oldDataDir, f.getName()).toString() +
+                                        "'",
                                 "Initialization Exception",
                                 JOptionPane.ERROR_MESSAGE);
                         return;
@@ -3361,7 +3360,7 @@ public class Coordinator {
 
     public boolean needsSaving() {
         boolean v = false;
-        for (int i = 0, length = _mainPane.getTabCount(); i < length; ++i) {
+        for (int i = 0, length = _mainPane.getTabCount(); i < length; i++) {
             Component component = _mainPane.getComponentAt(i);
             if (component instanceof ApplicationPane) {
                 if (((ApplicationPane) component).getRoot().needsSaving()) {
@@ -3478,9 +3477,9 @@ public class Coordinator {
     private int _writeSerial = -1;
 
     private Runnable _onExclusiveWrite;
-    private int _writeAccessCount = 0;
+    private int _writeAccessCount;
 
-    private boolean _substitute = false;
+    private boolean _substitute;
 
     private JFrame _mainFrame;
     private final SessionKeeper _sessionKeeper;

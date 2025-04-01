@@ -85,9 +85,9 @@ public class AllTests {
             TestIntfPrx p, boolean oneway, PrintWriter output) {
         String onewayString = oneway ? "one-way" : "two-way";
         output.write(
-                "testing the inactivity timeout with an outstanding "
-                        + onewayString
-                        + " request... ");
+                "testing the inactivity timeout with an outstanding " +
+                        onewayString +
+                        " request... ");
         output.flush();
 
         if (oneway) {
@@ -125,5 +125,8 @@ public class AllTests {
         if (!b) {
             throw new RuntimeException();
         }
+    }
+
+    private AllTests() {
     }
 }

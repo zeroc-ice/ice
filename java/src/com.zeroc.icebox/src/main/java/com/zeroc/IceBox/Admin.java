@@ -7,15 +7,15 @@ import java.util.Collections;
 public final class Admin {
     private static void usage() {
         System.err.println(
-                "Usage: com.zeroc.IceBox.Admin [options] [command...]\n"
-                        + "Options:\n"
-                        + "-h, --help          Show this message.\n"
-                        + "-v, --version       Display the Ice version.\n"
-                        + "\n"
-                        + "Commands:\n"
-                        + "start SERVICE       Start a service.\n"
-                        + "stop SERVICE        Stop a service.\n"
-                        + "shutdown            Shutdown the server.");
+                "Usage: com.zeroc.IceBox.Admin [options] [command...]\n" +
+                        "Options:\n" +
+                        "-h, --help          Show this message.\n" +
+                        "-v, --version       Display the Ice version.\n" +
+                        "\n" +
+                        "Commands:\n" +
+                        "start SERVICE       Start a service.\n" +
+                        "stop SERVICE        Stop a service.\n" +
+                        "shutdown            Shutdown the server.");
     }
 
     public static void main(String[] args) {
@@ -49,10 +49,10 @@ public final class Admin {
         }
 
         for (String command : commands) {
-            if (command.equals("-h") || command.equals("--help")) {
+            if ("-h".equals(command) || "--help".equals(command)) {
                 usage();
                 return 0;
-            } else if (command.equals("-v") || command.equals("--version")) {
+            } else if ("-v".equals(command) || "--version".equals(command)) {
                 System.out.println(com.zeroc.Ice.Util.stringVersion());
                 return 0;
             } else if (command.startsWith("-")) {
@@ -81,9 +81,9 @@ public final class Admin {
 
         for (int i = 0; i < commands.size(); i++) {
             String command = commands.get(i);
-            if (command.equals("shutdown")) {
+            if ("shutdown".equals(command)) {
                 manager.shutdown();
-            } else if (command.equals("start")) {
+            } else if ("start".equals(command)) {
                 if (++i >= commands.size()) {
                     System.err.println("IceBox.Admin: no service name specified.");
                     return 1;
@@ -98,7 +98,7 @@ public final class Admin {
                 } catch (com.zeroc.IceBox.AlreadyStartedException ex) {
                     System.err.println("IceBox.Admin: service already started.");
                 }
-            } else if (command.equals("stop")) {
+            } else if ("stop".equals(command)) {
                 if (++i >= commands.size()) {
                     System.err.println("IceBox.Admin: no service name specified.");
                     return 1;

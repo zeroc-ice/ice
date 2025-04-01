@@ -228,8 +228,8 @@ class LookupI implements Lookup {
             if (!info.mcastInterface.isEmpty()) {
                 for (com.zeroc.Ice.Endpoint q : lookupReply.ice_getEndpoints()) {
                     com.zeroc.Ice.EndpointInfo r = q.getInfo();
-                    if (r instanceof com.zeroc.Ice.IPEndpointInfo
-                            && ((com.zeroc.Ice.IPEndpointInfo) r)
+                    if (r instanceof com.zeroc.Ice.IPEndpointInfo &&
+                            ((com.zeroc.Ice.IPEndpointInfo) r)
                                     .host.equals(info.mcastInterface)) {
                         single[0] = q;
                         entry.setValue((LookupReplyPrx) lookupReply.ice_endpoints(single));
@@ -326,8 +326,8 @@ class LookupI implements Lookup {
     synchronized void foundObject(
             com.zeroc.Ice.Identity id, String requestId, com.zeroc.Ice.ObjectPrx proxy) {
         ObjectRequest request = _objectRequests.get(id);
-        if (request != null
-                && request.getRequestId().equals(requestId)) // Ignore responses from old requests
+        if (request != null &&
+                request.getRequestId().equals(requestId)) // Ignore responses from old requests
         {
             request.response(proxy);
             request.cancelTimer();
@@ -341,8 +341,8 @@ class LookupI implements Lookup {
             com.zeroc.Ice.ObjectPrx proxy,
             boolean isReplicaGroup) {
         AdapterRequest request = _adapterRequests.get(adapterId);
-        if (request != null
-                && request.getRequestId().equals(requestId)) // Ignore responses from old requests
+        if (request != null &&
+                request.getRequestId().equals(requestId)) // Ignore responses from old requests
         {
             if (request.response(proxy, isReplicaGroup)) {
                 request.cancelTimer();

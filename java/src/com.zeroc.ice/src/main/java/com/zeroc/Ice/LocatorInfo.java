@@ -16,8 +16,8 @@ final class LocatorInfo {
             EndpointI[] endpoints = null;
             if (proxy != null) {
                 Reference r = ((_ObjectPrxI) proxy)._getReference();
-                if (_ref.isWellKnown()
-                        && !Protocol.isSupported(_ref.getEncoding(), r.getEncoding())) {
+                if (_ref.isWellKnown() &&
+                        !Protocol.isSupported(_ref.getEncoding(), r.getEncoding())) {
                     //
                     // If a well-known proxy and the returned proxy encoding isn't supported, we're
                     // done: there's
@@ -33,8 +33,8 @@ final class LocatorInfo {
                     //
                     if (_ref.getInstance().traceLevels().location >= 1) {
                         locatorInfo.trace(
-                                "retrieved adapter for well-known object from locator, "
-                                        + "adding to locator cache",
+                                "retrieved adapter for well-known object from locator, " +
+                                        "adding to locator cache",
                                 _ref,
                                 r);
                     }
@@ -79,8 +79,8 @@ final class LocatorInfo {
             synchronized (this) {
                 if (!_response && _exception == null) {
                     _callbacks.add(callback);
-                    if (wellKnownRef
-                            != null) // This request is to resolve the endpoints of a cached
+                    if (wellKnownRef !=
+                            null) // This request is to resolve the endpoints of a cached
                     // well-known object ref
                     {
                         _wellKnownRefs.add(wellKnownRef);
@@ -449,14 +449,14 @@ final class LocatorInfo {
                     s.append(ref.toString());
                     s.append("\n");
                 }
-                s.append("reason = " + ex);
+                s.append("reason = ").append(ex);
                 instance.initializationData()
                         .logger
                         .trace(instance.traceLevels().locationCat, s.toString());
             }
             throw ex;
         } catch (Exception ex) {
-            assert (false);
+            assert false;
         }
     }
 

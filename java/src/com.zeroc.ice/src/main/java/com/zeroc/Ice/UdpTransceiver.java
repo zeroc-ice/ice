@@ -189,8 +189,8 @@ final class UdpTransceiver implements Transceiver {
         } else if (_state == StateNotConnected) {
             java.net.DatagramSocket socket = _fd.socket();
             s =
-                    "local address = "
-                            + Network.addrToString(
+                    "local address = " +
+                            Network.addrToString(
                                     (java.net.InetSocketAddress) socket.getLocalSocketAddress());
         } else {
             s = Network.fdToString(_fd);
@@ -283,10 +283,10 @@ final class UdpTransceiver implements Transceiver {
         final int packetSize = java.lang.Math.min(_maxPacketSize, _sndSize - _udpOverhead);
         if (packetSize < buf.size()) {
             throw new DatagramLimitException(
-                    "message size of "
-                            + buf.size()
-                            + " exceeds the maximum packet size of "
-                            + packetSize);
+                    "message size of " +
+                            buf.size() +
+                            " exceeds the maximum packet size of " +
+                            packetSize);
         }
     }
 
@@ -365,7 +365,7 @@ final class UdpTransceiver implements Transceiver {
     private void setBufSize(int rcvSize, int sndSize) {
         assert (_fd != null);
 
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 2; i++) {
             boolean isSnd;
             String direction;
             String prop;
@@ -400,12 +400,12 @@ final class UdpTransceiver implements Transceiver {
                 _instance
                         .logger()
                         .warning(
-                                "Invalid "
-                                        + prop
-                                        + " value of "
-                                        + sizeRequested
-                                        + " adjusted to "
-                                        + dfltSize);
+                                "Invalid " +
+                                        prop +
+                                        " value of " +
+                                        sizeRequested +
+                                        " adjusted to " +
+                                        dfltSize);
                 sizeRequested = dfltSize;
             }
 
@@ -431,17 +431,17 @@ final class UdpTransceiver implements Transceiver {
                 //
                 if (sizeSet < sizeRequested) {
                     BufSizeWarnInfo winfo = _instance.getBufSizeWarn(UDPEndpointType.value);
-                    if ((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested))
-                            || (!isSnd && (!winfo.rcvWarn || winfo.rcvSize != sizeRequested))) {
+                    if ((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested)) ||
+                            (!isSnd && (!winfo.rcvWarn || winfo.rcvSize != sizeRequested))) {
                         _instance
                                 .logger()
                                 .warning(
-                                        "UDP "
-                                                + direction
-                                                + " buffer size: requested size of "
-                                                + sizeRequested
-                                                + " adjusted to "
-                                                + sizeSet);
+                                        "UDP " +
+                                                direction +
+                                                " buffer size: requested size of " +
+                                                sizeRequested +
+                                                " adjusted to " +
+                                                sizeSet);
 
                         if (isSnd) {
                             _instance.setSndBufSizeWarn(UDPEndpointType.value, sizeRequested);
@@ -465,7 +465,7 @@ final class UdpTransceiver implements Transceiver {
         }
     }
 
-    private UdpEndpointI _endpoint = null;
+    private UdpEndpointI _endpoint;
     private final ProtocolInstance _instance;
 
     private int _state;
@@ -473,13 +473,13 @@ final class UdpTransceiver implements Transceiver {
     private int _sndSize;
     private java.nio.channels.DatagramChannel _fd;
     private java.net.InetSocketAddress _addr;
-    private java.net.InetSocketAddress _mcastAddr = null;
+    private java.net.InetSocketAddress _mcastAddr;
     private String _mcastInterface;
-    private java.net.InetSocketAddress _peerAddr = null;
+    private java.net.InetSocketAddress _peerAddr;
 
-    private boolean _incoming = false;
-    private int _port = 0;
-    private boolean _bound = false;
+    private boolean _incoming;
+    private int _port;
+    private boolean _bound;
 
     //
     // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for

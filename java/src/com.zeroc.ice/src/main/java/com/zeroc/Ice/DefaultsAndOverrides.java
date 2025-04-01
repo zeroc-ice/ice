@@ -54,15 +54,15 @@ final class DefaultsAndOverrides {
                 properties.getIcePropertyAsInt("Ice.Default.CollocationOptimized") > 0;
 
         value = properties.getIceProperty("Ice.Default.EndpointSelection");
-        if (value.equals("Random")) {
+        if ("Random".equals(value)) {
             defaultEndpointSelection = EndpointSelectionType.Random;
-        } else if (value.equals("Ordered")) {
+        } else if ("Ordered".equals(value)) {
             defaultEndpointSelection = EndpointSelectionType.Ordered;
         } else {
             throw new ParseException(
-                    "illegal value '"
-                            + value
-                            + "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
+                    "illegal value '" +
+                            value +
+                            "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
         }
 
         intValue = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");

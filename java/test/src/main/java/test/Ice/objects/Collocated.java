@@ -8,15 +8,15 @@ public class Collocated extends test.TestHelper {
     private static class MyValueFactory implements com.zeroc.Ice.ValueFactory {
         @Override
         public com.zeroc.Ice.Value create(String type) {
-            if (type.equals("::Test::B")) {
+            if ("::Test::B".equals(type)) {
                 return new BI();
-            } else if (type.equals("::Test::C")) {
+            } else if ("::Test::C".equals(type)) {
                 return new CI();
-            } else if (type.equals("::Test::D")) {
+            } else if ("::Test::D".equals(type)) {
                 return new DI();
             }
 
-            assert (false); // Should never be reached
+            assert false; // Should never be reached
             return null;
         }
     }

@@ -8,7 +8,7 @@ public final class Server {
     static class ShutdownHook extends Thread {
         private com.zeroc.Ice.Communicator _communicator;
         private final java.lang.Object _doneMutex = new java.lang.Object();
-        private boolean _done = false;
+        private boolean _done;
 
         ShutdownHook(com.zeroc.Ice.Communicator communicator) {
             _communicator = communicator;
@@ -43,9 +43,9 @@ public final class Server {
     private static void usage() {
         System.err.println("Usage: com.zeroc.IceBox.Server [options] --Ice.Config=<file>\n");
         System.err.println(
-                "Options:\n"
-                        + "-h, --help           Show this message.\n"
-                        + "-v, --version        Display the Ice version.");
+                "Options:\n" +
+                        "-h, --help           Show this message.\n" +
+                        "-v, --version        Display the Ice version.");
     }
 
     private static int run(com.zeroc.Ice.Communicator communicator, java.util.List<String> argSeq) {
@@ -61,10 +61,10 @@ public final class Server {
         }
 
         for (String arg : iceBoxArgs) {
-            if (arg.equals("-h") || arg.equals("--help")) {
+            if ("-h".equals(arg) || "--help".equals(arg)) {
                 usage();
                 return 0;
-            } else if (arg.equals("-v") || arg.equals("--version")) {
+            } else if ("-v".equals(arg) || "--version".equals(arg)) {
                 System.out.println(com.zeroc.Ice.Util.stringVersion());
                 return 0;
             } else {

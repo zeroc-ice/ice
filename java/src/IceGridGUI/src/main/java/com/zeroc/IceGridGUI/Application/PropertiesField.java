@@ -148,8 +148,8 @@ public class PropertiesField extends JTable {
                     public void tableChanged(TableModelEvent e) {
                         if (_editable) {
                             Object lastKey = _model.getValueAt(_model.getRowCount() - 1, 0);
-                            if (lastKey != null && !lastKey.equals("")) {
-                                _model.addRow(new Object[] {"", ""});
+                            if (lastKey != null && !"".equals(lastKey)) {
+                                _model.addRow(new Object[]{"", ""});
                             }
                             _editor.updated();
                         }
@@ -197,7 +197,7 @@ public class PropertiesField extends JTable {
 
     private DefaultTableModel _model;
     private java.util.Vector<String> _columnNames;
-    private boolean _editable = false;
+    private boolean _editable;
 
     private java.util.LinkedList<PropertyDescriptor> _hiddenProperties =
             new java.util.LinkedList<>();

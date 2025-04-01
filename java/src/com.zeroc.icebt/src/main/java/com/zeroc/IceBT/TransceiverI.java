@@ -100,7 +100,7 @@ final class TransceiverI implements Transceiver {
 
     @Override
     public com.zeroc.Ice.EndpointI bind() {
-        assert (false);
+        assert false;
         return null;
     }
 
@@ -374,9 +374,9 @@ final class TransceiverI implements Transceiver {
                 synchronized (this) {
                     // If we've read too much data, wait until the application consumes some before
                     // we read again.
-                    while (_state == StateConnected
-                            && _exception == null
-                            && _readBuffer.b.position() > _rcvSize) {
+                    while (_state == StateConnected &&
+                            _exception == null &&
+                            _readBuffer.b.position() > _rcvSize) {
                         try {
                             wait();
                         } catch (InterruptedException ex) {
@@ -440,9 +440,9 @@ final class TransceiverI implements Transceiver {
                 ByteBuffer b = null;
 
                 synchronized (this) {
-                    while (_state == StateConnected
-                            && _exception == null
-                            && _writeBuffer.b.position() == 0) {
+                    while (_state == StateConnected &&
+                            _exception == null &&
+                            _writeBuffer.b.position() == 0) {
                         try {
                             wait();
                         } catch (InterruptedException ex) {

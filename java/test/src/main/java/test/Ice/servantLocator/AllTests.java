@@ -29,7 +29,7 @@ public class AllTests {
         } catch (ObjectNotExistException ex) {
             test(ex.id.equals(obj.ice_getIdentity()));
             test(ex.facet.equals(obj.ice_getFacet()));
-            test(ex.operation.equals("requestFailedException"));
+            test("requestFailedException".equals(ex.operation));
         }
 
         try {
@@ -37,21 +37,21 @@ public class AllTests {
             test(false);
         } catch (UnknownUserException ex) {
             helper.getWriter().flush();
-            test(ex.getMessage().equals("reason"));
+            test("reason".equals(ex.getMessage()));
         }
 
         try {
             obj.unknownLocalException();
             test(false);
         } catch (UnknownLocalException ex) {
-            test(ex.getMessage().equals("reason"));
+            test("reason".equals(ex.getMessage()));
         }
 
         try {
             obj.unknownException();
             test(false);
         } catch (UnknownException ex) {
-            test(ex.getMessage().equals("reason"));
+            test("reason".equals(ex.getMessage()));
         }
 
         //
@@ -80,8 +80,8 @@ public class AllTests {
         } catch (UnknownLocalException ex) {
             var message = ex.getMessage();
             test(
-                    message.contains("Ice::SocketException")
-                            || message.contains("Ice.SocketException"));
+                    message.contains("Ice::SocketException") ||
+                            message.contains("Ice.SocketException"));
         } catch (Throwable ex) {
             test(false);
         }
@@ -101,7 +101,7 @@ public class AllTests {
             obj.unknownExceptionWithServantException();
             test(false);
         } catch (UnknownException ex) {
-            test(ex.getMessage().equals("reason"));
+            test("reason".equals(ex.getMessage()));
         } catch (Throwable ex) {
             test(false);
         }
@@ -287,5 +287,8 @@ public class AllTests {
         }
 
         return obj;
+    }
+
+    private AllTests() {
     }
 }

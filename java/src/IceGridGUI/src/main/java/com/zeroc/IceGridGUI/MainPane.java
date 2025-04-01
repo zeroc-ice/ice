@@ -33,7 +33,7 @@ public class MainPane extends JTabbedPane {
     }
 
     public int findIndex(com.zeroc.IceGridGUI.Application.Root root) {
-        for (int i = 1; i < getTabCount(); ++i) {
+        for (int i = 1; i < getTabCount(); i++) {
             ApplicationPane pane = (ApplicationPane) getComponentAt(i);
             if (pane.getRoot() == root) {
                 return i;
@@ -43,7 +43,7 @@ public class MainPane extends JTabbedPane {
     }
 
     public ApplicationPane findApplication(com.zeroc.IceGridGUI.Application.Root root) {
-        for (int i = 1; i < getTabCount(); ++i) {
+        for (int i = 1; i < getTabCount(); i++) {
             ApplicationPane pane = (ApplicationPane) getComponentAt(i);
             if (pane.getRoot() == root) {
                 return pane;
@@ -53,7 +53,7 @@ public class MainPane extends JTabbedPane {
     }
 
     public void removeApplication(com.zeroc.IceGridGUI.Application.Root root) {
-        for (int i = 1; i < getTabCount(); ++i) {
+        for (int i = 1; i < getTabCount(); i++) {
             ApplicationPane pane = (ApplicationPane) getComponentAt(i);
             if (pane.getRoot() == root) {
                 removeTabAt(i);
@@ -95,7 +95,7 @@ public class MainPane extends JTabbedPane {
 
     private boolean hasTitle(String title) {
         int tabCount = getTabCount();
-        for (int i = 0; i < tabCount; ++i) {
+        for (int i = 0; i < tabCount; i++) {
             if (title.equals(getTitleAt(i))) {
                 return true;
             }

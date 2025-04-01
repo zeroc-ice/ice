@@ -22,7 +22,7 @@ public class AllTests {
             test(s1.equals(opMyStructResult.returnValue));
             test(s1.equals(opMyStructResult.s2));
 
-            var sseq1 = new test.Ice.scope.Test.MyStruct[] {s1};
+            var sseq1 = new test.Ice.scope.Test.MyStruct[]{s1};
             test.Ice.scope.Test.MyInterface.OpMyStructSeqResult opMyStructSeqResult =
                     i.opMyStructSeq(sseq1);
             test(opMyStructSeqResult.returnValue[0].equals(s1));
@@ -40,7 +40,7 @@ public class AllTests {
             test(c1.s.equals(opMyClassResult.returnValue.s));
             test(c1.s.equals(opMyClassResult.c2.s));
 
-            var cseq1 = new test.Ice.scope.Test.MyClass[] {c1};
+            var cseq1 = new test.Ice.scope.Test.MyClass[]{c1};
             test.Ice.scope.Test.MyInterface.OpMyClassSeqResult opMyClassSeqResult =
                     i.opMyClassSeq(cseq1);
             test(opMyClassSeqResult.returnValue[0].s.equals(s1));
@@ -58,11 +58,11 @@ public class AllTests {
 
             test.Ice.scope.Test.MyOtherStruct s =
                     i.opMyOtherStruct(new test.Ice.scope.Test.MyOtherStruct("MyOtherStruct"));
-            test(s.s.equals("MyOtherStruct"));
+            test("MyOtherStruct".equals(s.s));
 
             test.Ice.scope.Test.MyOtherClass c =
                     i.opMyOtherClass(new test.Ice.scope.Test.MyOtherClass("MyOtherClass"));
-            test(c.s.equals("MyOtherClass"));
+            test("MyOtherClass".equals(c.s));
         }
 
         {
@@ -76,7 +76,7 @@ public class AllTests {
             test(s1.equals(opMyStructResult.returnValue));
             test(s1.equals(opMyStructResult.s2));
 
-            var sseq1 = new test.Ice.scope.Test.MyStruct[] {s1};
+            var sseq1 = new test.Ice.scope.Test.MyStruct[]{s1};
             test.Ice.scope.Test.MyInterface.OpMyStructSeqResult opMyStructSeqResult =
                     i.opMyStructSeqAsync(sseq1).join();
             test(opMyStructSeqResult.returnValue[0].equals(s1));
@@ -95,7 +95,7 @@ public class AllTests {
             test(c1.s.equals(opMyClassResult.returnValue.s));
             test(c1.s.equals(opMyClassResult.c2.s));
 
-            var cseq1 = new test.Ice.scope.Test.MyClass[] {c1};
+            var cseq1 = new test.Ice.scope.Test.MyClass[]{c1};
             test.Ice.scope.Test.MyInterface.OpMyClassSeqResult opMyClassSeqResult =
                     i.opMyClassSeqAsync(cseq1).join();
             test(opMyClassSeqResult.returnValue[0].s.equals(s1));
@@ -114,12 +114,12 @@ public class AllTests {
             test.Ice.scope.Test.MyOtherStruct s =
                     i.opMyOtherStructAsync(new test.Ice.scope.Test.MyOtherStruct("MyOtherStruct"))
                             .join();
-            test(s.s.equals("MyOtherStruct"));
+            test("MyOtherStruct".equals(s.s));
 
             test.Ice.scope.Test.MyOtherClass c =
                     i.opMyOtherClassAsync(new test.Ice.scope.Test.MyOtherClass("MyOtherClass"))
                             .join();
-            test(c.s.equals("MyOtherClass"));
+            test("MyOtherClass".equals(c.s));
         }
 
         {
@@ -133,7 +133,7 @@ public class AllTests {
             test(s1.equals(opMyStructResult.returnValue));
             test(s1.equals(opMyStructResult.s2));
 
-            var sseq1 = new test.Ice.scope.Test.Inner.Inner2.MyStruct[] {s1};
+            var sseq1 = new test.Ice.scope.Test.Inner.Inner2.MyStruct[]{s1};
             test.Ice.scope.Test.Inner.MyInterface.OpMyStructSeqResult opMyStructSeqResult =
                     i.opMyStructSeq(sseq1);
             test(opMyStructSeqResult.returnValue[0].equals(s1));
@@ -151,7 +151,7 @@ public class AllTests {
             test(c1.s.equals(opMyClassResult.returnValue.s));
             test(c1.s.equals(opMyClassResult.c2.s));
 
-            var cseq1 = new test.Ice.scope.Test.Inner.Inner2.MyClass[] {c1};
+            var cseq1 = new test.Ice.scope.Test.Inner.Inner2.MyClass[]{c1};
             test.Ice.scope.Test.Inner.MyInterface.OpMyClassSeqResult opMyClassSeqResult =
                     i.opMyClassSeq(cseq1);
             test(opMyClassSeqResult.returnValue[0].s.equals(s1));
@@ -176,7 +176,7 @@ public class AllTests {
             test(s1.equals(opMyStructResult.returnValue));
             test(s1.equals(opMyStructResult.s2));
 
-            var sseq1 = new test.Ice.scope.Test.Inner.Inner2.MyStruct[] {s1};
+            var sseq1 = new test.Ice.scope.Test.Inner.Inner2.MyStruct[]{s1};
             test.Ice.scope.Test.Inner.MyInterface.OpMyStructSeqResult opMyStructSeqResult =
                     i.opMyStructSeqAsync(sseq1).join();
             test(opMyStructSeqResult.returnValue[0].equals(s1));
@@ -195,7 +195,7 @@ public class AllTests {
             test(c1.s.equals(opMyClassResult.returnValue.s));
             test(c1.s.equals(opMyClassResult.c2.s));
 
-            var cseq1 = new test.Ice.scope.Test.Inner.Inner2.MyClass[] {c1};
+            var cseq1 = new test.Ice.scope.Test.Inner.Inner2.MyClass[]{c1};
             test.Ice.scope.Test.Inner.MyInterface.OpMyClassSeqResult opMyClassSeqResult =
                     i.opMyClassSeqAsync(cseq1).join();
             test(opMyClassSeqResult.returnValue[0].s.equals(s1));
@@ -220,7 +220,7 @@ public class AllTests {
             test(s1.equals(opMyStructResult.returnValue));
             test(s1.equals(opMyStructResult.s2));
 
-            var sseq1 = new test.Ice.scope.Test.Inner.Inner2.MyStruct[] {s1};
+            var sseq1 = new test.Ice.scope.Test.Inner.Inner2.MyStruct[]{s1};
             test.Ice.scope.Test.Inner.Inner2.MyInterface.OpMyStructSeqResult opMyStructSeqResult =
                     i.opMyStructSeq(sseq1);
             test(opMyStructSeqResult.returnValue[0].equals(s1));
@@ -239,7 +239,7 @@ public class AllTests {
             test(c1.s.equals(opMyClassResult.returnValue.s));
             test(c1.s.equals(opMyClassResult.c2.s));
 
-            var cseq1 = new test.Ice.scope.Test.Inner.Inner2.MyClass[] {c1};
+            var cseq1 = new test.Ice.scope.Test.Inner.Inner2.MyClass[]{c1};
             test.Ice.scope.Test.Inner.Inner2.MyInterface.OpMyClassSeqResult opMyClassSeqResult =
                     i.opMyClassSeq(cseq1);
             test(opMyClassSeqResult.returnValue[0].s.equals(s1));
@@ -264,7 +264,7 @@ public class AllTests {
             test(s1.equals(opMyStructResult.returnValue));
             test(s1.equals(opMyStructResult.s2));
 
-            var sseq1 = new test.Ice.scope.Test.Inner.Inner2.MyStruct[] {s1};
+            var sseq1 = new test.Ice.scope.Test.Inner.Inner2.MyStruct[]{s1};
             test.Ice.scope.Test.Inner.Inner2.MyInterface.OpMyStructSeqResult opMyStructSeqResult =
                     i.opMyStructSeqAsync(sseq1).join();
             test(opMyStructSeqResult.returnValue[0].equals(s1));
@@ -283,7 +283,7 @@ public class AllTests {
             test(c1.s.equals(opMyClassResult.returnValue.s));
             test(c1.s.equals(opMyClassResult.c2.s));
 
-            var cseq1 = new test.Ice.scope.Test.Inner.Inner2.MyClass[] {c1};
+            var cseq1 = new test.Ice.scope.Test.Inner.Inner2.MyClass[]{c1};
             test.Ice.scope.Test.Inner.Inner2.MyInterface.OpMyClassSeqResult opMyClassSeqResult =
                     i.opMyClassSeqAsync(cseq1).join();
             test(opMyClassSeqResult.returnValue[0].s.equals(s1));
@@ -308,7 +308,7 @@ public class AllTests {
             test(s1.equals(opMyStructResult.returnValue));
             test(s1.equals(opMyStructResult.s2));
 
-            var sseq1 = new test.Ice.scope.Test.MyStruct[] {s1};
+            var sseq1 = new test.Ice.scope.Test.MyStruct[]{s1};
             test.Ice.scope.Inner.Test.Inner2.MyInterface.OpMyStructSeqResult opMyStructSeqResult =
                     i.opMyStructSeqAsync(sseq1).join();
             test(opMyStructSeqResult.returnValue[0].equals(s1));
@@ -327,7 +327,7 @@ public class AllTests {
             test(c1.s.equals(opMyClassResult.returnValue.s));
             test(c1.s.equals(opMyClassResult.c2.s));
 
-            var cseq1 = new test.Ice.scope.Test.MyClass[] {c1};
+            var cseq1 = new test.Ice.scope.Test.MyClass[]{c1};
             test.Ice.scope.Inner.Test.Inner2.MyInterface.OpMyClassSeqResult opMyClassSeqResult =
                     i.opMyClassSeqAsync(cseq1).join();
             test(opMyClassSeqResult.returnValue[0].s.equals(s1));
@@ -347,5 +347,8 @@ public class AllTests {
                             communicator, "i1:" + helper.getTestEndpoint());
             i.shutdown();
         }
+    }
+
+    private AllTests() {
     }
 }

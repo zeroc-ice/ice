@@ -22,7 +22,7 @@ public abstract class BasePlugin implements com.zeroc.Ice.Plugin {
     }
 
     protected com.zeroc.Ice.Communicator _communicator;
-    protected boolean _initialized = false;
-    protected boolean _destroyed = false;
-    protected BasePlugin _other = null;
+    protected boolean _initialized;
+    protected boolean _destroyed;
+    protected BasePlugin _other;
 }

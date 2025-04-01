@@ -10,7 +10,7 @@ public final class TestIntfI implements TestIntf {
         try {
             reply.reply();
         } catch (com.zeroc.Ice.LocalException ex) {
-            assert (false);
+            assert false;
         }
     }
 
@@ -19,7 +19,7 @@ public final class TestIntfI implements TestIntf {
         try {
             reply.reply();
         } catch (com.zeroc.Ice.LocalException ex) {
-            assert (false);
+            assert false;
         }
     }
 
@@ -38,7 +38,7 @@ public final class TestIntfI implements TestIntf {
 
             PingReplyPrx.uncheckedCast(current.con.createProxy(id)).reply();
         } catch (com.zeroc.Ice.LocalException ex) {
-            assert (false);
+            assert false;
         }
     }
 

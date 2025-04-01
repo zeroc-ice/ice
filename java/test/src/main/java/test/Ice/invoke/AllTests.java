@@ -53,16 +53,16 @@ public class AllTests {
                 InputStream inS = new InputStream(communicator, r.outParams);
                 inS.startEncapsulation();
                 String s = inS.readString();
-                test(s.equals(testString));
+                test(testString.equals(s));
                 s = inS.readString();
                 inS.endEncapsulation();
-                test(s.equals(testString));
+                test(testString.equals(s));
             } else {
                 test(false);
             }
         }
 
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 2; i++) {
             java.util.Map<String, String> context = null;
             if (i == 1) {
                 context = new java.util.HashMap<String, String>();
@@ -108,10 +108,10 @@ public class AllTests {
                 InputStream inS = new InputStream(communicator, r.outParams);
                 inS.startEncapsulation();
                 String s = inS.readString();
-                test(s.equals(testString));
+                test(testString.equals(s));
                 s = inS.readString();
                 inS.endEncapsulation();
-                test(s.equals(testString));
+                test(testString.equals(s));
             } else {
                 test(false);
             }
@@ -139,5 +139,8 @@ public class AllTests {
         out.println("ok");
 
         return cl;
+    }
+
+    private AllTests() {
     }
 }

@@ -305,8 +305,8 @@ public class SimpleInternalFrame extends JPanel {
     protected Color getTextForeground(boolean isSelected) {
         Color c =
                 UIManager.getColor(
-                        isSelected
-                                ? "SimpleInternalFrame.activeTitleForeground"
+                        isSelected ?
+                                "SimpleInternalFrame.activeTitleForeground"
                                 : "SimpleInternalFrame.inactiveTitleForeground");
         if (c != null) {
             return c;
@@ -323,9 +323,12 @@ public class SimpleInternalFrame extends JPanel {
      */
     protected Color getHeaderBackground() {
         Color c = UIManager.getColor("SimpleInternalFrame.activeTitleBackground");
-        if (c != null) return c;
-        if (SystemUtils.IS_LAF_WINDOWS_XP_ENABLED)
+        if (c != null) {
+            return c;
+        }
+        if (SystemUtils.IS_LAF_WINDOWS_XP_ENABLED) {
             c = UIManager.getColor("InternalFrame.activeTitleGradient");
+        }
         return c != null ? c : UIManager.getColor("InternalFrame.activeTitleBackground");
     }
 

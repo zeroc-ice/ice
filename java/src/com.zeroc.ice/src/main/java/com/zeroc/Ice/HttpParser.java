@@ -204,7 +204,7 @@ final class HttpParser {
                                 assert (s != null);
                                 StringBuffer newValue = new StringBuffer(s);
                                 newValue.append(' ');
-                                for (int i = start; i < p; ++i) {
+                                for (int i = start; i < p; i++) {
                                     newValue.append((char) buf.get(i));
                                 }
                                 _headers.put(_headerName, newValue.toString());
@@ -241,7 +241,7 @@ final class HttpParser {
                     {
                         if (_headerName.isEmpty()) {
                             StringBuffer str = new StringBuffer();
-                            for (int i = start; i < p; ++i) {
+                            for (int i = start; i < p; i++) {
                                 str.append((char) buf.get(i));
                             }
                             _headerName = str.toString().toLowerCase();
@@ -297,7 +297,7 @@ final class HttpParser {
                         assert (c == CR || c == LF);
                         if (p > start) {
                             StringBuffer str = new StringBuffer();
-                            for (int i = start; i < p; ++i) {
+                            for (int i = start; i < p; i++) {
                                 str.append((char) buf.get(i));
                             }
                             String s = _headers.get(_headerName);
@@ -483,7 +483,7 @@ final class HttpParser {
                         if (c == CR || c == LF) {
                             if (p > start) {
                                 StringBuffer str = new StringBuffer();
-                                for (int i = start; i < p; ++i) {
+                                for (int i = start; i < p; i++) {
                                     str.append((char) buf.get(i));
                                 }
                                 _reason = str.toString();
@@ -503,7 +503,7 @@ final class HttpParser {
                     }
                 case Complete:
                     {
-                        assert (false); // Shouldn't reach
+                        assert false; // Shouldn't reach
                     }
             }
 

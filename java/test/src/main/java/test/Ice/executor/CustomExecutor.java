@@ -52,7 +52,7 @@ public class CustomExecutor
     @Override
     public synchronized void accept(Runnable call, com.zeroc.Ice.Connection con) {
         boolean added = _calls.offer(call);
-        assert (added);
+        assert added;
         if (_calls.size() == 1) {
             notify();
         }
@@ -83,5 +83,5 @@ public class CustomExecutor
 
     private java.util.Queue<Runnable> _calls = new java.util.LinkedList<>();
     private Thread _thread;
-    private boolean _terminated = false;
+    private boolean _terminated;
 }

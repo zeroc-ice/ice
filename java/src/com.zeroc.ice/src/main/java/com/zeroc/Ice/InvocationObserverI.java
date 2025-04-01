@@ -25,7 +25,7 @@ public class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics,
                                     this, RemoteInvocationHelper.class);
                         } catch (Exception ex) {
                             ex.printStackTrace();
-                            assert (false);
+                            assert false;
                         }
                     }
                 };
@@ -46,8 +46,8 @@ public class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics,
         public String getId() {
             if (_id == null) {
                 _id = _endpoint.toString();
-                if (_connectionInfo.connectionId != null
-                        && !_connectionInfo.connectionId.isEmpty()) {
+                if (_connectionInfo.connectionId != null &&
+                        !_connectionInfo.connectionId.isEmpty()) {
                     _id += " [" + _connectionInfo.connectionId + "]";
                 }
             }
@@ -100,7 +100,7 @@ public class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics,
                             add("requestId", cl.getDeclaredMethod("getRequestId"));
                         } catch (Exception ex) {
                             ex.printStackTrace();
-                            assert (false);
+                            assert false;
                         }
                     }
                 };

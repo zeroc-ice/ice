@@ -39,7 +39,7 @@ public class AllTests {
             notify();
         }
 
-        private boolean _called = false;
+        private boolean _called;
     }
 
     private static void test(boolean b) {
@@ -463,9 +463,8 @@ public class AllTests {
                     .whenComplete(
                             (result, ex) -> {
                                 test(
-                                        ex != null
-                                                && ex
-                                                        instanceof
+                                        ex != null &&
+                                                ex instanceof
                                                         test.Ice.interrupt
                                                                 .Test
                                                                 .InterruptedException);
@@ -565,5 +564,8 @@ public class AllTests {
         out.println("ok");
 
         p.shutdown();
+    }
+
+    private AllTests() {
     }
 }

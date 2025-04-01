@@ -76,7 +76,7 @@ class BatchRequestQueue {
         // No need for synchronization, no other threads are supposed to modify the queue since we
         // set _batchStreamInUse to true.
         //
-        assert (_batchStreamInUse);
+        assert _batchStreamInUse;
         _batchStream.swap(os);
 
         try {

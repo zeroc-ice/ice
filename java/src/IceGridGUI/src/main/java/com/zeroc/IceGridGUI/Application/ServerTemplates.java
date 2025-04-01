@@ -181,8 +181,8 @@ class ServerTemplates extends Templates {
             for (ServiceInstance q : serviceInstances) {
                 ServerTemplate serverTemplate = (ServerTemplate) q.getParent();
 
-                if (!updatedChildren.contains(serverTemplate)
-                        && !newChildren.contains(serverTemplate)) {
+                if (!updatedChildren.contains(serverTemplate) &&
+                        !newChildren.contains(serverTemplate)) {
                     serverTemplate.rebuild();
                     updatedChildren.add(serverTemplate);
                 }

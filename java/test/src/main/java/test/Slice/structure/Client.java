@@ -18,7 +18,7 @@ public class Client extends test.TestHelper {
         // Define some default values.
         C def_cls = new C(5);
         S1 def_s = new S1("name");
-        String[] def_ss = new String[] {"one", "two", "three"};
+        String[] def_ss = new String[]{"one", "two", "three"};
         ArrayList<Integer> def_il = new ArrayList<>();
         def_il.add(1);
         def_il.add(2);

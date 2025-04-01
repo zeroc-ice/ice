@@ -37,23 +37,23 @@ class LogFilterDialog extends JDialog {
         final JCheckBox error =
                 new JCheckBox(
                         "Error",
-                        messageTypeFilterSet == null
-                                || messageTypeFilterSet.contains(LogMessageType.ErrorMessage));
+                        messageTypeFilterSet == null ||
+                                messageTypeFilterSet.contains(LogMessageType.ErrorMessage));
         final JCheckBox warning =
                 new JCheckBox(
                         "Warning",
-                        messageTypeFilterSet == null
-                                || messageTypeFilterSet.contains(LogMessageType.WarningMessage));
+                        messageTypeFilterSet == null ||
+                                messageTypeFilterSet.contains(LogMessageType.WarningMessage));
         final JCheckBox print =
                 new JCheckBox(
                         "Print",
-                        messageTypeFilterSet == null
-                                || messageTypeFilterSet.contains(LogMessageType.PrintMessage));
+                        messageTypeFilterSet == null ||
+                                messageTypeFilterSet.contains(LogMessageType.PrintMessage));
         final JCheckBox trace =
                 new JCheckBox(
                         "Trace",
-                        messageTypeFilterSet == null
-                                || messageTypeFilterSet.contains(LogMessageType.TraceMessage));
+                        messageTypeFilterSet == null ||
+                                messageTypeFilterSet.contains(LogMessageType.TraceMessage));
 
         final JTextArea traceCategories = new JTextArea(3, 40);
         traceCategories.setLineWrap(true);

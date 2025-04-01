@@ -39,8 +39,8 @@ class TemplateEditor extends Editor {
         java.util.List<String> parameters = new java.util.LinkedList<>();
         java.util.Map<String, String> defaultValues = _parameters.get(parameters);
 
-        return descriptor.parameters.equals(parameters)
-                && descriptor.parameterDefaults.equals(defaultValues);
+        return descriptor.parameters.equals(parameters) &&
+                descriptor.parameterDefaults.equals(defaultValues);
     }
 
     @Override
@@ -67,7 +67,7 @@ class TemplateEditor extends Editor {
 
     @Override
     protected boolean validate() {
-        return check(new String[] {"Template ID", _template.getText().trim()});
+        return check(new String[]{"Template ID", _template.getText().trim()});
     }
 
     void show() {

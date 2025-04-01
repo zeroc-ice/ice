@@ -15,7 +15,7 @@ public abstract class Value implements Cloneable, java.io.Serializable {
         try {
             c = (Value) super.clone();
         } catch (CloneNotSupportedException ex) {
-            assert (false);
+            assert false;
         }
 
         return c;

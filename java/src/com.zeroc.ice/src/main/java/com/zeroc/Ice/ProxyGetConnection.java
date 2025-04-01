@@ -15,7 +15,7 @@ class ProxyGetConnection extends ProxyOutgoingAsyncBase<Connection> {
 
     @Override
     public boolean completed(InputStream is) {
-        assert (false);
+        assert false;
         return false;
     }
 

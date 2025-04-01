@@ -23,11 +23,11 @@ public class Server extends Communicator {
 
         if (_state != null) {
             actions[START] =
-                    _state == ServerState.Inactive
-                            && _enabled
-                            && !_resolver
-                                    .substitute(_serverDescriptor.activation)
-                                    .equals("session");
+                    _state == ServerState.Inactive &&
+                            _enabled &&
+                            !"session"
+                                    .equals(_resolver
+                                    .substitute(_serverDescriptor.activation));
 
             actions[STOP] = _state != ServerState.Inactive;
             actions[ENABLE] = !_enabled;
@@ -41,7 +41,7 @@ public class Server extends Communicator {
             if (_state != ServerState.Inactive) {
                 Node node = (Node) _parent;
                 if (!node.isRunningWindows()) {
-                    for (int i = SIGHUP; i <= SIGTERM; ++i) {
+                    for (int i = SIGHUP; i <= SIGTERM; i++) {
                         actions[i] = true;
                     }
                 }
@@ -193,10 +193,10 @@ public class Server extends Communicator {
 
                                 @Override
                                 public String getTitle() {
-                                    return "Server "
-                                            + _id
-                                            + " "
-                                            + new java.io.File(fPath).getName();
+                                    return "Server " +
+                                            _id +
+                                            " " +
+                                            new java.io.File(fPath).getName();
                                 }
 
                                 @Override
@@ -509,10 +509,10 @@ public class Server extends Communicator {
             boolean variablesChanged,
             java.util.Set<String> serviceTemplates,
             java.util.Set<String> serverTemplates) {
-        if (variablesChanged
-                || (_instanceDescriptor != null
-                        && serverTemplates != null
-                        && serverTemplates.contains(_instanceDescriptor.template))) {
+        if (variablesChanged ||
+                (_instanceDescriptor != null &&
+                        serverTemplates != null &&
+                        serverTemplates.contains(_instanceDescriptor.template))) {
             if (_instanceDescriptor != null) {
                 TemplateDescriptor templateDescriptor =
                         _application.serverTemplates.get(_instanceDescriptor.template);
@@ -540,9 +540,9 @@ public class Server extends Communicator {
 
             getRoot().getTreeModel().nodeStructureChanged(this);
             updateMetrics();
-        } else if (serviceTemplates != null
-                && !serviceTemplates.isEmpty()
-                && _serverDescriptor instanceof IceBoxDescriptor) {
+        } else if (serviceTemplates != null &&
+                !serviceTemplates.isEmpty() &&
+                _serverDescriptor instanceof IceBoxDescriptor) {
             _metrics.clear();
             _services.clear();
             _servicePropertySets.clear();
@@ -869,7 +869,7 @@ public class Server extends Communicator {
     }
 
     private static String toolTip(ServerState state, int pid, boolean enabled) {
-        String result = (state == null ? "Unknown" : state.toString());
+        String result = state == null ? "Unknown" : state.toString();
 
         if (!enabled) {
             result += ", disabled";

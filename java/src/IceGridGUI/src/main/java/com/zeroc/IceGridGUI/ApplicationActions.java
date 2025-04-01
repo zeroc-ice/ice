@@ -25,7 +25,7 @@ public class ApplicationActions {
             availableActions = _target.getAvailableActions();
         }
 
-        for (int i = 0; i < _array.length; ++i) {
+        for (int i = 0; i < _array.length; i++) {
             _array[i].setEnabled(availableActions[i]);
         }
 

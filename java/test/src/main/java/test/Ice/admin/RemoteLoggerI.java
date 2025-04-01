@@ -7,7 +7,7 @@ class RemoteLoggerI implements com.zeroc.Ice.RemoteLogger {
     public synchronized void init(
             String prefix, com.zeroc.Ice.LogMessage[] logMessages, com.zeroc.Ice.Current current) {
         _prefix = prefix;
-        for (int i = 0; i < logMessages.length; ++i) {
+        for (int i = 0; i < logMessages.length; i++) {
             _initMessages.add(logMessages[i]);
         }
         _receivedCalls++;

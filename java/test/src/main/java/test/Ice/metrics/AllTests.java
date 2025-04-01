@@ -44,13 +44,13 @@ public class AllTests {
             }
             return s;
         } catch (UnknownMetricsView ex) {
-            assert (false);
+            assert false;
             return null;
         }
     }
 
     static void waitForObserverCurrent(ObserverI observer, int value) {
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; i++) {
             if (observer.getCurrent() != value) {
                 try {
                     Thread.sleep(10);
@@ -158,7 +158,7 @@ public class AllTests {
             throws UnknownMetricsView {
         Map<String, String> dict = new java.util.HashMap<>();
         dict.put("IceMX.Metrics.View.Map." + map + ".GroupBy", attr);
-        if (props.ice_getIdentity().category.equals("client")) {
+        if ("client".equals(props.ice_getIdentity().category)) {
             props.setProperties(getClientProps(props, dict, map));
         } else {
             props.setProperties(getServerProps(props, dict, map));
@@ -173,17 +173,17 @@ public class AllTests {
             }
         } else if (!r.returnValue.get(map)[0].id.equals(value)) {
             out.println(
-                    "invalid attribute value: "
-                            + attr
-                            + " = "
-                            + value
-                            + " got "
-                            + r.returnValue.get(map)[0].id);
+                    "invalid attribute value: " +
+                            attr +
+                            " = " +
+                            value +
+                            " got " +
+                            r.returnValue.get(map)[0].id);
             test(false);
         }
 
         dict.clear();
-        if (props.ice_getIdentity().category.equals("client")) {
+        if ("client".equals(props.ice_getIdentity().category)) {
             props.setProperties(getClientProps(props, dict, map));
         } else {
             props.setProperties(getServerProps(props, dict, map));
@@ -293,11 +293,11 @@ public class AllTests {
         }
         if (count > 0 && f.failures.get(failure) != count) {
             out.print(
-                    "count for failure `"
-                            + failure
-                            + "' of `"
-                            + id
-                            + "' is different from expected: ");
+                    "count for failure `" +
+                            failure +
+                            "' of `" +
+                            id +
+                            "' is different from expected: ");
             out.println(count + " != " + f.failures.get(failure));
             test(false);
         }
@@ -355,14 +355,14 @@ public class AllTests {
         MetricsAdmin.GetMetricsViewResult r = clientMetrics.getMetricsView("View");
         if (!collocated) {
             test(
-                    r.returnValue.get("Connection").length == 1
-                            && r.returnValue.get("Connection")[0].current == 1
-                            && r.returnValue.get("Connection")[0].total == 1);
+                    r.returnValue.get("Connection").length == 1 &&
+                            r.returnValue.get("Connection")[0].current == 1 &&
+                            r.returnValue.get("Connection")[0].total == 1);
         }
         test(
-                r.returnValue.get("Thread").length == 1
-                        && r.returnValue.get("Thread")[0].current == threadCount
-                        && r.returnValue.get("Thread")[0].total == threadCount);
+                r.returnValue.get("Thread").length == 1 &&
+                        r.returnValue.get("Thread")[0].current == threadCount &&
+                        r.returnValue.get("Thread")[0].total == threadCount);
         out.println("ok");
 
         out.print("testing group by id...");
@@ -404,8 +404,8 @@ public class AllTests {
         }
         test(r.returnValue.get("Dispatch").length == 1);
         test(
-                r.returnValue.get("Dispatch")[0].current == 0
-                        && r.returnValue.get("Dispatch")[0].total == 5);
+                r.returnValue.get("Dispatch")[0].current == 0 &&
+                        r.returnValue.get("Dispatch")[0].total == 5);
         test(r.returnValue.get("Dispatch")[0].id.indexOf("[ice_ping]") > 0);
 
         if (!collocated) {
@@ -488,8 +488,8 @@ public class AllTests {
             sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + replySz);
 
             test(
-                    cm2.sentBytes - cm1.sentBytes
-                            == requestSz + bs.length + 4); // 4 is for the seq variable size
+                    cm2.sentBytes - cm1.sentBytes ==
+                            requestSz + bs.length + 4); // 4 is for the seq variable size
             test(cm2.receivedBytes - cm1.receivedBytes == replySz);
             test(sm2.receivedBytes - sm1.receivedBytes == requestSz + bs.length + 4);
             test(sm2.sentBytes - sm1.sentBytes == replySz);
@@ -499,8 +499,8 @@ public class AllTests {
 
             bs =
                     new byte
-                            [1024 * 1024
-                                    * 10]; // Try with large amount of data which should be sent in
+                            [1024 * 1024 *
+                                    10]; // Try with large amount of data which should be sent in
             // several chunks
             metrics.opByteS(bs);
 
@@ -510,8 +510,8 @@ public class AllTests {
             sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + replySz);
 
             test(
-                    (cm2.sentBytes - cm1.sentBytes)
-                            == (requestSz + bs.length + 4)); // 4 is for the seq variable size
+                    (cm2.sentBytes - cm1.sentBytes) ==
+                            (requestSz + bs.length + 4)); // 4 is for the seq variable size
             test((cm2.receivedBytes - cm1.receivedBytes) == replySz);
             test((sm2.receivedBytes - sm1.receivedBytes) == (requestSz + bs.length + 4));
             test((sm2.sentBytes - sm1.sentBytes) == replySz);
@@ -605,8 +605,8 @@ public class AllTests {
                                     .getMetricsView("View")
                                     .returnValue
                                     .get("ConnectionEstablishment")
-                                    .length
-                            == 0);
+                                    .length ==
+                            0);
 
             metrics.ice_ping();
 
@@ -615,8 +615,8 @@ public class AllTests {
                                     .getMetricsView("View")
                                     .returnValue
                                     .get("ConnectionEstablishment")
-                                    .length
-                            == 1);
+                                    .length ==
+                            1);
             com.zeroc.Ice.IceMX.Metrics m1 =
                     clientMetrics.getMetricsView("View")
                             .returnValue
@@ -638,8 +638,8 @@ public class AllTests {
                                     .getMetricsView("View")
                                     .returnValue
                                     .get("ConnectionEstablishment")
-                                    .length
-                            == 1);
+                                    .length ==
+                            1);
             m1 = clientMetrics.getMetricsView("View").returnValue.get("ConnectionEstablishment")[0];
             test(m1.id.equals(hostAndPort) && m1.total == 3 && m1.failures == 2);
 
@@ -742,8 +742,8 @@ public class AllTests {
             props.put("IceMX.Metrics.View.Map.EndpointLookup.GroupBy", "id");
             updateProps(clientProps, serverProps, props, "EndpointLookup");
             test(
-                    clientMetrics.getMetricsView("View").returnValue.get("EndpointLookup").length
-                            == 0);
+                    clientMetrics.getMetricsView("View").returnValue.get("EndpointLookup").length ==
+                            0);
 
             com.zeroc.Ice.ObjectPrx prx =
                     communicator.stringToProxy(
@@ -755,8 +755,8 @@ public class AllTests {
             }
 
             test(
-                    clientMetrics.getMetricsView("View").returnValue.get("EndpointLookup").length
-                            == 1);
+                    clientMetrics.getMetricsView("View").returnValue.get("EndpointLookup").length ==
+                            1);
             m1 = clientMetrics.getMetricsView("View").returnValue.get("EndpointLookup")[0];
             test(m1.current <= 1 && m1.total == 1);
 
@@ -772,16 +772,16 @@ public class AllTests {
                 // Some DNS servers don't fail on unknown DNS names.
             }
             test(
-                    clientMetrics.getMetricsView("View").returnValue.get("EndpointLookup").length
-                            == 2);
+                    clientMetrics.getMetricsView("View").returnValue.get("EndpointLookup").length ==
+                            2);
             m1 = clientMetrics.getMetricsView("View").returnValue.get("EndpointLookup")[0];
             if (!m1.id.equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500")) {
                 m1 = clientMetrics.getMetricsView("View").returnValue.get("EndpointLookup")[1];
             }
             test(
-                    m1.id.equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500")
-                            && m1.total == 2
-                            && (!dnsException || m1.failures == 2));
+                    m1.id.equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500") &&
+                            m1.total == 2 &&
+                            (!dnsException || m1.failures == 2));
             if (dnsException) {
                 checkFailure(clientMetrics, "EndpointLookup", m1.id, "::Ice::DNSException", 2, out);
             }
@@ -888,9 +888,9 @@ public class AllTests {
         test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
         checkFailure(serverMetrics, "Dispatch", dm1.id, "::Ice::SyscallException", 1, out);
         test(
-                dm1.size == 39
-                        && dm1.replySize
-                                > 7); // Reply contains the exception stack depending on the OS.
+                dm1.size == 39 &&
+                        dm1.replySize >
+                                7); // Reply contains the exception stack depending on the OS.
 
         dm1 = (DispatchMetrics) map.get("opWithRequestFailedException");
         test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
@@ -902,9 +902,9 @@ public class AllTests {
         checkFailure(
                 serverMetrics, "Dispatch", dm1.id, "java.lang.IllegalArgumentException", 1, out);
         test(
-                dm1.size == 41
-                        && dm1.replySize
-                                > 7); // Reply contains the exception stack depending on the OS.
+                dm1.size == 41 &&
+                        dm1.replySize >
+                                7); // Reply contains the exception stack depending on the OS.
 
         InvokeOp op = new InvokeOp(metrics);
 
@@ -1143,11 +1143,11 @@ public class AllTests {
         if (!collocated) {
             im1 = (InvocationMetrics) map.get("fail");
             test(
-                    im1.current <= 1
-                            && im1.total == 3
-                            && im1.failures == 3
-                            && im1.retry == 3
-                            && im1.remotes.length == 1);
+                    im1.current <= 1 &&
+                            im1.total == 3 &&
+                            im1.failures == 3 &&
+                            im1.retry == 3 &&
+                            im1.remotes.length == 1);
             rim1 = (ChildInvocationMetrics) im1.remotes[0];
             test(rim1.current == 0);
             test(rim1.total == 6);
@@ -1377,5 +1377,8 @@ public class AllTests {
         out.println("ok");
 
         return metrics;
+    }
+
+    private AllTests() {
     }
 }

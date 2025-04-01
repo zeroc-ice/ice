@@ -58,8 +58,8 @@ public class AllTests {
             com.zeroc.IceGrid.RegistryPrx registry =
                     com.zeroc.IceGrid.RegistryPrx.checkedCast(
                             communicator.stringToProxy(
-                                    communicator.getDefaultLocator().ice_getIdentity().category
-                                            + "/Registry"));
+                                    communicator.getDefaultLocator().ice_getIdentity().category +
+                                            "/Registry"));
             test(registry != null);
 
             try {
@@ -93,12 +93,12 @@ public class AllTests {
             test(comm.getDefaultLocator().getRegistry() != null);
             test(
                     com.zeroc.IceGrid.LocatorPrx.uncheckedCast(comm.getDefaultLocator())
-                                    .getLocalRegistry()
-                            != null);
+                                    .getLocalRegistry() !=
+                            null);
             test(
                     com.zeroc.IceGrid.LocatorPrx.uncheckedCast(comm.getDefaultLocator())
-                                    .getLocalQuery()
-                            != null);
+                                    .getLocalQuery() !=
+                            null);
 
             com.zeroc.Ice.ObjectAdapter adapter =
                     comm.createObjectAdapter("AdapterForDiscoveryTest");
@@ -136,7 +136,7 @@ public class AllTests {
             comm.destroy();
 
             String multicast;
-            if (communicator.getProperties().getIceProperty("Ice.IPv6").equals("1")) {
+            if ("1".equals(communicator.getProperties().getIceProperty("Ice.IPv6"))) {
                 multicast = "\"ff15::1\"";
             } else {
                 multicast = "239.255.0.1";
@@ -190,14 +190,14 @@ public class AllTests {
                 String port = Integer.toString(helper.getTestPort(99));
                 initData.properties.setProperty(
                         "IceLocatorDiscovery.Lookup",
-                        "udp -h "
-                                + multicast
-                                + " --interface unknown:"
-                                + "udp -h "
-                                + multicast
-                                + " -p "
-                                + port
-                                + intf);
+                        "udp -h " +
+                                multicast +
+                                " --interface unknown:" +
+                                "udp -h " +
+                                multicast +
+                                " -p " +
+                                port +
+                                intf);
             }
             comm = com.zeroc.Ice.Util.initialize(initData);
             test(comm.getDefaultLocator() != null);
@@ -272,8 +272,8 @@ public class AllTests {
             communicator.stringToProxy("unknown/unknown").ice_ping();
             test(false);
         } catch (com.zeroc.Ice.NotRegisteredException ex) {
-            test(ex.kindOfObject.equals("object"));
-            test(ex.id.equals("unknown/unknown"));
+            test("object".equals(ex.kindOfObject));
+            test("unknown/unknown".equals(ex.id));
         }
         out.println("ok");
 
@@ -283,16 +283,16 @@ public class AllTests {
             communicator.stringToProxy("test @ TestAdapterUnknown").ice_ping();
             test(false);
         } catch (com.zeroc.Ice.NotRegisteredException ex) {
-            test(ex.kindOfObject.equals("object adapter"));
-            test(ex.id.equals("TestAdapterUnknown"));
+            test("object adapter".equals(ex.kindOfObject));
+            test("TestAdapterUnknown".equals(ex.id));
         }
         out.println("ok");
 
         com.zeroc.IceGrid.RegistryPrx registry =
                 com.zeroc.IceGrid.RegistryPrx.checkedCast(
                         communicator.stringToProxy(
-                                communicator.getDefaultLocator().ice_getIdentity().category
-                                        + "/Registry"));
+                                communicator.getDefaultLocator().ice_getIdentity().category +
+                                        "/Registry"));
         test(registry != null);
         com.zeroc.IceGrid.AdminSessionPrx session = null;
         try {
@@ -365,5 +365,8 @@ public class AllTests {
         }
 
         session.destroy();
+    }
+
+    private AllTests() {
     }
 }

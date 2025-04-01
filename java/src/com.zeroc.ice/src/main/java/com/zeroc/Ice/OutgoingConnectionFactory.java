@@ -817,9 +817,9 @@ final class OutgoingConnectionFactory {
 
             // We stop on ConnectTimeoutException to fail reasonably fast when the endpoint has many
             // connectors (IP addresses).
-            if (_iter.hasNext()
-                    && !(ex instanceof CommunicatorDestroyedException
-                            || ex instanceof ConnectTimeoutException)) {
+            if (_iter.hasNext() &&
+                    !(ex instanceof CommunicatorDestroyedException ||
+                            ex instanceof ConnectTimeoutException)) {
                 return true; // keep going
             }
 
@@ -849,5 +849,5 @@ final class OutgoingConnectionFactory {
     private MultiHashMap<EndpointI, ConnectionI> _connectionsByEndpoint = new MultiHashMap<>();
     private java.util.Map<Connector, java.util.HashSet<ConnectCallback>> _pending =
             new java.util.HashMap<>();
-    private int _pendingConnectCount = 0;
+    private int _pendingConnectCount;
 }

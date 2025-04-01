@@ -12,7 +12,7 @@ abstract class OutgoingAsyncBase<T> extends InvocationFuture<T> {
     }
 
     public boolean completed(InputStream is) {
-        assert (false); // Must be implemented by classes that handle responses
+        assert false; // Must be implemented by classes that handle responses
         return false;
     }
 

@@ -267,7 +267,7 @@ class Node extends Communicator {
         data.descriptor = nodeDesc;
         @SuppressWarnings("unchecked")
         Utils.Resolver resolver =
-                new Utils.Resolver(new java.util.Map[] {nodeDesc.variables, appDesc.variables});
+                new Utils.Resolver(new java.util.Map[]{nodeDesc.variables, appDesc.variables});
         data.resolver = resolver;
         data.resolver.put("application", appDesc.name);
         data.resolver.put("node", _id);
@@ -364,9 +364,9 @@ class Node extends Communicator {
                 if (server == null) {
                     // This should never happen
                     String errorMsg =
-                            "LiveDeployment/Node: unable to remove server '"
-                                    + id
-                                    + "'; please report this bug.";
+                            "LiveDeployment/Node: unable to remove server '" +
+                                    id +
+                                    "'; please report this bug.";
 
                     getCoordinator().getCommunicator().getLogger().error(errorMsg);
                 } else {
@@ -376,7 +376,7 @@ class Node extends Communicator {
                     _servers.remove(server);
                     getRoot()
                             .getTreeModel()
-                            .nodesWereRemoved(this, new int[] {index}, new Object[] {server});
+                            .nodesWereRemoved(this, new int[]{index}, new Object[]{server});
                 }
             }
 
@@ -632,11 +632,11 @@ class Node extends Communicator {
                                         }
 
                                         final String load =
-                                                format.format(result.avg1)
-                                                        + " "
-                                                        + format.format(result.avg5)
-                                                        + " "
-                                                        + format.format(result.avg15);
+                                                format.format(result.avg1) +
+                                                        " " +
+                                                        format.format(result.avg5) +
+                                                        " " +
+                                                        format.format(result.avg15);
 
                                         SwingUtilities.invokeLater(
                                                 () -> {
@@ -798,9 +798,9 @@ class Node extends Communicator {
     // Application name to ApplicationData
     private final java.util.SortedMap<String, ApplicationData> _map = new java.util.TreeMap<>();
 
-    private boolean _up = false;
+    private boolean _up;
     private NodeDynamicInfo _info;
-    private boolean _windows = false;
+    private boolean _windows;
 
     private java.util.LinkedList<Server> _servers = new java.util.LinkedList<>();
 

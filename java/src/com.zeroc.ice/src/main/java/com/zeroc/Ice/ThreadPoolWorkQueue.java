@@ -53,7 +53,7 @@ final class ThreadPoolWorkQueue extends EventHandler {
         if (workItem != null) {
             workItem.execute(current);
         } else {
-            assert (_destroyed);
+            assert _destroyed;
             _threadPool.ioCompleted(current);
             throw new ThreadPool.DestroyedException();
         }
@@ -61,7 +61,7 @@ final class ThreadPoolWorkQueue extends EventHandler {
 
     @Override
     public void finished(ThreadPoolCurrent current, boolean close) {
-        assert (false);
+        assert false;
     }
 
     @Override

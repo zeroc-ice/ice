@@ -45,7 +45,7 @@ public class AllTests {
 
         String names[] = {"foo", "bar", "x", "y", "abcdefg"};
 
-        for (int idx = 0; idx < 5; ++idx) {
+        for (int idx = 0; idx < 5; idx++) {
             identity.name = names[idx];
             MyObjectPrx prx = MyObjectPrx.uncheckedCast(oa.createProxy(identity));
             prx.ice_ping();
@@ -126,7 +126,7 @@ public class AllTests {
         r = oa.findDefaultServant("");
         test(r == servant);
 
-        for (int idx = 0; idx < 5; ++idx) {
+        for (int idx = 0; idx < 5; idx++) {
             identity.name = names[idx];
             prx = MyObjectPrx.uncheckedCast(oa.createProxy(identity));
             prx.ice_ping();
@@ -134,5 +134,8 @@ public class AllTests {
         }
 
         out.println("ok");
+    }
+
+    private AllTests() {
     }
 }

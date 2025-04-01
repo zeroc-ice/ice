@@ -294,10 +294,10 @@ final class UdpMulticastClientTransceiver implements Transceiver {
                     _instance
                             .logger()
                             .warning(
-                                    "UDP send buffer size: requested size of "
-                                            + _newSize
-                                            + " adjusted to "
-                                            + _size);
+                                    "UDP send buffer size: requested size of " +
+                                            _newSize +
+                                            " adjusted to " +
+                                            _size);
                     _instance.setSndBufSizeWarn(UDPEndpointType.value, _newSize);
                 }
             }

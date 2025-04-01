@@ -119,10 +119,10 @@ class NodeEditor extends Editor {
 
         _loadFactor.getDocument().addDocumentListener(_updateListener);
         _loadFactor.setToolTipText(
-                "<html>A floating point value.<br>"
-                        + "When not specified, IceGrid uses 1.0 divided by the<br>"
-                        + "<i>number of threads</i> on all platforms except Windows;<br>"
-                        + "on Windows, IceGrid uses 1.0.<html>");
+                "<html>A floating point value.<br>" +
+                        "When not specified, IceGrid uses 1.0 divided by the<br>" +
+                        "<i>number of threads</i> on all platforms except Windows;<br>" +
+                        "on Windows, IceGrid uses 1.0.<html>");
     }
 
     @Override
@@ -161,7 +161,7 @@ class NodeEditor extends Editor {
 
     boolean isSimpleUpdate() {
         NodeDescriptor descriptor = (NodeDescriptor) _target.getDescriptor();
-        return (_variables.get().equals(descriptor.variables));
+        return _variables.get().equals(descriptor.variables);
     }
 
     void writeDescriptor() {
@@ -173,7 +173,7 @@ class NodeEditor extends Editor {
 
     @Override
     protected boolean validate() {
-        return check(new String[] {"Name", _name.getText().trim()});
+        return check(new String[]{"Name", _name.getText().trim()});
     }
 
     void show(Node node) {
@@ -181,7 +181,7 @@ class NodeEditor extends Editor {
         _target = node;
 
         Utils.Resolver resolver = getDetailResolver();
-        boolean isEditable = (resolver == null);
+        boolean isEditable = resolver == null;
 
         _name.setText(_target.getId());
         _name.setEditable(_target.isEphemeral());

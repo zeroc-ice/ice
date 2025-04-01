@@ -101,10 +101,10 @@ final class PluginManagerI implements PluginManager {
                     } catch (RuntimeException ex) {
                         Util.getProcessLogger()
                                 .warning(
-                                        "unexpected exception raised by plug-in `"
-                                                + p.name
-                                                + "' destruction:\n"
-                                                + ex.toString());
+                                        "unexpected exception raised by plug-in `" +
+                                                p.name +
+                                                "' destruction:\n" +
+                                                ex.toString());
                     }
                 }
             }
@@ -206,10 +206,10 @@ final class PluginManagerI implements PluginManager {
         int pos = entryPoint.indexOf(':');
         if (isWindows) {
             final String driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            if (pos == 1
-                    && entryPoint.length() > 2
-                    && driveLetters.indexOf(entryPoint.charAt(0)) != -1
-                    && (entryPoint.charAt(2) == '\\' || entryPoint.charAt(2) == '/')) {
+            if (pos == 1 &&
+                    entryPoint.length() > 2 &&
+                    driveLetters.indexOf(entryPoint.charAt(0)) != -1 &&
+                    (entryPoint.charAt(2) == '\\' || entryPoint.charAt(2) == '/')) {
                 absolutePath = true;
                 pos = entryPoint.indexOf(':', pos + 1);
             }
@@ -272,14 +272,14 @@ final class PluginManagerI implements PluginManager {
                     if (!absolutePath) {
                         classDir =
                                 new java.io.File(
-                                                System.getProperty("user.dir")
-                                                        + java.io.File.separator
-                                                        + classDir)
+                                                System.getProperty("user.dir") +
+                                                        java.io.File.separator +
+                                                        classDir)
                                         .getCanonicalPath();
                     }
 
-                    if (!classDir.endsWith(java.io.File.separator)
-                            && !classDir.toLowerCase().endsWith(".jar")) {
+                    if (!classDir.endsWith(java.io.File.separator) &&
+                            !classDir.toLowerCase().endsWith(".jar")) {
                         classDir += java.io.File.separator;
                     }
                     classDir = URLEncoder.encode(classDir, "UTF-8");
@@ -298,7 +298,7 @@ final class PluginManagerI implements PluginManager {
 
                     if (cl == null) {
                         final java.net.URL[] url =
-                                new java.net.URL[] {new java.net.URL("file", null, classDir)};
+                                new java.net.URL[]{new java.net.URL("file", null, classDir)};
 
                         //
                         // Use the custom class loader (if any) as the parent.

@@ -10,11 +10,11 @@ class AdminRouter implements com.zeroc.Ice.Blobject {
             byte[] inParams, com.zeroc.Ice.Current current) {
         if (_admin == null) {
             throw new com.zeroc.Ice.ObjectNotExistException();
-        } else if (current.operation.equals("ice_id")
-                || current.operation.equals("ice_ids")
-                || current.operation.equals("ice_isA")
-                || current.operation.equals("ice_ping")
-                || current.operation.equals("getDefaultApplicationDescriptor")) {
+        } else if ("ice_id".equals(current.operation) ||
+                "ice_ids".equals(current.operation) ||
+                "ice_isA".equals(current.operation) ||
+                "ice_ping".equals(current.operation) ||
+                "getDefaultApplicationDescriptor".equals(current.operation)) {
             return _admin.ice_invoke(current.operation, current.mode, inParams, current.ctx);
         } else {
             // Routing other operations could be a security risk

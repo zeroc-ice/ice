@@ -188,7 +188,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
         try {
             return compareTo((com.zeroc.Ice.EndpointI) obj) == 0;
         } catch (ClassCastException ee) {
-            assert (false);
+            assert false;
             return false;
         }
     }

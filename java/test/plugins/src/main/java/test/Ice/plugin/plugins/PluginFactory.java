@@ -18,9 +18,9 @@ public class PluginFactory implements com.zeroc.Ice.PluginFactory {
         public void initialize() {
             _initialized = true;
             test(_args.length == 3);
-            test(_args[0].equals("C:\\Program Files\\"));
-            test(_args[1].equals("--DatabasePath"));
-            test(_args[2].equals("C:\\Program Files\\Application\\db"));
+            test("C:\\Program Files\\".equals(_args[0]));
+            test("--DatabasePath".equals(_args[1]));
+            test("C:\\Program Files\\Application\\db".equals(_args[2]));
         }
 
         @Override
@@ -50,7 +50,7 @@ public class PluginFactory implements com.zeroc.Ice.PluginFactory {
         }
 
         private String[] _args;
-        private boolean _initialized = false;
-        private boolean _destroyed = false;
+        private boolean _initialized;
+        private boolean _destroyed;
     }
 }

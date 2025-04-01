@@ -92,16 +92,19 @@ class Twoways {
                 test(((Struct) (r.o.o2)).o == null);
                 test(((Struct) (r.o.o2)).o2 == r.o.o2);
                 test(r.o.s == null);
-                test(r.o.s2.equals("Hello"));
+                test("Hello".equals(r.o.s2));
                 test(r.returnValue.o == null);
                 test(r.returnValue.o2 != null);
                 test(((Struct) (r.returnValue.o2)).o == null);
                 test(((Struct) (r.returnValue.o2)).o2 == r.returnValue.o2);
                 test(r.returnValue.s == null);
-                test(r.returnValue.s2.equals("Hello"));
+                test("Hello".equals(r.returnValue.s2));
             } catch (com.zeroc.Ice.OperationNotExistException ex) {
                 // OK, talking to non-Java server.
             }
         }
+    }
+
+    private Twoways() {
     }
 }

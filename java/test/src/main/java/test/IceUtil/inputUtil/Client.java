@@ -24,83 +24,80 @@ public class Client extends test.TestHelper {
 
             args = Options.split("-a -b -c");
             test(
-                    args.length == 3
-                            && args[0].equals("-a")
-                            && args[1].equals("-b")
-                            && args[2].equals("-c"));
+                    args.length == 3 &&
+                            "-a".equals(args[0]) &&
+                            "-b".equals(args[1]) &&
+                            "-c".equals(args[2]));
             args = Options.split("\"-a\" '-b' $'-c'");
             test(
-                    args.length == 3
-                            && args[0].equals("-a")
-                            && args[1].equals("-b")
-                            && args[2].equals("-c"));
+                    args.length == 3 &&
+                            "-a".equals(args[0]) &&
+                            "-b".equals(args[1]) &&
+                            "-c".equals(args[2]));
             args = Options.split("  '-b' \"-a\" $'-c' ");
             test(
-                    args.length == 3
-                            && args[0].equals("-b")
-                            && args[1].equals("-a")
-                            && args[2].equals("-c"));
+                    args.length == 3 &&
+                            "-b".equals(args[0]) &&
+                            "-a".equals(args[1]) &&
+                            "-c".equals(args[2]));
             args = Options.split(" $'-c' '-b' \"-a\"  ");
             test(
-                    args.length == 3
-                            && args[0].equals("-c")
-                            && args[1].equals("-b")
-                            && args[2].equals("-a"));
+                    args.length == 3 &&
+                            "-c".equals(args[0]) &&
+                            "-b".equals(args[1]) &&
+                            "-a".equals(args[2]));
 
             // Testing single quote
             args = Options.split("-Dir='C:\\\\test\\\\file'"); // -Dir='C:\\test\\file'
             test(
-                    args.length == 1
-                            && args[0].equals("-Dir=C:\\\\test\\\\file")); // -Dir=C:\\test\\file
+                    args.length == 1 &&
+                            "-Dir=C:\\\\test\\\\file".equals(args[0])); // -Dir=C:\\test\\file
             args = Options.split("-Dir='C:\\test\\file'"); // -Dir='C:\test\file'
-            test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
+            test(args.length == 1 && "-Dir=C:\\test\\file".equals(args[0])); // -Dir=C:\test\file
             args =
                     Options.split(
                             "-Dir='C:\\test\\filewith\"quote'"); // -Dir='C:\test\filewith"quote'
             test(
-                    args.length == 1
-                            && args[0].equals(
-                                    "-Dir=C:\\test\\filewith\"quote")); // -Dir=C:\test\filewith"quote
+                    args.length == 1 &&
+                            "-Dir=C:\\test\\filewith\"quote".equals(args[0])); // -Dir=C:\test\filewith"quote
 
             // Testing double quote
             args = Options.split("-Dir=\"C:\\\\test\\\\file\""); // -Dir="C:\\test\\file"
-            test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
+            test(args.length == 1 && "-Dir=C:\\test\\file".equals(args[0])); // -Dir=C:\test\file
             args = Options.split("-Dir=\"C:\\test\\file\""); // -Dir="C:\test\file"
-            test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
+            test(args.length == 1 && "-Dir=C:\\test\\file".equals(args[0])); // -Dir=C:\test\file
             args =
                     Options.split(
                             "-Dir=\"C:\\test\\filewith\\\"quote\""); // -Dir="C:\test\filewith\"quote"
             test(
-                    args.length == 1
-                            && args[0].equals(
-                                    "-Dir=C:\\test\\filewith\"quote")); // -Dir=C:\test\filewith"quote
+                    args.length == 1 &&
+                            "-Dir=C:\\test\\filewith\"quote".equals(args[0])); // -Dir=C:\test\filewith"quote
 
             // Testing ANSI quote
             args = Options.split("-Dir=$'C:\\\\test\\\\file'"); // -Dir=$'C:\\test\\file'
-            test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
+            test(args.length == 1 && "-Dir=C:\\test\\file".equals(args[0])); // -Dir=C:\test\file
             args = Options.split("-Dir=$'C:\\oest\\oile'"); // -Dir='C:\oest\oile'
-            test(args.length == 1 && args[0].equals("-Dir=C:\\oest\\oile")); // -Dir=C:\oest\oile
+            test(args.length == 1 && "-Dir=C:\\oest\\oile".equals(args[0])); // -Dir=C:\oest\oile
             args =
                     Options.split(
                             "-Dir=$'C:\\oest\\oilewith\"quote'"); // -Dir=$'C:\oest\oilewith"quote'
             test(
-                    args.length == 1
-                            && args[0].equals(
-                                    "-Dir=C:\\oest\\oilewith\"quote")); // -Dir=C:\oest\oilewith"quote
+                    args.length == 1 &&
+                            "-Dir=C:\\oest\\oilewith\"quote".equals(args[0])); // -Dir=C:\oest\oilewith"quote
             args =
                     Options.split(
                             "-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
-            test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
+            test(args.length == 1 && "-Dir=C:\\test\\file".equals(args[0])); // -Dir=C:\test\file
             args =
                     Options.split(
                             "-Dir=$'\\x43\\x3A\\x5C\\x74\\x65\\x73\\x74\\x5C\\x66\\x69\\x6C\\x65'");
-            test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
+            test(args.length == 1 && "-Dir=C:\\test\\file".equals(args[0])); // -Dir=C:\test\file
             args = Options.split("-Dir=$'\\cM\\c_'"); // Control characters
-            test(args.length == 1 && args[0].equals("-Dir=\015\037"));
+            test(args.length == 1 && "-Dir=\015\037".equals(args[0]));
             args = Options.split("-Dir=$'C:\\\\\\146\\x66\\cMi'"); // -Dir=$'C:\\\146\x66i\cMi'
-            test(args.length == 1 && args[0].equals("-Dir=C:\\ff\015i"));
+            test(args.length == 1 && "-Dir=C:\\ff\015i".equals(args[0]));
             args = Options.split("-Dir=$'C:\\\\\\cM\\x66\\146i'"); // -Dir=$'C:\\\cM\x66\146i'
-            test(args.length == 1 && args[0].equals("-Dir=C:\\\015ffi"));
+            test(args.length == 1 && "-Dir=C:\\\015ffi".equals(args[0]));
         } catch (ParseException ex) {
             test(false);
         }
@@ -112,7 +109,7 @@ public class Client extends test.TestHelper {
         parseExceptionCommands[3] = "-Dir=\"test";
         parseExceptionCommands[4] = "-Dir='test";
         parseExceptionCommands[5] = "-Dir=$'test";
-        for (int i = 0; i < 6; ++i) {
+        for (int i = 0; i < 6; i++) {
             try {
                 Options.split(parseExceptionCommands[i]);
                 test(false);
@@ -132,50 +129,50 @@ public class Client extends test.TestHelper {
             arr = StringUtil.splitString("", ":");
             test(arr.length == 0);
             arr = StringUtil.splitString("a", "");
-            test(arr.length == 1 && arr[0].equals("a"));
+            test(arr.length == 1 && "a".equals(arr[0]));
             arr = StringUtil.splitString("a", ":");
-            test(arr.length == 1 && arr[0].equals("a"));
+            test(arr.length == 1 && "a".equals(arr[0]));
             arr = StringUtil.splitString("ab", "");
-            test(arr.length == 1 && arr[0].equals("ab"));
+            test(arr.length == 1 && "ab".equals(arr[0]));
             arr = StringUtil.splitString("ab:", ":");
-            test(arr.length == 1 && arr[0].equals("ab"));
+            test(arr.length == 1 && "ab".equals(arr[0]));
             arr = StringUtil.splitString(":ab", ":");
-            test(arr.length == 1 && arr[0].equals("ab"));
+            test(arr.length == 1 && "ab".equals(arr[0]));
             arr = StringUtil.splitString("a:b", ":");
-            test(arr.length == 2 && arr[0].equals("a") && arr[1].equals("b"));
+            test(arr.length == 2 && "a".equals(arr[0]) && "b".equals(arr[1]));
             arr = StringUtil.splitString(":a:b:", ":");
-            test(arr.length == 2 && arr[0].equals("a") && arr[1].equals("b"));
+            test(arr.length == 2 && "a".equals(arr[0]) && "b".equals(arr[1]));
 
             arr = StringUtil.splitString("\"a\"", ":");
-            test(arr.length == 1 && arr[0].equals("a"));
+            test(arr.length == 1 && "a".equals(arr[0]));
             arr = StringUtil.splitString("\"a\":b", ":");
-            test(arr.length == 2 && arr[0].equals("a") && arr[1].equals("b"));
+            test(arr.length == 2 && "a".equals(arr[0]) && "b".equals(arr[1]));
             arr = StringUtil.splitString("\"a\":\"b\"", ":");
-            test(arr.length == 2 && arr[0].equals("a") && arr[1].equals("b"));
+            test(arr.length == 2 && "a".equals(arr[0]) && "b".equals(arr[1]));
             arr = StringUtil.splitString("\"a:b\"", ":");
-            test(arr.length == 1 && arr[0].equals("a:b"));
+            test(arr.length == 1 && "a:b".equals(arr[0]));
             arr = StringUtil.splitString("a=\"a:b\"", ":");
-            test(arr.length == 1 && arr[0].equals("a=a:b"));
+            test(arr.length == 1 && "a=a:b".equals(arr[0]));
 
             arr = StringUtil.splitString("'a'", ":");
-            test(arr.length == 1 && arr[0].equals("a"));
+            test(arr.length == 1 && "a".equals(arr[0]));
             arr = StringUtil.splitString("'\"a'", ":");
-            test(arr.length == 1 && arr[0].equals("\"a"));
+            test(arr.length == 1 && "\"a".equals(arr[0]));
             arr = StringUtil.splitString("\"'a\"", ":");
-            test(arr.length == 1 && arr[0].equals("'a"));
+            test(arr.length == 1 && "'a".equals(arr[0]));
 
             arr = StringUtil.splitString("a\\'b", ":");
-            test(arr.length == 1 && arr[0].equals("a'b"));
+            test(arr.length == 1 && "a'b".equals(arr[0]));
             arr = StringUtil.splitString("'a:b\\'c'", ":");
-            test(arr.length == 1 && arr[0].equals("a:b'c"));
+            test(arr.length == 1 && "a:b'c".equals(arr[0]));
             arr = StringUtil.splitString("a\\\"b", ":");
-            test(arr.length == 1 && arr[0].equals("a\"b"));
+            test(arr.length == 1 && "a\"b".equals(arr[0]));
             arr = StringUtil.splitString("\"a:b\\\"c\"", ":");
-            test(arr.length == 1 && arr[0].equals("a:b\"c"));
+            test(arr.length == 1 && "a:b\"c".equals(arr[0]));
             arr = StringUtil.splitString("'a:b\"c'", ":");
-            test(arr.length == 1 && arr[0].equals("a:b\"c"));
+            test(arr.length == 1 && "a:b\"c".equals(arr[0]));
             arr = StringUtil.splitString("\"a:b'c\"", ":");
-            test(arr.length == 1 && arr[0].equals("a:b'c"));
+            test(arr.length == 1 && "a:b'c".equals(arr[0]));
 
             test(StringUtil.splitString("a\"b", ":") == null);
         }

@@ -68,7 +68,7 @@ public abstract class TestHelper {
                     }
                 default:
                     {
-                        assert (false);
+                        assert false;
                     }
             }
         }

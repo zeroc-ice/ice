@@ -99,12 +99,12 @@ final class ThreadPool implements java.util.concurrent.Executor {
         }
         if (sizeMax < size) {
             String s =
-                    _prefix
-                            + ".SizeMax < "
-                            + _prefix
-                            + ".Size; SizeMax adjusted to Size ("
-                            + size
-                            + ")";
+                    _prefix +
+                            ".SizeMax < " +
+                            _prefix +
+                            ".Size; SizeMax adjusted to Size (" +
+                            size +
+                            ")";
             _instance.initializationData().logger.warning(s);
             sizeMax = size;
         }
@@ -112,22 +112,22 @@ final class ThreadPool implements java.util.concurrent.Executor {
         int sizeWarn = properties.getPropertyAsInt(_prefix + ".SizeWarn");
         if (sizeWarn != 0 && sizeWarn < size) {
             String s =
-                    _prefix
-                            + ".SizeWarn < "
-                            + _prefix
-                            + ".Size; adjusted SizeWarn to Size ("
-                            + size
-                            + ")";
+                    _prefix +
+                            ".SizeWarn < " +
+                            _prefix +
+                            ".Size; adjusted SizeWarn to Size (" +
+                            size +
+                            ")";
             _instance.initializationData().logger.warning(s);
             sizeWarn = size;
         } else if (sizeWarn > sizeMax) {
             String s =
-                    _prefix
-                            + ".SizeWarn > "
-                            + _prefix
-                            + ".SizeMax; adjusted SizeWarn to SizeMax ("
-                            + sizeMax
-                            + ")";
+                    _prefix +
+                            ".SizeWarn > " +
+                            _prefix +
+                            ".SizeMax; adjusted SizeWarn to SizeMax (" +
+                            sizeMax +
+                            ")";
             _instance.initializationData().logger.warning(s);
             sizeWarn = sizeMax;
         }
@@ -168,14 +168,14 @@ final class ThreadPool implements java.util.concurrent.Executor {
 
         if (_instance.traceLevels().threadPool >= 1) {
             String s =
-                    "creating "
-                            + _prefix
-                            + ": Size = "
-                            + _size
-                            + ", SizeMax = "
-                            + _sizeMax
-                            + ", SizeWarn = "
-                            + _sizeWarn;
+                    "creating " +
+                            _prefix +
+                            ": Size = " +
+                            _size +
+                            ", SizeMax = " +
+                            _sizeMax +
+                            ", SizeWarn = " +
+                            _sizeWarn;
             _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
         }
 
@@ -285,8 +285,8 @@ final class ThreadPool implements java.util.concurrent.Executor {
                 if (_instance
                                 .initializationData()
                                 .properties
-                                .getIcePropertyAsInt("Ice.Warn.Executor")
-                        > 1) {
+                                .getIcePropertyAsInt("Ice.Warn.Executor") >
+                        1) {
                     java.io.StringWriter sw = new java.io.StringWriter();
                     java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                     ex.printStackTrace(pw);
@@ -478,17 +478,17 @@ final class ThreadPool implements java.util.concurrent.Executor {
 
             if (_inUse == _sizeWarn) {
                 String s =
-                        "thread pool `"
-                                + _prefix
-                                + "' is running low on threads\n"
-                                + "Size="
-                                + _size
-                                + ", "
-                                + "SizeMax="
-                                + _sizeMax
-                                + ", "
-                                + "SizeWarn="
-                                + _sizeWarn;
+                        "thread pool `" +
+                                _prefix +
+                                "' is running low on threads\n" +
+                                "Size=" +
+                                _size +
+                                ", " +
+                                "SizeMax=" +
+                                _sizeMax +
+                                ", " +
+                                "SizeWarn=" +
+                                _sizeWarn;
                 _instance.initializationData().logger.warning(s);
             }
 
@@ -558,12 +558,12 @@ final class ThreadPool implements java.util.concurrent.Executor {
                 } catch (InterruptedException e) {
                     interrupted = true;
                 }
-                if (interrupted
-                        || Time.currentMonotonicTimeMillis() - before >= _threadIdleTime * 1000) {
-                    if (!_destroyed
-                            && (!_promote
-                                    || _inUseIO == _sizeIO
-                                    || (!_nextHandler.hasNext() && _inUseIO > 0))) {
+                if (interrupted ||
+                        Time.currentMonotonicTimeMillis() - before >= _threadIdleTime * 1000) {
+                    if (!_destroyed &&
+                            (!_promote ||
+                                    _inUseIO == _sizeIO ||
+                                    (!_nextHandler.hasNext() && _inUseIO > 0))) {
                         if (_instance.traceLevels().threadPool >= 1) {
                             String s = "shrinking " + _prefix + ": Size=" + (_threads.size() - 1);
                             _instance
@@ -571,8 +571,8 @@ final class ThreadPool implements java.util.concurrent.Executor {
                                     .logger
                                     .trace(_instance.traceLevels().threadPoolCat, s);
                         }
-                        assert (_threads.size()
-                                > 1); // Can only be called by a waiting follower thread.
+                        assert (_threads.size() >
+                                1); // Can only be called by a waiting follower thread.
                         _threads.remove(current._thread);
                         _workQueue.queue(new JoinThreadWorkItem(current._thread));
                         return true;

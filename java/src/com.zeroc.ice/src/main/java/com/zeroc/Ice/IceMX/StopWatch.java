@@ -22,5 +22,5 @@ class StopWatch {
         return (System.nanoTime() - _s) / 1000;
     }
 
-    private long _s = 0;
+    private long _s;
 }

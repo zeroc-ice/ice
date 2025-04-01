@@ -18,7 +18,7 @@ public class MetricsHelper<T> {
                     throw ex;
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    assert (false);
+                    assert false;
                     return null;
                 }
             }
@@ -29,7 +29,7 @@ public class MetricsHelper<T> {
         public String resolve(MetricsHelper<?> helper, String attribute) {
             Resolver resolver = _attributes.get(attribute);
             if (resolver == null) {
-                if (attribute.equals("none")) {
+                if ("none".equals(attribute)) {
                     return "";
                 }
                 String v = helper.defaultResolve(attribute);

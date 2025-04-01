@@ -114,4 +114,7 @@ class OnewaysAMI {
             }
         }
     }
+
+    private OnewaysAMI() {
+    }
 }

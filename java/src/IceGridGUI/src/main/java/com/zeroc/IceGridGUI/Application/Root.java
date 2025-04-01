@@ -101,10 +101,10 @@ public class Root extends ListTreeNode {
             int confirm =
                     JOptionPane.showConfirmDialog(
                             _coordinator.getMainFrame(),
-                            "You are about to remove application '"
-                                    + _id
-                                    + "'. "
-                                    + "Do you want to proceed?",
+                            "You are about to remove application '" +
+                                    _id +
+                                    "'. " +
+                                    "Do you want to proceed?",
                             "Remove Confirmation",
                             JOptionPane.YES_NO_OPTION);
 
@@ -136,7 +136,7 @@ public class Root extends ListTreeNode {
             return null;
         }
 
-        for (int i = 0; i < path.getPathCount(); ++i) {
+        for (int i = 0; i < path.getPathCount(); i++) {
             TreeNode node = (TreeNode) path.getPathComponent(i);
 
             if (result == null) {
@@ -339,8 +339,8 @@ public class Root extends ListTreeNode {
                             _coordinator
                                     .getSaveAction()
                                     .setEnabled(
-                                            isLive() && _coordinator.connectedToMaster()
-                                                    || hasFile());
+                                            isLive() && _coordinator.connectedToMaster() ||
+                                                    hasFile());
                             _coordinator.getSaveToRegistryAction().setEnabled(true);
                             _coordinator.getSaveToRegistryWithoutRestartAction().setEnabled(true);
                             _coordinator.getDiscardUpdatesAction().setEnabled(true);
@@ -393,10 +393,10 @@ public class Root extends ListTreeNode {
                                             (result, ex) -> {
                                                 if (_traceSaveToRegistry) {
                                                     _coordinator.traceSaveToRegistry(
-                                                            "updateApplication for application "
-                                                                    + _id
-                                                                    + (ex == null
-                                                                            ? ": success"
+                                                            "updateApplication for application " +
+                                                                    _id +
+                                                                    (ex == null ?
+                                                                            ": success"
                                                                             : ": failed"));
                                                 }
 
@@ -413,22 +413,21 @@ public class Root extends ListTreeNode {
                                                     SwingUtilities.invokeLater(
                                                             () -> {
                                                                 _skipUpdates--;
-                                                                if (ex
-                                                                        instanceof
+                                                                if (ex instanceof
                                                                         com.zeroc.Ice
                                                                                 .UserException) {
                                                                     handleFailure(
                                                                             prefix,
                                                                             "Update failed",
-                                                                            "IceGrid exception: "
-                                                                                    + ex
+                                                                            "IceGrid exception: " +
+                                                                                    ex
                                                                                             .toString());
                                                                 } else {
                                                                     handleFailure(
                                                                             prefix,
                                                                             "Update failed",
-                                                                            "Communication exception: "
-                                                                                    + ex
+                                                                            "Communication exception: " +
+                                                                                    ex
                                                                                             .toString());
                                                                 }
                                                             });
@@ -449,8 +448,8 @@ public class Root extends ListTreeNode {
                                 // Add or sync application
                                 if (_coordinator
                                                 .getLiveDeploymentRoot()
-                                                .getApplicationDescriptor(_id)
-                                        == null) {
+                                                .getApplicationDescriptor(_id) ==
+                                        null) {
                                     assert _live == false;
 
                                     final String prefix = "Adding application '" + _id + "'...";
@@ -468,10 +467,10 @@ public class Root extends ListTreeNode {
                                                     (result, ex) -> {
                                                         if (_traceSaveToRegistry) {
                                                             _coordinator.traceSaveToRegistry(
-                                                                    "addApplication for application "
-                                                                            + _id
-                                                                            + (ex == null
-                                                                                    ? ": success"
+                                                                    "addApplication for application " +
+                                                                            _id +
+                                                                            (ex == null ?
+                                                                                    ": success"
                                                                                     : ": failed"));
                                                         }
 
@@ -487,20 +486,19 @@ public class Root extends ListTreeNode {
                                                                         _coordinator
                                                                                 .getStatusBar()
                                                                                 .setText(
-                                                                                        prefix
-                                                                                                + "done.");
+                                                                                        prefix +
+                                                                                                "done.");
                                                                     });
                                                         } else {
-                                                            if (ex
-                                                                    instanceof
+                                                            if (ex instanceof
                                                                     com.zeroc.Ice.UserException) {
                                                                 SwingUtilities.invokeLater(
                                                                         () -> {
                                                                             handleFailure(
                                                                                     prefix,
                                                                                     "Add failed",
-                                                                                    "IceGrid exception: "
-                                                                                            + ex
+                                                                                    "IceGrid exception: " +
+                                                                                            ex
                                                                                                     .toString());
                                                                         });
                                                             } else {
@@ -509,8 +507,8 @@ public class Root extends ListTreeNode {
                                                                             handleFailure(
                                                                                     prefix,
                                                                                     "Add failed",
-                                                                                    "Communication exception: "
-                                                                                            + ex
+                                                                                    "Communication exception: " +
+                                                                                            ex
                                                                                                     .toString());
                                                                         });
                                                             }
@@ -545,10 +543,10 @@ public class Root extends ListTreeNode {
                                             (result, ex) -> {
                                                 if (_traceSaveToRegistry) {
                                                     _coordinator.traceSaveToRegistry(
-                                                            "syncApplication for application "
-                                                                    + _id
-                                                                    + (ex == null
-                                                                            ? ": success"
+                                                            "syncApplication for application " +
+                                                                    _id +
+                                                                    (ex == null ?
+                                                                            ": success"
                                                                             : ": failed"));
                                                 }
 
@@ -597,22 +595,21 @@ public class Root extends ListTreeNode {
                                                                     _skipUpdates--;
                                                                 }
 
-                                                                if (ex
-                                                                        instanceof
+                                                                if (ex instanceof
                                                                         com.zeroc.Ice
                                                                                 .UserException) {
                                                                     handleFailure(
                                                                             prefix,
                                                                             "Sync failed",
-                                                                            "IceGrid exception: "
-                                                                                    + ex
+                                                                            "IceGrid exception: " +
+                                                                                    ex
                                                                                             .toString());
                                                                 } else {
                                                                     handleFailure(
                                                                             prefix,
                                                                             "Sync failed",
-                                                                            "Communication exception: "
-                                                                                    + ex
+                                                                            "Communication exception: " +
+                                                                                    ex
                                                                                             .toString());
                                                                 }
                                                             });
@@ -637,8 +634,8 @@ public class Root extends ListTreeNode {
                         } catch (com.zeroc.Ice.LocalException e) {
                             if (_traceSaveToRegistry) {
                                 _coordinator.traceSaveToRegistry(
-                                        "Ice communications exception while saving application "
-                                                + _id);
+                                        "Ice communications exception while saving application " +
+                                                _id);
                             }
 
                             JOptionPane.showMessageDialog(
@@ -794,17 +791,17 @@ public class Root extends ListTreeNode {
         update.nodes = _nodes.getUpdates();
 
         // Return null if nothing changed
-        if (!_editable.isModified()
-                && update.removePropertySets.length == 0
-                && update.propertySets.isEmpty()
-                && update.removeReplicaGroups.length == 0
-                && update.replicaGroups.isEmpty()
-                && update.removeServerTemplates.length == 0
-                && update.serverTemplates.isEmpty()
-                && update.removeServiceTemplates.length == 0
-                && update.serviceTemplates.isEmpty()
-                && update.removeNodes.length == 0
-                && update.nodes.isEmpty()) {
+        if (!_editable.isModified() &&
+                update.removePropertySets.length == 0 &&
+                update.propertySets.isEmpty() &&
+                update.removeReplicaGroups.length == 0 &&
+                update.replicaGroups.isEmpty() &&
+                update.removeServerTemplates.length == 0 &&
+                update.serverTemplates.isEmpty() &&
+                update.removeServiceTemplates.length == 0 &&
+                update.serviceTemplates.isEmpty() &&
+                update.removeNodes.length == 0 &&
+                update.nodes.isEmpty()) {
             return null;
         } else {
             return update;
@@ -842,10 +839,10 @@ public class Root extends ListTreeNode {
             int confirm =
                     JOptionPane.showConfirmDialog(
                             _coordinator.getMainFrame(),
-                            "You are about to remove application '"
-                                    + _id
-                                    + "' from the IceGrid registry. "
-                                    + "Do you want to proceed?",
+                            "You are about to remove application '" +
+                                    _id +
+                                    "' from the IceGrid registry. " +
+                                    "Do you want to proceed?",
                             "Remove Confirmation",
                             JOptionPane.YES_NO_OPTION);
 
@@ -859,10 +856,10 @@ public class Root extends ListTreeNode {
             int confirm =
                     JOptionPane.showConfirmDialog(
                             _coordinator.getMainFrame(),
-                            "You are about to remove application '"
-                                    + _id
-                                    + "' and its associated file. "
-                                    + "Do you want to proceed?",
+                            "You are about to remove application '" +
+                                    _id +
+                                    "' and its associated file. " +
+                                    "Do you want to proceed?",
                             "Remove Confirmation",
                             JOptionPane.YES_NO_OPTION);
 
@@ -1252,10 +1249,10 @@ public class Root extends ListTreeNode {
     // _live == true
     private boolean _registryUpdatesEnabled = true;
 
-    private boolean _discardMe = false;
+    private boolean _discardMe;
 
     // True when any update was applied to this application (including children)
-    private boolean _updated = false;
+    private boolean _updated;
 
     // Updates saved when _updated == false and
     // _registryUpdatesEnabled == false
@@ -1266,7 +1263,7 @@ public class Root extends ListTreeNode {
     // save the updates using an ApplicationUpdateDescriptor
     private boolean _canUseUpdateDescriptor = true;
     // Updates to skip (because already applied locally)
-    private int _skipUpdates = 0;
+    private int _skipUpdates;
 
     private Nodes _nodes;
     private PropertySets _propertySets;

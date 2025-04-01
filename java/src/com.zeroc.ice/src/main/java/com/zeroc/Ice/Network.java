@@ -11,18 +11,18 @@ public final class Network {
     public static final int EnableIPv6 = 1;
     public static final int EnableBoth = 2;
 
-    private static java.util.regex.Pattern IPV4_PATTERN = null;
-    private static java.util.regex.Pattern IPV6_PATTERN = null;
+    private static java.util.regex.Pattern IPV4_PATTERN;
+    private static java.util.regex.Pattern IPV6_PATTERN;
     private static final String ipv4Pattern =
             "(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])";
     private static final String ipv6Pattern =
-            "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-"
-                    + "fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1"
-                    + ",4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,"
-                    + "4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-"
-                    + "F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])"
-                    + "\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}"
-                    + "[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))";
+            "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-" +
+                    "fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1" +
+                    ",4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1," +
+                    "4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-" +
+                    "F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])" +
+                    "\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}" +
+                    "[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))";
 
     static {
         try {
@@ -33,7 +33,7 @@ public final class Network {
                     java.util.regex.Pattern.compile(
                             ipv6Pattern, java.util.regex.Pattern.CASE_INSENSITIVE);
         } catch (java.util.regex.PatternSyntaxException ex) {
-            assert (false);
+            assert false;
         }
     }
 
@@ -126,7 +126,7 @@ public final class Network {
         try {
             if (addr.getAddress().isMulticastAddress()) {
                 var familyStr =
-                        (addr.getAddress() instanceof java.net.Inet6Address) ? "INET6" : "INET";
+                        addr.getAddress() instanceof java.net.Inet6Address ? "INET6" : "INET";
                 var family = java.net.StandardProtocolFamily.valueOf(familyStr);
                 return java.nio.channels.DatagramChannel.open(family);
             } else {
@@ -327,7 +327,7 @@ public final class Network {
             throw new SocketException(ex);
         }
 
-        if (System.getProperty("os.name").equals("Linux")) {
+        if ("Linux".equals(System.getProperty("os.name"))) {
             //
             // Prevent self connect (self connect happens on Linux when a client tries to connect to
             // a server which was just deactivated if the client socket re-uses the same ephemeral
@@ -352,7 +352,7 @@ public final class Network {
                 throw new ConnectFailedException();
             }
 
-            if (System.getProperty("os.name").equals("Linux")) {
+            if ("Linux".equals(System.getProperty("os.name"))) {
                 //
                 // Prevent self connect (self connect happens on Linux when a client tries to
                 // connect to a server which was just deactivated if the client socket re-uses the
@@ -524,7 +524,7 @@ public final class Network {
                             java.net.InetAddress.getByName("0.0.0.0"), port);
                 }
             } catch (java.net.UnknownHostException ex) {
-                assert (false);
+                assert false;
                 return null;
             } catch (java.lang.SecurityException ex) {
                 throw new SocketException(ex);
@@ -536,7 +536,7 @@ public final class Network {
     public static int compareAddress(
             java.net.InetSocketAddress addr1, java.net.InetSocketAddress addr2) {
         if (addr1 == null) {
-            return (addr2 == null) ? 0 : -1;
+            return addr2 == null ? 0 : -1;
         } else if (addr2 == null) {
             return 1;
         }
@@ -567,7 +567,7 @@ public final class Network {
                 addrs.add(
                         new java.net.InetSocketAddress(java.net.InetAddress.getByName(host), port));
             } catch (java.net.UnknownHostException ex) {
-                assert (false);
+                assert false;
             }
             return addrs;
         }
@@ -620,8 +620,8 @@ public final class Network {
                 java.util.Enumeration<java.net.InetAddress> addrs = iface.getInetAddresses();
                 while (addrs.hasMoreElements()) {
                     java.net.InetAddress addr = addrs.nextElement();
-                    if (!result.contains(addr)
-                            && (protocol == EnableBoth || isValidAddr(addr, protocol))) {
+                    if (!result.contains(addr) &&
+                            (protocol == EnableBoth || isValidAddr(addr, protocol))) {
                         result.add(addr);
                         break;
                     }
@@ -688,10 +688,10 @@ public final class Network {
                 if (!winfo.rcvWarn || rcvSize != winfo.rcvSize) {
                     instance.logger()
                             .warning(
-                                    "TCP receive buffer size: requested size of "
-                                            + rcvSize
-                                            + " adjusted to "
-                                            + size);
+                                    "TCP receive buffer size: requested size of " +
+                                            rcvSize +
+                                            " adjusted to " +
+                                            size);
                     instance.setRcvBufSizeWarn(TCPEndpointType.value, rcvSize);
                 }
             }
@@ -711,10 +711,10 @@ public final class Network {
                 if (!winfo.sndWarn || sndSize != winfo.sndSize) {
                     instance.logger()
                             .warning(
-                                    "TCP send buffer size: requested size of "
-                                            + sndSize
-                                            + " adjusted to "
-                                            + size);
+                                    "TCP send buffer size: requested size of " +
+                                            sndSize +
+                                            " adjusted to " +
+                                            size);
                     instance.setSndBufSizeWarn(TCPEndpointType.value, sndSize);
                 }
             }
@@ -751,10 +751,10 @@ public final class Network {
                 if (!winfo.rcvWarn || sizeRequested != winfo.rcvSize) {
                     instance.logger()
                             .warning(
-                                    "TCP receive buffer size: requested size of "
-                                            + sizeRequested
-                                            + " adjusted to "
-                                            + size);
+                                    "TCP receive buffer size: requested size of " +
+                                            sizeRequested +
+                                            " adjusted to " +
+                                            size);
                     instance.setRcvBufSizeWarn(TCPEndpointType.value, sizeRequested);
                 }
             }
@@ -785,7 +785,7 @@ public final class Network {
             remoteAddr = socket.getInetAddress();
             remotePort = socket.getPort();
         } else {
-            assert (false);
+            assert false;
         }
 
         return addressesToString(localAddr, localPort, remoteAddr, remotePort, proxy, target);
@@ -812,7 +812,7 @@ public final class Network {
             remoteAddr = socket.getInetAddress();
             remotePort = socket.getPort();
         } else {
-            assert (false);
+            assert false;
         }
 
         return addressesToString(localAddr, localPort, remoteAddr, remotePort);
@@ -879,9 +879,9 @@ public final class Network {
         if (addr != null) {
             bytes = addr.getAddress();
         }
-        return bytes != null
-                && ((bytes.length == 16 && protocol == EnableIPv6)
-                        || (bytes.length == 4 && protocol == EnableIPv4));
+        return bytes != null &&
+                ((bytes.length == 16 && protocol == EnableIPv6) ||
+                        (bytes.length == 4 && protocol == EnableIPv4));
     }
 
     public static String addrToString(java.net.InetAddress addr, int port) {
@@ -918,7 +918,7 @@ public final class Network {
             }
             return addrs;
         } catch (java.net.UnknownHostException ex) {
-            assert (false);
+            assert false;
             return null;
         } catch (java.lang.SecurityException ex) {
             throw new SocketException(ex);
@@ -958,8 +958,8 @@ public final class Network {
         public int compare(java.net.InetSocketAddress lhs, java.net.InetSocketAddress rhs) {
             if (lhs.getAddress().getAddress().length < rhs.getAddress().getAddress().length) {
                 return _ipv6 ? 1 : -1;
-            } else if (lhs.getAddress().getAddress().length
-                    > rhs.getAddress().getAddress().length) {
+            } else if (lhs.getAddress().getAddress().length >
+                    rhs.getAddress().getAddress().length) {
                 return _ipv6 ? -1 : 1;
             } else {
                 return 0;
@@ -971,4 +971,7 @@ public final class Network {
 
     private static IPAddressComparator _preferIPv4Comparator = new IPAddressComparator(false);
     private static IPAddressComparator _preferIPv6Comparator = new IPAddressComparator(true);
+
+    private Network() {
+    }
 }

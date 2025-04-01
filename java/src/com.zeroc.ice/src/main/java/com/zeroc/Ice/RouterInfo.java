@@ -116,7 +116,7 @@ final class RouterInfo {
             }
         }
 
-        _router.addProxiesAsync(new ObjectPrx[] {new _ObjectPrxI(reference)})
+        _router.addProxiesAsync(new ObjectPrx[]{new _ObjectPrxI(reference)})
                 .whenComplete(
                         (ObjectPrx[] evictedProxies, Throwable ex) -> {
                             if (ex != null) {
@@ -151,8 +151,8 @@ final class RouterInfo {
         if (_clientEndpoints == null) {
             _hasRoutingTable = hasRoutingTable;
             _clientEndpoints =
-                    clientProxy == null
-                            ? ((_ObjectPrxI) _router)._getReference().getEndpoints()
+                    clientProxy == null ?
+                            ((_ObjectPrxI) _router)._getReference().getEndpoints()
                             : ((_ObjectPrxI) clientProxy)._getReference().getEndpoints();
         }
         return _clientEndpoints;

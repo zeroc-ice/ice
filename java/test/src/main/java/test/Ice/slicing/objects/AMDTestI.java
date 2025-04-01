@@ -83,7 +83,7 @@ public final class AMDTestI implements TestIntf {
             test(!(obj instanceof SUnknown));
         } else {
             SUnknown su = (SUnknown) obj;
-            test(su.su.equals("SUnknown.su"));
+            test("SUnknown.su".equals(su.su));
         }
         return CompletableFuture.completedFuture((Void) null);
     }
@@ -277,7 +277,7 @@ public final class AMDTestI implements TestIntf {
         TestIntf.DictionaryTestResult r = new TestIntf.DictionaryTestResult();
         r.bout = new java.util.HashMap<>();
         int i;
-        for (i = 0; i < 10; ++i) {
+        for (i = 0; i < 10; i++) {
             B b = bin.get(i);
             D2 d2 = new D2();
             d2.sb = b.sb;
@@ -287,11 +287,11 @@ public final class AMDTestI implements TestIntf {
             r.bout.put(i * 10, d2);
         }
         r.returnValue = new java.util.HashMap<>();
-        for (i = 0; i < 10; ++i) {
+        for (i = 0; i < 10; i++) {
             String s = "D1." + Integer.valueOf(i * 20).toString();
             D1 d1 = new D1();
             d1.sb = s;
-            d1.pb = (i == 0 ? null : r.returnValue.get((i - 1) * 20));
+            d1.pb = i == 0 ? null : r.returnValue.get((i - 1) * 20);
             d1.sd1 = s;
             d1.pd1 = d1;
             r.returnValue.put(i * 20, d1);
@@ -326,12 +326,12 @@ public final class AMDTestI implements TestIntf {
         if (current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0)) {
             test(!(p instanceof PSUnknown));
             test(p.pi == 5);
-            test(p.ps.equals("preserved"));
+            test("preserved".equals(p.ps));
         } else {
             PSUnknown pu = (PSUnknown) p;
             test(pu.pi == 5);
-            test(pu.ps.equals("preserved"));
-            test(pu.psu.equals("unknown"));
+            test("preserved".equals(pu.ps));
+            test("unknown".equals(pu.psu));
             test(pu.graph == null);
             test(pu.cl != null && pu.cl.i == 15);
         }
@@ -362,12 +362,12 @@ public final class AMDTestI implements TestIntf {
         if (current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0)) {
             test(!(p instanceof PSUnknown));
             test(p.pi == 5);
-            test(p.ps.equals("preserved"));
+            test("preserved".equals(p.ps));
         } else {
             PSUnknown pu = (PSUnknown) p;
             test(pu.pi == 5);
-            test(pu.ps.equals("preserved"));
-            test(pu.psu.equals("unknown"));
+            test("preserved".equals(pu.ps));
+            test("unknown".equals(pu.psu));
             test(pu.graph != pu.graph.next);
             test(pu.graph.next != pu.graph.next.next);
             test(pu.graph.next.next.next == pu.graph);
@@ -396,11 +396,11 @@ public final class AMDTestI implements TestIntf {
         if (current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0)) {
             test(!(p instanceof PSUnknown2));
             test(p.pi == 5);
-            test(p.ps.equals("preserved"));
+            test("preserved".equals(p.ps));
         } else {
             PSUnknown2 pu = (PSUnknown2) p;
             test(pu.pi == 5);
-            test(pu.ps.equals("preserved"));
+            test("preserved".equals(pu.ps));
             test(pu.pb == pu);
             pu.pb = null; // Break the cycle.
         }

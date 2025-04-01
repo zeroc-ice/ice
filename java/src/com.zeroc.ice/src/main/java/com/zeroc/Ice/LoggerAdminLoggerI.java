@@ -132,9 +132,9 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
                                             if (_loggerAdmin.getTraceLevel() > 1) {
                                                 _localLogger.trace(
                                                         _traceCategory,
-                                                        "log on `"
-                                                                + p.toString()
-                                                                + "' completed successfully");
+                                                        "log on `" +
+                                                                p.toString() +
+                                                                "' completed successfully");
                                             }
                                         }
                                     });
@@ -197,7 +197,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
 
     private final Logger _localLogger;
     private final LoggerAdminI _loggerAdmin;
-    private boolean _destroyed = false;
+    private boolean _destroyed;
     private Thread _sendLogThread;
     private final java.util.Deque<Job> _jobQueue = new java.util.ArrayDeque<>();
 

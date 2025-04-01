@@ -92,11 +92,11 @@ class PlainServer extends Communicator implements Server {
         boolean[] actions = new boolean[ACTION_COUNT];
 
         Object clipboard = getCoordinator().getClipboard();
-        if (clipboard != null
-                && (clipboard instanceof ServerDescriptor
-                        || clipboard instanceof ServerInstanceDescriptor
-                        || (isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
-                        || (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy)))) {
+        if (clipboard != null &&
+                (clipboard instanceof ServerDescriptor ||
+                        clipboard instanceof ServerInstanceDescriptor ||
+                        (isIceBox() && (clipboard instanceof ServiceInstanceDescriptor)) ||
+                        (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy)))) {
             actions[PASTE] = true;
         }
 

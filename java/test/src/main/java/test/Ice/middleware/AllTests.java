@@ -117,11 +117,11 @@ public class AllTests {
     private static void testErrorObserverMiddleware(
             Communicator communicator, PrintWriter output, boolean withError, boolean amd) {
         output.write(
-                "testing error observer middleware "
-                        + (withError ? "with" : "without")
-                        + " error"
-                        + (amd ? " + amd" : "")
-                        + "... ");
+                "testing error observer middleware " +
+                        (withError ? "with" : "without") +
+                        " error" +
+                        (amd ? " + amd" : "") +
+                        "... ");
         output.flush();
 
         // Arrange
@@ -159,5 +159,8 @@ public class AllTests {
         if (!b) {
             throw new RuntimeException();
         }
+    }
+
+    private AllTests() {
     }
 }

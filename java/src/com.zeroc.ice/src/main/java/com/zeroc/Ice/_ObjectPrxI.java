@@ -498,22 +498,22 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
     @Override
     public ObjectPrx ice_batchOneway() {
-        return ice_isBatchOneway()
-                ? this
+        return ice_isBatchOneway() ?
+                this
                 : _newInstance(_reference.changeMode(Reference.ModeBatchOneway));
     }
 
     @Override
     public ObjectPrx ice_datagram() {
-        return ice_isDatagram()
-                ? this
+        return ice_isDatagram() ?
+                this
                 : _newInstance(_reference.changeMode(Reference.ModeDatagram));
     }
 
     @Override
     public ObjectPrx ice_batchDatagram() {
-        return ice_isBatchDatagram()
-                ? this
+        return ice_isBatchDatagram() ?
+                this
                 : _newInstance(_reference.changeMode(Reference.ModeBatchDatagram));
     }
 

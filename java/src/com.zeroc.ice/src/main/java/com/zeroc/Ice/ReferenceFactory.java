@@ -54,8 +54,8 @@ final class ReferenceFactory {
                 _communicator,
                 ident,
                 "", // Facet
-                fixedConnection.endpoint().datagram()
-                        ? Reference.ModeDatagram
+                fixedConnection.endpoint().datagram() ?
+                        Reference.ModeDatagram
                         : Reference.ModeTwoway,
                 fixedConnection.endpoint().secure(),
                 java.util.Optional.empty(),
@@ -172,11 +172,11 @@ final class ReferenceFactory {
             String option = s.substring(beg, end);
             if (option.length() != 2 || option.charAt(0) != '-') {
                 throw new ParseException(
-                        "expected a proxy option but found '"
-                                + option
-                                + "' in proxy string '"
-                                + s
-                                + "'");
+                        "expected a proxy option but found '" +
+                                option +
+                                "' in proxy string '" +
+                                s +
+                                "'");
             }
 
             //
@@ -193,11 +193,11 @@ final class ReferenceFactory {
                     end = StringUtil.checkQuote(s, beg);
                     if (end == -1) {
                         throw new ParseException(
-                                "mismatched quotes around value for "
-                                        + option
-                                        + " option in proxy string '"
-                                        + s
-                                        + "'");
+                                "mismatched quotes around value for " +
+                                        option +
+                                        " option in proxy string '" +
+                                        s +
+                                        "'");
                     } else if (end == 0) {
                         end = StringUtil.findFirstOf(s, delim + ":@", beg);
                         if (end == -1) {
@@ -221,9 +221,9 @@ final class ReferenceFactory {
                     {
                         if (argument == null) {
                             throw new ParseException(
-                                    "no argument provided for -f option in proxy string '"
-                                            + s
-                                            + "'");
+                                    "no argument provided for -f option in proxy string '" +
+                                            s +
+                                            "'");
                         }
 
                         try {
@@ -240,11 +240,11 @@ final class ReferenceFactory {
                     {
                         if (argument != null) {
                             throw new ParseException(
-                                    "unexpected argument '"
-                                            + argument
-                                            + "' provided for -t option in proxy string '"
-                                            + s
-                                            + "'");
+                                    "unexpected argument '" +
+                                            argument +
+                                            "' provided for -t option in proxy string '" +
+                                            s +
+                                            "'");
                         }
                         mode = Reference.ModeTwoway;
                         break;
@@ -254,11 +254,11 @@ final class ReferenceFactory {
                     {
                         if (argument != null) {
                             throw new ParseException(
-                                    "unexpected argument '"
-                                            + argument
-                                            + "' provided for -o option in proxy string '"
-                                            + s
-                                            + "'");
+                                    "unexpected argument '" +
+                                            argument +
+                                            "' provided for -o option in proxy string '" +
+                                            s +
+                                            "'");
                         }
                         mode = Reference.ModeOneway;
                         break;
@@ -268,11 +268,11 @@ final class ReferenceFactory {
                     {
                         if (argument != null) {
                             throw new ParseException(
-                                    "unexpected argument '"
-                                            + argument
-                                            + "' provided for -O option in proxy string '"
-                                            + s
-                                            + "'");
+                                    "unexpected argument '" +
+                                            argument +
+                                            "' provided for -O option in proxy string '" +
+                                            s +
+                                            "'");
                         }
                         mode = Reference.ModeBatchOneway;
                         break;
@@ -282,11 +282,11 @@ final class ReferenceFactory {
                     {
                         if (argument != null) {
                             throw new ParseException(
-                                    "unexpected argument '"
-                                            + argument
-                                            + "' provided for -d option in proxy string '"
-                                            + s
-                                            + "'");
+                                    "unexpected argument '" +
+                                            argument +
+                                            "' provided for -d option in proxy string '" +
+                                            s +
+                                            "'");
                         }
                         mode = Reference.ModeDatagram;
                         break;
@@ -296,11 +296,11 @@ final class ReferenceFactory {
                     {
                         if (argument != null) {
                             throw new ParseException(
-                                    "unexpected argument '"
-                                            + argument
-                                            + "' provided for -D option in proxy string '"
-                                            + s
-                                            + "'");
+                                    "unexpected argument '" +
+                                            argument +
+                                            "' provided for -D option in proxy string '" +
+                                            s +
+                                            "'");
                         }
                         mode = Reference.ModeBatchDatagram;
                         break;
@@ -310,11 +310,11 @@ final class ReferenceFactory {
                     {
                         if (argument != null) {
                             throw new ParseException(
-                                    "unexpected argument '"
-                                            + argument
-                                            + "' provided for -s option in proxy string '"
-                                            + s
-                                            + "'");
+                                    "unexpected argument '" +
+                                            argument +
+                                            "' provided for -s option in proxy string '" +
+                                            s +
+                                            "'");
                         }
                         secure = true;
                         break;
@@ -324,20 +324,20 @@ final class ReferenceFactory {
                     {
                         if (argument == null) {
                             throw new ParseException(
-                                    "no argument provided for -e option in in proxy string '"
-                                            + s
-                                            + "'");
+                                    "no argument provided for -e option in in proxy string '" +
+                                            s +
+                                            "'");
                         }
 
                         try {
                             encoding = Util.stringToEncodingVersion(argument);
                         } catch (ParseException ex) {
                             throw new ParseException(
-                                    "invalid encoding version '"
-                                            + argument
-                                            + "' in proxy string '"
-                                            + s
-                                            + "'",
+                                    "invalid encoding version '" +
+                                            argument +
+                                            "' in proxy string '" +
+                                            s +
+                                            "'",
                                     ex);
                         }
                         break;
@@ -347,20 +347,20 @@ final class ReferenceFactory {
                     {
                         if (argument == null) {
                             throw new ParseException(
-                                    "no argument provided for -p option in proxy string '"
-                                            + s
-                                            + "'");
+                                    "no argument provided for -p option in proxy string '" +
+                                            s +
+                                            "'");
                         }
 
                         try {
                             protocol = Util.stringToProtocolVersion(argument);
                         } catch (ParseException ex) {
                             throw new ParseException(
-                                    "invalid protocol version '"
-                                            + argument
-                                            + "' in proxy string '"
-                                            + s
-                                            + "'",
+                                    "invalid protocol version '" +
+                                            argument +
+                                            "' in proxy string '" +
+                                            s +
+                                            "'",
                                     ex);
                         }
                         break;
@@ -440,12 +440,12 @@ final class ReferenceFactory {
                 assert (!unknownEndpoints.isEmpty());
                 throw new ParseException(
                         "invalid endpoint '" + unknownEndpoints.get(0) + "' in '" + s + "'");
-            } else if (!unknownEndpoints.isEmpty()
-                    && _instance
+            } else if (!unknownEndpoints.isEmpty() &&
+                    _instance
                                     .initializationData()
                                     .properties
-                                    .getIcePropertyAsInt("Ice.Warn.Endpoints")
-                            > 0) {
+                                    .getIcePropertyAsInt("Ice.Warn.Endpoints") >
+                            0) {
                 StringBuffer msg = new StringBuffer("Proxy contains unknown endpoints:");
                 for (String e : unknownEndpoints) {
                     msg.append(" `");
@@ -604,8 +604,8 @@ final class ReferenceFactory {
     }
 
     public ReferenceFactory setDefaultLocator(LocatorPrx defaultLocator) {
-        if (_defaultLocator == null
-                ? defaultLocator == null
+        if (_defaultLocator == null ?
+                defaultLocator == null
                 : _defaultLocator.equals(defaultLocator)) {
             return this;
         }
@@ -691,11 +691,11 @@ final class ReferenceFactory {
             if (router != null) {
                 if (propertyPrefix.endsWith(".Router")) {
                     String s =
-                            "`"
-                                    + property
-                                    + "="
-                                    + properties.getProperty(property)
-                                    + "': cannot set a router on a router; setting ignored";
+                            "`" +
+                                    property +
+                                    "=" +
+                                    properties.getProperty(property) +
+                                    "': cannot set a router on a router; setting ignored";
                     _instance.initializationData().logger.warning(s);
                 } else {
                     routerInfo = _instance.routerManager().get(router);
@@ -704,8 +704,8 @@ final class ReferenceFactory {
 
             property = propertyPrefix + ".CollocationOptimized";
             collocationOptimized =
-                    properties.getPropertyAsIntWithDefault(property, collocationOptimized ? 1 : 0)
-                            > 0;
+                    properties.getPropertyAsIntWithDefault(property, collocationOptimized ? 1 : 0) >
+                            0;
 
             property = propertyPrefix + ".ConnectionCached";
             cacheConnection =
@@ -718,17 +718,17 @@ final class ReferenceFactory {
             property = propertyPrefix + ".EndpointSelection";
             if (properties.getProperty(property).length() > 0) {
                 String type = properties.getProperty(property);
-                if (type.equals("Random")) {
+                if ("Random".equals(type)) {
                     endpointSelection = EndpointSelectionType.Random;
-                } else if (type.equals("Ordered")) {
+                } else if ("Ordered".equals(type)) {
                     endpointSelection = EndpointSelectionType.Ordered;
                 } else {
                     throw new ParseException(
-                            "illegal value '"
-                                    + type
-                                    + "' in property '"
-                                    + property
-                                    + "'; expected 'Random' or 'Ordered'");
+                            "illegal value '" +
+                                    type +
+                                    "' in property '" +
+                                    property +
+                                    "'; expected 'Random' or 'Ordered'");
                 }
             }
 

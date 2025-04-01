@@ -52,4 +52,7 @@ public class AllTests {
         out.println("ok");
         return cl;
     }
+
+    private AllTests() {
+    }
 }

@@ -69,8 +69,8 @@ public class AllTests {
         mo1.setH("test");
         mo1.setI(MyEnum.MyEnumMember);
         mo1.setJ(MyInterfacePrx.createProxy(communicator, "test"));
-        mo1.setBs(new byte[] {(byte) 5});
-        mo1.setSs(new String[] {"test", "test2"});
+        mo1.setBs(new byte[]{(byte) 5});
+        mo1.setSs(new String[]{"test", "test2"});
         mo1.setIid(new java.util.HashMap<>());
         mo1.getIid().put(4, 3);
         mo1.setSid(new java.util.HashMap<>());
@@ -82,11 +82,11 @@ public class AllTests {
         vs.m = "hello";
         mo1.setVs(vs);
 
-        mo1.setShs(new short[] {(short) 1});
-        mo1.setEs(new MyEnum[] {MyEnum.MyEnumMember, MyEnum.MyEnumMember});
-        mo1.setFss(new FixedStruct[] {fs});
-        mo1.setVss(new VarStruct[] {vs});
-        mo1.setMips(new MyInterfacePrx[] {MyInterfacePrx.createProxy(communicator, "test")});
+        mo1.setShs(new short[]{(short) 1});
+        mo1.setEs(new MyEnum[]{MyEnum.MyEnumMember, MyEnum.MyEnumMember});
+        mo1.setFss(new FixedStruct[]{fs});
+        mo1.setVss(new VarStruct[]{vs});
+        mo1.setMips(new MyInterfacePrx[]{MyInterfacePrx.createProxy(communicator, "test")});
 
         mo1.setIed(new java.util.HashMap<>());
         mo1.getIed().put(4, MyEnum.MyEnumMember);
@@ -97,7 +97,7 @@ public class AllTests {
         mo1.setImipd(new java.util.HashMap<>());
         mo1.getImipd().put(5, MyInterfacePrx.createProxy(communicator, "test"));
 
-        mo1.setBos(new boolean[] {false, true, false});
+        mo1.setBos(new boolean[]{false, true, false});
 
         mo1.setSer(new SerializableClass(58));
 
@@ -109,11 +109,11 @@ public class AllTests {
         test(mo1.getE() == 99);
         test(mo1.getF() == (float) 5.5);
         test(mo1.getG() == 1.0);
-        test(mo1.getH().equals("test"));
+        test("test".equals(mo1.getH()));
         test(mo1.getI() == MyEnum.MyEnumMember);
         test(mo1.getJ().equals(communicator.stringToProxy("test")));
-        test(java.util.Arrays.equals(mo1.getBs(), new byte[] {(byte) 5}));
-        test(java.util.Arrays.equals(mo1.getSs(), new String[] {"test", "test2"}));
+        test(java.util.Arrays.equals(mo1.getBs(), new byte[]{(byte) 5}));
+        test(java.util.Arrays.equals(mo1.getSs(), new String[]{"test", "test2"}));
         test(mo1.getIid().get(4) == 3);
         test(mo1.getSid().get("test") == 10);
         test(mo1.getFs().equals(new FixedStruct(78)));
@@ -130,7 +130,7 @@ public class AllTests {
         test(mo1.getIvsd().get(5).equals(new VarStruct("hello")));
         test(mo1.getImipd().get(5).equals(communicator.stringToProxy("test")));
 
-        test(java.util.Arrays.equals(mo1.getBos(), new boolean[] {false, true, false}));
+        test(java.util.Arrays.equals(mo1.getBos(), new boolean[]{false, true, false}));
 
         test(mo1.getSer().equals(new SerializableClass(58)));
 
@@ -211,7 +211,7 @@ public class AllTests {
         test(mo5.getIvsd().get(5).equals(new VarStruct("hello")));
         test(mo5.getImipd().get(5).equals(communicator.stringToProxy("test")));
 
-        test(java.util.Arrays.equals(mo5.getBos(), new boolean[] {false, true, false}));
+        test(java.util.Arrays.equals(mo5.getBos(), new boolean[]{false, true, false}));
 
         if (supportsJavaSerializable) {
             test(mo5.getSer().equals(mo1.getSer()));
@@ -261,7 +261,7 @@ public class AllTests {
         test(!mo7.hasIvsd());
         test(!mo7.hasImipd());
 
-        test(java.util.Arrays.equals(mo7.getBos(), new boolean[] {false, true, false}));
+        test(java.util.Arrays.equals(mo7.getBos(), new boolean[]{false, true, false}));
 
         // Clear the second half of the optional parameters
         MultiOptional mo8 = new MultiOptional();
@@ -382,12 +382,12 @@ public class AllTests {
         mc.setShs(new short[300]);
 
         mc.setFss(new FixedStruct[300]);
-        for (int i = 0; i < 300; ++i) {
+        for (int i = 0; i < 300; i++) {
             mc.getFss()[i] = new FixedStruct();
         }
 
         mc.setIfsd(new java.util.HashMap<>());
-        for (int i = 0; i < 300; ++i) {
+        for (int i = 0; i < 300; i++) {
             mc.getIfsd().put(i, new FixedStruct());
         }
 
@@ -484,7 +484,7 @@ public class AllTests {
         {
             WD wd = (WD) initial.pingPong(new WD());
             test(wd.getA() == 5);
-            test(wd.getS().equals("test"));
+            test("test".equals(wd.getS()));
             wd.clearA();
             wd.clearS();
             wd = (WD) initial.pingPong(wd);
@@ -780,9 +780,9 @@ public class AllTests {
 
             p1 = Optional.of("test");
             r = initial.opString(p1);
-            test(r.returnValue.get().equals("test") && r.p3.get().equals("test"));
+            test("test".equals(r.returnValue.get()) && "test".equals(r.p3.get()));
             r = initial.opStringAsync(p1).join();
-            test(r.returnValue.get().equals("test") && r.p3.get().equals("test"));
+            test("test".equals(r.returnValue.get()) && "test".equals(r.p3.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -793,8 +793,8 @@ public class AllTests {
             inv = initial.ice_invoke("opString", OperationMode.Normal, inEncaps);
             in = new InputStream(communicator, inv.outParams);
             in.startEncapsulation();
-            test(in.readString(1).get().equals("test"));
-            test(in.readString(3).get().equals("test"));
+            test("test".equals(in.readString(1).get()));
+            test("test".equals(in.readString(3).get()));
             in.endEncapsulation();
 
             in = new InputStream(communicator, inv.outParams);
@@ -914,9 +914,9 @@ public class AllTests {
 
             p1 = Optional.of(new VarStruct("test"));
             r = initial.opVarStruct(p1);
-            test(r.returnValue.get().m.equals("test") && r.p3.get().m.equals("test"));
+            test("test".equals(r.returnValue.get().m) && "test".equals(r.p3.get().m));
             r = initial.opVarStructAsync(p1).join();
-            test(r.returnValue.get().m.equals("test") && r.p3.get().m.equals("test"));
+            test("test".equals(r.returnValue.get().m) && "test".equals(r.p3.get().m));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -932,11 +932,11 @@ public class AllTests {
             test(in.readOptional(1, OptionalFormat.FSize));
             in.skip(4);
             VarStruct v = VarStruct.ice_read(in);
-            test(v.m.equals("test"));
+            test("test".equals(v.m));
             test(in.readOptional(3, OptionalFormat.FSize));
             in.skip(4);
             v = VarStruct.ice_read(in);
-            test(v.m.equals("test"));
+            test("test".equals(v.m));
             in.endEncapsulation();
 
             in = new InputStream(communicator, inv.outParams);
@@ -1016,12 +1016,12 @@ public class AllTests {
             java.util.Arrays.fill(p1.get(), (byte) 56);
             r = initial.opByteSeq(p1);
             test(
-                    java.util.Arrays.equals(r.returnValue.get(), p1.get())
-                            && java.util.Arrays.equals(r.p3.get(), p1.get()));
+                    java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                            java.util.Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opByteSeqAsync(p1).join();
             test(
-                    java.util.Arrays.equals(r.returnValue.get(), p1.get())
-                            && java.util.Arrays.equals(r.p3.get(), p1.get()));
+                    java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                            java.util.Arrays.equals(r.p3.get(), p1.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -1049,12 +1049,12 @@ public class AllTests {
             p1 = Optional.of(new boolean[100]);
             r = initial.opBoolSeq(p1);
             test(
-                    java.util.Arrays.equals(r.returnValue.get(), p1.get())
-                            && java.util.Arrays.equals(r.p3.get(), p1.get()));
+                    java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                            java.util.Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opBoolSeqAsync(p1).join();
             test(
-                    java.util.Arrays.equals(r.returnValue.get(), p1.get())
-                            && java.util.Arrays.equals(r.p3.get(), p1.get()));
+                    java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                            java.util.Arrays.equals(r.p3.get(), p1.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -1083,12 +1083,12 @@ public class AllTests {
             java.util.Arrays.fill(p1.get(), (short) 56);
             r = initial.opShortSeq(p1);
             test(
-                    java.util.Arrays.equals(r.returnValue.get(), p1.get())
-                            && java.util.Arrays.equals(r.p3.get(), p1.get()));
+                    java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                            java.util.Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opShortSeqAsync(p1).join();
             test(
-                    java.util.Arrays.equals(r.returnValue.get(), p1.get())
-                            && java.util.Arrays.equals(r.p3.get(), p1.get()));
+                    java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                            java.util.Arrays.equals(r.p3.get(), p1.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -1118,12 +1118,12 @@ public class AllTests {
             java.util.Arrays.fill(p1.get(), 56);
             r = initial.opIntSeq(p1);
             test(
-                    java.util.Arrays.equals(r.returnValue.get(), p1.get())
-                            && java.util.Arrays.equals(r.p3.get(), p1.get()));
+                    java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                            java.util.Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opIntSeqAsync(p1).join();
             test(
-                    java.util.Arrays.equals(r.returnValue.get(), p1.get())
-                            && java.util.Arrays.equals(r.p3.get(), p1.get()));
+                    java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                            java.util.Arrays.equals(r.p3.get(), p1.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -1153,12 +1153,12 @@ public class AllTests {
             java.util.Arrays.fill(p1.get(), 56);
             r = initial.opLongSeq(p1);
             test(
-                    java.util.Arrays.equals(r.returnValue.get(), p1.get())
-                            && java.util.Arrays.equals(r.p3.get(), p1.get()));
+                    java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                            java.util.Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opLongSeqAsync(p1).join();
             test(
-                    java.util.Arrays.equals(r.returnValue.get(), p1.get())
-                            && java.util.Arrays.equals(r.p3.get(), p1.get()));
+                    java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                            java.util.Arrays.equals(r.p3.get(), p1.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -1188,12 +1188,12 @@ public class AllTests {
             java.util.Arrays.fill(p1.get(), (float) 1.0);
             r = initial.opFloatSeq(p1);
             test(
-                    java.util.Arrays.equals(r.returnValue.get(), p1.get())
-                            && java.util.Arrays.equals(r.p3.get(), p1.get()));
+                    java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                            java.util.Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opFloatSeqAsync(p1).join();
             test(
-                    java.util.Arrays.equals(r.returnValue.get(), p1.get())
-                            && java.util.Arrays.equals(r.p3.get(), p1.get()));
+                    java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                            java.util.Arrays.equals(r.p3.get(), p1.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -1223,12 +1223,12 @@ public class AllTests {
             java.util.Arrays.fill(p1.get(), 1.0);
             r = initial.opDoubleSeq(p1);
             test(
-                    java.util.Arrays.equals(r.returnValue.get(), p1.get())
-                            && java.util.Arrays.equals(r.p3.get(), p1.get()));
+                    java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                            java.util.Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opDoubleSeqAsync(p1).join();
             test(
-                    java.util.Arrays.equals(r.returnValue.get(), p1.get())
-                            && java.util.Arrays.equals(r.p3.get(), p1.get()));
+                    java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                            java.util.Arrays.equals(r.p3.get(), p1.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -1258,12 +1258,12 @@ public class AllTests {
             java.util.Arrays.fill(p1.get(), "test1");
             r = initial.opStringSeq(p1);
             test(
-                    java.util.Arrays.equals(r.returnValue.get(), p1.get())
-                            && java.util.Arrays.equals(r.p3.get(), p1.get()));
+                    java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                            java.util.Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opStringSeqAsync(p1).join();
             test(
-                    java.util.Arrays.equals(r.returnValue.get(), p1.get())
-                            && java.util.Arrays.equals(r.p3.get(), p1.get()));
+                    java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                            java.util.Arrays.equals(r.p3.get(), p1.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -1291,16 +1291,16 @@ public class AllTests {
             test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
             p1 = Optional.of(new SmallStruct[10]);
-            for (int i = 0; i < p1.get().length; ++i) {
+            for (int i = 0; i < p1.get().length; i++) {
                 p1.get()[i] = new SmallStruct();
             }
             r = initial.opSmallStructSeq(p1);
-            for (int i = 0; i < p1.get().length; ++i) {
+            for (int i = 0; i < p1.get().length; i++) {
                 test(r.p3.get()[i].equals(p1.get()[i]));
                 test(r.returnValue.get()[i].equals(p1.get()[i]));
             }
             r = initial.opSmallStructSeqAsync(p1).join();
-            for (int i = 0; i < p1.get().length; ++i) {
+            for (int i = 0; i < p1.get().length; i++) {
                 test(r.p3.get()[i].equals(p1.get()[i]));
                 test(r.returnValue.get()[i].equals(p1.get()[i]));
             }
@@ -1316,12 +1316,12 @@ public class AllTests {
             in.startEncapsulation();
             test(in.readOptional(1, OptionalFormat.VSize));
             SmallStruct[] arr = SmallStructSeqHelper.read(in);
-            for (int i = 0; i < p1.get().length; ++i) {
+            for (int i = 0; i < p1.get().length; i++) {
                 test(arr[i].equals(p1.get()[i]));
             }
             test(in.readOptional(3, OptionalFormat.VSize));
             arr = SmallStructSeqHelper.read(in);
-            for (int i = 0; i < p1.get().length; ++i) {
+            for (int i = 0; i < p1.get().length; i++) {
                 test(arr[i].equals(p1.get()[i]));
             }
             in.endEncapsulation();
@@ -1343,7 +1343,7 @@ public class AllTests {
             test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
             p1 = Optional.of(new java.util.ArrayList<>());
-            for (int i = 0; i < 10; ++i) {
+            for (int i = 0; i < 10; i++) {
                 p1.get().add(new SmallStruct());
             }
             r = initial.opSmallStructList(p1);
@@ -1382,16 +1382,16 @@ public class AllTests {
             test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
             p1 = Optional.of(new FixedStruct[10]);
-            for (int i = 0; i < p1.get().length; ++i) {
+            for (int i = 0; i < p1.get().length; i++) {
                 p1.get()[i] = new FixedStruct();
             }
             r = initial.opFixedStructSeq(p1);
-            for (int i = 0; i < p1.get().length; ++i) {
+            for (int i = 0; i < p1.get().length; i++) {
                 test(r.p3.get()[i].equals(p1.get()[i]));
                 test(r.returnValue.get()[i].equals(p1.get()[i]));
             }
             r = initial.opFixedStructSeqAsync(p1).join();
-            for (int i = 0; i < p1.get().length; ++i) {
+            for (int i = 0; i < p1.get().length; i++) {
                 test(r.p3.get()[i].equals(p1.get()[i]));
                 test(r.returnValue.get()[i].equals(p1.get()[i]));
             }
@@ -1409,13 +1409,13 @@ public class AllTests {
             test(in.readOptional(1, OptionalFormat.VSize));
             in.skipSize();
             FixedStruct[] arr = FixedStructSeqHelper.read(in);
-            for (int i = 0; i < p1.get().length; ++i) {
+            for (int i = 0; i < p1.get().length; i++) {
                 test(arr[i].equals(p1.get()[i]));
             }
             test(in.readOptional(3, OptionalFormat.VSize));
             in.skipSize();
             arr = FixedStructSeqHelper.read(in);
-            for (int i = 0; i < p1.get().length; ++i) {
+            for (int i = 0; i < p1.get().length; i++) {
                 test(arr[i].equals(p1.get()[i]));
             }
             in.endEncapsulation();
@@ -1431,7 +1431,7 @@ public class AllTests {
             test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
             p1 = Optional.of(new java.util.ArrayList<>());
-            for (int i = 0; i < 10; ++i) {
+            for (int i = 0; i < 10; i++) {
                 p1.get().add(new FixedStruct());
             }
             r = initial.opFixedStructList(p1);
@@ -1470,16 +1470,16 @@ public class AllTests {
             test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
             p1 = Optional.of(new VarStruct[10]);
-            for (int i = 0; i < p1.get().length; ++i) {
+            for (int i = 0; i < p1.get().length; i++) {
                 p1.get()[i] = new VarStruct("");
             }
             r = initial.opVarStructSeq(p1);
-            for (int i = 0; i < p1.get().length; ++i) {
+            for (int i = 0; i < p1.get().length; i++) {
                 test(r.p3.get()[i].equals(p1.get()[i]));
                 test(r.returnValue.get()[i].equals(p1.get()[i]));
             }
             r = initial.opVarStructSeqAsync(p1).join();
-            for (int i = 0; i < p1.get().length; ++i) {
+            for (int i = 0; i < p1.get().length; i++) {
                 test(r.p3.get()[i].equals(p1.get()[i]));
                 test(r.returnValue.get()[i].equals(p1.get()[i]));
             }
@@ -1498,13 +1498,13 @@ public class AllTests {
             test(in.readOptional(1, OptionalFormat.FSize));
             in.skip(4);
             VarStruct[] arr = VarStructSeqHelper.read(in);
-            for (int i = 0; i < p1.get().length; ++i) {
+            for (int i = 0; i < p1.get().length; i++) {
                 test(arr[i].equals(p1.get()[i]));
             }
             test(in.readOptional(3, OptionalFormat.FSize));
             in.skip(4);
             arr = VarStructSeqHelper.read(in);
-            for (int i = 0; i < p1.get().length; ++i) {
+            for (int i = 0; i < p1.get().length; i++) {
                 test(arr[i].equals(p1.get()[i]));
             }
             in.endEncapsulation();
@@ -1669,7 +1669,7 @@ public class AllTests {
                 initial.opOptionalException(a, b);
             } catch (OptionalException ex) {
                 test(ex.getA() == 30);
-                test(ex.getB().equals("test"));
+                test("test".equals(ex.getB()));
             }
 
             try {
@@ -1693,8 +1693,8 @@ public class AllTests {
                 test(!ex.hasA());
                 test(!ex.hasB());
                 test(!ex.hasSs());
-                test(ex.d1.equals("d1"));
-                test(ex.d2.equals("d2"));
+                test("d1".equals(ex.d1));
+                test("d2".equals(ex.d2));
             } catch (OptionalException ex) {
                 test(false);
             }
@@ -1705,10 +1705,10 @@ public class AllTests {
                 initial.opDerivedException(a, b);
             } catch (DerivedException ex) {
                 test(ex.getA() == 30);
-                test(ex.getB().equals("test2"));
-                test(ex.getSs().equals("test2"));
-                test(ex.d1.equals("d1"));
-                test(ex.d2.equals("d2"));
+                test("test2".equals(ex.getB()));
+                test("test2".equals(ex.getSs()));
+                test("d1".equals(ex.d1));
+                test("d2".equals(ex.d2));
             } catch (OptionalException ex) {
                 test(false);
             }
@@ -1720,7 +1720,7 @@ public class AllTests {
             } catch (RequiredException ex) {
                 test(!ex.hasA());
                 test(!ex.hasB());
-                test(ex.ss.equals("test"));
+                test("test".equals(ex.ss));
             } catch (OptionalException ex) {
                 test(false);
             }
@@ -1731,8 +1731,8 @@ public class AllTests {
                 initial.opRequiredException(a, b);
             } catch (RequiredException ex) {
                 test(ex.getA() == 30);
-                test(ex.getB().equals("test2"));
-                test(ex.ss.equals("test2"));
+                test("test2".equals(ex.getB()));
+                test("test2".equals(ex.ss));
             } catch (OptionalException ex) {
                 test(false);
             }
@@ -1761,8 +1761,8 @@ public class AllTests {
                 String[] p1 = {"hello"};
                 result = initial.opMSeq2(Optional.of(p1));
                 test(
-                        java.util.Arrays.equals(result.p2.get(), p1)
-                                && java.util.Arrays.equals(result.returnValue.get(), p1));
+                        java.util.Arrays.equals(result.p2.get(), p1) &&
+                                java.util.Arrays.equals(result.returnValue.get(), p1));
             }
             {
                 Initial.OpMDict2Result result = initial.opMDict2(Optional.empty());
@@ -1790,7 +1790,7 @@ public class AllTests {
 
         @Override
         public void _iceWrite(OutputStream out) {
-            assert (false);
+            assert false;
         }
     }
 
@@ -1811,7 +1811,7 @@ public class AllTests {
 
         @Override
         public void _iceWrite(OutputStream out) {
-            assert (false);
+            assert false;
         }
     }
 
@@ -1835,14 +1835,14 @@ public class AllTests {
 
         @Override
         public void _iceWrite(OutputStream out) {
-            assert (false);
+            assert false;
         }
     }
 
     private static class DObjectWriter extends com.zeroc.Ice.Value {
         @Override
         public void _iceRead(InputStream in) {
-            assert (false);
+            assert false;
         }
 
         @Override
@@ -1880,14 +1880,14 @@ public class AllTests {
             // ::Test::D
             in.startSlice();
             String s = in.readString();
-            test(s.equals("test"));
+            test("test".equals(s));
             String[] o = in.readStringSeq(1).get();
             test(
-                    o.length == 4
-                            && o[0].equals("test1")
-                            && o[1].equals("test2")
-                            && o[2].equals("test3")
-                            && o[3].equals("test4"));
+                    o.length == 4 &&
+                            "test1".equals(o[0]) &&
+                            "test2".equals(o[1]) &&
+                            "test3".equals(o[2]) &&
+                            "test4".equals(o[3]));
             in.readValue(v -> a.value = v, A.class);
             in.endSlice();
             // ::Test::B
@@ -1903,7 +1903,7 @@ public class AllTests {
 
         @Override
         public void _iceWrite(OutputStream out) {
-            assert (false);
+            assert false;
         }
 
         void check() {
@@ -1930,7 +1930,7 @@ public class AllTests {
 
         @Override
         public void _iceWrite(OutputStream out) {
-            assert (false);
+            assert false;
         }
 
         F getF() {
@@ -1955,9 +1955,9 @@ public class AllTests {
                 return new BObjectReader();
             } else if (typeId.equals(C.ice_staticId())) {
                 return new CObjectReader();
-            } else if (typeId.equals("::Test::D")) {
+            } else if ("::Test::D".equals(typeId)) {
                 return new DObjectReader();
-            } else if (typeId.equals("::Test::F")) {
+            } else if ("::Test::F".equals(typeId)) {
                 return new FObjectReader();
             }
 
@@ -1969,5 +1969,8 @@ public class AllTests {
         }
 
         private boolean _enabled;
+    }
+
+    private AllTests() {
     }
 }

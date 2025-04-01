@@ -83,7 +83,7 @@ public class Observer<T extends Metrics> extends StopWatch
             obsv.init(helper, metricsObjects, null);
             return obsv;
         } catch (Exception ex) {
-            assert (false);
+            assert false;
             return null;
         }
     }
@@ -98,5 +98,5 @@ public class Observer<T extends Metrics> extends StopWatch
     }
 
     private java.util.List<MetricsMap<T>.Entry> _objects;
-    private long _previousDelay = 0;
+    private long _previousDelay;
 }

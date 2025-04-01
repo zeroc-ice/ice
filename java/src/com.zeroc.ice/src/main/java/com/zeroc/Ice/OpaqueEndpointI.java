@@ -41,7 +41,7 @@ final class OpaqueEndpointI extends EndpointI {
 
     @Override
     public void streamWriteImpl(OutputStream s) {
-        assert (false);
+        assert false;
     }
 
     //
@@ -267,9 +267,9 @@ final class OpaqueEndpointI extends EndpointI {
                     }
                     if (argument == null) {
                         throw new ParseException(
-                                "no argument provided for -t option in endpoint '"
-                                        + endpoint
-                                        + "'");
+                                "no argument provided for -t option in endpoint '" +
+                                        endpoint +
+                                        "'");
                     }
 
                     int t;
@@ -277,21 +277,21 @@ final class OpaqueEndpointI extends EndpointI {
                         t = Integer.parseInt(argument);
                     } catch (NumberFormatException ex) {
                         throw new ParseException(
-                                "invalid type value '"
-                                        + argument
-                                        + "' in endpoint '"
-                                        + endpoint
-                                        + "'",
+                                "invalid type value '" +
+                                        argument +
+                                        "' in endpoint '" +
+                                        endpoint +
+                                        "'",
                                 ex);
                     }
 
                     if (t < 0 || t > 65535) {
                         throw new ParseException(
-                                "type value '"
-                                        + argument
-                                        + "' out of range in endpoint '"
-                                        + endpoint
-                                        + "'");
+                                "type value '" +
+                                        argument +
+                                        "' out of range in endpoint '" +
+                                        endpoint +
+                                        "'");
                     }
 
                     _type = (short) t;
@@ -306,9 +306,9 @@ final class OpaqueEndpointI extends EndpointI {
                     }
                     if (argument == null) {
                         throw new ParseException(
-                                "no argument provided for -v option in endpoint '"
-                                        + endpoint
-                                        + "'");
+                                "no argument provided for -v option in endpoint '" +
+                                        endpoint +
+                                        "'");
                     }
 
                     try {
@@ -324,20 +324,20 @@ final class OpaqueEndpointI extends EndpointI {
                 {
                     if (argument == null) {
                         throw new ParseException(
-                                "no argument provided for -e option in endpoint '"
-                                        + endpoint
-                                        + "'");
+                                "no argument provided for -e option in endpoint '" +
+                                        endpoint +
+                                        "'");
                     }
 
                     try {
                         _rawEncoding = Util.stringToEncodingVersion(argument);
                     } catch (ParseException ex) {
                         throw new ParseException(
-                                "invalid encoding version '"
-                                        + argument
-                                        + "' in endpoint '"
-                                        + endpoint
-                                        + "'",
+                                "invalid encoding version '" +
+                                        argument +
+                                        "' in endpoint '" +
+                                        endpoint +
+                                        "'",
                                 ex);
                     }
                     return true;

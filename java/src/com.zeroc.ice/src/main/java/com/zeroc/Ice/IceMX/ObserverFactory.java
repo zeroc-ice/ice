@@ -56,7 +56,7 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>> {
         try {
             obsv = cl.getDeclaredConstructor().newInstance();
         } catch (Exception ex) {
-            assert (false);
+            assert false;
             return null;
         }
         obsv.init(helper, metricsObjects, old);

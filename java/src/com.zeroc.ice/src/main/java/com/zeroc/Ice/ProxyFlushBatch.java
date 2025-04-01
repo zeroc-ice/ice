@@ -12,7 +12,7 @@ class ProxyFlushBatch extends ProxyOutgoingAsyncBase<Void> {
 
     @Override
     public boolean completed(InputStream is) {
-        assert (false);
+        assert false;
         return false;
     }
 

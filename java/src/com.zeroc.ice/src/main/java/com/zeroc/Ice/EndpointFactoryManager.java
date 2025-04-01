@@ -16,7 +16,7 @@ final class EndpointFactoryManager {
     public synchronized void add(EndpointFactory factory) {
         for (EndpointFactory f : _factories) {
             if (f.type() == factory.type()) {
-                assert (false);
+                assert false;
             }
         }
         _factories.add(factory);
@@ -39,16 +39,16 @@ final class EndpointFactoryManager {
 
         if (arr.length == 0) {
             throw new ParseException(
-                    "Failed to parse endpoint '"
-                            + str
-                            + "': value has no non-whitespace characters");
+                    "Failed to parse endpoint '" +
+                            str +
+                            "': value has no non-whitespace characters");
         }
 
         java.util.ArrayList<String> v = new java.util.ArrayList<>(java.util.Arrays.asList(arr));
         String protocol = v.get(0);
         v.remove(0);
 
-        if (protocol.equals("default")) {
+        if ("default".equals(protocol)) {
             protocol = _instance.defaultsAndOverrides().defaultProtocol;
         }
 
@@ -64,11 +64,11 @@ final class EndpointFactoryManager {
             EndpointI e = factory.create(v, oaEndpoint);
             if (!v.isEmpty()) {
                 throw new ParseException(
-                        "Failed to parse endpoint '"
-                                + str
-                                + "': unrecognized argument '"
-                                + v.get(0)
-                                + "'");
+                        "Failed to parse endpoint '" +
+                                str +
+                                "': unrecognized argument '" +
+                                v.get(0) +
+                                "'");
             }
             return e;
 
@@ -92,15 +92,15 @@ final class EndpointFactoryManager {
         // If the stringified endpoint is opaque, create an unknown endpoint,
         // then see whether the type matches one of the known endpoints.
         //
-        if (protocol.equals("opaque")) {
+        if ("opaque".equals(protocol)) {
             EndpointI ue = new OpaqueEndpointI(v);
             if (!v.isEmpty()) {
                 throw new ParseException(
-                        "Failed to parse endpoint '"
-                                + str
-                                + "': unrecognized argument '"
-                                + v.get(0)
-                                + "'");
+                        "Failed to parse endpoint '" +
+                                str +
+                                "': unrecognized argument '" +
+                                v.get(0) +
+                                "'");
             }
             factory = get(ue.type());
             if (factory != null) {

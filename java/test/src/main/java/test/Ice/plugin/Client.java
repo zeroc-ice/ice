@@ -18,9 +18,9 @@ public class Client extends test.TestHelper {
             com.zeroc.Ice.Properties properties = createTestProperties(args);
             properties.setProperty(
                     "Ice.Plugin.Test",
-                    jarFile
-                            + ":test.Ice.plugin.plugins.PluginFactory "
-                            + "'C:\\Program Files\\' --DatabasePath 'C:\\Program Files\\Application\\db'");
+                    jarFile +
+                            ":test.Ice.plugin.plugins.PluginFactory " +
+                            "'C:\\Program Files\\' --DatabasePath 'C:\\Program Files\\Application\\db'");
             try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {}
             printWriter.println("ok");
         }
@@ -35,7 +35,7 @@ public class Client extends test.TestHelper {
             try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
                 test(false);
             } catch (com.zeroc.Ice.PluginInitializationException ex) {
-                test(ex.getCause().getMessage().equals("PluginInitializeFailException"));
+                test("PluginInitializeFailException".equals(ex.getCause().getMessage()));
             }
             printWriter.println("ok");
         }
@@ -113,7 +113,7 @@ public class Client extends test.TestHelper {
             try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
                 test(false);
             } catch (com.zeroc.Ice.PluginInitializationException ex) {
-                test(ex.getCause().getMessage().equals("PluginInitializeFailException"));
+                test("PluginInitializeFailException".equals(ex.getCause().getMessage()));
             }
             printWriter.println("ok");
         }
@@ -138,7 +138,7 @@ public class Client extends test.TestHelper {
             _destroyed = true;
         }
 
-        private boolean _initialized = false;
-        private boolean _destroyed = false;
+        private boolean _initialized;
+        private boolean _destroyed;
     }
 }

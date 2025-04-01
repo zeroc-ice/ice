@@ -329,7 +329,7 @@ public class PlatformTests {
         try (var serverCommunicator = com.zeroc.Ice.Util.initialize()) {
             var keyManager = new ReloadableKeyManager(certificatesPath + "/s_rsa_ca1.jks");
             var sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(new KeyManager[] {keyManager}, null, null);
+            sslContext.init(new KeyManager[]{keyManager}, null, null);
             var adapter =
                     serverCommunicator.createObjectAdapterWithEndpoints(
                             "ServerAdapter",
@@ -406,5 +406,8 @@ public class PlatformTests {
         serverRejectsClientUsingTrustStore(helper, certificatesPath);
 
         serverHotCertificateReload(helper, certificatesPath);
+    }
+
+    private PlatformTests() {
     }
 }

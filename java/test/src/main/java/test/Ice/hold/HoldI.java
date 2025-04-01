@@ -87,5 +87,5 @@ public final class HoldI implements Hold {
 
     private final java.util.Timer _timer;
     private final com.zeroc.Ice.ObjectAdapter _adapter;
-    int _last = 0;
+    int _last;
 }
