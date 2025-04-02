@@ -2,20 +2,20 @@
 
 public class Client : Test.TestHelper
 {
-    public sealed class caseI : escaped_abstract.caseDisp_
+    public sealed class caseI : @abstract.caseDisp_
     {
         public override Task<int>
         catchAsync(int @checked, Ice.Current current) => Task<int>.FromResult(0);
     }
 
-    public sealed class decimalI : escaped_abstract.decimalDisp_
+    public sealed class decimalI : @abstract.decimalDisp_
     {
         public override void @default(Ice.Current current)
         {
         }
     }
 
-    public sealed class TotallyDifferentI : escaped_abstract.TotallyDifferentDisp_
+    public sealed class TotallyDifferentI : @abstract.TotallyDifferentDisp_
     {
         public override Task<int>
         catchAsync(int @checked, Ice.Current current) => Task<int>.FromResult(0);
@@ -23,7 +23,7 @@ public class Client : Test.TestHelper
         public override void @default(Ice.Current current) => test(current.operation == "default");
     }
 
-    public sealed class Test1I : escaped_abstract.System.TestDisp_
+    public sealed class Test1I : @abstract.System.TestDisp_
     {
         public override void op(Ice.Current c)
         {
@@ -40,45 +40,45 @@ public class Client : Test.TestHelper
     private static void
     testtypes()
     {
-        escaped_abstract.@as a = escaped_abstract.@as.@base;
-        test(a == escaped_abstract.@as.@base);
-        var b = new escaped_abstract.@break();
+        @abstract.@as a = @abstract.@as.@base;
+        test(a == @abstract.@as.@base);
+        var b = new @abstract.@break();
         b.@readonly = 0;
         test(b.@readonly == 0);
-        escaped_abstract.@case c = new caseI();
+        @abstract.@case c = new caseI();
         test(c != null);
-        escaped_abstract.@casePrx c1 = null;
+        @abstract.@casePrx c1 = null;
         test(c1 == null);
         c1?.@catch(0, out _);
-        escaped_abstract.@decimal d = new decimalI();
+        @abstract.@decimal d = new decimalI();
         test(d != null);
-        escaped_abstract.@decimalPrx d1 = null;
+        @abstract.@decimalPrx d1 = null;
         d1?.@default();
         test(d1 == null);
-        var e = new escaped_abstract.@delegate();
+        var e = new @abstract.@delegate();
         test(e != null);
-        escaped_abstract.@delegate e1 = null;
+        @abstract.@delegate e1 = null;
         test(e1 == null);
-        escaped_abstract.@TotallyDifferentPrx f1 = null;
+        @abstract.@TotallyDifferentPrx f1 = null;
         if (f1 != null)
         {
             f1.@catch(0, out _);
             f1.@default();
         }
         test(f1 == null);
-        var g2 = new Dictionary<string, escaped_abstract.@break>();
+        var g2 = new Dictionary<string, @abstract.@break>();
         test(g2 != null);
-        var h = new escaped_abstract.@fixed();
+        var h = new @abstract.@fixed();
         h.@for = 0;
         test(h != null);
-        var i = new escaped_abstract.@foreach();
+        var i = new @abstract.@foreach();
         i.@for = 0;
         i.@goto = 1;
         i.@if = 2;
         test(i != null);
-        int j = escaped_abstract.@protected.value;
+        int j = @abstract.@protected.value;
         test(j == 0);
-        int k = escaped_abstract.@struct.value;
+        int k = @abstract.@struct.value;
         test(k == 1);
     }
 
@@ -94,15 +94,15 @@ public class Client : Test.TestHelper
 
         Console.Out.Write("testing operation name... ");
         Console.Out.Flush();
-        escaped_abstract.@decimalPrx p =
-            escaped_abstract.@decimalPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test")));
+        @abstract.@decimalPrx p =
+            @abstract.@decimalPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test")));
         p.@default();
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing System as module name... ");
         Console.Out.Flush();
-        escaped_abstract.System.TestPrx t1 =
-            escaped_abstract.System.TestPrxHelper.uncheckedCast(
+        @abstract.System.TestPrx t1 =
+            @abstract.System.TestPrxHelper.uncheckedCast(
                 adapter.createProxy(Ice.Util.stringToIdentity("test1")));
         t1.op();
 

@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
-// TODO replace this with 'ruby:identifier'.
-module EscapedBEGIN
+["ruby:identifier:EscapedBEGIN"]
+module BEGIN
 {
     ["ruby:identifier:END_"]
     enum END

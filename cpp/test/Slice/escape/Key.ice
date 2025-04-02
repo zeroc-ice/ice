@@ -1,8 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
-// TODO figure out how to escape identifiers on modules!
-//["cpp:identifier:escaped_and"] This should be `module and` which is mapped to `escaped_and`.
-module escaped_and
+["cpp:identifier:escaped_and"]
+module and
 {
     ["cpp:identifier:escaped_continue"]
     enum continue
