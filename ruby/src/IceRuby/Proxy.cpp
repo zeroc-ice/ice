@@ -862,10 +862,7 @@ IceRuby_ObjectPrx_new(VALUE self, VALUE communicator, VALUE proxyString)
 extern "C" VALUE
 IceRuby_ObjectPrx_create(VALUE self, VALUE proxy)
 {
-    ICE_RUBY_TRY
-    {
-        return createProxy(getProxy(proxy), self);
-    }
+    ICE_RUBY_TRY { return createProxy(getProxy(proxy), self); }
     ICE_RUBY_CATCH
     return Qnil;
 }
