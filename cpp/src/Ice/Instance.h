@@ -32,6 +32,8 @@
 #include "TraceLevelsF.h"
 
 #include <list>
+#include <thread>
+#include <vector>
 
 namespace IceInternal
 {
@@ -187,6 +189,8 @@ namespace IceInternal
         std::mutex _setBufSizeWarnMutex;
         mutable std::recursive_mutex _mutex;
         std::condition_variable_any _conditionVariable;
+
+        std::vector<std::thread> _destroyThreads;
 
         enum ImplicitContextKind
         {

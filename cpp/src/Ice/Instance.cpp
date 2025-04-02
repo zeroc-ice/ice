@@ -1311,6 +1311,20 @@ IceInternal::Instance::~Instance()
     assert(!_endpointFactoryManager);
     assert(!_pluginManager);
 
+    // Join all the destroy threads.
+    for (auto& thread : _destroyThreads)
+    {
+        if (thread.get_id() == std::this_thread::get_id()) // completed may release the last ref-count
+        {
+            // Detach to avoid a deadlock.
+            thread.detach();
+        }
+        else
+        {
+            thread.join();
+        }
+    }
+
     lock_guard lock(staticMutex);
     if (instanceList != nullptr)
     {
@@ -1748,13 +1762,13 @@ IceInternal::Instance::destroyAsync(function<void()> completed) noexcept
         }
         else
         {
-            // Start a background thread that calls destroy() and then executes the callback.
-            std::thread destroyThread{[self = shared_from_this(), completed = std::move(completed)]()
-                                      {
-                                          self->destroy();
-                                          completed();
-                                      }};
-            destroyThread.detach();
+            // Start a thread that calls destroy() and then executes the callback.
+            // We join these threads in the destructor. It's important to capture this and not shared_from_this() here.
+            _destroyThreads.emplace_back(std::thread{[this, completed = std::move(completed)]()
+                                                     {
+                                                         this->destroy();
+                                                         completed();
+                                                     }});
         }
     }
 
