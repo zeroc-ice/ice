@@ -23,7 +23,7 @@ public class Client : TestHelper
         // send() blocking after sending a given amount of data.
         //
         properties.setProperty("Ice.TCP.SndSize", "50000");
-        using var communicator = initialize(properties);
+        await using var communicator = initialize(properties);
         await AllTests.allTestsAsync(this, false);
     }
 
