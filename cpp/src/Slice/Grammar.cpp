@@ -3138,7 +3138,7 @@ yyreduce:
             else
             {
                 cont->checkIntroduced(scoped->v);
-                intfs->v.push_front(def);
+                intfs->v.push_back(def);
             }
         }
     }
@@ -3177,7 +3177,7 @@ yyreduce:
             else
             {
                 cont->checkIntroduced(scoped->v);
-                intfs->v.push_front(def);
+                intfs->v.push_back(def);
             }
         }
     }
@@ -3260,7 +3260,7 @@ yyreduce:
 {
     auto exceptionList = dynamic_pointer_cast<ExceptionListTok>(yyvsp[-2]);
     auto exception = dynamic_pointer_cast<Exception>(yyvsp[0]);
-    exceptionList->v.push_front(exception);
+    exceptionList->v.push_back(exception);
     yyval = exceptionList;
 }
 #line 3267 "src/Slice/Grammar.cpp"
@@ -3271,7 +3271,7 @@ yyreduce:
 {
     auto exceptionList = make_shared<ExceptionListTok>();
     auto exception = dynamic_pointer_cast<Exception>(yyvsp[0]);
-    exceptionList->v.push_front(exception);
+    exceptionList->v.push_back(exception);
     yyval = exceptionList;
 }
 #line 3278 "src/Slice/Grammar.cpp"
@@ -3460,7 +3460,7 @@ yyreduce:
     {
         enumerator->appendMetadata(std::move(metadata->v));
     }
-    enumeratorList->v.push_front(enumerator);
+    enumeratorList->v.push_back(enumerator);
     yyval = enumeratorList;
 }
 #line 3467 "src/Slice/Grammar.cpp"
@@ -3476,7 +3476,7 @@ yyreduce:
     {
         enumerator->appendMetadata(std::move(metadata->v));
     }
-    enumeratorList->v.push_front(enumerator);
+    enumeratorList->v.push_back(enumerator);
     yyval = enumeratorList;
 }
 #line 3483 "src/Slice/Grammar.cpp"

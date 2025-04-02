@@ -1396,7 +1396,7 @@ interface_list
             else
             {
                 cont->checkIntroduced(scoped->v);
-                intfs->v.push_front(def);
+                intfs->v.push_back(def);
             }
         }
     }
@@ -1431,7 +1431,7 @@ interface_list
             else
             {
                 cont->checkIntroduced(scoped->v);
-                intfs->v.push_front(def);
+                intfs->v.push_back(def);
             }
         }
     }
@@ -1493,14 +1493,14 @@ exception_list
 {
     auto exceptionList = dynamic_pointer_cast<ExceptionListTok>($1);
     auto exception = dynamic_pointer_cast<Exception>($3);
-    exceptionList->v.push_front(exception);
+    exceptionList->v.push_back(exception);
     $$ = exceptionList;
 }
 | exception
 {
     auto exceptionList = make_shared<ExceptionListTok>();
     auto exception = dynamic_pointer_cast<Exception>($1);
-    exceptionList->v.push_front(exception);
+    exceptionList->v.push_back(exception);
     $$ = exceptionList;
 }
 ;
@@ -1666,7 +1666,7 @@ enumerator_list
     {
         enumerator->appendMetadata(std::move(metadata->v));
     }
-    enumeratorList->v.push_front(enumerator);
+    enumeratorList->v.push_back(enumerator);
     $$ = enumeratorList;
 }
 | metadata enumerator
@@ -1678,7 +1678,7 @@ enumerator_list
     {
         enumerator->appendMetadata(std::move(metadata->v));
     }
-    enumeratorList->v.push_front(enumerator);
+    enumeratorList->v.push_back(enumerator);
     $$ = enumeratorList;
 }
 ;
