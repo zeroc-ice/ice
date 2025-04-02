@@ -35,8 +35,8 @@
    especially those whose name start with YY_ or yy_.  They are
    private implementation details that can be changed or removed.  */
 
-#ifndef YY_SLICE_SRC_SLICE_GRAMMAR_H_INCLUDED
-# define YY_SLICE_SRC_SLICE_GRAMMAR_H_INCLUDED
+#ifndef YY_SLICE_CPP_SRC_SLICE_GRAMMAR_H_INCLUDED
+# define YY_SLICE_CPP_SRC_SLICE_GRAMMAR_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 1
@@ -45,7 +45,7 @@
 extern int slice_debug;
 #endif
 /* "%code requires" blocks.  */
-#line 9 "src/Slice/Grammar.y"
+#line 9 "cpp/src/Slice/Grammar.y"
 
 
 // Included first to get 'TokenContext' which we need to define YYLTYPE before flex does.
@@ -63,7 +63,7 @@ extern int slice_debug;
 #define yyoverflow(a, b, c, d, e, f, g, h) yyerror(a)
 
 
-#line 67 "src/Slice/Grammar.h"
+#line 67 "cpp/src/Slice/Grammar.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
@@ -134,4 +134,4 @@ typedef Slice::TokenContext YYLTYPE;
 int slice_parse (void);
 
 
-#endif /* !YY_SLICE_SRC_SLICE_GRAMMAR_H_INCLUDED  */
+#endif /* !YY_SLICE_CPP_SRC_SLICE_GRAMMAR_H_INCLUDED  */
