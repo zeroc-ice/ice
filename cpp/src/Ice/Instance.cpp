@@ -1764,11 +1764,12 @@ IceInternal::Instance::destroyAsync(function<void()> completed) noexcept
         {
             // Start a thread that calls destroy() and then executes the callback.
             // We join these threads in the destructor. It's important to capture this and not shared_from_this() here.
-            _destroyThreads.emplace_back(std::thread{[this, completed = std::move(completed)]()
-                                                     {
-                                                         this->destroy();
-                                                         completed();
-                                                     }});
+            _destroyThreads.emplace_back(
+                [this, completed = std::move(completed)]()
+                {
+                    this->destroy();
+                    completed();
+                });
         }
     }
 
