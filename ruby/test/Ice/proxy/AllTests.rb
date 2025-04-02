@@ -593,7 +593,7 @@ def allTests(helper, communicator)
     test(derived == base)
     test(cl == derived)
     begin
-        Test::MyDerivedClassPrx.checkedCast(cl, "facet")
+        Test::MyDerivedClassPrx.checkedCast(cl, facet: "facet")
         test(false)
     rescue Ice::FacetNotExistException
     end
@@ -622,7 +622,7 @@ def allTests(helper, communicator)
     c = { }
     c["one"] = "hello"
     c["two"] =  "world"
-    tccp = Test::MyClassPrx.checkedCast(base, c)
+    tccp = Test::MyClassPrx.checkedCast(base, context: c)
     c2 = tccp.getContext()
     test(c == c2)
     puts "ok"
