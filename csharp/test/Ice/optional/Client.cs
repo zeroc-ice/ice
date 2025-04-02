@@ -10,7 +10,7 @@ public class Client : TestHelper
     {
         var initData = new InitializationData();
         initData.properties = createTestProperties(ref args);
-        using var communicator = initialize(initData);
+        await using var communicator = initialize(initData);
         var initial = await AllTests.allTests(this);
         initial.shutdown();
     }

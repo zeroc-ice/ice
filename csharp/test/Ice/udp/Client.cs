@@ -9,7 +9,7 @@ public class Client : global::Test.TestHelper
         var properties = createTestProperties(ref args);
         properties.setProperty("Ice.Warn.Connections", "0");
         properties.setProperty("Ice.UDP.SndSize", "16384");
-        using var communicator = initialize(properties);
+        await using var communicator = initialize(properties);
 
         await AllTests.allTests(this);
 

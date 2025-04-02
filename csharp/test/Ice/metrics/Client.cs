@@ -25,7 +25,7 @@ public class Client : Test.TestHelper
         // speed up connection establishment test
         initData.properties.setProperty("Ice.Connection.Client.ConnectTimeout", "1");
 
-        using var communicator = initialize(initData);
+        await using var communicator = initialize(initData);
         Test.MetricsPrx metrics = await AllTests.allTests(this, observer);
         metrics.shutdown();
     }

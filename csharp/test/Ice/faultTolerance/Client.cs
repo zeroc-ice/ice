@@ -14,7 +14,7 @@ public class Client : Test.TestHelper
     {
         Ice.Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.Warn.Connections", "0");
-        using var communicator = initialize(properties);
+        await using var communicator = initialize(properties);
         var ports = args.Select(v => int.Parse(v)).ToList();
         if (ports.Count == 0)
         {

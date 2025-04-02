@@ -13,7 +13,7 @@ public class Collocated : TestHelper
         properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
         properties.setProperty("Ice.Warn.Dispatch", "0");
 
-        using var communicator = initialize(properties);
+        await using var communicator = initialize(properties);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         var adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
