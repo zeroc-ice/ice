@@ -124,7 +124,8 @@ namespace IceInternal
         Instance(Ice::InitializationData);
         void initialize(const Ice::CommunicatorPtr&);
         void finishSetup(int&, const char*[], const Ice::CommunicatorPtr&);
-        void destroy();
+        void destroy() noexcept;
+        void destroyAsync(std::function<void()> completed) noexcept;
 
         friend class Ice::Communicator;
 

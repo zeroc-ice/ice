@@ -1555,7 +1555,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 }
 
 void
-IceInternal::Instance::destroy()
+IceInternal::Instance::destroy() noexcept
 {
     {
         unique_lock lock(_mutex);
@@ -1731,6 +1731,36 @@ IceInternal::Instance::destroy()
 
         _state = StateDestroyed;
         _conditionVariable.notify_all();
+    }
+}
+
+void
+IceInternal::Instance::destroyAsync(function<void()> completed) noexcept
+{
+    assert(completed); // the caller (Communicator) makes sure completed is callable.
+
+    bool executeCallback = false;
+    {
+        lock_guard lock(_mutex);
+        if (_state == StateDestroyed)
+        {
+            executeCallback = true; // execute outside the lock
+        }
+        else
+        {
+            // Start a background thread that calls destroy() and then executes the callback.
+            std::thread destroyThread{[self = shared_from_this(), completed = std::move(completed)]()
+                                      {
+                                          self->destroy();
+                                          completed();
+                                      }};
+            destroyThread.detach();
+        }
+    }
+
+    if (executeCallback)
+    {
+        completed();
     }
 }
 
