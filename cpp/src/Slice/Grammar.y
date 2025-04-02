@@ -1646,7 +1646,7 @@ enumerators
 : enumerator_list
 | enumerator_list ','
 {
-    $$ = $1
+    $$ = $1;
 }
 | %empty
 {
@@ -1657,7 +1657,7 @@ enumerators
 // ----------------------------------------------------------------------
 enumerator_list
 // ----------------------------------------------------------------------
-: enumerator_list ',' metadata enumerator ','
+: enumerator_list ',' metadata enumerator
 {
     auto enumeratorList = dynamic_pointer_cast<EnumeratorListTok>($1);
     auto metadata = dynamic_pointer_cast<MetadataListTok>($3);
