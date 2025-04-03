@@ -29,11 +29,18 @@ namespace Ice
     public:
         ~Communicator();
 
-        /// Destroys the communicator. This function calls #shutdown implicitly. Calling #destroy destroys all object
-        /// adapters, shuts down this communicator's client functionality, and cleans up memory. Subsequent calls to
-        /// #destroy are no-op.
+        /// Destroys this communicator. This function calls #shutdown implicitly. Calling #destroy destroys all object
+        /// adapters, shuts down this communicator's client functionality, and cleans up memory.
         /// @see CommunicatorHolder
         void destroy() noexcept;
+
+        /// Destroys this communicator asynchronously.
+        /// @param completed The callback to call when the destruction is complete. This callback must not throw any
+        /// exception.
+        /// @remark This function starts a thread to call @p completed unless you call this function on a communicator
+        /// that has already been destroyed, in which case @p completed is called by the current thread.
+        /// @see #destroy
+        void destroyAsync(std::function<void()> completed) noexcept;
 
         /// Shuts down this communicator. This function calls ObjectAdapter::deactivate on all object adapters created
         /// by this communicator. Shutting down a communicator has no effect on outgoing connections.
@@ -314,6 +321,8 @@ namespace Ice
         void postToClientThreadPool(std::function<void()> call);
 
     private:
+        Communicator() = default;
+
         static CommunicatorPtr create(InitializationData);
 
         // Certain initialization tasks need to be completed after the constructor.
