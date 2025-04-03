@@ -22,7 +22,7 @@ class Server(TestHelper):
             initData.properties.setProperty("Ice.Warn.Dispatch", "0")
             initData.eventLoopAdapter = Ice.asyncio.EventLoopAdapter(loop)
 
-            with self.initialize(initData) as communicator:
+            async with self.initialize(initData) as communicator:
                 communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
                 adapter = communicator.createObjectAdapter("TestAdapter")
                 adapter.add(TestI.TestIntfI(), Ice.stringToIdentity("test"))
