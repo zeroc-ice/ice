@@ -45,8 +45,8 @@ namespace Ice
         /// Destroys this communicator asynchronously.
         /// @param completed The callback to call when the destruction is complete. This function must not throw any
         /// exception.
-        /// @remark This function starts a thread to call @p completed unless you call this function on a communicator
-        /// that has already been destroyed, in which case @p completed is called by the current thread.
+        /// @remark This function starts a thread to call #destroy and @p completed unless you call this function on a
+        /// communicator that has already been destroyed, in which case @p completed is called by the current thread.
         /// @see #destroy
         void destroyAsync(std::function<void()> completed) noexcept;
 
