@@ -23,8 +23,9 @@ namespace Ice
     ///   #activate); and
     /// - maintain a dispatch pipeline and servants that handle the requests (see #add, #addDefaultServant, and #use).
     ///
-    /// An object adapter can dispatch "bidir requests"--requests it receives over an outgoing connection instead of a
-    /// more common incoming connection. It can also dispatch collocated requests (with no connection at all).
+    /// An object adapter can dispatch "bidirectional requests"--requests it receives over an outgoing connection
+    /// instead of a more common incoming connection. It can also dispatch collocated requests (with no connection at
+    /// all).
     /// @see Communicator::createObjectAdapter
     /// @headerfile Ice/Ice.h
     class ICE_API ObjectAdapter
@@ -41,7 +42,11 @@ namespace Ice
         [[nodiscard]] virtual CommunicatorPtr getCommunicator() const noexcept = 0;
 
         /// Starts receiving and dispatching requests received over incoming connections.
+        /// @remark When this object adapter is an indirect object adapter configured with a locator proxy, this
+        /// function also registers the object adapter's published endpoints with this locator.
         /// @see #deactivate
+        /// @see #getLocator
+        /// @see #getPublishedEndpoints
         virtual void activate() = 0;
 
         /// Stops reading requests from incoming connections. Outstanding dispatches are not affected. The object
@@ -58,9 +63,9 @@ namespace Ice
 
         /// Deactivates this object adapter: stops accepting new connections from clients and closes gracefully all
         /// incoming connections created by this object adapter once all outstanding dispatches have completed. If this
-        /// object adapter is indirect, this function also unregisters the object adapter from the LocatorPrx.
-        /// This function does not cancel outstanding dispatches--it lets them execute until completion. A new incoming
-        /// request on an existing connection will be accepted and can delay the closure of the connection.
+        /// object adapter is indirect, this function also unregisters the object adapter from the locator
+        /// (see #activate).
+        /// This function does not cancel outstanding dispatches: it lets them execute until completion.
         /// A deactivated object adapter cannot be reactivated again; it can only be destroyed.
         /// @see #waitForDeactivate
         /// @see Communicator#shutdown

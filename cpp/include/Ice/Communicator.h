@@ -20,7 +20,14 @@ namespace Ice
     class LocatorPrx;
     class RouterPrx;
 
-    /// Represents the main entry point into the Ice runtime. You create a communicator with `Ice::initialize`.
+    /// Communicator is the central object in Ice. Its responsibilities include:
+    /// - creating and managing outgoing connections
+    /// - executing callbacks in its client thread pool
+    /// - creating and destroying object adapters
+    /// - loading plug-ins
+    /// - managing properties (configuration), retries, logging, instrumentation, and more.
+    /// You create a communicator with `Ice::initialize`, and it's usually the first object you create when programming
+    /// with Ice. You can create multiple communicators in a single program, but this is not common.
     /// @see ::initialize(int&, const char*[], InitializationData)
     /// @see ::initialize(InitializationData)
     /// @headerfile Ice/Ice.h
@@ -29,13 +36,14 @@ namespace Ice
     public:
         ~Communicator();
 
-        /// Destroys this communicator. This function calls #shutdown implicitly. Calling #destroy destroys all object
-        /// adapters, shuts down this communicator's client functionality, and cleans up memory.
+        /// Destroys this communicator. This function calls #shutdown implicitly. Calling #destroy destroys all
+        /// object adapters, and closes all outgoing connections. `destroy` waits for all outstanding dispatches to
+        /// complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
         /// @see CommunicatorHolder
         void destroy() noexcept;
 
         /// Destroys this communicator asynchronously.
-        /// @param completed The callback to call when the destruction is complete. This callback must not throw any
+        /// @param completed The callback to call when the destruction is complete. This function must not throw any
         /// exception.
         /// @remark This function starts a thread to call @p completed unless you call this function on a communicator
         /// that has already been destroyed, in which case @p completed is called by the current thread.
@@ -48,15 +56,14 @@ namespace Ice
         /// @see ObjectAdapter::deactivate
         void shutdown() noexcept;
 
-        /// Waits for shutdown to complete. In particular, this function waits for all operation dispatches to complete.
-        /// In a client application that does not perform any operation dispatch, this function returns as soon as
-        /// another thread calls #shutdown or #destroy on this communicator.
+        /// Waits for shutdown to complete. This function calls ObjectAdapter::waitForDeactivate on all object adapters
+        /// created by this communicator. In a client application that does not accept incoming connections, this
+        /// function returns as soon as another thread calls #shutdown or #destroy on this communicator.
         /// @see #shutdown
-        /// @see ObjectAdapter::waitForDeactivate
         void waitForShutdown() noexcept;
 
-        /// Waits until the communicator is shut down.
-        /// @param completed The callback to call when the shutdown is complete. This callback must not throw any
+        /// Waits until this communicator is shut down.
+        /// @param completed The callback to call when the shutdown is complete. This function must not throw any
         /// exception.
         /// @remark If you call this function on a communicator that has already been shut down, the callback is called
         /// immediately by the current thread.
@@ -146,7 +153,7 @@ namespace Ice
             std::optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions = std::nullopt);
 
         /// Creates a new object adapter with endpoints. This function sets the property `name.Endpoints`, and then
-        /// calls #createObjectAdapter. It is provided as a convenience function. Calling this operation with an empty
+        /// calls #createObjectAdapter. It is provided as a convenience function. Calling this function with an empty
         /// name will result in a UUID being generated for the name.
         /// @param name The object adapter name.
         /// @param endpoints The endpoints of the object adapter.
@@ -165,8 +172,8 @@ namespace Ice
             std::string_view endpoints,
             std::optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions = std::nullopt);
 
-        /// Creates a new object adapter with a router. This function creates a routed object adapter.
-        /// Calling this function with an empty name will result in a UUID being generated for the name.
+        /// Creates a new object adapter with a router. This function creates a routed object adapter. Calling this
+        /// function with an empty name will result in a UUID being generated for the name.
         /// @param name The object adapter name.
         /// @param rtr The router.
         /// @return The new object adapter.
