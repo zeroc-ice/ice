@@ -19,7 +19,7 @@ public class Collocated : TestHelper
         // This test kills connections, so we don't want warnings.
         //
         initData.properties.setProperty("Ice.Warn.Connections", "0");
-        using var communicator = initialize(initData);
+        await using var communicator = initialize(initData);
         //
         // Configure a second communicator for the invocation timeout
         // + retry test, we need to configure a large retry interval

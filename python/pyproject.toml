@@ -7,12 +7,11 @@ authors = [
 ]
 requires-python = ">=3.12"
 readme = "README.md"
-license = {text = "GPLv2 License"}
+license = "GPL-2.0-only"
 keywords = ["ice", "RPC"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
     "Operating System :: OS Independent",

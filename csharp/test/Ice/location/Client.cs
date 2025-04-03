@@ -10,7 +10,7 @@ public class Client : TestHelper
     {
         Ice.Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.Default.Locator", "locator:" + getTestEndpoint(properties, 0));
-        using var communicator = initialize(properties);
+        await using var communicator = initialize(properties);
         await AllTests.allTests(this);
     }
 

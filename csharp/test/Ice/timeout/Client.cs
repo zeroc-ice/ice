@@ -16,7 +16,7 @@ public class Client : global::Test.TestHelper
         properties.setProperty("Ice.Connection.Client.ConnectTimeout", "1");
         properties.setProperty("Ice.Connection.Client.CloseTimeout", "1");
 
-        using var communicator = initialize(properties);
+        await using var communicator = initialize(properties);
         await AllTests.allTests(this);
     }
 

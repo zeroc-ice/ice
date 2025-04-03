@@ -23,6 +23,7 @@ require_relative 'Ice/ToStringMode.rb'
 require_relative 'Ice/Version.rb'
 
 # Files that define proxies must be last.
+require_relative 'Ice/ProxyFunctions.rb'
 require_relative 'Ice/Locator.rb'
 require_relative 'Ice/LocatorRegistry.rb'
 require_relative 'Ice/Metrics.rb'

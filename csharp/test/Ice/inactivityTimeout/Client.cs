@@ -12,7 +12,7 @@ public class Client : global::Test.TestHelper
         // heartbeats that schedules the inactivity timer task.
         properties.setProperty("Ice.Connection.Client.IdleTimeout", "1");
         properties.setProperty("Ice.Connection.Client.InactivityTimeout", "3");
-        using var communicator = initialize(properties);
+        await using var communicator = initialize(properties);
         await AllTests.allTests(this);
     }
 

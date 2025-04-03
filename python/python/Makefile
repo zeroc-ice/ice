@@ -15,6 +15,10 @@ $(eval $(call load-translator-dependencies,$(top_srcdir)/cpp/src/slice2py))
 
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,Ice,--no-package))
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceMX))
+$(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,Glacier2))
+$(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceBox))
+$(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceGrid))
+$(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceStorm))
 
 # Generate this file individually without the --no-package option to ensure the
 # IceMX package is updated.
