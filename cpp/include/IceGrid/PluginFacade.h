@@ -18,11 +18,11 @@ namespace IceGrid
     public:
         virtual ~ReplicaGroupFilter() = default;
 
-        /// Filter the given set of adapters.
+        /// Filters adapter IDs.
         /// @param replicaGroupId The replica group ID.
-        /// @param adapterIds The adpater IDs to filter.
+        /// @param adapterIds The adapter IDs to filter.
         /// @param con The connection from the Ice client which is resolving the replica group endpoints.
-        /// @param ctx The context from the Ice client which is resolving the replica group endpoints.
+        /// @param ctx The request context from the Ice client which is resolving the replica group endpoints.
         /// @return The filtered adapter IDs.
         virtual Ice::StringSeq filter(
             const std::string& replicaGroupId,
@@ -40,7 +40,7 @@ namespace IceGrid
     public:
         virtual ~TypeFilter() = default;
 
-        /// Filter the given set of proxies.
+        /// Filters the given set of proxies.
         /// @param type The type.
         /// @param proxies The proxies to filter.
         /// @param con The connection from the Ice client which is looking up well-known objects by type.
@@ -62,40 +62,40 @@ namespace IceGrid
     public:
         virtual ~RegistryPluginFacade();
 
-        /// Get an application descriptor.
+        /// Gets an application descriptor.
         /// @param name The application name.
         /// @return The application descriptor.
         /// @throws IceGrid::ApplicationNotExistException Thrown when the application doesn't exist.
         [[nodiscard]] virtual ApplicationInfo getApplicationInfo(const std::string& name) const = 0;
 
-        /// Get the server information for the server with the given id.
+        /// Gets the server information for the server with the given id.
         /// @param id The server id.
         /// @return The server information.
         /// @throws IceGrid::ServerNotExistException Thrown when the server doesn't exist.
         [[nodiscard]] virtual ServerInfo getServerInfo(const std::string& id) const = 0;
 
-        /// Get the ID of the server to which the given adapter belongs.
+        /// Gets the ID of the server to which the given adapter belongs.
         /// @param adapterId The adapter ID.
         /// @return The server ID or the empty string if the given identifier is not associated to an object adapter
         /// defined with an application descriptor.
         /// @throws IceGrid::AdapterNotExistException Thrown when the adapter doesn't exist.
         [[nodiscard]] virtual std::string getAdapterServer(const std::string& adapterId) const = 0;
 
-        /// Get the name of the application to which the given adapter belongs.
+        /// Gets the name of the application to which the given adapter belongs.
         /// @param adapterId The adapter ID.
         /// @return The application name or the empty string if the given identifier is not associated to a replica
         /// group or object adapter defined with an application descriptor.
         /// @throws IceGrid::AdapterNotExistException Thrown when the adapter doesn't exist.
         [[nodiscard]] virtual std::string getAdapterApplication(const std::string& adapterId) const = 0;
 
-        /// Get the name of the node to which the given adapter belongs.
+        /// Gets the name of the node to which the given adapter belongs.
         /// @param adapterId The adapter ID.
         /// @return The node name or the empty string if the given identifier is not associated to an object adapter
         /// defined with an application descriptor.
         /// @throws IceGrid::AdapterNotExistException Thrown when the adapter doesn't exist.
         [[nodiscard]] virtual std::string getAdapterNode(const std::string& adapterId) const = 0;
 
-        /// Get the adapter information for the replica group or adapter with the given id.
+        /// Gets the adapter information for the replica group or adapter with the given id.
         /// @param id The adapter id.
         /// @return A sequence of adapter information structures. If the given id refers to an adapter, this sequence
         /// will contain only one element. If the given id refers to a replica group, the sequence will contain the
@@ -103,27 +103,27 @@ namespace IceGrid
         /// @throws IceGrid::AdapterNotExistException Thrown when the adapter or replica group doesn't exist.
         [[nodiscard]] virtual AdapterInfoSeq getAdapterInfo(const std::string& id) const = 0;
 
-        /// Get the object info for the object with the given identity.
+        /// Gets the object info for the object with the given identity.
         /// @param id The identity of the object.
         /// @return The object info.
         /// @throws IceGrid::ObjectNotRegisteredException Thrown when the object isn't registered with the registry.
         [[nodiscard]] virtual ObjectInfo getObjectInfo(const Ice::Identity& id) const = 0;
 
-        /// Get the node information for the node with the given name.
+        /// Gets the node information for the node with the given name.
         /// @param name The node name.
         /// @return The node information.
         /// @throws IceGrid::NodeNotExistException Thrown when the node doesn't exist.
         /// @throws IceGrid::NodeUnreachableException Thrown when the node could not be reached.
         [[nodiscard]] virtual NodeInfo getNodeInfo(const std::string& name) const = 0;
 
-        /// Get the load averages of the node.
+        /// Gets the load averages of the node.
         /// @param name The node name.
         /// @return The node load information.
         /// @throws IceGrid::NodeNotExistException Thrown when the node doesn't exist.
         /// @throws IceGrid::NodeUnreachableException Thrown when the node could not be reached.
         [[nodiscard]] virtual LoadInfo getNodeLoad(const std::string& name) const = 0;
 
-        /// Get the property value for the given property and adapter. The property is looked up in the server or
+        /// Gets the property value for the given property and adapter. The property is looked up in the server or
         /// service descriptor where the adapter is defined.
         /// @param adapterId The adapter ID
         /// @param name The name of the property.
@@ -132,7 +132,7 @@ namespace IceGrid
         [[nodiscard]] virtual std::string
         getPropertyForAdapter(const std::string& adapterId, const std::string& name) const = 0;
 
-        /// Add a replica group filter.
+        /// Adds a replica group filter.
         /// @param id The identifier of the filter. This identifier must match the value of the "filter" attribute
         /// specified in the replica group descriptor. To filter dynamically registered replica groups, you should use
         /// the empty filter id.
@@ -140,19 +140,19 @@ namespace IceGrid
         virtual void
         addReplicaGroupFilter(const std::string& id, const std::shared_ptr<ReplicaGroupFilter>& filter) noexcept = 0;
 
-        /// Remove a replica group filter.
+        /// Removes a replica group filter.
         /// @param id The identifier of the filter.
         /// @param filter The filter implementation.
         /// @return `true` of the filter was removed, `false` otherwise.
         virtual bool
         removeReplicaGroupFilter(const std::string& id, const std::shared_ptr<ReplicaGroupFilter>& filter) noexcept = 0;
 
-        /// Add a type filter.
+        /// Adds a type filter.
         /// @param type The type to register this filter with.
         /// @param filter The filter implementation.
         virtual void addTypeFilter(const std::string& type, const std::shared_ptr<TypeFilter>& filter) noexcept = 0;
 
-        /// Remove a type filter.
+        /// Removes a type filter.
         /// @param type The type to register this filter with.
         /// @param filter The filter implementation.
         /// @return `true` of the filter was removed, `false` otherwise.
