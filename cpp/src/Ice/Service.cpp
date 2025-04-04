@@ -418,13 +418,7 @@ namespace
 Ice::Service::Service()
 {
     assert(_instance == nullptr);
-    _nohup = true;
-    _service = false;
     _instance = this;
-#ifndef _WIN32
-    _changeDirectory = true;
-    _closeFiles = true;
-#endif
 }
 
 Ice::Service::~Service()
