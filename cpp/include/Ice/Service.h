@@ -29,6 +29,7 @@ namespace Ice
         virtual bool shutdown();
 
         /// Notifies the service that the program received a signal. The default implementation calls #shutdown.
+        /// @see Ice::CtrlCHandler
         virtual void interrupt();
 
         /// The primary entry point for services. This function examines @p argv for reserved options and takes the
@@ -131,7 +132,7 @@ namespace Ice
         /// Prepares a service for execution, including the creation and activation of object adapters and servants.
         /// @param argc The number of arguments in @p argv.
         /// @param argv The command-line arguments.
-        /// @param status The exit status, which is returned by #main.
+        /// @param[out] status The exit status, which is returned by #main when `start` or `stop` returns `false`.
         /// @return `true` if startup was successful, `false` otherwise.
         virtual bool start(int argc, char* argv[], int& status) = 0;
 
