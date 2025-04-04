@@ -60,7 +60,7 @@ namespace IceGrid
     class RegistryPluginFacade
     {
     public:
-        virtual ~RegistryPluginFacade() = default;
+        virtual ~RegistryPluginFacade();
 
         /// Get an application descriptor.
         /// @param name The application name.

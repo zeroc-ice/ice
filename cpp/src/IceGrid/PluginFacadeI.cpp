@@ -38,6 +38,9 @@ namespace
     }
 }
 
+// The plugin facade is constructed and destroyed by the IceGrid registry, never a plugin.
+RegistryPluginFacade::~RegistryPluginFacade() = default;
+
 ApplicationInfo
 RegistryPluginFacadeI::getApplicationInfo(const string& name) const
 {
