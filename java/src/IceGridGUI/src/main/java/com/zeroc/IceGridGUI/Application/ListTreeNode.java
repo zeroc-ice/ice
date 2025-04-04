@@ -108,7 +108,7 @@ abstract class ListTreeNode extends TreeNode {
         int index = getIndex(child);
         _children.remove(child);
 
-        getRoot().getTreeModel().nodesWereRemoved(this, new int[] {index}, new Object[] {child});
+        getRoot().getTreeModel().nodesWereRemoved(this, new int[]{index}, new Object[]{child});
         return index;
     }
 

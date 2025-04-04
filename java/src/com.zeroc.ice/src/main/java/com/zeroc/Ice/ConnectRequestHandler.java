@@ -39,7 +39,7 @@ final class ConnectRequestHandler
                     }
                 }
                 // The request has to be queued if it timed out and we're not initialized yet.
-                assert (false);
+                assert false;
             }
         }
         _connection.asyncRequestCanceled(outAsync, ex);
@@ -185,9 +185,9 @@ final class ConnectRequestHandler
         LocalException exception = null;
         for (ProxyOutgoingAsyncBase outAsync : _requests) {
             try {
-                if ((outAsync.invokeRemote(_connection, _compress, _response)
-                                & AsyncStatus.InvokeSentCallback)
-                        > 0) {
+                if ((outAsync.invokeRemote(_connection, _compress, _response) &
+                                AsyncStatus.InvokeSentCallback) >
+                        0) {
                     outAsync.invokeSentAsync();
                 }
             } catch (RetryException ex) {

@@ -119,20 +119,20 @@ final class Protocol {
     public static void checkSupportedProtocolEncoding(EncodingVersion v) {
         if (v.major != currentProtocolEncoding.major || v.minor > currentProtocolEncoding.minor) {
             throw new MarshalException(
-                    "This Ice runtime does not support encoding version "
-                            + v.major
-                            + "."
-                            + v.minor);
+                    "This Ice runtime does not support encoding version " +
+                            v.major +
+                            "." +
+                            v.minor);
         }
     }
 
     public static void checkSupportedEncoding(EncodingVersion v) {
         if (v.major != currentEncoding.major || v.minor > currentEncoding.minor) {
             throw new MarshalException(
-                    "This Ice runtime does not support encoding version "
-                            + v.major
-                            + "."
-                            + v.minor);
+                    "This Ice runtime does not support encoding version " +
+                            v.major +
+                            "." +
+                            v.minor);
         }
     }
 
@@ -185,4 +185,7 @@ final class Protocol {
     public static final byte FLAG_HAS_INDIRECTION_TABLE = (byte) (1 << 3);
     public static final byte FLAG_HAS_SLICE_SIZE = (byte) (1 << 4);
     public static final byte FLAG_IS_LAST_SLICE = (byte) (1 << 5);
+
+    private Protocol() {
+    }
 }

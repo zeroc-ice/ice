@@ -102,9 +102,9 @@ final class CollocatedRequestHandler implements RequestHandler {
 
             outAsync.attachCollocatedObserver(_adapter, requestId);
 
-            if (!sync
-                    || !_response
-                    || _reference.getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
+            if (!sync ||
+                    !_response ||
+                    _reference.getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
                 _adapter.getThreadPool()
                         .dispatch(
                                 new InvokeAllAsync(

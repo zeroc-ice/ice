@@ -118,7 +118,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                             addConnectionAttributes(this, ConnectionHelper.class);
                         } catch (Exception ex) {
                             ex.printStackTrace();
-                            assert (false);
+                            assert false;
                         }
                     }
                 };
@@ -162,7 +162,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                 case ConnectionStateClosed:
                     return "closed";
                 default:
-                    assert (false);
+                    assert false;
                     return "";
             }
         }
@@ -234,7 +234,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                             add("mode", cl.getDeclaredMethod("getMode"));
                         } catch (Exception ex) {
                             ex.printStackTrace();
-                            assert (false);
+                            assert false;
                         }
                     }
                 };
@@ -346,7 +346,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                             add("proxy", cl.getDeclaredMethod("getProxy"));
                         } catch (Exception ex) {
                             ex.printStackTrace();
-                            assert (false);
+                            assert false;
                         }
                     }
                 };
@@ -400,8 +400,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                                 .append(']');
                     } catch (Exception ex) {
                         // Either a fixed proxy or the communicator is destroyed.
-                        os.append(
-                                _proxy.ice_getCommunicator()
+                        os.append(_proxy.ice_getCommunicator()
                                         .identityToString(_proxy.ice_getIdentity()));
                         os.append(" [").append(_operation).append(']');
                     }
@@ -453,7 +452,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                             add("parent", ThreadHelper.class.getDeclaredField("_parent"));
                             add("id", ThreadHelper.class.getDeclaredField("_id"));
                         } catch (Exception ex) {
-                            assert (false);
+                            assert false;
                         }
                     }
                 };
@@ -497,7 +496,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                             addEndpointAttributes(this, EndpointHelper.class);
                         } catch (Exception ex) {
                             ex.printStackTrace();
-                            assert (false);
+                            assert false;
                         }
                     }
                 };
@@ -576,7 +575,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                     com.zeroc.Ice.IceMX.CollocatedMetrics.class,
                     InvocationMetrics.class.getDeclaredField("collocated"));
         } catch (Exception ex) {
-            assert (false);
+            assert false;
         }
     }
 
@@ -595,8 +594,8 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             } catch (Exception ex) {
                 _metrics.getLogger()
                         .error(
-                                "unexpected exception trying to obtain observer:\n"
-                                        + Ex.toString(ex));
+                                "unexpected exception trying to obtain observer:\n" +
+                                        Ex.toString(ex));
             }
         }
         return null;
@@ -615,8 +614,8 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             } catch (Exception ex) {
                 _metrics.getLogger()
                         .error(
-                                "unexpected exception trying to obtain observer:\n"
-                                        + Ex.toString(ex));
+                                "unexpected exception trying to obtain observer:\n" +
+                                        Ex.toString(ex));
             }
         }
         return null;
@@ -629,8 +628,8 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             try {
                 ConnectionObserver delegate = null;
                 ConnectionObserverI o =
-                        observer instanceof ConnectionObserverI
-                                ? (ConnectionObserverI) observer
+                        observer instanceof ConnectionObserverI ?
+                                (ConnectionObserverI) observer
                                 : null;
                 if (_delegate != null) {
                     delegate =
@@ -642,8 +641,8 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             } catch (Exception ex) {
                 _metrics.getLogger()
                         .error(
-                                "unexpected exception trying to obtain observer:\n"
-                                        + Ex.toString(ex));
+                                "unexpected exception trying to obtain observer:\n" +
+                                        Ex.toString(ex));
             }
         }
         return null;
@@ -667,8 +666,8 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             } catch (Exception ex) {
                 _metrics.getLogger()
                         .error(
-                                "unexpected exception trying to obtain observer:\n"
-                                        + Ex.toString(ex));
+                                "unexpected exception trying to obtain observer:\n" +
+                                        Ex.toString(ex));
             }
         }
         return null;
@@ -692,8 +691,8 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             } catch (Exception ex) {
                 _metrics.getLogger()
                         .error(
-                                "unexpected exception trying to obtain observer:\n"
-                                        + Ex.toString(ex));
+                                "unexpected exception trying to obtain observer:\n" +
+                                        Ex.toString(ex));
             }
         }
         return null;
@@ -712,8 +711,8 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             } catch (Exception ex) {
                 _metrics.getLogger()
                         .error(
-                                "unexpected exception trying to obtain observer:\n"
-                                        + Ex.toString(ex));
+                                "unexpected exception trying to obtain observer:\n" +
+                                        Ex.toString(ex));
             }
         }
         return null;

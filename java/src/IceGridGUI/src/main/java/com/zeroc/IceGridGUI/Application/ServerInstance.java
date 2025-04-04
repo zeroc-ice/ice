@@ -32,10 +32,10 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
         actions[COPY] = !_ephemeral;
 
         Object clipboard = getCoordinator().getClipboard();
-        if (clipboard != null
-                && (clipboard instanceof ServerDescriptor
-                        || clipboard instanceof ServerInstanceDescriptor
-                        || (_isIceBox && clipboard instanceof PropertySetDescriptor))) {
+        if (clipboard != null &&
+                (clipboard instanceof ServerDescriptor ||
+                        clipboard instanceof ServerInstanceDescriptor ||
+                        (_isIceBox && clipboard instanceof PropertySetDescriptor))) {
             actions[PASTE] = true;
         }
 
@@ -200,9 +200,9 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
                             _descriptor.parameterValues, templateDescriptor.parameters);
             attributes.addFirst(createAttribute("template", _descriptor.template));
 
-            if (_descriptor.propertySet.references.length == 0
-                    && _descriptor.propertySet.properties.isEmpty()
-                    && _children.isEmpty()) {
+            if (_descriptor.propertySet.references.length == 0 &&
+                    _descriptor.propertySet.properties.isEmpty() &&
+                    _children.isEmpty()) {
                 writer.writeElement("server-instance", attributes);
             } else {
                 writer.writeStartTag("server-instance", attributes);

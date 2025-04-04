@@ -123,7 +123,7 @@ public class SSLEngine {
                         char[] passwordChars = null;
                         if (!keystorePassword.isEmpty()) {
                             passwordChars = keystorePassword.toCharArray();
-                        } else if (keystoreType.equals("BKS") || keystoreType.equals("PKCS12")) {
+                        } else if ("BKS".equals(keystoreType) || "PKCS12".equals(keystoreType)) {
                             // Bouncy Castle or PKCS12 does not permit null passwords.
                             passwordChars = new char[0];
                         }
@@ -187,12 +187,12 @@ public class SSLEngine {
                         //
                         if (!keys.isKeyEntry(alias)) {
                             throw new InitializationException(
-                                    "SSL transport: keystore does not contain an entry with alias `"
-                                            + alias
-                                            + "'");
+                                    "SSL transport: keystore does not contain an entry with alias `" +
+                                            alias +
+                                            "'");
                         }
 
-                        for (int i = 0; i < keyManagers.length; ++i) {
+                        for (int i = 0; i < keyManagers.length; i++) {
                             keyManagers[i] =
                                     new X509KeyManagerI(
                                             (javax.net.ssl.X509ExtendedKeyManager) keyManagers[i],
@@ -211,8 +211,8 @@ public class SSLEngine {
                     // If the trust store and the key store are the same input stream or file, don't
                     // create another key store.
                     //
-                    if ((_truststoreStream != null && _truststoreStream == _keystoreStream)
-                            || (!truststorePath.isEmpty() && truststorePath.equals(keystorePath))) {
+                    if ((_truststoreStream != null && _truststoreStream == _keystoreStream) ||
+                            (!truststorePath.isEmpty() && truststorePath.equals(keystorePath))) {
                         assert keys != null;
                         ts = keys;
                     } else {
@@ -224,8 +224,8 @@ public class SSLEngine {
                                 truststoreStream = openResource(truststorePath);
                                 if (truststoreStream == null) {
                                     throw new InitializationException(
-                                            "SSL transport: truststore not found:\n"
-                                                    + truststorePath);
+                                            "SSL transport: truststore not found:\n" +
+                                                    truststorePath);
                                 }
                             }
 
@@ -234,8 +234,8 @@ public class SSLEngine {
                             char[] passwordChars = null;
                             if (!truststorePassword.isEmpty()) {
                                 passwordChars = truststorePassword.toCharArray();
-                            } else if (truststoreType.equals("BKS")
-                                    || truststoreType.equals("PKCS12")) {
+                            } else if ("BKS".equals(truststoreType) ||
+                                    "PKCS12".equals(truststoreType)) {
                                 // Bouncy Castle or PKCS12 does not permit null passwords.
                                 passwordChars = new char[0];
                             }
@@ -280,7 +280,7 @@ public class SSLEngine {
                             trustStore = keys;
                         } else {
                             trustManagers =
-                                    new javax.net.ssl.TrustManager[] {
+                                    new javax.net.ssl.TrustManager[]{
                                         new javax.net.ssl.X509TrustManager() {
                                             @Override
                                             public void checkClientTrusted(
@@ -406,16 +406,16 @@ public class SSLEngine {
     void traceConnection(String desc, javax.net.ssl.SSLEngine engine, boolean incoming) {
         javax.net.ssl.SSLSession session = engine.getSession();
         String msg =
-                "SSL summary for "
-                        + (incoming ? "incoming" : "outgoing")
-                        + " connection\n"
-                        + "cipher = "
-                        + session.getCipherSuite()
-                        + "\n"
-                        + "protocol = "
-                        + session.getProtocol()
-                        + "\n"
-                        + desc;
+                "SSL summary for " +
+                        (incoming ? "incoming" : "outgoing") +
+                        " connection\n" +
+                        "cipher = " +
+                        session.getCipherSuite() +
+                        "\n" +
+                        "protocol = " +
+                        session.getProtocol() +
+                        "\n" +
+                        desc;
         _logger.trace(_securityTraceCategory, msg);
     }
 
@@ -437,9 +437,9 @@ public class SSLEngine {
 
         if (!_trustManager.verify(info, desc)) {
             String msg =
-                    (info.incoming ? "incoming" : "outgoing")
-                            + " connection rejected by trust manager\n"
-                            + desc;
+                    (info.incoming ? "incoming" : "outgoing") +
+                            " connection rejected by trust manager\n" +
+                            desc;
             if (_securityTraceLevel >= 1) {
                 _logger.trace(_securityTraceCategory, msg);
             }

@@ -22,7 +22,7 @@ public class Client extends test.TestHelper {
                 num = 1;
             }
 
-            for (int i = 0; i < num; ++i) {
+            for (int i = 0; i < num; i++) {
                 var prx =
                         TestIntfPrx.createProxy(
                                 communicator(), "control:" + getTestEndpoint(i, "tcp"));

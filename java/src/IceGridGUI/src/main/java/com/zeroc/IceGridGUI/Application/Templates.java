@@ -21,7 +21,7 @@ abstract class Templates extends ListTreeNode {
             try {
                 backupList.add(p.rebuild(editables));
             } catch (UpdateFailedException e) {
-                for (int i = backupList.size() - 1; i >= 0; --i) {
+                for (int i = backupList.size() - 1; i >= 0; i--) {
                     TemplateInstance instance = instanceList.get(i);
                     instance.restore(backupList.get(i));
                 }

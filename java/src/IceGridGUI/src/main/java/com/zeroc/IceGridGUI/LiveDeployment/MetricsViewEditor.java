@@ -123,10 +123,10 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             int column = _table.getColumnModel().getColumnIndexAtX(e.getX());
             int row = e.getY() / _table.getRowHeight();
 
-            if (row < _table.getRowCount()
-                    && row >= 0
-                    && column < _table.getColumnCount()
-                    && column >= 0) {
+            if (row < _table.getRowCount() &&
+                    row >= 0 &&
+                    column < _table.getColumnCount() &&
+                    column >= 0) {
                 Object value = _table.getValueAt(row, column);
                 if (value instanceof JButton) {
                     ((JButton) value).doClick();
@@ -144,9 +144,9 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             MetricsViewEditor.stopRefresh();
 
             // If selected node is a MetricsView and it is enabled; start the refresh thread.
-            if (e.isAddedPath()
-                    && e.getPath().getLastPathComponent() instanceof MetricsView
-                    && ((MetricsView) e.getPath().getLastPathComponent()).isEnabled()) {
+            if (e.isAddedPath() &&
+                    e.getPath().getLastPathComponent() instanceof MetricsView &&
+                    ((MetricsView) e.getPath().getLastPathComponent()).isEnabled()) {
                 MetricsViewEditor.startRefresh((MetricsView) e.getPath().getLastPathComponent());
             }
 
@@ -313,8 +313,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                 return false;
             }
             MetricsCell that = (MetricsCell) other;
-            return this._id.equals(that._id)
-                    && this._field.getFieldName().equals(that._field.getFieldName());
+            return this._id.equals(that._id) &&
+                    this._field.getFieldName().equals(that._field.getFieldName());
         }
 
         @Override
@@ -332,7 +332,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         }
 
         public Number getValue(com.zeroc.Ice.IceMX.Metrics m, long timestamp) {
-            Number value = ((Number) getField().getValue(m, timestamp));
+            Number value = (Number) getField().getValue(m, timestamp);
             if (value == null) {
                 return value;
             } else {
@@ -376,7 +376,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         private double _scaleFactor = 1.0d;
         private double _last;
         private double _average = 0;
-        private int _samples = 0;
+        private int _samples;
         private double _min;
         private double _max;
     }
@@ -386,7 +386,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             _data = data;
             try {
                 _flavors =
-                        new DataFlavor[] {
+                        new DataFlavor[]{
                             (DataFlavor) MetricsViewTransferableData.dataFlavor().clone()
                         };
             } catch (CloneNotSupportedException ex) {
@@ -429,10 +429,10 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                 try {
                     _flavor =
                             new DataFlavor(
-                                    DataFlavor.javaJVMLocalObjectMimeType
-                                            + ";class=\""
-                                            + MetricsViewTransferableData.class.getName()
-                                            + "\"");
+                                    DataFlavor.javaJVMLocalObjectMimeType +
+                                            ";class=\"" +
+                                            MetricsViewTransferableData.class.getName() +
+                                            "\"");
                 } catch (ClassNotFoundException ex) {
                     // Cannot happen
                     ex.printStackTrace();
@@ -459,9 +459,9 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                     table.getColumnModel()
                             .getColumnIndex(
                                     _properties.getProperty(
-                                            "IceGridGUI.Metrics."
-                                                    + model.getMetricsName()
-                                                    + ".id.columnName"));
+                                            "IceGridGUI.Metrics." +
+                                                    model.getMetricsName() +
+                                                    ".id.columnName"));
 
             for (int row : selectedRows) {
                 List<MetricsCell> cells = new ArrayList<>();
@@ -474,14 +474,14 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
 
                     if (!numeric) {
                         cells.add(new MetricsCell(id, field.createField()));
-                    } else if (columnClass.equals(int.class)
-                            || columnClass.equals(Integer.class)
-                            || columnClass.equals(long.class)
-                            || columnClass.equals(Long.class)
-                            || columnClass.equals(float.class)
-                            || columnClass.equals(Float.class)
-                            || columnClass.equals(double.class)
-                            || columnClass.equals(Double.class)) {
+                    } else if (columnClass.equals(int.class) ||
+                            columnClass.equals(Integer.class) ||
+                            columnClass.equals(long.class) ||
+                            columnClass.equals(Long.class) ||
+                            columnClass.equals(float.class) ||
+                            columnClass.equals(Float.class) ||
+                            columnClass.equals(double.class) ||
+                            columnClass.equals(Double.class)) {
                         cells.add(new MetricsCell(id, field.createField()));
                     }
                 }
@@ -706,7 +706,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                                         _properties.getProperty(
                                                 "IceGridGUI.Metrics." + key + ".id.columnName"));
                 if (!rows.isEmpty()) {
-                    for (int i = table.getRowCount() - 1; i >= 0; --i) {
+                    for (int i = table.getRowCount() - 1; i >= 0; i--) {
                         String id = (String) table.getValueAt(i, idColumn);
                         List<MetricsCell> columns = rows.get(id);
                         if (columns != null) {
@@ -776,14 +776,14 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                 String setterName =
                         propEntry.getKey().substring(propEntry.getKey().lastIndexOf('.') + 1);
                 setterName =
-                        "set"
-                                + Character.toUpperCase(setterName.charAt(0))
-                                + setterName.substring(1);
+                        "set" +
+                                Character.toUpperCase(setterName.charAt(0)) +
+                                setterName.substring(1);
 
                 try {
                     java.lang.reflect.Method setter =
-                            cls.getMethod(setterName, new Class[] {String.class});
-                    setter.invoke(field, new Object[] {propEntry.getValue()});
+                            cls.getMethod(setterName, new Class[]{String.class});
+                    setter.invoke(field, new Object[]{propEntry.getValue()});
                 } catch (NoSuchMethodException ex) {
                     continue;
                 } catch (java.lang.reflect.InvocationTargetException ex) {
@@ -1084,12 +1084,12 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             super(node, prefix, metricsName, fieldName, field);
             if (field == null) {
                 throw new IllegalArgumentException(
-                        "Field argument must be non null, "
-                                + "Metrics object: `"
-                                + metricsName
-                                + "' field: `"
-                                + fieldName
-                                + "'");
+                        "Field argument must be non null, " +
+                                "Metrics object: `" +
+                                metricsName +
+                                "' field: `" +
+                                fieldName +
+                                "'");
             }
             Class columnClass = field.getType();
             if (columnClass.equals(int.class)) {
@@ -1172,14 +1172,14 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             if (m1 == null) {
                 return null;
             }
-            if ((m2.total - m1.total) - (m2.current - m1.current) == 0
-                    || (m2.totalLifetime - m1.totalLifetime) == 0) {
+            if ((m2.total - m1.total) - (m2.current - m1.current) == 0 ||
+                    (m2.totalLifetime - m1.totalLifetime) == 0) {
                 return 0.0f;
             } else {
                 return (float)
-                        (((m2.totalLifetime - m1.totalLifetime) / _scaleFactor)
-                                        / (m2.total - m1.total)
-                                - (m2.current - m1.current));
+                        (((m2.totalLifetime - m1.totalLifetime) / _scaleFactor) /
+                                        (m2.total - m1.total) -
+                                (m2.current - m1.current));
             }
         }
 
@@ -1274,8 +1274,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                 } else {
                     last =
                             (double)
-                                    ((d2.value - d1.value)
-                                            / ((d2.timestamp - d1.timestamp) / _scaleFactor));
+                                    ((d2.value - d1.value) /
+                                            ((d2.timestamp - d1.timestamp) / _scaleFactor));
                 }
             }
             _last.put(m.id, last);
@@ -1390,13 +1390,11 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                                                                                         .getPredefinedCursor(
                                                                                                 Cursor
                                                                                                         .DEFAULT_CURSOR));
-                                                                if (ex
-                                                                        instanceof
+                                                                if (ex instanceof
                                                                         com.zeroc.Ice
                                                                                 .ObjectNotExistException) {
                                                                     // Server is down.
-                                                                } else if (ex
-                                                                        instanceof
+                                                                } else if (ex instanceof
                                                                         com.zeroc.Ice
                                                                                 .FacetNotExistException) {
                                                                     // MetricsAdmin facet not
@@ -1407,8 +1405,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                                                                             getMetricsNode()
                                                                                     .getCoordinator()
                                                                                     .getMainFrame(),
-                                                                            "Error: "
-                                                                                    + ex.toString(),
+                                                                            "Error: " +
+                                                                                    ex.toString(),
                                                                             "Error",
                                                                             JOptionPane
                                                                                     .ERROR_MESSAGE);
@@ -1474,10 +1472,10 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                                 public void actionPerformed(ActionEvent event) {
                                     final TableModel model = new TableModel(getMetricsName());
                                     String prefix =
-                                            "IceGridGUI.Metrics."
-                                                    + getMetricsName()
-                                                    + "."
-                                                    + getFieldName();
+                                            "IceGridGUI.Metrics." +
+                                                    getMetricsName() +
+                                                    "." +
+                                                    getFieldName();
                                     String[] names =
                                             _properties.getPropertyAsList(prefix + ".fields");
                                     for (String name : names) {

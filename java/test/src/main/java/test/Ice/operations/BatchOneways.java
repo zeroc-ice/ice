@@ -16,8 +16,8 @@ class BatchOneways {
     static class BatchRequestInterceptorI implements com.zeroc.Ice.BatchRequestInterceptor {
         public void enqueue(com.zeroc.Ice.BatchRequest request, int count, int size) {
             test(
-                    request.getOperation().equals("opByteSOneway")
-                            || request.getOperation().equals("ice_ping"));
+                    "opByteSOneway".equals(request.getOperation()) ||
+                            "ice_ping".equals(request.getOperation()));
             test(request.getProxy().ice_isBatchOneway());
 
             if (count > 0) {
@@ -66,7 +66,7 @@ class BatchOneways {
 
         p.opByteSOnewayCallCount(); // Reset the call count
 
-        for (int i = 0; i < 30; ++i) {
+        for (int i = 0; i < 30; i++) {
             try {
                 batch.opByteSOneway(bs1);
             } catch (com.zeroc.Ice.MarshalException ex) {
@@ -160,9 +160,9 @@ class BatchOneways {
         }
 
         p.ice_ping();
-        if (supportsCompress
-                && p.ice_getConnection() != null
-                && properties.getIceProperty("Ice.Override.Compress").isEmpty()) {
+        if (supportsCompress &&
+                p.ice_getConnection() != null &&
+                properties.getIceProperty("Ice.Override.Compress").isEmpty()) {
             com.zeroc.Ice.ObjectPrx prx =
                     p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();
 
@@ -198,5 +198,8 @@ class BatchOneways {
             batchC1.ice_getConnection()
                     .flushBatchRequests(com.zeroc.Ice.CompressBatch.BasedOnProxy);
         }
+    }
+
+    private BatchOneways() {
     }
 }

@@ -77,26 +77,26 @@ class WriteMessageDialog extends JDialog {
                                                                 () -> {
                                                                     c.getStatusBar()
                                                                             .setText(
-                                                                                    prefix
-                                                                                            + "done.");
+                                                                                    prefix +
+                                                                                            "done.");
                                                                 });
                                                     } else {
                                                         SwingUtilities.invokeLater(
                                                                 () -> {
                                                                     c.getStatusBar()
                                                                             .setText(
-                                                                                    prefix
-                                                                                            + "failed!");
+                                                                                    prefix +
+                                                                                            "failed!");
 
                                                                     JOptionPane.showMessageDialog(
                                                                             _mainFrame,
-                                                                            "Communication exception: "
-                                                                                    + ex.toString(),
-                                                                            "Writing message to server '"
-                                                                                    + process
+                                                                            "Communication exception: " +
+                                                                                    ex.toString(),
+                                                                            "Writing message to server '" +
+                                                                                    process
                                                                                             .ice_getIdentity()
-                                                                                            .name
-                                                                                    + "' failed",
+                                                                                            .name +
+                                                                                    "' failed",
                                                                             JOptionPane
                                                                                     .ERROR_MESSAGE);
                                                                 });

@@ -70,4 +70,7 @@ public class AllTests {
         }
         out.println("ok");
     }
+
+    private AllTests() {
+    }
 }

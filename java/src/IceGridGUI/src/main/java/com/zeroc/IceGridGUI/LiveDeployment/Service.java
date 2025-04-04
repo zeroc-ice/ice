@@ -51,9 +51,8 @@ public class Service extends Communicator {
                         .startServiceAsync(_id)
                         .whenComplete(
                                 (result, ex) -> {
-                                    if (ex == null
-                                            || ex
-                                                    instanceof
+                                    if (ex == null ||
+                                            ex instanceof
                                                     com.zeroc.IceBox.AlreadyStartedException) {
                                         amiSuccess(prefix);
                                     } else {
@@ -82,9 +81,8 @@ public class Service extends Communicator {
                         .stopServiceAsync(_id)
                         .whenComplete(
                                 (result, ex) -> {
-                                    if (ex == null
-                                            || ex
-                                                    instanceof
+                                    if (ex == null ||
+                                            ex instanceof
                                                     com.zeroc.IceBox.AlreadyStoppedException) {
                                         amiSuccess(prefix);
                                     } else {
@@ -146,12 +144,12 @@ public class Service extends Communicator {
 
                                 @Override
                                 public String getTitle() {
-                                    return "Service "
-                                            + _parent.getId()
-                                            + "/"
-                                            + _id
-                                            + " "
-                                            + new java.io.File(fPath).getName();
+                                    return "Service " +
+                                            _parent.getId() +
+                                            "/" +
+                                            _id +
+                                            " " +
+                                            new java.io.File(fPath).getName();
                                 }
 
                                 @Override
@@ -234,8 +232,8 @@ public class Service extends Communicator {
             if (Integer.valueOf(
                             ((Server) _parent)
                                     .getProperties()
-                                    .get("IceBox.UseSharedCommunicator." + _id))
-                    > 0) {
+                                    .get("IceBox.UseSharedCommunicator." + _id)) >
+                    0) {
                 facetName = "IceBox.SharedCommunicator." + facet;
             }
         } catch (NumberFormatException ex) {
@@ -415,7 +413,7 @@ public class Service extends Communicator {
 
     private java.util.List<Adapter> _adapters = new java.util.LinkedList<>();
 
-    private boolean _started = false;
+    private boolean _started;
 
     private static ServiceEditor _editor;
     private static DefaultTreeCellRenderer _cellRenderer;

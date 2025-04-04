@@ -29,10 +29,10 @@ public class Client extends test.TestHelper {
             {
                 java.util.Random rand = new java.util.Random();
                 for (i = 0;
-                        proxyCollisions < maxCollisions
-                                && endpointCollisions < maxCollisions
-                                && i < maxIterations;
-                        ++i) {
+                        proxyCollisions < maxCollisions &&
+                                endpointCollisions < maxCollisions &&
+                                i < maxIterations;
+                        i++) {
                     java.io.StringWriter sw = new java.io.StringWriter();
                     sw.write(Integer.toString(i));
                     sw.write(":tcp -p ");
@@ -84,10 +84,10 @@ public class Client extends test.TestHelper {
                 proxyCollisions = 0;
                 seenProxy = new java.util.HashMap<>();
                 for (i = 0;
-                        proxyCollisions < maxCollisions
-                                && endpointCollisions < maxCollisions
-                                && i < maxIterations;
-                        ++i) {
+                        proxyCollisions < maxCollisions &&
+                                endpointCollisions < maxCollisions &&
+                                i < maxIterations;
+                        i++) {
                     java.io.StringWriter sw = new java.io.StringWriter();
                     sw.write(Integer.toString(i));
                     sw.write(":tcp -p ");
@@ -116,10 +116,10 @@ public class Client extends test.TestHelper {
                 proxyCollisions = 0;
                 seenProxy = new java.util.HashMap<>();
                 for (i = 0;
-                        proxyCollisions < maxCollisions
-                                && endpointCollisions < maxCollisions
-                                && i < maxIterations;
-                        ++i) {
+                        proxyCollisions < maxCollisions &&
+                                endpointCollisions < maxCollisions &&
+                                i < maxIterations;
+                        i++) {
                     java.io.StringWriter sw = new java.io.StringWriter();
                     sw.write(Integer.toString(i));
                     sw.write(":tcp -p ");
@@ -179,121 +179,121 @@ public class Client extends test.TestHelper {
                 proxyMap.put("prx10", prx10.hashCode());
 
                 test(
-                        communicator.stringToProxy("Glacier2/router:tcp -p 10010").hashCode()
-                                == proxyMap.get("prx1"));
+                        communicator.stringToProxy("Glacier2/router:tcp -p 10010").hashCode() ==
+                                proxyMap.get("prx1"));
                 test(
-                        communicator.stringToProxy("Glacier2/router:ssl -p 10011").hashCode()
-                                == proxyMap.get("prx2"));
+                        communicator.stringToProxy("Glacier2/router:ssl -p 10011").hashCode() ==
+                                proxyMap.get("prx2"));
                 test(
-                        communicator.stringToProxy("Glacier2/router:udp -p 10012").hashCode()
-                                == proxyMap.get("prx3"));
+                        communicator.stringToProxy("Glacier2/router:udp -p 10012").hashCode() ==
+                                proxyMap.get("prx3"));
                 test(
                         communicator
                                         .stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010")
-                                        .hashCode()
-                                == proxyMap.get("prx4"));
+                                        .hashCode() ==
+                                proxyMap.get("prx4"));
                 test(
                         communicator
                                         .stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011")
-                                        .hashCode()
-                                == proxyMap.get("prx5"));
+                                        .hashCode() ==
+                                proxyMap.get("prx5"));
                 test(
                         communicator
                                         .stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012")
-                                        .hashCode()
-                                == proxyMap.get("prx6"));
+                                        .hashCode() ==
+                                proxyMap.get("prx6"));
                 test(
                         communicator
                                         .stringToProxy("Glacier2/router:tcp -p 10010 -t 10000")
-                                        .hashCode()
-                                == proxyMap.get("prx7"));
+                                        .hashCode() ==
+                                proxyMap.get("prx7"));
                 test(
                         communicator
                                         .stringToProxy("Glacier2/router:ssl -p 10011 -t 10000")
-                                        .hashCode()
-                                == proxyMap.get("prx8"));
+                                        .hashCode() ==
+                                proxyMap.get("prx8"));
                 test(
                         communicator
                                         .stringToProxy(
                                                 "Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000")
-                                        .hashCode()
-                                == proxyMap.get("prx9"));
+                                        .hashCode() ==
+                                proxyMap.get("prx9"));
                 test(
                         communicator
                                         .stringToProxy(
                                                 "Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000")
-                                        .hashCode()
-                                == proxyMap.get("prx10"));
+                                        .hashCode() ==
+                                proxyMap.get("prx10"));
 
                 test(
-                        new ProxyIdentityKey(prx1).hashCode()
-                                == new ProxyIdentityKey(prx1).hashCode());
+                        new ProxyIdentityKey(prx1).hashCode() ==
+                                new ProxyIdentityKey(prx1).hashCode());
                 test(
-                        new ProxyIdentityFacetKey(prx1).hashCode()
-                                == new ProxyIdentityFacetKey(prx1).hashCode());
+                        new ProxyIdentityFacetKey(prx1).hashCode() ==
+                                new ProxyIdentityFacetKey(prx1).hashCode());
 
                 test(
-                        new ProxyIdentityKey(prx1).hashCode()
-                                == new ProxyIdentityKey(prx2).hashCode());
+                        new ProxyIdentityKey(prx1).hashCode() ==
+                                new ProxyIdentityKey(prx2).hashCode());
                 test(
-                        new ProxyIdentityFacetKey(prx1).hashCode()
-                                == new ProxyIdentityFacetKey(prx2).hashCode());
+                        new ProxyIdentityFacetKey(prx1).hashCode() ==
+                                new ProxyIdentityFacetKey(prx2).hashCode());
 
                 test(
-                        new ProxyIdentityKey(prx1).hashCode()
-                                == new ProxyIdentityKey(prx3).hashCode());
+                        new ProxyIdentityKey(prx1).hashCode() ==
+                                new ProxyIdentityKey(prx3).hashCode());
                 test(
-                        new ProxyIdentityFacetKey(prx1).hashCode()
-                                == new ProxyIdentityFacetKey(prx3).hashCode());
+                        new ProxyIdentityFacetKey(prx1).hashCode() ==
+                                new ProxyIdentityFacetKey(prx3).hashCode());
 
                 test(
-                        new ProxyIdentityKey(prx1).hashCode()
-                                == new ProxyIdentityKey(prx4).hashCode());
+                        new ProxyIdentityKey(prx1).hashCode() ==
+                                new ProxyIdentityKey(prx4).hashCode());
                 test(
-                        new ProxyIdentityFacetKey(prx1).hashCode()
-                                == new ProxyIdentityFacetKey(prx4).hashCode());
+                        new ProxyIdentityFacetKey(prx1).hashCode() ==
+                                new ProxyIdentityFacetKey(prx4).hashCode());
 
                 test(
-                        new ProxyIdentityKey(prx1).hashCode()
-                                == new ProxyIdentityKey(prx5).hashCode());
+                        new ProxyIdentityKey(prx1).hashCode() ==
+                                new ProxyIdentityKey(prx5).hashCode());
                 test(
-                        new ProxyIdentityFacetKey(prx1).hashCode()
-                                == new ProxyIdentityFacetKey(prx5).hashCode());
+                        new ProxyIdentityFacetKey(prx1).hashCode() ==
+                                new ProxyIdentityFacetKey(prx5).hashCode());
 
                 test(
-                        new ProxyIdentityKey(prx1).hashCode()
-                                == new ProxyIdentityKey(prx6).hashCode());
+                        new ProxyIdentityKey(prx1).hashCode() ==
+                                new ProxyIdentityKey(prx6).hashCode());
                 test(
-                        new ProxyIdentityFacetKey(prx1).hashCode()
-                                == new ProxyIdentityFacetKey(prx6).hashCode());
+                        new ProxyIdentityFacetKey(prx1).hashCode() ==
+                                new ProxyIdentityFacetKey(prx6).hashCode());
 
                 test(
-                        new ProxyIdentityKey(prx1).hashCode()
-                                == new ProxyIdentityKey(prx7).hashCode());
+                        new ProxyIdentityKey(prx1).hashCode() ==
+                                new ProxyIdentityKey(prx7).hashCode());
                 test(
-                        new ProxyIdentityFacetKey(prx1).hashCode()
-                                == new ProxyIdentityFacetKey(prx7).hashCode());
+                        new ProxyIdentityFacetKey(prx1).hashCode() ==
+                                new ProxyIdentityFacetKey(prx7).hashCode());
 
                 test(
-                        new ProxyIdentityKey(prx1).hashCode()
-                                == new ProxyIdentityKey(prx8).hashCode());
+                        new ProxyIdentityKey(prx1).hashCode() ==
+                                new ProxyIdentityKey(prx8).hashCode());
                 test(
-                        new ProxyIdentityFacetKey(prx1).hashCode()
-                                == new ProxyIdentityFacetKey(prx8).hashCode());
+                        new ProxyIdentityFacetKey(prx1).hashCode() ==
+                                new ProxyIdentityFacetKey(prx8).hashCode());
 
                 test(
-                        new ProxyIdentityKey(prx1).hashCode()
-                                == new ProxyIdentityKey(prx9).hashCode());
+                        new ProxyIdentityKey(prx1).hashCode() ==
+                                new ProxyIdentityKey(prx9).hashCode());
                 test(
-                        new ProxyIdentityFacetKey(prx1).hashCode()
-                                == new ProxyIdentityFacetKey(prx9).hashCode());
+                        new ProxyIdentityFacetKey(prx1).hashCode() ==
+                                new ProxyIdentityFacetKey(prx9).hashCode());
 
                 test(
-                        new ProxyIdentityKey(prx1).hashCode()
-                                == new ProxyIdentityKey(prx10).hashCode());
+                        new ProxyIdentityKey(prx1).hashCode() ==
+                                new ProxyIdentityKey(prx10).hashCode());
                 test(
-                        new ProxyIdentityFacetKey(prx1).hashCode()
-                                == new ProxyIdentityFacetKey(prx10).hashCode());
+                        new ProxyIdentityFacetKey(prx1).hashCode() ==
+                                new ProxyIdentityFacetKey(prx10).hashCode());
             }
             out.println("ok");
 
@@ -328,7 +328,7 @@ public class Client extends test.TestHelper {
                 java.util.Map<Integer, PointF> seenPointF = new java.util.HashMap<>();
                 java.util.Random rand = new java.util.Random();
                 int structCollisions = 0;
-                for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i) {
+                for (i = 0; i < maxIterations && structCollisions < maxCollisions; i++) {
                     PointF pf = new PointF(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
                     if (seenPointF.containsKey(pf.hashCode())) {
                         if (pf.equals(seenPointF.get(pf.hashCode()))) {
@@ -348,7 +348,7 @@ public class Client extends test.TestHelper {
                 java.util.Map<Integer, PointD> seenPointD = new java.util.HashMap<>();
                 rand = new java.util.Random();
                 structCollisions = 0;
-                for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i) {
+                for (i = 0; i < maxIterations && structCollisions < maxCollisions; i++) {
                     PointD pd = new PointD(rand.nextDouble(), rand.nextDouble(), rand.nextDouble());
                     if (seenPointD.containsKey(pd.hashCode())) {
                         if (pd.equals(seenPointF.get(pd.hashCode()))) {
@@ -367,10 +367,10 @@ public class Client extends test.TestHelper {
 
                 java.util.Map<Integer, Polyline> seenPolyline = new java.util.HashMap<>();
                 structCollisions = 0;
-                for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i) {
+                for (i = 0; i < maxIterations && structCollisions < maxCollisions; i++) {
                     Polyline polyline = new Polyline();
                     java.util.List<Point> vertices = new java.util.ArrayList<>();
-                    for (int j = 0; j < 100; ++j) {
+                    for (int j = 0; j < 100; j++) {
                         vertices.add(new Point(rand.nextInt(100), rand.nextInt(100)));
                     }
                     polyline.vertices = new Point[vertices.size()];
@@ -393,10 +393,10 @@ public class Client extends test.TestHelper {
 
                 java.util.Map<Integer, ColorPalette> seenColorPalette = new java.util.HashMap<>();
                 structCollisions = 0;
-                for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i) {
+                for (i = 0; i < maxIterations && structCollisions < maxCollisions; i++) {
                     ColorPalette colorPalette = new ColorPalette();
                     colorPalette.colors = new java.util.HashMap<>();
-                    for (int j = 0; j < 100; ++j) {
+                    for (int j = 0; j < 100; j++) {
                         colorPalette.colors.put(
                                 j,
                                 new Color(
@@ -424,7 +424,7 @@ public class Client extends test.TestHelper {
                 java.util.Map<Integer, Color> seenColor = new java.util.HashMap<>();
                 rand = new java.util.Random();
                 structCollisions = 0;
-                for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i) {
+                for (i = 0; i < maxIterations && structCollisions < maxCollisions; i++) {
                     Color c =
                             new Color(
                                     rand.nextInt(255),
@@ -449,7 +449,7 @@ public class Client extends test.TestHelper {
                 structCollisions = 0;
                 java.util.Map<Integer, Draw> seenDraw = new java.util.HashMap<>();
                 structCollisions = 0;
-                for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i) {
+                for (i = 0; i < maxIterations && structCollisions < maxCollisions; i++) {
                     Draw draw =
                             new Draw(
                                     new Color(

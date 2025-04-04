@@ -60,7 +60,7 @@ public class Root extends Communicator {
             Object child = null;
             int p = 0;
             int q = super.getChildCount(parent);
-            for (int j = 0; j < q; ++j) {
+            for (int j = 0; j < q; j++) {
                 TreeNode node = (TreeNode) super.getChild(parent, j);
                 if (!matchFilter(node)) {
                     continue;
@@ -334,8 +334,8 @@ public class Root extends Communicator {
                 .removeAll(java.util.Arrays.asList(update.descriptor.removeVariables));
         appDesc.variables.putAll(update.descriptor.variables);
         boolean variablesChanged =
-                update.descriptor.removeVariables.length > 0
-                        || !update.descriptor.variables.isEmpty();
+                update.descriptor.removeVariables.length > 0 ||
+                        !update.descriptor.variables.isEmpty();
 
         // Update only descriptors (no tree node shown in this view)
         appDesc.propertySets
@@ -344,7 +344,7 @@ public class Root extends Communicator {
         appDesc.propertySets.putAll(update.descriptor.propertySets);
 
         for (String id : update.descriptor.removeReplicaGroups) {
-            for (int i = 0; i < appDesc.replicaGroups.size(); ++i) {
+            for (int i = 0; i < appDesc.replicaGroups.size(); i++) {
                 ReplicaGroupDescriptor rgd = appDesc.replicaGroups.get(i);
                 if (rgd.id.equals(id)) {
                     appDesc.replicaGroups.remove(i);
@@ -393,7 +393,7 @@ public class Root extends Communicator {
             if (node.remove(update.descriptor.name)) {
                 int index = getIndex(node);
                 _nodes.remove(node);
-                _treeModel.nodesWereRemoved(this, new int[] {index}, new Object[] {node});
+                _treeModel.nodesWereRemoved(this, new int[]{index}, new Object[]{node});
             }
         }
 
@@ -418,9 +418,9 @@ public class Root extends Communicator {
         }
 
         // Notify non-fresh nodes if needed
-        if (variablesChanged
-                || !update.descriptor.serviceTemplates.isEmpty()
-                || !update.descriptor.serverTemplates.isEmpty()) {
+        if (variablesChanged ||
+                !update.descriptor.serviceTemplates.isEmpty() ||
+                !update.descriptor.serverTemplates.isEmpty()) {
             for (Node p : _nodes) {
                 if (!freshNodes.contains(p)) {
                     p.update(
@@ -492,7 +492,7 @@ public class Root extends Communicator {
         if (registry != null) {
             int index = getIndex(registry);
             _slaves.remove(registry);
-            _treeModel.nodesWereRemoved(this, new int[] {index}, new Object[] {registry});
+            _treeModel.nodesWereRemoved(this, new int[]{index}, new Object[]{registry});
         }
     }
 
@@ -512,7 +512,7 @@ public class Root extends Communicator {
             if (node.down()) {
                 int index = getIndex(node);
                 _nodes.remove(node);
-                _treeModel.nodesWereRemoved(this, new int[] {index}, new Object[] {node});
+                _treeModel.nodesWereRemoved(this, new int[]{index}, new Object[]{node});
             }
         }
     }
@@ -660,8 +660,8 @@ public class Root extends Communicator {
                             amiFailure(
                                     prefix,
                                     "addObject failed",
-                                    "An object with this identity is already registered as a"
-                                            + " well-known object");
+                                    "An object with this identity is already registered as a" +
+                                            " well-known object");
                         } else if (ex instanceof DeploymentException) {
                             amiFailure(
                                     prefix,
@@ -933,5 +933,5 @@ public class Root extends Communicator {
     private static DefaultTreeCellRenderer _cellRenderer;
 
     // Application name to filter, if empty all applications are displayed.
-    private String _applicationNameFilter = null;
+    private String _applicationNameFilter;
 }

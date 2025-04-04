@@ -318,14 +318,14 @@ final class ServantManager implements Object {
                 locator.deactivate(p.getKey());
             } catch (Exception ex) {
                 String s =
-                        "exception during locator deactivation:\n"
-                                + "object adapter: `"
-                                + _adapterName
-                                + "'\n"
-                                + "locator category: `"
-                                + p.getKey()
-                                + "'\n"
-                                + Ex.toString(ex);
+                        "exception during locator deactivation:\n" +
+                                "object adapter: `" +
+                                _adapterName +
+                                "'\n" +
+                                "locator category: `" +
+                                p.getKey() +
+                                "'\n" +
+                                Ex.toString(ex);
                 logger.error(s);
             }
         }

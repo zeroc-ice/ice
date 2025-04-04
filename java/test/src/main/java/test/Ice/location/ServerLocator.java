@@ -22,7 +22,7 @@ public class ServerLocator implements TestLocator {
             String adapter, com.zeroc.Ice.Current current)
             throws com.zeroc.Ice.AdapterNotFoundException {
         ++_requestCount;
-        if (adapter.equals("TestAdapter10") || adapter.equals("TestAdapter10-2")) {
+        if ("TestAdapter10".equals(adapter) || "TestAdapter10-2".equals(adapter)) {
             assert (current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0));
             return CompletableFuture.completedFuture(_registry.getAdapter("TestAdapter"));
         }

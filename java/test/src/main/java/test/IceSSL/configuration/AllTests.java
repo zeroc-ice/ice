@@ -326,7 +326,7 @@ public class AllTests {
 
             // Test Hostname verification only when Ice.DefaultHost is 127.0.0.1
             // as that is the IP address used in the test certificates.
-            if (defaultHost.equals("127.0.0.1")) {
+            if ("127.0.0.1".equals(defaultHost)) {
                 // Test using localhost as target host
                 com.zeroc.Ice.Properties props = defaultProperties._clone();
                 props.setProperty("Ice.Default.Host", "localhost");
@@ -616,8 +616,8 @@ public class AllTests {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty(
                     "IceSSL.TrustOnly",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Server");
+                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice," +
+                            " emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -637,8 +637,8 @@ public class AllTests {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty(
                     "IceSSL.TrustOnly",
-                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Server");
+                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice," +
+                            " emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -657,8 +657,8 @@ public class AllTests {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty(
                     "IceSSL.TrustOnly",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Server");
+                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice," +
+                            " emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -683,8 +683,8 @@ public class AllTests {
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put(
                     "IceSSL.TrustOnly",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Client");
+                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice," +
+                            " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -704,8 +704,8 @@ public class AllTests {
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put(
                     "IceSSL.TrustOnly",
-                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Client");
+                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice," +
+                            " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -970,8 +970,8 @@ public class AllTests {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty(
                     "IceSSL.TrustOnly.Client",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Server");
+                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice," +
+                            " emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -980,8 +980,8 @@ public class AllTests {
             // Should have no effect.
             d.put(
                     "IceSSL.TrustOnly.Client",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Server");
+                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice," +
+                            " emailAddress=info@zeroc.com, CN=Server");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -996,8 +996,8 @@ public class AllTests {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty(
                     "IceSSL.TrustOnly.Client",
-                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Server");
+                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice," +
+                            " emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -1075,8 +1075,8 @@ public class AllTests {
             // Should have no effect.
             initData.properties.setProperty(
                     "IceSSL.TrustOnly.Server",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Client");
+                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice," +
+                            " emailAddress=info@zeroc.com, CN=Client");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -1084,8 +1084,8 @@ public class AllTests {
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put(
                     "IceSSL.TrustOnly.Server",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Client");
+                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice," +
+                            " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -1105,8 +1105,8 @@ public class AllTests {
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put(
                     "IceSSL.TrustOnly.Server",
-                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Client");
+                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice," +
+                            " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -1183,8 +1183,8 @@ public class AllTests {
             d.put("IceSSL.TrustOnly.Server", "CN=bogus");
             d.put(
                     "IceSSL.TrustOnly.Server.ServerAdapter",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Client");
+                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice," +
+                            " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -1204,8 +1204,8 @@ public class AllTests {
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put(
                     "IceSSL.TrustOnly.Server.ServerAdapter",
-                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Client");
+                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice," +
+                            " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -1272,9 +1272,9 @@ public class AllTests {
                     // Expected, by default we don't check for system CAs.
                     break;
                 } catch (com.zeroc.Ice.LocalException ex) {
-                    if ((ex instanceof com.zeroc.Ice.ConnectTimeoutException)
-                            || (ex instanceof com.zeroc.Ice.SocketException)
-                            || (ex instanceof com.zeroc.Ice.DNSException)) {
+                    if ((ex instanceof com.zeroc.Ice.ConnectTimeoutException) ||
+                            (ex instanceof com.zeroc.Ice.SocketException) ||
+                            (ex instanceof com.zeroc.Ice.DNSException)) {
                         if (++retryCount < retryMax) {
                             out.print("retrying... ");
                             out.flush();
@@ -1308,9 +1308,9 @@ public class AllTests {
                     test(sslinfo.verified);
                     break;
                 } catch (com.zeroc.Ice.LocalException ex) {
-                    if ((ex instanceof com.zeroc.Ice.ConnectTimeoutException)
-                            || (ex instanceof com.zeroc.Ice.SocketException)
-                            || (ex instanceof com.zeroc.Ice.DNSException)) {
+                    if ((ex instanceof com.zeroc.Ice.ConnectTimeoutException) ||
+                            (ex instanceof com.zeroc.Ice.SocketException) ||
+                            (ex instanceof com.zeroc.Ice.DNSException)) {
                         if (++retryCount < retryMax) {
                             out.print("retrying... ");
                             out.flush();
@@ -1333,5 +1333,8 @@ public class AllTests {
         out.println("ok");
 
         return factory;
+    }
+
+    private AllTests() {
     }
 }

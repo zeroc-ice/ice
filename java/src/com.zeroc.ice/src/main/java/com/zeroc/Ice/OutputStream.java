@@ -312,8 +312,8 @@ public final class OutputStream {
     public void writePendingValues() {
         if (_encapsStack != null && _encapsStack.encoder != null) {
             _encapsStack.encoder.writePendingValues();
-        } else if (_encapsStack != null
-                ? _encapsStack.encoding_1_0
+        } else if (_encapsStack != null ?
+                _encapsStack.encoding_1_0
                 : _encoding.equals(Util.Encoding_1_0)) {
             //
             // If using the 1.0 encoding and no instances were written, we still write an empty
@@ -1134,7 +1134,7 @@ public final class OutputStream {
     }
 
     static final java.nio.charset.Charset _utf8 = java.nio.charset.Charset.forName("UTF8");
-    private java.nio.charset.CharsetEncoder _charEncoder = null;
+    private java.nio.charset.CharsetEncoder _charEncoder;
 
     /**
      * Writes a string to the stream.
@@ -1159,7 +1159,7 @@ public final class OutputStream {
                 // to perform the conversion to UTF-8 manually.
                 //
                 v.getChars(0, len, _stringChars, 0);
-                for (int i = 0; i < len; ++i) {
+                for (int i = 0; i < len; i++) {
                     if (_stringChars[i] > (char) 127) {
                         //
                         // Found a multibyte character.
@@ -1684,8 +1684,8 @@ public final class OutputStream {
 
         @Override
         void startSlice(String typeId, int compactId, boolean last) {
-            assert ((_current.indirectionTable == null || _current.indirectionTable.isEmpty())
-                    && (_current.indirectionMap == null || _current.indirectionMap.isEmpty()));
+            assert ((_current.indirectionTable == null || _current.indirectionTable.isEmpty()) &&
+                    (_current.indirectionMap == null || _current.indirectionMap.isEmpty()));
 
             _current.sliceFlagsPos = _stream.pos();
 
@@ -1898,7 +1898,7 @@ public final class OutputStream {
         }
 
         int start;
-        FormatType format = null;
+        FormatType format;
         EncodingVersion encoding;
         boolean encoding_1_0;
 
@@ -1915,8 +1915,8 @@ public final class OutputStream {
     private EncodingVersion _encoding;
 
     private boolean isEncoding_1_0() {
-        return _encapsStack != null
-                ? _encapsStack.encoding_1_0
+        return _encapsStack != null ?
+                _encapsStack.encoding_1_0
                 : _encoding.equals(Util.Encoding_1_0);
     }
 

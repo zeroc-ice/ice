@@ -113,7 +113,7 @@ public class AllTests {
         test(s.l == 4);
         test(s.f == (float) 5.0);
         test(s.d == 6.0);
-        test(s.str.equals("7"));
+        test("7".equals(s.str));
         test(s.e == MyEnum.enum2);
         test(s.p != null);
         s.p.ice_ping(); // Make sure the deserialized proxy is usable.
@@ -123,12 +123,12 @@ public class AllTests {
         test(b.b == b);
         test(b.o == b);
         checkStruct1(b.s);
-        test(java.util.Arrays.equals(b.seq1, new byte[] {0, 1, 2, 3, 4}));
-        test(java.util.Arrays.equals(b.seq2, new int[] {5, 6, 7, 8, 9}));
+        test(java.util.Arrays.equals(b.seq1, new byte[]{0, 1, 2, 3, 4}));
+        test(java.util.Arrays.equals(b.seq2, new int[]{5, 6, 7, 8, 9}));
         test(
                 java.util.Arrays.equals(
-                        b.seq3, new MyEnum[] {MyEnum.enum3, MyEnum.enum2, MyEnum.enum1}));
-        test(java.util.Arrays.equals(b.seq4, new Base[] {b}));
+                        b.seq3, new MyEnum[]{MyEnum.enum3, MyEnum.enum2, MyEnum.enum1}));
+        test(java.util.Arrays.equals(b.seq4, new Base[]{b}));
         test(b.d1.get(Byte.valueOf((byte) 1)).equals(Boolean.TRUE));
         test(b.d2.get(Short.valueOf((short) 2)).equals(Integer.valueOf(3)));
         test(b.d3.get("enum3") == MyEnum.enum3);
@@ -137,5 +137,8 @@ public class AllTests {
         Derived d = (Derived) b;
         test(d.p != null);
         d.p.ice_ping();
+    }
+
+    private AllTests() {
     }
 }

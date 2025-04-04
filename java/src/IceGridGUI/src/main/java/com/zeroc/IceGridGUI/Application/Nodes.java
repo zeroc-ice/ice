@@ -106,7 +106,7 @@ class Nodes extends ListTreeNode {
             try {
                 backupList.add(node.rebuild(editables));
             } catch (UpdateFailedException e) {
-                for (int i = backupList.size() - 1; i >= 0; --i) {
+                for (int i = backupList.size() - 1; i >= 0; i--) {
                     ((Node) _children.get(i)).restore(backupList.get(i));
                 }
                 throw e;

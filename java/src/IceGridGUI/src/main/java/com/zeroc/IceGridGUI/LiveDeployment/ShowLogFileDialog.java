@@ -51,7 +51,7 @@ class ShowLogFileDialog extends JDialog {
         void appendLines(final String[] lines, final int maxLines, final int maxSize) {
             SwingUtilities.invokeLater(
                     () -> {
-                        for (int i = 0; i < lines.length; ++i) {
+                        for (int i = 0; i < lines.length; i++) {
                             // The last line is always incomplete
                             if (i + 1 != lines.length) {
                                 append(lines[i] + "\n");
@@ -191,7 +191,7 @@ class ShowLogFileDialog extends JDialog {
                         eofEncountered = r.returnValue;
                     } catch (com.zeroc.IceGrid.FileNotAvailableException e) {
                         _textArea.appendLines(
-                                new String[] {
+                                new String[]{
                                     "---------------------------",
                                     "IceGrid GUI caught: " + e.toString(),
                                     "---------------------------"
@@ -203,7 +203,7 @@ class ShowLogFileDialog extends JDialog {
                         return;
                     } catch (com.zeroc.Ice.LocalException e) {
                         _textArea.appendLines(
-                                new String[] {
+                                new String[]{
                                     "---------------------------",
                                     "IceGrid GUI caught: " + e.toString(),
                                     "---------------------------"
@@ -257,8 +257,8 @@ class ShowLogFileDialog extends JDialog {
         }
 
         private FileIteratorPrx _p;
-        private boolean _done = false;
-        private boolean _paused = false;
+        private boolean _done;
+        private boolean _paused;
 
         private int _threadMaxLines;
         private int _threadMaxSize;

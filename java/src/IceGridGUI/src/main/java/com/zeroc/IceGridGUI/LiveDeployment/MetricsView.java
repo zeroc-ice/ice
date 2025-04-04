@@ -81,8 +81,8 @@ class MetricsView extends TreeNode {
                                                             .showActions(MetricsView.this);
                                                     if (getRoot()
                                                                     .getTree()
-                                                                    .getLastSelectedPathComponent()
-                                                            == MetricsView.this) {
+                                                                    .getLastSelectedPathComponent() ==
+                                                            MetricsView.this) {
                                                         // If the metrics view is selected when
                                                         // enabled success, we must start the
                                                         // refresh thread to pull updates.
@@ -94,17 +94,14 @@ class MetricsView extends TreeNode {
                                         MetricsViewEditor.stopRefresh();
                                         SwingUtilities.invokeLater(
                                                 () -> {
-                                                    if (ex
-                                                                    instanceof
+                                                    if (ex instanceof
                                                                     com.zeroc.Ice
-                                                                            .ObjectNotExistException
-                                                            || ex
-                                                                    instanceof
+                                                                            .ObjectNotExistException ||
+                                                            ex instanceof
                                                                     com.zeroc.Ice
                                                                             .ConnectionRefusedException) {
                                                         // Server is down.
-                                                    } else if (!(ex
-                                                            instanceof
+                                                    } else if (!(ex instanceof
                                                             com.zeroc.Ice
                                                                     .CommunicatorDestroyedException)) {
                                                         ex.printStackTrace();
@@ -134,8 +131,8 @@ class MetricsView extends TreeNode {
                                                             .showActions(MetricsView.this);
                                                     if (getRoot()
                                                                     .getTree()
-                                                                    .getLastSelectedPathComponent()
-                                                            == MetricsView.this) {
+                                                                    .getLastSelectedPathComponent() ==
+                                                            MetricsView.this) {
                                                         // If the metrics view is selected when
                                                         // disabled success, we stop the refresh.
                                                         MetricsViewEditor.stopRefresh();
@@ -145,17 +142,14 @@ class MetricsView extends TreeNode {
                                         MetricsViewEditor.stopRefresh();
                                         SwingUtilities.invokeLater(
                                                 () -> {
-                                                    if (ex
-                                                                    instanceof
+                                                    if (ex instanceof
                                                                     com.zeroc.Ice
-                                                                            .ObjectNotExistException
-                                                            || ex
-                                                                    instanceof
+                                                                            .ObjectNotExistException ||
+                                                            ex instanceof
                                                                     com.zeroc.Ice
                                                                             .ConnectionRefusedException) {
                                                         // Server is down.
-                                                    } else if (!(ex
-                                                            instanceof
+                                                    } else if (!(ex instanceof
                                                             com.zeroc.Ice
                                                                     .CommunicatorDestroyedException)) {
                                                         ex.printStackTrace();
@@ -232,21 +226,17 @@ class MetricsView extends TreeNode {
                                         MetricsViewEditor.stopRefresh();
                                         SwingUtilities.invokeLater(
                                                 () -> {
-                                                    if (ex
-                                                                    instanceof
+                                                    if (ex instanceof
                                                                     com.zeroc.Ice
-                                                                            .ObjectNotExistException
-                                                            || ex
-                                                                    instanceof
+                                                                            .ObjectNotExistException ||
+                                                            ex instanceof
                                                                     com.zeroc.Ice
                                                                             .ConnectionRefusedException) {
                                                         // Server is down.
-                                                    } else if (ex
-                                                            instanceof
+                                                    } else if (ex instanceof
                                                             com.zeroc.Ice.FacetNotExistException) {
                                                         // MetricsAdmin facet not present.
-                                                    } else if (!(ex
-                                                            instanceof
+                                                    } else if (!(ex instanceof
                                                             com.zeroc.Ice
                                                                     .CommunicatorDestroyedException)) {
                                                         ex.printStackTrace();

@@ -58,7 +58,7 @@ class BatchOnewaysAMI {
                             .sentSynchronously()); // Empty flush
         }
 
-        for (int i = 0; i < 30; ++i) {
+        for (int i = 0; i < 30; i++) {
             batch.opByteSOnewayAsync(bs1)
                     .whenComplete(
                             (result, ex) -> {
@@ -108,5 +108,8 @@ class BatchOnewaysAMI {
         batch.ice_pingAsync();
         batch.ice_flushBatchRequestsAsync().join();
         batch.ice_pingAsync();
+    }
+
+    private BatchOnewaysAMI() {
     }
 }

@@ -40,7 +40,7 @@ public class BZip2 {
             //
             BufferedOutputStream bos = new BufferedOutputStream(compressed);
             java.lang.Object[] args =
-                    new java.lang.Object[] {bos, Integer.valueOf(compressionLevel)};
+                    new java.lang.Object[]{bos, Integer.valueOf(compressionLevel)};
             java.io.OutputStream os = (java.io.OutputStream) _bzOutputStreamCtor.newInstance(args);
             os.write(data, offset + headerSize, uncompressedLen);
             os.close();
@@ -125,7 +125,7 @@ public class BZip2 {
                     new java.io.ByteArrayInputStream(
                             compressed, offset + headerSize + 4, compressedLen);
 
-            java.lang.Object[] args = new java.lang.Object[] {bais};
+            java.lang.Object[] args = new java.lang.Object[]{bais};
             java.io.InputStream is = (java.io.InputStream) _bzInputStreamCtor.newInstance(args);
             r.position(headerSize);
             byte[] arr = new byte[8 * 1024];
@@ -147,7 +147,7 @@ public class BZip2 {
         return r;
     }
 
-    private static boolean _checked = false;
+    private static boolean _checked;
     private static java.lang.reflect.Constructor<?> _bzInputStreamCtor;
     private static java.lang.reflect.Constructor<?> _bzOutputStreamCtor;
 
@@ -224,5 +224,8 @@ public class BZip2 {
 
         private byte[] _data;
         private int _pos;
+    }
+
+    private BZip2() {
     }
 }

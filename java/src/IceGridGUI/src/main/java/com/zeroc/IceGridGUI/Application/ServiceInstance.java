@@ -277,8 +277,8 @@ class ServiceInstance extends TreeNode implements Service, Cloneable {
                             _descriptor.parameterValues, templateDescriptor.parameters);
             attributes.addFirst(createAttribute("template", _descriptor.template));
 
-            if (_descriptor.propertySet.references.length == 0
-                    && _descriptor.propertySet.properties.isEmpty()) {
+            if (_descriptor.propertySet.references.length == 0 &&
+                    _descriptor.propertySet.properties.isEmpty()) {
                 writer.writeElement("service-instance", attributes);
             } else {
                 writer.writeStartTag("service-instance", attributes);

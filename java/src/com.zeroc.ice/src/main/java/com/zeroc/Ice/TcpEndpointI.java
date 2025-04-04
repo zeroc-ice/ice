@@ -225,31 +225,31 @@ final class TcpEndpointI extends IPEndpointI {
                 {
                     if (argument == null) {
                         throw new ParseException(
-                                "no argument provided for -t option in endpoint '"
-                                        + endpoint
-                                        + "'");
+                                "no argument provided for -t option in endpoint '" +
+                                        endpoint +
+                                        "'");
                     }
 
-                    if (argument.equals("infinite")) {
+                    if ("infinite".equals(argument)) {
                         _timeout = -1;
                     } else {
                         try {
                             _timeout = Integer.parseInt(argument);
                             if (_timeout < 1) {
                                 throw new ParseException(
-                                        "invalid timeout value '"
-                                                + argument
-                                                + "' in endpoint '"
-                                                + endpoint
-                                                + "'");
+                                        "invalid timeout value '" +
+                                                argument +
+                                                "' in endpoint '" +
+                                                endpoint +
+                                                "'");
                             }
                         } catch (NumberFormatException ex) {
                             throw new ParseException(
-                                    "invalid timeout value '"
-                                            + argument
-                                            + "' in endpoint '"
-                                            + endpoint
-                                            + "'",
+                                    "invalid timeout value '" +
+                                            argument +
+                                            "' in endpoint '" +
+                                            endpoint +
+                                            "'",
                                     ex);
                         }
                     }
@@ -261,11 +261,11 @@ final class TcpEndpointI extends IPEndpointI {
                 {
                     if (argument != null) {
                         throw new ParseException(
-                                "unexpected argument '"
-                                        + argument
-                                        + "' provided for -z option in '"
-                                        + endpoint
-                                        + "'");
+                                "unexpected argument '" +
+                                        argument +
+                                        "' provided for -z option in '" +
+                                        endpoint +
+                                        "'");
                     }
 
                     _compress = true;

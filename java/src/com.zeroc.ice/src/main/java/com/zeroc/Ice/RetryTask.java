@@ -77,5 +77,5 @@ class RetryTask implements Runnable, CancellationHandler {
     private final RetryQueue _queue;
     private final ProxyOutgoingAsyncBase _outAsync;
     private java.util.concurrent.Future<?> _future;
-    private boolean _cancelled = false;
+    private boolean _cancelled;
 }

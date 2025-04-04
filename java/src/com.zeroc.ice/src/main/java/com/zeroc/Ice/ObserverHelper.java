@@ -42,4 +42,7 @@ final class ObserverHelper {
     }
 
     private static final java.util.Map<String, String> _emptyContext = new java.util.HashMap<>();
+
+    private ObserverHelper() {
+    }
 }

@@ -48,8 +48,7 @@ class TwowaysAMI {
                             (result, ex) -> {
                                 if (ex != null) {
                                     test(
-                                            ex
-                                                    instanceof
+                                            ex instanceof
                                                     com.zeroc.Ice
                                                             .OperationNotExistException); // OK,
                                     // talking to non-Java server.
@@ -72,8 +71,7 @@ class TwowaysAMI {
                             (result, ex) -> {
                                 if (ex != null) {
                                     test(
-                                            ex
-                                                    instanceof
+                                            ex instanceof
                                                     com.zeroc.Ice
                                                             .OperationNotExistException); // OK,
                                     // talking to non-Java server.
@@ -105,8 +103,7 @@ class TwowaysAMI {
                             (result, ex) -> {
                                 if (ex != null) {
                                     test(
-                                            ex
-                                                    instanceof
+                                            ex instanceof
                                                     com.zeroc.Ice
                                                             .OperationNotExistException); // OK,
                                     // talking to non-Java server.
@@ -153,18 +150,21 @@ class TwowaysAMI {
                                 test(((Struct) (result.o.o2)).o == null);
                                 test(((Struct) (result.o.o2)).o2 == result.o.o2);
                                 test(result.o.s == null);
-                                test(result.o.s2.equals("Hello"));
+                                test("Hello".equals(result.o.s2));
                                 test(result.returnValue.o == null);
                                 test(result.returnValue.o2 != null);
                                 test(((Struct) (result.returnValue.o2)).o == null);
                                 test(
-                                        ((Struct) (result.returnValue.o2)).o2
-                                                == result.returnValue.o2);
+                                        ((Struct) (result.returnValue.o2)).o2 ==
+                                                result.returnValue.o2);
                                 test(result.returnValue.s == null);
-                                test(result.returnValue.s2.equals("Hello"));
+                                test("Hello".equals(result.returnValue.s2));
                                 cb.called();
                             });
             test(cb.check());
         }
+    }
+
+    private TwowaysAMI() {
     }
 }

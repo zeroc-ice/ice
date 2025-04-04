@@ -9,9 +9,9 @@ public final class MyObjectI implements MyObject {
     public void ice_ping(com.zeroc.Ice.Current current) {
         String name = current.id.name;
 
-        if (name.equals("ObjectNotExist")) {
+        if ("ObjectNotExist".equals(name)) {
             throw new com.zeroc.Ice.ObjectNotExistException();
-        } else if (name.equals("FacetNotExist")) {
+        } else if ("FacetNotExist".equals(name)) {
             throw new com.zeroc.Ice.FacetNotExistException();
         }
     }
@@ -20,9 +20,9 @@ public final class MyObjectI implements MyObject {
     public String getName(com.zeroc.Ice.Current current) {
         String name = current.id.name;
 
-        if (name.equals("ObjectNotExist")) {
+        if ("ObjectNotExist".equals(name)) {
             throw new com.zeroc.Ice.ObjectNotExistException();
-        } else if (name.equals("FacetNotExist")) {
+        } else if ("FacetNotExist".equals(name)) {
             throw new com.zeroc.Ice.FacetNotExistException();
         }
 

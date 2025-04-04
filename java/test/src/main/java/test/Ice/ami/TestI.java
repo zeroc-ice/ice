@@ -171,8 +171,8 @@ public class TestI implements TestIntf {
     public synchronized void finishDispatch(com.zeroc.Ice.Current current) {
         if (_shutdown) {
             return;
-        } else if (_pending
-                != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
+        } else if (_pending !=
+                null) // Pending might not be set yet if startDispatch is dispatch out-of-order
         {
             _pending.complete(null);
             _pending = null;
@@ -190,6 +190,6 @@ public class TestI implements TestIntf {
     }
 
     private int _batchCount;
-    private boolean _shutdown = false;
-    private CompletableFuture<Void> _pending = null;
+    private boolean _shutdown;
+    private CompletableFuture<Void> _pending;
 }

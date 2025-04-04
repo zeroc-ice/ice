@@ -165,8 +165,8 @@ public class Editor extends EditorBase {
 
         if (errorCount > 0) {
             String message =
-                    errorCount == 1
-                            ? emptyFields + " cannot be empty"
+                    errorCount == 1 ?
+                            emptyFields + " cannot be empty"
                             : "The following fields cannot be empty:\n" + emptyFields;
 
             JOptionPane.showMessageDialog(

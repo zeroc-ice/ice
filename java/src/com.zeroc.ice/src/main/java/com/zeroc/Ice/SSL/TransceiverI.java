@@ -151,7 +151,7 @@ final class TransceiverI implements com.zeroc.Ice.Transceiver {
 
     @Override
     public com.zeroc.Ice.EndpointI bind() {
-        assert (false);
+        assert false;
         return null;
     }
 
@@ -198,8 +198,8 @@ final class TransceiverI implements com.zeroc.Ice.Transceiver {
                 }
                 // Android API 21 SSLEngine doesn't report underflow, so look at the absence of
                 // network data and application data to signal a network read.
-                else if (status == Status.BUFFER_UNDERFLOW
-                        || (_appInput.position() == 0 && _netInput.b.position() == 0)) {
+                else if (status == Status.BUFFER_UNDERFLOW ||
+                        (_appInput.position() == 0 && _netInput.b.position() == 0)) {
                     int s = _delegate.read(_netInput);
                     if (s != SocketOperation.None && _netInput.b.position() == 0) {
                         return s;
@@ -333,18 +333,18 @@ final class TransceiverI implements com.zeroc.Ice.Transceiver {
                             switch (result.getStatus()) {
                                 case BUFFER_OVERFLOW:
                                     {
-                                        assert (false);
+                                        assert false;
                                         break;
                                     }
                                 case BUFFER_UNDERFLOW:
                                     {
-                                        assert (status
-                                                == javax.net.ssl.SSLEngineResult.HandshakeStatus
+                                        assert (status ==
+                                                javax.net.ssl.SSLEngineResult.HandshakeStatus
                                                         .NEED_UNWRAP);
                                         int position = _netInput.b.position();
                                         int s = _delegate.read(_netInput);
-                                        if (s != SocketOperation.None
-                                                && _netInput.b.position() == position) {
+                                        if (s != SocketOperation.None &&
+                                                _netInput.b.position() == position) {
                                             return s;
                                         }
                                         break;
@@ -359,7 +359,7 @@ final class TransceiverI implements com.zeroc.Ice.Transceiver {
                                     }
                                 default: // 1.9 introduced NEEDS_UNWRAP_AGAIN for DTLS
                                     {
-                                        assert (false);
+                                        assert false;
                                         break;
                                     }
                             }
@@ -390,7 +390,7 @@ final class TransceiverI implements com.zeroc.Ice.Transceiver {
                 if (result != null) {
                     switch (result.getStatus()) {
                         case BUFFER_OVERFLOW:
-                            assert (false);
+                            assert false;
                             break;
                         case BUFFER_UNDERFLOW:
                             // Need to read again.
@@ -429,7 +429,7 @@ final class TransceiverI implements com.zeroc.Ice.Transceiver {
                             //
                             break;
                         case BUFFER_UNDERFLOW:
-                            assert (false);
+                            assert false;
                             break;
                         case CLOSED:
                             throw new ConnectionLostException();
@@ -522,7 +522,7 @@ final class TransceiverI implements com.zeroc.Ice.Transceiver {
     private String _adapterName = "";
     private boolean _incoming;
     private com.zeroc.Ice.ReadyCallback _readyCallback;
-    private boolean _isConnected = false;
+    private boolean _isConnected;
 
     private ByteBuffer _appInput; // Holds clear-text data to be read by the application.
     private com.zeroc.Ice.Buffer _netInput; // Holds encrypted data read from the socket.

@@ -30,7 +30,7 @@ class CommunicatorFlushBatch extends InvocationFuture<Void> {
 
             @Override
             protected void markCompleted() {
-                assert (false);
+                assert false;
             }
 
             @Override

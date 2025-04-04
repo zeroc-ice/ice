@@ -13,7 +13,7 @@ public class Server extends test.TestHelper {
 
         {
             String endpoint;
-            if (properties.getIceProperty("Ice.IPv6").equals("1")) {
+            if ("1".equals(properties.getIceProperty("Ice.IPv6"))) {
                 if (System.getProperty("os.name").contains("OS X")) {
                     endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
                 } else {
@@ -45,11 +45,11 @@ public class Server extends test.TestHelper {
             }
 
             StringBuilder endpoint = new StringBuilder();
-            if (properties.getIceProperty("Ice.IPv6").equals("1")) {
+            if ("1".equals(properties.getIceProperty("Ice.IPv6"))) {
                 endpoint.append("udp -h \"ff15::1:1\" -p ");
                 endpoint.append(getTestPort(10));
-                if (System.getProperty("os.name").contains("OS X")
-                        || System.getProperty("os.name").startsWith("Windows")) {
+                if (System.getProperty("os.name").contains("OS X") ||
+                        System.getProperty("os.name").startsWith("Windows")) {
                     endpoint.append(
                             " --interface \"::1\""); // Use loopback to prevent other machines to
                     // answer.
@@ -57,8 +57,8 @@ public class Server extends test.TestHelper {
             } else {
                 endpoint.append("udp -h 239.255.1.1 -p ");
                 endpoint.append(getTestPort(10));
-                if (System.getProperty("os.name").contains("OS X")
-                        || System.getProperty("os.name").startsWith("Windows")) {
+                if (System.getProperty("os.name").contains("OS X") ||
+                        System.getProperty("os.name").startsWith("Windows")) {
                     endpoint.append(
                             " --interface 127.0.0.1"); // Use loopback to prevent other machines to
                     // answer.

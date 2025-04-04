@@ -315,16 +315,16 @@ public final class Instance implements java.util.function.Function<String, Class
     }
 
     public synchronized ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminIdentity) {
-        boolean createAdapter = (adminAdapter == null);
+        boolean createAdapter = adminAdapter == null;
 
         synchronized (this) {
             if (_state == StateDestroyed) {
                 throw new CommunicatorDestroyedException();
             }
 
-            if (adminIdentity == null
-                    || adminIdentity.name == null
-                    || adminIdentity.name.isEmpty()) {
+            if (adminIdentity == null ||
+                    adminIdentity.name == null ||
+                    adminIdentity.name.isEmpty()) {
                 throw new IllegalArgumentException(
                         "The admin identity '" + adminIdentity + "' is not valid");
             }
@@ -430,8 +430,8 @@ public final class Instance implements java.util.function.Function<String, Class
             throw new CommunicatorDestroyedException();
         }
 
-        if (_adminAdapter == null
-                || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
+        if (_adminAdapter == null ||
+                (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
             if (_adminFacets.get(facet) != null) {
                 throw new AlreadyRegisteredException("facet", facet);
             }
@@ -448,8 +448,8 @@ public final class Instance implements java.util.function.Function<String, Class
 
         Object result;
 
-        if (_adminAdapter == null
-                || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
+        if (_adminAdapter == null ||
+                (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
             result = _adminFacets.remove(facet);
             if (result == null) {
                 throw new NotRegisteredException("facet", facet);
@@ -468,8 +468,8 @@ public final class Instance implements java.util.function.Function<String, Class
 
         Object result = null;
 
-        if (_adminAdapter == null
-                || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
+        if (_adminAdapter == null ||
+                (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
             result = _adminFacets.get(facet);
         } else {
             result = _adminAdapter.findFacet(_adminIdentity, facet);
@@ -600,8 +600,8 @@ public final class Instance implements java.util.function.Function<String, Class
             String packagePrefix = _initData.properties.getIceProperty("Ice.Default.Package");
             c =
                     getConcreteClass(
-                            packagePrefix.isEmpty()
-                                    ? fullyQualifiedClassName
+                            packagePrefix.isEmpty() ?
+                                    fullyQualifiedClassName
                                     : packagePrefix + "." + fullyQualifiedClassName);
         }
 
@@ -637,7 +637,7 @@ public final class Instance implements java.util.function.Function<String, Class
             try {
                 return (String) c.getField("typeId").get(null);
             } catch (Exception ex) {
-                assert (false);
+                assert false;
             }
         }
         return "";
@@ -723,8 +723,8 @@ public final class Instance implements java.util.function.Function<String, Class
 
             if (_initData.logger == null) {
                 String logFile = properties.getIceProperty("Ice.LogFile");
-                if (properties.getIcePropertyAsInt("Ice.UseSyslog") > 0
-                        && !System.getProperty("os.name").startsWith("Windows")) {
+                if (properties.getIcePropertyAsInt("Ice.UseSyslog") > 0 &&
+                        !System.getProperty("os.name").startsWith("Windows")) {
                     if (!logFile.isEmpty()) {
                         throw new InitializationException(
                                 "Both syslog and file logger cannot be enabled.");
@@ -766,8 +766,8 @@ public final class Instance implements java.util.function.Function<String, Class
                 }
             }
 
-            if (properties.getIceProperty("Ice.BatchAutoFlushSize").isEmpty()
-                    && !properties.getIceProperty("Ice.BatchAutoFlush").isEmpty()) {
+            if (properties.getIceProperty("Ice.BatchAutoFlushSize").isEmpty() &&
+                    !properties.getIceProperty("Ice.BatchAutoFlush").isEmpty()) {
                 if (properties.getIcePropertyAsInt("Ice.BatchAutoFlush") > 0) {
                     _batchAutoFlushSize = _messageSizeMax;
                 } else {
@@ -795,11 +795,11 @@ public final class Instance implements java.util.function.Function<String, Class
             }
 
             String toStringModeStr = properties.getIceProperty("Ice.ToStringMode");
-            if (toStringModeStr.equals("Unicode")) {
+            if ("Unicode".equals(toStringModeStr)) {
                 _toStringMode = ToStringMode.Unicode;
-            } else if (toStringModeStr.equals("ASCII")) {
+            } else if ("ASCII".equals(toStringModeStr)) {
                 _toStringMode = ToStringMode.ASCII;
-            } else if (toStringModeStr.equals("Compat")) {
+            } else if ("Compat".equals(toStringModeStr)) {
                 _toStringMode = ToStringMode.Compat;
             } else {
                 throw new InitializationException(
@@ -870,7 +870,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
             String[] arr = properties.getIcePropertyAsList("Ice.RetryIntervals");
             if (arr.length == 0) {
-                _retryIntervals = new int[] {0};
+                _retryIntervals = new int[]{0};
             } else {
                 _retryIntervals = new int[arr.length];
 
@@ -1254,7 +1254,7 @@ public final class Instance implements java.util.function.Function<String, Class
         } finally {
             synchronized (this) {
                 if (_state == StateDestroyInProgress) {
-                    assert (interruptible);
+                    assert interruptible;
                     _state = StateActive;
                     notifyAll();
                 }
@@ -1316,8 +1316,8 @@ public final class Instance implements java.util.function.Function<String, Class
                         propertyPrefix + ".IdleTimeout", _serverConnectionOptions.idleTimeout()),
                 properties.getPropertyAsIntWithDefault(
                                 propertyPrefix + ".EnableIdleCheck",
-                                _serverConnectionOptions.enableIdleCheck() ? 1 : 0)
-                        > 0,
+                                _serverConnectionOptions.enableIdleCheck() ? 1 : 0) >
+                        0,
                 properties.getPropertyAsIntWithDefault(
                         propertyPrefix + ".InactivityTimeout",
                         _serverConnectionOptions.inactivityTimeout()),
@@ -1509,7 +1509,7 @@ public final class Instance implements java.util.function.Function<String, Class
     private EndpointFactoryManager _endpointFactoryManager;
     private PluginManager _pluginManager;
 
-    private boolean _adminEnabled = false;
+    private boolean _adminEnabled;
     private ObjectAdapter _adminAdapter;
     private java.util.Map<String, Object> _adminFacets = new java.util.HashMap<>();
     private java.util.Set<String> _adminFacetFilter = new java.util.HashSet<>();
@@ -1519,25 +1519,25 @@ public final class Instance implements java.util.function.Function<String, Class
     private java.util.Map<String, String> _sliceTypeIdToClassMap = new java.util.HashMap<>();
     private String[] _packages;
 
-    private static boolean _oneOffDone = false;
+    private static boolean _oneOffDone;
     private com.zeroc.Ice.SSL.SSLEngine _sslEngine;
 
     private Map<String, String[]> _builtInModulePackagePrefixes =
             java.util.Collections.unmodifiableMap(
                     new HashMap<String, String[]>() {
                         {
-                            put("Glacier2", new String[] {"com.zeroc"});
-                            put("Ice", new String[] {"com.zeroc"});
-                            put("IceBox", new String[] {"com.zeroc"});
-                            put("IceDiscovery", new String[] {"com.zeroc"});
-                            put("IceGrid", new String[] {"com.zeroc"});
-                            put("IceLocatorDiscovery", new String[] {"com.zeroc"});
+                            put("Glacier2", new String[]{"com.zeroc"});
+                            put("Ice", new String[]{"com.zeroc"});
+                            put("IceBox", new String[]{"com.zeroc"});
+                            put("IceDiscovery", new String[]{"com.zeroc"});
+                            put("IceGrid", new String[]{"com.zeroc"});
+                            put("IceLocatorDiscovery", new String[]{"com.zeroc"});
                             put(
                                     "IceMX",
-                                    new String[] {
+                                    new String[]{
                                         "com.zeroc.Ice", "com.zeroc.Glacier2", "com.zeroc.IceStorm"
                                     });
-                            put("IceStorm", new String[] {"com.zeroc"});
+                            put("IceStorm", new String[]{"com.zeroc"});
                         }
                     });
 

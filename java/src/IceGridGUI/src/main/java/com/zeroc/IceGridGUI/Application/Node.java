@@ -151,7 +151,7 @@ class Node extends TreeNode implements PropertySetParent {
         int index = getIndex(child);
         _servers.remove(child);
 
-        getRoot().getTreeModel().nodesWereRemoved(this, new int[] {index}, new Object[] {child});
+        getRoot().getTreeModel().nodesWereRemoved(this, new int[]{index}, new Object[]{child});
     }
 
     @Override
@@ -169,7 +169,7 @@ class Node extends TreeNode implements PropertySetParent {
         int index = getIndex(child);
         _propertySets.remove(child);
 
-        getRoot().getTreeModel().nodesWereRemoved(this, new int[] {index}, new Object[] {child});
+        getRoot().getTreeModel().nodesWereRemoved(this, new int[]{index}, new Object[]{child});
     }
 
     @Override
@@ -192,10 +192,10 @@ class Node extends TreeNode implements PropertySetParent {
         Object descriptor = getCoordinator().getClipboard();
         if (descriptor != null) {
             actions[PASTE] =
-                    descriptor instanceof NodeDescriptor
-                            || descriptor instanceof ServerInstanceDescriptor
-                            || descriptor instanceof ServerDescriptor
-                            || descriptor instanceof PropertySetDescriptor;
+                    descriptor instanceof NodeDescriptor ||
+                            descriptor instanceof ServerInstanceDescriptor ||
+                            descriptor instanceof ServerDescriptor ||
+                            descriptor instanceof PropertySetDescriptor;
         }
 
         if (!_ephemeral) {
@@ -403,7 +403,7 @@ class Node extends TreeNode implements PropertySetParent {
         @SuppressWarnings("unchecked")
         Utils.Resolver resolver =
                 new Utils.Resolver(
-                        new java.util.Map[] {_descriptor.variables, root.getVariables()});
+                        new java.util.Map[]{_descriptor.variables, root.getVariables()});
         _resolver = resolver;
 
         _resolver.put("application", root.getId());
@@ -439,7 +439,7 @@ class Node extends TreeNode implements PropertySetParent {
     }
 
     void restore(Backup backup) {
-        for (int i = backup.backupList.size() - 1; i >= 0; --i) {
+        for (int i = backup.backupList.size() - 1; i >= 0; i--) {
             backup.servers.get(i).restore(backup.backupList.get(i));
         }
         _resolver = backup.resolver;
@@ -455,9 +455,9 @@ class Node extends TreeNode implements PropertySetParent {
 
         if (templateDescriptor == null) {
             throw new UpdateFailedException(
-                    "Cannot find template descriptor '"
-                            + instanceDescriptor.template
-                            + "' referenced by server-instance");
+                    "Cannot find template descriptor '" +
+                            instanceDescriptor.template +
+                            "' referenced by server-instance");
         }
         ServerDescriptor serverDescriptor = (ServerDescriptor) templateDescriptor.descriptor;
 
@@ -530,13 +530,13 @@ class Node extends TreeNode implements PropertySetParent {
         }
 
         // Anything in this update?
-        if (!_editable.isNew()
-                && !_editable.isModified()
-                && update.removePropertySets.length == 0
-                && update.propertySets.isEmpty()
-                && update.removeServers.length == 0
-                && update.servers.isEmpty()
-                && update.serverInstances.isEmpty()) {
+        if (!_editable.isNew() &&
+                !_editable.isModified() &&
+                update.removePropertySets.length == 0 &&
+                update.propertySets.isEmpty() &&
+                update.removeServers.length == 0 &&
+                update.servers.isEmpty() &&
+                update.serverInstances.isEmpty()) {
             return null;
         }
 
@@ -791,7 +791,7 @@ class Node extends TreeNode implements PropertySetParent {
         @SuppressWarnings("unchecked")
         Utils.Resolver resolver =
                 new Utils.Resolver(
-                        new java.util.Map[] {_descriptor.variables, getRoot().getVariables()});
+                        new java.util.Map[]{_descriptor.variables, getRoot().getVariables()});
         _resolver = resolver;
 
         _resolver.put("application", getRoot().getId());

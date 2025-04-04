@@ -79,13 +79,13 @@ public abstract class UserException extends java.lang.Exception {
                 out.print("(null)");
             } else {
                 Class<?> c = value.getClass();
-                if (c.equals(Byte.class)
-                        || c.equals(Short.class)
-                        || c.equals(Integer.class)
-                        || c.equals(Long.class)
-                        || c.equals(Double.class)
-                        || c.equals(Float.class)
-                        || c.equals(Boolean.class)) {
+                if (c.equals(Byte.class) ||
+                        c.equals(Short.class) ||
+                        c.equals(Integer.class) ||
+                        c.equals(Long.class) ||
+                        c.equals(Double.class) ||
+                        c.equals(Float.class) ||
+                        c.equals(Boolean.class)) {
                     writeName(name, out);
                     out.print(value.toString());
                 } else if (c.equals(String.class)) {
@@ -110,7 +110,7 @@ public abstract class UserException extends java.lang.Exception {
                 } else if (c.isArray()) {
                     int n = java.lang.reflect.Array.getLength(value);
                     for (int i = 0; i < n; i++) {
-                        String elem = (name != null ? name : "");
+                        String elem = name != null ? name : "";
                         elem += "[" + i + "]";
                         writeValue(elem, java.lang.reflect.Array.get(value, i), objectTable, out);
                     }
@@ -119,7 +119,7 @@ public abstract class UserException extends java.lang.Exception {
                     java.util.Iterator<?> i = map.entrySet().iterator();
                     while (i.hasNext()) {
                         java.util.Map.Entry<?, ?> entry = (java.util.Map.Entry<?, ?>) i.next();
-                        String elem = (name != null ? name + "." : "");
+                        String elem = name != null ? name + "." : "";
                         writeValue(elem + "key", entry.getKey(), objectTable, out);
                         writeValue(elem + "value", entry.getValue(), objectTable, out);
                     }
@@ -189,16 +189,16 @@ public abstract class UserException extends java.lang.Exception {
                     // Only write public, non-static fields.
                     //
                     int mods = field.getModifiers();
-                    if (java.lang.reflect.Modifier.isPublic(mods)
-                            && !java.lang.reflect.Modifier.isStatic(mods)) {
+                    if (java.lang.reflect.Modifier.isPublic(mods) &&
+                            !java.lang.reflect.Modifier.isStatic(mods)) {
                         String fieldName =
-                                (name != null ? name + '.' + field.getName() : field.getName());
+                                name != null ? name + '.' + field.getName() : field.getName();
 
                         try {
                             java.lang.Object value = field.get(obj);
                             writeValue(fieldName, value, objectTable, out);
                         } catch (IllegalAccessException ex) {
-                            assert (false);
+                            assert false;
                         }
                     }
                 }
@@ -210,6 +210,9 @@ public abstract class UserException extends java.lang.Exception {
                 out.nl();
                 out.print(name + " = ");
             }
+        }
+
+        private ExceptionWriter() {
         }
     }
 

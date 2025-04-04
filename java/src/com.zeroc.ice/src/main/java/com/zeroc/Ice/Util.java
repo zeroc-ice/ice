@@ -289,9 +289,9 @@ public final class Util {
         if (ident.category == null || ident.category.isEmpty()) {
             return StringUtil.escapeString(ident.name, "/", toStringMode);
         } else {
-            return StringUtil.escapeString(ident.category, "/", toStringMode)
-                    + '/'
-                    + StringUtil.escapeString(ident.name, "/", toStringMode);
+            return StringUtil.escapeString(ident.category, "/", toStringMode) +
+                    '/' +
+                    StringUtil.escapeString(ident.name, "/", toStringMode);
         }
     }
 
@@ -683,11 +683,11 @@ public final class Util {
 
     private static int getThreadPriorityProperty(Properties properties, String prefix) {
         String pri = properties.getProperty(prefix + ".ThreadPriority");
-        if (pri.equals("MIN_PRIORITY") || pri.equals("java.lang.Thread.MIN_PRIORITY")) {
+        if ("MIN_PRIORITY".equals(pri) || "java.lang.Thread.MIN_PRIORITY".equals(pri)) {
             return java.lang.Thread.MIN_PRIORITY;
-        } else if (pri.equals("NORM_PRIORITY") || pri.equals("java.lang.Thread.NORM_PRIORITY")) {
+        } else if ("NORM_PRIORITY".equals(pri) || "java.lang.Thread.NORM_PRIORITY".equals(pri)) {
             return java.lang.Thread.NORM_PRIORITY;
-        } else if (pri.equals("MAX_PRIORITY") || pri.equals("java.lang.Thread.MAX_PRIORITY")) {
+        } else if ("MAX_PRIORITY".equals(pri) || "java.lang.Thread.MAX_PRIORITY".equals(pri)) {
             return java.lang.Thread.MAX_PRIORITY;
         }
 
@@ -763,5 +763,8 @@ public final class Util {
     public static final EncodingVersion Encoding_1_1 = new EncodingVersion((byte) 1, (byte) 1);
 
     private static java.lang.Object _processLoggerMutex = new java.lang.Object();
-    private static Logger _processLogger = null;
+    private static Logger _processLogger;
+
+    private Util() {
+    }
 }

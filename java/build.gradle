@@ -2,6 +2,14 @@
 
 plugins {
     id 'com.zeroc.ice.slice-tools' apply false
+    id 'checkstyle'
+    id 'org.openrewrite.rewrite' version '7.3.0'
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
 }
 
 subprojects {
@@ -10,6 +18,7 @@ subprojects {
     project.version = iceVersion
     project.group = "com.zeroc"
 
+    apply plugin: 'checkstyle'
     apply plugin: 'java'
     apply plugin: 'com.zeroc.ice.slice-tools'
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
@@ -35,6 +44,11 @@ subprojects {
         options.compilerArgs << "-Xlint:unchecked" << "-Xlint:-options"
         options.encoding = "UTF-8"
         options.deprecation = true
+    }
+
+    //makes checkstyle wait for rewrite. hopefully
+    tasks.withType(Checkstyle) {
+        dependsOn(rewriteDryRun)
     }
 }
 
@@ -77,3 +91,46 @@ task alljavadoc(type: Javadoc) {
     options.docTitle = "Ice ${iceVersion} API Reference"
 }
 alljavadoc.dependsOn = exportedProjects.collect { project(it).assemble.dependsOn }
+
+checkstyle {
+    toolVersion = '10.21.4'
+    ignoreFailures = false
+    showViolations = true
+}
+
+rewrite {
+    activeRecipe(
+        'org.openrewrite.staticanalysis.DefaultComesLast',
+        'org.openrewrite.staticanalysis.EmptyBlock',
+        'org.openrewrite.java.format.EmptyNewlineAtEndOfFile',
+        'org.openrewrite.staticanalysis.ForLoopControlVariablePostfixOperators',
+        //'org.openrewrite.staticanalysis.FinalizePrivateFields',
+        'org.openrewrite.java.format.MethodParamPad',
+        'org.openrewrite.java.format.NoWhitespaceAfter',
+        'org.openrewrite.java.format.NoWhitespaceBefore',
+        'org.openrewrite.java.format.PadEmptyForLoopComponents',
+        'org.openrewrite.staticanalysis.TypecastParenPad',
+        'org.openrewrite.staticanalysis.EqualsAvoidsNull',
+        'org.openrewrite.staticanalysis.ExplicitInitialization',
+        'org.openrewrite.staticanalysis.FallThrough',
+        'org.openrewrite.staticanalysis.HideUtilityClassConstructor',
+        'org.openrewrite.staticanalysis.NeedBraces',
+        'org.openrewrite.staticanalysis.OperatorWrap',
+        'org.openrewrite.staticanalysis.UnnecessaryParentheses',
+        'org.openrewrite.staticanalysis.ReplaceThreadRunWithThreadStart',
+        'org.openrewrite.staticanalysis.ChainStringBuilderAppendCalls',
+        'org.openrewrite.staticanalysis.ReplaceStringBuilderWithString',
+        //'org.openrewrite.java.ShortenFullyQualifiedTypeReferences',
+    )
+    checkstyleConfigFile = file("config/checkstyle/checkstyle.xml")
+    setExportDatatables(true)
+    exclusion(
+        '**/*.gradle',
+        'com/zeroc/Ice/PropertyNames.java',
+        '**/*.kts'
+    )
+}
+
+dependencies {
+    rewrite("org.openrewrite.recipe:rewrite-static-analysis:2.5.1")
+}

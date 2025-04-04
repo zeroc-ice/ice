@@ -10,17 +10,24 @@ plugins {
     // Apply the Kotlin JVM plugin
      id("org.jetbrains.kotlin.jvm") version "2.1.0"
 
-    // Code formatting with Spotless
-    id("com.diffplug.spotless") version "6.25.0"
+    // Code format parsing with Checkstyle
+    id("checkstyle")
+
+    // Automated code formatting based on Checkstyle with OpenRewrite
+    id("org.openrewrite.rewrite") version "7.3.0"
 }
 
-spotless {
-    kotlin {
-        target("src/**/*.kt") // Format all Kotlin files
-        ktlint("0.50.0") // Use ktlint as the formatter
-        trimTrailingWhitespace()
+/*tasks.withType<Checkstyle>().configureEach {
+    reports {
+        xml.required = false
+        html.required = true
+        html.stylesheet = resources.text.fromFile("config/xsl/checkstyle-custom.xsl")
     }
 }
+
+checkstyle {
+    toolVersion = "10.21.4"
+}*/
 
 repositories {
     google() // Required for AGP (Android Gradle Plugin)
@@ -28,6 +35,7 @@ repositories {
 }
 
 dependencies {
+    //checkstyle("com.puppycrawl.checkstyle:${checkstyle.toolVersion}")
     compileOnly("com.android.tools.build:gradle:8.1.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -56,7 +64,6 @@ tasks.withType<Jar> {
 }
 
 // Publishing
-
 publishing {
     repositories {
         val mavenRepoUrl = findProperty("mavenRepository") as String? ?: System.getenv("MAVEN_REPOSITORY")
@@ -96,4 +103,10 @@ tasks.named<Task>("check") {
 // Configure unit tests to use JUnit Jupiter
 tasks.named<Test>("test") {
     useJUnitPlatform()
+}
+
+rewrite {
+  activeRecipe(
+      "org.openrewrite.java.OrderImports",
+  )
 }

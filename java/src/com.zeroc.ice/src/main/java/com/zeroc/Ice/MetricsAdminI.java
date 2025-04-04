@@ -35,11 +35,11 @@ public class MetricsAdminI
 
         if (unknownProps.size() > 0) {
             throw new PropertyException(
-                    "found unknown IceMX properties for:"
-                            + ": '"
-                            + prefix
-                            + "'\n    "
-                            + String.join("\n    ", unknownProps));
+                    "found unknown IceMX properties for:" +
+                            ": '" +
+                            prefix +
+                            "'\n    " +
+                            String.join("\n    ", unknownProps));
         }
     }
 
@@ -96,8 +96,8 @@ public class MetricsAdminI
 
                 validateProperties(viewsPrefix + viewName + '.', _properties);
 
-                if (_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0)
-                        > 0) {
+                if (_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) >
+                        0) {
                     _disabledViews.add(viewName);
                     continue; // The view is disabled
                 }
@@ -272,8 +272,8 @@ public class MetricsAdminI
                     updateViews();
                 } catch (Exception ex) {
                     _logger.warning(
-                            "unexpected exception while updating metrics view configuration:\n"
-                                    + ex.toString());
+                            "unexpected exception while updating metrics view configuration:\n" +
+                                    ex.toString());
                 }
                 return;
             }

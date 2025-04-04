@@ -37,8 +37,8 @@ public class ApplicationPane extends JSplitPane implements Tab {
 
         c.getSaveAction()
                 .setEnabled(
-                        _root.needsSaving()
-                                && (_root.isLive() && c.connectedToMaster() || _root.hasFile()));
+                        _root.needsSaving() &&
+                                (_root.isLive() && c.connectedToMaster() || _root.hasFile()));
         c.getDiscardUpdatesAction()
                 .setEnabled(_root.needsSaving() && (_root.isLive() || _root.hasFile()));
 
@@ -113,8 +113,8 @@ public class ApplicationPane extends JSplitPane implements Tab {
         TreeNode previousNode = null;
         do {
             previousNode = _previousNodes.removeLast();
-        } while (!_previousNodes.isEmpty()
-                && (previousNode == _currentNode || !_root.hasNode(previousNode)));
+        } while (!_previousNodes.isEmpty() &&
+                (previousNode == _currentNode || !_root.hasNode(previousNode)));
 
         if (_previousNodes.isEmpty()) {
             _root.getCoordinator().getBackAction().setEnabled(false);
@@ -169,7 +169,7 @@ public class ApplicationPane extends JSplitPane implements Tab {
 
     // E.g. to replace an ephemeral root
     public void setRoot(Root newRoot) {
-        boolean reset = (_root != null);
+        boolean reset = _root != null;
 
         if (reset) {
             ToolTipManager.sharedInstance().unregisterComponent(_root.getTree());

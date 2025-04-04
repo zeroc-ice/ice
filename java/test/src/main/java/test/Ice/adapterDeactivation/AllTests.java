@@ -18,8 +18,8 @@ public class AllTests {
     }
 
     private static EndpointInfo getUnderlying(EndpointInfo endpointInfo) {
-        return endpointInfo.underlying == null
-                ? endpointInfo
+        return endpointInfo.underlying == null ?
+                endpointInfo
                 : getUnderlying(endpointInfo.underlying);
     }
 
@@ -73,7 +73,7 @@ public class AllTests {
         {
             out.print("testing connection closure... ");
             out.flush();
-            for (int i = 0; i < 10; ++i) {
+            for (int i = 0; i < 10; i++) {
                 try (com.zeroc.Ice.Communicator comm =
                         helper.initialize(communicator.getProperties()._clone())) {
                     comm.stringToProxy("test:" + helper.getTestEndpoint(0)).ice_pingAsync();
@@ -92,7 +92,7 @@ public class AllTests {
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("PAdapter");
             test(adapter.getPublishedEndpoints().length == 1);
             com.zeroc.Ice.Endpoint endpt = adapter.getPublishedEndpoints()[0];
-            test(endpt.toString().equals("tcp -h localhost -p 12345 -t 30000"));
+            test("tcp -h localhost -p 12345 -t 30000".equals(endpt.toString()));
             com.zeroc.Ice.ObjectPrx prx =
                     communicator.stringToProxy(
                             "dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000");
@@ -130,7 +130,7 @@ public class AllTests {
                 test(publishedEndpoints.length == 1);
                 IPEndpointInfo ipEndpointInfo =
                         (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
-                test(ipEndpointInfo.host.equals("test.zeroc.com"));
+                test("test.zeroc.com".equals(ipEndpointInfo.host));
                 adapter.destroy();
             }
 
@@ -144,7 +144,7 @@ public class AllTests {
                 test(publishedEndpoints.length == 1);
                 IPEndpointInfo ipEndpointInfo =
                         (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
-                test(ipEndpointInfo.host.equals("127.0.0.1"));
+                test("127.0.0.1".equals(ipEndpointInfo.host));
                 adapter.destroy();
             }
 
@@ -154,7 +154,7 @@ public class AllTests {
                 com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 IPEndpointInfo ipEndpointInfo =
                         (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
-                test(ipEndpointInfo.host.equals("test.zeroc.com"));
+                test("test.zeroc.com".equals(ipEndpointInfo.host));
                 adapter.destroy();
             }
 
@@ -175,8 +175,8 @@ public class AllTests {
                 IPEndpointInfo ipEndpointInfo1 =
                         (IPEndpointInfo) getUnderlying(publishedEndpoints[1].getInfo());
 
-                test(ipEndpointInfo0.host.equals("127.0.0.1") && ipEndpointInfo0.port == 12345);
-                test(ipEndpointInfo1.host.equals("127.0.0.1") && ipEndpointInfo1.port != 12345);
+                test("127.0.0.1".equals(ipEndpointInfo0.host) && ipEndpointInfo0.port == 12345);
+                test("127.0.0.1".equals(ipEndpointInfo1.host) && ipEndpointInfo1.port != 12345);
                 adapter.destroy();
             }
 
@@ -204,7 +204,7 @@ public class AllTests {
                 test(publishedEndpoints.length == 1); // loopback filtered out
                 IPEndpointInfo ipEndpointInfo =
                         (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
-                test(ipEndpointInfo.host.equals("test.zeroc.com") && ipEndpointInfo.port != 12345);
+                test("test.zeroc.com".equals(ipEndpointInfo.host) && ipEndpointInfo.port != 12345);
                 adapter.destroy();
             }
 
@@ -237,11 +237,11 @@ public class AllTests {
                 IPEndpointInfo ipEndpointInfo1 =
                         (IPEndpointInfo) getUnderlying(publishedEndpoints[1].getInfo());
                 test(
-                        ipEndpointInfo0.host.equals("test.zeroc.com")
-                                && ipEndpointInfo0.port == 12345);
+                        "test.zeroc.com".equals(ipEndpointInfo0.host) &&
+                                ipEndpointInfo0.port == 12345);
                 test(
-                        ipEndpointInfo1.host.equals("test.zeroc.com")
-                                && ipEndpointInfo1.port != 12345);
+                        "test.zeroc.com".equals(ipEndpointInfo1.host) &&
+                                ipEndpointInfo1.port != 12345);
                 adapter.destroy();
             }
         }
@@ -304,9 +304,9 @@ public class AllTests {
 
             test(adapter.getPublishedEndpoints().length == 1);
             test(
-                    adapter.getPublishedEndpoints()[0]
-                            .toString()
-                            .equals("tcp -h localhost -p 23456 -t 30000"));
+                    "tcp -h localhost -p 23456 -t 30000"
+                            .equals(adapter.getPublishedEndpoints()[0]
+                            .toString()));
             try {
                 adapter.setPublishedEndpoints(router.ice_getEndpoints());
                 test(false);
@@ -435,5 +435,8 @@ public class AllTests {
         out.println("ok");
 
         return obj;
+    }
+
+    private AllTests() {
     }
 }

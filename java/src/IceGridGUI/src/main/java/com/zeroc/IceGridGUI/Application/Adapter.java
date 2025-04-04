@@ -175,9 +175,9 @@ class Adapter extends TreeNode implements DescriptorHolder {
                 attributes.add(createAttribute("server-lifetime", "false"));
             }
 
-            if (_descriptor.description.isEmpty()
-                    && _descriptor.objects.isEmpty()
-                    && _descriptor.allocatables.isEmpty()) {
+            if (_descriptor.description.isEmpty() &&
+                    _descriptor.objects.isEmpty() &&
+                    _descriptor.allocatables.isEmpty()) {
                 writer.writeElement("adapter", attributes);
             } else {
                 writer.writeStartTag("adapter", attributes);
@@ -226,8 +226,8 @@ class Adapter extends TreeNode implements DescriptorHolder {
     }
 
     String getDefaultAdapterId(String name) {
-        return (_parent instanceof Service || _parent instanceof ServiceTemplate)
-                ? "${server}.${service}." + name
+        return _parent instanceof Service || _parent instanceof ServiceTemplate ?
+                "${server}.${service}." + name
                 : "${server}." + name;
     }
 

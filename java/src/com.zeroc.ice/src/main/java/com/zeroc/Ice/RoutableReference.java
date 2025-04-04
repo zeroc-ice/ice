@@ -77,8 +77,8 @@ class RoutableReference extends Reference {
         RoutableReference r = (RoutableReference) super.changeEncoding(newEncoding);
         if (r != this) {
             LocatorInfo locInfo = r._locatorInfo;
-            if (locInfo != null
-                    && !locInfo.getLocator().ice_getEncodingVersion().equals(newEncoding)) {
+            if (locInfo != null &&
+                    !locInfo.getLocator().ice_getEncodingVersion().equals(newEncoding)) {
                 r._locatorInfo =
                         getInstance()
                                 .locatorManager()
@@ -91,9 +91,9 @@ class RoutableReference extends Reference {
     @Override
     public Reference changeCompress(boolean newCompress) {
         RoutableReference r = (RoutableReference) super.changeCompress(newCompress);
-        if (r != this
-                && _endpoints.length
-                        > 0) // Also override the compress flag on the endpoints if it was updated.
+        if (r != this &&
+                _endpoints.length >
+                        0) // Also override the compress flag on the endpoints if it was updated.
         {
             EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
             for (int i = 0; i < _endpoints.length; i++) {
@@ -340,8 +340,8 @@ class RoutableReference extends Reference {
             return false;
         }
         RoutableReference rhs = (RoutableReference) obj; // Guaranteed to succeed.
-        if (_locatorInfo == null
-                ? rhs._locatorInfo != null
+        if (_locatorInfo == null ?
+                rhs._locatorInfo != null
                 : !_locatorInfo.equals(rhs._locatorInfo)) {
             return false;
         }
@@ -469,9 +469,9 @@ class RoutableReference extends Reference {
                                                             getInstance().traceLevels();
                                                     if (traceLvls.retry >= 2) {
                                                         String s =
-                                                                "connection to cached endpoints failed\n"
-                                                                        + "removing endpoints from cache and trying again\n"
-                                                                        + ex;
+                                                                "connection to cached endpoints failed\n" +
+                                                                        "removing endpoints from cache and trying again\n" +
+                                                                        ex;
                                                         getInstance()
                                                                 .initializationData()
                                                                 .logger
@@ -553,7 +553,7 @@ class RoutableReference extends Reference {
         //
         // Apply the endpoint overrides to each endpoint.
         //
-        for (int i = 0; i < endpts.length; ++i) {
+        for (int i = 0; i < endpts.length; i++) {
             endpts[i] = endpts[i].connectionId(_connectionId);
             if (getCompress().isPresent()) {
                 endpts[i] = endpts[i].compress(getCompress().get());
@@ -627,7 +627,7 @@ class RoutableReference extends Reference {
                 }
             default:
                 {
-                    assert (false);
+                    assert false;
                     break;
                 }
         }
@@ -705,7 +705,7 @@ class RoutableReference extends Reference {
             //
 
             factory.create(
-                    new EndpointI[] {endpoints[0]},
+                    new EndpointI[]{endpoints[0]},
                     true,
                     new OutgoingConnectionFactory.CreateConnectionCallback() {
                         @Override
@@ -733,7 +733,7 @@ class RoutableReference extends Reference {
                             }
 
                             final boolean more = _i != endpoints.length - 1;
-                            final EndpointI[] endpoint = new EndpointI[] {endpoints[_i]};
+                            final EndpointI[] endpoint = new EndpointI[]{endpoints[_i]};
                             factory.create(endpoint, more, this);
                         }
 

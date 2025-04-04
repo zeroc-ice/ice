@@ -120,7 +120,7 @@ public class AllTests {
         }
 
         private boolean _destroyed;
-        private BackgroundPrx _background = null;
+        private BackgroundPrx _background;
     }
 
     public static BackgroundPrx allTests(Configuration configuration, test.TestHelper helper) {
@@ -247,15 +247,15 @@ public class AllTests {
         out.println("ok");
 
         final boolean ws =
-                communicator
+                "test-ws"
+                        .equals(communicator
                         .getProperties()
-                        .getIceProperty("Ice.Default.Protocol")
-                        .equals("test-ws");
+                        .getIceProperty("Ice.Default.Protocol"));
         final boolean wss =
-                communicator
+                "test-wss"
+                        .equals(communicator
                         .getProperties()
-                        .getIceProperty("Ice.Default.Protocol")
-                        .equals("test-wss");
+                        .getIceProperty("Ice.Default.Protocol"));
         if (!ws && !wss) {
             out.print("testing buffered transport... ");
             out.flush();
@@ -267,7 +267,7 @@ public class AllTests {
             background.opAsync();
 
             java.util.List<CompletableFuture<Void>> results = new java.util.ArrayList<>();
-            for (int i = 0; i < 10000; ++i) {
+            for (int i = 0; i < 10000; i++) {
                 CompletableFuture<Void> r = background.opAsync();
                 results.add(r);
                 if (i % 50 == 0) {
@@ -296,13 +296,13 @@ public class AllTests {
         }
         background.ice_getConnection().close();
 
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < 4; i++) {
             if (i == 0 || i == 2) {
                 configuration.connectorsException(new com.zeroc.Ice.DNSException("dummy"));
             } else {
                 configuration.connectException(new com.zeroc.Ice.SocketException());
             }
-            BackgroundPrx prx = (i == 1 || i == 3) ? background : background.ice_oneway();
+            BackgroundPrx prx = i == 1 || i == 3 ? background : background.ice_oneway();
 
             try {
                 prx.op();
@@ -378,7 +378,7 @@ public class AllTests {
                 configuration.initializeSocketStatus(SocketOperation.Write);
                 configuration.initializeException(new com.zeroc.Ice.SocketException());
             }
-            BackgroundPrx prx = (i == 1 || i == 3) ? background : background.ice_oneway();
+            BackgroundPrx prx = i == 1 || i == 3 ? background : background.ice_oneway();
 
             try {
                 prx.op();
@@ -584,11 +584,11 @@ public class AllTests {
             configuration.readException(null);
         }
 
-        if (!background
+        if (!"test-ssl"
+                .equals(background
                 .ice_getCommunicator()
                 .getProperties()
-                .getIceProperty("Ice.Default.Protocol")
-                .equals("test-ssl")) {
+                .getIceProperty("Ice.Default.Protocol"))) {
             try {
                 // Get the read() of the connection validation to return "would block"
                 configuration.readReady(false);
@@ -815,7 +815,7 @@ public class AllTests {
             configuration.writeException(null);
         }
 
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 2; i++) {
             BackgroundPrx prx = i == 0 ? background : background.ice_oneway();
 
             background.ice_ping();
@@ -895,7 +895,7 @@ public class AllTests {
         new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
 
         // Fill up the receive and send buffers
-        for (int i = 0; i < 200; ++i) // 2MB
+        for (int i = 0; i < 200; i++) // 2MB
         {
             backgroundOneway.opWithPayloadAsync(seq).whenComplete((result, ex) -> test(false));
         }
@@ -1062,5 +1062,8 @@ public class AllTests {
             thread2.join();
         } catch (InterruptedException e) {
         }
+    }
+
+    private AllTests() {
     }
 }

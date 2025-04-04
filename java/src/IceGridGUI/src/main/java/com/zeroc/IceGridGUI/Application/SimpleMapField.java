@@ -95,8 +95,8 @@ public class SimpleMapField extends JTable {
                     public void tableChanged(TableModelEvent e) {
                         if (_editable) {
                             Object lastKey = _model.getValueAt(_model.getRowCount() - 1, 0);
-                            if (lastKey != null && !lastKey.equals("")) {
-                                Object[] emptyRow = new Object[] {"", ""};
+                            if (lastKey != null && !"".equals(lastKey)) {
+                                Object[] emptyRow = new Object[]{"", ""};
                                 _model.addRow(emptyRow);
                             }
                             _editor.updated();
@@ -143,7 +143,7 @@ public class SimpleMapField extends JTable {
 
     private DefaultTableModel _model;
     private java.util.Vector<String> _columnNames;
-    private boolean _editable = false;
+    private boolean _editable;
 
     private boolean _substituteKey;
 

@@ -8,12 +8,10 @@ buildscript {
             url = "https://plugins.gradle.org/m2/"
         }
     }
-    dependencies {
-        classpath "com.diffplug.spotless:spotless-plugin-gradle:6.25.0"
-    }
 }
 
-apply plugin: com.diffplug.gradle.spotless.SpotlessPlugin
+apply plugin: 'checkstyle'
+apply plugin: 'org.openrewrite.rewrite'
 
 slice {
     includeSearchPath = files("${project.ext.topSrcDir}/slice")
@@ -27,37 +25,17 @@ slice {
         toolsPath = defaultIceToolsPath
     }
 }
+checkstyle {
+    toolVersion = '10.21.4'
+}
 
-spotless {
-  format 'misc', {
-    // define the files to apply `misc` to
-    target '*.java', '*.gradle'
-
-    // define the steps to apply to those files
-    trimTrailingWhitespace()
-    endWithNewline()
-  }
-
-  java {
-    toggleOffOn()
-
-    target project.fileTree("src/main/java") {
-        include '**/*.java'
-        exclude 'com/zeroc/Ice/PropertyNames.java'
-    }
-
-    // Remove any unused imports, then ensure the remaining imports are correctly ordered.
-    removeUnusedImports()
-
-    // Linting
-    cleanthat()
-
-    // We use google-java-format to format our Java code. We also set reorderImports and formatJavadoc to true to
-    // match the default behavior of the google-java-format tool.
-    // When updating the version be sure to update the version in `.vscode/settings.json` as well.
-    googleJavaFormat("1.24.0").aosp().reorderImports(true).formatJavadoc(true)
-    formatAnnotations()
-  }
+task checkstyle(type: Checkstyle) {
+    ignoreFailures = true
+    showViolations = true
+    source 'src'
+    include '**/*.java'
+    exclude 'com/zeroc/Ice/PropertyNames.java'
+    classpath = files()
 }
 
 // Android does not have a compileJava task

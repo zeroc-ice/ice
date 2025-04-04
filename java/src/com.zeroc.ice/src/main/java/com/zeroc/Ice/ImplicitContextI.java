@@ -5,11 +5,11 @@ package com.zeroc.Ice;
 /** The base class for all ImplicitContext implementations. */
 abstract class ImplicitContextI implements ImplicitContext {
     public static ImplicitContextI create(String kind) {
-        if (kind.isEmpty() || kind.equals("None")) {
+        if (kind.isEmpty() || "None".equals(kind)) {
             return null;
-        } else if (kind.equals("Shared")) {
+        } else if ("Shared".equals(kind)) {
             return new Shared();
-        } else if (kind.equals("PerThread")) {
+        } else if ("PerThread".equals(kind)) {
             return new PerThread();
         } else {
             throw new InitializationException(

@@ -14,7 +14,7 @@ final class IdleTimeoutTransceiverDecorator implements Transceiver {
     private final ScheduledExecutorService _scheduledExecutorService;
 
     // Protected by ConnectionI's mutex.
-    private boolean _idleCheckEnabled = false;
+    private boolean _idleCheckEnabled;
 
     private final Runnable _idleCheck;
     private final Runnable _sendHeartbeat;

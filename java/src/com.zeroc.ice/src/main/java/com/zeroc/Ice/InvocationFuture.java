@@ -433,8 +433,8 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
     }
 
     private void warning(RuntimeException ex) {
-        if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.AMICallback")
-                > 0) {
+        if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.AMICallback") >
+                0) {
             String s = "exception raised by AMI callback:\n" + Ex.toString(ex);
             _instance.initializationData().logger.warning(s);
         }

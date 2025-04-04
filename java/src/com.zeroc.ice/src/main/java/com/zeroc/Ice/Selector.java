@@ -118,9 +118,9 @@ final class Selector {
     void finishSelect(java.util.List<EventHandlerOpPair> handlers) {
         assert (handlers.isEmpty());
 
-        if (_keys.isEmpty()
-                && _readyHandlers.isEmpty()
-                && !_interrupted) // If key set is empty and we weren't woken up.
+        if (_keys.isEmpty() &&
+                _readyHandlers.isEmpty() &&
+                !_interrupted) // If key set is empty and we weren't woken up.
         {
             //
             // This is necessary to prevent a busy loop in case of a spurious wake-up which
@@ -245,7 +245,7 @@ final class Selector {
                     try {
                         handler._key = handler.fd().register(_selector, ops, handler);
                     } catch (java.nio.channels.ClosedChannelException ex) {
-                        assert (false);
+                        assert false;
                     }
                 }
             } else {
@@ -293,10 +293,10 @@ final class Selector {
 
     private int fromJavaOps(int o) {
         int op = 0;
-        if ((o
-                        & (java.nio.channels.SelectionKey.OP_READ
-                                | java.nio.channels.SelectionKey.OP_ACCEPT))
-                != 0) {
+        if ((o &
+                        (java.nio.channels.SelectionKey.OP_READ |
+                                java.nio.channels.SelectionKey.OP_ACCEPT)) !=
+                0) {
             op |= SocketOperation.Read;
         }
         if ((o & java.nio.channels.SelectionKey.OP_WRITE) != 0) {

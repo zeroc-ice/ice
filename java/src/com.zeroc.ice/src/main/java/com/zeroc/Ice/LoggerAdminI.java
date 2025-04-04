@@ -37,9 +37,9 @@ final class LoggerAdminI implements LoggerAdmin {
                 if (_traceLevel > 0) {
                     _logger.trace(
                             _traceCategory,
-                            "rejecting `"
-                                    + remoteLogger.toString()
-                                    + "' with RemoteLoggerAlreadyAttachedException");
+                            "rejecting `" +
+                                    remoteLogger.toString() +
+                                    "' with RemoteLoggerAlreadyAttachedException");
                 }
 
                 throw new RemoteLoggerAlreadyAttachedException();
@@ -86,9 +86,9 @@ final class LoggerAdminI implements LoggerAdmin {
                                     if (_traceLevel > 1) {
                                         _logger.trace(
                                                 _traceCategory,
-                                                "init on `"
-                                                        + remoteLogger.toString()
-                                                        + "' completed successfully");
+                                                "init on `" +
+                                                        remoteLogger.toString() +
+                                                        "' completed successfully");
                                     }
                                 }
                             });
@@ -180,8 +180,8 @@ final class LoggerAdminI implements LoggerAdmin {
         //
         // Put message in _queue
         //
-        if ((logMessage.type != LogMessageType.TraceMessage && _maxLogCount > 0)
-                || (logMessage.type == LogMessageType.TraceMessage && _maxTraceCount > 0)) {
+        if ((logMessage.type != LogMessageType.TraceMessage && _maxLogCount > 0) ||
+                (logMessage.type == LogMessageType.TraceMessage && _maxTraceCount > 0)) {
             _queue.add(logMessage); // add at the end
 
             if (logMessage.type != LogMessageType.TraceMessage) {
@@ -194,8 +194,8 @@ final class LoggerAdminI implements LoggerAdmin {
                     _queue.remove(_oldestLog);
                     int qs = _queue.size();
 
-                    while (_oldestLog < qs
-                            && _queue.get(_oldestLog).type == LogMessageType.TraceMessage) {
+                    while (_oldestLog < qs &&
+                            _queue.get(_oldestLog).type == LogMessageType.TraceMessage) {
                         _oldestLog++;
                     }
                     assert (_oldestLog < qs); // remember: we just added a log message at end
@@ -215,8 +215,8 @@ final class LoggerAdminI implements LoggerAdmin {
                     assert (_oldestTrace != -1);
                     _queue.remove(_oldestTrace);
                     int qs = _queue.size();
-                    while (_oldestTrace < qs
-                            && _queue.get(_oldestTrace).type != LogMessageType.TraceMessage) {
+                    while (_oldestTrace < qs &&
+                            _queue.get(_oldestTrace).type != LogMessageType.TraceMessage) {
                         _oldestTrace++;
                     }
                     assert (_oldestTrace < qs); // remember: we just added a trace message at end
@@ -235,11 +235,11 @@ final class LoggerAdminI implements LoggerAdmin {
             for (RemoteLoggerData p : _remoteLoggerMap.values()) {
                 Filters filters = p.filters;
 
-                if (filters.messageTypes.isEmpty()
-                        || filters.messageTypes.contains(logMessage.type)) {
-                    if (logMessage.type != LogMessageType.TraceMessage
-                            || filters.traceCategories.isEmpty()
-                            || filters.traceCategories.contains(logMessage.traceCategory)) {
+                if (filters.messageTypes.isEmpty() ||
+                        filters.messageTypes.contains(logMessage.type)) {
+                    if (logMessage.type != LogMessageType.TraceMessage ||
+                            filters.traceCategories.isEmpty() ||
+                            filters.traceCategories.contains(logMessage.traceCategory)) {
                         if (remoteLoggers == null) {
                             remoteLoggers = new java.util.ArrayList<>();
                         }
@@ -261,12 +261,12 @@ final class LoggerAdminI implements LoggerAdmin {
             if (_traceLevel > 0) {
                 logger.trace(
                         _traceCategory,
-                        "detached `"
-                                + remoteLogger.toString()
-                                + "' because "
-                                + operation
-                                + " raised:\n"
-                                + ex.toString());
+                        "detached `" +
+                                remoteLogger.toString() +
+                                "' because " +
+                                operation +
+                                " raised:\n" +
+                                ex.toString());
             }
         }
     }
@@ -297,9 +297,9 @@ final class LoggerAdminI implements LoggerAdmin {
                 boolean keepIt = false;
                 LogMessage msg = p.previous();
                 if (messageTypes.isEmpty() || messageTypes.contains(msg.type)) {
-                    if (msg.type != LogMessageType.TraceMessage
-                            || traceCategories.isEmpty()
-                            || traceCategories.contains(msg.traceCategory)) {
+                    if (msg.type != LogMessageType.TraceMessage ||
+                            traceCategories.isEmpty() ||
+                            traceCategories.contains(msg.traceCategory)) {
                         keepIt = true;
                     }
                 }
@@ -309,7 +309,7 @@ final class LoggerAdminI implements LoggerAdmin {
                     if (messageMax > 0 && count >= messageMax) {
                         if (p.hasPrevious()) {
                             int removeCount = p.previousIndex() + 1;
-                            for (int i = 0; i < removeCount; ++i) {
+                            for (int i = 0; i < removeCount; i++) {
                                 logMessages.remove(0);
                             }
                         }
@@ -358,7 +358,7 @@ final class LoggerAdminI implements LoggerAdmin {
         String[] extraProps = mainProps.getIcePropertyAsList("Ice.Admin.Logger.Properties");
 
         if (extraProps.length > 0) {
-            for (int i = 0; i < extraProps.length; ++i) {
+            for (int i = 0; i < extraProps.length; i++) {
                 String p = extraProps[i];
                 if (!p.startsWith("--")) {
                     extraProps[i] = "--" + p;
@@ -370,9 +370,9 @@ final class LoggerAdminI implements LoggerAdmin {
     }
 
     private final java.util.List<LogMessage> _queue = new java.util.LinkedList<>();
-    private int _logCount = 0; // non-trace messages
+    private int _logCount; // non-trace messages
     private final int _maxLogCount;
-    private int _traceCount = 0;
+    private int _traceCount;
     private final int _maxTraceCount;
     private final int _traceLevel;
 
@@ -403,7 +403,7 @@ final class LoggerAdminI implements LoggerAdmin {
             new java.util.HashMap<>();
 
     private final LoggerAdminLoggerI _logger;
-    private Communicator _sendLogCommunicator = null;
-    private boolean _destroyed = false;
+    private Communicator _sendLogCommunicator;
+    private boolean _destroyed;
     private static final String _traceCategory = "Admin.Logger";
 }

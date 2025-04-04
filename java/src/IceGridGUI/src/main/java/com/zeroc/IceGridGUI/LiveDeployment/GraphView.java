@@ -222,8 +222,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                             builder.append(
                                     "",
                                     new JLabel(
-                                            "<html><p>Sample interval in seconds; must be between 1"
-                                                    + "<br/>and 3600 seconds.</p></html>"));
+                                            "<html><p>Sample interval in seconds; must be between 1" +
+                                                    "<br/>and 3600 seconds.</p></html>"));
                             refreshPanel = builder.getPanel();
                         }
 
@@ -240,9 +240,9 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                             builder.append(
                                     "",
                                     new JLabel(
-                                            "<html><p>The number of samples displayed on a graph;"
-                                                    + "<br/>must be between 2 and 300."
-                                                    + "</p></html>"));
+                                            "<html><p>The number of samples displayed on a graph;" +
+                                                    "<br/>must be between 2 and 300." +
+                                                    "</p></html>"));
                             builder.append("Time format:", dateFormats);
 
                             xAxisPanel = builder.getPanel();
@@ -262,8 +262,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                         builder.getPanel(),
                                         "Metrics Graph Preferences",
                                         JOptionPane.OK_CANCEL_OPTION,
-                                        JOptionPane.PLAIN_MESSAGE)
-                                != JOptionPane.OK_OPTION) {
+                                        JOptionPane.PLAIN_MESSAGE) !=
+                                JOptionPane.OK_OPTION) {
                             return;
                         }
 
@@ -280,7 +280,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     @Override
                     public String getToolTipText(java.awt.event.MouseEvent e) {
                         return _legendModel
-                                .getRows(new int[] {rowAtPoint(e.getPoint())})[0]
+                                .getRows(new int[]{rowAtPoint(e.getPoint())})[0]
                                 .cell
                                 .getField()
                                 .getColumnToolTip();
@@ -300,7 +300,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     @Override
                     public void actionPerformed(ActionEvent event) {
                         int[] selectedRows = _legendTable.getSelectedRows();
-                        for (int i = 0; i < selectedRows.length; ++i) {
+                        for (int i = 0; i < selectedRows.length; i++) {
                             selectedRows[i] = _legendTable.convertRowIndexToModel(selectedRows[i]);
                         }
                         // Remove selected rows from the legend model.
@@ -332,7 +332,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                         enqueueJFX(
                                 () -> {
                                     for (MetricsRow row : rows) {
-                                        for (int i = 0; i < row.series.size(); ++i) {
+                                        for (int i = 0; i < row.series.size(); i++) {
                                             XYChart.Series<Number, Number> series =
                                                     row.series.get(i);
                                             String seriesClass = getSeriesClass(series);
@@ -460,8 +460,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                 @Override
                                 public void handle(DragEvent event) {
                                     Dragboard db = event.getDragboard();
-                                    if (event.getGestureSource() != scene
-                                            && db.hasContent(LocalObjectMimeType)) {
+                                    if (event.getGestureSource() != scene &&
+                                            db.hasContent(LocalObjectMimeType)) {
                                         Object object = db.getContent(LocalObjectMimeType);
                                         if (object instanceof MetricsViewTransferableData) {
                                             event.acceptTransferModes(TransferMode.COPY);
@@ -477,8 +477,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                 public void handle(DragEvent event) {
                                     boolean success = false;
                                     Dragboard db = event.getDragboard();
-                                    if (event.getGestureSource() != scene
-                                            && db.hasContent(LocalObjectMimeType)) {
+                                    if (event.getGestureSource() != scene &&
+                                            db.hasContent(LocalObjectMimeType)) {
                                         Object object = db.getContent(LocalObjectMimeType);
                                         if (object instanceof MetricsViewTransferableData) {
                                             addSeries((MetricsViewTransferableData) object);
@@ -505,7 +505,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
             JOptionPane.showConfirmDialog(
                     this,
-                    new Object[] {message, checkbox},
+                    new Object[]{message, checkbox},
                     "Information",
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.INFORMATION_MESSAGE);
@@ -530,7 +530,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         Preferences preferences = _preferences.node("GraphView");
         Utils.storeWindowBounds(this, preferences);
 
-        for (int i = _columnNames.length - 1; i >= 0; --i) {
+        for (int i = _columnNames.length - 1; i >= 0; i--) {
             preferences.putInt(
                     "colPos" + Integer.toString(i), _legendTable.convertColumnIndexToModel(i));
             preferences.putInt(
@@ -554,7 +554,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         }
 
         _splitPane.setDividerLocation(preferences.getInt("splitLocation", 600));
-        for (int i = _columnNames.length - 1; i >= 0; --i) {
+        for (int i = _columnNames.length - 1; i >= 0; i--) {
             int pos =
                     _legendTable.convertColumnIndexToView(
                             preferences.getInt("columnPos" + Integer.toString(i), i));
@@ -651,9 +651,9 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                             new EventHandler<MouseEvent>() {
                                                 @Override
                                                 public void handle(MouseEvent e) {
-                                                    if (e.getEventType() == MouseEvent.MOUSE_PRESSED
-                                                            && e.getButton()
-                                                                    == MouseButton.PRIMARY) {
+                                                    if (e.getEventType() == MouseEvent.MOUSE_PRESSED &&
+                                                            e.getButton() ==
+                                                                    MouseButton.PRIMARY) {
                                                         // Must run in Swing thread.
                                                         enqueueSwing(
                                                                 () -> {
@@ -712,8 +712,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent e) {
-                            if (e.getEventType() == MouseEvent.MOUSE_PRESSED
-                                    && e.getButton() == MouseButton.PRIMARY) {
+                            if (e.getEventType() == MouseEvent.MOUSE_PRESSED &&
+                                    e.getButton() == MouseButton.PRIMARY) {
                                 // Must run in Swing thread.
                                 enqueueSwing(
                                         () -> {
@@ -828,7 +828,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
     int seriesSize(MetricsRow row) {
         int size = 0;
-        for (int i = 0; i < row.series.size(); ++i) {
+        for (int i = 0; i < row.series.size(); i++) {
             size += row.series.get(i).getData().size();
         }
         return size;
@@ -838,7 +838,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         int samples = seriesSize(row);
         final int n = getMaximumSamples();
         while (samples > n) {
-            for (int i = 0; i < row.series.size(); ++i) {
+            for (int i = 0; i < row.series.size(); i++) {
                 XYChart.Series<Number, Number> series = row.series.get(i);
                 while (series.getData().size() > 0 && samples > n) {
                     try {
@@ -1120,10 +1120,10 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
         @Override
         public boolean isCellEditable(int row, int col) {
-            if (col < _columnNames.length
-                    && (_columnNames[col].equals("Show")
-                            || _columnNames[col].equals("Scale")
-                            || _columnNames[col].equals("Color"))) {
+            if (col < _columnNames.length &&
+                    ("Show".equals(_columnNames[col]) ||
+                            "Scale".equals(_columnNames[col]) ||
+                            "Color".equals(_columnNames[col]))) {
                 return true;
             } else {
                 return false;
@@ -1134,31 +1134,31 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         public void setValueAt(final Object value, int rowIndex, int columnIndex) {
             if (isCellEditable(rowIndex, columnIndex)) {
                 final MetricsRow row = _rows.get(rowIndex);
-                if (_columnNames[columnIndex].equals("Show")) {
+                if ("Show".equals(_columnNames[columnIndex])) {
                     row.visible = ((Boolean) value).booleanValue();
                     enqueueJFX(
                             () -> {
-                                for (int i = 0; i < row.series.size(); ++i) {
+                                for (int i = 0; i < row.series.size(); i++) {
                                     setNodesVisible(getSeriesClass(row.series.get(i)), row.visible);
                                 }
                             });
-                } else if (_columnNames[columnIndex].equals("Scale")) {
+                } else if ("Scale".equals(_columnNames[columnIndex])) {
                     double s1 = ((Double) getValueAt(rowIndex, columnIndex)).doubleValue();
                     double s2 = ((Double) value).doubleValue();
-                    for (int i = 0; i < row.series.size(); ++i) {
+                    for (int i = 0; i < row.series.size(); i++) {
                         updateScaleFactor(row.series.get(i), s1, s2);
                     }
                     row.cell.setScaleFactor(((Double) value).doubleValue());
-                } else if (_columnNames[columnIndex].equals("Color")) {
+                } else if ("Color".equals(_columnNames[columnIndex])) {
                     Color color = (Color) value;
                     // Convert color to the CSS representation used by JavaFX style.
                     // example: #ff00aa
                     row.color =
-                            "#"
-                                    + String.format("%02X", color.getRed())
-                                    + String.format("%02X", color.getGreen())
-                                    + String.format("%02X", color.getBlue());
-                    for (int i = 0; i < row.series.size(); ++i) {
+                            "#" +
+                                    String.format("%02X", color.getRed()) +
+                                    String.format("%02X", color.getGreen()) +
+                                    String.format("%02X", color.getBlue());
+                    for (int i = 0; i < row.series.size(); i++) {
                         updateSeriesColor(row.series.get(i), row.color);
                     }
                 }
@@ -1239,9 +1239,9 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     //
     // Return the class used to style a series.
     public String getSeriesClass(XYChart.Series<Number, Number> series) {
-        if (series == null
-                || series.getNode() == null
-                || series.getNode().getStyleClass() == null) {
+        if (series == null ||
+                series.getNode() == null ||
+                series.getNode().getStyleClass() == null) {
             return null;
         }
         String value = null;
@@ -1354,9 +1354,9 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
             AbstractColorChooserPanel[] panels = _colorChooser.getChooserPanels();
             for (AbstractColorChooserPanel panel : panels) {
-                if (!panel.getClass()
-                        .getName()
-                        .equals("javax.swing.colorchooser.DefaultSwatchChooserPanel")) {
+                if (!"javax.swing.colorchooser.DefaultSwatchChooserPanel"
+                        .equals(panel.getClass()
+                        .getName())) {
                     _colorChooser.removeChooserPanel(panel);
                 }
             }
@@ -1399,8 +1399,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     }
 
     static class ColorRenderer extends JLabel implements TableCellRenderer {
-        Border unselectedBorder = null;
-        Border selectedBorder = null;
+        Border unselectedBorder;
+        Border selectedBorder;
         boolean isBordered = true;
 
         public ColorRenderer(boolean isBordered) {
@@ -1452,7 +1452,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     private int _defaultSamples = 120;
     private int _samples = _defaultSamples;
 
-    private String[] _dateFormats = new String[] {"HH:mm:ss", "mm:ss"};
+    private String[] _dateFormats = new String[]{"HH:mm:ss", "mm:ss"};
     private String _dateFormat = _dateFormats[0];
     private final TimeFormatter _timeFormatter = new TimeFormatter(_dateFormat);
 
@@ -1461,7 +1461,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     private NumberAxis _yAxis;
 
     private static final String[] _columnNames =
-            new String[] {
+            new String[]{
                 "Show",
                 "Component",
                 "Metrics View Name",
@@ -1490,7 +1490,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
             new HashMap<>();
 
     private static final String[] DefaultColors =
-            new String[] {
+            new String[]{
                 "#FF0000", // Red
                 "#00FF00", // Lime
                 "#00FFFF", // Aqua
@@ -1516,7 +1516,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     private final Map<String, String> _styles = new HashMap<>();
 
     private final Double[] _scales =
-            new Double[] {
+            new Double[]{
                 0.000000001d,
                 0.00000001d,
                 0.0000001d,

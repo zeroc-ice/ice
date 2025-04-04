@@ -24,10 +24,10 @@ public final class InitialI implements Initial {
         _d.b = _d;
         _d.o = _d;
         _d.s = _s;
-        _d.seq1 = new byte[] {0, 1, 2, 3, 4};
-        _d.seq2 = new int[] {5, 6, 7, 8, 9};
-        _d.seq3 = new MyEnum[] {MyEnum.enum3, MyEnum.enum2, MyEnum.enum1};
-        _d.seq4 = new Base[] {_d};
+        _d.seq1 = new byte[]{0, 1, 2, 3, 4};
+        _d.seq2 = new int[]{5, 6, 7, 8, 9};
+        _d.seq3 = new MyEnum[]{MyEnum.enum3, MyEnum.enum2, MyEnum.enum1};
+        _d.seq4 = new Base[]{_d};
         _d.d1 = new java.util.HashMap<>();
         _d.d1.put((byte) 1, true);
         _d.d2 = new java.util.HashMap<>();

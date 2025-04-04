@@ -176,10 +176,10 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
             return false;
         }
         EndpointI btEndpointI = (EndpointI) endpoint;
-        return btEndpointI.type() == type()
-                && btEndpointI._addr.equals(_addr)
-                && btEndpointI._uuid.equals(_uuid)
-                && btEndpointI._channel == _channel;
+        return btEndpointI.type() == type() &&
+                btEndpointI._addr.equals(_addr) &&
+                btEndpointI._uuid.equals(_uuid) &&
+                btEndpointI._channel == _channel;
     }
 
     @Override
@@ -242,7 +242,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
             if (_addr == null) {
                 _addr = "";
             }
-        } else if (_addr.equals("*")) {
+        } else if ("*".equals(_addr)) {
             if (oaEndpoint) {
                 _addr = "";
             } else {
@@ -334,19 +334,19 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
             return true;
         }
 
-        if (option.equals("-a")) {
+        if ("-a".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
                         "no argument provided for -a option in endpoint '" + endpoint + "'");
             }
-            if (!argument.equals("*")
-                    && !BluetoothAdapter.checkBluetoothAddress(argument.toUpperCase())) {
+            if (!"*".equals(argument) &&
+                    !BluetoothAdapter.checkBluetoothAddress(argument.toUpperCase())) {
                 throw new ParseException(
                         "invalid address provided for -a option in endpoint '" + endpoint + "'");
             }
             _addr = argument.toUpperCase(); // Android requires a hardware address to use upper case
             // letters.
-        } else if (option.equals("-u")) {
+        } else if ("-u".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
                         "no argument provided for -u option in endpoint '" + endpoint + "'");
@@ -357,7 +357,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
                 throw new ParseException("invalid UUID for Bluetooth endpoint", ex);
             }
             _uuid = argument;
-        } else if (option.equals("-c")) {
+        } else if ("-c".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
                         "no argument provided for -c option in endpoint '" + endpoint + "'");
@@ -374,52 +374,52 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
             if (_channel < 0 || _channel > 30) // RFCOMM channel limit is 30
             {
                 throw new ParseException(
-                        "channel value '"
-                                + argument
-                                + "' out of range in endpoint '"
-                                + endpoint
-                                + "'");
+                        "channel value '" +
+                                argument +
+                                "' out of range in endpoint '" +
+                                endpoint +
+                                "'");
             }
-        } else if (option.equals("-t")) {
+        } else if ("-t".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
                         "no argument provided for -t option in endpoint '" + endpoint + "'");
             }
 
-            if (argument.equals("infinite")) {
+            if ("infinite".equals(argument)) {
                 _timeout = -1;
             } else {
                 try {
                     _timeout = Integer.parseInt(argument);
                     if (_timeout < 1) {
                         throw new ParseException(
-                                "invalid timeout value '"
-                                        + argument
-                                        + "' in endpoint '"
-                                        + endpoint
-                                        + "'");
+                                "invalid timeout value '" +
+                                        argument +
+                                        "' in endpoint '" +
+                                        endpoint +
+                                        "'");
                     }
                 } catch (NumberFormatException ex) {
                     throw new ParseException(
-                            "invalid timeout value '"
-                                    + argument
-                                    + "' in endpoint '"
-                                    + endpoint
-                                    + "'",
+                            "invalid timeout value '" +
+                                    argument +
+                                    "' in endpoint '" +
+                                    endpoint +
+                                    "'",
                             ex);
                 }
             }
-        } else if (option.equals("-z")) {
+        } else if ("-z".equals(option)) {
             if (argument != null) {
                 throw new ParseException(
-                        "unexpected argument `"
-                                + argument
-                                + "' provided for -z option in "
-                                + endpoint);
+                        "unexpected argument `" +
+                                argument +
+                                "' provided for -z option in " +
+                                endpoint);
             }
 
             _compress = true;
-        } else if (option.equals("--name")) {
+        } else if ("--name".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
                         "no argument provided for --name option in endpoint " + endpoint);

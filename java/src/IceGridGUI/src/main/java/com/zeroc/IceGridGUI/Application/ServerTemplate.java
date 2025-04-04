@@ -64,9 +64,9 @@ class ServerTemplate extends Communicator {
         } else {
             Object clipboard = getCoordinator().getClipboard();
             actions[PASTE] =
-                    clipboard != null
-                            && ((isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
-                                    || (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy)));
+                    clipboard != null &&
+                            ((isIceBox() && (clipboard instanceof ServiceInstanceDescriptor)) ||
+                                    (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy)));
         }
 
         actions[DELETE] = true;

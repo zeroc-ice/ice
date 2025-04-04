@@ -122,8 +122,8 @@ public class AllTests {
                 String name = test.getAdapterName();
                 final int nRetry = 10;
                 int i;
-                for (i = 0; i < nRetry && test.getAdapterName().equals(name); i++)
-                    ;
+                for (i = 0; i < nRetry && test.getAdapterName().equals(name); i++) {
+                }
                 test(i == nRetry);
 
                 for (RemoteObjectAdapterPrx p : adapters) {
@@ -160,7 +160,7 @@ public class AllTests {
             //
             rcom.deactivateObjectAdapter(adapters.get(2));
             TestIntfPrx test = createTestIntfPrx(adapters);
-            test(test.getAdapterName().equals("Adapter12"));
+            test("Adapter12".equals(test.getAdapterName()));
 
             deactivate(rcom, adapters);
         }
@@ -179,9 +179,9 @@ public class AllTests {
             adapters[4] = rcom.createObjectAdapter("AdapterRandom15", "default");
 
             boolean shortenTest =
-                    System.getProperty("os.name").startsWith("Windows")
-                            || System.getProperty("java.vendor").toLowerCase().indexOf("android")
-                                    >= 0;
+                    System.getProperty("os.name").startsWith("Windows") ||
+                            System.getProperty("java.vendor").toLowerCase().indexOf("android") >=
+                                    0;
 
             int count = 20;
             int adapterCount = adapters.length;
@@ -200,16 +200,16 @@ public class AllTests {
                 }
 
                 int i;
-                for (i = 0; i < proxies.length; ++i) {
+                for (i = 0; i < proxies.length; i++) {
                     RemoteObjectAdapterPrx[] adpts =
                             new RemoteObjectAdapterPrx[rand.nextInt(adapters.length)];
                     if (adpts.length == 0) {
                         adpts = new RemoteObjectAdapterPrx[1];
                     }
-                    for (int j = 0; j < adpts.length; ++j) {
+                    for (int j = 0; j < adpts.length; j++) {
                         adpts[j] = adapters[rand.nextInt(adapters.length)];
                     }
-                    proxies[i] = createTestIntfPrx(java.util.Arrays.asList((adpts)));
+                    proxies[i] = createTestIntfPrx(java.util.Arrays.asList(adpts));
                 }
 
                 for (TestIntfPrx p : proxies) {
@@ -286,8 +286,8 @@ public class AllTests {
                 String name = getAdapterNameWithAMI(test);
                 final int nRetry = 10;
                 int i;
-                for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals(name); i++)
-                    ;
+                for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals(name); i++) {
+                }
                 test(i == nRetry);
 
                 for (RemoteObjectAdapterPrx p : adapters) {
@@ -324,7 +324,7 @@ public class AllTests {
             //
             rcom.deactivateObjectAdapter(adapters.get(2));
             TestIntfPrx test = createTestIntfPrx(adapters);
-            test(getAdapterNameWithAMI(test).equals("AdapterAMI12"));
+            test("AdapterAMI12".equals(getAdapterNameWithAMI(test)));
 
             deactivate(rcom, adapters);
         }
@@ -383,16 +383,16 @@ public class AllTests {
             // Ensure that endpoints are tried in order by deactivating the adapters
             // one after the other.
             //
-            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter31"); i++)
-                ;
+            for (i = 0; i < nRetry && "Adapter31".equals(test.getAdapterName()); i++) {
+            }
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(0));
-            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter32"); i++)
-                ;
+            for (i = 0; i < nRetry && "Adapter32".equals(test.getAdapterName()); i++) {
+            }
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(1));
-            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter33"); i++)
-                ;
+            for (i = 0; i < nRetry && "Adapter33".equals(test.getAdapterName()); i++) {
+            }
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(2));
 
@@ -414,18 +414,18 @@ public class AllTests {
             // order.
             //
             adapters.add(rcom.createObjectAdapter("Adapter36", endpoints[2].toString()));
-            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter36"); i++)
-                ;
+            for (i = 0; i < nRetry && "Adapter36".equals(test.getAdapterName()); i++) {
+            }
             test(i == nRetry);
             test.ice_getConnection().close();
             adapters.add(rcom.createObjectAdapter("Adapter35", endpoints[1].toString()));
-            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter35"); i++)
-                ;
+            for (i = 0; i < nRetry && "Adapter35".equals(test.getAdapterName()); i++) {
+            }
             test(i == nRetry);
             test.ice_getConnection().close();
             adapters.add(rcom.createObjectAdapter("Adapter34", endpoints[0].toString()));
-            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter34"); i++)
-                ;
+            for (i = 0; i < nRetry && "Adapter34".equals(test.getAdapterName()); i++) {
+            }
             test(i == nRetry);
 
             deactivate(rcom, adapters);
@@ -490,7 +490,7 @@ public class AllTests {
 
             rcom.deactivateObjectAdapter(adapters.get(2));
 
-            test(test.getAdapterName().equals("Adapter52"));
+            test("Adapter52".equals(test.getAdapterName()));
 
             deactivate(rcom, adapters);
         }
@@ -525,7 +525,7 @@ public class AllTests {
 
             rcom.deactivateObjectAdapter(adapters.get(2));
 
-            test(getAdapterNameWithAMI(test).equals("AdapterAMI52"));
+            test("AdapterAMI52".equals(getAdapterNameWithAMI(test)));
 
             deactivate(rcom, adapters);
         }
@@ -551,16 +551,16 @@ public class AllTests {
             // Ensure that endpoints are tried in order by deactivating the adapters
             // one after the other.
             //
-            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter61"); i++)
-                ;
+            for (i = 0; i < nRetry && "Adapter61".equals(test.getAdapterName()); i++) {
+            }
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(0));
-            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter62"); i++)
-                ;
+            for (i = 0; i < nRetry && "Adapter62".equals(test.getAdapterName()); i++) {
+            }
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(1));
-            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter63"); i++)
-                ;
+            for (i = 0; i < nRetry && "Adapter63".equals(test.getAdapterName()); i++) {
+            }
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(2));
 
@@ -582,16 +582,16 @@ public class AllTests {
             // order.
             //
             adapters.add(rcom.createObjectAdapter("Adapter66", endpoints[2].toString()));
-            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter66"); i++)
-                ;
+            for (i = 0; i < nRetry && "Adapter66".equals(test.getAdapterName()); i++) {
+            }
             test(i == nRetry);
             adapters.add(rcom.createObjectAdapter("Adapter65", endpoints[1].toString()));
-            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter65"); i++)
-                ;
+            for (i = 0; i < nRetry && "Adapter65".equals(test.getAdapterName()); i++) {
+            }
             test(i == nRetry);
             adapters.add(rcom.createObjectAdapter("Adapter64", endpoints[0].toString()));
-            for (i = 0; i < nRetry && test.getAdapterName().equals("Adapter64"); i++)
-                ;
+            for (i = 0; i < nRetry && "Adapter64".equals(test.getAdapterName()); i++) {
+            }
             test(i == nRetry);
 
             deactivate(rcom, adapters);
@@ -618,16 +618,16 @@ public class AllTests {
             // Ensure that endpoints are tried in order by deactivating the adapters
             // one after the other.
             //
-            for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI61"); i++)
-                ;
+            for (i = 0; i < nRetry && "AdapterAMI61".equals(getAdapterNameWithAMI(test)); i++) {
+            }
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(0));
-            for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI62"); i++)
-                ;
+            for (i = 0; i < nRetry && "AdapterAMI62".equals(getAdapterNameWithAMI(test)); i++) {
+            }
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(1));
-            for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI63"); i++)
-                ;
+            for (i = 0; i < nRetry && "AdapterAMI63".equals(getAdapterNameWithAMI(test)); i++) {
+            }
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(2));
 
@@ -649,16 +649,16 @@ public class AllTests {
             // order.
             //
             adapters.add(rcom.createObjectAdapter("AdapterAMI66", endpoints[2].toString()));
-            for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI66"); i++)
-                ;
+            for (i = 0; i < nRetry && "AdapterAMI66".equals(getAdapterNameWithAMI(test)); i++) {
+            }
             test(i == nRetry);
             adapters.add(rcom.createObjectAdapter("AdapterAMI65", endpoints[1].toString()));
-            for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI65"); i++)
-                ;
+            for (i = 0; i < nRetry && "AdapterAMI65".equals(getAdapterNameWithAMI(test)); i++) {
+            }
             test(i == nRetry);
             adapters.add(rcom.createObjectAdapter("AdapterAMI64", endpoints[0].toString()));
-            for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI64"); i++)
-                ;
+            for (i = 0; i < nRetry && "AdapterAMI64".equals(getAdapterNameWithAMI(test)); i++) {
+            }
             test(i == nRetry);
 
             deactivate(rcom, adapters);
@@ -673,7 +673,7 @@ public class AllTests {
             adapters.add(rcom.createObjectAdapter("Adapter72", "udp"));
 
             TestIntfPrx test = createTestIntfPrx(adapters);
-            test(test.getAdapterName().equals("Adapter71"));
+            test("Adapter71".equals(test.getAdapterName()));
 
             TestIntfPrx testUDP = test.ice_datagram();
             test(test.ice_getConnection() != testUDP.ice_getConnection());
@@ -684,7 +684,7 @@ public class AllTests {
         }
         out.println("ok");
 
-        if (communicator.getProperties().getIceProperty("Ice.Default.Protocol").equals("ssl")) {
+        if ("ssl".equals(communicator.getProperties().getIceProperty("Ice.Default.Protocol"))) {
             out.print("testing unsecure vs. secure endpoints... ");
             out.flush();
             {
@@ -695,7 +695,7 @@ public class AllTests {
                 TestIntfPrx test = createTestIntfPrx(adapters);
                 int i;
                 for (i = 0; i < 5; i++) {
-                    test(test.getAdapterName().equals("Adapter82"));
+                    test("Adapter82".equals(test.getAdapterName()));
                     test.ice_getConnection().close();
                 }
 
@@ -710,7 +710,7 @@ public class AllTests {
                 rcom.deactivateObjectAdapter(adapters.get(1));
 
                 for (i = 0; i < 5; i++) {
-                    test(test.getAdapterName().equals("Adapter81"));
+                    test("Adapter81".equals(test.getAdapterName()));
                     test.ice_getConnection().close();
                 }
 
@@ -718,7 +718,7 @@ public class AllTests {
                         "Adapter83", (test.ice_getEndpoints()[1]).toString()); // Reactive tcp OA.
 
                 for (i = 0; i < 5; i++) {
-                    test(test.getAdapterName().equals("Adapter83"));
+                    test("Adapter83".equals(test.getAdapterName()));
                     test.ice_getConnection().close();
                 }
 
@@ -838,22 +838,22 @@ public class AllTests {
                                 // with a DNS exception.
                             } catch (com.zeroc.Ice.SocketException ex) {
                                 test(
-                                        (p == ipv4 && q == ipv6)
-                                                || (p == ipv6 && q == ipv4)
-                                                || (p == bothPreferIPv4 && q == ipv6)
-                                                || (p == bothPreferIPv6 && q == ipv4)
-                                                || (p == bothPreferIPv6
-                                                        && q == ipv6
-                                                        && ipv6NotSupported)
-                                                || (p == anyipv4 && q == ipv6)
-                                                || (p == anyipv6 && q == ipv4)
-                                                || (p == localipv4 && q == ipv6)
-                                                || (p == localipv6 && q == ipv4)
-                                                || (p == ipv6 && q == bothPreferIPv4)
-                                                || (p == bothPreferIPv6 && q == ipv6)
-                                                || (p == ipv6 && q == bothPreferIPv4)
-                                                || (p == ipv6 && q == bothPreferIPv6)
-                                                || (p == bothPreferIPv6 && q == ipv6));
+                                        (p == ipv4 && q == ipv6) ||
+                                                (p == ipv6 && q == ipv4) ||
+                                                (p == bothPreferIPv4 && q == ipv6) ||
+                                                (p == bothPreferIPv6 && q == ipv4) ||
+                                                (p == bothPreferIPv6 &&
+                                                        q == ipv6 &&
+                                                        ipv6NotSupported) ||
+                                                (p == anyipv4 && q == ipv6) ||
+                                                (p == anyipv6 && q == ipv4) ||
+                                                (p == localipv4 && q == ipv6) ||
+                                                (p == localipv6 && q == ipv4) ||
+                                                (p == ipv6 && q == bothPreferIPv4) ||
+                                                (p == bothPreferIPv6 && q == ipv6) ||
+                                                (p == ipv6 && q == bothPreferIPv4) ||
+                                                (p == ipv6 && q == bothPreferIPv6) ||
+                                                (p == bothPreferIPv6 && q == ipv6));
                             }
                         }
                     }
@@ -863,5 +863,8 @@ public class AllTests {
         }
 
         rcom.shutdown();
+    }
+
+    private AllTests() {
     }
 }

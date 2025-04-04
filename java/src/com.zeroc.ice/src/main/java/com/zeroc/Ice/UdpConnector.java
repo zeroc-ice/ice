@@ -13,7 +13,7 @@ final class UdpConnector implements Connector {
     }
 
     public java.nio.channels.SelectableChannel fd() {
-        assert (false); // Shouldn't be called, startConnect always completes immediately.
+        assert false; // Shouldn't be called, startConnect always completes immediately.
         return null;
     }
 

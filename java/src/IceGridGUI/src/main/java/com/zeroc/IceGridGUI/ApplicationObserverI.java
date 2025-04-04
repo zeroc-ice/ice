@@ -48,11 +48,11 @@ class ApplicationObserverI implements ApplicationObserver {
                 }
 
                 _coordinator.traceObserver(
-                        "applicationInit for application"
-                                + (applications.size() == 1 ? "" : "s")
-                                + names
-                                + "; serial is "
-                                + serial);
+                        "applicationInit for application" +
+                                (applications.size() == 1 ? "" : "s") +
+                                names +
+                                "; serial is " +
+                                serial);
             }
         }
 
@@ -69,10 +69,10 @@ class ApplicationObserverI implements ApplicationObserver {
             final int serial, final ApplicationInfo info, com.zeroc.Ice.Current current) {
         if (_trace) {
             _coordinator.traceObserver(
-                    "applicationAdded for application "
-                            + info.descriptor.name
-                            + "; serial is "
-                            + serial);
+                    "applicationAdded for application " +
+                            info.descriptor.name +
+                            "; serial is " +
+                            serial);
         }
 
         SwingUtilities.invokeLater(
@@ -100,10 +100,10 @@ class ApplicationObserverI implements ApplicationObserver {
             final int serial, final ApplicationUpdateInfo info, com.zeroc.Ice.Current current) {
         if (_trace) {
             _coordinator.traceObserver(
-                    "applicationUpdated for application "
-                            + info.descriptor.name
-                            + "; serial is "
-                            + serial);
+                    "applicationUpdated for application " +
+                            info.descriptor.name +
+                            "; serial is " +
+                            serial);
         }
 
         SwingUtilities.invokeLater(
@@ -115,7 +115,7 @@ class ApplicationObserverI implements ApplicationObserver {
     private final Coordinator _coordinator;
     private final boolean _trace;
 
-    private boolean _initialized = false;
+    private boolean _initialized;
 
     // Values given to init
     private final String _instanceName;

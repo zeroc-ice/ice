@@ -153,8 +153,8 @@ public class Utils {
                 visibleBounds.add(s.getDefaultConfiguration().getBounds());
             }
             locationVisible =
-                    visibleBounds.contains(x, y)
-                            || (maximized && visibleBounds.contains(x + 20, y + 20));
+                    visibleBounds.contains(x, y) ||
+                            (maximized && visibleBounds.contains(x + 20, y + 20));
 
             if (locationVisible) {
                 if (maximized) {
@@ -270,7 +270,7 @@ public class Utils {
         // Application-level resolver
         @SuppressWarnings("unchecked") // unchecked conversion
         public Resolver(java.util.Map<String, String> variables) {
-            this(new java.util.Map[] {variables});
+            this(new java.util.Map[]{variables});
         }
 
         public Resolver(java.util.Map<String, String>[] variables) {
@@ -484,5 +484,8 @@ public class Utils {
             String val = substitute(p.value, resolver);
             toMap.put(name, val);
         }
+    }
+
+    private Utils() {
     }
 }

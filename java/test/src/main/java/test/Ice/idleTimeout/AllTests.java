@@ -154,4 +154,7 @@ public class AllTests {
             throw new RuntimeException();
         }
     }
+
+    private AllTests() {
+    }
 }

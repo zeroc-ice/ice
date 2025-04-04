@@ -73,8 +73,8 @@ class Editable implements Cloneable {
         _removedElements = clone._removedElements;
     }
 
-    private boolean _isNew = false;
-    private boolean _modified = false;
+    private boolean _isNew;
+    private boolean _modified;
 
     private java.util.HashMap<Class, java.util.TreeSet<String>> _removedElements =
             new java.util.HashMap<>();

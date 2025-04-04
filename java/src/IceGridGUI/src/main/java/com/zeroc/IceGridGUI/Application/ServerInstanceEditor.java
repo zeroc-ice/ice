@@ -32,8 +32,8 @@ class ServerInstanceEditor extends AbstractServerEditor {
 
         ((ServerInstance) _target)
                 .isIceBox(
-                        ((TemplateDescriptor) t.getDescriptor()).descriptor
-                                instanceof IceBoxDescriptor);
+                        ((TemplateDescriptor) t.getDescriptor()).descriptor instanceof
+                                IceBoxDescriptor);
     }
 
     @Override
@@ -41,8 +41,8 @@ class ServerInstanceEditor extends AbstractServerEditor {
         ServerInstanceDescriptor descriptor = getDescriptor();
         ServerTemplate t = (ServerTemplate) _template.getSelectedItem();
 
-        return descriptor.template.equals(t.getId())
-                && descriptor.parameterValues.equals(_parameters.getValues());
+        return descriptor.template.equals(t.getId()) &&
+                descriptor.parameterValues.equals(_parameters.getValues());
     }
 
     ServerInstanceEditor() {

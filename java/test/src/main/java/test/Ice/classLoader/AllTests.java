@@ -122,4 +122,7 @@ public class AllTests {
             }
         }
     }
+
+    private AllTests() {
+    }
 }

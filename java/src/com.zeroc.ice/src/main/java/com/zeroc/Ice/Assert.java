@@ -21,4 +21,7 @@ final class Assert {
             }
         }
     }
+
+    private Assert() {
+    }
 }

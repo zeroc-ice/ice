@@ -52,7 +52,7 @@ public class AllTests {
 
         var futureList = new ArrayList<CompletableFuture<Void>>();
 
-        for (int i = 0; i < maxCount + 20; ++i) {
+        for (int i = 0; i < maxCount + 20; i++) {
             futureList.add(p.opAsync());
         }
 
@@ -67,7 +67,7 @@ public class AllTests {
 
         responder.start();
 
-        for (int i = 0; i < maxCount + 20; ++i) {
+        for (int i = 0; i < maxCount + 20; i++) {
             futureList.get(i).join();
         }
 
@@ -80,5 +80,8 @@ public class AllTests {
         if (!b) {
             throw new RuntimeException();
         }
+    }
+
+    private AllTests() {
     }
 }

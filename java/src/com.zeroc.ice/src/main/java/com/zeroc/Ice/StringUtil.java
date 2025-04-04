@@ -133,9 +133,9 @@ public final class StringUtil {
                                     sb.append('0');
                                 }
                                 sb.append(octal);
-                            } else if (c < 32
-                                    || c == 127
-                                    || toStringMode == com.zeroc.Ice.ToStringMode.ASCII) {
+                            } else if (c < 32 ||
+                                    c == 127 ||
+                                    toStringMode == com.zeroc.Ice.ToStringMode.ASCII) {
                                 // append \\unnnn
                                 sb.append("\\u");
                                 String hex = Integer.toHexString(c);
@@ -164,7 +164,7 @@ public final class StringUtil {
     public static String escapeString(
             String s, String special, com.zeroc.Ice.ToStringMode toStringMode) {
         if (special != null) {
-            for (int i = 0; i < special.length(); ++i) {
+            for (int i = 0; i < special.length(); i++) {
                 if (special.charAt(i) < 32 || special.charAt(i) > 126) {
                     throw new IllegalArgumentException(
                             "special characters must be in ASCII range 32-126");
@@ -179,7 +179,7 @@ public final class StringUtil {
             try {
                 bytes = s.getBytes("UTF8");
             } catch (java.io.UnsupportedEncodingException ex) {
-                assert (false);
+                assert false;
                 return null;
             }
 
@@ -194,12 +194,12 @@ public final class StringUtil {
 
             for (int i = 0; i < s.length(); i++) {
                 char c = s.charAt(i);
-                if (toStringMode == com.zeroc.Ice.ToStringMode.Unicode
-                        || !Character.isSurrogate(c)) {
+                if (toStringMode == com.zeroc.Ice.ToStringMode.Unicode ||
+                        !Character.isSurrogate(c)) {
                     encodeChar(c, result, special, toStringMode);
                 } else {
-                    assert (toStringMode == com.zeroc.Ice.ToStringMode.ASCII
-                            && Character.isSurrogate(c));
+                    assert (toStringMode == com.zeroc.Ice.ToStringMode.ASCII &&
+                            Character.isSurrogate(c));
                     if (i + 1 == s.length()) {
                         throw new IllegalArgumentException("High surrogate without low surrogate");
                     } else {
@@ -304,12 +304,13 @@ public final class StringUtil {
                     {
                         ++start;
                         result.append('\u000b');
+                        break;
                     }
                 case 'u':
                 case 'U':
                     {
                         int codePoint = 0;
-                        boolean inBMP = (c == 'u');
+                        boolean inBMP = c == 'u';
                         int size = inBMP ? 4 : 8;
                         ++start;
                         while (size > 0 && start < end) {
@@ -384,7 +385,7 @@ public final class StringUtil {
                                             "Invalid \\x escape sequence: no hex digit");
                                 }
                             } else {
-                                for (int j = 0; j < 3 && start < end; ++j) {
+                                for (int j = 0; j < 3 && start < end; j++) {
                                     int charVal = s.charAt(start++) - '0';
                                     if (charVal < 0 || charVal > 7) {
                                         --start; // move back
@@ -395,11 +396,11 @@ public final class StringUtil {
                                 }
                                 if (val > 255) {
                                     String msg =
-                                            "octal value \\"
-                                                    + Integer.toOctalString(val)
-                                                    + " ("
-                                                    + val
-                                                    + ") is out of range";
+                                            "octal value \\" +
+                                                    Integer.toOctalString(val) +
+                                                    " (" +
+                                                    val +
+                                                    ") is out of range";
                                     throw new IllegalArgumentException(msg);
                                 }
                             }
@@ -447,7 +448,7 @@ public final class StringUtil {
         assert (start >= 0 && start <= end && end <= s.length());
 
         if (special != null) {
-            for (int i = 0; i < special.length(); ++i) {
+            for (int i = 0; i < special.length(); i++) {
                 if (special.charAt(i) < 32 || special.charAt(i) > 126) {
                     throw new IllegalArgumentException(
                             "special characters must be in ASCII range 32-126");
@@ -484,15 +485,15 @@ public final class StringUtil {
             if (quoteChar == '\0' && (str.charAt(pos) == '"' || str.charAt(pos) == '\'')) {
                 quoteChar = str.charAt(pos++);
                 continue; // Skip the quote.
-            } else if (quoteChar == '\0'
-                    && str.charAt(pos) == '\\'
-                    && pos + 1 < str.length()
-                    && (str.charAt(pos + 1) == '"' || str.charAt(pos + 1) == '\'')) {
+            } else if (quoteChar == '\0' &&
+                    str.charAt(pos) == '\\' &&
+                    pos + 1 < str.length() &&
+                    (str.charAt(pos + 1) == '"' || str.charAt(pos + 1) == '\'')) {
                 ++pos; // Skip the backslash
-            } else if (quoteChar != '\0'
-                    && str.charAt(pos) == '\\'
-                    && pos + 1 < str.length()
-                    && str.charAt(pos + 1) == quoteChar) {
+            } else if (quoteChar != '\0' &&
+                    str.charAt(pos) == '\\' &&
+                    pos + 1 < str.length() &&
+                    str.charAt(pos + 1) == quoteChar) {
                 ++pos; // Skip the backslash
             } else if (quoteChar != '\0' && str.charAt(pos) == quoteChar) {
                 ++pos;
@@ -556,8 +557,8 @@ public final class StringUtil {
         }
 
         // Make sure start of the strings match
-        if (beginIndex > s.length()
-                || !s.substring(0, beginIndex).equals(pat.substring(0, beginIndex))) {
+        if (beginIndex > s.length() ||
+                !s.substring(0, beginIndex).equals(pat.substring(0, beginIndex))) {
             return false;
         }
 
@@ -582,5 +583,8 @@ public final class StringUtil {
         }
 
         return true;
+    }
+
+    private StringUtil() {
     }
 }

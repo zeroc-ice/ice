@@ -8,9 +8,9 @@ class Ex {
         if (v instanceof UnknownSlicedValue) {
             var usv = (UnknownSlicedValue) v;
             throw new MarshalException(
-                    "Cannot find value factory to unmarshal class with type ID '"
-                            + usv.ice_id()
-                            + "'.");
+                    "Cannot find value factory to unmarshal class with type ID '" +
+                            usv.ice_id() +
+                            "'.");
         }
 
         String type = v.ice_id();
@@ -19,14 +19,14 @@ class Ex {
             expected = (String) expectedType.getMethod("ice_staticId").invoke(null);
         } catch (Exception ex) {
             expected = "";
-            assert (false);
+            assert false;
         }
         throw new MarshalException(
-                "Failed to unmarshal class with type ID '"
-                        + expected
-                        + "': value factory returned class with type ID '"
-                        + type
-                        + "'.");
+                "Failed to unmarshal class with type ID '" +
+                        expected +
+                        "': value factory returned class with type ID '" +
+                        type +
+                        "'.");
     }
 
     public static void throwUOE(String expectedType, Value v) {
@@ -34,27 +34,27 @@ class Ex {
         if (v instanceof UnknownSlicedValue) {
             var usv = (UnknownSlicedValue) v;
             throw new MarshalException(
-                    "Cannot find value factory to unmarshal class with type ID '"
-                            + usv.ice_id()
-                            + "'.");
+                    "Cannot find value factory to unmarshal class with type ID '" +
+                            usv.ice_id() +
+                            "'.");
         }
 
         String type = v.ice_id();
         throw new MarshalException(
-                "Failed to unmarshal class with type ID '"
-                        + expectedType
-                        + "': value factory returned class with type ID '"
-                        + type
-                        + "'.");
+                "Failed to unmarshal class with type ID '" +
+                        expectedType +
+                        "': value factory returned class with type ID '" +
+                        type +
+                        "'.");
     }
 
     public static void throwMemoryLimitException(int requested, int maximum) {
         throw new MarshalException(
-                "Cannot unmarshal Ice message: the message size of "
-                        + requested
-                        + " bytes exceeds the maximum allowed of "
-                        + maximum
-                        + " bytes (see Ice.MessageSizeMax).");
+                "Cannot unmarshal Ice message: the message size of " +
+                        requested +
+                        " bytes exceeds the maximum allowed of " +
+                        maximum +
+                        " bytes (see Ice.MessageSizeMax).");
     }
 
     //
@@ -66,5 +66,8 @@ class Ex {
         ex.printStackTrace(pw);
         pw.flush();
         return sw.toString();
+    }
+
+    private Ex() {
     }
 }

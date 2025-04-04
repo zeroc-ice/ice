@@ -85,7 +85,7 @@ public class ArrayMapField extends JTable {
 
         if (_editable) {
             java.util.Vector<String> newRow = new java.util.Vector<>(_vectorSize);
-            for (int i = 0; i < _vectorSize; ++i) {
+            for (int i = 0; i < _vectorSize; i++) {
                 newRow.add("");
             }
             vector.add(newRow);
@@ -105,9 +105,9 @@ public class ArrayMapField extends JTable {
                     public void tableChanged(TableModelEvent e) {
                         if (_editable) {
                             Object lastKey = _model.getValueAt(_model.getRowCount() - 1, 0);
-                            if (lastKey != null && !lastKey.equals("")) {
+                            if (lastKey != null && !"".equals(lastKey)) {
                                 Object[] emptyRow = new Object[_vectorSize];
-                                for (int i = 0; i < _vectorSize; ++i) {
+                                for (int i = 0; i < _vectorSize; i++) {
                                     emptyRow[i] = "";
                                 }
                                 _model.addRow(emptyRow);
@@ -145,7 +145,7 @@ public class ArrayMapField extends JTable {
                 key = key.trim();
                 if (!key.isEmpty()) {
                     String[] val = new String[_vectorSize - 1];
-                    for (int i = 1; i < _vectorSize; ++i) {
+                    for (int i = 1; i < _vectorSize; i++) {
                         val[i - 1] = row.elementAt(i).toString();
                         if (val[i - 1] == null) {
                             val[i - 1] = "";
@@ -162,7 +162,7 @@ public class ArrayMapField extends JTable {
 
     private DefaultTableModel _model;
     private java.util.Vector<String> _columnNames;
-    private boolean _editable = false;
+    private boolean _editable;
 
     private boolean _substituteKey;
 

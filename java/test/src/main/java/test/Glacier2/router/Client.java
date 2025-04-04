@@ -243,7 +243,7 @@ public class Client extends test.TestHelper {
                     test(false);
                 } catch (CallbackException ex) {
                     test(ex.someValue == 3.14);
-                    test(ex.someString.equals("3.14"));
+                    test("3.14".equals(ex.someString));
                 }
                 callbackReceiverImpl.callbackOK();
                 out.println("ok");
@@ -307,7 +307,7 @@ public class Client extends test.TestHelper {
                 out.println("ok");
             }
 
-            boolean shutdown = Stream.of(args).anyMatch(v -> v.equals("--shutdown"));
+            boolean shutdown = Stream.of(args).anyMatch(v -> "--shutdown".equals(v));
             if (shutdown) {
                 out.print("testing server shutdown... ");
                 out.flush();

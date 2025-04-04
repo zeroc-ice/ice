@@ -18,7 +18,7 @@ public class Client extends test.TestHelper {
         test(nd.y != 10);
 
         JavaOnly c = new JavaOnly();
-        test(c.lang.equals("java"));
+        test("java".equals(c.lang));
         test(c.version == com.zeroc.Ice.Util.intVersion());
         System.out.println("ok");
     }

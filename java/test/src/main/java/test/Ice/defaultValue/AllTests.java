@@ -54,7 +54,7 @@ public class AllTests {
             test(v.l == ConstLong.value);
             test(v.f == ConstFloat.value);
             test(v.d == ConstDouble.value);
-            test(v.str.equals(ConstString.value));
+            test(ConstString.value.equals(v.str));
             test(v.c1 == ConstColor1.value);
             test(v.c2 == ConstColor2.value);
             test(v.c3 == ConstColor3.value);
@@ -73,7 +73,7 @@ public class AllTests {
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str.equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \007 \u0007"));
+            test("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \007 \u0007".equals(v.str));
             test(v.noDefault.isEmpty());
             test(v.zeroI == 0);
             test(v.zeroL == 0);
@@ -93,7 +93,7 @@ public class AllTests {
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str.equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \007 \u0007"));
+            test("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \007 \u0007".equals(v.str));
             test(v.c1 == Color.red);
             test(v.c2 == Color.green);
             test(v.c3 == Color.blue);
@@ -194,5 +194,8 @@ public class AllTests {
         }
 
         out.println("ok");
+    }
+
+    private AllTests() {
     }
 }

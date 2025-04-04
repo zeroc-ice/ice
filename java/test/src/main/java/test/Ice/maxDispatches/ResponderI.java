@@ -8,7 +8,7 @@ import test.Ice.maxDispatches.Test.Responder;
 
 class ResponderI implements Responder {
     private final java.util.List<Runnable> _responses = new java.util.ArrayList<>();
-    private boolean _started = false;
+    private boolean _started;
 
     @Override
     public void start(Current current) {

@@ -79,6 +79,9 @@ public final class HashUtil {
     }
 
     private static int shift(int hashCode) {
-        return ((hashCode << 5) + hashCode);
+        return (hashCode << 5) + hashCode;
+    }
+
+    private HashUtil() {
     }
 }

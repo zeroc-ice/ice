@@ -271,7 +271,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
                 if (fireEvent) {
                     getRoot()
                             .getTreeModel()
-                            .nodesWereInserted(Communicator.this, new int[] {getIndex(child)});
+                            .nodesWereInserted(Communicator.this, new int[]{getIndex(child)});
                 }
             }
         }
@@ -283,7 +283,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
 
             getRoot()
                     .getTreeModel()
-                    .nodesWereRemoved(Communicator.this, new int[] {index}, new Object[] {child});
+                    .nodesWereRemoved(Communicator.this, new int[]{index}, new Object[]{child});
             return index;
         }
 
@@ -504,17 +504,17 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
             _children.remove(listIndex);
             getRoot()
                     .getTreeModel()
-                    .nodesWereRemoved(Communicator.this, new int[] {index}, new Object[] {child});
+                    .nodesWereRemoved(Communicator.this, new int[]{index}, new Object[]{child});
             if (up) {
                 _children.add(listIndex - 1, child);
                 getRoot()
                         .getTreeModel()
-                        .nodesWereInserted(Communicator.this, new int[] {index - 1});
+                        .nodesWereInserted(Communicator.this, new int[]{index - 1});
             } else {
                 _children.add(listIndex + 1, child);
                 getRoot()
                         .getTreeModel()
-                        .nodesWereInserted(Communicator.this, new int[] {index + 1});
+                        .nodesWereInserted(Communicator.this, new int[]{index + 1});
             }
             getRoot().setSelectedNode(child);
             getCoordinator().showActions(child);
@@ -535,9 +535,9 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
 
                     if (templateDescriptor == null) {
                         throw new UpdateFailedException(
-                                "Cannot find template descriptor '"
-                                        + descriptor.template
-                                        + "' referenced by service-instance");
+                                "Cannot find template descriptor '" +
+                                        descriptor.template +
+                                        "' referenced by service-instance");
                     }
 
                     serviceResolver =
@@ -751,5 +751,5 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
     // Children
     protected Adapters _adapters = new Adapters();
     protected Services _services = new Services();
-    protected ChildList[] _childListArray = new ChildList[] {_adapters, _services};
+    protected ChildList[] _childListArray = new ChildList[]{_adapters, _services};
 }

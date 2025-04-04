@@ -402,8 +402,8 @@ public final class InputStream {
     public void readPendingValues() {
         if (_encapsStack != null && _encapsStack.decoder != null) {
             _encapsStack.decoder.readPendingValues();
-        } else if (_encapsStack != null
-                ? _encapsStack.encoding_1_0
+        } else if (_encapsStack != null ?
+                _encapsStack.encoding_1_0
                 : _encoding.equals(Util.Encoding_1_0)) {
             //
             // If using the 1.0 encoding and no instances were read, we still read an empty sequence
@@ -1163,7 +1163,7 @@ public final class InputStream {
                 }
                 return new String(_stringChars, 0, len);
             } catch (java.io.UnsupportedEncodingException ex) {
-                assert (false);
+                assert false;
                 return "";
             } catch (java.nio.BufferUnderflowException ex) {
                 throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
@@ -1907,8 +1907,8 @@ public final class InputStream {
             // whether or not the type ID is encoded as a string or as an index. For exceptions, the
             // type ID is always encoded as a string.
             //
-            if (_sliceType
-                    == SliceType.ValueSlice) // For exceptions, the type ID is always encoded as a
+            if (_sliceType ==
+                    SliceType.ValueSlice) // For exceptions, the type ID is always encoded as a
             // string
             {
                 boolean isIndex = _stream.readBool();
@@ -1940,7 +1940,7 @@ public final class InputStream {
             int num;
             do {
                 num = _stream.readSize();
-                for (int k = num; k > 0; --k) {
+                for (int k = num; k > 0; k--) {
                     readInstance();
                 }
             } while (num > 0);
@@ -2047,8 +2047,8 @@ public final class InputStream {
                 throw new MarshalException("invalid object id");
             } else if (index == 0) {
                 cb.accept(null);
-            } else if (_current != null
-                    && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0) {
+            } else if (_current != null &&
+                    (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0) {
                 //
                 // When reading a class instance within a slice and there's an indirect instance
                 // table, always read an indirect reference
@@ -2163,15 +2163,15 @@ public final class InputStream {
             // for exceptions it's always encoded as a string.
             //
             if (_current.sliceType == SliceType.ValueSlice) {
-                if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT)
-                        == Protocol.FLAG_HAS_TYPE_ID_COMPACT) // Must be checked 1st!
+                if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) ==
+                        Protocol.FLAG_HAS_TYPE_ID_COMPACT) // Must be checked 1st!
                 {
                     _current.typeId = "";
                     _current.compactId = _stream.readSize();
-                } else if ((_current.sliceFlags
-                                & (Protocol.FLAG_HAS_TYPE_ID_INDEX
-                                        | Protocol.FLAG_HAS_TYPE_ID_STRING))
-                        != 0) {
+                } else if ((_current.sliceFlags &
+                                (Protocol.FLAG_HAS_TYPE_ID_INDEX |
+                                        Protocol.FLAG_HAS_TYPE_ID_STRING)) !=
+                        0) {
                     _current.typeId =
                             readTypeId(
                                     (_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
@@ -2218,7 +2218,7 @@ public final class InputStream {
                 // The table is written as a sequence<size> to conserve space.
                 //
                 int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
-                for (int i = 0; i < indirectionTable.length; ++i) {
+                for (int i = 0; i < indirectionTable.length; i++) {
                     indirectionTable[i] = readInstance(_stream.readSize(), null);
                 }
 
@@ -2229,8 +2229,8 @@ public final class InputStream {
                 if (indirectionTable.length == 0) {
                     throw new MarshalException("empty indirection table");
                 }
-                if ((_current.indirectPatchList == null || _current.indirectPatchList.isEmpty())
-                        && (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0) {
+                if ((_current.indirectPatchList == null || _current.indirectPatchList.isEmpty()) &&
+                        (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0) {
                     throw new MarshalException("no references to indirection table");
                 }
 
@@ -2262,9 +2262,9 @@ public final class InputStream {
             } else {
                 if (_current.sliceType == SliceType.ValueSlice) {
                     throw new MarshalException(
-                            "Cannot find value factory for type ID '"
-                                    + _current.typeId
-                                    + "' and compact format prevents slicing.");
+                            "Cannot find value factory for type ID '" +
+                                    _current.typeId +
+                                    "' and compact format prevents slicing.");
                 } else {
                     throw new MarshalException(
                             "cannot find user exception for type ID '" + _current.typeId + "'");
@@ -2320,7 +2320,7 @@ public final class InputStream {
             //
             if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0) {
                 int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
-                for (int i = 0; i < indirectionTable.length; ++i) {
+                for (int i = 0; i < indirectionTable.length; i++) {
                     indirectionTable[i] = readInstance(_stream.readSize(), null);
                 }
                 _current.indirectionTables.add(indirectionTable);
@@ -2386,9 +2386,9 @@ public final class InputStream {
                                 updateCache = false;
                             } catch (Exception ex) {
                                 throw new MarshalException(
-                                        "Cannot find value factory for type ID '"
-                                                + _current.compactId
-                                                + "' and compact format prevents slicing.");
+                                        "Cannot find value factory for type ID '" +
+                                                _current.compactId +
+                                                "' and compact format prevents slicing.");
                             }
                         }
                     }
@@ -2481,7 +2481,7 @@ public final class InputStream {
             // The _indirectionTables member holds the indirection table for each slice in _slices.
             //
             assert (_current.slices.size() == _current.indirectionTables.size());
-            for (int n = 0; n < _current.slices.size(); ++n) {
+            for (int n = 0; n < _current.slices.size(); n++) {
                 //
                 // We use the "instances" list in SliceInfo to hold references
                 // to the target instances. Note that the instances might not have been read yet in
@@ -2490,7 +2490,7 @@ public final class InputStream {
                 final int[] table = _current.indirectionTables.get(n);
                 SliceInfo info = _current.slices.get(n);
                 info.instances = new Value[table != null ? table.length : 0];
-                for (int j = 0; j < info.instances.length; ++j) {
+                for (int j = 0; j < info.instances.length; j++) {
                     final int k = j;
                     addPatchEntry(table[j], v -> info.instances[k] = v);
                 }
@@ -2574,8 +2574,8 @@ public final class InputStream {
     private EncodingVersion _encoding;
 
     private boolean isEncoding_1_0() {
-        return _encapsStack != null
-                ? _encapsStack.encoding_1_0
+        return _encapsStack != null ?
+                _encapsStack.encoding_1_0
                 : _encoding.equals(Util.Encoding_1_0);
     }
 

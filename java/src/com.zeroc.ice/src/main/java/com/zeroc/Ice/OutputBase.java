@@ -123,7 +123,7 @@ final class OutputBase {
     }
 
     public boolean valid() {
-        return (_out != null);
+        return _out != null;
     }
 
     protected java.io.PrintWriter _out;

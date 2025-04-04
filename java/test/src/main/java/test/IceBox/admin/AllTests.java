@@ -36,18 +36,18 @@ public class AllTests {
                             admin, "IceBox.Service.TestService.Properties");
 
             // Test: PropertiesAdmin::getProperty()
-            test(pa.getProperty("Prop1").equals("1"));
+            test("1".equals(pa.getProperty("Prop1")));
             test(pa.getProperty("Bogus").isEmpty());
 
             // Test: PropertiesAdmin::getProperties()
             java.util.Map<String, String> pd = pa.getPropertiesForPrefix("");
             test(pd.size() == 6);
-            test(pd.get("Prop1").equals("1"));
-            test(pd.get("Prop2").equals("2"));
-            test(pd.get("Prop3").equals("3"));
-            test(pd.get("Ice.Config").equals("config.service"));
-            test(pd.get("Ice.ProgramName").equals("IceBox-TestService"));
-            test(pd.get("Ice.Admin.Enabled").equals("1"));
+            test("1".equals(pd.get("Prop1")));
+            test("2".equals(pd.get("Prop2")));
+            test("3".equals(pd.get("Prop3")));
+            test("config.service".equals(pd.get("Ice.Config")));
+            test("IceBox-TestService".equals(pd.get("Ice.ProgramName")));
+            test("1".equals(pd.get("Ice.Admin.Enabled")));
 
             java.util.Map<String, String> changes;
 
@@ -59,18 +59,18 @@ public class AllTests {
             setProps.put("Prop4", "4"); // Added
             setProps.put("Prop5", "5"); // Added
             pa.setProperties(setProps);
-            test(pa.getProperty("Prop1").equals("10"));
-            test(pa.getProperty("Prop2").equals("20"));
+            test("10".equals(pa.getProperty("Prop1")));
+            test("20".equals(pa.getProperty("Prop2")));
             test(pa.getProperty("Prop3").isEmpty());
-            test(pa.getProperty("Prop4").equals("4"));
-            test(pa.getProperty("Prop5").equals("5"));
+            test("4".equals(pa.getProperty("Prop4")));
+            test("5".equals(pa.getProperty("Prop5")));
             changes = facet.getChanges();
             test(changes.size() == 5);
-            test(changes.get("Prop1").equals("10"));
-            test(changes.get("Prop2").equals("20"));
+            test("10".equals(changes.get("Prop1")));
+            test("20".equals(changes.get("Prop2")));
             test(changes.get("Prop3").isEmpty());
-            test(changes.get("Prop4").equals("4"));
-            test(changes.get("Prop5").equals("5"));
+            test("4".equals(changes.get("Prop4")));
+            test("5".equals(changes.get("Prop5")));
             pa.setProperties(setProps);
             changes = facet.getChanges();
             test(changes.isEmpty());
@@ -106,9 +106,12 @@ public class AllTests {
                     com.zeroc.Ice.IceMX.MetricsAdminPrx.checkedCast(admin, "Metrics")
                                     .getMetricsViewNames()
                                     .returnValue
-                                    .length
-                            == 0);
+                                    .length ==
+                            0);
         }
         System.out.println("ok");
+    }
+
+    private AllTests() {
     }
 }

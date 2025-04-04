@@ -313,9 +313,9 @@ public final class Properties {
             if (result == null) {
                 Util.getProcessLogger()
                         .warning(
-                                "mismatched quotes in property "
-                                        + key
-                                        + "'s value, returning default value");
+                                "mismatched quotes in property " +
+                                        key +
+                                        "'s value, returning default value");
                 return value;
             }
             if (result.length == 0) {
@@ -370,15 +370,15 @@ public final class Properties {
         // property.
         PropertyArray propertyArray = findIcePropertyArray(key);
         if (propertyArray != null) {
-            if (propertyArray.isOptIn()
-                    && _optInPrefixes.stream().noneMatch(propertyArray.name()::equals)) {
+            if (propertyArray.isOptIn() &&
+                    _optInPrefixes.stream().noneMatch(propertyArray.name()::equals)) {
 
                 throw new PropertyException(
-                        "unable to set '"
-                                + key
-                                + "': property prefix '"
-                                + propertyArray.name()
-                                + "' is opt-in and must be explicitly enabled");
+                        "unable to set '" +
+                                key +
+                                "': property prefix '" +
+                                propertyArray.name() +
+                                "' is opt-in and must be explicitly enabled");
             }
 
             Property prop =
@@ -484,11 +484,11 @@ public final class Properties {
      * @param file The property file.
      */
     public void load(String file) {
-        if (System.getProperty("os.name").startsWith("Windows")
-                && (file.startsWith("HKCU\\") || file.startsWith("HKLM\\"))) {
+        if (System.getProperty("os.name").startsWith("Windows") &&
+                (file.startsWith("HKCU\\") || file.startsWith("HKLM\\"))) {
             try {
                 java.lang.Process process =
-                        Runtime.getRuntime().exec(new String[] {"reg", "query", file});
+                        Runtime.getRuntime().exec(new String[]{"reg", "query", file});
                 process.waitFor();
                 if (process.exitValue() != 0) {
                     throw new InitializationException(
@@ -561,10 +561,10 @@ public final class Properties {
                 byte[] bom = new byte[3];
                 is = new java.io.PushbackInputStream(f, bom.length);
                 int read = is.read(bom, 0, bom.length);
-                if (read < 3
-                        || bom[0] != (byte) 0xEF
-                        || bom[1] != (byte) 0xBB
-                        || bom[2] != (byte) 0xBF) {
+                if (read < 3 ||
+                        bom[0] != (byte) 0xEF ||
+                        bom[1] != (byte) 0xBB ||
+                        bom[2] != (byte) 0xBF) {
                     if (read > 0) {
                         is.unread(bom, 0, read);
                     }
@@ -636,7 +636,7 @@ public final class Properties {
         String whitespace = "";
         String escapedspace = "";
         boolean finished = false;
-        for (int i = 0; i < line.length(); ++i) {
+        for (int i = 0; i < line.length(); i++) {
             char c = line.charAt(i);
             switch (state) {
                 case ParseStateKey:
@@ -764,8 +764,8 @@ public final class Properties {
         }
         value += escapedspace;
 
-        if ((state == ParseStateKey && !key.isEmpty())
-                || (state == ParseStateValue && key.isEmpty())) {
+        if ((state == ParseStateKey && !key.isEmpty()) ||
+                (state == ParseStateValue && key.isEmpty())) {
             Util.getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
             return;
         } else if (key.isEmpty()) {
@@ -778,7 +778,7 @@ public final class Properties {
     private void loadConfig() {
         String value = getIceProperty("Ice.Config");
 
-        if (value.isEmpty() || value.equals("1")) {
+        if (value.isEmpty() || "1".equals(value)) {
             try {
                 value = System.getenv("ICE_CONFIG");
                 if (value == null) {
@@ -826,9 +826,9 @@ public final class Properties {
                 //  - shorter than the property pattern
                 //  - the property pattern must start with the key
                 // - the pattern character after the key must be a dot
-                if (key.length() > pattern.length()
-                        && key.startsWith(pattern)
-                        && key.charAt(pattern.length()) == '.') {
+                if (key.length() > pattern.length() &&
+                        key.startsWith(pattern) &&
+                        key.charAt(pattern.length()) == '.') {
                     String substring = key.substring(pattern.length() + 1);
                     // Check if the suffix is a valid property. If so, return it. If it's not,
                     // continue searching the current property array.
@@ -864,18 +864,18 @@ public final class Properties {
                                 key ->
                                         findProperty(
                                                         key.substring(prefix.length() + 1),
-                                                        propertyArray)
-                                                == null)
+                                                        propertyArray) ==
+                                                null)
                         .collect(Collectors.toList());
 
         if (unknownProperties.size() > 0) {
             throw new PropertyException(
-                    "found unknown properties for "
-                            + propertyArray.name()
-                            + ": '"
-                            + prefix
-                            + "'\n    "
-                            + String.join("\n    ", unknownProperties));
+                    "found unknown properties for " +
+                            propertyArray.name() +
+                            ": '" +
+                            prefix +
+                            "'\n    " +
+                            String.join("\n    ", unknownProperties));
         }
     }
 

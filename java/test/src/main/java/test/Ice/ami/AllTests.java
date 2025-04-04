@@ -41,7 +41,7 @@ public class AllTests {
             return _received;
         }
 
-        private boolean _received = false;
+        private boolean _received;
     }
 
     private static class Callback {
@@ -108,7 +108,7 @@ public class AllTests {
                 }
             default:
                 {
-                    assert (false);
+                    assert false;
                     break;
                 }
         }
@@ -117,8 +117,8 @@ public class AllTests {
     public static void allTests(test.TestHelper helper, boolean collocated) {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
         final boolean bluetooth =
-                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
-                        == 0;
+                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt") ==
+                        0;
         PrintWriter out = helper.getWriter();
 
         String sref = "test:" + helper.getTestEndpoint(0);
@@ -144,8 +144,8 @@ public class AllTests {
             p.ice_pingAsync().join();
             p.ice_pingAsync(ctx).join();
 
-            test(p.ice_idAsync().join().equals("::Test::TestIntf"));
-            test(p.ice_idAsync(ctx).join().equals("::Test::TestIntf"));
+            test("::Test::TestIntf".equals(p.ice_idAsync().join()));
+            test("::Test::TestIntf".equals(p.ice_idAsync(ctx).join()));
 
             test(p.ice_idsAsync().join().length == 2);
             test(p.ice_idsAsync(ctx).join().length == 2);
@@ -360,7 +360,7 @@ public class AllTests {
             TestIntfPrx q = TestIntfPrx.uncheckedCast(p.ice_adapterId("dummy"));
             ThrowType throwExType[] = {ThrowType.LocalException, ThrowType.OtherException};
 
-            for (int i = 0; i < 2; ++i) {
+            for (int i = 0; i < 2; i++) {
                 final int idx = i;
                 try {
                     p.opAsync()
@@ -756,8 +756,8 @@ public class AllTests {
 
                     if (p.ice_getConnection() != null) {
                         test(
-                                r1.sentSynchronously() && r1.isSent() && !r1.isDone()
-                                        || !r1.sentSynchronously() && !r1.isDone());
+                                r1.sentSynchronously() && r1.isSent() && !r1.isDone() ||
+                                        !r1.sentSynchronously() && !r1.isDone());
 
                         test(!r2.sentSynchronously() && !r2.isDone());
                     }
@@ -777,8 +777,8 @@ public class AllTests {
                 r2.waitForCompleted();
                 test(r2.isDone());
 
-                test(r1.getOperation().equals("op"));
-                test(r2.getOperation().equals("opWithPayload"));
+                test("op".equals(r1.getOperation()));
+                test("opWithPayload".equals(r2.getOperation()));
 
                 CompletableFuture.allOf(results.toArray(new CompletableFuture[0])).join();
             }
@@ -789,7 +789,7 @@ public class AllTests {
                     // Twoway
                     //
                     InvocationFuture<Void> r = Util.getInvocationFuture(p.ice_pingAsync());
-                    test(r.getOperation().equals("ice_ping"));
+                    test("ice_ping".equals(r.getOperation()));
                     test(r.getConnection() == null); // Expected
                     test(r.getCommunicator() == communicator);
                     test(r.getProxy() == p);
@@ -802,7 +802,7 @@ public class AllTests {
                     //
                     TestIntfPrx p2 = p.ice_oneway();
                     InvocationFuture<Void> r = Util.getInvocationFuture(p2.ice_pingAsync());
-                    test(r.getOperation().equals("ice_ping"));
+                    test("ice_ping".equals(r.getOperation()));
                     test(r.getConnection() == null); // Expected
                     test(r.getCommunicator() == communicator);
                     test(r.getProxy() == p2);
@@ -862,7 +862,7 @@ public class AllTests {
                 try {
                     InvocationFuture<Void> r = null;
                     byte[] seq = new byte[10024];
-                    for (int i = 0; i < 200; ++i) // 2MB
+                    for (int i = 0; i < 200; i++) // 2MB
                     {
                         r = Util.getInvocationFuture(p.opWithPayloadAsync(seq));
                         results.add(r);
@@ -954,7 +954,7 @@ public class AllTests {
                     done = true;
                     p.ice_ping();
                     var futures = new java.util.ArrayList<CompletableFuture>();
-                    for (int i = 0; i < maxQueue; ++i) {
+                    for (int i = 0; i < maxQueue; i++) {
                         futures.add(Util.getInvocationFuture(p.opWithPayloadAsync(seq)));
                     }
 
@@ -1037,8 +1037,8 @@ public class AllTests {
                                 test(
                                         Thread.currentThread()
                                                         .getName()
-                                                        .indexOf("Ice.ThreadPool.Client")
-                                                == -1);
+                                                        .indexOf("Ice.ThreadPool.Client") ==
+                                                -1);
                             })
                     .join();
 
@@ -1048,8 +1048,8 @@ public class AllTests {
                                 test(
                                         Thread.currentThread()
                                                         .getName()
-                                                        .indexOf("Ice.ThreadPool.Client")
-                                                != -1);
+                                                        .indexOf("Ice.ThreadPool.Client") !=
+                                                -1);
                             },
                             p.ice_executor())
                     .join();
@@ -1126,5 +1126,8 @@ public class AllTests {
         executor.shutdown();
 
         p.shutdown();
+    }
+
+    private AllTests() {
     }
 }

@@ -133,7 +133,7 @@ class CommunicatorEditor extends Editor {
     private JTextField _buildId = new JTextField(20);
     private JButton _refreshButton;
     private TableField _runtimeProperties = new TableField("Name", "Value");
-    private boolean _runtimePropertiesRetrieved = false;
+    private boolean _runtimePropertiesRetrieved;
 
     private JTextArea _description = new JTextArea(3, 20);
     private TableField _descriptorProperties = new TableField("Name", "Value");

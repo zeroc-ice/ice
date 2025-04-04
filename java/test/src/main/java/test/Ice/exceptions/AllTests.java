@@ -25,8 +25,8 @@ public class AllTests {
     public static ThrowerPrx allTests(test.TestHelper helper) {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
         final boolean bluetooth =
-                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
-                        == 0;
+                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt") ==
+                        0;
         PrintWriter out = helper.getWriter();
 
         {
@@ -388,7 +388,7 @@ public class AllTests {
                 thrower2.ice_ping();
                 test(false);
             } catch (com.zeroc.Ice.FacetNotExistException ex) {
-                test(ex.facet.equals("no such facet"));
+                test("no such facet".equals(ex.facet));
             }
         } catch (Throwable ex) {
             ex.printStackTrace();
@@ -405,7 +405,7 @@ public class AllTests {
             thrower2.noSuchOperation();
             test(false);
         } catch (com.zeroc.Ice.OperationNotExistException ex) {
-            test(ex.operation.equals("noSuchOperation"));
+            test("noSuchOperation".equals(ex.operation));
         } catch (Throwable ex) {
             ex.printStackTrace();
             test(false);
@@ -459,9 +459,8 @@ public class AllTests {
             test(false);
         } catch (com.zeroc.Ice.OperationNotExistException ex) { // remapped as expected
             test(
-                    ex.getMessage()
-                            .equals(
-                                    "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }"));
+                    "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }"
+                            .equals(ex.getMessage()));
         }
 
         try {
@@ -470,12 +469,10 @@ public class AllTests {
         } catch (com.zeroc.Ice.DispatchException ex) {
             if (ex.replyStatus == ReplyStatus.Unauthorized.value()) {
                 test(
-                        ex.getMessage()
-                                        .equals(
-                                                "The dispatch failed with reply status Unauthorized.")
-                                || ex.getMessage()
-                                        .equals(
-                                                "The dispatch failed with reply status unauthorized.")); // for Swift
+                        "The dispatch failed with reply status Unauthorized."
+                                        .equals(ex.getMessage()) ||
+                                "The dispatch failed with reply status unauthorized."
+                                        .equals(ex.getMessage())); // for Swift
             } else {
                 test(false);
             }
@@ -486,7 +483,7 @@ public class AllTests {
             test(false);
         } catch (com.zeroc.Ice.DispatchException ex) {
             if (ex.replyStatus == 212) {
-                test(ex.getMessage().equals("The dispatch failed with reply status 212."));
+                test("The dispatch failed with reply status 212.".equals(ex.getMessage()));
             } else {
                 test(false);
             }
@@ -638,8 +635,8 @@ public class AllTests {
                 test(false);
             } catch (CompletionException ex) {
                 test(
-                        ex.getCause() instanceof ConnectionLostException
-                                || ex.getCause() instanceof com.zeroc.Ice.UnknownException);
+                        ex.getCause() instanceof ConnectionLostException ||
+                                ex.getCause() instanceof com.zeroc.Ice.UnknownException);
             }
 
             out.println("ok");
@@ -657,8 +654,8 @@ public class AllTests {
             } catch (CompletionException ex) {
                 test(ex.getCause() instanceof com.zeroc.Ice.ObjectNotExistException);
                 test(
-                        ((com.zeroc.Ice.ObjectNotExistException) ex.getCause())
-                                .id.name.equals("does not exist"));
+                        "does not exist".equals(((com.zeroc.Ice.ObjectNotExistException) ex.getCause())
+                                .id.name));
             }
         }
 
@@ -674,8 +671,8 @@ public class AllTests {
             } catch (CompletionException ex) {
                 test(ex.getCause() instanceof com.zeroc.Ice.FacetNotExistException);
                 test(
-                        ((com.zeroc.Ice.FacetNotExistException) ex.getCause())
-                                .facet.equals("no such facet"));
+                        "no such facet".equals(((com.zeroc.Ice.FacetNotExistException) ex.getCause())
+                                .facet));
             }
         }
 
@@ -691,8 +688,8 @@ public class AllTests {
             } catch (CompletionException ex) {
                 test(ex.getCause() instanceof com.zeroc.Ice.OperationNotExistException);
                 test(
-                        ((com.zeroc.Ice.OperationNotExistException) ex.getCause())
-                                .operation.equals("noSuchOperation"));
+                        "noSuchOperation".equals(((com.zeroc.Ice.OperationNotExistException) ex.getCause())
+                                .operation));
             }
         }
 
@@ -706,8 +703,8 @@ public class AllTests {
             test(false);
         } catch (CompletionException ex) {
             test(
-                    ex.getCause() instanceof com.zeroc.Ice.UnknownLocalException
-                            || ex.getCause() instanceof com.zeroc.Ice.OperationNotExistException);
+                    ex.getCause() instanceof com.zeroc.Ice.UnknownLocalException ||
+                            ex.getCause() instanceof com.zeroc.Ice.OperationNotExistException);
         }
 
         try {
@@ -715,8 +712,8 @@ public class AllTests {
             test(false);
         } catch (CompletionException ex) {
             test(
-                    ex.getCause() instanceof com.zeroc.Ice.UnknownLocalException
-                            || ex.getCause() instanceof com.zeroc.Ice.OperationNotExistException);
+                    ex.getCause() instanceof com.zeroc.Ice.UnknownLocalException ||
+                            ex.getCause() instanceof com.zeroc.Ice.OperationNotExistException);
         }
 
         out.println("ok");
@@ -761,5 +758,8 @@ public class AllTests {
         out.println("ok");
 
         return thrower;
+    }
+
+    private AllTests() {
     }
 }

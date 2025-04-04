@@ -462,7 +462,7 @@ public final class MyDerivedClassI implements MyDerivedClass {
     @Override
     public int[] opIntS(int[] s, Current current) {
         int[] r = new int[s.length];
-        for (int i = 0; i < r.length; ++i) {
+        for (int i = 0; i < r.length; i++) {
             r[i] = -s[i];
         }
         return r;
@@ -489,7 +489,7 @@ public final class MyDerivedClassI implements MyDerivedClass {
     public void opDoubleMarshaling(double p1, double[] p2, Current current) {
         double d = 1278312346.0 / 13.0;
         test(p1 == d);
-        for (int i = 0; i < p2.length; ++i) {
+        for (int i = 0; i < p2.length; i++) {
             test(p2[i] == d);
         }
     }
@@ -632,7 +632,7 @@ public final class MyDerivedClassI implements MyDerivedClass {
 
     @Override
     public String[] opStringLiterals(Current current) {
-        return new String[] {
+        return new String[]{
             s0.value,
             s1.value,
             s2.value,
@@ -702,5 +702,5 @@ public final class MyDerivedClassI implements MyDerivedClass {
         return new OpMDict2MarshaledResult(p1, p1, current);
     }
 
-    private int _opByteSOnewayCallCount = 0;
+    private int _opByteSOnewayCallCount;
 }

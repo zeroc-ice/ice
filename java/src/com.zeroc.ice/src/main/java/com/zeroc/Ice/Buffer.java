@@ -122,7 +122,7 @@ public class Buffer {
     // caller is writing to a location that is already in the buffer.
     //
     public void expand(int n) {
-        final int sz = (b == _emptyBuffer) ? n : b.position() + n;
+        final int sz = b == _emptyBuffer ? n : b.position() + n;
         if (sz > _size) {
             resize(sz, false);
         }

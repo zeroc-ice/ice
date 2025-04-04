@@ -153,7 +153,7 @@ public class AllTests {
             K k = initial.getK();
             test(k.value instanceof L);
             L l = (L) k.value;
-            test(l.data.equals("l"));
+            test("l".equals(l.data));
         }
         out.println("ok");
 
@@ -161,15 +161,15 @@ public class AllTests {
         {
             com.zeroc.Ice.Value v1 = new L("l");
             OpValueResult result = initial.opValue(v1);
-            test(((L) result.returnValue).data.equals("l"));
-            test(((L) result.v2).data.equals("l"));
+            test("l".equals(((L) result.returnValue).data));
+            test("l".equals(((L) result.v2).data));
         }
         {
             L l = new L("l");
             com.zeroc.Ice.Value[] v1 = {l};
             OpValueSeqResult result = initial.opValueSeq(v1);
-            test(((L) result.returnValue[0]).data.equals("l"));
-            test(((L) result.v2[0]).data.equals("l"));
+            test("l".equals(((L) result.returnValue[0]).data));
+            test("l".equals(((L) result.v2[0]).data));
         }
         {
             L l = new L("l");
@@ -177,8 +177,8 @@ public class AllTests {
                     new java.util.HashMap<String, com.zeroc.Ice.Value>();
             v1.put("l", l);
             OpValueMapResult result = initial.opValueMap(v1);
-            test(((L) result.returnValue.get("l")).data.equals("l"));
-            test(((L) result.v2.get("l")).data.equals("l"));
+            test("l".equals(((L) result.returnValue.get("l")).data));
+            test("l".equals(((L) result.v2.get("l")).data));
         }
         out.println("ok");
 
@@ -186,10 +186,10 @@ public class AllTests {
         out.flush();
         D1 d1 = new D1(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
         d1 = initial.getD1(d1);
-        test(d1.a1.name.equals("a1"));
-        test(d1.a2.name.equals("a2"));
-        test(d1.a3.name.equals("a3"));
-        test(d1.a4.name.equals("a4"));
+        test("a1".equals(d1.a1.name));
+        test("a2".equals(d1.a2.name));
+        test("a3".equals(d1.a3.name));
+        test("a4".equals(d1.a4.name));
         out.println("ok");
 
         out.print("throw EDerived... ");
@@ -198,10 +198,10 @@ public class AllTests {
             initial.throwEDerived();
             test(false);
         } catch (EDerived ederived) {
-            test(ederived.a1.name.equals("a1"));
-            test(ederived.a2.name.equals("a2"));
-            test(ederived.a3.name.equals("a3"));
-            test(ederived.a4.name.equals("a4"));
+            test("a1".equals(ederived.a1.name));
+            test("a2".equals(ederived.a2.name));
+            test("a3".equals(ederived.a3.name));
+            test("a4".equals(ederived.a4.name));
         }
         out.println("ok");
 
@@ -233,7 +233,7 @@ public class AllTests {
         Recursive top = new Recursive();
         Recursive bottom = top;
         int maxDepth = 10;
-        for (int i = 1; i < maxDepth; ++i) {
+        for (int i = 1; i < maxDepth; i++) {
             bottom.v = new Recursive();
             bottom = bottom.v;
         }
@@ -301,11 +301,11 @@ public class AllTests {
             test(opMResult.returnValue.v.size() == 2);
             test(opMResult.v2.v.size() == 2);
 
-            test(opMResult.returnValue.v.get(k1).data.equals("one"));
-            test(opMResult.v2.v.get(k1).data.equals("one"));
+            test("one".equals(opMResult.returnValue.v.get(k1).data));
+            test("one".equals(opMResult.v2.v.get(k1).data));
 
-            test(opMResult.returnValue.v.get(k2).data.equals("two"));
-            test(opMResult.v2.v.get(k2).data.equals("two"));
+            test("two".equals(opMResult.returnValue.v.get(k2).data));
+            test("two".equals(opMResult.v2.v.get(k2).data));
         }
         out.println("ok");
 
@@ -313,24 +313,24 @@ public class AllTests {
         out.flush();
         {
             Initial.OpF1Result opF1Result = initial.opF1(new F1("F11"));
-            test(opF1Result.returnValue.name.equals("F11"));
-            test(opF1Result.f12.name.equals("F12"));
+            test("F11".equals(opF1Result.returnValue.name));
+            test("F12".equals(opF1Result.f12.name));
 
             Initial.OpF2Result opF2Result =
                     initial.opF2(
                             F2Prx.createProxy(communicator, "F21:" + helper.getTestEndpoint()));
-            test(opF2Result.returnValue.ice_getIdentity().name.equals("F21"));
+            test("F21".equals(opF2Result.returnValue.ice_getIdentity().name));
             opF2Result.returnValue.op();
-            test(opF2Result.f22.ice_getIdentity().name.equals("F22"));
+            test("F22".equals(opF2Result.f22.ice_getIdentity().name));
 
             if (initial.hasF3()) {
                 Initial.OpF3Result opF3Result =
                         initial.opF3(new F3(new F1("F11"), F2Prx.createProxy(communicator, "F21")));
-                test(opF3Result.returnValue.f1.name.equals("F11"));
-                test(opF3Result.returnValue.f2.ice_getIdentity().name.equals("F21"));
+                test("F11".equals(opF3Result.returnValue.f1.name));
+                test("F21".equals(opF3Result.returnValue.f2.ice_getIdentity().name));
 
-                test(opF3Result.f32.f1.name.equals("F12"));
-                test(opF3Result.f32.f2.ice_getIdentity().name.equals("F22"));
+                test("F12".equals(opF3Result.f32.f1.name));
+                test("F22".equals(opF3Result.f32.f2.ice_getIdentity().name));
             }
         }
         out.println("ok");
@@ -351,5 +351,8 @@ public class AllTests {
         out.println("ok");
 
         return initial;
+    }
+
+    private AllTests() {
     }
 }

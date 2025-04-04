@@ -68,11 +68,11 @@ public class AllTests {
     private static void testCreateConnectionsWithMax(
             TestIntfPrx p, int max, PrintWriter output, Runnable postCloseDelay) {
         output.write(
-                "testing the creation of "
-                        + max
-                        + " connections with connection lost at "
-                        + (max + 1)
-                        + "... ");
+                "testing the creation of " +
+                        max +
+                        " connections with connection lost at " +
+                        (max + 1) +
+                        "... ");
         output.flush();
 
         var connectionList = new java.util.ArrayList<Connection>();
@@ -106,11 +106,11 @@ public class AllTests {
     private static void testCreateConnectionsWithMaxAndRecovery(
             TestIntfPrx p, int max, PrintWriter output, Runnable postCloseDelay) {
         output.write(
-                "testing the creation of "
-                        + max
-                        + " connections with connection lost at "
-                        + (max + 1)
-                        + " then recovery... ");
+                "testing the creation of " +
+                        max +
+                        " connections with connection lost at " +
+                        (max + 1) +
+                        " then recovery... ");
         output.flush();
 
         var connectionList = new java.util.ArrayList<Connection>();
@@ -164,5 +164,8 @@ public class AllTests {
         if (!b) {
             throw new RuntimeException();
         }
+    }
+
+    private AllTests() {
     }
 }

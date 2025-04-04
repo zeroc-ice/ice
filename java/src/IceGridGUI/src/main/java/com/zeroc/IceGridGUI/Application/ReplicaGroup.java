@@ -142,9 +142,9 @@ class ReplicaGroup extends TreeNode {
                 attributes.add(createAttribute("proxy-options", _descriptor.proxyOptions));
             }
 
-            if (_descriptor.loadBalancing == null
-                    && _descriptor.description.isEmpty()
-                    && _descriptor.objects.isEmpty()) {
+            if (_descriptor.loadBalancing == null &&
+                    _descriptor.description.isEmpty() &&
+                    _descriptor.objects.isEmpty()) {
                 writer.writeElement("replica-group", attributes);
             } else {
                 writer.writeStartTag("replica-group", attributes);

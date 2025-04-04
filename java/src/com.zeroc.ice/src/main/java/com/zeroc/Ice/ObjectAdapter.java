@@ -41,7 +41,7 @@ public final class ObjectAdapter {
     private final String _replicaGroupId;
     private Reference _reference;
     private List<IncomingConnectionFactory> _incomingConnectionFactories = new ArrayList<>();
-    private RouterInfo _routerInfo = null;
+    private RouterInfo _routerInfo;
     private EndpointI[] _publishedEndpoints = new EndpointI[0];
     private LocatorInfo _locatorInfo;
     private int _directCount; // The number of direct proxies dispatching on this object adapter.
@@ -1112,11 +1112,11 @@ public final class ObjectAdapter {
             // Prevent finalizer from complaining about the adapter not being destroyed.
             _state = StateDestroyed;
             throw new InitializationException(
-                    "invalid proxy options '"
-                            + proxyOptions
-                            + "' for object adapter '"
-                            + _name
-                            + "'.",
+                    "invalid proxy options '" +
+                            proxyOptions +
+                            "' for object adapter '" +
+                            _name +
+                            "'.",
                     ex);
         }
 

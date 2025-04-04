@@ -87,7 +87,7 @@ final class TraceUtil {
             String operation = stream.readString();
             out.write("\noperation = " + operation);
         } catch (java.io.IOException ex) {
-            assert (false);
+            assert false;
         }
     }
 
@@ -105,7 +105,7 @@ final class TraceUtil {
         int batchRequestNum = str.readInt();
         s.write("\nnumber of requests = " + batchRequestNum);
 
-        for (int i = 0; i < batchRequestNum; ++i) {
+        for (int i = 0; i < batchRequestNum; i++) {
             s.write("\nrequest #" + i + ':');
             printRequestHeader(s, str);
         }
@@ -198,7 +198,7 @@ final class TraceUtil {
                 out.write(Util.encodingVersionToString(v));
             }
         } catch (java.io.IOException ex) {
-            assert (false);
+            assert false;
         }
     }
 
@@ -256,7 +256,7 @@ final class TraceUtil {
             out.write("\nmessage size = " + size);
             return type;
         } catch (java.io.IOException ex) {
-            assert (false);
+            assert false;
             return 0;
         }
     }
@@ -326,5 +326,8 @@ final class TraceUtil {
             default:
                 return "unknown";
         }
+    }
+
+    private TraceUtil() {
     }
 }

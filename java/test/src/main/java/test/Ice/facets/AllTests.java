@@ -26,23 +26,23 @@ public class AllTests {
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
         String[] facetFilter =
                 communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
-        test(facetFilter.length == 1 && facetFilter[0].equals("foobar"));
+        test(facetFilter.length == 1 && "foobar".equals(facetFilter[0]));
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foo\\'bar");
         facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
-        test(facetFilter.length == 1 && facetFilter[0].equals("foo'bar"));
+        test(facetFilter.length == 1 && "foo'bar".equals(facetFilter[0]));
         communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
         facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         test(
-                facetFilter.length == 3
-                        && facetFilter[0].equals("foo bar")
-                        && facetFilter[1].equals("toto")
-                        && facetFilter[2].equals("titi"));
+                facetFilter.length == 3 &&
+                        "foo bar".equals(facetFilter[0]) &&
+                        "toto".equals(facetFilter[1]) &&
+                        "titi".equals(facetFilter[2]));
         communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
         facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         test(
-                facetFilter.length == 2
-                        && facetFilter[0].equals("foo bar' toto")
-                        && facetFilter[1].equals("titi"));
+                facetFilter.length == 2 &&
+                        "foo bar' toto".equals(facetFilter[0]) &&
+                        "titi".equals(facetFilter[1]));
         // communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
         // facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         // test(facetFilter.length == 0);
@@ -51,8 +51,8 @@ public class AllTests {
 
         out.print("testing facet registration exceptions... ");
         final String host =
-                communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0
-                        ? "::1"
+                communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0 ?
+                        "::1"
                         : "127.0.0.1";
         communicator
                 .getProperties()
@@ -155,45 +155,48 @@ public class AllTests {
         d = DPrx.checkedCast(db);
         test(d != null);
         test(d.equals(db));
-        test(d.callA().equals("A"));
-        test(d.callB().equals("B"));
-        test(d.callC().equals("C"));
-        test(d.callD().equals("D"));
+        test("A".equals(d.callA()));
+        test("B".equals(d.callB()));
+        test("C".equals(d.callC()));
+        test("D".equals(d.callD()));
         out.println("ok");
 
         out.print("testing facets A, B, C, and D... ");
         out.flush();
         df = DPrx.checkedCast(d, "facetABCD");
         test(df != null);
-        test(df.callA().equals("A"));
-        test(df.callB().equals("B"));
-        test(df.callC().equals("C"));
-        test(df.callD().equals("D"));
+        test("A".equals(df.callA()));
+        test("B".equals(df.callB()));
+        test("C".equals(df.callC()));
+        test("D".equals(df.callD()));
         out.println("ok");
 
         out.print("testing facets E and F... ");
         out.flush();
         FPrx ff = FPrx.checkedCast(d, "facetEF");
         test(ff != null);
-        test(ff.callE().equals("E"));
-        test(ff.callF().equals("F"));
+        test("E".equals(ff.callE()));
+        test("F".equals(ff.callF()));
         out.println("ok");
 
         out.print("testing facet G... ");
         out.flush();
         GPrx gf = GPrx.checkedCast(ff, "facetGH");
         test(gf != null);
-        test(gf.callG().equals("G"));
+        test("G".equals(gf.callG()));
         out.println("ok");
 
         out.print("testing whether casting preserves the facet... ");
         out.flush();
         HPrx hf = HPrx.checkedCast(gf);
         test(hf != null);
-        test(hf.callG().equals("G"));
-        test(hf.callH().equals("H"));
+        test("G".equals(hf.callG()));
+        test("H".equals(hf.callH()));
         out.println("ok");
 
         return gf;
+    }
+
+    private AllTests() {
     }
 }

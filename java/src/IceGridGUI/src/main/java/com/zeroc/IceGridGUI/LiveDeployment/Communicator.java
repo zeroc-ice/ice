@@ -112,7 +112,7 @@ public abstract class Communicator extends TreeNode {
 
             provideAdmin(
                     prefix,
-                    (admin) -> {
+                    admin -> {
                         final com.zeroc.Ice.LoggerAdminPrx loggerAdmin =
                                 com.zeroc.Ice.LoggerAdminPrx.uncheckedCast(
                                         getAdminFacet(admin, "Logger"));
@@ -150,7 +150,7 @@ public abstract class Communicator extends TreeNode {
         final String prefix = "Retrieving properties for " + getDisplayName() + "...";
         provideAdmin(
                 prefix,
-                (admin) -> {
+                admin -> {
                     final com.zeroc.Ice.PropertiesAdminPrx propertiesAdmin =
                             com.zeroc.Ice.PropertiesAdminPrx.uncheckedCast(
                                     getAdminFacet(admin, "Properties"));
@@ -171,11 +171,9 @@ public abstract class Communicator extends TreeNode {
                                                                                 result,
                                                                         Communicator.this);
                                                     });
-                                        } else if (ex
-                                                        instanceof
-                                                        com.zeroc.Ice.ObjectNotExistException
-                                                || ex
-                                                        instanceof
+                                        } else if (ex instanceof
+                                                        com.zeroc.Ice.ObjectNotExistException ||
+                                                ex instanceof
                                                         com.zeroc.Ice.FacetNotExistException) {
                                             SwingUtilities.invokeLater(
                                                     () ->
@@ -183,13 +181,13 @@ public abstract class Communicator extends TreeNode {
                                                                     .getCoordinator()
                                                                     .getStatusBar()
                                                                     .setText(
-                                                                            prefix
-                                                                                    + " Admin not available."));
+                                                                            prefix +
+                                                                                    " Admin not available."));
                                         } else {
                                             amiFailure(
                                                     prefix,
-                                                    "Failed to retrieve the properties for "
-                                                            + getDisplayName(),
+                                                    "Failed to retrieve the properties for " +
+                                                            getDisplayName(),
                                                     ex);
                                         }
                                     });
@@ -205,7 +203,7 @@ public abstract class Communicator extends TreeNode {
         final String prefix = "Retrieving metrics for " + getDisplayName() + "...";
         if (!provideAdmin(
                 prefix,
-                (admin) -> {
+                admin -> {
                     final com.zeroc.Ice.IceMX.MetricsAdminPrx metricsAdmin =
                             com.zeroc.Ice.IceMX.MetricsAdminPrx.uncheckedCast(
                                     getAdminFacet(admin, "Metrics"));
@@ -244,11 +242,9 @@ public abstract class Communicator extends TreeNode {
                                                                 .nodeStructureChanged(
                                                                         Communicator.this);
                                                     });
-                                        } else if (ex
-                                                        instanceof
-                                                        com.zeroc.Ice.ObjectNotExistException
-                                                || ex
-                                                        instanceof
+                                        } else if (ex instanceof
+                                                        com.zeroc.Ice.ObjectNotExistException ||
+                                                ex instanceof
                                                         com.zeroc.Ice.FacetNotExistException) {
                                             SwingUtilities.invokeLater(
                                                     () ->
@@ -256,13 +252,13 @@ public abstract class Communicator extends TreeNode {
                                                                     .getCoordinator()
                                                                     .getStatusBar()
                                                                     .setText(
-                                                                            prefix
-                                                                                    + " Admin not available."));
+                                                                            prefix +
+                                                                                    " Admin not available."));
                                         } else {
                                             amiFailure(
                                                     prefix,
-                                                    "Failed to retrieve the metrics for "
-                                                            + getDisplayName(),
+                                                    "Failed to retrieve the metrics for " +
+                                                            getDisplayName(),
                                                     ex);
                                         }
                                     });
@@ -315,27 +311,27 @@ public abstract class Communicator extends TreeNode {
                                                                 .getCoordinator()
                                                                 .getStatusBar()
                                                                 .setText(
-                                                                        prefix
-                                                                                + " "
-                                                                                + e.toString()
-                                                                                + "."));
+                                                                        prefix +
+                                                                                " " +
+                                                                                e.toString() +
+                                                                                "."));
                                     }
-                                } else if (adminEx == null
-                                        || adminEx
-                                                instanceof com.zeroc.Ice.ObjectNotExistException) {
+                                } else if (adminEx == null ||
+                                        adminEx instanceof
+                                                com.zeroc.Ice.ObjectNotExistException) {
                                     SwingUtilities.invokeLater(
                                             () ->
                                                     getRoot()
                                                             .getCoordinator()
                                                             .getStatusBar()
                                                             .setText(
-                                                                    prefix
-                                                                            + " Admin not available."));
+                                                                    prefix +
+                                                                            " Admin not available."));
                                 } else {
                                     amiFailure(
                                             prefix,
-                                            "Failed to retrieve the Admin proxy for "
-                                                    + getServerDisplayName(),
+                                            "Failed to retrieve the Admin proxy for " +
+                                                    getServerDisplayName(),
                                             adminEx);
                                 }
                             });
@@ -348,7 +344,7 @@ public abstract class Communicator extends TreeNode {
 
     protected ShowIceLogDialog _showIceLogDialog;
     protected java.util.List<MetricsView> _metrics = new java.util.LinkedList<>();
-    protected boolean _metricsRetrieved = false;
+    protected boolean _metricsRetrieved;
 
     protected final java.util.List[] _childrenArray;
 }

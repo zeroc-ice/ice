@@ -32,7 +32,7 @@ public class Client extends test.TestHelper {
 
         @Override
         public void _do(com.zeroc.Ice.Current current) {
-            assert current.operation.equals("do");
+            assert "do".equals(current.operation);
         }
     }
 

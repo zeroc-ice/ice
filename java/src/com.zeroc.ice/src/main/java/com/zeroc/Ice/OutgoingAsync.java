@@ -128,8 +128,8 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
     public int invokeCollocated(CollocatedRequestHandler handler) {
         // The stream cannot be cached if the proxy is not a twoway or there is an invocation
         // timeout set.
-        if (!_proxy.ice_isTwoway()
-                || _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
+        if (!_proxy.ice_isTwoway() ||
+                _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
         }
@@ -183,7 +183,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
                     throwUserException();
                 } catch (UserException ex) {
                     if (_userExceptions != null) {
-                        for (int i = 0; i < _userExceptions.length; ++i) {
+                        for (int i = 0; i < _userExceptions.length; i++) {
                             if (_userExceptions[i].isInstance(ex)) {
                                 completeExceptionally(ex);
                                 return;

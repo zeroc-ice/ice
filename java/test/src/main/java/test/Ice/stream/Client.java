@@ -17,7 +17,7 @@ public class Client extends test.TestHelper {
 
         @Override
         public void _iceRead(InputStream in) {
-            assert (false);
+            assert false;
         }
 
         @Override
@@ -27,7 +27,7 @@ public class Client extends test.TestHelper {
         }
 
         MyClass obj;
-        boolean called = false;
+        boolean called;
     }
 
     private static class TestObjectReader extends com.zeroc.Ice.Value {
@@ -40,11 +40,11 @@ public class Client extends test.TestHelper {
 
         @Override
         public void _iceWrite(OutputStream out) {
-            assert (false);
+            assert false;
         }
 
         MyClass obj;
-        boolean called = false;
+        boolean called;
     }
 
     private static class TestValueFactory implements com.zeroc.Ice.ValueFactory {
@@ -187,7 +187,7 @@ public class Client extends test.TestHelper {
                 out.writeString("hello world");
                 byte[] data = out.finished();
                 in = new InputStream(communicator, data);
-                test(in.readString().equals("hello world"));
+                test("hello world".equals(in.readString()));
             }
 
             printWriter.println("ok");
@@ -240,10 +240,10 @@ public class Client extends test.TestHelper {
                 OptionalClass o2 = cb.obj;
                 test(o2.bo == o.bo);
                 test(o2.by == o.by);
-                if (communicator
+                if ("1.0"
+                        .equals(communicator
                         .getProperties()
-                        .getIceProperty("Ice.Default.EncodingVersion")
-                        .equals("1.0")) {
+                        .getIceProperty("Ice.Default.EncodingVersion"))) {
                     test(!o2.hasSh());
                     test(!o2.hasI());
                 } else {
@@ -449,21 +449,21 @@ public class Client extends test.TestHelper {
 
             {
                 MyClass[] arr = new MyClass[4];
-                for (int i = 0; i < arr.length; ++i) {
+                for (int i = 0; i < arr.length; i++) {
                     arr[i] = new MyClass();
                     arr[i].c = arr[i];
                     arr[i].o = arr[i];
                     arr[i].s = new LargeStruct();
                     arr[i].s.e = MyEnum.enum2;
-                    arr[i].seq1 = new boolean[] {true, false, true, false};
-                    arr[i].seq2 = new byte[] {(byte) 1, (byte) 2, (byte) 3, (byte) 4};
-                    arr[i].seq3 = new short[] {(short) 1, (short) 2, (short) 3, (short) 4};
-                    arr[i].seq4 = new int[] {1, 2, 3, 4};
-                    arr[i].seq5 = new long[] {1, 2, 3, 4};
-                    arr[i].seq6 = new float[] {1, 2, 3, 4};
-                    arr[i].seq7 = new double[] {1, 2, 3, 4};
-                    arr[i].seq8 = new String[] {"string1", "string2", "string3", "string4"};
-                    arr[i].seq9 = new MyEnum[] {MyEnum.enum3, MyEnum.enum2, MyEnum.enum1};
+                    arr[i].seq1 = new boolean[]{true, false, true, false};
+                    arr[i].seq2 = new byte[]{(byte) 1, (byte) 2, (byte) 3, (byte) 4};
+                    arr[i].seq3 = new short[]{(short) 1, (short) 2, (short) 3, (short) 4};
+                    arr[i].seq4 = new int[]{1, 2, 3, 4};
+                    arr[i].seq5 = new long[]{1, 2, 3, 4};
+                    arr[i].seq6 = new float[]{1, 2, 3, 4};
+                    arr[i].seq7 = new double[]{1, 2, 3, 4};
+                    arr[i].seq8 = new String[]{"string1", "string2", "string3", "string4"};
+                    arr[i].seq9 = new MyEnum[]{MyEnum.enum3, MyEnum.enum2, MyEnum.enum1};
                     arr[i].seq10 = new MyClass[4]; // null elements.
                     arr[i].d = new java.util.HashMap<>();
                     arr[i].d.put("hi", arr[i]);
@@ -476,7 +476,7 @@ public class Client extends test.TestHelper {
                 MyClass[] arr2 = MyClassSHelper.read(in);
                 in.readPendingValues();
                 test(arr2.length == arr.length);
-                for (int i = 0; i < arr2.length; ++i) {
+                for (int i = 0; i < arr2.length; i++) {
                     test(arr2[i] != null);
                     test(arr2[i].c == arr2[i]);
                     test(arr2[i].o == arr2[i]);
@@ -506,8 +506,8 @@ public class Client extends test.TestHelper {
                 test(arr2S[1].length == arrS[1].length);
                 test(arr2S[2].length == arrS[2].length);
 
-                for (int j = 0; j < arr2S.length; ++j) {
-                    for (int k = 0; k < arr2S[j].length; ++k) {
+                for (int j = 0; j < arr2S.length; j++) {
+                    for (int k = 0; k < arr2S[j].length; k++) {
                         test(arr2S[j][k].c == arr2S[j][k]);
                         test(arr2S[j][k].o == arr2S[j][k]);
                         test(arr2S[j][k].s.e == MyEnum.enum2);
@@ -569,15 +569,15 @@ public class Client extends test.TestHelper {
                 c.o = c;
                 c.s = new LargeStruct();
                 c.s.e = MyEnum.enum2;
-                c.seq1 = new boolean[] {true, false, true, false};
-                c.seq2 = new byte[] {(byte) 1, (byte) 2, (byte) 3, (byte) 4};
-                c.seq3 = new short[] {(short) 1, (short) 2, (short) 3, (short) 4};
-                c.seq4 = new int[] {1, 2, 3, 4};
-                c.seq5 = new long[] {1, 2, 3, 4};
-                c.seq6 = new float[] {1, 2, 3, 4};
-                c.seq7 = new double[] {1, 2, 3, 4};
-                c.seq8 = new String[] {"string1", "string2", "string3", "string4"};
-                c.seq9 = new MyEnum[] {MyEnum.enum3, MyEnum.enum2, MyEnum.enum1};
+                c.seq1 = new boolean[]{true, false, true, false};
+                c.seq2 = new byte[]{(byte) 1, (byte) 2, (byte) 3, (byte) 4};
+                c.seq3 = new short[]{(short) 1, (short) 2, (short) 3, (short) 4};
+                c.seq4 = new int[]{1, 2, 3, 4};
+                c.seq5 = new long[]{1, 2, 3, 4};
+                c.seq6 = new float[]{1, 2, 3, 4};
+                c.seq7 = new double[]{1, 2, 3, 4};
+                c.seq8 = new String[]{"string1", "string2", "string3", "string4"};
+                c.seq9 = new MyEnum[]{MyEnum.enum3, MyEnum.enum2, MyEnum.enum1};
                 c.seq10 = new MyClass[4]; // null elements.
                 c.d = new java.util.HashMap<>();
                 c.d.put("hi", c);

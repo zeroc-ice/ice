@@ -23,9 +23,9 @@ class RegistryObserverI implements RegistryObserver {
                     names += " " + info.name;
                 }
                 _coordinator.traceObserver(
-                        "registryInit for registr"
-                                + (registryInfos.length == 1 ? "y" : "ies")
-                                + names);
+                        "registryInit for registr" +
+                                (registryInfos.length == 1 ? "y" : "ies") +
+                                names);
             }
         }
 

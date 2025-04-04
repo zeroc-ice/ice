@@ -52,8 +52,8 @@ public class AllTests {
 
         out.print("testing ice_locator and ice_getLocator... ");
         test(
-                Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator())
-                        == 0);
+                Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) ==
+                        0);
         var anotherLocator = com.zeroc.Ice.LocatorPrx.createProxy(communicator, "anotherLocator");
         base = base.ice_locator(anotherLocator);
         test(Util.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) == 0);
@@ -65,8 +65,8 @@ public class AllTests {
         communicator.setDefaultLocator(locator);
         base = communicator.stringToProxy("test @ TestAdapter");
         test(
-                Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator())
-                        == 0);
+                Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) ==
+                        0);
 
         //
         // We also test ice_router/ice_getRouter (perhaps we should add a test/Ice/router test?)
@@ -202,8 +202,8 @@ public class AllTests {
             base.ice_ping();
             test(false);
         } catch (com.zeroc.Ice.NotRegisteredException ex) {
-            test(ex.kindOfObject.equals("object"));
-            test(ex.id.equals("unknown/unknown"));
+            test("object".equals(ex.kindOfObject));
+            test("unknown/unknown".equals(ex.id));
         }
         out.println("ok");
 
@@ -214,8 +214,8 @@ public class AllTests {
             base.ice_ping();
             test(false);
         } catch (com.zeroc.Ice.NotRegisteredException ex) {
-            test(ex.kindOfObject.equals("object adapter"));
-            test(ex.id.equals("TestAdapterUnknown"));
+            test("object adapter".equals(ex.kindOfObject));
+            test("TestAdapterUnknown".equals(ex.id));
         }
         out.println("ok");
 
@@ -269,9 +269,9 @@ public class AllTests {
         out.flush();
         obj = TestIntfPrx.checkedCast(communicator.stringToProxy("test@TestAdapter"));
         HelloPrx hello = obj.getHello();
-        test(hello.ice_getAdapterId().equals("TestAdapter"));
+        test("TestAdapter".equals(hello.ice_getAdapterId()));
         hello = obj.getReplicatedHello();
-        test(hello.ice_getAdapterId().equals("ReplicatedAdapter"));
+        test("ReplicatedAdapter".equals(hello.ice_getAdapterId()));
         hello.sayHello();
         out.println("ok");
 
@@ -340,7 +340,7 @@ public class AllTests {
             test(false);
         } catch (com.zeroc.Ice.NotRegisteredException ex) {
             test(ex.kindOfObject == "object adapter");
-            test(ex.id.equals("TestAdapter3"));
+            test("TestAdapter3".equals(ex.id));
         }
         registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
         try {
@@ -382,7 +382,7 @@ public class AllTests {
             test(false);
         } catch (com.zeroc.Ice.NotRegisteredException ex) {
             test(ex.kindOfObject == "object adapter");
-            test(ex.id.equals("TestUnknown"));
+            test("TestUnknown".equals(ex.id));
         }
         registry.addObject(communicator.stringToProxy("test3@TestAdapter4")); // Update
         registry.setAdapterDirectProxy(
@@ -598,5 +598,8 @@ public class AllTests {
         out.flush();
         manager.shutdown();
         out.println("ok");
+    }
+
+    private AllTests() {
     }
 }

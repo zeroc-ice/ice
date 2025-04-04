@@ -113,10 +113,9 @@ public class AllTests {
                 .whenComplete(
                         (result, ex) -> {
                             test(
-                                    ex != null
-                                            && (ex instanceof com.zeroc.Ice.ConnectionLostException
-                                                    || ex
-                                                            instanceof
+                                    ex != null &&
+                                            (ex instanceof com.zeroc.Ice.ConnectionLostException ||
+                                                    ex instanceof
                                                             com.zeroc.Ice.UnknownLocalException));
                             cb2.called();
                         });
@@ -217,5 +216,8 @@ public class AllTests {
         }
 
         return retry1;
+    }
+
+    private AllTests() {
     }
 }

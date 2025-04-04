@@ -238,10 +238,10 @@ final class WSEndpoint extends EndpointI {
                 {
                     if (argument == null) {
                         throw new ParseException(
-                                "no argument provided for -r option in endpoint '"
-                                        + endpoint
-                                        + _delegate.options()
-                                        + "'");
+                                "no argument provided for -r option in endpoint '" +
+                                        endpoint +
+                                        _delegate.options() +
+                                        "'");
                     }
                     _resource = argument;
                     return true;
