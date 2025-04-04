@@ -53,15 +53,11 @@ namespace DataStorm
     };
 
     /// The configuration base class holds configuration options common to readers and writers.
-    ///
     /// @headerfile DataStorm/DataStorm.h
     class Config
     {
     public:
-        /// Construct a Config object.
-        ///
-        /// The constructor accepts optional parameters for each of the Config data members.
-        ///
+        /// Constructs a Config object.
         /// @param sampleCount The optional sample count.
         /// @param sampleLifetime The optional sample lifetime.
         /// @param clearHistory The optional clear history policy.
@@ -90,17 +86,12 @@ namespace DataStorm
     };
 
     /// The ReaderConfig class specifies configuration options specific to readers.
-    ///
     /// It extends the Config class and therefore inherits its configuration options.
-    ///
     /// @headerfile DataStorm/DataStorm.h
     class ReaderConfig : public Config
     {
     public:
-        /// Construct a ReaderConfig object.
-        ///
-        /// The constructor accepts optional parameters for each of the ReaderConfig data members.
-        ///
+        /// Constructs a ReaderConfig object.
         /// @param sampleCount The optional sample count.
         /// @param sampleLifetime The optional sample lifetime.
         /// @param clearHistory The optional clear history policy.
@@ -120,18 +111,13 @@ namespace DataStorm
     };
 
     /// The WriterConfig class specifies configuration options specific to writers.
-    ///
     /// It extends the Config class and therefore inherits its configuration
     /// options.
-    ///
     /// @headerfile DataStorm/DataStorm.h
     class WriterConfig : public Config
     {
     public:
-        /// Construct a WriterConfig object.
-        ///
-        /// The constructor accepts optional parameters for each of the WriterConfig data members.
-        ///
+        /// Constructs a WriterConfig object.
         /// @param sampleCount The optional sample count.
         /// @param sampleLifetime The optional sample lifetime.
         /// @param clearHistory The optional clear history policy.
@@ -161,55 +147,40 @@ namespace DataStorm
     };
 
     /// The Encoder template provides a method to encode decode user types.
-    ///
     /// The encoder template can be specialized to provide encoding for types that don't support being encoded with
     /// Ice. By default, the Ice encoding is used if no Encoder template specialization is provided for the type.
-    ///
     /// @headerfile DataStorm/DataStorm.h
     template<typename T, typename Enabler = void> struct Encoder
     {
-        /// Encode the given value. This method encodes the given value and returns the resulting byte sequence.
-        /// The communicator parameter is provided to allow the implementation to eventually use the Ice encoding.
-        ///
-        /// @see decode
-        ///
-        /// @param communicator The communicator associated with the node
-        /// @param value The value to encode
-        /// @return The resulting byte sequence
+        /// Encodes the given value. This method encodes the given value and returns the resulting byte sequence.
+        /// @param communicator The communicator associated with the node.
+        /// @param value The value to encode.
+        /// @return The resulting byte sequence.
         static Ice::ByteSeq encode(const Ice::CommunicatorPtr& communicator, const T& value) noexcept;
     };
 
     /// The Decoder template provides a method to decode user types.
-    ///
     /// The decoder template can be specialized to provide decoding for types that don't support being decoded with
     /// Ice. By default, the Ice decoding is used if no Decoder template specialization is provided for the type.
-    ///
     /// @headerfile DataStorm/DataStorm.h
     template<typename T, typename Enabler = void> struct Decoder
     {
-        /// Decode a value. This method decodes the given byte sequence and returns the resulting value. The
-        /// communicator parameter is provided to allow the implementation to eventually use the Ice encoding.
-        ///
-        /// @see encode
-        ///
-        /// @param communicator The communicator associated with the node
-        /// @param value The byte sequence to decode
-        /// @return The resulting value
+        /// Decodes a value. This method decodes the given byte sequence and returns the resulting value.
+        /// @param communicator The communicator associated with the node.
+        /// @param value The byte sequence to decode.
+        /// @return The resulting value.
         static T decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& value) noexcept;
     };
 
     /// The Cloner template provides a method to clone user types.
-    ///
     /// The cloner template can be specialized to provide cloning for types that require special cloning. By
     /// default, the template uses plain C++ copy.
-    ///
     /// @headerfile DataStorm/DataStorm.h
     template<typename T, typename Enabler = void> struct Cloner
     {
-        /// Clone the given value. This helper is used when processing partial update to clone the previous value
+        /// Clones the given value. This helper is used when processing partial update to clone the previous value
         /// and compute the new value with the partial update. The default implementation performs a plain C++ copy
         /// with the copy constructor.
-        ///
         /// @param value The value to encode
         /// @return The cloned value
         static T clone(const T& value) noexcept { return value; }
@@ -221,7 +192,7 @@ namespace DataStorm
         static std::shared_ptr<T> clone(const std::shared_ptr<T>& value) noexcept { return value->ice_clone(); }
     };
 
-    /// Encoder template implementation
+    // Encoder template implementation.
     template<typename T, typename E>
     Ice::ByteSeq Encoder<T, E>::encode(const Ice::CommunicatorPtr& communicator, const T& value) noexcept
     {
@@ -232,7 +203,7 @@ namespace DataStorm
         return v;
     }
 
-    /// Decoder template implementation
+    // Decoder template implementation.
     template<typename T, typename E>
     T Decoder<T, E>::decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& value) noexcept
     {
