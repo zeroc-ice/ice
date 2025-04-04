@@ -346,7 +346,7 @@ namespace DataStorm
         [[nodiscard]] bool hasWriters() const noexcept;
 
         /// Waits for the given number of data writers to be online.
-        /// @param count The number of date writers to wait for.
+        /// @param count The number of data writers to wait for.
         /// @throws NodeShutdownException Thrown when the node is shut down while waiting.
         void waitForWriters(unsigned int count = 1) const;
 
