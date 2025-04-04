@@ -298,7 +298,7 @@
              value="GenericWhitespace ''{0}'' should followed by whitespace."/>
       <message key="ws.notPreceded"
              value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
-    </module> 
+    </module>
     <!-- Indentations adjusted for consistency with the indentation patterns we already use.
          Sorry, Google. -->
     <module name="Indentation">
