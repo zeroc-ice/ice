@@ -12,14 +12,42 @@ module Ice
                 self::ICE_ID
             end
 
-            def checkedCast(proxy, facetOrContext=nil, context=nil)
-                ice_checkedCast(proxy, self::ICE_ID, facetOrContext, context)
+            def checkedCast(proxy, facet: nil, context: nil)
+                if proxy.nil?
+                    return nil
+                end
+
+                unless facet.nil?
+                    proxy = proxy.ice_facet(facet)
+                end
+
+                if proxy.ice_isA(self::ICE_ID, context)
+                    return self::create(proxy)
+                else
+                    return nil
+                end
+            end
+
+            def uncheckedCast(proxy, facet: nil)
+                if proxy.nil?
+                    return nil
+                end
+
+                unless facet.nil?
+                    proxy = proxy.ice_facet(facet)
+                end
+
+                self::create(proxy)
             end
         end
 
       def self.included(base)
           base.extend(ClassMethods)
       end
+    end
+
+    class ObjectPrx
+        include Proxy_mixin
     end
 
     # Proxy comparison functions.

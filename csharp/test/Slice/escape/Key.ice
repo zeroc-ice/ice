@@ -2,8 +2,8 @@
 
 #pragma once
 
-// TODO: figure out a better way to map module names.
-module escaped_abstract
+["cs:identifier:@abstract"]
+module abstract
 {
     ["cs:identifier:@as"]
     enum as

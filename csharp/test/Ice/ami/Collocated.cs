@@ -18,7 +18,7 @@ public class Collocated : TestHelper
 
         // We use a client thread pool with more than one thread to test that task inlining works.
         properties.setProperty("Ice.ThreadPool.Client.Size", "5");
-        using var communicator = initialize(properties);
+        await using var communicator = initialize(properties);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
         communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");

@@ -7,20 +7,20 @@ from TestHelper import TestHelper
 TestHelper.loadSlice("Key.ice Clash.ice")
 import sys
 import Ice
-import escapedAnd
+import escaped_and
 
 
-class delI(escapedAnd._del):
+class delI(escaped_and._del):
     def _elifAsync(self, _else, current):
         pass
 
 
-class execI(escapedAnd._exec):
+class execI(escaped_and._exec):
     def _finally(self, current):
         assert current.operation == "finally"
 
 
-class ifI(escapedAnd._if):
+class ifI(escaped_and._if):
     def _elifAsync(self, _else, current):
         pass
 
@@ -34,29 +34,29 @@ class ifI(escapedAnd._if):
 def testtypes():
     sys.stdout.write("Testing generated type names... ")
     sys.stdout.flush()
-    _a = escapedAnd._assert._break
-    b = escapedAnd._continue
+    _a = escaped_and._assert._break
+    b = escaped_and._continue
     b._def = 0
-    _c = escapedAnd._delPrx.uncheckedCast(None)
-    assert "_elif" in dir(escapedAnd._delPrx)
+    _c = escaped_and._delPrx.uncheckedCast(None)
+    assert "_elif" in dir(escaped_and._delPrx)
     _c1 = delI()
-    _d = escapedAnd._execPrx.uncheckedCast(None)
-    assert "_finally" in dir(escapedAnd._execPrx)
+    _d = escaped_and._execPrx.uncheckedCast(None)
+    assert "_finally" in dir(escaped_and._execPrx)
     _d1 = execI()
 
-    _e1 = escapedAnd._for()
-    _f = escapedAnd._ifPrx.uncheckedCast(None)
+    _e1 = escaped_and._for()
+    _f = escaped_and._ifPrx.uncheckedCast(None)
 
-    assert "_finally" in dir(escapedAnd._ifPrx)
-    assert "_elif" in dir(escapedAnd._ifPrx)
+    assert "_finally" in dir(escaped_and._ifPrx)
+    assert "_elif" in dir(escaped_and._ifPrx)
     _f1 = ifI()
-    g = escapedAnd._is()
+    g = escaped_and._is()
     g.bar = 0
-    h = escapedAnd._not()
+    h = escaped_and._not()
     h.bar = 0
     h._pass = 2
-    _j = escapedAnd._lambda
-    _en = escapedAnd.EnumNone._None
+    _j = escaped_and._lambda
+    _en = escaped_and.EnumNone._None
     print("ok")
 
 
@@ -77,7 +77,7 @@ class Client(TestHelper):
 
             sys.stdout.write("Testing operation name... ")
             sys.stdout.flush()
-            p = escapedAnd._execPrx.uncheckedCast(
+            p = escaped_and._execPrx.uncheckedCast(
                 adapter.createProxy(Ice.stringToIdentity("test"))
             )
             p._finally()

@@ -4,8 +4,8 @@
 
 [["java:package:test.Slice.escape"]]
 
-// TODO: figure out a better way to map module names.
-module escaped_abstract
+["java:identifier:escaped_abstract"]
+module abstract
 {
     ["java:identifier:_assert"]
     enum assert

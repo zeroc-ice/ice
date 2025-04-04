@@ -982,7 +982,8 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     // "cpp:identifier"
     MetadataInfo identifierInfo = {
         .validOn =
-            {typeid(InterfaceDecl),
+            {typeid(Module),
+             typeid(InterfaceDecl),
              typeid(Operation),
              typeid(ClassDecl),
              typeid(Slice::Exception),

@@ -260,6 +260,11 @@ was executed in a thread managed by the same Ice thread pool unless you specifie
 
 - The `cs:attribute` Slice metadata is now limited to enums, enumerators, fields, and constants.
 
+## MATLAB Changes
+
+- The default value for property `Ice.ProgramName` is now `matlab-client`. It used to be the first element in the args
+  cell given to `Ice.initialize`.
+
 ## Objective-C Changes
 
 - The Objective-C mapping was removed.

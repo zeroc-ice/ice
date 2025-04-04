@@ -39,10 +39,20 @@ Ice::Communicator::flushBatchRequestsAsync(CompressBatch compress)
 void
 Ice::Communicator::destroy() noexcept
 {
-    if (_instance)
+    if (_instance) // see create implementation
     {
         _instance->destroy();
     }
+}
+
+void
+Ice::Communicator::destroyAsync(function<void()> completed) noexcept
+{
+    if (completed)
+    {
+        _instance->destroyAsync(std::move(completed));
+    }
+    // we tolerate null callbacks, they do nothing
 }
 
 void
@@ -323,7 +333,7 @@ Ice::Communicator::findAllAdminFacets()
 CommunicatorPtr
 Ice::Communicator::create(InitializationData initData)
 {
-    Ice::CommunicatorPtr communicator = make_shared<Communicator>();
+    CommunicatorPtr communicator{new Communicator()};
     try
     {
         const_cast<InstancePtr&>(communicator->_instance) = Instance::create(communicator, std::move(initData));

@@ -18,7 +18,7 @@ class Client(TestHelper):
             initData.properties = self.createTestProperties(args)
             initData.eventLoopAdapter = Ice.asyncio.EventLoopAdapter(asyncio.get_running_loop())
 
-            with self.initialize(initData) as communicator:
+            async with self.initialize(initData) as communicator:
                 await AllTests.allTestsAsync(self, communicator)
 
         asyncio.run(runAsync(), debug=True)

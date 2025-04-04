@@ -7,7 +7,7 @@ using System.Net.Security;
 
 namespace Ice;
 
-public sealed class Communicator : IDisposable
+public sealed class Communicator : IDisposable, IAsyncDisposable
 {
     /// <summary>
     /// Gets a task that completes when the communicator's shutdown completes. This task always completes successfully.
@@ -38,6 +38,24 @@ public sealed class Communicator : IDisposable
     /// Disposes this communicator. It's an alias for <see cref="destroy"/>.
     /// </summary>
     public void Dispose() => destroy();
+
+    /// <summary>
+    /// Disposes this communicator asynchronously. Like <see cref="Communicator.shutdownCompleted" />, this method
+    /// waits for all outstanding dispatches to complete.
+    /// </summary>
+    /// <returns>A task that completes when the communicator is disposed.</returns>
+    public ValueTask DisposeAsync()
+    {
+        // A truly async implementation would be nicer but requires significant refactoring.
+        var tcs = new TaskCompletionSource();
+        _ = Task.Run(() =>
+        {
+            Dispose(); // can block for a while
+            tcs.SetResult();
+        });
+
+        return new(tcs.Task);
+    }
 
     /// <summary>
     /// Destroys the communicator. This operation calls shutdown implicitly. Calling destroy cleans up memory, and shuts

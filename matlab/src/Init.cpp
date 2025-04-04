@@ -38,28 +38,31 @@ extern "C"
             Ice::StringSeq a;
             getStringList(args, a);
 
-            //
-            // Collect InitializationData members.
-            //
-            Ice::InitializationData id;
+            // We add a first argument of 'matlab-client'. It will become the ProgramName unless Ice.ProgramName is set
+            // explicitly.
+            a.insert(a.begin(), "matlab-client");
 
-            //
-            // Properties
-            //
+            // Create the C++ InitializationData object.
+            Ice::InitializationData initData;
+
             if (propsImpl)
             {
-                id.properties = deref<Ice::Properties>(propsImpl);
+                initData.properties = deref<Ice::Properties>(propsImpl);
             }
 
-            if (!id.properties)
+            if (!initData.properties)
             {
-                id.properties = Ice::createProperties();
+                initData.properties = Ice::createProperties();
             }
 
-            // Always accept cycles in MATLAB
-            id.properties->setProperty("Ice.AcceptClassCycles", "1");
+            // Always accept cycles in MATLAB.
+            initData.properties->setProperty("Ice.AcceptClassCycles", "1");
 
-            *r = new shared_ptr<Ice::Communicator>(Ice::initialize(a, id));
+            *r = new shared_ptr<Ice::Communicator>(Ice::initialize(a, initData));
+
+            // Remove the first argument, 'matlab-client'.
+            a.erase(a.begin());
+
             return createResultValue(createStringList(a));
         }
         catch (...)

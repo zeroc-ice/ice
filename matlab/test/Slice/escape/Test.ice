@@ -2,8 +2,8 @@
 
 #pragma once
 
-// TODO come up with a better way to escape modules.
-module escaped_classdef
+["matlab:identifier:classdef_"]
+module classdef
 {
     ["matlab:identifier:persistent_"]
     enum persistent
