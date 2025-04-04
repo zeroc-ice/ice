@@ -20,19 +20,18 @@ namespace Ice
     class ICE_API Service
     {
     public:
+        /// Default constructor.
         Service();
+
         virtual ~Service();
 
-        /// Shutdown the service. The default implementation invokes shutdown()
-        /// on the communicator.
+        /// Shuts down the service. The default implementation calls Communicator::shutdown.
         virtual bool shutdown();
 
-        /// Notify the service about a signal interrupt. The default
-        /// implementation invokes shutdown().
+        /// Notifies the service that the program received a signal. The default implementation calls #shutdown.
         virtual void interrupt();
 
-        /// The primary entry point for services. This function examines
-        /// the given argument vector for reserved options and takes the
+        /// The primary entry point for services. This function examines @p argv for reserved options and takes the
         /// appropriate action. The reserved options are shown below.
         ///
         /// Win32:
@@ -43,44 +42,21 @@ namespace Ice
         ///
         /// --daemon [--nochdir] [--noclose]
         ///
-        /// If --service or --daemon are specified, the program runs as
-        /// a service, otherwise the program runs as a regular foreground
-        /// process. Any service-specific (and Ice-specific) options
-        /// are stripped from argv (just as for Ice::initialize()).
-        ///
-        /// @param argc Specifies the number of arguments in argv.
+        /// If --service or --daemon are specified, the program runs as a service, otherwise the program runs as a
+        /// regular foreground process. Any service-specific (and Ice-specific) options are stripped from @p argv (just
+        /// as for ::Ice::initialize).
+        /// @param argc The number of arguments in @p argv.
         /// @param argv The command-line arguments.
-        /// @param initData Configuration data for the new Communicator.
+        /// @param initData Configuration data for the new communicator.
         /// @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
         int main(int argc, const char* const argv[], InitializationData initData = {});
 
 #ifdef _WIN32
-        /// The primary entry point for services. This function examines
-        /// the given argument vector for reserved options and takes the
-        /// appropriate action. The reserved options are shown below.
-        ///
-        /// Win32:
-        ///
-        /// --service NAME
-        ///
-        /// Unix:
-        ///
-        /// --daemon [--nochdir] [--noclose]
-        ///
-        /// If --service or --daemon are specified, the program runs as
-        /// a service, otherwise the program runs as a regular foreground
-        /// process. Any service-specific (and Ice-specific) options
-        /// are stripped from argv (just as for Ice::initialize()).
-        ///
-        /// @param argc Specifies the number of arguments in argv.
-        /// @param argv The command-line arguments.
-        /// @param initData Configuration data for the new Communicator.
-        /// @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
+        /// @copydoc main(int, const char* const[], InitializationData)
         int main(int argc, const wchar_t* const argv[], InitializationData initData = {});
 #endif
 
-        /// The primary entry point for services. This function examines
-        /// the given argument vector for reserved options and takes the
+        /// The primary entry point for services. This function examines @p args for reserved options and takes the
         /// appropriate action. The reserved options are shown below.
         ///
         /// Win32:
@@ -91,21 +67,19 @@ namespace Ice
         ///
         /// --daemon [--nochdir] [--noclose]
         ///
-        /// If --service or --daemon are specified, the program runs as
-        /// a service, otherwise the program runs as a regular foreground
-        /// process. Any service-specific (and Ice-specific) options
-        /// are stripped from argv (just as for Ice::initialize()).
-        ///
+        /// If --service or --daemon are specified, the program runs as a service, otherwise the program runs as a
+        /// regular foreground process. Any service-specific (and Ice-specific) options are stripped from @p args (just
+        /// as for ::Ice::initialize).
         /// @param args The command-line arguments.
-        /// @param initData Configuration data for the new Communicator.
+        /// @param initData Configuration data for the new communicator.
         /// @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
         int main(const StringSeq& args, InitializationData initData = {});
 
-        /// Obtains the communicator created by the service.
+        /// Gets the communicator created by the service.
         /// @return The service's communicator.
         [[nodiscard]] Ice::CommunicatorPtr communicator() const;
 
-        /// Obtains the Service singleton.
+        /// Gets the Service singleton.
         /// @return A pointer to this service.
         static Service* instance();
 
@@ -113,98 +87,68 @@ namespace Ice
         /// @return `true` if the program is running as a service, `false` otherwise.
         [[nodiscard]] bool service() const;
 
-        /// Obtains the program name. If the program is running as a Win32
-        /// service, the return value is the service name. Otherwise the
-        /// return value is the executable name (i.e., argv[0]).
+        /// Gets the program name. If the program is running as a Win32 service, the return value is the service name.
+        /// Otherwise the return value is the executable name (i.e., argv[0]).
         /// @return The service name.
         [[nodiscard]] std::string name() const;
 
-#ifdef _WIN32
-        /// Alternative entry point for services that use their own
-        /// command-line options. Instead of invoking main(), the
-        /// program processes its command-line options and invokes
-        /// run(). To run as a Win32 service or Unix daemon, the
-        /// program must first invoke configureService() or
-        /// configureDaemon(), respectively.
-        ///
-        /// @param argc Specifies the number of arguments in argv.
+        /// Alternative entry point for services that use their own command-line options. Instead of calling #main, the
+        /// program processes its command-line options and calls #run. To run as a Win32 service or Unix daemon, the
+        /// program must first call `configureService` or #configureDaemon, respectively.
+        /// @param argc The number of arguments in @p argv.
         /// @param argv The command-line arguments.
-        /// @param initData Configuration data for the new Communicator.
-        /// @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
-        int run(int argc, const wchar_t* const argv[], InitializationData initData = {});
-#endif
-
-        /// Alternative entry point for services that use their own
-        /// command-line options. Instead of invoking main(), the
-        /// program processes its command-line options and invokes
-        /// run(). To run as a Win32 service or Unix daemon, the
-        /// program must first invoke configureService() or
-        /// configureDaemon(), respectively.
-        ///
-        /// @param argc Specifies the number of arguments in argv.
-        /// @param argv The command-line arguments.
-        /// @param initData Configuration data for the new Communicator.
+        /// @param initData Configuration data for the new communicator.
         /// @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
         int run(int argc, const char* const argv[], InitializationData initData = {});
 
 #ifdef _WIN32
+        /// @copydoc run(int, const char* const[], InitializationData)
+        int run(int argc, const wchar_t* const argv[], InitializationData initData = {});
 
         /// Configures the program to run as a Win32 service with the given name.
         /// @param name The service name.
         void configureService(const std::string& name);
 
-        /// @cond INTERNAL
+        /// @private
         static void setModuleHandle(HMODULE);
-        /// @endcond
-
 #else
-
-        /// Configures the program to run as a Unix daemon. The first
-        /// argument indicates whether the daemon should change its
-        /// working directory to the root directory. The second
-        /// argument indicates whether extraneous file descriptors are
-        /// closed. If the value of the last argument is not an empty
-        /// string, the daemon writes its process ID to the given
-        /// filename.
-        ///
+        /// Configures the program to run as a Unix daemon.
         /// @param changeDirectory `true` if the daemon should change its working directory to the root directory,
         /// `false` otherwise.
         /// @param closeFiles `true` if the daemon should close unnecessary file descriptors (i.e., stdin, stdout,
         /// etc.), `false` otherwise.
         /// @param pidFile If a non-empty string is provided, the daemon writes its process ID to the given file.
         void configureDaemon(bool changeDirectory, bool closeFiles, const std::string& pidFile);
-
 #endif
 
-        /// Invoked by the signal handler when it catches a signal.
+        /// Handles a signal.
+        /// @remarks The default implementation calls #interrupt unless the signal is SIGHUP or CTRL_LOGOFF_EVENT and
+        /// the property `Ice.Nohup` is greater than 0 (or not set at all).
         /// @param sig The signal that was caught.
         virtual void handleInterrupt(int sig);
 
     protected:
-        /// Prepares a service for execution, including the creation and
-        /// activation of object adapters and servants.
-        /// @param argc Specifies the number of arguments in argv.
+        /// Prepares a service for execution, including the creation and activation of object adapters and servants.
+        /// @param argc The number of arguments in @p argv.
         /// @param argv The command-line arguments.
-        /// @param status The exit status, which is returned by main
+        /// @param status The exit status, which is returned by #main.
         /// @return `true` if startup was successful, `false` otherwise.
         virtual bool start(int argc, char* argv[], int& status) = 0;
 
-        /// Blocks until the service shuts down. The default implementation
-        /// invokes waitForShutdown() on the communicator.
+        /// Blocks until the service shuts down. The default implementation calls Communicator::waitForShutdown.
         virtual void waitForShutdown();
 
         /// Cleans up resources after shutting down.
         virtual bool stop();
 
         /// Initializes a communicator.
-        /// @param argc Specifies the number of arguments in argv.
+        /// @param argc The number of arguments in @p argv.
         /// @param argv The command-line arguments.
-        /// @param initData Configuration data for the new Communicator.
+        /// @param initData Configuration data for the new communicator.
         /// @return The new communicator instance.
         virtual Ice::CommunicatorPtr initializeCommunicator(int& argc, char* argv[], InitializationData initData);
 
-        /// Logs a system error, which includes a description of the
-        /// current system error code.
+        /// Logs a system error, which includes a description of the current system error code.
         /// @param msg The log message.
         virtual void syserror(const std::string& msg);
 
@@ -224,10 +168,10 @@ namespace Ice
         /// @param msg The log message.
         virtual void print(const std::string& msg);
 
-        /// Enables the signal handler to invoke interrupt() when a signal occurs.
+        /// Makes this service call #handleInterrupt when it receives a signal.
         void enableInterrupt();
 
-        /// Ignore signals.
+        /// Ignores signals.
         void disableInterrupt();
 
         /// Logger utility class for a system error.
@@ -248,8 +192,8 @@ namespace Ice
     private:
         Ice::LoggerPtr _logger;
         Ice::CommunicatorPtr _communicator;
-        bool _nohup;
-        bool _service;
+        bool _nohup = true;
+        bool _service = false;
         std::string _name;
 
         static Service* _instance;
@@ -275,8 +219,8 @@ namespace Ice
 
         int runDaemon(int, char*[], InitializationData);
 
-        bool _changeDirectory;
-        bool _closeFiles;
+        bool _changeDirectory = true;
+        bool _closeFiles = true;
         std::string _pidFile;
 
 #endif

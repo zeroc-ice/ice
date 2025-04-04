@@ -15,8 +15,9 @@
 
 namespace IceBox
 {
-    /// This exception is a general failure notification. It is thrown for errors such as a service encountering an
-    /// error during initialization, or the service manager being unable to load a service executable.
+    /// The exception that is thrown when an IceBox service fails to start.
+    /// @remark You can throw any exception from your implementation of Service::start. This exception is provided for
+    /// backward compatibility with earlier versions of IceBox.
     /// @headerfile IceBox/IceBox.h
     class ICEBOX_API FailureException final : public Ice::LocalException
     {
@@ -26,23 +27,23 @@ namespace IceBox
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// An application service managed by an IceBox service manager.
+    /// Represents an IceBox service that you implement and that the IceBox service manager starts and later stops.
+    /// The same service can be started and stopped multiple times.
     /// @headerfile IceBox/IceBox.h
     class ICEBOX_API Service
     {
     public:
         virtual ~Service();
 
-        /// Start the service. The given communicator is created by the service manager for use by the service.
-        /// This communicator may also be used by other services, depending on the service configuration.
-        /// @remark The service manager owns this communicator, and is responsible for destroying it.
-        /// @param name The service's name, as determined by the configuration.
-        /// @param communicator A communicator for use by the service.
-        /// @param args The service arguments that were not converted into properties.
+        /// Starts the service.
+        /// @param name The service's name, as specified in configuration.
+        /// @param communicator A communicator for use by the service. The IceBox service manager creates this
+        /// communicator when it starts, and destroys it when it shuts down.
+        /// @param args The service arguments that were not converted into properties of @p communicator.
         virtual void
         start(const std::string& name, const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& args) = 0;
 
-        /// Stop the service.
+        /// Stops the service.
         virtual void stop() = 0;
     };
 
