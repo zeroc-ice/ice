@@ -19,6 +19,7 @@
 // `#if defined(ICE_USE_XXX)/#endif` directives are used to include the appropriate structure based on the platform. We
 // avoid using `#elif` directives because, we want to define all the classes when building the doxygen documentation.
 
+/// Secure connections with SSL/TLS.
 namespace Ice::SSL
 {
 #if defined(ICE_USE_SCHANNEL)
@@ -39,7 +40,6 @@ namespace Ice::SSL
         /// The peer certificate.
         const PCCERT_CONTEXT peerCertificate;
 
-        // internal constructor
         /// @private
         SchannelConnectionInfo(Ice::ConnectionInfoPtr underlying, PCCERT_CONTEXT peerCertificate)
             : ConnectionInfo{std::move(underlying)},
@@ -67,7 +67,6 @@ namespace Ice::SSL
         /// The peer certificate.
         const SecCertificateRef peerCertificate;
 
-        // internal constructor
         /// @private
         SecureTransportConnectionInfo(Ice::ConnectionInfoPtr underlying, SecCertificateRef peerCertificate)
             : ConnectionInfo{std::move(underlying)},
@@ -95,7 +94,6 @@ namespace Ice::SSL
         /// The peer certificate.
         X509* const peerCertificate;
 
-        // internal constructor
         /// @private
         OpenSSLConnectionInfo(Ice::ConnectionInfoPtr underlying, X509* peerCertificate)
             : ConnectionInfo{std::move(underlying)},

@@ -1,10 +1,171 @@
 
 import IcePy
+from .Object import Object
+
+def uncheckedCast(type, proxy, facet=None):
+    """
+    Downcasts a proxy without confirming the target object's type via a remote invocation.
+
+    Parameters
+    ----------
+    type : type
+        The proxy target type.
+    proxy : ObjectPrx
+        The source proxy (can be None).
+
+    facet : str, optional
+        A facet name.
+
+    Returns
+    -------
+    ObjectPrx|None
+        A proxy with the requested type.
+    """
+    if proxy is None:
+        return None
+    if facet is not None:
+        proxy = proxy.ice_facet(facet)
+    return IcePy.ObjectPrx.newProxy(type, proxy)
+
+def checkedCast(type, proxy, facet=None, context=None):
+    """
+    Downcasts a proxy after confirming the target object's type via a remote invocation.
+
+    Parameters
+    ----------
+    type : type
+        The proxy target type.
+    proxy : ObjectPrx
+        The source proxy (can be None).
+
+    facet : str, optional
+        A facet name.
+
+    context : dict, optional
+        The request context.
+
+    Returns
+    -------
+    ObjectPrx|None
+        A proxy with the requested type, or None if the target object does not support the requested type.
+    """
+    if proxy is None:
+        return None
+    if facet is not None:
+        proxy = proxy.ice_facet(facet)
+    return IcePy.ObjectPrx.newProxy(type, proxy) if proxy.ice_isA(type.ice_staticId(), context=context) else None
+
+async def checkedCastAsync(type, proxy, facet=None, context=None):
+    """
+    Downcasts a proxy after confirming the target object's type via a remote invocation.
+
+    Parameters
+    ----------
+    type : type
+        The proxy target type.
+    proxy : ObjectPrx
+        The source proxy (can be None).
+
+    facet : str, optional
+        A facet name.
+
+    context : dict, optional
+        The request context.
+
+    Returns
+    -------
+    ObjectPrx|None
+        A proxy with the requested type, or None if the target object does not support the requested type.
+    """
+    if proxy is None:
+        return None
+    if facet is not None:
+        proxy = proxy.ice_facet(facet)
+    b = await proxy.ice_isAAsync(type.ice_staticId(), context=context)
+    return IcePy.ObjectPrx.newProxy(type, proxy) if b else None
 
 class ObjectPrx(IcePy.ObjectPrx):
     """
     The base class for all proxies.
     """
+
+    @staticmethod
+    def uncheckedCast(proxy, facet=None):
+        """
+        Downcasts a proxy without confirming the target object's type via a remote invocation.
+
+        Parameters
+        ----------
+        proxy : ObjectPrx
+            The source proxy (can be None).
+
+        facet : str, optional
+            A facet name.
+
+        Returns
+        -------
+        ObjectPrx|None
+            A proxy with the requested type, or None if the target object does not support the requested type.
+        """
+        return uncheckedCast(ObjectPrx, proxy, facet)
+
+    @staticmethod
+    def checkedCast(proxy, facet=None, context=None):
+        """
+        Downcasts a proxy after confirming the target object's type via a remote invocation.
+
+        Parameters
+        ----------
+        proxy : ObjectPrx
+            The source proxy (can be None).
+
+        facet : str, optional
+            A facet name.
+
+        context : dict, optional
+            The request context.
+
+        Returns
+        -------
+        ObjectPrx|None
+            A proxy with the requested type, or None if the target object does not support the requested type.
+        """
+        return checkedCast(ObjectPrx, proxy, facet, context)
+
+    @staticmethod
+    def checkedCastAsync(proxy, facet=None, context=None):
+        """
+        Downcasts a proxy after confirming the target object's type via a remote invocation.
+
+        Parameters
+        ----------
+        proxy : ObjectPrx
+            The source proxy (can be None).
+
+        facet : str, optional
+            A facet name.
+
+        context : dict, optional
+            The request context.
+
+        Returns
+        -------
+        ObjectPrx|None
+            A proxy with the requested type, or None if the target object does not support the requested type.
+        """
+        return checkedCastAsync(ObjectPrx, proxy, facet, context)
+
+    @staticmethod
+    def ice_staticId():
+        """
+        Gets the Slice type ID of the interface associated with this proxy.
+
+        Returns
+        -------
+        str
+            The type ID, "::Ice::Object".
+        """
+        return "::Ice::Object"
 
     def ice_getCommunicator(self):
         """
@@ -33,10 +194,25 @@ class ObjectPrx(IcePy.ObjectPrx):
         bool
             True if the target object has the interface specified by id or derives from the interface specified by id.
         """
-        if context is None:
-            return super().ice_isA(id)
-        else:
-            return super().ice_isA(id, context)
+        return Object._op_ice_isA.invoke(self, ((id,), context))
+
+    def ice_isAAsync(self, id, context=None):
+        """
+        Test whether this object supports a specific Slice interface.
+
+        Parameters
+        ----------
+        id : str
+            The type ID of the Slice interface to test against.
+        context : dict, optional
+            The context dictionary for the invocation.
+
+        Returns
+        -------
+        bool
+            True if the target object has the interface specified by id or derives from the interface specified by id.
+        """
+        return Object._op_ice_isA.invokeAsync(self, ((id,), context))
 
     def ice_ping(self, context=None):
         """
@@ -51,10 +227,22 @@ class ObjectPrx(IcePy.ObjectPrx):
         --------
         >>> obj.ice_ping(context={'key': 'value'})
         """
-        if context is None:
-            super().ice_ping()
-        else:
-            super().ice_ping(context)
+        Object._op_ice_ping.invoke(self, ((), context))
+
+    def ice_pingAsync(self, context=None):
+        """
+        Test whether the target object of this proxy can be reached.
+
+        Parameters
+        ----------
+        context : dict, optional
+            The context dictionary for the invocation.
+
+        Examples
+        --------
+        >>> obj.ice_ping(context={'key': 'value'})
+        """
+        return Object._op_ice_ping.invokeAsync(self, ((), context))
 
     def ice_ids(self, context=None):
         """
@@ -70,10 +258,23 @@ class ObjectPrx(IcePy.ObjectPrx):
         list of str
             The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
         """
-        if context is None:
-            return super().ice_ids()
-        else:
-            return super().ice_ids(context)
+        return Object._op_ice_ids.invoke(self, ((), context))
+
+    def ice_idsAsync(self, context=None):
+        """
+        Return the Slice type IDs of the interfaces supported by the target object of this proxy.
+
+        Parameters
+        ----------
+        context : dict, optional
+            The context dictionary for the invocation.
+
+        Returns
+        -------
+        list of str
+            The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
+        """
+        return Object._op_ice_ids.invokeAsync(self, ((), context))
 
     def ice_id(self, context=None):
         """
@@ -89,10 +290,23 @@ class ObjectPrx(IcePy.ObjectPrx):
         str
             The Slice type ID of the most-derived interface.
         """
-        if context is None:
-            return super().ice_id()
-        else:
-            return super().ice_id(context)
+        return Object._op_ice_id.invoke(self, ((), context))
+
+    def ice_idAsync(self, context=None):
+        """
+        Return the Slice type ID of the most-derived interface supported by the target object of this proxy.
+
+        Parameters
+        ----------
+        context : dict, optional
+            The context dictionary for the invocation.
+
+        Returns
+        -------
+        str
+            The Slice type ID of the most-derived interface.
+        """
+        return Object._op_ice_id.invokeAsync(self, ((), context))
 
     def ice_getIdentity(self):
         """

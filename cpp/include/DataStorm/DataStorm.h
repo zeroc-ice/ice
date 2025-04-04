@@ -728,14 +728,12 @@ namespace DataStorm
     public:
         /// Construct a new reader for the given key filter. The construction of the reader connects the reader to
         /// writers whose key matches the key filter criteria.
-        ///
-        /// If the key filter is not registered with the topic or the filter invalid, std::invalid_argument is
-        /// raised.
-        ///
         /// @param topic The topic.
         /// @param keyFilter The key filter.
         /// @param name The optional reader name.
         /// @param config The reader configuration.
+        /// @throws std::invalid_argument Thrown when the key filter is not registered with the topic or the filter is
+        /// invalid.
         template<typename KeyFilterCriteria>
         FilteredKeyReader(
             const Topic<Key, Value, UpdateTag>& topic,
@@ -745,15 +743,13 @@ namespace DataStorm
 
         /// Construct a new reader for the given key filter and sample filter criteria. The construction of the
         /// reader connects the reader to writers whose key matches the key filter criteria.
-        ///
-        /// If the key filter is not registered with the topic or the filter invalid, std::invalid_argument is
-        /// raised.
-        ///
         /// @param topic The topic.
         /// @param keyFilter The key filter.
         /// @param sampleFilter The sample filter.
         /// @param name The optional reader name.
         /// @param config The reader configuration.
+        /// @throws std::invalid_argument Thrown when the key filter is not registered with the topic or the filter is
+        /// invalid.
         template<typename KeyFilterCriteria, typename SampleFilterCriteria>
         FilteredKeyReader(
             const Topic<Key, Value, UpdateTag>& topic,

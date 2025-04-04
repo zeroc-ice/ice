@@ -13,7 +13,6 @@ from .EnumBase import EnumBase
 #
 # Add some symbols to the Ice module.
 #
-from .ObjectPrx import ObjectPrx
 stringVersion = IcePy.stringVersion
 intVersion = IcePy.intVersion
 currentProtocol = IcePy.currentProtocol
@@ -41,6 +40,7 @@ from .Future import *
 from .InvocationFuture import *
 from .Value import *
 from .Object import Object
+from .ObjectPrx import ObjectPrx, checkedCast, checkedCastAsync, uncheckedCast
 from .Blobject import Blobject
 from .BlobjectAsync import BlobjectAsync
 from .FormatType import *

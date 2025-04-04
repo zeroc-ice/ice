@@ -800,7 +800,7 @@ def allTests(helper, communicator, collocated):
     c = {}
     c["one"] = "hello"
     c["two"] = "world"
-    tccp = Test.MyClassPrx.checkedCast(base, c)
+    tccp = Test.MyClassPrx.checkedCast(base, context=c)
     c2 = tccp.getContext()
     test(c == c2)
     print("ok")

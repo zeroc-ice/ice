@@ -10,7 +10,8 @@ internal sealed class TcpTransceiver : Transceiver
 {
     public Socket fd() => _stream.fd();
 
-    public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData) => _stream.connect(readBuffer, writeBuffer, ref hasMoreData);
+    public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData) =>
+        _stream.connect(readBuffer, writeBuffer, ref hasMoreData);
 
     public int closing(bool initiator, Ice.LocalException ex) =>
         // If we are initiating the connection closure, wait for the peer
@@ -35,7 +36,8 @@ internal sealed class TcpTransceiver : Transceiver
 
     public void finishRead(Buffer buf) => _stream.finishRead(buf);
 
-    public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool messageFullyWritten) => _stream.startWrite(buf, callback, state, out messageFullyWritten);
+    public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool messageFullyWritten) =>
+        _stream.startWrite(buf, callback, state, out messageFullyWritten);
 
     public void finishWrite(Buffer buf) => _stream.finishWrite(buf);
 

@@ -6,7 +6,8 @@ namespace Ice.Internal;
 
 internal sealed class TcpConnector : Connector
 {
-    public Transceiver connect() => new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
+    public Transceiver connect() =>
+        new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
 
     public short type() => _instance.type();
 

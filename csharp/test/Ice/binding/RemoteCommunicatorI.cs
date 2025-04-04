@@ -16,7 +16,8 @@ public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
                 string endpoints = endpts;
                 if (endpoints.IndexOf("-p") < 0)
                 {
-                    endpoints = global::Test.TestHelper.getTestEndpoint(communicator.getProperties(), _nextPort++, endpoints);
+                    endpoints =
+                        global::Test.TestHelper.getTestEndpoint(communicator.getProperties(), _nextPort++, endpoints);
                 }
 
                 communicator.getProperties().setProperty(name + ".ThreadPool.Size", "1");

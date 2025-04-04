@@ -283,7 +283,8 @@ internal sealed class UdpEndpointI : IPEndpointI
         {
             if (argument != null)
             {
-                throw new ParseException($"unexpected argument '{argument}' provided for -z option in endpoint '{endpoint}'");
+                throw new ParseException(
+                    $"unexpected argument '{argument}' provided for -z option in endpoint '{endpoint}'");
             }
 
             _compress = true;
@@ -331,7 +332,8 @@ internal sealed class UdpEndpointI : IPEndpointI
         }
         else if (option == "--interface")
         {
-            _mcastInterface = argument ?? throw new ParseException($"no argument provided for --interface option in endpoint '{endpoint}'");
+            _mcastInterface = argument ??
+                throw new ParseException($"no argument provided for --interface option in endpoint '{endpoint}'");
         }
         else
         {
@@ -341,7 +343,8 @@ internal sealed class UdpEndpointI : IPEndpointI
         return true;
     }
 
-    protected override Connector createConnector(EndPoint addr, NetworkProxy proxy) => new UdpConnector(instance_, addr, sourceAddr_, _mcastInterface, _mcastTtl, connectionId_);
+    protected override Connector createConnector(EndPoint addr, NetworkProxy proxy) =>
+        new UdpConnector(instance_, addr, sourceAddr_, _mcastInterface, _mcastTtl, connectionId_);
 
     protected override IPEndpointI createEndpoint(string host, int port, string connectionId)
     {

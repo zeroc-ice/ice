@@ -23,6 +23,7 @@ namespace Ice
     class ObjectPrx;
 }
 
+/// Observers for objects created by the Ice runtime.
 namespace Ice::Instrumentation
 {
     class Observer;
@@ -36,15 +37,34 @@ namespace Ice::Instrumentation
     class ObserverUpdater;
     class CommunicatorObserver;
 
+    /// A shared point to an Observer.
     using ObserverPtr = std::shared_ptr<Observer>;
+
+    /// A shared pointer to a ThreadObserver.
     using ThreadObserverPtr = std::shared_ptr<ThreadObserver>;
+
+    /// A shared pointer to a ConnectionObserver.
     using ConnectionObserverPtr = std::shared_ptr<ConnectionObserver>;
+
+    /// A shared pointer to a DispatchObserver.
     using DispatchObserverPtr = std::shared_ptr<DispatchObserver>;
+
+    /// A shared pointer to a ChildInvocationObserver.
     using ChildInvocationObserverPtr = std::shared_ptr<ChildInvocationObserver>;
+
+    /// A shared pointer to a RemoteObserver.
     using RemoteObserverPtr = std::shared_ptr<RemoteObserver>;
+
+    /// A shared pointer to a CollocatedObserver.
     using CollocatedObserverPtr = std::shared_ptr<CollocatedObserver>;
+
+    /// A shared pointer to an InvocationObserver.
     using InvocationObserverPtr = std::shared_ptr<InvocationObserver>;
+
+    /// A shared pointer to an ObserverUpdater.
     using ObserverUpdaterPtr = std::shared_ptr<ObserverUpdater>;
+
+    /// A shared pointer to a CommunicatorObserver.
     using CommunicatorObserverPtr = std::shared_ptr<CommunicatorObserver>;
 
     /// The thread state enumeration keeps track of the different possible states of Ice threads.

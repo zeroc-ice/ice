@@ -622,7 +622,8 @@ internal class ServiceManagerI : ServiceManagerDisp_
                         }
                         catch (UnauthorizedAccessException ex)
                         {
-                            throw new FailureException($"{err}unauthorized access to default service constructor for '{className}'.", ex);
+                            throw new FailureException(
+                                $"{err}unauthorized access to default service constructor for '{className}'.", ex);
                         }
                     }
                 }
@@ -642,7 +643,8 @@ internal class ServiceManagerI : ServiceManagerDisp_
                     }
                     else
                     {
-                        throw new FailureException($"{err}exception in service constructor for '{className}'.", ex.InnerException);
+                        throw new FailureException(
+                            $"{err}exception in service constructor for '{className}'.", ex.InnerException);
                     }
                 }
                 catch (Exception ex)
@@ -706,7 +708,10 @@ internal class ServiceManagerI : ServiceManagerDisp_
                     }
                     catch (Exception e)
                     {
-                        _logger.warning("IceBox.ServiceManager: exception while stopping service " + info.name + ":\n" +
+                        _logger.warning(
+                            "IceBox.ServiceManager: exception while stopping service " +
+                                        info.name +
+                                        ":\n" +
                                         e.ToString());
                     }
                 }
@@ -727,7 +732,8 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 }
                 catch (Exception e)
                 {
-                    _logger.warning("ServiceManager: exception while destroying shared communicator:\n" + e.ToString());
+                    _logger.warning(
+                        "ServiceManager: exception while destroying shared communicator:\n" + e.ToString());
                 }
                 _sharedCommunicator = null;
             }

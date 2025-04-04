@@ -10,7 +10,8 @@ internal class Acceptor : Ice.Internal.Acceptor
         return _endpoint;
     }
 
-    public bool startAccept(Ice.Internal.AsyncCallback callback, object state) => _acceptor.startAccept(callback, state);
+    public bool startAccept(Ice.Internal.AsyncCallback callback, object state) =>
+        _acceptor.startAccept(callback, state);
 
     public void finishAccept() => _acceptor.finishAccept();
 

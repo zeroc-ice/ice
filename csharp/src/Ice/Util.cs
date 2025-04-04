@@ -280,7 +280,8 @@ public sealed class Util
     /// </summary>
     /// <returns>A new UUID.</returns>
     [Obsolete("This method is deprecated. Use System.Guid instead.")]
-    public static string generateUUID() => Guid.NewGuid().ToString().ToUpper(System.Globalization.CultureInfo.InvariantCulture);
+    public static string generateUUID() =>
+        Guid.NewGuid().ToString().ToUpper(System.Globalization.CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Compares the object identities of two proxies.
@@ -486,7 +487,8 @@ public sealed class Util
 
     private static string majorMinorToString(byte major, byte minor) => $"{major}.{minor}";
 
-    public static void registerPluginFactory(string name, PluginFactory factory, bool loadOnInit) => PluginManagerI.registerPluginFactory(name, factory, loadOnInit);
+    public static void registerPluginFactory(string name, PluginFactory factory, bool loadOnInit) =>
+        PluginManagerI.registerPluginFactory(name, factory, loadOnInit);
 
     public static readonly ProtocolVersion currentProtocol =
         new ProtocolVersion(Ice.Internal.Protocol.protocolMajor, Ice.Internal.Protocol.protocolMinor);

@@ -13,8 +13,7 @@
 
 namespace Ice
 {
-    /// Provides bytes to toUTF8. Can raise std::bad_alloc or Ice::MarshalException
-    /// when too many bytes are requested.
+    /// Provides bytes to toUTF8.
     /// @headerfile Ice/Ice.h
     class ICE_API UTF8Buffer
     {
@@ -23,6 +22,8 @@ namespace Ice
         /// @param howMany The number of bytes requested.
         /// @param firstUnused A pointer to the first unused byte.
         /// @return A pointer to the beginning of the buffer.
+        /// @throws std::bad_alloc Thrown when too many bytes are requested.
+        /// @throws MarshalException Thrown when too many bytes are requested.
         virtual std::byte* getMoreBytes(size_t howMany, std::byte* firstUnused) = 0;
 
         virtual ~UTF8Buffer();
@@ -30,7 +31,7 @@ namespace Ice
 
     /// A StringConverter converts narrow or wide-strings to and from UTF-8 byte sequences.
     /// It's used by the communicator during marshaling (toUTF8) and unmarshaling (fromUTF8).
-    /// It report errors by raising IllegalConversionException or an exception raised
+    /// It report errors by throwing IllegalConversionException or an exception thrown
     /// by UTF8Buffer.
     /// @headerfile Ice/Ice.h
     template<typename charT> class BasicStringConverter

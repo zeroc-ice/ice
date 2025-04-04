@@ -66,19 +66,24 @@ public class InitialI : Test.InitialDisp_
     opMyEnumAsync(Test.MyEnum? p1, Current current) => Task.FromResult(new Test.Initial_OpMyEnumResult(p1, p1));
 
     public override Task<Test.Initial_OpSmallStructResult>
-    opSmallStructAsync(Test.SmallStruct? p1, Current current) => Task.FromResult(new Test.Initial_OpSmallStructResult(p1, p1));
+    opSmallStructAsync(Test.SmallStruct? p1, Current current) =>
+        Task.FromResult(new Test.Initial_OpSmallStructResult(p1, p1));
 
     public override Task<Test.Initial_OpFixedStructResult>
-    opFixedStructAsync(Test.FixedStruct? p1, Current current) => Task.FromResult(new Test.Initial_OpFixedStructResult(p1, p1));
+    opFixedStructAsync(Test.FixedStruct? p1, Current current) =>
+        Task.FromResult(new Test.Initial_OpFixedStructResult(p1, p1));
 
     public override Task<Test.Initial_OpVarStructResult>
-    opVarStructAsync(Test.VarStruct p1, Current current) => Task.FromResult(new Test.Initial_OpVarStructResult(p1, p1));
+    opVarStructAsync(Test.VarStruct p1, Current current) =>
+        Task.FromResult(new Test.Initial_OpVarStructResult(p1, p1));
 
     public override Task<Test.Initial_OpMyInterfaceProxyResult>
-    opMyInterfaceProxyAsync(Test.MyInterfacePrx p1, Current current) => Task.FromResult(new Test.Initial_OpMyInterfaceProxyResult(p1, p1));
+    opMyInterfaceProxyAsync(Test.MyInterfacePrx p1, Current current) =>
+        Task.FromResult(new Test.Initial_OpMyInterfaceProxyResult(p1, p1));
 
     public override Task<Test.Initial_OpOneOptionalResult>
-    opOneOptionalAsync(Test.OneOptional p1, Current current) => Task.FromResult(new Test.Initial_OpOneOptionalResult(p1, p1));
+    opOneOptionalAsync(Test.OneOptional p1, Current current) =>
+        Task.FromResult(new Test.Initial_OpOneOptionalResult(p1, p1));
 
     public override Task<Test.Initial_OpByteSeqResult>
     opByteSeqAsync(byte[] p1, Current current) => Task.FromResult(new Test.Initial_OpByteSeqResult(p1, p1));
@@ -105,25 +110,32 @@ public class InitialI : Test.InitialDisp_
     opStringSeqAsync(string[] p1, Current current) => Task.FromResult(new Test.Initial_OpStringSeqResult(p1, p1));
 
     public override Task<Test.Initial_OpSmallStructSeqResult>
-    opSmallStructSeqAsync(Test.SmallStruct[] p1, Current current) => Task.FromResult(new Test.Initial_OpSmallStructSeqResult(p1, p1));
+    opSmallStructSeqAsync(Test.SmallStruct[] p1, Current current) =>
+        Task.FromResult(new Test.Initial_OpSmallStructSeqResult(p1, p1));
 
     public override Task<Test.Initial_OpSmallStructListResult>
-    opSmallStructListAsync(List<Test.SmallStruct> p1, Current current) => Task.FromResult(new Test.Initial_OpSmallStructListResult(p1, p1));
+    opSmallStructListAsync(List<Test.SmallStruct> p1, Current current) =>
+        Task.FromResult(new Test.Initial_OpSmallStructListResult(p1, p1));
 
     public override Task<Test.Initial_OpFixedStructSeqResult>
-    opFixedStructSeqAsync(Test.FixedStruct[] p1, Current current) => Task.FromResult(new Test.Initial_OpFixedStructSeqResult(p1, p1));
+    opFixedStructSeqAsync(Test.FixedStruct[] p1, Current current) =>
+        Task.FromResult(new Test.Initial_OpFixedStructSeqResult(p1, p1));
 
     public override Task<Test.Initial_OpFixedStructListResult>
-    opFixedStructListAsync(LinkedList<Test.FixedStruct> p1, Current current) => Task.FromResult(new Test.Initial_OpFixedStructListResult(p1, p1));
+    opFixedStructListAsync(LinkedList<Test.FixedStruct> p1, Current current) =>
+        Task.FromResult(new Test.Initial_OpFixedStructListResult(p1, p1));
 
     public override Task<Test.Initial_OpVarStructSeqResult>
-    opVarStructSeqAsync(Test.VarStruct[] p1, Current current) => Task.FromResult(new Test.Initial_OpVarStructSeqResult(p1, p1));
+    opVarStructSeqAsync(Test.VarStruct[] p1, Current current) =>
+        Task.FromResult(new Test.Initial_OpVarStructSeqResult(p1, p1));
 
     public override Task<Test.Initial_OpIntIntDictResult>
-    opIntIntDictAsync(Dictionary<int, int> p1, Current current) => Task.FromResult(new Test.Initial_OpIntIntDictResult(p1, p1));
+    opIntIntDictAsync(Dictionary<int, int> p1, Current current) =>
+        Task.FromResult(new Test.Initial_OpIntIntDictResult(p1, p1));
 
     public override Task<Test.Initial_OpStringIntDictResult>
-    opStringIntDictAsync(Dictionary<string, int> p1, Current current) => Task.FromResult(new Test.Initial_OpStringIntDictResult(p1, p1));
+    opStringIntDictAsync(Dictionary<string, int> p1, Current current) =>
+        Task.FromResult(new Test.Initial_OpStringIntDictResult(p1, p1));
 
     public override Task
     opClassAndUnknownOptionalAsync(Test.A p, Current current) => Task.CompletedTask;

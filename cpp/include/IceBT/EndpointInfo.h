@@ -34,7 +34,6 @@ namespace IceBT
         /// The UUID configured with the endpoint.
         const std::string uuid;
 
-        // internal constructor
         /// @private
         EndpointInfo(int timeout, bool compress, std::string addr, std::string uuid, std::int16_t type, bool secure)
             : Ice::EndpointInfo{timeout, compress},
@@ -50,6 +49,7 @@ namespace IceBT
         const bool _secure;
     };
 
+    /// A shared pointer to an EndpointInfo.
     using EndpointInfoPtr = std::shared_ptr<EndpointInfo>;
 }
 
