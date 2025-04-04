@@ -48,7 +48,7 @@ subprojects {
 
     //makes checkstyle wait for rewrite. hopefully
     tasks.withType(Checkstyle) {
-        dependsOn(rewriteRun)
+        dependsOn(rewriteDryRun)
     }
 }
 
