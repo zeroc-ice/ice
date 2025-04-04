@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
-module and
+["swift:identifier:escapedImport"]
+module import
 {
     ["swift:identifier:`continue`"]
     enum continue

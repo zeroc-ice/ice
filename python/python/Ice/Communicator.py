@@ -41,6 +41,12 @@ class Communicator:
     def __exit__(self, type, value, traceback):
         self._impl.destroy()
 
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, type, value, traceback):
+        await self._impl.destroyAsync()
+
     @property
     def eventLoopAdapter(self):
         """

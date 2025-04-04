@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
-// TODO find a better solution for remapping modules.
-module escapedAnd
+["python:identifier:escaped_and"]
+module and
 {
     ["python:identifier:_assert"]
     enum assert

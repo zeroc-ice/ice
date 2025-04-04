@@ -6,7 +6,7 @@ public class Client : Test.TestHelper
 {
     public override async Task runAsync(string[] args)
     {
-        using var communicator = initialize(ref args);
+        await using var communicator = initialize(ref args);
         TestIntfPrx test = await AllTests.allTests(this, false);
         test.shutdown();
     }

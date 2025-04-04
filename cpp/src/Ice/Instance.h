@@ -32,6 +32,8 @@
 #include "TraceLevelsF.h"
 
 #include <list>
+#include <thread>
+#include <vector>
 
 namespace IceInternal
 {
@@ -124,7 +126,8 @@ namespace IceInternal
         Instance(Ice::InitializationData);
         void initialize(const Ice::CommunicatorPtr&);
         void finishSetup(int&, const char*[], const Ice::CommunicatorPtr&);
-        void destroy();
+        void destroy() noexcept;
+        void destroyAsync(std::function<void()> completed) noexcept;
 
         friend class Ice::Communicator;
 
@@ -186,6 +189,8 @@ namespace IceInternal
         std::mutex _setBufSizeWarnMutex;
         mutable std::recursive_mutex _mutex;
         std::condition_variable_any _conditionVariable;
+
+        std::vector<std::thread> _destroyThreads;
 
         enum ImplicitContextKind
         {

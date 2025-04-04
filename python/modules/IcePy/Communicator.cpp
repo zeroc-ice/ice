@@ -256,14 +256,9 @@ communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
     auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*self->communicator)->getValueFactoryManager());
     assert(vfm);
 
-    try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
         (*self->communicator)->destroy();
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
     }
 
     vfm->destroy();
@@ -273,9 +268,7 @@ communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
         (*self->executor)->setCommunicator(nullptr); // Break cyclic reference.
     }
 
-    //
     // Break cyclic reference between this object and its Python wrapper.
-    //
     Py_XDECREF(self->wrapper);
     self->wrapper = nullptr;
 
@@ -287,6 +280,65 @@ communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
     {
         return Py_None;
     }
+}
+
+extern "C" PyObject*
+communicatorDestroyAsync(CommunicatorObject* self, PyObject* /*args*/)
+{
+    assert(self->communicator);
+
+    auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*self->communicator)->getValueFactoryManager());
+    assert(vfm);
+
+    auto futureType = reinterpret_cast<PyTypeObject*>(lookupType("Ice.Future"));
+    assert(futureType);
+
+    PyObjectHandle emptyArgs{PyTuple_New(0)};
+    PyObjectHandle future{futureType->tp_new(futureType, emptyArgs.get(), nullptr)};
+    if (!future.get())
+    {
+        return nullptr;
+    }
+
+    // Call Ice.Future.__init__
+    futureType->tp_init(future.get(), emptyArgs.get(), nullptr);
+
+    // Create a new reference to prevent premature release of the future object. The reference will be released by
+    // the destroy callback.
+    PyObject* futureObject = Py_NewRef(future.get());
+
+    (*self->communicator)
+        ->destroyAsync(
+            [self, vfm, futureObject]()
+            {
+                // Ensure the current thread is able to call into Python.
+                AdoptThread adoptThread;
+
+                // Adopt the future object so it is released within this scope.
+                PyObjectHandle futureGuard{futureObject};
+
+                vfm->destroy();
+
+                if (self->executor)
+                {
+                    (*self->executor)->setCommunicator(nullptr); // Break cyclic reference.
+                }
+
+                // Break cyclic reference between this object and its Python wrapper.
+                Py_XDECREF(self->wrapper);
+                self->wrapper = nullptr;
+
+                PyObject* err = PyErr_Occurred();
+                if (err)
+                {
+                    PyObjectHandle discard{callMethod(futureGuard.get(), "set_exception", err)};
+                }
+                else
+                {
+                    PyObjectHandle discard{callMethod(futureGuard.get(), "set_result", Py_None)};
+                }
+            });
+    return IcePy::wrapFuture(*self->communicator, future.get());
 }
 
 extern "C" PyObject*
@@ -1331,6 +1383,10 @@ communicatorSetDefaultLocator(CommunicatorObject* self, PyObject* args)
 
 static PyMethodDef CommunicatorMethods[] = {
     {"destroy", reinterpret_cast<PyCFunction>(communicatorDestroy), METH_NOARGS, PyDoc_STR("destroy() -> None")},
+    {"destroyAsync",
+     reinterpret_cast<PyCFunction>(communicatorDestroyAsync),
+     METH_NOARGS,
+     PyDoc_STR("destroyAsync() -> Ice.Future")},
     {"shutdown", reinterpret_cast<PyCFunction>(communicatorShutdown), METH_NOARGS, PyDoc_STR("shutdown() -> None")},
     {"waitForShutdown",
      reinterpret_cast<PyCFunction>(communicatorWaitForShutdown),
