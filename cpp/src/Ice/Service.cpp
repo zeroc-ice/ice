@@ -671,6 +671,13 @@ Ice::Service::main(int argc, const wchar_t* const argv[], InitializationData ini
 }
 #endif
 
+int
+Ice::Service::main(const StringSeq& args, InitializationData initData)
+{
+    IceInternal::ArgVector av(args);
+    return main(av.argc, av.argv, std::move(initData));
+}
+
 Ice::CommunicatorPtr
 Ice::Service::communicator() const
 {

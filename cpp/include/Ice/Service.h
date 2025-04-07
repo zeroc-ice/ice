@@ -58,6 +58,25 @@ namespace Ice
         int main(int argc, const wchar_t* const argv[], InitializationData initData = {});
 #endif
 
+        /// The primary entry point for services. This function examines @p args for reserved options and takes the
+        /// appropriate action. The reserved options are shown below.
+        ///
+        /// Win32:
+        ///
+        /// --service NAME
+        ///
+        /// Unix:
+        ///
+        /// --daemon [--nochdir] [--noclose]
+        ///
+        /// If --service or --daemon are specified, the program runs as a service, otherwise the program runs as a
+        /// regular foreground process. Any service-specific (and Ice-specific) options are stripped from @p args (just
+        /// as for ::Ice::initialize).
+        /// @param args The command-line arguments.
+        /// @param initData Configuration data for the new communicator.
+        /// @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
+        int main(const StringSeq& args, InitializationData initData = {});
+
         /// Gets the communicator created by the service.
         /// @return The service's communicator.
         [[nodiscard]] Ice::CommunicatorPtr communicator() const;
