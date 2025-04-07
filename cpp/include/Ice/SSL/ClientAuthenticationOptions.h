@@ -22,7 +22,7 @@ namespace Ice::SSL
 #if defined(ICE_USE_SCHANNEL) || defined(ICE_DOXYGEN)
     /// SSL transport configuration properties for client connections on Windows.
     ///
-    /// The SchannelClientAuthenticationOptions structure is only available when the %Ice library is built on Windows.
+    /// The SchannelClientAuthenticationOptions structure is only available when the Ice library is built on Windows.
     /// For Linux, refer to OpenSSLClientAuthenticationOptions, and for macOS and iOS, refer to
     /// SecureTransportClientAuthenticationOptions.
     /// @see ::Ice::SSL::ClientAuthenticationOptions
@@ -94,7 +94,7 @@ namespace Ice::SSL
 #if defined(ICE_USE_SECURE_TRANSPORT) || defined(ICE_DOXYGEN)
     /// SSL transport configuration properties for client connections on macOS and iOS.
     ///
-    /// The SecureTransportClientAuthenticationOptions structure is only available when the %Ice library is built on
+    /// The SecureTransportClientAuthenticationOptions structure is only available when the Ice library is built on
     /// macOS and iOS. For Linux, refer to OpenSSLClientAuthenticationOptions, and for Windows, refer to
     /// SchannelClientAuthenticationOptions.
     /// @see ::Ice::SSL::ClientAuthenticationOptions
@@ -189,7 +189,7 @@ namespace Ice::SSL
 #if defined(ICE_USE_OPENSSL) || defined(ICE_DOXYGEN)
     /// SSL transport configuration properties for client connections on Linux.
     ///
-    /// The OpenSSLClientAuthenticationOptions structure is only available when the %Ice library is built on
+    /// The OpenSSLClientAuthenticationOptions structure is only available when the Ice library is built on
     /// Linux. For macOS and iOS, refer to SecureTransportClientAuthenticationOptions, and for Windows, refer to
     /// SchannelClientAuthenticationOptions.
     /// @see ::Ice::SSL::ClientAuthenticationOptions

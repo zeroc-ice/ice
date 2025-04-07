@@ -10,7 +10,7 @@
 namespace Ice::SSL
 {
 #if defined(ICE_DOXYGEN)
-    /// An alias for the platform-specific implementation of the SSL ConnectionInfo.
+    /// An alias for the platform-specific implementation of the SSL %ConnectionInfo.
     using ConnectionInfo = ...;
 
     /// A shared pointer to a #ConnectionInfo.
