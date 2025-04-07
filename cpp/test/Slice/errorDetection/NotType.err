@@ -1,8 +1,8 @@
 NotType.ice:9: 'MyModule' is not a type
 NotType.ice:14: 'MyModule' is not a type
 NotType.ice:15: 'Mod' is not a type
-NotType.ice:16: 'E' is an exception, which cannot be used as a type
 NotType.ice:16: 'MyModule' is not a type
+NotType.ice:16: 'E' is an exception, which cannot be used as a type
 NotType.ice:17: 'Mod' is not a type
 NotType.ice:17: 'E' is an exception, which cannot be used as a type
 NotType.ice:22: 'E' is an exception, which cannot be used as a type

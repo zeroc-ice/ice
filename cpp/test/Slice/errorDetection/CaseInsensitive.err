@@ -31,7 +31,7 @@ CaseInsensitive.ice:151: enumeration 'eN1' differs only in capitalization from e
 CaseInsensitive.ice:152: redefinition of module 'm1' as enumeration
 CaseInsensitive.ice:153: enumeration 'M1' differs only in capitalization from module 'm1'
 CaseInsensitive.ice:154: enumerator 'EN1' differs only in capitalization from 'en1'
-CaseInsensitive.ice:168: interface name 'base' is capitalized inconsistently with its previous name: '::Test::xxx::xx::Base'
+CaseInsensitive.ice:167: interface name 'base' is capitalized inconsistently with its previous name: '::Test::xxx::xx::Base'
 CaseInsensitive.ice:168: redefinition of interface 'Derived'
 CaseInsensitive.ice:175: exception name 'E1' is capitalized inconsistently with its previous name: '::Test::xxx::xx::e1'
 CaseInsensitive.ice:182: sequence name 'S1' is capitalized inconsistently with its previous name: '::Test::xxx::xx::s1'

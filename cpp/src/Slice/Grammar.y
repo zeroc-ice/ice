@@ -1367,10 +1367,10 @@ interface_def
 // ----------------------------------------------------------------------
 interface_list
 // ----------------------------------------------------------------------
-: scoped_name ',' interface_list
+: interface_list ',' scoped_name
 {
-    auto intfs = dynamic_pointer_cast<InterfaceListTok>($3);
-    auto scoped = dynamic_pointer_cast<StringTok>($1);
+    auto intfs = dynamic_pointer_cast<InterfaceListTok>($1);
+    auto scoped = dynamic_pointer_cast<StringTok>($3);
     ContainerPtr cont = currentUnit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
     if (!types.empty())
@@ -1396,7 +1396,7 @@ interface_list
             else
             {
                 cont->checkIntroduced(scoped->v);
-                intfs->v.push_front(def);
+                intfs->v.push_back(def);
             }
         }
     }
@@ -1431,7 +1431,7 @@ interface_list
             else
             {
                 cont->checkIntroduced(scoped->v);
-                intfs->v.push_front(def);
+                intfs->v.push_back(def);
             }
         }
     }
@@ -1489,18 +1489,18 @@ operations
 // ----------------------------------------------------------------------
 exception_list
 // ----------------------------------------------------------------------
-: exception ',' exception_list
+: exception_list ',' exception
 {
-    auto exception = dynamic_pointer_cast<Exception>($1);
-    auto exceptionList = dynamic_pointer_cast<ExceptionListTok>($3);
-    exceptionList->v.push_front(exception);
+    auto exceptionList = dynamic_pointer_cast<ExceptionListTok>($1);
+    auto exception = dynamic_pointer_cast<Exception>($3);
+    exceptionList->v.push_back(exception);
     $$ = exceptionList;
 }
 | exception
 {
-    auto exception = dynamic_pointer_cast<Exception>($1);
     auto exceptionList = make_shared<ExceptionListTok>();
-    exceptionList->v.push_front(exception);
+    auto exception = dynamic_pointer_cast<Exception>($1);
+    exceptionList->v.push_back(exception);
     $$ = exceptionList;
 }
 ;
@@ -1610,7 +1610,7 @@ enum_def
     currentUnit->pushContainer(en);
     $$ = en;
 }
-'{' enumerator_list '}'
+'{' enumerators '}'
 {
     auto en = dynamic_pointer_cast<Enum>($2);
     if (en)
@@ -1633,7 +1633,7 @@ ICE_ENUM
     currentUnit->pushContainer(en);
     $$ = en;
 }
-'{' enumerator_list '}'
+'{' enumerators '}'
 {
     currentUnit->popContainer();
     $$ = $1;
@@ -1641,35 +1641,45 @@ ICE_ENUM
 ;
 
 // ----------------------------------------------------------------------
-enumerator_list
+enumerators
 // ----------------------------------------------------------------------
-: metadata enumerator ',' enumerator_list
+: enumerator_list
+| enumerator_list ','
 {
-    auto metadata = dynamic_pointer_cast<MetadataListTok>($1);
-    auto enumerator = dynamic_pointer_cast<Enumerator>($2);
-    if (enumerator && !metadata->v.empty())
-    {
-        enumerator->appendMetadata(std::move(metadata->v));
-    }
-    auto enumeratorList = dynamic_pointer_cast<EnumeratorListTok>($4);
-    enumeratorList->v.push_front(enumerator);
-    $$ = enumeratorList;
-}
-| metadata enumerator
-{
-    auto metadata = dynamic_pointer_cast<MetadataListTok>($1);
-    auto enumerator = dynamic_pointer_cast<Enumerator>($2);
-    if (enumerator && !metadata->v.empty())
-    {
-        enumerator->appendMetadata(std::move(metadata->v));
-    }
-    auto enumeratorList = make_shared<EnumeratorListTok>();
-    enumeratorList->v.push_front(enumerator);
-    $$ = enumeratorList;
+    $$ = $1;
 }
 | %empty
 {
     $$ = make_shared<EnumeratorListTok>(); // Empty list
+}
+;
+
+// ----------------------------------------------------------------------
+enumerator_list
+// ----------------------------------------------------------------------
+: enumerator_list ',' metadata enumerator
+{
+    auto enumeratorList = dynamic_pointer_cast<EnumeratorListTok>($1);
+    auto metadata = dynamic_pointer_cast<MetadataListTok>($3);
+    auto enumerator = dynamic_pointer_cast<Enumerator>($4);
+    if (enumerator && !metadata->v.empty())
+    {
+        enumerator->appendMetadata(std::move(metadata->v));
+    }
+    enumeratorList->v.push_back(enumerator);
+    $$ = enumeratorList;
+}
+| metadata enumerator
+{
+    auto enumeratorList = make_shared<EnumeratorListTok>();
+    auto metadata = dynamic_pointer_cast<MetadataListTok>($1);
+    auto enumerator = dynamic_pointer_cast<Enumerator>($2);
+    if (enumerator && !metadata->v.empty())
+    {
+        enumerator->appendMetadata(std::move(metadata->v));
+    }
+    enumeratorList->v.push_back(enumerator);
+    $$ = enumeratorList;
 }
 ;
 
@@ -1774,10 +1784,14 @@ out_qualifier
 // ----------------------------------------------------------------------
 parameters
 // ----------------------------------------------------------------------
-: %empty
-{
-}
-| out_qualifier metadata optional_type_id
+: parameter_list
+| %empty
+;
+
+// ----------------------------------------------------------------------
+parameter_list
+// ----------------------------------------------------------------------
+: out_qualifier metadata optional_type_id
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>($1);
     auto tsp = dynamic_pointer_cast<OptionalDefTok>($3);
@@ -1793,7 +1807,7 @@ parameters
         }
     }
 }
-| parameters ',' out_qualifier metadata optional_type_id
+| parameter_list ',' out_qualifier metadata optional_type_id
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>($3);
     auto tsp = dynamic_pointer_cast<OptionalDefTok>($5);
@@ -1821,7 +1835,7 @@ parameters
         currentUnit->error("keyword '" + ident->v + "' cannot be used as parameter name");
     }
 }
-| parameters ',' out_qualifier metadata type keyword
+| parameter_list ',' out_qualifier metadata type keyword
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>($3);
     auto type = dynamic_pointer_cast<Type>($5);
@@ -1844,7 +1858,7 @@ parameters
         currentUnit->error("missing parameter name");
     }
 }
-| parameters ',' out_qualifier metadata type
+| parameter_list ',' out_qualifier metadata type
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>($3);
     auto type = dynamic_pointer_cast<Type>($5);
