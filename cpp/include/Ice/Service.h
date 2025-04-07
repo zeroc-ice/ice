@@ -52,8 +52,9 @@ namespace Ice
         /// @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
         int main(int argc, const char* const argv[], InitializationData initData = {});
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(ICE_DOXYGEN)
         /// @copydoc main(int, const char* const[], InitializationData)
+        /// @remarks Windows only.
         int main(int argc, const wchar_t* const argv[], InitializationData initData = {});
 #endif
 
@@ -94,31 +95,36 @@ namespace Ice
         [[nodiscard]] std::string name() const;
 
         /// Alternative entry point for services that use their own command-line options. Instead of calling #main, the
-        /// program processes its command-line options and calls #run. To run as a Win32 service or Unix daemon, the
-        /// program must first call `configureService` or #configureDaemon, respectively.
+        /// program processes its command-line options and calls #run. To run as a Windows service or Unix daemon, the
+        /// program must first call #configureService or #configureDaemon, respectively.
         /// @param argc The number of arguments in @p argv.
         /// @param argv The command-line arguments.
         /// @param initData Configuration data for the new communicator.
         /// @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
         int run(int argc, const char* const argv[], InitializationData initData = {});
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(ICE_DOXYGEN)
         /// @copydoc run(int, const char* const[], InitializationData)
+        /// @remarks Windows only.
         int run(int argc, const wchar_t* const argv[], InitializationData initData = {});
 
-        /// Configures the program to run as a Win32 service with the given name.
+        /// Configures the program to run as a Windows service.
         /// @param name The service name.
+        /// @remarks Windows only.
         void configureService(const std::string& name);
 
         /// @private
         static void setModuleHandle(HMODULE);
-#else
+#endif
+
+#if !defined(_WIN32) || defined(ICE_DOXYGEN)
         /// Configures the program to run as a Unix daemon.
         /// @param changeDirectory `true` if the daemon should change its working directory to the root directory,
         /// `false` otherwise.
         /// @param closeFiles `true` if the daemon should close unnecessary file descriptors (i.e., stdin, stdout,
         /// etc.), `false` otherwise.
         /// @param pidFile If a non-empty string is provided, the daemon writes its process ID to the given file.
+        /// @remarks Linux and macOS only.
         void configureDaemon(bool changeDirectory, bool closeFiles, const std::string& pidFile);
 #endif
 
