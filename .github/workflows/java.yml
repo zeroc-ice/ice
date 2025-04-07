@@ -6,7 +6,7 @@ on:
   pull_request:
     # The branches below must be a subset of the branches above
     branches: ["main"]
-  
+
   jobs:
     gradle:
     runs-on: ubuntu-24.04
@@ -17,4 +17,4 @@ on:
       - name: Run Gradle with Checkstyle and RewriteDryRun
         timeout-minutes: 10
         working-directory: java
-        uses: ./gradlew build -PfailOnDryRunResults=true
+        uses: ./gradlew build

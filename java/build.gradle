@@ -50,6 +50,7 @@ subprojects {
     tasks.withType(Checkstyle) {
         dependsOn(rewriteDryRun)
     }
+
 }
 
 task clean(type: Delete) {
@@ -127,10 +128,18 @@ rewrite {
     exclusion(
         '**/*.gradle',
         'com/zeroc/Ice/PropertyNames.java',
-        '**/*.kts'
+        '**/generated/**/*'
     )
 }
 
 dependencies {
     rewrite("org.openrewrite.recipe:rewrite-static-analysis:2.5.1")
+}
+
+//Use -PdryRunFailSkip in the command line to avoid failing the project during an OpenRewrite dryRun.
+task rewriteDryRunFailable {
+    if (!project.hasProperty("dryRunFailSkip")) {
+        rewrite.failOnDryRunResults = true
+    }
+    finalizedBy rewriteDryRun
 }

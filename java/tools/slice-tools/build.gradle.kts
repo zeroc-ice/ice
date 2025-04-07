@@ -17,18 +17,6 @@ plugins {
     id("org.openrewrite.rewrite") version "7.3.0"
 }
 
-/*tasks.withType<Checkstyle>().configureEach {
-    reports {
-        xml.required = false
-        html.required = true
-        html.stylesheet = resources.text.fromFile("config/xsl/checkstyle-custom.xsl")
-    }
-}
-
-checkstyle {
-    toolVersion = "10.21.4"
-}*/
-
 repositories {
     google() // Required for AGP (Android Gradle Plugin)
     mavenCentral()
