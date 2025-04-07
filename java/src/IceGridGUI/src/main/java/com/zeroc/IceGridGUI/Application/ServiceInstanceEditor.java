@@ -8,6 +8,7 @@ import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.event.ActionEvent;
+import java.util.Arrays;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -71,8 +72,8 @@ class ServiceInstanceEditor extends CommunicatorChildEditor {
         ServiceInstanceDescriptor descriptor = getDescriptor();
         ServiceTemplate t = (ServiceTemplate) _template.getSelectedItem();
 
-        return descriptor.template.equals(t.getId()) &&
-                descriptor.parameterValues.equals(_parameters.getValues());
+        return descriptor.template.equals(t.getId())
+                && descriptor.parameterValues.equals(_parameters.getValues());
     }
 
     @Override
@@ -185,7 +186,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor {
         _parameters.set(td.parameters, descriptor.parameterValues, td.parameterDefaults, resolver);
 
         _propertySets.setList(
-                java.util.Arrays.asList(descriptor.propertySet.references), getDetailResolver());
+                Arrays.asList(descriptor.propertySet.references), getDetailResolver());
         _propertySets.setEditable(isEditable);
 
         _properties.setProperties(

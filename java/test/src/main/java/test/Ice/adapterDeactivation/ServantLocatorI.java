@@ -2,22 +2,26 @@
 
 package test.Ice.adapterDeactivation;
 
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Router;
 import com.zeroc.Ice.ServantLocator;
 
 public final class ServantLocatorI implements ServantLocator {
-    static final class RouterI implements com.zeroc.Ice.Router {
-        public com.zeroc.Ice.Router.GetClientProxyResult getClientProxy(
-                com.zeroc.Ice.Current current) {
-            return new com.zeroc.Ice.Router.GetClientProxyResult();
+    static final class RouterI implements Router {
+        public Router.GetClientProxyResult getClientProxy(
+                Current current) {
+            return new Router.GetClientProxyResult();
         }
 
-        public com.zeroc.Ice.ObjectPrx getServerProxy(com.zeroc.Ice.Current current) {
-            return com.zeroc.Ice.ObjectPrx.createProxy(
+        public ObjectPrx getServerProxy(Current current) {
+            return ObjectPrx.createProxy(
                     current.adapter.getCommunicator(), "dummy:tcp -h localhost -p 23456 -t 30000");
         }
 
-        public com.zeroc.Ice.ObjectPrx[] addProxies(
-                com.zeroc.Ice.ObjectPrx[] proxies, com.zeroc.Ice.Current current) {
+        public ObjectPrx[] addProxies(
+                ObjectPrx[] proxies, Current current) {
             return null;
         }
     }
@@ -38,7 +42,7 @@ public final class ServantLocatorI implements ServantLocator {
         }
     }
 
-    public ServantLocator.LocateResult locate(com.zeroc.Ice.Current current) {
+    public ServantLocator.LocateResult locate(Current current) {
         synchronized (this) {
             test(!_deactivated);
         }
@@ -54,7 +58,7 @@ public final class ServantLocatorI implements ServantLocator {
     }
 
     public void finished(
-            com.zeroc.Ice.Current current, com.zeroc.Ice.Object servant, java.lang.Object cookie) {
+            Current current, Object servant, java.lang.Object cookie) {
         synchronized (this) {
             test(!_deactivated);
         }
@@ -76,5 +80,5 @@ public final class ServantLocatorI implements ServantLocator {
     }
 
     private boolean _deactivated;
-    private com.zeroc.Ice.Object _router = new RouterI();
+    private final Object _router = new RouterI();
 }

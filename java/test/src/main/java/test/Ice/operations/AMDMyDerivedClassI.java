@@ -3,6 +3,8 @@
 package test.Ice.operations;
 
 import com.zeroc.Ice.Current;
+import com.zeroc.Ice.OperationMode;
+import com.zeroc.Ice.Util;
 
 import test.Ice.operations.AMD.Test.*;
 
@@ -51,7 +53,7 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
 
     @Override
     public synchronized CompletionStage<Void> opVoidAsync(Current current) {
-        test(current.mode == com.zeroc.Ice.OperationMode.Normal);
+        test(current.mode == OperationMode.Normal);
 
         while (_opVoidThread != null) {
             try {
@@ -110,10 +112,10 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
 
     @Override
     public CompletionStage<MyClass.OpByteBoolDResult> opByteBoolDAsync(
-            java.util.Map<Byte, Boolean> p1, java.util.Map<Byte, Boolean> p2, Current current) {
+            Map<Byte, Boolean> p1, Map<Byte, Boolean> p2, Current current) {
         MyClass.OpByteBoolDResult r = new MyClass.OpByteBoolDResult();
         r.p3 = p1;
-        r.returnValue = new java.util.HashMap<>();
+        r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return CompletableFuture.completedFuture(r);
@@ -189,10 +191,10 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
 
     @Override
     public CompletionStage<MyClass.OpLongFloatDResult> opLongFloatDAsync(
-            java.util.Map<Long, Float> p1, java.util.Map<Long, Float> p2, Current current) {
+            Map<Long, Float> p1, Map<Long, Float> p2, Current current) {
         MyClass.OpLongFloatDResult r = new MyClass.OpLongFloatDResult();
         r.p3 = p1;
-        r.returnValue = new java.util.HashMap<>();
+        r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return CompletableFuture.completedFuture(r);
@@ -205,7 +207,7 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
         r.p3 =
                 MyClassPrx.uncheckedCast(
                         current.adapter.createProxy(
-                                com.zeroc.Ice.Util.stringToIdentity("noSuchIdentity")));
+                                Util.stringToIdentity("noSuchIdentity")));
         r.returnValue = MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
         return CompletableFuture.completedFuture(r);
     }
@@ -217,10 +219,10 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
 
     @Override
     public CompletionStage<MyClass.OpShortIntDResult> opShortIntDAsync(
-            java.util.Map<Short, Integer> p1, java.util.Map<Short, Integer> p2, Current current) {
+            Map<Short, Integer> p1, Map<Short, Integer> p2, Current current) {
         MyClass.OpShortIntDResult r = new MyClass.OpShortIntDResult();
         r.p3 = p1;
-        r.returnValue = new java.util.HashMap<>();
+        r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return CompletableFuture.completedFuture(r);
@@ -275,10 +277,10 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
 
     @Override
     public CompletionStage<MyClass.OpStringMyEnumDResult> opStringMyEnumDAsync(
-            java.util.Map<String, MyEnum> p1, java.util.Map<String, MyEnum> p2, Current current) {
+            Map<String, MyEnum> p1, Map<String, MyEnum> p2, Current current) {
         MyClass.OpStringMyEnumDResult r = new MyClass.OpStringMyEnumDResult();
         r.p3 = p1;
-        r.returnValue = new java.util.HashMap<>();
+        r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return CompletableFuture.completedFuture(r);
@@ -286,10 +288,10 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
 
     @Override
     public CompletionStage<MyClass.OpMyEnumStringDResult> opMyEnumStringDAsync(
-            java.util.Map<MyEnum, String> p1, java.util.Map<MyEnum, String> p2, Current current) {
+            Map<MyEnum, String> p1, Map<MyEnum, String> p2, Current current) {
         MyClass.OpMyEnumStringDResult r = new MyClass.OpMyEnumStringDResult();
         r.p3 = p1;
-        r.returnValue = new java.util.HashMap<>();
+        r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return CompletableFuture.completedFuture(r);
@@ -297,12 +299,12 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
 
     @Override
     public CompletionStage<MyClass.OpMyStructMyEnumDResult> opMyStructMyEnumDAsync(
-            java.util.Map<MyStruct, MyEnum> p1,
-            java.util.Map<MyStruct, MyEnum> p2,
+            Map<MyStruct, MyEnum> p1,
+            Map<MyStruct, MyEnum> p2,
             Current current) {
         MyClass.OpMyStructMyEnumDResult r = new MyClass.OpMyStructMyEnumDResult();
         r.p3 = p1;
-        r.returnValue = new java.util.HashMap<>();
+        r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return CompletableFuture.completedFuture(r);
@@ -589,10 +591,10 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
 
     @Override
     public CompletionStage<MyClass.OpStringStringDResult> opStringStringDAsync(
-            java.util.Map<String, String> p1, java.util.Map<String, String> p2, Current current) {
+            Map<String, String> p1, Map<String, String> p2, Current current) {
         MyClass.OpStringStringDResult r = new MyClass.OpStringStringDResult();
         r.p3 = p1;
-        r.returnValue = new java.util.HashMap<>();
+        r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return CompletableFuture.completedFuture(r);
@@ -610,7 +612,7 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
 
     @Override
     public CompletionStage<Void> opIdempotentAsync(Current current) {
-        test(current.mode == com.zeroc.Ice.OperationMode.Idempotent);
+        test(current.mode == OperationMode.Idempotent);
         return CompletableFuture.completedFuture((Void) null);
     }
 

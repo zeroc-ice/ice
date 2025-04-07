@@ -10,7 +10,7 @@ import java.util.concurrent.CompletionStage;
  * BlobjectAsync#ice_invokeAsync} method, which is called by the Ice run time to deliver every
  * request on this object.
  */
-public interface BlobjectAsync extends com.zeroc.Ice.Object {
+public interface BlobjectAsync extends Object {
     /**
      * Dispatch an incoming request.
      *

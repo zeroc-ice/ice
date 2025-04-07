@@ -2,10 +2,20 @@
 
 package test.Ice.udp;
 
-public class Server extends test.TestHelper {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+
+import test.TestHelper;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Server extends TestHelper {
     public void run(String[] args) {
-        java.util.List<String> rargs = new java.util.ArrayList<String>();
-        com.zeroc.Ice.Properties properties = createTestProperties(args, rargs);
+        List<String> rargs = new ArrayList<String>();
+        Properties properties = createTestProperties(args, rargs);
         properties.setProperty("Ice.Package.Test", "test.Ice.udp");
         properties.setProperty("Ice.Warn.Connections", "0");
         properties.setProperty("Ice.UDP.RcvSize", "16384");
@@ -25,22 +35,22 @@ public class Server extends test.TestHelper {
             properties.setProperty("McastTestAdapter.Endpoints", endpoint);
         }
 
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(properties)) {
             int num = rargs.size() == 1 ? Integer.parseInt(rargs.get(0)) : 0;
 
             communicator
                     .getProperties()
                     .setProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
-            com.zeroc.Ice.ObjectAdapter adapter =
+            ObjectAdapter adapter =
                     communicator.createObjectAdapter("ControlAdapter");
-            adapter.add(new TestIntfI(), com.zeroc.Ice.Util.stringToIdentity("control"));
+            adapter.add(new TestIntfI(), Util.stringToIdentity("control"));
             adapter.activate();
 
             if (num == 0) {
                 properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
-                com.zeroc.Ice.ObjectAdapter adapter2 =
+                ObjectAdapter adapter2 =
                         communicator.createObjectAdapter("TestAdapter");
-                adapter2.add(new TestIntfI(), com.zeroc.Ice.Util.stringToIdentity("test"));
+                adapter2.add(new TestIntfI(), Util.stringToIdentity("test"));
                 adapter2.activate();
             }
 
@@ -48,8 +58,8 @@ public class Server extends test.TestHelper {
             if ("1".equals(properties.getIceProperty("Ice.IPv6"))) {
                 endpoint.append("udp -h \"ff15::1:1\" -p ");
                 endpoint.append(getTestPort(10));
-                if (System.getProperty("os.name").contains("OS X") ||
-                        System.getProperty("os.name").startsWith("Windows")) {
+                if (System.getProperty("os.name").contains("OS X")
+                        || System.getProperty("os.name").startsWith("Windows")) {
                     endpoint.append(
                             " --interface \"::1\""); // Use loopback to prevent other machines to
                     // answer.
@@ -57,8 +67,8 @@ public class Server extends test.TestHelper {
             } else {
                 endpoint.append("udp -h 239.255.1.1 -p ");
                 endpoint.append(getTestPort(10));
-                if (System.getProperty("os.name").contains("OS X") ||
-                        System.getProperty("os.name").startsWith("Windows")) {
+                if (System.getProperty("os.name").contains("OS X")
+                        || System.getProperty("os.name").startsWith("Windows")) {
                     endpoint.append(
                             " --interface 127.0.0.1"); // Use loopback to prevent other machines to
                     // answer.
@@ -66,9 +76,9 @@ public class Server extends test.TestHelper {
             }
             properties.setProperty("McastTestAdapter.Endpoints", endpoint.toString());
 
-            com.zeroc.Ice.ObjectAdapter mcastAdapter =
+            ObjectAdapter mcastAdapter =
                     communicator.createObjectAdapter("McastTestAdapter");
-            mcastAdapter.add(new TestIntfI(), com.zeroc.Ice.Util.stringToIdentity("test"));
+            mcastAdapter.add(new TestIntfI(), Util.stringToIdentity("test"));
             mcastAdapter.activate();
 
             serverReady();

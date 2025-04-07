@@ -4,11 +4,20 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
+
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.ParseException;
+import com.zeroc.Ice.Util;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -146,8 +155,8 @@ class ReplicaGroupEditor extends Editor {
                     }
                 });
         _loadBalancing.setToolTipText(
-                "<html>Specifies how IceGrid selects adapters and return<br>" +
-                        "their endpoints when resolving a replica group ID</html>");
+                "<html>Specifies how IceGrid selects adapters and return<br>"
+                        + "their endpoints when resolving a replica group ID</html>");
 
         // Associate updateListener with various fields
         _id.getDocument().addDocumentListener(_updateListener);
@@ -158,10 +167,10 @@ class ReplicaGroupEditor extends Editor {
 
         _nReplicas.getDocument().addDocumentListener(_updateListener);
         _nReplicas.setToolTipText(
-                "<html>IceGrid returns the endpoints of " +
-                        "up to <i>number</i> adapters<br>" +
-                        "when resolving a replica group ID.<br>" +
-                        "Enter 0 to returns the endpoints of all adapters.</html>");
+                "<html>IceGrid returns the endpoints of "
+                        + "up to <i>number</i> adapters<br>"
+                        + "when resolving a replica group ID.<br>"
+                        + "Enter 0 to returns the endpoints of all adapters.</html>");
 
         _loadSample.setEditable(true);
         JTextField loadSampleTextField = (JTextField) _loadSample.getEditor().getEditorComponent();
@@ -175,8 +184,8 @@ class ReplicaGroupEditor extends Editor {
 
         _filter.getDocument().addDocumentListener(_updateListener);
         _filter.setToolTipText(
-                "An optional filter for this replica group. Filters are installed by registry" +
-                        "plugin to provide custom load balancing for replica groups.");
+                "An optional filter for this replica group. Filters are installed by registry"
+                        + "plugin to provide custom load balancing for replica groups.");
     }
 
     void writeDescriptor() {
@@ -350,27 +359,27 @@ class ReplicaGroupEditor extends Editor {
         return (ReplicaGroup) _target;
     }
 
-    private java.util.Map<String, String[]> objectDescriptorSeqToMap(
-            java.util.List<ObjectDescriptor> objects) {
-        java.util.Map<String, String[]> result = new java.util.TreeMap<>();
-        com.zeroc.Ice.Communicator communicator = _target.getCoordinator().getCommunicator();
+    private Map<String, String[]> objectDescriptorSeqToMap(
+            List<ObjectDescriptor> objects) {
+        Map<String, String[]> result = new TreeMap<>();
+        Communicator communicator = _target.getCoordinator().getCommunicator();
         for (ObjectDescriptor p : objects) {
             result.put(communicator.identityToString(p.id), new String[]{p.type, p.proxyOptions});
         }
         return result;
     }
 
-    private java.util.LinkedList<ObjectDescriptor> mapToObjectDescriptorSeq(
-            java.util.Map<String, String[]> map) {
+    private LinkedList<ObjectDescriptor> mapToObjectDescriptorSeq(
+            Map<String, String[]> map) {
         String badIdentities = "";
-        java.util.LinkedList<ObjectDescriptor> result = new java.util.LinkedList<>();
+        LinkedList<ObjectDescriptor> result = new LinkedList<>();
 
-        for (java.util.Map.Entry<String, String[]> p : map.entrySet()) {
+        for (Map.Entry<String, String[]> p : map.entrySet()) {
             try {
-                com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity(p.getKey());
+                Identity id = Util.stringToIdentity(p.getKey());
                 String[] val = p.getValue();
                 result.add(new ObjectDescriptor(id, val[0], val[1]));
-            } catch (com.zeroc.Ice.ParseException ex) {
+            } catch (ParseException ex) {
                 badIdentities += "- " + p.getKey() + "\n";
             }
         }
@@ -406,5 +415,5 @@ class ReplicaGroupEditor extends Editor {
     private JComboBox _loadSample = new JComboBox(new String[]{"1", "5", "15"});
 
     private ArrayMapField _objects;
-    private java.util.LinkedList<ObjectDescriptor> _objectList;
+    private LinkedList<ObjectDescriptor> _objectList;
 }

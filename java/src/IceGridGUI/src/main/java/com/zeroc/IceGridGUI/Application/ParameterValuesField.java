@@ -5,6 +5,11 @@ package com.zeroc.IceGridGUI.Application;
 import com.zeroc.IceGridGUI.*;
 
 import javax.swing.DefaultCellEditor;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
@@ -19,7 +24,7 @@ public class ParameterValuesField extends JTable {
     public ParameterValuesField(Editor editor) {
         _editor = editor;
 
-        _columnNames = new java.util.Vector<>(2);
+        _columnNames = new Vector<>(2);
         _columnNames.add("Name");
         _columnNames.add("Value");
 
@@ -35,18 +40,18 @@ public class ParameterValuesField extends JTable {
     }
 
     public void set(
-            java.util.List<String> names,
-            java.util.Map<String, String> values,
-            java.util.Map<String, String> defaultValues,
+            List<String> names,
+            Map<String, String> values,
+            Map<String, String> defaultValues,
             final Utils.Resolver resolver) {
         // Transform map into vector of vectors
-        java.util.Vector<java.util.Vector<String>> vector = new java.util.Vector<>(names.size());
+        Vector<Vector<String>> vector = new Vector<>(names.size());
 
         _hasDefault = new boolean[names.size()];
         int i = 0;
 
         for (String name : names) {
-            java.util.Vector<String> row = new java.util.Vector<>(2);
+            Vector<String> row = new Vector<>(2);
             row.add(name);
 
             _hasDefault[i] = defaultValues.get(name) != null;
@@ -90,16 +95,16 @@ public class ParameterValuesField extends JTable {
         cr.setOpaque(resolver == null);
     }
 
-    public java.util.Map<String, String> getValues() {
-        java.util.Map<String, String> values = new java.util.HashMap<>();
+    public Map<String, String> getValues() {
+        Map<String, String> values = new HashMap<>();
 
         if (isEditing()) {
             getCellEditor().stopCellEditing();
         }
 
-        java.util.Vector<java.util.Vector> vector = _model.getDataVector();
+        Vector<Vector> vector = _model.getDataVector();
 
-        for (java.util.Vector row : vector) {
+        for (Vector row : vector) {
             // Eliminate rows with null or empty names
             String name = row.elementAt(0).toString();
             assert name != null;
@@ -136,7 +141,7 @@ public class ParameterValuesField extends JTable {
     private TableCellEditor _notSetEditor = new DefaultCellEditor(_notSetCombo);
 
     private DefaultTableModel _model;
-    private java.util.Vector<String> _columnNames;
+    private Vector<String> _columnNames;
     private Editor _editor;
 
     private boolean[] _hasDefault;

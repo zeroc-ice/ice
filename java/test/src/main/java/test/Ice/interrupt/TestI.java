@@ -2,39 +2,45 @@
 
 package test.Ice.interrupt;
 
-public class TestI implements test.Ice.interrupt.Test.TestIntf {
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.UnknownException;
+
+import test.Ice.interrupt.Test.InterruptedException;
+import test.Ice.interrupt.Test.TestIntf;
+
+public class TestI implements TestIntf {
     TestI(TestControllerI controller) {
         _controller = controller;
     }
 
     @Override
-    public void op(com.zeroc.Ice.Current current) {}
+    public void op(Current current) {}
 
     @Override
-    public void opIdempotent(com.zeroc.Ice.Current current) {
-        throw new com.zeroc.Ice.UnknownException("dummy");
+    public void opIdempotent(Current current) {
+        throw new UnknownException("dummy");
     }
 
     @Override
-    public void sleep(int to, com.zeroc.Ice.Current current)
-            throws test.Ice.interrupt.Test.InterruptedException {
+    public void sleep(int to, Current current)
+            throws InterruptedException {
         _controller.addUpcallThread();
         try {
             Thread.sleep(to);
         } catch (java.lang.InterruptedException ex) {
-            throw new test.Ice.interrupt.Test.InterruptedException();
+            throw new InterruptedException();
         } finally {
             _controller.removeUpcallThread();
         }
     }
 
     @Override
-    public void opWithPayload(byte[] seq, com.zeroc.Ice.Current current) {}
+    public void opWithPayload(byte[] seq, Current current) {}
 
     @Override
-    public void shutdown(com.zeroc.Ice.Current current) {
+    public void shutdown(Current current) {
         current.adapter.getCommunicator().shutdown();
     }
 
-    private TestControllerI _controller;
+    private final TestControllerI _controller;
 }

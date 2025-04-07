@@ -2,6 +2,12 @@
 
 package com.zeroc.Ice;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.LinkedList;
+
 final class OutputBase {
     public OutputBase() {
         _out = null;
@@ -12,7 +18,7 @@ final class OutputBase {
         _separator = true;
     }
 
-    public OutputBase(java.io.PrintWriter out) {
+    public OutputBase(PrintWriter out) {
         _out = out;
         _pos = 0;
         _indent = 0;
@@ -42,10 +48,10 @@ final class OutputBase {
 
     public void open(String s) {
         try {
-            java.io.FileWriter fw = new java.io.FileWriter(s);
-            java.io.BufferedWriter bw = new java.io.BufferedWriter(fw);
-            _out = new java.io.PrintWriter(bw);
-        } catch (java.io.IOException ex) {
+            FileWriter fw = new FileWriter(s);
+            BufferedWriter bw = new BufferedWriter(fw);
+            _out = new PrintWriter(bw);
+        } catch (IOException ex) {
         }
     }
 
@@ -126,11 +132,11 @@ final class OutputBase {
         return _out != null;
     }
 
-    protected java.io.PrintWriter _out;
+    protected PrintWriter _out;
     protected int _pos;
     protected int _indent;
     protected int _indentSize;
-    protected java.util.LinkedList<Integer> _indentSave = new java.util.LinkedList<>();
+    protected LinkedList<Integer> _indentSave = new LinkedList<>();
     protected boolean _useTab;
     protected boolean _separator;
 }

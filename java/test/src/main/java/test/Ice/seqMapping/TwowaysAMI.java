@@ -2,6 +2,8 @@
 
 package test.Ice.seqMapping;
 
+import com.zeroc.Ice.OperationNotExistException;
+
 import test.Ice.seqMapping.Serialize.*;
 import test.Ice.seqMapping.Test.*;
 
@@ -48,9 +50,8 @@ class TwowaysAMI {
                             (result, ex) -> {
                                 if (ex != null) {
                                     test(
-                                            ex instanceof
-                                                    com.zeroc.Ice
-                                                            .OperationNotExistException); // OK,
+                                            ex
+                                                    instanceof OperationNotExistException); // OK,
                                     // talking to non-Java server.
                                 } else {
                                     test(result.o == null);
@@ -71,9 +72,8 @@ class TwowaysAMI {
                             (result, ex) -> {
                                 if (ex != null) {
                                     test(
-                                            ex instanceof
-                                                    com.zeroc.Ice
-                                                            .OperationNotExistException); // OK,
+                                            ex
+                                                    instanceof OperationNotExistException); // OK,
                                     // talking to non-Java server.
                                 } else {
                                     test(result.o.i == 99);
@@ -103,9 +103,8 @@ class TwowaysAMI {
                             (result, ex) -> {
                                 if (ex != null) {
                                     test(
-                                            ex instanceof
-                                                    com.zeroc.Ice
-                                                            .OperationNotExistException); // OK,
+                                            ex
+                                                    instanceof OperationNotExistException); // OK,
                                     // talking to non-Java server.
                                 } else {
                                     test(result.o.d1 == 1.0);
@@ -155,8 +154,8 @@ class TwowaysAMI {
                                 test(result.returnValue.o2 != null);
                                 test(((Struct) (result.returnValue.o2)).o == null);
                                 test(
-                                        ((Struct) (result.returnValue.o2)).o2 ==
-                                                result.returnValue.o2);
+                                        ((Struct) (result.returnValue.o2)).o2
+                                                == result.returnValue.o2);
                                 test(result.returnValue.s == null);
                                 test("Hello".equals(result.returnValue.s2));
                                 cb.called();

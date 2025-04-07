@@ -6,6 +6,9 @@ import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
@@ -43,47 +46,47 @@ class PlainServer extends Communicator implements Server {
 
     public static ServerDescriptor newServerDescriptor() {
         return new ServerDescriptor(
-                new java.util.LinkedList<AdapterDescriptor>(),
+                new LinkedList<AdapterDescriptor>(),
                 new PropertySetDescriptor(
-                        new String[0], new java.util.LinkedList<PropertyDescriptor>()),
+                        new String[0], new LinkedList<PropertyDescriptor>()),
                 new String[0],
                 "",
                 "NewServer",
                 "",
                 "",
                 "",
-                new java.util.LinkedList<String>(),
-                new java.util.LinkedList<String>(),
+                new LinkedList<String>(),
+                new LinkedList<String>(),
                 "manual",
                 "",
                 "",
                 true,
-                new DistributionDescriptor("", new java.util.LinkedList<String>()), // dummy
+                new DistributionDescriptor("", new LinkedList<String>()), // dummy
                 false, // Allocatable
                 "");
     }
 
     public static IceBoxDescriptor newIceBoxDescriptor() {
         return new IceBoxDescriptor(
-                new java.util.LinkedList<AdapterDescriptor>(),
+                new LinkedList<AdapterDescriptor>(),
                 new PropertySetDescriptor(
-                        new String[0], new java.util.LinkedList<PropertyDescriptor>()),
+                        new String[0], new LinkedList<PropertyDescriptor>()),
                 new String[0],
                 "",
                 "NewIceBox",
                 "",
                 "",
                 "",
-                new java.util.LinkedList<String>(),
-                new java.util.LinkedList<String>(),
+                new LinkedList<String>(),
+                new LinkedList<String>(),
                 "manual",
                 "",
                 "",
                 true,
-                new DistributionDescriptor("", new java.util.LinkedList<String>()), // dummy
+                new DistributionDescriptor("", new LinkedList<String>()), // dummy
                 false, // Allocatable
                 "",
-                new java.util.LinkedList<ServiceInstanceDescriptor>());
+                new LinkedList<ServiceInstanceDescriptor>());
     }
 
     // Actions
@@ -92,11 +95,11 @@ class PlainServer extends Communicator implements Server {
         boolean[] actions = new boolean[ACTION_COUNT];
 
         Object clipboard = getCoordinator().getClipboard();
-        if (clipboard != null &&
-                (clipboard instanceof ServerDescriptor ||
-                        clipboard instanceof ServerInstanceDescriptor ||
-                        (isIceBox() && (clipboard instanceof ServiceInstanceDescriptor)) ||
-                        (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy)))) {
+        if (clipboard != null
+                && (clipboard instanceof ServerDescriptor
+                        || clipboard instanceof ServerInstanceDescriptor
+                        || (isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
+                        || (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy)))) {
             actions[PASTE] = true;
         }
 
@@ -226,8 +229,8 @@ class PlainServer extends Communicator implements Server {
         }
     }
 
-    static java.util.List<String[]> createAttributes(ServerDescriptor descriptor) {
-        java.util.List<String[]> attributes = new java.util.LinkedList<>();
+    static List<String[]> createAttributes(ServerDescriptor descriptor) {
+        List<String[]> attributes = new LinkedList<>();
         attributes.add(createAttribute("id", descriptor.id));
         if (descriptor.activation.length() > 0) {
             attributes.add(createAttribute("activation", descriptor.activation));
@@ -251,22 +254,22 @@ class PlainServer extends Communicator implements Server {
         return attributes;
     }
 
-    static void writeOptions(XMLWriter writer, java.util.List<String> options)
-            throws java.io.IOException {
+    static void writeOptions(XMLWriter writer, List<String> options)
+            throws IOException {
         for (String p : options) {
             writer.writeElement("option", p);
         }
     }
 
-    static void writeEnvs(XMLWriter writer, java.util.List<String> envs)
-            throws java.io.IOException {
+    static void writeEnvs(XMLWriter writer, List<String> envs)
+            throws IOException {
         for (String p : envs) {
             writer.writeElement("env", p);
         }
     }
 
     @Override
-    void write(XMLWriter writer) throws java.io.IOException {
+    void write(XMLWriter writer) throws IOException {
         if (!_ephemeral) {
             if (isIceBox()) {
                 writer.writeStartTag("icebox", createAttributes(_descriptor));
@@ -315,7 +318,7 @@ class PlainServer extends Communicator implements Server {
     }
 
     @Override
-    public Object rebuild(java.util.List<Editable> editables) throws UpdateFailedException {
+    public Object rebuild(List<Editable> editables) throws UpdateFailedException {
         Node node = (Node) _parent;
         PlainServer newServer = node.createServer(false, _descriptor);
 

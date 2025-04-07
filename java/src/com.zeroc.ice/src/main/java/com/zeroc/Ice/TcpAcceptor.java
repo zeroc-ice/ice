@@ -2,9 +2,12 @@
 
 package com.zeroc.Ice;
 
+import java.net.InetSocketAddress;
+import java.nio.channels.ServerSocketChannel;
+
 class TcpAcceptor implements Acceptor {
     @Override
-    public java.nio.channels.ServerSocketChannel fd() {
+    public ServerSocketChannel fd() {
         return _fd;
     }
 
@@ -106,7 +109,7 @@ class TcpAcceptor implements Acceptor {
 
     private TcpEndpointI _endpoint;
     private final ProtocolInstance _instance;
-    private java.nio.channels.ServerSocketChannel _fd;
+    private ServerSocketChannel _fd;
     private final int _backlog;
-    private java.net.InetSocketAddress _addr;
+    private InetSocketAddress _addr;
 }

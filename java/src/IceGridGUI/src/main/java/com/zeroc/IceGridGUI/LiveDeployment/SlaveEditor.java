@@ -34,5 +34,5 @@ class SlaveEditor extends CommunicatorEditor {
         _propertiesPanel.setName("Slave Registry Properties");
     }
 
-    private JTextField _hostname = new JTextField(20);
+    private final JTextField _hostname = new JTextField(20);
 }

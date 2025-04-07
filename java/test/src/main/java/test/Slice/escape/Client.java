@@ -2,6 +2,12 @@
 
 package test.Slice.escape;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+
 import test.Slice.escape.escaped_abstract._assert;
 import test.Slice.escape.escaped_abstract._break;
 import test.Slice.escape.escaped_abstract._catch;
@@ -14,16 +20,20 @@ import test.Slice.escape.escaped_abstract.clone;
 import test.Slice.escape.escaped_abstract.escaped_synchronized;
 import test.Slice.escape.escaped_abstract.hashCode;
 import test.Slice.escape.escaped_abstract.notify;
+import test.TestHelper;
 
-public class Client extends test.TestHelper {
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+
+public class Client extends TestHelper {
     public static class _catchI implements _catch {
         public _catchI() {}
 
         @Override
-        public java.util.concurrent.CompletionStage<Integer> myCheckedCastAsync(
-                int escaped_clone, com.zeroc.Ice.Current current) {
+        public CompletionStage<Integer> myCheckedCastAsync(
+                int escaped_clone, Current current) {
             int _continue = 0;
-            return java.util.concurrent.CompletableFuture.completedFuture(_continue);
+            return CompletableFuture.completedFuture(_continue);
         }
     }
 
@@ -31,7 +41,7 @@ public class Client extends test.TestHelper {
         public _defaultI() {}
 
         @Override
-        public void _do(com.zeroc.Ice.Current current) {
+        public void _do(Current current) {
             assert "do".equals(current.operation);
         }
     }
@@ -42,14 +52,14 @@ public class Client extends test.TestHelper {
 
     public static class finalizeServantI implements _finalize {
         @Override
-        public java.util.concurrent.CompletionStage<Integer> myCheckedCastAsync(
-                int escaped_clone, com.zeroc.Ice.Current current) {
+        public CompletionStage<Integer> myCheckedCastAsync(
+                int escaped_clone, Current current) {
             int _continue = 0;
-            return java.util.concurrent.CompletableFuture.completedFuture(_continue);
+            return CompletableFuture.completedFuture(_continue);
         }
 
         @Override
-        public void _do(com.zeroc.Ice.Current current) {}
+        public void _do(Current current) {}
 
         @Override
         public _assert _notify(
@@ -58,7 +68,7 @@ public class Client extends test.TestHelper {
                 _finalizePrx escaped_package,
                 _defaultPrx escaped_return,
                 int escaped_super,
-                com.zeroc.Ice.Current current)
+                Current current)
                 throws hashCode, clone {
             return null;
         }
@@ -96,7 +106,7 @@ public class Client extends test.TestHelper {
 
     public void run(String[] args) {
         // In this test, we need at least two threads in the client side thread pool for nested AMI.
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.escaped_abstract", "test.Slice.escape");
         properties.setProperty("Ice.ThreadPool.Client.Size", "2");
         properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
@@ -105,16 +115,16 @@ public class Client extends test.TestHelper {
         // We must set MessageSizeMax to an explicit value,
         // because we run tests to check whether Ice.MarshalException is raised as expected.
         properties.setProperty("Ice.MessageSizeMax", "100");
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
-            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new _defaultI(), com.zeroc.Ice.Util.stringToIdentity("test"));
+        try (Communicator communicator = initialize(properties)) {
+            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new _defaultI(), Util.stringToIdentity("test"));
             adapter.activate();
 
             System.out.print("Testing operation name... ");
             System.out.flush();
             _defaultPrx p =
                     _defaultPrx.uncheckedCast(
-                            adapter.createProxy(com.zeroc.Ice.Util.stringToIdentity("test")));
+                            adapter.createProxy(Util.stringToIdentity("test")));
             p._do();
             System.out.println("ok");
         }

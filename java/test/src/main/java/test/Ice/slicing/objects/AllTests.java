@@ -2,12 +2,23 @@
 
 package test.Ice.slicing.objects;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.MarshalException;
+import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.OperationNotExistException;
+import com.zeroc.Ice.SlicedData;
+import com.zeroc.Ice.UnknownSlicedValue;
 import com.zeroc.Ice.Util;
+import com.zeroc.Ice.Value;
+import com.zeroc.Ice.ValueFactory;
 
 import test.Ice.slicing.objects.client.Test.*;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 public class AllTests {
     private static void test(boolean b) {
@@ -49,9 +60,9 @@ public class AllTests {
         static int counter;
     }
 
-    private static class NodeFactoryI implements com.zeroc.Ice.ValueFactory {
+    private static class NodeFactoryI implements ValueFactory {
         @Override
-        public com.zeroc.Ice.Value create(String id) {
+        public Value create(String id) {
             if (id.equals(PNode.ice_staticId())) {
                 return new PNodeI();
             }
@@ -67,9 +78,9 @@ public class AllTests {
         static int counter;
     }
 
-    private static class PreservedFactoryI implements com.zeroc.Ice.ValueFactory {
+    private static class PreservedFactoryI implements ValueFactory {
         @Override
-        public com.zeroc.Ice.Value create(String id) {
+        public Value create(String id) {
             if (id.equals(Preserved.ice_staticId())) {
                 return new PreservedI();
             }
@@ -81,14 +92,14 @@ public class AllTests {
         public T v;
     }
 
-    public static TestIntfPrx allTests(test.TestHelper helper, boolean collocated) {
+    public static TestIntfPrx allTests(TestHelper helper, boolean collocated) {
         PrintWriter out = helper.getWriter();
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        Communicator communicator = helper.communicator();
 
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "Test:" + helper.getTestEndpoint(0) + " -t 10000";
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 
@@ -102,7 +113,7 @@ public class AllTests {
         out.print("base as Object... ");
         out.flush();
         {
-            com.zeroc.Ice.Value o;
+            Value o;
             SBase sb = null;
             try {
                 o = test.SBaseAsObject();
@@ -254,7 +265,7 @@ public class AllTests {
                 //
                 test.SBSUnknownDerivedAsSBaseCompact();
                 test(false);
-            } catch (com.zeroc.Ice.MarshalException ex) {
+            } catch (MarshalException ex) {
                 // Expected.
             } catch (OperationNotExistException ex) {
             } catch (Exception ex) {
@@ -303,8 +314,8 @@ public class AllTests {
                             (result, ex) -> {
                                 test(ex != null);
                                 test(
-                                        ex instanceof OperationNotExistException ||
-                                                ex instanceof com.zeroc.Ice.MarshalException);
+                                        ex instanceof OperationNotExistException
+                                                || ex instanceof MarshalException);
                                 cb.called();
                             });
             cb.check();
@@ -314,15 +325,15 @@ public class AllTests {
         out.print("unknown with Object as Object... ");
         out.flush();
         {
-            com.zeroc.Ice.Value o;
+            Value o;
             try {
                 o = test.SUnknownAsObject();
                 test(!test.ice_getEncodingVersion().equals(Util.Encoding_1_0));
-                test(o instanceof com.zeroc.Ice.UnknownSlicedValue);
-                test("::Test::SUnknown".equals(((com.zeroc.Ice.UnknownSlicedValue) o).ice_id()));
-                test(((com.zeroc.Ice.UnknownSlicedValue) o).ice_getSlicedData() != null);
+                test(o instanceof UnknownSlicedValue);
+                test("::Test::SUnknown".equals(((UnknownSlicedValue) o).ice_id()));
+                test(((UnknownSlicedValue) o).ice_getSlicedData() != null);
                 test.checkSUnknown(o);
-            } catch (com.zeroc.Ice.MarshalException ex) {
+            } catch (MarshalException ex) {
                 test(test.ice_getEncodingVersion().equals(Util.Encoding_1_0));
             } catch (Exception ex) {
                 test(false);
@@ -339,7 +350,7 @@ public class AllTests {
                         .whenComplete(
                                 (result, ex) -> {
                                     test(ex != null);
-                                    test(ex instanceof com.zeroc.Ice.MarshalException);
+                                    test(ex instanceof MarshalException);
                                     cb.called();
                                 });
                 cb.check();
@@ -349,10 +360,10 @@ public class AllTests {
                         .whenComplete(
                                 (result, ex) -> {
                                     test(ex == null);
-                                    test(result instanceof com.zeroc.Ice.UnknownSlicedValue);
+                                    test(result instanceof UnknownSlicedValue);
                                     test(
                                             "::Test::SUnknown"
-                                                    .equals(((com.zeroc.Ice.UnknownSlicedValue) result)
+                                                    .equals(((UnknownSlicedValue) result)
                                                     .ice_id()));
                                     cb.called();
                                 });
@@ -1403,7 +1414,7 @@ public class AllTests {
         out.flush();
         {
             try {
-                java.util.IdentityHashMap<Integer, B> bin = new java.util.IdentityHashMap<>();
+                IdentityHashMap<Integer, B> bin = new IdentityHashMap<>();
                 int i;
                 for (i = 0; i < 10; i++) {
                     String s = "D1." + Integer.valueOf(i).toString();
@@ -1449,7 +1460,7 @@ public class AllTests {
         out.print("dictionary slicing (AMI)... ");
         out.flush();
         {
-            java.util.Map<Integer, B> bin = new java.util.HashMap<>();
+            Map<Integer, B> bin = new HashMap<>();
             int i;
             for (i = 0; i < 10; i++) {
                 String s = "D1." + Integer.valueOf(i).toString();
@@ -1460,8 +1471,8 @@ public class AllTests {
                 bin.put(i, d1);
             }
 
-            final Wrapper<java.util.Map<Integer, B>> wbout = new Wrapper<>();
-            final Wrapper<java.util.Map<Integer, B>> wr = new Wrapper<>();
+            final Wrapper<Map<Integer, B>> wbout = new Wrapper<>();
+            final Wrapper<Map<Integer, B>> wr = new Wrapper<>();
             Callback cb = new Callback();
             test.dictionaryTestAsync(bin)
                     .whenComplete(
@@ -1473,8 +1484,8 @@ public class AllTests {
                             });
             cb.check();
 
-            java.util.Map<Integer, B> bout = wbout.v;
-            java.util.Map<Integer, B> r = wr.v;
+            Map<Integer, B> bout = wbout.v;
+            Map<Integer, B> r = wr.v;
             test(bout.size() == 10);
             for (i = 0; i < 10; i++) {
                 B b = bout.get(i * 10);
@@ -1872,7 +1883,7 @@ public class AllTests {
             Preserved p = test.PBSUnknownAsPreserved();
             test.checkPBSUnknown(p);
             if (!test.ice_getEncodingVersion().equals(Util.Encoding_1_0)) {
-                com.zeroc.Ice.SlicedData slicedData = p.ice_getSlicedData();
+                SlicedData slicedData = p.ice_getSlicedData();
                 test(slicedData != null);
                 test(slicedData.slices.length == 1);
                 test("::Test::PSUnknown".equals(slicedData.slices[0].typeId));

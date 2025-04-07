@@ -4,6 +4,8 @@ package com.zeroc.Ice;
 
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 final class WSEndpoint extends EndpointI {
@@ -13,7 +15,7 @@ final class WSEndpoint extends EndpointI {
         _resource = res;
     }
 
-    public WSEndpoint(ProtocolInstance instance, EndpointI del, java.util.ArrayList<String> args) {
+    public WSEndpoint(ProtocolInstance instance, EndpointI del, ArrayList<String> args) {
         _instance = instance;
         _delegate = del;
 
@@ -121,8 +123,8 @@ final class WSEndpoint extends EndpointI {
         EndpointI_connectors cb =
                 new EndpointI_connectors() {
                     @Override
-                    public void connectors(java.util.List<Connector> connectors) {
-                        java.util.List<Connector> l = new java.util.ArrayList<>();
+                    public void connectors(List<Connector> connectors) {
+                        List<Connector> l = new ArrayList<>();
                         for (Connector c : connectors) {
                             l.add(new WSConnector(_instance, c, host, _resource));
                         }
@@ -152,7 +154,7 @@ final class WSEndpoint extends EndpointI {
     }
 
     @Override
-    public java.util.List<EndpointI> expandHost() {
+    public List<EndpointI> expandHost() {
         return _delegate.expandHost().stream().map(this::endpoint).collect(Collectors.toList());
     }
 
@@ -238,10 +240,10 @@ final class WSEndpoint extends EndpointI {
                 {
                     if (argument == null) {
                         throw new ParseException(
-                                "no argument provided for -r option in endpoint '" +
-                                        endpoint +
-                                        _delegate.options() +
-                                        "'");
+                                "no argument provided for -r option in endpoint '"
+                                        + endpoint
+                                        + _delegate.options()
+                                        + "'");
                     }
                     _resource = argument;
                     return true;

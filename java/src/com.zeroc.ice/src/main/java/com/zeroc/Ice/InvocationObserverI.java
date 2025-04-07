@@ -46,8 +46,8 @@ public class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics,
         public String getId() {
             if (_id == null) {
                 _id = _endpoint.toString();
-                if (_connectionInfo.connectionId != null &&
-                        !_connectionInfo.connectionId.isEmpty()) {
+                if (_connectionInfo.connectionId != null
+                        && !_connectionInfo.connectionId.isEmpty()) {
                     _id += " [" + _connectionInfo.connectionId + "]";
                 }
             }

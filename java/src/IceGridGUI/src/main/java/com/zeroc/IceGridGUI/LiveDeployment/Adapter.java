@@ -2,10 +2,13 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.Component;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.Icon;
 import javax.swing.JTree;
@@ -53,7 +56,7 @@ class Adapter extends TreeNode {
             Utils.Resolver resolver,
             String adapterId,
             AdapterDescriptor descriptor,
-            com.zeroc.Ice.ObjectPrx proxy) {
+            ObjectPrx proxy) {
         super(parent, adapterName);
         _resolver = resolver;
         _adapterId = adapterId;
@@ -74,7 +77,7 @@ class Adapter extends TreeNode {
         return _currentEndpoints;
     }
 
-    java.util.Map<String, String> getProperties() {
+    Map<String, String> getProperties() {
         if (_parent instanceof Server) {
             return ((Server) _parent).getProperties();
         } else {
@@ -96,7 +99,7 @@ class Adapter extends TreeNode {
         }
     }
 
-    boolean update(java.util.List<AdapterDynamicInfo> infoList) {
+    boolean update(List<AdapterDynamicInfo> infoList) {
         for (AdapterDynamicInfo info : infoList) {
             if (update(info)) {
                 return true;
@@ -105,7 +108,7 @@ class Adapter extends TreeNode {
         return false;
     }
 
-    private void setCurrentEndpoints(com.zeroc.Ice.ObjectPrx proxy) {
+    private void setCurrentEndpoints(ObjectPrx proxy) {
         if (proxy == null) {
             _currentEndpoints = null;
             _toolTip = "Inactive";
@@ -121,9 +124,9 @@ class Adapter extends TreeNode {
         }
     }
 
-    private AdapterDescriptor _descriptor;
-    private Utils.Resolver _resolver;
-    private String _adapterId;
+    private final AdapterDescriptor _descriptor;
+    private final Utils.Resolver _resolver;
+    private final String _adapterId;
 
     private String _currentEndpoints;
     private String _toolTip;

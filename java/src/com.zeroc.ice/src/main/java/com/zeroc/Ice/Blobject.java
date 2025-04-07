@@ -9,7 +9,7 @@ import java.util.concurrent.CompletionStage;
  * Base class for dynamic dispatch servants. A server application derives a concrete servant class
  * from <code>Blobject</code> that implements the {@link Blobject#ice_invoke} method.
  */
-public interface Blobject extends com.zeroc.Ice.Object {
+public interface Blobject extends Object {
     /**
      * Dispatch an incoming request.
      *
@@ -24,7 +24,7 @@ public interface Blobject extends com.zeroc.Ice.Object {
      * @throws UserException A user exception can be raised directly and the run time will marshal
      *     it.
      */
-    com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(byte[] inEncaps, Current current)
+    Object.Ice_invokeResult ice_invoke(byte[] inEncaps, Current current)
             throws UserException;
 
     @Override

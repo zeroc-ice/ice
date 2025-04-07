@@ -2,6 +2,9 @@
 
 package com.zeroc.Ice;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @hidden Public because it's used by IceBox.
  */
@@ -21,7 +24,7 @@ public final class Options {
         int state = NormalState;
 
         StringBuilder arg = new StringBuilder(128);
-        java.util.List<String> vec = new java.util.ArrayList<>();
+        List<String> vec = new ArrayList<>();
 
         for (int i = 0; i < line.length(); i++) {
             char c = line.charAt(i);
@@ -44,10 +47,10 @@ public final class Options {
                                         char nextChar = line.charAt(i);
                                         // TODO: comment says we should be checking single quotes
                                         // here, but we aren't?
-                                        if (nextChar != ' ' &&
-                                                nextChar != '$' &&
-                                                nextChar != '\\' &&
-                                                nextChar != '"') {
+                                        if (nextChar != ' '
+                                                && nextChar != '$'
+                                                && nextChar != '\\'
+                                                && nextChar != '"') {
                                             arg.append('\\');
                                         }
                                         arg.append(nextChar);
@@ -83,8 +86,9 @@ public final class Options {
                                         arg = new StringBuilder(128);
 
                                         // Move to start of next argument.
-                                        while (++i < line.length() &&
-                                                IFS.indexOf(line.charAt(i)) != -1) {
+                                        while (++i < line.length()
+                                                && IFS.indexOf(line.charAt(i)) != -1) {
+                                            continue;
                                         }
                                         --i;
                                     } else {
@@ -200,11 +204,11 @@ public final class Options {
                                                 short us = 0;
                                                 int j;
                                                 for (j = i;
-                                                        j < i + 3 &&
-                                                                j < line.length() &&
-                                                                octalDigits.indexOf(
-                                                                                c = line.charAt(j)) !=
-                                                                        -1;
+                                                        j < i + 3
+                                                                && j < line.length()
+                                                                && octalDigits.indexOf(
+                                                                                c = line.charAt(j))
+                                                                        != -1;
                                                         j++) {
                                                     us = (short) (us * 8 + c - '0');
                                                 }
@@ -217,9 +221,9 @@ public final class Options {
                                         case 'x':
                                             {
                                                 final String hexDigits = "0123456789abcdefABCDEF";
-                                                if (i < line.length() - 1 &&
-                                                        hexDigits.indexOf(line.charAt(i + 1)) ==
-                                                                -1) {
+                                                if (i < line.length() - 1
+                                                        && hexDigits.indexOf(line.charAt(i + 1))
+                                                                == -1) {
                                                     arg.append('\\');
                                                     arg.append('x');
                                                     break;
@@ -228,11 +232,11 @@ public final class Options {
                                                 short s = 0;
                                                 int j;
                                                 for (j = i + 1;
-                                                        j < i + 3 &&
-                                                                j < line.length() &&
-                                                                hexDigits.indexOf(
-                                                                                c = line.charAt(j)) !=
-                                                                        -1;
+                                                        j < i + 3
+                                                                && j < line.length()
+                                                                && hexDigits.indexOf(
+                                                                                c = line.charAt(j))
+                                                                        != -1;
                                                         j++) {
                                                     s *= (short) 16;
                                                     if (Character.isDigit(c)) {
@@ -252,14 +256,14 @@ public final class Options {
                                         case 'c':
                                             {
                                                 c = line.charAt(++i);
-                                                if ((Character.toUpperCase(c) >= 'A' &&
-                                                                Character.toUpperCase(c) <= 'Z') ||
-                                                        c == '@' ||
-                                                        (c >= '[' && c <= '_')) {
+                                                if ((Character.toUpperCase(c) >= 'A'
+                                                                && Character.toUpperCase(c) <= 'Z')
+                                                        || c == '@'
+                                                        || (c >= '[' && c <= '_')) {
                                                     arg.append(
                                                             (char)
-                                                                    (Character.toUpperCase(c) -
-                                                                            '@'));
+                                                                    (Character.toUpperCase(c)
+                                                                            - '@'));
                                                 } else {
                                                     // Bash does not define what should happen if a
                                                     // \c is not followed by a recognized control

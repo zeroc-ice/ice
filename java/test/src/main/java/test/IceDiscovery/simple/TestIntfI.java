@@ -2,11 +2,13 @@
 
 package test.IceDiscovery.simple;
 
+import com.zeroc.Ice.Current;
+
 import test.IceDiscovery.simple.Test.*;
 
 public final class TestIntfI implements TestIntf {
     @Override
-    public String getAdapterId(com.zeroc.Ice.Current current) {
+    public String getAdapterId(Current current) {
         return current.adapter
                 .getCommunicator()
                 .getProperties()

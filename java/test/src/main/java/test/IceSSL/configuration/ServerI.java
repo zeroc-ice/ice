@@ -2,48 +2,55 @@
 
 package test.IceSSL.configuration;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.SSL.ConnectionInfo;
+
 import test.IceSSL.configuration.Test.Server;
 
+import java.security.cert.X509Certificate;
+
 class ServerI implements Server {
-    ServerI(com.zeroc.Ice.Communicator communicator) {
+    ServerI(Communicator communicator) {
         _communicator = communicator;
     }
 
     @Override
-    public void noCert(com.zeroc.Ice.Current current) {
+    public void noCert(Current current) {
         try {
-            com.zeroc.Ice.SSL.ConnectionInfo info =
-                    (com.zeroc.Ice.SSL.ConnectionInfo) current.con.getInfo();
+            ConnectionInfo info =
+                    (ConnectionInfo) current.con.getInfo();
             test(info.certs == null);
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             test(false);
         }
     }
 
     @Override
-    public void checkCert(String subjectDN, String issuerDN, com.zeroc.Ice.Current current) {
+    public void checkCert(String subjectDN, String issuerDN, Current current) {
         try {
-            com.zeroc.Ice.SSL.ConnectionInfo info =
-                    (com.zeroc.Ice.SSL.ConnectionInfo) current.con.getInfo();
-            java.security.cert.X509Certificate cert =
-                    (java.security.cert.X509Certificate) info.certs[0];
+            ConnectionInfo info =
+                    (ConnectionInfo) current.con.getInfo();
+            X509Certificate cert =
+                    (X509Certificate) info.certs[0];
             test(info.verified);
             test(
-                    info.certs.length == 1 &&
-                            cert.getSubjectX500Principal().toString().equals(subjectDN) &&
-                            cert.getIssuerX500Principal().toString().equals(issuerDN));
-        } catch (com.zeroc.Ice.LocalException ex) {
+                    info.certs.length == 1
+                            && cert.getSubjectX500Principal().toString().equals(subjectDN)
+                            && cert.getIssuerX500Principal().toString().equals(issuerDN));
+        } catch (LocalException ex) {
             test(false);
         }
     }
 
     @Override
-    public void checkCipher(String cipher, com.zeroc.Ice.Current current) {
+    public void checkCipher(String cipher, Current current) {
         try {
-            com.zeroc.Ice.SSL.ConnectionInfo info =
-                    (com.zeroc.Ice.SSL.ConnectionInfo) current.con.getInfo();
+            ConnectionInfo info =
+                    (ConnectionInfo) current.con.getInfo();
             test(info.cipher.indexOf(cipher) >= 0);
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             test(false);
         }
     }
@@ -58,5 +65,5 @@ class ServerI implements Server {
         }
     }
 
-    private com.zeroc.Ice.Communicator _communicator;
+    private final Communicator _communicator;
 }

@@ -2,8 +2,10 @@
 
 package test.Ice.servantLocator;
 
+import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.OperationNotExistException;
 import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.UnknownUserException;
@@ -12,6 +14,7 @@ import test.Ice.servantLocator.Test.TestActivationPrx;
 import test.Ice.servantLocator.Test.TestImpossibleException;
 import test.Ice.servantLocator.Test.TestIntfPrx;
 import test.Ice.servantLocator.Test.TestIntfUserException;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 
@@ -22,7 +25,7 @@ public class AllTests {
         }
     }
 
-    public static void testExceptions(TestIntfPrx obj, test.TestHelper helper) {
+    public static void testExceptions(TestIntfPrx obj, TestHelper helper) {
         try {
             obj.requestFailedException();
             test(false);
@@ -80,8 +83,8 @@ public class AllTests {
         } catch (UnknownLocalException ex) {
             var message = ex.getMessage();
             test(
-                    message.contains("Ice::SocketException") ||
-                            message.contains("Ice.SocketException"));
+                    message.contains("Ice::SocketException")
+                            || message.contains("Ice.SocketException"));
         } catch (Throwable ex) {
             test(false);
         }
@@ -91,7 +94,7 @@ public class AllTests {
             test(false);
         } catch (UnknownException ex) {
             test(ex.getMessage().contains("java.lang.RuntimeException: message"));
-        } catch (com.zeroc.Ice.OperationNotExistException ex) {
+        } catch (OperationNotExistException ex) {
         } catch (Throwable ex) {
             // System.err.println(ex);
             test(false);
@@ -149,13 +152,13 @@ public class AllTests {
         }
     }
 
-    public static TestIntfPrx allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static TestIntfPrx allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "asm:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 

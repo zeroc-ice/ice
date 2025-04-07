@@ -229,5 +229,5 @@ public class ApplicationActions {
     }
 
     private TreeNode _target;
-    private Action[] _array = new Action[TreeNode.ACTION_COUNT];
+    private final Action[] _array = new Action[TreeNode.ACTION_COUNT];
 }

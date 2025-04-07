@@ -2,6 +2,13 @@
 
 package test.Ice.objects;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.MarshalException;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.OperationNotExistException;
+import com.zeroc.Ice.UnknownLocalException;
+import com.zeroc.Ice.Value;
+
 import test.Ice.objects.Test.A1;
 import test.Ice.objects.Test.B;
 import test.Ice.objects.Test.Base;
@@ -25,8 +32,11 @@ import test.Ice.objects.Test.Recursive;
 import test.Ice.objects.Test.S;
 import test.Ice.objects.Test.StructKey;
 import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AllTests {
     private static void test(boolean b) {
@@ -35,13 +45,13 @@ public class AllTests {
         }
     }
 
-    public static InitialPrx allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static InitialPrx allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "initial:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 
@@ -159,22 +169,22 @@ public class AllTests {
 
         out.print("testing Value as parameter... ");
         {
-            com.zeroc.Ice.Value v1 = new L("l");
+            Value v1 = new L("l");
             OpValueResult result = initial.opValue(v1);
             test("l".equals(((L) result.returnValue).data));
             test("l".equals(((L) result.v2).data));
         }
         {
             L l = new L("l");
-            com.zeroc.Ice.Value[] v1 = {l};
+            Value[] v1 = {l};
             OpValueSeqResult result = initial.opValueSeq(v1);
             test("l".equals(((L) result.returnValue[0]).data));
             test("l".equals(((L) result.v2[0]).data));
         }
         {
             L l = new L("l");
-            java.util.Map<String, com.zeroc.Ice.Value> v1 =
-                    new java.util.HashMap<String, com.zeroc.Ice.Value>();
+            Map<String, Value> v1 =
+                    new HashMap<String, Value>();
             v1.put("l", l);
             OpValueMapResult result = initial.opValueMap(v1);
             test("l".equals(((L) result.returnValue.get("l")).data));
@@ -209,7 +219,7 @@ public class AllTests {
         out.flush();
         try {
             initial.setG(new G(new S("hello"), "g"));
-        } catch (com.zeroc.Ice.OperationNotExistException ex) {
+        } catch (OperationNotExistException ex) {
         }
         out.println("ok");
 
@@ -224,7 +234,7 @@ public class AllTests {
             inS[0] = new Base(new S(), "");
             sr = initial.opBaseSeq(inS);
             test(sr.returnValue.length == 1 && sr.outSeq.length == 1);
-        } catch (com.zeroc.Ice.OperationNotExistException ex) {
+        } catch (OperationNotExistException ex) {
         }
         out.println("ok");
 
@@ -246,7 +256,7 @@ public class AllTests {
         try {
             initial.setRecursive(top);
             test(false);
-        } catch (com.zeroc.Ice.UnknownLocalException ex) {
+        } catch (UnknownLocalException ex) {
             // Expected marshal exception from the server (max class graph depth reached)
         }
         out.println("ok");
@@ -255,7 +265,7 @@ public class AllTests {
         out.flush();
         try {
             test(initial.getCompact() != null);
-        } catch (com.zeroc.Ice.OperationNotExistException ex) {
+        } catch (OperationNotExistException ex) {
         }
         out.println("ok");
 
@@ -278,7 +288,7 @@ public class AllTests {
         try {
             uoet.op();
             test(false);
-        } catch (com.zeroc.Ice.MarshalException ex) {
+        } catch (MarshalException ex) {
             test(ex.getMessage().contains("'::Test::AlsoEmpty'"));
             test(ex.getMessage().contains("'::Test::Empty'"));
         } catch (Exception ex) {
@@ -291,7 +301,7 @@ public class AllTests {
         out.flush();
         {
             M m = new M();
-            m.v = new java.util.HashMap<StructKey, L>();
+            m.v = new HashMap<StructKey, L>();
             StructKey k1 = new StructKey(1, "1");
             m.v.put(k1, new L("one"));
             StructKey k2 = new StructKey(2, "2");
@@ -344,7 +354,7 @@ public class AllTests {
             try {
                 initial.setCycle(rec);
                 test(acceptsCycles);
-            } catch (com.zeroc.Ice.UnknownLocalException ex) {
+            } catch (UnknownLocalException ex) {
                 test(!acceptsCycles);
             }
         }

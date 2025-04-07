@@ -2,6 +2,10 @@
 
 package com.zeroc.Ice;
 
+import java.net.InetSocketAddress;
+import java.nio.channels.SelectableChannel;
+import java.util.Objects;
+
 final class UdpConnector implements Connector {
     @Override
     public Transceiver connect() {
@@ -12,7 +16,7 @@ final class UdpConnector implements Connector {
         }
     }
 
-    public java.nio.channels.SelectableChannel fd() {
+    public SelectableChannel fd() {
         assert false; // Shouldn't be called, startConnect always completes immediately.
         return null;
     }
@@ -46,8 +50,8 @@ final class UdpConnector implements Connector {
     //
     UdpConnector(
             ProtocolInstance instance,
-            java.net.InetSocketAddress addr,
-            java.net.InetSocketAddress sourceAddr,
+            InetSocketAddress addr,
+            InetSocketAddress sourceAddr,
             String mcastInterface,
             int mcastTtl,
             String connectionId) {
@@ -82,16 +86,16 @@ final class UdpConnector implements Connector {
             return false;
         }
 
-        if (!java.util.Objects.equals(_sourceAddr, p._sourceAddr)) {
+        if (!Objects.equals(_sourceAddr, p._sourceAddr)) {
             return false;
         }
 
-        return java.util.Objects.equals(_addr, p._addr);
+        return Objects.equals(_addr, p._addr);
     }
 
     private final ProtocolInstance _instance;
-    private final java.net.InetSocketAddress _addr;
-    private final java.net.InetSocketAddress _sourceAddr;
+    private final InetSocketAddress _addr;
+    private final InetSocketAddress _sourceAddr;
     private final String _mcastInterface;
     private final int _mcastTtl;
     private final String _connectionId;

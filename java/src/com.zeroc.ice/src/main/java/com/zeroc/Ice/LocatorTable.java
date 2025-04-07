@@ -3,6 +3,8 @@
 package com.zeroc.Ice;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 final class LocatorTable {
     LocatorTable() {}
@@ -94,7 +96,7 @@ final class LocatorTable {
         public final Reference reference;
     }
 
-    private java.util.Map<String, EndpointTableEntry> _adapterEndpointsTable =
-            new java.util.HashMap<>();
-    private java.util.Map<Identity, ReferenceTableEntry> _objectTable = new java.util.HashMap<>();
+    private final Map<String, EndpointTableEntry> _adapterEndpointsTable =
+            new HashMap<>();
+    private final Map<Identity, ReferenceTableEntry> _objectTable = new HashMap<>();
 }

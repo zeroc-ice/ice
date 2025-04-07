@@ -2,14 +2,22 @@
 
 package test.Ice.facets;
 
+import com.zeroc.Ice.AlreadyRegisteredException;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.NotRegisteredException;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Util;
 
 import test.Ice.facets.Test.DPrx;
 import test.Ice.facets.Test.FPrx;
 import test.Ice.facets.Test.GPrx;
 import test.Ice.facets.Test.HPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.Map;
 
 public class AllTests {
     private static void test(boolean b) {
@@ -18,8 +26,8 @@ public class AllTests {
         }
     }
 
-    public static GPrx allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static GPrx allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         out.print("testing Ice.Admin.Facets property... ");
         test(communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets").length == 0);
@@ -33,16 +41,16 @@ public class AllTests {
         communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
         facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         test(
-                facetFilter.length == 3 &&
-                        "foo bar".equals(facetFilter[0]) &&
-                        "toto".equals(facetFilter[1]) &&
-                        "titi".equals(facetFilter[2]));
+                facetFilter.length == 3
+                        && "foo bar".equals(facetFilter[0])
+                        && "toto".equals(facetFilter[1])
+                        && "titi".equals(facetFilter[2]));
         communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
         facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         test(
-                facetFilter.length == 2 &&
-                        "foo bar' toto".equals(facetFilter[0]) &&
-                        "titi".equals(facetFilter[1]));
+                facetFilter.length == 2
+                        && "foo bar' toto".equals(facetFilter[0])
+                        && "titi".equals(facetFilter[1]));
         // communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
         // facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         // test(facetFilter.length == 0);
@@ -51,50 +59,50 @@ public class AllTests {
 
         out.print("testing facet registration exceptions... ");
         final String host =
-                communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0 ?
-                        "::1"
+                communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0
+                        ? "::1"
                         : "127.0.0.1";
         communicator
                 .getProperties()
                 .setProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h \"" + host + "\"");
-        com.zeroc.Ice.ObjectAdapter adapter =
+        ObjectAdapter adapter =
                 communicator.createObjectAdapter("FacetExceptionTestAdapter");
-        com.zeroc.Ice.Object obj = new EmptyI();
-        adapter.add(obj, com.zeroc.Ice.Util.stringToIdentity("d"));
-        adapter.addFacet(obj, com.zeroc.Ice.Util.stringToIdentity("d"), "facetABCD");
+        Object obj = new EmptyI();
+        adapter.add(obj, Util.stringToIdentity("d"));
+        adapter.addFacet(obj, Util.stringToIdentity("d"), "facetABCD");
         try {
-            adapter.addFacet(obj, com.zeroc.Ice.Util.stringToIdentity("d"), "facetABCD");
+            adapter.addFacet(obj, Util.stringToIdentity("d"), "facetABCD");
             test(false);
-        } catch (com.zeroc.Ice.AlreadyRegisteredException ex) {
+        } catch (AlreadyRegisteredException ex) {
         }
-        adapter.removeFacet(com.zeroc.Ice.Util.stringToIdentity("d"), "facetABCD");
+        adapter.removeFacet(Util.stringToIdentity("d"), "facetABCD");
         try {
-            adapter.removeFacet(com.zeroc.Ice.Util.stringToIdentity("d"), "facetABCD");
+            adapter.removeFacet(Util.stringToIdentity("d"), "facetABCD");
             test(false);
-        } catch (com.zeroc.Ice.NotRegisteredException ex) {
+        } catch (NotRegisteredException ex) {
         }
         out.println("ok");
 
         out.print("testing removeAllFacets... ");
-        com.zeroc.Ice.Object obj1 = new EmptyI();
-        com.zeroc.Ice.Object obj2 = new EmptyI();
-        adapter.addFacet(obj1, com.zeroc.Ice.Util.stringToIdentity("id1"), "f1");
-        adapter.addFacet(obj2, com.zeroc.Ice.Util.stringToIdentity("id1"), "f2");
-        com.zeroc.Ice.Object obj3 = new EmptyI();
-        adapter.addFacet(obj1, com.zeroc.Ice.Util.stringToIdentity("id2"), "f1");
-        adapter.addFacet(obj2, com.zeroc.Ice.Util.stringToIdentity("id2"), "f2");
-        adapter.addFacet(obj3, com.zeroc.Ice.Util.stringToIdentity("id2"), "");
-        java.util.Map<String, com.zeroc.Ice.Object> fm =
-                adapter.removeAllFacets(com.zeroc.Ice.Util.stringToIdentity("id1"));
+        Object obj1 = new EmptyI();
+        Object obj2 = new EmptyI();
+        adapter.addFacet(obj1, Util.stringToIdentity("id1"), "f1");
+        adapter.addFacet(obj2, Util.stringToIdentity("id1"), "f2");
+        Object obj3 = new EmptyI();
+        adapter.addFacet(obj1, Util.stringToIdentity("id2"), "f1");
+        adapter.addFacet(obj2, Util.stringToIdentity("id2"), "f2");
+        adapter.addFacet(obj3, Util.stringToIdentity("id2"), "");
+        Map<String, Object> fm =
+                adapter.removeAllFacets(Util.stringToIdentity("id1"));
         test(fm.size() == 2);
         test(fm.get("f1") == obj1);
         test(fm.get("f2") == obj2);
         try {
-            adapter.removeAllFacets(com.zeroc.Ice.Util.stringToIdentity("id1"));
+            adapter.removeAllFacets(Util.stringToIdentity("id1"));
             test(false);
-        } catch (com.zeroc.Ice.NotRegisteredException ex) {
+        } catch (NotRegisteredException ex) {
         }
-        fm = adapter.removeAllFacets(com.zeroc.Ice.Util.stringToIdentity("id2"));
+        fm = adapter.removeAllFacets(Util.stringToIdentity("id2"));
         test(fm.size() == 3);
         test(fm.get("f1") == obj1);
         test(fm.get("f2") == obj2);

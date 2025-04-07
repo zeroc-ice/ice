@@ -57,5 +57,5 @@ class ConnectionFlushBatch extends OutgoingAsyncBase<Void> {
         }
     }
 
-    private ConnectionI _connection;
+    private final ConnectionI _connection;
 }

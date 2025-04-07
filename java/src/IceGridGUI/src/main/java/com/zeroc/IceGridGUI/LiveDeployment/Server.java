@@ -2,10 +2,29 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.UserException;
+import com.zeroc.IceBox.ServiceManagerPrx;
+import com.zeroc.IceBox.ServiceObserver;
+import com.zeroc.IceBox.ServiceObserverPrx;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.Component;
+import java.io.File;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.concurrent.CompletableFuture;
 
 import javax.swing.Icon;
 import javax.swing.JMenu;
@@ -19,7 +38,7 @@ public class Server extends Communicator {
     // Actions
     @Override
     public boolean[] getAvailableActions() {
-        boolean[] actions = new boolean[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
+        boolean[] actions = new boolean[TreeNode.ACTION_COUNT];
 
         if (_state != null) {
             actions[START] =
@@ -66,7 +85,7 @@ public class Server extends Communicator {
                             (result, ex) -> {
                                 amiComplete(prefix, errorTitle, ex);
                             });
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             failure(prefix, errorTitle, ex.toString());
         }
     }
@@ -84,14 +103,14 @@ public class Server extends Communicator {
                                 if (ex == null) {
                                     amiSuccess(prefix);
                                     SwingUtilities.invokeLater(() -> rebuild(Server.this));
-                                } else if (ex instanceof com.zeroc.Ice.UserException) {
+                                } else if (ex instanceof UserException) {
                                     amiFailure(
-                                            prefix, errorTitle, (com.zeroc.Ice.UserException) ex);
+                                            prefix, errorTitle, (UserException) ex);
                                 } else {
                                     amiFailure(prefix, errorTitle, ex.toString());
                                 }
                             });
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             failure(prefix, errorTitle, ex.toString());
         }
     }
@@ -196,12 +215,12 @@ public class Server extends Communicator {
                                     return "Server " +
                                             _id +
                                             " " +
-                                            new java.io.File(fPath).getName();
+                                            new File(fPath).getName();
                                 }
 
                                 @Override
                                 public String getDefaultFilename() {
-                                    return new java.io.File(fPath).getName();
+                                    return new File(fPath).getName();
                                 }
                             });
         }
@@ -219,7 +238,7 @@ public class Server extends Communicator {
                             (result, ex) -> {
                                 amiComplete(prefix, errorTitle, ex);
                             });
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             failure(prefix, errorTitle, ex.toString());
         }
     }
@@ -235,7 +254,7 @@ public class Server extends Communicator {
                             (result, ex) -> {
                                 amiComplete(prefix, errorTitle, ex);
                             });
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             failure(prefix, errorTitle, ex.toString());
         }
     }
@@ -507,8 +526,8 @@ public class Server extends Communicator {
     void rebuild(
             Utils.Resolver resolver,
             boolean variablesChanged,
-            java.util.Set<String> serviceTemplates,
-            java.util.Set<String> serverTemplates) {
+            Set<String> serviceTemplates,
+            Set<String> serverTemplates) {
         if (variablesChanged ||
                 (_instanceDescriptor != null &&
                         serverTemplates != null &&
@@ -587,20 +606,20 @@ public class Server extends Communicator {
                 if (_state == ServerState.Active) {
                     if (_serviceObserver == null) {
                         _serviceObserver =
-                                com.zeroc.IceBox.ServiceObserverPrx.uncheckedCast(
+                                ServiceObserverPrx.uncheckedCast(
                                         getCoordinator()
                                                 .retrieveCallback(_id, "IceBox.ServiceManager"));
 
                         if (_serviceObserver == null) {
-                            com.zeroc.IceBox.ServiceObserver servant =
-                                    new com.zeroc.IceBox.ServiceObserver() {
+                            ServiceObserver servant =
+                                    new ServiceObserver() {
                                         @Override
                                         public void servicesStarted(
                                                 final String[] services,
-                                                com.zeroc.Ice.Current current) {
-                                            final java.util.Set<String> serviceSet =
-                                                    new java.util.HashSet<>(
-                                                            java.util.Arrays.asList(services));
+                                                Current current) {
+                                            final Set<String> serviceSet =
+                                                    new HashSet<>(
+                                                            Arrays.asList(services));
 
                                             SwingUtilities.invokeLater(
                                                     () -> {
@@ -620,10 +639,10 @@ public class Server extends Communicator {
                                         @Override
                                         public void servicesStopped(
                                                 final String[] services,
-                                                com.zeroc.Ice.Current current) {
-                                            final java.util.Set<String> serviceSet =
-                                                    new java.util.HashSet<>(
-                                                            java.util.Arrays.asList(services));
+                                                Current current) {
+                                            final Set<String> serviceSet =
+                                                    new HashSet<>(
+                                                            Arrays.asList(services));
 
                                             SwingUtilities.invokeLater(
                                                     () -> {
@@ -642,7 +661,7 @@ public class Server extends Communicator {
                                     };
 
                             _serviceObserver =
-                                    com.zeroc.IceBox.ServiceObserverPrx.uncheckedCast(
+                                    ServiceObserverPrx.uncheckedCast(
                                             getCoordinator()
                                                     .addCallback(
                                                             servant, _id, "IceBox.ServiceManager"));
@@ -661,7 +680,7 @@ public class Server extends Communicator {
                         // Add observer to service manager using AMI call Note that duplicate
                         // registrations are ignored
 
-                        com.zeroc.IceBox.ServiceManagerPrx serviceManager = getServiceManager();
+                        ServiceManagerPrx serviceManager = getServiceManager();
 
                         if (serviceManager != null) {
                             try {
@@ -669,7 +688,7 @@ public class Server extends Communicator {
                                 // occur if there's an incompatibility between IceGrid nodes &
                                 // registries (it's the case for instance between 3.5 and 3.7).
                                 serviceManager.addObserverAsync(_serviceObserver);
-                            } catch (com.zeroc.Ice.LocalException ex) {
+                            } catch (LocalException ex) {
                                 // Ignore
                             }
                         }
@@ -705,10 +724,10 @@ public class Server extends Communicator {
         return false;
     }
 
-    int updateAdapters(java.util.List<AdapterDynamicInfo> infoList) {
+    int updateAdapters(List<AdapterDynamicInfo> infoList) {
         int result = 0;
         {
-            java.util.Iterator<Adapter> p = _adapters.iterator();
+            Iterator<Adapter> p = _adapters.iterator();
             while (p.hasNext() && result < infoList.size()) {
                 Adapter adapter = p.next();
                 if (adapter.update(infoList)) {
@@ -719,7 +738,7 @@ public class Server extends Communicator {
 
         // Could be in one of the services as well
         {
-            java.util.Iterator<Service> p = _services.iterator();
+            Iterator<Service> p = _services.iterator();
             while (p.hasNext() && result < infoList.size()) {
                 Service service = p.next();
                 result += service.updateAdapters(infoList);
@@ -741,8 +760,8 @@ public class Server extends Communicator {
         }
     }
 
-    java.util.SortedMap<String, String> getProperties() {
-        java.util.List<Utils.ExpandedPropertySet> psList = new java.util.LinkedList<>();
+    SortedMap<String, String> getProperties() {
+        List<Utils.ExpandedPropertySet> psList = new LinkedList<>();
         Node node = (Node) _parent;
 
         psList.add(node.expand(_serverDescriptor.propertySet, _application.name, _resolver));
@@ -762,7 +781,7 @@ public class Server extends Communicator {
         for (AdapterDescriptor p : _serverDescriptor.adapters) {
             String adapterName = Utils.substitute(p.name, _resolver);
             String adapterId = Utils.substitute(p.id, _resolver);
-            com.zeroc.Ice.ObjectPrx proxy = null;
+            ObjectPrx proxy = null;
             if (!adapterId.isEmpty()) {
                 proxy = ((Node) _parent).getProxy(adapterId);
             }
@@ -777,7 +796,7 @@ public class Server extends Communicator {
     private void createServices() {
         if (_serverDescriptor instanceof IceBoxDescriptor) {
             if (_instanceDescriptor != null) {
-                for (java.util.Map.Entry<String, PropertySetDescriptor> p :
+                for (Map.Entry<String, PropertySetDescriptor> p :
                         _instanceDescriptor.servicePropertySets.entrySet()) {
                     _servicePropertySets.put(_resolver.substitute(p.getKey()), p.getValue());
                 }
@@ -838,8 +857,8 @@ public class Server extends Communicator {
     //
 
     @Override
-    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync() {
-        return java.util.concurrent.CompletableFuture.completedFuture(getAdmin());
+    protected CompletableFuture<ObjectPrx> getAdminAsync() {
+        return CompletableFuture.completedFuture(getAdmin());
     }
 
     @Override
@@ -852,19 +871,19 @@ public class Server extends Communicator {
         return _id;
     }
 
-    com.zeroc.Ice.ObjectPrx getAdmin() {
+    ObjectPrx getAdmin() {
         if (_state == ServerState.Active) {
             AdminPrx gridAdmin = getCoordinator().getAdmin();
             if (gridAdmin != null) {
                 return gridAdmin.ice_identity(
-                        new com.zeroc.Ice.Identity(_id, getCoordinator().getServerAdminCategory()));
+                        new Identity(_id, getCoordinator().getServerAdminCategory()));
             }
         }
         return null;
     }
 
-    com.zeroc.IceBox.ServiceManagerPrx getServiceManager() {
-        return com.zeroc.IceBox.ServiceManagerPrx.uncheckedCast(
+    ServiceManagerPrx getServiceManager() {
+        return ServiceManagerPrx.uncheckedCast(
                 getAdminFacet(getAdmin(), "IceBox.ServiceManager"));
     }
 
@@ -882,17 +901,17 @@ public class Server extends Communicator {
     }
 
     private ServerInstanceDescriptor _instanceDescriptor;
-    private java.util.Map<String, PropertySetDescriptor> _servicePropertySets =
-            new java.util.HashMap<>(); // with substituted names!
+    private Map<String, PropertySetDescriptor> _servicePropertySets =
+            new HashMap<>(); // with substituted names!
 
     private ServerDescriptor _serverDescriptor;
     private ApplicationDescriptor _application;
 
     private Utils.Resolver _resolver;
-    private java.util.List<Adapter> _adapters = new java.util.LinkedList<>();
-    private java.util.List<Service> _services = new java.util.LinkedList<>();
+    private List<Adapter> _adapters = new LinkedList<>();
+    private List<Service> _services = new LinkedList<>();
 
-    private java.util.Set<String> _startedServices = new java.util.HashSet<>();
+    private Set<String> _startedServices = new HashSet<>();
 
     private ServerState _state;
     private boolean _enabled;
@@ -900,7 +919,7 @@ public class Server extends Communicator {
     private int _pid;
     private String _toolTip;
 
-    private com.zeroc.IceBox.ServiceObserverPrx _serviceObserver;
+    private ServiceObserverPrx _serviceObserver;
 
     private static DefaultTreeCellRenderer _cellRenderer;
     private static Icon[][][] _icons;

@@ -4,6 +4,9 @@
 
 package android.bluetooth;
 
+import java.io.IOException;
+import java.util.UUID;
+
 public final class BluetoothAdapter {
     public boolean cancelDiscovery() {
         return false;
@@ -34,12 +37,12 @@ public final class BluetoothAdapter {
     }
 
     public BluetoothServerSocket listenUsingInsecureRfcommWithServiceRecord(
-            String name, java.util.UUID uuid) throws java.io.IOException {
+            String name, UUID uuid) throws IOException {
         return null;
     }
 
     public BluetoothServerSocket listenUsingRfcommWithServiceRecord(
-            String name, java.util.UUID uuid) throws java.io.IOException {
+            String name, UUID uuid) throws IOException {
         return null;
     }
 }

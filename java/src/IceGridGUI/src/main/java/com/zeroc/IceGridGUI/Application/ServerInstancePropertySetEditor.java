@@ -51,5 +51,5 @@ class ServerInstancePropertySetEditor extends PropertySetEditor {
         _id.setEnabled(resolver == null);
     }
 
-    private JComboBox _id = new JComboBox();
+    private final JComboBox _id = new JComboBox();
 }

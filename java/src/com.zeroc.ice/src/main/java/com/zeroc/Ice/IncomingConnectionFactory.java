@@ -2,6 +2,12 @@
 
 package com.zeroc.Ice;
 
+import java.nio.channels.SelectableChannel;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 final class IncomingConnectionFactory extends EventHandler implements ConnectionI.StartCallback {
     public synchronized void startAcceptor() {
         if (_state >= StateClosed || _acceptorStarted) {
@@ -12,14 +18,14 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             createAcceptor();
         } catch (Exception ex) {
             String s =
-                    "acceptor creation failed:\n" +
-                            ex.getCause().getMessage() +
-                            '\n' +
-                            _acceptor.toString();
+                    "acceptor creation failed:\n"
+                            + ex.getCause().getMessage()
+                            + '\n'
+                            + _acceptor.toString();
             _instance.initializationData().logger.error(s);
             _instance
                     .timer()
-                    .schedule(() -> startAcceptor(), 1, java.util.concurrent.TimeUnit.SECONDS);
+                    .schedule(() -> startAcceptor(), 1, TimeUnit.SECONDS);
         }
     }
 
@@ -42,7 +48,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
     }
 
     public void waitUntilHolding() throws InterruptedException {
-        java.util.LinkedList<ConnectionI> connections;
+        LinkedList<ConnectionI> connections;
 
         synchronized (this) {
             //
@@ -56,7 +62,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             // We want to wait until all connections are in holding state outside the thread
             // synchronization.
             //
-            connections = new java.util.LinkedList<>(_connections);
+            connections = new LinkedList<>(_connections);
         }
 
         //
@@ -68,7 +74,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
     }
 
     public void waitUntilFinished() throws InterruptedException {
-        java.util.LinkedList<ConnectionI> connections = null;
+        LinkedList<ConnectionI> connections = null;
 
         synchronized (this) {
             //
@@ -88,7 +94,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             // We want to wait until all connections are finished outside the thread
             // synchronization.
             //
-            connections = new java.util.LinkedList<>(_connections);
+            connections = new LinkedList<>(_connections);
         }
 
         for (ConnectionI connection : connections) {
@@ -114,8 +120,8 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
         return _endpoint;
     }
 
-    public synchronized java.util.LinkedList<ConnectionI> connections() {
-        java.util.LinkedList<ConnectionI> connections = new java.util.LinkedList<>();
+    public synchronized LinkedList<ConnectionI> connections() {
+        LinkedList<ConnectionI> connections = new LinkedList<>();
 
         //
         // Only copy connections which have not been destroyed.
@@ -183,7 +189,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                     }
                     try {
                         transceiver.close();
-                    } catch (com.zeroc.Ice.SocketException ex) {
+                    } catch (SocketException ex) {
                         // Ignore
                     }
                     return;
@@ -199,7 +205,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                             .logger
                             .trace(_instance.traceLevels().networkCat, s.toString());
                 }
-            } catch (com.zeroc.Ice.SocketException ex) {
+            } catch (SocketException ex) {
                 if (Network.noMoreFds(ex.getCause())) {
                     try {
                         String s = "can't accept more connections:\n" + ex.getCause().getMessage();
@@ -276,7 +282,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             //
             _instance
                     .timer()
-                    .schedule(() -> startAcceptor(), 1, java.util.concurrent.TimeUnit.SECONDS);
+                    .schedule(() -> startAcceptor(), 1, TimeUnit.SECONDS);
             return;
         }
 
@@ -297,7 +303,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
     }
 
     @Override
-    public java.nio.channels.SelectableChannel fd() {
+    public SelectableChannel fd() {
         assert (_acceptor != null);
         return _acceptor.fd();
     }
@@ -334,8 +340,8 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
 
         // Meaningful only for non-datagram (non-UDP) connections.
         _maxConnections =
-                endpoint.datagram() ?
-                        0
+                endpoint.datagram()
+                        ? 0
                         : instance.initializationData()
                                 .properties
                                 .getPropertyAsInt(adapter.getName() + ".MaxConnections");
@@ -346,8 +352,8 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                 _instance
                                 .initializationData()
                                 .properties
-                                .getIcePropertyAsInt("Ice.Warn.Connections") >
-                        0;
+                                .getIcePropertyAsInt("Ice.Warn.Connections")
+                        > 0;
         _state = StateHolding;
         _acceptorStarted = false;
 
@@ -613,7 +619,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
 
     private final boolean _warn;
 
-    private java.util.Set<ConnectionI> _connections = new java.util.HashSet<>();
+    private final Set<ConnectionI> _connections = new HashSet<>();
 
     private int _state;
     private boolean _acceptorStarted;

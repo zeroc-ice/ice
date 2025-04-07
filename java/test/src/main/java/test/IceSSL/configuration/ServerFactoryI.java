@@ -2,8 +2,20 @@
 
 package test.IceSSL.configuration;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+
 import test.IceSSL.configuration.Test.ServerFactory;
 import test.IceSSL.configuration.Test.ServerPrx;
+
+import java.util.HashMap;
+import java.util.Map;
 
 class ServerFactoryI implements ServerFactory {
     private static void test(boolean b) {
@@ -18,18 +30,18 @@ class ServerFactoryI implements ServerFactory {
 
     @Override
     public ServerPrx createServer(
-            java.util.Map<String, String> props, com.zeroc.Ice.Current current) {
-        com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
-        initData.properties = new com.zeroc.Ice.Properties();
-        for (java.util.Map.Entry<String, String> i : props.entrySet()) {
+            Map<String, String> props, Current current) {
+        InitializationData initData = new InitializationData();
+        initData.properties = new Properties();
+        for (Map.Entry<String, String> i : props.entrySet()) {
             initData.properties.setProperty(i.getKey(), i.getValue());
         }
         initData.properties.setProperty("IceSSL.DefaultDir", _defaultDir);
-        com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(initData);
-        com.zeroc.Ice.ObjectAdapter adapter =
+        Communicator communicator = Util.initialize(initData);
+        ObjectAdapter adapter =
                 communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
         ServerI server = new ServerI(communicator);
-        com.zeroc.Ice.ObjectPrx obj = adapter.addWithUUID(server);
+        ObjectPrx obj = adapter.addWithUUID(server);
         _servers.put(obj.ice_getIdentity(), server);
         adapter.activate();
 
@@ -37,8 +49,8 @@ class ServerFactoryI implements ServerFactory {
     }
 
     @Override
-    public void destroyServer(ServerPrx srv, com.zeroc.Ice.Current current) {
-        com.zeroc.Ice.Identity key = srv.ice_getIdentity();
+    public void destroyServer(ServerPrx srv, Current current) {
+        Identity key = srv.ice_getIdentity();
         if (_servers.containsKey(key)) {
             ServerI server = _servers.get(key);
             server.destroy();
@@ -47,12 +59,12 @@ class ServerFactoryI implements ServerFactory {
     }
 
     @Override
-    public void shutdown(com.zeroc.Ice.Current current) {
+    public void shutdown(Current current) {
         test(_servers.isEmpty());
         current.adapter.getCommunicator().shutdown();
     }
 
-    private String _defaultDir;
-    private java.util.Map<com.zeroc.Ice.Identity, ServerI> _servers =
-            new java.util.HashMap<com.zeroc.Ice.Identity, ServerI>();
+    private final String _defaultDir;
+    private final Map<Identity, ServerI> _servers =
+            new HashMap<Identity, ServerI>();
 }

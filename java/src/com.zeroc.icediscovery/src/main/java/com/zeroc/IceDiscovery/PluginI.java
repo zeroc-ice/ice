@@ -2,16 +2,28 @@
 
 package com.zeroc.IceDiscovery;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.LocatorPrx;
+import com.zeroc.Ice.LocatorRegistryPrx;
 import com.zeroc.Ice.Network;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Plugin;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
 
-class PluginI implements com.zeroc.Ice.Plugin {
-    public PluginI(com.zeroc.Ice.Communicator communicator) {
+import java.util.List;
+import java.util.UUID;
+
+class PluginI implements Plugin {
+    public PluginI(Communicator communicator) {
         _communicator = communicator;
     }
 
     @Override
     public void initialize() {
-        com.zeroc.Ice.Properties properties = _communicator.getProperties();
+        Properties properties = _communicator.getProperties();
 
         boolean ipv4 = properties.getIcePropertyAsInt("Ice.IPv4") > 0;
         boolean preferIPv6 = properties.getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
@@ -34,7 +46,7 @@ class PluginI implements com.zeroc.Ice.Plugin {
         String lookupEndpoints = properties.getIceProperty("IceDiscovery.Lookup");
         if (lookupEndpoints.isEmpty()) {
             int protocol = ipv4 && !preferIPv6 ? Network.EnableIPv4 : Network.EnableIPv6;
-            java.util.List<String> interfaces = Network.getInterfacesForMulticast(intf, protocol);
+            List<String> interfaces = Network.getInterfacesForMulticast(intf, protocol);
             for (String p : interfaces) {
                 if (p != interfaces.get(0)) {
                     lookupEndpoints += ":";
@@ -52,7 +64,7 @@ class PluginI implements com.zeroc.Ice.Plugin {
 
         if (properties.getIceProperty("IceDiscovery.Locator.Endpoints").isEmpty()) {
             properties.setProperty(
-                    "IceDiscovery.Locator.AdapterId", java.util.UUID.randomUUID().toString());
+                    "IceDiscovery.Locator.AdapterId", UUID.randomUUID().toString());
         }
 
         _multicastAdapter = _communicator.createObjectAdapter("IceDiscovery.Multicast");
@@ -61,11 +73,11 @@ class PluginI implements com.zeroc.Ice.Plugin {
 
         // Setup locator registry.
         LocatorRegistryI locatorRegistry = new LocatorRegistryI(_communicator);
-        com.zeroc.Ice.LocatorRegistryPrx locatorRegistryPrx =
-                com.zeroc.Ice.LocatorRegistryPrx.uncheckedCast(
+        LocatorRegistryPrx locatorRegistryPrx =
+                LocatorRegistryPrx.uncheckedCast(
                         _locatorAdapter.addWithUUID(locatorRegistry));
 
-        com.zeroc.Ice.ObjectPrx lookupPrx =
+        ObjectPrx lookupPrx =
                 _communicator.stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
         // No collocation optimization for the multicast proxy!
         lookupPrx = lookupPrx.ice_collocationOptimized(false).ice_router(null);
@@ -73,18 +85,18 @@ class PluginI implements com.zeroc.Ice.Plugin {
         // Add lookup and lookup reply Ice objects
         LookupI lookup =
                 new LookupI(locatorRegistry, LookupPrx.uncheckedCast(lookupPrx), properties);
-        _multicastAdapter.add(lookup, com.zeroc.Ice.Util.stringToIdentity("IceDiscovery/Lookup"));
+        _multicastAdapter.add(lookup, Util.stringToIdentity("IceDiscovery/Lookup"));
 
         _replyAdapter.addDefaultServant(new LookupReplyI(lookup), "");
-        final com.zeroc.Ice.Identity id = new com.zeroc.Ice.Identity("dummy", "");
+        final Identity id = new Identity("dummy", "");
         lookup.setLookupReply(
                 LookupReplyPrx.uncheckedCast(_replyAdapter.createProxy(id).ice_datagram()));
 
         // Setup locator on the communicator.
-        com.zeroc.Ice.ObjectPrx locator =
+        ObjectPrx locator =
                 _locatorAdapter.addWithUUID(new LocatorI(lookup, locatorRegistryPrx));
         _defaultLocator = _communicator.getDefaultLocator();
-        _locator = com.zeroc.Ice.LocatorPrx.uncheckedCast(locator);
+        _locator = LocatorPrx.uncheckedCast(locator);
         _communicator.setDefaultLocator(_locator);
 
         _multicastAdapter.activate();
@@ -109,10 +121,10 @@ class PluginI implements com.zeroc.Ice.Plugin {
         }
     }
 
-    private com.zeroc.Ice.Communicator _communicator;
-    private com.zeroc.Ice.ObjectAdapter _multicastAdapter;
-    private com.zeroc.Ice.ObjectAdapter _replyAdapter;
-    private com.zeroc.Ice.ObjectAdapter _locatorAdapter;
-    private com.zeroc.Ice.LocatorPrx _locator;
-    private com.zeroc.Ice.LocatorPrx _defaultLocator;
+    private final Communicator _communicator;
+    private ObjectAdapter _multicastAdapter;
+    private ObjectAdapter _replyAdapter;
+    private ObjectAdapter _locatorAdapter;
+    private LocatorPrx _locator;
+    private LocatorPrx _defaultLocator;
 }

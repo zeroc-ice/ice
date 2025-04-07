@@ -2,10 +2,14 @@
 
 package com.zeroc.Ice.IceMX;
 
+import com.zeroc.Ice.MetricsAdminI;
 import com.zeroc.Ice.MetricsMap;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ObserverFactory<T extends Metrics, O extends Observer<T>> {
-    public ObserverFactory(com.zeroc.Ice.MetricsAdminI metrics, String name, Class<T> cl) {
+    public ObserverFactory(MetricsAdminI metrics, String name, Class<T> cl) {
         _metrics = metrics;
         _name = name;
         _class = cl;
@@ -34,12 +38,12 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>> {
             old = (O) observer;
         } catch (ClassCastException ex) {
         }
-        java.util.List<MetricsMap<T>.Entry> metricsObjects = null;
+        List<MetricsMap<T>.Entry> metricsObjects = null;
         for (MetricsMap<T> m : _maps) {
             MetricsMap<T>.Entry e = m.getMatching(helper, old != null ? old.getEntry(m) : null);
             if (e != null) {
                 if (metricsObjects == null) {
-                    metricsObjects = new java.util.ArrayList<>(_maps.size());
+                    metricsObjects = new ArrayList<>(_maps.size());
                 }
                 metricsObjects.add(e);
             }
@@ -63,7 +67,7 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>> {
         return obsv;
     }
 
-    public <S extends com.zeroc.Ice.IceMX.Metrics> void registerSubMap(
+    public <S extends Metrics> void registerSubMap(
             String subMap, Class<S> cl, java.lang.reflect.Field field) {
         _metrics.registerSubMap(_name, subMap, cl, field);
     }
@@ -92,10 +96,10 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>> {
         _updater = updater;
     }
 
-    private final com.zeroc.Ice.MetricsAdminI _metrics;
+    private final MetricsAdminI _metrics;
     private final String _name;
     private final Class<T> _class;
-    private java.util.List<MetricsMap<T>> _maps = new java.util.ArrayList<>();
+    private final List<MetricsMap<T>> _maps = new ArrayList<>();
     private volatile boolean _enabled;
     private Runnable _updater;
 }

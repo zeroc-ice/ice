@@ -2,22 +2,18 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.IceMX.ConnectionMetrics;
-import com.zeroc.Ice.IceMX.DispatchMetrics;
-import com.zeroc.Ice.IceMX.InvocationMetrics;
-import com.zeroc.Ice.IceMX.Metrics;
-import com.zeroc.Ice.IceMX.MetricsHelper;
-import com.zeroc.Ice.IceMX.ObserverFactoryWithDelegate;
-import com.zeroc.Ice.IceMX.ObserverWithDelegateI;
-import com.zeroc.Ice.IceMX.ThreadMetrics;
+import com.zeroc.Ice.IceMX.*;
 import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.Instrumentation.ConnectionObserver;
 import com.zeroc.Ice.Instrumentation.ConnectionState;
 import com.zeroc.Ice.Instrumentation.DispatchObserver;
 import com.zeroc.Ice.Instrumentation.InvocationObserver;
 import com.zeroc.Ice.Instrumentation.Observer;
+import com.zeroc.Ice.Instrumentation.ObserverUpdater;
 import com.zeroc.Ice.Instrumentation.ThreadObserver;
 import com.zeroc.Ice.Instrumentation.ThreadState;
+
+import java.util.Map;
 
 /**
  * @hidden Public because it's used by IceMX (via reflection).
@@ -351,7 +347,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                     }
                 };
 
-        InvocationHelper(ObjectPrx proxy, String op, java.util.Map<String, String> ctx) {
+        InvocationHelper(ObjectPrx proxy, String op, Map<String, String> ctx) {
             super(_attributes);
             _proxy = proxy;
             _operation = op;
@@ -438,7 +434,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
 
         private final ObjectPrx _proxy;
         private final String _operation;
-        private final java.util.Map<String, String> _context;
+        private final Map<String, String> _context;
         private String _id;
 
         private static final Endpoint[] emptyEndpoints = new Endpoint[0];
@@ -568,11 +564,11 @@ public class CommunicatorObserverI implements CommunicatorObserver {
         try {
             _invocations.registerSubMap(
                     "Remote",
-                    com.zeroc.Ice.IceMX.RemoteMetrics.class,
+                    RemoteMetrics.class,
                     InvocationMetrics.class.getDeclaredField("remotes"));
             _invocations.registerSubMap(
                     "Collocated",
-                    com.zeroc.Ice.IceMX.CollocatedMetrics.class,
+                    CollocatedMetrics.class,
                     InvocationMetrics.class.getDeclaredField("collocated"));
         } catch (Exception ex) {
             assert false;
@@ -594,8 +590,8 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             } catch (Exception ex) {
                 _metrics.getLogger()
                         .error(
-                                "unexpected exception trying to obtain observer:\n" +
-                                        Ex.toString(ex));
+                                "unexpected exception trying to obtain observer:\n"
+                                        + Ex.toString(ex));
             }
         }
         return null;
@@ -614,8 +610,8 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             } catch (Exception ex) {
                 _metrics.getLogger()
                         .error(
-                                "unexpected exception trying to obtain observer:\n" +
-                                        Ex.toString(ex));
+                                "unexpected exception trying to obtain observer:\n"
+                                        + Ex.toString(ex));
             }
         }
         return null;
@@ -628,8 +624,8 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             try {
                 ConnectionObserver delegate = null;
                 ConnectionObserverI o =
-                        observer instanceof ConnectionObserverI ?
-                                (ConnectionObserverI) observer
+                        observer instanceof ConnectionObserverI
+                                ? (ConnectionObserverI) observer
                                 : null;
                 if (_delegate != null) {
                     delegate =
@@ -641,8 +637,8 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             } catch (Exception ex) {
                 _metrics.getLogger()
                         .error(
-                                "unexpected exception trying to obtain observer:\n" +
-                                        Ex.toString(ex));
+                                "unexpected exception trying to obtain observer:\n"
+                                        + Ex.toString(ex));
             }
         }
         return null;
@@ -666,8 +662,8 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             } catch (Exception ex) {
                 _metrics.getLogger()
                         .error(
-                                "unexpected exception trying to obtain observer:\n" +
-                                        Ex.toString(ex));
+                                "unexpected exception trying to obtain observer:\n"
+                                        + Ex.toString(ex));
             }
         }
         return null;
@@ -677,7 +673,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
     public InvocationObserver getInvocationObserver(
             ObjectPrx prx,
             String operation,
-            java.util.Map<java.lang.String, java.lang.String> ctx) {
+            Map<String, String> ctx) {
         if (_invocations.isEnabled()) {
             try {
                 InvocationObserver delegate = null;
@@ -691,8 +687,8 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             } catch (Exception ex) {
                 _metrics.getLogger()
                         .error(
-                                "unexpected exception trying to obtain observer:\n" +
-                                        Ex.toString(ex));
+                                "unexpected exception trying to obtain observer:\n"
+                                        + Ex.toString(ex));
             }
         }
         return null;
@@ -711,15 +707,15 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             } catch (Exception ex) {
                 _metrics.getLogger()
                         .error(
-                                "unexpected exception trying to obtain observer:\n" +
-                                        Ex.toString(ex));
+                                "unexpected exception trying to obtain observer:\n"
+                                        + Ex.toString(ex));
             }
         }
         return null;
     }
 
     @Override
-    public void setObserverUpdater(final com.zeroc.Ice.Instrumentation.ObserverUpdater updater) {
+    public void setObserverUpdater(final ObserverUpdater updater) {
         if (updater == null) {
             _connections.setUpdater(null);
             _threads.setUpdater(null);

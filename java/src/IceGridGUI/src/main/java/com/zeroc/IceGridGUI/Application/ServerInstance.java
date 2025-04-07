@@ -6,6 +6,8 @@ import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.util.*;
 
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
@@ -32,10 +34,10 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
         actions[COPY] = !_ephemeral;
 
         Object clipboard = getCoordinator().getClipboard();
-        if (clipboard != null &&
-                (clipboard instanceof ServerDescriptor ||
-                        clipboard instanceof ServerInstanceDescriptor ||
-                        (_isIceBox && clipboard instanceof PropertySetDescriptor))) {
+        if (clipboard != null
+                && (clipboard instanceof ServerDescriptor
+                        || clipboard instanceof ServerInstanceDescriptor
+                        || (_isIceBox && clipboard instanceof PropertySetDescriptor))) {
             actions[PASTE] = true;
         }
 
@@ -75,7 +77,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
     public void newPropertySet() {
         newPropertySet(
                 new PropertySetDescriptor(
-                        new String[0], new java.util.LinkedList<PropertyDescriptor>()));
+                        new String[0], new LinkedList<PropertyDescriptor>()));
     }
 
     @Override
@@ -190,19 +192,19 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
     }
 
     @Override
-    void write(XMLWriter writer) throws java.io.IOException {
+    void write(XMLWriter writer) throws IOException {
         if (!_ephemeral) {
             TemplateDescriptor templateDescriptor =
                     getRoot().findServerTemplateDescriptor(_descriptor.template);
 
-            java.util.LinkedList<String[]> attributes =
+            LinkedList<String[]> attributes =
                     parameterValuesToAttributes(
                             _descriptor.parameterValues, templateDescriptor.parameters);
             attributes.addFirst(createAttribute("template", _descriptor.template));
 
-            if (_descriptor.propertySet.references.length == 0 &&
-                    _descriptor.propertySet.properties.isEmpty() &&
-                    _children.isEmpty()) {
+            if (_descriptor.propertySet.references.length == 0
+                    && _descriptor.propertySet.properties.isEmpty()
+                    && _children.isEmpty()) {
                 writer.writeElement("server-instance", attributes);
             } else {
                 writer.writeStartTag("server-instance", attributes);
@@ -236,18 +238,18 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
         }
 
         Editable nodeEditable;
-        java.util.Map<String, String> parameterValues;
+        Map<String, String> parameterValues;
     }
 
     @Override
-    public Object rebuild(java.util.List<Editable> editables) throws UpdateFailedException {
+    public Object rebuild(List<Editable> editables) throws UpdateFailedException {
         Node node = (Node) _parent;
         Backup backup = new Backup(node.getEditable().save());
 
         TemplateDescriptor templateDescriptor =
                 getRoot().findServerTemplateDescriptor(_descriptor.template);
 
-        java.util.Set<String> parameters = new java.util.HashSet<>(templateDescriptor.parameters);
+        Set<String> parameters = new HashSet<>(templateDescriptor.parameters);
         if (!parameters.equals(_descriptor.parameterValues.keySet())) {
             backup.parameterValues = _descriptor.parameterValues;
             _descriptor.parameterValues =
@@ -386,7 +388,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
         String[] result = new String[services.size()];
         int i = 0;
 
-        java.util.Iterator p = services.iterator();
+        Iterator p = services.iterator();
         while (p.hasNext()) {
             TreeNode n = (TreeNode) p.next();
             ServiceInstanceDescriptor d = (ServiceInstanceDescriptor) n.getDescriptor();
@@ -420,7 +422,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
 
         _children.clear();
 
-        for (java.util.Map.Entry<String, PropertySetDescriptor> p :
+        for (Map.Entry<String, PropertySetDescriptor> p :
                 _descriptor.servicePropertySets.entrySet()) {
             String unsubstitutedId = p.getKey();
             insertPropertySet(

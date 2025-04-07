@@ -2,7 +2,13 @@
 
 package test.Ice.operations;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectNotExistException;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+
 import test.Ice.operations.Test.*;
+import test.TestHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,11 +51,11 @@ class TwowaysAMI {
         private boolean _called;
     }
 
-    static void twowaysAMI(test.TestHelper helper, MyClassPrx p) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    static void twowaysAMI(TestHelper helper, MyClassPrx p) {
+        Communicator communicator = helper.communicator();
         final boolean bluetooth =
-                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt") ==
-                        0;
+                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
+                        == 0;
 
         {
             Callback cb = new Callback();
@@ -204,32 +210,32 @@ class TwowaysAMI {
                                         result.p2
                                                 .ice_getIdentity()
                                                 .equals(
-                                                        com.zeroc.Ice.Util.stringToIdentity(
+                                                        Util.stringToIdentity(
                                                                 "test")));
                                 test(
                                         result.p3
                                                 .ice_getIdentity()
                                                 .equals(
-                                                        com.zeroc.Ice.Util.stringToIdentity(
+                                                        Util.stringToIdentity(
                                                                 "noSuchIdentity")));
                                 test(
                                         result.returnValue
                                                 .ice_getIdentity()
                                                 .equals(
-                                                        com.zeroc.Ice.Util.stringToIdentity(
+                                                        Util.stringToIdentity(
                                                                 "test")));
                                 // We can't do the callbacks below in connection serialization mode.
                                 if (communicator
                                                 .getProperties()
                                                 .getIcePropertyAsInt(
-                                                        "Ice.ThreadPool.Client.Serialize") ==
-                                        0) {
+                                                        "Ice.ThreadPool.Client.Serialize")
+                                        == 0) {
                                     result.returnValue.opVoid();
                                     result.p2.opVoid();
                                     try {
                                         result.p3.opVoid();
                                         test(false);
-                                    } catch (com.zeroc.Ice.ObjectNotExistException e) {
+                                    } catch (ObjectNotExistException e) {
                                     }
                                 }
                                 cb.called();
@@ -263,8 +269,8 @@ class TwowaysAMI {
                                 if (communicator
                                                 .getProperties()
                                                 .getIcePropertyAsInt(
-                                                        "Ice.ThreadPool.Client.Serialize") ==
-                                        0) {
+                                                        "Ice.ThreadPool.Client.Serialize")
+                                        == 0) {
                                     result.p3.p.opVoid();
                                 }
                                 cb.called();
@@ -654,10 +660,10 @@ class TwowaysAMI {
         }
 
         {
-            java.util.Map<Byte, Boolean> di1 = new java.util.HashMap<>();
+            Map<Byte, Boolean> di1 = new HashMap<>();
             di1.put((byte) 10, Boolean.TRUE);
             di1.put((byte) 100, Boolean.FALSE);
-            java.util.Map<Byte, Boolean> di2 = new java.util.HashMap<>();
+            Map<Byte, Boolean> di2 = new HashMap<>();
             di2.put((byte) 10, Boolean.TRUE);
             di2.put((byte) 11, Boolean.FALSE);
             di2.put((byte) 101, Boolean.TRUE);
@@ -679,10 +685,10 @@ class TwowaysAMI {
         }
 
         {
-            java.util.Map<Short, Integer> di1 = new java.util.HashMap<>();
+            Map<Short, Integer> di1 = new HashMap<>();
             di1.put((short) 110, -1);
             di1.put((short) 1100, 123123);
-            java.util.Map<Short, Integer> di2 = new java.util.HashMap<>();
+            Map<Short, Integer> di2 = new HashMap<>();
             di2.put((short) 110, -1);
             di2.put((short) 111, -100);
             di2.put((short) 1101, 0);
@@ -704,10 +710,10 @@ class TwowaysAMI {
         }
 
         {
-            java.util.Map<Long, Float> di1 = new java.util.HashMap<>();
+            Map<Long, Float> di1 = new HashMap<>();
             di1.put(999999110L, -1.1f);
             di1.put(999999111L, 123123.2f);
-            java.util.Map<Long, Float> di2 = new java.util.HashMap<>();
+            Map<Long, Float> di2 = new HashMap<>();
             di2.put(999999110L, -1.1f);
             di2.put(999999120L, -100.4f);
             di2.put(999999130L, 0.5f);
@@ -729,10 +735,10 @@ class TwowaysAMI {
         }
 
         {
-            java.util.Map<String, String> di1 = new java.util.HashMap<>();
+            Map<String, String> di1 = new HashMap<>();
             di1.put("foo", "abc -1.1");
             di1.put("bar", "abc 123123.2");
-            java.util.Map<String, String> di2 = new java.util.HashMap<>();
+            Map<String, String> di2 = new HashMap<>();
             di2.put("foo", "abc -1.1");
             di2.put("FOO", "abc -100.4");
             di2.put("BAR", "abc 0.5");
@@ -754,10 +760,10 @@ class TwowaysAMI {
         }
 
         {
-            java.util.Map<String, MyEnum> di1 = new java.util.HashMap<>();
+            Map<String, MyEnum> di1 = new HashMap<>();
             di1.put("abc", MyEnum.enum1);
             di1.put("", MyEnum.enum2);
-            java.util.Map<String, MyEnum> di2 = new java.util.HashMap<>();
+            Map<String, MyEnum> di2 = new HashMap<>();
             di2.put("abc", MyEnum.enum1);
             di2.put("qwerty", MyEnum.enum3);
             di2.put("Hello!!", MyEnum.enum2);
@@ -779,9 +785,9 @@ class TwowaysAMI {
         }
 
         {
-            java.util.Map<MyEnum, String> di1 = new java.util.HashMap<>();
+            Map<MyEnum, String> di1 = new HashMap<>();
             di1.put(MyEnum.enum1, "abc");
-            java.util.Map<MyEnum, String> di2 = new java.util.HashMap<>();
+            Map<MyEnum, String> di2 = new HashMap<>();
             di2.put(MyEnum.enum2, "Hello!!");
             di2.put(MyEnum.enum3, "qwerty");
 
@@ -803,12 +809,12 @@ class TwowaysAMI {
         {
             MyStruct s11 = new MyStruct(1, 1);
             MyStruct s12 = new MyStruct(1, 2);
-            java.util.Map<MyStruct, MyEnum> di1 = new java.util.HashMap<>();
+            Map<MyStruct, MyEnum> di1 = new HashMap<>();
             di1.put(s11, MyEnum.enum1);
             di1.put(s12, MyEnum.enum2);
             MyStruct s22 = new MyStruct(2, 2);
             MyStruct s23 = new MyStruct(2, 3);
-            java.util.Map<MyStruct, MyEnum> di2 = new java.util.HashMap<>();
+            Map<MyStruct, MyEnum> di2 = new HashMap<>();
             di2.put(s11, MyEnum.enum1);
             di2.put(s22, MyEnum.enum3);
             di2.put(s23, MyEnum.enum2);
@@ -976,14 +982,14 @@ class TwowaysAMI {
             List<Map<String, String>> dsi1 = new ArrayList<>();
             List<Map<String, String>> dsi2 = new ArrayList<>();
 
-            java.util.Map<String, String> di1 = new HashMap<>();
+            Map<String, String> di1 = new HashMap<>();
             di1.put("foo", "abc -1.1");
             di1.put("bar", "abc 123123.2");
-            java.util.Map<String, String> di2 = new HashMap<>();
+            Map<String, String> di2 = new HashMap<>();
             di2.put("foo", "abc -1.1");
             di2.put("FOO", "abc -100.4");
             di2.put("BAR", "abc 0.5");
-            java.util.Map<String, String> di3 = new HashMap<>();
+            Map<String, String> di3 = new HashMap<>();
             di3.put("f00", "ABC -3.14");
 
             dsi1.add(di1);
@@ -1023,14 +1029,14 @@ class TwowaysAMI {
             List<Map<String, MyEnum>> dsi1 = new ArrayList<>();
             List<Map<String, MyEnum>> dsi2 = new ArrayList<>();
 
-            java.util.Map<String, MyEnum> di1 = new HashMap<>();
+            Map<String, MyEnum> di1 = new HashMap<>();
             di1.put("abc", MyEnum.enum1);
             di1.put("", MyEnum.enum2);
-            java.util.Map<String, MyEnum> di2 = new HashMap<>();
+            Map<String, MyEnum> di2 = new HashMap<>();
             di2.put("abc", MyEnum.enum1);
             di2.put("qwerty", MyEnum.enum3);
             di2.put("Hello!!", MyEnum.enum2);
-            java.util.Map<String, MyEnum> di3 = new HashMap<>();
+            Map<String, MyEnum> di3 = new HashMap<>();
             di3.put("Goodbye", MyEnum.enum1);
 
             dsi1.add(di1);
@@ -1070,12 +1076,12 @@ class TwowaysAMI {
             List<Map<MyEnum, String>> dsi1 = new ArrayList<>();
             List<Map<MyEnum, String>> dsi2 = new ArrayList<>();
 
-            java.util.Map<MyEnum, String> di1 = new HashMap<>();
+            Map<MyEnum, String> di1 = new HashMap<>();
             di1.put(MyEnum.enum1, "abc");
-            java.util.Map<MyEnum, String> di2 = new HashMap<>();
+            Map<MyEnum, String> di2 = new HashMap<>();
             di2.put(MyEnum.enum2, "Hello!!");
             di2.put(MyEnum.enum3, "qwerty");
-            java.util.Map<MyEnum, String> di3 = new HashMap<>();
+            Map<MyEnum, String> di3 = new HashMap<>();
             di3.put(MyEnum.enum1, "Goodbye");
 
             dsi1.add(di1);
@@ -1113,18 +1119,18 @@ class TwowaysAMI {
 
             MyStruct s11 = new MyStruct(1, 1);
             MyStruct s12 = new MyStruct(1, 2);
-            java.util.Map<MyStruct, MyEnum> di1 = new HashMap<>();
+            Map<MyStruct, MyEnum> di1 = new HashMap<>();
             di1.put(s11, MyEnum.enum1);
             di1.put(s12, MyEnum.enum2);
 
             MyStruct s22 = new MyStruct(2, 2);
             MyStruct s23 = new MyStruct(2, 3);
-            java.util.Map<MyStruct, MyEnum> di2 = new HashMap<>();
+            Map<MyStruct, MyEnum> di2 = new HashMap<>();
             di2.put(s11, MyEnum.enum1);
             di2.put(s22, MyEnum.enum3);
             di2.put(s23, MyEnum.enum2);
 
-            java.util.Map<MyStruct, MyEnum> di3 = new HashMap<>();
+            Map<MyStruct, MyEnum> di3 = new HashMap<>();
             di3.put(s23, MyEnum.enum3);
 
             dsi1.add(di1);
@@ -1161,8 +1167,8 @@ class TwowaysAMI {
         }
 
         {
-            java.util.Map<Byte, byte[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<Byte, byte[]> sdi2 = new java.util.HashMap<>();
+            Map<Byte, byte[]> sdi1 = new HashMap<>();
+            Map<Byte, byte[]> sdi2 = new HashMap<>();
 
             final byte[] si1 = {(byte) 0x01, (byte) 0x11};
             final byte[] si2 = {(byte) 0x12};
@@ -1196,8 +1202,8 @@ class TwowaysAMI {
         }
 
         {
-            java.util.Map<Boolean, boolean[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<Boolean, boolean[]> sdi2 = new java.util.HashMap<>();
+            Map<Boolean, boolean[]> sdi1 = new HashMap<>();
+            Map<Boolean, boolean[]> sdi2 = new HashMap<>();
 
             final boolean[] si1 = {true, false};
             final boolean[] si2 = {false, true, true};
@@ -1229,8 +1235,8 @@ class TwowaysAMI {
         }
 
         {
-            java.util.Map<Short, short[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<Short, short[]> sdi2 = new java.util.HashMap<>();
+            Map<Short, short[]> sdi1 = new HashMap<>();
+            Map<Short, short[]> sdi2 = new HashMap<>();
 
             final short[] si1 = {1, 2, 3};
             final short[] si2 = {4, 5};
@@ -1266,8 +1272,8 @@ class TwowaysAMI {
         }
 
         {
-            java.util.Map<Integer, int[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<Integer, int[]> sdi2 = new java.util.HashMap<>();
+            Map<Integer, int[]> sdi1 = new HashMap<>();
+            Map<Integer, int[]> sdi2 = new HashMap<>();
 
             final int[] si1 = {100, 200, 300};
             final int[] si2 = {400, 500};
@@ -1303,8 +1309,8 @@ class TwowaysAMI {
         }
 
         {
-            java.util.Map<Long, long[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<Long, long[]> sdi2 = new java.util.HashMap<>();
+            Map<Long, long[]> sdi1 = new HashMap<>();
+            Map<Long, long[]> sdi2 = new HashMap<>();
 
             final long[] si1 = {999999110L, 999999111L, 999999110L};
             final long[] si2 = {999999120L, 999999130L};
@@ -1340,8 +1346,8 @@ class TwowaysAMI {
         }
 
         {
-            java.util.Map<String, float[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<String, float[]> sdi2 = new java.util.HashMap<>();
+            Map<String, float[]> sdi1 = new HashMap<>();
+            Map<String, float[]> sdi2 = new HashMap<>();
 
             final float[] si1 = {-1.1f, 123123.2f, 100.0f};
             final float[] si2 = {42.24f, -1.61f};
@@ -1377,8 +1383,8 @@ class TwowaysAMI {
         }
 
         {
-            java.util.Map<String, double[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<String, double[]> sdi2 = new java.util.HashMap<>();
+            Map<String, double[]> sdi1 = new HashMap<>();
+            Map<String, double[]> sdi2 = new HashMap<>();
 
             double[] si1 = new double[]{1.1E10, 1.2E10, 1.3E10};
             double[] si2 = new double[]{1.4E10, 1.5E10};
@@ -1414,8 +1420,8 @@ class TwowaysAMI {
         }
 
         {
-            java.util.Map<String, String[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<String, String[]> sdi2 = new java.util.HashMap<>();
+            Map<String, String[]> sdi1 = new HashMap<>();
+            Map<String, String[]> sdi2 = new HashMap<>();
 
             String[] si1 = new String[]{"abc", "de", "fghi"};
             String[] si2 = new String[]{"xyz", "or"};
@@ -1451,8 +1457,8 @@ class TwowaysAMI {
         }
 
         {
-            java.util.Map<MyEnum, MyEnum[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<MyEnum, MyEnum[]> sdi2 = new java.util.HashMap<>();
+            Map<MyEnum, MyEnum[]> sdi1 = new HashMap<>();
+            Map<MyEnum, MyEnum[]> sdi2 = new HashMap<>();
 
             final MyEnum[] si1 = new MyEnum[]{MyEnum.enum1, MyEnum.enum1, MyEnum.enum2};
             final MyEnum[] si2 = new MyEnum[]{MyEnum.enum1, MyEnum.enum2};
@@ -1511,28 +1517,28 @@ class TwowaysAMI {
         }
 
         {
-            java.util.Map<String, String> ctx = new java.util.HashMap<>();
+            Map<String, String> ctx = new HashMap<>();
             ctx.put("one", "ONE");
             ctx.put("two", "TWO");
             ctx.put("three", "THREE");
             {
                 test(p.ice_getContext().isEmpty());
-                java.util.Map<String, String> c = p.opContextAsync().join();
+                Map<String, String> c = p.opContextAsync().join();
                 test(!c.equals(ctx));
             }
             {
                 test(p.ice_getContext().isEmpty());
-                java.util.Map<String, String> c = p.opContextAsync(ctx).join();
+                Map<String, String> c = p.opContextAsync(ctx).join();
                 test(c.equals(ctx));
             }
             MyClassPrx p2 = MyClassPrx.checkedCast(p.ice_context(ctx));
             test(p2.ice_getContext().equals(ctx));
             {
-                java.util.Map<String, String> c = p2.opContextAsync().join();
+                Map<String, String> c = p2.opContextAsync().join();
                 test(c.equals(ctx));
             }
             {
-                java.util.Map<String, String> c = p2.opContextAsync(ctx).join();
+                Map<String, String> c = p2.opContextAsync(ctx).join();
                 test(c.equals(ctx));
             }
         }
@@ -1544,11 +1550,11 @@ class TwowaysAMI {
 
             String[] impls = {"Shared", "PerThread"};
             for (int i = 0; i < 2; i++) {
-                com.zeroc.Ice.Properties properties = communicator.getProperties()._clone();
+                Properties properties = communicator.getProperties()._clone();
                 properties.setProperty("Ice.ImplicitContext", impls[i]);
 
-                try (com.zeroc.Ice.Communicator ic = helper.initialize(properties)) {
-                    java.util.Map<String, String> ctx = new java.util.HashMap<>();
+                try (Communicator ic = helper.initialize(properties)) {
+                    Map<String, String> ctx = new HashMap<>();
                     ctx.put("one", "ONE");
                     ctx.put("two", "TWO");
                     ctx.put("three", "THREE");
@@ -1560,7 +1566,7 @@ class TwowaysAMI {
                     ic.getImplicitContext().setContext(ctx);
                     test(ic.getImplicitContext().getContext().equals(ctx));
                     {
-                        java.util.Map<String, String> c = p3.opContextAsync().join();
+                        Map<String, String> c = p3.opContextAsync().join();
                         test(c.equals(ctx));
                     }
 
@@ -1568,15 +1574,15 @@ class TwowaysAMI {
 
                     ctx = ic.getImplicitContext().getContext();
                     {
-                        java.util.Map<String, String> c = p3.opContextAsync().join();
+                        Map<String, String> c = p3.opContextAsync().join();
                         test(c.equals(ctx));
                     }
 
-                    java.util.Map<String, String> prxContext = new java.util.HashMap<>();
+                    Map<String, String> prxContext = new HashMap<>();
                     prxContext.put("one", "UN");
                     prxContext.put("four", "QUATRE");
 
-                    java.util.Map<String, String> combined = new java.util.HashMap<>(ctx);
+                    Map<String, String> combined = new HashMap<>(ctx);
                     combined.putAll(prxContext);
                     test("UN".equals(combined.get("one")));
 
@@ -1584,13 +1590,13 @@ class TwowaysAMI {
 
                     ic.getImplicitContext().setContext(null);
                     {
-                        java.util.Map<String, String> c = p3.opContextAsync().join();
+                        Map<String, String> c = p3.opContextAsync().join();
                         test(c.equals(prxContext));
                     }
 
                     ic.getImplicitContext().setContext(ctx);
                     {
-                        java.util.Map<String, String> c = p3.opContextAsync().join();
+                        Map<String, String> c = p3.opContextAsync().join();
                         test(c.equals(combined));
                     }
                 }

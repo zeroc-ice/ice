@@ -6,7 +6,9 @@ import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.PropertyException;
 import com.zeroc.Ice.Util;
 
-public class Client extends test.TestHelper {
+import test.TestHelper;
+
+public class Client extends TestHelper {
     public static void test(boolean b) {
         if (!b) {
             throw new RuntimeException();
@@ -137,8 +139,8 @@ public class Client extends test.TestHelper {
                 var properties = communicator.getProperties();
 
                 System.out.print(
-                        "testing that creating an object adapter with unknown properties throws an" +
-                                " exception...");
+                        "testing that creating an object adapter with unknown properties throws an"
+                                + " exception...");
                 properties.setProperty("FooOA.Endpoints", "tcp -h 127.0.0.1");
                 properties.setProperty("FooOA.UnknownProperty", "bar");
                 try {
@@ -149,8 +151,8 @@ public class Client extends test.TestHelper {
                 System.out.println("ok");
 
                 System.out.print(
-                        "testing that creating a proxy with unknown properties throws an" +
-                                " exception...");
+                        "testing that creating a proxy with unknown properties throws an"
+                                + " exception...");
                 properties.setProperty("FooProxy", "test:tcp -h 127.0.0.1 -p 10000");
                 properties.setProperty("FooProxy.UnknownProperty", "bar");
                 try {
@@ -161,8 +163,8 @@ public class Client extends test.TestHelper {
                 System.out.println("ok");
 
                 System.out.print(
-                        "testing that setting a property in an opt-in prefix that is not configured" +
-                                " throws an exception...");
+                        "testing that setting a property in an opt-in prefix that is not configured"
+                                + " throws an exception...");
                 System.out.flush();
                 try {
                     properties.setProperty("IceGrid.InstanceName", "TestGrid");
@@ -175,8 +177,8 @@ public class Client extends test.TestHelper {
 
         {
             System.out.print(
-                    "testing that passing a property multiple times on the command line uses the" +
-                            " last value... ");
+                    "testing that passing a property multiple times on the command line uses the"
+                            + " last value... ");
             System.out.flush();
             String[] commandLineArgs = {"--Ice.MessageSizeMax=10", "--Ice.MessageSizeMax=20"};
             Properties properties = new Properties(commandLineArgs);

@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.util.ArrayList;
+
 final class TcpEndpointFactory implements EndpointFactory {
     TcpEndpointFactory(ProtocolInstance instance) {
         _instance = instance;
@@ -18,7 +20,7 @@ final class TcpEndpointFactory implements EndpointFactory {
     }
 
     @Override
-    public EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint) {
+    public EndpointI create(ArrayList<String> args, boolean oaEndpoint) {
         IPEndpointI endpt = new TcpEndpointI(_instance);
         endpt.initWithOptions(args, oaEndpoint);
         return endpt;

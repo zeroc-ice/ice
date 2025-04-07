@@ -2,11 +2,15 @@
 
 package test.Ice.custom;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectPrx;
+
 import test.Ice.custom.Test.A;
 import test.Ice.custom.Test.E;
 import test.Ice.custom.Test.S;
 import test.Ice.custom.Test.TestIntf;
 import test.Ice.custom.Test.TestIntfPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
@@ -29,13 +33,13 @@ public class AllTests {
         }
     }
 
-    public static TestIntfPrx allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static TestIntfPrx allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "test:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(ref);
+        ObjectPrx obj = communicator.stringToProxy(ref);
         test(obj != null);
         out.println("ok");
 

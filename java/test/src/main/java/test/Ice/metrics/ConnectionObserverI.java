@@ -2,8 +2,10 @@
 
 package test.Ice.metrics;
 
+import com.zeroc.Ice.Instrumentation.ConnectionObserver;
+
 class ConnectionObserverI extends ObserverI
-        implements com.zeroc.Ice.Instrumentation.ConnectionObserver {
+        implements ConnectionObserver {
     @Override
     public synchronized void reset() {
         super.reset();

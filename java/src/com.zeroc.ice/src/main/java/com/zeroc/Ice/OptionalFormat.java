@@ -50,5 +50,5 @@ public enum OptionalFormat {
         }
     }
 
-    private int _value;
+    private final int _value;
 }

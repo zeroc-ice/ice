@@ -2,10 +2,25 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.Component;
+import java.text.DateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
 import java.util.prefs.Preferences;
 
 import javax.swing.Icon;
@@ -14,8 +29,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.ExpandVetoException;
 
 /** The Root node of the Live Deployment view */
 public class Root extends Communicator {
@@ -129,9 +147,9 @@ public class Root extends Communicator {
         _showObjectDialog = new ObjectDialog(this, true);
 
         _tree.addTreeWillExpandListener(
-                new javax.swing.event.TreeWillExpandListener() {
+                new TreeWillExpandListener() {
                     @Override
-                    public void treeWillExpand(javax.swing.event.TreeExpansionEvent event) {
+                    public void treeWillExpand(TreeExpansionEvent event) {
                         // Fetch metrics when Communicator node is expanded.
                         TreeNode node = (TreeNode) event.getPath().getLastPathComponent();
                         if (node instanceof Communicator) {
@@ -140,10 +158,10 @@ public class Root extends Communicator {
                     }
 
                     @Override
-                    public void treeWillCollapse(javax.swing.event.TreeExpansionEvent event)
-                            throws javax.swing.tree.ExpandVetoException {
+                    public void treeWillCollapse(TreeExpansionEvent event)
+                            throws ExpandVetoException {
                         if (event.getPath().getLastPathComponent() == Root.this) {
-                            throw new javax.swing.tree.ExpandVetoException(event);
+                            throw new ExpandVetoException(event);
                         }
                     }
                 });
@@ -153,7 +171,7 @@ public class Root extends Communicator {
 
     @Override
     public boolean[] getAvailableActions() {
-        boolean[] actions = new boolean[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
+        boolean[] actions = new boolean[TreeNode.ACTION_COUNT];
         actions[ADD_OBJECT] = _coordinator.connectedToMaster();
         actions[SHUTDOWN_REGISTRY] = true;
         actions[RETRIEVE_ICE_LOG] = true;
@@ -174,7 +192,7 @@ public class Root extends Communicator {
                             (result, ex) -> {
                                 amiComplete(prefix, errorTitle, ex);
                             });
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             failure(prefix, errorTitle, ex.toString());
         }
     }
@@ -192,16 +210,16 @@ public class Root extends Communicator {
         return _infoMap.keySet().toArray();
     }
 
-    public java.util.SortedMap<String, String> getApplicationMap() {
-        java.util.SortedMap<String, String> r = new java.util.TreeMap<>();
+    public SortedMap<String, String> getApplicationMap() {
+        SortedMap<String, String> r = new TreeMap<>();
 
-        for (java.util.Map.Entry<String, ApplicationInfo> p : _infoMap.entrySet()) {
+        for (Map.Entry<String, ApplicationInfo> p : _infoMap.entrySet()) {
             ApplicationInfo app = p.getValue();
 
             r.put(
                     p.getKey(),
-                    java.text.DateFormat.getDateTimeInstance()
-                            .format(new java.util.Date(app.updateTime)));
+                    DateFormat.getDateTimeInstance()
+                            .format(new Date(app.updateTime)));
         }
         return r;
     }
@@ -238,7 +256,7 @@ public class Root extends Communicator {
     }
 
     public void applicationInit(
-            String instanceName, String replicaName, java.util.List<ApplicationInfo> applications) {
+            String instanceName, String replicaName, List<ApplicationInfo> applications) {
         _instanceName = instanceName;
         _replicaName = replicaName;
         _label = instanceName + " (" + _replicaName + ")";
@@ -282,7 +300,7 @@ public class Root extends Communicator {
     public void applicationAdded(ApplicationInfo info) {
         _infoMap.put(info.descriptor.name, info);
 
-        for (java.util.Map.Entry<String, NodeDescriptor> p : info.descriptor.nodes.entrySet()) {
+        for (Map.Entry<String, NodeDescriptor> p : info.descriptor.nodes.entrySet()) {
             String nodeName = p.getKey();
             NodeDescriptor nodeDesc = p.getValue();
 
@@ -298,7 +316,7 @@ public class Root extends Communicator {
     public void applicationRemoved(String name) {
         _infoMap.remove(name);
 
-        java.util.List<Node> toRemove = new java.util.LinkedList<>();
+        List<Node> toRemove = new LinkedList<>();
         int[] toRemoveIndices = new int[_nodes.size()];
 
         int i = 0;
@@ -331,16 +349,16 @@ public class Root extends Communicator {
 
         appDesc.variables
                 .keySet()
-                .removeAll(java.util.Arrays.asList(update.descriptor.removeVariables));
+                .removeAll(Arrays.asList(update.descriptor.removeVariables));
         appDesc.variables.putAll(update.descriptor.variables);
         boolean variablesChanged =
-                update.descriptor.removeVariables.length > 0 ||
-                        !update.descriptor.variables.isEmpty();
+                update.descriptor.removeVariables.length > 0
+                        || !update.descriptor.variables.isEmpty();
 
         // Update only descriptors (no tree node shown in this view)
         appDesc.propertySets
                 .keySet()
-                .removeAll(java.util.Arrays.asList(update.descriptor.removePropertySets));
+                .removeAll(Arrays.asList(update.descriptor.removePropertySets));
         appDesc.propertySets.putAll(update.descriptor.propertySets);
 
         for (String id : update.descriptor.removeReplicaGroups) {
@@ -373,12 +391,12 @@ public class Root extends Communicator {
 
         appDesc.serviceTemplates
                 .keySet()
-                .removeAll(java.util.Arrays.asList(update.descriptor.removeServiceTemplates));
+                .removeAll(Arrays.asList(update.descriptor.removeServiceTemplates));
         appDesc.serviceTemplates.putAll(update.descriptor.serviceTemplates);
 
         appDesc.serverTemplates
                 .keySet()
-                .removeAll(java.util.Arrays.asList(update.descriptor.removeServerTemplates));
+                .removeAll(Arrays.asList(update.descriptor.removeServerTemplates));
         appDesc.serverTemplates.putAll(update.descriptor.serverTemplates);
 
         //
@@ -386,7 +404,7 @@ public class Root extends Communicator {
         //
 
         // Removal
-        appDesc.nodes.keySet().removeAll(java.util.Arrays.asList(update.descriptor.removeNodes));
+        appDesc.nodes.keySet().removeAll(Arrays.asList(update.descriptor.removeNodes));
 
         for (String name : update.descriptor.removeNodes) {
             Node node = findNode(name);
@@ -398,7 +416,7 @@ public class Root extends Communicator {
         }
 
         // Add/update
-        java.util.Set<Node> freshNodes = new java.util.HashSet<>();
+        Set<Node> freshNodes = new HashSet<>();
         for (NodeUpdateDescriptor desc : update.descriptor.nodes) {
             String nodeName = desc.name;
 
@@ -418,9 +436,9 @@ public class Root extends Communicator {
         }
 
         // Notify non-fresh nodes if needed
-        if (variablesChanged ||
-                !update.descriptor.serviceTemplates.isEmpty() ||
-                !update.descriptor.serverTemplates.isEmpty()) {
+        if (variablesChanged
+                || !update.descriptor.serviceTemplates.isEmpty()
+                || !update.descriptor.serverTemplates.isEmpty()) {
             for (Node p : _nodes) {
                 if (!freshNodes.contains(p)) {
                     p.update(
@@ -472,7 +490,7 @@ public class Root extends Communicator {
                 info);
     }
 
-    public void objectRemoved(com.zeroc.Ice.Identity id) {
+    public void objectRemoved(Identity id) {
         _objects.remove(_coordinator.getCommunicator().identityToString(id));
     }
 
@@ -603,11 +621,11 @@ public class Root extends Communicator {
         return _instanceName;
     }
 
-    java.util.SortedMap<String, ObjectInfo> getObjects() {
+    SortedMap<String, ObjectInfo> getObjects() {
         return _objects;
     }
 
-    java.util.SortedMap<String, AdapterInfo> getAdapters() {
+    SortedMap<String, AdapterInfo> getAdapters() {
         return _adapters;
     }
 
@@ -616,11 +634,11 @@ public class Root extends Communicator {
     }
 
     void addObject(String strProxy, final String type, final JDialog dialog) {
-        com.zeroc.Ice.ObjectPrx proxy = null;
+        ObjectPrx proxy = null;
 
         try {
             proxy = _coordinator.getCommunicator().stringToProxy(strProxy);
-        } catch (com.zeroc.Ice.LocalException e) {
+        } catch (LocalException e) {
             JOptionPane.showMessageDialog(
                     _coordinator.getMainFrame(),
                     "Cannot parse proxy '" + strProxy + "'",
@@ -644,7 +662,7 @@ public class Root extends Communicator {
 
         _coordinator.getStatusBar().setText(prefix);
         try {
-            java.util.concurrent.CompletableFuture<Void> r;
+            CompletableFuture<Void> r;
             if (type == null) {
                 r = admin.addObjectAsync(proxy);
             } else {
@@ -660,8 +678,8 @@ public class Root extends Communicator {
                             amiFailure(
                                     prefix,
                                     "addObject failed",
-                                    "An object with this identity is already registered as a" +
-                                            " well-known object");
+                                    "An object with this identity is already registered as a"
+                                            + " well-known object");
                         } else if (ex instanceof DeploymentException) {
                             amiFailure(
                                     prefix,
@@ -671,14 +689,14 @@ public class Root extends Communicator {
                             amiFailure(prefix, "addObject failed", ex.toString());
                         }
                     });
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             failure(prefix, "addObject failed", ex.toString());
         }
     }
 
     void removeObject(String strProxy) {
-        com.zeroc.Ice.ObjectPrx proxy = _coordinator.getCommunicator().stringToProxy(strProxy);
-        com.zeroc.Ice.Identity identity = proxy.ice_getIdentity();
+        ObjectPrx proxy = _coordinator.getCommunicator().stringToProxy(strProxy);
+        Identity identity = proxy.ice_getIdentity();
         final String strIdentity = _coordinator.getCommunicator().identityToString(identity);
 
         final String prefix = "Removing well-known object '" + strIdentity + "'...";
@@ -692,7 +710,7 @@ public class Root extends Communicator {
                             (result, ex) -> {
                                 amiComplete(prefix, errorTitle, ex);
                             });
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             failure(prefix, errorTitle, ex.toString());
         }
     }
@@ -708,7 +726,7 @@ public class Root extends Communicator {
                             (result, ex) -> {
                                 amiComplete(prefix, errorTitle, ex);
                             });
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             failure(prefix, errorTitle, ex.toString());
         }
     }
@@ -718,7 +736,7 @@ public class Root extends Communicator {
     //
 
     @Override
-    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync() {
+    protected CompletableFuture<ObjectPrx> getAdminAsync() {
         return _coordinator.getAdmin().getRegistryAdminAsync(_replicaName);
     }
 
@@ -889,17 +907,17 @@ public class Root extends Communicator {
     private String _instanceName = "";
     private String _replicaName;
 
-    private final java.util.List<Node> _nodes = new java.util.LinkedList<>();
-    private final java.util.List<Slave> _slaves = new java.util.LinkedList<>();
+    private final List<Node> _nodes = new LinkedList<>();
+    private final List<Slave> _slaves = new LinkedList<>();
 
     // Maps application name to current application info
-    private final java.util.Map<String, ApplicationInfo> _infoMap = new java.util.TreeMap<>();
+    private final Map<String, ApplicationInfo> _infoMap = new TreeMap<>();
 
     // Map AdapterId => AdapterInfo
-    private java.util.SortedMap<String, AdapterInfo> _adapters = new java.util.TreeMap<>();
+    private final SortedMap<String, AdapterInfo> _adapters = new TreeMap<>();
 
     // Map stringified identity => ObjectInfo
-    private java.util.SortedMap<String, ObjectInfo> _objects = new java.util.TreeMap<>();
+    private final SortedMap<String, ObjectInfo> _objects = new TreeMap<>();
 
     // 'this' is the root of the tree
     private final JTree _tree;
@@ -909,16 +927,16 @@ public class Root extends Communicator {
 
     private String _label;
 
-    private ObjectDialog _addObjectDialog;
-    private ObjectDialog _showObjectDialog;
+    private final ObjectDialog _addObjectDialog;
+    private final ObjectDialog _showObjectDialog;
 
     // ShowLogFileDialog and ShowIceLogFileDialog
     private final int _messageSizeMax;
 
-    private final java.util.Map<String, ShowIceLogDialog> _showIceLogDialogMap =
-            new java.util.HashMap<>();
-    private final java.util.Map<String, ShowLogFileDialog> _showLogFileDialogMap =
-            new java.util.HashMap<>();
+    private final Map<String, ShowIceLogDialog> _showIceLogDialogMap =
+            new HashMap<>();
+    private final Map<String, ShowLogFileDialog> _showLogFileDialogMap =
+            new HashMap<>();
 
     int _logMaxLines;
     int _logMaxSize;

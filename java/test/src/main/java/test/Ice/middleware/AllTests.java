@@ -5,6 +5,7 @@ package test.Ice.middleware;
 import com.zeroc.Ice.*;
 
 import test.Ice.middleware.Test.*;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -13,16 +14,18 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import com.zeroc.Ice.Object;
+
 public class AllTests {
 
-    private static class Middleware implements com.zeroc.Ice.Object {
-        private final com.zeroc.Ice.Object _next;
+    private static class Middleware implements Object {
+        private final Object _next;
         private final String _name;
         private final List<String> _inLog;
         private final List<String> _outLog;
 
         Middleware(
-                com.zeroc.Ice.Object next, String name, List<String> inLog, List<String> outLog) {
+                Object next, String name, List<String> inLog, List<String> outLog) {
             _next = next;
             _name = name;
             _inLog = inLog;
@@ -70,7 +73,7 @@ public class AllTests {
         Error error;
     }
 
-    public static void allTests(test.TestHelper helper) {
+    public static void allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
         PrintWriter output = helper.getWriter();
         testMiddlewareExecutionOrder(communicator, output);
@@ -117,11 +120,11 @@ public class AllTests {
     private static void testErrorObserverMiddleware(
             Communicator communicator, PrintWriter output, boolean withError, boolean amd) {
         output.write(
-                "testing error observer middleware " +
-                        (withError ? "with" : "without") +
-                        " error" +
-                        (amd ? " + amd" : "") +
-                        "... ");
+                "testing error observer middleware "
+                        + (withError ? "with" : "without")
+                        + " error"
+                        + (amd ? " + amd" : "")
+                        + "... ");
         output.flush();
 
         // Arrange

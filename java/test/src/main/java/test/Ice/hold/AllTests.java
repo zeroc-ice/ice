@@ -2,11 +2,16 @@
 
 package test.Ice.hold;
 
+import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.InvocationFuture;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Util;
 
 import test.Ice.hold.Test.HoldPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 public class AllTests {
@@ -48,16 +53,16 @@ public class AllTests {
         private int _expected;
     }
 
-    public static void allTests(test.TestHelper helper) {
+    public static void allTests(TestHelper helper) {
         PrintWriter out = helper.getWriter();
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        Communicator communicator = helper.communicator();
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "hold:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         String refSerialized = "hold:" + helper.getTestEndpoint(1);
-        com.zeroc.Ice.ObjectPrx baseSerialized = communicator.stringToProxy(refSerialized);
+        ObjectPrx baseSerialized = communicator.stringToProxy(refSerialized);
         test(baseSerialized != null);
         out.println("ok");
 
@@ -91,7 +96,7 @@ public class AllTests {
 
         out.print("testing without serialize mode... ");
         out.flush();
-        java.util.Random random = new java.util.Random();
+        Random random = new Random();
         {
             Condition cond = new Condition(true);
             int value = 0;
@@ -100,7 +105,7 @@ public class AllTests {
             while (cond.value()) {
                 AMICheckSetValue cb = new AMICheckSetValue(cond, value);
                 r = hold.setAsync(value + 1, random.nextInt(5));
-                f = com.zeroc.Ice.Util.getInvocationFuture(r);
+                f = Util.getInvocationFuture(r);
                 r.whenComplete(
                         (result, ex) -> {
                             test(ex == null);
@@ -133,7 +138,7 @@ public class AllTests {
             while (value < 3000 && cond.value()) {
                 AMICheckSetValue cb = new AMICheckSetValue(cond, value);
                 r = holdSerialized.setAsync(value + 1, random.nextInt(1));
-                f = com.zeroc.Ice.Util.getInvocationFuture(r);
+                f = Util.getInvocationFuture(r);
                 r.whenComplete(
                         (result, ex) -> {
                             test(ex == null);
@@ -171,7 +176,7 @@ public class AllTests {
 
             for (int i = 0; i < max; i++) {
                 r = holdSerializedOneway.setOnewayAsync(value + 1, value);
-                f = com.zeroc.Ice.Util.getInvocationFuture(r);
+                f = Util.getInvocationFuture(r);
                 ++value;
                 if ((i % 100) == 0) {
                     f.waitForSent();

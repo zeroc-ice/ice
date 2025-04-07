@@ -2,13 +2,22 @@
 
 package test.Ice.binding;
 
-public class Server extends test.TestHelper {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.Logger;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.Util;
+
+import test.TestHelper;
+
+public class Server extends TestHelper {
     public void run(String[] args) {
-        com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+        InitializationData initData = new InitializationData();
         initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.binding");
         initData.logger =
-                new com.zeroc.Ice.Logger() {
+                new Logger() {
                     @Override
                     public void print(String message) {}
 
@@ -27,15 +36,15 @@ public class Server extends test.TestHelper {
                     }
 
                     @Override
-                    public com.zeroc.Ice.Logger cloneWithPrefix(String prefix) {
+                    public Logger cloneWithPrefix(String prefix) {
                         return this;
                     }
                 };
 
-        try (com.zeroc.Ice.Communicator communicator = initialize(initData)) {
+        try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity("communicator");
+            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            Identity id = Util.stringToIdentity("communicator");
             adapter.add(new RemoteCommunicatorI(this), id);
             adapter.activate();
             serverReady();

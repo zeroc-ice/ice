@@ -2,7 +2,9 @@
 
 package test.Ice.optional;
 
-public class SerializableClass implements java.io.Serializable {
+import java.io.Serializable;
+
+public class SerializableClass implements Serializable {
     public SerializableClass(int v) {
         _v = v;
     }
@@ -16,6 +18,6 @@ public class SerializableClass implements java.io.Serializable {
         return false;
     }
 
-    private int _v;
+    private final int _v;
     private static final long serialVersionUID = 1;
 }

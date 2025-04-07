@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.util.Map;
+
 /**
  * Provides overloads of the proxy factory methods with covariant return types so that applications
  * do not need to downcast to the derived proxy type.
@@ -19,7 +21,7 @@ public abstract class _ObjectPrxFactoryMethods<T extends ObjectPrx> extends _Obj
     }
 
     @Override
-    public T ice_context(java.util.Map<String, String> newContext) {
+    public T ice_context(Map<String, String> newContext) {
         return (T) super.ice_context(newContext);
     }
 
@@ -119,7 +121,7 @@ public abstract class _ObjectPrxFactoryMethods<T extends ObjectPrx> extends _Obj
     }
 
     @Override
-    public T ice_fixed(com.zeroc.Ice.Connection connection) {
+    public T ice_fixed(Connection connection) {
         return (T) super.ice_fixed(connection);
     }
 

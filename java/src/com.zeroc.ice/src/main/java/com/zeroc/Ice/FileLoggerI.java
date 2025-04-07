@@ -2,8 +2,13 @@
 
 package com.zeroc.Ice;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 final class FileLoggerI extends LoggerI {
-    private final java.io.FileOutputStream _out;
+    private final FileOutputStream _out;
 
     FileLoggerI(String prefix, String file) {
         super(prefix);
@@ -13,8 +18,8 @@ final class FileLoggerI extends LoggerI {
         }
 
         try {
-            _out = new java.io.FileOutputStream(new java.io.File(file), true);
-        } catch (java.io.FileNotFoundException ex) {
+            _out = new FileOutputStream(new File(file), true);
+        } catch (FileNotFoundException ex) {
             throw new FileException("FileLogger: cannot open '" + file + "': file not found", ex);
         }
     }
@@ -28,7 +33,7 @@ final class FileLoggerI extends LoggerI {
     void destroy() {
         try {
             _out.close();
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
         }
     }
 
@@ -36,7 +41,7 @@ final class FileLoggerI extends LoggerI {
     protected void writeMessage(String message) {
         try {
             _out.write(message.getBytes());
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
         }
     }
 }

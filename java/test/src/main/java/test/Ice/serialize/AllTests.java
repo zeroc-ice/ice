@@ -2,9 +2,14 @@
 
 package test.Ice.serialize;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectPrx;
+
 import test.Ice.serialize.Test.*;
+import test.TestHelper;
 
 import java.io.*;
+import java.util.Arrays;
 
 public class AllTests {
     private static void test(boolean b) {
@@ -13,12 +18,12 @@ public class AllTests {
         }
     }
 
-    public static InitialPrx allTests(test.TestHelper helper, boolean collocated) {
+    public static InitialPrx allTests(TestHelper helper, boolean collocated) {
         PrintWriter out = helper.getWriter();
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        Communicator communicator = helper.communicator();
 
         String ref = "initial:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        ObjectPrx base = communicator.stringToProxy(ref);
         InitialPrx initial = InitialPrx.checkedCast(base);
 
         out.print("testing serialization... ");
@@ -123,12 +128,12 @@ public class AllTests {
         test(b.b == b);
         test(b.o == b);
         checkStruct1(b.s);
-        test(java.util.Arrays.equals(b.seq1, new byte[]{0, 1, 2, 3, 4}));
-        test(java.util.Arrays.equals(b.seq2, new int[]{5, 6, 7, 8, 9}));
+        test(Arrays.equals(b.seq1, new byte[]{0, 1, 2, 3, 4}));
+        test(Arrays.equals(b.seq2, new int[]{5, 6, 7, 8, 9}));
         test(
-                java.util.Arrays.equals(
+                Arrays.equals(
                         b.seq3, new MyEnum[]{MyEnum.enum3, MyEnum.enum2, MyEnum.enum1}));
-        test(java.util.Arrays.equals(b.seq4, new Base[]{b}));
+        test(Arrays.equals(b.seq4, new Base[]{b}));
         test(b.d1.get(Byte.valueOf((byte) 1)).equals(Boolean.TRUE));
         test(b.d2.get(Short.valueOf((short) 2)).equals(Integer.valueOf(3)));
         test(b.d3.get("enum3") == MyEnum.enum3);

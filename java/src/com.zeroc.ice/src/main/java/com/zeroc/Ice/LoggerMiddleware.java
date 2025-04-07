@@ -2,10 +2,12 @@
 
 package com.zeroc.Ice;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.concurrent.CompletionStage;
 
-final class LoggerMiddleware implements com.zeroc.Ice.Object {
-    private final com.zeroc.Ice.Object _next;
+final class LoggerMiddleware implements Object {
+    private final Object _next;
     private final Logger _logger;
     private final int _traceLevel;
     private final String _traceCat;
@@ -13,7 +15,7 @@ final class LoggerMiddleware implements com.zeroc.Ice.Object {
     private final ToStringMode _toStringMode;
 
     public LoggerMiddleware(
-            com.zeroc.Ice.Object next,
+            Object next,
             Logger logger,
             int traceLevel,
             String traceCat,
@@ -96,8 +98,8 @@ final class LoggerMiddleware implements com.zeroc.Ice.Object {
     }
 
     private void logDispatch(ReplyStatus replyStatus, Current current) {
-        var sw = new java.io.StringWriter();
-        var pw = new java.io.PrintWriter(sw);
+        var sw = new StringWriter();
+        var pw = new PrintWriter(sw);
         var out = new OutputBase(pw);
         out.setUseTab(false);
         out.print("dispatch of ");
@@ -111,8 +113,8 @@ final class LoggerMiddleware implements com.zeroc.Ice.Object {
     }
 
     private void logDispatchFailed(String exceptionDetails, Current current) {
-        var sw = new java.io.StringWriter();
-        var pw = new java.io.PrintWriter(sw);
+        var sw = new StringWriter();
+        var pw = new PrintWriter(sw);
         var out = new OutputBase(pw);
         out.setUseTab(false);
         out.print("failed to dispatch ");

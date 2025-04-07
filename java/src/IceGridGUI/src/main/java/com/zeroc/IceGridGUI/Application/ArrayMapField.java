@@ -5,6 +5,9 @@ package com.zeroc.IceGridGUI.Application;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.event.ActionEvent;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -22,7 +25,7 @@ public class ArrayMapField extends JTable {
         _substituteKey = substituteKey;
         _vectorSize = columns.length;
 
-        _columnNames = new java.util.Vector<>(_vectorSize);
+        _columnNames = new Vector<>(_vectorSize);
         for (String name : columns) {
             _columnNames.add(name);
         }
@@ -61,14 +64,14 @@ public class ArrayMapField extends JTable {
     }
 
     public void set(
-            java.util.Map<String, String[]> map, Utils.Resolver resolver, boolean editable) {
+            Map<String, String[]> map, Utils.Resolver resolver, boolean editable) {
         _editable = editable;
         assert (_vectorSize > 2);
 
         // Transform map into vector of vectors
-        java.util.Vector<java.util.Vector<String>> vector = new java.util.Vector<>(map.size());
-        for (java.util.Map.Entry<String, String[]> p : map.entrySet()) {
-            java.util.Vector<String> row = new java.util.Vector<>(_vectorSize);
+        Vector<Vector<String>> vector = new Vector<>(map.size());
+        for (Map.Entry<String, String[]> p : map.entrySet()) {
+            Vector<String> row = new Vector<>(_vectorSize);
 
             if (_substituteKey) {
                 row.add(Utils.substitute(p.getKey(), resolver));
@@ -84,7 +87,7 @@ public class ArrayMapField extends JTable {
         }
 
         if (_editable) {
-            java.util.Vector<String> newRow = new java.util.Vector<>(_vectorSize);
+            Vector<String> newRow = new Vector<>(_vectorSize);
             for (int i = 0; i < _vectorSize; i++) {
                 newRow.add("");
             }
@@ -126,7 +129,7 @@ public class ArrayMapField extends JTable {
         cr.setOpaque(_editable);
     }
 
-    public java.util.TreeMap<String, String[]> get() {
+    public TreeMap<String, String[]> get() {
         assert _editable;
         assert (_vectorSize > 2);
 
@@ -134,11 +137,11 @@ public class ArrayMapField extends JTable {
             getCellEditor().stopCellEditing();
         }
         @SuppressWarnings("unchecked")
-        java.util.Vector<java.util.Vector> vector = _model.getDataVector();
+        Vector<Vector> vector = _model.getDataVector();
 
-        java.util.TreeMap<String, String[]> result = new java.util.TreeMap<>();
+        TreeMap<String, String[]> result = new TreeMap<>();
 
-        for (java.util.Vector row : vector) {
+        for (Vector row : vector) {
             // Eliminate rows with null or empty keys
             String key = row.elementAt(0).toString();
             if (key != null) {
@@ -161,10 +164,10 @@ public class ArrayMapField extends JTable {
     private final int _vectorSize;
 
     private DefaultTableModel _model;
-    private java.util.Vector<String> _columnNames;
+    private final Vector<String> _columnNames;
     private boolean _editable;
 
-    private boolean _substituteKey;
+    private final boolean _substituteKey;
 
-    private Editor _editor;
+    private final Editor _editor;
 }

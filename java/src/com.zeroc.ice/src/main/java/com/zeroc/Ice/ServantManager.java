@@ -9,10 +9,10 @@ import java.util.concurrent.CompletionStage;
 final class ServantManager implements Object {
     private Instance _instance;
     private final String _adapterName;
-    private Map<Identity, Map<String, Object>> _servantMapMap =
+    private final Map<Identity, Map<String, Object>> _servantMapMap =
             new HashMap<Identity, Map<String, Object>>();
-    private Map<String, Object> _defaultServantMap = new HashMap<String, Object>();
-    private Map<String, ServantLocator> _locatorMap = new HashMap<String, ServantLocator>();
+    private final Map<String, Object> _defaultServantMap = new HashMap<String, Object>();
+    private final Map<String, ServantLocator> _locatorMap = new HashMap<String, ServantLocator>();
 
     @Override
     public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
@@ -312,20 +312,20 @@ final class ServantManager implements Object {
             _instance = null;
         }
 
-        for (java.util.Map.Entry<String, ServantLocator> p : locatorMap.entrySet()) {
+        for (Map.Entry<String, ServantLocator> p : locatorMap.entrySet()) {
             ServantLocator locator = p.getValue();
             try {
                 locator.deactivate(p.getKey());
             } catch (Exception ex) {
                 String s =
-                        "exception during locator deactivation:\n" +
-                                "object adapter: `" +
-                                _adapterName +
-                                "'\n" +
-                                "locator category: `" +
-                                p.getKey() +
-                                "'\n" +
-                                Ex.toString(ex);
+                        "exception during locator deactivation:\n"
+                                + "object adapter: `"
+                                + _adapterName
+                                + "'\n"
+                                + "locator category: `"
+                                + p.getKey()
+                                + "'\n"
+                                + Ex.toString(ex);
                 logger.error(s);
             }
         }

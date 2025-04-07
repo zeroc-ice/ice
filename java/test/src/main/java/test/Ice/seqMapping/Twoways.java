@@ -2,6 +2,8 @@
 
 package test.Ice.seqMapping;
 
+import com.zeroc.Ice.OperationNotExistException;
+
 import test.Ice.seqMapping.Serialize.*;
 import test.Ice.seqMapping.Test.*;
 
@@ -31,7 +33,7 @@ class Twoways {
 
                 test(r.o.i == 99);
                 test(r.returnValue.i == 99);
-            } catch (com.zeroc.Ice.OperationNotExistException ex) {
+            } catch (OperationNotExistException ex) {
                 // OK, talking to non-Java server.
             }
         }
@@ -72,7 +74,7 @@ class Twoways {
                 test(r.returnValue.d8 == 8.0);
                 test(r.returnValue.d9 == 9.0);
                 test(r.returnValue.d10 == 10.0);
-            } catch (com.zeroc.Ice.OperationNotExistException ex) {
+            } catch (OperationNotExistException ex) {
                 // OK, talking to non-Java server.
             }
         }
@@ -99,7 +101,7 @@ class Twoways {
                 test(((Struct) (r.returnValue.o2)).o2 == r.returnValue.o2);
                 test(r.returnValue.s == null);
                 test("Hello".equals(r.returnValue.s2));
-            } catch (com.zeroc.Ice.OperationNotExistException ex) {
+            } catch (OperationNotExistException ex) {
                 // OK, talking to non-Java server.
             }
         }

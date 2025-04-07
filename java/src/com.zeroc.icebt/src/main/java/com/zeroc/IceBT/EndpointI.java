@@ -11,9 +11,12 @@ import com.zeroc.Ice.HashUtil;
 import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice.OutputStream;
 import com.zeroc.Ice.ParseException;
+import com.zeroc.Ice.SSL.SSLEngineFactory;
 import com.zeroc.Ice.Transceiver;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 final class EndpointI extends com.zeroc.Ice.EndpointI {
@@ -144,19 +147,19 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
 
     @Override
     public void connectors_async(EndpointI_connectors callback) {
-        java.util.List<Connector> conns = new java.util.ArrayList<Connector>();
+        List<Connector> conns = new ArrayList<Connector>();
         conns.add(new ConnectorI(_instance, _addr, _uuid, _timeout, _connectionId));
         callback.connectors(conns);
     }
 
     @Override
     public Acceptor acceptor(
-            String adapterName, com.zeroc.Ice.SSL.SSLEngineFactory sslEngineFactory) {
+            String adapterName, SSLEngineFactory sslEngineFactory) {
         return new AcceptorI(this, _instance, adapterName, _uuid, _name);
     }
 
     @Override
-    public java.util.List<com.zeroc.Ice.EndpointI> expandHost() {
+    public List<com.zeroc.Ice.EndpointI> expandHost() {
         return Collections.singletonList(this);
     }
 
@@ -176,10 +179,10 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
             return false;
         }
         EndpointI btEndpointI = (EndpointI) endpoint;
-        return btEndpointI.type() == type() &&
-                btEndpointI._addr.equals(_addr) &&
-                btEndpointI._uuid.equals(_uuid) &&
-                btEndpointI._channel == _channel;
+        return btEndpointI.type() == type()
+                && btEndpointI._addr.equals(_addr)
+                && btEndpointI._uuid.equals(_uuid)
+                && btEndpointI._channel == _channel;
     }
 
     @Override
@@ -234,7 +237,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
         return s;
     }
 
-    public void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint) {
+    public void initWithOptions(ArrayList<String> args, boolean oaEndpoint) {
         super.initWithOptions(args);
 
         if (_addr.isEmpty()) {
@@ -339,8 +342,8 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
                 throw new ParseException(
                         "no argument provided for -a option in endpoint '" + endpoint + "'");
             }
-            if (!"*".equals(argument) &&
-                    !BluetoothAdapter.checkBluetoothAddress(argument.toUpperCase())) {
+            if (!"*".equals(argument)
+                    && !BluetoothAdapter.checkBluetoothAddress(argument.toUpperCase())) {
                 throw new ParseException(
                         "invalid address provided for -a option in endpoint '" + endpoint + "'");
             }
@@ -374,11 +377,11 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
             if (_channel < 0 || _channel > 30) // RFCOMM channel limit is 30
             {
                 throw new ParseException(
-                        "channel value '" +
-                                argument +
-                                "' out of range in endpoint '" +
-                                endpoint +
-                                "'");
+                        "channel value '"
+                                + argument
+                                + "' out of range in endpoint '"
+                                + endpoint
+                                + "'");
             }
         } else if ("-t".equals(option)) {
             if (argument == null) {
@@ -393,29 +396,29 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
                     _timeout = Integer.parseInt(argument);
                     if (_timeout < 1) {
                         throw new ParseException(
-                                "invalid timeout value '" +
-                                        argument +
-                                        "' in endpoint '" +
-                                        endpoint +
-                                        "'");
+                                "invalid timeout value '"
+                                        + argument
+                                        + "' in endpoint '"
+                                        + endpoint
+                                        + "'");
                     }
                 } catch (NumberFormatException ex) {
                     throw new ParseException(
-                            "invalid timeout value '" +
-                                    argument +
-                                    "' in endpoint '" +
-                                    endpoint +
-                                    "'",
+                            "invalid timeout value '"
+                                    + argument
+                                    + "' in endpoint '"
+                                    + endpoint
+                                    + "'",
                             ex);
                 }
             }
         } else if ("-z".equals(option)) {
             if (argument != null) {
                 throw new ParseException(
-                        "unexpected argument `" +
-                                argument +
-                                "' provided for -z option in " +
-                                endpoint);
+                        "unexpected argument `"
+                                + argument
+                                + "' provided for -z option in "
+                                + endpoint);
             }
 
             _compress = true;

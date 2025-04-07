@@ -2,8 +2,10 @@
 
 package com.zeroc.Ice;
 
+import java.io.Serializable;
+
 /** The base class for instances of Slice classes. */
-public abstract class Value implements Cloneable, java.io.Serializable {
+public abstract class Value implements Cloneable, Serializable {
     /**
      * Returns a copy of the object. The cloned object contains field-for-field copies of the state.
      *

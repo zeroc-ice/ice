@@ -2,10 +2,16 @@
 
 package test.Ice.interrupt;
 
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.ObjectAdapter;
+
+import test.Ice.interrupt.Test.CannotInterruptException;
+import test.Ice.interrupt.Test.TestIntfController;
+
 import java.util.ArrayList;
 import java.util.List;
 
-class TestControllerI implements test.Ice.interrupt.Test.TestIntfController {
+class TestControllerI implements TestIntfController {
     synchronized void addUpcallThread() {
         _threads.add(Thread.currentThread());
     }
@@ -19,10 +25,10 @@ class TestControllerI implements test.Ice.interrupt.Test.TestIntfController {
     }
 
     @Override
-    public synchronized void interrupt(com.zeroc.Ice.Current current)
-            throws test.Ice.interrupt.Test.CannotInterruptException {
+    public synchronized void interrupt(Current current)
+            throws CannotInterruptException {
         if (_threads.isEmpty()) {
-            throw new test.Ice.interrupt.Test.CannotInterruptException();
+            throw new CannotInterruptException();
         }
         for (Thread t : _threads) {
             t.interrupt();
@@ -30,19 +36,19 @@ class TestControllerI implements test.Ice.interrupt.Test.TestIntfController {
     }
 
     @Override
-    public void holdAdapter(com.zeroc.Ice.Current current) {
+    public void holdAdapter(Current current) {
         _adapter.hold();
     }
 
     @Override
-    public void resumeAdapter(com.zeroc.Ice.Current current) {
+    public void resumeAdapter(Current current) {
         _adapter.activate();
     }
 
-    TestControllerI(com.zeroc.Ice.ObjectAdapter adapter) {
+    TestControllerI(ObjectAdapter adapter) {
         _adapter = adapter;
     }
 
-    private final com.zeroc.Ice.ObjectAdapter _adapter;
+    private final ObjectAdapter _adapter;
     private final List<Thread> _threads = new ArrayList<>();
 }

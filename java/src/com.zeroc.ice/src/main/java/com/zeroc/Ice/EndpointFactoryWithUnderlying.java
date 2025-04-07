@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.util.ArrayList;
+
 /**
  * The endpoint factory with underlying create endpoints that delegate to an underlying endpoint
  * (e.g.: the SSL/WS endpoints are endpoints with underlying endpoints).
@@ -34,7 +36,7 @@ public abstract class EndpointFactoryWithUnderlying implements EndpointFactory {
         return _instance.protocol();
     }
 
-    public EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint) {
+    public EndpointI create(ArrayList<String> args, boolean oaEndpoint) {
         if (_underlying == null) {
             return null; // Can't create an endpoint without underlying factory.
         }
@@ -55,7 +57,7 @@ public abstract class EndpointFactoryWithUnderlying implements EndpointFactory {
     public abstract EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short type);
 
     protected abstract EndpointI createWithUnderlying(
-            EndpointI underlying, java.util.ArrayList<String> args, boolean oaEndpoint);
+            EndpointI underlying, ArrayList<String> args, boolean oaEndpoint);
 
     protected abstract EndpointI readWithUnderlying(EndpointI underlying, InputStream s);
 

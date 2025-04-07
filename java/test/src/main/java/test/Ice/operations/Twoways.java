@@ -5,11 +5,17 @@ package test.Ice.operations;
 import com.zeroc.Ice.*;
 
 import test.Ice.operations.Test.*;
+import test.TestHelper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.zeroc.Ice.Object;
+
+import com.zeroc.Ice.Properties;
 
 class Twoways {
     private static void test(boolean b) {
@@ -25,7 +31,7 @@ class Twoways {
 
         @Override
         public void run() {
-            java.util.Map<String, String> ctx =
+            Map<String, String> ctx =
                     _proxy.ice_getCommunicator().getImplicitContext().getContext();
             test(ctx.isEmpty());
             ctx.put("one", "ONE");
@@ -36,87 +42,87 @@ class Twoways {
         private final MyClassPrx _proxy;
     }
 
-    static void twoways(test.TestHelper helper, MyClassPrx p) {
+    static void twoways(TestHelper helper, MyClassPrx p) {
         Communicator communicator = helper.communicator();
         final boolean bluetooth =
-                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt") ==
-                        0;
+                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
+                        == 0;
 
         String[] literals = p.opStringLiterals();
 
         test(
-                "\\".equals(s0.value) &&
-                        sw0.value.equals(s0.value) &&
-                        s0.value.equals(literals[0]) &&
-                        s0.value.equals(literals[11]));
+                "\\".equals(s0.value)
+                        && sw0.value.equals(s0.value)
+                        && s0.value.equals(literals[0])
+                        && s0.value.equals(literals[11]));
 
         test(
-                "A".equals(s1.value) &&
-                        sw1.value.equals(s1.value) &&
-                        s1.value.equals(literals[1]) &&
-                        s1.value.equals(literals[12]));
+                "A".equals(s1.value)
+                        && sw1.value.equals(s1.value)
+                        && s1.value.equals(literals[1])
+                        && s1.value.equals(literals[12]));
 
         test(
-                "Ice".equals(s2.value) &&
-                        sw2.value.equals(s2.value) &&
-                        s2.value.equals(literals[2]) &&
-                        s2.value.equals(literals[13]));
+                "Ice".equals(s2.value)
+                        && sw2.value.equals(s2.value)
+                        && s2.value.equals(literals[2])
+                        && s2.value.equals(literals[13]));
 
         test(
-                "A21".equals(s3.value) &&
-                        sw3.value.equals(s3.value) &&
-                        s3.value.equals(literals[3]) &&
-                        s3.value.equals(literals[14]));
+                "A21".equals(s3.value)
+                        && sw3.value.equals(s3.value)
+                        && s3.value.equals(literals[3])
+                        && s3.value.equals(literals[14]));
 
         test(
-                "\\u0041 \\U00000041".equals(s4.value) &&
-                        sw4.value.equals(s4.value) &&
-                        s4.value.equals(literals[4]) &&
-                        s4.value.equals(literals[15]));
+                "\\u0041 \\U00000041".equals(s4.value)
+                        && sw4.value.equals(s4.value)
+                        && s4.value.equals(literals[4])
+                        && s4.value.equals(literals[15]));
 
         test(
-                "\u00FF".equals(s5.value) &&
-                        sw5.value.equals(s5.value) &&
-                        s5.value.equals(literals[5]) &&
-                        s5.value.equals(literals[16]));
+                "\u00FF".equals(s5.value)
+                        && sw5.value.equals(s5.value)
+                        && s5.value.equals(literals[5])
+                        && s5.value.equals(literals[16]));
 
         test(
-                "\u03FF".equals(s6.value) &&
-                        sw6.value.equals(s6.value) &&
-                        s6.value.equals(literals[6]) &&
-                        s6.value.equals(literals[17]));
+                "\u03FF".equals(s6.value)
+                        && sw6.value.equals(s6.value)
+                        && s6.value.equals(literals[6])
+                        && s6.value.equals(literals[17]));
 
         test(
-                "\u05F0".equals(s7.value) &&
-                        sw7.value.equals(s7.value) &&
-                        s7.value.equals(literals[7]) &&
-                        s7.value.equals(literals[18]));
+                "\u05F0".equals(s7.value)
+                        && sw7.value.equals(s7.value)
+                        && s7.value.equals(literals[7])
+                        && s7.value.equals(literals[18]));
 
         test(
-                "\uD800\uDC00".equals(s8.value) &&
-                        sw8.value.equals(s8.value) &&
-                        s8.value.equals(literals[8]) &&
-                        s8.value.equals(literals[19]));
+                "\uD800\uDC00".equals(s8.value)
+                        && sw8.value.equals(s8.value)
+                        && s8.value.equals(literals[8])
+                        && s8.value.equals(literals[19]));
 
         test(
-                "\uD83C\uDF4C".equals(s9.value) &&
-                        sw9.value.equals(s9.value) &&
-                        s9.value.equals(literals[9]) &&
-                        s9.value.equals(literals[20]));
+                "\uD83C\uDF4C".equals(s9.value)
+                        && sw9.value.equals(s9.value)
+                        && s9.value.equals(literals[9])
+                        && s9.value.equals(literals[20]));
 
         test(
-                "\u0DA7".equals(s10.value) &&
-                        sw10.value.equals(s10.value) &&
-                        s10.value.equals(literals[10]) &&
-                        s10.value.equals(literals[21]));
+                "\u0DA7".equals(s10.value)
+                        && sw10.value.equals(s10.value)
+                        && s10.value.equals(literals[10])
+                        && s10.value.equals(literals[21]));
 
         test(
-                "\'\"\u003f\\\u0007\b\f\n\r\t\u000b\6".equals(ss0.value) &&
-                        ss1.value.equals(ss0.value) &&
-                        ss2.value.equals(ss0.value) &&
-                        ss0.value.equals(literals[22]) &&
-                        ss0.value.equals(literals[23]) &&
-                        ss0.value.equals(literals[24]));
+                "\'\"\u003f\\\u0007\b\f\n\r\t\u000b\6".equals(ss0.value)
+                        && ss1.value.equals(ss0.value)
+                        && ss2.value.equals(ss0.value)
+                        && ss0.value.equals(literals[22])
+                        && ss0.value.equals(literals[23])
+                        && ss0.value.equals(literals[24]));
 
         test("\\\\U\\u\\".equals(ss3.value) && ss3.value.equals(literals[25]));
 
@@ -125,11 +131,11 @@ class Twoways {
         test("\\u0041\\".equals(ss5.value) && ss5.value.equals(literals[27]));
 
         test(
-                su1.value.equals(su0.value) &&
-                        su2.value.equals(su0.value) &&
-                        su0.value.equals(literals[28]) &&
-                        su0.value.equals(literals[29]) &&
-                        su0.value.equals(literals[30]));
+                su1.value.equals(su0.value)
+                        && su2.value.equals(su0.value)
+                        && su0.value.equals(literals[28])
+                        && su0.value.equals(literals[29])
+                        && su0.value.equals(literals[30]));
 
         p.ice_ping();
 
@@ -138,7 +144,7 @@ class Twoways {
         test(p.ice_id().equals(MyDerivedClass.ice_staticId()));
 
         test(MyDerivedClassPrx.ice_staticId().equals(MyDerivedClass.ice_staticId()));
-        test(ObjectPrx.ice_staticId().equals(com.zeroc.Ice.Object.ice_staticId()));
+        test(ObjectPrx.ice_staticId().equals(Object.ice_staticId()));
         test(LocatorPrx.ice_staticId().equals(Locator.ice_staticId()));
 
         {
@@ -227,14 +233,14 @@ class Twoways {
             test(Util.proxyIdentityAndFacetCompare(r.p2, p) == 0);
             test(Util.proxyIdentityAndFacetCompare(r.p3, p) != 0);
             test(Util.proxyIdentityAndFacetCompare(r.returnValue, p) == 0);
-            test(r.p2.ice_getIdentity().equals(com.zeroc.Ice.Util.stringToIdentity("test")));
+            test(r.p2.ice_getIdentity().equals(Util.stringToIdentity("test")));
             test(
                     r.p3.ice_getIdentity()
-                            .equals(com.zeroc.Ice.Util.stringToIdentity("noSuchIdentity")));
+                            .equals(Util.stringToIdentity("noSuchIdentity")));
             test(
                     r.returnValue
                             .ice_getIdentity()
-                            .equals(com.zeroc.Ice.Util.stringToIdentity("test")));
+                            .equals(Util.stringToIdentity("test")));
             r.returnValue.opVoid();
             r.p2.opVoid();
             try {
@@ -854,14 +860,14 @@ class Twoways {
             List<Map<String, String>> dsi1 = new ArrayList<>();
             List<Map<String, String>> dsi2 = new ArrayList<>();
 
-            java.util.Map<String, String> di1 = new HashMap<>();
+            Map<String, String> di1 = new HashMap<>();
             di1.put("foo", "abc -1.1");
             di1.put("bar", "abc 123123.2");
-            java.util.Map<String, String> di2 = new HashMap<>();
+            Map<String, String> di2 = new HashMap<>();
             di2.put("foo", "abc -1.1");
             di2.put("FOO", "abc -100.4");
             di2.put("BAR", "abc 0.5");
-            java.util.Map<String, String> di3 = new HashMap<>();
+            Map<String, String> di3 = new HashMap<>();
             di3.put("f00", "ABC -3.14");
 
             dsi1.add(di1);
@@ -895,14 +901,14 @@ class Twoways {
             List<Map<String, MyEnum>> dsi1 = new ArrayList<>();
             List<Map<String, MyEnum>> dsi2 = new ArrayList<>();
 
-            java.util.Map<String, MyEnum> di1 = new HashMap<>();
+            Map<String, MyEnum> di1 = new HashMap<>();
             di1.put("abc", MyEnum.enum1);
             di1.put("", MyEnum.enum2);
-            java.util.Map<String, MyEnum> di2 = new HashMap<>();
+            Map<String, MyEnum> di2 = new HashMap<>();
             di2.put("abc", MyEnum.enum1);
             di2.put("qwerty", MyEnum.enum3);
             di2.put("Hello!!", MyEnum.enum2);
-            java.util.Map<String, MyEnum> di3 = new HashMap<>();
+            Map<String, MyEnum> di3 = new HashMap<>();
             di3.put("Goodbye", MyEnum.enum1);
 
             dsi1.add(di1);
@@ -936,12 +942,12 @@ class Twoways {
             List<Map<MyEnum, String>> dsi1 = new ArrayList<>();
             List<Map<MyEnum, String>> dsi2 = new ArrayList<>();
 
-            java.util.Map<MyEnum, String> di1 = new HashMap<>();
+            Map<MyEnum, String> di1 = new HashMap<>();
             di1.put(MyEnum.enum1, "abc");
-            java.util.Map<MyEnum, String> di2 = new HashMap<>();
+            Map<MyEnum, String> di2 = new HashMap<>();
             di2.put(MyEnum.enum2, "Hello!!");
             di2.put(MyEnum.enum3, "qwerty");
-            java.util.Map<MyEnum, String> di3 = new HashMap<>();
+            Map<MyEnum, String> di3 = new HashMap<>();
             di3.put(MyEnum.enum1, "Goodbye");
 
             dsi1.add(di1);
@@ -973,18 +979,18 @@ class Twoways {
 
             MyStruct s11 = new MyStruct(1, 1);
             MyStruct s12 = new MyStruct(1, 2);
-            java.util.Map<MyStruct, MyEnum> di1 = new HashMap<>();
+            Map<MyStruct, MyEnum> di1 = new HashMap<>();
             di1.put(s11, MyEnum.enum1);
             di1.put(s12, MyEnum.enum2);
 
             MyStruct s22 = new MyStruct(2, 2);
             MyStruct s23 = new MyStruct(2, 3);
-            java.util.Map<MyStruct, MyEnum> di2 = new HashMap<>();
+            Map<MyStruct, MyEnum> di2 = new HashMap<>();
             di2.put(s11, MyEnum.enum1);
             di2.put(s22, MyEnum.enum3);
             di2.put(s23, MyEnum.enum2);
 
-            java.util.Map<MyStruct, MyEnum> di3 = new HashMap<>();
+            Map<MyStruct, MyEnum> di3 = new HashMap<>();
             di3.put(s23, MyEnum.enum3);
 
             dsi1.add(di1);
@@ -1015,8 +1021,8 @@ class Twoways {
         }
 
         {
-            java.util.Map<Byte, byte[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<Byte, byte[]> sdi2 = new java.util.HashMap<>();
+            Map<Byte, byte[]> sdi1 = new HashMap<>();
+            Map<Byte, byte[]> sdi2 = new HashMap<>();
 
             final byte[] si1 = {(byte) 0x01, (byte) 0x11};
             final byte[] si2 = {(byte) 0x12};
@@ -1044,8 +1050,8 @@ class Twoways {
         }
 
         {
-            java.util.Map<Boolean, boolean[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<Boolean, boolean[]> sdi2 = new java.util.HashMap<>();
+            Map<Boolean, boolean[]> sdi1 = new HashMap<>();
+            Map<Boolean, boolean[]> sdi2 = new HashMap<>();
 
             final boolean[] si1 = {true, false};
             final boolean[] si2 = {false, true, true};
@@ -1071,8 +1077,8 @@ class Twoways {
         }
 
         {
-            java.util.Map<Short, short[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<Short, short[]> sdi2 = new java.util.HashMap<>();
+            Map<Short, short[]> sdi1 = new HashMap<>();
+            Map<Short, short[]> sdi2 = new HashMap<>();
 
             final short[] si1 = {1, 2, 3};
             final short[] si2 = {4, 5};
@@ -1102,8 +1108,8 @@ class Twoways {
         }
 
         {
-            java.util.Map<Integer, int[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<Integer, int[]> sdi2 = new java.util.HashMap<>();
+            Map<Integer, int[]> sdi1 = new HashMap<>();
+            Map<Integer, int[]> sdi2 = new HashMap<>();
 
             final int[] si1 = {100, 200, 300};
             final int[] si2 = {400, 500};
@@ -1133,8 +1139,8 @@ class Twoways {
         }
 
         {
-            java.util.Map<Long, long[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<Long, long[]> sdi2 = new java.util.HashMap<>();
+            Map<Long, long[]> sdi1 = new HashMap<>();
+            Map<Long, long[]> sdi2 = new HashMap<>();
 
             final long[] si1 = {999999110L, 999999111L, 999999110L};
             final long[] si2 = {999999120L, 999999130L};
@@ -1164,8 +1170,8 @@ class Twoways {
         }
 
         {
-            java.util.Map<String, float[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<String, float[]> sdi2 = new java.util.HashMap<>();
+            Map<String, float[]> sdi1 = new HashMap<>();
+            Map<String, float[]> sdi2 = new HashMap<>();
 
             final float[] si1 = {-1.1f, 123123.2f, 100.0f};
             final float[] si2 = {42.24f, -1.61f};
@@ -1195,8 +1201,8 @@ class Twoways {
         }
 
         {
-            java.util.Map<String, double[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<String, double[]> sdi2 = new java.util.HashMap<>();
+            Map<String, double[]> sdi1 = new HashMap<>();
+            Map<String, double[]> sdi2 = new HashMap<>();
 
             double[] si1 = new double[]{1.1E10, 1.2E10, 1.3E10};
             double[] si2 = new double[]{1.4E10, 1.5E10};
@@ -1226,8 +1232,8 @@ class Twoways {
         }
 
         {
-            java.util.Map<String, String[]> sdi1 = new java.util.HashMap<String, String[]>();
-            java.util.Map<String, String[]> sdi2 = new java.util.HashMap<String, String[]>();
+            Map<String, String[]> sdi1 = new HashMap<String, String[]>();
+            Map<String, String[]> sdi2 = new HashMap<String, String[]>();
 
             String[] si1 = new String[]{"abc", "de", "fghi"};
             String[] si2 = new String[]{"xyz", "or"};
@@ -1257,8 +1263,8 @@ class Twoways {
         }
 
         {
-            java.util.Map<MyEnum, MyEnum[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<MyEnum, MyEnum[]> sdi2 = new java.util.HashMap<>();
+            Map<MyEnum, MyEnum[]> sdi1 = new HashMap<>();
+            Map<MyEnum, MyEnum[]> sdi2 = new HashMap<>();
 
             final MyEnum[] si1 = new MyEnum[]{MyEnum.enum1, MyEnum.enum1, MyEnum.enum2};
             final MyEnum[] si2 = new MyEnum[]{MyEnum.enum1, MyEnum.enum2};
@@ -1335,7 +1341,7 @@ class Twoways {
 
             String[] impls = {"Shared", "PerThread"};
             for (int i = 0; i < 2; i++) {
-                com.zeroc.Ice.Properties properties = communicator.getProperties()._clone();
+                Properties properties = communicator.getProperties()._clone();
                 properties.setProperty("Ice.ImplicitContext", impls[i]);
 
                 try (Communicator ic = helper.initialize(properties)) {
@@ -1446,13 +1452,13 @@ class Twoways {
             String[] p1 = new String[1];
             p1[0] = "test";
             MyClass.OpMSeq2Result r = p.opMSeq2(p1);
-            test(java.util.Arrays.equals(r.p2, p1) && java.util.Arrays.equals(r.returnValue, p1));
+            test(Arrays.equals(r.p2, p1) && Arrays.equals(r.returnValue, p1));
         }
 
         {
             p.opMDict1();
 
-            java.util.Map<String, String> p1 = new java.util.HashMap<>();
+            Map<String, String> p1 = new HashMap<>();
             p1.put("test", "test");
             MyClass.OpMDict2Result r = p.opMDict2(p1);
             test(r.p2.equals(p1) && r.returnValue.equals(p1));

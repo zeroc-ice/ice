@@ -2,12 +2,20 @@
 
 package test.Ice.executor;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.CommunicatorDestroyedException;
 import com.zeroc.Ice.InvocationFuture;
+import com.zeroc.Ice.InvocationTimeoutException;
+import com.zeroc.Ice.NoEndpointException;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Util;
 
 import test.Ice.executor.Test.TestIntfControllerPrx;
 import test.Ice.executor.Test.TestIntfPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 public class AllTests {
@@ -57,17 +65,17 @@ public class AllTests {
         }
     }
 
-    public static void allTests(test.TestHelper helper, final CustomExecutor executor) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static void allTests(TestHelper helper, final CustomExecutor executor) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
 
         String sref = "test:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(sref);
+        ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         int mult = 1;
-        if (!"tcp".equals(communicator.getProperties().getIceProperty("Ice.Default.Protocol")) ||
-                helper.isAndroid()) {
+        if (!"tcp".equals(communicator.getProperties().getIceProperty("Ice.Default.Protocol"))
+                || helper.isAndroid()) {
             mult = 4;
         }
 
@@ -123,7 +131,7 @@ public class AllTests {
                         .whenCompleteAsync(
                                 (result, ex) -> {
                                     if (ex != null) {
-                                        test(ex instanceof com.zeroc.Ice.NoEndpointException);
+                                        test(ex instanceof NoEndpointException);
                                         test(executor.isCustomExecutorThread());
                                         cb.called();
                                     } else {
@@ -141,7 +149,7 @@ public class AllTests {
                         .whenCompleteAsync(
                                 (result, ex) -> {
                                     if (ex != null) {
-                                        test(ex instanceof com.zeroc.Ice.NoEndpointException);
+                                        test(ex instanceof NoEndpointException);
                                         test(executor.isCustomExecutorThread());
                                         cb.called();
                                     } else {
@@ -162,7 +170,7 @@ public class AllTests {
                 r.whenCompleteAsync(
                         (result, ex) -> {
                             if (ex != null) {
-                                test(ex instanceof com.zeroc.Ice.InvocationTimeoutException);
+                                test(ex instanceof InvocationTimeoutException);
                                 test(executor.isCustomExecutorThread());
                                 cb.called();
                             } else {
@@ -170,7 +178,7 @@ public class AllTests {
                             }
                         },
                         executor);
-                com.zeroc.Ice.Util.getInvocationFuture(r)
+                Util.getInvocationFuture(r)
                         .whenSentAsync(
                                 (sentSynchronously, ex) -> {
                                     test(ex == null);
@@ -190,7 +198,7 @@ public class AllTests {
                 r.whenCompleteAsync(
                         (result, ex) -> {
                             if (ex != null) {
-                                test(ex instanceof com.zeroc.Ice.InvocationTimeoutException);
+                                test(ex instanceof InvocationTimeoutException);
                                 test(executor.isCustomExecutorThread());
                                 cb.called();
                             } else {
@@ -198,7 +206,7 @@ public class AllTests {
                             }
                         },
                         executor);
-                com.zeroc.Ice.Util.getInvocationFuture(r)
+                Util.getInvocationFuture(r)
                         .whenSentAsync(
                                 (sentSynchronously, ex) -> {
                                     test(ex == null);
@@ -214,7 +222,7 @@ public class AllTests {
             testController.holdAdapter();
             p = p.ice_collocationOptimized(false);
             byte[] seq = new byte[10 * 1024];
-            new java.util.Random()
+            new Random()
                     .nextBytes(seq); // Make sure the request doesn't compress too well.
             CompletableFuture<Void> r = null;
             while (true) {
@@ -222,12 +230,12 @@ public class AllTests {
                 r.whenComplete(
                         (result, ex) -> {
                             if (ex != null) {
-                                test(ex instanceof com.zeroc.Ice.CommunicatorDestroyedException);
+                                test(ex instanceof CommunicatorDestroyedException);
                             } else {
                                 test(executor.isCustomExecutorThread());
                             }
                         });
-                InvocationFuture<Void> f = com.zeroc.Ice.Util.getInvocationFuture(r);
+                InvocationFuture<Void> f = Util.getInvocationFuture(r);
                 f.whenSentAsync(
                         (sentSynchronously, ex) -> {
                             test(ex == null);

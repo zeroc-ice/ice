@@ -7,11 +7,13 @@ import com.zeroc.IceGridGUI.*;
 
 import javax.swing.JPopupMenu;
 
+import java.util.*;
+
 class ServiceTemplates extends Templates {
-    public static java.util.Map<String, TemplateDescriptor> copyDescriptors(
-            java.util.Map<String, TemplateDescriptor> descriptors) {
-        java.util.Map<String, TemplateDescriptor> copy = new java.util.HashMap<>();
-        for (java.util.Map.Entry<String, TemplateDescriptor> p : descriptors.entrySet()) {
+    public static Map<String, TemplateDescriptor> copyDescriptors(
+            Map<String, TemplateDescriptor> descriptors) {
+        Map<String, TemplateDescriptor> copy = new HashMap<>();
+        for (Map.Entry<String, TemplateDescriptor> p : descriptors.entrySet()) {
             copy.put(p.getKey(), ServiceTemplate.copyDescriptor(p.getValue()));
         }
         return copy;
@@ -46,9 +48,9 @@ class ServiceTemplates extends Templates {
     public void newTemplateService() {
         ServiceDescriptor sd =
                 new ServiceDescriptor(
-                        new java.util.LinkedList<AdapterDescriptor>(),
+                        new LinkedList<AdapterDescriptor>(),
                         new PropertySetDescriptor(
-                                new String[0], new java.util.LinkedList<PropertyDescriptor>()),
+                                new String[0], new LinkedList<PropertyDescriptor>()),
                         new String[0],
                         "",
                         "",
@@ -57,8 +59,8 @@ class ServiceTemplates extends Templates {
         newServiceTemplate(
                 new TemplateDescriptor(
                         sd,
-                        new java.util.LinkedList<String>(),
-                        new java.util.TreeMap<String, String>()));
+                        new LinkedList<String>(),
+                        new TreeMap<String, String>()));
     }
 
     @Override
@@ -68,13 +70,13 @@ class ServiceTemplates extends Templates {
         newServiceTemplate(td);
     }
 
-    ServiceTemplates(Root parent, java.util.Map<String, TemplateDescriptor> descriptors)
+    ServiceTemplates(Root parent, Map<String, TemplateDescriptor> descriptors)
             throws UpdateFailedException {
         super(parent, "Service templates");
 
         _descriptors = descriptors;
 
-        for (java.util.Map.Entry<String, TemplateDescriptor> p : _descriptors.entrySet()) {
+        for (Map.Entry<String, TemplateDescriptor> p : _descriptors.entrySet()) {
             insertChild(new ServiceTemplate(false, this, p.getKey(), p.getValue()), false);
         }
     }
@@ -103,8 +105,8 @@ class ServiceTemplates extends Templates {
         _descriptors.put(newId, descriptor);
     }
 
-    java.util.Map<String, TemplateDescriptor> getUpdates() {
-        java.util.Map<String, TemplateDescriptor> updates = new java.util.HashMap<>();
+    Map<String, TemplateDescriptor> getUpdates() {
+        Map<String, TemplateDescriptor> updates = new HashMap<>();
         for (TreeNodeBase p : _children) {
             ServiceTemplate t = (ServiceTemplate) p;
             if (t.getEditable().isNew() || t.getEditable().isModified()) {
@@ -122,7 +124,7 @@ class ServiceTemplates extends Templates {
         }
     }
 
-    void update(java.util.Map<String, TemplateDescriptor> descriptors, String[] removeTemplates)
+    void update(Map<String, TemplateDescriptor> descriptors, String[] removeTemplates)
             throws UpdateFailedException {
         //
         // Note: _descriptors is updated by Application
@@ -132,10 +134,10 @@ class ServiceTemplates extends Templates {
         removeChildren(removeTemplates);
 
         // One big set of updates, followed by inserts
-        java.util.List<TreeNodeBase> newChildren = new java.util.ArrayList<>();
-        java.util.List<TreeNodeBase> updatedChildren = new java.util.LinkedList<>();
+        List<TreeNodeBase> newChildren = new ArrayList<>();
+        List<TreeNodeBase> updatedChildren = new LinkedList<>();
 
-        for (java.util.Map.Entry<String, TemplateDescriptor> p : descriptors.entrySet()) {
+        for (Map.Entry<String, TemplateDescriptor> p : descriptors.entrySet()) {
             String name = p.getKey();
             TemplateDescriptor templateDescriptor = p.getValue();
             ServiceTemplate child = (ServiceTemplate) findChild(name);
@@ -160,7 +162,7 @@ class ServiceTemplates extends Templates {
         return _descriptors;
     }
 
-    private java.util.Map<String, TemplateDescriptor> _descriptors;
+    private final Map<String, TemplateDescriptor> _descriptors;
 
     private static JPopupMenu _popup;
 }

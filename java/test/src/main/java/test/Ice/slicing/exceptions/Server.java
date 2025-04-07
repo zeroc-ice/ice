@@ -2,17 +2,24 @@
 
 package test.Ice.slicing.exceptions;
 
-public class Server extends test.TestHelper {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+
+import test.TestHelper;
+
+public class Server extends TestHelper {
     public void run(String[] args) {
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.slicing.exceptions.server");
         properties.setProperty("Ice.Warn.Dispatch", "0");
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(properties)) {
             communicator
                     .getProperties()
                     .setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 2000");
-            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new TestI(), com.zeroc.Ice.Util.stringToIdentity("Test"));
+            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new TestI(), Util.stringToIdentity("Test"));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

@@ -2,12 +2,18 @@
 
 package test.Ice.packagemd;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.MarshalException;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.UnknownUserException;
+
 import test.Ice.packagemd.Test.InitialPrx;
 import test.Ice.packagemd.Test1.C1;
 import test.Ice.packagemd.Test1.C2;
 import test.Ice.packagemd.Test1.E1;
 import test.Ice.packagemd.Test1.E2;
 import test.Ice.packagemd.Test1.notify;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 
@@ -18,13 +24,13 @@ public class AllTests {
         }
     }
 
-    public static InitialPrx allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static InitialPrx allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "initial:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 
@@ -72,9 +78,9 @@ public class AllTests {
                 try {
                     initial.throwTest2E2AsE1();
                     test(false);
-                } catch (com.zeroc.Ice.UnknownUserException ex) {
+                } catch (UnknownUserException ex) {
                     // Expected
-                } catch (com.zeroc.Ice.MarshalException ex) {
+                } catch (MarshalException ex) {
                     // Expected
                 } catch (test.Ice.packagemd.testpkg.Test2.E1 ex) {
                     test(false);
@@ -82,9 +88,9 @@ public class AllTests {
                 try {
                     initial.throwTest2E2AsE2();
                     test(false);
-                } catch (com.zeroc.Ice.UnknownUserException ex) {
+                } catch (UnknownUserException ex) {
                     // Expected
-                } catch (com.zeroc.Ice.MarshalException ex) {
+                } catch (MarshalException ex) {
                     // Expected
                 } catch (test.Ice.packagemd.testpkg.Test2.E1 ex) {
                     test(false);

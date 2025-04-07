@@ -73,5 +73,5 @@ class PlainServiceEditor extends CommunicatorChildEditor {
         }
     }
 
-    private ServiceSubEditor _subEditor;
+    private final ServiceSubEditor _subEditor;
 }

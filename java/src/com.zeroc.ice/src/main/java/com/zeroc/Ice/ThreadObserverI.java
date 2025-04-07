@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.IceMX.Observer;
+import com.zeroc.Ice.IceMX.ObserverWithDelegate;
 import com.zeroc.Ice.IceMX.ThreadMetrics;
 import com.zeroc.Ice.Instrumentation.ThreadObserver;
 import com.zeroc.Ice.Instrumentation.ThreadState;
@@ -10,7 +12,7 @@ import com.zeroc.Ice.Instrumentation.ThreadState;
  * @hidden Public because it's used by IceMX (via reflection).
  */
 public class ThreadObserverI
-        extends com.zeroc.Ice.IceMX.ObserverWithDelegate<ThreadMetrics, ThreadObserver>
+        extends ObserverWithDelegate<ThreadMetrics, ThreadObserver>
         implements ThreadObserver {
     @Override
     public void stateChanged(final ThreadState oldState, final ThreadState newState) {
@@ -22,8 +24,8 @@ public class ThreadObserverI
         }
     }
 
-    private com.zeroc.Ice.IceMX.Observer.MetricsUpdate<ThreadMetrics> _threadStateUpdate =
-            new com.zeroc.Ice.IceMX.Observer.MetricsUpdate<ThreadMetrics>() {
+    private final Observer.MetricsUpdate<ThreadMetrics> _threadStateUpdate =
+            new Observer.MetricsUpdate<ThreadMetrics>() {
                 @Override
                 public void update(ThreadMetrics v) {
                     switch (_oldState) {

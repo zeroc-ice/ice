@@ -4,7 +4,9 @@ package test.Ice.idleTimeout;
 
 import com.zeroc.Ice.Identity;
 
-public class Server extends test.TestHelper {
+import test.TestHelper;
+
+public class Server extends TestHelper {
     public void run(String[] args) {
         var properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.idleTimeout");

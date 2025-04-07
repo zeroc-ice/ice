@@ -6,13 +6,14 @@ import com.zeroc.Ice.Communicator;
 
 import test.Ice.maxDispatches.Test.ResponderPrx;
 import test.Ice.maxDispatches.Test.TestIntfPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 public class AllTests {
-    static void allTests(test.TestHelper helper) {
+    static void allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
         String proxyString = "test: " + helper.getTestEndpoint();
         var p = TestIntfPrx.createProxy(communicator, proxyString);

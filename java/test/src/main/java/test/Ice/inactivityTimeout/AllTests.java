@@ -8,11 +8,12 @@ import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.Properties;
 
 import test.Ice.inactivityTimeout.Test.TestIntfPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 
 public class AllTests {
-    static void allTests(test.TestHelper helper) {
+    static void allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
         String proxyString = "test: " + helper.getTestEndpoint();
         TestIntfPrx p = TestIntfPrx.uncheckedCast(communicator.stringToProxy(proxyString));
@@ -51,7 +52,7 @@ public class AllTests {
     }
 
     private static void testServerInactivityTimeout(
-            test.TestHelper helper, String proxyString, Properties properties, PrintWriter output) {
+            TestHelper helper, String proxyString, Properties properties, PrintWriter output) {
         output.write(
                 "testing that the server side inactivity timeout shuts down the connection... ");
         output.flush();
@@ -85,9 +86,9 @@ public class AllTests {
             TestIntfPrx p, boolean oneway, PrintWriter output) {
         String onewayString = oneway ? "one-way" : "two-way";
         output.write(
-                "testing the inactivity timeout with an outstanding " +
-                        onewayString +
-                        " request... ");
+                "testing the inactivity timeout with an outstanding "
+                        + onewayString
+                        + " request... ");
         output.flush();
 
         if (oneway) {

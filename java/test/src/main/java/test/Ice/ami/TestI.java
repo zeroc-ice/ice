@@ -2,6 +2,9 @@
 
 package test.Ice.ami;
 
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.ObjectNotExistException;
+
 import test.Ice.ami.Test.PingReplyPrx;
 import test.Ice.ami.Test.TestIntf;
 import test.Ice.ami.Test.TestIntfException;
@@ -23,79 +26,79 @@ public class TestI implements TestIntf {
     TestI() {}
 
     @Override
-    public void op(com.zeroc.Ice.Current current) {}
+    public void op(Current current) {}
 
     @Override
-    public int opWithResult(com.zeroc.Ice.Current current) {
+    public int opWithResult(Current current) {
         return 15;
     }
 
     @Override
-    public void opWithUE(com.zeroc.Ice.Current current) throws TestIntfException {
+    public void opWithUE(Current current) throws TestIntfException {
         throw new TestIntfException();
     }
 
     @Override
-    public void opWithPayload(byte[] seq, com.zeroc.Ice.Current current) {}
+    public void opWithPayload(byte[] seq, Current current) {}
 
     @Override
-    public synchronized void opBatch(com.zeroc.Ice.Current current) {
+    public synchronized void opBatch(Current current) {
         ++_batchCount;
         notify();
     }
 
     @Override
-    public synchronized int opBatchCount(com.zeroc.Ice.Current current) {
+    public synchronized int opBatchCount(Current current) {
         return _batchCount;
     }
 
     @Override
-    public boolean supportsFunctionalTests(com.zeroc.Ice.Current current) {
+    public boolean supportsFunctionalTests(Current current) {
         return true;
     }
 
     @Override
-    public boolean supportsBackPressureTests(com.zeroc.Ice.Current current) {
+    public boolean supportsBackPressureTests(Current current) {
         return true;
     }
 
     @Override
-    public boolean opBool(boolean b, com.zeroc.Ice.Current current) {
+    public boolean opBool(boolean b, Current current) {
         return b;
     }
 
     @Override
-    public byte opByte(byte b, com.zeroc.Ice.Current current) {
+    public byte opByte(byte b, Current current) {
         return b;
     }
 
     @Override
-    public short opShort(short s, com.zeroc.Ice.Current current) {
+    public short opShort(short s, Current current) {
         return s;
     }
 
     @Override
-    public int opInt(int i, com.zeroc.Ice.Current current) {
+    public int opInt(int i, Current current) {
         return i;
     }
 
     @Override
-    public long opLong(long l, com.zeroc.Ice.Current current) {
+    public long opLong(long l, Current current) {
         return l;
     }
 
     @Override
-    public float opFloat(float f, com.zeroc.Ice.Current current) {
+    public float opFloat(float f, Current current) {
         return f;
     }
 
     @Override
-    public double opDouble(double d, com.zeroc.Ice.Current current) {
+    public double opDouble(double d, Current current) {
         return d;
     }
 
     @Override
-    public CompletionStage<Void> pingBiDirAsync(PingReplyPrx reply, com.zeroc.Ice.Current current) {
+    public CompletionStage<Void> pingBiDirAsync(PingReplyPrx reply, Current current) {
         reply = reply.ice_fixed(current.con);
         boolean expectSuccess = !current.ctx.containsKey("ONE");
         return reply.replyAsync()
@@ -104,14 +107,14 @@ public class TestI implements TestIntf {
                             if (expectSuccess) {
                                 test(ex == null);
                             } else {
-                                test(ex instanceof com.zeroc.Ice.ObjectNotExistException);
+                                test(ex instanceof ObjectNotExistException);
                             }
                             return null; // means success
                         });
     }
 
     @Override
-    public synchronized boolean waitForBatch(int count, com.zeroc.Ice.Current current) {
+    public synchronized boolean waitForBatch(int count, Current current) {
         while (_batchCount < count) {
             try {
                 wait(5000);
@@ -124,7 +127,7 @@ public class TestI implements TestIntf {
     }
 
     @Override
-    public void closeConnection(com.zeroc.Ice.Current current) {
+    public void closeConnection(Current current) {
         // We can't wait for the connection to be closed - this would cause a self dead-lock. So
         // instead we just initiate the closure in the background.
         CompletableFuture.runAsync(
@@ -140,12 +143,12 @@ public class TestI implements TestIntf {
     }
 
     @Override
-    public void abortConnection(com.zeroc.Ice.Current current) {
+    public void abortConnection(Current current) {
         current.con.abort();
     }
 
     @Override
-    public void sleep(int ms, com.zeroc.Ice.Current current) {
+    public void sleep(int ms, Current current) {
         try {
             Thread.sleep(ms);
         } catch (InterruptedException ex) {
@@ -153,7 +156,7 @@ public class TestI implements TestIntf {
     }
 
     @Override
-    public synchronized CompletionStage<Void> startDispatchAsync(com.zeroc.Ice.Current current) {
+    public synchronized CompletionStage<Void> startDispatchAsync(Current current) {
         if (_shutdown) {
             // Ignore, this can occur with the forceful connection close test, shutdown can be
             // dispatch before start dispatch.
@@ -168,11 +171,11 @@ public class TestI implements TestIntf {
     }
 
     @Override
-    public synchronized void finishDispatch(com.zeroc.Ice.Current current) {
+    public synchronized void finishDispatch(Current current) {
         if (_shutdown) {
             return;
-        } else if (_pending !=
-                null) // Pending might not be set yet if startDispatch is dispatch out-of-order
+        } else if (_pending
+                != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
         {
             _pending.complete(null);
             _pending = null;
@@ -180,7 +183,7 @@ public class TestI implements TestIntf {
     }
 
     @Override
-    public synchronized void shutdown(com.zeroc.Ice.Current current) {
+    public synchronized void shutdown(Current current) {
         _shutdown = true;
         if (_pending != null) {
             _pending.complete(null);

@@ -14,7 +14,7 @@ import test.TestHelper;
 import java.io.PrintWriter;
 
 public class AllTests {
-    static void allTests(test.TestHelper helper) {
+    static void allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
         String proxyString = "test: " + helper.getTestEndpoint();
         var p = TestIntfPrx.createProxy(communicator, proxyString);

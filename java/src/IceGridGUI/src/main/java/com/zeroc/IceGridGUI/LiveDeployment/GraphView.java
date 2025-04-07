@@ -9,6 +9,9 @@ import com.jgoodies.looks.BorderStyle;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
+
+import com.zeroc.Ice.IceMX.Metrics;
+import com.zeroc.Ice.LocalException;
 import com.zeroc.IceGridGUI.*;
 import com.zeroc.IceGridGUI.LiveDeployment.MetricsViewEditor.FormattedNumberRenderer;
 import com.zeroc.IceGridGUI.LiveDeployment.MetricsViewEditor.MetricsCell;
@@ -18,6 +21,7 @@ import com.zeroc.IceGridGUI.LiveDeployment.MetricsViewEditor.MetricsViewTransfer
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -42,17 +46,24 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -90,11 +101,12 @@ import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 public class GraphView extends JFrame implements MetricsFieldContext, Coordinator.IGraphView {
-    class TimeFormatter extends StringConverter<java.lang.Number> {
+    class TimeFormatter extends StringConverter<Number> {
         TimeFormatter(String format) {
             setDateFormat(format);
             _dateFormat.setTimeZone(TimeZone.getDefault());
@@ -116,7 +128,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
             try {
                 long t = _dateFormat.parse(time).getTime();
                 return t;
-            } catch (java.text.ParseException e) {
+            } catch (ParseException e) {
                 return 0;
             }
         }
@@ -156,7 +168,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                         break;
                     }
                 } catch (UnsupportedFlavorException ex) {
-                } catch (java.io.IOException ex) {
+                } catch (IOException ex) {
                 }
             }
 
@@ -222,8 +234,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                             builder.append(
                                     "",
                                     new JLabel(
-                                            "<html><p>Sample interval in seconds; must be between 1" +
-                                                    "<br/>and 3600 seconds.</p></html>"));
+                                            "<html><p>Sample interval in seconds; must be between 1"
+                                                    + "<br/>and 3600 seconds.</p></html>"));
                             refreshPanel = builder.getPanel();
                         }
 
@@ -240,9 +252,9 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                             builder.append(
                                     "",
                                     new JLabel(
-                                            "<html><p>The number of samples displayed on a graph;" +
-                                                    "<br/>must be between 2 and 300." +
-                                                    "</p></html>"));
+                                            "<html><p>The number of samples displayed on a graph;"
+                                                    + "<br/>must be between 2 and 300."
+                                                    + "</p></html>"));
                             builder.append("Time format:", dateFormats);
 
                             xAxisPanel = builder.getPanel();
@@ -262,8 +274,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                         builder.getPanel(),
                                         "Metrics Graph Preferences",
                                         JOptionPane.OK_CANCEL_OPTION,
-                                        JOptionPane.PLAIN_MESSAGE) !=
-                                JOptionPane.OK_OPTION) {
+                                        JOptionPane.PLAIN_MESSAGE)
+                                != JOptionPane.OK_OPTION) {
                             return;
                         }
 
@@ -388,12 +400,12 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         JMenuBar menuBar = new JMenuBar();
 
         JMenu fileMenu = new JMenu("File");
-        fileMenu.setMnemonic(java.awt.event.KeyEvent.VK_F);
+        fileMenu.setMnemonic(KeyEvent.VK_F);
         fileMenu.add(preferences);
         menuBar.add(fileMenu);
 
         JMenu editMenu = new JMenu("Edit");
-        editMenu.setMnemonic(java.awt.event.KeyEvent.VK_E);
+        editMenu.setMnemonic(KeyEvent.VK_E);
         editMenu.add(delete);
         menuBar.add(editMenu);
 
@@ -460,8 +472,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                 @Override
                                 public void handle(DragEvent event) {
                                     Dragboard db = event.getDragboard();
-                                    if (event.getGestureSource() != scene &&
-                                            db.hasContent(LocalObjectMimeType)) {
+                                    if (event.getGestureSource() != scene
+                                            && db.hasContent(LocalObjectMimeType)) {
                                         Object object = db.getContent(LocalObjectMimeType);
                                         if (object instanceof MetricsViewTransferableData) {
                                             event.acceptTransferModes(TransferMode.COPY);
@@ -477,8 +489,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                 public void handle(DragEvent event) {
                                     boolean success = false;
                                     Dragboard db = event.getDragboard();
-                                    if (event.getGestureSource() != scene &&
-                                            db.hasContent(LocalObjectMimeType)) {
+                                    if (event.getGestureSource() != scene
+                                            && db.hasContent(LocalObjectMimeType)) {
                                         Object object = db.getContent(LocalObjectMimeType);
                                         if (object instanceof MetricsViewTransferableData) {
                                             addSeries((MetricsViewTransferableData) object);
@@ -644,16 +656,16 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                 j.getField().setContext(GraphView.this);
                                 // When a line is clicked we select the corresponding row in the
                                 // legend table.
-                                javafx.scene.Node n =
+                                Node n =
                                         _chart.lookup(".chart-series-line." + styleClass);
                                 if (n != null) {
                                     n.setOnMousePressed(
                                             new EventHandler<MouseEvent>() {
                                                 @Override
                                                 public void handle(MouseEvent e) {
-                                                    if (e.getEventType() == MouseEvent.MOUSE_PRESSED &&
-                                                            e.getButton() ==
-                                                                    MouseButton.PRIMARY) {
+                                                    if (e.getEventType() == MouseEvent.MOUSE_PRESSED
+                                                            && e.getButton()
+                                                                    == MouseButton.PRIMARY) {
                                                         // Must run in Swing thread.
                                                         enqueueSwing(
                                                                 () -> {
@@ -706,14 +718,14 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         // We need also a new click handler so click works in all segments of the line.
         //
         // When a line is clicked we select the corresponding row in the legend table.
-        javafx.scene.Node n = _chart.lookup(".chart-series-line." + styleClass);
+        Node n = _chart.lookup(".chart-series-line." + styleClass);
         if (n != null) {
             n.setOnMousePressed(
                     new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent e) {
-                            if (e.getEventType() == MouseEvent.MOUSE_PRESSED &&
-                                    e.getButton() == MouseButton.PRIMARY) {
+                            if (e.getEventType() == MouseEvent.MOUSE_PRESSED
+                                    && e.getButton() == MouseButton.PRIMARY) {
                                 // Must run in Swing thread.
                                 enqueueSwing(
                                         () -> {
@@ -731,7 +743,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
     private void addData(
             final MetricsViewInfo info,
-            final Map<String, com.zeroc.Ice.IceMX.Metrics[]> data,
+            final Map<String, Metrics[]> data,
             final long timestamp) {
         // Update the graph series in JavaFX thread.
         enqueueJFX(
@@ -743,7 +755,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
                     for (Map.Entry<String, Map<String, Map<String, MetricsRow>>> i :
                             series.entrySet()) {
-                        com.zeroc.Ice.IceMX.Metrics[] metricsSeq = null;
+                        Metrics[] metricsSeq = null;
                         if (data != null) {
                             metricsSeq = data.get(i.getKey());
                         }
@@ -752,10 +764,10 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                         // configured field we need to add a gap.
                         for (Map.Entry<String, Map<String, MetricsRow>> j :
                                 i.getValue().entrySet()) {
-                            com.zeroc.Ice.IceMX.Metrics metrics = null;
+                            Metrics metrics = null;
 
                             if (metricsSeq != null) {
-                                for (com.zeroc.Ice.IceMX.Metrics m : metricsSeq) {
+                                for (Metrics m : metricsSeq) {
                                     if (m.id.equals(j.getKey())) {
                                         metrics = m;
                                         break;
@@ -866,9 +878,9 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                             .getScheduledExecutor()
                             .scheduleAtFixedRate(
                                     () -> {
-                                        java.util.Set<MetricsViewInfo> metrics = null;
+                                        Set<MetricsViewInfo> metrics = null;
                                         synchronized (GraphView.this) {
-                                            metrics = new java.util.HashSet<>(_series.keySet());
+                                            metrics = new HashSet<>(_series.keySet());
                                         }
 
                                         for (final MetricsViewInfo m : metrics) {
@@ -886,14 +898,14 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                                                         addData(m, null, 0);
                                                                     }
                                                                 });
-                                            } catch (com.zeroc.Ice.LocalException e) {
+                                            } catch (LocalException e) {
                                                 addData(m, null, 0);
                                             }
                                         }
                                     },
                                     0,
                                     _refreshPeriod,
-                                    java.util.concurrent.TimeUnit.SECONDS);
+                                    TimeUnit.SECONDS);
         }
     }
 
@@ -982,7 +994,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         Stack<XYChart.Series<Number, Number>> series = new Stack<>();
     }
 
-    class LegendTableModel extends javax.swing.table.AbstractTableModel {
+    class LegendTableModel extends AbstractTableModel {
         @Override
         public String getColumnName(int col) {
             return _columnNames[col];
@@ -1120,10 +1132,10 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
         @Override
         public boolean isCellEditable(int row, int col) {
-            if (col < _columnNames.length &&
-                    ("Show".equals(_columnNames[col]) ||
-                            "Scale".equals(_columnNames[col]) ||
-                            "Color".equals(_columnNames[col]))) {
+            if (col < _columnNames.length
+                    && ("Show".equals(_columnNames[col])
+                            || "Scale".equals(_columnNames[col])
+                            || "Color".equals(_columnNames[col]))) {
                 return true;
             } else {
                 return false;
@@ -1154,10 +1166,10 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     // Convert color to the CSS representation used by JavaFX style.
                     // example: #ff00aa
                     row.color =
-                            "#" +
-                                    String.format("%02X", color.getRed()) +
-                                    String.format("%02X", color.getGreen()) +
-                                    String.format("%02X", color.getBlue());
+                            "#"
+                                    + String.format("%02X", color.getRed())
+                                    + String.format("%02X", color.getGreen())
+                                    + String.format("%02X", color.getBlue());
                     for (int i = 0; i < row.series.size(); i++) {
                         updateSeriesColor(row.series.get(i), row.color);
                     }
@@ -1239,9 +1251,9 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     //
     // Return the class used to style a series.
     public String getSeriesClass(XYChart.Series<Number, Number> series) {
-        if (series == null ||
-                series.getNode() == null ||
-                series.getNode().getStyleClass() == null) {
+        if (series == null
+                || series.getNode() == null
+                || series.getNode().getStyleClass() == null) {
             return null;
         }
         String value = null;
@@ -1257,7 +1269,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     // Must be called on JavaFX thread
     private void setNodesStyle(String seriesClass) {
         String style = _styles.get(seriesClass);
-        for (javafx.scene.Node n : _chart.lookupAll("." + seriesClass)) {
+        for (Node n : _chart.lookupAll("." + seriesClass)) {
             n.setStyle(style);
             // Disable effects like shadows. This effect doesn't look good in some Windows versions.
             n.setEffect(null);
@@ -1266,7 +1278,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
     // Must be called on JavaFX thread
     private void setNodesVisible(String seriesClass, boolean visible) {
-        for (javafx.scene.Node n : _chart.lookupAll("." + seriesClass)) {
+        for (Node n : _chart.lookupAll("." + seriesClass)) {
             n.setVisible(visible);
         }
     }
@@ -1439,7 +1451,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     }
 
     private final Coordinator _coordinator;
-    private java.util.concurrent.Future<?> _refreshFuture;
+    private Future<?> _refreshFuture;
 
     private static final int _minRefreshPeriod = 1; //     1 seconds
     private static final int _maxRefreshPeriod = 60 * 60; //  3600 seconds = 1 hour.
@@ -1541,7 +1553,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     // This s
     private static final int ScaleColumnNumber = 6;
 
-    private final java.util.concurrent.Semaphore _sem = new java.util.concurrent.Semaphore(0);
+    private final Semaphore _sem = new Semaphore(0);
     private final ExecutorService _queue =
             Executors.newSingleThreadExecutor(
                     (Runnable r) -> {

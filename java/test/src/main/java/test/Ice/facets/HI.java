@@ -2,27 +2,30 @@
 
 package test.Ice.facets;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Current;
+
 import test.Ice.facets.Test.H;
 
 public final class HI implements H {
-    public HI(com.zeroc.Ice.Communicator communicator) {
+    public HI(Communicator communicator) {
         _communicator = communicator;
     }
 
     @Override
-    public String callG(com.zeroc.Ice.Current current) {
+    public String callG(Current current) {
         return "G";
     }
 
     @Override
-    public String callH(com.zeroc.Ice.Current current) {
+    public String callH(Current current) {
         return "H";
     }
 
     @Override
-    public void shutdown(com.zeroc.Ice.Current current) {
+    public void shutdown(Current current) {
         _communicator.shutdown();
     }
 
-    private com.zeroc.Ice.Communicator _communicator;
+    private final Communicator _communicator;
 }

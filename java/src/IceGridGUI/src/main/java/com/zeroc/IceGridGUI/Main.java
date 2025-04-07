@@ -2,15 +2,13 @@
 
 package com.zeroc.IceGridGUI;
 
+import com.zeroc.Ice.LocalException;
+
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.prefs.Preferences;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 
 public class Main extends JFrame {
     public static void main(final String[] args) {
@@ -38,7 +36,7 @@ public class Main extends JFrame {
                     try {
                         // Create and set up the window.
                         new Main(args);
-                    } catch (com.zeroc.Ice.LocalException e) {
+                    } catch (LocalException e) {
                         JOptionPane.showMessageDialog(
                                 null,
                                 e.toString(),
@@ -51,7 +49,7 @@ public class Main extends JFrame {
 
     Main(String[] args) {
         super("IceGrid GUI");
-        javax.swing.ImageIcon icon = Utils.getIcon("/icons/16x16/grid.png");
+        ImageIcon icon = Utils.getIcon("/icons/16x16/grid.png");
         if (icon != null) {
             setIconImage(icon.getImage());
         }
@@ -65,16 +63,16 @@ public class Main extends JFrame {
                             if (_coordinator.needsSaving()) {
                                 if (JOptionPane.showOptionDialog(
                                                 Main.this,
-                                                "The application has unsaved changes, if you exit" +
-                                                        " all unsaved changes will be lost.\n" +
-                                                        "Exit and discard changes?",
+                                                "The application has unsaved changes, if you exit"
+                                                        + " all unsaved changes will be lost.\n"
+                                                        + "Exit and discard changes?",
                                                 "Save application",
                                                 JOptionPane.YES_NO_OPTION,
                                                 JOptionPane.YES_NO_OPTION,
                                                 null,
                                                 null,
-                                                null) ==
-                                        JOptionPane.YES_OPTION) {
+                                                null)
+                                        == JOptionPane.YES_OPTION) {
                                     _coordinator.exit(0);
                                 }
                             } else {
@@ -89,5 +87,5 @@ public class Main extends JFrame {
         _coordinator.showMainFrame();
     }
 
-    private Coordinator _coordinator;
+    private final Coordinator _coordinator;
 }

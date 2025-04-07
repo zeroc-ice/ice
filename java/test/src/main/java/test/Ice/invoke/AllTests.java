@@ -2,14 +2,20 @@
 
 package test.Ice.invoke;
 
+import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.InputStream;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.OperationMode;
 import com.zeroc.Ice.OutputStream;
 
 import test.Ice.invoke.Test.MyClassPrx;
 import test.Ice.invoke.Test.MyException;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class AllTests {
@@ -21,11 +27,11 @@ public class AllTests {
         }
     }
 
-    public static MyClassPrx allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static MyClassPrx allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         String ref = "test:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        ObjectPrx base = communicator.stringToProxy(ref);
         MyClassPrx cl = MyClassPrx.checkedCast(base);
         MyClassPrx oneway = cl.ice_oneway();
         MyClassPrx batchOneway = cl.ice_batchOneway();
@@ -33,7 +39,7 @@ public class AllTests {
         out.print("testing ice_invoke... ");
         out.flush();
         {
-            com.zeroc.Ice.Object.Ice_invokeResult r;
+            Object.Ice_invokeResult r;
 
             r = oneway.ice_invoke("opOneway", OperationMode.Normal, null);
             test(r.returnValue);
@@ -63,12 +69,12 @@ public class AllTests {
         }
 
         for (int i = 0; i < 2; i++) {
-            java.util.Map<String, String> context = null;
+            Map<String, String> context = null;
             if (i == 1) {
-                context = new java.util.HashMap<String, String>();
+                context = new HashMap<String, String>();
                 context.put("raise", "");
             }
-            com.zeroc.Ice.Object.Ice_invokeResult r =
+            Object.Ice_invokeResult r =
                     cl.ice_invoke("opException", OperationMode.Normal, null, context);
             if (r.returnValue) {
                 test(false);
@@ -91,9 +97,9 @@ public class AllTests {
         out.flush();
 
         {
-            CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> f =
+            CompletableFuture<Object.Ice_invokeResult> f =
                     oneway.ice_invokeAsync("opOneway", OperationMode.Normal, null);
-            com.zeroc.Ice.Object.Ice_invokeResult r = f.join();
+            Object.Ice_invokeResult r = f.join();
             test(r.returnValue);
 
             OutputStream outS = new OutputStream(communicator);
@@ -118,9 +124,9 @@ public class AllTests {
         }
 
         {
-            CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> f =
+            CompletableFuture<Object.Ice_invokeResult> f =
                     cl.ice_invokeAsync("opException", OperationMode.Normal, null);
-            com.zeroc.Ice.Object.Ice_invokeResult r = f.join();
+            Object.Ice_invokeResult r = f.join();
             if (r.returnValue) {
                 test(false);
             } else {

@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.util.ArrayList;
+
 final class WSEndpointFactory extends EndpointFactoryWithUnderlying {
     public WSEndpointFactory(ProtocolInstance instance, short type) {
         super(instance, type);
@@ -14,7 +16,7 @@ final class WSEndpointFactory extends EndpointFactoryWithUnderlying {
 
     @Override
     public EndpointI createWithUnderlying(
-            EndpointI underlying, java.util.ArrayList<String> args, boolean oaEndpoint) {
+            EndpointI underlying, ArrayList<String> args, boolean oaEndpoint) {
         return new WSEndpoint(_instance, underlying, args);
     }
 

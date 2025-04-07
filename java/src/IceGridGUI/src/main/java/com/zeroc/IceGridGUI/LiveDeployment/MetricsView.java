@@ -2,9 +2,17 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.zeroc.Ice.CommunicatorDestroyedException;
+import com.zeroc.Ice.ConnectionRefusedException;
+import com.zeroc.Ice.FacetNotExistException;
+import com.zeroc.Ice.IceMX.MetricsAdminPrx;
+import com.zeroc.Ice.IceMX.MetricsFailures;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.Component;
+import java.util.concurrent.CompletableFuture;
 
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
@@ -22,7 +30,7 @@ class MetricsView extends TreeNode {
     // Actions
     @Override
     public boolean[] getAvailableActions() {
-        boolean[] actions = new boolean[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
+        boolean[] actions = new boolean[TreeNode.ACTION_COUNT];
         actions[ENABLE_METRICS_VIEW] = !_enabled;
         actions[DISABLE_METRICS_VIEW] = _enabled;
         return actions;
@@ -53,7 +61,7 @@ class MetricsView extends TreeNode {
     MetricsView(
             TreeNode parent,
             String name,
-            com.zeroc.Ice.IceMX.MetricsAdminPrx admin,
+            MetricsAdminPrx admin,
             boolean enabled) {
         super(parent, name);
         _name = name;
@@ -81,8 +89,8 @@ class MetricsView extends TreeNode {
                                                             .showActions(MetricsView.this);
                                                     if (getRoot()
                                                                     .getTree()
-                                                                    .getLastSelectedPathComponent() ==
-                                                            MetricsView.this) {
+                                                                    .getLastSelectedPathComponent()
+                                                            == MetricsView.this) {
                                                         // If the metrics view is selected when
                                                         // enabled success, we must start the
                                                         // refresh thread to pull updates.
@@ -94,16 +102,13 @@ class MetricsView extends TreeNode {
                                         MetricsViewEditor.stopRefresh();
                                         SwingUtilities.invokeLater(
                                                 () -> {
-                                                    if (ex instanceof
-                                                                    com.zeroc.Ice
-                                                                            .ObjectNotExistException ||
-                                                            ex instanceof
-                                                                    com.zeroc.Ice
-                                                                            .ConnectionRefusedException) {
+                                                    if (ex
+                                                                    instanceof ObjectNotExistException
+                                                            || ex
+                                                                    instanceof ConnectionRefusedException) {
                                                         // Server is down.
-                                                    } else if (!(ex instanceof
-                                                            com.zeroc.Ice
-                                                                    .CommunicatorDestroyedException)) {
+                                                    } else if (!(ex
+                                                            instanceof CommunicatorDestroyedException)) {
                                                         ex.printStackTrace();
                                                         JOptionPane.showMessageDialog(
                                                                 getCoordinator().getMainFrame(),
@@ -131,8 +136,8 @@ class MetricsView extends TreeNode {
                                                             .showActions(MetricsView.this);
                                                     if (getRoot()
                                                                     .getTree()
-                                                                    .getLastSelectedPathComponent() ==
-                                                            MetricsView.this) {
+                                                                    .getLastSelectedPathComponent()
+                                                            == MetricsView.this) {
                                                         // If the metrics view is selected when
                                                         // disabled success, we stop the refresh.
                                                         MetricsViewEditor.stopRefresh();
@@ -142,16 +147,13 @@ class MetricsView extends TreeNode {
                                         MetricsViewEditor.stopRefresh();
                                         SwingUtilities.invokeLater(
                                                 () -> {
-                                                    if (ex instanceof
-                                                                    com.zeroc.Ice
-                                                                            .ObjectNotExistException ||
-                                                            ex instanceof
-                                                                    com.zeroc.Ice
-                                                                            .ConnectionRefusedException) {
+                                                    if (ex
+                                                                    instanceof ObjectNotExistException
+                                                            || ex
+                                                                    instanceof ConnectionRefusedException) {
                                                         // Server is down.
-                                                    } else if (!(ex instanceof
-                                                            com.zeroc.Ice
-                                                                    .CommunicatorDestroyedException)) {
+                                                    } else if (!(ex
+                                                            instanceof CommunicatorDestroyedException)) {
                                                         ex.printStackTrace();
                                                         JOptionPane.showMessageDialog(
                                                                 getCoordinator().getMainFrame(),
@@ -174,7 +176,7 @@ class MetricsView extends TreeNode {
         return _name;
     }
 
-    com.zeroc.Ice.IceMX.MetricsAdminPrx getMetricsAdmin() {
+    MetricsAdminPrx getMetricsAdmin() {
         return _admin;
     }
 
@@ -192,12 +194,12 @@ class MetricsView extends TreeNode {
         return _popup;
     }
 
-    public java.util.concurrent.CompletableFuture<com.zeroc.Ice.IceMX.MetricsFailures>
+    public CompletableFuture<MetricsFailures>
             fetchMetricsFailures(String map, String id) {
         if (_admin != null) {
             try {
                 return _admin.getMetricsFailuresAsync(_name, map, id);
-            } catch (com.zeroc.Ice.LocalException e) {
+            } catch (LocalException e) {
                 JOptionPane.showMessageDialog(
                         getCoordinator().getMainFrame(),
                         "Error: " + e.toString(),
@@ -226,19 +228,16 @@ class MetricsView extends TreeNode {
                                         MetricsViewEditor.stopRefresh();
                                         SwingUtilities.invokeLater(
                                                 () -> {
-                                                    if (ex instanceof
-                                                                    com.zeroc.Ice
-                                                                            .ObjectNotExistException ||
-                                                            ex instanceof
-                                                                    com.zeroc.Ice
-                                                                            .ConnectionRefusedException) {
+                                                    if (ex
+                                                                    instanceof ObjectNotExistException
+                                                            || ex
+                                                                    instanceof ConnectionRefusedException) {
                                                         // Server is down.
-                                                    } else if (ex instanceof
-                                                            com.zeroc.Ice.FacetNotExistException) {
+                                                    } else if (ex
+                                                            instanceof FacetNotExistException) {
                                                         // MetricsAdmin facet not present.
-                                                    } else if (!(ex instanceof
-                                                            com.zeroc.Ice
-                                                                    .CommunicatorDestroyedException)) {
+                                                    } else if (!(ex
+                                                            instanceof CommunicatorDestroyedException)) {
                                                         ex.printStackTrace();
                                                         JOptionPane.showMessageDialog(
                                                                 getCoordinator().getMainFrame(),
@@ -249,8 +248,8 @@ class MetricsView extends TreeNode {
                                                 });
                                     }
                                 });
-            } catch (com.zeroc.Ice.CommunicatorDestroyedException e) {
-            } catch (com.zeroc.Ice.LocalException e) {
+            } catch (CommunicatorDestroyedException e) {
+            } catch (LocalException e) {
                 MetricsViewEditor.stopRefresh();
                 JOptionPane.showMessageDialog(
                         getCoordinator().getMainFrame(),
@@ -261,9 +260,9 @@ class MetricsView extends TreeNode {
         }
     }
 
-    private String _name;
-    private com.zeroc.Ice.IceMX.MetricsAdminPrx _admin;
-    private MetricsViewEditor _editor;
+    private final String _name;
+    private final MetricsAdminPrx _admin;
+    private final MetricsViewEditor _editor;
     private boolean _enabled;
     private static JPopupMenu _popup;
     private static DefaultTreeCellRenderer _cellRenderer;

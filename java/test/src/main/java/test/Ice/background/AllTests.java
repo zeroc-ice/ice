@@ -2,15 +2,28 @@
 
 package test.Ice.background;
 
+import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ConnectionLostException;
+import com.zeroc.Ice.DNSException;
 import com.zeroc.Ice.InvocationFuture;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.LocatorPrx;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.RouterPrx;
+import com.zeroc.Ice.SecurityException;
+import com.zeroc.Ice.SocketException;
 import com.zeroc.Ice.SocketOperation;
+import com.zeroc.Ice.TimeoutException;
 import com.zeroc.Ice.Util;
 
 import test.Ice.background.Test.BackgroundControllerPrx;
 import test.Ice.background.Test.BackgroundPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -54,7 +67,7 @@ public class AllTests {
             _response.called();
         }
 
-        public void exception(com.zeroc.Ice.LocalException ex) {
+        public void exception(LocalException ex) {
             ex.printStackTrace();
             test(false);
         }
@@ -109,7 +122,7 @@ public class AllTests {
                         Thread.sleep(1);
                     } catch (InterruptedException ex) {
                     }
-                } catch (com.zeroc.Ice.LocalException ex) {
+                } catch (LocalException ex) {
                 }
             }
         }
@@ -123,12 +136,12 @@ public class AllTests {
         private BackgroundPrx _background;
     }
 
-    public static BackgroundPrx allTests(Configuration configuration, test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static BackgroundPrx allTests(Configuration configuration, TestHelper helper) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
 
         String sref = "background:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(sref);
+        ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         BackgroundPrx background = BackgroundPrx.uncheckedCast(obj);
@@ -170,24 +183,24 @@ public class AllTests {
         out.print("testing locator... ");
         out.flush();
         {
-            com.zeroc.Ice.LocatorPrx locator;
+            LocatorPrx locator;
             obj =
                     communicator
                             .stringToProxy("locator:" + helper.getTestEndpoint(0))
                             .ice_invocationTimeout(250);
-            locator = com.zeroc.Ice.LocatorPrx.uncheckedCast(obj);
+            locator = LocatorPrx.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_locator(locator).ice_oneway();
 
             backgroundController.pauseCall("findAdapterById");
             try {
                 obj.ice_ping();
                 test(false);
-            } catch (com.zeroc.Ice.TimeoutException ex) {
+            } catch (TimeoutException ex) {
             }
             backgroundController.resumeCall("findAdapterById");
 
             obj = communicator.stringToProxy("locator:" + helper.getTestEndpoint(0));
-            locator = com.zeroc.Ice.LocatorPrx.uncheckedCast(obj);
+            locator = LocatorPrx.uncheckedCast(obj);
             obj = obj.ice_locator(locator);
             obj.ice_ping();
 
@@ -210,25 +223,25 @@ public class AllTests {
         out.print("testing router... ");
         out.flush();
         {
-            com.zeroc.Ice.RouterPrx router;
+            RouterPrx router;
 
             obj =
                     communicator
                             .stringToProxy("router:" + helper.getTestEndpoint(0))
                             .ice_invocationTimeout(250);
-            router = com.zeroc.Ice.RouterPrx.uncheckedCast(obj);
+            router = RouterPrx.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_router(router).ice_oneway();
 
             backgroundController.pauseCall("getClientProxy");
             try {
                 obj.ice_ping();
                 test(false);
-            } catch (com.zeroc.Ice.TimeoutException ex) {
+            } catch (TimeoutException ex) {
             }
             backgroundController.resumeCall("getClientProxy");
 
             obj = communicator.stringToProxy("router:" + helper.getTestEndpoint(0));
-            router = com.zeroc.Ice.RouterPrx.uncheckedCast(obj);
+            router = RouterPrx.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_router(router);
             BackgroundPrx bg = BackgroundPrx.uncheckedCast(obj);
             test(bg.ice_getRouter() != null);
@@ -266,7 +279,7 @@ public class AllTests {
             background.ice_getCachedConnection().abort();
             background.opAsync();
 
-            java.util.List<CompletableFuture<Void>> results = new java.util.ArrayList<>();
+            List<CompletableFuture<Void>> results = new ArrayList<>();
             for (int i = 0; i < 10000; i++) {
                 CompletableFuture<Void> r = background.opAsync();
                 results.add(r);
@@ -291,23 +304,23 @@ public class AllTests {
     private static void connectTests(Configuration configuration, BackgroundPrx background) {
         try {
             background.op();
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             test(false);
         }
         background.ice_getConnection().close();
 
         for (int i = 0; i < 4; i++) {
             if (i == 0 || i == 2) {
-                configuration.connectorsException(new com.zeroc.Ice.DNSException("dummy"));
+                configuration.connectorsException(new DNSException("dummy"));
             } else {
-                configuration.connectException(new com.zeroc.Ice.SocketException());
+                configuration.connectException(new SocketException());
             }
             BackgroundPrx prx = i == 1 || i == 3 ? background : background.ice_oneway();
 
             try {
                 prx.op();
                 test(false);
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
             }
 
             CompletableFuture<Void> r = prx.opAsync();
@@ -317,7 +330,7 @@ public class AllTests {
                 r.join();
                 test(false);
             } catch (CompletionException ex) {
-                test(ex.getCause() instanceof com.zeroc.Ice.LocalException);
+                test(ex.getCause() instanceof LocalException);
             }
             test(r.isDone());
 
@@ -334,11 +347,11 @@ public class AllTests {
         for (int i = 0; i < 5; i++) {
             try {
                 background.ice_ping();
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
                 test(false);
             }
 
-            configuration.connectException(new com.zeroc.Ice.SocketException());
+            configuration.connectException(new SocketException());
             background.ice_getCachedConnection().abort();
             try {
                 Thread.sleep(10);
@@ -347,7 +360,7 @@ public class AllTests {
             configuration.connectException(null);
             try {
                 background.ice_ping();
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
             }
         }
 
@@ -365,7 +378,7 @@ public class AllTests {
             Configuration configuration, BackgroundPrx background, BackgroundControllerPrx ctl) {
         try {
             background.op();
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             ex.printStackTrace();
             test(false);
         }
@@ -373,17 +386,17 @@ public class AllTests {
 
         for (int i = 0; i < 4; i++) {
             if (i == 0 || i == 2) {
-                configuration.initializeException(new com.zeroc.Ice.SocketException());
+                configuration.initializeException(new SocketException());
             } else {
                 configuration.initializeSocketStatus(SocketOperation.Write);
-                configuration.initializeException(new com.zeroc.Ice.SocketException());
+                configuration.initializeException(new SocketException());
             }
             BackgroundPrx prx = i == 1 || i == 3 ? background : background.ice_oneway();
 
             try {
                 prx.op();
                 test(false);
-            } catch (com.zeroc.Ice.SocketException ex) {
+            } catch (SocketException ex) {
             }
 
             CompletableFuture<Void> r = prx.opAsync();
@@ -393,7 +406,7 @@ public class AllTests {
                 r.join();
                 test(false);
             } catch (CompletionException ex) {
-                test(ex.getCause() instanceof com.zeroc.Ice.LocalException);
+                test(ex.getCause() instanceof LocalException);
             }
             test(r.isDone());
 
@@ -409,7 +422,7 @@ public class AllTests {
             configuration.initializeSocketStatus(SocketOperation.Connect);
             background.op();
             configuration.initializeSocketStatus(SocketOperation.None);
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             test(false);
         }
         background.ice_getConnection().close();
@@ -418,17 +431,17 @@ public class AllTests {
             configuration.initializeSocketStatus(SocketOperation.Write);
             background.op();
             configuration.initializeSocketStatus(SocketOperation.None);
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             test(false);
         }
         background.ice_getConnection().close();
 
         try {
             configuration.initializeSocketStatus(SocketOperation.Write);
-            configuration.initializeException(new com.zeroc.Ice.SocketException());
+            configuration.initializeException(new SocketException());
             background.op();
             test(false);
-        } catch (com.zeroc.Ice.SocketException ex) {
+        } catch (SocketException ex) {
             configuration.initializeException(null);
             configuration.initializeSocketStatus(SocketOperation.None);
         }
@@ -443,7 +456,7 @@ public class AllTests {
             test(false);
         } catch (ConnectionLostException ex) {
             ctl.initializeException(false);
-        } catch (com.zeroc.Ice.SecurityException ex) {
+        } catch (SecurityException ex) {
             ctl.initializeException(false);
         }
 
@@ -451,7 +464,7 @@ public class AllTests {
             ctl.initializeSocketStatus(SocketOperation.Write);
             background.op();
             ctl.initializeSocketStatus(SocketOperation.None);
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             test(false);
         }
         background.ice_getConnection().close();
@@ -464,7 +477,7 @@ public class AllTests {
         } catch (ConnectionLostException ex) {
             ctl.initializeException(false);
             ctl.initializeSocketStatus(SocketOperation.None);
-        } catch (com.zeroc.Ice.SecurityException ex) {
+        } catch (SecurityException ex) {
             ctl.initializeException(false);
             ctl.initializeSocketStatus(SocketOperation.None);
         }
@@ -475,12 +488,12 @@ public class AllTests {
         for (int i = 0; i < 5; i++) {
             try {
                 background.ice_ping();
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
 
-            configuration.initializeException(new com.zeroc.Ice.SocketException());
+            configuration.initializeException(new SocketException());
             background.ice_getCachedConnection().abort();
             try {
                 Thread.sleep(10);
@@ -489,11 +502,11 @@ public class AllTests {
             configuration.initializeException(null);
             try {
                 background.ice_ping();
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
             }
             try {
                 background.ice_ping();
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -503,7 +516,7 @@ public class AllTests {
 
             try {
                 background.ice_ping();
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
                 ex.printStackTrace();
                 test(false); // Something's wrong with retries.
             }
@@ -519,11 +532,11 @@ public class AllTests {
             ctl.initializeException(false);
             try {
                 background.ice_ping();
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
             }
             try {
                 background.ice_ping();
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -533,7 +546,7 @@ public class AllTests {
                 background.ice_getCachedConnection().abort();
                 background.op();
                 ctl.initializeSocketStatus(SocketOperation.None);
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -553,7 +566,7 @@ public class AllTests {
             Configuration configuration, BackgroundPrx background, BackgroundControllerPrx ctl) {
         try {
             background.op();
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             ex.printStackTrace();
             test(false);
         }
@@ -561,15 +574,15 @@ public class AllTests {
 
         try {
             // Get the read() of connection validation to throw right away.
-            configuration.readException(new com.zeroc.Ice.SocketException());
+            configuration.readException(new SocketException());
             background.op();
             test(false);
-        } catch (com.zeroc.Ice.SocketException ex) {
+        } catch (SocketException ex) {
             configuration.readException(null);
         }
 
         for (int i = 0; i < 2; i++) {
-            configuration.readException(new com.zeroc.Ice.SocketException());
+            configuration.readException(new SocketException());
             BackgroundPrx prx = i == 0 ? background : background.ice_oneway();
             CompletableFuture<Void> r = prx.opAsync();
             InvocationFuture<Void> f = Util.getInvocationFuture(r);
@@ -578,7 +591,7 @@ public class AllTests {
                 r.join();
                 test(false);
             } catch (CompletionException ex) {
-                test(ex.getCause() instanceof com.zeroc.Ice.SocketException);
+                test(ex.getCause() instanceof SocketException);
             }
             test(r.isDone());
             configuration.readException(null);
@@ -594,7 +607,7 @@ public class AllTests {
                 configuration.readReady(false);
                 background.op();
                 configuration.readReady(true);
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -604,17 +617,17 @@ public class AllTests {
                 // Get the read() of the connection validation to return "would block" and then
                 // throw.
                 configuration.readReady(false);
-                configuration.readException(new com.zeroc.Ice.SocketException());
+                configuration.readException(new SocketException());
                 background.op();
                 test(false);
-            } catch (com.zeroc.Ice.SocketException ex) {
+            } catch (SocketException ex) {
                 configuration.readException(null);
                 configuration.readReady(true);
             }
 
             for (int i = 0; i < 2; i++) {
                 configuration.readReady(false);
-                configuration.readException(new com.zeroc.Ice.SocketException());
+                configuration.readException(new SocketException());
                 CompletableFuture<Void> r = background.opAsync();
                 InvocationFuture<Void> f = Util.getInvocationFuture(r);
                 test(!f.sentSynchronously());
@@ -622,7 +635,7 @@ public class AllTests {
                     r.join();
                     test(false);
                 } catch (CompletionException ex) {
-                    test(ex.getCause() instanceof com.zeroc.Ice.SocketException);
+                    test(ex.getCause() instanceof SocketException);
                 }
                 test(r.isDone());
                 configuration.readException(null);
@@ -656,7 +669,7 @@ public class AllTests {
             ctl.writeReady(false);
             background.op();
             ctl.writeReady(true);
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             ex.printStackTrace();
             test(false);
         }
@@ -728,7 +741,7 @@ public class AllTests {
             Configuration configuration, BackgroundPrx background, BackgroundControllerPrx ctl) {
         try {
             background.op();
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             ex.printStackTrace();
             test(false);
         }
@@ -738,15 +751,15 @@ public class AllTests {
 
             try {
                 background.ice_ping();
-                configuration.writeException(new com.zeroc.Ice.SocketException());
+                configuration.writeException(new SocketException());
                 prx.op();
                 test(false);
-            } catch (com.zeroc.Ice.SocketException ex) {
+            } catch (SocketException ex) {
                 configuration.writeException(null);
             }
 
             background.ice_ping();
-            configuration.writeException(new com.zeroc.Ice.SocketException());
+            configuration.writeException(new SocketException());
             CompletableFuture<Void> r = prx.opAsync();
             InvocationFuture<Void> f = Util.getInvocationFuture(r);
             test(!f.sentSynchronously());
@@ -754,7 +767,7 @@ public class AllTests {
                 r.join();
                 test(false);
             } catch (CompletionException ex) {
-                test(ex.getCause() instanceof com.zeroc.Ice.SocketException);
+                test(ex.getCause() instanceof SocketException);
             }
             test(r.isDone());
             configuration.writeException(null);
@@ -762,23 +775,23 @@ public class AllTests {
 
         try {
             background.ice_ping();
-            configuration.readException(new com.zeroc.Ice.SocketException());
+            configuration.readException(new SocketException());
             background.op();
             test(false);
-        } catch (com.zeroc.Ice.SocketException ex) {
+        } catch (SocketException ex) {
             configuration.readException(null);
         }
 
         background.ice_ping();
         configuration.readReady(
                 false); // Required in C# to make sure beginRead() doesn't throw too soon.
-        configuration.readException(new com.zeroc.Ice.SocketException());
+        configuration.readException(new SocketException());
         CompletableFuture<Void> r = background.opAsync();
         try {
             r.join();
             test(false);
         } catch (CompletionException ex) {
-            test(ex.getCause() instanceof com.zeroc.Ice.SocketException);
+            test(ex.getCause() instanceof SocketException);
         }
         test(r.isDone());
         configuration.readException(null);
@@ -789,7 +802,7 @@ public class AllTests {
             configuration.writeReady(false);
             background.op();
             configuration.writeReady(true);
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             ex.printStackTrace();
             test(false);
         }
@@ -799,7 +812,7 @@ public class AllTests {
             configuration.readReady(false);
             background.op();
             configuration.readReady(true);
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             ex.printStackTrace();
             test(false);
         }
@@ -807,10 +820,10 @@ public class AllTests {
         try {
             background.ice_ping();
             configuration.writeReady(false);
-            configuration.writeException(new com.zeroc.Ice.SocketException());
+            configuration.writeException(new SocketException());
             background.op();
             test(false);
-        } catch (com.zeroc.Ice.SocketException ex) {
+        } catch (SocketException ex) {
             configuration.writeReady(true);
             configuration.writeException(null);
         }
@@ -820,7 +833,7 @@ public class AllTests {
 
             background.ice_ping();
             configuration.writeReady(false);
-            configuration.writeException(new com.zeroc.Ice.SocketException());
+            configuration.writeException(new SocketException());
             r = prx.opAsync();
             InvocationFuture<Void> f = Util.getInvocationFuture(r);
             test(!f.sentSynchronously());
@@ -828,7 +841,7 @@ public class AllTests {
                 r.join();
                 test(false);
             } catch (CompletionException ex) {
-                test(ex.getCause() instanceof com.zeroc.Ice.SocketException);
+                test(ex.getCause() instanceof SocketException);
             }
             test(r.isDone());
             configuration.writeReady(true);
@@ -838,10 +851,10 @@ public class AllTests {
         try {
             background.ice_ping();
             configuration.readReady(false);
-            configuration.readException(new com.zeroc.Ice.SocketException());
+            configuration.readException(new SocketException());
             background.op();
             test(false);
-        } catch (com.zeroc.Ice.SocketException ex) {
+        } catch (SocketException ex) {
             configuration.readException(null);
             configuration.readReady(true);
         }
@@ -849,13 +862,13 @@ public class AllTests {
         {
             background.ice_ping();
             configuration.readReady(false);
-            configuration.readException(new com.zeroc.Ice.SocketException());
+            configuration.readException(new SocketException());
             r = background.opAsync();
             try {
                 r.join();
                 test(false);
             } catch (CompletionException ex) {
-                test(ex.getCause() instanceof com.zeroc.Ice.SocketException);
+                test(ex.getCause() instanceof SocketException);
             }
             test(r.isDone());
             configuration.readReady(true);
@@ -866,7 +879,7 @@ public class AllTests {
             background.ice_ping();
             configuration.readReady(false);
             configuration.writeReady(false);
-            configuration.readException(new com.zeroc.Ice.SocketException());
+            configuration.readException(new SocketException());
             r = background.opAsync();
             InvocationFuture<Void> f = Util.getInvocationFuture(r);
             // The read exception might propagate before the message send is seen as completed on
@@ -876,7 +889,7 @@ public class AllTests {
                 r.join();
                 test(false);
             } catch (CompletionException ex) {
-                test(ex.getCause() instanceof com.zeroc.Ice.SocketException);
+                test(ex.getCause() instanceof SocketException);
             }
             test(r.isDone());
             configuration.writeReady(true);
@@ -892,7 +905,7 @@ public class AllTests {
         ctl.holdAdapter(); // Hold to block in request send.
 
         byte[] seq = new byte[10024];
-        new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
+        new Random().nextBytes(seq); // Make sure the request doesn't compress too well.
 
         // Fill up the receive and send buffers
         for (int i = 0; i < 200; i++) // 2MB
@@ -905,7 +918,7 @@ public class AllTests {
         r1.whenComplete(
                 (result, ex) -> {
                     if (ex != null) {
-                        cb.exception((com.zeroc.Ice.LocalException) ex);
+                        cb.exception((LocalException) ex);
                     } else {
                         cb.response();
                     }
@@ -915,7 +928,7 @@ public class AllTests {
         f1.whenSent(
                 (sentSynchronously, ex) -> {
                     if (ex != null) {
-                        cb.exception((com.zeroc.Ice.LocalException) ex);
+                        cb.exception((LocalException) ex);
                     } else {
                         cb.sent(sentSynchronously);
                     }
@@ -926,7 +939,7 @@ public class AllTests {
         r2.whenComplete(
                 (result, ex) -> {
                     if (ex != null) {
-                        cb2.exception((com.zeroc.Ice.LocalException) ex);
+                        cb2.exception((LocalException) ex);
                     } else {
                         cb2.response();
                     }
@@ -936,7 +949,7 @@ public class AllTests {
         f2.whenSent(
                 (sentSynchronously, ex) -> {
                     if (ex != null) {
-                        cb2.exception((com.zeroc.Ice.LocalException) ex);
+                        cb2.exception((LocalException) ex);
                     } else {
                         cb2.sent(sentSynchronously);
                     }
@@ -980,7 +993,7 @@ public class AllTests {
             ctl.writeReady(false);
             background.op();
             ctl.writeReady(true);
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             ex.printStackTrace();
             test(false);
         }
@@ -990,7 +1003,7 @@ public class AllTests {
             ctl.readReady(false);
             background.op();
             ctl.readReady(true);
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             ex.printStackTrace();
             test(false);
         }
@@ -1023,7 +1036,7 @@ public class AllTests {
         for (int i = 0; i < 5; i++) {
             try {
                 background.ice_ping();
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -1032,10 +1045,10 @@ public class AllTests {
                 Thread.sleep(10);
             } catch (InterruptedException ex) {
             }
-            configuration.writeException(new com.zeroc.Ice.SocketException());
+            configuration.writeException(new SocketException());
             try {
                 background.op();
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
             }
             configuration.writeException(null);
 

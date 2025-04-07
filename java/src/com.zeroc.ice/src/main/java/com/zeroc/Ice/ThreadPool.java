@@ -2,9 +2,19 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
+import com.zeroc.Ice.Instrumentation.ThreadObserver;
 import com.zeroc.Ice.Instrumentation.ThreadState;
 
-final class ThreadPool implements java.util.concurrent.Executor {
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.function.BiConsumer;
+
+final class ThreadPool implements Executor {
     final class ShutdownWorkItem implements ThreadPoolWorkItem {
         @Override
         public void execute(ThreadPoolCurrent current) {
@@ -99,12 +109,12 @@ final class ThreadPool implements java.util.concurrent.Executor {
         }
         if (sizeMax < size) {
             String s =
-                    _prefix +
-                            ".SizeMax < " +
-                            _prefix +
-                            ".Size; SizeMax adjusted to Size (" +
-                            size +
-                            ")";
+                    _prefix
+                            + ".SizeMax < "
+                            + _prefix
+                            + ".Size; SizeMax adjusted to Size ("
+                            + size
+                            + ")";
             _instance.initializationData().logger.warning(s);
             sizeMax = size;
         }
@@ -112,22 +122,22 @@ final class ThreadPool implements java.util.concurrent.Executor {
         int sizeWarn = properties.getPropertyAsInt(_prefix + ".SizeWarn");
         if (sizeWarn != 0 && sizeWarn < size) {
             String s =
-                    _prefix +
-                            ".SizeWarn < " +
-                            _prefix +
-                            ".Size; adjusted SizeWarn to Size (" +
-                            size +
-                            ")";
+                    _prefix
+                            + ".SizeWarn < "
+                            + _prefix
+                            + ".Size; adjusted SizeWarn to Size ("
+                            + size
+                            + ")";
             _instance.initializationData().logger.warning(s);
             sizeWarn = size;
         } else if (sizeWarn > sizeMax) {
             String s =
-                    _prefix +
-                            ".SizeWarn > " +
-                            _prefix +
-                            ".SizeMax; adjusted SizeWarn to SizeMax (" +
-                            sizeMax +
-                            ")";
+                    _prefix
+                            + ".SizeWarn > "
+                            + _prefix
+                            + ".SizeMax; adjusted SizeWarn to SizeMax ("
+                            + sizeMax
+                            + ")";
             _instance.initializationData().logger.warning(s);
             sizeWarn = sizeMax;
         }
@@ -168,14 +178,14 @@ final class ThreadPool implements java.util.concurrent.Executor {
 
         if (_instance.traceLevels().threadPool >= 1) {
             String s =
-                    "creating " +
-                            _prefix +
-                            ": Size = " +
-                            _size +
-                            ", SizeMax = " +
-                            _sizeMax +
-                            ", SizeWarn = " +
-                            _sizeWarn;
+                    "creating "
+                            + _prefix
+                            + ": Size = "
+                            + _size
+                            + ", SizeMax = "
+                            + _sizeMax
+                            + ", SizeWarn = "
+                            + _sizeWarn;
             _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
         }
 
@@ -186,7 +196,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
                 if (_hasPriority) {
                     thread.start(_priority);
                 } else {
-                    thread.start(java.lang.Thread.NORM_PRIORITY);
+                    thread.start(Thread.NORM_PRIORITY);
                 }
                 _threads.add(thread);
             }
@@ -285,10 +295,10 @@ final class ThreadPool implements java.util.concurrent.Executor {
                 if (_instance
                                 .initializationData()
                                 .properties
-                                .getIcePropertyAsInt("Ice.Warn.Executor") >
-                        1) {
-                    java.io.StringWriter sw = new java.io.StringWriter();
-                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                                .getIcePropertyAsInt("Ice.Warn.Executor")
+                        > 1) {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
                     ex.printStackTrace(pw);
                     pw.flush();
                     _instance
@@ -478,17 +488,17 @@ final class ThreadPool implements java.util.concurrent.Executor {
 
             if (_inUse == _sizeWarn) {
                 String s =
-                        "thread pool `" +
-                                _prefix +
-                                "' is running low on threads\n" +
-                                "Size=" +
-                                _size +
-                                ", " +
-                                "SizeMax=" +
-                                _sizeMax +
-                                ", " +
-                                "SizeWarn=" +
-                                _sizeWarn;
+                        "thread pool `"
+                                + _prefix
+                                + "' is running low on threads\n"
+                                + "Size="
+                                + _size
+                                + ", "
+                                + "SizeMax="
+                                + _sizeMax
+                                + ", "
+                                + "SizeWarn="
+                                + _sizeWarn;
                 _instance.initializationData().logger.warning(s);
             }
 
@@ -510,7 +520,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
                         if (_hasPriority) {
                             thread.start(_priority);
                         } else {
-                            thread.start(java.lang.Thread.NORM_PRIORITY);
+                            thread.start(Thread.NORM_PRIORITY);
                         }
                     } catch (RuntimeException ex) {
                         String s =
@@ -558,12 +568,12 @@ final class ThreadPool implements java.util.concurrent.Executor {
                 } catch (InterruptedException e) {
                     interrupted = true;
                 }
-                if (interrupted ||
-                        Time.currentMonotonicTimeMillis() - before >= _threadIdleTime * 1000) {
-                    if (!_destroyed &&
-                            (!_promote ||
-                                    _inUseIO == _sizeIO ||
-                                    (!_nextHandler.hasNext() && _inUseIO > 0))) {
+                if (interrupted
+                        || Time.currentMonotonicTimeMillis() - before >= _threadIdleTime * 1000) {
+                    if (!_destroyed
+                            && (!_promote
+                                    || _inUseIO == _sizeIO
+                                    || (!_nextHandler.hasNext() && _inUseIO > 0))) {
                         if (_instance.traceLevels().threadPool >= 1) {
                             String s = "shrinking " + _prefix + ": Size=" + (_threads.size() - 1);
                             _instance
@@ -571,8 +581,8 @@ final class ThreadPool implements java.util.concurrent.Executor {
                                     .logger
                                     .trace(_instance.traceLevels().threadPoolCat, s);
                         }
-                        assert (_threads.size() >
-                                1); // Can only be called by a waiting follower thread.
+                        assert (_threads.size()
+                                > 1); // Can only be called by a waiting follower thread.
                         _threads.remove(current._thread);
                         _workQueue.queue(new JoinThreadWorkItem(current._thread));
                         return true;
@@ -594,7 +604,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
     }
 
     private final Instance _instance;
-    private final java.util.function.BiConsumer<Runnable, Connection> _executor;
+    private final BiConsumer<Runnable, Connection> _executor;
     private final ThreadPoolWorkQueue _workQueue;
     private boolean _destroyed;
     private final String _prefix;
@@ -610,7 +620,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
 
         public void updateObserver() {
             // Must be called with the thread pool mutex locked
-            com.zeroc.Ice.Instrumentation.CommunicatorObserver obsv =
+            CommunicatorObserver obsv =
                     _instance.initializationData().observer;
             if (obsv != null) {
                 _observer = obsv.getThreadObserver(_prefix, _name, _state, _observer);
@@ -682,7 +692,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
         private final String _name;
         private Thread _thread;
         private ThreadState _state;
-        private com.zeroc.Ice.Instrumentation.ThreadObserver _observer;
+        private ThreadObserver _observer;
     }
 
     private final int _size; // Number of threads that are pre-created.
@@ -697,13 +707,13 @@ final class ThreadPool implements java.util.concurrent.Executor {
     private final long _threadIdleTime;
     private final int _stackSize;
 
-    private java.util.List<EventHandlerThread> _threads = new java.util.ArrayList<>();
+    private final List<EventHandlerThread> _threads = new ArrayList<>();
     private int _threadIndex; // For assigning thread names.
     private int _inUse; // Number of threads that are currently in use.
     private int _inUseIO; // Number of threads that are currently performing IO.
 
-    private java.util.List<EventHandlerOpPair> _handlers = new java.util.ArrayList<>();
-    private java.util.Iterator<EventHandlerOpPair> _nextHandler;
+    private final List<EventHandlerOpPair> _handlers = new ArrayList<>();
+    private Iterator<EventHandlerOpPair> _nextHandler;
 
     private boolean _promote;
 }

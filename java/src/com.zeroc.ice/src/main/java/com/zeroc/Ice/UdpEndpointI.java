@@ -4,12 +4,15 @@ package com.zeroc.Ice;
 
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+
 final class UdpEndpointI extends IPEndpointI {
     public UdpEndpointI(
             ProtocolInstance instance,
             String host,
             int port,
-            java.net.InetSocketAddress sourceAddr,
+            InetSocketAddress sourceAddr,
             String mcastInterface,
             int mttl,
             String connectionId,
@@ -114,7 +117,7 @@ final class UdpEndpointI extends IPEndpointI {
     //
     @Override
     public Transceiver transceiver() {
-        java.net.InetSocketAddress addr =
+        InetSocketAddress addr =
                 Network.getAddressForServer(
                         _host, _port, _instance.protocolSupport(), _instance.preferIPv6());
         if (Util.isAndroid() && addr.getAddress().isMulticastAddress()) {
@@ -168,7 +171,7 @@ final class UdpEndpointI extends IPEndpointI {
     }
 
     @Override
-    public void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint) {
+    public void initWithOptions(ArrayList<String> args, boolean oaEndpoint) {
         super.initWithOptions(args, oaEndpoint);
 
         if ("*".equals(_mcastInterface)) {
@@ -293,22 +296,22 @@ final class UdpEndpointI extends IPEndpointI {
         if ("-z".equals(option)) {
             if (argument != null) {
                 throw new ParseException(
-                        "unexpected argument '" +
-                                argument +
-                                "' provided for -z option in '" +
-                                endpoint +
-                                "'");
+                        "unexpected argument '"
+                                + argument
+                                + "' provided for -z option in '"
+                                + endpoint
+                                + "'");
             }
 
             _compress = true;
         } else if ("-v".equals(option) || "-e".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for " +
-                                option +
-                                " option in endpoint '" +
-                                endpoint +
-                                "'");
+                        "no argument provided for "
+                                + option
+                                + " option in endpoint '"
+                                + endpoint
+                                + "'");
             }
 
             try {
@@ -340,9 +343,9 @@ final class UdpEndpointI extends IPEndpointI {
         } else if ("--interface".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for --interface option in endpoint '" +
-                                endpoint +
-                                "'");
+                        "no argument provided for --interface option in endpoint '"
+                                + endpoint
+                                + "'");
             }
             _mcastInterface = argument;
         } else {
@@ -352,7 +355,7 @@ final class UdpEndpointI extends IPEndpointI {
     }
 
     @Override
-    protected Connector createConnector(java.net.InetSocketAddress addr, NetworkProxy proxy) {
+    protected Connector createConnector(InetSocketAddress addr, NetworkProxy proxy) {
         return new UdpConnector(
                 _instance, addr, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId);
     }

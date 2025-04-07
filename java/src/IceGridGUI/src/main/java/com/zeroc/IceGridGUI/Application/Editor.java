@@ -9,6 +9,9 @@ import com.zeroc.IceGridGUI.*;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -18,10 +21,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 public class Editor extends EditorBase {
-    public static java.util.Map<String, String> makeParameterValues(
-            java.util.Map<String, String> oldParameterValues,
-            java.util.List<String> newParameters) {
-        java.util.Map<String, String> result = new java.util.HashMap<>();
+    public static Map<String, String> makeParameterValues(
+            Map<String, String> oldParameterValues,
+            List<String> newParameters) {
+        Map<String, String> result = new HashMap<>();
 
         for (String name : newParameters) {
             String value = oldParameterValues.get(name);
@@ -165,8 +168,8 @@ public class Editor extends EditorBase {
 
         if (errorCount > 0) {
             String message =
-                    errorCount == 1 ?
-                            emptyFields + " cannot be empty"
+                    errorCount == 1
+                            ? emptyFields + " cannot be empty"
                             : "The following fields cannot be empty:\n" + emptyFields;
 
             JOptionPane.showMessageDialog(

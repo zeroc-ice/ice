@@ -2,11 +2,14 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.Component;
 import java.awt.Cursor;
+import java.util.concurrent.CompletableFuture;
 
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
@@ -17,7 +20,7 @@ class Slave extends Communicator {
     // Actions
     @Override
     public boolean[] getAvailableActions() {
-        boolean[] actions = new boolean[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
+        boolean[] actions = new boolean[TreeNode.ACTION_COUNT];
         actions[SHUTDOWN_REGISTRY] = true;
         actions[RETRIEVE_ICE_LOG] = true;
         actions[RETRIEVE_STDOUT] = true;
@@ -43,7 +46,7 @@ class Slave extends Communicator {
                                 amiComplete(prefix, "Failed to shutdown " + _id, ex);
                             });
 
-        } catch (com.zeroc.Ice.LocalException e) {
+        } catch (LocalException e) {
             failure(prefix, "Failed to shutdown " + _id, e.toString());
         } finally {
             getCoordinator()
@@ -113,7 +116,7 @@ class Slave extends Communicator {
 
     // Communicator overrides
     @Override
-    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync() {
+    protected CompletableFuture<ObjectPrx> getAdminAsync() {
         return getRoot().getCoordinator().getAdmin().getRegistryAdminAsync(_id);
     }
 

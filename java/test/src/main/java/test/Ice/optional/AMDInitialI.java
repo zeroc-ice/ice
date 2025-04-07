@@ -3,9 +3,13 @@
 package test.Ice.optional;
 
 import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Value;
 
 import test.Ice.optional.AMD.Test.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -21,8 +25,8 @@ public final class AMDInitialI implements Initial {
     }
 
     @Override
-    public CompletionStage<com.zeroc.Ice.Value> pingPongAsync(
-            com.zeroc.Ice.Value v, Current current) {
+    public CompletionStage<Value> pingPongAsync(
+            Value v, Current current) {
         return CompletableFuture.completedFuture(v);
     }
 
@@ -220,7 +224,7 @@ public final class AMDInitialI implements Initial {
 
     @Override
     public CompletionStage<Initial.OpSmallStructListResult> opSmallStructListAsync(
-            Optional<java.util.List<SmallStruct>> p1, Current current) {
+            Optional<List<SmallStruct>> p1, Current current) {
         return CompletableFuture.completedFuture(new Initial.OpSmallStructListResult(p1, p1));
     }
 
@@ -232,7 +236,7 @@ public final class AMDInitialI implements Initial {
 
     @Override
     public CompletionStage<Initial.OpFixedStructListResult> opFixedStructListAsync(
-            Optional<java.util.List<FixedStruct>> p1, Current current) {
+            Optional<List<FixedStruct>> p1, Current current) {
         return CompletableFuture.completedFuture(new Initial.OpFixedStructListResult(p1, p1));
     }
 
@@ -250,13 +254,13 @@ public final class AMDInitialI implements Initial {
 
     @Override
     public CompletionStage<Initial.OpIntIntDictResult> opIntIntDictAsync(
-            Optional<java.util.Map<Integer, Integer>> p1, Current current) {
+            Optional<Map<Integer, Integer>> p1, Current current) {
         return CompletableFuture.completedFuture(new Initial.OpIntIntDictResult(p1, p1));
     }
 
     @Override
     public CompletionStage<Initial.OpStringIntDictResult> opStringIntDictAsync(
-            Optional<java.util.Map<String, Integer>> p1, Current current) {
+            Optional<Map<String, Integer>> p1, Current current) {
         return CompletableFuture.completedFuture(new Initial.OpStringIntDictResult(p1, p1));
     }
 
@@ -302,12 +306,12 @@ public final class AMDInitialI implements Initial {
     @Override
     public CompletionStage<OpMDict1MarshaledResult> opMDict1Async(Current current) {
         return CompletableFuture.completedFuture(
-                new OpMDict1MarshaledResult(Optional.of(new java.util.HashMap<>()), current));
+                new OpMDict1MarshaledResult(Optional.of(new HashMap<>()), current));
     }
 
     @Override
     public CompletionStage<OpMDict2MarshaledResult> opMDict2Async(
-            Optional<java.util.Map<String, Integer>> p1, Current current) {
+            Optional<Map<String, Integer>> p1, Current current) {
         return CompletableFuture.completedFuture(new OpMDict2MarshaledResult(p1, p1, current));
     }
 

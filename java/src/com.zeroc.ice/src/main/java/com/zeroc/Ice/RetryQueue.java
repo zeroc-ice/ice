@@ -2,6 +2,9 @@
 
 package com.zeroc.Ice;
 
+import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
+
 class RetryQueue {
     RetryQueue(Instance instance) {
         _instance = instance;
@@ -16,7 +19,7 @@ class RetryQueue {
         task.setFuture(
                 _instance
                         .timer()
-                        .schedule(task, interval, java.util.concurrent.TimeUnit.MILLISECONDS));
+                        .schedule(task, interval, TimeUnit.MILLISECONDS));
         _requests.add(task);
     }
 
@@ -25,7 +28,7 @@ class RetryQueue {
             return; // Already destroyed.
         }
 
-        java.util.HashSet<RetryTask> keep = new java.util.HashSet<>();
+        HashSet<RetryTask> keep = new HashSet<>();
         for (RetryTask task : _requests) {
             if (!task.destroy()) {
                 keep.add(task);
@@ -61,5 +64,5 @@ class RetryQueue {
     }
 
     private Instance _instance;
-    private java.util.HashSet<RetryTask> _requests = new java.util.HashSet<>();
+    private HashSet<RetryTask> _requests = new HashSet<>();
 }

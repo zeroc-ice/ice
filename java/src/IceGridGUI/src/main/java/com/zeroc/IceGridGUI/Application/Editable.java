@@ -2,6 +2,10 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeSet;
+
 class Editable implements Cloneable {
     Editable(boolean brandNew) {
         _isNew = brandNew;
@@ -31,9 +35,9 @@ class Editable implements Cloneable {
 
     void removeElement(String id, Editable editable, Class forClass) {
         if (!editable.isNew()) {
-            java.util.TreeSet<String> set = _removedElements.get(forClass);
+            TreeSet<String> set = _removedElements.get(forClass);
             if (set == null) {
-                set = new java.util.TreeSet<>();
+                set = new TreeSet<>();
                 _removedElements.put(forClass, set);
             }
             set.add(id);
@@ -41,7 +45,7 @@ class Editable implements Cloneable {
     }
 
     String[] removedElements(Class forClass) {
-        java.util.TreeSet<String> set = _removedElements.get(forClass);
+        TreeSet<String> set = _removedElements.get(forClass);
         if (set == null) {
             return new String[0];
         } else {
@@ -52,11 +56,11 @@ class Editable implements Cloneable {
     Editable save() {
         try {
             Editable result = (Editable) clone();
-            java.util.HashMap<Class, java.util.TreeSet<String>> removedElements =
-                    new java.util.HashMap<>();
-            for (java.util.Map.Entry<Class, java.util.TreeSet<String>> p :
+            HashMap<Class, TreeSet<String>> removedElements =
+                    new HashMap<>();
+            for (Map.Entry<Class, TreeSet<String>> p :
                     result._removedElements.entrySet()) {
-                java.util.TreeSet<String> val = new java.util.TreeSet<>(p.getValue());
+                TreeSet<String> val = new TreeSet<>(p.getValue());
                 removedElements.put(p.getKey(), val);
             }
             result._removedElements = removedElements;
@@ -76,6 +80,6 @@ class Editable implements Cloneable {
     private boolean _isNew;
     private boolean _modified;
 
-    private java.util.HashMap<Class, java.util.TreeSet<String>> _removedElements =
-            new java.util.HashMap<>();
+    private HashMap<Class, TreeSet<String>> _removedElements =
+            new HashMap<>();
 }

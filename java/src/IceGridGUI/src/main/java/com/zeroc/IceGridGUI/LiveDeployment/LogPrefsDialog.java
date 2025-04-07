@@ -8,6 +8,7 @@ import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
 
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -103,7 +104,7 @@ class LogPrefsDialog extends JDialog {
                 new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
         buttonBar.setBorder(Borders.DIALOG);
 
-        java.awt.Container contentPane = getContentPane();
+        Container contentPane = getContentPane();
         contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
         contentPane.add(builder.getPanel());
         contentPane.add(buttonBar);
@@ -175,7 +176,7 @@ class LogPrefsDialog extends JDialog {
                 new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
         buttonBar.setBorder(Borders.DIALOG);
 
-        java.awt.Container contentPane = getContentPane();
+        Container contentPane = getContentPane();
         contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
         contentPane.add(builder.getPanel());
         contentPane.add(buttonBar);

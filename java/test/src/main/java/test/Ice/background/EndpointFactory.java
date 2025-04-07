@@ -2,6 +2,11 @@
 
 package test.Ice.background;
 
+import com.zeroc.Ice.InputStream;
+import com.zeroc.Ice.ProtocolInstance;
+
+import java.util.ArrayList;
+
 final class EndpointFactory implements com.zeroc.Ice.EndpointFactory {
     EndpointFactory(Configuration configuration, com.zeroc.Ice.EndpointFactory factory) {
         _configuration = configuration;
@@ -19,12 +24,12 @@ final class EndpointFactory implements com.zeroc.Ice.EndpointFactory {
     }
 
     @Override
-    public com.zeroc.Ice.EndpointI create(java.util.ArrayList<String> args, boolean server) {
+    public com.zeroc.Ice.EndpointI create(ArrayList<String> args, boolean server) {
         return new EndpointI(_configuration, _factory.create(args, server));
     }
 
     @Override
-    public com.zeroc.Ice.EndpointI read(com.zeroc.Ice.InputStream s) {
+    public com.zeroc.Ice.EndpointI read(InputStream s) {
         short type = s.readShort();
         assert (type == _factory.type());
 
@@ -35,10 +40,10 @@ final class EndpointFactory implements com.zeroc.Ice.EndpointFactory {
     }
 
     @Override
-    public com.zeroc.Ice.EndpointFactory clone(com.zeroc.Ice.ProtocolInstance instance) {
+    public com.zeroc.Ice.EndpointFactory clone(ProtocolInstance instance) {
         return this;
     }
 
-    private Configuration _configuration;
-    private com.zeroc.Ice.EndpointFactory _factory;
+    private final Configuration _configuration;
+    private final com.zeroc.Ice.EndpointFactory _factory;
 }

@@ -6,6 +6,9 @@ import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -134,17 +137,17 @@ class ReplicaGroup extends TreeNode {
     }
 
     @Override
-    void write(XMLWriter writer) throws java.io.IOException {
+    void write(XMLWriter writer) throws IOException {
         if (!_ephemeral) {
-            java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
+            List<String[]> attributes = new LinkedList<String[]>();
             attributes.add(createAttribute("id", _descriptor.id));
             if (_descriptor.proxyOptions.length() > 0) {
                 attributes.add(createAttribute("proxy-options", _descriptor.proxyOptions));
             }
 
-            if (_descriptor.loadBalancing == null &&
-                    _descriptor.description.isEmpty() &&
-                    _descriptor.objects.isEmpty()) {
+            if (_descriptor.loadBalancing == null
+                    && _descriptor.description.isEmpty()
+                    && _descriptor.objects.isEmpty()) {
                 writer.writeElement("replica-group", attributes);
             } else {
                 writer.writeStartTag("replica-group", attributes);

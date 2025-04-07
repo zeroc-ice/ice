@@ -2,13 +2,16 @@
 
 package com.zeroc.Ice.IceMX;
 
+import com.zeroc.Ice.Instrumentation.Observer;
+import com.zeroc.Ice.MetricsAdminI;
+
 public class ObserverFactoryWithDelegate<
                 T extends Metrics,
                 OImpl extends ObserverWithDelegate<T, O>,
-                O extends com.zeroc.Ice.Instrumentation.Observer>
+                O extends Observer>
         extends ObserverFactory<T, OImpl> {
     public ObserverFactoryWithDelegate(
-            com.zeroc.Ice.MetricsAdminI metrics, String name, Class<T> cl) {
+            MetricsAdminI metrics, String name, Class<T> cl) {
         super(metrics, name, cl);
     }
 

@@ -2,6 +2,8 @@
 
 package com.zeroc.IceGridGUI;
 
+import com.zeroc.IceGridGUI.Application.Root;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
@@ -9,7 +11,7 @@ import javax.swing.event.ChangeListener;
 
 public class MainPane extends JTabbedPane {
     public void addApplication(ApplicationPane application) {
-        com.zeroc.IceGridGUI.Application.Root root = application.getRoot();
+        Root root = application.getRoot();
         super.addTab(computeTitle(root.getId()), getIcon(root), application);
     }
 
@@ -18,21 +20,21 @@ public class MainPane extends JTabbedPane {
         super.setTitleAt(index, computeTitle(title));
     }
 
-    public void resetTitle(com.zeroc.IceGridGUI.Application.Root root) {
+    public void resetTitle(Root root) {
         int i = findIndex(root);
         if (i > 0) {
             setTitleAt(i, root.getId());
         }
     }
 
-    public void resetIcon(com.zeroc.IceGridGUI.Application.Root root) {
+    public void resetIcon(Root root) {
         int i = findIndex(root);
         if (i > 0) {
             setIconAt(i, getIcon(root));
         }
     }
 
-    public int findIndex(com.zeroc.IceGridGUI.Application.Root root) {
+    public int findIndex(Root root) {
         for (int i = 1; i < getTabCount(); i++) {
             ApplicationPane pane = (ApplicationPane) getComponentAt(i);
             if (pane.getRoot() == root) {
@@ -42,7 +44,7 @@ public class MainPane extends JTabbedPane {
         return -1;
     }
 
-    public ApplicationPane findApplication(com.zeroc.IceGridGUI.Application.Root root) {
+    public ApplicationPane findApplication(Root root) {
         for (int i = 1; i < getTabCount(); i++) {
             ApplicationPane pane = (ApplicationPane) getComponentAt(i);
             if (pane.getRoot() == root) {
@@ -52,7 +54,7 @@ public class MainPane extends JTabbedPane {
         return null;
     }
 
-    public void removeApplication(com.zeroc.IceGridGUI.Application.Root root) {
+    public void removeApplication(Root root) {
         for (int i = 1; i < getTabCount(); i++) {
             ApplicationPane pane = (ApplicationPane) getComponentAt(i);
             if (pane.getRoot() == root) {
@@ -103,7 +105,7 @@ public class MainPane extends JTabbedPane {
         return false;
     }
 
-    private ImageIcon getIcon(com.zeroc.IceGridGUI.Application.Root root) {
+    private ImageIcon getIcon(Root root) {
         if (root.isLive()) {
             return _registryIcon;
         } else if (root.hasFile()) {
@@ -113,7 +115,7 @@ public class MainPane extends JTabbedPane {
         }
     }
 
-    private Coordinator _coordinator;
-    private ImageIcon _registryIcon;
-    private ImageIcon _fileIcon;
+    private final Coordinator _coordinator;
+    private final ImageIcon _registryIcon;
+    private final ImageIcon _fileIcon;
 }

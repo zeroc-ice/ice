@@ -6,10 +6,13 @@ import com.zeroc.Ice.Current;
 
 import test.Ice.inactivityTimeout.Test.TestIntf;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+
 class TestIntfI implements TestIntf {
     @Override
-    public java.util.concurrent.CompletionStage<Void> sleepAsync(int ms, Current current) {
-        return java.util.concurrent.CompletableFuture.runAsync(
+    public CompletionStage<Void> sleepAsync(int ms, Current current) {
+        return CompletableFuture.runAsync(
                 () -> {
                     try {
                         Thread.sleep(ms);

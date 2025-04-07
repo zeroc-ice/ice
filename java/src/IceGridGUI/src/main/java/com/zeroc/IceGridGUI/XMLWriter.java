@@ -3,6 +3,7 @@
 package com.zeroc.IceGridGUI;
 
 import java.io.*;
+import java.util.List;
 
 /** Helper class to write XML files */
 public class XMLWriter {
@@ -17,7 +18,7 @@ public class XMLWriter {
         _writer.write("<!-- This file was written by IceGrid GUI -->" + _newline);
     }
 
-    public void writeElement(String name, java.util.List<String[]> attributes) throws IOException {
+    public void writeElement(String name, List<String[]> attributes) throws IOException {
         _writer.write(_indent);
         _writer.write("<" + name);
         writeAttributes(attributes);
@@ -25,7 +26,7 @@ public class XMLWriter {
     }
 
     public void writeElement(String name) throws IOException {
-        writeElement(name, (java.util.List<String[]>) null);
+        writeElement(name, (List<String[]>) null);
     }
 
     public void writeElement(String name, String content) throws IOException {
@@ -33,7 +34,7 @@ public class XMLWriter {
         _writer.write("<" + name + ">" + escape(content) + "</" + name + ">" + _newline);
     }
 
-    public void writeStartTag(String name, java.util.List<String[]> attributes) throws IOException {
+    public void writeStartTag(String name, List<String[]> attributes) throws IOException {
         _writer.write(_indent);
         _writer.write("<" + name);
         writeAttributes(attributes);
@@ -60,7 +61,7 @@ public class XMLWriter {
         _writer.flush();
     }
 
-    private void writeAttributes(java.util.List<String[]> attributes) throws IOException {
+    private void writeAttributes(List<String[]> attributes) throws IOException {
         if (attributes != null) {
             for (String[] p : attributes) {
                 _writer.write(" " + p[0] + "=\"" + escape(p[1]) + "\"");
@@ -116,5 +117,5 @@ public class XMLWriter {
 
     private Writer _writer;
     private String _indent = "";
-    private static String _newline = System.getProperty("line.separator");
+    private static final String _newline = System.getProperty("line.separator");
 }

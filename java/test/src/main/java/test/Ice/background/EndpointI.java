@@ -2,6 +2,14 @@
 
 package test.Ice.background;
 
+import com.zeroc.Ice.EndpointI_connectors;
+import com.zeroc.Ice.EndpointInfo;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.OutputStream;
+import com.zeroc.Ice.SSL.SSLEngineFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 final class EndpointI extends com.zeroc.Ice.EndpointI {
@@ -18,12 +26,12 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
     }
 
     @Override
-    public com.zeroc.Ice.EndpointInfo getInfo() {
+    public EndpointInfo getInfo() {
         return _endpoint.getInfo();
     }
 
     @Override
-    public void streamWriteImpl(com.zeroc.Ice.OutputStream s) {
+    public void streamWriteImpl(OutputStream s) {
         s.writeShort(_endpoint.type());
         _endpoint.streamWrite(s);
     }
@@ -104,11 +112,11 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
     }
 
     @Override
-    public void connectors_async(final com.zeroc.Ice.EndpointI_connectors cb) {
-        class Callback implements com.zeroc.Ice.EndpointI_connectors {
+    public void connectors_async(final EndpointI_connectors cb) {
+        class Callback implements EndpointI_connectors {
             @Override
-            public void connectors(java.util.List<com.zeroc.Ice.Connector> cons) {
-                java.util.List<com.zeroc.Ice.Connector> connectors = new java.util.ArrayList<>();
+            public void connectors(List<com.zeroc.Ice.Connector> cons) {
+                List<com.zeroc.Ice.Connector> connectors = new ArrayList<>();
                 for (com.zeroc.Ice.Connector p : cons) {
                     connectors.add(new Connector(_configuration, p));
                 }
@@ -116,7 +124,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
             }
 
             @Override
-            public void exception(com.zeroc.Ice.LocalException exception) {
+            public void exception(LocalException exception) {
                 cb.exception(exception);
             }
         }
@@ -124,14 +132,14 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
         try {
             _configuration.checkConnectorsException();
             _endpoint.connectors_async(new Callback());
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             cb.exception(ex);
         }
     }
 
     @Override
     public com.zeroc.Ice.Acceptor acceptor(
-            String adapterName, com.zeroc.Ice.SSL.SSLEngineFactory sslEngineFactory) {
+            String adapterName, SSLEngineFactory sslEngineFactory) {
         return new Acceptor(
                 this, _configuration, _endpoint.acceptor(adapterName, sslEngineFactory));
     }
@@ -145,7 +153,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
     }
 
     @Override
-    public java.util.List<com.zeroc.Ice.EndpointI> expandHost() {
+    public List<com.zeroc.Ice.EndpointI> expandHost() {
         return _endpoint.expandHost().stream().map(this::endpoint).collect(Collectors.toList());
     }
 

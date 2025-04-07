@@ -2,12 +2,18 @@
 
 package com.zeroc.Ice;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+
 class StreamSocket {
     public StreamSocket(
             ProtocolInstance instance,
             NetworkProxy proxy,
-            java.net.InetSocketAddress addr,
-            java.net.InetSocketAddress sourceAddr) {
+            InetSocketAddress addr,
+            InetSocketAddress sourceAddr) {
         _instance = instance;
         _proxy = proxy;
         _addr = addr;
@@ -28,7 +34,7 @@ class StreamSocket {
         _desc = Network.fdToString(_fd, _proxy, _addr);
     }
 
-    public StreamSocket(ProtocolInstance instance, java.nio.channels.SocketChannel fd) {
+    public StreamSocket(ProtocolInstance instance, SocketChannel fd) {
         _instance = instance;
         _proxy = null;
         _addr = null;
@@ -94,7 +100,7 @@ class StreamSocket {
         return _state == StateConnected;
     }
 
-    public java.nio.channels.SocketChannel fd() {
+    public SocketChannel fd() {
         return _fd;
     }
 
@@ -132,7 +138,7 @@ class StreamSocket {
         return buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.None;
     }
 
-    public int read(java.nio.ByteBuffer buf) {
+    public int read(ByteBuffer buf) {
         assert (_fd != null);
 
         int read = 0;
@@ -147,16 +153,16 @@ class StreamSocket {
                 }
 
                 read += ret;
-            } catch (java.io.InterruptedIOException ex) {
+            } catch (InterruptedIOException ex) {
                 continue;
-            } catch (java.io.IOException ex) {
+            } catch (IOException ex) {
                 throw new ConnectionLostException(ex);
             }
         }
         return read;
     }
 
-    public int write(java.nio.ByteBuffer buf) {
+    public int write(ByteBuffer buf) {
         assert (_fd != null);
 
         int sent = 0;
@@ -180,9 +186,9 @@ class StreamSocket {
                     return sent;
                 }
                 sent += ret;
-            } catch (java.io.InterruptedIOException ex) {
+            } catch (InterruptedIOException ex) {
                 continue;
-            } catch (java.io.IOException ex) {
+            } catch (IOException ex) {
                 throw new SocketException(ex);
             }
         }
@@ -193,7 +199,7 @@ class StreamSocket {
         assert (_fd != null);
         try {
             _fd.close();
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             throw new SocketException(ex);
         } finally {
             _fd = null;
@@ -234,9 +240,9 @@ class StreamSocket {
     private final ProtocolInstance _instance;
 
     private final NetworkProxy _proxy;
-    private final java.net.InetSocketAddress _addr;
+    private final InetSocketAddress _addr;
 
-    private java.nio.channels.SocketChannel _fd;
+    private SocketChannel _fd;
     private int _maxSendPacketSize;
     private int _state;
     private String _desc;

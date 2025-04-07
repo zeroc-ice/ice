@@ -2,13 +2,17 @@
 
 package test.Ice.serialize;
 
-import test.Ice.serialize.Test.*;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Properties;
 
-public class Client extends test.TestHelper {
+import test.Ice.serialize.Test.*;
+import test.TestHelper;
+
+public class Client extends TestHelper {
     public void run(String[] args) {
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.serialize");
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(properties)) {
             InitialPrx initial = AllTests.allTests(this, false);
             initial.shutdown();
         }

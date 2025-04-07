@@ -40,15 +40,15 @@ public abstract class RequestFailedException extends DispatchException {
 
     private static String createMessage(
             ReplyStatus replyStatus, Identity id, String facet, String operation) {
-        return "Dispatch failed with " +
-                replyStatus +
-                " { id = '" +
-                Util.identityToString(id) +
-                "', facet = '" +
-                facet +
-                "', operation = '" +
-                operation +
-                "' }";
+        return "Dispatch failed with "
+                + replyStatus
+                + " { id = '"
+                + Util.identityToString(id)
+                + "', facet = '"
+                + facet
+                + "', operation = '"
+                + operation
+                + "' }";
     }
 
     private static final long serialVersionUID = 4181164754424262091L;

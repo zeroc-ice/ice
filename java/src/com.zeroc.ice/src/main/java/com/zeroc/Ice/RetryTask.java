@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.util.concurrent.Future;
+
 class RetryTask implements Runnable, CancellationHandler {
     RetryTask(Instance instance, RetryQueue queue, ProxyOutgoingAsyncBase outAsync) {
         _instance = instance;
@@ -54,7 +56,7 @@ class RetryTask implements Runnable, CancellationHandler {
         return false;
     }
 
-    public synchronized void setFuture(java.util.concurrent.Future<?> future) {
+    public synchronized void setFuture(Future<?> future) {
         _future = future;
         if (_cancelled) {
             _future.cancel(false);
@@ -76,6 +78,6 @@ class RetryTask implements Runnable, CancellationHandler {
     private final Instance _instance;
     private final RetryQueue _queue;
     private final ProxyOutgoingAsyncBase _outAsync;
-    private java.util.concurrent.Future<?> _future;
+    private Future<?> _future;
     private boolean _cancelled;
 }

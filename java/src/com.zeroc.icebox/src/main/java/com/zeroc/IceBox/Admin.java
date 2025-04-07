@@ -2,32 +2,40 @@
 
 package com.zeroc.IceBox;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public final class Admin {
     private static void usage() {
         System.err.println(
-                "Usage: com.zeroc.IceBox.Admin [options] [command...]\n" +
-                        "Options:\n" +
-                        "-h, --help          Show this message.\n" +
-                        "-v, --version       Display the Ice version.\n" +
-                        "\n" +
-                        "Commands:\n" +
-                        "start SERVICE       Start a service.\n" +
-                        "stop SERVICE        Stop a service.\n" +
-                        "shutdown            Shutdown the server.");
+                "Usage: com.zeroc.IceBox.Admin [options] [command...]\n"
+                        + "Options:\n"
+                        + "-h, --help          Show this message.\n"
+                        + "-v, --version       Display the Ice version.\n"
+                        + "\n"
+                        + "Commands:\n"
+                        + "start SERVICE       Start a service.\n"
+                        + "stop SERVICE        Stop a service.\n"
+                        + "shutdown            Shutdown the server.");
     }
 
     public static void main(String[] args) {
         int status = 0;
-        java.util.List<String> commands = new java.util.ArrayList<>();
+        List<String> commands = new ArrayList<>();
 
-        com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+        InitializationData initData = new InitializationData();
         initData.properties =
-                new com.zeroc.Ice.Properties(Collections.singletonList("IceBoxAdmin"));
+                new Properties(Collections.singletonList("IceBoxAdmin"));
 
-        try (com.zeroc.Ice.Communicator communicator =
-                com.zeroc.Ice.Util.initialize(args, initData, commands)) {
+        try (Communicator communicator =
+                Util.initialize(args, initData, commands)) {
             Runtime.getRuntime()
                     .addShutdownHook(
                             new Thread(
@@ -42,7 +50,7 @@ public final class Admin {
     }
 
     public static int run(
-            com.zeroc.Ice.Communicator communicator, java.util.List<String> commands) {
+            Communicator communicator, List<String> commands) {
         if (commands.isEmpty()) {
             usage();
             return 0;
@@ -53,7 +61,7 @@ public final class Admin {
                 usage();
                 return 0;
             } else if ("-v".equals(command) || "--version".equals(command)) {
-                System.out.println(com.zeroc.Ice.Util.stringVersion());
+                System.out.println(Util.stringVersion());
                 return 0;
             } else if (command.startsWith("-")) {
                 System.err.println("IceBox.Admin: unknown option `" + command + "'");
@@ -62,7 +70,7 @@ public final class Admin {
             }
         }
 
-        com.zeroc.Ice.ObjectPrx base =
+        ObjectPrx base =
                 communicator.propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
 
         if (base == null) {
@@ -71,8 +79,8 @@ public final class Admin {
             return 1;
         }
 
-        com.zeroc.IceBox.ServiceManagerPrx manager =
-                com.zeroc.IceBox.ServiceManagerPrx.checkedCast(base);
+        ServiceManagerPrx manager =
+                ServiceManagerPrx.checkedCast(base);
         if (manager == null) {
             System.err.println(
                     "IceBox.Admin: '" + base.toString() + "' is not an IceBox::ServiceManager");
@@ -92,10 +100,10 @@ public final class Admin {
                 String service = commands.get(i);
                 try {
                     manager.startService(service);
-                } catch (com.zeroc.IceBox.NoSuchServiceException ex) {
+                } catch (NoSuchServiceException ex) {
                     System.err.println("IceBox.Admin: unknown service `" + service + "'");
                     return 1;
-                } catch (com.zeroc.IceBox.AlreadyStartedException ex) {
+                } catch (AlreadyStartedException ex) {
                     System.err.println("IceBox.Admin: service already started.");
                 }
             } else if ("stop".equals(command)) {
@@ -107,10 +115,10 @@ public final class Admin {
                 String service = commands.get(i);
                 try {
                     manager.stopService(service);
-                } catch (com.zeroc.IceBox.NoSuchServiceException ex) {
+                } catch (NoSuchServiceException ex) {
                     System.err.println("IceBox.Admin: unknown service `" + service + "'");
                     return 1;
-                } catch (com.zeroc.IceBox.AlreadyStoppedException ex) {
+                } catch (AlreadyStoppedException ex) {
                     System.err.println("IceBox.Admin: service already stopped.");
                 }
             } else {

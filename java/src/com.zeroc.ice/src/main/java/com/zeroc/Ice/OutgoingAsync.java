@@ -3,6 +3,8 @@
 package com.zeroc.Ice;
 
 import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @hidden Public because it's used by the generated code.
@@ -43,7 +45,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
 
     public void invoke(
             boolean twowayOnly,
-            java.util.Map<String, String> ctx,
+            Map<String, String> ctx,
             FormatType format,
             OutputStream.Marshaler marshal,
             Unmarshaler<T> unmarshal) {
@@ -97,7 +99,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
             return get();
         } catch (InterruptedException ex) {
             throw new OperationInterruptedException(ex);
-        } catch (java.util.concurrent.ExecutionException ee) {
+        } catch (ExecutionException ee) {
             try {
                 throw ee.getCause().fillInStackTrace();
             } catch (RuntimeException ex) // Includes LocalException
@@ -128,8 +130,8 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
     public int invokeCollocated(CollocatedRequestHandler handler) {
         // The stream cannot be cached if the proxy is not a twoway or there is an invocation
         // timeout set.
-        if (!_proxy.ice_isTwoway() ||
-                _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
+        if (!_proxy.ice_isTwoway()
+                || _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
         }
@@ -281,6 +283,6 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
     private final EncodingVersion _encoding;
     private InputStream _is;
 
-    private Class<?>[] _userExceptions; // Valid user exceptions.
+    private final Class<?>[] _userExceptions; // Valid user exceptions.
     private Unmarshaler<T> _unmarshal;
 }

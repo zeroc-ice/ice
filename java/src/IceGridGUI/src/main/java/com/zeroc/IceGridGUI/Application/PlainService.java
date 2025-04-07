@@ -6,6 +6,9 @@ import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
@@ -46,9 +49,9 @@ class PlainService extends Communicator implements Service, Cloneable {
         actions[COPY] = !_ephemeral;
 
         Object clipboard = getCoordinator().getClipboard();
-        if (clipboard != null &&
-                (clipboard instanceof ServiceInstanceDescriptor ||
-                        clipboard instanceof Adapter.AdapterCopy)) {
+        if (clipboard != null
+                && (clipboard instanceof ServiceInstanceDescriptor
+                        || clipboard instanceof Adapter.AdapterCopy)) {
             actions[PASTE] = true;
         }
 
@@ -153,7 +156,7 @@ class PlainService extends Communicator implements Service, Cloneable {
     }
 
     @Override
-    public Object rebuild(java.util.List<Editable> editables) throws UpdateFailedException {
+    public Object rebuild(List<Editable> editables) throws UpdateFailedException {
         Communicator communicator = (Communicator) _parent;
         Services services = communicator.getServices();
         PlainService newService = null;
@@ -212,15 +215,15 @@ class PlainService extends Communicator implements Service, Cloneable {
         _ephemeral = true;
     }
 
-    static java.util.List<String[]> createAttributes(ServiceDescriptor descriptor) {
-        java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
+    static List<String[]> createAttributes(ServiceDescriptor descriptor) {
+        List<String[]> attributes = new LinkedList<String[]>();
         attributes.add(createAttribute("name", descriptor.name));
         attributes.add(createAttribute("entry", descriptor.entry));
         return attributes;
     }
 
     @Override
-    void write(XMLWriter writer) throws java.io.IOException {
+    void write(XMLWriter writer) throws IOException {
         if (!_ephemeral) {
             writer.writeStartTag("service", createAttributes(_descriptor.descriptor));
 

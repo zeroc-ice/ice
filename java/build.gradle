@@ -100,35 +100,23 @@ checkstyle {
 }
 
 rewrite {
-    activeRecipe(
-        'org.openrewrite.staticanalysis.DefaultComesLast',
-        'org.openrewrite.staticanalysis.EmptyBlock',
-        'org.openrewrite.java.format.EmptyNewlineAtEndOfFile',
-        'org.openrewrite.staticanalysis.ForLoopControlVariablePostfixOperators',
-        //'org.openrewrite.staticanalysis.FinalizePrivateFields',
-        'org.openrewrite.java.format.MethodParamPad',
-        'org.openrewrite.java.format.NoWhitespaceAfter',
-        'org.openrewrite.java.format.NoWhitespaceBefore',
-        'org.openrewrite.java.format.PadEmptyForLoopComponents',
-        'org.openrewrite.staticanalysis.TypecastParenPad',
-        'org.openrewrite.staticanalysis.EqualsAvoidsNull',
-        'org.openrewrite.staticanalysis.ExplicitInitialization',
-        'org.openrewrite.staticanalysis.FallThrough',
-        'org.openrewrite.staticanalysis.HideUtilityClassConstructor',
-        'org.openrewrite.staticanalysis.NeedBraces',
-        'org.openrewrite.staticanalysis.OperatorWrap',
-        'org.openrewrite.staticanalysis.UnnecessaryParentheses',
-        'org.openrewrite.staticanalysis.ReplaceThreadRunWithThreadStart',
-        'org.openrewrite.staticanalysis.ChainStringBuilderAppendCalls',
-        'org.openrewrite.staticanalysis.ReplaceStringBuilderWithString',
-        //'org.openrewrite.java.ShortenFullyQualifiedTypeReferences',
-    )
+    activeRecipe("org.openrewrite.staticanalysis.CodeCleanup")
     checkstyleConfigFile = file("config/checkstyle/checkstyle.xml")
     setExportDatatables(true)
     exclusion(
         '**/*.gradle',
         'com/zeroc/Ice/PropertyNames.java',
-        '**/generated/**/*'
+        '**/generated/**/*',
+        '**/*.kts',
+        'java/src/com.zeroc.ice/src/main/java/com/zeroc/ice/Properties.java',
+        'java/src/com.zeroc.ice/src/main/java/com/zeroc/ice/InputStream.java',
+        'java/src/com.zeroc.ice/src/main/java/com/zeroc/ice/SSL/TransceiverI.java',
+        'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/Node.java',
+        'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/Server.java',
+        'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/Service.java',
+        'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowIceLogDialog.java',
+        'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowLogFileDialog.java',
+        'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/Utils.java',
     )
 }
 

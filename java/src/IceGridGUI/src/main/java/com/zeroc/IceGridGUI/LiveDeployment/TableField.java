@@ -2,17 +2,26 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.ToStringMode;
+import com.zeroc.Ice.Util;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import javax.swing.JTable;
+
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Vector;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 /** A special field used to show a map or list */
 public class TableField extends JTable {
     public TableField(String... columns) {
-        _columnNames = new java.util.Vector<>(columns.length);
+        _columnNames = new Vector<>(columns.length);
         for (String name : columns) {
             _columnNames.add(name);
         }
@@ -43,37 +52,37 @@ public class TableField extends JTable {
     }
 
     public void setProperties(
-            java.util.List<PropertyDescriptor> properties, Utils.Resolver resolver) {
-        java.util.SortedMap<String, String> map = new java.util.TreeMap<>();
+            List<PropertyDescriptor> properties, Utils.Resolver resolver) {
+        SortedMap<String, String> map = new TreeMap<>();
         for (PropertyDescriptor p : properties) {
             map.put(resolver.substitute(p.name), resolver.substitute(p.value));
         }
         setSortedMap(map);
     }
 
-    public void setObjects(java.util.List<ObjectDescriptor> objects, Utils.Resolver resolver) {
-        java.util.SortedMap<String, String> map = new java.util.TreeMap<>();
+    public void setObjects(List<ObjectDescriptor> objects, Utils.Resolver resolver) {
+        SortedMap<String, String> map = new TreeMap<>();
         for (ObjectDescriptor p : objects) {
-            com.zeroc.Ice.Identity id =
-                    new com.zeroc.Ice.Identity(
+            Identity id =
+                    new Identity(
                             resolver.substitute(p.id.name), resolver.substitute(p.id.category));
             map.put(
-                    com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.Unicode),
+                    Util.identityToString(id, ToStringMode.Unicode),
                     resolver.substitute(p.type));
         }
         setSortedMap(map);
     }
 
-    public void setObjects(java.util.SortedMap<String, ObjectInfo> objects) {
-        java.util.SortedMap<String, String> map = new java.util.TreeMap<>();
+    public void setObjects(SortedMap<String, ObjectInfo> objects) {
+        SortedMap<String, String> map = new TreeMap<>();
         for (ObjectInfo p : objects.values()) {
             map.put(p.proxy.toString(), p.type);
         }
         setSortedMap(map);
     }
 
-    public void setEnvs(java.util.List<String> envs, Utils.Resolver resolver) {
-        java.util.SortedMap<String, String> map = new java.util.TreeMap<>();
+    public void setEnvs(List<String> envs, Utils.Resolver resolver) {
+        SortedMap<String, String> map = new TreeMap<>();
 
         for (String p : envs) {
             String env = resolver.substitute(p);
@@ -88,10 +97,10 @@ public class TableField extends JTable {
         setSortedMap(map);
     }
 
-    public void setAdapters(java.util.SortedMap<String, AdapterInfo> adapters) {
-        java.util.Vector<java.util.Vector<String>> vector = new java.util.Vector<>(adapters.size());
-        for (java.util.Map.Entry<String, AdapterInfo> p : adapters.entrySet()) {
-            java.util.Vector<String> row = new java.util.Vector<>(3);
+    public void setAdapters(SortedMap<String, AdapterInfo> adapters) {
+        Vector<Vector<String>> vector = new Vector<>(adapters.size());
+        for (Map.Entry<String, AdapterInfo> p : adapters.entrySet()) {
+            Vector<String> row = new Vector<>(3);
             row.add(p.getKey());
 
             AdapterInfo ai = p.getValue();
@@ -118,10 +127,10 @@ public class TableField extends JTable {
         cr.setOpaque(false);
     }
 
-    public void setSortedMap(java.util.SortedMap<String, String> map) {
-        java.util.Vector<java.util.Vector<String>> vector = new java.util.Vector<>(map.size());
-        for (java.util.Map.Entry<String, String> p : map.entrySet()) {
-            java.util.Vector<String> row = new java.util.Vector<>(2);
+    public void setSortedMap(SortedMap<String, String> map) {
+        Vector<Vector<String>> vector = new Vector<>(map.size());
+        for (Map.Entry<String, String> p : map.entrySet()) {
+            Vector<String> row = new Vector<>(2);
             row.add(p.getKey());
             row.add(p.getValue());
             vector.add(row);
@@ -134,11 +143,11 @@ public class TableField extends JTable {
     }
 
     public void clear() {
-        _model.setDataVector(new java.util.Vector<>(), _columnNames);
+        _model.setDataVector(new Vector<>(), _columnNames);
         DefaultTableCellRenderer cr = (DefaultTableCellRenderer) getDefaultRenderer(String.class);
         cr.setOpaque(false);
     }
 
     private DefaultTableModel _model;
-    private java.util.Vector<String> _columnNames;
+    private final Vector<String> _columnNames;
 }

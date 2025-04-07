@@ -7,6 +7,10 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
+
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.ProcessPrx;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
@@ -57,11 +61,11 @@ class WriteMessageDialog extends JDialog {
                                     "Writing message to server '" + _target + "' failed",
                                     JOptionPane.ERROR_MESSAGE);
                         } else {
-                            com.zeroc.Ice.Identity adminId =
-                                    new com.zeroc.Ice.Identity(_target, c.getServerAdminCategory());
+                            Identity adminId =
+                                    new Identity(_target, c.getServerAdminCategory());
 
-                            final com.zeroc.Ice.ProcessPrx process =
-                                    com.zeroc.Ice.ProcessPrx.uncheckedCast(
+                            final ProcessPrx process =
+                                    ProcessPrx.uncheckedCast(
                                             admin.ice_identity(adminId).ice_facet("Process"));
 
                             final String prefix = "Writing message to server '" + _target + "'...";
@@ -77,33 +81,33 @@ class WriteMessageDialog extends JDialog {
                                                                 () -> {
                                                                     c.getStatusBar()
                                                                             .setText(
-                                                                                    prefix +
-                                                                                            "done.");
+                                                                                    prefix
+                                                                                            + "done.");
                                                                 });
                                                     } else {
                                                         SwingUtilities.invokeLater(
                                                                 () -> {
                                                                     c.getStatusBar()
                                                                             .setText(
-                                                                                    prefix +
-                                                                                            "failed!");
+                                                                                    prefix
+                                                                                            + "failed!");
 
                                                                     JOptionPane.showMessageDialog(
                                                                             _mainFrame,
-                                                                            "Communication exception: " +
-                                                                                    ex.toString(),
-                                                                            "Writing message to server '" +
-                                                                                    process
+                                                                            "Communication exception: "
+                                                                                    + ex.toString(),
+                                                                            "Writing message to server '"
+                                                                                    + process
                                                                                             .ice_getIdentity()
-                                                                                            .name +
-                                                                                    "' failed",
+                                                                                            .name
+                                                                                    + "' failed",
                                                                             JOptionPane
                                                                                     .ERROR_MESSAGE);
                                                                 });
                                                     }
                                                 });
 
-                            } catch (com.zeroc.Ice.LocalException ex) {
+                            } catch (LocalException ex) {
                                 c.getStatusBar().setText(prefix + "failed.");
                                 JOptionPane.showMessageDialog(
                                         _mainFrame,
@@ -169,8 +173,8 @@ class WriteMessageDialog extends JDialog {
         setVisible(true);
     }
 
-    private JRadioButton _stdOut;
-    private JTextArea _message = new JTextArea(3, 40);
+    private final JRadioButton _stdOut;
+    private final JTextArea _message = new JTextArea(3, 40);
     private String _target;
-    private JFrame _mainFrame;
+    private final JFrame _mainFrame;
 }

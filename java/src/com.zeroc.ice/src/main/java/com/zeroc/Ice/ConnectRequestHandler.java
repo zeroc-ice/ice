@@ -2,6 +2,10 @@
 
 package com.zeroc.Ice;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 final class ConnectRequestHandler
         implements RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback {
     @Override
@@ -27,7 +31,7 @@ final class ConnectRequestHandler
             }
 
             if (!initialized()) {
-                java.util.Iterator<ProxyOutgoingAsyncBase> it = _requests.iterator();
+                Iterator<ProxyOutgoingAsyncBase> it = _requests.iterator();
                 while (it.hasNext()) {
                     OutgoingAsyncBase request = it.next();
                     if (request == outAsync) {
@@ -185,9 +189,9 @@ final class ConnectRequestHandler
         LocalException exception = null;
         for (ProxyOutgoingAsyncBase outAsync : _requests) {
             try {
-                if ((outAsync.invokeRemote(_connection, _compress, _response) &
-                                AsyncStatus.InvokeSentCallback) >
-                        0) {
+                if ((outAsync.invokeRemote(_connection, _compress, _response)
+                                & AsyncStatus.InvokeSentCallback)
+                        > 0) {
                     outAsync.invokeSentAsync();
                 }
             } catch (RetryException ex) {
@@ -212,7 +216,7 @@ final class ConnectRequestHandler
     }
 
     private final Reference _reference;
-    private boolean _response;
+    private final boolean _response;
 
     private ConnectionI _connection;
     private boolean _compress;
@@ -220,5 +224,5 @@ final class ConnectRequestHandler
     private boolean _initialized;
     private boolean _flushing;
 
-    private java.util.List<ProxyOutgoingAsyncBase> _requests = new java.util.LinkedList<>();
+    private final List<ProxyOutgoingAsyncBase> _requests = new LinkedList<>();
 }

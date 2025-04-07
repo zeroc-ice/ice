@@ -2,6 +2,10 @@
 
 package com.zeroc.Ice;
 
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @hidden Public because it's used by IceGridGUI.
  */
@@ -47,7 +51,7 @@ public final class StringUtil {
     }
 
     private static void encodeChar(
-            char c, StringBuilder sb, String special, com.zeroc.Ice.ToStringMode toStringMode) {
+            char c, StringBuilder sb, String special, ToStringMode toStringMode) {
         switch (c) {
             case '\\':
                 {
@@ -66,7 +70,7 @@ public final class StringUtil {
                 }
             case '\007':
                 {
-                    if (toStringMode == com.zeroc.Ice.ToStringMode.Compat) {
+                    if (toStringMode == ToStringMode.Compat) {
                         // Octal escape for compatibility with 3.6 and earlier
                         sb.append("\\007");
                     } else {
@@ -101,7 +105,7 @@ public final class StringUtil {
                 }
             case '\013':
                 {
-                    if (toStringMode == com.zeroc.Ice.ToStringMode.Compat) {
+                    if (toStringMode == ToStringMode.Compat) {
                         // Octal escape for compatibility with 3.6 and earlier
                         sb.append("\\013");
                     } else {
@@ -116,7 +120,7 @@ public final class StringUtil {
                         sb.append(c);
                     } else {
                         if (c < 32 || c > 126) {
-                            if (toStringMode == com.zeroc.Ice.ToStringMode.Compat) {
+                            if (toStringMode == ToStringMode.Compat) {
                                 // When ToStringMode=Compat, c is a UTF-8 byte
                                 assert (c < 256);
 
@@ -133,9 +137,9 @@ public final class StringUtil {
                                     sb.append('0');
                                 }
                                 sb.append(octal);
-                            } else if (c < 32 ||
-                                    c == 127 ||
-                                    toStringMode == com.zeroc.Ice.ToStringMode.ASCII) {
+                            } else if (c < 32
+                                    || c == 127
+                                    || toStringMode == ToStringMode.ASCII) {
                                 // append \\unnnn
                                 sb.append("\\u");
                                 String hex = Integer.toHexString(c);
@@ -162,7 +166,7 @@ public final class StringUtil {
      * escape, and can be empty.
      */
     public static String escapeString(
-            String s, String special, com.zeroc.Ice.ToStringMode toStringMode) {
+            String s, String special, ToStringMode toStringMode) {
         if (special != null) {
             for (int i = 0; i < special.length(); i++) {
                 if (special.charAt(i) < 32 || special.charAt(i) > 126) {
@@ -172,13 +176,13 @@ public final class StringUtil {
             }
         }
 
-        if (toStringMode == com.zeroc.Ice.ToStringMode.Compat) {
+        if (toStringMode == ToStringMode.Compat) {
             // Encode UTF-8 bytes
 
             byte[] bytes = null;
             try {
                 bytes = s.getBytes("UTF8");
-            } catch (java.io.UnsupportedEncodingException ex) {
+            } catch (UnsupportedEncodingException ex) {
                 assert false;
                 return null;
             }
@@ -194,12 +198,12 @@ public final class StringUtil {
 
             for (int i = 0; i < s.length(); i++) {
                 char c = s.charAt(i);
-                if (toStringMode == com.zeroc.Ice.ToStringMode.Unicode ||
-                        !Character.isSurrogate(c)) {
+                if (toStringMode == ToStringMode.Unicode
+                        || !Character.isSurrogate(c)) {
                     encodeChar(c, result, special, toStringMode);
                 } else {
-                    assert (toStringMode == com.zeroc.Ice.ToStringMode.ASCII &&
-                            Character.isSurrogate(c));
+                    assert (toStringMode == ToStringMode.ASCII
+                            && Character.isSurrogate(c));
                     if (i + 1 == s.length()) {
                         throw new IllegalArgumentException("High surrogate without low surrogate");
                     } else {
@@ -396,11 +400,11 @@ public final class StringUtil {
                                 }
                                 if (val > 255) {
                                     String msg =
-                                            "octal value \\" +
-                                                    Integer.toOctalString(val) +
-                                                    " (" +
-                                                    val +
-                                                    ") is out of range";
+                                            "octal value \\"
+                                                    + Integer.toOctalString(val)
+                                                    + " ("
+                                                    + val
+                                                    + ") is out of range";
                                     throw new IllegalArgumentException(msg);
                                 }
                             }
@@ -420,7 +424,7 @@ public final class StringUtil {
 
                         try {
                             result.append(new String(arr, 0, i, "UTF8"));
-                        } catch (java.io.UnsupportedEncodingException ex) {
+                        } catch (UnsupportedEncodingException ex) {
                             throw new IllegalArgumentException("unsupported encoding", ex);
                         }
                         break;
@@ -475,7 +479,7 @@ public final class StringUtil {
 
     /** Split string helper; returns null for unmatched quotes */
     public static String[] splitString(String str, String delim) {
-        java.util.List<String> l = new java.util.ArrayList<>();
+        List<String> l = new ArrayList<>();
         char[] arr = new char[str.length()];
         int pos = 0;
 
@@ -485,15 +489,15 @@ public final class StringUtil {
             if (quoteChar == '\0' && (str.charAt(pos) == '"' || str.charAt(pos) == '\'')) {
                 quoteChar = str.charAt(pos++);
                 continue; // Skip the quote.
-            } else if (quoteChar == '\0' &&
-                    str.charAt(pos) == '\\' &&
-                    pos + 1 < str.length() &&
-                    (str.charAt(pos + 1) == '"' || str.charAt(pos + 1) == '\'')) {
+            } else if (quoteChar == '\0'
+                    && str.charAt(pos) == '\\'
+                    && pos + 1 < str.length()
+                    && (str.charAt(pos + 1) == '"' || str.charAt(pos + 1) == '\'')) {
                 ++pos; // Skip the backslash
-            } else if (quoteChar != '\0' &&
-                    str.charAt(pos) == '\\' &&
-                    pos + 1 < str.length() &&
-                    str.charAt(pos + 1) == quoteChar) {
+            } else if (quoteChar != '\0'
+                    && str.charAt(pos) == '\\'
+                    && pos + 1 < str.length()
+                    && str.charAt(pos + 1) == quoteChar) {
                 ++pos; // Skip the backslash
             } else if (quoteChar != '\0' && str.charAt(pos) == quoteChar) {
                 ++pos;
@@ -557,8 +561,8 @@ public final class StringUtil {
         }
 
         // Make sure start of the strings match
-        if (beginIndex > s.length() ||
-                !s.substring(0, beginIndex).equals(pat.substring(0, beginIndex))) {
+        if (beginIndex > s.length()
+                || !s.substring(0, beginIndex).equals(pat.substring(0, beginIndex))) {
             return false;
         }
 

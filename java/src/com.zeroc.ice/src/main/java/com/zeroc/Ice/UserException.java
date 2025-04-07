@@ -2,6 +2,12 @@
 
 package com.zeroc.Ice;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 /** Base class for exceptions defined in Slice. */
 public abstract class UserException extends java.lang.Exception {
     /**
@@ -18,8 +24,8 @@ public abstract class UserException extends java.lang.Exception {
      */
     @Override
     public String toString() {
-        var sw = new java.io.StringWriter();
-        var pw = new java.io.PrintWriter(sw);
+        var sw = new StringWriter();
+        var pw = new PrintWriter(sw);
         var out = new OutputBase(pw);
         out.setUseTab(false);
         out.print(getClass().getName());
@@ -72,20 +78,20 @@ public abstract class UserException extends java.lang.Exception {
         private static void writeValue(
                 String name,
                 java.lang.Object value,
-                java.util.Map<java.lang.Object, java.lang.Object> objectTable,
+                Map<java.lang.Object, java.lang.Object> objectTable,
                 OutputBase out) {
             if (value == null) {
                 writeName(name, out);
                 out.print("(null)");
             } else {
                 Class<?> c = value.getClass();
-                if (c.equals(Byte.class) ||
-                        c.equals(Short.class) ||
-                        c.equals(Integer.class) ||
-                        c.equals(Long.class) ||
-                        c.equals(Double.class) ||
-                        c.equals(Float.class) ||
-                        c.equals(Boolean.class)) {
+                if (c.equals(Byte.class)
+                        || c.equals(Short.class)
+                        || c.equals(Integer.class)
+                        || c.equals(Long.class)
+                        || c.equals(Double.class)
+                        || c.equals(Float.class)
+                        || c.equals(Boolean.class)) {
                     writeName(name, out);
                     out.print(value.toString());
                 } else if (c.equals(String.class)) {
@@ -114,11 +120,11 @@ public abstract class UserException extends java.lang.Exception {
                         elem += "[" + i + "]";
                         writeValue(elem, java.lang.reflect.Array.get(value, i), objectTable, out);
                     }
-                } else if (value instanceof java.util.Map) {
-                    java.util.Map<?, ?> map = (java.util.Map<?, ?>) value;
-                    java.util.Iterator<?> i = map.entrySet().iterator();
+                } else if (value instanceof Map) {
+                    Map<?, ?> map = (Map<?, ?>) value;
+                    Iterator<?> i = map.entrySet().iterator();
                     while (i.hasNext()) {
-                        java.util.Map.Entry<?, ?> entry = (java.util.Map.Entry<?, ?>) i.next();
+                        Map.Entry<?, ?> entry = (Map.Entry<?, ?>) i.next();
                         String elem = name != null ? name + "." : "";
                         writeValue(elem + "key", entry.getKey(), objectTable, out);
                         writeValue(elem + "value", entry.getValue(), objectTable, out);
@@ -137,7 +143,7 @@ public abstract class UserException extends java.lang.Exception {
                     } else {
                         if (objectTable == null) {
                             objectTable =
-                                    new java.util.IdentityHashMap<
+                                    new IdentityHashMap<
                                             java.lang.Object, java.lang.Object>();
                         }
                         objectTable.put(value, null);
@@ -159,7 +165,7 @@ public abstract class UserException extends java.lang.Exception {
                 String name,
                 java.lang.Object obj,
                 Class<?> c,
-                java.util.Map<java.lang.Object, java.lang.Object> objectTable,
+                Map<java.lang.Object, java.lang.Object> objectTable,
                 OutputBase out) {
             if (!c.equals(java.lang.Object.class)) {
                 //
@@ -189,8 +195,8 @@ public abstract class UserException extends java.lang.Exception {
                     // Only write public, non-static fields.
                     //
                     int mods = field.getModifiers();
-                    if (java.lang.reflect.Modifier.isPublic(mods) &&
-                            !java.lang.reflect.Modifier.isStatic(mods)) {
+                    if (java.lang.reflect.Modifier.isPublic(mods)
+                            && !java.lang.reflect.Modifier.isStatic(mods)) {
                         String fieldName =
                                 name != null ? name + '.' + field.getName() : field.getName();
 

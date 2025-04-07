@@ -6,6 +6,9 @@ import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
@@ -108,9 +111,9 @@ class ServiceTemplate extends Communicator {
     }
 
     @Override
-    void write(XMLWriter writer) throws java.io.IOException {
+    void write(XMLWriter writer) throws IOException {
         if (!_ephemeral) {
-            java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
+            List<String[]> attributes = new LinkedList<String[]>();
             attributes.add(createAttribute("id", _id));
             writer.writeStartTag("service-template", attributes);
             writeParameters(
@@ -177,7 +180,7 @@ class ServiceTemplate extends Communicator {
     }
 
     @Override
-    java.util.List<? extends TemplateInstance> findInstances() {
+    List<? extends TemplateInstance> findInstances() {
         return getRoot().findServiceInstances(_id);
     }
 

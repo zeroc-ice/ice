@@ -4,13 +4,16 @@ package com.zeroc.IceBT;
 
 import com.zeroc.Ice.BTEndpointType;
 import com.zeroc.Ice.BTSEndpointType;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Plugin;
 import com.zeroc.Ice.ProtocolPluginFacade;
 import com.zeroc.Ice.SSLEndpointType;
 import com.zeroc.Ice.UnderlyingEndpointFactory;
+import com.zeroc.Ice.Util;
 
-class PluginI implements com.zeroc.Ice.Plugin {
-    public PluginI(com.zeroc.Ice.Communicator communicator) {
-        final ProtocolPluginFacade f = com.zeroc.Ice.Util.getProtocolPluginFacade(communicator);
+class PluginI implements Plugin {
+    public PluginI(Communicator communicator) {
+        final ProtocolPluginFacade f = Util.getProtocolPluginFacade(communicator);
 
         // Register the endpoint factory. We have to do this now, rather than
         // in initialize, because the communicator may need to interpret

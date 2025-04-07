@@ -2,6 +2,7 @@
 
 package com.zeroc.Ice;
 
+import java.nio.channels.SelectableChannel;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +25,7 @@ final class IdleTimeoutTransceiverDecorator implements Transceiver {
     private ScheduledFuture<?> _writeTimerFuture;
 
     @Override
-    public java.nio.channels.SelectableChannel fd() {
+    public SelectableChannel fd() {
         return _decoratee.fd();
     }
 

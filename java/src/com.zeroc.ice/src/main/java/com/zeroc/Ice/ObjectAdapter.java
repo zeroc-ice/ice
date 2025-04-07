@@ -6,11 +6,10 @@ import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.net.UnknownHostException;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * The object adapter provides an up-call interface from the Ice run time to the implementation of
@@ -32,22 +31,22 @@ public final class ObjectAdapter {
 
     private int _state = StateUninitialized;
     private Instance _instance;
-    private Communicator _communicator;
+    private final Communicator _communicator;
     private ObjectAdapterFactory _objectAdapterFactory;
     private ThreadPool _threadPool;
-    private ServantManager _servantManager;
+    private final ServantManager _servantManager;
     private final String _name;
     private final String _id;
     private final String _replicaGroupId;
     private Reference _reference;
-    private List<IncomingConnectionFactory> _incomingConnectionFactories = new ArrayList<>();
+    private final List<IncomingConnectionFactory> _incomingConnectionFactories = new ArrayList<>();
     private RouterInfo _routerInfo;
     private EndpointI[] _publishedEndpoints = new EndpointI[0];
     private LocatorInfo _locatorInfo;
     private int _directCount; // The number of direct proxies dispatching on this object adapter.
-    private boolean _noConfig;
+    private final boolean _noConfig;
     private final int _messageSizeMax;
-    private final com.zeroc.Ice.SSL.SSLEngineFactory _sslEngineFactory;
+    private final SSLEngineFactory _sslEngineFactory;
     private Object _dispatchPipeline;
     private final Stack<Function<Object, Object>> _middlewareStack = new Stack<>();
 
@@ -495,7 +494,7 @@ public final class ObjectAdapter {
     public ObjectPrx addFacetWithUUID(Object servant, String facet) {
         Identity ident = new Identity();
         ident.category = "";
-        ident.name = java.util.UUID.randomUUID().toString();
+        ident.name = UUID.randomUUID().toString();
 
         return addFacet(servant, ident, facet);
     }
@@ -646,7 +645,7 @@ public final class ObjectAdapter {
      * @see #find
      * @see #findFacet
      */
-    public synchronized java.util.Map<String, Object> findAllFacets(Identity identity) {
+    public synchronized Map<String, Object> findAllFacets(Identity identity) {
         checkForDestruction();
         checkIdentity(identity);
 
@@ -875,7 +874,7 @@ public final class ObjectAdapter {
      * @see Endpoint
      */
     public synchronized Endpoint[] getPublishedEndpoints() {
-        return java.util.Arrays.copyOf(
+        return Arrays.copyOf(
                 _publishedEndpoints, _publishedEndpoints.length, Endpoint[].class);
     }
 
@@ -898,7 +897,7 @@ public final class ObjectAdapter {
 
             oldPublishedEndpoints = _publishedEndpoints;
             _publishedEndpoints =
-                    java.util.Arrays.copyOf(newEndpoints, newEndpoints.length, EndpointI[].class);
+                    Arrays.copyOf(newEndpoints, newEndpoints.length, EndpointI[].class);
             locatorInfo = _locatorInfo;
         }
 
@@ -942,14 +941,14 @@ public final class ObjectAdapter {
                 checkForDestruction();
 
                 EndpointI[] endpoints = ref.getEndpoints();
-                return java.util.Arrays.stream(_publishedEndpoints)
-                        .anyMatch(p -> java.util.Arrays.stream(endpoints).anyMatch(p::equivalent));
+                return Arrays.stream(_publishedEndpoints)
+                        .anyMatch(p -> Arrays.stream(endpoints).anyMatch(p::equivalent));
             }
         }
     }
 
     public void flushAsyncBatchRequests(
-            com.zeroc.Ice.CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
+            CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
         List<IncomingConnectionFactory> f;
         synchronized (this) {
             f = new ArrayList<>(_incomingConnectionFactories);
@@ -1013,7 +1012,7 @@ public final class ObjectAdapter {
         }
     }
 
-    public synchronized void setAdapterOnConnection(com.zeroc.Ice.ConnectionI connection) {
+    public synchronized void setAdapterOnConnection(ConnectionI connection) {
         checkForDestruction();
         connection.setAdapterFromAdapter(this);
     }
@@ -1033,7 +1032,7 @@ public final class ObjectAdapter {
             String name,
             RouterPrx router,
             boolean noConfig,
-            com.zeroc.Ice.SSL.SSLEngineFactory sslEngineFactory) {
+            SSLEngineFactory sslEngineFactory) {
         _instance = instance;
         _communicator = communicator;
         _objectAdapterFactory = objectAdapterFactory;
@@ -1112,11 +1111,11 @@ public final class ObjectAdapter {
             // Prevent finalizer from complaining about the adapter not being destroyed.
             _state = StateDestroyed;
             throw new InitializationException(
-                    "invalid proxy options '" +
-                            proxyOptions +
-                            "' for object adapter '" +
-                            _name +
-                            "'.",
+                    "invalid proxy options '"
+                            + proxyOptions
+                            + "' for object adapter '"
+                            + _name
+                            + "'.",
                     ex);
         }
 
@@ -1266,13 +1265,13 @@ public final class ObjectAdapter {
         // Create a reference and return a proxy for this reference.
         var ref =
                 _instance.referenceFactory().create(ident, facet, _reference, _publishedEndpoints);
-        return new com.zeroc.Ice._ObjectPrxI(ref);
+        return new _ObjectPrxI(ref);
     }
 
     private ObjectPrx newIndirectProxy(Identity ident, String facet, String id) {
         // Create a reference with the adapter id and return a proxy for the reference.
         var ref = _instance.referenceFactory().create(ident, facet, _reference, id);
-        return new com.zeroc.Ice._ObjectPrxI(ref);
+        return new _ObjectPrxI(ref);
     }
 
     private void checkForDeactivation() {
@@ -1398,7 +1397,7 @@ public final class ObjectAdapter {
                                 .properties
                                 .getProperty(_name + ".PublishedHost");
 
-                java.util.stream.Stream<EndpointI> endpoints;
+                Stream<EndpointI> endpoints;
 
                 if (endpointsNoLoopback.isEmpty()) {
                     endpoints = endpointsList.stream();
@@ -1410,7 +1409,7 @@ public final class ObjectAdapter {
                     if (publishedHost.isEmpty()) {
                         try {
                             publishedHost = InetAddress.getLocalHost().getHostName();
-                        } catch (java.net.UnknownHostException e) {
+                        } catch (UnknownHostException e) {
                             throw new InitializationException(
                                     "failed to get the local host name", e);
                         }

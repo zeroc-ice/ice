@@ -2,7 +2,10 @@
 
 package test.Ice.exceptions;
 
-public final class DummyLogger implements com.zeroc.Ice.Logger {
+import com.zeroc.Ice.Logger;
+import com.zeroc.Ice.Util;
+
+public final class DummyLogger implements Logger {
     @Override
     public void print(String message) {
         _logger.print(message);
@@ -15,8 +18,8 @@ public final class DummyLogger implements com.zeroc.Ice.Logger {
 
     @Override
     public void warning(String message) {
-        if (!message.contains("test.Ice.exceptions.ThrowerI.throwAssertException") &&
-                !message.contains(
+        if (!message.contains("test.Ice.exceptions.ThrowerI.throwAssertException")
+                && !message.contains(
                         "test.Ice.exceptions.AMDThrowerI.throwAssertException_async")) {
             _logger.warning(message);
         }
@@ -24,8 +27,8 @@ public final class DummyLogger implements com.zeroc.Ice.Logger {
 
     @Override
     public void error(String message) {
-        if (!message.contains("test.Ice.exceptions.ThrowerI.throwAssertException") &&
-                !message.contains(
+        if (!message.contains("test.Ice.exceptions.ThrowerI.throwAssertException")
+                && !message.contains(
                         "test.Ice.exceptions.AMDThrowerI.throwAssertException_async")) {
             _logger.error(message);
         }
@@ -37,9 +40,9 @@ public final class DummyLogger implements com.zeroc.Ice.Logger {
     }
 
     @Override
-    public com.zeroc.Ice.Logger cloneWithPrefix(String prefix) {
+    public Logger cloneWithPrefix(String prefix) {
         return new DummyLogger();
     }
 
-    private final com.zeroc.Ice.Logger _logger = com.zeroc.Ice.Util.getProcessLogger();
+    private final Logger _logger = Util.getProcessLogger();
 }

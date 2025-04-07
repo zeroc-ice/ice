@@ -2,9 +2,12 @@
 
 package com.zeroc.Ice;
 
+import java.net.Socket;
+import java.nio.channels.SelectableChannel;
+
 final class TcpTransceiver implements Transceiver {
     @Override
-    public java.nio.channels.SelectableChannel fd() {
+    public SelectableChannel fd() {
         assert (_stream != null);
         return _stream.fd();
     }
@@ -67,7 +70,7 @@ final class TcpTransceiver implements Transceiver {
         if (_stream.fd() == null) {
             return new TCPConnectionInfo(incoming, adapterName, connectionId);
         } else {
-            java.net.Socket socket = _stream.fd().socket();
+            Socket socket = _stream.fd().socket();
 
             String remoteAddress = "";
             int remotePort = -1;

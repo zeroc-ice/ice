@@ -6,7 +6,8 @@ import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.Component;
-import java.util.Enumeration;
+import java.io.IOException;
+import java.util.*;
 
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
@@ -15,18 +16,20 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 
+import com.zeroc.IceGrid.BoxedString;
+
 class Node extends TreeNode implements PropertySetParent {
     public static NodeDescriptor copyDescriptor(NodeDescriptor nd) {
         NodeDescriptor copy = nd.clone();
 
         copy.propertySets = PropertySets.copyDescriptors(copy.propertySets);
 
-        copy.serverInstances = new java.util.LinkedList<>();
+        copy.serverInstances = new LinkedList<>();
         for (ServerInstanceDescriptor p : nd.serverInstances) {
             copy.serverInstances.add(ServerInstance.copyDescriptor(p));
         }
 
-        copy.servers = new java.util.LinkedList<>();
+        copy.servers = new LinkedList<>();
         for (ServerDescriptor p : nd.servers) {
             copy.servers.add(PlainServer.copyDescriptor(p));
         }
@@ -51,8 +54,8 @@ class Node extends TreeNode implements PropertySetParent {
                 }
             }
 
-            private java.util.Iterator<PropertySet> _p = _propertySets.iterator();
-            private java.util.Iterator<Server> _q = _servers.iterator();
+            private Iterator<PropertySet> _p = _propertySets.iterator();
+            private Iterator<Server> _q = _servers.iterator();
         };
     }
 
@@ -105,7 +108,7 @@ class Node extends TreeNode implements PropertySetParent {
         removeSortedChildren(childIds, _propertySets, getRoot().getTreeModel());
     }
 
-    void childrenChanged(java.util.List children) {
+    void childrenChanged(List children) {
         childrenChanged(children, getRoot().getTreeModel());
     }
 
@@ -117,7 +120,7 @@ class Node extends TreeNode implements PropertySetParent {
         return (PropertySet) find(id, _propertySets);
     }
 
-    void insertPropertySets(java.util.List<PropertySet> newChildren, boolean fireEvent)
+    void insertPropertySets(List<PropertySet> newChildren, boolean fireEvent)
             throws UpdateFailedException {
         DefaultTreeModel treeModel = fireEvent ? getRoot().getTreeModel() : null;
 
@@ -136,7 +139,7 @@ class Node extends TreeNode implements PropertySetParent {
         }
     }
 
-    void insertServers(java.util.List<Server> newChildren, boolean fireEvent)
+    void insertServers(List<Server> newChildren, boolean fireEvent)
             throws UpdateFailedException {
         DefaultTreeModel treeModel = fireEvent ? getRoot().getTreeModel() : null;
 
@@ -192,10 +195,10 @@ class Node extends TreeNode implements PropertySetParent {
         Object descriptor = getCoordinator().getClipboard();
         if (descriptor != null) {
             actions[PASTE] =
-                    descriptor instanceof NodeDescriptor ||
-                            descriptor instanceof ServerInstanceDescriptor ||
-                            descriptor instanceof ServerDescriptor ||
-                            descriptor instanceof PropertySetDescriptor;
+                    descriptor instanceof NodeDescriptor
+                            || descriptor instanceof ServerInstanceDescriptor
+                            || descriptor instanceof ServerDescriptor
+                            || descriptor instanceof PropertySetDescriptor;
         }
 
         if (!_ephemeral) {
@@ -264,7 +267,7 @@ class Node extends TreeNode implements PropertySetParent {
     public void newPropertySet() {
         newPropertySet(
                 new PropertySetDescriptor(
-                        new String[0], new java.util.LinkedList<PropertyDescriptor>()));
+                        new String[0], new LinkedList<PropertyDescriptor>()));
     }
 
     @Override
@@ -282,10 +285,10 @@ class Node extends TreeNode implements PropertySetParent {
         ServerInstanceDescriptor descriptor =
                 new ServerInstanceDescriptor(
                         "",
-                        new java.util.HashMap<String, String>(),
+                        new HashMap<String, String>(),
                         new PropertySetDescriptor(
-                                new String[0], new java.util.LinkedList<PropertyDescriptor>()),
-                        new java.util.HashMap<String, PropertySetDescriptor>());
+                                new String[0], new LinkedList<PropertyDescriptor>()),
+                        new HashMap<String, PropertySetDescriptor>());
 
         newServer(descriptor);
     }
@@ -359,9 +362,9 @@ class Node extends TreeNode implements PropertySetParent {
     }
 
     @Override
-    void write(XMLWriter writer) throws java.io.IOException {
+    void write(XMLWriter writer) throws IOException {
         if (!_ephemeral) {
-            java.util.List<String[]> attributes = new java.util.LinkedList<>();
+            List<String[]> attributes = new LinkedList<>();
             attributes.add(createAttribute("name", _id));
             if (_descriptor.loadFactor.length() > 0) {
                 attributes.add(createAttribute("load-factor", _descriptor.loadFactor));
@@ -389,13 +392,13 @@ class Node extends TreeNode implements PropertySetParent {
 
     static class Backup {
         Utils.Resolver resolver;
-        java.util.List<Object> backupList;
-        java.util.List<Server> servers;
+        List<Object> backupList;
+        List<Server> servers;
     }
 
     // Try to rebuild this node; returns a backup object if rollback is later necessary We don't
     // rebuild the property sets since they don't depend on the variables.
-    Backup rebuild(java.util.List<Editable> editables) throws UpdateFailedException {
+    Backup rebuild(List<Editable> editables) throws UpdateFailedException {
         Root root = getRoot();
         Backup backup = new Backup();
         backup.resolver = _resolver;
@@ -403,14 +406,14 @@ class Node extends TreeNode implements PropertySetParent {
         @SuppressWarnings("unchecked")
         Utils.Resolver resolver =
                 new Utils.Resolver(
-                        new java.util.Map[]{_descriptor.variables, root.getVariables()});
+                        new Map[]{_descriptor.variables, root.getVariables()});
         _resolver = resolver;
 
         _resolver.put("application", root.getId());
         _resolver.put("node", _id);
 
-        backup.backupList = new java.util.Vector<>();
-        backup.servers = new java.util.LinkedList<>(_servers);
+        backup.backupList = new Vector<>();
+        backup.servers = new LinkedList<>(_servers);
 
         for (Server p : backup.servers) {
             try {
@@ -455,9 +458,9 @@ class Node extends TreeNode implements PropertySetParent {
 
         if (templateDescriptor == null) {
             throw new UpdateFailedException(
-                    "Cannot find template descriptor '" +
-                            instanceDescriptor.template +
-                            "' referenced by server-instance");
+                    "Cannot find template descriptor '"
+                            + instanceDescriptor.template
+                            + "' referenced by server-instance");
         }
         ServerDescriptor serverDescriptor = (ServerDescriptor) templateDescriptor.descriptor;
 
@@ -500,7 +503,7 @@ class Node extends TreeNode implements PropertySetParent {
             update.propertySets = _descriptor.propertySets;
         } else {
             update.removePropertySets = _editable.removedElements(PropertySet.class);
-            update.propertySets = new java.util.HashMap<>();
+            update.propertySets = new HashMap<>();
 
             for (PropertySet p : _propertySets) {
                 if (p.getEditable().isNew() || p.getEditable().isModified()) {
@@ -516,8 +519,8 @@ class Node extends TreeNode implements PropertySetParent {
             update.removeServers = _editable.removedElements(Server.class);
         }
 
-        update.serverInstances = new java.util.LinkedList<>();
-        update.servers = new java.util.LinkedList<>();
+        update.serverInstances = new LinkedList<>();
+        update.servers = new LinkedList<>();
 
         for (Server p : _servers) {
             if (_editable.isNew() || p.getEditable().isModified() || p.getEditable().isNew()) {
@@ -530,35 +533,35 @@ class Node extends TreeNode implements PropertySetParent {
         }
 
         // Anything in this update?
-        if (!_editable.isNew() &&
-                !_editable.isModified() &&
-                update.removePropertySets.length == 0 &&
-                update.propertySets.isEmpty() &&
-                update.removeServers.length == 0 &&
-                update.servers.isEmpty() &&
-                update.serverInstances.isEmpty()) {
+        if (!_editable.isNew()
+                && !_editable.isModified()
+                && update.removePropertySets.length == 0
+                && update.propertySets.isEmpty()
+                && update.removeServers.length == 0
+                && update.servers.isEmpty()
+                && update.serverInstances.isEmpty()) {
             return null;
         }
 
         if (_editable.isNew()) {
             update.variables = _descriptor.variables;
             update.removeVariables = new String[0];
-            update.loadFactor = new com.zeroc.IceGrid.BoxedString(_descriptor.loadFactor);
-            update.description = new com.zeroc.IceGrid.BoxedString(_descriptor.description);
+            update.loadFactor = new BoxedString(_descriptor.loadFactor);
+            update.description = new BoxedString(_descriptor.description);
         } else {
             if (!_descriptor.description.equals(_origDescription)) {
-                update.description = new com.zeroc.IceGrid.BoxedString(_descriptor.description);
+                update.description = new BoxedString(_descriptor.description);
             }
 
             if (!_descriptor.loadFactor.equals(_origLoadFactor)) {
-                update.loadFactor = new com.zeroc.IceGrid.BoxedString(_descriptor.loadFactor);
+                update.loadFactor = new BoxedString(_descriptor.loadFactor);
             }
 
             // Diff variables (TODO: avoid duplication with same code in Root)
-            update.variables = new java.util.TreeMap<>(_descriptor.variables);
-            java.util.List<String> removeVariables = new java.util.LinkedList<>();
+            update.variables = new TreeMap<>(_descriptor.variables);
+            List<String> removeVariables = new LinkedList<>();
 
-            for (java.util.Map.Entry<String, String> p : _origVariables.entrySet()) {
+            for (Map.Entry<String, String> p : _origVariables.entrySet()) {
                 String key = p.getKey();
                 String newValue = update.variables.get(key);
                 if (newValue == null) {
@@ -578,13 +581,13 @@ class Node extends TreeNode implements PropertySetParent {
 
     void update(
             NodeUpdateDescriptor update,
-            java.util.Set<String> serverTemplates,
-            java.util.Set<String> serviceTemplates)
+            Set<String> serverTemplates,
+            Set<String> serviceTemplates)
             throws UpdateFailedException {
         Root root = getRoot();
 
-        java.util.Vector<Server> newServers = new java.util.Vector<>();
-        java.util.Vector<Server> updatedServers = new java.util.Vector<>();
+        Vector<Server> newServers = new Vector<>();
+        Vector<Server> updatedServers = new Vector<>();
 
         if (update != null) {
             // Description
@@ -611,10 +614,10 @@ class Node extends TreeNode implements PropertySetParent {
                 _descriptor.propertySets.remove(id);
             }
 
-            java.util.Vector<PropertySet> newPropertySets = new java.util.Vector<>();
-            java.util.Vector<PropertySet> updatedPropertySets = new java.util.Vector<>();
+            Vector<PropertySet> newPropertySets = new Vector<>();
+            Vector<PropertySet> updatedPropertySets = new Vector<>();
 
-            for (java.util.Map.Entry<String, PropertySetDescriptor> p :
+            for (Map.Entry<String, PropertySetDescriptor> p :
                     update.propertySets.entrySet()) {
                 String id = p.getKey();
                 PropertySetDescriptor psd = p.getValue();
@@ -709,10 +712,10 @@ class Node extends TreeNode implements PropertySetParent {
         }
 
         // Find servers affected by template updates
-        java.util.Set<Server> serverSet = new java.util.HashSet<>();
+        Set<Server> serverSet = new HashSet<>();
 
         for (String p : serverTemplates) {
-            java.util.List<ServerInstance> serverInstances = findServerInstances(p);
+            List<ServerInstance> serverInstances = findServerInstances(p);
             for (ServerInstance q : serverInstances) {
                 if (!updatedServers.contains(q) && !newServers.contains(q)) {
                     serverSet.add(q);
@@ -722,7 +725,7 @@ class Node extends TreeNode implements PropertySetParent {
 
         // Servers affected by service-template updates
         for (String p : serviceTemplates) {
-            java.util.List<ServiceInstance> serviceInstances = findServiceInstances(p);
+            List<ServiceInstance> serviceInstances = findServiceInstances(p);
             for (ServiceInstance q : serviceInstances) {
                 Server server = (Server) q.getParent().getParent();
                 if (!updatedServers.contains(server) && !newServers.contains(server)) {
@@ -791,14 +794,14 @@ class Node extends TreeNode implements PropertySetParent {
         @SuppressWarnings("unchecked")
         Utils.Resolver resolver =
                 new Utils.Resolver(
-                        new java.util.Map[]{_descriptor.variables, getRoot().getVariables()});
+                        new Map[]{_descriptor.variables, getRoot().getVariables()});
         _resolver = resolver;
 
         _resolver.put("application", getRoot().getId());
         _resolver.put("node", _id);
 
         // Property Sets
-        for (java.util.Map.Entry<String, PropertySetDescriptor> p :
+        for (Map.Entry<String, PropertySetDescriptor> p :
                 _descriptor.propertySets.entrySet()) {
             String id = p.getKey();
             insertPropertySet(new PropertySet(false, this, id, id, p.getValue()), false);
@@ -822,8 +825,8 @@ class Node extends TreeNode implements PropertySetParent {
         _descriptor = descriptor;
     }
 
-    java.util.List<ServerInstance> findServerInstances(String template) {
-        java.util.List<ServerInstance> result = new java.util.LinkedList<>();
+    List<ServerInstance> findServerInstances(String template) {
+        List<ServerInstance> result = new LinkedList<>();
         for (Server p : _servers) {
             if (p instanceof ServerInstance) {
                 ServerInstanceDescriptor instanceDescriptor =
@@ -838,7 +841,7 @@ class Node extends TreeNode implements PropertySetParent {
     }
 
     void removeServerInstances(String template) {
-        java.util.List<String> toRemove = new java.util.LinkedList<>();
+        List<String> toRemove = new LinkedList<>();
 
         for (Server p : _servers) {
             if (p instanceof ServerInstance) {
@@ -862,8 +865,8 @@ class Node extends TreeNode implements PropertySetParent {
         }
     }
 
-    java.util.List<ServiceInstance> findServiceInstances(String template) {
-        java.util.List<ServiceInstance> result = new java.util.LinkedList<>();
+    List<ServiceInstance> findServiceInstances(String template) {
+        List<ServiceInstance> result = new LinkedList<>();
         for (Server p : _servers) {
             if (p instanceof PlainServer) {
                 result.addAll(((PlainServer) p).findServiceInstances(template));
@@ -942,7 +945,7 @@ class Node extends TreeNode implements PropertySetParent {
 
     void removeDescriptor(ServerDescriptor sd) {
         // A straight remove uses equals(), which is not the desired behavior
-        java.util.Iterator<ServerDescriptor> p = _descriptor.servers.iterator();
+        Iterator<ServerDescriptor> p = _descriptor.servers.iterator();
         while (p.hasNext()) {
             if (sd == p.next()) {
                 p.remove();
@@ -953,7 +956,7 @@ class Node extends TreeNode implements PropertySetParent {
 
     void removeDescriptor(ServerInstanceDescriptor sd) {
         // A straight remove uses equals(), which is not the desired behavior
-        java.util.Iterator<ServerInstanceDescriptor> p = _descriptor.serverInstances.iterator();
+        Iterator<ServerInstanceDescriptor> p = _descriptor.serverInstances.iterator();
         while (p.hasNext()) {
             if (sd == p.next()) {
                 p.remove();
@@ -1005,7 +1008,7 @@ class Node extends TreeNode implements PropertySetParent {
 
             t = (ServerTemplate) root.getServerTemplates().getChildAt(0);
             descriptor.template = t.getId();
-            descriptor.parameterValues = new java.util.HashMap<>();
+            descriptor.parameterValues = new HashMap<>();
         }
 
         ServerInstance server = new ServerInstance(this, id, descriptor);
@@ -1020,15 +1023,15 @@ class Node extends TreeNode implements PropertySetParent {
     private NodeDescriptor _descriptor;
     private Utils.Resolver _resolver;
 
-    private java.util.Map<String, String> _origVariables;
+    private Map<String, String> _origVariables;
     private String _origDescription;
     private String _origLoadFactor;
 
     private final boolean _ephemeral;
     private NodeEditor _editor;
 
-    private java.util.LinkedList<PropertySet> _propertySets = new java.util.LinkedList<>();
-    private java.util.LinkedList<Server> _servers = new java.util.LinkedList<>();
+    private LinkedList<PropertySet> _propertySets = new LinkedList<>();
+    private LinkedList<Server> _servers = new LinkedList<>();
 
     private Editable _editable;
 

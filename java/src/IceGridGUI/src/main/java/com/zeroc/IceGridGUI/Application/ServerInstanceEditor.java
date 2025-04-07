@@ -8,6 +8,7 @@ import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.event.ActionEvent;
+import java.util.Arrays;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -32,8 +33,8 @@ class ServerInstanceEditor extends AbstractServerEditor {
 
         ((ServerInstance) _target)
                 .isIceBox(
-                        ((TemplateDescriptor) t.getDescriptor()).descriptor instanceof
-                                IceBoxDescriptor);
+                        ((TemplateDescriptor) t.getDescriptor()).descriptor
+                                instanceof IceBoxDescriptor);
     }
 
     @Override
@@ -41,8 +42,8 @@ class ServerInstanceEditor extends AbstractServerEditor {
         ServerInstanceDescriptor descriptor = getDescriptor();
         ServerTemplate t = (ServerTemplate) _template.getSelectedItem();
 
-        return descriptor.template.equals(t.getId()) &&
-                descriptor.parameterValues.equals(_parameters.getValues());
+        return descriptor.template.equals(t.getId())
+                && descriptor.parameterValues.equals(_parameters.getValues());
     }
 
     ServerInstanceEditor() {
@@ -179,7 +180,7 @@ class ServerInstanceEditor extends AbstractServerEditor {
         _parameters.set(td.parameters, descriptor.parameterValues, td.parameterDefaults, resolver);
 
         _propertySets.setList(
-                java.util.Arrays.asList(descriptor.propertySet.references), getDetailResolver());
+                Arrays.asList(descriptor.propertySet.references), getDetailResolver());
         _propertySets.setEditable(isEditable);
 
         _properties.setProperties(

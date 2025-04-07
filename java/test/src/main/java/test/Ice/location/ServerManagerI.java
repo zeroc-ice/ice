@@ -2,12 +2,26 @@
 
 package test.Ice.location;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.LocatorPrx;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.SocketException;
+import com.zeroc.Ice.Util;
+
 import test.Ice.location.Test.ServerManager;
+import test.TestHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ServerManagerI implements ServerManager {
-    ServerManagerI(ServerLocatorRegistry registry, test.TestHelper helper) {
+    ServerManagerI(ServerLocatorRegistry registry, TestHelper helper) {
         _registry = registry;
-        _communicators = new java.util.ArrayList<com.zeroc.Ice.Communicator>();
+        _communicators = new ArrayList<Communicator>();
 
         _helper = helper;
         _properties = _helper.communicator().getProperties()._clone();
@@ -17,8 +31,8 @@ public class ServerManagerI implements ServerManager {
     }
 
     @Override
-    public void startServer(com.zeroc.Ice.Current current) {
-        for (com.zeroc.Ice.Communicator c : _communicators) {
+    public void startServer(Current current) {
+        for (Communicator c : _communicators) {
             c.waitForShutdown();
             c.destroy();
         }
@@ -32,7 +46,7 @@ public class ServerManagerI implements ServerManager {
         // its endpoints with the locator and create references containing
         // the adapter id instead of the endpoints.
         //
-        com.zeroc.Ice.Communicator serverCommunicator = _helper.initialize(_properties);
+        Communicator serverCommunicator = _helper.initialize(_properties);
         _communicators.add(serverCommunicator);
 
         //
@@ -41,8 +55,8 @@ public class ServerManagerI implements ServerManager {
         //
         int nRetry = 10;
         while (--nRetry > 0) {
-            com.zeroc.Ice.ObjectAdapter adapter = null;
-            com.zeroc.Ice.ObjectAdapter adapter2 = null;
+            ObjectAdapter adapter = null;
+            ObjectAdapter adapter2 = null;
             try {
                 serverCommunicator
                         .getProperties()
@@ -55,22 +69,22 @@ public class ServerManagerI implements ServerManager {
                 adapter = serverCommunicator.createObjectAdapter("TestAdapter");
                 adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
 
-                com.zeroc.Ice.ObjectPrx locator =
+                ObjectPrx locator =
                         serverCommunicator.stringToProxy("locator:" + _helper.getTestEndpoint(0));
-                adapter.setLocator(com.zeroc.Ice.LocatorPrx.uncheckedCast(locator));
-                adapter2.setLocator(com.zeroc.Ice.LocatorPrx.uncheckedCast(locator));
+                adapter.setLocator(LocatorPrx.uncheckedCast(locator));
+                adapter2.setLocator(LocatorPrx.uncheckedCast(locator));
 
-                com.zeroc.Ice.Object object = new TestI(adapter, adapter2, _registry);
+                Object object = new TestI(adapter, adapter2, _registry);
                 _registry.addObject(
-                        adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("test")), null);
+                        adapter.add(object, Util.stringToIdentity("test")), null);
                 _registry.addObject(
-                        adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("test2")), null);
-                adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("test3"));
+                        adapter.add(object, Util.stringToIdentity("test2")), null);
+                adapter.add(object, Util.stringToIdentity("test3"));
 
                 adapter.activate();
                 adapter2.activate();
                 break;
-            } catch (com.zeroc.Ice.SocketException ex) {
+            } catch (SocketException ex) {
                 if (nRetry == 0) {
                     throw ex;
                 }
@@ -89,16 +103,16 @@ public class ServerManagerI implements ServerManager {
     }
 
     @Override
-    public void shutdown(com.zeroc.Ice.Current current) {
-        for (com.zeroc.Ice.Communicator c : _communicators) {
+    public void shutdown(Current current) {
+        for (Communicator c : _communicators) {
             c.destroy();
         }
         current.adapter.getCommunicator().shutdown();
     }
 
-    private ServerLocatorRegistry _registry;
-    private java.util.List<com.zeroc.Ice.Communicator> _communicators;
-    private com.zeroc.Ice.Properties _properties;
-    private test.TestHelper _helper;
+    private final ServerLocatorRegistry _registry;
+    private final List<Communicator> _communicators;
+    private final Properties _properties;
+    private final TestHelper _helper;
     private int _nextPort = 1;
 }

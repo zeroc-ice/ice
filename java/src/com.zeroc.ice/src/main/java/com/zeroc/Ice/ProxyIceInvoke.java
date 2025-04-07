@@ -3,6 +3,7 @@
 package com.zeroc.Ice;
 
 import java.time.Duration;
+import java.util.Map;
 
 class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
     public ProxyIceInvoke(
@@ -14,7 +15,7 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
         _is = null;
     }
 
-    public void invoke(byte[] inParams, java.util.Map<String, String> ctx) {
+    public void invoke(byte[] inParams, Map<String, String> ctx) {
         try {
             prepare(ctx);
             writeParamEncaps(inParams);
@@ -64,8 +65,8 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
     public int invokeCollocated(CollocatedRequestHandler handler) {
         // The stream cannot be cached if the proxy is not a twoway or there is an invocation
         // timeout set.
-        if (!_proxy.ice_isTwoway() ||
-                _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
+        if (!_proxy.ice_isTwoway()
+                || _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
         }
@@ -138,5 +139,5 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
     private InputStream _is;
 
     // True if this AMI request is being used for a generated synchronous invocation.
-    private boolean _synchronous;
+    private final boolean _synchronous;
 }

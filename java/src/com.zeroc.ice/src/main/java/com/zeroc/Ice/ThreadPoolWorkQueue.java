@@ -2,6 +2,9 @@
 
 package com.zeroc.Ice;
 
+import java.nio.channels.SelectableChannel;
+import java.util.LinkedList;
+
 final class ThreadPoolWorkQueue extends EventHandler {
     ThreadPoolWorkQueue(Instance instance, ThreadPool threadPool, Selector selector) {
         _threadPool = threadPool;
@@ -70,7 +73,7 @@ final class ThreadPoolWorkQueue extends EventHandler {
     }
 
     @Override
-    public java.nio.channels.SelectableChannel fd() {
+    public SelectableChannel fd() {
         return null;
     }
 
@@ -81,6 +84,6 @@ final class ThreadPoolWorkQueue extends EventHandler {
 
     private final ThreadPool _threadPool;
     private boolean _destroyed;
-    private Selector _selector;
-    private java.util.LinkedList<ThreadPoolWorkItem> _workItems = new java.util.LinkedList<>();
+    private final Selector _selector;
+    private final LinkedList<ThreadPoolWorkItem> _workItems = new LinkedList<>();
 }

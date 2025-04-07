@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.util.HashMap;
+
 final class LocatorManager {
     private static final class LocatorKey implements Cloneable {
         @Override
@@ -100,8 +102,8 @@ final class LocatorManager {
 
     private final boolean _background;
 
-    private final java.util.HashMap<LocatorPrx, LocatorInfo> _table = new java.util.HashMap<>();
-    private final java.util.HashMap<LocatorKey, LocatorTable> _locatorTables =
-            new java.util.HashMap<>();
+    private final HashMap<LocatorPrx, LocatorInfo> _table = new HashMap<>();
+    private final HashMap<LocatorKey, LocatorTable> _locatorTables =
+            new HashMap<>();
     private final LocatorKey _lookupKey = new LocatorKey(); // A key used for the lookup
 }

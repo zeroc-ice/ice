@@ -3,8 +3,15 @@
 package test.Ice.defaultValue;
 
 import test.Ice.defaultValue.Test.*;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+
+import test.Ice.defaultValue.Test.StructNoDefaults;
+
+import test.Ice.defaultValue.Test.ExceptionNoDefaults;
+
+import test.Ice.defaultValue.Test.ClassNoDefaults;
 
 public class AllTests {
     private static void test(boolean b) {
@@ -13,7 +20,7 @@ public class AllTests {
         }
     }
 
-    public static void allTests(test.TestHelper helper) {
+    public static void allTests(TestHelper helper) {
         PrintWriter out = helper.getWriter();
 
         out.print("testing default values... ");
@@ -160,8 +167,8 @@ public class AllTests {
         out.write("testing default constructor... ");
         out.flush();
         {
-            test.Ice.defaultValue.Test.StructNoDefaults v =
-                    new test.Ice.defaultValue.Test.StructNoDefaults();
+            StructNoDefaults v =
+                    new StructNoDefaults();
             test(v.bo == false);
             test(v.b == 0);
             test(v.s == 0);
@@ -170,24 +177,24 @@ public class AllTests {
             test(v.f == 0.0);
             test(v.d == 0.0);
             test(v.str.isEmpty());
-            test(v.c1 == test.Ice.defaultValue.Test.Color.red);
+            test(v.c1 == Color.red);
             test(v.bs == null);
             test(v.is == null);
             test(v.st != null);
             test(v.dict == null);
 
-            test.Ice.defaultValue.Test.ExceptionNoDefaults e =
-                    new test.Ice.defaultValue.Test.ExceptionNoDefaults();
+            ExceptionNoDefaults e =
+                    new ExceptionNoDefaults();
             test(e.str.isEmpty());
-            test(e.c1 == test.Ice.defaultValue.Test.Color.red);
+            test(e.c1 == Color.red);
             test(e.bs == null);
             test(e.st != null);
             test(e.dict == null);
 
-            test.Ice.defaultValue.Test.ClassNoDefaults cl =
-                    new test.Ice.defaultValue.Test.ClassNoDefaults();
+            ClassNoDefaults cl =
+                    new ClassNoDefaults();
             test(cl.str.isEmpty());
-            test(cl.c1 == test.Ice.defaultValue.Test.Color.red);
+            test(cl.c1 == Color.red);
             test(cl.bs == null);
             test(cl.st != null);
             test(cl.dict == null);

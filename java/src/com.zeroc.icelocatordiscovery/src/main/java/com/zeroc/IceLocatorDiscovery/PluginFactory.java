@@ -2,10 +2,13 @@
 
 package com.zeroc.IceLocatorDiscovery;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Plugin;
+
 public class PluginFactory implements com.zeroc.Ice.PluginFactory {
     @Override
-    public com.zeroc.Ice.Plugin create(
-            com.zeroc.Ice.Communicator communicator, String name, String[] args) {
+    public Plugin create(
+            Communicator communicator, String name, String[] args) {
         return new PluginI(communicator);
     }
 }

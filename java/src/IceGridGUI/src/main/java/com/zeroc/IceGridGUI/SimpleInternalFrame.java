@@ -305,8 +305,8 @@ public class SimpleInternalFrame extends JPanel {
     protected Color getTextForeground(boolean isSelected) {
         Color c =
                 UIManager.getColor(
-                        isSelected ?
-                                "SimpleInternalFrame.activeTitleForeground"
+                        isSelected
+                                ? "SimpleInternalFrame.activeTitleForeground"
                                 : "SimpleInternalFrame.inactiveTitleForeground");
         if (c != null) {
             return c;

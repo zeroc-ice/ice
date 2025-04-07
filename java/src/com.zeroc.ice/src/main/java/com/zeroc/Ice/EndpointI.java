@@ -2,6 +2,11 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.SSL.SSLEngineFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @hidden Public because it's used by IceBT, SSL, and the 'Ice/background' test.
  */
@@ -107,11 +112,11 @@ public abstract class EndpointI implements Endpoint, Comparable<EndpointI> {
     // is available.
     //
     public abstract Acceptor acceptor(
-            String adapterName, com.zeroc.Ice.SSL.SSLEngineFactory sslEngineFactory);
+            String adapterName, SSLEngineFactory sslEngineFactory);
 
     // Expand endpoint into separate endpoints for each IP address returned by the DNS resolver.
     // Used only for server endpoints.
-    public abstract java.util.List<EndpointI> expandHost();
+    public abstract List<EndpointI> expandHost();
 
     // Returns true when the most underlying endpoint is an IP endpoint with a loopback or multicast
     // address.
@@ -128,8 +133,8 @@ public abstract class EndpointI implements Endpoint, Comparable<EndpointI> {
 
     public abstract String options();
 
-    public void initWithOptions(java.util.ArrayList<String> args) {
-        java.util.ArrayList<String> unknown = new java.util.ArrayList<>();
+    public void initWithOptions(ArrayList<String> args) {
+        ArrayList<String> unknown = new ArrayList<>();
 
         String str = "`" + protocol() + " ";
         for (String p : args) {

@@ -2,6 +2,9 @@
 
 package com.zeroc.Ice;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Represents a request received by a connection. It's the argument of {@link
  * Object#dispatch(IncomingRequest)}.
@@ -49,7 +52,7 @@ public final class IncomingRequest {
         }
         String operation = inputStream.readString();
         OperationMode mode = OperationMode.valueOf(inputStream.readByte());
-        java.util.Map<String, String> ctx = new java.util.HashMap<>();
+        Map<String, String> ctx = new HashMap<>();
         int sz = inputStream.readSize();
         while (sz-- > 0) {
             String first = inputStream.readString();

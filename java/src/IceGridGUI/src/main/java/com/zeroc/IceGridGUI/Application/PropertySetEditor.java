@@ -8,6 +8,8 @@ import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import javax.swing.JComponent;
+
+import java.util.Arrays;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -175,7 +177,7 @@ class PropertySetEditor extends Editor {
         showId(unsubstitutedId, resolver);
         _oldId = unsubstitutedId;
 
-        _propertySets.setList(java.util.Arrays.asList(descriptor.references), resolver);
+        _propertySets.setList(Arrays.asList(descriptor.references), resolver);
         _propertySets.setEditable(isEditable);
 
         _properties.setProperties(

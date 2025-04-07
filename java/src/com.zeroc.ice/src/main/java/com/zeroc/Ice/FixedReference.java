@@ -3,6 +3,8 @@
 package com.zeroc.Ice;
 
 import java.time.Duration;
+import java.util.Map;
+import java.util.Optional;
 
 public class FixedReference extends Reference {
     public FixedReference(
@@ -12,12 +14,12 @@ public class FixedReference extends Reference {
             String facet,
             int mode,
             boolean secure,
-            java.util.Optional<Boolean> compress,
+            Optional<Boolean> compress,
             ProtocolVersion protocol,
             EncodingVersion encoding,
             ConnectionI connection,
             Duration invocationTimeout,
-            java.util.Map<String, String> context) {
+            Map<String, String> context) {
         super(
                 instance,
                 communicator,
@@ -166,7 +168,7 @@ public class FixedReference extends Reference {
     }
 
     @Override
-    public java.util.Map<String, String> toProperty(String prefix) {
+    public Map<String, String> toProperty(String prefix) {
         throw new FixedProxyException();
     }
 
@@ -214,8 +216,8 @@ public class FixedReference extends Reference {
         _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
         boolean compress =
-                defaultsAndOverrides.overrideCompress.isPresent() ?
-                        defaultsAndOverrides.overrideCompress.get()
+                defaultsAndOverrides.overrideCompress.isPresent()
+                        ? defaultsAndOverrides.overrideCompress.get()
                         : getCompress().orElse(false);
         return new ConnectionRequestHandler(this, _fixedConnection, compress);
     }
@@ -241,5 +243,5 @@ public class FixedReference extends Reference {
     }
 
     private ConnectionI _fixedConnection;
-    private static EndpointI[] _emptyEndpoints = new EndpointI[0];
+    private static final EndpointI[] _emptyEndpoints = new EndpointI[0];
 }

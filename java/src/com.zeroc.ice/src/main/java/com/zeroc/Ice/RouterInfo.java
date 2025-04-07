@@ -2,6 +2,11 @@
 
 package com.zeroc.Ice;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 final class RouterInfo {
     interface GetClientEndpointsCallback {
         void setEndpoints(EndpointI[] endpoints);
@@ -151,8 +156,8 @@ final class RouterInfo {
         if (_clientEndpoints == null) {
             _hasRoutingTable = hasRoutingTable;
             _clientEndpoints =
-                    clientProxy == null ?
-                            ((_ObjectPrxI) _router)._getReference().getEndpoints()
+                    clientProxy == null
+                            ? ((_ObjectPrxI) _router)._getReference().getEndpoints()
                             : ((_ObjectPrxI) clientProxy)._getReference().getEndpoints();
         }
         return _clientEndpoints;
@@ -190,7 +195,7 @@ final class RouterInfo {
     private final RouterPrx _router;
     private EndpointI[] _clientEndpoints;
     private ObjectAdapter _adapter;
-    private java.util.Set<Identity> _identities = new java.util.HashSet<>();
-    private java.util.List<Identity> _evictedIdentities = new java.util.ArrayList<>();
+    private final Set<Identity> _identities = new HashSet<>();
+    private final List<Identity> _evictedIdentities = new ArrayList<>();
     private boolean _hasRoutingTable;
 }

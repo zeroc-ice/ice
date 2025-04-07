@@ -2,5 +2,7 @@
 
 package test.Ice.metrics;
 
+import com.zeroc.Ice.Instrumentation.CollocatedObserver;
+
 class CollocatedObserverI extends ChildInvocationObserverI
-        implements com.zeroc.Ice.Instrumentation.CollocatedObserver {}
+        implements CollocatedObserver {}

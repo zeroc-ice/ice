@@ -2,15 +2,19 @@
 
 package test.Ice.background;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Plugin;
+import com.zeroc.Ice.Util;
+
 public class PluginFactory implements com.zeroc.Ice.PluginFactory {
-    public static class PluginI implements com.zeroc.Ice.Plugin {
-        public PluginI(com.zeroc.Ice.Communicator communicator) {
+    public static class PluginI implements Plugin {
+        public PluginI(Communicator communicator) {
             _communicator = communicator;
         }
 
         @Override
         public void initialize() {
-            var facade = com.zeroc.Ice.Util.getProtocolPluginFacade(_communicator);
+            var facade = Util.getProtocolPluginFacade(_communicator);
             for (short s = 0; s < 100; s++) {
                 com.zeroc.Ice.EndpointFactory factory = facade.getEndpointFactory(s);
                 if (factory != null) {
@@ -26,13 +30,13 @@ public class PluginFactory implements com.zeroc.Ice.PluginFactory {
             return _configuration;
         }
 
-        private final com.zeroc.Ice.Communicator _communicator;
+        private final Communicator _communicator;
         private Configuration _configuration = new Configuration();
     }
 
     @Override
-    public com.zeroc.Ice.Plugin create(
-            com.zeroc.Ice.Communicator communicator, String name, String[] args) {
+    public Plugin create(
+            Communicator communicator, String name, String[] args) {
         return new PluginI(communicator);
     }
 }

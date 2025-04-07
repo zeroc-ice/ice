@@ -2,49 +2,58 @@
 
 package test.IceDiscovery.simple;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.Properties;
+
 import test.IceDiscovery.simple.Test.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public final class ControllerI implements Controller {
     @Override
     public void activateObjectAdapter(
-            String name, String adapterId, String replicaGroupId, com.zeroc.Ice.Current current) {
-        com.zeroc.Ice.Communicator communicator = current.adapter.getCommunicator();
-        com.zeroc.Ice.Properties properties = communicator.getProperties();
+            String name, String adapterId, String replicaGroupId, Current current) {
+        Communicator communicator = current.adapter.getCommunicator();
+        Properties properties = communicator.getProperties();
         properties.setProperty(name + ".AdapterId", adapterId);
         properties.setProperty(name + ".ReplicaGroupId", replicaGroupId);
         properties.setProperty(name + ".Endpoints", "default");
-        com.zeroc.Ice.ObjectAdapter oa = communicator.createObjectAdapter(name);
+        ObjectAdapter oa = communicator.createObjectAdapter(name);
         _adapters.put(name, oa);
         oa.activate();
     }
 
     @Override
-    public void deactivateObjectAdapter(String name, com.zeroc.Ice.Current current) {
+    public void deactivateObjectAdapter(String name, Current current) {
         _adapters.get(name).destroy();
         _adapters.remove(name);
     }
 
     @Override
-    public void addObject(String oaName, String id, com.zeroc.Ice.Current current) {
+    public void addObject(String oaName, String id, Current current) {
         assert (_adapters.containsKey(oaName));
-        com.zeroc.Ice.Identity identity = new com.zeroc.Ice.Identity();
+        Identity identity = new Identity();
         identity.name = id;
         _adapters.get(oaName).add(new TestIntfI(), identity);
     }
 
     @Override
-    public void removeObject(String oaName, String id, com.zeroc.Ice.Current current) {
+    public void removeObject(String oaName, String id, Current current) {
         assert (_adapters.containsKey(oaName));
-        com.zeroc.Ice.Identity identity = new com.zeroc.Ice.Identity();
+        Identity identity = new Identity();
         identity.name = id;
         _adapters.get(oaName).remove(identity);
     }
 
     @Override
-    public void shutdown(com.zeroc.Ice.Current current) {
+    public void shutdown(Current current) {
         current.adapter.getCommunicator().shutdown();
     }
 
-    private final java.util.Map<String, com.zeroc.Ice.ObjectAdapter> _adapters =
-            new java.util.HashMap<String, com.zeroc.Ice.ObjectAdapter>();
+    private final Map<String, ObjectAdapter> _adapters =
+            new HashMap<String, ObjectAdapter>();
 }

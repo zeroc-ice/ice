@@ -3,14 +3,18 @@
 package com.zeroc.Ice;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 abstract class IPEndpointI extends EndpointI {
     protected IPEndpointI(
             ProtocolInstance instance,
             String host,
             int port,
-            java.net.InetSocketAddress sourceAddr,
+            InetSocketAddress sourceAddr,
             String connectionId) {
         _instance = instance;
         _host = host;
@@ -63,7 +67,7 @@ abstract class IPEndpointI extends EndpointI {
     }
 
     @Override
-    public java.util.List<EndpointI> expandHost() {
+    public List<EndpointI> expandHost() {
 
         // If this endpoint has an empty host (wildcard address), don't expand, just return this
         // endpoint.
@@ -71,12 +75,12 @@ abstract class IPEndpointI extends EndpointI {
             return Collections.singletonList(this);
         }
 
-        java.util.List<java.net.InetSocketAddress> addresses =
+        List<InetSocketAddress> addresses =
                 Network.getAddresses(
                         _host, _port, _instance.protocolSupport(), _instance.preferIPv6(), true);
 
-        var result = new java.util.ArrayList<EndpointI>(addresses.size());
-        for (java.net.InetSocketAddress addr : addresses) {
+        var result = new ArrayList<EndpointI>(addresses.size());
+        for (InetSocketAddress addr : addresses) {
             String host = addr.getAddress().getHostAddress();
             result.add(createEndpoint(host, addr.getPort(), _connectionId));
         }
@@ -90,9 +94,9 @@ abstract class IPEndpointI extends EndpointI {
             return false;
         } else {
             try {
-                var address = java.net.InetAddress.getByName(_host);
+                var address = InetAddress.getByName(_host);
                 return address.isLoopbackAddress() || address.isMulticastAddress();
-            } catch (java.net.UnknownHostException ex) {
+            } catch (UnknownHostException ex) {
                 return false;
             }
         }
@@ -105,15 +109,15 @@ abstract class IPEndpointI extends EndpointI {
         }
 
         IPEndpointI ipEndpointI = (IPEndpointI) endpoint;
-        return ipEndpointI.type() == type() &&
-                ipEndpointI._normalizedHost.equals(_normalizedHost) &&
-                ipEndpointI._port == _port;
+        return ipEndpointI.type() == type()
+                && ipEndpointI._normalizedHost.equals(_normalizedHost)
+                && ipEndpointI._port == _port;
     }
 
-    public java.util.List<Connector> connectors(
-            java.util.List<java.net.InetSocketAddress> addresses, NetworkProxy proxy) {
-        java.util.List<Connector> connectors = new java.util.ArrayList<>();
-        for (java.net.InetSocketAddress p : addresses) {
+    public List<Connector> connectors(
+            List<InetSocketAddress> addresses, NetworkProxy proxy) {
+        List<Connector> connectors = new ArrayList<>();
+        for (InetSocketAddress p : addresses) {
             connectors.add(createConnector(p, proxy));
         }
         return connectors;
@@ -209,7 +213,7 @@ abstract class IPEndpointI extends EndpointI {
         s.writeInt(_port);
     }
 
-    void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint) {
+    void initWithOptions(ArrayList<String> args, boolean oaEndpoint) {
         super.initWithOptions(args);
 
         if (_host == null || _host.isEmpty()) {
@@ -264,25 +268,25 @@ abstract class IPEndpointI extends EndpointI {
 
             if (_port < 0 || _port > 65535) {
                 throw new ParseException(
-                        "port value '" +
-                                argument +
-                                "' out of range in endpoint '" +
-                                endpoint +
-                                "'");
+                        "port value '"
+                                + argument
+                                + "' out of range in endpoint '"
+                                + endpoint
+                                + "'");
             }
         } else if ("--sourceAddress".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for --sourceAddress option in endpoint '" +
-                                endpoint +
-                                "'");
+                        "no argument provided for --sourceAddress option in endpoint '"
+                                + endpoint
+                                + "'");
             }
             _sourceAddr = Network.getNumericAddress(argument);
             if (_sourceAddr == null) {
                 throw new ParseException(
-                        "invalid IP address provided for --sourceAddress option in endpoint '" +
-                                endpoint +
-                                "'");
+                        "invalid IP address provided for --sourceAddress option in endpoint '"
+                                + endpoint
+                                + "'");
             }
         } else {
             return false;
@@ -296,7 +300,7 @@ abstract class IPEndpointI extends EndpointI {
             try {
                 var address = InetAddress.getByName(host);
                 host = address.getHostAddress(); // normalized host
-            } catch (java.net.UnknownHostException ex) {
+            } catch (UnknownHostException ex) {
                 // Ignore - don't normalize host.
             }
         }
@@ -304,14 +308,14 @@ abstract class IPEndpointI extends EndpointI {
     }
 
     protected abstract Connector createConnector(
-            java.net.InetSocketAddress addr, NetworkProxy proxy);
+            InetSocketAddress addr, NetworkProxy proxy);
 
     protected abstract IPEndpointI createEndpoint(String host, int port, String connectionId);
 
     protected final ProtocolInstance _instance;
     protected String _host;
     protected int _port;
-    protected java.net.InetSocketAddress _sourceAddr;
+    protected InetSocketAddress _sourceAddr;
     protected final String _connectionId;
 
     // Set when we set _host; used by the implementation of equivalent.

@@ -9,9 +9,14 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
 import com.zeroc.Ice.LogMessageType;
+import com.zeroc.Ice.StringUtil;
 
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -28,32 +33,32 @@ class LogFilterDialog extends JDialog {
         super(dialog, "Ice log filter - IceGrid GUI", true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-        java.util.Set<com.zeroc.Ice.LogMessageType> messageTypeFilterSet = null;
+        Set<LogMessageType> messageTypeFilterSet = null;
         if (dialog.getMessageTypeFilter() != null) {
             messageTypeFilterSet =
-                    new java.util.HashSet<>(java.util.Arrays.asList(dialog.getMessageTypeFilter()));
+                    new HashSet<>(Arrays.asList(dialog.getMessageTypeFilter()));
         }
 
         final JCheckBox error =
                 new JCheckBox(
                         "Error",
-                        messageTypeFilterSet == null ||
-                                messageTypeFilterSet.contains(LogMessageType.ErrorMessage));
+                        messageTypeFilterSet == null
+                                || messageTypeFilterSet.contains(LogMessageType.ErrorMessage));
         final JCheckBox warning =
                 new JCheckBox(
                         "Warning",
-                        messageTypeFilterSet == null ||
-                                messageTypeFilterSet.contains(LogMessageType.WarningMessage));
+                        messageTypeFilterSet == null
+                                || messageTypeFilterSet.contains(LogMessageType.WarningMessage));
         final JCheckBox print =
                 new JCheckBox(
                         "Print",
-                        messageTypeFilterSet == null ||
-                                messageTypeFilterSet.contains(LogMessageType.PrintMessage));
+                        messageTypeFilterSet == null
+                                || messageTypeFilterSet.contains(LogMessageType.PrintMessage));
         final JCheckBox trace =
                 new JCheckBox(
                         "Trace",
-                        messageTypeFilterSet == null ||
-                                messageTypeFilterSet.contains(LogMessageType.TraceMessage));
+                        messageTypeFilterSet == null
+                                || messageTypeFilterSet.contains(LogMessageType.TraceMessage));
 
         final JTextArea traceCategories = new JTextArea(3, 40);
         traceCategories.setLineWrap(true);
@@ -61,7 +66,7 @@ class LogFilterDialog extends JDialog {
         String[] traceCategoryFilter = dialog.getTraceCategoryFilter();
         if (traceCategoryFilter != null) {
             // TODO: join with escapes!
-            String s = String.join(", ", java.util.Arrays.asList(traceCategoryFilter));
+            String s = String.join(", ", Arrays.asList(traceCategoryFilter));
             traceCategories.setText(s);
         } else {
             traceCategories.setText(null);
@@ -80,7 +85,7 @@ class LogFilterDialog extends JDialog {
                         String txt = traceCategories.getText();
                         if (txt != null && !txt.isEmpty()) {
                             traceCategoryFilter =
-                                    com.zeroc.Ice.StringUtil.splitString(txt, ", \t\r\n");
+                                    StringUtil.splitString(txt, ", \t\r\n");
                             if (traceCategoryFilter == null) {
                                 // unmatched quote
                                 JOptionPane.showMessageDialog(
@@ -97,8 +102,8 @@ class LogFilterDialog extends JDialog {
                             }
                         }
 
-                        java.util.Set<LogMessageType> messageTypeFilterSet =
-                                new java.util.HashSet<>();
+                        Set<LogMessageType> messageTypeFilterSet =
+                                new HashSet<>();
                         if (error.isSelected()) {
                             messageTypeFilterSet.add(LogMessageType.ErrorMessage);
                         }
@@ -168,7 +173,7 @@ class LogFilterDialog extends JDialog {
                 new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
         buttonBar.setBorder(Borders.DIALOG);
 
-        java.awt.Container contentPane = getContentPane();
+        Container contentPane = getContentPane();
         contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
         contentPane.add(builder.getPanel());
         contentPane.add(buttonBar);

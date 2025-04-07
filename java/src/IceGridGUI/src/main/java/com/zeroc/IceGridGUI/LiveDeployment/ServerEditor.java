@@ -211,27 +211,27 @@ class ServerEditor extends CommunicatorEditor {
         }
     }
 
-    private Coordinator _coordinator;
+    private final Coordinator _coordinator;
 
-    private JTextField _currentState = new JTextField(20);
-    private JCheckBox _enabled = new JCheckBox("Enabled");
-    private JTextField _currentPid = new JTextField(20);
+    private final JTextField _currentState = new JTextField(20);
+    private final JCheckBox _enabled = new JCheckBox("Enabled");
+    private final JTextField _currentPid = new JTextField(20);
 
-    private JTextField _application = new JTextField(20);
-    private JButton _gotoApplication;
+    private final JTextField _application = new JTextField(20);
+    private final JButton _gotoApplication;
 
-    private JTextField _exe = new JTextField(20);
-    private JTextField _iceVersion = new JTextField(20);
-    private JTextField _pwd = new JTextField(20);
-    private JTextField _user = new JTextField(20);
+    private final JTextField _exe = new JTextField(20);
+    private final JTextField _iceVersion = new JTextField(20);
+    private final JTextField _pwd = new JTextField(20);
+    private final JTextField _user = new JTextField(20);
 
-    private JTextField _activation = new JTextField(20);
-    private JTextField _activationTimeout = new JTextField(20);
-    private JTextField _deactivationTimeout = new JTextField(20);
-    private JCheckBox _allocatable = new JCheckBox("Allocatable");
+    private final JTextField _activation = new JTextField(20);
+    private final JTextField _activationTimeout = new JTextField(20);
+    private final JTextField _deactivationTimeout = new JTextField(20);
+    private final JCheckBox _allocatable = new JCheckBox("Allocatable");
 
-    private TableField _envs = new TableField("Name", "Value");
+    private final TableField _envs = new TableField("Name", "Value");
 
-    private JTextField _options = new JTextField(20);
+    private final JTextField _options = new JTextField(20);
     private JToolBar _toolBar;
 }

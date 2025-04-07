@@ -2,18 +2,27 @@
 
 package test.Ice.invoke;
 
+import com.zeroc.Ice.Blobject;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.InputStream;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.OperationNotExistException;
+import com.zeroc.Ice.OutputStream;
+import com.zeroc.Ice.UserException;
+
 import test.Ice.invoke.Test.MyException;
 
-public class BlobjectI implements com.zeroc.Ice.Blobject {
+public class BlobjectI implements Blobject {
     @Override
-    public com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(
-            byte[] inParams, com.zeroc.Ice.Current current) throws com.zeroc.Ice.UserException {
-        com.zeroc.Ice.Communicator communicator = current.adapter.getCommunicator();
-        com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, inParams);
+    public Object.Ice_invokeResult ice_invoke(
+            byte[] inParams, Current current) throws UserException {
+        Communicator communicator = current.adapter.getCommunicator();
+        InputStream in = new InputStream(communicator, inParams);
         in.startEncapsulation();
-        com.zeroc.Ice.OutputStream out = new com.zeroc.Ice.OutputStream(communicator);
+        OutputStream out = new OutputStream(communicator);
         out.startEncapsulation();
-        com.zeroc.Ice.Object.Ice_invokeResult r = new com.zeroc.Ice.Object.Ice_invokeResult();
+        Object.Ice_invokeResult r = new Object.Ice_invokeResult();
         if ("opOneway".equals(current.operation)) {
             r.returnValue = true;
             r.outParams = new byte[0];
@@ -53,7 +62,7 @@ public class BlobjectI implements com.zeroc.Ice.Blobject {
             r.outParams = out.finished();
             return r;
         } else {
-            throw new com.zeroc.Ice.OperationNotExistException();
+            throw new OperationNotExistException();
         }
     }
 }

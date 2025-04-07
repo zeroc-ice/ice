@@ -2,6 +2,11 @@
 
 package com.zeroc.Ice;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 /**
  * @hidden Public because it's used by the 'Ice/operations' test.
  */
@@ -41,7 +46,7 @@ public class BZip2 {
             BufferedOutputStream bos = new BufferedOutputStream(compressed);
             java.lang.Object[] args =
                     new java.lang.Object[]{bos, Integer.valueOf(compressionLevel)};
-            java.io.OutputStream os = (java.io.OutputStream) _bzOutputStreamCtor.newInstance(args);
+            OutputStream os = (OutputStream) _bzOutputStreamCtor.newInstance(args);
             os.write(data, offset + headerSize, uncompressedLen);
             os.close();
             compressedLen = bos.pos();
@@ -121,12 +126,12 @@ public class BZip2 {
             // Its constructor requires an InputStream argument, therefore we pass the
             // compressed data in a ByteArrayInputStream.
             //
-            java.io.ByteArrayInputStream bais =
-                    new java.io.ByteArrayInputStream(
+            ByteArrayInputStream bais =
+                    new ByteArrayInputStream(
                             compressed, offset + headerSize + 4, compressedLen);
 
             java.lang.Object[] args = new java.lang.Object[]{bais};
-            java.io.InputStream is = (java.io.InputStream) _bzInputStreamCtor.newInstance(args);
+            InputStream is = (InputStream) _bzInputStreamCtor.newInstance(args);
             r.position(headerSize);
             byte[] arr = new byte[8 * 1024];
             int n;
@@ -166,7 +171,7 @@ public class BZip2 {
                                 "org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream",
                                 null);
                 if (cls != null) {
-                    types[0] = java.io.InputStream.class;
+                    types[0] = InputStream.class;
                     _bzInputStreamCtor = cls.getDeclaredConstructor(types);
                 }
                 cls =
@@ -175,7 +180,7 @@ public class BZip2 {
                                 null);
                 if (cls != null) {
                     types = new Class<?>[2];
-                    types[0] = java.io.OutputStream.class;
+                    types[0] = OutputStream.class;
                     types[1] = Integer.TYPE;
                     _bzOutputStreamCtor = cls.getDeclaredConstructor(types);
                 }
@@ -186,33 +191,33 @@ public class BZip2 {
         return _bzInputStreamCtor != null && _bzOutputStreamCtor != null;
     }
 
-    private static class BufferedOutputStream extends java.io.OutputStream {
+    private static class BufferedOutputStream extends OutputStream {
         BufferedOutputStream(byte[] data) {
             _data = data;
         }
 
         @Override
-        public void close() throws java.io.IOException {}
+        public void close() throws IOException {}
 
         @Override
-        public void flush() throws java.io.IOException {}
+        public void flush() throws IOException {}
 
         @Override
-        public void write(byte[] b) throws java.io.IOException {
+        public void write(byte[] b) throws IOException {
             assert (_data.length - _pos >= b.length);
             System.arraycopy(b, 0, _data, _pos, b.length);
             _pos += b.length;
         }
 
         @Override
-        public void write(byte[] b, int off, int len) throws java.io.IOException {
+        public void write(byte[] b, int off, int len) throws IOException {
             assert (_data.length - _pos >= len);
             System.arraycopy(b, off, _data, _pos, len);
             _pos += len;
         }
 
         @Override
-        public void write(int b) throws java.io.IOException {
+        public void write(int b) throws IOException {
             assert (_data.length - _pos >= 1);
             _data[_pos] = (byte) b;
             ++_pos;

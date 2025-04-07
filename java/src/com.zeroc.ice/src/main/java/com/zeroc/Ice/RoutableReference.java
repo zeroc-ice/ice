@@ -3,6 +3,7 @@
 package com.zeroc.Ice;
 
 import java.time.Duration;
+import java.util.*;
 
 class RoutableReference extends Reference {
     @Override
@@ -77,8 +78,8 @@ class RoutableReference extends Reference {
         RoutableReference r = (RoutableReference) super.changeEncoding(newEncoding);
         if (r != this) {
             LocatorInfo locInfo = r._locatorInfo;
-            if (locInfo != null &&
-                    !locInfo.getLocator().ice_getEncodingVersion().equals(newEncoding)) {
+            if (locInfo != null
+                    && !locInfo.getLocator().ice_getEncodingVersion().equals(newEncoding)) {
                 r._locatorInfo =
                         getInstance()
                                 .locatorManager()
@@ -91,9 +92,9 @@ class RoutableReference extends Reference {
     @Override
     public Reference changeCompress(boolean newCompress) {
         RoutableReference r = (RoutableReference) super.changeCompress(newCompress);
-        if (r != this &&
-                _endpoints.length >
-                        0) // Also override the compress flag on the endpoints if it was updated.
+        if (r != this
+                && _endpoints.length
+                        > 0) // Also override the compress flag on the endpoints if it was updated.
         {
             EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
             for (int i = 0; i < _endpoints.length; i++) {
@@ -268,8 +269,8 @@ class RoutableReference extends Reference {
     }
 
     @Override
-    public java.util.Map<String, String> toProperty(String prefix) {
-        java.util.Map<String, String> properties = new java.util.HashMap<>();
+    public Map<String, String> toProperty(String prefix) {
+        Map<String, String> properties = new HashMap<>();
 
         properties.put(prefix, toString());
         properties.put(prefix + ".CollocationOptimized", _collocationOptimized ? "1" : "0");
@@ -292,18 +293,18 @@ class RoutableReference extends Reference {
 
         if (_routerInfo != null) {
             _ObjectPrxI h = (_ObjectPrxI) _routerInfo.getRouter();
-            java.util.Map<String, String> routerProperties =
+            Map<String, String> routerProperties =
                     h._getReference().toProperty(prefix + ".Router");
-            for (java.util.Map.Entry<String, String> p : routerProperties.entrySet()) {
+            for (Map.Entry<String, String> p : routerProperties.entrySet()) {
                 properties.put(p.getKey(), p.getValue());
             }
         }
 
         if (_locatorInfo != null) {
             _ObjectPrxI h = (_ObjectPrxI) _locatorInfo.getLocator();
-            java.util.Map<String, String> locatorProperties =
+            Map<String, String> locatorProperties =
                     h._getReference().toProperty(prefix + ".Locator");
-            for (java.util.Map.Entry<String, String> p : locatorProperties.entrySet()) {
+            for (Map.Entry<String, String> p : locatorProperties.entrySet()) {
                 properties.put(p.getKey(), p.getValue());
             }
         }
@@ -340,8 +341,8 @@ class RoutableReference extends Reference {
             return false;
         }
         RoutableReference rhs = (RoutableReference) obj; // Guaranteed to succeed.
-        if (_locatorInfo == null ?
-                rhs._locatorInfo != null
+        if (_locatorInfo == null
+                ? rhs._locatorInfo != null
                 : !_locatorInfo.equals(rhs._locatorInfo)) {
             return false;
         }
@@ -366,7 +367,7 @@ class RoutableReference extends Reference {
         if (!_connectionId.equals(rhs._connectionId)) {
             return false;
         }
-        if (!java.util.Arrays.equals(_endpoints, rhs._endpoints)) {
+        if (!Arrays.equals(_endpoints, rhs._endpoints)) {
             return false;
         }
         if (!_adapterId.equals(rhs._adapterId)) {
@@ -469,9 +470,9 @@ class RoutableReference extends Reference {
                                                             getInstance().traceLevels();
                                                     if (traceLvls.retry >= 2) {
                                                         String s =
-                                                                "connection to cached endpoints failed\n" +
-                                                                        "removing endpoints from cache and trying again\n" +
-                                                                        ex;
+                                                                "connection to cached endpoints failed\n"
+                                                                        + "removing endpoints from cache and trying again\n"
+                                                                        + ex;
                                                         getInstance()
                                                                 .initializationData()
                                                                 .logger
@@ -503,7 +504,7 @@ class RoutableReference extends Reference {
             String facet,
             int mode,
             boolean secure,
-            java.util.Optional<Boolean> compress,
+            Optional<Boolean> compress,
             ProtocolVersion protocol,
             EncodingVersion encoding,
             EndpointI[] endpoints,
@@ -516,7 +517,7 @@ class RoutableReference extends Reference {
             EndpointSelectionType endpointSelection,
             Duration locatorCacheTimeout,
             Duration invocationTimeout,
-            java.util.Map<String, String> context) {
+            Map<String, String> context) {
         super(
                 instance,
                 communicator,
@@ -562,7 +563,7 @@ class RoutableReference extends Reference {
     }
 
     private EndpointI[] filterEndpoints(EndpointI[] allEndpoints) {
-        java.util.List<EndpointI> endpoints = new java.util.ArrayList<>();
+        List<EndpointI> endpoints = new ArrayList<>();
 
         //
         // Filter out opaque endpoints.
@@ -584,7 +585,7 @@ class RoutableReference extends Reference {
                     //
                     // Filter out datagram endpoints.
                     //
-                    java.util.Iterator<EndpointI> i = endpoints.iterator();
+                    Iterator<EndpointI> i = endpoints.iterator();
                     while (i.hasNext()) {
                         EndpointI endpoint = i.next();
                         if (endpoint.datagram()) {
@@ -600,7 +601,7 @@ class RoutableReference extends Reference {
                     //
                     // Filter out non-datagram endpoints.
                     //
-                    java.util.Iterator<EndpointI> i = endpoints.iterator();
+                    Iterator<EndpointI> i = endpoints.iterator();
                     while (i.hasNext()) {
                         EndpointI endpoint = i.next();
                         if (!endpoint.datagram()) {
@@ -617,7 +618,7 @@ class RoutableReference extends Reference {
         switch (getEndpointSelection()) {
             case Random:
                 {
-                    java.util.Collections.shuffle(endpoints);
+                    Collections.shuffle(endpoints);
                     break;
                 }
             case Ordered:
@@ -640,7 +641,7 @@ class RoutableReference extends Reference {
         //
         DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
         if (overrides.overrideSecure.isPresent() ? overrides.overrideSecure.get() : getSecure()) {
-            java.util.Iterator<EndpointI> i = endpoints.iterator();
+            Iterator<EndpointI> i = endpoints.iterator();
             while (i.hasNext()) {
                 EndpointI endpoint = i.next();
                 if (!endpoint.secure()) {
@@ -648,9 +649,9 @@ class RoutableReference extends Reference {
                 }
             }
         } else if (getPreferSecure()) {
-            java.util.Collections.sort(endpoints, _preferSecureEndpointComparator);
+            Collections.sort(endpoints, _preferSecureEndpointComparator);
         } else {
-            java.util.Collections.sort(endpoints, _preferNonSecureEndpointComparator);
+            Collections.sort(endpoints, _preferNonSecureEndpointComparator);
         }
 
         return endpoints.toArray(new EndpointI[endpoints.size()]);
@@ -753,7 +754,7 @@ class RoutableReference extends Reference {
         }
     }
 
-    static class EndpointComparator implements java.util.Comparator<EndpointI> {
+    static class EndpointComparator implements Comparator<EndpointI> {
         EndpointComparator(boolean preferSecure) {
             _preferSecure = preferSecure;
         }
@@ -782,11 +783,11 @@ class RoutableReference extends Reference {
         private final boolean _preferSecure;
     }
 
-    private static EndpointComparator _preferNonSecureEndpointComparator =
+    private static final EndpointComparator _preferNonSecureEndpointComparator =
             new EndpointComparator(false);
-    private static EndpointComparator _preferSecureEndpointComparator =
+    private static final EndpointComparator _preferSecureEndpointComparator =
             new EndpointComparator(true);
-    private static EndpointI[] _emptyEndpoints = new EndpointI[0];
+    private static final EndpointI[] _emptyEndpoints = new EndpointI[0];
 
     private BatchRequestQueue _batchRequestQueue;
 

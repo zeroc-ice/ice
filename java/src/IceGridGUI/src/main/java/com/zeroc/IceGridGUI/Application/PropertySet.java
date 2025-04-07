@@ -6,6 +6,8 @@ import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.util.LinkedList;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -13,7 +15,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 class PropertySet extends TreeNode {
     public static PropertySetDescriptor copyDescriptor(PropertySetDescriptor d) {
         PropertySetDescriptor psd = d.clone();
-        psd.properties = new java.util.LinkedList<>(psd.properties);
+        psd.properties = new LinkedList<>(psd.properties);
         return psd;
     }
 
@@ -176,7 +178,7 @@ class PropertySet extends TreeNode {
     }
 
     @Override
-    void write(XMLWriter writer) throws java.io.IOException {
+    void write(XMLWriter writer) throws IOException {
         if (!_ephemeral) {
             writePropertySet(
                     writer,

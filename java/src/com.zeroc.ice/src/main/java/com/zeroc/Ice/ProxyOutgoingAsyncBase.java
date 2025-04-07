@@ -3,6 +3,10 @@
 package com.zeroc.Ice;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 //
 // Base class for proxy based invocations. This class handles the
@@ -71,9 +75,9 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
                             if (facetPath.length > 0) {
                                 if (facetPath.length > 1) {
                                     throw new MarshalException(
-                                            "Received invalid facet path with '" +
-                                                    facetPath.length +
-                                                    "' elements.");
+                                            "Received invalid facet path with '"
+                                                    + facetPath.length
+                                                    + "' elements.");
                                 }
                                 facet = facetPath[0];
                             } else {
@@ -200,7 +204,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
                                                 cancel(new InvocationTimeoutException());
                                             },
                                             invocationTimeout.toMillis(),
-                                            java.util.concurrent.TimeUnit.MILLISECONDS);
+                                            TimeUnit.MILLISECONDS);
                 }
             } else // If not called from the user thread, it's called from the retry queue
             {
@@ -306,12 +310,12 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
         // If the request didn't get sent or if it's non-mutating or idempotent it can
         // also always be retried if the retry count isn't reached.
         boolean shouldRetry =
-                ex instanceof LocalException &&
-                        (!_sent ||
-                                _mode == OperationMode.Nonmutating ||
-                                _mode == OperationMode.Idempotent ||
-                                ex instanceof CloseConnectionException ||
-                                ex instanceof ObjectNotExistException);
+                ex instanceof LocalException
+                        && (!_sent
+                                || _mode == OperationMode.Nonmutating
+                                || _mode == OperationMode.Idempotent
+                                || ex instanceof CloseConnectionException
+                                || ex instanceof ObjectNotExistException);
 
         if (shouldRetry) {
             try {
@@ -405,9 +409,9 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
         }
 
         // Don't retry if the communicator is destroyed or object adapter is deactivated/destroyed
-        if (ex instanceof CommunicatorDestroyedException ||
-                ex instanceof ObjectAdapterDeactivatedException ||
-                ex instanceof ObjectAdapterDestroyedException) {
+        if (ex instanceof CommunicatorDestroyedException
+                || ex instanceof ObjectAdapterDeactivatedException
+                || ex instanceof ObjectAdapterDestroyedException) {
             throw ex;
         }
 
@@ -444,8 +448,8 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
         } else if (_cnt > retryIntervals.length) {
             if (traceLevels.retry >= 1) {
                 String s =
-                        "cannot retry operation call because retry limit has been exceeded\n" +
-                                ex.toString();
+                        "cannot retry operation call because retry limit has been exceeded\n"
+                                + ex.toString();
                 logger.trace(traceLevels.retryCat, s);
             }
             throw ex;
@@ -465,7 +469,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
         return interval;
     }
 
-    protected void prepare(java.util.Map<String, String> ctx) {
+    protected void prepare(Map<String, String> ctx) {
         Reference ref = _proxy._getReference();
 
         Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(ref.getProtocol()));
@@ -504,7 +508,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
             // Implicit context
             //
             ImplicitContextI implicitContext = ref.getInstance().getImplicitContext();
-            java.util.Map<String, String> prxContext = ref.getContext();
+            Map<String, String> prxContext = ref.getContext();
 
             if (implicitContext == null) {
                 ContextHelper.write(_os, prxContext);
@@ -518,9 +522,9 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
     protected RequestHandler _handler;
     protected OperationMode _mode;
 
-    private java.util.concurrent.Future<?> _timerFuture;
+    private Future<?> _timerFuture;
     private int _cnt;
     private boolean _sent;
 
-    private static final java.util.Map<String, String> _emptyContext = new java.util.HashMap<>();
+    private static final Map<String, String> _emptyContext = new HashMap<>();
 }

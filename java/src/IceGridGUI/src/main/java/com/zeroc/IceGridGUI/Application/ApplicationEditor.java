@@ -104,8 +104,8 @@ class ApplicationEditor extends Editor {
 
     boolean isSimpleUpdate() {
         ApplicationDescriptor descriptor = (ApplicationDescriptor) _target.getDescriptor();
-        return descriptor.name.equals(_name.getText().trim()) &&
-                _variables.get().equals(descriptor.variables);
+        return descriptor.name.equals(_name.getText().trim())
+                && _variables.get().equals(descriptor.variables);
     }
 
     void writeDescriptor() {

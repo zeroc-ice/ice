@@ -5,7 +5,17 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.IceMX.Metrics;
 import com.zeroc.Ice.IceMX.MetricsFailures;
 import com.zeroc.Ice.IceMX.MetricsHelper;
+import com.zeroc.Ice.IceMX.Observer;
 import com.zeroc.Ice.MetricsMap.SubMap;
+
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * @hidden Public because it's used by IceMX.
@@ -20,7 +30,7 @@ public class MetricsMap<T extends Metrics> {
             synchronized (MetricsMap.this) {
                 ++_object.failures;
                 if (_failures == null) {
-                    _failures = new java.util.HashMap<>();
+                    _failures = new HashMap<>();
                 }
                 Integer count = _failures.get(exceptionName);
                 _failures.put(exceptionName, Integer.valueOf(count == null ? 1 : count + 1));
@@ -39,7 +49,7 @@ public class MetricsMap<T extends Metrics> {
                         return null;
                     }
                     if (_subMaps == null) {
-                        _subMaps = new java.util.HashMap<>();
+                        _subMaps = new HashMap<>();
                     }
                     _subMaps.put(mapName, m);
                 }
@@ -56,7 +66,7 @@ public class MetricsMap<T extends Metrics> {
             }
         }
 
-        public void execute(com.zeroc.Ice.IceMX.Observer.MetricsUpdate<T> func) {
+        public void execute(Observer.MetricsUpdate<T> func) {
             synchronized (MetricsMap.this) {
                 func.update(_object);
             }
@@ -72,7 +82,7 @@ public class MetricsMap<T extends Metrics> {
             }
             var f = new MetricsFailures();
             f.id = _object.id;
-            f.failures = new java.util.HashMap<>(_failures);
+            f.failures = new HashMap<>(_failures);
             return f;
         }
 
@@ -99,8 +109,8 @@ public class MetricsMap<T extends Metrics> {
         }
 
         private T _object;
-        private java.util.Map<String, Integer> _failures;
-        private java.util.Map<String, SubMap<?>> _subMaps;
+        private Map<String, Integer> _failures;
+        private Map<String, SubMap<?>> _subMaps;
     }
 
     static class SubMap<S extends Metrics> {
@@ -158,15 +168,15 @@ public class MetricsMap<T extends Metrics> {
             String mapPrefix,
             Class<T> cl,
             Properties props,
-            java.util.Map<String, SubMapFactory<?>> subMaps) {
+            Map<String, SubMapFactory<?>> subMaps) {
         MetricsAdminI.validateProperties(mapPrefix, props);
         _properties = props.getPropertiesForPrefix(mapPrefix);
 
         _retain = props.getPropertyAsIntWithDefault(mapPrefix + "RetainDetached", 10);
         _accept = parseRule(props, mapPrefix + "Accept");
         _reject = parseRule(props, mapPrefix + "Reject");
-        _groupByAttributes = new java.util.ArrayList<>();
-        _groupBySeparators = new java.util.ArrayList<>();
+        _groupByAttributes = new ArrayList<>();
+        _groupBySeparators = new ArrayList<>();
         _class = cl;
 
         String groupBy = props.getPropertyWithDefault(mapPrefix + "GroupBy", "id");
@@ -201,10 +211,10 @@ public class MetricsMap<T extends Metrics> {
         }
 
         if (subMaps != null && !subMaps.isEmpty()) {
-            _subMaps = new java.util.HashMap<>();
+            _subMaps = new HashMap<>();
 
-            java.util.List<String> subMapNames = new java.util.ArrayList<>();
-            for (java.util.Map.Entry<String, SubMapFactory<?>> e : subMaps.entrySet()) {
+            List<String> subMapNames = new ArrayList<>();
+            for (Map.Entry<String, SubMapFactory<?>> e : subMaps.entrySet()) {
                 subMapNames.add(e.getKey());
                 String subMapsPrefix = mapPrefix + "Map.";
                 String subMapPrefix = subMapsPrefix + e.getKey() + '.';
@@ -234,7 +244,7 @@ public class MetricsMap<T extends Metrics> {
         _subMaps = map._subMaps;
     }
 
-    java.util.Map<String, String> getProperties() {
+    Map<String, String> getProperties() {
         return _properties;
     }
 
@@ -248,7 +258,7 @@ public class MetricsMap<T extends Metrics> {
     }
 
     synchronized MetricsFailures[] getFailures() {
-        java.util.List<MetricsFailures> failures = new java.util.ArrayList<>();
+        List<MetricsFailures> failures = new ArrayList<>();
         for (Entry e : _objects.values()) {
             MetricsFailures f = e.getFailures();
             if (f != null) {
@@ -282,13 +292,13 @@ public class MetricsMap<T extends Metrics> {
         //
         // Check the accept and reject filters.
         //
-        for (java.util.Map.Entry<String, java.util.regex.Pattern> e : _accept.entrySet()) {
+        for (Map.Entry<String, Pattern> e : _accept.entrySet()) {
             if (!match(e.getKey(), e.getValue(), helper, false)) {
                 return null;
             }
         }
 
-        for (java.util.Map.Entry<String, java.util.regex.Pattern> e : _reject.entrySet()) {
+        for (Map.Entry<String, Pattern> e : _reject.entrySet()) {
             if (match(e.getKey(), e.getValue(), helper, true)) {
                 return null;
             }
@@ -303,7 +313,7 @@ public class MetricsMap<T extends Metrics> {
                 key = helper.resolve(_groupByAttributes.get(0));
             } else {
                 StringBuilder os = new StringBuilder();
-                java.util.Iterator<String> q = _groupBySeparators.iterator();
+                Iterator<String> q = _groupBySeparators.iterator();
                 for (String p : _groupByAttributes) {
                     os.append(helper.resolve(p));
                     if (q.hasNext()) {
@@ -347,12 +357,12 @@ public class MetricsMap<T extends Metrics> {
         }
 
         if (_detachedQueue == null) {
-            _detachedQueue = new java.util.LinkedList<>();
+            _detachedQueue = new LinkedList<>();
         }
         assert (_detachedQueue.size() <= _retain);
 
         // Compress the queue by removing entries which are no longer detached.
-        java.util.Iterator<Entry> p = _detachedQueue.iterator();
+        Iterator<Entry> p = _detachedQueue.iterator();
         while (p.hasNext()) {
             Entry e = p.next();
             if (e == entry || !e.isDetached()) {
@@ -369,21 +379,21 @@ public class MetricsMap<T extends Metrics> {
         _detachedQueue.add(entry);
     }
 
-    private java.util.Map<String, java.util.regex.Pattern> parseRule(
+    private Map<String, Pattern> parseRule(
             Properties properties, String name) {
-        java.util.Map<String, java.util.regex.Pattern> pats = new java.util.HashMap<>();
-        java.util.Map<String, String> rules = properties.getPropertiesForPrefix(name + '.');
-        for (java.util.Map.Entry<String, String> e : rules.entrySet()) {
+        Map<String, Pattern> pats = new HashMap<>();
+        Map<String, String> rules = properties.getPropertiesForPrefix(name + '.');
+        for (Map.Entry<String, String> e : rules.entrySet()) {
             pats.put(
                     e.getKey().substring(name.length() + 1),
-                    java.util.regex.Pattern.compile(e.getValue()));
+                    Pattern.compile(e.getValue()));
         }
         return pats;
     }
 
     private boolean match(
             String attribute,
-            java.util.regex.Pattern regex,
+            Pattern regex,
             MetricsHelper<T> helper,
             boolean reject) {
         String value;
@@ -395,15 +405,15 @@ public class MetricsMap<T extends Metrics> {
         return regex.matcher(value).matches();
     }
 
-    private final java.util.Map<String, String> _properties;
-    private final java.util.List<String> _groupByAttributes;
-    private final java.util.List<String> _groupBySeparators;
+    private final Map<String, String> _properties;
+    private final List<String> _groupByAttributes;
+    private final List<String> _groupBySeparators;
     private final int _retain;
-    private final java.util.Map<String, java.util.regex.Pattern> _accept;
-    private final java.util.Map<String, java.util.regex.Pattern> _reject;
+    private final Map<String, Pattern> _accept;
+    private final Map<String, Pattern> _reject;
     private final Class<T> _class;
 
-    private final java.util.Map<String, Entry> _objects = new java.util.HashMap<>();
-    private final java.util.Map<String, SubMapCloneFactory<?>> _subMaps;
-    private java.util.Deque<Entry> _detachedQueue;
+    private final Map<String, Entry> _objects = new HashMap<>();
+    private final Map<String, SubMapCloneFactory<?>> _subMaps;
+    private Deque<Entry> _detachedQueue;
 }

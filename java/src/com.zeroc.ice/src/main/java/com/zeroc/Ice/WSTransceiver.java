@@ -2,11 +2,15 @@
 
 package com.zeroc.Ice;
 
+import java.nio.ByteOrder;
+import java.nio.channels.SelectableChannel;
+import java.nio.charset.Charset;
 import java.security.*;
+import java.util.Random;
 
 final class WSTransceiver implements Transceiver {
     @Override
-    public java.nio.channels.SelectableChannel fd() {
+    public SelectableChannel fd() {
         return _delegate.fd();
     }
 
@@ -92,10 +96,10 @@ final class WSTransceiver implements Transceiver {
                             .logger()
                             .trace(
                                     _instance.traceCategory(),
-                                    "sent " +
-                                            protocol() +
-                                            " connection HTTP upgrade request\n" +
-                                            toString());
+                                    "sent "
+                                            + protocol()
+                                            + " connection HTTP upgrade request\n"
+                                            + toString());
                 }
             }
 
@@ -110,8 +114,8 @@ final class WSTransceiver implements Transceiver {
                 //
                 // Try to read the client's upgrade request or the server's response.
                 //
-                if ((_state == StateUpgradeRequestPending && _incoming) ||
-                        (_state == StateUpgradeResponsePending && !_incoming)) {
+                if ((_state == StateUpgradeRequestPending && _incoming)
+                        || (_state == StateUpgradeResponsePending && !_incoming)) {
                     //
                     // Check if we have enough data for a complete message.
                     //
@@ -194,11 +198,11 @@ final class WSTransceiver implements Transceiver {
                         .logger()
                         .trace(
                                 _instance.traceCategory(),
-                                protocol() +
-                                        " connection HTTP upgrade request failed\n" +
-                                        toString() +
-                                        "\n" +
-                                        ex);
+                                protocol()
+                                        + " connection HTTP upgrade request failed\n"
+                                        + toString()
+                                        + "\n"
+                                        + ex);
             }
             throw ex;
         }
@@ -209,18 +213,18 @@ final class WSTransceiver implements Transceiver {
                         .logger()
                         .trace(
                                 _instance.traceCategory(),
-                                "accepted " +
-                                        protocol() +
-                                        " connection HTTP upgrade request\n" +
-                                        toString());
+                                "accepted "
+                                        + protocol()
+                                        + " connection HTTP upgrade request\n"
+                                        + toString());
             } else {
                 _instance
                         .logger()
                         .trace(
                                 _instance.traceCategory(),
-                                protocol() +
-                                        " connection HTTP upgrade request accepted\n" +
-                                        toString());
+                                protocol()
+                                        + " connection HTTP upgrade request accepted\n"
+                                        + toString());
             }
         }
 
@@ -258,9 +262,9 @@ final class WSTransceiver implements Transceiver {
         _closingInitiator = initiator;
         if (reason instanceof CloseConnectionException) {
             _closingReason = CLOSURE_NORMAL;
-        } else if (reason instanceof ObjectAdapterDeactivatedException ||
-                reason instanceof ObjectAdapterDestroyedException ||
-                reason instanceof CommunicatorDestroyedException) {
+        } else if (reason instanceof ObjectAdapterDeactivatedException
+                || reason instanceof ObjectAdapterDestroyedException
+                || reason instanceof CommunicatorDestroyedException) {
             _closingReason = CLOSURE_SHUTDOWN;
         } else if (reason instanceof ProtocolException) {
             _closingReason = CLOSURE_PROTOCOL_ERROR;
@@ -316,10 +320,10 @@ final class WSTransceiver implements Transceiver {
 
                 if (s == SocketOperation.None && _writeBuffer.b.hasRemaining()) {
                     s = _delegate.write(_writeBuffer);
-                } else if (s == SocketOperation.None &&
-                        _incoming &&
-                        !buf.empty() &&
-                        _writeState == WriteStatePayload) {
+                } else if (s == SocketOperation.None
+                        && _incoming
+                        && !buf.empty()
+                        && _writeState == WriteStatePayload) {
                     s = _delegate.write(buf);
                 }
             }
@@ -394,11 +398,11 @@ final class WSTransceiver implements Transceiver {
             s = SocketOperation.Read;
         }
 
-        if (((_state == StateClosingRequestPending && !_closingInitiator) ||
-                        (_state == StateClosingResponsePending && _closingInitiator) ||
-                        _state == StatePingPending ||
-                        _state == StatePongPending) &&
-                _writeState == WriteStateHeader) {
+        if (((_state == StateClosingRequestPending && !_closingInitiator)
+                        || (_state == StateClosingResponsePending && _closingInitiator)
+                        || _state == StatePingPending
+                        || _state == StatePongPending)
+                && _writeState == WriteStateHeader) {
             // We have things to write, ask to be notified when writes are ready.
             s |= SocketOperation.Write;
         }
@@ -478,7 +482,7 @@ final class WSTransceiver implements Transceiver {
         _state = StateInitializeDelegate;
         _parser = new HttpParser();
         _readState = ReadStateOpcode;
-        _readBuffer = new Buffer(false, java.nio.ByteOrder.BIG_ENDIAN); // Use network byte order.
+        _readBuffer = new Buffer(false, ByteOrder.BIG_ENDIAN); // Use network byte order.
         _readBufferSize = 1024;
         _readLastFrame = true;
         _readOpCode = 0;
@@ -486,13 +490,13 @@ final class WSTransceiver implements Transceiver {
         _readPayloadLength = 0;
         _readMask = new byte[4];
         _writeState = WriteStateHeader;
-        _writeBuffer = new Buffer(false, java.nio.ByteOrder.BIG_ENDIAN); // Use network byte order.
+        _writeBuffer = new Buffer(false, ByteOrder.BIG_ENDIAN); // Use network byte order.
         _writeBufferSize = 1024;
         _readMask = new byte[4];
         _writeMask = new byte[4];
         _key = "";
         _pingPayload = new byte[0];
-        _rand = new java.util.Random();
+        _rand = new Random();
     }
 
     private void handleRequest(Buffer responseBuffer) {
@@ -813,8 +817,8 @@ final class WSTransceiver implements Transceiver {
                 // Read the mask if this is an incoming connection.
                 //
                 if (_incoming) {
-                    assert (_readBuffer.b.position() - _readBufferPos >=
-                            4); // We must have needed to read the mask.
+                    assert (_readBuffer.b.position() - _readBufferPos
+                            >= 4); // We must have needed to read the mask.
                     for (int i = 0; i < 4; i++) {
                         _readMask[i] = _readBuffer.b.get(_readBufferPos++); // Copy the mask.
                     }
@@ -833,15 +837,15 @@ final class WSTransceiver implements Transceiver {
                                         .logger()
                                         .trace(
                                                 _instance.traceCategory(),
-                                                "received " +
-                                                        protocol() +
-                                                        (_readOpCode == OP_DATA ?
-                                                                " data"
-                                                                : " continuation") +
-                                                        " frame with payload length of " +
-                                                        _readPayloadLength +
-                                                        " bytes\n" +
-                                                        toString());
+                                                "received "
+                                                        + protocol()
+                                                        + (_readOpCode == OP_DATA
+                                                                ? " data"
+                                                                : " continuation")
+                                                        + " frame with payload length of "
+                                                        + _readPayloadLength
+                                                        + " bytes\n"
+                                                        + toString());
                             }
 
                             if (_readPayloadLength <= 0) {
@@ -859,10 +863,10 @@ final class WSTransceiver implements Transceiver {
                                         .logger()
                                         .trace(
                                                 _instance.traceCategory(),
-                                                "received " +
-                                                        protocol() +
-                                                        " connection close frame\n" +
-                                                        toString());
+                                                "received "
+                                                        + protocol()
+                                                        + " connection close frame\n"
+                                                        + toString());
                             }
 
                             int s = _nextState == StateOpened ? _state : _nextState;
@@ -892,10 +896,10 @@ final class WSTransceiver implements Transceiver {
                                         .logger()
                                         .trace(
                                                 _instance.traceCategory(),
-                                                "received " +
-                                                        protocol() +
-                                                        " connection ping frame\n" +
-                                                        toString());
+                                                "received "
+                                                        + protocol()
+                                                        + " connection ping frame\n"
+                                                        + toString());
                             }
                             _readState = ReadStateControlFrame;
                             break;
@@ -907,10 +911,10 @@ final class WSTransceiver implements Transceiver {
                                         .logger()
                                         .trace(
                                                 _instance.traceCategory(),
-                                                "received " +
-                                                        protocol() +
-                                                        " connection pong frame\n" +
-                                                        toString());
+                                                "received "
+                                                        + protocol()
+                                                        + " connection pong frame\n"
+                                                        + toString());
                             }
                             _readState = ReadStateControlFrame;
                             break;
@@ -1071,8 +1075,8 @@ final class WSTransceiver implements Transceiver {
 
                 _writeState = WriteStateControlFrame;
                 _writeBuffer.flip();
-            } else if ((_state == StateClosingRequestPending && !_closingInitiator) ||
-                    (_state == StateClosingResponsePending && _closingInitiator)) {
+            } else if ((_state == StateClosingRequestPending && !_closingInitiator)
+                    || (_state == StateClosingResponsePending && _closingInitiator)) {
                 prepareWriteHeader((byte) OP_CLOSE, 2);
 
                 // Write closing reason
@@ -1171,10 +1175,10 @@ final class WSTransceiver implements Transceiver {
                                 .logger()
                                 .trace(
                                         _instance.traceCategory(),
-                                        "sent " +
-                                                protocol() +
-                                                " connection ping frame\n" +
-                                                toString());
+                                        "sent "
+                                                + protocol()
+                                                + " connection ping frame\n"
+                                                + toString());
                     }
                 } else if (_state == StatePongPending) {
                     if (_instance.traceLevel() >= 2) {
@@ -1182,22 +1186,22 @@ final class WSTransceiver implements Transceiver {
                                 .logger()
                                 .trace(
                                         _instance.traceCategory(),
-                                        "sent " +
-                                                protocol() +
-                                                " connection pong frame\n" +
-                                                toString());
+                                        "sent "
+                                                + protocol()
+                                                + " connection pong frame\n"
+                                                + toString());
                     }
-                } else if ((_state == StateClosingRequestPending && !_closingInitiator) ||
-                        (_state == StateClosingResponsePending && _closingInitiator)) {
+                } else if ((_state == StateClosingRequestPending && !_closingInitiator)
+                        || (_state == StateClosingResponsePending && _closingInitiator)) {
                     if (_instance.traceLevel() >= 2) {
                         _instance
                                 .logger()
                                 .trace(
                                         _instance.traceCategory(),
-                                        "sent " +
-                                                protocol() +
-                                                " connection close frame\n" +
-                                                toString());
+                                        "sent "
+                                                + protocol()
+                                                + " connection close frame\n"
+                                                + toString());
                     }
 
                     if (_state == StateClosingRequestPending && !_closingInitiator) {
@@ -1225,9 +1229,9 @@ final class WSTransceiver implements Transceiver {
             }
         }
 
-        if (status == SocketOperation.Write &&
-                !buf.b.hasRemaining() &&
-                !_writeBuffer.b.hasRemaining()) {
+        if (status == SocketOperation.Write
+                && !buf.b.hasRemaining()
+                && !_writeBuffer.b.hasRemaining()) {
             //
             // Our buffers are empty but the delegate needs another call to write().
             //
@@ -1235,10 +1239,10 @@ final class WSTransceiver implements Transceiver {
             return false;
         } else if (!buf.b.hasRemaining()) {
             _writeState = WriteStateHeader;
-            if (_state == StatePingPending ||
-                    _state == StatePongPending ||
-                    (_state == StateClosingRequestPending && !_closingInitiator) ||
-                    (_state == StateClosingResponsePending && _closingInitiator)) {
+            if (_state == StatePingPending
+                    || _state == StatePongPending
+                    || (_state == StateClosingRequestPending && !_closingInitiator)
+                    || (_state == StateClosingResponsePending && _closingInitiator)) {
                 return true;
             }
         } else if (_state == StateOpened) {
@@ -1377,7 +1381,7 @@ final class WSTransceiver implements Transceiver {
 
     private byte[] _pingPayload;
 
-    private java.util.Random _rand;
+    private Random _rand;
 
     //
     // WebSocket opcodes
@@ -1430,5 +1434,5 @@ final class WSTransceiver implements Transceiver {
     private static final String _iceProtocol = "ice.zeroc.com";
     private static final String _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-    static final java.nio.charset.Charset _ascii = java.nio.charset.Charset.forName("US-ASCII");
+    static final Charset _ascii = Charset.forName("US-ASCII");
 }

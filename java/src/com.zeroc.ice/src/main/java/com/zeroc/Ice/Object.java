@@ -2,6 +2,7 @@
 
 package com.zeroc.Ice;
 
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -55,7 +56,7 @@ public interface Object {
      *     derives from the interface specified by <code>s</code>.
      */
     default boolean ice_isA(String s, Current current) {
-        return java.util.Arrays.binarySearch(ice_ids(current), s) >= 0;
+        return Arrays.binarySearch(ice_ids(current), s) >= 0;
     }
 
     /**

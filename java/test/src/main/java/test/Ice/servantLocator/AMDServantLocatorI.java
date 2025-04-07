@@ -2,6 +2,8 @@
 
 package test.Ice.servantLocator;
 
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.ServantLocator;
 import com.zeroc.Ice.SocketException;
@@ -33,7 +35,7 @@ public final class AMDServantLocatorI implements ServantLocator {
     }
 
     @Override
-    public ServantLocator.LocateResult locate(com.zeroc.Ice.Current current) throws UserException {
+    public ServantLocator.LocateResult locate(Current current) throws UserException {
         synchronized (this) {
             test(!_deactivated);
         }
@@ -44,8 +46,8 @@ public final class AMDServantLocatorI implements ServantLocator {
             return new ServantLocator.LocateResult();
         }
 
-        if ("invalidReturnValue".equals(current.id.name) ||
-                "invalidReturnType".equals(current.id.name)) {
+        if ("invalidReturnValue".equals(current.id.name)
+                || "invalidReturnType".equals(current.id.name)) {
             return new ServantLocator.LocateResult();
         }
 
@@ -65,7 +67,7 @@ public final class AMDServantLocatorI implements ServantLocator {
 
     @Override
     public void finished(
-            com.zeroc.Ice.Current current, com.zeroc.Ice.Object servant, java.lang.Object cookie)
+            Current current, Object servant, java.lang.Object cookie)
             throws UserException {
         synchronized (this) {
             test(!_deactivated);
@@ -97,7 +99,7 @@ public final class AMDServantLocatorI implements ServantLocator {
         }
     }
 
-    private void exception(com.zeroc.Ice.Current current) throws UserException {
+    private void exception(Current current) throws UserException {
         if ("ice_ids".equals(current.operation)) {
             throw new TestIntfUserException();
         } else if ("requestFailedException".equals(current.operation)) {

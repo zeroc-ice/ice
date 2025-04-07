@@ -2,19 +2,29 @@
 
 package com.zeroc.Ice.SSL;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.InitializationException;
+import com.zeroc.Ice.Logger;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.SecurityException;
+import com.zeroc.Ice.Util;
 
-import java.io.InputStream;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 import java.security.cert.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 
-import javax.net.ssl.SNIHostName;
-import javax.net.ssl.SNIServerName;
-import javax.net.ssl.SSLParameters;
+import javax.net.ssl.*;
 
 public class SSLEngine {
-    public SSLEngine(com.zeroc.Ice.Communicator communicator) {
+    public SSLEngine(Communicator communicator) {
         _communicator = communicator;
         _logger = _communicator.getLogger();
         _securityTraceLevel =
@@ -24,7 +34,7 @@ public class SSLEngine {
     }
 
     public void initialize() {
-        com.zeroc.Ice.Properties properties = communicator().getProperties();
+        Properties properties = communicator().getProperties();
 
         //
         // CheckCertName determines whether we compare the name in a peer's certificate against its
@@ -74,7 +84,7 @@ public class SSLEngine {
                 // The default keystore type is usually "JKS", but the legal values are determined
                 // by the JVM implementation. Other possibilities include "PKCS12" and "BKS".
                 //
-                final String defaultType = java.security.KeyStore.getDefaultType();
+                final String defaultType = KeyStore.getDefaultType();
                 final String keystoreType =
                         properties.getPropertyWithDefault("IceSSL.KeystoreType", defaultType);
 
@@ -104,10 +114,10 @@ public class SSLEngine {
                 //
                 // Collect the key managers.
                 //
-                javax.net.ssl.KeyManager[] keyManagers = null;
-                java.security.KeyStore keys = null;
+                KeyManager[] keyManagers = null;
+                KeyStore keys = null;
                 if (_keystoreStream != null || !keystorePath.isEmpty()) {
-                    java.io.InputStream keystoreStream = null;
+                    InputStream keystoreStream = null;
                     try {
                         if (_keystoreStream != null) {
                             keystoreStream = _keystoreStream;
@@ -119,7 +129,7 @@ public class SSLEngine {
                             }
                         }
 
-                        keys = java.security.KeyStore.getInstance(keystoreType);
+                        keys = KeyStore.getInstance(keystoreType);
                         char[] passwordChars = null;
                         if (!keystorePassword.isEmpty()) {
                             passwordChars = keystorePassword.toCharArray();
@@ -131,32 +141,32 @@ public class SSLEngine {
                         keys.load(keystoreStream, passwordChars);
 
                         if (passwordChars != null) {
-                            java.util.Arrays.fill(passwordChars, '\0');
+                            Arrays.fill(passwordChars, '\0');
                         }
                         keystorePassword = null;
-                    } catch (java.io.IOException ex) {
+                    } catch (IOException ex) {
                         throw new InitializationException(
                                 "SSL transport: unable to load keystore:\n" + keystorePath, ex);
                     } finally {
                         if (keystoreStream != null) {
                             try {
                                 keystoreStream.close();
-                            } catch (java.io.IOException e) {
+                            } catch (IOException e) {
                                 // Ignore.
                             }
                         }
                     }
 
-                    String algorithm = javax.net.ssl.KeyManagerFactory.getDefaultAlgorithm();
-                    javax.net.ssl.KeyManagerFactory kmf =
-                            javax.net.ssl.KeyManagerFactory.getInstance(algorithm);
+                    String algorithm = KeyManagerFactory.getDefaultAlgorithm();
+                    KeyManagerFactory kmf =
+                            KeyManagerFactory.getInstance(algorithm);
                     char[] passwordChars = new char[0]; // This password cannot be null.
                     if (!password.isEmpty()) {
                         passwordChars = password.toCharArray();
                     }
                     kmf.init(keys, passwordChars);
                     if (passwordChars.length > 0) {
-                        java.util.Arrays.fill(passwordChars, '\0');
+                        Arrays.fill(passwordChars, '\0');
                     }
                     password = null;
                     keyManagers = kmf.getKeyManagers();
@@ -170,7 +180,7 @@ public class SSLEngine {
                     // trusted roots.
                     //
                     if (alias.isEmpty()) {
-                        for (java.util.Enumeration<String> e = keys.aliases();
+                        for (Enumeration<String> e = keys.aliases();
                                 e.hasMoreElements(); ) {
                             String a = e.nextElement();
                             if (keys.isKeyEntry(a)) {
@@ -187,15 +197,15 @@ public class SSLEngine {
                         //
                         if (!keys.isKeyEntry(alias)) {
                             throw new InitializationException(
-                                    "SSL transport: keystore does not contain an entry with alias `" +
-                                            alias +
-                                            "'");
+                                    "SSL transport: keystore does not contain an entry with alias `"
+                                            + alias
+                                            + "'");
                         }
 
                         for (int i = 0; i < keyManagers.length; i++) {
                             keyManagers[i] =
                                     new X509KeyManagerI(
-                                            (javax.net.ssl.X509ExtendedKeyManager) keyManagers[i],
+                                            (X509ExtendedKeyManager) keyManagers[i],
                                             alias,
                                             overrideAlias);
                         }
@@ -205,18 +215,18 @@ public class SSLEngine {
                 //
                 // Load the truststore.
                 //
-                java.security.KeyStore ts = null;
+                KeyStore ts = null;
                 if (_truststoreStream != null || !truststorePath.isEmpty()) {
                     //
                     // If the trust store and the key store are the same input stream or file, don't
                     // create another key store.
                     //
-                    if ((_truststoreStream != null && _truststoreStream == _keystoreStream) ||
-                            (!truststorePath.isEmpty() && truststorePath.equals(keystorePath))) {
+                    if ((_truststoreStream != null && _truststoreStream == _keystoreStream)
+                            || (!truststorePath.isEmpty() && truststorePath.equals(keystorePath))) {
                         assert keys != null;
                         ts = keys;
                     } else {
-                        java.io.InputStream truststoreStream = null;
+                        InputStream truststoreStream = null;
                         try {
                             if (_truststoreStream != null) {
                                 truststoreStream = _truststoreStream;
@@ -224,18 +234,18 @@ public class SSLEngine {
                                 truststoreStream = openResource(truststorePath);
                                 if (truststoreStream == null) {
                                     throw new InitializationException(
-                                            "SSL transport: truststore not found:\n" +
-                                                    truststorePath);
+                                            "SSL transport: truststore not found:\n"
+                                                    + truststorePath);
                                 }
                             }
 
-                            ts = java.security.KeyStore.getInstance(truststoreType);
+                            ts = KeyStore.getInstance(truststoreType);
 
                             char[] passwordChars = null;
                             if (!truststorePassword.isEmpty()) {
                                 passwordChars = truststorePassword.toCharArray();
-                            } else if ("BKS".equals(truststoreType) ||
-                                    "PKCS12".equals(truststoreType)) {
+                            } else if ("BKS".equals(truststoreType)
+                                    || "PKCS12".equals(truststoreType)) {
                                 // Bouncy Castle or PKCS12 does not permit null passwords.
                                 passwordChars = new char[0];
                             }
@@ -243,10 +253,10 @@ public class SSLEngine {
                             ts.load(truststoreStream, passwordChars);
 
                             if (passwordChars != null) {
-                                java.util.Arrays.fill(passwordChars, '\0');
+                                Arrays.fill(passwordChars, '\0');
                             }
                             truststorePassword = null;
-                        } catch (java.io.IOException ex) {
+                        } catch (IOException ex) {
                             throw new InitializationException(
                                     "SSL transport: unable to load truststore:\n" + truststorePath,
                                     ex);
@@ -254,7 +264,7 @@ public class SSLEngine {
                             if (truststoreStream != null) {
                                 try {
                                     truststoreStream.close();
-                                } catch (java.io.IOException e) {
+                                } catch (IOException e) {
                                     // Ignore.
                                 }
                             }
@@ -269,10 +279,10 @@ public class SSLEngine {
                 //
                 javax.net.ssl.TrustManager[] trustManagers = null;
                 {
-                    String algorithm = javax.net.ssl.TrustManagerFactory.getDefaultAlgorithm();
-                    javax.net.ssl.TrustManagerFactory tmf =
-                            javax.net.ssl.TrustManagerFactory.getInstance(algorithm);
-                    java.security.KeyStore trustStore = null;
+                    String algorithm = TrustManagerFactory.getDefaultAlgorithm();
+                    TrustManagerFactory tmf =
+                            TrustManagerFactory.getInstance(algorithm);
+                    KeyStore trustStore = null;
                     if (ts != null) {
                         trustStore = ts;
                     } else if (properties.getIcePropertyAsInt("IceSSL.UsePlatformCAs") <= 0) {
@@ -281,7 +291,7 @@ public class SSLEngine {
                         } else {
                             trustManagers =
                                     new javax.net.ssl.TrustManager[]{
-                                        new javax.net.ssl.X509TrustManager() {
+                                        new X509TrustManager() {
                                             @Override
                                             public void checkClientTrusted(
                                                     X509Certificate[] chain, String authType)
@@ -328,9 +338,9 @@ public class SSLEngine {
                 //
                 // Initialize the SSL context.
                 //
-                _context = javax.net.ssl.SSLContext.getInstance("TLS");
+                _context = SSLContext.getInstance("TLS");
                 _context.init(keyManagers, trustManagers, null);
-            } catch (java.security.GeneralSecurityException ex) {
+            } catch (GeneralSecurityException ex) {
                 throw new InitializationException(
                         "SSL transport: unable to initialize context", ex);
             }
@@ -361,7 +371,7 @@ public class SSLEngine {
             }
             engine.setUseClientMode(!incoming);
         } catch (Exception ex) {
-            throw new com.zeroc.Ice.SecurityException(
+            throw new SecurityException(
                     "SSL transport: couldn't create SSL engine", ex);
         }
 
@@ -404,22 +414,22 @@ public class SSLEngine {
     }
 
     void traceConnection(String desc, javax.net.ssl.SSLEngine engine, boolean incoming) {
-        javax.net.ssl.SSLSession session = engine.getSession();
+        SSLSession session = engine.getSession();
         String msg =
-                "SSL summary for " +
-                        (incoming ? "incoming" : "outgoing") +
-                        " connection\n" +
-                        "cipher = " +
-                        session.getCipherSuite() +
-                        "\n" +
-                        "protocol = " +
-                        session.getProtocol() +
-                        "\n" +
-                        desc;
+                "SSL summary for "
+                        + (incoming ? "incoming" : "outgoing")
+                        + " connection\n"
+                        + "cipher = "
+                        + session.getCipherSuite()
+                        + "\n"
+                        + "protocol = "
+                        + session.getProtocol()
+                        + "\n"
+                        + desc;
         _logger.trace(_securityTraceCategory, msg);
     }
 
-    com.zeroc.Ice.Communicator communicator() {
+    Communicator communicator() {
         return _communicator;
     }
 
@@ -430,20 +440,20 @@ public class SSLEngine {
         //
         if (!info.incoming) {
             if (_verifyPeer > 0 && !info.verified) {
-                throw new com.zeroc.Ice.SecurityException(
+                throw new SecurityException(
                         "SSL transport: server did not supply a certificate");
             }
         }
 
         if (!_trustManager.verify(info, desc)) {
             String msg =
-                    (info.incoming ? "incoming" : "outgoing") +
-                            " connection rejected by trust manager\n" +
-                            desc;
+                    (info.incoming ? "incoming" : "outgoing")
+                            + " connection rejected by trust manager\n"
+                            + desc;
             if (_securityTraceLevel >= 1) {
                 _logger.trace(_securityTraceCategory, msg);
             }
-            throw new com.zeroc.Ice.SecurityException(msg);
+            throw new SecurityException(msg);
         }
     }
 
@@ -453,8 +463,8 @@ public class SSLEngine {
             if (_securityTraceLevel >= 1) {
                 String msg = "ignoring peer verification failure";
                 if (_securityTraceLevel > 1) {
-                    java.io.StringWriter sw = new java.io.StringWriter();
-                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
                     ex.printStackTrace(pw);
                     pw.flush();
                     msg += ":\n" + sw.toString();
@@ -466,23 +476,23 @@ public class SSLEngine {
         }
     }
 
-    private java.io.InputStream openResource(String path) throws java.io.IOException {
+    private InputStream openResource(String path) throws IOException {
         boolean isAbsolute = false;
         try {
-            new java.net.URL(path);
+            new URL(path);
             isAbsolute = true;
-        } catch (java.net.MalformedURLException ex) {
-            java.io.File f = new java.io.File(path);
+        } catch (MalformedURLException ex) {
+            File f = new File(path);
             isAbsolute = f.isAbsolute();
         }
 
-        com.zeroc.Ice.InitializationData initData =
+        InitializationData initData =
                 _communicator.getInstance().initializationData();
 
         ClassLoader classLoader =
                 initData.classLoader != null ? initData.classLoader : getClass().getClassLoader();
 
-        java.io.InputStream stream = com.zeroc.Ice.Util.openResource(classLoader, path);
+        InputStream stream = Util.openResource(classLoader, path);
 
         //
         // If the first attempt fails and IceSSL.DefaultDir is defined and the original
@@ -490,27 +500,27 @@ public class SSLEngine {
         //
         if (stream == null && !_defaultDir.isEmpty() && !isAbsolute) {
             stream =
-                    com.zeroc.Ice.Util.openResource(
-                            classLoader, _defaultDir + java.io.File.separator + path);
+                    Util.openResource(
+                            classLoader, _defaultDir + File.separator + path);
         }
 
         if (stream != null) {
-            stream = new java.io.BufferedInputStream(stream);
+            stream = new BufferedInputStream(stream);
         }
 
         return stream;
     }
 
-    private com.zeroc.Ice.Communicator _communicator;
-    private com.zeroc.Ice.Logger _logger;
-    private int _securityTraceLevel;
-    private String _securityTraceCategory;
-    private javax.net.ssl.SSLContext _context;
+    private final Communicator _communicator;
+    private final Logger _logger;
+    private final int _securityTraceLevel;
+    private final String _securityTraceCategory;
+    private SSLContext _context;
     private String _defaultDir;
     private boolean _checkCertName;
     private boolean _serverNameIndication;
     private int _verifyPeer;
-    private TrustManager _trustManager;
+    private final TrustManager _trustManager;
     private InputStream _keystoreStream;
     private InputStream _truststoreStream;
 }

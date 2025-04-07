@@ -2,12 +2,26 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.Component;
 import java.awt.Cursor;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
 
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
@@ -15,11 +29,13 @@ import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import com.zeroc.IceGrid.AdminPrx;
+
 class Node extends Communicator {
     // Actions
     @Override
     public boolean[] getAvailableActions() {
-        boolean[] actions = new boolean[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
+        boolean[] actions = new boolean[TreeNode.ACTION_COUNT];
         actions[SHUTDOWN_NODE] = _up;
         actions[RETRIEVE_ICE_LOG] = _up;
         actions[RETRIEVE_STDOUT] = _up;
@@ -78,7 +94,7 @@ class Node extends Communicator {
                             (result, ex) -> {
                                 amiComplete(prefix, "Failed to shutdown " + _id, ex);
                             });
-        } catch (com.zeroc.Ice.LocalException e) {
+        } catch (LocalException e) {
             failure(prefix, "Failed to shutdown " + _id, e.toString());
         } finally {
             getCoordinator()
@@ -175,7 +191,7 @@ class Node extends Communicator {
     //
 
     @Override
-    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync() {
+    protected CompletableFuture<ObjectPrx> getAdminAsync() {
         return getRoot().getCoordinator().getAdmin().getNodeAdminAsync(_id);
     }
 
@@ -229,8 +245,8 @@ class Node extends Communicator {
     Utils.ExpandedPropertySet expand(
             PropertySetDescriptor descriptor, String applicationName, Utils.Resolver resolver) {
         Utils.ExpandedPropertySet result = new Utils.ExpandedPropertySet();
-        java.util.ArrayList<Utils.ExpandedPropertySet> references =
-                new java.util.ArrayList<Utils.ExpandedPropertySet>();
+        ArrayList<Utils.ExpandedPropertySet> references =
+                new ArrayList<Utils.ExpandedPropertySet>();
 
         for (String ref : descriptor.references) {
             PropertySetDescriptor resolved =
@@ -267,7 +283,7 @@ class Node extends Communicator {
         data.descriptor = nodeDesc;
         @SuppressWarnings("unchecked")
         Utils.Resolver resolver =
-                new Utils.Resolver(new java.util.Map[]{nodeDesc.variables, appDesc.variables});
+                new Utils.Resolver(new Map[]{nodeDesc.variables, appDesc.variables});
         data.resolver = resolver;
         data.resolver.put("application", appDesc.name);
         data.resolver.put("node", _id);
@@ -290,7 +306,7 @@ class Node extends Communicator {
             return true;
         }
 
-        java.util.List<Server> toRemove = new java.util.LinkedList<>();
+        List<Server> toRemove = new LinkedList<>();
         int[] toRemoveIndices = new int[_servers.size()];
         int i = 0;
 
@@ -311,8 +327,8 @@ class Node extends Communicator {
             ApplicationDescriptor appDesc,
             NodeUpdateDescriptor update,
             boolean variablesChanged,
-            java.util.Set<String> serviceTemplates,
-            java.util.Set<String> serverTemplates) {
+            Set<String> serviceTemplates,
+            Set<String> serverTemplates) {
         ApplicationData data = _map.get(appDesc.name);
 
         if (data == null) {
@@ -335,7 +351,7 @@ class Node extends Communicator {
         }
 
         NodeDescriptor nodeDesc = data.descriptor;
-        java.util.Set<Server> freshServers = new java.util.HashSet<>();
+        Set<Server> freshServers = new HashSet<>();
 
         if (update != null) {
             // Update various fields of nodeDesc
@@ -346,7 +362,7 @@ class Node extends Communicator {
                 nodeDesc.loadFactor = update.loadFactor.value;
             }
 
-            nodeDesc.variables.keySet().removeAll(java.util.Arrays.asList(update.removeVariables));
+            nodeDesc.variables.keySet().removeAll(Arrays.asList(update.removeVariables));
             nodeDesc.variables.putAll(update.variables);
 
             if (!variablesChanged) {
@@ -355,7 +371,7 @@ class Node extends Communicator {
 
             nodeDesc.propertySets
                     .keySet()
-                    .removeAll(java.util.Arrays.asList(update.removePropertySets));
+                    .removeAll(Arrays.asList(update.removePropertySets));
             nodeDesc.propertySets.putAll(update.propertySets);
 
             // Remove servers
@@ -475,7 +491,7 @@ class Node extends Communicator {
         }
 
         // Tell every server on this node
-        java.util.Set<Server> updatedServers = new java.util.HashSet<>();
+        Set<Server> updatedServers = new HashSet<>();
         for (ServerDynamicInfo sinfo : _info.servers) {
             Server server = findServer(sinfo.id);
             if (server != null) {
@@ -490,7 +506,7 @@ class Node extends Communicator {
         }
 
         // Tell adapters
-        java.util.Iterator<Server> p = _servers.iterator();
+        Iterator<Server> p = _servers.iterator();
         int updateCount = 0;
         while (p.hasNext() && updateCount < _info.adapters.size()) {
             Server server = p.next();
@@ -528,7 +544,7 @@ class Node extends Communicator {
         boolean destroyed = updatedInfo.state == ServerState.Destroyed;
 
         if (_info != null) {
-            java.util.ListIterator<ServerDynamicInfo> p = _info.servers.listIterator();
+            ListIterator<ServerDynamicInfo> p = _info.servers.listIterator();
             boolean found = false;
             while (p.hasNext()) {
                 ServerDynamicInfo sinfo = p.next();
@@ -555,7 +571,7 @@ class Node extends Communicator {
 
     void updateAdapter(AdapterDynamicInfo updatedInfo) {
         if (_info != null) {
-            java.util.ListIterator<AdapterDynamicInfo> p = _info.adapters.listIterator();
+            ListIterator<AdapterDynamicInfo> p = _info.adapters.listIterator();
             boolean found = false;
             while (p.hasNext()) {
                 AdapterDynamicInfo ainfo = p.next();
@@ -577,9 +593,9 @@ class Node extends Communicator {
         }
     }
 
-    com.zeroc.Ice.ObjectPrx getProxy(String adapterId) {
+    ObjectPrx getProxy(String adapterId) {
         if (_info != null) {
-            java.util.ListIterator<AdapterDynamicInfo> p = _info.adapters.listIterator();
+            ListIterator<AdapterDynamicInfo> p = _info.adapters.listIterator();
             while (p.hasNext()) {
                 AdapterDynamicInfo ainfo = p.next();
                 if (ainfo.id.equals(adapterId)) {
@@ -590,10 +606,10 @@ class Node extends Communicator {
         return null;
     }
 
-    java.util.SortedMap<String, String> getLoadFactors() {
-        java.util.SortedMap<String, String> result = new java.util.TreeMap<>();
+    SortedMap<String, String> getLoadFactors() {
+        SortedMap<String, String> result = new TreeMap<>();
 
-        for (java.util.Map.Entry<String, ApplicationData> p : _map.entrySet()) {
+        for (Map.Entry<String, ApplicationData> p : _map.entrySet()) {
             ApplicationData ad = p.getValue();
 
             String val = ad.resolver.substitute(ad.descriptor.loadFactor);
@@ -607,7 +623,7 @@ class Node extends Communicator {
     }
 
     void showLoad() {
-        com.zeroc.IceGrid.AdminPrx admin = getCoordinator().getAdmin();
+        AdminPrx admin = getCoordinator().getAdmin();
         if (admin == null) {
             _editor.setLoad("Unknown", this);
         } else {
@@ -650,7 +666,7 @@ class Node extends Communicator {
                                                 ex);
                                     }
                                 });
-            } catch (com.zeroc.Ice.LocalException e) {
+            } catch (LocalException e) {
                 getRoot()
                         .getCoordinator()
                         .getStatusBar()
@@ -766,7 +782,7 @@ class Node extends Communicator {
 
     private void removeDescriptor(NodeDescriptor nodeDesc, ServerDescriptor sd) {
         // A straight remove uses equals(), which is not the desired behavior
-        java.util.Iterator<ServerDescriptor> p = nodeDesc.servers.iterator();
+        Iterator<ServerDescriptor> p = nodeDesc.servers.iterator();
         while (p.hasNext()) {
             if (sd == p.next()) {
                 p.remove();
@@ -777,7 +793,7 @@ class Node extends Communicator {
 
     private void removeDescriptor(NodeDescriptor nodeDesc, ServerInstanceDescriptor sd) {
         // A straight remove uses equals(), which is not the desired behavior
-        java.util.Iterator<ServerInstanceDescriptor> p = nodeDesc.serverInstances.iterator();
+        Iterator<ServerInstanceDescriptor> p = nodeDesc.serverInstances.iterator();
         while (p.hasNext()) {
             if (sd == p.next()) {
                 p.remove();
@@ -791,18 +807,18 @@ class Node extends Communicator {
         Utils.Resolver resolver;
     }
 
-    public java.util.List<Server> getServers() {
-        return new java.util.ArrayList<Server>(_servers);
+    public List<Server> getServers() {
+        return new ArrayList<Server>(_servers);
     }
 
     // Application name to ApplicationData
-    private final java.util.SortedMap<String, ApplicationData> _map = new java.util.TreeMap<>();
+    private final SortedMap<String, ApplicationData> _map = new TreeMap<>();
 
     private boolean _up;
     private NodeDynamicInfo _info;
     private boolean _windows;
 
-    private java.util.LinkedList<Server> _servers = new java.util.LinkedList<>();
+    private LinkedList<Server> _servers = new LinkedList<>();
 
     private static DefaultTreeCellRenderer _cellRenderer;
     private static Icon _nodeUp;

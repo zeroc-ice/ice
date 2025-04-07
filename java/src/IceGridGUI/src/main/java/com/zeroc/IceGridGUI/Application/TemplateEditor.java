@@ -7,6 +7,11 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.zeroc.IceGrid.*;
 
 import javax.swing.JOptionPane;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
@@ -29,18 +34,18 @@ class TemplateEditor extends Editor {
 
     void writeDescriptor() {
         TemplateDescriptor descriptor = getDescriptor();
-        java.util.LinkedList<String> parameters = new java.util.LinkedList<>();
+        LinkedList<String> parameters = new LinkedList<>();
         descriptor.parameterDefaults = _parameters.get(parameters);
         descriptor.parameters = parameters;
     }
 
     boolean isSimpleUpdate() {
         TemplateDescriptor descriptor = getDescriptor();
-        java.util.List<String> parameters = new java.util.LinkedList<>();
-        java.util.Map<String, String> defaultValues = _parameters.get(parameters);
+        List<String> parameters = new LinkedList<>();
+        Map<String, String> defaultValues = _parameters.get(parameters);
 
-        return descriptor.parameters.equals(parameters) &&
-                descriptor.parameterDefaults.equals(defaultValues);
+        return descriptor.parameters.equals(parameters)
+                && descriptor.parameterDefaults.equals(defaultValues);
     }
 
     @Override
@@ -161,6 +166,6 @@ class TemplateEditor extends Editor {
         }
     }
 
-    private JTextField _template = new JTextField(20);
-    private ParametersField _parameters;
+    private final JTextField _template = new JTextField(20);
+    private final ParametersField _parameters;
 }

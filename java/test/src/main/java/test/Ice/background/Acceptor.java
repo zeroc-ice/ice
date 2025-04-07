@@ -2,14 +2,18 @@
 
 package test.Ice.background;
 
+import com.zeroc.Ice.ReadyCallback;
+
+import java.nio.channels.ServerSocketChannel;
+
 class Acceptor implements com.zeroc.Ice.Acceptor {
     @Override
-    public java.nio.channels.ServerSocketChannel fd() {
+    public ServerSocketChannel fd() {
         return _acceptor.fd();
     }
 
     @Override
-    public void setReadyCallback(com.zeroc.Ice.ReadyCallback callback) {
+    public void setReadyCallback(ReadyCallback callback) {
         // No need to for the ready callback.
     }
 
@@ -56,5 +60,5 @@ class Acceptor implements com.zeroc.Ice.Acceptor {
 
     private EndpointI _endpoint;
     private final com.zeroc.Ice.Acceptor _acceptor;
-    private Configuration _configuration;
+    private final Configuration _configuration;
 }

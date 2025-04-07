@@ -2,15 +2,19 @@
 
 package test.Ice.plugin.plugins;
 
-public class PluginOneFailFactory implements com.zeroc.Ice.PluginFactory {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Plugin;
+import com.zeroc.Ice.PluginFactory;
+
+public class PluginOneFailFactory implements PluginFactory {
     @Override
-    public com.zeroc.Ice.Plugin create(
-            com.zeroc.Ice.Communicator communicator, String name, String[] args) {
+    public Plugin create(
+            Communicator communicator, String name, String[] args) {
         return new PluginOneFail(communicator);
     }
 
     static class PluginOneFail extends BasePluginFail {
-        public PluginOneFail(com.zeroc.Ice.Communicator communicator) {
+        public PluginOneFail(Communicator communicator) {
             super(communicator);
         }
 

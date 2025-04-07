@@ -2,7 +2,13 @@
 
 package test.Ice.slicing.exceptions;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectPrx;
+
 import test.Ice.slicing.exceptions.client.Test.*;
+import test.TestHelper;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {
@@ -36,14 +42,14 @@ public class AllTests {
         private boolean _called;
     }
 
-    public static TestIntfPrx allTests(test.TestHelper helper, boolean collocated) {
-        java.io.PrintWriter out = helper.getWriter();
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static TestIntfPrx allTests(TestHelper helper, boolean collocated) {
+        PrintWriter out = helper.getWriter();
+        Communicator communicator = helper.communicator();
 
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "Test:" + helper.getTestEndpoint(0) + " -t 10000";
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 

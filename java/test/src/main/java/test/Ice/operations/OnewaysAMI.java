@@ -2,9 +2,11 @@
 
 package test.Ice.operations;
 
+import com.zeroc.Ice.TwowayOnlyException;
 import com.zeroc.Ice.Util;
 
 import test.Ice.operations.Test.MyClassPrx;
+import test.TestHelper;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -40,7 +42,7 @@ class OnewaysAMI {
         private boolean _called;
     }
 
-    static void onewaysAMI(test.TestHelper helper, MyClassPrx proxy) {
+    static void onewaysAMI(TestHelper helper, MyClassPrx proxy) {
         MyClassPrx p = proxy.ice_oneway();
 
         {
@@ -60,7 +62,7 @@ class OnewaysAMI {
             try {
                 p.ice_isAAsync("::Test::MyClass").join();
                 test(false);
-            } catch (com.zeroc.Ice.TwowayOnlyException ex) {
+            } catch (TwowayOnlyException ex) {
             }
         }
 
@@ -68,7 +70,7 @@ class OnewaysAMI {
             try {
                 p.ice_idAsync();
                 test(false);
-            } catch (com.zeroc.Ice.TwowayOnlyException ex) {
+            } catch (TwowayOnlyException ex) {
             }
         }
 
@@ -76,7 +78,7 @@ class OnewaysAMI {
             try {
                 p.ice_idsAsync();
                 test(false);
-            } catch (com.zeroc.Ice.TwowayOnlyException ex) {
+            } catch (TwowayOnlyException ex) {
             }
         }
 
@@ -110,7 +112,7 @@ class OnewaysAMI {
             try {
                 p.opByteAsync((byte) 0xff, (byte) 0x0f);
                 test(false);
-            } catch (com.zeroc.Ice.TwowayOnlyException ex) {
+            } catch (TwowayOnlyException ex) {
             }
         }
     }

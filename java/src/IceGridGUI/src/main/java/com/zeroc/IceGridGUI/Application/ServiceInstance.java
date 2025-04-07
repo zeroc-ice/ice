@@ -6,6 +6,8 @@ import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.util.*;
 
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
@@ -24,9 +26,9 @@ class ServiceInstance extends TreeNode implements Service, Cloneable {
         return copy;
     }
 
-    public static java.util.List<ServiceInstanceDescriptor> copyDescriptors(
-            java.util.List<ServiceInstanceDescriptor> descriptors) {
-        java.util.List<ServiceInstanceDescriptor> copy = new java.util.LinkedList<>();
+    public static List<ServiceInstanceDescriptor> copyDescriptors(
+            List<ServiceInstanceDescriptor> descriptors) {
+        List<ServiceInstanceDescriptor> copy = new LinkedList<>();
         for (ServiceInstanceDescriptor p : descriptors) {
             copy.add(copyDescriptor(p));
         }
@@ -174,12 +176,12 @@ class ServiceInstance extends TreeNode implements Service, Cloneable {
     }
 
     private static class Backup {
-        java.util.Map<String, String> parameterValues;
+        Map<String, String> parameterValues;
         ServiceInstance clone;
     }
 
     @Override
-    public Object rebuild(java.util.List<Editable> editables) throws UpdateFailedException {
+    public Object rebuild(List<Editable> editables) throws UpdateFailedException {
         Backup backup = new Backup();
 
         // Fix-up _descriptor if necessary
@@ -187,8 +189,8 @@ class ServiceInstance extends TreeNode implements Service, Cloneable {
             TemplateDescriptor templateDescriptor =
                     getRoot().findServiceTemplateDescriptor(_descriptor.template);
 
-            java.util.Set<String> parameters =
-                    new java.util.HashSet<>(templateDescriptor.parameters);
+            Set<String> parameters =
+                    new HashSet<>(templateDescriptor.parameters);
             if (!parameters.equals(_descriptor.parameterValues.keySet())) {
                 backup.parameterValues = _descriptor.parameterValues;
                 _descriptor.parameterValues =
@@ -267,18 +269,18 @@ class ServiceInstance extends TreeNode implements Service, Cloneable {
     }
 
     @Override
-    void write(XMLWriter writer) throws java.io.IOException {
+    void write(XMLWriter writer) throws IOException {
         if (!_ephemeral) {
             TemplateDescriptor templateDescriptor =
                     getRoot().findServiceTemplateDescriptor(_descriptor.template);
 
-            java.util.LinkedList<String[]> attributes =
+            LinkedList<String[]> attributes =
                     parameterValuesToAttributes(
                             _descriptor.parameterValues, templateDescriptor.parameters);
             attributes.addFirst(createAttribute("template", _descriptor.template));
 
-            if (_descriptor.propertySet.references.length == 0 &&
-                    _descriptor.propertySet.properties.isEmpty()) {
+            if (_descriptor.propertySet.references.length == 0
+                    && _descriptor.propertySet.properties.isEmpty()) {
                 writer.writeElement("service-instance", attributes);
             } else {
                 writer.writeStartTag("service-instance", attributes);

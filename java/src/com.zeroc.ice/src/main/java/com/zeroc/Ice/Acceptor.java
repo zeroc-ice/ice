@@ -2,11 +2,13 @@
 
 package com.zeroc.Ice;
 
+import java.nio.channels.ServerSocketChannel;
+
 /**
  * @hidden Public because it's used by IceBT and SSL.
  */
 public interface Acceptor {
-    java.nio.channels.ServerSocketChannel fd();
+    ServerSocketChannel fd();
 
     void setReadyCallback(ReadyCallback callback);
 

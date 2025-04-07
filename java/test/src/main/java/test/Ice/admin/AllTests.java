@@ -2,14 +2,34 @@
 
 package test.Ice.admin;
 
+import com.zeroc.Ice.AlreadyRegisteredException;
+import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.FacetNotExistException;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.InitializationException;
+import com.zeroc.Ice.LogMessage;
 import com.zeroc.Ice.LogMessageType;
+import com.zeroc.Ice.LoggerAdmin;
+import com.zeroc.Ice.LoggerAdminPrx;
+import com.zeroc.Ice.NotRegisteredException;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.ProcessPrx;
+import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.PropertiesAdminPrx;
+import com.zeroc.Ice.RemoteLoggerAlreadyAttachedException;
+import com.zeroc.Ice.RemoteLoggerPrx;
+import com.zeroc.Ice.Util;
 
 import test.Ice.admin.Test.*;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AllTests {
     private static void test(boolean b) {
@@ -18,7 +38,7 @@ public class AllTests {
         }
     }
 
-    static void testFacets(com.zeroc.Ice.Communicator com, boolean builtInFacets) {
+    static void testFacets(Communicator com, boolean builtInFacets) {
         if (builtInFacets) {
             test(com.findAdminFacet("Properties") != null);
             test(com.findAdminFacet("Process") != null);
@@ -39,7 +59,7 @@ public class AllTests {
         test(com.findAdminFacet("Facet3") == f3);
         test(com.findAdminFacet("Bogus") == null);
 
-        java.util.Map<String, com.zeroc.Ice.Object> facetMap = com.findAllAdminFacets();
+        Map<String, Object> facetMap = com.findAllAdminFacets();
         if (builtInFacets) {
             test(facetMap.size() == 7);
             test(facetMap.containsKey("Properties"));
@@ -56,14 +76,14 @@ public class AllTests {
         try {
             com.addAdminFacet(f1, "Facet1");
             test(false);
-        } catch (com.zeroc.Ice.AlreadyRegisteredException ex) {
+        } catch (AlreadyRegisteredException ex) {
             // Expected
         }
 
         try {
             com.removeAdminFacet("Bogus");
             test(false);
-        } catch (com.zeroc.Ice.NotRegisteredException ex) {
+        } catch (NotRegisteredException ex) {
             // Expected
         }
 
@@ -74,12 +94,12 @@ public class AllTests {
         try {
             com.removeAdminFacet("Facet1");
             test(false);
-        } catch (com.zeroc.Ice.NotRegisteredException ex) {
+        } catch (NotRegisteredException ex) {
             // Expected
         }
     }
 
-    public static void allTests(test.TestHelper helper) {
+    public static void allTests(TestHelper helper) {
         PrintWriter out = helper.getWriter();
 
         out.print("testing communicator operations... ");
@@ -89,11 +109,11 @@ public class AllTests {
             // Test: Exercise addAdminFacet, findAdminFacet, removeAdminFacet with a typical
             // configuration.
             //
-            com.zeroc.Ice.InitializationData init = new com.zeroc.Ice.InitializationData();
-            init.properties = new com.zeroc.Ice.Properties();
+            InitializationData init = new InitializationData();
+            init.properties = new Properties();
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
-            try (com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init)) {
+            try (Communicator comm = Util.initialize(init)) {
                 testFacets(comm, true);
             }
         }
@@ -101,12 +121,12 @@ public class AllTests {
             //
             // Test: Verify that the operations work correctly in the presence of facet filters.
             //
-            com.zeroc.Ice.InitializationData init = new com.zeroc.Ice.InitializationData();
-            init.properties = new com.zeroc.Ice.Properties();
+            InitializationData init = new InitializationData();
+            init.properties = new Properties();
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.Facets", "Properties");
-            try (com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init)) {
+            try (Communicator comm = Util.initialize(init)) {
                 testFacets(comm, false);
             }
         }
@@ -114,7 +134,7 @@ public class AllTests {
             //
             // Test: Verify that the operations work correctly with the Admin object disabled.
             //
-            try (com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize()) {
+            try (Communicator comm = Util.initialize()) {
                 testFacets(comm, false);
             }
         }
@@ -122,19 +142,19 @@ public class AllTests {
             //
             // Test: Verify that the operations work correctly when Ice.Admin.Enabled is set
             //
-            com.zeroc.Ice.InitializationData init = new com.zeroc.Ice.InitializationData();
-            init.properties = new com.zeroc.Ice.Properties();
+            InitializationData init = new InitializationData();
+            init.properties = new Properties();
             init.properties.setProperty("Ice.Admin.Enabled", "1");
-            try (com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init)) {
+            try (Communicator comm = Util.initialize(init)) {
                 test(comm.getAdmin() == null);
-                com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity("test-admin");
+                Identity id = Util.stringToIdentity("test-admin");
                 try {
                     comm.createAdmin(null, id);
                     test(false);
-                } catch (com.zeroc.Ice.InitializationException ex) {
+                } catch (InitializationException ex) {
                 }
 
-                com.zeroc.Ice.ObjectAdapter adapter = comm.createObjectAdapter("");
+                ObjectAdapter adapter = comm.createObjectAdapter("");
                 test(comm.createAdmin(adapter, id) != null);
                 test(comm.getAdmin() != null);
                 testFacets(comm, true);
@@ -145,12 +165,12 @@ public class AllTests {
             // Test: Verify that the operations work correctly when creation of the Admin object is
             // delayed.
             //
-            com.zeroc.Ice.InitializationData init = new com.zeroc.Ice.InitializationData();
-            init.properties = new com.zeroc.Ice.Properties();
+            InitializationData init = new InitializationData();
+            init.properties = new Properties();
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.DelayCreation", "1");
-            try (com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init)) {
+            try (Communicator comm = Util.initialize(init)) {
                 testFacets(comm, true);
                 comm.getAdmin();
                 testFacets(comm, true);
@@ -168,11 +188,11 @@ public class AllTests {
             //
             // Test: Verify that Process::shutdown() operation shuts down the communicator.
             //
-            java.util.Map<String, String> props = new java.util.HashMap<>();
+            Map<String, String> props = new HashMap<>();
             props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             RemoteCommunicatorPrx rcom = factory.createCommunicator(props);
-            com.zeroc.Ice.ObjectPrx obj = rcom.getAdmin();
+            ObjectPrx obj = rcom.getAdmin();
             ProcessPrx proc = ProcessPrx.checkedCast(obj, "Process");
             proc.shutdown();
             rcom.waitForShutdown();
@@ -183,14 +203,14 @@ public class AllTests {
         out.print("testing properties facet... ");
         out.flush();
         {
-            java.util.Map<String, String> props = new java.util.HashMap<>();
+            Map<String, String> props = new HashMap<>();
             props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             props.put("Prop1", "1");
             props.put("Prop2", "2");
             props.put("Prop3", "3");
             RemoteCommunicatorPrx rcom = factory.createCommunicator(props);
-            com.zeroc.Ice.ObjectPrx obj = rcom.getAdmin();
+            ObjectPrx obj = rcom.getAdmin();
             PropertiesAdminPrx pa = PropertiesAdminPrx.checkedCast(obj, "Properties");
 
             //
@@ -202,7 +222,7 @@ public class AllTests {
             //
             // Test: PropertiesAdmin::getProperties()
             //
-            java.util.Map<String, String> pd = pa.getPropertiesForPrefix("");
+            Map<String, String> pd = pa.getPropertiesForPrefix("");
             test(pd.size() == 5);
             test("tcp -h 127.0.0.1".equals(pd.get("Ice.Admin.Endpoints")));
             test("Test".equals(pd.get("Ice.Admin.InstanceName")));
@@ -210,12 +230,12 @@ public class AllTests {
             test("2".equals(pd.get("Prop2")));
             test("3".equals(pd.get("Prop3")));
 
-            java.util.Map<String, String> changes;
+            Map<String, String> changes;
 
             //
             // Test: PropertiesAdmin::setProperties()
             //
-            java.util.Map<String, String> setProps = new java.util.HashMap<>();
+            Map<String, String> setProps = new HashMap<>();
             setProps.put("Prop1", "10"); // Changed
             setProps.put("Prop2", "20"); // Changed
             setProps.put("Prop3", ""); // Removed
@@ -245,7 +265,7 @@ public class AllTests {
         out.print("testing logger facet... ");
         out.flush();
         {
-            java.util.Map<String, String> props = new java.util.HashMap<>();
+            Map<String, String> props = new HashMap<>();
             props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             props.put("NullLogger", "1");
@@ -256,21 +276,21 @@ public class AllTests {
             rcom.error("error");
             rcom.print("print");
 
-            com.zeroc.Ice.ObjectPrx obj = rcom.getAdmin();
-            com.zeroc.Ice.LoggerAdminPrx logger =
-                    com.zeroc.Ice.LoggerAdminPrx.checkedCast(obj, "Logger");
+            ObjectPrx obj = rcom.getAdmin();
+            LoggerAdminPrx logger =
+                    LoggerAdminPrx.checkedCast(obj, "Logger");
             test(logger != null);
 
             //
             // Get all
             //
-            com.zeroc.Ice.LoggerAdmin.GetLogResult r = logger.getLog(null, null, -1);
+            LoggerAdmin.GetLogResult r = logger.getLog(null, null, -1);
 
             test(r.returnValue.length == 4);
             test("NullLogger".equals(r.prefix));
             test(
-                    "testCat".equals(r.returnValue[0].traceCategory) &&
-                            "trace".equals(r.returnValue[0].message));
+                    "testCat".equals(r.returnValue[0].traceCategory)
+                            && "trace".equals(r.returnValue[0].message));
             test("warning".equals(r.returnValue[1].message));
             test("error".equals(r.returnValue[2].message));
             test("print".equals(r.returnValue[3].message));
@@ -291,10 +311,10 @@ public class AllTests {
             test(r.returnValue.length == 4);
             test("NullLogger".equals(r.prefix));
 
-            for (com.zeroc.Ice.LogMessage msg : java.util.Arrays.asList(r.returnValue)) {
+            for (LogMessage msg : Arrays.asList(r.returnValue)) {
                 test(
-                        msg.type == LogMessageType.ErrorMessage ||
-                                msg.type == LogMessageType.WarningMessage);
+                        msg.type == LogMessageType.ErrorMessage
+                                || msg.type == LogMessageType.WarningMessage);
             }
 
             //
@@ -311,11 +331,11 @@ public class AllTests {
             test(r.returnValue.length == 5);
             test("NullLogger".equals(r.prefix));
 
-            for (com.zeroc.Ice.LogMessage msg : java.util.Arrays.asList(r.returnValue)) {
+            for (LogMessage msg : Arrays.asList(r.returnValue)) {
                 test(
-                        msg.type == LogMessageType.ErrorMessage ||
-                                (msg.type == LogMessageType.TraceMessage &&
-                                        "testCat".equals(msg.traceCategory)));
+                        msg.type == LogMessageType.ErrorMessage
+                                || (msg.type == LogMessageType.TraceMessage
+                                        && "testCat".equals(msg.traceCategory)));
             }
 
             //
@@ -333,15 +353,15 @@ public class AllTests {
             //
             // Now, test RemoteLogger
             //
-            com.zeroc.Ice.ObjectAdapter adapter =
+            ObjectAdapter adapter =
                     helper.communicator()
                             .createObjectAdapterWithEndpoints(
                                     "RemoteLoggerAdapter", "tcp -h localhost");
 
             RemoteLoggerI remoteLogger = new RemoteLoggerI();
 
-            com.zeroc.Ice.RemoteLoggerPrx myProxy =
-                    com.zeroc.Ice.RemoteLoggerPrx.uncheckedCast(adapter.addWithUUID(remoteLogger));
+            RemoteLoggerPrx myProxy =
+                    RemoteLoggerPrx.uncheckedCast(adapter.addWithUUID(remoteLogger));
 
             adapter.activate();
 
@@ -351,13 +371,13 @@ public class AllTests {
             r = logger.getLog(null, null, -1);
             try {
                 logger.attachRemoteLogger(myProxy, null, null, -1);
-            } catch (com.zeroc.Ice.RemoteLoggerAlreadyAttachedException ex) {
+            } catch (RemoteLoggerAlreadyAttachedException ex) {
                 test(false);
             }
             remoteLogger.wait(1);
 
             for (int i = 0; i < r.returnValue.length; i++) {
-                com.zeroc.Ice.LogMessage m = r.returnValue[i];
+                LogMessage m = r.returnValue[i];
                 remoteLogger.checkNextInit(r.prefix, m.type, m.message, m.traceCategory);
             }
 
@@ -384,13 +404,13 @@ public class AllTests {
 
             try {
                 logger.attachRemoteLogger(myProxy, messageTypes, categories, 4);
-            } catch (com.zeroc.Ice.RemoteLoggerAlreadyAttachedException ex) {
+            } catch (RemoteLoggerAlreadyAttachedException ex) {
                 test(false);
             }
             remoteLogger.wait(1);
 
             for (int i = 0; i < r.returnValue.length; i++) {
-                com.zeroc.Ice.LogMessage m = r.returnValue[i];
+                LogMessage m = r.returnValue[i];
                 remoteLogger.checkNextInit(r.prefix, m.type, m.message, m.traceCategory);
             }
 
@@ -410,7 +430,7 @@ public class AllTests {
             try {
                 logger.attachRemoteLogger(myProxy.ice_oneway(), messageTypes, categories, 4);
                 test(false);
-            } catch (com.zeroc.Ice.RemoteLoggerAlreadyAttachedException ex) {
+            } catch (RemoteLoggerAlreadyAttachedException ex) {
                 // expected
             }
 
@@ -424,11 +444,11 @@ public class AllTests {
             //
             // Test: Verify that the custom facet is present.
             //
-            java.util.Map<String, String> props = new java.util.HashMap<>();
+            Map<String, String> props = new HashMap<>();
             props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             RemoteCommunicatorPrx rcom = factory.createCommunicator(props);
-            com.zeroc.Ice.ObjectPrx obj = rcom.getAdmin();
+            ObjectPrx obj = rcom.getAdmin();
             TestFacetPrx tf = TestFacetPrx.checkedCast(obj, "TestFacet");
             tf.op();
             rcom.destroy();
@@ -442,12 +462,12 @@ public class AllTests {
             // Test: Set Ice.Admin.Facets to expose only the Properties facet,
             // meaning no other facet is available.
             //
-            java.util.Map<String, String> props = new java.util.HashMap<>();
+            Map<String, String> props = new HashMap<>();
             props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             props.put("Ice.Admin.Facets", "Properties");
             RemoteCommunicatorPrx rcom = factory.createCommunicator(props);
-            com.zeroc.Ice.ObjectPrx obj = rcom.getAdmin();
+            ObjectPrx obj = rcom.getAdmin();
 
             try {
                 ProcessPrx.checkedCast(obj, "Process");
@@ -468,12 +488,12 @@ public class AllTests {
             // Test: Set Ice.Admin.Facets to expose only the Process facet,
             // meaning no other facet is available.
             //
-            java.util.Map<String, String> props = new java.util.HashMap<>();
+            Map<String, String> props = new HashMap<>();
             props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             props.put("Ice.Admin.Facets", "Process");
             RemoteCommunicatorPrx rcom = factory.createCommunicator(props);
-            com.zeroc.Ice.ObjectPrx obj = rcom.getAdmin();
+            ObjectPrx obj = rcom.getAdmin();
 
             try {
                 PropertiesAdminPrx.checkedCast(obj, "Properties");
@@ -495,12 +515,12 @@ public class AllTests {
             // Test: Set Ice.Admin.Facets to expose only the TestFacet facet,
             // meaning no other facet is available.
             //
-            java.util.Map<String, String> props = new java.util.HashMap<>();
+            Map<String, String> props = new HashMap<>();
             props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             props.put("Ice.Admin.Facets", "TestFacet");
             RemoteCommunicatorPrx rcom = factory.createCommunicator(props);
-            com.zeroc.Ice.ObjectPrx obj = rcom.getAdmin();
+            ObjectPrx obj = rcom.getAdmin();
             try {
                 PropertiesAdminPrx.checkedCast(obj, "Properties");
                 test(false);
@@ -520,12 +540,12 @@ public class AllTests {
             // Test: Set Ice.Admin.Facets to expose two facets. Use whitespace to separate the
             // facet names.
             //
-            java.util.Map<String, String> props = new java.util.HashMap<>();
+            Map<String, String> props = new HashMap<>();
             props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             props.put("Ice.Admin.Facets", "Properties TestFacet");
             RemoteCommunicatorPrx rcom = factory.createCommunicator(props);
-            com.zeroc.Ice.ObjectPrx obj = rcom.getAdmin();
+            ObjectPrx obj = rcom.getAdmin();
             PropertiesAdminPrx pa = PropertiesAdminPrx.checkedCast(obj, "Properties");
             test("Test".equals(pa.getProperty("Ice.Admin.InstanceName")));
             TestFacetPrx tf = TestFacetPrx.checkedCast(obj, "TestFacet");
@@ -543,12 +563,12 @@ public class AllTests {
             // Test: Set Ice.Admin.Facets to expose two facets. Use a comma to separate the
             // facet names.
             //
-            java.util.Map<String, String> props = new java.util.HashMap<>();
+            Map<String, String> props = new HashMap<>();
             props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             props.put("Ice.Admin.Facets", "TestFacet, Process");
             RemoteCommunicatorPrx rcom = factory.createCommunicator(props);
-            com.zeroc.Ice.ObjectPrx obj = rcom.getAdmin();
+            ObjectPrx obj = rcom.getAdmin();
             try {
                 PropertiesAdminPrx.checkedCast(obj, "Properties");
                 test(false);

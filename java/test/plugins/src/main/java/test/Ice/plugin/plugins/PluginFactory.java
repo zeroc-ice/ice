@@ -2,10 +2,12 @@
 
 package test.Ice.plugin.plugins;
 
+import com.zeroc.Ice.Communicator;
+
 public class PluginFactory implements com.zeroc.Ice.PluginFactory {
     @Override
     public com.zeroc.Ice.Plugin create(
-            com.zeroc.Ice.Communicator communicator, String name, String[] args) {
+            Communicator communicator, String name, String[] args) {
         return new Plugin(args);
     }
 

@@ -2,8 +2,10 @@
 
 package test.Ice.metrics;
 
+import com.zeroc.Ice.Instrumentation.DispatchObserver;
+
 class DispatchObserverI extends ObserverI
-        implements com.zeroc.Ice.Instrumentation.DispatchObserver {
+        implements DispatchObserver {
     @Override
     public synchronized void reset() {
         super.reset();

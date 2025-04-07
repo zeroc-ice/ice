@@ -4,6 +4,8 @@ package com.zeroc.Ice;
 
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 
+import java.net.InetSocketAddress;
+
 final class TcpEndpointI extends IPEndpointI {
     private static final int defaultTimeout = 60_000; // 60,000 milliseconds (1 minute)
 
@@ -11,7 +13,7 @@ final class TcpEndpointI extends IPEndpointI {
             ProtocolInstance instance,
             String ho,
             int po,
-            java.net.InetSocketAddress sourceAddr,
+            InetSocketAddress sourceAddr,
             int ti,
             String conId,
             boolean co) {
@@ -225,9 +227,9 @@ final class TcpEndpointI extends IPEndpointI {
                 {
                     if (argument == null) {
                         throw new ParseException(
-                                "no argument provided for -t option in endpoint '" +
-                                        endpoint +
-                                        "'");
+                                "no argument provided for -t option in endpoint '"
+                                        + endpoint
+                                        + "'");
                     }
 
                     if ("infinite".equals(argument)) {
@@ -237,19 +239,19 @@ final class TcpEndpointI extends IPEndpointI {
                             _timeout = Integer.parseInt(argument);
                             if (_timeout < 1) {
                                 throw new ParseException(
-                                        "invalid timeout value '" +
-                                                argument +
-                                                "' in endpoint '" +
-                                                endpoint +
-                                                "'");
+                                        "invalid timeout value '"
+                                                + argument
+                                                + "' in endpoint '"
+                                                + endpoint
+                                                + "'");
                             }
                         } catch (NumberFormatException ex) {
                             throw new ParseException(
-                                    "invalid timeout value '" +
-                                            argument +
-                                            "' in endpoint '" +
-                                            endpoint +
-                                            "'",
+                                    "invalid timeout value '"
+                                            + argument
+                                            + "' in endpoint '"
+                                            + endpoint
+                                            + "'",
                                     ex);
                         }
                     }
@@ -261,11 +263,11 @@ final class TcpEndpointI extends IPEndpointI {
                 {
                     if (argument != null) {
                         throw new ParseException(
-                                "unexpected argument '" +
-                                        argument +
-                                        "' provided for -z option in '" +
-                                        endpoint +
-                                        "'");
+                                "unexpected argument '"
+                                        + argument
+                                        + "' provided for -z option in '"
+                                        + endpoint
+                                        + "'");
                     }
 
                     _compress = true;
@@ -281,7 +283,7 @@ final class TcpEndpointI extends IPEndpointI {
     }
 
     @Override
-    protected Connector createConnector(java.net.InetSocketAddress addr, NetworkProxy proxy) {
+    protected Connector createConnector(InetSocketAddress addr, NetworkProxy proxy) {
         return new TcpConnector(_instance, addr, proxy, _sourceAddr, _timeout, _connectionId);
     }
 

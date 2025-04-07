@@ -2,12 +2,16 @@
 
 package test.Ice.background;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Properties;
+
 import test.Ice.background.PluginFactory.PluginI;
 import test.Ice.background.Test.BackgroundPrx;
+import test.TestHelper;
 
-public class Client extends test.TestHelper {
+public class Client extends TestHelper {
     public void run(String[] args) {
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         //
         // For this test, we want to disable retries.
         //
@@ -33,7 +37,7 @@ public class Client extends test.TestHelper {
                 "test-" + properties.getIceProperty("Ice.Default.Protocol"));
 
         properties.setProperty("Ice.Package.Test", "test.Ice.background");
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(properties)) {
             PluginI plugin = (PluginI) communicator().getPluginManager().getPlugin("Test");
             BackgroundPrx background = AllTests.allTests(plugin.getConfiguration(), this);
             background.shutdown();

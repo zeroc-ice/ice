@@ -8,6 +8,9 @@ import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import javax.swing.JScrollPane;
+
+import java.util.*;
+
 import javax.swing.JTextArea;
 
 class CommunicatorSubEditor {
@@ -71,18 +74,18 @@ class CommunicatorSubEditor {
         descriptor.propertySet.properties = _properties.getProperties();
         descriptor.description = _description.getText();
 
-        java.util.TreeMap<String, String> tm = _logFiles.get();
+        TreeMap<String, String> tm = _logFiles.get();
         descriptor.logs = new String[tm.size()];
         int i = 0;
 
-        for (java.util.Map.Entry<String, String> p : tm.entrySet()) {
+        for (Map.Entry<String, String> p : tm.entrySet()) {
             String path = p.getKey();
             String prop = p.getValue().trim();
 
             descriptor.logs[i++] = path;
             if (!prop.isEmpty()) {
                 setProperty(
-                        (java.util.LinkedList<PropertyDescriptor>)
+                        (LinkedList<PropertyDescriptor>)
                                 descriptor.propertySet.properties,
                         prop,
                         path);
@@ -95,7 +98,7 @@ class CommunicatorSubEditor {
         isEditable = isEditable && (detailResolver == null);
 
         // Note that we don't substitute in the lookup
-        java.util.Map<String, String> map = new java.util.TreeMap<>();
+        Map<String, String> map = new TreeMap<>();
         for (String log : descriptor.logs) {
             String prop = lookupKey(descriptor.propertySet.properties, log);
             map.put(log, prop);
@@ -103,7 +106,7 @@ class CommunicatorSubEditor {
         _logFiles.set(map, detailResolver, isEditable);
 
         _propertySets.setList(
-                java.util.Arrays.asList(descriptor.propertySet.references), detailResolver);
+                Arrays.asList(descriptor.propertySet.references), detailResolver);
         _propertySets.setEditable(isEditable);
         _properties.setProperties(
                 descriptor.propertySet.properties,
@@ -118,7 +121,7 @@ class CommunicatorSubEditor {
     }
 
     // Returns first key matching this value, if there is one
-    private String lookupKey(java.util.List<PropertyDescriptor> props, String value) {
+    private String lookupKey(List<PropertyDescriptor> props, String value) {
         for (PropertyDescriptor p : props) {
             if (p.value.equals(value)) {
                 return p.name;
@@ -128,13 +131,13 @@ class CommunicatorSubEditor {
     }
 
     private void setProperty(
-            java.util.LinkedList<PropertyDescriptor> props, String key, String newValue) {
+            LinkedList<PropertyDescriptor> props, String key, String newValue) {
         removeProperty(props, key);
         props.addFirst(new PropertyDescriptor(key, newValue));
     }
 
-    private void removeProperty(java.util.List<PropertyDescriptor> props, String key) {
-        java.util.Iterator<PropertyDescriptor> p = props.iterator();
+    private void removeProperty(List<PropertyDescriptor> props, String key) {
+        Iterator<PropertyDescriptor> p = props.iterator();
         while (p.hasNext()) {
             PropertyDescriptor pd = p.next();
             if (pd.name.equals(key)) {
@@ -145,8 +148,8 @@ class CommunicatorSubEditor {
 
     protected Editor _mainEditor;
 
-    private JTextArea _description = new JTextArea(3, 20);
-    private ListTextField _propertySets = new ListTextField(20);
-    private PropertiesField _properties;
-    private SimpleMapField _logFiles;
+    private final JTextArea _description = new JTextArea(3, 20);
+    private final ListTextField _propertySets = new ListTextField(20);
+    private final PropertiesField _properties;
+    private final SimpleMapField _logFiles;
 }

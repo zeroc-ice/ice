@@ -3,23 +3,26 @@
 package test.IceSSL.configuration;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ConnectionLostException;
+import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.SecurityException;
+import com.zeroc.Ice.Util;
 
 import test.IceSSL.configuration.Test.ServerPrx;
 import test.TestHelper;
 
 import java.io.FileInputStream;
 import java.io.PrintWriter;
+import java.net.Socket;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509ExtendedKeyManager;
+import javax.net.ssl.*;
 
 public class PlatformTests {
     private static void test(boolean b) {
@@ -77,7 +80,7 @@ public class PlatformTests {
                 trustManagerFactory == null ? null : trustManagerFactory.getTrustManagers();
         sslContext.init(keyManagers, trustManagers, null);
 
-        var communicator = com.zeroc.Ice.Util.initialize();
+        var communicator = Util.initialize();
         var adapter =
                 communicator.createObjectAdapterWithEndpoints(
                         "ServerAdapter",
@@ -87,7 +90,7 @@ public class PlatformTests {
                             engine.setNeedClientAuth(clientCertificateRequired);
                             return engine;
                         });
-        adapter.add(new ServerI(communicator), com.zeroc.Ice.Util.stringToIdentity("server"));
+        adapter.add(new ServerI(communicator), Util.stringToIdentity("server"));
         adapter.activate();
         return communicator;
     }
@@ -108,10 +111,10 @@ public class PlatformTests {
                 trustManagerFactory == null ? null : trustManagerFactory.getTrustManagers();
         sslContext.init(keyManagers, trustManagers, null);
 
-        var initializationData = new com.zeroc.Ice.InitializationData();
+        var initializationData = new InitializationData();
         initializationData.clientSSLEngineFactory =
                 (String peerHost, int peerPort) -> sslContext.createSSLEngine(peerHost, peerPort);
-        return com.zeroc.Ice.Util.initialize(initializationData);
+        return Util.initialize(initializationData);
     }
 
     public static void clientValidatesServerUsingTrustStore(
@@ -180,7 +183,7 @@ public class PlatformTests {
                     try {
                         obj.ice_ping();
                         test(false);
-                    } catch (com.zeroc.Ice.SecurityException ex) {
+                    } catch (SecurityException ex) {
                         // Expected
                     }
                 }
@@ -245,9 +248,9 @@ public class PlatformTests {
                     try {
                         obj.ice_ping();
                         test(false);
-                    } catch (com.zeroc.Ice.SecurityException ex) {
+                    } catch (SecurityException ex) {
                         // Expected
-                    } catch (com.zeroc.Ice.ConnectionLostException ex) {
+                    } catch (ConnectionLostException ex) {
                         // Expected
                     }
                 }
@@ -279,54 +282,54 @@ public class PlatformTests {
 
             @Override
             public String chooseClientAlias(
-                    String[] keyType, java.security.Principal[] issuers, java.net.Socket socket) {
+                    String[] keyType, Principal[] issuers, Socket socket) {
                 return _decoratee.chooseClientAlias(keyType, issuers, socket);
             }
 
             @Override
             public String chooseEngineClientAlias(
                     String[] keyType,
-                    java.security.Principal[] issuers,
-                    javax.net.ssl.SSLEngine engine) {
+                    Principal[] issuers,
+                    SSLEngine engine) {
                 return _decoratee.chooseEngineClientAlias(keyType, issuers, engine);
             }
 
             @Override
             public String chooseServerAlias(
-                    String keyType, java.security.Principal[] issuers, java.net.Socket socket) {
+                    String keyType, Principal[] issuers, Socket socket) {
                 return _decoratee.chooseServerAlias(keyType, issuers, socket);
             }
 
             @Override
             public String chooseEngineServerAlias(
                     String keyType,
-                    java.security.Principal[] issuers,
-                    javax.net.ssl.SSLEngine engine) {
+                    Principal[] issuers,
+                    SSLEngine engine) {
                 return _decoratee.chooseEngineServerAlias(keyType, issuers, engine);
             }
 
             @Override
-            public java.security.cert.X509Certificate[] getCertificateChain(String alias) {
+            public X509Certificate[] getCertificateChain(String alias) {
                 return _decoratee.getCertificateChain(alias);
             }
 
             @Override
-            public String[] getClientAliases(String keyType, java.security.Principal[] issuers) {
+            public String[] getClientAliases(String keyType, Principal[] issuers) {
                 return _decoratee.getClientAliases(keyType, issuers);
             }
 
             @Override
-            public String[] getServerAliases(String keyType, java.security.Principal[] issuers) {
+            public String[] getServerAliases(String keyType, Principal[] issuers) {
                 return _decoratee.getServerAliases(keyType, issuers);
             }
 
             @Override
-            public java.security.PrivateKey getPrivateKey(String alias) {
+            public PrivateKey getPrivateKey(String alias) {
                 return _decoratee.getPrivateKey(alias);
             }
         }
 
-        try (var serverCommunicator = com.zeroc.Ice.Util.initialize()) {
+        try (var serverCommunicator = Util.initialize()) {
             var keyManager = new ReloadableKeyManager(certificatesPath + "/s_rsa_ca1.jks");
             var sslContext = SSLContext.getInstance("TLS");
             sslContext.init(new KeyManager[]{keyManager}, null, null);
@@ -338,7 +341,7 @@ public class PlatformTests {
                                 return sslContext.createSSLEngine(peerHost, peerPort);
                             });
             adapter.add(
-                    new ServerI(serverCommunicator), com.zeroc.Ice.Util.stringToIdentity("server"));
+                    new ServerI(serverCommunicator), Util.stringToIdentity("server"));
             adapter.activate();
 
             try (var clientCommunicator =
@@ -358,7 +361,7 @@ public class PlatformTests {
                 try {
                     obj.ice_ping();
                     test(false);
-                } catch (com.zeroc.Ice.SecurityException ex) {
+                } catch (SecurityException ex) {
                     // Expected
                 }
             }
@@ -383,7 +386,7 @@ public class PlatformTests {
                 try {
                     obj.ice_ping();
                     test(false);
-                } catch (com.zeroc.Ice.SecurityException ex) {
+                } catch (SecurityException ex) {
                     // Expected
                 }
             }

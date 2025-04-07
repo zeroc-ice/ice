@@ -2,6 +2,9 @@
 
 package com.zeroc.Ice;
 
+import java.util.*;
+import java.util.function.Consumer;
+
 class PropertiesAdminI implements PropertiesAdmin, NativePropertiesAdmin {
     public PropertiesAdminI(Instance instance) {
         _properties = instance.initializationData().properties;
@@ -14,14 +17,14 @@ class PropertiesAdminI implements PropertiesAdmin, NativePropertiesAdmin {
     }
 
     @Override
-    public synchronized java.util.TreeMap<String, String> getPropertiesForPrefix(
+    public synchronized TreeMap<String, String> getPropertiesForPrefix(
             String name, Current current) {
-        return new java.util.TreeMap<>(_properties.getPropertiesForPrefix(name));
+        return new TreeMap<>(_properties.getPropertiesForPrefix(name));
     }
 
     @Override
-    public synchronized void setProperties(java.util.Map<String, String> props, Current current) {
-        java.util.Map<String, String> old = _properties.getPropertiesForPrefix("");
+    public synchronized void setProperties(Map<String, String> props, Current current) {
+        Map<String, String> old = _properties.getPropertiesForPrefix("");
         final int traceLevel = _properties.getIcePropertyAsInt("Ice.Trace.Admin.Properties");
 
         //
@@ -34,10 +37,10 @@ class PropertiesAdminI implements PropertiesAdmin, NativePropertiesAdmin {
         // 3) Any properties not present in the new set but present in the existing set.
         //    In other words, the property has been removed.
         //
-        java.util.Map<String, String> added = new java.util.HashMap<>();
-        java.util.Map<String, String> changed = new java.util.HashMap<>();
-        java.util.Map<String, String> removed = new java.util.HashMap<>();
-        for (java.util.Map.Entry<String, String> e : props.entrySet()) {
+        Map<String, String> added = new HashMap<>();
+        Map<String, String> changed = new HashMap<>();
+        Map<String, String> removed = new HashMap<>();
+        for (Map.Entry<String, String> e : props.entrySet()) {
             final String key = e.getKey();
             final String value = e.getValue();
             if (!old.containsKey(key)) {
@@ -72,7 +75,7 @@ class PropertiesAdminI implements PropertiesAdmin, NativePropertiesAdmin {
 
             if (!added.isEmpty()) {
                 out.append("\nNew properties:");
-                for (java.util.Map.Entry<String, String> e : added.entrySet()) {
+                for (Map.Entry<String, String> e : added.entrySet()) {
                     out.append("\n  ");
                     out.append(e.getKey());
                     if (traceLevel > 1) {
@@ -84,7 +87,7 @@ class PropertiesAdminI implements PropertiesAdmin, NativePropertiesAdmin {
 
             if (!changed.isEmpty()) {
                 out.append("\nChanged properties:");
-                for (java.util.Map.Entry<String, String> e : changed.entrySet()) {
+                for (Map.Entry<String, String> e : changed.entrySet()) {
                     out.append("\n  ");
                     out.append(e.getKey());
                     if (traceLevel > 1) {
@@ -99,7 +102,7 @@ class PropertiesAdminI implements PropertiesAdmin, NativePropertiesAdmin {
 
             if (!removed.isEmpty()) {
                 out.append("\nRemoved properties:");
-                for (java.util.Map.Entry<String, String> e : removed.entrySet()) {
+                for (Map.Entry<String, String> e : removed.entrySet()) {
                     out.append("\n  ");
                     out.append(e.getKey());
                 }
@@ -112,28 +115,28 @@ class PropertiesAdminI implements PropertiesAdmin, NativePropertiesAdmin {
         // Update the property set.
         //
 
-        for (java.util.Map.Entry<String, String> e : added.entrySet()) {
+        for (Map.Entry<String, String> e : added.entrySet()) {
             _properties.setProperty(e.getKey(), e.getValue());
         }
 
-        for (java.util.Map.Entry<String, String> e : changed.entrySet()) {
+        for (Map.Entry<String, String> e : changed.entrySet()) {
             _properties.setProperty(e.getKey(), e.getValue());
         }
 
-        for (java.util.Map.Entry<String, String> e : removed.entrySet()) {
+        for (Map.Entry<String, String> e : removed.entrySet()) {
             _properties.setProperty(e.getKey(), "");
         }
 
         if (!_updateCallbacks.isEmpty()) {
-            java.util.Map<String, String> changes = new java.util.HashMap<>(added);
+            Map<String, String> changes = new HashMap<>(added);
             changes.putAll(changed);
             changes.putAll(removed);
 
             //
             // Copy the callbacks to allow callbacks to update the callbacks.
             //
-            for (java.util.function.Consumer<java.util.Map<String, String>> callback :
-                    new java.util.ArrayList<>(_updateCallbacks)) {
+            for (Consumer<Map<String, String>> callback :
+                    new ArrayList<>(_updateCallbacks)) {
                 callback.accept(changes);
             }
         }
@@ -141,20 +144,20 @@ class PropertiesAdminI implements PropertiesAdmin, NativePropertiesAdmin {
 
     @Override
     public synchronized void addUpdateCallback(
-            java.util.function.Consumer<java.util.Map<String, String>> cb) {
+            Consumer<Map<String, String>> cb) {
         _updateCallbacks.add(cb);
     }
 
     @Override
     public synchronized void removeUpdateCallback(
-            java.util.function.Consumer<java.util.Map<String, String>> cb) {
+            Consumer<Map<String, String>> cb) {
         _updateCallbacks.remove(cb);
     }
 
     private final Properties _properties;
     private final Logger _logger;
-    private java.util.List<java.util.function.Consumer<java.util.Map<String, String>>>
-            _updateCallbacks = new java.util.ArrayList<>();
+    private final List<Consumer<Map<String, String>>>
+            _updateCallbacks = new ArrayList<>();
 
     private static final String _traceCategory = "Admin.Properties";
 }

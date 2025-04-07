@@ -2,9 +2,14 @@
 
 package test.Ice.enums;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice.MarshalException;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.OutputStream;
 
 import test.Ice.enums.Test.*;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 
@@ -15,11 +20,11 @@ public class AllTests {
         }
     }
 
-    public static TestIntfPrx allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static TestIntfPrx allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         String ref = "test:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(ref);
+        ObjectPrx obj = communicator.stringToProxy(ref);
         test(obj != null);
         TestIntfPrx proxy = TestIntfPrx.checkedCast(obj);
         test(proxy != null);
@@ -114,7 +119,7 @@ public class AllTests {
         out.print("testing enum streaming... ");
         out.flush();
 
-        com.zeroc.Ice.OutputStream os;
+        OutputStream os;
         byte[] bytes;
 
         final boolean encoding_1_0 =
@@ -123,22 +128,22 @@ public class AllTests {
                         .getProperties()
                         .getIceProperty("Ice.Default.EncodingVersion"));
 
-        os = new com.zeroc.Ice.OutputStream(communicator);
+        os = new OutputStream(communicator);
         ByteEnum.ice_write(os, ByteEnum.benum11);
         bytes = os.finished();
         test(bytes.length == 1); // ByteEnum should require one byte
 
-        os = new com.zeroc.Ice.OutputStream(communicator);
+        os = new OutputStream(communicator);
         ShortEnum.ice_write(os, ShortEnum.senum11);
         bytes = os.finished();
         test(bytes.length == (encoding_1_0 ? 2 : 5));
 
-        os = new com.zeroc.Ice.OutputStream(communicator);
+        os = new OutputStream(communicator);
         IntEnum.ice_write(os, IntEnum.ienum11);
         bytes = os.finished();
         test(bytes.length == (encoding_1_0 ? 4 : 5));
 
-        os = new com.zeroc.Ice.OutputStream(communicator);
+        os = new OutputStream(communicator);
         SimpleEnum.ice_write(os, SimpleEnum.blue);
         bytes = os.finished();
         test(bytes.length == 1); // SimpleEnum should require one byte
@@ -250,70 +255,70 @@ public class AllTests {
         out.flush();
 
         try {
-            os = new com.zeroc.Ice.OutputStream(communicator);
+            os = new OutputStream(communicator);
             os.writeByte((byte) 2); // Invalid enumerator
-            com.zeroc.Ice.InputStream in =
-                    new com.zeroc.Ice.InputStream(communicator, os.finished());
+            InputStream in =
+                    new InputStream(communicator, os.finished());
             ByteEnum.ice_read(in);
             test(false);
         } catch (MarshalException ex) {
         }
 
         try {
-            os = new com.zeroc.Ice.OutputStream(communicator);
+            os = new OutputStream(communicator);
             os.writeByte((byte) 128); // Invalid enumerator
-            com.zeroc.Ice.InputStream in =
-                    new com.zeroc.Ice.InputStream(communicator, os.finished());
+            InputStream in =
+                    new InputStream(communicator, os.finished());
             ByteEnum.ice_read(in);
             test(false);
         } catch (MarshalException ex) {
         }
 
         try {
-            os = new com.zeroc.Ice.OutputStream(communicator);
+            os = new OutputStream(communicator);
             os.writeShort((short) -1); // Negative enumerators are not supported
-            com.zeroc.Ice.InputStream in =
-                    new com.zeroc.Ice.InputStream(communicator, os.finished());
+            InputStream in =
+                    new InputStream(communicator, os.finished());
             ShortEnum.ice_read(in);
             test(false);
         } catch (MarshalException ex) {
         }
 
         try {
-            os = new com.zeroc.Ice.OutputStream(communicator);
+            os = new OutputStream(communicator);
             os.writeShort((short) 0); // Invalid enumerator
-            com.zeroc.Ice.InputStream in =
-                    new com.zeroc.Ice.InputStream(communicator, os.finished());
+            InputStream in =
+                    new InputStream(communicator, os.finished());
             ShortEnum.ice_read(in);
             test(false);
         } catch (MarshalException ex) {
         }
 
         try {
-            os = new com.zeroc.Ice.OutputStream(communicator);
+            os = new OutputStream(communicator);
             os.writeShort((short) 32767); // Invalid enumerator
-            com.zeroc.Ice.InputStream in =
-                    new com.zeroc.Ice.InputStream(communicator, os.finished());
+            InputStream in =
+                    new InputStream(communicator, os.finished());
             ShortEnum.ice_read(in);
             test(false);
         } catch (MarshalException ex) {
         }
 
         try {
-            os = new com.zeroc.Ice.OutputStream(communicator);
+            os = new OutputStream(communicator);
             os.writeInt(-1); // Negative enumerators are not supported
-            com.zeroc.Ice.InputStream in =
-                    new com.zeroc.Ice.InputStream(communicator, os.finished());
+            InputStream in =
+                    new InputStream(communicator, os.finished());
             IntEnum.ice_read(in);
             test(false);
         } catch (MarshalException ex) {
         }
 
         try {
-            os = new com.zeroc.Ice.OutputStream(communicator);
+            os = new OutputStream(communicator);
             os.writeInt(2); // Invalid enumerator
-            com.zeroc.Ice.InputStream in =
-                    new com.zeroc.Ice.InputStream(communicator, os.finished());
+            InputStream in =
+                    new InputStream(communicator, os.finished());
             IntEnum.ice_read(in);
             test(false);
         } catch (MarshalException ex) {

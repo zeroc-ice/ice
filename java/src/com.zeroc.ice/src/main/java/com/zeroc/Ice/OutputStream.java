@@ -2,6 +2,14 @@
 
 package com.zeroc.Ice;
 
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.nio.*;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.util.*;
+
 /**
  * Interface to marshal (write) Slice types into sequence of bytes encoded using the Ice encoding.
  *
@@ -312,8 +320,8 @@ public final class OutputStream {
     public void writePendingValues() {
         if (_encapsStack != null && _encapsStack.encoder != null) {
             _encapsStack.encoder.writePendingValues();
-        } else if (_encapsStack != null ?
-                _encapsStack.encoding_1_0
+        } else if (_encapsStack != null
+                ? _encapsStack.encoding_1_0
                 : _encoding.equals(Util.Encoding_1_0)) {
             //
             // If using the 1.0 encoding and no instances were written, we still write an empty
@@ -424,7 +432,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional byte to write to the stream.
      */
-    public void writeByte(int tag, java.util.Optional<Byte> v) {
+    public void writeByte(int tag, Optional<Byte> v) {
         if (v != null && v.isPresent()) {
             writeByte(tag, v.get());
         }
@@ -475,7 +483,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional byte sequence to write to the stream.
      */
-    public void writeByteSeq(int tag, java.util.Optional<byte[]> v) {
+    public void writeByteSeq(int tag, Optional<byte[]> v) {
         if (v != null && v.isPresent()) {
             writeByteSeq(tag, v.get());
         }
@@ -498,7 +506,7 @@ public final class OutputStream {
      *
      * @param v The byte buffer to write to the stream.
      */
-    public void writeByteBuffer(java.nio.ByteBuffer v) {
+    public void writeByteBuffer(ByteBuffer v) {
         if (v == null || v.remaining() == 0) {
             writeSize(0);
         } else {
@@ -513,14 +521,14 @@ public final class OutputStream {
      *
      * @param o The serializable object to write.
      */
-    public void writeSerializable(java.io.Serializable o) {
+    public void writeSerializable(Serializable o) {
         if (o == null) {
             writeSize(0);
             return;
         }
         try {
             var w = new OutputStreamWrapper(this);
-            java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(w);
+            ObjectOutputStream out = new ObjectOutputStream(w);
             out.writeObject(o);
             out.close();
             w.close();
@@ -536,8 +544,8 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional serializable object to write.
      */
-    public <T extends java.io.Serializable> void writeSerializable(
-            int tag, java.util.Optional<T> v) {
+    public <T extends Serializable> void writeSerializable(
+            int tag, Optional<T> v) {
         if (v != null && v.isPresent()) {
             writeSerializable(tag, v.get());
         }
@@ -549,7 +557,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The serializable object to write.
      */
-    public void writeSerializable(int tag, java.io.Serializable v) {
+    public void writeSerializable(int tag, Serializable v) {
         if (writeOptional(tag, OptionalFormat.VSize)) {
             writeSerializable(v);
         }
@@ -571,7 +579,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional boolean to write to the stream.
      */
-    public void writeBool(int tag, java.util.Optional<Boolean> v) {
+    public void writeBool(int tag, Optional<Boolean> v) {
         if (v != null && v.isPresent()) {
             writeBool(tag, v.get());
         }
@@ -624,7 +632,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional boolean sequence to write to the stream.
      */
-    public void writeBoolSeq(int tag, java.util.Optional<boolean[]> v) {
+    public void writeBoolSeq(int tag, Optional<boolean[]> v) {
         if (v != null && v.isPresent()) {
             writeBoolSeq(tag, v.get());
         }
@@ -658,7 +666,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional short to write to the stream.
      */
-    public void writeShort(int tag, java.util.Optional<Short> v) {
+    public void writeShort(int tag, Optional<Short> v) {
         if (v != null && v.isPresent()) {
             writeShort(tag, v.get());
         }
@@ -688,7 +696,7 @@ public final class OutputStream {
         } else {
             writeSize(v.length);
             expand(v.length * 2);
-            java.nio.ShortBuffer shortBuf = _buf.b.asShortBuffer();
+            ShortBuffer shortBuf = _buf.b.asShortBuffer();
             shortBuf.put(v);
             _buf.position(_buf.b.position() + v.length * 2);
         }
@@ -700,7 +708,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional short sequence to write to the stream.
      */
-    public void writeShortSeq(int tag, java.util.Optional<short[]> v) {
+    public void writeShortSeq(int tag, Optional<short[]> v) {
         if (v != null && v.isPresent()) {
             writeShortSeq(tag, v.get());
         }
@@ -724,7 +732,7 @@ public final class OutputStream {
      *
      * @param v The short buffer to write to the stream.
      */
-    public void writeShortBuffer(java.nio.ShortBuffer v) {
+    public void writeShortBuffer(ShortBuffer v) {
         if (v == null || v.remaining() == 0) {
             writeSize(0);
         } else {
@@ -732,7 +740,7 @@ public final class OutputStream {
             writeSize(sz);
             expand(sz * 2);
 
-            java.nio.ShortBuffer shortBuf = _buf.b.asShortBuffer();
+            ShortBuffer shortBuf = _buf.b.asShortBuffer();
             shortBuf.put(v);
             _buf.position(_buf.b.position() + sz * 2);
         }
@@ -754,7 +762,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional int to write to the stream.
      */
-    public void writeInt(int tag, java.util.OptionalInt v) {
+    public void writeInt(int tag, OptionalInt v) {
         if (v != null && v.isPresent()) {
             writeInt(tag, v.getAsInt());
         }
@@ -795,7 +803,7 @@ public final class OutputStream {
         } else {
             writeSize(v.length);
             expand(v.length * 4);
-            java.nio.IntBuffer intBuf = _buf.b.asIntBuffer();
+            IntBuffer intBuf = _buf.b.asIntBuffer();
             intBuf.put(v);
             _buf.position(_buf.b.position() + v.length * 4);
         }
@@ -807,7 +815,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional int sequence to write to the stream.
      */
-    public void writeIntSeq(int tag, java.util.Optional<int[]> v) {
+    public void writeIntSeq(int tag, Optional<int[]> v) {
         if (v != null && v.isPresent()) {
             writeIntSeq(tag, v.get());
         }
@@ -831,7 +839,7 @@ public final class OutputStream {
      *
      * @param v The int buffer to write to the stream.
      */
-    public void writeIntBuffer(java.nio.IntBuffer v) {
+    public void writeIntBuffer(IntBuffer v) {
         if (v == null || v.remaining() == 0) {
             writeSize(0);
         } else {
@@ -839,7 +847,7 @@ public final class OutputStream {
             writeSize(sz);
             expand(sz * 4);
 
-            java.nio.IntBuffer intBuf = _buf.b.asIntBuffer();
+            IntBuffer intBuf = _buf.b.asIntBuffer();
             intBuf.put(v);
             _buf.position(_buf.b.position() + sz * 4);
         }
@@ -861,7 +869,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional long to write to the stream.
      */
-    public void writeLong(int tag, java.util.OptionalLong v) {
+    public void writeLong(int tag, OptionalLong v) {
         if (v != null && v.isPresent()) {
             writeLong(tag, v.getAsLong());
         }
@@ -891,7 +899,7 @@ public final class OutputStream {
         } else {
             writeSize(v.length);
             expand(v.length * 8);
-            java.nio.LongBuffer longBuf = _buf.b.asLongBuffer();
+            LongBuffer longBuf = _buf.b.asLongBuffer();
             longBuf.put(v);
             _buf.position(_buf.b.position() + v.length * 8);
         }
@@ -903,7 +911,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional long sequence to write to the stream.
      */
-    public void writeLongSeq(int tag, java.util.Optional<long[]> v) {
+    public void writeLongSeq(int tag, Optional<long[]> v) {
         if (v != null && v.isPresent()) {
             writeLongSeq(tag, v.get());
         }
@@ -927,7 +935,7 @@ public final class OutputStream {
      *
      * @param v The long buffer to write to the stream.
      */
-    public void writeLongBuffer(java.nio.LongBuffer v) {
+    public void writeLongBuffer(LongBuffer v) {
         if (v == null || v.remaining() == 0) {
             writeSize(0);
         } else {
@@ -935,7 +943,7 @@ public final class OutputStream {
             writeSize(sz);
             expand(sz * 8);
 
-            java.nio.LongBuffer longBuf = _buf.b.asLongBuffer();
+            LongBuffer longBuf = _buf.b.asLongBuffer();
             longBuf.put(v);
             _buf.position(_buf.b.position() + sz * 8);
         }
@@ -957,7 +965,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional float to write to the stream.
      */
-    public void writeFloat(int tag, java.util.Optional<Float> v) {
+    public void writeFloat(int tag, Optional<Float> v) {
         if (v != null && v.isPresent()) {
             writeFloat(tag, v.get());
         }
@@ -987,7 +995,7 @@ public final class OutputStream {
         } else {
             writeSize(v.length);
             expand(v.length * 4);
-            java.nio.FloatBuffer floatBuf = _buf.b.asFloatBuffer();
+            FloatBuffer floatBuf = _buf.b.asFloatBuffer();
             floatBuf.put(v);
             _buf.position(_buf.b.position() + v.length * 4);
         }
@@ -999,7 +1007,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional float sequence to write to the stream.
      */
-    public void writeFloatSeq(int tag, java.util.Optional<float[]> v) {
+    public void writeFloatSeq(int tag, Optional<float[]> v) {
         if (v != null && v.isPresent()) {
             writeFloatSeq(tag, v.get());
         }
@@ -1023,7 +1031,7 @@ public final class OutputStream {
      *
      * @param v The float buffer to write to the stream.
      */
-    public void writeFloatBuffer(java.nio.FloatBuffer v) {
+    public void writeFloatBuffer(FloatBuffer v) {
         if (v == null || v.remaining() == 0) {
             writeSize(0);
         } else {
@@ -1031,7 +1039,7 @@ public final class OutputStream {
             writeSize(sz);
             expand(sz * 4);
 
-            java.nio.FloatBuffer floatBuf = _buf.b.asFloatBuffer();
+            FloatBuffer floatBuf = _buf.b.asFloatBuffer();
             floatBuf.put(v);
             _buf.position(_buf.b.position() + sz * 4);
         }
@@ -1053,7 +1061,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional double to write to the stream.
      */
-    public void writeDouble(int tag, java.util.OptionalDouble v) {
+    public void writeDouble(int tag, OptionalDouble v) {
         if (v != null && v.isPresent()) {
             writeDouble(tag, v.getAsDouble());
         }
@@ -1083,7 +1091,7 @@ public final class OutputStream {
         } else {
             writeSize(v.length);
             expand(v.length * 8);
-            java.nio.DoubleBuffer doubleBuf = _buf.b.asDoubleBuffer();
+            DoubleBuffer doubleBuf = _buf.b.asDoubleBuffer();
             doubleBuf.put(v);
             _buf.position(_buf.b.position() + v.length * 8);
         }
@@ -1095,7 +1103,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional double sequence to write to the stream.
      */
-    public void writeDoubleSeq(int tag, java.util.Optional<double[]> v) {
+    public void writeDoubleSeq(int tag, Optional<double[]> v) {
         if (v != null && v.isPresent()) {
             writeDoubleSeq(tag, v.get());
         }
@@ -1119,7 +1127,7 @@ public final class OutputStream {
      *
      * @param v The double buffer to write to the stream.
      */
-    public void writeDoubleBuffer(java.nio.DoubleBuffer v) {
+    public void writeDoubleBuffer(DoubleBuffer v) {
         if (v == null || v.remaining() == 0) {
             writeSize(0);
         } else {
@@ -1127,14 +1135,14 @@ public final class OutputStream {
             writeSize(sz);
             expand(sz * 8);
 
-            java.nio.DoubleBuffer doubleBuf = _buf.b.asDoubleBuffer();
+            DoubleBuffer doubleBuf = _buf.b.asDoubleBuffer();
             doubleBuf.put(v);
             _buf.position(_buf.b.position() + sz * 8);
         }
     }
 
-    static final java.nio.charset.Charset _utf8 = java.nio.charset.Charset.forName("UTF8");
-    private java.nio.charset.CharsetEncoder _charEncoder;
+    static final Charset _utf8 = Charset.forName("UTF8");
+    private CharsetEncoder _charEncoder;
 
     /**
      * Writes a string to the stream.
@@ -1167,10 +1175,10 @@ public final class OutputStream {
                         if (_charEncoder == null) {
                             _charEncoder = _utf8.newEncoder();
                         }
-                        java.nio.ByteBuffer b = null;
+                        ByteBuffer b = null;
                         try {
-                            b = _charEncoder.encode(java.nio.CharBuffer.wrap(_stringChars, 0, len));
-                        } catch (java.nio.charset.CharacterCodingException ex) {
+                            b = _charEncoder.encode(CharBuffer.wrap(_stringChars, 0, len));
+                        } catch (CharacterCodingException ex) {
                             throw new MarshalException("failed to encode multibyte character", ex);
                         }
                         writeSize(b.limit());
@@ -1195,7 +1203,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional string to write to the stream.
      */
-    public void writeString(int tag, java.util.Optional<String> v) {
+    public void writeString(int tag, Optional<String> v) {
         if (v != null && v.isPresent()) {
             writeString(tag, v.get());
         }
@@ -1236,7 +1244,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional string sequence to write to the stream.
      */
-    public void writeStringSeq(int tag, java.util.Optional<String[]> v) {
+    public void writeStringSeq(int tag, Optional<String[]> v) {
         if (v != null && v.isPresent()) {
             writeStringSeq(tag, v.get());
         }
@@ -1276,7 +1284,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional proxy to write to the stream.
      */
-    public <Prx extends ObjectPrx> void writeProxy(int tag, java.util.Optional<Prx> v) {
+    public <Prx extends ObjectPrx> void writeProxy(int tag, Optional<Prx> v) {
         if (v != null && v.isPresent()) {
             writeProxy(tag, v.get());
         }
@@ -1417,7 +1425,7 @@ public final class OutputStream {
             _stream = stream;
             _encaps = encaps;
             _typeIdIndex = 0;
-            _marshaledMap = new java.util.IdentityHashMap<>();
+            _marshaledMap = new IdentityHashMap<>();
         }
 
         abstract void writeValue(Value v);
@@ -1441,7 +1449,7 @@ public final class OutputStream {
         protected int registerTypeId(String typeId) {
             if (_typeIdMap == null) // Lazy initialization
             {
-                _typeIdMap = new java.util.TreeMap<>();
+                _typeIdMap = new TreeMap<>();
             }
 
             Integer p = _typeIdMap.get(typeId);
@@ -1457,8 +1465,8 @@ public final class OutputStream {
         protected final Encaps _encaps;
 
         // Encapsulation attributes for instance marshaling.
-        protected final java.util.IdentityHashMap<Value, Integer> _marshaledMap;
-        private java.util.TreeMap<String, Integer> _typeIdMap;
+        protected final IdentityHashMap<Value, Integer> _marshaledMap;
+        private TreeMap<String, Integer> _typeIdMap;
         private int _typeIdIndex;
     }
 
@@ -1467,7 +1475,7 @@ public final class OutputStream {
             super(stream, encaps);
             _sliceType = SliceType.NoSlice;
             _valueIdIndex = 0;
-            _toBeMarshaledMap = new java.util.IdentityHashMap<>();
+            _toBeMarshaledMap = new IdentityHashMap<>();
         }
 
         @Override
@@ -1562,10 +1570,10 @@ public final class OutputStream {
                 //
                 _marshaledMap.putAll(_toBeMarshaledMap);
 
-                java.util.IdentityHashMap<Value, Integer> savedMap = _toBeMarshaledMap;
-                _toBeMarshaledMap = new java.util.IdentityHashMap<>();
+                IdentityHashMap<Value, Integer> savedMap = _toBeMarshaledMap;
+                _toBeMarshaledMap = new IdentityHashMap<>();
                 _stream.writeSize(savedMap.size());
-                for (java.util.Map.Entry<Value, Integer> p : savedMap.entrySet()) {
+                for (Map.Entry<Value, Integer> p : savedMap.entrySet()) {
                     //
                     // Ask the instance to marshal itself. Any new class instances that are
                     // triggered by the classes marshaled are added to toBeMarshaledMap.
@@ -1615,7 +1623,7 @@ public final class OutputStream {
 
         // Encapsulation attributes for instance marshaling.
         private int _valueIdIndex;
-        private java.util.IdentityHashMap<Value, Integer> _toBeMarshaledMap;
+        private IdentityHashMap<Value, Integer> _toBeMarshaledMap;
     }
 
     private static final class EncapsEncoder11 extends EncapsEncoder {
@@ -1632,8 +1640,8 @@ public final class OutputStream {
             } else if (_current != null && _encaps.format == FormatType.SlicedFormat) {
                 if (_current.indirectionTable == null) // Lazy initialization
                 {
-                    _current.indirectionTable = new java.util.ArrayList<>();
-                    _current.indirectionMap = new java.util.IdentityHashMap<>();
+                    _current.indirectionTable = new ArrayList<>();
+                    _current.indirectionMap = new IdentityHashMap<>();
                 }
 
                 //
@@ -1684,8 +1692,8 @@ public final class OutputStream {
 
         @Override
         void startSlice(String typeId, int compactId, boolean last) {
-            assert ((_current.indirectionTable == null || _current.indirectionTable.isEmpty()) &&
-                    (_current.indirectionMap == null || _current.indirectionMap.isEmpty()));
+            assert ((_current.indirectionTable == null || _current.indirectionTable.isEmpty())
+                    && (_current.indirectionMap == null || _current.indirectionMap.isEmpty()));
 
             _current.sliceFlagsPos = _stream.pos();
 
@@ -1823,8 +1831,8 @@ public final class OutputStream {
                 if (info.instances != null && info.instances.length > 0) {
                     if (_current.indirectionTable == null) // Lazy initialization
                     {
-                        _current.indirectionTable = new java.util.ArrayList<>();
-                        _current.indirectionMap = new java.util.IdentityHashMap<>();
+                        _current.indirectionTable = new ArrayList<>();
+                        _current.indirectionMap = new IdentityHashMap<>();
                     }
                     for (Value o : info.instances) {
                         _current.indirectionTable.add(o);
@@ -1875,8 +1883,8 @@ public final class OutputStream {
             byte sliceFlags;
             int writeSlice; // Position of the slice data members
             int sliceFlagsPos; // Position of the slice flags
-            java.util.List<Value> indirectionTable;
-            java.util.IdentityHashMap<Value, Integer> indirectionMap;
+            List<Value> indirectionTable;
+            IdentityHashMap<Value, Integer> indirectionMap;
 
             final InstanceData previous;
             InstanceData next;
@@ -1915,8 +1923,8 @@ public final class OutputStream {
     private EncodingVersion _encoding;
 
     private boolean isEncoding_1_0() {
-        return _encapsStack != null ?
-                _encapsStack.encoding_1_0
+        return _encapsStack != null
+                ? _encapsStack.encoding_1_0
                 : _encoding.equals(Util.Encoding_1_0);
     }
 

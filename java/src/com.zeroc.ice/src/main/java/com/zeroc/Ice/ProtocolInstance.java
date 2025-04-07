@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.net.InetSocketAddress;
+
 /**
  * @hidden Public because it's used by IceBT, SSL, and the 'Ice/background' test.
  */
@@ -62,7 +64,7 @@ public class ProtocolInstance {
         return _instance.defaultsAndOverrides().defaultHost;
     }
 
-    public java.net.InetSocketAddress defaultSourceAddress() {
+    public InetSocketAddress defaultSourceAddress() {
         return _instance.defaultsAndOverrides().defaultSourceAddress;
     }
 

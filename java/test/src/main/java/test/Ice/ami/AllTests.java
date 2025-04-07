@@ -2,21 +2,34 @@
 
 package test.Ice.ami;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.CommunicatorDestroyedException;
 import com.zeroc.Ice.CompressBatch;
+import com.zeroc.Ice.Connection;
+import com.zeroc.Ice.ConnectionAbortedException;
+import com.zeroc.Ice.ConnectionLostException;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.InvocationFuture;
+import com.zeroc.Ice.NoEndpointException;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectNotExistException;
+import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Util;
 
-import test.Ice.ami.Test.PingReplyPrx;
-import test.Ice.ami.Test.TestIntfControllerPrx;
-import test.Ice.ami.Test.TestIntfException;
-import test.Ice.ami.Test.TestIntfPrx;
+import test.Ice.ami.Test.*;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -31,9 +44,9 @@ public class AllTests {
         }
     }
 
-    public static class PingReplyI implements test.Ice.ami.Test.PingReply {
+    public static class PingReplyI implements PingReply {
         @Override
-        public void reply(com.zeroc.Ice.Current current) {
+        public void reply(Current current) {
             _received = true;
         }
 
@@ -100,7 +113,7 @@ public class AllTests {
         switch (t) {
             case LocalException:
                 {
-                    throw new com.zeroc.Ice.ObjectNotExistException();
+                    throw new ObjectNotExistException();
                 }
             case OtherException:
                 {
@@ -114,15 +127,15 @@ public class AllTests {
         }
     }
 
-    public static void allTests(test.TestHelper helper, boolean collocated) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static void allTests(TestHelper helper, boolean collocated) {
+        Communicator communicator = helper.communicator();
         final boolean bluetooth =
-                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt") ==
-                        0;
+                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
+                        == 0;
         PrintWriter out = helper.getWriter();
 
         String sref = "test:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(sref);
+        ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         TestIntfPrx p = TestIntfPrx.uncheckedCast(obj);
@@ -136,7 +149,7 @@ public class AllTests {
         out.print("testing begin/end invocation... ");
         out.flush();
         {
-            java.util.Map<String, String> ctx = new java.util.HashMap<>();
+            Map<String, String> ctx = new HashMap<>();
 
             test(p.ice_isAAsync("::Test::TestIntf").join());
             test(p.ice_isAAsync("::Test::TestIntf", ctx).join());
@@ -197,30 +210,30 @@ public class AllTests {
             indirect.opAsync()
                     .whenComplete(
                             (result, ex) -> {
-                                test(ex != null && ex instanceof com.zeroc.Ice.NoEndpointException);
+                                test(ex != null && ex instanceof NoEndpointException);
                             });
 
             indirect.ice_getConnectionAsync()
                     .whenComplete(
                             (result, ex) -> {
-                                test(ex != null && ex instanceof com.zeroc.Ice.NoEndpointException);
+                                test(ex != null && ex instanceof NoEndpointException);
                             });
 
             //
             // Check that CommunicatorDestroyedException is raised directly.
             //
             if (p.ice_getConnection() != null) {
-                com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+                InitializationData initData = new InitializationData();
                 initData.properties = communicator.getProperties()._clone();
-                com.zeroc.Ice.Communicator ic = helper.initialize(initData);
-                com.zeroc.Ice.ObjectPrx o = ic.stringToProxy(p.toString());
+                Communicator ic = helper.initialize(initData);
+                ObjectPrx o = ic.stringToProxy(p.toString());
                 TestIntfPrx p2 = TestIntfPrx.uncheckedCast(o);
                 ic.destroy();
 
                 try {
                     p2.opAsync();
                     test(false);
-                } catch (com.zeroc.Ice.CommunicatorDestroyedException ex) {
+                } catch (CommunicatorDestroyedException ex) {
                     // Expected.
                 }
             }
@@ -281,8 +294,8 @@ public class AllTests {
         //
         // Create an executor to use for dispatching completed futures.
         //
-        java.util.concurrent.ExecutorService executor =
-                java.util.concurrent.Executors.newSingleThreadExecutor();
+        ExecutorService executor =
+                Executors.newSingleThreadExecutor();
 
         //
         // Determine the id of the executor's thread.
@@ -736,7 +749,7 @@ public class AllTests {
                     r.join();
                     test(false);
                 } catch (CompletionException ex) {
-                    test(ex.getCause() instanceof com.zeroc.Ice.NoEndpointException);
+                    test(ex.getCause() instanceof NoEndpointException);
                 }
 
                 testController.holdAdapter();
@@ -756,8 +769,8 @@ public class AllTests {
 
                     if (p.ice_getConnection() != null) {
                         test(
-                                r1.sentSynchronously() && r1.isSent() && !r1.isDone() ||
-                                        !r1.sentSynchronously() && !r1.isDone());
+                                r1.sentSynchronously() && r1.isSent() && !r1.isDone()
+                                        || !r1.sentSynchronously() && !r1.isDone());
 
                         test(!r2.sentSynchronously() && !r2.isDone());
                     }
@@ -826,7 +839,7 @@ public class AllTests {
                     //
                     // Batch request via connection
                     //
-                    com.zeroc.Ice.Connection con = p.ice_getConnection();
+                    Connection con = p.ice_getConnection();
                     TestIntfPrx p2 = p.ice_batchOneway();
                     p2.ice_ping();
                     InvocationFuture<Void> r =
@@ -927,7 +940,7 @@ public class AllTests {
             {
                 // Local case: begin a request, close the connection gracefully, and make sure it
                 // waits for the request to complete.
-                com.zeroc.Ice.Connection con = p.ice_getConnection();
+                Connection con = p.ice_getConnection();
                 Callback cb = new Callback();
                 con.setCloseCallback(c -> cb.called());
                 CompletableFuture<Void> f = p.sleepAsync(100);
@@ -953,7 +966,7 @@ public class AllTests {
                 while (!done && maxQueue < 50) {
                     done = true;
                     p.ice_ping();
-                    var futures = new java.util.ArrayList<CompletableFuture>();
+                    var futures = new ArrayList<CompletableFuture>();
                     for (int i = 0; i < maxQueue; i++) {
                         futures.add(Util.getInvocationFuture(p.opWithPayloadAsync(seq)));
                     }
@@ -993,7 +1006,7 @@ public class AllTests {
                 // ConnectionAbortedException.
                 //
                 p.ice_ping();
-                com.zeroc.Ice.Connection con = p.ice_getConnection();
+                Connection con = p.ice_getConnection();
                 CompletableFuture<Void> f = p.startDispatchAsync();
                 Util.getInvocationFuture(f)
                         .waitForSent(); // Ensure the request was sent before we close the
@@ -1003,9 +1016,9 @@ public class AllTests {
                     f.join();
                     test(false);
                 } catch (CompletionException ex) {
-                    test(ex.getCause() instanceof com.zeroc.Ice.ConnectionAbortedException);
+                    test(ex.getCause() instanceof ConnectionAbortedException);
                     test(
-                            ((com.zeroc.Ice.ConnectionAbortedException) ex.getCause())
+                            ((ConnectionAbortedException) ex.getCause())
                                     .closedByApplication);
                 } catch (Throwable ex) {
                     test(false);
@@ -1021,7 +1034,7 @@ public class AllTests {
                 try {
                     p.abortConnection();
                     test(false);
-                } catch (com.zeroc.Ice.ConnectionLostException ex) {
+                } catch (ConnectionLostException ex) {
                     // Expected.
                 }
             }
@@ -1037,8 +1050,8 @@ public class AllTests {
                                 test(
                                         Thread.currentThread()
                                                         .getName()
-                                                        .indexOf("Ice.ThreadPool.Client") ==
-                                                -1);
+                                                        .indexOf("Ice.ThreadPool.Client")
+                                                == -1);
                             })
                     .join();
 
@@ -1048,8 +1061,8 @@ public class AllTests {
                                 test(
                                         Thread.currentThread()
                                                         .getName()
-                                                        .indexOf("Ice.ThreadPool.Client") !=
-                                                -1);
+                                                        .indexOf("Ice.ThreadPool.Client")
+                                                != -1);
                             },
                             p.ice_executor())
                     .join();
@@ -1058,11 +1071,11 @@ public class AllTests {
 
         if (!collocated) {
             out.print("testing bi-dir... ");
-            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
+            ObjectAdapter adapter = communicator.createObjectAdapter("");
             PingReplyI replyI = new PingReplyI();
             PingReplyPrx reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI));
 
-            var context = java.util.Map.of("ONE", "");
+            var context = Map.of("ONE", "");
             p.pingBiDir(reply, context);
 
             p.ice_getConnection().setAdapter(adapter);

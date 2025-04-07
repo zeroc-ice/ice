@@ -2,13 +2,15 @@
 
 package com.zeroc.Ice;
 
+import java.net.InetSocketAddress;
+
 interface NetworkProxy {
     //
     // Write the connection request on the connection established
     // with the network proxy server. This is called right after
     // the connection establishment succeeds.
     //
-    void beginWrite(java.net.InetSocketAddress endpoint, Buffer buf);
+    void beginWrite(InetSocketAddress endpoint, Buffer buf);
 
     int endWrite(Buffer buf);
 
@@ -40,7 +42,7 @@ interface NetworkProxy {
     // must not block. It's only called on a network proxy object
     // returned by resolveHost().
     //
-    java.net.InetSocketAddress getAddress();
+    InetSocketAddress getAddress();
 
     //
     // Returns the name of the proxy, used for tracing purposes.

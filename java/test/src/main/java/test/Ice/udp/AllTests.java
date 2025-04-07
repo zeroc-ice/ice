@@ -2,7 +2,16 @@
 
 package test.Ice.udp;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.DatagramLimitException;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.SocketException;
+
 import test.Ice.udp.Test.*;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 
@@ -15,7 +24,7 @@ public class AllTests {
 
     public static class PingReplyI implements PingReply {
         @Override
-        public synchronized void reply(com.zeroc.Ice.Current current) {
+        public synchronized void reply(Current current) {
             ++_replies;
             notify();
         }
@@ -43,12 +52,12 @@ public class AllTests {
         private int _replies;
     }
 
-    public static void allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static void allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
 
         communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp");
-        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
+        ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
         PingReplyI replyI = new PingReplyI();
 
         PingReplyPrx reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
@@ -56,7 +65,7 @@ public class AllTests {
 
         out.print("testing udp... ");
         out.flush();
-        com.zeroc.Ice.ObjectPrx base =
+        ObjectPrx base =
                 communicator.stringToProxy("test -d:" + helper.getTestEndpoint(0, "udp"));
         TestIntfPrx obj = TestIntfPrx.uncheckedCast(base);
 
@@ -93,7 +102,7 @@ public class AllTests {
                     obj.sendByteSeq(seq, reply);
                     replyI.waitReply(1, 10000);
                 }
-            } catch (com.zeroc.Ice.DatagramLimitException ex) {
+            } catch (DatagramLimitException ex) {
                 test(seq.length > 16384);
             }
 
@@ -108,7 +117,7 @@ public class AllTests {
                 // small.
                 //
                 test(!replyI.waitReply(1, 500));
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -123,8 +132,8 @@ public class AllTests {
             if ("1".equals(communicator.getProperties().getIceProperty("Ice.IPv6"))) {
                 endpoint.append("udp -h \"ff15::1:1\" -p ");
                 endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
-                if (System.getProperty("os.name").contains("OS X") ||
-                        System.getProperty("os.name").startsWith("Windows")) {
+                if (System.getProperty("os.name").contains("OS X")
+                        || System.getProperty("os.name").startsWith("Windows")) {
                     endpoint.append(
                             " --interface \"::1\""); // Use loopback to prevent other machines to
                     // answer.
@@ -132,8 +141,8 @@ public class AllTests {
             } else {
                 endpoint.append("udp -h 239.255.1.1 -p ");
                 endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
-                if (System.getProperty("os.name").contains("OS X") ||
-                        System.getProperty("os.name").startsWith("Windows")) {
+                if (System.getProperty("os.name").contains("OS X")
+                        || System.getProperty("os.name").startsWith("Windows")) {
                     endpoint.append(
                             " --interface 127.0.0.1"); // Use loopback to prevent other machines to
                     // answer.
@@ -153,7 +162,7 @@ public class AllTests {
                 replyI.reset();
                 try {
                     objMcast.ping(reply);
-                } catch (com.zeroc.Ice.SocketException ex) {
+                } catch (SocketException ex) {
                     if ("1".equals(communicator.getProperties().getIceProperty("Ice.IPv6"))) {
                         // Multicast IPv6 not supported on the platform. This occurs for example on
                         // macOS Big Sur

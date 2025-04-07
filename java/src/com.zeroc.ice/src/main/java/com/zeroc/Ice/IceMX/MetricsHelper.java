@@ -2,6 +2,12 @@
 
 package com.zeroc.Ice.IceMX;
 
+import com.zeroc.Ice.ConnectionInfo;
+import com.zeroc.Ice.EndpointInfo;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class MetricsHelper<T> {
     public static class AttributeResolver {
         private abstract class Resolver {
@@ -103,10 +109,10 @@ public class MetricsHelper<T> {
                 } catch (IllegalArgumentException ex) {
                     // If we're dealing with an endpoint/connection information class,
                     // check if the field is from the underlying info objects.
-                    if (o instanceof com.zeroc.Ice.EndpointInfo) {
-                        o = ((com.zeroc.Ice.EndpointInfo) o).underlying;
-                    } else if (o instanceof com.zeroc.Ice.ConnectionInfo) {
-                        o = ((com.zeroc.Ice.ConnectionInfo) o).underlying;
+                    if (o instanceof EndpointInfo) {
+                        o = ((EndpointInfo) o).underlying;
+                    } else if (o instanceof ConnectionInfo) {
+                        o = ((ConnectionInfo) o).underlying;
                     } else {
                         throw ex;
                     }
@@ -115,7 +121,7 @@ public class MetricsHelper<T> {
             throw new IllegalArgumentException(name);
         }
 
-        private java.util.Map<String, Resolver> _attributes = new java.util.HashMap<>();
+        private Map<String, Resolver> _attributes = new HashMap<>();
     }
 
     protected MetricsHelper(AttributeResolver attributes) {
@@ -134,5 +140,5 @@ public class MetricsHelper<T> {
         return null;
     }
 
-    private AttributeResolver _attributes;
+    private final AttributeResolver _attributes;
 }

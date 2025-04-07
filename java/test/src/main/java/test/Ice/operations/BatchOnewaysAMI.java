@@ -2,6 +2,10 @@
 
 package test.Ice.operations;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 
 import test.Ice.operations.Test.MyClassPrx;
@@ -41,8 +45,8 @@ class BatchOnewaysAMI {
     }
 
     static void batchOneways(MyClassPrx p, PrintWriter out) {
-        final com.zeroc.Ice.Communicator communicator = p.ice_getCommunicator();
-        final com.zeroc.Ice.Properties properties = communicator.getProperties();
+        final Communicator communicator = p.ice_getCommunicator();
+        final Properties properties = communicator.getProperties();
         final byte[] bs1 = new byte[10 * 1024];
 
         MyClassPrx batch = p.ice_batchOneway();
@@ -97,9 +101,9 @@ class BatchOnewaysAMI {
             test(!batch2.ice_pingAsync().isCompletedExceptionally());
         }
 
-        com.zeroc.Ice.Identity identity = new com.zeroc.Ice.Identity();
+        Identity identity = new Identity();
         identity.name = "invalid";
-        com.zeroc.Ice.ObjectPrx batch3 = batch.ice_identity(identity);
+        ObjectPrx batch3 = batch.ice_identity(identity);
         batch3.ice_pingAsync();
         batch3.ice_flushBatchRequestsAsync().join();
 

@@ -2,25 +2,55 @@
 
 package com.zeroc.IceLocatorDiscovery;
 
+import com.zeroc.Ice.BlobjectAsync;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.CommunicatorDestroyedException;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Endpoint;
+import com.zeroc.Ice.EndpointInfo;
+import com.zeroc.Ice.IPEndpointInfo;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.Locator;
+import com.zeroc.Ice.LocatorPrx;
+import com.zeroc.Ice.LocatorRegistryPrx;
 import com.zeroc.Ice.Network;
+import com.zeroc.Ice.NoEndpointException;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectAdapterDeactivatedException;
+import com.zeroc.Ice.ObjectAdapterDestroyedException;
+import com.zeroc.Ice.ObjectNotExistException;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.OperationInterruptedException;
+import com.zeroc.Ice.OperationMode;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.RequestFailedException;
+import com.zeroc.Ice.Time;
+import com.zeroc.Ice.UDPEndpointInfo;
+import com.zeroc.Ice.UnknownException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 class PluginI implements Plugin {
     private static class Request {
         Request(
                 LocatorI locator,
                 String operation,
-                com.zeroc.Ice.OperationMode mode,
+                OperationMode mode,
                 byte[] inParams,
-                java.util.Map<String, String> context,
-                CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> f) {
+                Map<String, String> context,
+                CompletableFuture<Object.Ice_invokeResult> f) {
             _locator = locator;
             _operation = operation;
             _mode = mode;
@@ -29,21 +59,21 @@ class PluginI implements Plugin {
             _future = f;
         }
 
-        void invoke(com.zeroc.Ice.LocatorPrx l) {
+        void invoke(LocatorPrx l) {
             if (_locatorPrx == null || !_locatorPrx.equals(l)) {
                 _locatorPrx = l;
                 try {
-                    final CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> f =
+                    final CompletableFuture<Object.Ice_invokeResult> f =
                             l.ice_invokeAsync(_operation, _mode, _inParams, _context);
                     f.whenComplete(
                             (result, ex) -> {
                                 if (ex != null) {
-                                    exception((com.zeroc.Ice.LocalException) ex);
+                                    exception((LocalException) ex);
                                 } else {
                                     _future.complete(result);
                                 }
                             });
-                } catch (com.zeroc.Ice.LocalException ex) {
+                } catch (LocalException ex) {
                     exception(ex);
                 }
             } else {
@@ -52,63 +82,63 @@ class PluginI implements Plugin {
             }
         }
 
-        private void exception(com.zeroc.Ice.LocalException ex) {
+        private void exception(LocalException ex) {
             try {
                 throw ex;
-            } catch (com.zeroc.Ice.RequestFailedException exc) {
+            } catch (RequestFailedException exc) {
                 _future.completeExceptionally(ex);
-            } catch (com.zeroc.Ice.UnknownException exc) {
+            } catch (UnknownException exc) {
                 _future.completeExceptionally(ex);
-            } catch (com.zeroc.Ice.NoEndpointException exc) {
-                _future.completeExceptionally(new com.zeroc.Ice.ObjectNotExistException());
-            } catch (com.zeroc.Ice.ObjectAdapterDeactivatedException exc) {
-                _future.completeExceptionally(new com.zeroc.Ice.ObjectNotExistException());
-            } catch (com.zeroc.Ice.ObjectAdapterDestroyedException exc) {
-                _future.completeExceptionally(new com.zeroc.Ice.ObjectNotExistException());
-            } catch (com.zeroc.Ice.CommunicatorDestroyedException exc) {
-                _future.completeExceptionally(new com.zeroc.Ice.ObjectNotExistException());
-            } catch (com.zeroc.Ice.LocalException exc) {
+            } catch (NoEndpointException exc) {
+                _future.completeExceptionally(new ObjectNotExistException());
+            } catch (ObjectAdapterDeactivatedException exc) {
+                _future.completeExceptionally(new ObjectNotExistException());
+            } catch (ObjectAdapterDestroyedException exc) {
+                _future.completeExceptionally(new ObjectNotExistException());
+            } catch (CommunicatorDestroyedException exc) {
+                _future.completeExceptionally(new ObjectNotExistException());
+            } catch (LocalException exc) {
                 _exception = exc;
                 _locator.invoke(_locatorPrx, Request.this); // Retry with new locator proxy
             }
         }
 
         private final LocatorI _locator;
-        private com.zeroc.Ice.LocalException _exception;
+        private LocalException _exception;
         private final String _operation;
-        private final com.zeroc.Ice.OperationMode _mode;
-        private final java.util.Map<String, String> _context;
+        private final OperationMode _mode;
+        private final Map<String, String> _context;
         private final byte[] _inParams;
-        private final CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> _future;
+        private final CompletableFuture<Object.Ice_invokeResult> _future;
 
-        private com.zeroc.Ice.LocatorPrx _locatorPrx;
+        private LocatorPrx _locatorPrx;
     }
 
-    private static class VoidLocatorI implements com.zeroc.Ice.Locator {
+    private static class VoidLocatorI implements Locator {
         @Override
-        public CompletionStage<com.zeroc.Ice.ObjectPrx> findObjectByIdAsync(
-                com.zeroc.Ice.Identity id, com.zeroc.Ice.Current current) {
-            return CompletableFuture.completedFuture((com.zeroc.Ice.ObjectPrx) null);
+        public CompletionStage<ObjectPrx> findObjectByIdAsync(
+                Identity id, Current current) {
+            return CompletableFuture.completedFuture((ObjectPrx) null);
         }
 
         @Override
-        public CompletionStage<com.zeroc.Ice.ObjectPrx> findAdapterByIdAsync(
-                String id, com.zeroc.Ice.Current current) {
-            return CompletableFuture.completedFuture((com.zeroc.Ice.ObjectPrx) null);
+        public CompletionStage<ObjectPrx> findAdapterByIdAsync(
+                String id, Current current) {
+            return CompletableFuture.completedFuture((ObjectPrx) null);
         }
 
         @Override
-        public com.zeroc.Ice.LocatorRegistryPrx getRegistry(com.zeroc.Ice.Current current) {
+        public LocatorRegistryPrx getRegistry(Current current) {
             return null;
         }
     }
 
-    private static class LocatorI implements com.zeroc.Ice.BlobjectAsync {
+    private static class LocatorI implements BlobjectAsync {
         LocatorI(
                 LookupPrx lookup,
-                com.zeroc.Ice.Properties properties,
+                Properties properties,
                 String instanceName,
-                com.zeroc.Ice.LocatorPrx voidLocator) {
+                LocatorPrx voidLocator) {
             _lookup = lookup;
             _timeout = properties.getIcePropertyAsInt("IceLocatorDiscovery.Timeout");
             if (_timeout < 0) {
@@ -136,8 +166,8 @@ class PluginI implements Plugin {
             // Create one lookup proxy per endpoint from the given proxy. We want to send a
             // multicast
             // datagram on each endpoint.
-            com.zeroc.Ice.Endpoint[] single = new com.zeroc.Ice.Endpoint[1];
-            for (com.zeroc.Ice.Endpoint endpt : lookup.ice_getEndpoints()) {
+            Endpoint[] single = new Endpoint[1];
+            for (Endpoint endpt : lookup.ice_getEndpoints()) {
                 single[0] = endpt;
                 _lookups.put((LookupPrx) lookup.ice_endpoints(single), null);
             }
@@ -147,16 +177,16 @@ class PluginI implements Plugin {
         public void setLookupReply(LookupReplyPrx lookupReply) {
             // Use a lookup reply proxy whose address matches the interface used to send multicast
             // datagrams.
-            com.zeroc.Ice.Endpoint[] single = new com.zeroc.Ice.Endpoint[1];
+            Endpoint[] single = new Endpoint[1];
             for (Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet()) {
-                com.zeroc.Ice.UDPEndpointInfo info =
-                        (com.zeroc.Ice.UDPEndpointInfo)
+                UDPEndpointInfo info =
+                        (UDPEndpointInfo)
                                 entry.getKey().ice_getEndpoints()[0].getInfo();
                 if (!info.mcastInterface.isEmpty()) {
-                    for (com.zeroc.Ice.Endpoint q : lookupReply.ice_getEndpoints()) {
-                        com.zeroc.Ice.EndpointInfo r = q.getInfo();
-                        if (r instanceof com.zeroc.Ice.IPEndpointInfo &&
-                                ((com.zeroc.Ice.IPEndpointInfo) r)
+                    for (Endpoint q : lookupReply.ice_getEndpoints()) {
+                        EndpointInfo r = q.getInfo();
+                        if (r instanceof IPEndpointInfo
+                                && ((IPEndpointInfo) r)
                                         .host.equals(info.mcastInterface)) {
                             single[0] = q;
                             entry.setValue((LookupReplyPrx) lookupReply.ice_endpoints(single));
@@ -173,16 +203,16 @@ class PluginI implements Plugin {
         }
 
         @Override
-        public CompletionStage<com.zeroc.Ice.Object.Ice_invokeResult> ice_invokeAsync(
-                byte[] inParams, com.zeroc.Ice.Current current) {
-            CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> f = new CompletableFuture<>();
+        public CompletionStage<Object.Ice_invokeResult> ice_invokeAsync(
+                byte[] inParams, Current current) {
+            CompletableFuture<Object.Ice_invokeResult> f = new CompletableFuture<>();
             invoke(
                     null,
                     new Request(this, current.operation, current.mode, inParams, current.ctx, f));
             return f;
         }
 
-        public List<com.zeroc.Ice.LocatorPrx> getLocators(String instanceName, int waitTime) {
+        public List<LocatorPrx> getLocators(String instanceName, int waitTime) {
             // Clear locators from previous search.
             synchronized (this) {
                 _locators.clear();
@@ -203,7 +233,7 @@ class PluginI implements Plugin {
                     }
                 }
             } catch (InterruptedException ex) {
-                throw new com.zeroc.Ice.OperationInterruptedException(ex);
+                throw new OperationInterruptedException(ex);
             }
 
             // Return found locators
@@ -212,7 +242,7 @@ class PluginI implements Plugin {
             }
         }
 
-        public synchronized void foundLocator(com.zeroc.Ice.LocatorPrx locator) {
+        public synchronized void foundLocator(LocatorPrx locator) {
             if (locator == null) {
                 if (_traceLevel > 2) {
                     _lookup.ice_getCommunicator()
@@ -222,8 +252,8 @@ class PluginI implements Plugin {
                 return;
             }
 
-            if (!_instanceName.isEmpty() &&
-                    !locator.ice_getIdentity().category.equals(_instanceName)) {
+            if (!_instanceName.isEmpty()
+                    && !locator.ice_getIdentity().category.equals(_instanceName)) {
                 if (_traceLevel > 2) {
                     StringBuffer s =
                             new StringBuffer(
@@ -237,9 +267,9 @@ class PluginI implements Plugin {
 
             // If we already have a locator assigned, ensure the given locator has the same
             // identity, otherwise ignore it.
-            if (!_pendingRequests.isEmpty() &&
-                    _locator != null &&
-                    !locator.ice_getIdentity()
+            if (!_pendingRequests.isEmpty()
+                    && _locator != null
+                    && !locator.ice_getIdentity()
                             .category
                             .equals(_locator.ice_getIdentity().category)) {
                 if (!_warned) {
@@ -248,17 +278,17 @@ class PluginI implements Plugin {
                     locator.ice_getCommunicator()
                             .getLogger()
                             .warning(
-                                    "received Ice locator with different instance name:\n" +
-                                            "using = `" +
-                                            _locator.ice_getIdentity().category +
-                                            "'\n" +
-                                            "received = `" +
-                                            locator.ice_getIdentity().category +
-                                            "'\n" +
-                                            "This is typically the case if multiple Ice locators" +
-                                            " with different instance names are deployed and the" +
-                                            " property `IceLocatorDiscovery.InstanceName'is not" +
-                                            " set.");
+                                    "received Ice locator with different instance name:\n"
+                                            + "using = `"
+                                            + _locator.ice_getIdentity().category
+                                            + "'\n"
+                                            + "received = `"
+                                            + locator.ice_getIdentity().category
+                                            + "'\n"
+                                            + "This is typically the case if multiple Ice locators"
+                                            + " with different instance names are deployed and the"
+                                            + " property `IceLocatorDiscovery.InstanceName'is not"
+                                            + " set.");
                 }
                 return;
             }
@@ -280,19 +310,19 @@ class PluginI implements Plugin {
                 _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
             }
 
-            com.zeroc.Ice.LocatorPrx l =
-                    _pendingRequests.isEmpty() ?
-                            _locators.get(locator.ice_getIdentity().category)
+            LocatorPrx l =
+                    _pendingRequests.isEmpty()
+                            ? _locators.get(locator.ice_getIdentity().category)
                             : _locator;
             if (l != null) {
                 // We found another locator replica, append its endpoints to the
                 // current locator proxy endpoints.
-                List<com.zeroc.Ice.Endpoint> newEndpoints =
+                List<Endpoint> newEndpoints =
                         new ArrayList<>(Arrays.asList(l.ice_getEndpoints()));
-                for (com.zeroc.Ice.Endpoint p : locator.ice_getEndpoints()) {
+                for (Endpoint p : locator.ice_getEndpoints()) {
                     // Only add endpoints if not already in the locator proxy endpoints
                     boolean found = false;
-                    for (com.zeroc.Ice.Endpoint q : newEndpoints) {
+                    for (Endpoint q : newEndpoints) {
                         if (p.equals(q)) {
                             found = true;
                             break;
@@ -303,10 +333,10 @@ class PluginI implements Plugin {
                     }
                 }
                 l =
-                        (com.zeroc.Ice.LocatorPrx)
+                        (LocatorPrx)
                                 l.ice_endpoints(
                                         newEndpoints.toArray(
-                                                new com.zeroc.Ice.Endpoint[newEndpoints.size()]));
+                                                new Endpoint[newEndpoints.size()]));
             } else {
                 l = locator;
             }
@@ -329,11 +359,11 @@ class PluginI implements Plugin {
             }
         }
 
-        public synchronized void invoke(com.zeroc.Ice.LocatorPrx locator, Request request) {
+        public synchronized void invoke(LocatorPrx locator, Request request) {
             if (request != null && _locator != null && _locator != locator) {
                 request.invoke(_locator);
-            } else if (request != null &&
-                    com.zeroc.Ice.Time.currentMonotonicTimeMillis() < _nextRetry) {
+            } else if (request != null
+                    && Time.currentMonotonicTimeMillis() < _nextRetry) {
                 request.invoke(
                         _voidLocator); // Don't retry to find a locator before the retry delay
                 // expires
@@ -374,8 +404,8 @@ class PluginI implements Plugin {
                                 _timer.schedule(
                                         _retryTask,
                                         _timeout,
-                                        java.util.concurrent.TimeUnit.MILLISECONDS);
-                    } catch (com.zeroc.Ice.LocalException ex) {
+                                        TimeUnit.MILLISECONDS);
+                    } catch (LocalException ex) {
                         if (_traceLevel > 0) {
                             StringBuilder s =
                                     new StringBuilder("locator lookup failed:\nlookup = ");
@@ -484,9 +514,9 @@ class PluginI implements Plugin {
                                             _timer.schedule(
                                                     _retryTask,
                                                     _timeout,
-                                                    java.util.concurrent.TimeUnit.MILLISECONDS);
+                                                    TimeUnit.MILLISECONDS);
                                     return;
-                                } catch (com.zeroc.Ice.LocalException ex) {
+                                } catch (LocalException ex) {
                                 }
                                 _pendingRetryCount = 0;
                             }
@@ -515,25 +545,25 @@ class PluginI implements Plugin {
                                 _pendingRequests.clear();
                             }
                             _nextRetry =
-                                    com.zeroc.Ice.Time.currentMonotonicTimeMillis() + _retryDelay;
+                                    Time.currentMonotonicTimeMillis() + _retryDelay;
                         }
                     }
                 };
 
         private final LookupPrx _lookup;
-        private final Map<LookupPrx, LookupReplyPrx> _lookups = new java.util.HashMap<>();
+        private final Map<LookupPrx, LookupReplyPrx> _lookups = new HashMap<>();
         private int _timeout;
-        private java.util.concurrent.Future<?> _future;
-        private final java.util.concurrent.ScheduledExecutorService _timer;
+        private Future<?> _future;
+        private final ScheduledExecutorService _timer;
         private final int _traceLevel;
         private int _retryCount;
         private int _retryDelay;
 
         private String _instanceName;
         private boolean _warned;
-        private com.zeroc.Ice.LocatorPrx _locator;
-        private com.zeroc.Ice.LocatorPrx _voidLocator;
-        private Map<String, com.zeroc.Ice.LocatorPrx> _locators = new HashMap<>();
+        private LocatorPrx _locator;
+        private LocatorPrx _voidLocator;
+        private Map<String, LocatorPrx> _locators = new HashMap<>();
 
         private boolean _pending;
         private int _pendingRetryCount;
@@ -549,20 +579,20 @@ class PluginI implements Plugin {
         }
 
         @Override
-        public void foundLocator(com.zeroc.Ice.LocatorPrx locator, com.zeroc.Ice.Current curr) {
+        public void foundLocator(LocatorPrx locator, Current curr) {
             _locator.foundLocator(locator);
         }
 
         private final LocatorI _locator;
     }
 
-    public PluginI(com.zeroc.Ice.Communicator communicator) {
+    public PluginI(Communicator communicator) {
         _communicator = communicator;
     }
 
     @Override
     public void initialize() {
-        com.zeroc.Ice.Properties properties = _communicator.getProperties();
+        Properties properties = _communicator.getProperties();
 
         boolean ipv4 = properties.getIcePropertyAsInt("Ice.IPv4") > 0;
         boolean preferIPv6 = properties.getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
@@ -576,7 +606,7 @@ class PluginI implements Plugin {
         String lookupEndpoints = properties.getIceProperty("IceLocatorDiscovery.Lookup");
         if (lookupEndpoints.isEmpty()) {
             int protocol = ipv4 && !preferIPv6 ? Network.EnableIPv4 : Network.EnableIPv6;
-            java.util.List<String> interfaces = Network.getInterfacesForMulticast(intf, protocol);
+            List<String> interfaces = Network.getInterfacesForMulticast(intf, protocol);
             for (String p : interfaces) {
                 if (p != interfaces.get(0)) {
                     lookupEndpoints += ":";
@@ -595,7 +625,7 @@ class PluginI implements Plugin {
         if (properties.getIceProperty("IceLocatorDiscovery.Locator.Endpoints").isEmpty()) {
             properties.setProperty(
                     "IceLocatorDiscovery.Locator.AdapterId",
-                    java.util.UUID.randomUUID().toString());
+                    UUID.randomUUID().toString());
         }
 
         _replyAdapter = _communicator.createObjectAdapter("IceLocatorDiscovery.Reply");
@@ -605,27 +635,27 @@ class PluginI implements Plugin {
         _replyAdapter.setLocator(null);
         _locatorAdapter.setLocator(null);
 
-        com.zeroc.Ice.ObjectPrx lookupPrx =
+        ObjectPrx lookupPrx =
                 _communicator.stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
         // No collocation optimization or router for the multicast proxy!
         lookupPrx = lookupPrx.ice_collocationOptimized(false).ice_router(null);
 
-        com.zeroc.Ice.LocatorPrx voidLoc =
-                com.zeroc.Ice.LocatorPrx.uncheckedCast(
+        LocatorPrx voidLoc =
+                LocatorPrx.uncheckedCast(
                         _locatorAdapter.addWithUUID(new VoidLocatorI()));
 
         String instanceName = properties.getIceProperty("IceLocatorDiscovery.InstanceName");
-        com.zeroc.Ice.Identity id = new com.zeroc.Ice.Identity();
+        Identity id = new Identity();
         id.name = "Locator";
         id.category =
-                !instanceName.isEmpty() ? instanceName : java.util.UUID.randomUUID().toString();
+                !instanceName.isEmpty() ? instanceName : UUID.randomUUID().toString();
         _locator =
                 new LocatorI(LookupPrx.uncheckedCast(lookupPrx), properties, instanceName, voidLoc);
         _defaultLocator = _communicator.getDefaultLocator();
-        _locatorPrx = com.zeroc.Ice.LocatorPrx.uncheckedCast(_locatorAdapter.add(_locator, id));
+        _locatorPrx = LocatorPrx.uncheckedCast(_locatorAdapter.add(_locator, id));
         _communicator.setDefaultLocator(_locatorPrx);
 
-        com.zeroc.Ice.ObjectPrx lookupReply =
+        ObjectPrx lookupReply =
                 _replyAdapter.addWithUUID(new LookupReplyI(_locator)).ice_datagram();
         _locator.setLookupReply(LookupReplyPrx.uncheckedCast(lookupReply));
 
@@ -647,14 +677,14 @@ class PluginI implements Plugin {
         }
     }
 
-    public List<com.zeroc.Ice.LocatorPrx> getLocators(String instanceName, int waitTime) {
+    public List<LocatorPrx> getLocators(String instanceName, int waitTime) {
         return _locator.getLocators(instanceName, waitTime);
     }
 
-    private com.zeroc.Ice.Communicator _communicator;
-    private com.zeroc.Ice.ObjectAdapter _locatorAdapter;
-    private com.zeroc.Ice.ObjectAdapter _replyAdapter;
+    private final Communicator _communicator;
+    private ObjectAdapter _locatorAdapter;
+    private ObjectAdapter _replyAdapter;
     private LocatorI _locator;
-    private com.zeroc.Ice.LocatorPrx _locatorPrx;
-    private com.zeroc.Ice.LocatorPrx _defaultLocator;
+    private LocatorPrx _locatorPrx;
+    private LocatorPrx _defaultLocator;
 }

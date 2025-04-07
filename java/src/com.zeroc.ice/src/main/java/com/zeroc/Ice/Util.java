@@ -2,6 +2,13 @@
 
 package com.zeroc.Ice;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadFactory;
 
 /** Utility methods for the Ice run time. */
@@ -48,7 +55,7 @@ public final class Util {
      * @deprecated Use {@link Properties#Properties(String[], java.util.List)} instead.
      */
     @Deprecated
-    public static Properties createProperties(String[] args, java.util.List<String> remainingArgs) {
+    public static Properties createProperties(String[] args, List<String> remainingArgs) {
         return new Properties(args, null, remainingArgs);
     }
 
@@ -90,7 +97,7 @@ public final class Util {
      */
     @Deprecated
     public static Properties createProperties(
-            String[] args, Properties defaults, java.util.List<String> remainingArgs) {
+            String[] args, Properties defaults, List<String> remainingArgs) {
         return new Properties(args, defaults, remainingArgs);
     }
 
@@ -123,7 +130,7 @@ public final class Util {
      *     arguments that were not used to set properties.
      * @return The new communicator.
      */
-    public static Communicator initialize(String[] args, java.util.List<String> remainingArgs) {
+    public static Communicator initialize(String[] args, List<String> remainingArgs) {
         return initialize(args, (InitializationData) null, remainingArgs);
     }
 
@@ -174,7 +181,7 @@ public final class Util {
      * @see InitializationData
      */
     public static Communicator initialize(
-            String[] args, InitializationData initData, java.util.List<String> remainingArgs) {
+            String[] args, InitializationData initData, List<String> remainingArgs) {
         if (initData == null) {
             initData = new InitializationData();
         } else {
@@ -182,7 +189,7 @@ public final class Util {
         }
 
         if (args != null) {
-            java.util.List<String> rArgs = new java.util.ArrayList<>();
+            List<String> rArgs = new ArrayList<>();
             initData.properties = createProperties(args, initData.properties, rArgs);
             args = rArgs.toArray(new String[rArgs.size()]);
         }
@@ -203,7 +210,7 @@ public final class Util {
      * @return The new communicator.
      */
     public static Communicator initialize(
-            String[] args, String configFile, java.util.List<String> remainingArgs) {
+            String[] args, String configFile, List<String> remainingArgs) {
         InitializationData initData = null;
         if (configFile != null) {
             initData = new InitializationData();
@@ -289,9 +296,9 @@ public final class Util {
         if (ident.category == null || ident.category.isEmpty()) {
             return StringUtil.escapeString(ident.name, "/", toStringMode);
         } else {
-            return StringUtil.escapeString(ident.category, "/", toStringMode) +
-                    '/' +
-                    StringUtil.escapeString(ident.name, "/", toStringMode);
+            return StringUtil.escapeString(ident.category, "/", toStringMode)
+                    + '/'
+                    + StringUtil.escapeString(ident.name, "/", toStringMode);
         }
     }
 
@@ -493,7 +500,7 @@ public final class Util {
      * @return The InvocationFuture object.
      */
     public static <T> InvocationFuture<T> getInvocationFuture(
-            java.util.concurrent.CompletableFuture<T> f) {
+            CompletableFuture<T> f) {
         if (!(f instanceof InvocationFuture)) {
             throw new IllegalArgumentException(
                     "future did not originate from an asynchronous proxy invocation");
@@ -545,7 +552,7 @@ public final class Util {
     }
 
     static ThreadFactory createThreadFactory(final Properties properties, final String name) {
-        return new java.util.concurrent.ThreadFactory() {
+        return new ThreadFactory() {
             @Override
             public Thread newThread(Runnable r) {
                 Thread t = new Thread(r);
@@ -573,8 +580,8 @@ public final class Util {
      *
      * @hidden Public because it's used by SSL.
      */
-    public static java.io.InputStream openResource(ClassLoader cl, String path)
-            throws java.io.IOException {
+    public static InputStream openResource(ClassLoader cl, String path)
+            throws IOException {
         //
         // Calling getResourceAsStream on the class loader means all paths are absolute,
         // whereas calling it on the class means all paths are relative to the class
@@ -582,7 +589,7 @@ public final class Util {
         //
         // getResourceAsStream returns null if the resource can't be found.
         //
-        java.io.InputStream stream = null;
+        InputStream stream = null;
         try {
             stream = cl.getResourceAsStream(path);
         } catch (IllegalArgumentException ex) {
@@ -598,9 +605,9 @@ public final class Util {
         }
         if (stream == null) {
             try {
-                java.io.File f = new java.io.File(path);
+                File f = new File(path);
                 if (f.exists()) {
-                    stream = new java.io.FileInputStream(f);
+                    stream = new FileInputStream(f);
                 }
             } catch (java.lang.SecurityException ex) {
                 // Ignore - a security manager may forbid access to the local file system.
@@ -684,18 +691,18 @@ public final class Util {
     private static int getThreadPriorityProperty(Properties properties, String prefix) {
         String pri = properties.getProperty(prefix + ".ThreadPriority");
         if ("MIN_PRIORITY".equals(pri) || "java.lang.Thread.MIN_PRIORITY".equals(pri)) {
-            return java.lang.Thread.MIN_PRIORITY;
+            return Thread.MIN_PRIORITY;
         } else if ("NORM_PRIORITY".equals(pri) || "java.lang.Thread.NORM_PRIORITY".equals(pri)) {
-            return java.lang.Thread.NORM_PRIORITY;
+            return Thread.NORM_PRIORITY;
         } else if ("MAX_PRIORITY".equals(pri) || "java.lang.Thread.MAX_PRIORITY".equals(pri)) {
-            return java.lang.Thread.MAX_PRIORITY;
+            return Thread.MAX_PRIORITY;
         }
 
         try {
             return Integer.parseInt(pri);
         } catch (NumberFormatException ex) {
         }
-        return java.lang.Thread.NORM_PRIORITY;
+        return Thread.NORM_PRIORITY;
     }
 
     /**
@@ -762,7 +769,7 @@ public final class Util {
     public static final EncodingVersion Encoding_1_0 = new EncodingVersion((byte) 1, (byte) 0);
     public static final EncodingVersion Encoding_1_1 = new EncodingVersion((byte) 1, (byte) 1);
 
-    private static java.lang.Object _processLoggerMutex = new java.lang.Object();
+    private static final java.lang.Object _processLoggerMutex = new java.lang.Object();
     private static Logger _processLogger;
 
     private Util() {

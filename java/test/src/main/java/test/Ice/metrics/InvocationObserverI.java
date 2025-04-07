@@ -2,8 +2,15 @@
 
 package test.Ice.metrics;
 
+import com.zeroc.Ice.ConnectionInfo;
+import com.zeroc.Ice.Endpoint;
+import com.zeroc.Ice.Instrumentation.CollocatedObserver;
+import com.zeroc.Ice.Instrumentation.InvocationObserver;
+import com.zeroc.Ice.Instrumentation.RemoteObserver;
+import com.zeroc.Ice.ObjectAdapter;
+
 class InvocationObserverI extends ObserverI
-        implements com.zeroc.Ice.Instrumentation.InvocationObserver {
+        implements InvocationObserver {
     @Override
     public synchronized void reset() {
         super.reset();
@@ -28,8 +35,8 @@ class InvocationObserverI extends ObserverI
     }
 
     @Override
-    public synchronized com.zeroc.Ice.Instrumentation.RemoteObserver getRemoteObserver(
-            com.zeroc.Ice.ConnectionInfo c, com.zeroc.Ice.Endpoint e, int a, int b) {
+    public synchronized RemoteObserver getRemoteObserver(
+            ConnectionInfo c, Endpoint e, int a, int b) {
         if (remoteObserver == null) {
             remoteObserver = new RemoteObserverI();
             remoteObserver.reset();
@@ -38,8 +45,8 @@ class InvocationObserverI extends ObserverI
     }
 
     @Override
-    public synchronized com.zeroc.Ice.Instrumentation.CollocatedObserver getCollocatedObserver(
-            com.zeroc.Ice.ObjectAdapter adapter, int a, int b) {
+    public synchronized CollocatedObserver getCollocatedObserver(
+            ObjectAdapter adapter, int a, int b) {
         if (collocatedObserver == null) {
             collocatedObserver = new CollocatedObserverI();
             collocatedObserver.reset();

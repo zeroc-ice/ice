@@ -2,7 +2,9 @@
 
 package com.zeroc.Ice;
 
+import java.net.InetSocketAddress;
 import java.time.Duration;
+import java.util.Optional;
 
 final class DefaultsAndOverrides {
     DefaultsAndOverrides(Properties properties) {
@@ -37,17 +39,17 @@ final class DefaultsAndOverrides {
                         "warning: bzip2 support not available, Ice.Override.Compress ignored");
                 b = false;
             }
-            overrideCompress = java.util.Optional.of(b);
+            overrideCompress = Optional.of(b);
         } else {
-            overrideCompress = java.util.Optional.empty();
+            overrideCompress = Optional.empty();
         }
 
         value = properties.getIceProperty("Ice.Override.Secure");
         if (!value.isEmpty()) {
             boolean overrideSecureValue = properties.getIcePropertyAsInt("Ice.Override.Secure") > 0;
-            overrideSecure = java.util.Optional.of(overrideSecureValue);
+            overrideSecure = Optional.of(overrideSecureValue);
         } else {
-            overrideSecure = java.util.Optional.empty();
+            overrideSecure = Optional.empty();
         }
 
         defaultCollocationOptimization =
@@ -60,9 +62,9 @@ final class DefaultsAndOverrides {
             defaultEndpointSelection = EndpointSelectionType.Ordered;
         } else {
             throw new ParseException(
-                    "illegal value '" +
-                            value +
-                            "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
+                    "illegal value '"
+                            + value
+                            + "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
         }
 
         intValue = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
@@ -90,7 +92,7 @@ final class DefaultsAndOverrides {
     }
 
     public final String defaultHost;
-    public final java.net.InetSocketAddress defaultSourceAddress;
+    public final InetSocketAddress defaultSourceAddress;
     public final String defaultProtocol;
     public final boolean defaultCollocationOptimization;
     public final EndpointSelectionType defaultEndpointSelection;
@@ -100,6 +102,6 @@ final class DefaultsAndOverrides {
     public final EncodingVersion defaultEncoding;
     public final FormatType defaultFormat;
 
-    public final java.util.Optional<Boolean> overrideCompress;
-    public final java.util.Optional<Boolean> overrideSecure;
+    public final Optional<Boolean> overrideCompress;
+    public final Optional<Boolean> overrideSecure;
 }

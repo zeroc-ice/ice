@@ -5,6 +5,9 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.Instrumentation.InvocationObserver;
 
+import java.util.HashMap;
+import java.util.Map;
+
 final class ObserverHelper {
     public static InvocationObserver get(Instance instance, String op) {
         CommunicatorObserver obsv = instance.initializationData().observer;
@@ -23,7 +26,7 @@ final class ObserverHelper {
     }
 
     public static InvocationObserver get(
-            ObjectPrx proxy, String op, java.util.Map<String, String> context) {
+            ObjectPrx proxy, String op, Map<String, String> context) {
         CommunicatorObserver obsv =
                 ((_ObjectPrxI) proxy)._getReference().getInstance().initializationData().observer;
         if (obsv != null) {
@@ -41,7 +44,7 @@ final class ObserverHelper {
         return null;
     }
 
-    private static final java.util.Map<String, String> _emptyContext = new java.util.HashMap<>();
+    private static final Map<String, String> _emptyContext = new HashMap<>();
 
     private ObserverHelper() {
     }

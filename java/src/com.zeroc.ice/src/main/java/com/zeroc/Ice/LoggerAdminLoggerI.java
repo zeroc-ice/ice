@@ -2,6 +2,11 @@
 
 package com.zeroc.Ice;
 
+import java.util.ArrayDeque;
+import java.util.Calendar;
+import java.util.Deque;
+import java.util.List;
+
 final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     @Override
     public void print(String message) {
@@ -43,7 +48,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     }
 
     @Override
-    public com.zeroc.Ice.Object getFacet() {
+    public Object getFacet() {
         return _loggerAdmin;
     }
 
@@ -132,9 +137,9 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
                                             if (_loggerAdmin.getTraceLevel() > 1) {
                                                 _localLogger.trace(
                                                         _traceCategory,
-                                                        "log on `" +
-                                                                p.toString() +
-                                                                "' completed successfully");
+                                                        "log on `"
+                                                                + p.toString()
+                                                                + "' completed successfully");
                                             }
                                         }
                                     });
@@ -164,7 +169,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     }
 
     void log(LogMessage logMessage) {
-        java.util.List<RemoteLoggerPrx> remoteLoggers = _loggerAdmin.log(logMessage);
+        List<RemoteLoggerPrx> remoteLoggers = _loggerAdmin.log(logMessage);
 
         if (remoteLoggers != null) {
             assert (!remoteLoggers.isEmpty());
@@ -182,16 +187,16 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     }
 
     private static long now() {
-        return java.util.Calendar.getInstance().getTimeInMillis() * 1000;
+        return Calendar.getInstance().getTimeInMillis() * 1000;
     }
 
     private static class Job {
-        Job(java.util.List<RemoteLoggerPrx> r, LogMessage l) {
+        Job(List<RemoteLoggerPrx> r, LogMessage l) {
             remoteLoggers = r;
             logMessage = l;
         }
 
-        final java.util.List<RemoteLoggerPrx> remoteLoggers;
+        final List<RemoteLoggerPrx> remoteLoggers;
         final LogMessage logMessage;
     }
 
@@ -199,7 +204,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     private final LoggerAdminI _loggerAdmin;
     private boolean _destroyed;
     private Thread _sendLogThread;
-    private final java.util.Deque<Job> _jobQueue = new java.util.ArrayDeque<>();
+    private final Deque<Job> _jobQueue = new ArrayDeque<>();
 
     private static final String _traceCategory = "Admin.Logger";
 }

@@ -6,6 +6,9 @@ import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
@@ -64,9 +67,9 @@ class ServerTemplate extends Communicator {
         } else {
             Object clipboard = getCoordinator().getClipboard();
             actions[PASTE] =
-                    clipboard != null &&
-                            ((isIceBox() && (clipboard instanceof ServiceInstanceDescriptor)) ||
-                                    (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy)));
+                    clipboard != null
+                            && ((isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
+                                    || (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy)));
         }
 
         actions[DELETE] = true;
@@ -183,9 +186,9 @@ class ServerTemplate extends Communicator {
     }
 
     @Override
-    void write(XMLWriter writer) throws java.io.IOException {
+    void write(XMLWriter writer) throws IOException {
         if (!_ephemeral) {
-            java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
+            List<String[]> attributes = new LinkedList<String[]>();
             attributes.add(createAttribute("id", _id));
             writer.writeStartTag("server-template", attributes);
             writeParameters(
@@ -277,7 +280,7 @@ class ServerTemplate extends Communicator {
     }
 
     @Override
-    java.util.List<? extends TemplateInstance> findInstances() {
+    List<? extends TemplateInstance> findInstances() {
         return getRoot().findServerInstances(_id);
     }
 

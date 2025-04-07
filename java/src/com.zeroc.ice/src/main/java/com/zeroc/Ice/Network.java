@@ -2,6 +2,18 @@
 
 package com.zeroc.Ice;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.*;
+import java.nio.channels.DatagramChannel;
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 /**
  * @hidden Public because it's used by IceDiscovery and IceLocatorDiscovery.
  */
@@ -11,42 +23,42 @@ public final class Network {
     public static final int EnableIPv6 = 1;
     public static final int EnableBoth = 2;
 
-    private static java.util.regex.Pattern IPV4_PATTERN;
-    private static java.util.regex.Pattern IPV6_PATTERN;
+    private static Pattern IPV4_PATTERN;
+    private static Pattern IPV6_PATTERN;
     private static final String ipv4Pattern =
             "(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])";
     private static final String ipv6Pattern =
-            "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-" +
-                    "fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1" +
-                    ",4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1," +
-                    "4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-" +
-                    "F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])" +
-                    "\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}" +
-                    "[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))";
+            "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-"
+                    + "fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1"
+                    + ",4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,"
+                    + "4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-"
+                    + "F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])"
+                    + "\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}"
+                    + "[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))";
 
     static {
         try {
             IPV4_PATTERN =
-                    java.util.regex.Pattern.compile(
-                            ipv4Pattern, java.util.regex.Pattern.CASE_INSENSITIVE);
+                    Pattern.compile(
+                            ipv4Pattern, Pattern.CASE_INSENSITIVE);
             IPV6_PATTERN =
-                    java.util.regex.Pattern.compile(
-                            ipv6Pattern, java.util.regex.Pattern.CASE_INSENSITIVE);
-        } catch (java.util.regex.PatternSyntaxException ex) {
+                    Pattern.compile(
+                            ipv6Pattern, Pattern.CASE_INSENSITIVE);
+        } catch (PatternSyntaxException ex) {
             assert false;
         }
     }
 
     public static boolean isNumericAddress(String ipAddress) {
-        java.util.regex.Matcher ipv4 = IPV4_PATTERN.matcher(ipAddress);
+        Matcher ipv4 = IPV4_PATTERN.matcher(ipAddress);
         if (ipv4.matches()) {
             return true;
         }
-        java.util.regex.Matcher ipv6 = IPV6_PATTERN.matcher(ipAddress);
+        Matcher ipv6 = IPV6_PATTERN.matcher(ipAddress);
         return ipv6.matches();
     }
 
-    public static boolean connectionRefused(java.net.ConnectException ex) {
+    public static boolean connectionRefused(ConnectException ex) {
         //
         // The JDK raises a generic ConnectException when the server
         // actively refuses a connection. Unfortunately, our only choice is to search the exception
@@ -87,68 +99,68 @@ public final class Network {
 
     public static boolean isIPv6Supported() {
         try {
-            java.net.Socket socket = new java.net.Socket();
-            socket.bind(new java.net.InetSocketAddress(java.net.InetAddress.getByName("::1"), 0));
+            Socket socket = new Socket();
+            socket.bind(new InetSocketAddress(InetAddress.getByName("::1"), 0));
             socket.close();
             return true;
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             return false;
         }
     }
 
-    public static java.nio.channels.SocketChannel createTcpSocket() {
+    public static SocketChannel createTcpSocket() {
         try {
-            java.nio.channels.SocketChannel fd = java.nio.channels.SocketChannel.open();
-            java.net.Socket socket = fd.socket();
+            SocketChannel fd = SocketChannel.open();
+            Socket socket = fd.socket();
             socket.setTcpNoDelay(true);
             socket.setKeepAlive(true);
             return fd;
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             throw new SocketException(ex);
         }
     }
 
-    public static java.nio.channels.ServerSocketChannel createTcpServerSocket() {
+    public static ServerSocketChannel createTcpServerSocket() {
         try {
-            java.nio.channels.ServerSocketChannel fd = java.nio.channels.ServerSocketChannel.open();
+            ServerSocketChannel fd = ServerSocketChannel.open();
             // It's not possible to set TCP_NODELAY or KEEP_ALIVE on a server socket in Java
             //
             // java.net.Socket socket = fd.socket();
             // socket.setTcpNoDelay(true); socket.setKeepAlive(true);
             return fd;
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             throw new SocketException(ex);
         }
     }
 
-    public static java.nio.channels.DatagramChannel createUdpSocket(
-            java.net.InetSocketAddress addr) {
+    public static DatagramChannel createUdpSocket(
+            InetSocketAddress addr) {
         try {
             if (addr.getAddress().isMulticastAddress()) {
                 var familyStr =
-                        addr.getAddress() instanceof java.net.Inet6Address ? "INET6" : "INET";
-                var family = java.net.StandardProtocolFamily.valueOf(familyStr);
-                return java.nio.channels.DatagramChannel.open(family);
+                        addr.getAddress() instanceof Inet6Address ? "INET6" : "INET";
+                var family = StandardProtocolFamily.valueOf(familyStr);
+                return DatagramChannel.open(family);
             } else {
-                return java.nio.channels.DatagramChannel.open();
+                return DatagramChannel.open();
             }
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             throw new SocketException(ex);
         }
     }
 
-    public static void closeSocketNoThrow(java.nio.channels.SelectableChannel fd) {
+    public static void closeSocketNoThrow(SelectableChannel fd) {
         try {
             fd.close();
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             // Ignore
         }
     }
 
-    public static java.net.NetworkInterface getInterface(String intf) {
-        java.net.NetworkInterface iface;
+    public static NetworkInterface getInterface(String intf) {
+        NetworkInterface iface;
         try {
-            iface = java.net.NetworkInterface.getByName(intf);
+            iface = NetworkInterface.getByName(intf);
             if (iface != null) {
                 return iface;
             }
@@ -156,8 +168,8 @@ public final class Network {
         }
         try {
             iface =
-                    java.net.NetworkInterface.getByInetAddress(
-                            java.net.InetAddress.getByName(intf));
+                    NetworkInterface.getByInetAddress(
+                            InetAddress.getByName(intf));
             if (iface != null) {
                 return iface;
             }
@@ -166,20 +178,20 @@ public final class Network {
         throw new IllegalArgumentException("couldn't find interface `" + intf + "'");
     }
 
-    public static void setMcastInterface(java.nio.channels.DatagramChannel fd, String intf) {
+    public static void setMcastInterface(DatagramChannel fd, String intf) {
         try {
-            fd.setOption(java.net.StandardSocketOptions.IP_MULTICAST_IF, getInterface(intf));
+            fd.setOption(StandardSocketOptions.IP_MULTICAST_IF, getInterface(intf));
         } catch (Exception ex) {
             throw new SocketException(ex);
         }
     }
 
     public static void setMcastGroup(
-            java.net.MulticastSocket fd, java.net.InetSocketAddress group, String intf) {
+            MulticastSocket fd, InetSocketAddress group, String intf) {
         try {
-            java.util.Set<java.net.NetworkInterface> interfaces = new java.util.HashSet<>();
+            Set<NetworkInterface> interfaces = new HashSet<>();
             for (String address : getInterfacesForMulticast(intf, getProtocolSupport(group))) {
-                java.net.NetworkInterface intf2 = getInterface(address);
+                NetworkInterface intf2 = getInterface(address);
                 if (!interfaces.contains(intf2)) {
                     interfaces.add(intf2);
                     fd.joinGroup(group, intf2);
@@ -191,11 +203,11 @@ public final class Network {
     }
 
     public static void setMcastGroup(
-            java.nio.channels.DatagramChannel fd, java.net.InetSocketAddress group, String intf) {
+            DatagramChannel fd, InetSocketAddress group, String intf) {
         try {
-            java.util.Set<java.net.NetworkInterface> interfaces = new java.util.HashSet<>();
+            Set<NetworkInterface> interfaces = new HashSet<>();
             for (String address : getInterfacesForMulticast(intf, getProtocolSupport(group))) {
-                java.net.NetworkInterface intf2 = getInterface(address);
+                NetworkInterface intf2 = getInterface(address);
                 if (!interfaces.contains(intf2)) {
                     interfaces.add(intf2);
                     fd.join(group.getAddress(), intf2);
@@ -206,76 +218,76 @@ public final class Network {
         }
     }
 
-    public static void setMcastTtl(java.nio.channels.DatagramChannel fd, int ttl) {
+    public static void setMcastTtl(DatagramChannel fd, int ttl) {
         try {
-            fd.setOption(java.net.StandardSocketOptions.IP_MULTICAST_TTL, ttl);
+            fd.setOption(StandardSocketOptions.IP_MULTICAST_TTL, ttl);
         } catch (Exception ex) {
             throw new SocketException(ex);
         }
     }
 
-    public static void setBlock(java.nio.channels.SelectableChannel fd, boolean block) {
+    public static void setBlock(SelectableChannel fd, boolean block) {
         try {
             fd.configureBlocking(block);
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static void setReuseAddress(java.nio.channels.DatagramChannel fd, boolean reuse) {
+    public static void setReuseAddress(DatagramChannel fd, boolean reuse) {
         try {
             fd.socket().setReuseAddress(reuse);
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static void setReuseAddress(java.nio.channels.ServerSocketChannel fd, boolean reuse) {
+    public static void setReuseAddress(ServerSocketChannel fd, boolean reuse) {
         try {
             fd.socket().setReuseAddress(reuse);
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static java.net.InetSocketAddress doBind(
-            java.nio.channels.ServerSocketChannel fd,
-            java.net.InetSocketAddress addr,
+    public static InetSocketAddress doBind(
+            ServerSocketChannel fd,
+            InetSocketAddress addr,
             int backlog) {
         try {
-            java.net.ServerSocket sock = fd.socket();
+            ServerSocket sock = fd.socket();
             sock.bind(addr, backlog);
-            return (java.net.InetSocketAddress) sock.getLocalSocketAddress();
-        } catch (java.io.IOException ex) {
+            return (InetSocketAddress) sock.getLocalSocketAddress();
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static java.net.InetSocketAddress doBind(
-            java.nio.channels.DatagramChannel fd, java.net.InetSocketAddress addr) {
+    public static InetSocketAddress doBind(
+            DatagramChannel fd, InetSocketAddress addr) {
         try {
-            java.net.DatagramSocket sock = fd.socket();
+            DatagramSocket sock = fd.socket();
             sock.bind(addr);
-            return (java.net.InetSocketAddress) sock.getLocalSocketAddress();
-        } catch (java.io.IOException ex) {
+            return (InetSocketAddress) sock.getLocalSocketAddress();
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static java.nio.channels.SocketChannel doAccept(
-            java.nio.channels.ServerSocketChannel afd) {
-        java.nio.channels.SocketChannel fd = null;
+    public static SocketChannel doAccept(
+            ServerSocketChannel afd) {
+        SocketChannel fd = null;
         while (true) {
             try {
                 fd = afd.accept();
                 break;
-            } catch (java.io.IOException ex) {
-                if (ex instanceof java.io.InterruptedIOException) {
+            } catch (IOException ex) {
+                if (ex instanceof InterruptedIOException) {
                     continue;
                 }
 
@@ -284,10 +296,10 @@ public final class Network {
         }
 
         try {
-            java.net.Socket socket = fd.socket();
+            Socket socket = fd.socket();
             socket.setTcpNoDelay(true);
             socket.setKeepAlive(true);
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             throw new SocketException(ex);
         }
 
@@ -295,13 +307,13 @@ public final class Network {
     }
 
     public static boolean doConnect(
-            java.nio.channels.SocketChannel fd,
-            java.net.InetSocketAddress addr,
-            java.net.InetSocketAddress sourceAddr) {
+            SocketChannel fd,
+            InetSocketAddress addr,
+            InetSocketAddress sourceAddr) {
         if (sourceAddr != null) {
             try {
                 fd.bind(sourceAddr);
-            } catch (java.io.IOException ex) {
+            } catch (IOException ex) {
                 closeSocketNoThrow(fd);
                 throw new SocketException(ex);
             }
@@ -311,7 +323,7 @@ public final class Network {
             if (!fd.connect(addr)) {
                 return false;
             }
-        } catch (java.net.ConnectException ex) {
+        } catch (ConnectException ex) {
             closeSocketNoThrow(fd);
 
             if (connectionRefused(ex)) {
@@ -319,7 +331,7 @@ public final class Network {
             } else {
                 throw new ConnectFailedException(ex);
             }
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         } catch (java.lang.SecurityException ex) {
@@ -341,7 +353,7 @@ public final class Network {
         return true;
     }
 
-    public static void doFinishConnect(java.nio.channels.SocketChannel fd) {
+    public static void doFinishConnect(SocketChannel fd) {
         //
         // Note: we don't close the socket if there's an exception. It's the responsibility of the
         // caller to do so.
@@ -358,33 +370,33 @@ public final class Network {
                 // connect to a server which was just deactivated if the client socket re-uses the
                 // same ephemeral port as the server).
                 //
-                java.net.SocketAddress addr = fd.socket().getRemoteSocketAddress();
+                SocketAddress addr = fd.socket().getRemoteSocketAddress();
                 if (addr != null && addr.equals(fd.socket().getLocalSocketAddress())) {
                     throw new ConnectionRefusedException();
                 }
             }
-        } catch (java.net.ConnectException ex) {
+        } catch (ConnectException ex) {
             if (connectionRefused(ex)) {
                 throw new ConnectionRefusedException(ex);
             } else {
                 throw new ConnectFailedException(ex);
             }
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             throw new SocketException(ex);
         }
     }
 
     public static void doConnect(
-            java.nio.channels.DatagramChannel fd,
-            java.net.InetSocketAddress addr,
-            java.net.InetSocketAddress sourceAddr) {
+            DatagramChannel fd,
+            InetSocketAddress addr,
+            InetSocketAddress sourceAddr) {
         if (sourceAddr != null) {
             doBind(fd, sourceAddr);
         }
 
         try {
             fd.connect(addr);
-        } catch (java.net.ConnectException ex) {
+        } catch (ConnectException ex) {
             closeSocketNoThrow(fd);
 
             if (connectionRefused(ex)) {
@@ -392,138 +404,138 @@ public final class Network {
             } else {
                 throw new ConnectFailedException(ex);
             }
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static void setSendBufferSize(java.nio.channels.SocketChannel fd, int size) {
+    public static void setSendBufferSize(SocketChannel fd, int size) {
         try {
-            java.net.Socket socket = fd.socket();
+            Socket socket = fd.socket();
             socket.setSendBufferSize(size);
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static int getSendBufferSize(java.nio.channels.SocketChannel fd) {
+    public static int getSendBufferSize(SocketChannel fd) {
         int size;
         try {
-            java.net.Socket socket = fd.socket();
+            Socket socket = fd.socket();
             size = socket.getSendBufferSize();
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
         return size;
     }
 
-    public static void setRecvBufferSize(java.nio.channels.SocketChannel fd, int size) {
+    public static void setRecvBufferSize(SocketChannel fd, int size) {
         try {
-            java.net.Socket socket = fd.socket();
+            Socket socket = fd.socket();
             socket.setReceiveBufferSize(size);
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static int getRecvBufferSize(java.nio.channels.SocketChannel fd) {
+    public static int getRecvBufferSize(SocketChannel fd) {
         int size;
         try {
-            java.net.Socket socket = fd.socket();
+            Socket socket = fd.socket();
             size = socket.getReceiveBufferSize();
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
         return size;
     }
 
-    public static void setRecvBufferSize(java.nio.channels.ServerSocketChannel fd, int size) {
+    public static void setRecvBufferSize(ServerSocketChannel fd, int size) {
         try {
-            java.net.ServerSocket socket = fd.socket();
+            ServerSocket socket = fd.socket();
             socket.setReceiveBufferSize(size);
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static int getRecvBufferSize(java.nio.channels.ServerSocketChannel fd) {
+    public static int getRecvBufferSize(ServerSocketChannel fd) {
         int size;
         try {
-            java.net.ServerSocket socket = fd.socket();
+            ServerSocket socket = fd.socket();
             size = socket.getReceiveBufferSize();
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
         return size;
     }
 
-    public static void setSendBufferSize(java.nio.channels.DatagramChannel fd, int size) {
+    public static void setSendBufferSize(DatagramChannel fd, int size) {
         try {
-            java.net.DatagramSocket socket = fd.socket();
+            DatagramSocket socket = fd.socket();
             socket.setSendBufferSize(size);
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static int getSendBufferSize(java.nio.channels.DatagramChannel fd) {
+    public static int getSendBufferSize(DatagramChannel fd) {
         int size;
         try {
-            java.net.DatagramSocket socket = fd.socket();
+            DatagramSocket socket = fd.socket();
             size = socket.getSendBufferSize();
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
         return size;
     }
 
-    public static void setRecvBufferSize(java.nio.channels.DatagramChannel fd, int size) {
+    public static void setRecvBufferSize(DatagramChannel fd, int size) {
         try {
-            java.net.DatagramSocket socket = fd.socket();
+            DatagramSocket socket = fd.socket();
             socket.setReceiveBufferSize(size);
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
     }
 
-    public static int getRecvBufferSize(java.nio.channels.DatagramChannel fd) {
+    public static int getRecvBufferSize(DatagramChannel fd) {
         int size;
         try {
-            java.net.DatagramSocket socket = fd.socket();
+            DatagramSocket socket = fd.socket();
             size = socket.getReceiveBufferSize();
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
         return size;
     }
 
-    public static int getProtocolSupport(java.net.InetSocketAddress addr) {
+    public static int getProtocolSupport(InetSocketAddress addr) {
         return addr.getAddress().getAddress().length == 4 ? Network.EnableIPv4 : Network.EnableIPv6;
     }
 
-    public static java.net.InetSocketAddress getAddressForServer(
+    public static InetSocketAddress getAddressForServer(
             String host, int port, int protocol, boolean preferIPv6) {
         if (host == null || host.isEmpty()) {
             try {
                 if (protocol != EnableIPv4) {
-                    return new java.net.InetSocketAddress(
-                            java.net.InetAddress.getByName("::0"), port);
+                    return new InetSocketAddress(
+                            InetAddress.getByName("::0"), port);
                 } else {
-                    return new java.net.InetSocketAddress(
-                            java.net.InetAddress.getByName("0.0.0.0"), port);
+                    return new InetSocketAddress(
+                            InetAddress.getByName("0.0.0.0"), port);
                 }
-            } catch (java.net.UnknownHostException ex) {
+            } catch (UnknownHostException ex) {
                 assert false;
                 return null;
             } catch (java.lang.SecurityException ex) {
@@ -534,7 +546,7 @@ public final class Network {
     }
 
     public static int compareAddress(
-            java.net.InetSocketAddress addr1, java.net.InetSocketAddress addr2) {
+            InetSocketAddress addr1, InetSocketAddress addr2) {
         if (addr1 == null) {
             return addr2 == null ? 0 : -1;
         } else if (addr2 == null) {
@@ -552,49 +564,49 @@ public final class Network {
         if (v != 0) {
             return v;
         }
-        return java.util.Arrays.compare(larr, rarr);
+        return Arrays.compare(larr, rarr);
     }
 
-    public static java.util.List<java.net.InetSocketAddress> getAddresses(
+    public static List<InetSocketAddress> getAddresses(
             String host, int port, int protocol, boolean preferIPv6, boolean blocking) {
         if (!blocking) {
             if (!isNumericAddress(host)) {
                 return null; // Can't get the address without blocking.
             }
 
-            java.util.List<java.net.InetSocketAddress> addrs = new java.util.ArrayList<>();
+            List<InetSocketAddress> addrs = new ArrayList<>();
             try {
                 addrs.add(
-                        new java.net.InetSocketAddress(java.net.InetAddress.getByName(host), port));
-            } catch (java.net.UnknownHostException ex) {
+                        new InetSocketAddress(InetAddress.getByName(host), port));
+            } catch (UnknownHostException ex) {
                 assert false;
             }
             return addrs;
         }
 
-        java.util.List<java.net.InetSocketAddress> addresses = new java.util.ArrayList<>();
+        List<InetSocketAddress> addresses = new ArrayList<>();
         try {
-            java.net.InetAddress[] addrs;
+            InetAddress[] addrs;
             if (host == null || host.isEmpty()) {
                 addrs = getLoopbackAddresses(protocol);
             } else {
-                addrs = java.net.InetAddress.getAllByName(host);
+                addrs = InetAddress.getAllByName(host);
             }
 
-            for (java.net.InetAddress addr : addrs) {
+            for (InetAddress addr : addrs) {
                 if (protocol == EnableBoth || isValidAddr(addr, protocol)) {
-                    addresses.add(new java.net.InetSocketAddress(addr, port));
+                    addresses.add(new InetSocketAddress(addr, port));
                 }
             }
 
             if (protocol == EnableBoth) {
                 if (preferIPv6) {
-                    java.util.Collections.sort(addresses, _preferIPv6Comparator);
+                    Collections.sort(addresses, _preferIPv6Comparator);
                 } else {
-                    java.util.Collections.sort(addresses, _preferIPv4Comparator);
+                    Collections.sort(addresses, _preferIPv4Comparator);
                 }
             }
-        } catch (java.net.UnknownHostException ex) {
+        } catch (UnknownHostException ex) {
             throw new DNSException(host, ex);
         } catch (java.lang.SecurityException ex) {
             throw new SocketException(ex);
@@ -610,18 +622,18 @@ public final class Network {
         return addresses;
     }
 
-    public static java.util.ArrayList<java.net.InetAddress> getLocalAddresses(int protocol) {
-        java.util.ArrayList<java.net.InetAddress> result = new java.util.ArrayList<>();
+    public static ArrayList<InetAddress> getLocalAddresses(int protocol) {
+        ArrayList<InetAddress> result = new ArrayList<>();
         try {
-            java.util.Enumeration<java.net.NetworkInterface> ifaces =
-                    java.net.NetworkInterface.getNetworkInterfaces();
+            Enumeration<NetworkInterface> ifaces =
+                    NetworkInterface.getNetworkInterfaces();
             while (ifaces.hasMoreElements()) {
-                java.net.NetworkInterface iface = ifaces.nextElement();
-                java.util.Enumeration<java.net.InetAddress> addrs = iface.getInetAddresses();
+                NetworkInterface iface = ifaces.nextElement();
+                Enumeration<InetAddress> addrs = iface.getInetAddresses();
                 while (addrs.hasMoreElements()) {
-                    java.net.InetAddress addr = addrs.nextElement();
-                    if (!result.contains(addr) &&
-                            (protocol == EnableBoth || isValidAddr(addr, protocol))) {
+                    InetAddress addr = addrs.nextElement();
+                    if (!result.contains(addr)
+                            && (protocol == EnableBoth || isValidAddr(addr, protocol))) {
                         result.add(addr);
                         break;
                     }
@@ -636,11 +648,11 @@ public final class Network {
         return result;
     }
 
-    public static java.util.List<String> getInterfacesForMulticast(
+    public static List<String> getInterfacesForMulticast(
             String intf, int protocolSupport) {
-        java.util.ArrayList<String> interfaces = new java.util.ArrayList<>();
+        ArrayList<String> interfaces = new ArrayList<>();
         if (isWildcard(intf)) {
-            for (java.net.InetAddress addr : getLocalAddresses(protocolSupport)) {
+            for (InetAddress addr : getLocalAddresses(protocolSupport)) {
                 interfaces.add(addr.getHostAddress());
             }
         }
@@ -651,7 +663,7 @@ public final class Network {
     }
 
     public static void setTcpBufSize(
-            java.nio.channels.SocketChannel socket, ProtocolInstance instance) {
+            SocketChannel socket, ProtocolInstance instance) {
         //
         // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system
         // defaults.
@@ -670,7 +682,7 @@ public final class Network {
     }
 
     public static void setTcpBufSize(
-            java.nio.channels.SocketChannel socket,
+            SocketChannel socket,
             int rcvSize,
             int sndSize,
             ProtocolInstance instance) {
@@ -688,10 +700,10 @@ public final class Network {
                 if (!winfo.rcvWarn || rcvSize != winfo.rcvSize) {
                     instance.logger()
                             .warning(
-                                    "TCP receive buffer size: requested size of " +
-                                            rcvSize +
-                                            " adjusted to " +
-                                            size);
+                                    "TCP receive buffer size: requested size of "
+                                            + rcvSize
+                                            + " adjusted to "
+                                            + size);
                     instance.setRcvBufSizeWarn(TCPEndpointType.value, rcvSize);
                 }
             }
@@ -711,10 +723,10 @@ public final class Network {
                 if (!winfo.sndWarn || sndSize != winfo.sndSize) {
                     instance.logger()
                             .warning(
-                                    "TCP send buffer size: requested size of " +
-                                            sndSize +
-                                            " adjusted to " +
-                                            size);
+                                    "TCP send buffer size: requested size of "
+                                            + sndSize
+                                            + " adjusted to "
+                                            + size);
                     instance.setSndBufSizeWarn(TCPEndpointType.value, sndSize);
                 }
             }
@@ -722,7 +734,7 @@ public final class Network {
     }
 
     public static void setTcpBufSize(
-            java.nio.channels.ServerSocketChannel socket, ProtocolInstance instance) {
+            ServerSocketChannel socket, ProtocolInstance instance) {
         //
         // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system
         // defaults.
@@ -751,10 +763,10 @@ public final class Network {
                 if (!winfo.rcvWarn || sizeRequested != winfo.rcvSize) {
                     instance.logger()
                             .warning(
-                                    "TCP receive buffer size: requested size of " +
-                                            sizeRequested +
-                                            " adjusted to " +
-                                            size);
+                                    "TCP receive buffer size: requested size of "
+                                            + sizeRequested
+                                            + " adjusted to "
+                                            + size);
                     instance.setRcvBufSizeWarn(TCPEndpointType.value, sizeRequested);
                 }
             }
@@ -762,24 +774,24 @@ public final class Network {
     }
 
     public static String fdToString(
-            java.nio.channels.SelectableChannel fd,
+            SelectableChannel fd,
             NetworkProxy proxy,
-            java.net.InetSocketAddress target) {
+            InetSocketAddress target) {
         if (fd == null) {
             return "<closed>";
         }
 
-        java.net.InetAddress localAddr = null, remoteAddr = null;
+        InetAddress localAddr = null, remoteAddr = null;
         int localPort = -1, remotePort = -1;
 
-        if (fd instanceof java.nio.channels.SocketChannel) {
-            java.net.Socket socket = ((java.nio.channels.SocketChannel) fd).socket();
+        if (fd instanceof SocketChannel) {
+            Socket socket = ((SocketChannel) fd).socket();
             localAddr = socket.getLocalAddress();
             localPort = socket.getLocalPort();
             remoteAddr = socket.getInetAddress();
             remotePort = socket.getPort();
-        } else if (fd instanceof java.nio.channels.DatagramChannel) {
-            java.net.DatagramSocket socket = ((java.nio.channels.DatagramChannel) fd).socket();
+        } else if (fd instanceof DatagramChannel) {
+            DatagramSocket socket = ((DatagramChannel) fd).socket();
             localAddr = socket.getLocalAddress();
             localPort = socket.getLocalPort();
             remoteAddr = socket.getInetAddress();
@@ -791,22 +803,22 @@ public final class Network {
         return addressesToString(localAddr, localPort, remoteAddr, remotePort, proxy, target);
     }
 
-    public static String fdToString(java.nio.channels.SelectableChannel fd) {
+    public static String fdToString(SelectableChannel fd) {
         if (fd == null) {
             return "<closed>";
         }
 
-        java.net.InetAddress localAddr = null, remoteAddr = null;
+        InetAddress localAddr = null, remoteAddr = null;
         int localPort = -1, remotePort = -1;
 
-        if (fd instanceof java.nio.channels.SocketChannel) {
-            java.net.Socket socket = ((java.nio.channels.SocketChannel) fd).socket();
+        if (fd instanceof SocketChannel) {
+            Socket socket = ((SocketChannel) fd).socket();
             localAddr = socket.getLocalAddress();
             localPort = socket.getLocalPort();
             remoteAddr = socket.getInetAddress();
             remotePort = socket.getPort();
-        } else if (fd instanceof java.nio.channels.DatagramChannel) {
-            java.net.DatagramSocket socket = ((java.nio.channels.DatagramChannel) fd).socket();
+        } else if (fd instanceof DatagramChannel) {
+            DatagramSocket socket = ((DatagramChannel) fd).socket();
             localAddr = socket.getLocalAddress();
             localPort = socket.getLocalPort();
             remoteAddr = socket.getInetAddress();
@@ -819,19 +831,19 @@ public final class Network {
     }
 
     public static String addressesToString(
-            java.net.InetAddress localAddr,
+            InetAddress localAddr,
             int localPort,
-            java.net.InetAddress remoteAddr,
+            InetAddress remoteAddr,
             int remotePort,
             NetworkProxy proxy,
-            java.net.InetSocketAddress target) {
+            InetSocketAddress target) {
         StringBuilder s = new StringBuilder(128);
         s.append("local address = ");
         s.append(addrToString(localAddr, localPort));
 
         if (proxy != null) {
             if (remoteAddr == null) {
-                java.net.InetSocketAddress addr = proxy.getAddress();
+                InetSocketAddress addr = proxy.getAddress();
                 remoteAddr = addr.getAddress();
                 remotePort = addr.getPort();
             }
@@ -859,14 +871,14 @@ public final class Network {
     }
 
     public static String addressesToString(
-            java.net.InetAddress localAddr,
+            InetAddress localAddr,
             int localPort,
-            java.net.InetAddress remoteAddr,
+            InetAddress remoteAddr,
             int remotePort) {
         return addressesToString(localAddr, localPort, remoteAddr, remotePort, null, null);
     }
 
-    public static String addrToString(java.net.InetSocketAddress addr) {
+    public static String addrToString(InetSocketAddress addr) {
         StringBuilder s = new StringBuilder(128);
         s.append(addr.getAddress().getHostAddress());
         s.append(':');
@@ -874,17 +886,17 @@ public final class Network {
         return s.toString();
     }
 
-    private static boolean isValidAddr(java.net.InetAddress addr, int protocol) {
+    private static boolean isValidAddr(InetAddress addr, int protocol) {
         byte[] bytes = null;
         if (addr != null) {
             bytes = addr.getAddress();
         }
-        return bytes != null &&
-                ((bytes.length == 16 && protocol == EnableIPv6) ||
-                        (bytes.length == 4 && protocol == EnableIPv4));
+        return bytes != null
+                && ((bytes.length == 16 && protocol == EnableIPv6)
+                        || (bytes.length == 4 && protocol == EnableIPv4));
     }
 
-    public static String addrToString(java.net.InetAddress addr, int port) {
+    public static String addrToString(InetAddress addr, int port) {
         StringBuffer s = new StringBuffer();
 
         //
@@ -906,18 +918,18 @@ public final class Network {
         return s.toString();
     }
 
-    private static java.net.InetAddress[] getLoopbackAddresses(int protocol) {
+    private static InetAddress[] getLoopbackAddresses(int protocol) {
         try {
-            java.net.InetAddress[] addrs = new java.net.InetAddress[protocol == EnableBoth ? 2 : 1];
+            InetAddress[] addrs = new InetAddress[protocol == EnableBoth ? 2 : 1];
             int i = 0;
             if (protocol != EnableIPv6) {
-                addrs[i++] = java.net.InetAddress.getByName("127.0.0.1");
+                addrs[i++] = InetAddress.getByName("127.0.0.1");
             }
             if (protocol != EnableIPv4) {
-                addrs[i++] = java.net.InetAddress.getByName("::1");
+                addrs[i++] = InetAddress.getByName("::1");
             }
             return addrs;
-        } catch (java.net.UnknownHostException ex) {
+        } catch (UnknownHostException ex) {
             assert false;
             return null;
         } catch (java.lang.SecurityException ex) {
@@ -925,12 +937,12 @@ public final class Network {
         }
     }
 
-    public static java.net.InetSocketAddress getNumericAddress(String address) {
-        java.net.InetSocketAddress addr = null;
+    public static InetSocketAddress getNumericAddress(String address) {
+        InetSocketAddress addr = null;
         if (!address.isEmpty() && isNumericAddress(address)) {
             try {
-                addr = new java.net.InetSocketAddress(java.net.InetAddress.getByName(address), 0);
-            } catch (java.net.UnknownHostException ex) {
+                addr = new InetSocketAddress(InetAddress.getByName(address), 0);
+            } catch (UnknownHostException ex) {
             }
         }
         return addr;
@@ -941,25 +953,25 @@ public final class Network {
             return true;
         }
         try {
-            return java.net.InetAddress.getByName(host).isAnyLocalAddress();
-        } catch (java.net.UnknownHostException ex) {
+            return InetAddress.getByName(host).isAnyLocalAddress();
+        } catch (UnknownHostException ex) {
         } catch (java.lang.SecurityException ex) {
             throw new SocketException(ex);
         }
         return false;
     }
 
-    static class IPAddressComparator implements java.util.Comparator<java.net.InetSocketAddress> {
+    static class IPAddressComparator implements Comparator<InetSocketAddress> {
         IPAddressComparator(boolean ipv6) {
             _ipv6 = ipv6;
         }
 
         @Override
-        public int compare(java.net.InetSocketAddress lhs, java.net.InetSocketAddress rhs) {
+        public int compare(InetSocketAddress lhs, InetSocketAddress rhs) {
             if (lhs.getAddress().getAddress().length < rhs.getAddress().getAddress().length) {
                 return _ipv6 ? 1 : -1;
-            } else if (lhs.getAddress().getAddress().length >
-                    rhs.getAddress().getAddress().length) {
+            } else if (lhs.getAddress().getAddress().length
+                    > rhs.getAddress().getAddress().length) {
                 return _ipv6 ? -1 : 1;
             } else {
                 return 0;
@@ -969,8 +981,8 @@ public final class Network {
         private final boolean _ipv6;
     }
 
-    private static IPAddressComparator _preferIPv4Comparator = new IPAddressComparator(false);
-    private static IPAddressComparator _preferIPv6Comparator = new IPAddressComparator(true);
+    private static final IPAddressComparator _preferIPv4Comparator = new IPAddressComparator(false);
+    private static final IPAddressComparator _preferIPv6Comparator = new IPAddressComparator(true);
 
     private Network() {
     }

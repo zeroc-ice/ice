@@ -17,11 +17,11 @@ class ServiceSubEditor extends CommunicatorSubEditor {
 
         _entry.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _entry.setToolTipText(
-                "<html>The service entry point and optional arguments.<br>" +
-                        "C++: <i>shared object:function-name arg1 arg2 ...</i><br>" +
-                        "Java: <i>class-name arg1 arg2 ...</i><br>" +
-                        "C#, Visual Basic: <i>assembly:class-name arg1 arg2 ...</i>" +
-                        "</html>");
+                "<html>The service entry point and optional arguments.<br>"
+                        + "C++: <i>shared object:function-name arg1 arg2 ...</i><br>"
+                        + "Java: <i>class-name arg1 arg2 ...</i><br>"
+                        + "C#, Visual Basic: <i>assembly:class-name arg1 arg2 ...</i>"
+                        + "</html>");
     }
 
     ServiceDescriptor getServiceDescriptor() {
@@ -80,6 +80,6 @@ class ServiceSubEditor extends CommunicatorSubEditor {
         show(descriptor, isEditable);
     }
 
-    private JTextField _name = new JTextField(20);
-    private JTextField _entry = new JTextField(20);
+    private final JTextField _name = new JTextField(20);
+    private final JTextField _entry = new JTextField(20);
 }

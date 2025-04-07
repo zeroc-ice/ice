@@ -9,6 +9,8 @@ import com.jgoodies.forms.util.LayoutStyle;
 import com.zeroc.IceGrid.*;
 
 import java.awt.Container;
+import java.text.DateFormat;
+import java.util.Date;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -61,12 +63,12 @@ class ApplicationDetailsDialog extends JDialog {
         _name.setText(info.descriptor.name);
         _uuid.setText(info.uuid);
         _createTime.setText(
-                java.text.DateFormat.getDateTimeInstance()
-                        .format(new java.util.Date(info.createTime)));
+                DateFormat.getDateTimeInstance()
+                        .format(new Date(info.createTime)));
         _createUser.setText(info.createUser);
         _updateTime.setText(
-                java.text.DateFormat.getDateTimeInstance()
-                        .format(new java.util.Date(info.updateTime)));
+                DateFormat.getDateTimeInstance()
+                        .format(new Date(info.updateTime)));
         _updateUser.setText(info.updateUser);
         _revision.setText(Integer.toString(info.revision));
 
@@ -74,12 +76,12 @@ class ApplicationDetailsDialog extends JDialog {
         setVisible(true);
     }
 
-    private JTextField _name = new JTextField(30);
-    private JTextField _uuid = new JTextField(30);
-    private JTextField _createTime = new JTextField(30);
-    private JTextField _createUser = new JTextField(30);
-    private JTextField _updateTime = new JTextField(30);
-    private JTextField _updateUser = new JTextField(30);
-    private JTextField _revision = new JTextField(30);
-    private JFrame _mainFrame;
+    private final JTextField _name = new JTextField(30);
+    private final JTextField _uuid = new JTextField(30);
+    private final JTextField _createTime = new JTextField(30);
+    private final JTextField _createUser = new JTextField(30);
+    private final JTextField _updateTime = new JTextField(30);
+    private final JTextField _updateUser = new JTextField(30);
+    private final JTextField _revision = new JTextField(30);
+    private final JFrame _mainFrame;
 }

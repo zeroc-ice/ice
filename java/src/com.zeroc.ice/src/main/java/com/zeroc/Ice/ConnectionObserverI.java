@@ -29,7 +29,7 @@ public class ConnectionObserverI extends ObserverWithDelegate<ConnectionMetrics,
         }
     }
 
-    private MetricsUpdate<ConnectionMetrics> _sentBytesUpdate =
+    private final MetricsUpdate<ConnectionMetrics> _sentBytesUpdate =
             new MetricsUpdate<ConnectionMetrics>() {
                 @Override
                 public void update(ConnectionMetrics v) {
@@ -37,7 +37,7 @@ public class ConnectionObserverI extends ObserverWithDelegate<ConnectionMetrics,
                 }
             };
 
-    private MetricsUpdate<ConnectionMetrics> _receivedBytesUpdate =
+    private final MetricsUpdate<ConnectionMetrics> _receivedBytesUpdate =
             new MetricsUpdate<ConnectionMetrics>() {
                 @Override
                 public void update(ConnectionMetrics v) {

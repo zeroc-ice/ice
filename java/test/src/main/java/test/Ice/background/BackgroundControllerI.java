@@ -2,21 +2,28 @@
 
 package test.Ice.background;
 
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.SocketException;
+
 import test.Ice.background.Test.BackgroundController;
+
+import java.util.HashSet;
+import java.util.Set;
 
 class BackgroundControllerI implements BackgroundController {
     @Override
-    public synchronized void pauseCall(String opName, com.zeroc.Ice.Current current) {
+    public synchronized void pauseCall(String opName, Current current) {
         _pausedCalls.add(opName);
     }
 
     @Override
-    public synchronized void resumeCall(String opName, com.zeroc.Ice.Current current) {
+    public synchronized void resumeCall(String opName, Current current) {
         _pausedCalls.remove(opName);
         notifyAll();
     }
 
-    public synchronized void checkCallPause(com.zeroc.Ice.Current current) {
+    public synchronized void checkCallPause(Current current) {
         while (_pausedCalls.contains(current.operation)) {
             try {
                 wait();
@@ -27,56 +34,56 @@ class BackgroundControllerI implements BackgroundController {
     }
 
     @Override
-    public void holdAdapter(com.zeroc.Ice.Current current) {
+    public void holdAdapter(Current current) {
         _adapter.hold();
     }
 
     @Override
-    public void resumeAdapter(com.zeroc.Ice.Current current) {
+    public void resumeAdapter(Current current) {
         _adapter.activate();
     }
 
     @Override
-    public void initializeSocketStatus(int status, com.zeroc.Ice.Current current) {
+    public void initializeSocketStatus(int status, Current current) {
         _configuration.initializeSocketStatus(status);
     }
 
     @Override
-    public void initializeException(boolean enable, com.zeroc.Ice.Current current) {
-        _configuration.initializeException(enable ? new com.zeroc.Ice.SocketException() : null);
+    public void initializeException(boolean enable, Current current) {
+        _configuration.initializeException(enable ? new SocketException() : null);
     }
 
     @Override
-    public void readReady(boolean enable, com.zeroc.Ice.Current current) {
+    public void readReady(boolean enable, Current current) {
         _configuration.readReady(enable);
     }
 
     @Override
-    public void readException(boolean enable, com.zeroc.Ice.Current current) {
-        _configuration.readException(enable ? new com.zeroc.Ice.SocketException() : null);
+    public void readException(boolean enable, Current current) {
+        _configuration.readException(enable ? new SocketException() : null);
     }
 
     @Override
-    public void writeReady(boolean enable, com.zeroc.Ice.Current current) {
+    public void writeReady(boolean enable, Current current) {
         _configuration.writeReady(enable);
     }
 
     @Override
-    public void writeException(boolean enable, com.zeroc.Ice.Current current) {
-        _configuration.writeException(enable ? new com.zeroc.Ice.SocketException() : null);
+    public void writeException(boolean enable, Current current) {
+        _configuration.writeException(enable ? new SocketException() : null);
     }
 
     @Override
-    public void buffered(boolean enable, com.zeroc.Ice.Current current) {
+    public void buffered(boolean enable, Current current) {
         _configuration.buffered(enable);
     }
 
-    public BackgroundControllerI(Configuration configuration, com.zeroc.Ice.ObjectAdapter adapter) {
+    public BackgroundControllerI(Configuration configuration, ObjectAdapter adapter) {
         _adapter = adapter;
         _configuration = configuration;
     }
 
-    private final com.zeroc.Ice.ObjectAdapter _adapter;
-    private final java.util.Set<String> _pausedCalls = new java.util.HashSet<>();
+    private final ObjectAdapter _adapter;
+    private final Set<String> _pausedCalls = new HashSet<>();
     private final Configuration _configuration;
 }

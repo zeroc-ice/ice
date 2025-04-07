@@ -43,8 +43,8 @@ class ServiceEditor extends CommunicatorEditor {
         Server server = (Server) service.getParent();
         int iceIntVersion = server.getIceVersion();
 
-        if (server.getState() == ServerState.Active &&
-                (iceIntVersion == 0 || iceIntVersion >= 30300)) {
+        if (server.getState() == ServerState.Active
+                && (iceIntVersion == 0 || iceIntVersion >= 30300)) {
             showRuntimeProperties(previous);
         } else {
             clearRuntimeProperties("");
@@ -87,7 +87,7 @@ class ServiceEditor extends CommunicatorEditor {
     }
 
     private final Coordinator _coordinator;
-    private JTextField _entry = new JTextField(20);
-    private JCheckBox _started = new JCheckBox("Started");
+    private final JTextField _entry = new JTextField(20);
+    private final JCheckBox _started = new JCheckBox("Started");
     private JToolBar _toolBar;
 }

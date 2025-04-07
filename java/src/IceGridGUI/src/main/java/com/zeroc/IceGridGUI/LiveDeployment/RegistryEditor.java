@@ -63,10 +63,10 @@ class RegistryEditor extends CommunicatorEditor {
                             int confirm =
                                     JOptionPane.showConfirmDialog(
                                             ((Root) _target).getCoordinator().getMainFrame(),
-                                            "You are about to remove application '" +
-                                                    appName +
-                                                    "' from the IceGrid registry. " +
-                                                    "Do you want to proceed?",
+                                            "You are about to remove application '"
+                                                    + appName
+                                                    + "' from the IceGrid registry. "
+                                                    + "Do you want to proceed?",
                                             "Remove Confirmation",
                                             JOptionPane.YES_NO_OPTION);
 
@@ -168,9 +168,9 @@ class RegistryEditor extends CommunicatorEditor {
         _objects.getInputMap().put(KeyStroke.getKeyStroke("INSERT"), "insert");
 
         _objects.setToolTipText(
-                "<html>Well-known objects registered through the Admin interface.<br>" +
-                        "Well-known objects registered using Adapter or Replica Group<br>" +
-                        "definitions are not displayed here.</html>");
+                "<html>Well-known objects registered through the Admin interface.<br>"
+                        + "Well-known objects registered using Adapter or Replica Group<br>"
+                        + "definitions are not displayed here.</html>");
 
         final JPopupMenu objectsPopup = new JPopupMenu();
         objectsPopup.add(addObject);
@@ -350,8 +350,8 @@ class RegistryEditor extends CommunicatorEditor {
         _adapters.setAdapters(root.getAdapters());
     }
 
-    private JTextField _hostname = new JTextField(20);
-    private TableField _applications = new TableField("Name", "Last Update");
-    private TableField _objects = new TableField("Proxy", "Type");
-    private TableField _adapters = new TableField("ID", "Endpoints", "Replica Group");
+    private final JTextField _hostname = new JTextField(20);
+    private final TableField _applications = new TableField("Name", "Last Update");
+    private final TableField _objects = new TableField("Proxy", "Type");
+    private final TableField _adapters = new TableField("ID", "Endpoints", "Replica Group");
 }

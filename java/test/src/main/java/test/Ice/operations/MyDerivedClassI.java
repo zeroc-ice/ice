@@ -2,7 +2,10 @@
 
 package test.Ice.operations;
 
+import com.zeroc.Ice.BZip2;
 import com.zeroc.Ice.Current;
+import com.zeroc.Ice.OperationMode;
+import com.zeroc.Ice.Util;
 
 import test.Ice.operations.Test.*;
 
@@ -22,12 +25,12 @@ public final class MyDerivedClassI implements MyDerivedClass {
 
     @Override
     public boolean supportsCompress(Current current) {
-        return com.zeroc.Ice.BZip2.supported();
+        return BZip2.supported();
     }
 
     @Override
     public void opVoid(Current current) {
-        test(current.mode == com.zeroc.Ice.OperationMode.Normal);
+        test(current.mode == OperationMode.Normal);
     }
 
     @Override
@@ -70,10 +73,10 @@ public final class MyDerivedClassI implements MyDerivedClass {
 
     @Override
     public MyClass.OpByteBoolDResult opByteBoolD(
-            java.util.Map<Byte, Boolean> p1, java.util.Map<Byte, Boolean> p2, Current current) {
+            Map<Byte, Boolean> p1, Map<Byte, Boolean> p2, Current current) {
         MyClass.OpByteBoolDResult r = new MyClass.OpByteBoolDResult();
         r.p3 = p1;
-        r.returnValue = new java.util.HashMap<>();
+        r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return r;
@@ -145,10 +148,10 @@ public final class MyDerivedClassI implements MyDerivedClass {
 
     @Override
     public MyClass.OpLongFloatDResult opLongFloatD(
-            java.util.Map<Long, Float> p1, java.util.Map<Long, Float> p2, Current current) {
+            Map<Long, Float> p1, Map<Long, Float> p2, Current current) {
         MyClass.OpLongFloatDResult r = new MyClass.OpLongFloatDResult();
         r.p3 = p1;
-        r.returnValue = new java.util.HashMap<>();
+        r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return r;
@@ -161,7 +164,7 @@ public final class MyDerivedClassI implements MyDerivedClass {
         r.p3 =
                 MyClassPrx.uncheckedCast(
                         current.adapter.createProxy(
-                                com.zeroc.Ice.Util.stringToIdentity("noSuchIdentity")));
+                                Util.stringToIdentity("noSuchIdentity")));
         r.returnValue = MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
         return r;
     }
@@ -173,10 +176,10 @@ public final class MyDerivedClassI implements MyDerivedClass {
 
     @Override
     public MyClass.OpShortIntDResult opShortIntD(
-            java.util.Map<Short, Integer> p1, java.util.Map<Short, Integer> p2, Current current) {
+            Map<Short, Integer> p1, Map<Short, Integer> p2, Current current) {
         MyClass.OpShortIntDResult r = new MyClass.OpShortIntDResult();
         r.p3 = p1;
-        r.returnValue = new java.util.HashMap<>();
+        r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return r;
@@ -229,10 +232,10 @@ public final class MyDerivedClassI implements MyDerivedClass {
 
     @Override
     public MyClass.OpStringMyEnumDResult opStringMyEnumD(
-            java.util.Map<String, MyEnum> p1, java.util.Map<String, MyEnum> p2, Current current) {
+            Map<String, MyEnum> p1, Map<String, MyEnum> p2, Current current) {
         MyClass.OpStringMyEnumDResult r = new MyClass.OpStringMyEnumDResult();
         r.p3 = p1;
-        r.returnValue = new java.util.HashMap<>();
+        r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return r;
@@ -240,10 +243,10 @@ public final class MyDerivedClassI implements MyDerivedClass {
 
     @Override
     public MyClass.OpMyEnumStringDResult opMyEnumStringD(
-            java.util.Map<MyEnum, String> p1, java.util.Map<MyEnum, String> p2, Current current) {
+            Map<MyEnum, String> p1, Map<MyEnum, String> p2, Current current) {
         MyClass.OpMyEnumStringDResult r = new MyClass.OpMyEnumStringDResult();
         r.p3 = p1;
-        r.returnValue = new java.util.HashMap<>();
+        r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return r;
@@ -251,12 +254,12 @@ public final class MyDerivedClassI implements MyDerivedClass {
 
     @Override
     public MyClass.OpMyStructMyEnumDResult opMyStructMyEnumD(
-            java.util.Map<MyStruct, MyEnum> p1,
-            java.util.Map<MyStruct, MyEnum> p2,
+            Map<MyStruct, MyEnum> p1,
+            Map<MyStruct, MyEnum> p2,
             Current current) {
         MyClass.OpMyStructMyEnumDResult r = new MyClass.OpMyStructMyEnumDResult();
         r.p3 = p1;
-        r.returnValue = new java.util.HashMap<>();
+        r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return r;
@@ -481,7 +484,7 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public java.util.Map<String, String> opContext(Current current) {
+    public Map<String, String> opContext(Current current) {
         return current.ctx;
     }
 
@@ -539,10 +542,10 @@ public final class MyDerivedClassI implements MyDerivedClass {
 
     @Override
     public MyClass.OpStringStringDResult opStringStringD(
-            java.util.Map<String, String> p1, java.util.Map<String, String> p2, Current current) {
+            Map<String, String> p1, Map<String, String> p2, Current current) {
         MyClass.OpStringStringDResult r = new MyClass.OpStringStringDResult();
         r.p3 = p1;
-        r.returnValue = new java.util.HashMap<>();
+        r.returnValue = new HashMap<>();
         r.returnValue.putAll(p1);
         r.returnValue.putAll(p2);
         return r;
@@ -559,7 +562,7 @@ public final class MyDerivedClassI implements MyDerivedClass {
 
     @Override
     public void opIdempotent(Current current) {
-        test(current.mode == com.zeroc.Ice.OperationMode.Idempotent);
+        test(current.mode == OperationMode.Idempotent);
     }
 
     @Override
@@ -694,11 +697,11 @@ public final class MyDerivedClassI implements MyDerivedClass {
 
     @Override
     public OpMDict1MarshaledResult opMDict1(Current current) {
-        return new OpMDict1MarshaledResult(new java.util.HashMap<>(), current);
+        return new OpMDict1MarshaledResult(new HashMap<>(), current);
     }
 
     @Override
-    public OpMDict2MarshaledResult opMDict2(java.util.Map<String, String> p1, Current current) {
+    public OpMDict2MarshaledResult opMDict2(Map<String, String> p1, Current current) {
         return new OpMDict2MarshaledResult(p1, p1, current);
     }
 

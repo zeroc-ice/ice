@@ -2,8 +2,16 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.Instrumentation.Observer;
+import com.zeroc.Ice.Instrumentation.ThreadObserver;
 import com.zeroc.Ice.Instrumentation.ThreadState;
+
+import java.net.InetSocketAddress;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 class EndpointHostResolver {
     EndpointHostResolver(Instance instance) {
@@ -15,7 +23,7 @@ class EndpointHostResolver {
                     Util.createThreadName(
                             _instance.initializationData().properties, "Ice.HostResolver");
             _executor =
-                    java.util.concurrent.Executors.newFixedThreadPool(
+                    Executors.newFixedThreadPool(
                             1,
                             Util.createThreadFactory(
                                     _instance.initializationData().properties, _threadName));
@@ -43,7 +51,7 @@ class EndpointHostResolver {
 
         NetworkProxy networkProxy = _instance.networkProxy();
         if (networkProxy == null) {
-            java.util.List<java.net.InetSocketAddress> addrs =
+            List<InetSocketAddress> addrs =
                     Network.getAddresses(host, port, _protocol, _preferIPv6, false);
             if (addrs != null) {
                 callback.connectors(endpoint.connectors(addrs, networkProxy));
@@ -51,7 +59,7 @@ class EndpointHostResolver {
             }
         }
 
-        final com.zeroc.Ice.Instrumentation.ThreadObserver threadObserver = _observer;
+        final ThreadObserver threadObserver = _observer;
         final Observer observer = getObserver(endpoint);
         if (observer != null) {
             observer.attach();
@@ -87,7 +95,7 @@ class EndpointHostResolver {
                             }
                         }
 
-                        java.util.List<java.net.InetSocketAddress> addresses =
+                        List<InetSocketAddress> addresses =
                                 Network.getAddresses(host, port, protocol, _preferIPv6, true);
 
                         if (obsv != null) {
@@ -128,7 +136,7 @@ class EndpointHostResolver {
         try {
             while (!_executor.isTerminated()) {
                 // A very long time.
-                _executor.awaitTermination(100000, java.util.concurrent.TimeUnit.SECONDS);
+                _executor.awaitTermination(100000, TimeUnit.SECONDS);
             }
 
         } finally {
@@ -139,7 +147,7 @@ class EndpointHostResolver {
     }
 
     synchronized void updateObserver() {
-        com.zeroc.Ice.Instrumentation.CommunicatorObserver obsv =
+        CommunicatorObserver obsv =
                 _instance.initializationData().observer;
         if (obsv != null) {
             _observer =
@@ -152,7 +160,7 @@ class EndpointHostResolver {
     }
 
     private Observer getObserver(IPEndpointI endpoint) {
-        com.zeroc.Ice.Instrumentation.CommunicatorObserver obsv =
+        CommunicatorObserver obsv =
                 _instance.initializationData().observer;
         if (obsv != null) {
             return obsv.getEndpointLookupObserver(endpoint);
@@ -164,7 +172,7 @@ class EndpointHostResolver {
     private final int _protocol;
     private final boolean _preferIPv6;
     private boolean _destroyed;
-    private com.zeroc.Ice.Instrumentation.ThreadObserver _observer;
+    private ThreadObserver _observer;
     private String _threadName;
-    private java.util.concurrent.ExecutorService _executor;
+    private ExecutorService _executor;
 }

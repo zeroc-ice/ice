@@ -59,5 +59,5 @@ class PlainServerEditor extends AbstractServerEditor {
         }
     }
 
-    private ServerSubEditor _subEditor;
+    private final ServerSubEditor _subEditor;
 }

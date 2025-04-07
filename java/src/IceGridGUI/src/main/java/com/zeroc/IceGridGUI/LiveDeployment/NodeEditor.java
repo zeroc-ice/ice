@@ -56,11 +56,11 @@ class NodeEditor extends CommunicatorEditor {
             _os.setText(info.os + " " + info.release + " " + info.version);
             _os.setCaretPosition(0);
             _machineType.setText(
-                    info.machine +
-                            " with " +
-                            info.nProcessors +
-                            " CPU thread" +
-                            (info.nProcessors >= 2 ? "s" : ""));
+                    info.machine
+                            + " with "
+                            + info.nProcessors
+                            + " CPU thread"
+                            + (info.nProcessors >= 2 ? "s" : ""));
 
             if (node.isRunningWindows()) {
                 _loadAverageLabel.setText("CPU Usage");
@@ -135,13 +135,13 @@ class NodeEditor extends CommunicatorEditor {
         _propertiesPanel.setName("Node Properties");
     }
 
-    private JTextField _hostname = new JTextField(20);
-    private JTextField _os = new JTextField(20);
-    private JTextField _machineType = new JTextField(20);
-    private JLabel _loadAverageLabel = new JLabel();
-    private JTextField _loadAverage = new JTextField(20);
-    private JButton _refreshLoadButton;
+    private final JTextField _hostname = new JTextField(20);
+    private final JTextField _os = new JTextField(20);
+    private final JTextField _machineType = new JTextField(20);
+    private final JLabel _loadAverageLabel = new JLabel();
+    private final JTextField _loadAverage = new JTextField(20);
+    private final JButton _refreshLoadButton;
     private boolean _loadRetrieved;
 
-    private TableField _loadFactor = new TableField("Application", "Value");
+    private final TableField _loadFactor = new TableField("Application", "Value");
 }

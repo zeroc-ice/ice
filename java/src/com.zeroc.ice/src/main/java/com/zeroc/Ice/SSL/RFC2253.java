@@ -4,6 +4,9 @@ package com.zeroc.Ice.SSL;
 
 import com.zeroc.Ice.ParseException;
 
+import java.util.LinkedList;
+import java.util.List;
+
 //
 // See RFC 2253 and RFC 1779.
 //
@@ -14,7 +17,7 @@ class RFC2253 {
     }
 
     static class RDNEntry {
-        java.util.List<RDNPair> rdn = new java.util.LinkedList<>();
+        List<RDNPair> rdn = new LinkedList<>();
         boolean negate;
     }
 
@@ -23,8 +26,8 @@ class RFC2253 {
         int pos;
     }
 
-    public static java.util.List<RDNEntry> parse(String data) throws ParseException {
-        java.util.List<RDNEntry> results = new java.util.LinkedList<>();
+    public static List<RDNEntry> parse(String data) throws ParseException {
+        List<RDNEntry> results = new LinkedList<>();
         RDNEntry current = new RDNEntry();
         ParseState state = new ParseState();
         state.data = data;
@@ -58,17 +61,17 @@ class RFC2253 {
         return results;
     }
 
-    public static java.util.List<RDNPair> parseStrict(String data) throws ParseException {
-        java.util.List<RDNPair> results = new java.util.LinkedList<>();
+    public static List<RDNPair> parseStrict(String data) throws ParseException {
+        List<RDNPair> results = new LinkedList<>();
         ParseState state = new ParseState();
         state.data = data;
         state.pos = 0;
         while (state.pos < state.data.length()) {
             results.add(parseNameComponent(state));
             eatWhite(state);
-            if (state.pos < state.data.length() &&
-                    (state.data.charAt(state.pos) == ',' ||
-                            state.data.charAt(state.pos) == ';')) {
+            if (state.pos < state.data.length()
+                    && (state.data.charAt(state.pos) == ','
+                            || state.data.charAt(state.pos) == ';')) {
                 ++state.pos;
             } else if (state.pos < state.data.length()) {
                 throw new ParseException(
@@ -138,10 +141,10 @@ class RFC2253 {
         //
         // First the OID case.
         //
-        if (Character.isDigit(state.data.charAt(state.pos)) ||
-                (state.data.length() - state.pos >= 4 &&
-                        ("oid.".equals(state.data.substring(state.pos, state.pos + 4)) ||
-                                "OID."
+        if (Character.isDigit(state.data.charAt(state.pos))
+                || (state.data.length() - state.pos >= 4
+                        && ("oid.".equals(state.data.substring(state.pos, state.pos + 4))
+                                || "OID."
                                         .equals(state.data
                                         .substring(state.pos, state.pos + 4))))) {
             if (!Character.isDigit(state.data.charAt(state.pos))) {
@@ -151,8 +154,8 @@ class RFC2253 {
 
             while (true) {
                 // 1*DIGIT
-                while (state.pos < state.data.length() &&
-                        Character.isDigit(state.data.charAt(state.pos))) {
+                while (state.pos < state.data.length()
+                        && Character.isDigit(state.data.charAt(state.pos))) {
                     result.append(state.data.charAt(state.pos));
                     ++state.pos;
                 }
@@ -161,8 +164,8 @@ class RFC2253 {
                     result.append(state.data.charAt(state.pos));
                     ++state.pos;
                     // 1*DIGIT must follow "."
-                    if (state.pos < state.data.length() &&
-                            !Character.isDigit(state.data.charAt(state.pos))) {
+                    if (state.pos < state.data.length()
+                            && !Character.isDigit(state.data.charAt(state.pos))) {
                         throw new ParseException(
                                 "invalid attribute type (expected end of state.data)");
                     }
@@ -170,8 +173,8 @@ class RFC2253 {
                     break;
                 }
             }
-        } else if (Character.isUpperCase(state.data.charAt(state.pos)) ||
-                Character.isLowerCase(state.data.charAt(state.pos))) {
+        } else if (Character.isUpperCase(state.data.charAt(state.pos))
+                || Character.isLowerCase(state.data.charAt(state.pos))) {
             //
             // The grammar is wrong in this case. It should be ALPHA
             // KEYCHAR* otherwise it will not accept "O" as a valid
@@ -180,11 +183,11 @@ class RFC2253 {
             result.append(state.data.charAt(state.pos));
             ++state.pos;
             // 1* KEYCHAR
-            while (state.pos < state.data.length() &&
-                    (Character.isDigit(state.data.charAt(state.pos)) ||
-                            Character.isUpperCase(state.data.charAt(state.pos)) ||
-                            Character.isLowerCase(state.data.charAt(state.pos)) ||
-                            state.data.charAt(state.pos) == '-')) {
+            while (state.pos < state.data.length()
+                    && (Character.isDigit(state.data.charAt(state.pos))
+                            || Character.isUpperCase(state.data.charAt(state.pos))
+                            || Character.isLowerCase(state.data.charAt(state.pos))
+                            || state.data.charAt(state.pos) == '-')) {
                 result.append(state.data.charAt(state.pos));
                 ++state.pos;
             }
@@ -255,8 +258,8 @@ class RFC2253 {
             while (state.pos < state.data.length()) {
                 if (state.data.charAt(state.pos) == '\\') {
                     result.append(parsePair(state));
-                } else if (special.indexOf(state.data.charAt(state.pos)) == -1 &&
-                        state.data.charAt(state.pos) != '"') {
+                } else if (special.indexOf(state.data.charAt(state.pos)) == -1
+                        && state.data.charAt(state.pos) != '"') {
                     result.append(state.data.charAt(state.pos));
                     ++state.pos;
                 } else {
@@ -282,9 +285,9 @@ class RFC2253 {
             throw new ParseException("invalid escape format (unexpected end of state.data)");
         }
 
-        if (special.indexOf(state.data.charAt(state.pos)) != -1 ||
-                state.data.charAt(state.pos) != '\\' ||
-                state.data.charAt(state.pos) != '"') {
+        if (special.indexOf(state.data.charAt(state.pos)) != -1
+                || state.data.charAt(state.pos) != '\\'
+                || state.data.charAt(state.pos) != '"') {
             result += state.data.charAt(state.pos);
             ++state.pos;
             return result;
@@ -298,13 +301,13 @@ class RFC2253 {
     //
     private static String parseHexPair(ParseState state, boolean allowEmpty) throws ParseException {
         String result = "";
-        if (state.pos < state.data.length() &&
-                hexvalid.indexOf(state.data.charAt(state.pos)) != -1) {
+        if (state.pos < state.data.length()
+                && hexvalid.indexOf(state.data.charAt(state.pos)) != -1) {
             result += state.data.charAt(state.pos);
             ++state.pos;
         }
-        if (state.pos < state.data.length() &&
-                hexvalid.indexOf(state.data.charAt(state.pos)) != -1) {
+        if (state.pos < state.data.length()
+                && hexvalid.indexOf(state.data.charAt(state.pos)) != -1) {
             result += state.data.charAt(state.pos);
             ++state.pos;
         }

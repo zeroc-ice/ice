@@ -2,17 +2,23 @@
 
 package test.Ice.binding;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.SocketException;
+
 import test.Ice.binding.Test.RemoteCommunicator;
 import test.Ice.binding.Test.RemoteObjectAdapterPrx;
+import test.TestHelper;
 
 public class RemoteCommunicatorI implements RemoteCommunicator {
-    public RemoteCommunicatorI(test.TestHelper helper) {
+    public RemoteCommunicatorI(TestHelper helper) {
         _helper = helper;
     }
 
     @Override
     public RemoteObjectAdapterPrx createObjectAdapter(
-            String name, String endpts, com.zeroc.Ice.Current current) {
+            String name, String endpts, Current current) {
         int retry = 5;
         while (true) {
             try {
@@ -20,13 +26,13 @@ public class RemoteCommunicatorI implements RemoteCommunicator {
                 if (endpoints.indexOf("-p") < 0) {
                     endpoints = _helper.getTestEndpoint(_nextPort++, endpoints);
                 }
-                com.zeroc.Ice.Communicator com = current.adapter.getCommunicator();
+                Communicator com = current.adapter.getCommunicator();
                 com.getProperties().setProperty(name + ".ThreadPool.Size", "1");
-                com.zeroc.Ice.ObjectAdapter adapter =
+                ObjectAdapter adapter =
                         com.createObjectAdapterWithEndpoints(name, endpoints);
                 return RemoteObjectAdapterPrx.uncheckedCast(
                         current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
-            } catch (com.zeroc.Ice.SocketException ex) {
+            } catch (SocketException ex) {
                 if (--retry == 0) {
                     throw ex;
                 }
@@ -36,15 +42,15 @@ public class RemoteCommunicatorI implements RemoteCommunicator {
 
     @Override
     public void deactivateObjectAdapter(
-            RemoteObjectAdapterPrx adapter, com.zeroc.Ice.Current current) {
+            RemoteObjectAdapterPrx adapter, Current current) {
         adapter.deactivate(); // Collocated call.
     }
 
     @Override
-    public void shutdown(com.zeroc.Ice.Current current) {
+    public void shutdown(Current current) {
         current.adapter.getCommunicator().shutdown();
     }
 
-    private final test.TestHelper _helper;
+    private final TestHelper _helper;
     private int _nextPort = 10;
 }

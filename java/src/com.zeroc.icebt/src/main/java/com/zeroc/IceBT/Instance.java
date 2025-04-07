@@ -4,12 +4,14 @@ package com.zeroc.IceBT;
 
 import android.bluetooth.BluetoothAdapter;
 
+import com.zeroc.Ice.BTSEndpointType;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.PluginInitializationException;
+import com.zeroc.Ice.ProtocolInstance;
 
-class Instance extends com.zeroc.Ice.ProtocolInstance {
+class Instance extends ProtocolInstance {
     Instance(Communicator communicator, short type, String protocol) {
-        super(communicator, type, protocol, type == com.zeroc.Ice.BTSEndpointType.value);
+        super(communicator, type, protocol, type == BTSEndpointType.value);
 
         _communicator = communicator;
 
@@ -34,5 +36,5 @@ class Instance extends com.zeroc.Ice.ProtocolInstance {
     }
 
     private Communicator _communicator;
-    private BluetoothAdapter _bluetoothAdapter;
+    private final BluetoothAdapter _bluetoothAdapter;
 }

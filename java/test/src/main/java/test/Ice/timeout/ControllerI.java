@@ -2,11 +2,14 @@
 
 package test.Ice.timeout;
 
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.ObjectAdapter;
+
 import test.Ice.timeout.Test.Controller;
 
 class ControllerI implements Controller {
     static class ActivateAdapterThread extends Thread {
-        ActivateAdapterThread(com.zeroc.Ice.ObjectAdapter adapter, int timeout) {
+        ActivateAdapterThread(ObjectAdapter adapter, int timeout) {
             _adapter = adapter;
             _timeout = timeout;
         }
@@ -21,16 +24,16 @@ class ControllerI implements Controller {
             _adapter.activate();
         }
 
-        com.zeroc.Ice.ObjectAdapter _adapter;
+        ObjectAdapter _adapter;
         int _timeout;
     }
 
-    public ControllerI(com.zeroc.Ice.ObjectAdapter adapter) {
+    public ControllerI(ObjectAdapter adapter) {
         _adapter = adapter;
     }
 
     @Override
-    public void holdAdapter(int to, com.zeroc.Ice.Current current) {
+    public void holdAdapter(int to, Current current) {
         _adapter.hold();
         if (to >= 0) {
             Thread thread = new ActivateAdapterThread(_adapter, to);
@@ -39,14 +42,14 @@ class ControllerI implements Controller {
     }
 
     @Override
-    public void resumeAdapter(com.zeroc.Ice.Current current) {
+    public void resumeAdapter(Current current) {
         _adapter.activate();
     }
 
     @Override
-    public void shutdown(com.zeroc.Ice.Current current) {
+    public void shutdown(Current current) {
         current.adapter.getCommunicator().shutdown();
     }
 
-    final com.zeroc.Ice.ObjectAdapter _adapter;
+    final ObjectAdapter _adapter;
 }

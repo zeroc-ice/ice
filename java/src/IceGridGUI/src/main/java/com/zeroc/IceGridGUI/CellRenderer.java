@@ -30,5 +30,5 @@ class CellRenderer implements TreeCellRenderer {
         return result;
     }
 
-    private TreeCellRenderer _defaultRenderer = new DefaultTreeCellRenderer();
+    private final TreeCellRenderer _defaultRenderer = new DefaultTreeCellRenderer();
 }

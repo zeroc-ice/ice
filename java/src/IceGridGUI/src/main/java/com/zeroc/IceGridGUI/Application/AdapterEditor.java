@@ -4,12 +4,20 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
+
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.ParseException;
+import com.zeroc.Ice.Util;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -72,12 +80,12 @@ class AdapterEditor extends CommunicatorChildEditor {
                 };
         _registerProcess = new JCheckBox(checkRegisterProcess);
         _registerProcess.setToolTipText(
-                "<html>This setting is ignored for servers running Ice<br>" +
-                        "version 3.3 or greater.<br>" +
-                        "During activation, create a Process object<br>" +
-                        "in this adapter and register it with IceGrid<br>" +
-                        "to enable clean shutdown; you should register<br>" +
-                        "exactly one Process object per server.</html>");
+                "<html>This setting is ignored for servers running Ice<br>"
+                        + "version 3.3 or greater.<br>"
+                        + "During activation, create a Process object<br>"
+                        + "in this adapter and register it with IceGrid<br>"
+                        + "to enable clean shutdown; you should register<br>"
+                        + "exactly one Process object per server.</html>");
 
         Action checkServerLifetime =
                 new AbstractAction("Server Lifetime") {
@@ -88,10 +96,10 @@ class AdapterEditor extends CommunicatorChildEditor {
                 };
         _serverLifetime = new JCheckBox(checkServerLifetime);
         _serverLifetime.setToolTipText(
-                "<html>Is the adapter lifetime the same as the server<br>" +
-                        "lifetime? The server is considered to be active<br>" +
-                        "only if all the adapters with this attribute set<br>" +
-                        "to true are active.</html>");
+                "<html>Is the adapter lifetime the same as the server<br>"
+                        + "lifetime? The server is considered to be active<br>"
+                        + "only if all the adapters with this attribute set<br>"
+                        + "to true are active.</html>");
 
         // Associate updateListener with various fields
         _name.getDocument()
@@ -125,13 +133,13 @@ class AdapterEditor extends CommunicatorChildEditor {
 
         _endpoints.getDocument().addDocumentListener(_updateListener);
         _endpoints.setToolTipText(
-                "<html>The network interface(s) on which this object adapter receives requests;<br>" +
-                        "for example:<br>" +
-                        " tcp (listen on all local interfaces using a random port)<br>" +
-                        " tcp -h venus.foo.com (listen on just one interface)<br>" +
-                        " tcp -t 10000 (sets a timeout of 10,000 milliseconds)<br>" +
-                        " ssl -h venus.foo.com (accepts SSL connections instead of plain TCP)" +
-                        "</html>");
+                "<html>The network interface(s) on which this object adapter receives requests;<br>"
+                        + "for example:<br>"
+                        + " tcp (listen on all local interfaces using a random port)<br>"
+                        + " tcp -h venus.foo.com (listen on just one interface)<br>"
+                        + " tcp -t 10000 (sets a timeout of 10,000 milliseconds)<br>"
+                        + " ssl -h venus.foo.com (accepts SSL connections instead of plain TCP)"
+                        + "</html>");
 
         _proxyOptions.getDocument().addDocumentListener(_updateListener);
         _proxyOptions.setToolTipText(
@@ -151,8 +159,8 @@ class AdapterEditor extends CommunicatorChildEditor {
 
         _priority.getDocument().addDocumentListener(_updateListener);
         _priority.setToolTipText(
-                "The priority of this adapter; see the Ordered load-balancing " +
-                        "policy in Replica Groups");
+                "The priority of this adapter; see the Ordered load-balancing "
+                        + "policy in Replica Groups");
 
         JTextField publishedEndpointsTextField =
                 (JTextField) _publishedEndpoints.getEditor().getEditorComponent();
@@ -295,8 +303,8 @@ class AdapterEditor extends CommunicatorChildEditor {
         }
 
         // Set all objects and allocatables properties
-        java.util.Map<String, String[]> map = _objects.get();
-        for (java.util.Map.Entry<String, String[]> p : map.entrySet()) {
+        Map<String, String[]> map = _objects.get();
+        for (Map.Entry<String, String[]> p : map.entrySet()) {
             String key = p.getKey();
             String[] value = p.getValue();
             if (!value[1].isEmpty()) {
@@ -305,7 +313,7 @@ class AdapterEditor extends CommunicatorChildEditor {
         }
 
         map = _allocatables.get();
-        for (java.util.Map.Entry<String, String[]> p : map.entrySet()) {
+        for (Map.Entry<String, String[]> p : map.entrySet()) {
             String key = p.getKey();
             String[] value = p.getValue();
             if (!value[1].isEmpty()) {
@@ -498,9 +506,9 @@ class AdapterEditor extends CommunicatorChildEditor {
         return (Adapter) _target;
     }
 
-    private java.util.Map<String, String[]> objectDescriptorSeqToMap(
-            java.util.List<ObjectDescriptor> objects) {
-        java.util.Map<String, String[]> result = new java.util.TreeMap<>();
+    private Map<String, String[]> objectDescriptorSeqToMap(
+            List<ObjectDescriptor> objects) {
+        Map<String, String[]> result = new TreeMap<>();
         com.zeroc.Ice.Communicator communicator =
                 getAdapter().getRoot().getCoordinator().getCommunicator();
 
@@ -512,16 +520,16 @@ class AdapterEditor extends CommunicatorChildEditor {
         return result;
     }
 
-    private java.util.LinkedList<ObjectDescriptor> mapToObjectDescriptorSeq(
-            java.util.Map<String, String[]> map) {
+    private LinkedList<ObjectDescriptor> mapToObjectDescriptorSeq(
+            Map<String, String[]> map) {
         String badIdentities = "";
-        java.util.LinkedList<ObjectDescriptor> result = new java.util.LinkedList<>();
-        for (java.util.Map.Entry<String, String[]> p : map.entrySet()) {
+        LinkedList<ObjectDescriptor> result = new LinkedList<>();
+        for (Map.Entry<String, String[]> p : map.entrySet()) {
             try {
-                com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity(p.getKey());
+                Identity id = Util.stringToIdentity(p.getKey());
                 String[] val = p.getValue();
                 result.add(new ObjectDescriptor(id, val[0], val[2]));
-            } catch (com.zeroc.Ice.ParseException ex) {
+            } catch (ParseException ex) {
                 badIdentities += "- " + p.getKey() + "\n";
             }
         }
@@ -571,9 +579,9 @@ class AdapterEditor extends CommunicatorChildEditor {
     private JCheckBox _serverLifetime;
 
     private ArrayMapField _objects;
-    private java.util.LinkedList<ObjectDescriptor> _objectList;
+    private LinkedList<ObjectDescriptor> _objectList;
     private ArrayMapField _allocatables;
-    private java.util.LinkedList<ObjectDescriptor> _allocatableList;
+    private LinkedList<ObjectDescriptor> _allocatableList;
 
     private static final Object PUBLISH_ACTUAL =
             new Object() {

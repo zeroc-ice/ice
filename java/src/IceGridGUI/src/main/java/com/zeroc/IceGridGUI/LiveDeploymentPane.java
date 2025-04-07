@@ -10,6 +10,7 @@ import com.zeroc.IceGridGUI.LiveDeployment.TreeNode;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.LinkedList;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -90,8 +91,8 @@ public class LiveDeploymentPane extends JSplitPane implements Tab {
         TreeNode previousNode = null;
         do {
             previousNode = _previousNodes.removeLast();
-        } while (!_previousNodes.isEmpty() &&
-                (previousNode == _currentNode || !_root.hasNode(previousNode)));
+        } while (!_previousNodes.isEmpty()
+                && (previousNode == _currentNode || !_root.hasNode(previousNode)));
 
         if (_previousNodes.isEmpty()) {
             _root.getCoordinator().getBackAction().setEnabled(false);
@@ -275,13 +276,13 @@ public class LiveDeploymentPane extends JSplitPane implements Tab {
         }
     }
 
-    private Root _root;
-    private SimpleInternalFrame _leftPane;
-    private SimpleInternalFrame _propertiesFrame;
+    private final Root _root;
+    private final SimpleInternalFrame _leftPane;
+    private final SimpleInternalFrame _propertiesFrame;
 
     // back/forward navigation
-    private java.util.LinkedList<TreeNode> _previousNodes = new java.util.LinkedList<>();
-    private java.util.LinkedList<TreeNode> _nextNodes = new java.util.LinkedList<>();
+    private final LinkedList<TreeNode> _previousNodes = new LinkedList<>();
+    private final LinkedList<TreeNode> _nextNodes = new LinkedList<>();
     private TreeNode _currentNode;
 
     private boolean _selectionListenerEnabled = true;

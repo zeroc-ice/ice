@@ -4,14 +4,17 @@
 
 package android.bluetooth;
 
+import java.io.IOException;
+import java.util.UUID;
+
 public final class BluetoothDevice {
-    public BluetoothSocket createInsecureRfcommSocketToServiceRecord(java.util.UUID uuid)
-            throws java.io.IOException {
+    public BluetoothSocket createInsecureRfcommSocketToServiceRecord(UUID uuid)
+            throws IOException {
         return null;
     }
 
-    public BluetoothSocket createRfcommSocketToServiceRecord(java.util.UUID uuid)
-            throws java.io.IOException {
+    public BluetoothSocket createRfcommSocketToServiceRecord(UUID uuid)
+            throws IOException {
         return null;
     }
 

@@ -3,6 +3,10 @@
 package com.zeroc.Ice;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 final class LocatorInfo {
     interface GetEndpointsCallback {
@@ -16,8 +20,8 @@ final class LocatorInfo {
             EndpointI[] endpoints = null;
             if (proxy != null) {
                 Reference r = ((_ObjectPrxI) proxy)._getReference();
-                if (_ref.isWellKnown() &&
-                        !Protocol.isSupported(_ref.getEncoding(), r.getEncoding())) {
+                if (_ref.isWellKnown()
+                        && !Protocol.isSupported(_ref.getEncoding(), r.getEncoding())) {
                     //
                     // If a well-known proxy and the returned proxy encoding isn't supported, we're
                     // done: there's
@@ -33,8 +37,8 @@ final class LocatorInfo {
                     //
                     if (_ref.getInstance().traceLevels().location >= 1) {
                         locatorInfo.trace(
-                                "retrieved adapter for well-known object from locator, " +
-                                        "adding to locator cache",
+                                "retrieved adapter for well-known object from locator, "
+                                        + "adding to locator cache",
                                 _ref,
                                 r);
                     }
@@ -79,8 +83,8 @@ final class LocatorInfo {
             synchronized (this) {
                 if (!_response && _exception == null) {
                     _callbacks.add(callback);
-                    if (wellKnownRef !=
-                            null) // This request is to resolve the endpoints of a cached
+                    if (wellKnownRef
+                            != null) // This request is to resolve the endpoints of a cached
                     // well-known object ref
                     {
                         _wellKnownRefs.add(wellKnownRef);
@@ -136,8 +140,8 @@ final class LocatorInfo {
         protected final LocatorInfo _locatorInfo;
         protected final Reference _ref;
 
-        private java.util.List<RequestCallback> _callbacks = new java.util.ArrayList<>();
-        private java.util.List<Reference> _wellKnownRefs = new java.util.ArrayList<>();
+        private List<RequestCallback> _callbacks = new ArrayList<>();
+        private List<Reference> _wellKnownRefs = new ArrayList<>();
         private boolean _sent;
         private boolean _response;
         private ObjectPrx _proxy;
@@ -546,7 +550,7 @@ final class LocatorInfo {
 
     private void finishRequest(
             Reference ref,
-            java.util.List<Reference> wellKnownRefs,
+            List<Reference> wellKnownRefs,
             ObjectPrx proxy,
             boolean notRegistered) {
         if (proxy == null || ((_ObjectPrxI) proxy)._getReference().isIndirect()) {
@@ -594,6 +598,6 @@ final class LocatorInfo {
     private final LocatorTable _table;
     private final boolean _background;
 
-    private final java.util.Map<String, Request> _adapterRequests = new java.util.HashMap<>();
-    private final java.util.Map<Identity, Request> _objectRequests = new java.util.HashMap<>();
+    private final Map<String, Request> _adapterRequests = new HashMap<>();
+    private final Map<Identity, Request> _objectRequests = new HashMap<>();
 }

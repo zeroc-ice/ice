@@ -2,7 +2,9 @@
 
 package test.Ice.metrics;
 
-class ObserverI implements com.zeroc.Ice.Instrumentation.Observer {
+import com.zeroc.Ice.Instrumentation.Observer;
+
+class ObserverI implements Observer {
     public synchronized void reset() {
         total = 0;
         current = 0;

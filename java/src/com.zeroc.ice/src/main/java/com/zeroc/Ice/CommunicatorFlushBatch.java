@@ -2,6 +2,10 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.InvocationObserver;
+
+import java.util.concurrent.ExecutionException;
+
 class CommunicatorFlushBatch extends InvocationFuture<Void> {
     public CommunicatorFlushBatch(Communicator communicator, Instance instance) {
         super(communicator, instance, "flushBatchRequests");
@@ -55,7 +59,7 @@ class CommunicatorFlushBatch extends InvocationFuture<Void> {
             }
 
             @Override
-            protected com.zeroc.Ice.Instrumentation.InvocationObserver getObserver() {
+            protected InvocationObserver getObserver() {
                 return CommunicatorFlushBatch.this._observer;
             }
         }
@@ -102,7 +106,7 @@ class CommunicatorFlushBatch extends InvocationFuture<Void> {
             get();
         } catch (InterruptedException ex) {
             throw new OperationInterruptedException(ex);
-        } catch (java.util.concurrent.ExecutionException ee) {
+        } catch (ExecutionException ee) {
             try {
                 throw ee.getCause().fillInStackTrace();
             } catch (RuntimeException ex) // Includes LocalException

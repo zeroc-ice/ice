@@ -2,6 +2,7 @@
 
 package com.zeroc.IceGridGUI;
 
+import com.zeroc.Ice.Current;
 import com.zeroc.IceGrid.*;
 
 import javax.swing.SwingUtilities;
@@ -14,7 +15,7 @@ class AdapterObserverI implements AdapterObserver {
 
     @Override
     public synchronized void adapterInit(
-            final AdapterInfo[] adapters, com.zeroc.Ice.Current current) {
+            final AdapterInfo[] adapters, Current current) {
         if (_trace) {
             if (adapters.length == 0) {
                 _coordinator.traceObserver("adapterInit (no adapter)");
@@ -35,7 +36,7 @@ class AdapterObserverI implements AdapterObserver {
     }
 
     @Override
-    public void adapterAdded(final AdapterInfo info, com.zeroc.Ice.Current current) {
+    public void adapterAdded(final AdapterInfo info, Current current) {
         if (_trace) {
             _coordinator.traceObserver("adapterAdded for adapter " + info.id);
         }
@@ -47,7 +48,7 @@ class AdapterObserverI implements AdapterObserver {
     }
 
     @Override
-    public void adapterUpdated(final AdapterInfo info, com.zeroc.Ice.Current current) {
+    public void adapterUpdated(final AdapterInfo info, Current current) {
         if (_trace) {
             _coordinator.traceObserver("adapterUpdated for adapter " + info.id);
         }
@@ -59,7 +60,7 @@ class AdapterObserverI implements AdapterObserver {
     }
 
     @Override
-    public void adapterRemoved(final String id, com.zeroc.Ice.Current current) {
+    public void adapterRemoved(final String id, Current current) {
         if (_trace) {
             _coordinator.traceObserver("adapterRemoved for adapter " + id);
         }

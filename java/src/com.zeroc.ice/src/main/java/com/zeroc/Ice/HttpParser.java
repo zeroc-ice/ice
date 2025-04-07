@@ -2,6 +2,10 @@
 
 package com.zeroc.Ice;
 
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
+
 final class HttpParser {
     HttpParser() {
         _type = Type.Unknown;
@@ -17,7 +21,7 @@ final class HttpParser {
         Response
     }
 
-    int isCompleteMessage(java.nio.ByteBuffer buf, int begin, int end) {
+    int isCompleteMessage(ByteBuffer buf, int begin, int end) {
         int p = begin;
 
         //
@@ -51,7 +55,7 @@ final class HttpParser {
         return -1;
     }
 
-    boolean parse(java.nio.ByteBuffer buf, int begin, int end) {
+    boolean parse(ByteBuffer buf, int begin, int end) {
         int p = begin;
         int start = 0;
         final char CR = '\r';
@@ -543,9 +547,9 @@ final class HttpParser {
         return null;
     }
 
-    java.util.Map<String, String> getHeaders() {
-        java.util.Map<String, String> headers = new java.util.HashMap<>();
-        for (java.util.Map.Entry<String, String> entry : _headers.entrySet()) {
+    Map<String, String> getHeaders() {
+        Map<String, String> headers = new HashMap<>();
+        for (Map.Entry<String, String> entry : _headers.entrySet()) {
             headers.put(
                     _headerNames.get(entry.getKey()),
                     entry.getValue().trim()); // Return original header name.
@@ -555,11 +559,11 @@ final class HttpParser {
 
     private Type _type;
 
-    private StringBuffer _method = new StringBuffer();
-    private StringBuffer _uri = new StringBuffer();
+    private final StringBuffer _method = new StringBuffer();
+    private final StringBuffer _uri = new StringBuffer();
 
-    private java.util.Map<String, String> _headers = new java.util.HashMap<>();
-    private java.util.Map<String, String> _headerNames = new java.util.HashMap<>();
+    private final Map<String, String> _headers = new HashMap<>();
+    private final Map<String, String> _headerNames = new HashMap<>();
     private String _headerName = "";
 
     private int _versionMajor;
