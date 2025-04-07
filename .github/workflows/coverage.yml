@@ -15,6 +15,9 @@ jobs:
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+
       - name: Install testing dependencies from pip
         run: python3 -m pip install passlib cryptography numpy
         shell: bash
@@ -67,6 +70,9 @@ jobs:
       - name: Setup .NET
         uses: ./.github/actions/setup-dotnet
 
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+
       - name: Install testing dependencies from pip
         run: python3 -m pip install passlib cryptography numpy
         shell: bash
@@ -114,6 +120,9 @@ jobs:
       - name: Setup Java
         uses: ./.github/actions/setup-java
 
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+
       - name: Install testing dependencies from pip
         run: python3 -m pip install passlib cryptography numpy
         shell: bash
@@ -144,6 +153,9 @@ jobs:
 
       - name: Setup Node.js
         uses: ./.github/actions/setup-node
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
 
       - name: Install testing dependencies from pip
         run: python3 -m pip install passlib cryptography numpy
