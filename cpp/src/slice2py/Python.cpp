@@ -51,7 +51,7 @@ namespace
             {
                 ostringstream os;
                 os << "failed to create directory '" << dir << "': file already exists and is not a directory";
-                throw FileException(__FILE__, __LINE__, os.str());
+                throw FileException(os.str());
             }
             return;
         }
@@ -60,7 +60,7 @@ namespace
         {
             ostringstream os;
             os << "cannot create directory '" << dir << "': " << IceInternal::errorToString(errno);
-            throw FileException(__FILE__, __LINE__, os.str());
+            throw FileException(os.str());
         }
     }
 
@@ -76,7 +76,7 @@ namespace
         vector<string> elements;
         if (!IceInternal::splitString(pkgdir, "/", elements))
         {
-            throw FileException(__FILE__, __LINE__, "invalid path in '" + pkgdir + "'");
+            throw FileException("invalid path in '" + pkgdir + "'");
         }
 
         assert(!elements.empty());
@@ -99,7 +99,7 @@ namespace
                 {
                     ostringstream os;
                     os << "cannot create directory '" << path << "': " << IceInternal::errorToString(errno);
-                    throw FileException(__FILE__, __LINE__, os.str());
+                    throw FileException(os.str());
                 }
                 FileTracker::instance()->addDirectory(path);
             }
@@ -107,7 +107,7 @@ namespace
             {
                 ostringstream os;
                 os << "failed to create directory '" << path << "': file already exists and is not a directory";
-                throw FileException(__FILE__, __LINE__, os.str());
+                throw FileException(os.str());
             }
 
             //
@@ -127,7 +127,7 @@ namespace
                 {
                     ostringstream os;
                     os << "cannot open '" << initFile << "': " << IceInternal::errorToString(errno);
-                    throw FileException(__FILE__, __LINE__, os.str());
+                    throw FileException(os.str());
                 }
                 FileTracker::instance()->addFile(initFile);
             }
@@ -281,7 +281,7 @@ namespace
             {
                 ostringstream os;
                 os << "cannot open file '" << initPath << "': " << IceInternal::errorToString(errno);
-                throw FileException(__FILE__, __LINE__, os.str());
+                throw FileException(os.str());
             }
 
             ReadState state = PreModules;
@@ -376,7 +376,7 @@ namespace
         {
             ostringstream oss;
             oss << "cannot open file '" << initPath << "': " << IceInternal::errorToString(errno);
-            throw FileException(__FILE__, __LINE__, oss.str());
+            throw FileException(oss.str());
         }
         FileTracker::instance()->addFile(initPath);
 
@@ -699,7 +699,7 @@ Slice::Python::compile(const vector<string>& argv)
                             {
                                 ostringstream oss;
                                 oss << "cannot open '" << path << "': " << IceInternal::errorToString(errno);
-                                throw FileException(__FILE__, __LINE__, oss.str());
+                                throw FileException(oss.str());
                             }
                             FileTracker::instance()->addFile(path);
 

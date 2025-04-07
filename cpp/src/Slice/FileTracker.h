@@ -10,10 +10,10 @@
 
 namespace Slice
 {
-    class FileException final : public Ice::LocalException
+    class FileException final : public std::runtime_error
     {
     public:
-        using Ice::LocalException::LocalException;
+        using std::runtime_error::runtime_error;
     };
 
     class FileTracker;
