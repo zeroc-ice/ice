@@ -138,8 +138,8 @@ namespace Ice
         /// It is legal to create an object adapter with the empty string as its name. Such an object adapter is
         /// accessible via bidirectional connections or by collocated invocations.
         /// @param name The object adapter name.
-        /// @param serverAuthenticationOptions The %SSL configuration properties for server connections.
-        /// The `SSL::ServerAuthenticationOptions` type is an alias to the platform specific %SSL server authentication
+        /// @param serverAuthenticationOptions The SSL configuration properties for server connections.
+        /// The `SSL::ServerAuthenticationOptions` type is an alias to the platform specific SSL server authentication
         /// options.
         /// @return The new object adapter.
         /// @see #createObjectAdapterWithEndpoints
@@ -157,8 +157,8 @@ namespace Ice
         /// name will result in a UUID being generated for the name.
         /// @param name The object adapter name.
         /// @param endpoints The endpoints of the object adapter.
-        /// @param serverAuthenticationOptions The %SSL configuration properties for server connections.
-        /// The `SSL::ServerAuthenticationOptions` type is an alias to the platform specific %SSL server authentication
+        /// @param serverAuthenticationOptions The SSL configuration properties for server connections.
+        /// The `SSL::ServerAuthenticationOptions` type is an alias to the platform specific SSL server authentication
         /// options.
         /// @return The new object adapter.
         /// @see #createObjectAdapter
