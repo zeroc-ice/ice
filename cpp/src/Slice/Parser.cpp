@@ -1768,6 +1768,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& identifier, bool emitErrors,
     }
 
     // Do not emit errors if there was a type error but a match was found in a higher scope.
+    // TODO The second part of this check looks funny to me.
     if (emitErrors && !(typeError && !results.empty()))
     {
         for (const auto& error : errors)
@@ -2121,6 +2122,12 @@ Slice::Container::validateConstant(
     const string& valueString,
     bool isConstant)
 {
+    // Don't bother validating the constant if some other error prevented us from locating its type.
+    if (!type)
+    {
+        return true;
+    }
+
     // isConstant indicates whether a constant or a data member (with a default value) is being defined.
 
     const string desc = isConstant ? "constant" : "data member";
@@ -3857,7 +3864,7 @@ Slice::Struct::createDataMember(
     checkIdentifier(name); // Don't return here -- we create the data member anyway.
 
     // Structures cannot contain themselves.
-    if (type.get() == this)
+    if (type && type.get() == this)
     {
         ostringstream os;
         os << "struct '" << this->name() << "' cannot contain itself";
