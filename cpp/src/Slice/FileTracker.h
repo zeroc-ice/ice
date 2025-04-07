@@ -5,6 +5,7 @@
 
 #include <list>
 #include <map>
+#include <stdexcept>
 
 namespace Slice
 {
