@@ -58,25 +58,6 @@ namespace Ice
         int main(int argc, const wchar_t* const argv[], InitializationData initData = {});
 #endif
 
-        /// The primary entry point for services. This function examines @p args for reserved options and takes the
-        /// appropriate action. The reserved options are shown below.
-        ///
-        /// Win32:
-        ///
-        /// --service NAME
-        ///
-        /// Unix:
-        ///
-        /// --daemon [--nochdir] [--noclose]
-        ///
-        /// If --service or --daemon are specified, the program runs as a service, otherwise the program runs as a
-        /// regular foreground process. Any service-specific (and Ice-specific) options are stripped from @p args (just
-        /// as for ::Ice::initialize).
-        /// @param args The command-line arguments.
-        /// @param initData Configuration data for the new communicator.
-        /// @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
-        int main(const StringSeq& args, InitializationData initData = {});
-
         /// Gets the communicator created by the service.
         /// @return The service's communicator.
         [[nodiscard]] Ice::CommunicatorPtr communicator() const;
@@ -94,45 +75,22 @@ namespace Ice
         /// @return The service name.
         [[nodiscard]] std::string name() const;
 
-        /// Alternative entry point for services that use their own command-line options. Instead of calling #main, the
-        /// program processes its command-line options and calls #run. To run as a Windows service or Unix daemon, the
-        /// program must first call #configureService or #configureDaemon, respectively.
-        /// @param argc The number of arguments in @p argv.
-        /// @param argv The command-line arguments.
-        /// @param initData Configuration data for the new communicator.
-        /// @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
-        int run(int argc, const char* const argv[], InitializationData initData = {});
-
-#if defined(_WIN32) || defined(ICE_DOXYGEN)
-        /// @copydoc run(int, const char* const[], InitializationData)
-        /// @remarks Windows only.
-        int run(int argc, const wchar_t* const argv[], InitializationData initData = {});
-
-        /// Configures the program to run as a Windows service.
-        /// @param name The service name.
-        /// @remarks Windows only.
-        void configureService(const std::string& name);
-
-        /// @private
-        static void setModuleHandle(HMODULE);
-#endif
-
-#if !defined(_WIN32) || defined(ICE_DOXYGEN)
-        /// Configures the program to run as a Unix daemon.
-        /// @param changeDirectory `true` if the daemon should change its working directory to the root directory,
-        /// `false` otherwise.
-        /// @param closeFiles `true` if the daemon should close unnecessary file descriptors (i.e., stdin, stdout,
-        /// etc.), `false` otherwise.
-        /// @param pidFile If a non-empty string is provided, the daemon writes its process ID to the given file.
-        /// @remarks Linux and macOS only.
-        void configureDaemon(bool changeDirectory, bool closeFiles, const std::string& pidFile);
-#endif
-
         /// Handles a signal.
         /// @remarks The default implementation calls #interrupt unless the signal is SIGHUP or CTRL_LOGOFF_EVENT and
         /// the property `Ice.Nohup` is greater than 0 (or not set at all).
         /// @param sig The signal that was caught.
         virtual void handleInterrupt(int sig);
+
+#ifdef _WIN32
+        /// @private
+        static void setModuleHandle(HMODULE);
+
+        /// @private
+        void serviceMain(int, const wchar_t* const[]);
+
+        /// @private
+        void control(int);
+#endif
 
     protected:
         /// Prepares a service for execution, including the creation and activation of object adapters and servants.
@@ -205,7 +163,11 @@ namespace Ice
 
         static Service* _instance;
 
+        int run(int argc, const char* const argv[], InitializationData initData = {});
+
 #ifdef _WIN32
+        /// Configures the program to run as a Windows service.
+        void configureService(const std::string& name);
 
         int runService(int, const char* const[], InitializationData);
         void terminateService(DWORD);
@@ -215,21 +177,21 @@ namespace Ice
         SERVICE_STATUS_HANDLE _statusHandle;
         std::vector<std::string> _serviceArgs;
         InitializationData _initData;
-
-    public:
-        /// @cond INTERNAL
-        void serviceMain(int, const wchar_t* const[]);
-        void control(int);
-        /// @endcond
-
 #else
+        /// Configures the program to run as a Unix daemon.
+        /// @param changeDirectory `true` if the daemon should change its working directory to the root directory,
+        /// `false` otherwise.
+        /// @param closeFiles `true` if the daemon should close unnecessary file descriptors (i.e., stdin, stdout,
+        /// etc.), `false` otherwise.
+        /// @param pidFile If a non-empty string is provided, the daemon writes its process ID to the given file.
+        /// @remarks Linux and macOS only.
+        void configureDaemon(bool changeDirectory, bool closeFiles, const std::string& pidFile);
 
         int runDaemon(int, char*[], InitializationData);
 
         bool _changeDirectory = true;
         bool _closeFiles = true;
         std::string _pidFile;
-
 #endif
     };
 

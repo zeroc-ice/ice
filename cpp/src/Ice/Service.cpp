@@ -671,13 +671,6 @@ Ice::Service::main(int argc, const wchar_t* const argv[], InitializationData ini
 }
 #endif
 
-int
-Ice::Service::main(const StringSeq& args, InitializationData initData)
-{
-    IceInternal::ArgVector av(args);
-    return main(av.argc, av.argv, std::move(initData));
-}
-
 Ice::CommunicatorPtr
 Ice::Service::communicator() const
 {
@@ -701,16 +694,6 @@ Ice::Service::name() const
 {
     return _name;
 }
-
-#ifdef _WIN32
-int
-Ice::Service::run(int argc, const wchar_t* const argv[], InitializationData initData)
-{
-    StringSeq args = Ice::argsToStringSeq(argc, argv);
-    IceInternal::ArgVector av(args);
-    return run(av.argc, av.argv, std::move(initData));
-}
-#endif
 
 int
 Ice::Service::run(int argc, const char* const argv[], InitializationData initData)

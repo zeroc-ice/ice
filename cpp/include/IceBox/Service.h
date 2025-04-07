@@ -38,7 +38,7 @@ namespace IceBox
         /// Starts the service.
         /// @param name The service's name, as specified in configuration.
         /// @param communicator A communicator for use by the service. The IceBox service manager creates this
-        /// communicator when it starts, and destroys it when it shuts down.
+        /// communicator when it starts, and destroys this communicator when it shuts down.
         /// @param args The service arguments that were not converted into properties of @p communicator.
         virtual void
         start(const std::string& name, const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& args) = 0;
