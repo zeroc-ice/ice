@@ -10,19 +10,22 @@
 
 // This file defines the `XxxServerAuthenticationOptions` structure for each platform-specific SSL implementation. The
 // `#if defined(ICE_USE_XXX)/#endif` directives are used to include the appropriate structure based on the platform. We
-// avoid using `#elif` directives because, we want to define all the structures when building the doxygen documentation.
+// avoid using `#elif` directives because we want to define all the structures when building the doxygen documentation.
 
 namespace Ice::SSL
 {
-#if defined(ICE_USE_SCHANNEL)
+#if defined(ICE_DOXYGEN)
+    /// An alias for the platform-specific implementation of the SSL %ServerAuthenticationOptions.
+    using ServerAuthenticationOptions = ...;
+#endif
+
+#if defined(ICE_USE_SCHANNEL) || defined(ICE_DOXYGEN)
     /// The %SSL transport configuration properties for server connections on Windows.
     ///
     /// The SchannelServerAuthenticationOptions structure is only available when the %Ice library is built on
     /// Windows. For macOS and iOS, see SecureTransportServerAuthenticationOptions, and for Linux, see
     /// OpenSSLServerAuthenticationOptions.
-    ///
-    /// Additionally, the `ServerAuthenticationOptions` alias is defined for use in portable code,
-    /// representing the platform-specific options class.
+    /// @see ::Ice::SSL::ServerAuthenticationOptions
     struct SchannelServerAuthenticationOptions
     {
         /// A callback for selecting the server's %SSL credentials based on the name of the object adapter that accepts
@@ -87,20 +90,18 @@ namespace Ice::SSL
     };
 
     /// @cond INTERNAL
-    /// Alias for the platform-specific implementation of ClientAuthenticationOptions on Windows.
+    /// An alias for the platform-specific implementation of ClientAuthenticationOptions on Windows.
     using ServerAuthenticationOptions = SchannelServerAuthenticationOptions;
     /// @endcond
 #endif
 
-#if defined(ICE_USE_SECURE_TRANSPORT)
+#if defined(ICE_USE_SECURE_TRANSPORT) || defined(ICE_DOXYGEN)
     /// %SSL transport configuration properties for server connections on macOS and iOS.
     ///
     /// The SecureTransportServerAuthenticationOptions structure is only available when the %Ice library is built on
     /// macOS and iOS. For Linux, refer to OpenSSLServerAuthenticationOptions, and for Windows, refer to
     /// SchannelServerAuthenticationOptions.
-    ///
-    /// Additionally, the `ServerAuthenticationOptions` alias is defined for use in portable code, representing the
-    /// platform-specific options class.
+    /// @see ::Ice::SSL::ServerAuthenticationOptions
     struct SecureTransportServerAuthenticationOptions
     {
         /// A callback for selecting the server's %SSL certificate chain based on the name of the object adapter that
@@ -190,20 +191,18 @@ namespace Ice::SSL
     };
 
     /// @cond INTERNAL
-    // Alias for the platform-specific implementation of ClientAuthenticationOptions on macOS and iOS.
+    // An alias for the platform-specific implementation of ClientAuthenticationOptions on macOS and iOS.
     using ServerAuthenticationOptions = SecureTransportServerAuthenticationOptions;
-/// @endcond
+    /// @endcond
 #endif
 
-#if defined(ICE_USE_OPENSSL)
+#if defined(ICE_USE_OPENSSL) || defined(ICE_DOXYGEN)
     /// %SSL transport configuration properties for server connections on Linux.
     ///
     /// The OpenSSLServerAuthenticationOptions structure is only available when the %Ice library is built on
     /// Linux. For macOS and iOS, refer to SecureTransportServerAuthenticationOptions, and for Windows, refer to
     /// SchannelServerAuthenticationOptions.
-    ///
-    /// Additionally, the `ServerAuthenticationOptions` alias is defined for use in portable code, representing the
-    /// platform-specific options class.
+    /// @see ::Ice::SSL::ServerAuthenticationOptions
     struct OpenSSLServerAuthenticationOptions
     {
         /// A callback that selects the server's [SSL_CTX][SSL_CTX_new] object based on the name of the object
@@ -270,9 +269,9 @@ namespace Ice::SSL
     };
 
     /// @cond INTERNAL
-    // Alias for the platform-specific implementation of ClientAuthenticationOptions on Linux.
+    // An alias for the platform-specific implementation of ClientAuthenticationOptions on Linux.
     using ServerAuthenticationOptions = OpenSSLServerAuthenticationOptions;
-/// @endcond
+    /// @endcond
 #endif
 }
 

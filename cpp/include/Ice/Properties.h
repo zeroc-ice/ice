@@ -226,11 +226,13 @@ namespace Ice
         return createProperties(argc, const_cast<const char**>(argv), defaults);
     }
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(ICE_DOXYGEN)
     /// @copydoc createProperties(int&, const char*[], const PropertiesPtr&)
+    /// @remark Windows only.
     ICE_API PropertiesPtr createProperties(int& argc, const wchar_t* argv[], const PropertiesPtr& defaults = nullptr);
 
     /// @copydoc createProperties(int&, const char*[], const PropertiesPtr&)
+    /// @remark Windows only.
     inline PropertiesPtr createProperties(int& argc, wchar_t* argv[], const PropertiesPtr& defaults = nullptr)
     {
         return createProperties(argc, const_cast<const wchar_t**>(argv), defaults);
