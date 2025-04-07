@@ -3,19 +3,17 @@
 #ifndef FILE_TRACKER_H
 #define FILE_TRACKER_H
 
-#include "Ice/LocalException.h"
-
 #include <list>
 #include <map>
+#include <memory>
+#include <stdexcept>
 
 namespace Slice
 {
-    class FileException final : public Ice::LocalException
+    class FileException final : public std::runtime_error
     {
     public:
-        using Ice::LocalException::LocalException;
-
-        [[nodiscard]] const char* ice_id() const noexcept override;
+        using std::runtime_error::runtime_error;
     };
 
     class FileTracker;

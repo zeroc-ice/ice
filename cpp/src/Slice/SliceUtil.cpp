@@ -349,7 +349,7 @@ Slice::writeDependencies(const string& dependencies, const string& dependFile)
         {
             ostringstream os;
             os << "cannot open file '" << dependFile << "': " << IceInternal::errorToString(errno);
-            throw Slice::FileException(__FILE__, __LINE__, os.str());
+            throw Slice::FileException(os.str());
         }
         of << dependencies;
         of.close();
