@@ -139,8 +139,6 @@ namespace Ice
         /// accessible via bidirectional connections or by collocated invocations.
         /// @param name The object adapter name.
         /// @param serverAuthenticationOptions The SSL configuration properties for server connections.
-        /// The `SSL::ServerAuthenticationOptions` type is an alias to the platform specific SSL server authentication
-        /// options.
         /// @return The new object adapter.
         /// @see #createObjectAdapterWithEndpoints
         /// @see ObjectAdapter
@@ -158,8 +156,6 @@ namespace Ice
         /// @param name The object adapter name.
         /// @param endpoints The endpoints of the object adapter.
         /// @param serverAuthenticationOptions The SSL configuration properties for server connections.
-        /// The `SSL::ServerAuthenticationOptions` type is an alias to the platform specific SSL server authentication
-        /// options.
         /// @return The new object adapter.
         /// @see #createObjectAdapter
         /// @see ObjectAdapter
