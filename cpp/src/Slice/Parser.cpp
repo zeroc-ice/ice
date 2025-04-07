@@ -2122,7 +2122,7 @@ Slice::Container::validateConstant(
     const string& valueString,
     bool isConstant)
 {
-    // Don't bother validating the constant if some other error prevented us from locating its type.
+    // Don't bother validating the constant if some other error prevented us from resolving its type.
     if (!type)
     {
         return true;
