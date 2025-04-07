@@ -634,8 +634,8 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         {
             out << "[cs::type(\"[System.Collections.Generic.SortedDictionary<"
                 // TODO the generic arguments must be the IceRPC C# mapped types
-                << typeToString(p->keyType(), scope, false) << ", "
-                << typeToString(p->valueType(), scope, false) << ">\")]";
+                << typeToString(p->keyType(), scope, false) << ", " << typeToString(p->valueType(), scope, false)
+                << ">\")]";
             break;
         }
     }
