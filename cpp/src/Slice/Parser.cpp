@@ -911,9 +911,12 @@ Slice::Contained::scope() const
 string
 Slice::Contained::mappedName() const
 {
+    const string languageName = unit()->languageName();
+    assert(!languageName.empty());
+
     // First check if any 'xxx:identifier' has been applied to this element.
     // If so, we return that instead of the element's Slice identifier.
-    const string metadata = unit()->languageName() + ":identifier";
+    const string metadata = languageName + ":identifier";
     if (auto customName = getMetadataArgs(metadata))
     {
         return *customName;

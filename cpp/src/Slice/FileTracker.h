@@ -14,6 +14,8 @@ namespace Slice
     {
     public:
         using Ice::LocalException::LocalException;
+
+        [[nodiscard]] const char* ice_id() const noexcept override;
     };
 
     class FileTracker;

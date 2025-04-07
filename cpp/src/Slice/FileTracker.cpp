@@ -9,6 +9,12 @@
 using namespace IceInternal;
 using namespace std;
 
+const char*
+Slice::FileException::ice_id() const noexcept
+{
+    return "::Slice::FileException";
+}
+
 static Slice::FileTrackerPtr Instance;
 
 Slice::FileTracker::FileTracker() : _curr(_generated.end()) {}
