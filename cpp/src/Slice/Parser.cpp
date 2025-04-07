@@ -1556,7 +1556,7 @@ Slice::Container::createDictionary(
     {
         checkForGlobalDefinition("dictionaries"); // Don't return here -- we create the dictionary anyway.
 
-        if (!Dictionary::isLegalKeyType(keyType))
+        if (keyType && !Dictionary::isLegalKeyType(keyType))
         {
             ostringstream os;
             os << "dictionary '" << name << "' uses an illegal key type";
@@ -4182,7 +4182,7 @@ Slice::Dictionary::isLegalKeyType(const TypePtr& type)
     {
         for (const auto& dm : structPtr->dataMembers())
         {
-            if (!isLegalKeyType(dm->type()))
+            if (dm->type() && !isLegalKeyType(dm->type()))
             {
                 return false;
             }

@@ -24,7 +24,7 @@ module Test
 
     interface I
     {
-        E foo(E e1; E e2);
+        E foo(E e1, E e2);
         S op(S s1, S s2);
     }
 }

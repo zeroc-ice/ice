@@ -49,8 +49,8 @@ module Test
     dictionary<long, out> d3;
     dictionary<long, OUT> d4;
 
-    dictionary<void, void> d5;
-    dictionary<VOID, VOID> d6;
+    dictionary<void, voID> d5;
+    dictionary<VOID, VOid> d6;
 
     enum idempotent { a, b }
     enum IDEMPOTENT { c, e }
