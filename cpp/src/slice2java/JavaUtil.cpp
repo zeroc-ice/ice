@@ -1724,7 +1724,7 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
             if (!dynamic_pointer_cast<Unit>(p))
             {
                 const string msg = "'java:package' is deprecated; use 'java:identifier' instead";
-                p->unit()->warning( metadata->file(), metadata->line(), Deprecated, msg);
+                p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
             }
 
             // If 'java:package' is applied to a module, it must be a top-level module.

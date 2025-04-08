@@ -2436,7 +2436,7 @@ Slice::Python::validateMetadata(const UnitPtr& unit)
         .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
         .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
         {
-            const string msg = "'python:package' is deprecated; use 'python:identifier' to rename modules instead";
+            const string msg = "'python:package' is deprecated; use 'python:identifier' to remap modules instead";
             p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
 
             // If 'python:package' is applied to a module, it must be a top-level module.

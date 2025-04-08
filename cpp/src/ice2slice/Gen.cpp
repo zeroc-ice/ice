@@ -15,17 +15,12 @@ namespace
     static string getCSharpNamespace(const ContainedPtr& cont, bool& hasCSharpNamespaceAttribute)
     {
         ContainedPtr p = cont;
-        string csharpNamespace;
-        while (true)
+        while (!dynamic_pointer_cast<Module>(p))
         {
-            if (dynamic_pointer_cast<Module>(p))
-            {
-                csharpNamespace = p->mappedScoped(".").substr(1);
-                break;
-            }
             p = dynamic_pointer_cast<Contained>(p->container());
             assert(p);
         }
+        const string csharpNamespace = p->mappedScoped(".").substr(1);
 
         if (auto metadata = p->getMetadataArgs("cs:namespace"))
         {

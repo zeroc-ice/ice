@@ -1795,7 +1795,7 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
         .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
         .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
         {
-            const string msg = "'cs:namespace' is deprecated; use 'cs:identifier' to rename modules instead";
+            const string msg = "'cs:namespace' is deprecated; use 'cs:identifier' to remap modules instead";
             p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
 
             // 'cs:namespace' can only be applied to top-level modules
