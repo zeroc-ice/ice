@@ -2,6 +2,8 @@
 
 #pragma once
 
+[["suppress-warning:deprecated"]] // for 'python:package'
+
 [["python:package:testpkg"]]
 module Test2
 {

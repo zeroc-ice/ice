@@ -24,29 +24,16 @@ using namespace IceInternal;
 string
 Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
 {
-    //
     // Traverse to the top-level module.
-    //
-    ModulePtr m;
     ContainedPtr p = cont;
-    while (true)
+    while (!p->isTopLevel())
     {
-        if (dynamic_pointer_cast<Module>(p))
-        {
-            m = dynamic_pointer_cast<Module>(p);
-        }
-
-        if (p->isTopLevel())
-        {
-            break;
-        }
         p = dynamic_pointer_cast<Contained>(p->container());
         assert(p);
     }
+    assert(dynamic_pointer_cast<Module>(p));
 
-    assert(m);
-
-    return m->getMetadataArgs("cs:namespace").value_or("");
+    return p->getMetadataArgs("cs:namespace").value_or("");
 }
 
 string
@@ -1808,8 +1795,8 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
         .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
         .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
         {
-            const string msg = "'cs:namespace' is deprecated; use 'cs:identifier' instead";
-            p->unit()->warning( metadata->file(), metadata->line(), Deprecated, msg);
+            const string msg = "'cs:namespace' is deprecated; use 'cs:identifier' to rename modules instead";
+            p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
 
             // 'cs:namespace' can only be applied to top-level modules
             // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
