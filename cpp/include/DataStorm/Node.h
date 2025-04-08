@@ -55,7 +55,7 @@ namespace DataStorm
         {
         }
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(ICE_DOXYGEN)
         /// Constructs a DataStorm node.
         /// A node is the main DataStorm object. It is required to construct topics.
         /// @param argc The number of arguments in argv.
@@ -63,6 +63,7 @@ namespace DataStorm
         /// @param configFile The path to an optional Ice configuration file.
         /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
         /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
+        /// @remark Windows only.
         Node(
             int& argc,
             const wchar_t* argv[],
@@ -76,7 +77,7 @@ namespace DataStorm
         /// @param configFile The path to an optional Ice configuration file.
         /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
         /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
-        ///
+        //// @remark Windows only.
         Node(
             int& argc,
             wchar_t* argv[],

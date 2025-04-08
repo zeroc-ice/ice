@@ -25,8 +25,9 @@ namespace Ice
     /// @return A string sequence containing the arguments.
     ICE_API StringSeq argsToStringSeq(int argc, const char* const argv[]);
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(ICE_DOXYGEN)
     /// @copydoc argsToStringSeq(int, const char* const[])
+    /// @remark Windows only.
     ICE_API StringSeq argsToStringSeq(int argc, const wchar_t* const argv[]);
 #endif
 
@@ -44,11 +45,13 @@ namespace Ice
         return stringSeqToArgs(seq, argc, const_cast<const char**>(argv));
     }
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(ICE_DOXYGEN)
     /// @copydoc stringSeqToArgs(const StringSeq&, int&, const char*[])
+    /// @remark Windows only.
     ICE_API void stringSeqToArgs(const StringSeq& seq, int& argc, const wchar_t* argv[]);
 
     /// @copydoc stringSeqToArgs(const StringSeq&, int&, const char*[])
+    /// @remark Windows only.
     inline void stringSeqToArgs(const StringSeq& seq, int& argc, wchar_t* argv[])
     {
         return stringSeqToArgs(seq, argc, const_cast<const wchar_t**>(argv));
@@ -117,9 +120,8 @@ namespace Ice
         /// The value factory manager.
         ValueFactoryManagerPtr valueFactoryManager{};
 
-        /// The authentication options for %SSL client connections. When set, the %SSL transport ignores all IceSSL
-        /// configuration properties and uses these options. The `SSL::ClientAuthenticationOptions` type is an alias for
-        /// the platform specific %SSL client authentication options.
+        /// The authentication options for SSL client connections. When set, the SSL transport ignores all IceSSL
+        /// configuration properties and uses these options.
         /// @see SSL::OpenSSLClientAuthenticationOptions
         /// @see SSL::SecureTransportClientAuthenticationOptions
         /// @see SSL::SchannelClientAuthenticationOptions
@@ -159,20 +161,24 @@ namespace Ice
         return initialize(argc, const_cast<const char**>(argv), configFile);
     }
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(ICE_DOXYGEN)
     /// @copydoc initialize(int&, const char*[], InitializationData)
+    /// @remark Windows only.
     ICE_API CommunicatorPtr initialize(int& argc, const wchar_t* argv[], InitializationData initData = {});
 
     /// @copydoc initialize(int&, const char*[], InitializationData)
+    /// @remark Windows only.
     inline CommunicatorPtr initialize(int& argc, wchar_t* argv[], InitializationData initData = {})
     {
         return initialize(argc, const_cast<const wchar_t**>(argv), std::move(initData));
     }
 
     // @copydoc initialize(int&, const char*[], std::string_view)
+    /// @remark Windows only.
     ICE_API CommunicatorPtr initialize(int& argc, const wchar_t* argv[], std::string_view configFile);
 
     // @copydoc initialize(int&, const char*[], std::string_view)
+    /// @remark Windows only.
     inline CommunicatorPtr initialize(int& argc, wchar_t* argv[], std::string_view configFile)
     {
         return initialize(argc, const_cast<const wchar_t**>(argv), configFile);

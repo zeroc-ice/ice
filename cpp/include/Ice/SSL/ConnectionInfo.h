@@ -17,19 +17,17 @@
 
 // This file defines the `XxxConnectionInfo` class for each platform-specific SSL implementation. The
 // `#if defined(ICE_USE_XXX)/#endif` directives are used to include the appropriate structure based on the platform. We
-// avoid using `#elif` directives because, we want to define all the classes when building the doxygen documentation.
+// avoid using `#elif` directives because we want to define all the classes when building the doxygen documentation.
 
 /// Secure connections with SSL/TLS.
 namespace Ice::SSL
 {
-#if defined(ICE_USE_SCHANNEL)
+#if defined(ICE_USE_SCHANNEL) || defined(ICE_DOXYGEN)
     /// Provides access to the connection details of an SSL connection.
     ///
-    /// The SchannelConnectionInfo class is only available when the %Ice library is built on Windows. For Linux,
+    /// The SchannelConnectionInfo class is only available when the Ice library is built on Windows. For Linux,
     /// refer to OpenSSLConnectionInfo, and for macOS and iOS, refer to SecureTransportConnectionInfo.
-    ///
-    /// Additionally, the `ConnectionInfo` alias is defined for use in portable code, representing the
-    /// platform-specific connection info class.
+    /// @see ::Ice::SSL::ConnectionInfo
     class ICE_API SchannelConnectionInfo final : public Ice::ConnectionInfo
     {
     public:
@@ -49,14 +47,12 @@ namespace Ice::SSL
     };
 #endif
 
-#if defined(ICE_USE_SECURE_TRANSPORT)
+#if defined(ICE_USE_SECURE_TRANSPORT) || defined(ICE_DOXYGEN)
     /// Provides access to the connection details of an SSL connection.
     ///
-    /// The SecureTransportConnectionInfo class is only available when the %Ice library is built on macOS or iOS. For
+    /// The SecureTransportConnectionInfo class is only available when the Ice library is built on macOS or iOS. For
     /// Linux, refer to OpenSSLConnectionInfo, and for Windows, refer to SchannelConnectionInfo.
-    ///
-    /// Additionally, the `ConnectionInfo` alias is defined for use in portable code, representing the
-    /// platform-specific connection info class.
+    /// @see ::Ice::SSL::ConnectionInfo
     class ICE_API SecureTransportConnectionInfo final : public Ice::ConnectionInfo
     {
     public:
@@ -76,14 +72,12 @@ namespace Ice::SSL
     };
 #endif
 
-#if defined(ICE_USE_OPENSSL)
+#if defined(ICE_USE_OPENSSL) || defined(ICE_DOXYGEN)
     /// Provides access to the connection details of an SSL connection.
     ///
-    /// The OpenSSLConnectionInfo class is only available when the %Ice library is built on Linux. For Windows,
+    /// The OpenSSLConnectionInfo class is only available when the Ice library is built on Linux. For Windows,
     /// refer to SchannelConnectionInfo, and for macOS and iOS, refer to SecureTransportConnectionInfo.
-    ///
-    /// Additionally, the `ConnectionInfo` alias is defined for use in portable code, representing the
-    /// platform-specific connection info class.
+    /// @see ::Ice::SSL::ConnectionInfo
     class ICE_API OpenSSLConnectionInfo final : public Ice::ConnectionInfo
     {
     public:

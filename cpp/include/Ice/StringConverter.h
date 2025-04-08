@@ -123,12 +123,12 @@ namespace Ice
     /// @return A native narrow string.
     ICE_API std::string UTF8ToNative(std::string_view str, const StringConverterPtr& nc);
 
-#ifdef _WIN32
-
+#if defined(_WIN32) || defined(ICE_DOXYGEN)
     /// Creates a StringConverter that converts to and from narrow chars
     /// in the given code page, using MultiByteToWideChar and WideCharToMultiByte.
     /// @param page The code page.
     /// @return The string converter.
+    /// @remark Windows only.
     ICE_API StringConverterPtr createWindowsStringConverter(unsigned int page);
 #endif
 

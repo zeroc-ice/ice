@@ -378,7 +378,7 @@ MARKDOWN_ID_STYLE      = DOXYGEN
 
 AUTOLINK_SUPPORT       = YES
 
-AUTOLINK_IGNORE_WORDS  = DataStorm Glacier2 Ice IceBox IceGrid IceMX IceStorm
+AUTOLINK_IGNORE_WORDS  = DataStorm Glacier2 Ice IceBox IceGrid IceMX IceStorm SSL
 
 # If you use STL classes (i.e. std::string, std::vector, etc.) but do not want
 # to include (a tag file for) the STL sources as input, then you should set this
@@ -2409,7 +2409,7 @@ INCLUDE_FILE_PATTERNS  =
 # recursively expanded use the := operator instead of the = operator.
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
-PREDEFINED             = ICE_USE_SCHANNEL ICE_USE_SECURE_TRANSPORT ICE_USE_OPENSSL ICE_DOXYGEN
+PREDEFINED             = ICE_DOXYGEN
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The
