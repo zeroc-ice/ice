@@ -19,14 +19,14 @@
 
 namespace Ice
 {
-    /// Encapsulates the details of a slice with an unknown type.
+    /// Encapsulates the details of a class or exception slice with an unknown type.
     /// @headerfile Ice/Ice.h
     struct SliceInfo
     {
         /// The Slice type ID for this slice.
         const std::string typeId;
 
-        /// The Slice compact type ID for this slice.
+        /// The Slice compact type ID for this slice. No compact ID is encoded as `-1`.
         const int compactId;
 
         /// The encoded bytes for this slice, including the leading size integer.

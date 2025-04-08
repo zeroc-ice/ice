@@ -522,10 +522,10 @@ namespace Ice
         /// @private
         void _iceI_getConnection(const std::shared_ptr<IceInternal::ProxyGetConnection>&) const;
 
-        /// Obtains the cached Connection for this proxy. If the proxy does not yet have an established
-        /// connection, it does not attempt to create a connection.
-        /// @return The cached connection for this proxy, or nil if the proxy does not have
-        /// an established connection.
+        /// Gets the cached Connection for this proxy. If the proxy does not yet have an established connection, it does
+        /// not attempt to create a connection.
+        /// @return The cached connection for this proxy, or nullptr if the proxy does not have an established
+        /// connection.
         [[nodiscard]] Ice::ConnectionPtr ice_getCachedConnection() const noexcept;
 
         /// Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
@@ -544,7 +544,7 @@ namespace Ice
         /// @return A future that becomes available when the flush completes.
         [[nodiscard]] std::future<void> ice_flushBatchRequestsAsync() const;
 
-        /// Obtains the identity embedded in this proxy.
+        /// Gets the identity embedded in this proxy.
         /// @return The identity of the target object.
         [[nodiscard]] const Ice::Identity& ice_getIdentity() const noexcept;
 
@@ -557,11 +557,11 @@ namespace Ice
             return Prx::_fromReference(_identity(std::move(id)));
         }
 
-        /// Obtains the per-proxy context for this proxy.
+        /// Gets the per-proxy context for this proxy.
         /// @return The per-proxy context.
         [[nodiscard]] Ice::Context ice_getContext() const;
 
-        /// Obtains the facet for this proxy.
+        /// Gets the facet for this proxy.
         /// @return The facet for this proxy. If the proxy uses the default facet, the return value is the empty string.
         [[nodiscard]] const std::string& ice_getFacet() const noexcept;
 
@@ -574,15 +574,15 @@ namespace Ice
             return Prx::_fromReference(_facet(std::move(facet)));
         }
 
-        /// Obtains the adapter ID for this proxy.
+        /// Gets the adapter ID for this proxy.
         /// @return The adapter ID. If the proxy does not have an adapter ID, the return value is the empty string.
         [[nodiscard]] std::string ice_getAdapterId() const;
 
-        /// Obtains the endpoints used by this proxy.
+        /// Gets the endpoints used by this proxy.
         /// @return The endpoints used by this proxy.
         [[nodiscard]] Ice::EndpointSeq ice_getEndpoints() const;
 
-        /// Obtains the locator cache timeout of this proxy.
+        /// Gets the locator cache timeout of this proxy.
         /// @return The locator cache timeout value.
         [[nodiscard]] std::chrono::milliseconds ice_getLocatorCacheTimeout() const noexcept;
 
@@ -590,7 +590,7 @@ namespace Ice
         /// @return `true` if this proxy caches connections, `false` otherwise.
         [[nodiscard]] bool ice_isConnectionCached() const noexcept;
 
-        /// Obtains the endpoint selection policy for this proxy (randomly or ordered).
+        /// Gets the endpoint selection policy for this proxy (randomly or ordered).
         /// @return The endpoint selection policy.
         [[nodiscard]] Ice::EndpointSelectionType ice_getEndpointSelection() const noexcept;
 
@@ -598,7 +598,7 @@ namespace Ice
         /// @return `true` if this proxy communicates only via secure endpoints, `false` otherwise.
         [[nodiscard]] bool ice_isSecure() const noexcept;
 
-        /// Obtains the encoding version used to marshal request parameters.
+        /// Gets the encoding version used to marshal request parameters.
         /// @return The encoding version.
         [[nodiscard]] Ice::EncodingVersion ice_getEncodingVersion() const noexcept;
 
@@ -607,12 +607,12 @@ namespace Ice
         /// attempts to use insecure endpoints, `false` otherwise.
         [[nodiscard]] bool ice_isPreferSecure() const noexcept;
 
-        /// Obtains the router for this proxy.
+        /// Gets the router for this proxy.
         /// @return The router for the proxy. If no router is configured for the proxy, the return value
         /// is nullopt.
         [[nodiscard]] std::optional<RouterPrx> ice_getRouter() const noexcept;
 
-        /// Obtains the locator for this proxy.
+        /// Gets the locator for this proxy.
         /// @return The locator for this proxy. If no locator is configured, the return value is nullopt.
         [[nodiscard]] std::optional<LocatorPrx> ice_getLocator() const noexcept;
 
@@ -620,7 +620,7 @@ namespace Ice
         /// @return `true` if the proxy uses collocation optimization, `false` otherwise.
         [[nodiscard]] bool ice_isCollocationOptimized() const noexcept;
 
-        /// Obtains the invocation timeout of this proxy.
+        /// Gets the invocation timeout of this proxy.
         /// @return The invocation timeout value.
         [[nodiscard]] std::chrono::milliseconds ice_getInvocationTimeout() const noexcept;
 
@@ -644,12 +644,12 @@ namespace Ice
         /// @return `true` if this proxy uses batch datagram invocations, `false` otherwise.
         [[nodiscard]] bool ice_isBatchDatagram() const noexcept;
 
-        /// Obtains the compression override setting of this proxy.
+        /// Gets the compression override setting of this proxy.
         /// @return The compression override setting. If nullopt is returned, no override is set. Otherwise, true
         /// if compression is enabled, `false` otherwise.
         [[nodiscard]] std::optional<bool> ice_getCompress() const noexcept;
 
-        /// Obtains the connection ID of this proxy.
+        /// Gets the connection ID of this proxy.
         /// @return The connection ID.
         [[nodiscard]] std::string ice_getConnectionId() const;
 
@@ -661,7 +661,7 @@ namespace Ice
         /// @return The Slice type ID.
         static const char* ice_staticId() noexcept;
 
-        /// Obtains the communicator that created this proxy.
+        /// Gets the communicator that created this proxy.
         /// @return The communicator that created this proxy.
         [[nodiscard]] Ice::CommunicatorPtr ice_getCommunicator() const noexcept;
 

@@ -192,8 +192,7 @@ namespace Ice
         UnknownException(const char* file, int line, ReplyStatus replyStatus, std::string message);
     };
 
-    /// The exception that is thrown when a dispatch failed with a LocalException that is not one of the special
-    /// marshal-able local exceptions.
+    /// The exception that is thrown when a dispatch failed with a LocalException that is not a DispatchException.
     /// @headerfile Ice/Ice.h
     class ICE_API UnknownLocalException final : public UnknownException
     {

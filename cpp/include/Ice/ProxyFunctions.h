@@ -33,7 +33,7 @@ namespace Ice
     /// Downcasts a proxy without confirming the target object's type via a remote invocation.
     /// @param proxy The source proxy.
     /// @return A proxy with the requested type.
-    /// @remark The preferred syntax is to construct the proxy from another proxy using the explicit ObjectPrx
+    /// @remark The preferred syntax is to construct the proxy from another proxy using the explicit proxy
     /// constructor.
     template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
     Prx uncheckedCast(const ObjectPrx& proxy)

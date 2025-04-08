@@ -25,7 +25,7 @@ namespace Ice
 
         LoggerOutputBase& operator=(const LoggerOutputBase&) = delete;
 
-        /// Obtains the collected output.
+        /// Gets the collected output.
         [[nodiscard]] std::string str() const;
 
         /// @private

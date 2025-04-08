@@ -12,7 +12,7 @@
 
 namespace Ice
 {
-    /// Information about an incoming request being dispatched.
+    /// Provides information about an incoming request being dispatched.
     /// @headerfile Ice/Ice.h
     struct Current
     {

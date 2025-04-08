@@ -168,7 +168,7 @@ namespace IceGrid
     /// A shared pointer to a RegistryPluginFacade.
     using RegistryPluginFacadePtr = std::shared_ptr<RegistryPluginFacade>;
 
-    /// Obtains the plug-in facade for the IceGrid registry.
+    /// Gets the plug-in facade for the IceGrid registry.
     /// @return The plug-in facade.
     ICEGRID_API RegistryPluginFacadePtr getRegistryPluginFacade();
 }

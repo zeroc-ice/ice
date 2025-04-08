@@ -24,6 +24,7 @@ namespace Ice
 
         /// Copy assignment operator. Assigns the contents of @p rhs to this exception.
         /// @param rhs The exception to copy from.
+        /// @return A reference to this exception.
         Exception& operator=(const Exception& rhs) noexcept = default;
 
         // Need out-of-line virtual function to avoid weak vtable, which in turn requires the default constructor,
@@ -41,8 +42,7 @@ namespace Ice
         virtual void ice_print(std::ostream& os) const = 0;
     };
 
-    /// Outputs a description of an Ice exception to a stream by calling the ice_print member function of this
-    /// exception.
+    /// Outputs a description of an Ice exception to a stream by calling Exception::ice_print on this exception.
     /// @param os The output stream.
     /// @param exception The exception to describe.
     /// @return The output stream.

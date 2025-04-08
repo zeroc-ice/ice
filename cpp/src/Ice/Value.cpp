@@ -74,15 +74,7 @@ namespace
     const int CycleChecker::_cycleCheckIndex = ios_base::xalloc(); // NOLINT(cert-err58-cpp)
 }
 
-void
-Ice::Value::ice_preMarshal()
-{
-}
-
-void
-Ice::Value::ice_postUnmarshal()
-{
-}
+Ice::Value::~Value() = default;
 
 void
 Ice::Value::ice_print(ostream& os) const
