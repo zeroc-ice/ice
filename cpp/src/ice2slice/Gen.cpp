@@ -14,13 +14,32 @@ namespace
 {
     static string getCSharpNamespace(const ContainedPtr& cont, bool& hasCSharpNamespaceAttribute)
     {
+        // Traverse to the top-level module.
         ContainedPtr p = cont;
-        while (!dynamic_pointer_cast<Module>(p))
+        string csharpNamespace;
+        while (true)
         {
+            if (dynamic_pointer_cast<Module>(p))
+            {
+                // TODO we should be using the `mappedName` here, not the slice `name`.
+                if (csharpNamespace.empty())
+                {
+                    csharpNamespace = p->name();
+                }
+                else
+                {
+                    csharpNamespace = p->name() + "." + csharpNamespace;
+                }
+            }
+
+            if (p->isTopLevel())
+            {
+                break;
+            }
             p = dynamic_pointer_cast<Contained>(p->container());
             assert(p);
         }
-        const string csharpNamespace = p->scoped().substr(1);
+        assert(dynamic_pointer_cast<Module>(p));
 
         if (auto metadata = p->getMetadataArgs("cs:namespace"))
         {

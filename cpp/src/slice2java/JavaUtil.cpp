@@ -1718,15 +1718,8 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
     MetadataInfo packageInfo = {
         .validOn = {typeid(Unit), typeid(Module)},
         .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
-        .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
+        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
         {
-            // 'java:package' is deprecated, except as file metadata.
-            if (!dynamic_pointer_cast<Unit>(p))
-            {
-                const string msg = "'java:package' is deprecated; use 'java:identifier' instead";
-                p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
-            }
-
             // If 'java:package' is applied to a module, it must be a top-level module.
             // // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
             if (auto mod = dynamic_pointer_cast<Module>(p); mod && !mod->isTopLevel())
