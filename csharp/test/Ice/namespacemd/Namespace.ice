@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["suppress-warning:deprecated"]] // For 'cs:namespace' metadata.
+[["suppress-warning:deprecated"]] // for 'cs:namespace' metadata
 
 ["cs:namespace:Ice.namespacemd"]
 module WithNamespace

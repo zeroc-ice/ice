@@ -5,7 +5,7 @@
 #include "Namespace.ice"
 #include "NoNamespace.ice"
 
-[["suppress-warning:deprecated"]] // For 'cs:namespace' metadata.
+[["suppress-warning:deprecated"]] // for 'cs:namespace' metadata
 
 ["cs:namespace:Ice.namespacemd"]
 module Test
