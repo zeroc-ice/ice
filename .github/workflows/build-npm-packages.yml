@@ -75,10 +75,11 @@ jobs:
         with:
           path: ice
 
-      - name: Download All Compiler Artifacts
+      - name: Download All slice2js Compiler Artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+          pattern: slice2js-*
 
       - name: Copy slice2js binaries to staging path
         run: |

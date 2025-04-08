@@ -71,8 +71,10 @@ jobs:
       - name: Setup .NET
         uses: ./.github/actions/setup-dotnet
 
-      - name: Download All Compiler Artifacts
+      - name: Download All slice2cs Artifacts
         uses: actions/download-artifact@v4
+        with:
+          pattern: slice2cs-*
 
       - name: Copy slice2cs binaries to staging path
         run: |

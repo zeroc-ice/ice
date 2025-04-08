@@ -82,10 +82,11 @@ jobs:
         with:
           path: ice
 
-      - name: Download All Compiler Artifacts
+      - name: Download All slice2java Artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+          pattern: slice2java-*
 
       - name: Copy slice2java binaries to staging path
         run: |

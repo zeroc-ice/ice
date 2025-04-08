@@ -82,10 +82,11 @@ jobs:
     needs: build-python-packages
 
     steps:
-      - name: Download All Compiler Artifacts
+      - name: Download All PIP Package Artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+          pattern: pip-packages-*
 
       - name: Publish PIP Package
         run: |
