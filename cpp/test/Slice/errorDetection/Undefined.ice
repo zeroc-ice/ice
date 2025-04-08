@@ -2,8 +2,8 @@
 
 module Test
 {
-    sequence<Foo> FooSequence;
+    sequence<Fake> FooSequence;
     dictionary<Foo, Bar> FooBarDictionary;
-    interface BarIntf extends Foo { void op(); }
-    class BarClass1 extends Foo { long l; }
+    interface BarIntf extends Ping { void op(); }
+    class BarClass1 extends Pong { long l; }
 }

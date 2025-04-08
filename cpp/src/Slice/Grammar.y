@@ -677,7 +677,7 @@ optional_type_id
     // It's safe to perform this check in the parser, since we already have enough information to know whether a type
     // can be optional. This is because the only types that can be forward declared (classes/interfaces) have constant
     // values for `usesClasses` (true/false respectively).
-    if (m->type->usesClasses())
+    if (m->type && m->type->usesClasses())
     {
         currentUnit->error("types that use classes cannot be marked with 'optional'");
     }
@@ -1141,7 +1141,7 @@ return_type
     // It's safe to perform this check in the parser, since we already have enough information to know whether a type
     // can be optional. This is because the only types that can be forward declared (classes/interfaces) have constant
     // values for `usesClasses` (true/false respectively).
-    if (m->type->usesClasses())
+    if (m->type && m->type->usesClasses())
     {
         currentUnit->error("types that use classes cannot be marked with 'optional'");
     }
@@ -1929,22 +1929,23 @@ type
     TypeList types = cont->lookupType(scoped->v);
     if (types.empty())
     {
-        YYERROR; // Can't continue, jump to next yyerrok
+        $$ = nullptr;
     }
-    TypePtr firstType = types.front();
-
-    auto interface = dynamic_pointer_cast<InterfaceDecl>(firstType);
-    if (interface)
+    else
     {
-        string msg = "add a '*' after the interface name to specify its proxy type: '";
-        msg += scoped->v;
-        msg += "*'";
-        currentUnit->error(msg);
-        YYERROR; // Can't continue, jump to next yyerrok
-    }
-    cont->checkIntroduced(scoped->v);
+        TypePtr firstType = types.front();
+        auto interface = dynamic_pointer_cast<InterfaceDecl>(firstType);
+        if (interface)
+        {
+            string msg = "add a '*' after the interface name to specify its proxy type: '";
+            msg += scoped->v;
+            msg += "*'";
+            currentUnit->error(msg);
+        }
 
-    $$ = firstType;
+        cont->checkIntroduced(scoped->v);
+        $$ = firstType;
+    }
 }
 | scoped_name '*'
 {
@@ -1954,22 +1955,23 @@ type
     TypeList types = cont->lookupType(scoped->v);
     if (types.empty())
     {
-        YYERROR; // Can't continue, jump to next yyerrok
+        $$ = nullptr;
     }
-    TypePtr firstType = types.front();
-
-    auto interface = dynamic_pointer_cast<InterfaceDecl>(firstType);
-    if (!interface)
+    else
     {
-        string msg = "'";
-        msg += scoped->v;
-        msg += "' must be an interface";
-        currentUnit->error(msg);
-        YYERROR; // Can't continue, jump to next yyerrok
-    }
-    cont->checkIntroduced(scoped->v);
+        TypePtr firstType = types.front();
+        auto interface = dynamic_pointer_cast<InterfaceDecl>(firstType);
+        if (!interface)
+        {
+            string msg = "'";
+            msg += scoped->v;
+            msg += "' must be an interface";
+            currentUnit->error(msg);
+        }
 
-    $$ = firstType;
+        cont->checkIntroduced(scoped->v);
+        $$ = firstType;
+    }
 }
 ;
 

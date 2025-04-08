@@ -1,4 +1,5 @@
-Undefined.ice:5: 'Foo' is not defined
+Undefined.ice:5: 'Fake' is not defined
 Undefined.ice:6: 'Foo' is not defined
-Undefined.ice:7: 'Foo' is not defined
-Undefined.ice:8: 'Foo' is not defined
+Undefined.ice:6: 'Bar' is not defined
+Undefined.ice:7: 'Ping' is not defined
+Undefined.ice:8: 'Pong' is not defined
