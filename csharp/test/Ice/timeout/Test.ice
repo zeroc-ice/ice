@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.timeout"]
+["cs:identifier:Ice.timeout.Test"]
 module Test
 {
     sequence<byte> ByteSeq;

@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.scope"]
+["cs:identifier:Ice.scope.Test"]
 module Test
 {
     struct MyStruct

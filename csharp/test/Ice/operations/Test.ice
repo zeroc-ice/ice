@@ -4,7 +4,7 @@
 
 #include "Ice/Context.ice"
 
-["cs:namespace:Ice.operations"]
+["cs:identifier:Ice.operations.Test"]
 module Test
 {
     enum MyEnum

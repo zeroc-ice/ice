@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.middleware"]
+["cs:identifier:Ice.middleware.Test"]
 module Test
 {
     interface MyObject

@@ -1806,8 +1806,11 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
     MetadataInfo namespaceInfo = {
         .validOn = {typeid(Module)},
         .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
-        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
+        .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
         {
+            const string msg = "'cs:namespace' is deprecated; use 'cs:identifier' instead";
+            p->unit()->warning( metadata->file(), metadata->line(), Deprecated, msg);
+
             // 'cs:namespace' can only be applied to top-level modules
             // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
             if (auto mod = dynamic_pointer_cast<Module>(p); mod && !mod->isTopLevel())

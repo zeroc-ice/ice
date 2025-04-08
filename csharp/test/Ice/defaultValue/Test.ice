@@ -4,7 +4,7 @@
 
 [["suppress-warning:deprecated"]] // For enumerator references
 
-["cs:namespace:Ice.defaultValue"]
+["cs:identifier:Ice.defaultValue.Test"]
 module Test
 {
     enum Color { red, green, blue }

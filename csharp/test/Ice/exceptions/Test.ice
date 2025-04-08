@@ -4,7 +4,7 @@
 
 #include "Ice/BuiltinSequences.ice"
 
-["cs:namespace:Ice.exceptions"]
+["cs:identifier:Ice.exceptions.Test"]
 module Test
 {
     interface Empty

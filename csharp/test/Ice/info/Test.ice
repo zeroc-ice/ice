@@ -4,7 +4,7 @@
 
 #include "Ice/Context.ice"
 
-["cs:namespace:Ice.info"]
+["cs:identifier:Ice.info.Test"]
 module Test
 {
     interface TestIntf

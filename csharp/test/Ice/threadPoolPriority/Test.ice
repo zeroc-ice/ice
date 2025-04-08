@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.threadPoolPriority"]
+["cs:identifier:Ice.threadPoolPriority.Test"]
 module Test
 {
     interface Priority

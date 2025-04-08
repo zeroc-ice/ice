@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.defaultServant"]
+["cs:identifier:Ice.defaultServant.Test"]
 module Test
 {
     interface MyObject

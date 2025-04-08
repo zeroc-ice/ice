@@ -5,7 +5,7 @@
 #include "Ice/Locator.ice"
 #include "Ice/LocatorRegistry.ice"
 
-["cs:namespace:Ice.location"]
+["cs:identifier:Ice.location.Test"]
 module Test
 {
     interface TestLocatorRegistry extends Ice::LocatorRegistry

@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.idleTimeout"]
+["cs:identifier:Ice.idleTimeout.Test"]
 module Test
 {
     interface TestIntf

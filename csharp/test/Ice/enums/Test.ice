@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.enums"]
+["cs:identifier:Ice.enums.Test"]
 module Test
 {
     const byte ByteConst1 = 10;
