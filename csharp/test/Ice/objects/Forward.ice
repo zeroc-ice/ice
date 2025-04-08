@@ -3,7 +3,6 @@
 #pragma once
 
 ["cs:identifier:Ice.objects.Test"]
-
 module Test
 {
     class F1

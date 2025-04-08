@@ -14,36 +14,20 @@ namespace
 {
     static string getCSharpNamespace(const ContainedPtr& cont, bool& hasCSharpNamespaceAttribute)
     {
-        // Traverse to the top-level module.
-        ModulePtr m;
         ContainedPtr p = cont;
         string csharpNamespace;
         while (true)
         {
             if (dynamic_pointer_cast<Module>(p))
             {
-                m = dynamic_pointer_cast<Module>(p);
-                if (csharpNamespace.empty())
-                {
-                    csharpNamespace = m->name();
-                }
-                else
-                {
-                    csharpNamespace = m->name() + "." + csharpNamespace;
-                }
-            }
-
-            if (p->isTopLevel())
-            {
+                csharpNamespace = p->mappedScoped(".").substr(1);
                 break;
             }
             p = dynamic_pointer_cast<Contained>(p->container());
             assert(p);
         }
 
-        assert(m);
-
-        if (auto metadata = m->getMetadataArgs("cs:namespace"))
+        if (auto metadata = p->getMetadataArgs("cs:namespace"))
         {
             hasCSharpNamespaceAttribute = true;
             return *metadata + "." + csharpNamespace;

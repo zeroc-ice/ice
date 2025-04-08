@@ -874,27 +874,21 @@ Slice::CsVisitor::writeParameterDocComments(const DocComment& comment, const Par
 void
 Slice::CsVisitor::moduleStart(const ModulePtr& p)
 {
-    if (p->isTopLevel())
+    string ns = getNamespacePrefix(p);
+    if (!ns.empty())
     {
-        string ns = getNamespacePrefix(p);
-        if (!ns.empty())
-        {
-            _out << sp;
-            _out << nl << "namespace " << ns;
-            _out << sb;
-        }
+        _out << sp;
+        _out << nl << "namespace " << ns;
+        _out << sb;
     }
 }
 
 void
 Slice::CsVisitor::moduleEnd(const ModulePtr& p)
 {
-    if (p->isTopLevel())
+    if (!getNamespacePrefix(p).empty())
     {
-        if (!getNamespacePrefix(p).empty())
-        {
-            _out << eb;
-        }
+        _out << eb;
     }
 }
 
