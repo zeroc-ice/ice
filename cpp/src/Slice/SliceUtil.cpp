@@ -419,7 +419,7 @@ Slice::splitScopedName(const string& scoped, bool allowEmpty)
 string
 Slice::getArticleFor(const string& s)
 {
-    static const string vowels = "aeiou";
+    static const string vowels = "aAeEiIoOuU";
     return (vowels.find_first_of(s[0]) != string::npos) ? "an" : "a";
 }
 
