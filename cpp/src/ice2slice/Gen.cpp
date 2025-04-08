@@ -20,7 +20,7 @@ namespace
             p = dynamic_pointer_cast<Contained>(p->container());
             assert(p);
         }
-        const string csharpNamespace = p->mappedScoped(".").substr(1);
+        const string csharpNamespace = p->scoped().substr(1);
 
         if (auto metadata = p->getMetadataArgs("cs:namespace"))
         {
