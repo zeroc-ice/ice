@@ -20,7 +20,7 @@ namespace Ice::SSL
 #endif
 
 #if defined(ICE_USE_SCHANNEL) || defined(ICE_DOXYGEN)
-    /// The SSL transport configuration properties for server connections on Windows.
+    /// The SSL transport options for server connections on Windows.
     ///
     /// The SchannelServerAuthenticationOptions structure is only available when the Ice library is built on
     /// Windows. For macOS and iOS, see SecureTransportServerAuthenticationOptions, and for Linux, see
@@ -96,7 +96,7 @@ namespace Ice::SSL
 #endif
 
 #if defined(ICE_USE_SECURE_TRANSPORT) || defined(ICE_DOXYGEN)
-    /// SSL transport configuration properties for server connections on macOS and iOS.
+    /// SSL transport options for server connections on macOS and iOS.
     ///
     /// The SecureTransportServerAuthenticationOptions structure is only available when the Ice library is built on
     /// macOS and iOS. For Linux, refer to OpenSSLServerAuthenticationOptions, and for Windows, refer to
@@ -197,7 +197,7 @@ namespace Ice::SSL
 #endif
 
 #if defined(ICE_USE_OPENSSL) || defined(ICE_DOXYGEN)
-    /// SSL transport configuration properties for server connections on Linux.
+    /// SSL transport options for server connections on Linux.
     ///
     /// The OpenSSLServerAuthenticationOptions structure is only available when the Ice library is built on
     /// Linux. For macOS and iOS, refer to SecureTransportServerAuthenticationOptions, and for Windows, refer to
