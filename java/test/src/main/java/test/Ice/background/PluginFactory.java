@@ -24,7 +24,8 @@ public class PluginFactory implements com.zeroc.Ice.PluginFactory {
         }
 
         @Override
-        public void destroy() {}
+        public void destroy() {
+        }
 
         public Configuration getConfiguration() {
             return _configuration;

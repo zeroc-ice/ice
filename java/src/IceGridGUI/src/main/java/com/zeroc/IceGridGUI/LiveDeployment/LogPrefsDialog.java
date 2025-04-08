@@ -36,7 +36,7 @@ class LogPrefsDialog extends JDialog {
         final JTextField initialLinesField = new JTextField(10);
         initialLinesField.setText(Integer.toString(dialog.getInitialLines()));
         initialLinesField.setToolTipText(
-                "Start by retrieving <num> lines from the server; -1 means retrieve all");
+            "Start by retrieving <num> lines from the server; -1 means retrieve all");
 
         final JTextField maxReadSizeField = new JTextField(10);
         maxReadSizeField.setText(Integer.toString(dialog.getMaxReadSize()));
@@ -48,39 +48,39 @@ class LogPrefsDialog extends JDialog {
 
         JButton okButton = new JButton("OK");
         ActionListener okListener =
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            int maxLines = parseInt(maxLinesField, "Max lines in buffer");
-                            int maxSize = parseInt(maxSizeField, "Max characters in buffer");
-                            int initialLines =
-                                    parseInt(
-                                            initialLinesField,
-                                            "Number of lines retrieved initially");
-                            int maxReadSize =
-                                    parseInt(maxReadSizeField, "Max bytes read per request");
-                            int period =
-                                    (int) (parseFloat(periodField, "Poll period (seconds)") * 1000);
+            new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        int maxLines = parseInt(maxLinesField, "Max lines in buffer");
+                        int maxSize = parseInt(maxSizeField, "Max characters in buffer");
+                        int initialLines =
+                            parseInt(
+                                initialLinesField,
+                                "Number of lines retrieved initially");
+                        int maxReadSize =
+                            parseInt(maxReadSizeField, "Max bytes read per request");
+                        int period =
+                            (int) (parseFloat(periodField, "Poll period (seconds)") * 1000);
 
-                            dialog.setPrefs(maxLines, maxSize, initialLines, maxReadSize, period);
-                            dispose();
-                        } catch (NumberFormatException ex) {
-                            return;
-                        }
+                        dialog.setPrefs(maxLines, maxSize, initialLines, maxReadSize, period);
+                        dispose();
+                    } catch (NumberFormatException ex) {
+                        return;
                     }
-                };
+                }
+            };
         okButton.addActionListener(okListener);
         getRootPane().setDefaultButton(okButton);
 
         JButton cancelButton = new JButton("Cancel");
         ActionListener cancelListener =
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        dispose();
-                    }
-                };
+            new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                }
+            };
         cancelButton.addActionListener(cancelListener);
 
         FormLayout layout = new FormLayout("left:pref, 3dlu, fill:pref:grow", "");
@@ -101,7 +101,7 @@ class LogPrefsDialog extends JDialog {
         builder.nextLine();
 
         JComponent buttonBar =
-                new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
+            new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
         buttonBar.setBorder(Borders.DIALOG);
 
         Container contentPane = getContentPane();
@@ -122,43 +122,43 @@ class LogPrefsDialog extends JDialog {
         final JTextField maxMessagesField = new JTextField(10);
         maxMessagesField.setText(Integer.toString(dialog.getMaxMessages()));
         maxMessagesField.setToolTipText(
-                "Maximum number of log messages to keep in this dialog's buffer");
+            "Maximum number of log messages to keep in this dialog's buffer");
 
         final JTextField initialMessagesField = new JTextField(10);
         initialMessagesField.setText(Integer.toString(dialog.getInitialMessages()));
         initialMessagesField.setToolTipText(
-                "Start by retrieving <num> log messages from the server; -1 means retrieve all");
+            "Start by retrieving <num> log messages from the server; -1 means retrieve all");
 
         JButton okButton = new JButton("OK");
         ActionListener okListener =
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            int maxMessages =
-                                    parseInt(maxMessagesField, "Max log messages in buffer");
-                            int initialMessages =
-                                    parseInt(
-                                            initialMessagesField,
-                                            "Number of log messages retrieved initially");
-                            dialog.setPrefs(maxMessages, initialMessages);
-                            dispose();
-                        } catch (NumberFormatException ex) {
-                            return;
-                        }
+            new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        int maxMessages =
+                            parseInt(maxMessagesField, "Max log messages in buffer");
+                        int initialMessages =
+                            parseInt(
+                                initialMessagesField,
+                                "Number of log messages retrieved initially");
+                        dialog.setPrefs(maxMessages, initialMessages);
+                        dispose();
+                    } catch (NumberFormatException ex) {
+                        return;
                     }
-                };
+                }
+            };
         okButton.addActionListener(okListener);
         getRootPane().setDefaultButton(okButton);
 
         JButton cancelButton = new JButton("Cancel");
         ActionListener cancelListener =
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        dispose();
-                    }
-                };
+            new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                }
+            };
         cancelButton.addActionListener(cancelListener);
 
         FormLayout layout = new FormLayout("left:pref, 3dlu, fill:pref:grow", "");
@@ -173,7 +173,7 @@ class LogPrefsDialog extends JDialog {
         builder.nextLine();
 
         JComponent buttonBar =
-                new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
+            new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
         buttonBar.setBorder(Borders.DIALOG);
 
         Container contentPane = getContentPane();
@@ -192,10 +192,10 @@ class LogPrefsDialog extends JDialog {
             return Integer.parseInt(field.getText());
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(
-                    this,
-                    label + " must be an integer",
-                    "Invalid entry",
-                    JOptionPane.ERROR_MESSAGE);
+                this,
+                label + " must be an integer",
+                "Invalid entry",
+                JOptionPane.ERROR_MESSAGE);
 
             throw e;
         }
@@ -206,10 +206,10 @@ class LogPrefsDialog extends JDialog {
             return Float.parseFloat(field.getText());
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(
-                    this,
-                    label + " must be a decimal number",
-                    "Invalid entry",
-                    JOptionPane.ERROR_MESSAGE);
+                this,
+                label + " must be a decimal number",
+                "Invalid entry",
+                JOptionPane.ERROR_MESSAGE);
 
             throw e;
         }

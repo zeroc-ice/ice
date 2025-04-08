@@ -5,7 +5,7 @@ package test.Ice.seqMapping;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Properties;
 
-import test.Ice.seqMapping.Test.*;
+import test.Ice.seqMapping.Test.MyClassPrx;
 import test.TestHelper;
 
 import java.io.PrintWriter;

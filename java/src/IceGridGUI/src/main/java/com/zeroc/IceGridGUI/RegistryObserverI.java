@@ -3,7 +3,8 @@
 package com.zeroc.IceGridGUI;
 
 import com.zeroc.Ice.Current;
-import com.zeroc.IceGrid.*;
+import com.zeroc.IceGrid.RegistryInfo;
+import com.zeroc.IceGrid.RegistryObserver;
 
 import javax.swing.SwingUtilities;
 
@@ -24,18 +25,18 @@ class RegistryObserverI implements RegistryObserver {
                     names += " " + info.name;
                 }
                 _coordinator.traceObserver(
-                        "registryInit for registr"
-                                + (registryInfos.length == 1 ? "y" : "ies")
-                                + names);
+                    "registryInit for registr"
+                        + (registryInfos.length == 1 ? "y" : "ies")
+                        + names);
             }
         }
 
         SwingUtilities.invokeLater(
-                () -> {
-                    for (RegistryInfo info : registryInfos) {
-                        _coordinator.registryUp(info);
-                    }
-                });
+            () -> {
+                for (RegistryInfo info : registryInfos) {
+                    _coordinator.registryUp(info);
+                }
+            });
     }
 
     @Override

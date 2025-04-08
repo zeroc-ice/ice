@@ -3,7 +3,10 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.ApplicationActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 import java.awt.Component;
 import java.io.IOException;
@@ -46,47 +49,47 @@ class PlainServer extends Communicator implements Server {
 
     public static ServerDescriptor newServerDescriptor() {
         return new ServerDescriptor(
-                new LinkedList<AdapterDescriptor>(),
-                new PropertySetDescriptor(
-                        new String[0], new LinkedList<PropertyDescriptor>()),
-                new String[0],
-                "",
-                "NewServer",
-                "",
-                "",
-                "",
-                new LinkedList<String>(),
-                new LinkedList<String>(),
-                "manual",
-                "",
-                "",
-                true,
-                new DistributionDescriptor("", new LinkedList<String>()), // dummy
-                false, // Allocatable
-                "");
+            new LinkedList<AdapterDescriptor>(),
+            new PropertySetDescriptor(
+                new String[0], new LinkedList<PropertyDescriptor>()),
+            new String[0],
+            "",
+            "NewServer",
+            "",
+            "",
+            "",
+            new LinkedList<String>(),
+            new LinkedList<String>(),
+            "manual",
+            "",
+            "",
+            true,
+            new DistributionDescriptor("", new LinkedList<String>()), // dummy
+            false, // Allocatable
+            "");
     }
 
     public static IceBoxDescriptor newIceBoxDescriptor() {
         return new IceBoxDescriptor(
-                new LinkedList<AdapterDescriptor>(),
-                new PropertySetDescriptor(
-                        new String[0], new LinkedList<PropertyDescriptor>()),
-                new String[0],
-                "",
-                "NewIceBox",
-                "",
-                "",
-                "",
-                new LinkedList<String>(),
-                new LinkedList<String>(),
-                "manual",
-                "",
-                "",
-                true,
-                new DistributionDescriptor("", new LinkedList<String>()), // dummy
-                false, // Allocatable
-                "",
-                new LinkedList<ServiceInstanceDescriptor>());
+            new LinkedList<AdapterDescriptor>(),
+            new PropertySetDescriptor(
+                new String[0], new LinkedList<PropertyDescriptor>()),
+            new String[0],
+            "",
+            "NewIceBox",
+            "",
+            "",
+            "",
+            new LinkedList<String>(),
+            new LinkedList<String>(),
+            "manual",
+            "",
+            "",
+            true,
+            new DistributionDescriptor("", new LinkedList<String>()), // dummy
+            false, // Allocatable
+            "",
+            new LinkedList<ServiceInstanceDescriptor>());
     }
 
     // Actions
@@ -96,10 +99,10 @@ class PlainServer extends Communicator implements Server {
 
         Object clipboard = getCoordinator().getClipboard();
         if (clipboard != null
-                && (clipboard instanceof ServerDescriptor
-                        || clipboard instanceof ServerInstanceDescriptor
-                        || (isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
-                        || (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy)))) {
+            && (clipboard instanceof ServerDescriptor
+            || clipboard instanceof ServerInstanceDescriptor
+            || (isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
+            || (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy)))) {
             actions[PASTE] = true;
         }
 
@@ -172,7 +175,7 @@ class PlainServer extends Communicator implements Server {
             _cellRenderer.setClosedIcon(isIceBox() ? _iceboxServerIcon : _serverIcon);
         }
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     @Override
@@ -211,7 +214,7 @@ class PlainServer extends Communicator implements Server {
             String serverId,
             Utils.Resolver resolver,
             ServerDescriptor serverDescriptor)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         super(parent, serverId);
         _ephemeral = false;
         _editable = new Editable(brandNew);
@@ -255,14 +258,14 @@ class PlainServer extends Communicator implements Server {
     }
 
     static void writeOptions(XMLWriter writer, List<String> options)
-            throws IOException {
+        throws IOException {
         for (String p : options) {
             writer.writeElement("option", p);
         }
     }
 
     static void writeEnvs(XMLWriter writer, List<String> envs)
-            throws IOException {
+        throws IOException {
         for (String p : envs) {
             writer.writeElement("env", p);
         }
@@ -281,12 +284,12 @@ class PlainServer extends Communicator implements Server {
                 writeEnvs(writer, _descriptor.envs);
 
                 writePropertySet(
-                        writer,
-                        "",
-                        "",
-                        _descriptor.propertySet,
-                        _descriptor.adapters,
-                        _descriptor.logs);
+                    writer,
+                    "",
+                    "",
+                    _descriptor.propertySet,
+                    _descriptor.adapters,
+                    _descriptor.logs);
                 writeLogs(writer, _descriptor.logs, _descriptor.propertySet.properties);
 
                 _adapters.write(writer, _descriptor.propertySet.properties);
@@ -303,7 +306,7 @@ class PlainServer extends Communicator implements Server {
                 writeEnvs(writer, _descriptor.envs);
 
                 writePropertySet(
-                        writer, _descriptor.propertySet, _descriptor.adapters, _descriptor.logs);
+                    writer, _descriptor.propertySet, _descriptor.adapters, _descriptor.logs);
                 writeLogs(writer, _descriptor.logs, _descriptor.propertySet.properties);
 
                 _adapters.write(writer, _descriptor.propertySet.properties);
@@ -381,7 +384,7 @@ class PlainServer extends Communicator implements Server {
 
     // Update the server and all its subtree
     void rebuild(Utils.Resolver resolver, ServerDescriptor serverDescriptor)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         assert serverDescriptor != null;
         _resolver = resolver;
         _descriptor = serverDescriptor;

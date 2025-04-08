@@ -22,7 +22,7 @@ public class AllTests {
 
         testClientInactivityTimeout(p, helper.getWriter());
         testServerInactivityTimeout(
-                helper, proxyString3s, communicator.getProperties(), helper.getWriter());
+            helper, proxyString3s, communicator.getProperties(), helper.getWriter());
         testWithOutstandingRequest(p, false, helper.getWriter());
         testWithOutstandingRequest(p, true, helper.getWriter());
 
@@ -31,7 +31,7 @@ public class AllTests {
 
     private static void testClientInactivityTimeout(TestIntfPrx p, PrintWriter output) {
         output.write(
-                "testing that the client side inactivity timeout shuts down the connection... ");
+            "testing that the client side inactivity timeout shuts down the connection... ");
         output.flush();
 
         p.ice_ping();
@@ -54,7 +54,7 @@ public class AllTests {
     private static void testServerInactivityTimeout(
             TestHelper helper, String proxyString, Properties properties, PrintWriter output) {
         output.write(
-                "testing that the server side inactivity timeout shuts down the connection... ");
+            "testing that the server side inactivity timeout shuts down the connection... ");
         output.flush();
 
         // Create a new communicator with the desired properties.
@@ -86,9 +86,9 @@ public class AllTests {
             TestIntfPrx p, boolean oneway, PrintWriter output) {
         String onewayString = oneway ? "one-way" : "two-way";
         output.write(
-                "testing the inactivity timeout with an outstanding "
-                        + onewayString
-                        + " request... ");
+            "testing the inactivity timeout with an outstanding "
+                + onewayString
+                + " request... ");
         output.flush();
 
         if (oneway) {

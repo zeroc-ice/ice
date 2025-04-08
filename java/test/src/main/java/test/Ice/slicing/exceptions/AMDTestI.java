@@ -27,7 +27,7 @@ public final class AMDTestI implements TestIntf {
 
     @Override
     public CompletionStage<Void> unknownDerivedAsBaseAsync(Current current)
-            throws Base {
+        throws Base {
         UnknownDerived d = new UnknownDerived();
         d.b = "UnknownDerived.b";
         d.ud = "UnknownDerived.ud";
@@ -38,7 +38,7 @@ public final class AMDTestI implements TestIntf {
 
     @Override
     public CompletionStage<Void> knownDerivedAsBaseAsync(Current current)
-            throws Base {
+        throws Base {
         KnownDerived d = new KnownDerived();
         d.b = "KnownDerived.b";
         d.kd = "KnownDerived.kd";
@@ -49,7 +49,7 @@ public final class AMDTestI implements TestIntf {
 
     @Override
     public CompletionStage<Void> knownDerivedAsKnownDerivedAsync(Current current)
-            throws KnownDerived {
+        throws KnownDerived {
         KnownDerived d = new KnownDerived();
         d.b = "KnownDerived.b";
         d.kd = "KnownDerived.kd";
@@ -60,7 +60,7 @@ public final class AMDTestI implements TestIntf {
 
     @Override
     public CompletionStage<Void> unknownIntermediateAsBaseAsync(Current current)
-            throws Base {
+        throws Base {
         UnknownIntermediate ui = new UnknownIntermediate();
         ui.b = "UnknownIntermediate.b";
         ui.ui = "UnknownIntermediate.ui";
@@ -71,7 +71,7 @@ public final class AMDTestI implements TestIntf {
 
     @Override
     public CompletionStage<Void> knownIntermediateAsBaseAsync(Current current)
-            throws Base {
+        throws Base {
         KnownIntermediate ki = new KnownIntermediate();
         ki.b = "KnownIntermediate.b";
         ki.ki = "KnownIntermediate.ki";
@@ -82,7 +82,7 @@ public final class AMDTestI implements TestIntf {
 
     @Override
     public CompletionStage<Void> knownMostDerivedAsBaseAsync(Current current)
-            throws Base {
+        throws Base {
         KnownMostDerived kmd = new KnownMostDerived();
         kmd.b = "KnownMostDerived.b";
         kmd.ki = "KnownMostDerived.ki";
@@ -129,7 +129,7 @@ public final class AMDTestI implements TestIntf {
 
     @Override
     public CompletionStage<Void> unknownMostDerived1AsBaseAsync(Current current)
-            throws Base {
+        throws Base {
         UnknownMostDerived1 umd1 = new UnknownMostDerived1();
         umd1.b = "UnknownMostDerived1.b";
         umd1.ki = "UnknownMostDerived1.ki";
@@ -153,7 +153,7 @@ public final class AMDTestI implements TestIntf {
 
     @Override
     public CompletionStage<Void> unknownMostDerived2AsBaseAsync(Current current)
-            throws Base {
+        throws Base {
         UnknownMostDerived2 umd2 = new UnknownMostDerived2();
         umd2.b = "UnknownMostDerived2.b";
         umd2.ui = "UnknownMostDerived2.ui";

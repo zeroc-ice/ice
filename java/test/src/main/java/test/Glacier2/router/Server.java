@@ -16,10 +16,10 @@ public class Server extends TestHelper {
         properties.setProperty("Ice.Package.Test", "test.Glacier2.router");
         try (Communicator communicator = initialize(properties)) {
             communicator
-                    .getProperties()
-                    .setProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
+                .getProperties()
+                .setProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter =
-                    communicator.createObjectAdapter("CallbackAdapter");
+                communicator.createObjectAdapter("CallbackAdapter");
 
             // The test allows "c1" as category.
             adapter.add(new CallbackI(), Util.stringToIdentity("c1/callback"));

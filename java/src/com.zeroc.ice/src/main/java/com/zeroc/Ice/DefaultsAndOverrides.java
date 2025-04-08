@@ -25,7 +25,7 @@ final class DefaultsAndOverrides {
             defaultSourceAddress = Network.getNumericAddress(value);
             if (defaultSourceAddress == null) {
                 throw new InitializationException(
-                        "invalid IP address set for Ice.Default.SourceAddress: `" + value + "'");
+                    "invalid IP address set for Ice.Default.SourceAddress: `" + value + "'");
             }
         } else {
             defaultSourceAddress = null;
@@ -36,7 +36,7 @@ final class DefaultsAndOverrides {
             boolean b = properties.getIcePropertyAsInt("Ice.Override.Compress") > 0;
             if (b && !BZip2.supported()) {
                 System.err.println(
-                        "warning: bzip2 support not available, Ice.Override.Compress ignored");
+                    "warning: bzip2 support not available, Ice.Override.Compress ignored");
                 b = false;
             }
             overrideCompress = Optional.of(b);
@@ -53,7 +53,7 @@ final class DefaultsAndOverrides {
         }
 
         defaultCollocationOptimization =
-                properties.getIcePropertyAsInt("Ice.Default.CollocationOptimized") > 0;
+            properties.getIcePropertyAsInt("Ice.Default.CollocationOptimized") > 0;
 
         value = properties.getIceProperty("Ice.Default.EndpointSelection");
         if ("Random".equals(value)) {
@@ -62,22 +62,22 @@ final class DefaultsAndOverrides {
             defaultEndpointSelection = EndpointSelectionType.Ordered;
         } else {
             throw new ParseException(
-                    "illegal value '"
-                            + value
-                            + "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
+                "illegal value '"
+                    + value
+                    + "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
         }
 
         intValue = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
         if (intValue < -1) {
             throw new InitializationException(
-                    "invalid value for Ice.Default.LocatorCacheTimeout: " + intValue);
+                "invalid value for Ice.Default.LocatorCacheTimeout: " + intValue);
         }
         defaultLocatorCacheTimeout = Duration.ofSeconds(intValue);
 
         intValue = properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout");
         if (intValue < 1 && intValue != -1) {
             throw new InitializationException(
-                    "invalid value for Ice.Default.InvocationTimeout: " + intValue);
+                "invalid value for Ice.Default.InvocationTimeout: " + intValue);
         }
         defaultInvocationTimeout = Duration.ofMillis(intValue);
 

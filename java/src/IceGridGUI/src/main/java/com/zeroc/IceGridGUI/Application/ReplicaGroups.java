@@ -2,8 +2,10 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.ObjectDescriptor;
+import com.zeroc.IceGrid.ReplicaGroupDescriptor;
+import com.zeroc.IceGridGUI.ApplicationActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
 
 import javax.swing.JPopupMenu;
 
@@ -50,13 +52,13 @@ class ReplicaGroups extends ListTreeNode {
     @Override
     public void newReplicaGroup() {
         ReplicaGroupDescriptor descriptor =
-                new ReplicaGroupDescriptor(
-                        makeNewChildId("NewReplicaGroup"),
-                        null,
-                        "",
-                        new LinkedList<ObjectDescriptor>(),
-                        "",
-                        "");
+            new ReplicaGroupDescriptor(
+                makeNewChildId("NewReplicaGroup"),
+                null,
+                "",
+                new LinkedList<ObjectDescriptor>(),
+                "",
+                "");
 
         newReplicaGroup(descriptor);
     }
@@ -71,7 +73,7 @@ class ReplicaGroups extends ListTreeNode {
     }
 
     ReplicaGroups(TreeNode parent, List<ReplicaGroupDescriptor> desc)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         super(false, parent, "Replica Groups");
         _descriptors = desc;
 
@@ -153,7 +155,7 @@ class ReplicaGroups extends ListTreeNode {
     }
 
     void tryAdd(ReplicaGroupDescriptor descriptor, boolean addDescriptor)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         insertChild(new ReplicaGroup(true, this, descriptor), true);
 
         if (addDescriptor) {

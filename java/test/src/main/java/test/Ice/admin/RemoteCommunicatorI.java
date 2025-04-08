@@ -6,13 +6,13 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.ObjectPrx;
 
-import test.Ice.admin.Test.*;
+import test.Ice.admin.Test.RemoteCommunicator;
 
 import java.util.Map;
 import java.util.function.Consumer;
 
 public class RemoteCommunicatorI
-        implements RemoteCommunicator, Consumer<Map<String, String>> {
+    implements RemoteCommunicator, Consumer<Map<String, String>> {
     RemoteCommunicatorI(Communicator communicator) {
         _communicator = communicator;
     }

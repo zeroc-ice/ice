@@ -51,7 +51,7 @@ class RFC2253 {
                 current = new RDNEntry();
             } else if (state.pos < state.data.length()) {
                 throw new ParseException(
-                        "expected ',' or ';' at `" + state.data.substring(state.pos) + "'");
+                    "expected ',' or ';' at `" + state.data.substring(state.pos) + "'");
             }
         }
         if (!current.rdn.isEmpty()) {
@@ -70,12 +70,12 @@ class RFC2253 {
             results.add(parseNameComponent(state));
             eatWhite(state);
             if (state.pos < state.data.length()
-                    && (state.data.charAt(state.pos) == ','
-                            || state.data.charAt(state.pos) == ';')) {
+                && (state.data.charAt(state.pos) == ','
+                || state.data.charAt(state.pos) == ';')) {
                 ++state.pos;
             } else if (state.pos < state.data.length()) {
                 throw new ParseException(
-                        "expected ',' or ';' at `" + state.data.substring(state.pos) + "'");
+                    "expected ',' or ';' at `" + state.data.substring(state.pos) + "'");
             }
         }
         return results;
@@ -105,7 +105,7 @@ class RFC2253 {
         eatWhite(state);
         if (state.pos >= state.data.length()) {
             throw new ParseException(
-                    "invalid attribute type/value pair (unexpected end of state.data)");
+                "invalid attribute type/value pair (unexpected end of state.data)");
         }
         if (state.data.charAt(state.pos) != '=') {
             throw new ParseException("invalid attribute type/value pair (missing =)");
@@ -142,11 +142,11 @@ class RFC2253 {
         // First the OID case.
         //
         if (Character.isDigit(state.data.charAt(state.pos))
-                || (state.data.length() - state.pos >= 4
-                        && ("oid.".equals(state.data.substring(state.pos, state.pos + 4))
-                                || "OID."
-                                        .equals(state.data
-                                        .substring(state.pos, state.pos + 4))))) {
+            || (state.data.length() - state.pos >= 4
+            && ("oid.".equals(state.data.substring(state.pos, state.pos + 4))
+            || "OID."
+            .equals(state.data
+                .substring(state.pos, state.pos + 4))))) {
             if (!Character.isDigit(state.data.charAt(state.pos))) {
                 result.append(state.data.substring(state.pos, state.pos + 4));
                 state.pos += 4;
@@ -155,7 +155,7 @@ class RFC2253 {
             while (true) {
                 // 1*DIGIT
                 while (state.pos < state.data.length()
-                        && Character.isDigit(state.data.charAt(state.pos))) {
+                    && Character.isDigit(state.data.charAt(state.pos))) {
                     result.append(state.data.charAt(state.pos));
                     ++state.pos;
                 }
@@ -165,16 +165,16 @@ class RFC2253 {
                     ++state.pos;
                     // 1*DIGIT must follow "."
                     if (state.pos < state.data.length()
-                            && !Character.isDigit(state.data.charAt(state.pos))) {
+                        && !Character.isDigit(state.data.charAt(state.pos))) {
                         throw new ParseException(
-                                "invalid attribute type (expected end of state.data)");
+                            "invalid attribute type (expected end of state.data)");
                     }
                 } else {
                     break;
                 }
             }
         } else if (Character.isUpperCase(state.data.charAt(state.pos))
-                || Character.isLowerCase(state.data.charAt(state.pos))) {
+            || Character.isLowerCase(state.data.charAt(state.pos))) {
             //
             // The grammar is wrong in this case. It should be ALPHA
             // KEYCHAR* otherwise it will not accept "O" as a valid
@@ -184,10 +184,10 @@ class RFC2253 {
             ++state.pos;
             // 1* KEYCHAR
             while (state.pos < state.data.length()
-                    && (Character.isDigit(state.data.charAt(state.pos))
-                            || Character.isUpperCase(state.data.charAt(state.pos))
-                            || Character.isLowerCase(state.data.charAt(state.pos))
-                            || state.data.charAt(state.pos) == '-')) {
+                && (Character.isDigit(state.data.charAt(state.pos))
+                || Character.isUpperCase(state.data.charAt(state.pos))
+                || Character.isLowerCase(state.data.charAt(state.pos))
+                || state.data.charAt(state.pos) == '-')) {
                 result.append(state.data.charAt(state.pos));
                 ++state.pos;
             }
@@ -218,48 +218,32 @@ class RFC2253 {
                 }
                 result.append(h);
             }
-        }
-        //
-        // RFC 2253
-        // QUOTATION *( quotechar | pair ) QUOTATION ; only from v2
-        // quotechar     = <any character except "\" or QUOTATION >
-        //
-        else if (state.data.charAt(state.pos) == '"') {
+        } else if (state.data.charAt(state.pos) == '"') {
             result.append(state.data.charAt(state.pos));
             ++state.pos;
             while (true) {
                 if (state.pos >= state.data.length()) {
                     throw new ParseException(
-                            "invalid attribute value (unexpected end of state.data)");
+                        "invalid attribute value (unexpected end of state.data)");
                 }
                 // final terminating "
                 if (state.data.charAt(state.pos) == '"') {
                     result.append(state.data.charAt(state.pos));
                     ++state.pos;
                     break;
-                }
-                // any character except '\'
-                else if (state.data.charAt(state.pos) != '\\') {
+                } else if (state.data.charAt(state.pos) != '\\') {
                     result.append(state.data.charAt(state.pos));
                     ++state.pos;
-                }
-                // pair '\'
-                else {
+                } else {
                     result.append(parsePair(state));
                 }
             }
-        }
-        //
-        // RFC 2253
-        // * (Stringchar | pair)
-        // Stringchar = <any character except one of special, "\" or QUOTATION >
-        //
-        else {
+        } else {
             while (state.pos < state.data.length()) {
                 if (state.data.charAt(state.pos) == '\\') {
                     result.append(parsePair(state));
                 } else if (special.indexOf(state.data.charAt(state.pos)) == -1
-                        && state.data.charAt(state.pos) != '"') {
+                    && state.data.charAt(state.pos) != '"') {
                     result.append(state.data.charAt(state.pos));
                     ++state.pos;
                 } else {
@@ -286,8 +270,8 @@ class RFC2253 {
         }
 
         if (special.indexOf(state.data.charAt(state.pos)) != -1
-                || state.data.charAt(state.pos) != '\\'
-                || state.data.charAt(state.pos) != '"') {
+            || state.data.charAt(state.pos) != '\\'
+            || state.data.charAt(state.pos) != '"') {
             result += state.data.charAt(state.pos);
             ++state.pos;
             return result;
@@ -302,12 +286,12 @@ class RFC2253 {
     private static String parseHexPair(ParseState state, boolean allowEmpty) throws ParseException {
         String result = "";
         if (state.pos < state.data.length()
-                && hexvalid.indexOf(state.data.charAt(state.pos)) != -1) {
+            && hexvalid.indexOf(state.data.charAt(state.pos)) != -1) {
             result += state.data.charAt(state.pos);
             ++state.pos;
         }
         if (state.pos < state.data.length()
-                && hexvalid.indexOf(state.data.charAt(state.pos)) != -1) {
+            && hexvalid.indexOf(state.data.charAt(state.pos)) != -1) {
             result += state.data.charAt(state.pos);
             ++state.pos;
         }

@@ -2,8 +2,12 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.AdapterDescriptor;
+import com.zeroc.IceGrid.ObjectDescriptor;
+import com.zeroc.IceGrid.PropertyDescriptor;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 import java.awt.Component;
 import java.io.IOException;
@@ -82,7 +86,7 @@ class Adapter extends TreeNode implements DescriptorHolder {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     @Override
@@ -149,7 +153,7 @@ class Adapter extends TreeNode implements DescriptorHolder {
     }
 
     void write(XMLWriter writer, List<PropertyDescriptor> properties)
-            throws IOException {
+        throws IOException {
         if (!_ephemeral) {
             List<String[]> attributes = new LinkedList<>();
             attributes.add(createAttribute("name", _descriptor.name));
@@ -180,8 +184,8 @@ class Adapter extends TreeNode implements DescriptorHolder {
             }
 
             if (_descriptor.description.isEmpty()
-                    && _descriptor.objects.isEmpty()
-                    && _descriptor.allocatables.isEmpty()) {
+                && _descriptor.objects.isEmpty()
+                && _descriptor.allocatables.isEmpty()) {
                 writer.writeElement("adapter", attributes);
             } else {
                 writer.writeStartTag("adapter", attributes);
@@ -231,8 +235,8 @@ class Adapter extends TreeNode implements DescriptorHolder {
 
     String getDefaultAdapterId(String name) {
         return _parent instanceof Service || _parent instanceof ServiceTemplate
-                ? "${server}.${service}." + name
-                : "${server}." + name;
+            ? "${server}.${service}." + name
+            : "${server}." + name;
     }
 
     @Override
@@ -242,7 +246,7 @@ class Adapter extends TreeNode implements DescriptorHolder {
 
     private final boolean _ephemeral;
     private final Map<String, String>
-            _parentProperties; // set only when ephemeral == true;
+        _parentProperties; // set only when ephemeral == true;
     private final AdapterDescriptor _descriptor;
     private AdapterEditor _editor;
 

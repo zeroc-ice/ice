@@ -65,10 +65,10 @@ public class AllTests {
         out.flush();
         {
             ObjectPrx p1 =
-                    communicator.stringToProxy(
-                            "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress"
-                                    + " 10.10.10.10:udp -h udphost -p 10001 --interface eth0 --ttl 5"
-                                    + " --sourceAddress 10.10.10.10:opaque -e 1.8 -t 100 -v ABCD");
+                communicator.stringToProxy(
+                    "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress"
+                        + " 10.10.10.10:udp -h udphost -p 10001 --interface eth0 --ttl 5"
+                        + " --sourceAddress 10.10.10.10:opaque -e 1.8 -t 100 -v ABCD");
 
             Endpoint[] endps = p1.ice_getEndpoints();
             EndpointInfo info = endps[0].getInfo();
@@ -80,19 +80,19 @@ public class AllTests {
             test(tcpEndpoint.compress);
             test(!tcpEndpoint.datagram());
             test(
-                    tcpEndpoint.type() == TCPEndpointType.value && !tcpEndpoint.secure()
-                            || tcpEndpoint.type() == SSLEndpointType.value && tcpEndpoint.secure()
-                            || tcpEndpoint.type() == WSEndpointType.value && !tcpEndpoint.secure()
-                            || tcpEndpoint.type() == WSSEndpointType.value && tcpEndpoint.secure());
+                tcpEndpoint.type() == TCPEndpointType.value && !tcpEndpoint.secure()
+                    || tcpEndpoint.type() == SSLEndpointType.value && tcpEndpoint.secure()
+                    || tcpEndpoint.type() == WSEndpointType.value && !tcpEndpoint.secure()
+                    || tcpEndpoint.type() == WSSEndpointType.value && tcpEndpoint.secure());
 
             test(
-                    tcpEndpoint.type() == TCPEndpointType.value && info instanceof TCPEndpointInfo
-                            || tcpEndpoint.type() == SSLEndpointType.value
-                                    && info instanceof com.zeroc.Ice.SSL.EndpointInfo
-                            || tcpEndpoint.type() == WSEndpointType.value
-                                    && info instanceof WSEndpointInfo
-                            || tcpEndpoint.type() == WSSEndpointType.value
-                                    && info instanceof WSEndpointInfo);
+                tcpEndpoint.type() == TCPEndpointType.value && info instanceof TCPEndpointInfo
+                    || tcpEndpoint.type() == SSLEndpointType.value
+                    && info instanceof com.zeroc.Ice.SSL.EndpointInfo
+                    || tcpEndpoint.type() == WSEndpointType.value
+                    && info instanceof WSEndpointInfo
+                    || tcpEndpoint.type() == WSSEndpointType.value
+                    && info instanceof WSEndpointInfo);
 
             UDPEndpointInfo udpEndpoint = (UDPEndpointInfo) endps[1].getInfo();
             test("udphost".equals(udpEndpoint.host));
@@ -108,8 +108,8 @@ public class AllTests {
 
             OpaqueEndpointInfo opaqueEndpoint = (OpaqueEndpointInfo) endps[2].getInfo();
             test(
-                    opaqueEndpoint.rawEncoding.equals(
-                            new EncodingVersion((byte) 1, (byte) 8)));
+                opaqueEndpoint.rawEncoding.equals(
+                    new EncodingVersion((byte) 1, (byte) 8)));
         }
         out.println("ok");
 
@@ -117,14 +117,14 @@ public class AllTests {
         out.flush();
         {
             final String host =
-                    communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0
-                            ? "::1"
-                            : "127.0.0.1";
+                communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0
+                    ? "::1"
+                    : "127.0.0.1";
             communicator
-                    .getProperties()
-                    .setProperty(
-                            "TestAdapter.Endpoints",
-                            "tcp -h \"" + host + "\" -t 15000:udp -h \"" + host + "\"");
+                .getProperties()
+                .setProperty(
+                    "TestAdapter.Endpoints",
+                    "tcp -h \"" + host + "\" -t 15000:udp -h \"" + host + "\"");
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
 
             Endpoint[] endpoints = adapter.getEndpoints();
@@ -134,10 +134,10 @@ public class AllTests {
 
             TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(endpoints[0].getInfo());
             test(
-                    tcpEndpoint.type() == TCPEndpointType.value
-                            || tcpEndpoint.type() == SSLEndpointType.value
-                            || tcpEndpoint.type() == WSEndpointType.value
-                            || tcpEndpoint.type() == WSSEndpointType.value);
+                tcpEndpoint.type() == TCPEndpointType.value
+                    || tcpEndpoint.type() == SSLEndpointType.value
+                    || tcpEndpoint.type() == WSEndpointType.value
+                    || tcpEndpoint.type() == WSSEndpointType.value);
             test(tcpEndpoint.host.equals(host));
             test(tcpEndpoint.port > 0);
             test(tcpEndpoint.timeout == 15000);
@@ -157,11 +157,11 @@ public class AllTests {
 
             int port = helper.getTestPort(1);
             communicator
-                    .getProperties()
-                    .setProperty("TestAdapter.Endpoints", "tcp -h * -p " + port);
+                .getProperties()
+                .setProperty("TestAdapter.Endpoints", "tcp -h * -p " + port);
             communicator
-                    .getProperties()
-                    .setProperty("TestAdapter.PublishedEndpoints", "tcp -h dummy -p " + port);
+                .getProperties()
+                .setProperty("TestAdapter.PublishedEndpoints", "tcp -h dummy -p " + port);
             adapter = communicator.createObjectAdapter("TestAdapter");
 
             endpoints = adapter.getEndpoints();
@@ -183,11 +183,11 @@ public class AllTests {
         out.println("ok");
 
         ObjectPrx base =
-                communicator.stringToProxy(
-                        "test:"
-                                + helper.getTestEndpoint(0)
-                                + ":"
-                                + helper.getTestEndpoint(0, "udp"));
+            communicator.stringToProxy(
+                "test:"
+                    + helper.getTestEndpoint(0)
+                    + ":"
+                    + helper.getTestEndpoint(0, "udp"));
         TestIntfPrx testIntf = TestIntfPrx.checkedCast(base);
 
         int endpointPort = helper.getTestPort(0);
@@ -242,7 +242,7 @@ public class AllTests {
             test(ctx.get("localPort").equals(Integer.toString(info.remotePort)));
 
             if ("ws".equals(base.ice_getConnection().type())
-                    || "wss".equals(base.ice_getConnection().type())) {
+                || "wss".equals(base.ice_getConnection().type())) {
                 var wssInfo = (WSConnectionInfo) connection.getInfo();
                 Map<String, String> headers = wssInfo.headers;
                 test("websocket".equals(headers.get("Upgrade")));
@@ -290,7 +290,7 @@ public class AllTests {
         test(info.certs.length > 0);
         try {
             byte[] thumbprint =
-                    MessageDigest.getInstance("SHA-1").digest(info.certs[0].getEncoded());
+                MessageDigest.getInstance("SHA-1").digest(info.certs[0].getEncoded());
 
             // The SHA1 Thumbprint of the server certificate used in the test.
             byte[] expected = {

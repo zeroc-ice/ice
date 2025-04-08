@@ -28,7 +28,8 @@ public abstract class EditorBase {
         return null;
     }
 
-    protected void appendProperties(DefaultFormBuilder builder) {}
+    protected void appendProperties(DefaultFormBuilder builder) {
+    }
 
     protected JComponent createPropertiesPanel() {
         return null;
@@ -51,10 +52,10 @@ public abstract class EditorBase {
         }
 
         JScrollPane scrollPane =
-                new JScrollPane(
-                        contents,
-                        ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            new JScrollPane(
+                contents,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         scrollPane.setBorder(Borders.DIALOG);
 

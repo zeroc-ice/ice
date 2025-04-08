@@ -86,12 +86,12 @@ public abstract class UserException extends java.lang.Exception {
             } else {
                 Class<?> c = value.getClass();
                 if (c.equals(Byte.class)
-                        || c.equals(Short.class)
-                        || c.equals(Integer.class)
-                        || c.equals(Long.class)
-                        || c.equals(Double.class)
-                        || c.equals(Float.class)
-                        || c.equals(Boolean.class)) {
+                    || c.equals(Short.class)
+                    || c.equals(Integer.class)
+                    || c.equals(Long.class)
+                    || c.equals(Double.class)
+                    || c.equals(Float.class)
+                    || c.equals(Boolean.class)) {
                     writeName(name, out);
                     out.print(value.toString());
                 } else if (c.equals(String.class)) {
@@ -143,8 +143,8 @@ public abstract class UserException extends java.lang.Exception {
                     } else {
                         if (objectTable == null) {
                             objectTable =
-                                    new IdentityHashMap<
-                                            java.lang.Object, java.lang.Object>();
+                                new IdentityHashMap<
+                                    java.lang.Object, java.lang.Object>();
                         }
                         objectTable.put(value, null);
                         writeFields(name, value, c, objectTable, out);
@@ -196,9 +196,9 @@ public abstract class UserException extends java.lang.Exception {
                     //
                     int mods = field.getModifiers();
                     if (java.lang.reflect.Modifier.isPublic(mods)
-                            && !java.lang.reflect.Modifier.isStatic(mods)) {
+                        && !java.lang.reflect.Modifier.isStatic(mods)) {
                         String fieldName =
-                                name != null ? name + '.' + field.getName() : field.getName();
+                            name != null ? name + '.' + field.getName() : field.getName();
 
                         try {
                             java.lang.Object value = field.get(obj);

@@ -104,6 +104,6 @@ final class LocatorManager {
 
     private final HashMap<LocatorPrx, LocatorInfo> _table = new HashMap<>();
     private final HashMap<LocatorKey, LocatorTable> _locatorTables =
-            new HashMap<>();
+        new HashMap<>();
     private final LocatorKey _lookupKey = new LocatorKey(); // A key used for the lookup
 }

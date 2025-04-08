@@ -3,7 +3,10 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.ApplicationActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 import java.awt.Component;
 import java.io.IOException;
@@ -37,7 +40,7 @@ class ServiceTemplate extends Communicator {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     // Actions
@@ -83,7 +86,7 @@ class ServiceTemplate extends Communicator {
     public Editor getEditor() {
         if (_editor == null) {
             _editor =
-                    (ServiceTemplateEditor) getRoot().getEditor(ServiceTemplateEditor.class, this);
+                (ServiceTemplateEditor) getRoot().getEditor(ServiceTemplateEditor.class, this);
         }
         _editor.show(this);
         return _editor;
@@ -96,7 +99,7 @@ class ServiceTemplate extends Communicator {
 
     ServiceTemplate(
             boolean brandNew, ServiceTemplates parent, String name, TemplateDescriptor descriptor)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         super(parent, name);
         _editable = new Editable(brandNew);
         _ephemeral = false;
@@ -117,7 +120,7 @@ class ServiceTemplate extends Communicator {
             attributes.add(createAttribute("id", _id));
             writer.writeStartTag("service-template", attributes);
             writeParameters(
-                    writer, _templateDescriptor.parameters, _templateDescriptor.parameterDefaults);
+                writer, _templateDescriptor.parameters, _templateDescriptor.parameterDefaults);
 
             ServiceDescriptor descriptor = (ServiceDescriptor) _templateDescriptor.descriptor;
 

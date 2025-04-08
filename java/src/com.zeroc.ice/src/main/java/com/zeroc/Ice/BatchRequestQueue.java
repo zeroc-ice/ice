@@ -43,10 +43,10 @@ class BatchRequestQueue {
         _batchStreamInUse = false;
         _batchRequestNum = 0;
         _batchStream =
-                new OutputStream(
-                        Protocol.currentProtocolEncoding,
-                        instance.defaultsAndOverrides().defaultFormat,
-                        instance.cacheMessageBuffers() > 1);
+            new OutputStream(
+                Protocol.currentProtocolEncoding,
+                instance.defaultsAndOverrides().defaultFormat,
+                instance.cacheMessageBuffers() > 1);
         _batchStream.writeBlob(Protocol.requestBatchHdr);
         _batchMarker = _batchStream.size();
         _batchCompress = false;
@@ -55,8 +55,8 @@ class BatchRequestQueue {
         _maxSize = instance.batchAutoFlushSize();
         if (_maxSize > 0 && datagram) {
             int udpSndSize =
-                    initData.properties.getPropertyAsIntWithDefault(
-                            "Ice.UDP.SndSize", 65535 - _udpOverhead);
+                initData.properties.getPropertyAsIntWithDefault(
+                    "Ice.UDP.SndSize", 65535 - _udpOverhead);
             if (udpSndSize < _maxSize) {
                 _maxSize = udpSndSize;
             }
@@ -83,7 +83,7 @@ class BatchRequestQueue {
 
         try {
             _batchStreamCanFlush =
-                    true; // Allow flush to proceed even if the stream is marked in use.
+                true; // Allow flush to proceed even if the stream is marked in use.
 
             if (_maxSize > 0 && _batchStream.size() >= _maxSize) {
                 proxy.ice_flushBatchRequestsAsync(); // Auto flush

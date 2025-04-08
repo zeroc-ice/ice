@@ -128,28 +128,28 @@ final class Selector {
         assert (handlers.isEmpty());
 
         if (_keys.isEmpty()
-                && _readyHandlers.isEmpty()
-                && !_interrupted) // If key set is empty and we weren't woken up.
-        {
-            //
-            // This is necessary to prevent a busy loop in case of a spurious wake-up which
-            // sometime occurs in the client thread pool when the communicator is destroyed.
-            // If there are too many successive spurious wake-ups, we log an error.
-            //
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException ex) {
+            && _readyHandlers.isEmpty()
+            && !_interrupted) // If key set is empty and we weren't woken up.
+            {
                 //
-                // Eat the InterruptedException (as we do in ThreadPool.promoteFollower).
+                // This is necessary to prevent a busy loop in case of a spurious wake-up which
+                // sometime occurs in the client thread pool when the communicator is destroyed.
+                // If there are too many successive spurious wake-ups, we log an error.
                 //
-            }
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException ex) {
+                    //
+                    // Eat the InterruptedException (as we do in ThreadPool.promoteFollower).
+                    //
+                }
 
-            if (++_spuriousWakeUp > 100) {
-                _spuriousWakeUp = 0;
-                _instance.initializationData().logger.warning("spurious selector wake up");
+                if (++_spuriousWakeUp > 100) {
+                    _spuriousWakeUp = 0;
+                    _instance.initializationData().logger.warning("spurious selector wake up");
+                }
+                return;
             }
-            return;
-        }
         _interrupted = false;
         _spuriousWakeUp = 0;
 
@@ -162,9 +162,9 @@ final class Selector {
                 //
                 final int op = fromJavaOps(key.readyOps() & key.interestOps());
                 if (!_readyHandlers.contains(handler)) // Handler will be added by the loop below
-                {
-                    handlers.add(new EventHandlerOpPair(handler, op));
-                }
+                    {
+                        handlers.add(new EventHandlerOpPair(handler, op));
+                    }
             } catch (CancelledKeyException ex) {
                 assert (handler._registered == 0);
             }
@@ -303,9 +303,9 @@ final class Selector {
     private int fromJavaOps(int o) {
         int op = 0;
         if ((o
-                        & (SelectionKey.OP_READ
-                                | SelectionKey.OP_ACCEPT))
-                != 0) {
+            & (SelectionKey.OP_READ
+            | SelectionKey.OP_ACCEPT))
+            != 0) {
             op |= SocketOperation.Read;
         }
         if ((o & SelectionKey.OP_WRITE) != 0) {

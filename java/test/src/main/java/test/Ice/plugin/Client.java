@@ -25,11 +25,12 @@ public class Client extends TestHelper {
             printWriter.flush();
             Properties properties = createTestProperties(args);
             properties.setProperty(
-                    "Ice.Plugin.Test",
-                    jarFile
-                            + ":test.Ice.plugin.plugins.PluginFactory "
-                            + "'C:\\Program Files\\' --DatabasePath 'C:\\Program Files\\Application\\db'");
-            try (Communicator communicator = initialize(properties)) {}
+                "Ice.Plugin.Test",
+                jarFile
+                    + ":test.Ice.plugin.plugins.PluginFactory "
+                    + "'C:\\Program Files\\' --DatabasePath 'C:\\Program Files\\Application\\db'");
+            try (Communicator communicator = initialize(properties)) {
+            }
             printWriter.println("ok");
         }
 
@@ -38,8 +39,8 @@ public class Client extends TestHelper {
             printWriter.flush();
             Properties properties = createTestProperties(args);
             properties.setProperty(
-                    "Ice.Plugin.Test",
-                    jarFile + ":test.Ice.plugin.plugins.PluginInitializeFailFactory");
+                "Ice.Plugin.Test",
+                jarFile + ":test.Ice.plugin.plugins.PluginInitializeFailFactory");
             try (Communicator communicator = initialize(properties)) {
                 test(false);
             } catch (PluginInitializationException ex) {
@@ -54,15 +55,16 @@ public class Client extends TestHelper {
 
             Properties properties = createTestProperties(args);
             properties.setProperty(
-                    "Ice.Plugin.PluginOne", jarFile + ":test.Ice.plugin.plugins.PluginOneFactory");
+                "Ice.Plugin.PluginOne", jarFile + ":test.Ice.plugin.plugins.PluginOneFactory");
             properties.setProperty(
-                    "Ice.Plugin.PluginTwo", jarFile + ":test.Ice.plugin.plugins.PluginTwoFactory");
+                "Ice.Plugin.PluginTwo", jarFile + ":test.Ice.plugin.plugins.PluginTwoFactory");
             properties.setProperty(
-                    "Ice.Plugin.PluginThree",
-                    jarFile + ":test.Ice.plugin.plugins.PluginThreeFactory");
+                "Ice.Plugin.PluginThree",
+                jarFile + ":test.Ice.plugin.plugins.PluginThreeFactory");
             properties.setProperty(
-                    "Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
-            try (Communicator communicator = initialize(properties)) {}
+                "Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
+            try (Communicator communicator = initialize(properties)) {
+            }
             printWriter.println("ok");
         }
 
@@ -72,12 +74,12 @@ public class Client extends TestHelper {
 
             Properties properties = createTestProperties(args);
             properties.setProperty(
-                    "Ice.Plugin.PluginOne", jarFile + ":test.Ice.plugin.plugins.PluginOneFactory");
+                "Ice.Plugin.PluginOne", jarFile + ":test.Ice.plugin.plugins.PluginOneFactory");
             properties.setProperty(
-                    "Ice.Plugin.PluginTwo", jarFile + ":test.Ice.plugin.plugins.PluginTwoFactory");
+                "Ice.Plugin.PluginTwo", jarFile + ":test.Ice.plugin.plugins.PluginTwoFactory");
             properties.setProperty(
-                    "Ice.Plugin.PluginThree",
-                    jarFile + ":test.Ice.plugin.plugins.PluginThreeFactory");
+                "Ice.Plugin.PluginThree",
+                jarFile + ":test.Ice.plugin.plugins.PluginThreeFactory");
             properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo");
             properties.setProperty("Ice.InitPlugins", "0");
 
@@ -108,16 +110,16 @@ public class Client extends TestHelper {
 
             Properties properties = createTestProperties(args);
             properties.setProperty(
-                    "Ice.Plugin.PluginOneFail",
-                    jarFile + ":test.Ice.plugin.plugins.PluginOneFailFactory");
+                "Ice.Plugin.PluginOneFail",
+                jarFile + ":test.Ice.plugin.plugins.PluginOneFailFactory");
             properties.setProperty(
-                    "Ice.Plugin.PluginTwoFail",
-                    jarFile + ":test.Ice.plugin.plugins.PluginTwoFailFactory");
+                "Ice.Plugin.PluginTwoFail",
+                jarFile + ":test.Ice.plugin.plugins.PluginTwoFailFactory");
             properties.setProperty(
-                    "Ice.Plugin.PluginThreeFail",
-                    jarFile + ":test.Ice.plugin.plugins.PluginThreeFailFactory");
+                "Ice.Plugin.PluginThreeFail",
+                jarFile + ":test.Ice.plugin.plugins.PluginThreeFailFactory");
             properties.setProperty(
-                    "Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
+                "Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
             try (Communicator communicator = initialize(properties)) {
                 test(false);
             } catch (PluginInitializationException ex) {

@@ -35,7 +35,8 @@ public class TestI implements TestIntf {
         return null;
     }
 
-    TestI() {}
+    TestI() {
+    }
 
     @Override
     public void shutdown(Current current) {

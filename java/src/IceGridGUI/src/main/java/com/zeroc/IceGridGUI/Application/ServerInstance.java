@@ -3,7 +3,10 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.ApplicationActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 import java.awt.Component;
 import java.io.IOException;
@@ -35,9 +38,9 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
 
         Object clipboard = getCoordinator().getClipboard();
         if (clipboard != null
-                && (clipboard instanceof ServerDescriptor
-                        || clipboard instanceof ServerInstanceDescriptor
-                        || (_isIceBox && clipboard instanceof PropertySetDescriptor))) {
+            && (clipboard instanceof ServerDescriptor
+            || clipboard instanceof ServerInstanceDescriptor
+            || (_isIceBox && clipboard instanceof PropertySetDescriptor))) {
             actions[PASTE] = true;
         }
 
@@ -76,8 +79,8 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
     @Override
     public void newPropertySet() {
         newPropertySet(
-                new PropertySetDescriptor(
-                        new String[0], new LinkedList<PropertyDescriptor>()));
+            new PropertySetDescriptor(
+                new String[0], new LinkedList<PropertyDescriptor>()));
     }
 
     @Override
@@ -131,7 +134,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     @Override
@@ -175,7 +178,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
             Utils.Resolver resolver,
             ServerInstanceDescriptor instanceDescriptor,
             boolean isIceBox)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         super(brandNew, parent, serverId);
         _ephemeral = false;
         rebuild(resolver, instanceDescriptor, isIceBox);
@@ -195,16 +198,16 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
     void write(XMLWriter writer) throws IOException {
         if (!_ephemeral) {
             TemplateDescriptor templateDescriptor =
-                    getRoot().findServerTemplateDescriptor(_descriptor.template);
+                getRoot().findServerTemplateDescriptor(_descriptor.template);
 
             LinkedList<String[]> attributes =
-                    parameterValuesToAttributes(
-                            _descriptor.parameterValues, templateDescriptor.parameters);
+                parameterValuesToAttributes(
+                    _descriptor.parameterValues, templateDescriptor.parameters);
             attributes.addFirst(createAttribute("template", _descriptor.template));
 
             if (_descriptor.propertySet.references.length == 0
-                    && _descriptor.propertySet.properties.isEmpty()
-                    && _children.isEmpty()) {
+                && _descriptor.propertySet.properties.isEmpty()
+                && _children.isEmpty()) {
                 writer.writeElement("server-instance", attributes);
             } else {
                 writer.writeStartTag("server-instance", attributes);
@@ -247,14 +250,14 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
         Backup backup = new Backup(node.getEditable().save());
 
         TemplateDescriptor templateDescriptor =
-                getRoot().findServerTemplateDescriptor(_descriptor.template);
+            getRoot().findServerTemplateDescriptor(_descriptor.template);
 
         Set<String> parameters = new HashSet<>(templateDescriptor.parameters);
         if (!parameters.equals(_descriptor.parameterValues.keySet())) {
             backup.parameterValues = _descriptor.parameterValues;
             _descriptor.parameterValues =
-                    Editor.makeParameterValues(
-                            _descriptor.parameterValues, templateDescriptor.parameters);
+                Editor.makeParameterValues(
+                    _descriptor.parameterValues, templateDescriptor.parameters);
         }
         ServerInstance newServer = node.createServer(false, _descriptor);
 
@@ -315,21 +318,21 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
 
     @Override
     public void tryAdd(String unsubstitutedId, PropertySetDescriptor descriptor)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         insertPropertySet(
-                new PropertySet(
-                        this,
-                        Utils.substitute(unsubstitutedId, _resolver),
-                        unsubstitutedId,
-                        descriptor),
-                true);
+            new PropertySet(
+                this,
+                Utils.substitute(unsubstitutedId, _resolver),
+                unsubstitutedId,
+                descriptor),
+            true);
         _descriptor.servicePropertySets.put(unsubstitutedId, descriptor);
         _editable.markModified();
     }
 
     @Override
     public void tryRename(String oldId, String oldUnresolvedId, String newUnsubstitutedId)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         PropertySet oldChild = (PropertySet) findChild(oldId);
         assert oldChild != null;
         removePropertySet(oldChild);
@@ -337,12 +340,12 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
 
         try {
             insertPropertySet(
-                    new PropertySet(
-                            this,
-                            Utils.substitute(newUnsubstitutedId, _resolver),
-                            newUnsubstitutedId,
-                            descriptor),
-                    true);
+                new PropertySet(
+                    this,
+                    Utils.substitute(newUnsubstitutedId, _resolver),
+                    newUnsubstitutedId,
+                    descriptor),
+                true);
         } catch (UpdateFailedException ex) {
             try {
                 insertPropertySet(oldChild, true);
@@ -383,7 +386,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
         // Retrieve the list of service instances
 
         Communicator.ChildList services =
-                getRoot().findServerTemplate(_descriptor.template).getServices();
+            getRoot().findServerTemplate(_descriptor.template).getServices();
 
         String[] result = new String[services.size()];
         int i = 0;
@@ -395,14 +398,14 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
 
             if (d.template.length() > 0) {
                 TemplateDescriptor templateDescriptor =
-                        getRoot().findServiceTemplateDescriptor(d.template);
+                    getRoot().findServiceTemplateDescriptor(d.template);
                 assert templateDescriptor != null;
                 Utils.Resolver serviceResolver =
-                        new Utils.Resolver(
-                                _resolver, d.parameterValues, templateDescriptor.parameterDefaults);
+                    new Utils.Resolver(
+                        _resolver, d.parameterValues, templateDescriptor.parameterDefaults);
 
                 ServiceDescriptor serviceDescriptor =
-                        (ServiceDescriptor) templateDescriptor.descriptor;
+                    (ServiceDescriptor) templateDescriptor.descriptor;
 
                 result[i++] = serviceResolver.substitute(serviceDescriptor.name);
             } else {
@@ -415,7 +418,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
     // Update the server and its children
     void rebuild(
             Utils.Resolver resolver, ServerInstanceDescriptor instanceDescriptor, boolean isIceBox)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         _resolver = resolver;
         _isIceBox = isIceBox;
         _descriptor = instanceDescriptor;
@@ -426,12 +429,12 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent {
                 _descriptor.servicePropertySets.entrySet()) {
             String unsubstitutedId = p.getKey();
             insertPropertySet(
-                    new PropertySet(
-                            this,
-                            Utils.substitute(unsubstitutedId, _resolver),
-                            unsubstitutedId,
-                            p.getValue()),
-                    false);
+                new PropertySet(
+                    this,
+                    Utils.substitute(unsubstitutedId, _resolver),
+                    unsubstitutedId,
+                    p.getValue()),
+                false);
         }
     }
 

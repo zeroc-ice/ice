@@ -14,8 +14,10 @@ public final class ServantLocatorI implements ServantLocator {
 
     @Override
     public void finished(
-            Current curr, Object servant, java.lang.Object cookie) {}
+            Current curr, Object servant, java.lang.Object cookie) {
+    }
 
     @Override
-    public void deactivate(String category) {}
+    public void deactivate(String category) {
+    }
 }

@@ -16,8 +16,8 @@ public class AMDServer extends TestHelper {
         properties.setProperty("Ice.Warn.Dispatch", "0");
         try (Communicator communicator = initialize(properties)) {
             communicator
-                    .getProperties()
-                    .setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 2000");
+                .getProperties()
+                .setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 2000");
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(new AMDTestI(), Util.stringToIdentity("Test"));
             adapter.activate();

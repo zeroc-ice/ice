@@ -17,29 +17,33 @@ public class Server extends TestHelper {
         initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.binding");
         initData.logger =
-                new Logger() {
-                    @Override
-                    public void print(String message) {}
+            new Logger() {
+                @Override
+                public void print(String message) {
+                }
 
-                    @Override
-                    public void trace(String category, String message) {}
+                @Override
+                public void trace(String category, String message) {
+                }
 
-                    @Override
-                    public void warning(String message) {}
+                @Override
+                public void warning(String message) {
+                }
 
-                    @Override
-                    public void error(String message) {}
+                @Override
+                public void error(String message) {
+                }
 
-                    @Override
-                    public String getPrefix() {
-                        return "NullLogger";
-                    }
+                @Override
+                public String getPrefix() {
+                    return "NullLogger";
+                }
 
-                    @Override
-                    public Logger cloneWithPrefix(String prefix) {
-                        return this;
-                    }
-                };
+                @Override
+                public Logger cloneWithPrefix(String prefix) {
+                    return this;
+                }
+            };
 
         try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));

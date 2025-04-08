@@ -14,14 +14,14 @@ public class TestDriver {
 
             // Make the test fail if a thread dies with an unhandled exception.
             Thread.setDefaultUncaughtExceptionHandler(
-                    (Thread t, Throwable e) -> {
-                        PrintWriter out = helper.getWriter();
-                        out.println(
-                                "!!!!!!! unhandled exception in thread " + t.getName() + ": " + e);
-                        e.printStackTrace(out);
-                        out.flush();
-                        System.exit(1);
-                    });
+                (Thread t, Throwable e) -> {
+                    PrintWriter out = helper.getWriter();
+                    out.println(
+                        "!!!!!!! unhandled exception in thread " + t.getName() + ": " + e);
+                    e.printStackTrace(out);
+                    out.flush();
+                    System.exit(1);
+                });
 
             helper.run(args);
             helper.getWriter().flush();

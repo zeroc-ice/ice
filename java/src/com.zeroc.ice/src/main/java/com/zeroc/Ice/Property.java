@@ -7,4 +7,5 @@ record Property(
         boolean usesRegex,
         String defaultValue,
         boolean deprecated,
-        PropertyArray propertyArray) {}
+        PropertyArray propertyArray) {
+}

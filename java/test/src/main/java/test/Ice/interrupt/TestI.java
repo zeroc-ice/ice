@@ -14,7 +14,8 @@ public class TestI implements TestIntf {
     }
 
     @Override
-    public void op(Current current) {}
+    public void op(Current current) {
+    }
 
     @Override
     public void opIdempotent(Current current) {
@@ -23,7 +24,7 @@ public class TestI implements TestIntf {
 
     @Override
     public void sleep(int to, Current current)
-            throws InterruptedException {
+        throws InterruptedException {
         _controller.addUpcallThread();
         try {
             Thread.sleep(to);
@@ -35,7 +36,8 @@ public class TestI implements TestIntf {
     }
 
     @Override
-    public void opWithPayload(byte[] seq, Current current) {}
+    public void opWithPayload(byte[] seq, Current current) {
+    }
 
     @Override
     public void shutdown(Current current) {

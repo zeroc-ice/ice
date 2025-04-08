@@ -7,8 +7,11 @@ import com.jgoodies.looks.BorderStyle;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.ServerState;
+import com.zeroc.IceGrid.ServiceDescriptor;
+import com.zeroc.IceGridGUI.Coordinator;
+import com.zeroc.IceGridGUI.LiveActions;
+import com.zeroc.IceGridGUI.Utils;
 
 import javax.swing.JCheckBox;
 import javax.swing.JTextField;
@@ -44,7 +47,7 @@ class ServiceEditor extends CommunicatorEditor {
         int iceIntVersion = server.getIceVersion();
 
         if (server.getState() == ServerState.Active
-                && (iceIntVersion == 0 || iceIntVersion >= 30300)) {
+            && (iceIntVersion == 0 || iceIntVersion >= 30300)) {
             showRuntimeProperties(previous);
         } else {
             clearRuntimeProperties("");

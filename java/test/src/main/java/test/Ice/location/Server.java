@@ -20,8 +20,8 @@ public class Server extends TestHelper {
 
         try (Communicator communicator = initialize(properties)) {
             communicator
-                    .getProperties()
-                    .setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
+                .getProperties()
+                .setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
 
             //
             // Register the server manager. The server manager creates a new
@@ -29,7 +29,7 @@ public class Server extends TestHelper {
             // communicator and object adapter).
             //
             ObjectAdapter adapter =
-                    communicator.createObjectAdapter("ServerManagerAdapter");
+                communicator.createObjectAdapter("ServerManagerAdapter");
 
             //
             // We also register a sample server locator which implements the
@@ -38,18 +38,18 @@ public class Server extends TestHelper {
             //
             ServerLocatorRegistry registry = new ServerLocatorRegistry();
             registry.addObject(
-                    adapter.createProxy(Util.stringToIdentity("ServerManager")),
-                    null);
+                adapter.createProxy(Util.stringToIdentity("ServerManager")),
+                null);
             Object object = new ServerManagerI(registry, this);
             adapter.add(object, Util.stringToIdentity("ServerManager"));
 
             LocatorRegistryPrx registryPrx =
-                    LocatorRegistryPrx.uncheckedCast(
-                            adapter.add(registry, Util.stringToIdentity("registry")));
+                LocatorRegistryPrx.uncheckedCast(
+                    adapter.add(registry, Util.stringToIdentity("registry")));
 
             adapter.add(
-                    new ServerLocator(registry, registryPrx),
-                    Util.stringToIdentity("locator"));
+                new ServerLocator(registry, registryPrx),
+                Util.stringToIdentity("locator"));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

@@ -42,27 +42,27 @@ public class BlobjectI implements BlobjectAsync {
             }
 
             final Object.Ice_invokeResult success =
-                    new Object.Ice_invokeResult(true, new byte[0]);
+                new Object.Ice_invokeResult(true, new byte[0]);
 
             if (_batchProxy != null) {
                 obj.ice_invoke(current.operation, current.mode, inEncaps, current.ctx);
                 return CompletableFuture.completedFuture(success);
             } else {
                 final CompletableFuture<Object.Ice_invokeResult> future =
-                        new CompletableFuture<Object.Ice_invokeResult>();
+                    new CompletableFuture<Object.Ice_invokeResult>();
                 CompletableFuture<Object.Ice_invokeResult> r =
-                        obj.ice_oneway()
-                                .ice_invokeAsync(
-                                        current.operation, current.mode, inEncaps, current.ctx);
+                    obj.ice_oneway()
+                        .ice_invokeAsync(
+                            current.operation, current.mode, inEncaps, current.ctx);
                 Util.getInvocationFuture(r)
-                        .whenSent(
-                                (sentSynchronously, ex) -> {
-                                    if (ex != null) {
-                                        future.completeExceptionally(ex);
-                                    } else {
-                                        future.complete(success);
-                                    }
-                                });
+                    .whenSent(
+                        (sentSynchronously, ex) -> {
+                            if (ex != null) {
+                                future.completeExceptionally(ex);
+                            } else {
+                                future.complete(success);
+                            }
+                        });
                 return future;
             }
         } else {
@@ -71,16 +71,16 @@ public class BlobjectI implements BlobjectAsync {
             }
 
             final CompletableFuture<Object.Ice_invokeResult> future =
-                    new CompletableFuture<Object.Ice_invokeResult>();
+                new CompletableFuture<Object.Ice_invokeResult>();
             obj.ice_invokeAsync(current.operation, current.mode, inEncaps, current.ctx)
-                    .whenComplete(
-                            (result, ex) -> {
-                                if (ex != null) {
-                                    future.completeExceptionally(ex);
-                                } else {
-                                    future.complete(result);
-                                }
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        if (ex != null) {
+                            future.completeExceptionally(ex);
+                        } else {
+                            future.complete(result);
+                        }
+                    });
             return future;
         }
     }

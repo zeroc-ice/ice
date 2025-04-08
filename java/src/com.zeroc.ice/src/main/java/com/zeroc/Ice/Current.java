@@ -94,9 +94,9 @@ public final class Current implements Cloneable {
     public void checkNonIdempotent() {
         if (mode != OperationMode.Normal) {
             throw new MarshalException(
-                    String.format(
-                            "Operation mode mismatch for operation '%s': received %s for non-idempotent operation",
-                            operation, mode));
+                String.format(
+                    "Operation mode mismatch for operation '%s': received %s for non-idempotent operation",
+                    operation, mode));
         }
     }
 
@@ -212,8 +212,8 @@ public final class Current implements Cloneable {
             // The default class format doesn't matter since we always encode user exceptions in
             // Sliced format.;
             ostr =
-                    new OutputStream(
-                            Protocol.currentProtocolEncoding, FormatType.SlicedFormat, false);
+                new OutputStream(
+                    Protocol.currentProtocolEncoding, FormatType.SlicedFormat, false);
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(requestId);
         } else {
@@ -245,9 +245,9 @@ public final class Current implements Cloneable {
         } else {
             replyStatus = ReplyStatus.UnknownException.value();
             exceptionId =
-                    exc.getClass().getName() != null
-                            ? exc.getClass().getName()
-                            : "java.lang.Exception";
+                exc.getClass().getName() != null
+                    ? exc.getClass().getName()
+                    : "java.lang.Exception";
         }
 
         if (replyStatus > ReplyStatus.UserException.value() && requestId != 0) {
@@ -257,7 +257,7 @@ public final class Current implements Cloneable {
             ostr.writeByte((byte) replyStatus);
 
             if (replyStatus >= ReplyStatus.ObjectNotExist.value()
-                    && replyStatus <= ReplyStatus.OperationNotExist.value()) {
+                && replyStatus <= ReplyStatus.OperationNotExist.value()) {
 
                 Identity objectId = new Identity();
                 String objectFacet = "";
@@ -326,13 +326,13 @@ public final class Current implements Cloneable {
         } else {
             assert (adapter != null);
             var ostr =
-                    new OutputStream(
-                            Protocol.currentProtocolEncoding,
-                            adapter.getCommunicator()
-                                    .getInstance()
-                                    .defaultsAndOverrides()
-                                    .defaultFormat,
-                            false);
+                new OutputStream(
+                    Protocol.currentProtocolEncoding,
+                    adapter.getCommunicator()
+                        .getInstance()
+                        .defaultsAndOverrides()
+                        .defaultFormat,
+                    false);
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(requestId);
             ostr.writeByte((byte) replyStatus.value());

@@ -11,26 +11,32 @@ import test.Ice.servantLocator.Test.TestIntfUserException;
 
 public final class TestI implements TestIntf {
     @Override
-    public void requestFailedException(Current current) {}
+    public void requestFailedException(Current current) {
+    }
 
     @Override
-    public void unknownUserException(Current current) {}
+    public void unknownUserException(Current current) {
+    }
 
     @Override
-    public void unknownLocalException(Current current) {}
+    public void unknownLocalException(Current current) {
+    }
 
     @Override
-    public void unknownException(Current current) {}
+    public void unknownException(Current current) {
+    }
 
     @Override
-    public void localException(Current current) {}
+    public void localException(Current current) {
+    }
 
     //     public void userException(com.zeroc.Ice.Current current)
     //     {
     //     }
 
     @Override
-    public void javaException(Current current) {}
+    public void javaException(Current current) {
+    }
 
     @Override
     public void unknownExceptionWithServantException(Current current) {
@@ -39,7 +45,7 @@ public final class TestI implements TestIntf {
 
     @Override
     public String impossibleException(boolean shouldThrow, Current current)
-            throws TestImpossibleException {
+        throws TestImpossibleException {
         if (shouldThrow) {
             throw new TestImpossibleException();
         }
@@ -53,7 +59,7 @@ public final class TestI implements TestIntf {
 
     @Override
     public String intfUserException(boolean shouldThrow, Current current)
-            throws TestIntfUserException, TestImpossibleException {
+        throws TestIntfUserException, TestImpossibleException {
         if (shouldThrow) {
             throw new TestIntfUserException();
         }
@@ -67,7 +73,7 @@ public final class TestI implements TestIntf {
 
     @Override
     public void asyncResponse(Current current)
-            throws TestIntfUserException, TestImpossibleException {
+        throws TestIntfUserException, TestImpossibleException {
         //
         // Only relevant for AMD.
         //
@@ -75,7 +81,7 @@ public final class TestI implements TestIntf {
 
     @Override
     public void asyncException(Current current)
-            throws TestIntfUserException, TestImpossibleException {
+        throws TestIntfUserException, TestImpossibleException {
         //
         // Only relevant for AMD.
         //

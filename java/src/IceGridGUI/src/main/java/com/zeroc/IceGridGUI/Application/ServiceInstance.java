@@ -3,7 +3,10 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.ApplicationActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 import java.awt.Component;
 import java.io.IOException;
@@ -50,7 +53,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     // Actions
@@ -138,7 +141,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable {
     public Editor getEditor() {
         if (_editor == null) {
             _editor =
-                    (ServiceInstanceEditor) getRoot().getEditor(ServiceInstanceEditor.class, this);
+                (ServiceInstanceEditor) getRoot().getEditor(ServiceInstanceEditor.class, this);
         }
         _editor.show(this);
         return _editor;
@@ -187,15 +190,15 @@ class ServiceInstance extends TreeNode implements Service, Cloneable {
         // Fix-up _descriptor if necessary
         if (_descriptor.template.length() > 0) {
             TemplateDescriptor templateDescriptor =
-                    getRoot().findServiceTemplateDescriptor(_descriptor.template);
+                getRoot().findServiceTemplateDescriptor(_descriptor.template);
 
             Set<String> parameters =
-                    new HashSet<>(templateDescriptor.parameters);
+                new HashSet<>(templateDescriptor.parameters);
             if (!parameters.equals(_descriptor.parameterValues.keySet())) {
                 backup.parameterValues = _descriptor.parameterValues;
                 _descriptor.parameterValues =
-                        Editor.makeParameterValues(
-                                _descriptor.parameterValues, templateDescriptor.parameters);
+                    Editor.makeParameterValues(
+                        _descriptor.parameterValues, templateDescriptor.parameters);
                 editables.add(getEnclosingEditable());
             }
         }
@@ -252,7 +255,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable {
             String displayString,
             ServiceInstanceDescriptor instanceDescriptor,
             Utils.Resolver resolver)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         super(parent, name);
         _displayString = displayString;
         _descriptor = instanceDescriptor;
@@ -272,15 +275,15 @@ class ServiceInstance extends TreeNode implements Service, Cloneable {
     void write(XMLWriter writer) throws IOException {
         if (!_ephemeral) {
             TemplateDescriptor templateDescriptor =
-                    getRoot().findServiceTemplateDescriptor(_descriptor.template);
+                getRoot().findServiceTemplateDescriptor(_descriptor.template);
 
             LinkedList<String[]> attributes =
-                    parameterValuesToAttributes(
-                            _descriptor.parameterValues, templateDescriptor.parameters);
+                parameterValuesToAttributes(
+                    _descriptor.parameterValues, templateDescriptor.parameters);
             attributes.addFirst(createAttribute("template", _descriptor.template));
 
             if (_descriptor.propertySet.references.length == 0
-                    && _descriptor.propertySet.properties.isEmpty()) {
+                && _descriptor.propertySet.properties.isEmpty()) {
                 writer.writeElement("service-instance", attributes);
             } else {
                 writer.writeStartTag("service-instance", attributes);

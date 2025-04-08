@@ -28,7 +28,7 @@ final class ObserverHelper {
     public static InvocationObserver get(
             ObjectPrx proxy, String op, Map<String, String> context) {
         CommunicatorObserver obsv =
-                ((_ObjectPrxI) proxy)._getReference().getInstance().initializationData().observer;
+            ((_ObjectPrxI) proxy)._getReference().getInstance().initializationData().observer;
         if (obsv != null) {
             InvocationObserver observer;
             if (context == null) {

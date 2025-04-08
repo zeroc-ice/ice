@@ -39,7 +39,7 @@ class ServerFactoryI implements ServerFactory {
         initData.properties.setProperty("IceSSL.DefaultDir", _defaultDir);
         Communicator communicator = Util.initialize(initData);
         ObjectAdapter adapter =
-                communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
+            communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
         ServerI server = new ServerI(communicator);
         ObjectPrx obj = adapter.addWithUUID(server);
         _servers.put(obj.ice_getIdentity(), server);
@@ -66,5 +66,5 @@ class ServerFactoryI implements ServerFactory {
 
     private final String _defaultDir;
     private final Map<Identity, ServerI> _servers =
-            new HashMap<Identity, ServerI>();
+        new HashMap<Identity, ServerI>();
 }

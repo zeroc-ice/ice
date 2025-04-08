@@ -48,8 +48,8 @@ public class AllTests {
     public static ThrowerPrx allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
         final boolean bluetooth =
-                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
-                        == 0;
+            communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
+                == 0;
         PrintWriter out = helper.getWriter();
 
         {
@@ -72,7 +72,7 @@ public class AllTests {
 
             try {
                 communicator.createObjectAdapterWithEndpoints(
-                        "TestAdapter0", "ssl -h foo -p 12011");
+                    "TestAdapter0", "ssl -h foo -p 12011");
                 test(false);
             } catch (AlreadyRegisteredException ex) {
                 // Expected
@@ -360,17 +360,17 @@ public class AllTests {
 
             try {
                 var thrower2 =
-                        ThrowerPrx.createProxy(
-                                communicator, "thrower:" + helper.getTestEndpoint(1));
+                    ThrowerPrx.createProxy(
+                        communicator, "thrower:" + helper.getTestEndpoint(1));
                 try {
                     thrower2.throwMemoryLimitException(
-                            new byte[2 * 1024 * 1024]); // 2MB (no limits)
+                        new byte[2 * 1024 * 1024]); // 2MB (no limits)
                 } catch (MarshalException ex) {
                     test(ex.getMessage().contains("exceeds the maximum allowed"));
                 }
                 var thrower3 =
-                        ThrowerPrx.createProxy(
-                                communicator, "thrower:" + helper.getTestEndpoint(2));
+                    ThrowerPrx.createProxy(
+                        communicator, "thrower:" + helper.getTestEndpoint(2));
                 try {
                     thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
                     test(false);
@@ -482,8 +482,8 @@ public class AllTests {
             test(false);
         } catch (OperationNotExistException ex) { // remapped as expected
             test(
-                    "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }"
-                            .equals(ex.getMessage()));
+                "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }"
+                    .equals(ex.getMessage()));
         }
 
         try {
@@ -492,10 +492,10 @@ public class AllTests {
         } catch (DispatchException ex) {
             if (ex.replyStatus == ReplyStatus.Unauthorized.value()) {
                 test(
-                        "The dispatch failed with reply status Unauthorized."
-                                        .equals(ex.getMessage())
-                                || "The dispatch failed with reply status unauthorized."
-                                        .equals(ex.getMessage())); // for Swift
+                    "The dispatch failed with reply status Unauthorized."
+                        .equals(ex.getMessage())
+                        || "The dispatch failed with reply status unauthorized."
+                        .equals(ex.getMessage())); // for Swift
             } else {
                 test(false);
             }
@@ -658,8 +658,8 @@ public class AllTests {
                 test(false);
             } catch (CompletionException ex) {
                 test(
-                        ex.getCause() instanceof ConnectionLostException
-                                || ex.getCause() instanceof UnknownException);
+                    ex.getCause() instanceof ConnectionLostException
+                        || ex.getCause() instanceof UnknownException);
             }
 
             out.println("ok");
@@ -677,8 +677,8 @@ public class AllTests {
             } catch (CompletionException ex) {
                 test(ex.getCause() instanceof ObjectNotExistException);
                 test(
-                        "does not exist".equals(((ObjectNotExistException) ex.getCause())
-                                .id.name));
+                    "does not exist".equals(((ObjectNotExistException) ex.getCause())
+                        .id.name));
             }
         }
 
@@ -694,8 +694,8 @@ public class AllTests {
             } catch (CompletionException ex) {
                 test(ex.getCause() instanceof FacetNotExistException);
                 test(
-                        "no such facet".equals(((FacetNotExistException) ex.getCause())
-                                .facet));
+                    "no such facet".equals(((FacetNotExistException) ex.getCause())
+                        .facet));
             }
         }
 
@@ -711,8 +711,8 @@ public class AllTests {
             } catch (CompletionException ex) {
                 test(ex.getCause() instanceof OperationNotExistException);
                 test(
-                        "noSuchOperation".equals(((OperationNotExistException) ex.getCause())
-                                .operation));
+                    "noSuchOperation".equals(((OperationNotExistException) ex.getCause())
+                        .operation));
             }
         }
 
@@ -726,8 +726,8 @@ public class AllTests {
             test(false);
         } catch (CompletionException ex) {
             test(
-                    ex.getCause() instanceof UnknownLocalException
-                            || ex.getCause() instanceof OperationNotExistException);
+                ex.getCause() instanceof UnknownLocalException
+                    || ex.getCause() instanceof OperationNotExistException);
         }
 
         try {
@@ -735,8 +735,8 @@ public class AllTests {
             test(false);
         } catch (CompletionException ex) {
             test(
-                    ex.getCause() instanceof UnknownLocalException
-                            || ex.getCause() instanceof OperationNotExistException);
+                ex.getCause() instanceof UnknownLocalException
+                    || ex.getCause() instanceof OperationNotExistException);
         }
 
         out.println("ok");
@@ -758,7 +758,7 @@ public class AllTests {
 
         try {
             thrower.throwDispatchExceptionAsync((byte) ReplyStatus.OperationNotExist.value())
-                    .join();
+                .join();
             test(false);
         } catch (CompletionException ex) {
             test(ex.getCause() instanceof OperationNotExistException);

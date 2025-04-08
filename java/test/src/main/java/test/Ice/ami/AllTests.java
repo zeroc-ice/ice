@@ -107,31 +107,32 @@ public class AllTests {
     enum ThrowType {
         LocalException,
         OtherException
-    };
+    }
+    ;
 
     private static void throwEx(ThrowType t) {
         switch (t) {
             case LocalException:
-                {
-                    throw new ObjectNotExistException();
-                }
+            {
+                throw new ObjectNotExistException();
+            }
             case OtherException:
-                {
-                    throw new RuntimeException();
-                }
+            {
+                throw new RuntimeException();
+            }
             default:
-                {
-                    assert false;
-                    break;
-                }
+            {
+                assert false;
+                break;
+            }
         }
     }
 
     public static void allTests(TestHelper helper, boolean collocated) {
         Communicator communicator = helper.communicator();
         final boolean bluetooth =
-                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
-                        == 0;
+            communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
+                == 0;
         PrintWriter out = helper.getWriter();
 
         String sref = "test:" + helper.getTestEndpoint(0);
@@ -174,15 +175,15 @@ public class AllTests {
             test(p.opWithResultAsync(ctx).join() == 15);
 
             p.opWithUEAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof TestIntfException);
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof TestIntfException);
+                    });
             p.opWithUEAsync(ctx)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof TestIntfException);
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof TestIntfException);
+                    });
 
             if (p.supportsFunctionalTests()) {
                 test(p.opBoolAsync(true).join());
@@ -208,16 +209,16 @@ public class AllTests {
             TestIntfPrx indirect = p.ice_adapterId("dummy");
 
             indirect.opAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof NoEndpointException);
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof NoEndpointException);
+                    });
 
             indirect.ice_getConnectionAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof NoEndpointException);
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof NoEndpointException);
+                    });
 
             //
             // Check that CommunicatorDestroyedException is raised directly.
@@ -248,44 +249,44 @@ public class AllTests {
             {
                 CompletableFuture<Boolean> r = p.ice_isAAsync("");
                 Util.getInvocationFuture(r)
-                        .whenSent(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    cb.sent(sentSynchronously);
-                                });
+                    .whenSent(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            cb.sent(sentSynchronously);
+                        });
                 cb.check();
             }
 
             {
                 CompletableFuture<Void> r = p.ice_pingAsync();
                 Util.getInvocationFuture(r)
-                        .whenSent(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    cb.sent(sentSynchronously);
-                                });
+                    .whenSent(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            cb.sent(sentSynchronously);
+                        });
                 cb.check();
             }
 
             {
                 CompletableFuture<String> r = p.ice_idAsync();
                 Util.getInvocationFuture(r)
-                        .whenSent(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    cb.sent(sentSynchronously);
-                                });
+                    .whenSent(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            cb.sent(sentSynchronously);
+                        });
                 cb.check();
             }
 
             {
                 CompletableFuture<String[]> r = p.ice_idsAsync();
                 Util.getInvocationFuture(r)
-                        .whenSent(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    cb.sent(sentSynchronously);
-                                });
+                    .whenSent(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            cb.sent(sentSynchronously);
+                        });
                 cb.check();
             }
         }
@@ -295,7 +296,7 @@ public class AllTests {
         // Create an executor to use for dispatching completed futures.
         //
         ExecutorService executor =
-                Executors.newSingleThreadExecutor();
+            Executors.newSingleThreadExecutor();
 
         //
         // Determine the id of the executor's thread.
@@ -303,11 +304,11 @@ public class AllTests {
         long executorThread = 0;
         try {
             executorThread =
-                    executor.submit(
-                                    () -> {
-                                        return Thread.currentThread().getId();
-                                    })
-                            .get();
+                executor.submit(
+                    () -> {
+                        return Thread.currentThread().getId();
+                    })
+                    .get();
         } catch (Exception ex) {
             test(false);
         }
@@ -320,48 +321,48 @@ public class AllTests {
             {
                 CompletableFuture<Boolean> r = p.ice_isAAsync("");
                 Util.getInvocationFuture(r)
-                        .whenSentAsync(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    cb.sent(sentSynchronously);
-                                },
-                                executor);
+                    .whenSentAsync(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            cb.sent(sentSynchronously);
+                        },
+                        executor);
                 cb.check();
             }
 
             {
                 CompletableFuture<Void> r = p.ice_pingAsync();
                 Util.getInvocationFuture(r)
-                        .whenSentAsync(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    cb.sent(sentSynchronously);
-                                },
-                                executor);
+                    .whenSentAsync(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            cb.sent(sentSynchronously);
+                        },
+                        executor);
                 cb.check();
             }
 
             {
                 CompletableFuture<String> r = p.ice_idAsync();
                 Util.getInvocationFuture(r)
-                        .whenSentAsync(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    cb.sent(sentSynchronously);
-                                },
-                                executor);
+                    .whenSentAsync(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            cb.sent(sentSynchronously);
+                        },
+                        executor);
                 cb.check();
             }
 
             {
                 CompletableFuture<String[]> r = p.ice_idsAsync();
                 Util.getInvocationFuture(r)
-                        .whenSentAsync(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    cb.sent(sentSynchronously);
-                                },
-                                executor);
+                    .whenSentAsync(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            cb.sent(sentSynchronously);
+                        },
+                        executor);
                 cb.check();
             }
         }
@@ -377,66 +378,66 @@ public class AllTests {
                 final int idx = i;
                 try {
                     p.opAsync()
-                            .whenComplete(
-                                    (result, ex) -> {
-                                        throwEx(throwExType[idx]);
-                                    })
-                            .get();
+                        .whenComplete(
+                            (result, ex) -> {
+                                throwEx(throwExType[idx]);
+                            })
+                        .get();
                 } catch (Exception ex) {
                     test(ex instanceof ExecutionException);
                 }
 
                 try {
                     p.opAsync()
-                            .whenCompleteAsync(
-                                    (result, ex) -> {
-                                        throwEx(throwExType[idx]);
-                                    })
-                            .get();
+                        .whenCompleteAsync(
+                            (result, ex) -> {
+                                throwEx(throwExType[idx]);
+                            })
+                        .get();
                 } catch (Exception ex) {
                     test(ex instanceof ExecutionException);
                 }
 
                 try {
                     q.opAsync()
-                            .whenComplete(
-                                    (result, ex) -> {
-                                        throwEx(throwExType[idx]);
-                                    })
-                            .get();
+                        .whenComplete(
+                            (result, ex) -> {
+                                throwEx(throwExType[idx]);
+                            })
+                        .get();
                 } catch (Exception ex) {
                     test(ex instanceof ExecutionException);
                 }
 
                 try {
                     q.opAsync()
-                            .whenCompleteAsync(
-                                    (result, ex) -> {
-                                        throwEx(throwExType[idx]);
-                                    })
-                            .get();
+                        .whenCompleteAsync(
+                            (result, ex) -> {
+                                throwEx(throwExType[idx]);
+                            })
+                        .get();
                 } catch (Exception ex) {
                     test(ex instanceof ExecutionException);
                 }
 
                 try {
                     Util.getInvocationFuture(p.opAsync())
-                            .whenSent(
-                                    (sentSynchronously, ex) -> {
-                                        throwEx(throwExType[idx]);
-                                    })
-                            .get();
+                        .whenSent(
+                            (sentSynchronously, ex) -> {
+                                throwEx(throwExType[idx]);
+                            })
+                        .get();
                 } catch (Exception ex) {
                     test(ex instanceof ExecutionException);
                 }
 
                 try {
                     Util.getInvocationFuture(p.opAsync())
-                            .whenSentAsync(
-                                    (sentSynchronously, ex) -> {
-                                        throwEx(throwExType[idx]);
-                                    })
-                            .get();
+                        .whenSentAsync(
+                            (sentSynchronously, ex) -> {
+                                throwEx(throwExType[idx]);
+                            })
+                        .get();
                 } catch (Exception ex) {
                     test(ex instanceof ExecutionException);
                 }
@@ -465,18 +466,18 @@ public class AllTests {
                 b1.opBatch();
                 CompletableFuture<Void> r = b1.ice_flushBatchRequestsAsync();
                 Util.getInvocationFuture(r)
-                        .whenSent(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    cb.sent(sentSynchronously);
-                                });
+                    .whenSent(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            cb.sent(sentSynchronously);
+                        });
                 Util.getInvocationFuture(r)
-                        .whenSentAsync(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    cbAsync.sent(sentSynchronously);
-                                },
-                                executor);
+                    .whenSentAsync(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            cbAsync.sent(sentSynchronously);
+                        },
+                        executor);
                 cb.check();
                 cbAsync.check();
                 test(Util.getInvocationFuture(r).isSent());
@@ -493,11 +494,11 @@ public class AllTests {
                 b1.ice_getConnection().close();
                 CompletableFuture<Void> r = b1.ice_flushBatchRequestsAsync();
                 Util.getInvocationFuture(r)
-                        .whenSent(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    cb.sent(sentSynchronously);
-                                });
+                    .whenSent(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            cb.sent(sentSynchronously);
+                        });
                 cb.check();
                 test(Util.getInvocationFuture(r).isSent());
                 Util.getInvocationFuture(r).waitForCompleted();
@@ -515,20 +516,20 @@ public class AllTests {
                     final SentCallback cb = new SentCallback();
                     test(p.opBatchCount() == 0);
                     TestIntfPrx b1 =
-                            TestIntfPrx.uncheckedCast(
-                                            p.ice_getConnection().createProxy(p.ice_getIdentity()))
-                                    .ice_batchOneway();
+                        TestIntfPrx.uncheckedCast(
+                            p.ice_getConnection().createProxy(p.ice_getIdentity()))
+                            .ice_batchOneway();
                     b1.opBatch();
                     b1.opBatch();
                     CompletableFuture<Void> r =
-                            b1.ice_getConnection()
-                                    .flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
+                        b1.ice_getConnection()
+                            .flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                     Util.getInvocationFuture(r)
-                            .whenSent(
-                                    (sentSynchronously, ex) -> {
-                                        test(ex == null);
-                                        cb.sent(sentSynchronously);
-                                    });
+                        .whenSent(
+                            (sentSynchronously, ex) -> {
+                                test(ex == null);
+                                cb.sent(sentSynchronously);
+                            });
                     cb.check();
                     test(Util.getInvocationFuture(r).isSent());
                     Util.getInvocationFuture(r).waitForCompleted();
@@ -543,20 +544,20 @@ public class AllTests {
                     final Callback cb = new Callback();
                     test(p.opBatchCount() == 0);
                     TestIntfPrx b1 =
-                            TestIntfPrx.uncheckedCast(
-                                            p.ice_getConnection().createProxy(p.ice_getIdentity()))
-                                    .ice_batchOneway();
+                        TestIntfPrx.uncheckedCast(
+                            p.ice_getConnection().createProxy(p.ice_getIdentity()))
+                            .ice_batchOneway();
                     b1.opBatch();
                     b1.ice_getConnection().close();
                     CompletableFuture<Void> r =
-                            b1.ice_getConnection()
-                                    .flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
+                        b1.ice_getConnection()
+                            .flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                     Util.getInvocationFuture(r)
-                            .whenSent(
-                                    (sentSynchronously, ex) -> {
-                                        test(ex != null);
-                                        cb.called();
-                                    });
+                        .whenSent(
+                            (sentSynchronously, ex) -> {
+                                test(ex != null);
+                                cb.called();
+                            });
                     cb.check();
                     test(!Util.getInvocationFuture(r).isSent());
                     Util.getInvocationFuture(r).waitForCompleted();
@@ -576,19 +577,19 @@ public class AllTests {
                     final SentCallback cb = new SentCallback();
                     test(p.opBatchCount() == 0);
                     TestIntfPrx b1 =
-                            TestIntfPrx.uncheckedCast(
-                                            p.ice_getConnection().createProxy(p.ice_getIdentity()))
-                                    .ice_batchOneway();
+                        TestIntfPrx.uncheckedCast(
+                            p.ice_getConnection().createProxy(p.ice_getIdentity()))
+                            .ice_batchOneway();
                     b1.opBatch();
                     b1.opBatch();
                     CompletableFuture<Void> r =
-                            communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
+                        communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                     Util.getInvocationFuture(r)
-                            .whenSent(
-                                    (sentSynchronously, ex) -> {
-                                        test(ex == null);
-                                        cb.sent(sentSynchronously);
-                                    });
+                        .whenSent(
+                            (sentSynchronously, ex) -> {
+                                test(ex == null);
+                                cb.sent(sentSynchronously);
+                            });
                     cb.check();
                     test(Util.getInvocationFuture(r).isSent());
                     Util.getInvocationFuture(r).waitForCompleted();
@@ -603,19 +604,19 @@ public class AllTests {
                     final SentCallback cb = new SentCallback();
                     test(p.opBatchCount() == 0);
                     TestIntfPrx b1 =
-                            TestIntfPrx.uncheckedCast(
-                                            p.ice_getConnection().createProxy(p.ice_getIdentity()))
-                                    .ice_batchOneway();
+                        TestIntfPrx.uncheckedCast(
+                            p.ice_getConnection().createProxy(p.ice_getIdentity()))
+                            .ice_batchOneway();
                     b1.opBatch();
                     b1.ice_getConnection().close();
                     CompletableFuture<Void> r =
-                            communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
+                        communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                     Util.getInvocationFuture(r)
-                            .whenSent(
-                                    (sentSynchronously, ex) -> {
-                                        test(ex == null);
-                                        cb.sent(sentSynchronously);
-                                    });
+                        .whenSent(
+                            (sentSynchronously, ex) -> {
+                                test(ex == null);
+                                cb.sent(sentSynchronously);
+                            });
                     cb.check();
                     test(Util.getInvocationFuture(r).isSent()); // Exceptions are ignored!
                     Util.getInvocationFuture(r).waitForCompleted();
@@ -630,28 +631,28 @@ public class AllTests {
                     final SentCallback cb = new SentCallback();
                     test(p.opBatchCount() == 0);
                     TestIntfPrx b1 =
-                            TestIntfPrx.uncheckedCast(
-                                            p.ice_getConnection().createProxy(p.ice_getIdentity()))
-                                    .ice_batchOneway();
+                        TestIntfPrx.uncheckedCast(
+                            p.ice_getConnection().createProxy(p.ice_getIdentity()))
+                            .ice_batchOneway();
                     TestIntfPrx b2 =
-                            TestIntfPrx.uncheckedCast(
-                                            p.ice_connectionId("2")
-                                                    .ice_getConnection()
-                                                    .createProxy(p.ice_getIdentity()))
-                                    .ice_batchOneway();
+                        TestIntfPrx.uncheckedCast(
+                            p.ice_connectionId("2")
+                                .ice_getConnection()
+                                .createProxy(p.ice_getIdentity()))
+                            .ice_batchOneway();
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b1.opBatch();
                     b2.opBatch();
                     b2.opBatch();
                     CompletableFuture<Void> r =
-                            communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
+                        communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                     Util.getInvocationFuture(r)
-                            .whenSent(
-                                    (sentSynchronously, ex) -> {
-                                        test(ex == null);
-                                        cb.sent(sentSynchronously);
-                                    });
+                        .whenSent(
+                            (sentSynchronously, ex) -> {
+                                test(ex == null);
+                                cb.sent(sentSynchronously);
+                            });
                     cb.check();
                     test(Util.getInvocationFuture(r).isSent()); // Exceptions are ignored!
                     Util.getInvocationFuture(r).waitForCompleted();
@@ -669,27 +670,27 @@ public class AllTests {
                     final SentCallback cb = new SentCallback();
                     test(p.opBatchCount() == 0);
                     TestIntfPrx b1 =
-                            TestIntfPrx.uncheckedCast(
-                                            p.ice_getConnection().createProxy(p.ice_getIdentity()))
-                                    .ice_batchOneway();
+                        TestIntfPrx.uncheckedCast(
+                            p.ice_getConnection().createProxy(p.ice_getIdentity()))
+                            .ice_batchOneway();
                     TestIntfPrx b2 =
-                            TestIntfPrx.uncheckedCast(
-                                            p.ice_connectionId("2")
-                                                    .ice_getConnection()
-                                                    .createProxy(p.ice_getIdentity()))
-                                    .ice_batchOneway();
+                        TestIntfPrx.uncheckedCast(
+                            p.ice_connectionId("2")
+                                .ice_getConnection()
+                                .createProxy(p.ice_getIdentity()))
+                            .ice_batchOneway();
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
                     b1.ice_getConnection().close();
                     CompletableFuture<Void> r =
-                            communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
+                        communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                     Util.getInvocationFuture(r)
-                            .whenSent(
-                                    (sentSynchronously, ex) -> {
-                                        test(ex == null);
-                                        cb.sent(sentSynchronously);
-                                    });
+                        .whenSent(
+                            (sentSynchronously, ex) -> {
+                                test(ex == null);
+                                cb.sent(sentSynchronously);
+                            });
                     cb.check();
                     test(Util.getInvocationFuture(r).isSent()); // Exceptions are ignored!
                     Util.getInvocationFuture(r).waitForCompleted();
@@ -706,28 +707,28 @@ public class AllTests {
                     final SentCallback cb = new SentCallback();
                     test(p.opBatchCount() == 0);
                     TestIntfPrx b1 =
-                            TestIntfPrx.uncheckedCast(
-                                            p.ice_getConnection().createProxy(p.ice_getIdentity()))
-                                    .ice_batchOneway();
+                        TestIntfPrx.uncheckedCast(
+                            p.ice_getConnection().createProxy(p.ice_getIdentity()))
+                            .ice_batchOneway();
                     TestIntfPrx b2 =
-                            TestIntfPrx.uncheckedCast(
-                                            p.ice_connectionId("2")
-                                                    .ice_getConnection()
-                                                    .createProxy(p.ice_getIdentity()))
-                                    .ice_batchOneway();
+                        TestIntfPrx.uncheckedCast(
+                            p.ice_connectionId("2")
+                                .ice_getConnection()
+                                .createProxy(p.ice_getIdentity()))
+                            .ice_batchOneway();
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
                     b1.ice_getConnection().close();
                     b2.ice_getConnection().close();
                     CompletableFuture<Void> r =
-                            communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
+                        communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                     Util.getInvocationFuture(r)
-                            .whenSent(
-                                    (sentSynchronously, ex) -> {
-                                        test(ex == null);
-                                        cb.sent(sentSynchronously);
-                                    });
+                        .whenSent(
+                            (sentSynchronously, ex) -> {
+                                test(ex == null);
+                                cb.sent(sentSynchronously);
+                            });
                     cb.check();
                     test(Util.getInvocationFuture(r).isSent()); // Exceptions are ignored!
                     Util.getInvocationFuture(r).waitForCompleted();
@@ -769,8 +770,8 @@ public class AllTests {
 
                     if (p.ice_getConnection() != null) {
                         test(
-                                r1.sentSynchronously() && r1.isSent() && !r1.isDone()
-                                        || !r1.sentSynchronously() && !r1.isDone());
+                            r1.sentSynchronously() && r1.isSent() && !r1.isDone()
+                                || !r1.sentSynchronously() && !r1.isDone());
 
                         test(!r2.sentSynchronously() && !r2.isDone());
                     }
@@ -828,7 +829,7 @@ public class AllTests {
                     TestIntfPrx p2 = p.ice_batchOneway();
                     p2.ice_ping();
                     InvocationFuture<Void> r =
-                            Util.getInvocationFuture(p2.ice_flushBatchRequestsAsync());
+                        Util.getInvocationFuture(p2.ice_flushBatchRequestsAsync());
                     test(r.getConnection() == null); // Expected
                     test(r.getCommunicator() == communicator);
                     test(r.getProxy() == p2);
@@ -843,8 +844,8 @@ public class AllTests {
                     TestIntfPrx p2 = p.ice_batchOneway();
                     p2.ice_ping();
                     InvocationFuture<Void> r =
-                            Util.getInvocationFuture(
-                                    con.flushBatchRequestsAsync(CompressBatch.BasedOnProxy));
+                        Util.getInvocationFuture(
+                            con.flushBatchRequestsAsync(CompressBatch.BasedOnProxy));
                     test(r.getConnection() == con);
                     test(r.getCommunicator() == communicator);
                     test(r.getProxy() == null); // Expected
@@ -856,9 +857,9 @@ public class AllTests {
                     p2 = p.ice_batchOneway();
                     p2.ice_ping();
                     r =
-                            Util.getInvocationFuture(
-                                    communicator.flushBatchRequestsAsync(
-                                            CompressBatch.BasedOnProxy));
+                        Util.getInvocationFuture(
+                            communicator.flushBatchRequestsAsync(
+                                CompressBatch.BasedOnProxy));
                     test(r.getConnection() == null); // Expected
                     test(r.getCommunicator() == communicator);
                     test(r.getProxy() == null); // Expected
@@ -876,10 +877,10 @@ public class AllTests {
                     InvocationFuture<Void> r = null;
                     byte[] seq = new byte[10024];
                     for (int i = 0; i < 200; i++) // 2MB
-                    {
-                        r = Util.getInvocationFuture(p.opWithPayloadAsync(seq));
-                        results.add(r);
-                    }
+                        {
+                            r = Util.getInvocationFuture(p.opWithPayloadAsync(seq));
+                            results.add(r);
+                        }
 
                     test(!r.isSent());
 
@@ -977,7 +978,7 @@ public class AllTests {
                     if (!closeFuture.isSent()) {
                         for (int i = 0; i < maxQueue; i++) {
                             InvocationFuture<Void> r =
-                                    Util.getInvocationFuture(p.opWithPayloadAsync(seq));
+                                Util.getInvocationFuture(p.opWithPayloadAsync(seq));
                             futures.add(r);
                             if (r.isSent()) {
                                 done = false;
@@ -1009,7 +1010,7 @@ public class AllTests {
                 Connection con = p.ice_getConnection();
                 CompletableFuture<Void> f = p.startDispatchAsync();
                 Util.getInvocationFuture(f)
-                        .waitForSent(); // Ensure the request was sent before we close the
+                    .waitForSent(); // Ensure the request was sent before we close the
                 // connection
                 con.abort();
                 try {
@@ -1018,8 +1019,8 @@ public class AllTests {
                 } catch (CompletionException ex) {
                     test(ex.getCause() instanceof ConnectionAbortedException);
                     test(
-                            ((ConnectionAbortedException) ex.getCause())
-                                    .closedByApplication);
+                        ((ConnectionAbortedException) ex.getCause())
+                            .closedByApplication);
                 } catch (Throwable ex) {
                     test(false);
                 }
@@ -1045,27 +1046,27 @@ public class AllTests {
         out.flush();
         {
             p.ice_pingAsync()
-                    .whenCompleteAsync(
-                            (result, ex) -> {
-                                test(
-                                        Thread.currentThread()
-                                                        .getName()
-                                                        .indexOf("Ice.ThreadPool.Client")
-                                                == -1);
-                            })
-                    .join();
+                .whenCompleteAsync(
+                    (result, ex) -> {
+                        test(
+                            Thread.currentThread()
+                                .getName()
+                                .indexOf("Ice.ThreadPool.Client")
+                                == -1);
+                    })
+                .join();
 
             p.ice_pingAsync()
-                    .whenCompleteAsync(
-                            (result, ex) -> {
-                                test(
-                                        Thread.currentThread()
-                                                        .getName()
-                                                        .indexOf("Ice.ThreadPool.Client")
-                                                != -1);
-                            },
-                            p.ice_executor())
-                    .join();
+                .whenCompleteAsync(
+                    (result, ex) -> {
+                        test(
+                            Thread.currentThread()
+                                .getName()
+                                .indexOf("Ice.ThreadPool.Client")
+                                != -1);
+                    },
+                    p.ice_executor())
+                .join();
         }
         out.println("ok");
 
@@ -1089,16 +1090,16 @@ public class AllTests {
         out.flush();
         {
             var q =
-                    test.Ice.ami.Test.Outer.Inner.TestIntfPrx.createProxy(
-                            communicator, "test2:" + helper.getTestEndpoint(0));
+                test.Ice.ami.Test.Outer.Inner.TestIntfPrx.createProxy(
+                    communicator, "test2:" + helper.getTestEndpoint(0));
 
             q.opAsync(1)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(result.returnValue == 1);
-                                test(result.j == 1);
-                                test(ex == null);
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(result.returnValue == 1);
+                        test(result.j == 1);
+                        test(ex == null);
+                    });
         }
         out.println("ok");
 
@@ -1115,7 +1116,7 @@ public class AllTests {
                 // Sending should block because the TCP send/receive buffer size on the server is
                 // set to 50KB.
                 CompletableFuture<Void> future =
-                        onewayProxy.opWithPayloadAsync(new byte[768 * 1024]);
+                    onewayProxy.opWithPayloadAsync(new byte[768 * 1024]);
                 boolean timeout = false;
                 try {
                     future.get(200, TimeUnit.MILLISECONDS);

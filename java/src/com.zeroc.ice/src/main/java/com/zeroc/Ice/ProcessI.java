@@ -16,15 +16,15 @@ class ProcessI implements Process {
     public void writeMessage(String message, int fd, Current current) {
         switch (fd) {
             case 1:
-                {
-                    System.out.println(message);
-                    break;
-                }
+            {
+                System.out.println(message);
+                break;
+            }
             case 2:
-                {
-                    System.err.println(message);
-                    break;
-                }
+            {
+                System.err.println(message);
+                break;
+            }
         }
     }
 

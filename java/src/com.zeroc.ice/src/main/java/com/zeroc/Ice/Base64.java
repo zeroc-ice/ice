@@ -83,11 +83,11 @@ final class Base64 {
                 newStr.append(c);
             } else {
                 throw new IllegalArgumentException(
-                        "invalid base64 character `"
-                                + str.charAt(j)
-                                + "' (ordinal "
-                                + ((int) str.charAt(j))
-                                + ")");
+                    "invalid base64 character `"
+                        + str.charAt(j)
+                        + "' (ordinal "
+                        + ((int) str.charAt(j))
+                        + ")");
             }
         }
 

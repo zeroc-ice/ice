@@ -4,7 +4,8 @@ package test.Ice.middleware;
 
 import com.zeroc.Ice.*;
 
-import test.Ice.middleware.Test.*;
+import test.Ice.middleware.Test.MyObject;
+import test.Ice.middleware.Test.MyObjectPrx;
 import test.TestHelper;
 
 import java.io.PrintWriter;
@@ -34,14 +35,14 @@ public class AllTests {
 
         @Override
         public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
-                throws UserException {
+            throws UserException {
             _inLog.add(_name);
             return _next.dispatch(request)
-                    .thenApply(
-                            response -> {
-                                _outLog.add(_name);
-                                return response;
-                            });
+                .thenApply(
+                    response -> {
+                        _outLog.add(_name);
+                        return response;
+                    });
         }
     }
 
@@ -101,8 +102,8 @@ public class AllTests {
         ObjectPrx obj = oa.add(new MyObjectI(), new Identity("test", ""));
 
         oa.use(next -> new Middleware(next, "A", inLog, outLog))
-                .use(next -> new Middleware(next, "B", inLog, outLog))
-                .use(next -> new Middleware(next, "C", inLog, outLog));
+            .use(next -> new Middleware(next, "B", inLog, outLog))
+            .use(next -> new Middleware(next, "C", inLog, outLog));
 
         var p = MyObjectPrx.uncheckedCast(obj);
 
@@ -120,11 +121,11 @@ public class AllTests {
     private static void testErrorObserverMiddleware(
             Communicator communicator, PrintWriter output, boolean withError, boolean amd) {
         output.write(
-                "testing error observer middleware "
-                        + (withError ? "with" : "without")
-                        + " error"
-                        + (amd ? " + amd" : "")
-                        + "... ");
+            "testing error observer middleware "
+                + (withError ? "with" : "without")
+                + " error"
+                + (amd ? " + amd" : "")
+                + "... ");
         output.flush();
 
         // Arrange

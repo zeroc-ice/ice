@@ -46,7 +46,7 @@ public final class IncomingRequest {
         if (facetPath.length > 0) {
             if (facetPath.length > 1) {
                 throw new MarshalException(
-                        "Received invalid facet path with " + facetPath.length + " elements.");
+                    "Received invalid facet path with " + facetPath.length + " elements.");
             }
             facet = facetPath[0];
         }
@@ -64,16 +64,16 @@ public final class IncomingRequest {
         var encoding = EncodingVersion.ice_read(inputStream);
 
         current =
-                new Current(
-                        adapter,
-                        connection,
-                        identity,
-                        facet,
-                        operation,
-                        mode,
-                        ctx,
-                        requestId,
-                        encoding);
+            new Current(
+                adapter,
+                connection,
+                identity,
+                facet,
+                operation,
+                mode,
+                ctx,
+                requestId,
+                encoding);
 
         // Rewind to the start of the encapsulation
         inputStream.pos(inputStream.pos() - 6);

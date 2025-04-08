@@ -55,33 +55,33 @@ class BatchOnewaysAMI {
         {
             test(batch.ice_flushBatchRequestsAsync().isDone()); // Empty flush
             test(
-                    Util.getInvocationFuture(batch.ice_flushBatchRequestsAsync())
-                            .isSent()); // Empty flush
+                Util.getInvocationFuture(batch.ice_flushBatchRequestsAsync())
+                    .isSent()); // Empty flush
             test(
-                    Util.getInvocationFuture(batch.ice_flushBatchRequestsAsync())
-                            .sentSynchronously()); // Empty flush
+                Util.getInvocationFuture(batch.ice_flushBatchRequestsAsync())
+                    .sentSynchronously()); // Empty flush
         }
 
         for (int i = 0; i < 30; i++) {
             batch.opByteSOnewayAsync(bs1)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                    });
         }
 
         int count = 0;
         while (count < 27) // 3 * 9 requests auto-flushed.
-        {
-            count += p.opByteSOnewayCallCount();
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ex) {
+            {
+                count += p.opByteSOnewayCallCount();
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ex) {
+                }
             }
-        }
 
         final boolean bluetooth =
-                properties.getIceProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+            properties.getIceProperty("Ice.Default.Protocol").indexOf("bt") == 0;
         if (batch.ice_getConnection() != null && !bluetooth) {
             MyClassPrx batch2 = p.ice_batchOneway();
 

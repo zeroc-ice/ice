@@ -4,8 +4,11 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.AdapterDescriptor;
+import com.zeroc.IceGrid.CommunicatorDescriptor;
+import com.zeroc.IceGrid.PropertyDescriptor;
+import com.zeroc.IceGrid.PropertySetDescriptor;
+import com.zeroc.IceGridGUI.Utils;
 
 import javax.swing.JScrollPane;
 
@@ -85,10 +88,10 @@ class CommunicatorSubEditor {
             descriptor.logs[i++] = path;
             if (!prop.isEmpty()) {
                 setProperty(
-                        (LinkedList<PropertyDescriptor>)
-                                descriptor.propertySet.properties,
-                        prop,
-                        path);
+                    (LinkedList<PropertyDescriptor>)
+                        descriptor.propertySet.properties,
+                    prop,
+                    path);
             }
         }
     }
@@ -106,14 +109,14 @@ class CommunicatorSubEditor {
         _logFiles.set(map, detailResolver, isEditable);
 
         _propertySets.setList(
-                Arrays.asList(descriptor.propertySet.references), detailResolver);
+            Arrays.asList(descriptor.propertySet.references), detailResolver);
         _propertySets.setEditable(isEditable);
         _properties.setProperties(
-                descriptor.propertySet.properties,
-                descriptor.adapters,
-                descriptor.logs,
-                detailResolver,
-                isEditable);
+            descriptor.propertySet.properties,
+            descriptor.adapters,
+            descriptor.logs,
+            detailResolver,
+            isEditable);
 
         _description.setText(Utils.substitute(descriptor.description, detailResolver));
         _description.setEditable(isEditable);

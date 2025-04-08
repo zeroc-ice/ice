@@ -4,7 +4,8 @@ package com.zeroc.IceGridGUI;
 
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Identity;
-import com.zeroc.IceGrid.*;
+import com.zeroc.IceGrid.ObjectInfo;
+import com.zeroc.IceGrid.ObjectObserver;
 
 import javax.swing.SwingUtilities;
 
@@ -54,8 +55,8 @@ class ObjectObserverI implements ObjectObserver {
     public void objectRemoved(final Identity id, Current current) {
         if (_trace) {
             _coordinator.traceObserver(
-                    "objectRemoved for object "
-                            + _coordinator.getCommunicator().identityToString(id));
+                "objectRemoved for object "
+                    + _coordinator.getCommunicator().identityToString(id));
         }
 
         SwingUtilities.invokeLater(() -> _coordinator.objectRemoved(id));

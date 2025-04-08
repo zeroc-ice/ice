@@ -27,20 +27,20 @@ public class Server extends TestHelper {
             adapter.activate();
 
             communicator
-                    .getProperties()
-                    .setProperty("ForwardingAdapter.Endpoints", getTestEndpoint(1));
+                .getProperties()
+                .setProperty("ForwardingAdapter.Endpoints", getTestEndpoint(1));
             ObjectAdapter forwardingAdapter =
-                    communicator.createObjectAdapter("ForwardingAdapter");
+                communicator.createObjectAdapter("ForwardingAdapter");
             forwardingAdapter.addDefaultServant(adapter.dispatchPipeline(), "");
             forwardingAdapter.activate();
 
             communicator
-                    .getProperties()
-                    .setProperty("ControllerAdapter.Endpoints", getTestEndpoint(2));
+                .getProperties()
+                .setProperty("ControllerAdapter.Endpoints", getTestEndpoint(2));
             ObjectAdapter controllerAdapter =
-                    communicator.createObjectAdapter("ControllerAdapter");
+                communicator.createObjectAdapter("ControllerAdapter");
             controllerAdapter.add(
-                    new ControllerI(adapter), Util.stringToIdentity("controller"));
+                new ControllerI(adapter), Util.stringToIdentity("controller"));
             controllerAdapter.activate();
 
             serverReady();

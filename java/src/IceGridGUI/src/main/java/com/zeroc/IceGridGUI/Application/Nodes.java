@@ -3,7 +3,8 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.ApplicationActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
 
 import javax.swing.JOptionPane;
 
@@ -54,10 +55,10 @@ class Nodes extends ListTreeNode {
             TemplateDescriptor td = getRoot().findServerTemplateDescriptor(p.template);
             if (td == null) {
                 JOptionPane.showMessageDialog(
-                        getCoordinator().getMainFrame(),
-                        "Descriptor refers to undefined server template '" + p.template + "'",
-                        "Cannot paste",
-                        JOptionPane.ERROR_MESSAGE);
+                    getCoordinator().getMainFrame(),
+                    "Descriptor refers to undefined server template '" + p.template + "'",
+                    "Cannot paste",
+                    JOptionPane.ERROR_MESSAGE);
                 return;
             } else {
                 p.parameterValues.keySet().retainAll(td.parameters);
@@ -78,17 +79,17 @@ class Nodes extends ListTreeNode {
     @Override
     public void newNode() {
         newNode(
-                new NodeDescriptor(
-                        new TreeMap<String, String>(),
-                        new LinkedList<ServerInstanceDescriptor>(),
-                        new LinkedList<ServerDescriptor>(),
-                        "",
-                        "",
-                        new HashMap<String, PropertySetDescriptor>()));
+            new NodeDescriptor(
+                new TreeMap<String, String>(),
+                new LinkedList<ServerInstanceDescriptor>(),
+                new LinkedList<ServerDescriptor>(),
+                "",
+                "",
+                new HashMap<String, PropertySetDescriptor>()));
     }
 
     Nodes(TreeNode parent, Map<String, NodeDescriptor> descriptors)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         super(false, parent, "Nodes");
         _descriptors = descriptors;
 
@@ -170,7 +171,7 @@ class Nodes extends ListTreeNode {
             String[] removeNodes,
             Set<String> serverTemplates,
             Set<String> serviceTemplates)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         //
         // Note: _descriptors has already the nodes removed but
         // needs to get the updated and new NodeDescriptors
@@ -188,13 +189,13 @@ class Nodes extends ListTreeNode {
 
             if (node == null) {
                 NodeDescriptor nodeDescriptor =
-                        new NodeDescriptor(
-                                update.variables,
-                                update.serverInstances,
-                                update.servers,
-                                update.loadFactor == null ? "" : update.loadFactor.value,
-                                update.description == null ? "" : update.description.value,
-                                new HashMap<String, PropertySetDescriptor>());
+                    new NodeDescriptor(
+                        update.variables,
+                        update.serverInstances,
+                        update.servers,
+                        update.loadFactor == null ? "" : update.loadFactor.value,
+                        update.description == null ? "" : update.description.value,
+                        new HashMap<String, PropertySetDescriptor>());
                 _descriptors.put(update.name, nodeDescriptor);
                 node = new Node(false, this, update.name, nodeDescriptor);
                 newChildren.add(node);

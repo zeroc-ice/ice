@@ -205,9 +205,9 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
         MyClass.OpMyClassResult r = new MyClass.OpMyClassResult();
         r.p2 = p1;
         r.p3 =
-                MyClassPrx.uncheckedCast(
-                        current.adapter.createProxy(
-                                Util.stringToIdentity("noSuchIdentity")));
+            MyClassPrx.uncheckedCast(
+                current.adapter.createProxy(
+                    Util.stringToIdentity("noSuchIdentity")));
         r.returnValue = MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
         return CompletableFuture.completedFuture(r);
     }
@@ -691,39 +691,39 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
     @Override
     public CompletionStage<String[]> opStringLiteralsAsync(Current current) {
         return CompletableFuture.completedFuture(
-                new String[]{
-                    s0.value,
-                    s1.value,
-                    s2.value,
-                    s3.value,
-                    s4.value,
-                    s5.value,
-                    s6.value,
-                    s7.value,
-                    s8.value,
-                    s9.value,
-                    s10.value,
-                    sw0.value,
-                    sw1.value,
-                    sw2.value,
-                    sw3.value,
-                    sw4.value,
-                    sw5.value,
-                    sw6.value,
-                    sw7.value,
-                    sw8.value,
-                    sw9.value,
-                    sw10.value,
-                    ss0.value,
-                    ss1.value,
-                    ss2.value,
-                    ss3.value,
-                    ss4.value,
-                    ss5.value,
-                    su0.value,
-                    su1.value,
-                    su2.value
-                });
+            new String[]{
+                s0.value,
+                s1.value,
+                s2.value,
+                s3.value,
+                s4.value,
+                s5.value,
+                s6.value,
+                s7.value,
+                s8.value,
+                s9.value,
+                s10.value,
+                sw0.value,
+                sw1.value,
+                sw2.value,
+                sw3.value,
+                sw4.value,
+                sw5.value,
+                sw6.value,
+                sw7.value,
+                sw8.value,
+                sw9.value,
+                sw10.value,
+                ss0.value,
+                ss1.value,
+                ss2.value,
+                ss3.value,
+                ss4.value,
+                ss5.value,
+                su0.value,
+                su1.value,
+                su2.value
+            });
     }
 
     @Override
@@ -734,7 +734,7 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
     @Override
     public CompletionStage<OpMStruct1MarshaledResult> opMStruct1Async(Current current) {
         return CompletableFuture.completedFuture(
-                new OpMStruct1MarshaledResult(new Structure(), current));
+            new OpMStruct1MarshaledResult(new Structure(), current));
     }
 
     @Override
@@ -746,7 +746,7 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
     @Override
     public CompletionStage<OpMSeq1MarshaledResult> opMSeq1Async(Current current) {
         return CompletableFuture.completedFuture(
-                new OpMSeq1MarshaledResult(new String[0], current));
+            new OpMSeq1MarshaledResult(new String[0], current));
     }
 
     @Override
@@ -757,7 +757,7 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
     @Override
     public CompletionStage<OpMDict1MarshaledResult> opMDict1Async(Current current) {
         return CompletableFuture.completedFuture(
-                new OpMDict1MarshaledResult(new HashMap<>(), current));
+            new OpMDict1MarshaledResult(new HashMap<>(), current));
     }
 
     @Override

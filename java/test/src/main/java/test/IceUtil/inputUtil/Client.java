@@ -26,42 +26,42 @@ public class Client extends TestHelper {
 
             args = Options.split("-a -b -c");
             test(
-                    args.length == 3
-                            && "-a".equals(args[0])
-                            && "-b".equals(args[1])
-                            && "-c".equals(args[2]));
+                args.length == 3
+                    && "-a".equals(args[0])
+                    && "-b".equals(args[1])
+                    && "-c".equals(args[2]));
             args = Options.split("\"-a\" '-b' $'-c'");
             test(
-                    args.length == 3
-                            && "-a".equals(args[0])
-                            && "-b".equals(args[1])
-                            && "-c".equals(args[2]));
+                args.length == 3
+                    && "-a".equals(args[0])
+                    && "-b".equals(args[1])
+                    && "-c".equals(args[2]));
             args = Options.split("  '-b' \"-a\" $'-c' ");
             test(
-                    args.length == 3
-                            && "-b".equals(args[0])
-                            && "-a".equals(args[1])
-                            && "-c".equals(args[2]));
+                args.length == 3
+                    && "-b".equals(args[0])
+                    && "-a".equals(args[1])
+                    && "-c".equals(args[2]));
             args = Options.split(" $'-c' '-b' \"-a\"  ");
             test(
-                    args.length == 3
-                            && "-c".equals(args[0])
-                            && "-b".equals(args[1])
-                            && "-a".equals(args[2]));
+                args.length == 3
+                    && "-c".equals(args[0])
+                    && "-b".equals(args[1])
+                    && "-a".equals(args[2]));
 
             // Testing single quote
             args = Options.split("-Dir='C:\\\\test\\\\file'"); // -Dir='C:\\test\\file'
             test(
-                    args.length == 1
-                            && "-Dir=C:\\\\test\\\\file".equals(args[0])); // -Dir=C:\\test\\file
+                args.length == 1
+                    && "-Dir=C:\\\\test\\\\file".equals(args[0])); // -Dir=C:\\test\\file
             args = Options.split("-Dir='C:\\test\\file'"); // -Dir='C:\test\file'
             test(args.length == 1 && "-Dir=C:\\test\\file".equals(args[0])); // -Dir=C:\test\file
             args =
-                    Options.split(
-                            "-Dir='C:\\test\\filewith\"quote'"); // -Dir='C:\test\filewith"quote'
+                Options.split(
+                    "-Dir='C:\\test\\filewith\"quote'"); // -Dir='C:\test\filewith"quote'
             test(
-                    args.length == 1
-                            && "-Dir=C:\\test\\filewith\"quote".equals(args[0])); // -Dir=C:\test\filewith"quote
+                args.length == 1
+                    && "-Dir=C:\\test\\filewith\"quote".equals(args[0])); // -Dir=C:\test\filewith"quote
 
             // Testing double quote
             args = Options.split("-Dir=\"C:\\\\test\\\\file\""); // -Dir="C:\\test\\file"
@@ -69,11 +69,11 @@ public class Client extends TestHelper {
             args = Options.split("-Dir=\"C:\\test\\file\""); // -Dir="C:\test\file"
             test(args.length == 1 && "-Dir=C:\\test\\file".equals(args[0])); // -Dir=C:\test\file
             args =
-                    Options.split(
-                            "-Dir=\"C:\\test\\filewith\\\"quote\""); // -Dir="C:\test\filewith\"quote"
+                Options.split(
+                    "-Dir=\"C:\\test\\filewith\\\"quote\""); // -Dir="C:\test\filewith\"quote"
             test(
-                    args.length == 1
-                            && "-Dir=C:\\test\\filewith\"quote".equals(args[0])); // -Dir=C:\test\filewith"quote
+                args.length == 1
+                    && "-Dir=C:\\test\\filewith\"quote".equals(args[0])); // -Dir=C:\test\filewith"quote
 
             // Testing ANSI quote
             args = Options.split("-Dir=$'C:\\\\test\\\\file'"); // -Dir=$'C:\\test\\file'
@@ -81,18 +81,18 @@ public class Client extends TestHelper {
             args = Options.split("-Dir=$'C:\\oest\\oile'"); // -Dir='C:\oest\oile'
             test(args.length == 1 && "-Dir=C:\\oest\\oile".equals(args[0])); // -Dir=C:\oest\oile
             args =
-                    Options.split(
-                            "-Dir=$'C:\\oest\\oilewith\"quote'"); // -Dir=$'C:\oest\oilewith"quote'
+                Options.split(
+                    "-Dir=$'C:\\oest\\oilewith\"quote'"); // -Dir=$'C:\oest\oilewith"quote'
             test(
-                    args.length == 1
-                            && "-Dir=C:\\oest\\oilewith\"quote".equals(args[0])); // -Dir=C:\oest\oilewith"quote
+                args.length == 1
+                    && "-Dir=C:\\oest\\oilewith\"quote".equals(args[0])); // -Dir=C:\oest\oilewith"quote
             args =
-                    Options.split(
-                            "-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
+                Options.split(
+                    "-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
             test(args.length == 1 && "-Dir=C:\\test\\file".equals(args[0])); // -Dir=C:\test\file
             args =
-                    Options.split(
-                            "-Dir=$'\\x43\\x3A\\x5C\\x74\\x65\\x73\\x74\\x5C\\x66\\x69\\x6C\\x65'");
+                Options.split(
+                    "-Dir=$'\\x43\\x3A\\x5C\\x74\\x65\\x73\\x74\\x5C\\x66\\x69\\x6C\\x65'");
             test(args.length == 1 && "-Dir=C:\\test\\file".equals(args[0])); // -Dir=C:\test\file
             args = Options.split("-Dir=$'\\cM\\c_'"); // Control characters
             test(args.length == 1 && "-Dir=\015\037".equals(args[0]));

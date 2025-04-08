@@ -99,7 +99,7 @@ public class TreeNodeBase implements TreeNode, TreeCellRenderer {
 
     public LinkedList<String> getFullId() {
         LinkedList<String> result =
-                _parent == null ? new LinkedList<>() : _parent.getFullId();
+            _parent == null ? new LinkedList<>() : _parent.getFullId();
 
         result.add(_id);
         return result;
@@ -291,10 +291,10 @@ public class TreeNodeBase implements TreeNode, TreeCellRenderer {
     protected String _id;
 
     protected Comparator<TreeNodeBase> _childComparator =
-            new Comparator<TreeNodeBase>() {
-                @Override
-                public int compare(TreeNodeBase o1, TreeNodeBase o2) {
-                    return o1.getId().compareTo(o2.getId());
-                }
-            };
+        new Comparator<TreeNodeBase>() {
+            @Override
+            public int compare(TreeNodeBase o1, TreeNodeBase o2) {
+                return o1.getId().compareTo(o2.getId());
+            }
+        };
 }

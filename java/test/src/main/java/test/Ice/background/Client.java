@@ -33,8 +33,8 @@ public class Client extends TestHelper {
         //
         properties.setProperty("Ice.Plugin.Test", "test.Ice.background.PluginFactory");
         properties.setProperty(
-                "Ice.Default.Protocol",
-                "test-" + properties.getIceProperty("Ice.Default.Protocol"));
+            "Ice.Default.Protocol",
+            "test-" + properties.getIceProperty("Ice.Default.Protocol"));
 
         properties.setProperty("Ice.Package.Test", "test.Ice.background");
         try (Communicator communicator = initialize(properties)) {

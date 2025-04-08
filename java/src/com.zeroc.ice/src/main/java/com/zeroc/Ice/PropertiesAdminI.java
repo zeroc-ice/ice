@@ -157,7 +157,7 @@ class PropertiesAdminI implements PropertiesAdmin, NativePropertiesAdmin {
     private final Properties _properties;
     private final Logger _logger;
     private final List<Consumer<Map<String, String>>>
-            _updateCallbacks = new ArrayList<>();
+        _updateCallbacks = new ArrayList<>();
 
     private static final String _traceCategory = "Admin.Properties";
 }

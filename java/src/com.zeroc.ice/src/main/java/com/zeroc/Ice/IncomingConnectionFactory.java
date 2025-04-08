@@ -18,14 +18,14 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             createAcceptor();
         } catch (Exception ex) {
             String s =
-                    "acceptor creation failed:\n"
-                            + ex.getCause().getMessage()
-                            + '\n'
-                            + _acceptor.toString();
+                "acceptor creation failed:\n"
+                    + ex.getCause().getMessage()
+                    + '\n'
+                    + _acceptor.toString();
             _instance.initializationData().logger.error(s);
             _instance
-                    .timer()
-                    .schedule(() -> startAcceptor(), 1, TimeUnit.SECONDS);
+                .timer()
+                .schedule(() -> startAcceptor(), 1, TimeUnit.SECONDS);
         }
     }
 
@@ -139,13 +139,13 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
         for (ConnectionI c :
                 connections()) // connections() is synchronized, no need to synchronize here.
-        {
-            try {
-                outAsync.flushConnection(c, compressBatch);
-            } catch (LocalException ex) {
-                // Ignore.
+            {
+                try {
+                    outAsync.flushConnection(c, compressBatch);
+                } catch (LocalException ex) {
+                    // Ignore.
+                }
             }
-        }
     }
 
     //
@@ -183,9 +183,9 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                         s.append(transceiver.toString());
                         s.append("\nbecause the maximum number of connections has been reached");
                         _instance
-                                .initializationData()
-                                .logger
-                                .trace(_instance.traceLevels().networkCat, s.toString());
+                            .initializationData()
+                            .logger
+                            .trace(_instance.traceLevels().networkCat, s.toString());
                     }
                     try {
                         transceiver.close();
@@ -201,9 +201,9 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                     s.append(" connection\n");
                     s.append(transceiver.toString());
                     _instance
-                            .initializationData()
-                            .logger
-                            .trace(_instance.traceLevels().networkCat, s.toString());
+                        .initializationData()
+                        .logger
+                        .trace(_instance.traceLevels().networkCat, s.toString());
                 }
             } catch (SocketException ex) {
                 if (Network.noMoreFds(ex.getCause())) {
@@ -240,15 +240,15 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
 
             try {
                 connection =
-                        new ConnectionI(
-                                _adapter.getCommunicator(),
-                                _instance,
-                                transceiver,
-                                null,
-                                _endpoint,
-                                _adapter,
-                                this::removeConnection,
-                                _connectionOptions);
+                    new ConnectionI(
+                        _adapter.getCommunicator(),
+                        _instance,
+                        transceiver,
+                        null,
+                        _endpoint,
+                        _adapter,
+                        this::removeConnection,
+                        _connectionOptions);
             } catch (LocalException ex) {
                 try {
                     transceiver.close();
@@ -281,8 +281,8 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             // closed because of an unexpected error), try to restart the acceptor in 1 second.
             //
             _instance
-                    .timer()
-                    .schedule(() -> startAcceptor(), 1, TimeUnit.SECONDS);
+                .timer()
+                .schedule(() -> startAcceptor(), 1, TimeUnit.SECONDS);
             return;
         }
 
@@ -340,20 +340,20 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
 
         // Meaningful only for non-datagram (non-UDP) connections.
         _maxConnections =
-                endpoint.datagram()
-                        ? 0
-                        : instance.initializationData()
-                                .properties
-                                .getPropertyAsInt(adapter.getName() + ".MaxConnections");
+            endpoint.datagram()
+                ? 0
+                : instance.initializationData()
+                .properties
+                .getPropertyAsInt(adapter.getName() + ".MaxConnections");
 
         _endpoint = endpoint;
         _adapter = adapter;
         _warn =
-                _instance
-                                .initializationData()
-                                .properties
-                                .getIcePropertyAsInt("Ice.Warn.Connections")
-                        > 0;
+            _instance
+                .initializationData()
+                .properties
+                .getIcePropertyAsInt("Ice.Warn.Connections")
+                > 0;
         _state = StateHolding;
         _acceptorStarted = false;
 
@@ -372,22 +372,22 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                     s.append(" socket\n");
                     s.append(_transceiver.toString());
                     _instance
-                            .initializationData()
-                            .logger
-                            .trace(_instance.traceLevels().networkCat, s.toString());
+                        .initializationData()
+                        .logger
+                        .trace(_instance.traceLevels().networkCat, s.toString());
                 }
                 _endpoint = _transceiver.bind();
 
                 var connection =
-                        new ConnectionI(
-                                _adapter.getCommunicator(),
-                                _instance,
-                                _transceiver,
-                                null,
-                                _endpoint,
-                                _adapter,
-                                null,
-                                _connectionOptions);
+                    new ConnectionI(
+                        _adapter.getCommunicator(),
+                        _instance,
+                        _transceiver,
+                        null,
+                        _endpoint,
+                        _adapter,
+                        null,
+                        _connectionOptions);
                 connection.startAndWait();
 
                 _connections.add(connection);
@@ -439,92 +439,92 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
 
     private void setState(int state) {
         if (_state == state) // Don't switch twice.
-        {
-            return;
-        }
+            {
+                return;
+            }
 
         switch (state) {
             case StateActive:
-                {
-                    if (_state != StateHolding) // Can only switch from holding to active.
+            {
+                if (_state != StateHolding) // Can only switch from holding to active.
                     {
                         return;
                     }
-                    if (_acceptor != null) {
-                        if (_instance.traceLevels().network >= 1) {
-                            StringBuffer s = new StringBuffer("accepting ");
-                            s.append(_endpoint.protocol());
-                            s.append(" connections at ");
-                            s.append(_acceptor.toString());
-                            _instance
-                                    .initializationData()
-                                    .logger
-                                    .trace(_instance.traceLevels().networkCat, s.toString());
-                        }
-                        _adapter.getThreadPool().register(this, SocketOperation.Read);
+                if (_acceptor != null) {
+                    if (_instance.traceLevels().network >= 1) {
+                        StringBuffer s = new StringBuffer("accepting ");
+                        s.append(_endpoint.protocol());
+                        s.append(" connections at ");
+                        s.append(_acceptor.toString());
+                        _instance
+                            .initializationData()
+                            .logger
+                            .trace(_instance.traceLevels().networkCat, s.toString());
                     }
-
-                    for (ConnectionI connection : _connections) {
-                        connection.activate();
-                    }
-                    break;
+                    _adapter.getThreadPool().register(this, SocketOperation.Read);
                 }
+
+                for (ConnectionI connection : _connections) {
+                    connection.activate();
+                }
+                break;
+            }
 
             case StateHolding:
-                {
-                    if (_state != StateActive) // Can only switch from active to holding.
+            {
+                if (_state != StateActive) // Can only switch from active to holding.
                     {
                         return;
                     }
-                    if (_acceptor != null) {
-                        // Stop accepting new connections.
-                        if (_instance.traceLevels().network >= 1) {
-                            StringBuffer s = new StringBuffer("holding ");
-                            s.append(_endpoint.protocol());
-                            s.append(" connections at ");
-                            s.append(_acceptor.toString());
-                            _instance
-                                    .initializationData()
-                                    .logger
-                                    .trace(_instance.traceLevels().networkCat, s.toString());
-                        }
-                        _adapter.getThreadPool().unregister(this, SocketOperation.Read);
+                if (_acceptor != null) {
+                    // Stop accepting new connections.
+                    if (_instance.traceLevels().network >= 1) {
+                        StringBuffer s = new StringBuffer("holding ");
+                        s.append(_endpoint.protocol());
+                        s.append(" connections at ");
+                        s.append(_acceptor.toString());
+                        _instance
+                            .initializationData()
+                            .logger
+                            .trace(_instance.traceLevels().networkCat, s.toString());
                     }
-
-                    for (ConnectionI connection : _connections) {
-                        connection.hold();
-                    }
-                    break;
+                    _adapter.getThreadPool().unregister(this, SocketOperation.Read);
                 }
+
+                for (ConnectionI connection : _connections) {
+                    connection.hold();
+                }
+                break;
+            }
 
             case StateClosed:
-                {
-                    if (_acceptorStarted) {
-                        //
-                        // If possible, close the acceptor now to prevent new connections from being
-                        // accepted while we are deactivating. This is especially useful if there
-                        // are no more threads in the thread pool available to dispatch the finish()
-                        // call.
-                        //
-                        _acceptorStarted = false;
-                        if (_adapter.getThreadPool().finish(this, true)) {
-                            closeAcceptor();
-                        }
-                    } else {
-                        state = StateFinished;
+            {
+                if (_acceptorStarted) {
+                    //
+                    // If possible, close the acceptor now to prevent new connections from being
+                    // accepted while we are deactivating. This is especially useful if there
+                    // are no more threads in the thread pool available to dispatch the finish()
+                    // call.
+                    //
+                    _acceptorStarted = false;
+                    if (_adapter.getThreadPool().finish(this, true)) {
+                        closeAcceptor();
                     }
-
-                    for (ConnectionI connection : _connections) {
-                        connection.destroy(ConnectionI.ObjectAdapterDeactivated);
-                    }
-                    break;
+                } else {
+                    state = StateFinished;
                 }
+
+                for (ConnectionI connection : _connections) {
+                    connection.destroy(ConnectionI.ObjectAdapterDeactivated);
+                }
+                break;
+            }
 
             case StateFinished:
-                {
-                    assert (_state == StateClosed);
-                    break;
-                }
+            {
+                assert (_state == StateClosed);
+                break;
+            }
         }
 
         _state = state;
@@ -543,9 +543,9 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                 s.append(" socket ");
                 s.append(_acceptor.toString());
                 _instance
-                        .initializationData()
-                        .logger
-                        .trace(_instance.traceLevels().networkCat, s.toString());
+                    .initializationData()
+                    .logger
+                    .trace(_instance.traceLevels().networkCat, s.toString());
             }
 
             _endpoint = _acceptor.listen();
@@ -556,9 +556,9 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                 s.append(" connections\n");
                 s.append(_acceptor.toDetailedString());
                 _instance
-                        .initializationData()
-                        .logger
-                        .trace(_instance.traceLevels().networkCat, s.toString());
+                    .initializationData()
+                    .logger
+                    .trace(_instance.traceLevels().networkCat, s.toString());
             }
 
             _adapter.getThreadPool().initialize(this);
@@ -585,9 +585,9 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             s.append(" connections at ");
             s.append(_acceptor.toString());
             _instance
-                    .initializationData()
-                    .logger
-                    .trace(_instance.traceLevels().networkCat, s.toString());
+                .initializationData()
+                .logger
+                .trace(_instance.traceLevels().networkCat, s.toString());
         }
 
         assert (!_acceptorStarted);

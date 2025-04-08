@@ -16,7 +16,8 @@ public interface Object {
     /** Holds the results of a call to <code>ice_invoke</code>. */
     public class Ice_invokeResult {
         /** Default initializes the members. */
-        public Ice_invokeResult() {}
+        public Ice_invokeResult() {
+        }
 
         /**
          * One-shot constructor to initialize the members.
@@ -104,7 +105,7 @@ public interface Object {
      * @return The outgoing response.
      */
     default CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
-            throws UserException {
+        throws UserException {
         return switch (request.current.operation) {
             case "ice_id" -> _iceD_ice_id(this, request);
             case "ice_ids" -> _iceD_ice_ids(this, request);
@@ -124,8 +125,8 @@ public interface Object {
         istr.endEncapsulation();
         boolean ret = obj.ice_isA(iceP_id, request.current);
         return CompletableFuture.completedFuture(
-                request.current.createOutgoingResponse(
-                        ret, (ostr, value) -> ostr.writeBool(value), FormatType.CompactFormat));
+            request.current.createOutgoingResponse(
+                ret, (ostr, value) -> ostr.writeBool(value), FormatType.CompactFormat));
     }
 
     /**
@@ -144,10 +145,10 @@ public interface Object {
         request.inputStream.skipEmptyEncapsulation();
         String[] ret = obj.ice_ids(request.current);
         return CompletableFuture.completedFuture(
-                request.current.createOutgoingResponse(
-                        ret,
-                        (ostr, value) -> ostr.writeStringSeq(value),
-                        FormatType.CompactFormat));
+            request.current.createOutgoingResponse(
+                ret,
+                (ostr, value) -> ostr.writeStringSeq(value),
+                FormatType.CompactFormat));
     }
 
     /**
@@ -157,7 +158,7 @@ public interface Object {
         request.inputStream.skipEmptyEncapsulation();
         String ret = obj.ice_id(request.current);
         return CompletableFuture.completedFuture(
-                request.current.createOutgoingResponse(
-                        ret, (ostr, value) -> ostr.writeString(value), FormatType.CompactFormat));
+            request.current.createOutgoingResponse(
+                ret, (ostr, value) -> ostr.writeString(value), FormatType.CompactFormat));
     }
 }

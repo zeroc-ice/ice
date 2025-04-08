@@ -75,7 +75,7 @@ public class AllTests {
                 context.put("raise", "");
             }
             Object.Ice_invokeResult r =
-                    cl.ice_invoke("opException", OperationMode.Normal, null, context);
+                cl.ice_invoke("opException", OperationMode.Normal, null, context);
             if (r.returnValue) {
                 test(false);
             } else {
@@ -98,7 +98,7 @@ public class AllTests {
 
         {
             CompletableFuture<Object.Ice_invokeResult> f =
-                    oneway.ice_invokeAsync("opOneway", OperationMode.Normal, null);
+                oneway.ice_invokeAsync("opOneway", OperationMode.Normal, null);
             Object.Ice_invokeResult r = f.join();
             test(r.returnValue);
 
@@ -125,7 +125,7 @@ public class AllTests {
 
         {
             CompletableFuture<Object.Ice_invokeResult> f =
-                    cl.ice_invokeAsync("opException", OperationMode.Normal, null);
+                cl.ice_invokeAsync("opException", OperationMode.Normal, null);
             Object.Ice_invokeResult r = f.join();
             if (r.returnValue) {
                 test(false);

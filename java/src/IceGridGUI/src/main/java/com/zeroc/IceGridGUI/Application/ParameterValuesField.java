@@ -2,7 +2,7 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.Utils;
 
 import javax.swing.DefaultCellEditor;
 
@@ -67,24 +67,24 @@ public class ParameterValuesField extends JTable {
         }
 
         _model =
-                new DefaultTableModel(vector, _columnNames) {
-                    @Override
-                    public boolean isCellEditable(int row, int column) {
-                        if (resolver == null) {
-                            return column > 0;
-                        } else {
-                            return false;
-                        }
+            new DefaultTableModel(vector, _columnNames) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    if (resolver == null) {
+                        return column > 0;
+                    } else {
+                        return false;
                     }
-                };
+                }
+            };
 
         _model.addTableModelListener(
-                new TableModelListener() {
-                    @Override
-                    public void tableChanged(TableModelEvent e) {
-                        _editor.updated();
-                    }
-                });
+            new TableModelListener() {
+                @Override
+                public void tableChanged(TableModelEvent e) {
+                    _editor.updated();
+                }
+            });
         setModel(_model);
 
         setCellSelectionEnabled(resolver == null);

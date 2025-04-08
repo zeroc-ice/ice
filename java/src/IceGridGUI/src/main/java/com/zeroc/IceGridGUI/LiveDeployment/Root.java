@@ -6,7 +6,10 @@ import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.Coordinator;
+import com.zeroc.IceGridGUI.LiveActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.Component;
 import java.text.DateFormat;
@@ -137,8 +140,8 @@ public class Root extends Communicator {
         _childrenArray[1] = _slaves;
         _childrenArray[2] = _nodes;
         _messageSizeMax =
-                computeMessageSizeMax(
-                        _coordinator.getProperties().getIcePropertyAsInt("Ice.MessageSizeMax"));
+            computeMessageSizeMax(
+                _coordinator.getProperties().getIcePropertyAsInt("Ice.MessageSizeMax"));
 
         _treeModel = new FilteredTreeModel(this);
         _tree = new JTree();
@@ -147,24 +150,24 @@ public class Root extends Communicator {
         _showObjectDialog = new ObjectDialog(this, true);
 
         _tree.addTreeWillExpandListener(
-                new TreeWillExpandListener() {
-                    @Override
-                    public void treeWillExpand(TreeExpansionEvent event) {
-                        // Fetch metrics when Communicator node is expanded.
-                        TreeNode node = (TreeNode) event.getPath().getLastPathComponent();
-                        if (node instanceof Communicator) {
-                            ((Communicator) node).fetchMetricsViewNames();
-                        }
+            new TreeWillExpandListener() {
+                @Override
+                public void treeWillExpand(TreeExpansionEvent event) {
+                    // Fetch metrics when Communicator node is expanded.
+                    TreeNode node = (TreeNode) event.getPath().getLastPathComponent();
+                    if (node instanceof Communicator) {
+                        ((Communicator) node).fetchMetricsViewNames();
                     }
+                }
 
-                    @Override
-                    public void treeWillCollapse(TreeExpansionEvent event)
-                            throws ExpandVetoException {
-                        if (event.getPath().getLastPathComponent() == Root.this) {
-                            throw new ExpandVetoException(event);
-                        }
+                @Override
+                public void treeWillCollapse(TreeExpansionEvent event)
+                    throws ExpandVetoException {
+                    if (event.getPath().getLastPathComponent() == Root.this) {
+                        throw new ExpandVetoException(event);
                     }
-                });
+                }
+            });
 
         loadLogPrefs();
     }
@@ -188,10 +191,10 @@ public class Root extends Communicator {
         try {
             final AdminPrx admin = _coordinator.getAdmin();
             admin.shutdownRegistryAsync(_replicaName)
-                    .whenComplete(
-                            (result, ex) -> {
-                                amiComplete(prefix, errorTitle, ex);
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        amiComplete(prefix, errorTitle, ex);
+                    });
         } catch (LocalException ex) {
             failure(prefix, errorTitle, ex.toString());
         }
@@ -217,9 +220,9 @@ public class Root extends Communicator {
             ApplicationInfo app = p.getValue();
 
             r.put(
-                    p.getKey(),
-                    DateFormat.getDateTimeInstance()
-                            .format(new Date(app.updateTime)));
+                p.getKey(),
+                DateFormat.getDateTimeInstance()
+                    .format(new Date(app.updateTime)));
         }
         return r;
     }
@@ -252,7 +255,7 @@ public class Root extends Communicator {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     public void applicationInit(
@@ -348,17 +351,17 @@ public class Root extends Communicator {
         }
 
         appDesc.variables
-                .keySet()
-                .removeAll(Arrays.asList(update.descriptor.removeVariables));
+            .keySet()
+            .removeAll(Arrays.asList(update.descriptor.removeVariables));
         appDesc.variables.putAll(update.descriptor.variables);
         boolean variablesChanged =
-                update.descriptor.removeVariables.length > 0
-                        || !update.descriptor.variables.isEmpty();
+            update.descriptor.removeVariables.length > 0
+                || !update.descriptor.variables.isEmpty();
 
         // Update only descriptors (no tree node shown in this view)
         appDesc.propertySets
-                .keySet()
-                .removeAll(Arrays.asList(update.descriptor.removePropertySets));
+            .keySet()
+            .removeAll(Arrays.asList(update.descriptor.removePropertySets));
         appDesc.propertySets.putAll(update.descriptor.propertySets);
 
         for (String id : update.descriptor.removeReplicaGroups) {
@@ -390,13 +393,13 @@ public class Root extends Communicator {
         }
 
         appDesc.serviceTemplates
-                .keySet()
-                .removeAll(Arrays.asList(update.descriptor.removeServiceTemplates));
+            .keySet()
+            .removeAll(Arrays.asList(update.descriptor.removeServiceTemplates));
         appDesc.serviceTemplates.putAll(update.descriptor.serviceTemplates);
 
         appDesc.serverTemplates
-                .keySet()
-                .removeAll(Arrays.asList(update.descriptor.removeServerTemplates));
+            .keySet()
+            .removeAll(Arrays.asList(update.descriptor.removeServerTemplates));
         appDesc.serverTemplates.putAll(update.descriptor.serverTemplates);
 
         //
@@ -426,27 +429,27 @@ public class Root extends Communicator {
                 insertNode(node);
             } else {
                 node.update(
-                        appDesc,
-                        desc,
-                        variablesChanged,
-                        update.descriptor.serviceTemplates.keySet(),
-                        update.descriptor.serverTemplates.keySet());
+                    appDesc,
+                    desc,
+                    variablesChanged,
+                    update.descriptor.serviceTemplates.keySet(),
+                    update.descriptor.serverTemplates.keySet());
             }
             freshNodes.add(node);
         }
 
         // Notify non-fresh nodes if needed
         if (variablesChanged
-                || !update.descriptor.serviceTemplates.isEmpty()
-                || !update.descriptor.serverTemplates.isEmpty()) {
+            || !update.descriptor.serviceTemplates.isEmpty()
+            || !update.descriptor.serverTemplates.isEmpty()) {
             for (Node p : _nodes) {
                 if (!freshNodes.contains(p)) {
                     p.update(
-                            appDesc,
-                            null,
-                            variablesChanged,
-                            update.descriptor.serviceTemplates.keySet(),
-                            update.descriptor.serverTemplates.keySet());
+                        appDesc,
+                        null,
+                        variablesChanged,
+                        update.descriptor.serviceTemplates.keySet(),
+                        update.descriptor.serverTemplates.keySet());
                 }
             }
         }
@@ -473,21 +476,21 @@ public class Root extends Communicator {
     public void objectInit(ObjectInfo[] objects) {
         for (ObjectInfo info : objects) {
             _objects.put(
-                    info.proxy.ice_getCommunicator().identityToString(info.proxy.ice_getIdentity()),
-                    info);
+                info.proxy.ice_getCommunicator().identityToString(info.proxy.ice_getIdentity()),
+                info);
         }
     }
 
     public void objectAdded(ObjectInfo info) {
         _objects.put(
-                info.proxy.ice_getCommunicator().identityToString(info.proxy.ice_getIdentity()),
-                info);
+            info.proxy.ice_getCommunicator().identityToString(info.proxy.ice_getIdentity()),
+            info);
     }
 
     public void objectUpdated(ObjectInfo info) {
         _objects.put(
-                info.proxy.ice_getCommunicator().identityToString(info.proxy.ice_getIdentity()),
-                info);
+            info.proxy.ice_getCommunicator().identityToString(info.proxy.ice_getIdentity()),
+            info);
     }
 
     public void objectRemoved(Identity id) {
@@ -640,22 +643,22 @@ public class Root extends Communicator {
             proxy = _coordinator.getCommunicator().stringToProxy(strProxy);
         } catch (LocalException e) {
             JOptionPane.showMessageDialog(
-                    _coordinator.getMainFrame(),
-                    "Cannot parse proxy '" + strProxy + "'",
-                    "addObject failed",
-                    JOptionPane.ERROR_MESSAGE);
+                _coordinator.getMainFrame(),
+                "Cannot parse proxy '" + strProxy + "'",
+                "addObject failed",
+                JOptionPane.ERROR_MESSAGE);
         }
 
         if (proxy == null) {
             JOptionPane.showMessageDialog(
-                    _coordinator.getMainFrame(),
-                    "You must provide a non-null proxy",
-                    "addObject failed",
-                    JOptionPane.ERROR_MESSAGE);
+                _coordinator.getMainFrame(),
+                "You must provide a non-null proxy",
+                "addObject failed",
+                JOptionPane.ERROR_MESSAGE);
         }
 
         String strIdentity =
-                _coordinator.getCommunicator().identityToString(proxy.ice_getIdentity());
+            _coordinator.getCommunicator().identityToString(proxy.ice_getIdentity());
 
         final String prefix = "Adding well-known object '" + strIdentity + "'...";
         final AdminPrx admin = _coordinator.getAdmin();
@@ -669,26 +672,26 @@ public class Root extends Communicator {
                 r = admin.addObjectWithTypeAsync(proxy, type);
             }
             r.whenComplete(
-                    (result, ex) -> {
-                        if (ex == null) {
-                            amiSuccess(prefix);
+                (result, ex) -> {
+                    if (ex == null) {
+                        amiSuccess(prefix);
 
-                            SwingUtilities.invokeLater(() -> dialog.setVisible(false));
-                        } else if (ex instanceof ObjectExistsException) {
-                            amiFailure(
-                                    prefix,
-                                    "addObject failed",
-                                    "An object with this identity is already registered as a"
-                                            + " well-known object");
-                        } else if (ex instanceof DeploymentException) {
-                            amiFailure(
-                                    prefix,
-                                    "addObject failed",
-                                    "Deployment exception: " + ((DeploymentException) ex).reason);
-                        } else {
-                            amiFailure(prefix, "addObject failed", ex.toString());
-                        }
-                    });
+                        SwingUtilities.invokeLater(() -> dialog.setVisible(false));
+                    } else if (ex instanceof ObjectExistsException) {
+                        amiFailure(
+                            prefix,
+                            "addObject failed",
+                            "An object with this identity is already registered as a"
+                                + " well-known object");
+                    } else if (ex instanceof DeploymentException) {
+                        amiFailure(
+                            prefix,
+                            "addObject failed",
+                            "Deployment exception: " + ((DeploymentException) ex).reason);
+                    } else {
+                        amiFailure(prefix, "addObject failed", ex.toString());
+                    }
+                });
         } catch (LocalException ex) {
             failure(prefix, "addObject failed", ex.toString());
         }
@@ -706,10 +709,10 @@ public class Root extends Communicator {
         try {
             final AdminPrx admin = _coordinator.getAdmin();
             admin.removeObjectAsync(identity)
-                    .whenComplete(
-                            (result, ex) -> {
-                                amiComplete(prefix, errorTitle, ex);
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        amiComplete(prefix, errorTitle, ex);
+                    });
         } catch (LocalException ex) {
             failure(prefix, errorTitle, ex.toString());
         }
@@ -722,10 +725,10 @@ public class Root extends Communicator {
         try {
             final AdminPrx admin = _coordinator.getAdmin();
             admin.removeAdapterAsync(adapterId)
-                    .whenComplete(
-                            (result, ex) -> {
-                                amiComplete(prefix, errorTitle, ex);
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        amiComplete(prefix, errorTitle, ex);
+                    });
         } catch (LocalException ex) {
             failure(prefix, errorTitle, ex.toString());
         }
@@ -753,34 +756,34 @@ public class Root extends Communicator {
     @Override
     public void retrieveOutput(final boolean stdout) {
         getRoot()
-                .openShowLogFileDialog(
-                        new ShowLogFileDialog.FileIteratorFactory() {
-                            @Override
-                            public FileIteratorPrx open(int count)
-                                    throws FileNotAvailableException,
-                                            RegistryNotExistException,
-                                            RegistryUnreachableException {
-                                AdminSessionPrx session = _coordinator.getSession();
+            .openShowLogFileDialog(
+                new ShowLogFileDialog.FileIteratorFactory() {
+                    @Override
+                    public FileIteratorPrx open(int count)
+                        throws FileNotAvailableException,
+                        RegistryNotExistException,
+                        RegistryUnreachableException {
+                        AdminSessionPrx session = _coordinator.getSession();
 
-                                FileIteratorPrx result;
-                                if (stdout) {
-                                    result = session.openRegistryStdOut(_replicaName, count);
-                                } else {
-                                    result = session.openRegistryStdErr(_replicaName, count);
-                                }
-                                return result;
-                            }
+                        FileIteratorPrx result;
+                        if (stdout) {
+                            result = session.openRegistryStdOut(_replicaName, count);
+                        } else {
+                            result = session.openRegistryStdErr(_replicaName, count);
+                        }
+                        return result;
+                    }
 
-                            @Override
-                            public String getTitle() {
-                                return "Registry " + _label + " " + (stdout ? "stdout" : "stderr");
-                            }
+                    @Override
+                    public String getTitle() {
+                        return "Registry " + _label + " " + (stdout ? "stdout" : "stderr");
+                    }
 
-                            @Override
-                            public String getDefaultFilename() {
-                                return _replicaName + (stdout ? ".out" : ".err");
-                            }
-                        });
+                    @Override
+                    public String getDefaultFilename() {
+                        return _replicaName + (stdout ? ".out" : ".err");
+                    }
+                });
     }
 
     PropertySetDescriptor findNamedPropertySet(String name, String applicationName) {
@@ -800,14 +803,14 @@ public class Root extends Communicator {
         ShowLogFileDialog d = _showLogFileDialogMap.get(factory.getTitle());
         if (d == null) {
             d =
-                    new ShowLogFileDialog(
-                            this,
-                            factory,
-                            _logMaxLines,
-                            _logMaxSize,
-                            _logInitialLines,
-                            _logMaxReadSize,
-                            _logPeriod);
+                new ShowLogFileDialog(
+                    this,
+                    factory,
+                    _logMaxLines,
+                    _logMaxSize,
+                    _logInitialLines,
+                    _logMaxReadSize,
+                    _logPeriod);
 
             _showLogFileDialogMap.put(factory.getTitle(), d);
         } else {
@@ -934,9 +937,9 @@ public class Root extends Communicator {
     private final int _messageSizeMax;
 
     private final Map<String, ShowIceLogDialog> _showIceLogDialogMap =
-            new HashMap<>();
+        new HashMap<>();
     private final Map<String, ShowLogFileDialog> _showLogFileDialogMap =
-            new HashMap<>();
+        new HashMap<>();
 
     int _logMaxLines;
     int _logMaxSize;

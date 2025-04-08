@@ -21,17 +21,17 @@ public class FixedReference extends Reference {
             Duration invocationTimeout,
             Map<String, String> context) {
         super(
-                instance,
-                communicator,
-                identity,
-                facet,
-                mode,
-                secure,
-                compress,
-                protocol,
-                encoding,
-                invocationTimeout,
-                context);
+            instance,
+            communicator,
+            identity,
+            facet,
+            mode,
+            secure,
+            compress,
+            protocol,
+            encoding,
+            invocationTimeout,
+            context);
         _fixedConnection = connection;
     }
 
@@ -181,21 +181,21 @@ public class FixedReference extends Reference {
             case Reference.ModeTwoway:
             case Reference.ModeOneway:
             case Reference.ModeBatchOneway:
-                {
-                    if (_fixedConnection.endpoint().datagram()) {
-                        throw NoEndpointException.fromProxyString(toString());
-                    }
-                    break;
+            {
+                if (_fixedConnection.endpoint().datagram()) {
+                    throw NoEndpointException.fromProxyString(toString());
                 }
+                break;
+            }
 
             case Reference.ModeDatagram:
             case Reference.ModeBatchDatagram:
-                {
-                    if (!_fixedConnection.endpoint().datagram()) {
-                        throw NoEndpointException.fromProxyString(toString());
-                    }
-                    break;
+            {
+                if (!_fixedConnection.endpoint().datagram()) {
+                    throw NoEndpointException.fromProxyString(toString());
                 }
+                break;
+            }
         }
 
         //
@@ -216,9 +216,9 @@ public class FixedReference extends Reference {
         _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
         boolean compress =
-                defaultsAndOverrides.overrideCompress.isPresent()
-                        ? defaultsAndOverrides.overrideCompress.get()
-                        : getCompress().orElse(false);
+            defaultsAndOverrides.overrideCompress.isPresent()
+                ? defaultsAndOverrides.overrideCompress.get()
+                : getCompress().orElse(false);
         return new ConnectionRequestHandler(this, _fixedConnection, compress);
     }
 

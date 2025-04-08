@@ -18,7 +18,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     @Override
     public void trace(String category, String message) {
         LogMessage logMessage =
-                new LogMessage(LogMessageType.TraceMessage, now(), category, message);
+            new LogMessage(LogMessageType.TraceMessage, now(), category, message);
         _localLogger.trace(category, message);
         log(logMessage);
     }
@@ -106,7 +106,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
             for (RemoteLoggerPrx p : job.remoteLoggers) {
                 if (_loggerAdmin.getTraceLevel() > 1) {
                     _localLogger.trace(
-                            _traceCategory, "sending log message to `" + p.toString() + "'");
+                        _traceCategory, "sending log message to `" + p.toString() + "'");
                 }
 
                 try {
@@ -114,35 +114,35 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
                     // p is a proxy associated with the _sendLogCommunicator
                     //
                     p.logAsync(job.logMessage)
-                            .whenComplete(
-                                    (Void v, Throwable ex) -> {
-                                        if (ex != null) {
-                                            if (ex instanceof CommunicatorDestroyedException) {
-                                                // Expected if there are outstanding calls during
-                                                // communicator destruction.
-                                            } else if (ex instanceof LocalException) {
-                                                _loggerAdmin.deadRemoteLogger(
-                                                        p,
-                                                        _localLogger,
-                                                        (LocalException) ex,
-                                                        "log");
-                                            } else {
-                                                _loggerAdmin.deadRemoteLogger(
-                                                        p,
-                                                        _localLogger,
-                                                        new UnknownException(ex),
-                                                        "log");
-                                            }
-                                        } else {
-                                            if (_loggerAdmin.getTraceLevel() > 1) {
-                                                _localLogger.trace(
-                                                        _traceCategory,
-                                                        "log on `"
-                                                                + p.toString()
-                                                                + "' completed successfully");
-                                            }
-                                        }
-                                    });
+                        .whenComplete(
+                            (Void v, Throwable ex) -> {
+                                if (ex != null) {
+                                    if (ex instanceof CommunicatorDestroyedException) {
+                                        // Expected if there are outstanding calls during
+                                        // communicator destruction.
+                                    } else if (ex instanceof LocalException) {
+                                        _loggerAdmin.deadRemoteLogger(
+                                            p,
+                                            _localLogger,
+                                            (LocalException) ex,
+                                            "log");
+                                    } else {
+                                        _loggerAdmin.deadRemoteLogger(
+                                            p,
+                                            _localLogger,
+                                            new UnknownException(ex),
+                                            "log");
+                                    }
+                                } else {
+                                    if (_loggerAdmin.getTraceLevel() > 1) {
+                                        _localLogger.trace(
+                                            _traceCategory,
+                                            "log on `"
+                                                + p.toString()
+                                                + "' completed successfully");
+                                    }
+                                }
+                            });
                 } catch (LocalException ex) {
                     _loggerAdmin.deadRemoteLogger(p, _localLogger, ex, "log");
                 }

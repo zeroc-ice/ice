@@ -45,8 +45,8 @@ public class Server extends TestHelper {
 
             // Don't move this, it needs the port.
             communicator
-                    .getProperties()
-                    .setProperty("TestAdapter.Endpoints", getTestEndpoint(port));
+                .getProperties()
+                .setProperty("TestAdapter.Endpoints", getTestEndpoint(port));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             Object object = new TestI(port);
             adapter.add(object, Util.stringToIdentity("test"));

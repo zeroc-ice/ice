@@ -162,9 +162,9 @@ public final class MyDerivedClassI implements MyDerivedClass {
         MyClass.OpMyClassResult r = new MyClass.OpMyClassResult();
         r.p2 = p1;
         r.p3 =
-                MyClassPrx.uncheckedCast(
-                        current.adapter.createProxy(
-                                Util.stringToIdentity("noSuchIdentity")));
+            MyClassPrx.uncheckedCast(
+                current.adapter.createProxy(
+                    Util.stringToIdentity("noSuchIdentity")));
         r.returnValue = MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
         return r;
     }
@@ -566,7 +566,8 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public void opDerived(Current current) {}
+    public void opDerived(Current current) {
+    }
 
     @Override
     public byte opByte1(byte value, Current current) {

@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 final class ConnectRequestHandler
-        implements RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback {
+    implements RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback {
     @Override
     public int sendAsyncRequest(ProxyOutgoingAsyncBase out) throws RetryException {
         synchronized (this) {
@@ -190,8 +190,8 @@ final class ConnectRequestHandler
         for (ProxyOutgoingAsyncBase outAsync : _requests) {
             try {
                 if ((outAsync.invokeRemote(_connection, _compress, _response)
-                                & AsyncStatus.InvokeSentCallback)
-                        > 0) {
+                    & AsyncStatus.InvokeSentCallback)
+                    > 0) {
                     outAsync.invokeSentAsync();
                 }
             } catch (RetryException ex) {

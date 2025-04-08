@@ -3,7 +3,10 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.ApplicationActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 import java.awt.Component;
 import java.io.IOException;
@@ -39,7 +42,7 @@ class PlainService extends Communicator implements Service, Cloneable {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     // Actions
@@ -50,8 +53,8 @@ class PlainService extends Communicator implements Service, Cloneable {
 
         Object clipboard = getCoordinator().getClipboard();
         if (clipboard != null
-                && (clipboard instanceof ServiceInstanceDescriptor
-                        || clipboard instanceof Adapter.AdapterCopy)) {
+            && (clipboard instanceof ServiceInstanceDescriptor
+            || clipboard instanceof Adapter.AdapterCopy)) {
             actions[PASTE] = true;
         }
 
@@ -199,7 +202,7 @@ class PlainService extends Communicator implements Service, Cloneable {
             String name,
             ServiceInstanceDescriptor descriptor,
             Utils.Resolver resolver)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         super(parent, name);
         _descriptor = descriptor;
         _ephemeral = false;
@@ -232,14 +235,14 @@ class PlainService extends Communicator implements Service, Cloneable {
             }
 
             writePropertySet(
-                    writer,
-                    _descriptor.descriptor.propertySet,
-                    _descriptor.descriptor.adapters,
-                    _descriptor.descriptor.logs);
+                writer,
+                _descriptor.descriptor.propertySet,
+                _descriptor.descriptor.adapters,
+                _descriptor.descriptor.logs);
             writeLogs(
-                    writer,
-                    _descriptor.descriptor.logs,
-                    _descriptor.descriptor.propertySet.properties);
+                writer,
+                _descriptor.descriptor.logs,
+                _descriptor.descriptor.propertySet.properties);
 
             _adapters.write(writer, _descriptor.descriptor.propertySet.properties);
             writer.writeEndTag("service");

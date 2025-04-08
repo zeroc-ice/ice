@@ -26,7 +26,7 @@ class TestControllerI implements TestIntfController {
 
     @Override
     public synchronized void interrupt(Current current)
-            throws CannotInterruptException {
+        throws CannotInterruptException {
         if (_threads.isEmpty()) {
             throw new CannotInterruptException();
         }

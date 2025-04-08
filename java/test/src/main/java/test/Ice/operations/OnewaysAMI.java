@@ -50,11 +50,11 @@ class OnewaysAMI {
             CompletableFuture<Void> f = p.ice_pingAsync();
             f.whenComplete((result, ex) -> test(ex == null));
             Util.getInvocationFuture(f)
-                    .whenSent(
-                            (sentSynchronously, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenSent(
+                    (sentSynchronously, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -87,11 +87,11 @@ class OnewaysAMI {
             CompletableFuture<Void> f = p.opVoidAsync();
             f.whenComplete((result, ex) -> test(ex == null));
             Util.getInvocationFuture(f)
-                    .whenSent(
-                            (sentSynchronously, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenSent(
+                    (sentSynchronously, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -100,11 +100,11 @@ class OnewaysAMI {
             CompletableFuture<Void> f = p.opIdempotentAsync();
             f.whenComplete((result, ex) -> test(ex == null));
             Util.getInvocationFuture(f)
-                    .whenSent(
-                            (sentSynchronously, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenSent(
+                    (sentSynchronously, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             cb.check();
         }
 

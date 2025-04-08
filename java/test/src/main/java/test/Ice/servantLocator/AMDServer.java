@@ -21,8 +21,8 @@ public class AMDServer extends TestHelper {
             adapter.addServantLocator(new AMDServantLocatorI(""), "");
             adapter.add(new AMDTestI(), Util.stringToIdentity("asm"));
             adapter.add(
-                    new AMDTestActivationI(),
-                    Util.stringToIdentity("test/activation"));
+                new AMDTestActivationI(),
+                Util.stringToIdentity("test/activation"));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

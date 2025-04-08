@@ -134,16 +134,16 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.SBaseAsObjectAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result != null);
-                                test("::Test::SBase".equals(result.ice_id()));
-                                SBase sb = (SBase) result;
-                                test(sb != null);
-                                test("SBase.sb".equals(sb.sb));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result != null);
+                        test("::Test::SBase".equals(result.ice_id()));
+                        SBase sb = (SBase) result;
+                        test(sb != null);
+                        test("SBase.sb".equals(sb.sb));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -166,12 +166,12 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.SBaseAsSBaseAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test("SBase.sb".equals(result.sb));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test("SBase.sb".equals(result.sb));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -198,15 +198,15 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.SBSKnownDerivedAsSBaseAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test("SBSKnownDerived.sb".equals(result.sb));
-                                SBSKnownDerived sbskd = (SBSKnownDerived) result;
-                                test(sbskd != null);
-                                test("SBSKnownDerived.sbskd".equals(sbskd.sbskd));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test("SBSKnownDerived.sb".equals(result.sb));
+                        SBSKnownDerived sbskd = (SBSKnownDerived) result;
+                        test(sbskd != null);
+                        test("SBSKnownDerived.sbskd".equals(sbskd.sbskd));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -229,12 +229,12 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.SBSKnownDerivedAsSBSKnownDerivedAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test("SBSKnownDerived.sbskd".equals(result.sbskd));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test("SBSKnownDerived.sbskd".equals(result.sbskd));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -279,12 +279,12 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.SBSUnknownDerivedAsSBaseAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test("SBSUnknownDerived.sb".equals(result.sb));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test("SBSUnknownDerived.sb".equals(result.sb));
+                        cb.called();
+                    });
             cb.check();
         }
         if (test.ice_getEncodingVersion().equals(Util.Encoding_1_0)) {
@@ -293,15 +293,15 @@ public class AllTests {
             //
             Callback cb = new Callback();
             test.SBSUnknownDerivedAsSBaseCompactAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                if (ex != null) {
-                                    test(ex instanceof OperationNotExistException);
-                                } else {
-                                    test("SBSUnknownDerived.sb".equals(result.sb));
-                                }
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        if (ex != null) {
+                            test(ex instanceof OperationNotExistException);
+                        } else {
+                            test("SBSUnknownDerived.sb".equals(result.sb));
+                        }
+                        cb.called();
+                    });
             cb.check();
         } else {
             //
@@ -310,14 +310,14 @@ public class AllTests {
             //
             Callback cb = new Callback();
             test.SBSUnknownDerivedAsSBaseCompactAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null);
-                                test(
-                                        ex instanceof OperationNotExistException
-                                                || ex instanceof MarshalException);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null);
+                        test(
+                            ex instanceof OperationNotExistException
+                                || ex instanceof MarshalException);
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -347,26 +347,26 @@ public class AllTests {
             if (test.ice_getEncodingVersion().equals(Util.Encoding_1_0)) {
                 Callback cb = new Callback();
                 test.SUnknownAsObjectAsync()
-                        .whenComplete(
-                                (result, ex) -> {
-                                    test(ex != null);
-                                    test(ex instanceof MarshalException);
-                                    cb.called();
-                                });
+                    .whenComplete(
+                        (result, ex) -> {
+                            test(ex != null);
+                            test(ex instanceof MarshalException);
+                            cb.called();
+                        });
                 cb.check();
             } else {
                 Callback cb = new Callback();
                 test.SUnknownAsObjectAsync()
-                        .whenComplete(
-                                (result, ex) -> {
-                                    test(ex == null);
-                                    test(result instanceof UnknownSlicedValue);
-                                    test(
-                                            "::Test::SUnknown"
-                                                    .equals(((UnknownSlicedValue) result)
-                                                    .ice_id()));
-                                    cb.called();
-                                });
+                    .whenComplete(
+                        (result, ex) -> {
+                            test(ex == null);
+                            test(result instanceof UnknownSlicedValue);
+                            test(
+                                "::Test::SUnknown"
+                                    .equals(((UnknownSlicedValue) result)
+                                        .ice_id()));
+                            cb.called();
+                        });
                 cb.check();
             }
         }
@@ -392,15 +392,15 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.oneElementCycleAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result != null);
-                                test("::Test::B".equals(result.ice_id()));
-                                test("B1.sb".equals(result.sb));
-                                test(result.pb == result);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result != null);
+                        test("::Test::B".equals(result.ice_id()));
+                        test("B1.sb".equals(result.sb));
+                        test(result.pb == result);
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -430,20 +430,20 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.twoElementCycleAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result != null);
-                                test("::Test::B".equals(result.ice_id()));
-                                test("B1.sb".equals(result.sb));
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result != null);
+                        test("::Test::B".equals(result.ice_id()));
+                        test("B1.sb".equals(result.sb));
 
-                                B b2 = result.pb;
-                                test(b2 != null);
-                                test("::Test::B".equals(b2.ice_id()));
-                                test("B2.sb".equals(b2.sb));
-                                test(b2.pb == result);
-                                cb.called();
-                            });
+                        B b2 = result.pb;
+                        test(b2 != null);
+                        test("::Test::B".equals(b2.ice_id()));
+                        test("B2.sb".equals(b2.sb));
+                        test(b2.pb == result);
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -482,28 +482,28 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.D1AsBAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result != null);
-                                test("::Test::D1".equals(result.ice_id()));
-                                test("D1.sb".equals(result.sb));
-                                test(result.pb != null);
-                                test(result.pb != result);
-                                D1 d1 = (D1) result;
-                                test(d1 != null);
-                                test("D1.sd1".equals(d1.sd1));
-                                test(d1.pd1 != null);
-                                test(d1.pd1 != result);
-                                test(result.pb == d1.pd1);
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result != null);
+                        test("::Test::D1".equals(result.ice_id()));
+                        test("D1.sb".equals(result.sb));
+                        test(result.pb != null);
+                        test(result.pb != result);
+                        D1 d1 = (D1) result;
+                        test(d1 != null);
+                        test("D1.sd1".equals(d1.sd1));
+                        test(d1.pd1 != null);
+                        test(d1.pd1 != result);
+                        test(result.pb == d1.pd1);
 
-                                B b2 = result.pb;
-                                test(b2 != null);
-                                test(b2.pb == result);
-                                test("D2.sb".equals(b2.sb));
-                                test("::Test::B".equals(b2.ice_id()));
-                                cb.called();
-                            });
+                        B b2 = result.pb;
+                        test(b2 != null);
+                        test(b2.pb == result);
+                        test("D2.sb".equals(b2.sb));
+                        test("::Test::B".equals(b2.ice_id()));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -536,22 +536,22 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.D1AsD1Async()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result != null);
-                                test("::Test::D1".equals(result.ice_id()));
-                                test("D1.sb".equals(result.sb));
-                                test(result.pb != null);
-                                test(result.pb != result);
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result != null);
+                        test("::Test::D1".equals(result.ice_id()));
+                        test("D1.sb".equals(result.sb));
+                        test(result.pb != null);
+                        test(result.pb != result);
 
-                                B b2 = result.pb;
-                                test(b2 != null);
-                                test("::Test::B".equals(b2.ice_id()));
-                                test("D2.sb".equals(b2.sb));
-                                test(b2.pb == result);
-                                cb.called();
-                            });
+                        B b2 = result.pb;
+                        test(b2 != null);
+                        test("::Test::B".equals(b2.ice_id()));
+                        test("D2.sb".equals(b2.sb));
+                        test(b2.pb == result);
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -588,26 +588,26 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.D2AsBAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result != null);
-                                test("::Test::B".equals(result.ice_id()));
-                                test("D2.sb".equals(result.sb));
-                                test(result.pb != null);
-                                test(result.pb != result);
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result != null);
+                        test("::Test::B".equals(result.ice_id()));
+                        test("D2.sb".equals(result.sb));
+                        test(result.pb != null);
+                        test(result.pb != result);
 
-                                B b1 = result.pb;
-                                test(b1 != null);
-                                test("::Test::D1".equals(b1.ice_id()));
-                                test("D1.sb".equals(b1.sb));
-                                test(b1.pb == result);
-                                D1 d1 = (D1) b1;
-                                test(d1 != null);
-                                test("D1.sd1".equals(d1.sd1));
-                                test(d1.pd1 == result);
-                                cb.called();
-                            });
+                        B b1 = result.pb;
+                        test(b1 != null);
+                        test("::Test::D1".equals(b1.ice_id()));
+                        test("D1.sb".equals(b1.sb));
+                        test(b1.pb == result);
+                        D1 d1 = (D1) b1;
+                        test(d1 != null);
+                        test("D1.sd1".equals(d1.sd1));
+                        test(d1.pd1 == result);
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -642,27 +642,27 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.paramTest1Async()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p1 != null);
-                                test("::Test::D1".equals(result.p1.ice_id()));
-                                test("D1.sb".equals(result.p1.sb));
-                                test(result.p1.pb == result.p2);
-                                D1 d1 = (D1) result.p1;
-                                test(d1 != null);
-                                test("D1.sd1".equals(d1.sd1));
-                                test(d1.pd1 == result.p2);
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p1 != null);
+                        test("::Test::D1".equals(result.p1.ice_id()));
+                        test("D1.sb".equals(result.p1.sb));
+                        test(result.p1.pb == result.p2);
+                        D1 d1 = (D1) result.p1;
+                        test(d1 != null);
+                        test("D1.sd1".equals(d1.sd1));
+                        test(d1.pd1 == result.p2);
 
-                                test(result.p2 != null);
-                                test(
-                                        "::Test::B"
-                                                .equals(result.p2
-                                                .ice_id())); // No factory, must be sliced
-                                test("D2.sb".equals(result.p2.sb));
-                                test(result.p2.pb == result.p1);
-                                cb.called();
-                            });
+                        test(result.p2 != null);
+                        test(
+                            "::Test::B"
+                                .equals(result.p2
+                                    .ice_id())); // No factory, must be sliced
+                        test("D2.sb".equals(result.p2.sb));
+                        test(result.p2.pb == result.p1);
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -697,27 +697,27 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.paramTest2Async()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p1 != null);
-                                test("::Test::D1".equals(result.p1.ice_id()));
-                                test("D1.sb".equals(result.p1.sb));
-                                test(result.p1.pb == result.p2);
-                                D1 d1 = (D1) result.p1;
-                                test(d1 != null);
-                                test("D1.sd1".equals(d1.sd1));
-                                test(d1.pd1 == result.p2);
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p1 != null);
+                        test("::Test::D1".equals(result.p1.ice_id()));
+                        test("D1.sb".equals(result.p1.sb));
+                        test(result.p1.pb == result.p2);
+                        D1 d1 = (D1) result.p1;
+                        test(d1 != null);
+                        test("D1.sd1".equals(d1.sd1));
+                        test(d1.pd1 == result.p2);
 
-                                test(result.p2 != null);
-                                test(
-                                        "::Test::B"
-                                                .equals(result.p2
-                                                .ice_id())); // No factory, must be sliced
-                                test("D2.sb".equals(result.p2.sb));
-                                test(result.p2.pb == result.p1);
-                                cb.called();
-                            });
+                        test(result.p2 != null);
+                        test(
+                            "::Test::B"
+                                .equals(result.p2
+                                    .ice_id())); // No factory, must be sliced
+                        test("D2.sb".equals(result.p2.sb));
+                        test(result.p2.pb == result.p1);
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -739,12 +739,12 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.returnTest1Async()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.returnValue == result.p1);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.returnValue == result.p1);
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -766,12 +766,12 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.returnTest2Async()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.returnValue == result.p2);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.returnValue == result.p2);
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -838,12 +838,12 @@ public class AllTests {
             final Wrapper<B> w = new Wrapper<>();
             Callback cb = new Callback();
             test.returnTest3Async(d1, d3)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                w.v = result;
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        w.v = result;
+                        cb.called();
+                    });
             cb.check();
 
             B b1 = w.v;
@@ -942,12 +942,12 @@ public class AllTests {
             final Wrapper<B> w = new Wrapper<>();
             Callback cb = new Callback();
             test.returnTest3Async(d3, d1)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                w.v = result;
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        w.v = result;
+                        cb.called();
+                    });
             cb.check();
 
             B b1 = w.v;
@@ -1011,25 +1011,25 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.paramTest3Async()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p1 != null);
-                                test("D2.sb (p1 1)".equals(result.p1.sb));
-                                test(result.p1.pb == null);
-                                test("::Test::B".equals(result.p1.ice_id()));
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p1 != null);
+                        test("D2.sb (p1 1)".equals(result.p1.sb));
+                        test(result.p1.pb == null);
+                        test("::Test::B".equals(result.p1.ice_id()));
 
-                                test(result.p2 != null);
-                                test("D2.sb (p2 1)".equals(result.p2.sb));
-                                test(result.p2.pb == null);
-                                test("::Test::B".equals(result.p2.ice_id()));
+                        test(result.p2 != null);
+                        test("D2.sb (p2 1)".equals(result.p2.sb));
+                        test(result.p2.pb == null);
+                        test("::Test::B".equals(result.p2.ice_id()));
 
-                                test(result.returnValue != null);
-                                test("D1.sb (p2 2)".equals(result.returnValue.sb));
-                                test(result.returnValue.pb == null);
-                                test("::Test::D1".equals(result.returnValue.ice_id()));
-                                cb.called();
-                            });
+                        test(result.returnValue != null);
+                        test("D1.sb (p2 2)".equals(result.returnValue.sb));
+                        test(result.returnValue.pb == null);
+                        test("::Test::D1".equals(result.returnValue.ice_id()));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -1060,20 +1060,20 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.paramTest4Async()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p != null);
-                                test("D4.sb (1)".equals(result.p.sb));
-                                test(result.p.pb == null);
-                                test("::Test::B".equals(result.p.ice_id()));
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p != null);
+                        test("D4.sb (1)".equals(result.p.sb));
+                        test(result.p.pb == null);
+                        test("::Test::B".equals(result.p.ice_id()));
 
-                                test(result.returnValue != null);
-                                test("B.sb (2)".equals(result.returnValue.sb));
-                                test(result.returnValue.pb == null);
-                                test("::Test::B".equals(result.returnValue.ice_id()));
-                                cb.called();
-                            });
+                        test(result.returnValue != null);
+                        test("B.sb (2)".equals(result.returnValue.sb));
+                        test(result.returnValue.pb == null);
+                        test("::Test::B".equals(result.returnValue.ice_id()));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -1123,12 +1123,12 @@ public class AllTests {
             final Wrapper<B> w = new Wrapper<>();
             Callback cb = new Callback();
             test.returnTest3Async(d3, b2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                w.v = result;
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        w.v = result;
+                        cb.called();
+                    });
             cb.check();
 
             B r = w.v;
@@ -1199,12 +1199,12 @@ public class AllTests {
             final Wrapper<B> w = new Wrapper<>();
             Callback cb = new Callback();
             test.returnTest3Async(d3, d12)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                w.v = result;
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        w.v = result;
+                        cb.called();
+                    });
             cb.check();
 
             B r = w.v;
@@ -1366,12 +1366,12 @@ public class AllTests {
 
                 Callback cb = new Callback();
                 test.sequenceTestAsync(ss1, ss2)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    test(ex == null);
-                                    w.v = result;
-                                    cb.called();
-                                });
+                    .whenComplete(
+                        (result, ex) -> {
+                            test(ex == null);
+                            w.v = result;
+                            cb.called();
+                        });
                 cb.check();
             }
             SS3 ss = w.v;
@@ -1475,13 +1475,13 @@ public class AllTests {
             final Wrapper<Map<Integer, B>> wr = new Wrapper<>();
             Callback cb = new Callback();
             test.dictionaryTestAsync(bin)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                wbout.v = result.bout;
-                                wr.v = result.returnValue;
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        wbout.v = result.bout;
+                        wr.v = result.returnValue;
+                        cb.called();
+                    });
             cb.check();
 
             Map<Integer, B> bout = wbout.v;
@@ -1536,21 +1536,21 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.throwBaseAsBaseAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null);
-                                try {
-                                    BaseException e = (BaseException) ex;
-                                    test("::Test::BaseException".equals(e.ice_id()));
-                                    test("sbe".equals(e.sbe));
-                                    test(e.pb != null);
-                                    test("sb".equals(e.pb.sb));
-                                    test(e.pb.pb == e.pb);
-                                } catch (Exception e) {
-                                    test(false);
-                                }
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null);
+                        try {
+                            BaseException e = (BaseException) ex;
+                            test("::Test::BaseException".equals(e.ice_id()));
+                            test("sbe".equals(e.sbe));
+                            test(e.pb != null);
+                            test("sb".equals(e.pb.sb));
+                            test(e.pb.pb == e.pb);
+                        } catch (Exception e) {
+                            test(false);
+                        }
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -1584,27 +1584,27 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.throwDerivedAsBaseAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null);
-                                try {
-                                    DerivedException e = (DerivedException) ex;
-                                    test("::Test::DerivedException".equals(e.ice_id()));
-                                    test("sbe".equals(e.sbe));
-                                    test(e.pb != null);
-                                    test("sb1".equals(e.pb.sb));
-                                    test(e.pb.pb == e.pb);
-                                    test("sde1".equals(e.sde));
-                                    test(e.pd1 != null);
-                                    test("sb2".equals(e.pd1.sb));
-                                    test(e.pd1.pb == e.pd1);
-                                    test("sd2".equals(e.pd1.sd1));
-                                    test(e.pd1.pd1 == e.pd1);
-                                } catch (Exception e) {
-                                    test(false);
-                                }
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null);
+                        try {
+                            DerivedException e = (DerivedException) ex;
+                            test("::Test::DerivedException".equals(e.ice_id()));
+                            test("sbe".equals(e.sbe));
+                            test(e.pb != null);
+                            test("sb1".equals(e.pb.sb));
+                            test(e.pb.pb == e.pb);
+                            test("sde1".equals(e.sde));
+                            test(e.pd1 != null);
+                            test("sb2".equals(e.pd1.sb));
+                            test(e.pd1.pb == e.pd1);
+                            test("sd2".equals(e.pd1.sd1));
+                            test(e.pd1.pd1 == e.pd1);
+                        } catch (Exception e) {
+                            test(false);
+                        }
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -1638,27 +1638,27 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.throwDerivedAsDerivedAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null);
-                                try {
-                                    DerivedException e = (DerivedException) ex;
-                                    test("::Test::DerivedException".equals(e.ice_id()));
-                                    test("sbe".equals(e.sbe));
-                                    test(e.pb != null);
-                                    test("sb1".equals(e.pb.sb));
-                                    test(e.pb.pb == e.pb);
-                                    test("sde1".equals(e.sde));
-                                    test(e.pd1 != null);
-                                    test("sb2".equals(e.pd1.sb));
-                                    test(e.pd1.pb == e.pd1);
-                                    test("sd2".equals(e.pd1.sd1));
-                                    test(e.pd1.pd1 == e.pd1);
-                                } catch (Exception e) {
-                                    test(false);
-                                }
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null);
+                        try {
+                            DerivedException e = (DerivedException) ex;
+                            test("::Test::DerivedException".equals(e.ice_id()));
+                            test("sbe".equals(e.sbe));
+                            test(e.pb != null);
+                            test("sb1".equals(e.pb.sb));
+                            test(e.pb.pb == e.pb);
+                            test("sde1".equals(e.sde));
+                            test(e.pd1 != null);
+                            test("sb2".equals(e.pd1.sb));
+                            test(e.pd1.pb == e.pd1);
+                            test("sd2".equals(e.pd1.sd1));
+                            test(e.pd1.pd1 == e.pd1);
+                        } catch (Exception e) {
+                            test(false);
+                        }
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -1686,21 +1686,21 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.throwUnknownDerivedAsBaseAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null);
-                                try {
-                                    BaseException e = (BaseException) ex;
-                                    test("::Test::BaseException".equals(e.ice_id()));
-                                    test("sbe".equals(e.sbe));
-                                    test(e.pb != null);
-                                    test("sb d2".equals(e.pb.sb));
-                                    test(e.pb.pb == e.pb);
-                                } catch (Exception e) {
-                                    test(false);
-                                }
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null);
+                        try {
+                            BaseException e = (BaseException) ex;
+                            test("::Test::BaseException".equals(e.ice_id()));
+                            test("sbe".equals(e.sbe));
+                            test(e.pb != null);
+                            test("sb d2".equals(e.pb.sb));
+                            test(e.pb.pb == e.pb);
+                        } catch (Exception e) {
+                            test(false);
+                        }
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -1722,12 +1722,12 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.useForwardAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result != null);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result != null);
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -1744,8 +1744,8 @@ public class AllTests {
         // first instance.
         //
         communicator
-                .getValueFactoryManager()
-                .add(new PreservedFactoryI(), Preserved.ice_staticId());
+            .getValueFactoryManager()
+            .add(new PreservedFactoryI(), Preserved.ice_staticId());
 
         try {
             //
@@ -1845,9 +1845,9 @@ public class AllTests {
                 PCDerived2 p2 = new PCDerived2();
                 p2.pi = i;
                 p2.pbs =
-                        new PBase[]{
-                            null
-                        }; // Nil reference. This slice should not have an indirection table.
+                    new PBase[]{
+                        null
+                    }; // Nil reference. This slice should not have an indirection table.
                 p2.pcd2 = i;
                 pcd.pbs[i] = p2;
             }
@@ -1908,18 +1908,18 @@ public class AllTests {
 
             Callback cb = new Callback();
             test.exchangePBaseAsync(pd)
-                    .whenComplete(
-                            (result, ex) -> {
-                                if (ex != null) {
-                                    test(ex instanceof OperationNotExistException);
-                                } else {
-                                    PDerived p2 = (PDerived) result;
-                                    test(p2.pi == 3);
-                                    test("preserved".equals(p2.ps));
-                                    test(p2.pb == p2);
-                                }
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        if (ex != null) {
+                            test(ex instanceof OperationNotExistException);
+                        } else {
+                            PDerived p2 = (PDerived) result;
+                            test(p2.pi == 3);
+                            test("preserved".equals(p2.ps));
+                            test(p2.pb == p2);
+                        }
+                        cb.called();
+                    });
             cb.check();
         } catch (OperationNotExistException ex) {
         }
@@ -1934,22 +1934,22 @@ public class AllTests {
 
             Callback cb = new Callback();
             test.exchangePBaseAsync(pu)
-                    .whenComplete(
-                            (result, ex) -> {
-                                if (ex != null) {
-                                    test(ex instanceof OperationNotExistException);
-                                } else {
-                                    if (test.ice_getEncodingVersion().equals(Util.Encoding_1_0)) {
-                                        test(!(result instanceof PCUnknown));
-                                    } else {
-                                        test(result instanceof PCUnknown);
-                                        PCUnknown p2 = (PCUnknown) result;
-                                        test(p2 != null);
-                                        test("preserved".equals(p2.pu));
-                                    }
-                                }
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        if (ex != null) {
+                            test(ex instanceof OperationNotExistException);
+                        } else {
+                            if (test.ice_getEncodingVersion().equals(Util.Encoding_1_0)) {
+                                test(!(result instanceof PCUnknown));
+                            } else {
+                                test(result instanceof PCUnknown);
+                                PCUnknown p2 = (PCUnknown) result;
+                                test(p2 != null);
+                                test("preserved".equals(p2.pu));
+                            }
+                        }
+                        cb.called();
+                    });
             cb.check();
         } catch (OperationNotExistException ex) {
         }
@@ -1966,31 +1966,31 @@ public class AllTests {
             if (test.ice_getEncodingVersion().equals(Util.Encoding_1_0)) {
                 Callback cb = new Callback();
                 test.exchangePBaseAsync(pcd)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    if (ex != null) {
-                                        test(ex instanceof OperationNotExistException);
-                                    } else {
-                                        test(!(result instanceof PCDerived));
-                                        test(result.pi == 3);
-                                    }
-                                    cb.called();
-                                });
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex != null) {
+                                test(ex instanceof OperationNotExistException);
+                            } else {
+                                test(!(result instanceof PCDerived));
+                                test(result.pi == 3);
+                            }
+                            cb.called();
+                        });
                 cb.check();
             } else {
                 Callback cb = new Callback();
                 test.exchangePBaseAsync(pcd)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    if (ex != null) {
-                                        test(ex instanceof OperationNotExistException);
-                                    } else {
-                                        PCDerived p2 = (PCDerived) result;
-                                        test(p2.pi == 3);
-                                        test(p2.pbs[0] == p2);
-                                    }
-                                    cb.called();
-                                });
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex != null) {
+                                test(ex instanceof OperationNotExistException);
+                            } else {
+                                PCDerived p2 = (PCDerived) result;
+                                test(p2.pi == 3);
+                                test(p2.pbs[0] == p2);
+                            }
+                            cb.called();
+                        });
                 cb.check();
             }
         } catch (OperationNotExistException ex) {
@@ -2008,31 +2008,31 @@ public class AllTests {
             if (test.ice_getEncodingVersion().equals(Util.Encoding_1_0)) {
                 Callback cb = new Callback();
                 test.exchangePBaseAsync(pcd)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    if (ex != null) {
-                                        test(ex instanceof OperationNotExistException);
-                                    } else {
-                                        test(!(result instanceof CompactPCDerived));
-                                        test(result.pi == 3);
-                                    }
-                                    cb.called();
-                                });
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex != null) {
+                                test(ex instanceof OperationNotExistException);
+                            } else {
+                                test(!(result instanceof CompactPCDerived));
+                                test(result.pi == 3);
+                            }
+                            cb.called();
+                        });
                 cb.check();
             } else {
                 Callback cb = new Callback();
                 test.exchangePBaseAsync(pcd)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    if (ex != null) {
-                                        test(ex instanceof OperationNotExistException);
-                                    } else {
-                                        CompactPCDerived p2 = (CompactPCDerived) result;
-                                        test(p2.pi == 3);
-                                        test(p2.pbs[0] == p2);
-                                    }
-                                    cb.called();
-                                });
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex != null) {
+                                test(ex instanceof OperationNotExistException);
+                            } else {
+                                CompactPCDerived p2 = (CompactPCDerived) result;
+                                test(p2.pi == 3);
+                                test(p2.pbs[0] == p2);
+                            }
+                            cb.called();
+                        });
                 cb.check();
             }
         } catch (OperationNotExistException ex) {
@@ -2054,9 +2054,9 @@ public class AllTests {
                 PCDerived2 p2 = new PCDerived2();
                 p2.pi = i;
                 p2.pbs =
-                        new PBase[]{
-                            null
-                        }; // Nil reference. This slice should not have an indirection table.
+                    new PBase[]{
+                        null
+                    }; // Nil reference. This slice should not have an indirection table.
                 p2.pcd2 = i;
                 pcd.pbs[i] = p2;
             }
@@ -2066,40 +2066,40 @@ public class AllTests {
             if (test.ice_getEncodingVersion().equals(Util.Encoding_1_0)) {
                 Callback cb = new Callback();
                 test.exchangePBaseAsync(pcd)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    if (ex != null) {
-                                        test(ex instanceof OperationNotExistException);
-                                    } else {
-                                        test(!(result instanceof PCDerived3));
-                                        test(result instanceof Preserved);
-                                        test(result.pi == 3);
-                                    }
-                                    cb.called();
-                                });
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex != null) {
+                                test(ex instanceof OperationNotExistException);
+                            } else {
+                                test(!(result instanceof PCDerived3));
+                                test(result instanceof Preserved);
+                                test(result.pi == 3);
+                            }
+                            cb.called();
+                        });
                 cb.check();
             } else {
                 Callback cb = new Callback();
                 test.exchangePBaseAsync(pcd)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    if (ex != null) {
-                                        test(ex instanceof OperationNotExistException);
-                                    } else {
-                                        PCDerived3 p3 = (PCDerived3) result;
-                                        test(p3.pi == 3);
-                                        for (int j = 0; j < 300; j++) {
-                                            PCDerived2 p2 = (PCDerived2) p3.pbs[j];
-                                            test(p2.pi == j);
-                                            test(p2.pbs.length == 1);
-                                            test(p2.pbs[0] == null);
-                                            test(p2.pcd2 == j);
-                                        }
-                                        test(p3.pcd2 == p3.pi);
-                                        test(p3.pcd3 == p3.pbs[10]);
-                                    }
-                                    cb.called();
-                                });
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex != null) {
+                                test(ex instanceof OperationNotExistException);
+                            } else {
+                                PCDerived3 p3 = (PCDerived3) result;
+                                test(p3.pi == 3);
+                                for (int j = 0; j < 300; j++) {
+                                    PCDerived2 p2 = (PCDerived2) p3.pbs[j];
+                                    test(p2.pi == j);
+                                    test(p2.pbs.length == 1);
+                                    test(p2.pbs[0] == null);
+                                    test(p2.pcd2 == j);
+                                }
+                                test(p3.pcd2 == p3.pi);
+                                test(p3.pcd3 == p3.pbs[10]);
+                            }
+                            cb.called();
+                        });
                 cb.check();
             }
         } catch (OperationNotExistException ex) {

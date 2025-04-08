@@ -102,8 +102,8 @@ public class AllTests {
                 // Define Ice.Package.Test2=testpkg and try again.
                 //
                 communicator
-                        .getProperties()
-                        .setProperty("Ice.Package.Test2", "test.Ice.packagemd.testpkg");
+                    .getProperties()
+                    .setProperty("Ice.Package.Test2", "test.Ice.packagemd.testpkg");
                 test.Ice.packagemd.testpkg.Test2.C1 c1 = initial.getTest2C2AsC1();
                 test(c1 != null);
                 test(c1 instanceof test.Ice.packagemd.testpkg.Test2.C2);
@@ -130,8 +130,8 @@ public class AllTests {
                 // have already been cached for them, so now we use the Test3.* types.
                 //
                 communicator
-                        .getProperties()
-                        .setProperty("Ice.Default.Package", "test.Ice.packagemd.modpkg");
+                    .getProperties()
+                    .setProperty("Ice.Default.Package", "test.Ice.packagemd.modpkg");
                 test.Ice.packagemd.modpkg.Test3.C1 c1 = initial.getTest3C2AsC1();
                 test(c1 != null);
                 test(c1 instanceof test.Ice.packagemd.modpkg.Test3.C2);

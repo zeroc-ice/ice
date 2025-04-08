@@ -36,10 +36,10 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
         }
         if (_os == null) {
             _os =
-                    new OutputStream(
-                            Protocol.currentProtocolEncoding,
-                            _instance.defaultsAndOverrides().defaultFormat,
-                            _instance.cacheMessageBuffers() > 1);
+                new OutputStream(
+                    Protocol.currentProtocolEncoding,
+                    _instance.defaultsAndOverrides().defaultFormat,
+                    _instance.cacheMessageBuffers() > 1);
         }
     }
 
@@ -69,8 +69,8 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
                 // NOTE: we don't call sent/completed callbacks for batch AMI requests
                 _sentSynchronously = true;
                 _proxy._getReference()
-                        .getBatchRequestQueue()
-                        .finishBatchRequest(_os, _proxy, _operation);
+                    .getBatchRequestQueue()
+                    .finishBatchRequest(_os, _proxy, _operation);
                 finished(true, false);
             } else {
                 // invokeImpl can throw; we handle this exception by calling abort
@@ -103,9 +103,9 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
             try {
                 throw ee.getCause().fillInStackTrace();
             } catch (RuntimeException ex) // Includes LocalException
-            {
-                throw ex;
-            } catch (UserException ex) {
+                {
+                    throw ex;
+                } catch (UserException ex) {
                 throw ex;
             } catch (Throwable ex) {
                 throw new UnknownException(ex);
@@ -121,7 +121,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
 
     @Override
     public int invokeRemote(ConnectionI connection, boolean compress, boolean response)
-            throws RetryException {
+        throws RetryException {
         _cachedConnection = connection;
         return connection.sendAsyncRequest(this, compress, response, 0);
     }
@@ -131,7 +131,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
         // The stream cannot be cached if the proxy is not a twoway or there is an invocation
         // timeout set.
         if (!_proxy.ice_isTwoway()
-                || _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
+            || _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
         }
@@ -212,10 +212,10 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
         // _is can already be initialized if the invocation is retried
         if (_is == null) {
             _is =
-                    new InputStream(
-                            _instance,
-                            Protocol.currentProtocolEncoding,
-                            _instance.cacheMessageBuffers() > 1);
+                new InputStream(
+                    _instance,
+                    Protocol.currentProtocolEncoding,
+                    _instance.cacheMessageBuffers() > 1);
         }
         _is.swap(is);
 

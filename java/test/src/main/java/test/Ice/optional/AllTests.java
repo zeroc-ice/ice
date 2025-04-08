@@ -337,7 +337,7 @@ public class AllTests {
         os.endEncapsulation();
         byte[] inEncaps = os.finished();
         Object.Ice_invokeResult inv =
-                initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
+            initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
         test(inv.returnValue);
         InputStream in = new InputStream(communicator, inv.outParams);
         in.startEncapsulation();
@@ -568,8 +568,8 @@ public class AllTests {
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 inv =
-                        initial.ice_invoke(
-                                "opClassAndUnknownOptional", OperationMode.Normal, inEncaps);
+                    initial.ice_invoke(
+                        "opClassAndUnknownOptional", OperationMode.Normal, inEncaps);
                 test(inv.returnValue);
 
                 in = new InputStream(communicator, inv.outParams);
@@ -1028,12 +1028,12 @@ public class AllTests {
             Arrays.fill(p1.get(), (byte) 56);
             r = initial.opByteSeq(p1);
             test(
-                    Arrays.equals(r.returnValue.get(), p1.get())
-                            && Arrays.equals(r.p3.get(), p1.get()));
+                Arrays.equals(r.returnValue.get(), p1.get())
+                    && Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opByteSeqAsync(p1).join();
             test(
-                    Arrays.equals(r.returnValue.get(), p1.get())
-                            && Arrays.equals(r.p3.get(), p1.get()));
+                Arrays.equals(r.returnValue.get(), p1.get())
+                    && Arrays.equals(r.p3.get(), p1.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -1061,12 +1061,12 @@ public class AllTests {
             p1 = Optional.of(new boolean[100]);
             r = initial.opBoolSeq(p1);
             test(
-                    Arrays.equals(r.returnValue.get(), p1.get())
-                            && Arrays.equals(r.p3.get(), p1.get()));
+                Arrays.equals(r.returnValue.get(), p1.get())
+                    && Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opBoolSeqAsync(p1).join();
             test(
-                    Arrays.equals(r.returnValue.get(), p1.get())
-                            && Arrays.equals(r.p3.get(), p1.get()));
+                Arrays.equals(r.returnValue.get(), p1.get())
+                    && Arrays.equals(r.p3.get(), p1.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -1095,12 +1095,12 @@ public class AllTests {
             Arrays.fill(p1.get(), (short) 56);
             r = initial.opShortSeq(p1);
             test(
-                    Arrays.equals(r.returnValue.get(), p1.get())
-                            && Arrays.equals(r.p3.get(), p1.get()));
+                Arrays.equals(r.returnValue.get(), p1.get())
+                    && Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opShortSeqAsync(p1).join();
             test(
-                    Arrays.equals(r.returnValue.get(), p1.get())
-                            && Arrays.equals(r.p3.get(), p1.get()));
+                Arrays.equals(r.returnValue.get(), p1.get())
+                    && Arrays.equals(r.p3.get(), p1.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -1130,12 +1130,12 @@ public class AllTests {
             Arrays.fill(p1.get(), 56);
             r = initial.opIntSeq(p1);
             test(
-                    Arrays.equals(r.returnValue.get(), p1.get())
-                            && Arrays.equals(r.p3.get(), p1.get()));
+                Arrays.equals(r.returnValue.get(), p1.get())
+                    && Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opIntSeqAsync(p1).join();
             test(
-                    Arrays.equals(r.returnValue.get(), p1.get())
-                            && Arrays.equals(r.p3.get(), p1.get()));
+                Arrays.equals(r.returnValue.get(), p1.get())
+                    && Arrays.equals(r.p3.get(), p1.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -1165,12 +1165,12 @@ public class AllTests {
             Arrays.fill(p1.get(), 56);
             r = initial.opLongSeq(p1);
             test(
-                    Arrays.equals(r.returnValue.get(), p1.get())
-                            && Arrays.equals(r.p3.get(), p1.get()));
+                Arrays.equals(r.returnValue.get(), p1.get())
+                    && Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opLongSeqAsync(p1).join();
             test(
-                    Arrays.equals(r.returnValue.get(), p1.get())
-                            && Arrays.equals(r.p3.get(), p1.get()));
+                Arrays.equals(r.returnValue.get(), p1.get())
+                    && Arrays.equals(r.p3.get(), p1.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -1200,12 +1200,12 @@ public class AllTests {
             Arrays.fill(p1.get(), (float) 1.0);
             r = initial.opFloatSeq(p1);
             test(
-                    Arrays.equals(r.returnValue.get(), p1.get())
-                            && Arrays.equals(r.p3.get(), p1.get()));
+                Arrays.equals(r.returnValue.get(), p1.get())
+                    && Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opFloatSeqAsync(p1).join();
             test(
-                    Arrays.equals(r.returnValue.get(), p1.get())
-                            && Arrays.equals(r.p3.get(), p1.get()));
+                Arrays.equals(r.returnValue.get(), p1.get())
+                    && Arrays.equals(r.p3.get(), p1.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -1235,12 +1235,12 @@ public class AllTests {
             Arrays.fill(p1.get(), 1.0);
             r = initial.opDoubleSeq(p1);
             test(
-                    Arrays.equals(r.returnValue.get(), p1.get())
-                            && Arrays.equals(r.p3.get(), p1.get()));
+                Arrays.equals(r.returnValue.get(), p1.get())
+                    && Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opDoubleSeqAsync(p1).join();
             test(
-                    Arrays.equals(r.returnValue.get(), p1.get())
-                            && Arrays.equals(r.p3.get(), p1.get()));
+                Arrays.equals(r.returnValue.get(), p1.get())
+                    && Arrays.equals(r.p3.get(), p1.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -1270,12 +1270,12 @@ public class AllTests {
             Arrays.fill(p1.get(), "test1");
             r = initial.opStringSeq(p1);
             test(
-                    Arrays.equals(r.returnValue.get(), p1.get())
-                            && Arrays.equals(r.p3.get(), p1.get()));
+                Arrays.equals(r.returnValue.get(), p1.get())
+                    && Arrays.equals(r.p3.get(), p1.get()));
             r = initial.opStringSeqAsync(p1).join();
             test(
-                    Arrays.equals(r.returnValue.get(), p1.get())
-                            && Arrays.equals(r.p3.get(), p1.get()));
+                Arrays.equals(r.returnValue.get(), p1.get())
+                    && Arrays.equals(r.p3.get(), p1.get()));
 
             os = new OutputStream(communicator);
             os.startEncapsulation();
@@ -1773,8 +1773,8 @@ public class AllTests {
                 String[] p1 = {"hello"};
                 result = initial.opMSeq2(Optional.of(p1));
                 test(
-                        Arrays.equals(result.p2.get(), p1)
-                                && Arrays.equals(result.returnValue.get(), p1));
+                    Arrays.equals(result.p2.get(), p1)
+                        && Arrays.equals(result.returnValue.get(), p1));
             }
             {
                 Initial.OpMDict2Result result = initial.opMDict2(Optional.empty());
@@ -1895,11 +1895,11 @@ public class AllTests {
             test("test".equals(s));
             String[] o = in.readStringSeq(1).get();
             test(
-                    o.length == 4
-                            && "test1".equals(o[0])
-                            && "test2".equals(o[1])
-                            && "test3".equals(o[2])
-                            && "test4".equals(o[3]));
+                o.length == 4
+                    && "test1".equals(o[0])
+                    && "test2".equals(o[1])
+                    && "test3".equals(o[2])
+                    && "test4".equals(o[3]));
             in.readValue(v -> a.value = v, A.class);
             in.endSlice();
             // ::Test::B

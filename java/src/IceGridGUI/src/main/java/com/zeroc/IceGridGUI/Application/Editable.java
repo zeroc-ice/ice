@@ -57,7 +57,7 @@ class Editable implements Cloneable {
         try {
             Editable result = (Editable) clone();
             HashMap<Class, TreeSet<String>> removedElements =
-                    new HashMap<>();
+                new HashMap<>();
             for (Map.Entry<Class, TreeSet<String>> p :
                     result._removedElements.entrySet()) {
                 TreeSet<String> val = new TreeSet<>(p.getValue());
@@ -81,5 +81,5 @@ class Editable implements Cloneable {
     private boolean _modified;
 
     private HashMap<Class, TreeSet<String>> _removedElements =
-            new HashMap<>();
+        new HashMap<>();
 }

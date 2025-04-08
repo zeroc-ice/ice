@@ -41,13 +41,13 @@ final class TcpEndpointI extends IPEndpointI {
     @Override
     public EndpointInfo getInfo() {
         return new TCPEndpointInfo(
-                _timeout,
-                _compress,
-                _host,
-                _port,
-                _sourceAddr == null ? "" : _sourceAddr.getAddress().getHostAddress(),
-                type(),
-                secure());
+            _timeout,
+            _compress,
+            _host,
+            _port,
+            _sourceAddr == null ? "" : _sourceAddr.getAddress().getHostAddress(),
+            type(),
+            secure());
     }
 
     //
@@ -70,7 +70,7 @@ final class TcpEndpointI extends IPEndpointI {
             return this;
         } else {
             return new TcpEndpointI(
-                    _instance, _host, _port, _sourceAddr, timeout, _connectionId, _compress);
+                _instance, _host, _port, _sourceAddr, timeout, _connectionId, _compress);
         }
     }
 
@@ -94,7 +94,7 @@ final class TcpEndpointI extends IPEndpointI {
             return this;
         } else {
             return new TcpEndpointI(
-                    _instance, _host, _port, _sourceAddr, _timeout, _connectionId, compress);
+                _instance, _host, _port, _sourceAddr, _timeout, _connectionId, compress);
         }
     }
 
@@ -131,7 +131,7 @@ final class TcpEndpointI extends IPEndpointI {
             return this;
         } else {
             return new TcpEndpointI(
-                    _instance, _host, port, _sourceAddr, _timeout, _connectionId, _compress);
+                _instance, _host, port, _sourceAddr, _timeout, _connectionId, _compress);
         }
     }
 
@@ -224,61 +224,61 @@ final class TcpEndpointI extends IPEndpointI {
 
         switch (option.charAt(1)) {
             case 't':
-                {
-                    if (argument == null) {
-                        throw new ParseException(
-                                "no argument provided for -t option in endpoint '"
-                                        + endpoint
-                                        + "'");
-                    }
-
-                    if ("infinite".equals(argument)) {
-                        _timeout = -1;
-                    } else {
-                        try {
-                            _timeout = Integer.parseInt(argument);
-                            if (_timeout < 1) {
-                                throw new ParseException(
-                                        "invalid timeout value '"
-                                                + argument
-                                                + "' in endpoint '"
-                                                + endpoint
-                                                + "'");
-                            }
-                        } catch (NumberFormatException ex) {
-                            throw new ParseException(
-                                    "invalid timeout value '"
-                                            + argument
-                                            + "' in endpoint '"
-                                            + endpoint
-                                            + "'",
-                                    ex);
-                        }
-                    }
-
-                    return true;
+            {
+                if (argument == null) {
+                    throw new ParseException(
+                        "no argument provided for -t option in endpoint '"
+                            + endpoint
+                            + "'");
                 }
+
+                if ("infinite".equals(argument)) {
+                    _timeout = -1;
+                } else {
+                    try {
+                        _timeout = Integer.parseInt(argument);
+                        if (_timeout < 1) {
+                            throw new ParseException(
+                                "invalid timeout value '"
+                                    + argument
+                                    + "' in endpoint '"
+                                    + endpoint
+                                    + "'");
+                        }
+                    } catch (NumberFormatException ex) {
+                        throw new ParseException(
+                            "invalid timeout value '"
+                                + argument
+                                + "' in endpoint '"
+                                + endpoint
+                                + "'",
+                            ex);
+                    }
+                }
+
+                return true;
+            }
 
             case 'z':
-                {
-                    if (argument != null) {
-                        throw new ParseException(
-                                "unexpected argument '"
-                                        + argument
-                                        + "' provided for -z option in '"
-                                        + endpoint
-                                        + "'");
-                    }
-
-                    _compress = true;
-
-                    return true;
+            {
+                if (argument != null) {
+                    throw new ParseException(
+                        "unexpected argument '"
+                            + argument
+                            + "' provided for -z option in '"
+                            + endpoint
+                            + "'");
                 }
+
+                _compress = true;
+
+                return true;
+            }
 
             default:
-                {
-                    return false;
-                }
+            {
+                return false;
+            }
         }
     }
 
@@ -290,7 +290,7 @@ final class TcpEndpointI extends IPEndpointI {
     @Override
     protected IPEndpointI createEndpoint(String host, int port, String connectionId) {
         return new TcpEndpointI(
-                _instance, host, port, _sourceAddr, _timeout, connectionId, _compress);
+            _instance, host, port, _sourceAddr, _timeout, connectionId, _compress);
     }
 
     private int _timeout;

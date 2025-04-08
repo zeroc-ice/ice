@@ -33,7 +33,7 @@ public class AllTests {
         test(communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets").length == 0);
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
         String[] facetFilter =
-                communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
+            communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         test(facetFilter.length == 1 && "foobar".equals(facetFilter[0]));
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foo\\'bar");
         facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
@@ -41,16 +41,16 @@ public class AllTests {
         communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
         facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         test(
-                facetFilter.length == 3
-                        && "foo bar".equals(facetFilter[0])
-                        && "toto".equals(facetFilter[1])
-                        && "titi".equals(facetFilter[2]));
+            facetFilter.length == 3
+                && "foo bar".equals(facetFilter[0])
+                && "toto".equals(facetFilter[1])
+                && "titi".equals(facetFilter[2]));
         communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
         facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         test(
-                facetFilter.length == 2
-                        && "foo bar' toto".equals(facetFilter[0])
-                        && "titi".equals(facetFilter[1]));
+            facetFilter.length == 2
+                && "foo bar' toto".equals(facetFilter[0])
+                && "titi".equals(facetFilter[1]));
         // communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
         // facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         // test(facetFilter.length == 0);
@@ -59,14 +59,14 @@ public class AllTests {
 
         out.print("testing facet registration exceptions... ");
         final String host =
-                communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0
-                        ? "::1"
-                        : "127.0.0.1";
+            communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0
+                ? "::1"
+                : "127.0.0.1";
         communicator
-                .getProperties()
-                .setProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h \"" + host + "\"");
+            .getProperties()
+            .setProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h \"" + host + "\"");
         ObjectAdapter adapter =
-                communicator.createObjectAdapter("FacetExceptionTestAdapter");
+            communicator.createObjectAdapter("FacetExceptionTestAdapter");
         Object obj = new EmptyI();
         adapter.add(obj, Util.stringToIdentity("d"));
         adapter.addFacet(obj, Util.stringToIdentity("d"), "facetABCD");
@@ -93,7 +93,7 @@ public class AllTests {
         adapter.addFacet(obj2, Util.stringToIdentity("id2"), "f2");
         adapter.addFacet(obj3, Util.stringToIdentity("id2"), "");
         Map<String, Object> fm =
-                adapter.removeAllFacets(Util.stringToIdentity("id1"));
+            adapter.removeAllFacets(Util.stringToIdentity("id1"));
         test(fm.size() == 2);
         test(fm.get("f1") == obj1);
         test(fm.get("f2") == obj2);

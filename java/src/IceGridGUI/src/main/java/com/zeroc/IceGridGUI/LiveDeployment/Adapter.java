@@ -3,8 +3,10 @@
 package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.zeroc.Ice.ObjectPrx;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.AdapterDescriptor;
+import com.zeroc.IceGrid.AdapterDynamicInfo;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.Component;
 import java.util.List;
@@ -47,7 +49,7 @@ class Adapter extends TreeNode {
 
         _cellRenderer.setToolTipText(_toolTip);
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     Adapter(

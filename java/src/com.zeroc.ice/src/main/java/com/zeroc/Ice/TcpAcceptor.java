@@ -88,8 +88,8 @@ class TcpAcceptor implements Acceptor {
             }
 
             _addr =
-                    Network.getAddressForServer(
-                            host, port, instance.protocolSupport(), instance.preferIPv6());
+                Network.getAddressForServer(
+                    host, port, instance.protocolSupport(), instance.preferIPv6());
         } catch (RuntimeException ex) {
             _fd = null;
             throw ex;

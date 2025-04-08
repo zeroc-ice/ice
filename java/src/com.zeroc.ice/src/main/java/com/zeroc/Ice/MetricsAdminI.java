@@ -14,7 +14,7 @@ import java.util.function.Consumer;
  * @hidden Public because it's used by IceMX.
  */
 public class MetricsAdminI
-        implements MetricsAdmin, Consumer<Map<String, String>> {
+    implements MetricsAdmin, Consumer<Map<String, String>> {
     private static final String[] suffixes = {
         "Disabled", "GroupBy", "Accept.*", "Reject.*", "RetainDetached", "Map.*",
     };
@@ -38,11 +38,11 @@ public class MetricsAdminI
 
         if (unknownProps.size() > 0) {
             throw new PropertyException(
-                    "found unknown IceMX properties for:"
-                            + ": '"
-                            + prefix
-                            + "'\n    "
-                            + String.join("\n    ", unknownProps));
+                "found unknown IceMX properties for:"
+                    + ": '"
+                    + prefix
+                    + "'\n    "
+                    + String.join("\n    ", unknownProps));
         }
     }
 
@@ -69,7 +69,7 @@ public class MetricsAdminI
         private final Runnable _updater;
         private final Class<T> _class;
         private final Map<String, MetricsMap.SubMapFactory<?>> _subMaps =
-                new HashMap<>();
+            new HashMap<>();
     }
 
     public MetricsAdminI(Properties properties, Logger logger) {
@@ -83,7 +83,7 @@ public class MetricsAdminI
         synchronized (this) {
             String viewsPrefix = "IceMX.Metrics.";
             Map<String, String> viewsProps =
-                    _properties.getPropertiesForPrefix(viewsPrefix);
+                _properties.getPropertiesForPrefix(viewsPrefix);
             Map<String, MetricsViewI> views = new HashMap<>();
             _disabledViews.clear();
             for (Map.Entry<String, String> e : viewsProps.entrySet()) {
@@ -100,7 +100,7 @@ public class MetricsAdminI
                 validateProperties(viewsPrefix + viewName + '.', _properties);
 
                 if (_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0)
-                        > 0) {
+                    > 0) {
                     _disabledViews.add(viewName);
                     continue; // The view is disabled
                 }
@@ -275,8 +275,8 @@ public class MetricsAdminI
                     updateViews();
                 } catch (Exception ex) {
                     _logger.warning(
-                            "unexpected exception while updating metrics view configuration:\n"
-                                    + ex.toString());
+                        "unexpected exception while updating metrics view configuration:\n"
+                            + ex.toString());
                 }
                 return;
             }
@@ -313,7 +313,7 @@ public class MetricsAdminI
     private final Properties _properties;
     private final Logger _logger;
     private final Map<String, MetricsMapFactory<?>> _factories =
-            new HashMap<>();
+        new HashMap<>();
 
     private Map<String, MetricsViewI> _views = new HashMap<>();
     private final Set<String> _disabledViews = new HashSet<>();

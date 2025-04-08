@@ -41,8 +41,8 @@ public class AllTests {
 
     public static void allTests(TestHelper helper) {
         var controller =
-                ControllerPrx.createProxy(
-                        helper.communicator(), "controller:" + helper.getTestEndpoint(1));
+            ControllerPrx.createProxy(
+                helper.communicator(), "controller:" + helper.getTestEndpoint(1));
 
         // Make sure the controller is connected before we proceed.
         connect(controller);
@@ -174,15 +174,15 @@ public class AllTests {
 
             // Initiate the connection closure.
             var closureThread =
-                    new Thread(
-                            () -> {
-                                try {
-                                    connection.close();
-                                    test(false);
-                                } catch (CloseTimeoutException ex) {
-                                    // Expected.
-                                }
-                            });
+                new Thread(
+                    () -> {
+                        try {
+                            connection.close();
+                            test(false);
+                        } catch (CloseTimeoutException ex) {
+                            // Expected.
+                        }
+                    });
 
             closureThread.start();
             try {
@@ -222,11 +222,11 @@ public class AllTests {
         out.flush();
         {
             communicator
-                    .getProperties()
-                    .setProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
+                .getProperties()
+                .setProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
 
             ObjectAdapter adapter =
-                    communicator.createObjectAdapter("TimeoutCollocated");
+                communicator.createObjectAdapter("TimeoutCollocated");
             adapter.activate();
 
             TimeoutPrx proxy = TimeoutPrx.uncheckedCast(adapter.addWithUUID(new TimeoutI()));

@@ -29,13 +29,13 @@ public interface BlobjectAsync extends Object {
      *     of the invocation.
      */
     CompletionStage<Object.Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current)
-            throws UserException;
+        throws UserException;
 
     @Override
     default CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
-            throws UserException {
+        throws UserException {
         byte[] inEncaps = request.inputStream.readEncapsulation(null);
         return ice_invokeAsync(inEncaps, request.current)
-                .thenApply(r -> request.current.createOutgoingResponse(r.returnValue, r.outParams));
+            .thenApply(r -> request.current.createOutgoingResponse(r.returnValue, r.outParams));
     }
 }

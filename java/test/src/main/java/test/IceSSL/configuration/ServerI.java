@@ -20,7 +20,7 @@ class ServerI implements Server {
     public void noCert(Current current) {
         try {
             ConnectionInfo info =
-                    (ConnectionInfo) current.con.getInfo();
+                (ConnectionInfo) current.con.getInfo();
             test(info.certs == null);
         } catch (LocalException ex) {
             test(false);
@@ -31,14 +31,14 @@ class ServerI implements Server {
     public void checkCert(String subjectDN, String issuerDN, Current current) {
         try {
             ConnectionInfo info =
-                    (ConnectionInfo) current.con.getInfo();
+                (ConnectionInfo) current.con.getInfo();
             X509Certificate cert =
-                    (X509Certificate) info.certs[0];
+                (X509Certificate) info.certs[0];
             test(info.verified);
             test(
-                    info.certs.length == 1
-                            && cert.getSubjectX500Principal().toString().equals(subjectDN)
-                            && cert.getIssuerX500Principal().toString().equals(issuerDN));
+                info.certs.length == 1
+                    && cert.getSubjectX500Principal().toString().equals(subjectDN)
+                    && cert.getIssuerX500Principal().toString().equals(issuerDN));
         } catch (LocalException ex) {
             test(false);
         }
@@ -48,7 +48,7 @@ class ServerI implements Server {
     public void checkCipher(String cipher, Current current) {
         try {
             ConnectionInfo info =
-                    (ConnectionInfo) current.con.getInfo();
+                (ConnectionInfo) current.con.getInfo();
             test(info.cipher.indexOf(cipher) >= 0);
         } catch (LocalException ex) {
             test(false);

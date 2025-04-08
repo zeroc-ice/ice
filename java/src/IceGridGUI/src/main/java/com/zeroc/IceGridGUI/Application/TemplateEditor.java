@@ -4,7 +4,8 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
-import com.zeroc.IceGrid.*;
+import com.zeroc.IceGrid.CommunicatorDescriptor;
+import com.zeroc.IceGrid.TemplateDescriptor;
 
 import javax.swing.JOptionPane;
 
@@ -45,7 +46,7 @@ class TemplateEditor extends Editor {
         Map<String, String> defaultValues = _parameters.get(parameters);
 
         return descriptor.parameters.equals(parameters)
-                && descriptor.parameterDefaults.equals(defaultValues);
+            && descriptor.parameterDefaults.equals(defaultValues);
     }
 
     @Override
@@ -107,10 +108,10 @@ class TemplateEditor extends Editor {
                     root.setSelectedNode(_target);
 
                     JOptionPane.showMessageDialog(
-                            _target.getCoordinator().getMainFrame(),
-                            e.toString(),
-                            "Apply failed",
-                            JOptionPane.ERROR_MESSAGE);
+                        _target.getCoordinator().getMainFrame(),
+                        e.toString(),
+                        "Apply failed",
+                        JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
@@ -137,10 +138,10 @@ class TemplateEditor extends Editor {
                     ((Communicator) _target).restoreDescriptor(savedDescriptor);
 
                     JOptionPane.showMessageDialog(
-                            _target.getCoordinator().getMainFrame(),
-                            e.toString(),
-                            "Apply failed",
-                            JOptionPane.ERROR_MESSAGE);
+                        _target.getCoordinator().getMainFrame(),
+                        e.toString(),
+                        "Apply failed",
+                        JOptionPane.ERROR_MESSAGE);
                     // Everything was restored, user must deal with error
                     return false;
                 }

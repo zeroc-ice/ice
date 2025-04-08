@@ -33,50 +33,50 @@ final class LoggerMiddleware implements Object {
 
     @Override
     public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
-            throws UserException {
+        throws UserException {
         try {
             return _next.dispatch(request)
-                    .handle(
-                            (response, exception) -> {
-                                if (exception != null) {
-                                    // Convert to response for further processing
-                                    response = request.current.createOutgoingResponse(exception);
-                                }
+                .handle(
+                    (response, exception) -> {
+                        if (exception != null) {
+                            // Convert to response for further processing
+                            response = request.current.createOutgoingResponse(exception);
+                        }
 
-                                var replyStatus = ReplyStatus.valueOf(response.replyStatus);
-                                if (replyStatus != null) {
-                                    switch (replyStatus) {
-                                        case Ok:
-                                        case UserException:
-                                            if (_traceLevel > 0) {
-                                                logDispatch(replyStatus, request.current);
-                                            }
-                                            break;
-
-                                        case UnknownException:
-                                        case UnknownUserException:
-                                        case UnknownLocalException:
-                                            // always log when middleware installed
-                                            logDispatchFailed(
-                                                    response.exceptionDetails, request.current);
-                                            break;
-
-                                        default:
-                                            if (_traceLevel > 0 || _warningLevel > 1) {
-                                                logDispatchFailed(
-                                                        response.exceptionDetails, request.current);
-                                            }
-                                            break;
+                        var replyStatus = ReplyStatus.valueOf(response.replyStatus);
+                        if (replyStatus != null) {
+                            switch (replyStatus) {
+                                case Ok:
+                                case UserException:
+                                    if (_traceLevel > 0) {
+                                        logDispatch(replyStatus, request.current);
                                     }
-                                } else {
-                                    // Unknown reply status, like default case above.
+                                    break;
+
+                                case UnknownException:
+                                case UnknownUserException:
+                                case UnknownLocalException:
+                                    // always log when middleware installed
+                                    logDispatchFailed(
+                                        response.exceptionDetails, request.current);
+                                    break;
+
+                                default:
                                     if (_traceLevel > 0 || _warningLevel > 1) {
                                         logDispatchFailed(
-                                                response.exceptionDetails, request.current);
+                                            response.exceptionDetails, request.current);
                                     }
-                                }
-                                return response;
-                            });
+                                    break;
+                            }
+                        } else {
+                            // Unknown reply status, like default case above.
+                            if (_traceLevel > 0 || _warningLevel > 1) {
+                                logDispatchFailed(
+                                    response.exceptionDetails, request.current);
+                            }
+                        }
+                        return response;
+                    });
         } catch (UserException ex) {
             if (_traceLevel > 0) {
                 logDispatch(ReplyStatus.UserException, request.current);
@@ -84,7 +84,7 @@ final class LoggerMiddleware implements Object {
             throw ex;
         } catch (UnknownException ex) {
             logDispatchFailed(
-                    ex.toString(), request.current); // always log when middleware installed
+                ex.toString(), request.current); // always log when middleware installed
             throw ex;
         } catch (DispatchException ex) {
             if (_traceLevel > 0 || _warningLevel > 1) {

@@ -15,7 +15,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.cert.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -28,7 +29,7 @@ public class SSLEngine {
         _communicator = communicator;
         _logger = _communicator.getLogger();
         _securityTraceLevel =
-                _communicator.getProperties().getIcePropertyAsInt("IceSSL.Trace.Security");
+            _communicator.getProperties().getIcePropertyAsInt("IceSSL.Trace.Security");
         _securityTraceCategory = "Security";
         _trustManager = new TrustManager(_communicator);
     }
@@ -86,7 +87,7 @@ public class SSLEngine {
                 //
                 final String defaultType = KeyStore.getDefaultType();
                 final String keystoreType =
-                        properties.getPropertyWithDefault("IceSSL.KeystoreType", defaultType);
+                    properties.getPropertyWithDefault("IceSSL.KeystoreType", defaultType);
 
                 //
                 // The alias of the key to use in authentication.
@@ -109,7 +110,7 @@ public class SSLEngine {
                 // by the JVM implementation. Other possibilities include "PKCS12" and "BKS".
                 //
                 final String truststoreType =
-                        properties.getPropertyWithDefault("IceSSL.TruststoreType", defaultType);
+                    properties.getPropertyWithDefault("IceSSL.TruststoreType", defaultType);
 
                 //
                 // Collect the key managers.
@@ -125,7 +126,7 @@ public class SSLEngine {
                             keystoreStream = openResource(keystorePath);
                             if (keystoreStream == null) {
                                 throw new InitializationException(
-                                        "SSL transport: keystore not found:\n" + keystorePath);
+                                    "SSL transport: keystore not found:\n" + keystorePath);
                             }
                         }
 
@@ -146,7 +147,7 @@ public class SSLEngine {
                         keystorePassword = null;
                     } catch (IOException ex) {
                         throw new InitializationException(
-                                "SSL transport: unable to load keystore:\n" + keystorePath, ex);
+                            "SSL transport: unable to load keystore:\n" + keystorePath, ex);
                     } finally {
                         if (keystoreStream != null) {
                             try {
@@ -159,7 +160,7 @@ public class SSLEngine {
 
                     String algorithm = KeyManagerFactory.getDefaultAlgorithm();
                     KeyManagerFactory kmf =
-                            KeyManagerFactory.getInstance(algorithm);
+                        KeyManagerFactory.getInstance(algorithm);
                     char[] passwordChars = new char[0]; // This password cannot be null.
                     if (!password.isEmpty()) {
                         passwordChars = password.toCharArray();
@@ -197,17 +198,17 @@ public class SSLEngine {
                         //
                         if (!keys.isKeyEntry(alias)) {
                             throw new InitializationException(
-                                    "SSL transport: keystore does not contain an entry with alias `"
-                                            + alias
-                                            + "'");
+                                "SSL transport: keystore does not contain an entry with alias `"
+                                    + alias
+                                    + "'");
                         }
 
                         for (int i = 0; i < keyManagers.length; i++) {
                             keyManagers[i] =
-                                    new X509KeyManagerI(
-                                            (X509ExtendedKeyManager) keyManagers[i],
-                                            alias,
-                                            overrideAlias);
+                                new X509KeyManagerI(
+                                    (X509ExtendedKeyManager) keyManagers[i],
+                                    alias,
+                                    overrideAlias);
                         }
                     }
                 }
@@ -222,7 +223,7 @@ public class SSLEngine {
                     // create another key store.
                     //
                     if ((_truststoreStream != null && _truststoreStream == _keystoreStream)
-                            || (!truststorePath.isEmpty() && truststorePath.equals(keystorePath))) {
+                        || (!truststorePath.isEmpty() && truststorePath.equals(keystorePath))) {
                         assert keys != null;
                         ts = keys;
                     } else {
@@ -234,8 +235,8 @@ public class SSLEngine {
                                 truststoreStream = openResource(truststorePath);
                                 if (truststoreStream == null) {
                                     throw new InitializationException(
-                                            "SSL transport: truststore not found:\n"
-                                                    + truststorePath);
+                                        "SSL transport: truststore not found:\n"
+                                            + truststorePath);
                                 }
                             }
 
@@ -245,7 +246,7 @@ public class SSLEngine {
                             if (!truststorePassword.isEmpty()) {
                                 passwordChars = truststorePassword.toCharArray();
                             } else if ("BKS".equals(truststoreType)
-                                    || "PKCS12".equals(truststoreType)) {
+                                || "PKCS12".equals(truststoreType)) {
                                 // Bouncy Castle or PKCS12 does not permit null passwords.
                                 passwordChars = new char[0];
                             }
@@ -258,8 +259,8 @@ public class SSLEngine {
                             truststorePassword = null;
                         } catch (IOException ex) {
                             throw new InitializationException(
-                                    "SSL transport: unable to load truststore:\n" + truststorePath,
-                                    ex);
+                                "SSL transport: unable to load truststore:\n" + truststorePath,
+                                ex);
                         } finally {
                             if (truststoreStream != null) {
                                 try {
@@ -281,7 +282,7 @@ public class SSLEngine {
                 {
                     String algorithm = TrustManagerFactory.getDefaultAlgorithm();
                     TrustManagerFactory tmf =
-                            TrustManagerFactory.getInstance(algorithm);
+                        TrustManagerFactory.getInstance(algorithm);
                     KeyStore trustStore = null;
                     if (ts != null) {
                         trustStore = ts;
@@ -290,28 +291,28 @@ public class SSLEngine {
                             trustStore = keys;
                         } else {
                             trustManagers =
-                                    new javax.net.ssl.TrustManager[]{
-                                        new X509TrustManager() {
-                                            @Override
-                                            public void checkClientTrusted(
+                                new javax.net.ssl.TrustManager[]{
+                                    new X509TrustManager() {
+                                        @Override
+                                        public void checkClientTrusted(
                                                     X509Certificate[] chain, String authType)
-                                                    throws CertificateException {
-                                                throw new CertificateException("no trust anchors");
-                                            }
-
-                                            @Override
-                                            public void checkServerTrusted(
-                                                    X509Certificate[] chain, String authType)
-                                                    throws CertificateException {
-                                                throw new CertificateException("no trust anchors");
-                                            }
-
-                                            @Override
-                                            public X509Certificate[] getAcceptedIssuers() {
-                                                return new X509Certificate[0];
-                                            }
+                                            throws CertificateException {
+                                            throw new CertificateException("no trust anchors");
                                         }
-                                    };
+
+                                        @Override
+                                        public void checkServerTrusted(
+                                                    X509Certificate[] chain, String authType)
+                                            throws CertificateException {
+                                            throw new CertificateException("no trust anchors");
+                                        }
+
+                                        @Override
+                                        public X509Certificate[] getAcceptedIssuers() {
+                                            return new X509Certificate[0];
+                                        }
+                                    }
+                                };
                         }
                     } else {
                         trustStore = null;
@@ -342,7 +343,7 @@ public class SSLEngine {
                 _context.init(keyManagers, trustManagers, null);
             } catch (GeneralSecurityException ex) {
                 throw new InitializationException(
-                        "SSL transport: unable to initialize context", ex);
+                    "SSL transport: unable to initialize context", ex);
             }
         }
 
@@ -372,7 +373,7 @@ public class SSLEngine {
             engine.setUseClientMode(!incoming);
         } catch (Exception ex) {
             throw new SecurityException(
-                    "SSL transport: couldn't create SSL engine", ex);
+                "SSL transport: couldn't create SSL engine", ex);
         }
 
         if (incoming) {
@@ -416,16 +417,16 @@ public class SSLEngine {
     void traceConnection(String desc, javax.net.ssl.SSLEngine engine, boolean incoming) {
         SSLSession session = engine.getSession();
         String msg =
-                "SSL summary for "
-                        + (incoming ? "incoming" : "outgoing")
-                        + " connection\n"
-                        + "cipher = "
-                        + session.getCipherSuite()
-                        + "\n"
-                        + "protocol = "
-                        + session.getProtocol()
-                        + "\n"
-                        + desc;
+            "SSL summary for "
+                + (incoming ? "incoming" : "outgoing")
+                + " connection\n"
+                + "cipher = "
+                + session.getCipherSuite()
+                + "\n"
+                + "protocol = "
+                + session.getProtocol()
+                + "\n"
+                + desc;
         _logger.trace(_securityTraceCategory, msg);
     }
 
@@ -441,15 +442,15 @@ public class SSLEngine {
         if (!info.incoming) {
             if (_verifyPeer > 0 && !info.verified) {
                 throw new SecurityException(
-                        "SSL transport: server did not supply a certificate");
+                    "SSL transport: server did not supply a certificate");
             }
         }
 
         if (!_trustManager.verify(info, desc)) {
             String msg =
-                    (info.incoming ? "incoming" : "outgoing")
-                            + " connection rejected by trust manager\n"
-                            + desc;
+                (info.incoming ? "incoming" : "outgoing")
+                    + " connection rejected by trust manager\n"
+                    + desc;
             if (_securityTraceLevel >= 1) {
                 _logger.trace(_securityTraceCategory, msg);
             }
@@ -458,7 +459,7 @@ public class SSLEngine {
     }
 
     void trustManagerFailure(boolean incoming, CertificateException ex)
-            throws CertificateException {
+        throws CertificateException {
         if (_verifyPeer == 0) {
             if (_securityTraceLevel >= 1) {
                 String msg = "ignoring peer verification failure";
@@ -487,10 +488,10 @@ public class SSLEngine {
         }
 
         InitializationData initData =
-                _communicator.getInstance().initializationData();
+            _communicator.getInstance().initializationData();
 
         ClassLoader classLoader =
-                initData.classLoader != null ? initData.classLoader : getClass().getClassLoader();
+            initData.classLoader != null ? initData.classLoader : getClass().getClassLoader();
 
         InputStream stream = Util.openResource(classLoader, path);
 
@@ -500,8 +501,8 @@ public class SSLEngine {
         //
         if (stream == null && !_defaultDir.isEmpty() && !isAbsolute) {
             stream =
-                    Util.openResource(
-                            classLoader, _defaultDir + File.separator + path);
+                Util.openResource(
+                    classLoader, _defaultDir + File.separator + path);
         }
 
         if (stream != null) {

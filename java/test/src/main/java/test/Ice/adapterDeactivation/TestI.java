@@ -6,14 +6,14 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.ObjectAdapter;
 
-import test.Ice.adapterDeactivation.Test.*;
+import test.Ice.adapterDeactivation.Test.TestIntf;
 
 public final class TestI implements TestIntf {
     public void transientOp(Current current) {
         Communicator communicator = current.adapter.getCommunicator();
 
         ObjectAdapter adapter =
-                communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
+            communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
         adapter.activate();
         adapter.destroy();
     }

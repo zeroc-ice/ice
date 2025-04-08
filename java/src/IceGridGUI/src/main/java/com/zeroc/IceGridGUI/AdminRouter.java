@@ -7,7 +7,7 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.OperationNotExistException;
-import com.zeroc.IceGrid.*;
+import com.zeroc.IceGrid.AdminPrx;
 
 class AdminRouter implements Blobject {
     @Override
@@ -16,10 +16,10 @@ class AdminRouter implements Blobject {
         if (_admin == null) {
             throw new ObjectNotExistException();
         } else if ("ice_id".equals(current.operation)
-                || "ice_ids".equals(current.operation)
-                || "ice_isA".equals(current.operation)
-                || "ice_ping".equals(current.operation)
-                || "getDefaultApplicationDescriptor".equals(current.operation)) {
+            || "ice_ids".equals(current.operation)
+            || "ice_isA".equals(current.operation)
+            || "ice_ping".equals(current.operation)
+            || "getDefaultApplicationDescriptor".equals(current.operation)) {
             return _admin.ice_invoke(current.operation, current.mode, inParams, current.ctx);
         } else {
             // Routing other operations could be a security risk

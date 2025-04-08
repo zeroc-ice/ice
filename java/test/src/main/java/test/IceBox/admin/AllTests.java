@@ -8,7 +8,7 @@ import com.zeroc.Ice.IceMX.MetricsAdminPrx;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.PropertiesAdminPrx;
 
-import test.IceBox.admin.Test.*;
+import test.IceBox.admin.Test.TestFacetPrx;
 import test.TestHelper;
 
 import java.util.HashMap;
@@ -42,8 +42,8 @@ public class AllTests {
         System.out.flush();
         {
             PropertiesAdminPrx pa =
-                    PropertiesAdminPrx.checkedCast(
-                            admin, "IceBox.Service.TestService.Properties");
+                PropertiesAdminPrx.checkedCast(
+                    admin, "IceBox.Service.TestService.Properties");
 
             // Test: PropertiesAdmin::getProperty()
             test("1".equals(pa.getProperty("Prop1")));
@@ -91,12 +91,12 @@ public class AllTests {
         System.out.flush();
         {
             MetricsAdminPrx ma =
-                    MetricsAdminPrx.checkedCast(
-                            admin, "IceBox.Service.TestService.Metrics");
+                MetricsAdminPrx.checkedCast(
+                    admin, "IceBox.Service.TestService.Metrics");
 
             PropertiesAdminPrx pa =
-                    PropertiesAdminPrx.checkedCast(
-                            admin, "IceBox.Service.TestService.Properties");
+                PropertiesAdminPrx.checkedCast(
+                    admin, "IceBox.Service.TestService.Properties");
 
             MetricsAdmin.GetMetricsViewNamesResult r = ma.getMetricsViewNames();
             test(r.returnValue.length == 0);
@@ -113,11 +113,11 @@ public class AllTests {
 
             // Make sure that the IceBox communicator metrics admin is a separate instance.
             test(
-                    MetricsAdminPrx.checkedCast(admin, "Metrics")
-                                    .getMetricsViewNames()
-                                    .returnValue
-                                    .length
-                            == 0);
+                MetricsAdminPrx.checkedCast(admin, "Metrics")
+                    .getMetricsViewNames()
+                    .returnValue
+                    .length
+                    == 0);
         }
         System.out.println("ok");
     }

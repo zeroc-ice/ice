@@ -21,7 +21,7 @@ class LocatorI implements Locator {
     public CompletionStage<ObjectPrx> findObjectByIdAsync(
             Identity id, Current current) {
         CompletableFuture<ObjectPrx> f =
-                new CompletableFuture<ObjectPrx>();
+            new CompletableFuture<ObjectPrx>();
         _lookup.findObject(f, id);
         return f;
     }
@@ -30,7 +30,7 @@ class LocatorI implements Locator {
     public CompletionStage<ObjectPrx> findAdapterByIdAsync(
             String adapterId, Current current) {
         CompletableFuture<ObjectPrx> f =
-                new CompletableFuture<ObjectPrx>();
+            new CompletableFuture<ObjectPrx>();
         _lookup.findAdapter(f, adapterId);
         return f;
     }

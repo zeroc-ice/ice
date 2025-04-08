@@ -13,13 +13,13 @@ class TestIntfI implements TestIntf {
     @Override
     public CompletionStage<Void> sleepAsync(int ms, Current current) {
         return CompletableFuture.runAsync(
-                () -> {
-                    try {
-                        Thread.sleep(ms);
-                    } catch (InterruptedException ex) {
-                        // ignored
-                    }
-                });
+            () -> {
+                try {
+                    Thread.sleep(ms);
+                } catch (InterruptedException ex) {
+                    // ignored
+                }
+            });
     }
 
     @Override

@@ -19,8 +19,8 @@ public final class DummyLogger implements Logger {
     @Override
     public void warning(String message) {
         if (!message.contains("test.Ice.exceptions.ThrowerI.throwAssertException")
-                && !message.contains(
-                        "test.Ice.exceptions.AMDThrowerI.throwAssertException_async")) {
+            && !message.contains(
+            "test.Ice.exceptions.AMDThrowerI.throwAssertException_async")) {
             _logger.warning(message);
         }
     }
@@ -28,8 +28,8 @@ public final class DummyLogger implements Logger {
     @Override
     public void error(String message) {
         if (!message.contains("test.Ice.exceptions.ThrowerI.throwAssertException")
-                && !message.contains(
-                        "test.Ice.exceptions.AMDThrowerI.throwAssertException_async")) {
+            && !message.contains(
+            "test.Ice.exceptions.AMDThrowerI.throwAssertException_async")) {
             _logger.error(message);
         }
     }

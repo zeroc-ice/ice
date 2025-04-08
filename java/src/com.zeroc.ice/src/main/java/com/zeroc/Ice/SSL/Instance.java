@@ -38,7 +38,7 @@ public class Instance extends ProtocolInstance {
     }
 
     void trustManagerFailure(boolean incoming, CertificateException ex)
-            throws CertificateException {
+        throws CertificateException {
         _engine.trustManagerFailure(incoming, ex);
     }
 

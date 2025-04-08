@@ -17,8 +17,8 @@ public class Server extends TestHelper {
         try (Communicator communicator = initialize(properties)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator
-                    .getProperties()
-                    .setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+                .getProperties()
+                .setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
             communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
@@ -26,9 +26,9 @@ public class Server extends TestHelper {
             adapter.activate();
 
             ObjectAdapter controllerAdapter =
-                    communicator.createObjectAdapter("ControllerAdapter");
+                communicator.createObjectAdapter("ControllerAdapter");
             controllerAdapter.add(
-                    new ControllerI(adapter), Util.stringToIdentity("controller"));
+                new ControllerI(adapter), Util.stringToIdentity("controller"));
             controllerAdapter.activate();
             serverReady();
             communicator.waitForShutdown();

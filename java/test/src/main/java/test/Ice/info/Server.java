@@ -15,7 +15,7 @@ public class Server extends TestHelper {
         properties.setProperty("Ice.Package.Test", "test.Ice.proxy");
         try (Communicator communicator = initialize(properties)) {
             properties.setProperty(
-                    "TestAdapter.Endpoints", getTestEndpoint(0) + ":" + getTestEndpoint(0, "udp"));
+                "TestAdapter.Endpoints", getTestEndpoint(0) + ":" + getTestEndpoint(0, "udp"));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(new TestI(), Util.stringToIdentity("test"));
             adapter.activate();

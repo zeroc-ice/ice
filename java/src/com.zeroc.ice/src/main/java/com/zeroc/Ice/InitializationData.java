@@ -16,7 +16,8 @@ import java.util.function.BiConsumer;
  */
 public final class InitializationData implements Cloneable {
     /** Creates an instance with all members set to <code>null</code>. */
-    public InitializationData() {}
+    public InitializationData() {
+    }
 
     /** Creates and returns a copy of this object. */
     @Override

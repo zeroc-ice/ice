@@ -135,7 +135,7 @@ final class OutgoingConnectionFactory {
         assert (routerInfo != null);
         ObjectAdapter adapter = routerInfo.getAdapter();
         EndpointI[] endpoints =
-                routerInfo.getClientEndpoints(); // Must be called outside the synchronization
+            routerInfo.getClientEndpoints(); // Must be called outside the synchronization
 
         synchronized (this) {
             if (_destroyed) {
@@ -254,15 +254,15 @@ final class OutgoingConnectionFactory {
 
             for (ConnectionI connection : connectionList) {
                 if (connection
-                        .isActiveOrHolding()) // Don't return destroyed or un-validated connections
-                {
-                    if (defaultsAndOverrides.overrideCompress.isPresent()) {
-                        compress.value = defaultsAndOverrides.overrideCompress.get();
-                    } else {
-                        compress.value = endpoint.compress();
+                    .isActiveOrHolding()) // Don't return destroyed or un-validated connections
+                    {
+                        if (defaultsAndOverrides.overrideCompress.isPresent()) {
+                            compress.value = defaultsAndOverrides.overrideCompress.get();
+                        } else {
+                            compress.value = endpoint.compress();
+                        }
+                        return connection;
                     }
-                    return connection;
-                }
             }
         }
 
@@ -295,15 +295,15 @@ final class OutgoingConnectionFactory {
 
             for (ConnectionI connection : connectionList) {
                 if (connection
-                        .isActiveOrHolding()) // Don't return destroyed or un-validated connections
-                {
-                    if (defaultsAndOverrides.overrideCompress.isPresent()) {
-                        compress.value = defaultsAndOverrides.overrideCompress.get();
-                    } else {
-                        compress.value = ci.endpoint.compress();
+                    .isActiveOrHolding()) // Don't return destroyed or un-validated connections
+                    {
+                        if (defaultsAndOverrides.overrideCompress.isPresent()) {
+                            compress.value = defaultsAndOverrides.overrideCompress.get();
+                        } else {
+                            compress.value = ci.endpoint.compress();
+                        }
+                        return connection;
                     }
-                    return connection;
-                }
             }
         }
 
@@ -378,15 +378,15 @@ final class OutgoingConnectionFactory {
             }
 
             connection =
-                    new ConnectionI(
-                            _communicator,
-                            _instance,
-                            transceiver,
-                            ci.connector,
-                            ci.endpoint.compress(false).timeout(-1),
-                            _defaultObjectAdapter,
-                            this::removeConnection,
-                            _connectionOptions);
+                new ConnectionI(
+                    _communicator,
+                    _instance,
+                    transceiver,
+                    ci.connector,
+                    ci.endpoint.compress(false).timeout(-1),
+                    _defaultObjectAdapter,
+                    this::removeConnection,
+                    _connectionOptions);
         } catch (LocalException ex) {
             try {
                 transceiver.close();
@@ -602,7 +602,7 @@ final class OutgoingConnectionFactory {
     }
 
     private static class ConnectCallback
-            implements ConnectionI.StartCallback, EndpointI_connectors {
+        implements ConnectionI.StartCallback, EndpointI_connectors {
         ConnectCallback(
                 OutgoingConnectionFactory f,
                 List<EndpointI> endpoints,
@@ -764,11 +764,11 @@ final class OutgoingConnectionFactory {
                     _current = _iter.next();
 
                     CommunicatorObserver observer =
-                            _factory._instance.initializationData().observer;
+                        _factory._instance.initializationData().observer;
                     if (observer != null) {
                         _observer =
-                                observer.getConnectionEstablishmentObserver(
-                                        _current.endpoint, _current.connector.toString());
+                            observer.getConnectionEstablishmentObserver(
+                                _current.endpoint, _current.connector.toString());
                         if (_observer != null) {
                             _observer.attach();
                         }
@@ -780,13 +780,13 @@ final class OutgoingConnectionFactory {
                         s.append(" connection to ");
                         s.append(_current.connector.toString());
                         _factory._instance
-                                .initializationData()
-                                .logger
-                                .trace(_factory._instance.traceLevels().networkCat, s.toString());
+                            .initializationData()
+                            .logger
+                            .trace(_factory._instance.traceLevels().networkCat, s.toString());
                     }
 
                     ConnectionI connection =
-                            _factory.createConnection(_current.connector.connect(), _current);
+                        _factory.createConnection(_current.connector.connect(), _current);
                     connection.start(this);
                 } catch (LocalException ex) {
                     if (_factory._instance.traceLevels().network >= 2) {
@@ -797,9 +797,9 @@ final class OutgoingConnectionFactory {
                         s.append("\n");
                         s.append(ex);
                         _factory._instance
-                                .initializationData()
-                                .logger
-                                .trace(_factory._instance.traceLevels().networkCat, s.toString());
+                            .initializationData()
+                            .logger
+                            .trace(_factory._instance.traceLevels().networkCat, s.toString());
                     }
 
                     if (connectionStartFailedImpl(ex)) {
@@ -821,8 +821,8 @@ final class OutgoingConnectionFactory {
             // We stop on ConnectTimeoutException to fail reasonably fast when the endpoint has many
             // connectors (IP addresses).
             if (_iter.hasNext()
-                    && !(ex instanceof CommunicatorDestroyedException
-                            || ex instanceof ConnectTimeoutException)) {
+                && !(ex instanceof CommunicatorDestroyedException
+                || ex instanceof ConnectTimeoutException)) {
                 return true; // keep going
             }
 
@@ -851,6 +851,6 @@ final class OutgoingConnectionFactory {
     private final MultiHashMap<Connector, ConnectionI> _connections = new MultiHashMap<>();
     private final MultiHashMap<EndpointI, ConnectionI> _connectionsByEndpoint = new MultiHashMap<>();
     private final Map<Connector, HashSet<ConnectCallback>> _pending =
-            new HashMap<>();
+        new HashMap<>();
     private int _pendingConnectCount;
 }

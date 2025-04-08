@@ -19,7 +19,7 @@ public class ObjectInputStream extends java.io.ObjectInputStream {
      * @throws java.io.IOException If an I/O error occurs.
      */
     public ObjectInputStream(Communicator communicator, InputStream stream)
-            throws IOException {
+        throws IOException {
         super(stream);
         _communicator = communicator;
     }

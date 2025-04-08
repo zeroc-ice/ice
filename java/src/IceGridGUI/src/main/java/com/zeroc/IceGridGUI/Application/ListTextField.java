@@ -2,7 +2,7 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.Utils;
 
 import javax.swing.JTextField;
 
@@ -17,12 +17,12 @@ public class ListTextField extends JTextField {
 
     public void setList(List<String> list, final Utils.Resolver resolver) {
         Utils.Stringifier stringifier =
-                new Utils.Stringifier() {
-                    @Override
-                    public String toString(Object obj) {
-                        return Utils.substitute((String) obj, resolver);
-                    }
-                };
+            new Utils.Stringifier() {
+                @Override
+                public String toString(Object obj) {
+                    return Utils.substitute((String) obj, resolver);
+                }
+            };
 
         setText(Utils.stringify(list, stringifier, " ").returnValue);
     }

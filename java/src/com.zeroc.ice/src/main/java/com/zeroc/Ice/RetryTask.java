@@ -34,9 +34,9 @@ class RetryTask implements Runnable, CancellationHandler {
                 s.append("operation retry canceled\n");
                 s.append(Ex.toString(ex));
                 _instance
-                        .initializationData()
-                        .logger
-                        .trace(_instance.traceLevels().retryCat, s.toString());
+                    .initializationData()
+                    .logger
+                    .trace(_instance.traceLevels().retryCat, s.toString());
             }
             if (_outAsync.completed(ex)) {
                 _outAsync.invokeCompletedAsync();

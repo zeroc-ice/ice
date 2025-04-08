@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Observer<T extends Metrics> extends StopWatch
-        implements com.zeroc.Ice.Instrumentation.Observer {
+    implements com.zeroc.Ice.Instrumentation.Observer {
     public interface MetricsUpdate<T> {
         void update(T m);
     }

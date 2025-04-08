@@ -420,7 +420,7 @@ public final class AMDTestI implements TestIntf {
 
     @Override
     public CompletionStage<Void> throwBaseAsBaseAsync(Current current)
-            throws BaseException {
+        throws BaseException {
         BaseException be = new BaseException();
         be.sbe = "sbe";
         be.pb = new B();
@@ -433,7 +433,7 @@ public final class AMDTestI implements TestIntf {
 
     @Override
     public CompletionStage<Void> throwDerivedAsBaseAsync(Current current)
-            throws BaseException {
+        throws BaseException {
         DerivedException de = new DerivedException();
         de.sbe = "sbe";
         de.pb = new B();
@@ -452,7 +452,7 @@ public final class AMDTestI implements TestIntf {
 
     @Override
     public CompletionStage<Void> throwDerivedAsDerivedAsync(Current current)
-            throws DerivedException {
+        throws DerivedException {
         DerivedException de = new DerivedException();
         de.sbe = "sbe";
         de.pb = new B();
@@ -471,7 +471,7 @@ public final class AMDTestI implements TestIntf {
 
     @Override
     public CompletionStage<Void> throwUnknownDerivedAsBaseAsync(Current current)
-            throws BaseException {
+        throws BaseException {
         D2 d2 = new D2();
         d2.sb = "sb d2";
         d2.pb = d2;

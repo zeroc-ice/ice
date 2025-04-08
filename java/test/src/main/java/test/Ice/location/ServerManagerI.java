@@ -59,26 +59,26 @@ public class ServerManagerI implements ServerManager {
             ObjectAdapter adapter2 = null;
             try {
                 serverCommunicator
-                        .getProperties()
-                        .setProperty("TestAdapter.Endpoints", _helper.getTestEndpoint(_nextPort++));
+                    .getProperties()
+                    .setProperty("TestAdapter.Endpoints", _helper.getTestEndpoint(_nextPort++));
                 serverCommunicator
-                        .getProperties()
-                        .setProperty(
-                                "TestAdapter2.Endpoints", _helper.getTestEndpoint(_nextPort++));
+                    .getProperties()
+                    .setProperty(
+                        "TestAdapter2.Endpoints", _helper.getTestEndpoint(_nextPort++));
 
                 adapter = serverCommunicator.createObjectAdapter("TestAdapter");
                 adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
 
                 ObjectPrx locator =
-                        serverCommunicator.stringToProxy("locator:" + _helper.getTestEndpoint(0));
+                    serverCommunicator.stringToProxy("locator:" + _helper.getTestEndpoint(0));
                 adapter.setLocator(LocatorPrx.uncheckedCast(locator));
                 adapter2.setLocator(LocatorPrx.uncheckedCast(locator));
 
                 Object object = new TestI(adapter, adapter2, _registry);
                 _registry.addObject(
-                        adapter.add(object, Util.stringToIdentity("test")), null);
+                    adapter.add(object, Util.stringToIdentity("test")), null);
                 _registry.addObject(
-                        adapter.add(object, Util.stringToIdentity("test2")), null);
+                    adapter.add(object, Util.stringToIdentity("test2")), null);
                 adapter.add(object, Util.stringToIdentity("test3"));
 
                 adapter.activate();

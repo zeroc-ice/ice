@@ -108,21 +108,21 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
         }
         final String host = ipInfo != null ? ipInfo.host : "";
         EndpointI_connectors cb =
-                new EndpointI_connectors() {
-                    @Override
-                    public void connectors(List<Connector> connectors) {
-                        List<Connector> l = new ArrayList<>();
-                        for (Connector c : connectors) {
-                            l.add(new ConnectorI(_instance, c, host));
-                        }
-                        callback.connectors(l);
+            new EndpointI_connectors() {
+                @Override
+                public void connectors(List<Connector> connectors) {
+                    List<Connector> l = new ArrayList<>();
+                    for (Connector c : connectors) {
+                        l.add(new ConnectorI(_instance, c, host));
                     }
+                    callback.connectors(l);
+                }
 
-                    @Override
-                    public void exception(LocalException ex) {
-                        callback.exception(ex);
-                    }
-                };
+                @Override
+                public void exception(LocalException ex) {
+                    callback.exception(ex);
+                }
+            };
         _delegate.connectors_async(cb);
     }
 
@@ -133,7 +133,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
     @Override
     public Acceptor acceptor(String adapterName, SSLEngineFactory factory) {
         return new AcceptorI(
-                this, _instance, _delegate.acceptor(adapterName, null), adapterName, factory);
+            this, _instance, _delegate.acceptor(adapterName, null), adapterName, factory);
     }
 
     public EndpointI endpoint(com.zeroc.Ice.EndpointI delEndpoint) {
@@ -183,18 +183,18 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
     //
     @Override
     public int compareTo(com.zeroc.Ice.EndpointI obj) // From java.lang.Comparable
-            {
-        if (!(obj instanceof EndpointI)) {
-            return type() < obj.type() ? -1 : 1;
-        }
+        {
+            if (!(obj instanceof EndpointI)) {
+                return type() < obj.type() ? -1 : 1;
+            }
 
-        EndpointI p = (EndpointI) obj;
-        if (this == p) {
-            return 0;
-        }
+            EndpointI p = (EndpointI) obj;
+            if (this == p) {
+                return 0;
+            }
 
-        return _delegate.compareTo(p._delegate);
-    }
+            return _delegate.compareTo(p._delegate);
+        }
 
     @Override
     protected boolean checkOption(String option, String argument, String endpoint) {

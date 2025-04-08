@@ -27,7 +27,7 @@ public class Client extends TestHelper {
             myClass.shutdown();
             try {
                 myClass.ice_invocationTimeout(100)
-                        .ice_ping(); // Use timeout to speed up testing on Windows
+                    .ice_ping(); // Use timeout to speed up testing on Windows
                 throw new RuntimeException();
             } catch (LocalException ex) {
                 out.println("ok");

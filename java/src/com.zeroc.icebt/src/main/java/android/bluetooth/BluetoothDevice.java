@@ -9,12 +9,12 @@ import java.util.UUID;
 
 public final class BluetoothDevice {
     public BluetoothSocket createInsecureRfcommSocketToServiceRecord(UUID uuid)
-            throws IOException {
+        throws IOException {
         return null;
     }
 
     public BluetoothSocket createRfcommSocketToServiceRecord(UUID uuid)
-            throws IOException {
+        throws IOException {
         return null;
     }
 

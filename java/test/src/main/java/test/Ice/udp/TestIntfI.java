@@ -7,7 +7,9 @@ import com.zeroc.Ice.DatagramLimitException;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.LocalException;
 
-import test.Ice.udp.Test.*;
+import test.Ice.udp.Test.PingReplyPrx;
+import test.Ice.udp.Test.TestIntf;
+import test.Ice.udp.Test.TestIntfPrx;
 
 public final class TestIntfI implements TestIntf {
     @Override

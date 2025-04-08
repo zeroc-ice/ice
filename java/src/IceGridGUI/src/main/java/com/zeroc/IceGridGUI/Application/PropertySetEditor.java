@@ -4,8 +4,9 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.PropertyDescriptor;
+import com.zeroc.IceGrid.PropertySetDescriptor;
+import com.zeroc.IceGridGUI.Utils;
 
 import javax.swing.JComponent;
 
@@ -41,10 +42,10 @@ class PropertySetEditor extends Editor {
                     root.setSelectedNode(_target);
 
                     JOptionPane.showMessageDialog(
-                            root.getCoordinator().getMainFrame(),
-                            e.toString(),
-                            "Apply failed",
-                            JOptionPane.ERROR_MESSAGE);
+                        root.getCoordinator().getMainFrame(),
+                        e.toString(),
+                        "Apply failed",
+                        JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
@@ -61,10 +62,10 @@ class PropertySetEditor extends Editor {
                     parent.tryRename(_target.getId(), _oldId, getIdText());
                 } catch (UpdateFailedException e) {
                     JOptionPane.showMessageDialog(
-                            root.getCoordinator().getMainFrame(),
-                            e.toString(),
-                            "Apply failed",
-                            JOptionPane.ERROR_MESSAGE);
+                        root.getCoordinator().getMainFrame(),
+                        e.toString(),
+                        "Apply failed",
+                        JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
@@ -181,7 +182,7 @@ class PropertySetEditor extends Editor {
         _propertySets.setEditable(isEditable);
 
         _properties.setProperties(
-                descriptor.properties, null, null, getDetailResolver(), isEditable);
+            descriptor.properties, null, null, getDetailResolver(), isEditable);
 
         _applyButton.setEnabled(nps.isEphemeral());
         _discardButton.setEnabled(nps.isEphemeral());

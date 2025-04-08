@@ -33,12 +33,12 @@ public class Client extends TestHelper {
 
             try (Communicator communicator2 = initialize(initData)) {
                 RetryPrx retry =
-                        AllTests.allTests(
-                                this,
-                                communicator,
-                                communicator2,
-                                instrumentation,
-                                "retry:" + getTestEndpoint(0));
+                    AllTests.allTests(
+                        this,
+                        communicator,
+                        communicator2,
+                        instrumentation,
+                        "retry:" + getTestEndpoint(0));
                 retry.shutdown();
             }
         }

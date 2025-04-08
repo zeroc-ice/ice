@@ -5,8 +5,11 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.ToStringMode;
 import com.zeroc.Ice.Util;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.AdapterInfo;
+import com.zeroc.IceGrid.ObjectDescriptor;
+import com.zeroc.IceGrid.ObjectInfo;
+import com.zeroc.IceGrid.PropertyDescriptor;
+import com.zeroc.IceGridGUI.Utils;
 
 import javax.swing.JTable;
 
@@ -38,12 +41,12 @@ public class TableField extends JTable {
 
     private void init() {
         _model =
-                new DefaultTableModel() {
-                    @Override
-                    public boolean isCellEditable(int row, int column) {
-                        return false;
-                    }
-                };
+            new DefaultTableModel() {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
         setModel(_model);
 
         setCellSelectionEnabled(false);
@@ -64,11 +67,11 @@ public class TableField extends JTable {
         SortedMap<String, String> map = new TreeMap<>();
         for (ObjectDescriptor p : objects) {
             Identity id =
-                    new Identity(
-                            resolver.substitute(p.id.name), resolver.substitute(p.id.category));
+                new Identity(
+                    resolver.substitute(p.id.name), resolver.substitute(p.id.category));
             map.put(
-                    Util.identityToString(id, ToStringMode.Unicode),
-                    resolver.substitute(p.type));
+                Util.identityToString(id, ToStringMode.Unicode),
+                resolver.substitute(p.type));
         }
         setSortedMap(map);
     }

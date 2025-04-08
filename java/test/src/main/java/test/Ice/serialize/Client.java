@@ -5,7 +5,7 @@ package test.Ice.serialize;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Properties;
 
-import test.Ice.serialize.Test.*;
+import test.Ice.serialize.Test.InitialPrx;
 import test.TestHelper;
 
 public class Client extends TestHelper {

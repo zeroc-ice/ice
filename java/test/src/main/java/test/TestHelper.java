@@ -2,7 +2,10 @@
 
 package test;
 
-import com.zeroc.Ice.*;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
 
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -63,21 +66,21 @@ public abstract class TestHelper {
             // The client locates the server using its address and a UUID.
             switch (num) {
                 case 0:
-                    {
-                        return "default -u 5e08f4de-5015-4507-abe1-a7807002db3d";
-                    }
+                {
+                    return "default -u 5e08f4de-5015-4507-abe1-a7807002db3d";
+                }
                 case 1:
-                    {
-                        return "default -u dae56460-2485-46fd-a3ca-8b730e1e868b";
-                    }
+                {
+                    return "default -u dae56460-2485-46fd-a3ca-8b730e1e868b";
+                }
                 case 2:
-                    {
-                        return "default -u 99e08bc6-fcda-4758-afd0-a8c00655c999";
-                    }
+                {
+                    return "default -u 99e08bc6-fcda-4758-afd0-a8c00655c999";
+                }
                 default:
-                    {
-                        assert false;
-                    }
+                {
+                    assert false;
+                }
             }
         }
         return protocol + " -p " + Integer.toString(basePort + num);
@@ -216,5 +219,5 @@ public abstract class TestHelper {
     private ClassLoader _classLoader;
     private Communicator _communicator;
     private PrintWriter _printWriter =
-            new PrintWriter(new OutputStreamWriter(System.out), true);
+        new PrintWriter(new OutputStreamWriter(System.out), true);
 }

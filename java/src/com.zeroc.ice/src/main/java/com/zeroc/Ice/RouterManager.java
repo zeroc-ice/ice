@@ -5,7 +5,8 @@ package com.zeroc.Ice;
 import java.util.HashMap;
 
 final class RouterManager {
-    RouterManager() {}
+    RouterManager() {
+    }
 
     synchronized void destroy() {
         for (RouterInfo info : _table.values()) {

@@ -123,10 +123,10 @@ public class AllTests {
         byte[] bytes;
 
         final boolean encoding_1_0 =
-                "1.0"
-                        .equals(communicator
-                        .getProperties()
-                        .getIceProperty("Ice.Default.EncodingVersion"));
+            "1.0"
+                .equals(communicator
+                    .getProperties()
+                    .getIceProperty("Ice.Default.EncodingVersion"));
 
         os = new OutputStream(communicator);
         ByteEnum.ice_write(os, ByteEnum.benum11);
@@ -194,7 +194,7 @@ public class AllTests {
             ByteEnum b1[] = {
                 ByteEnum.benum1, ByteEnum.benum2, ByteEnum.benum3, ByteEnum.benum4, ByteEnum.benum5,
                 ByteEnum.benum6, ByteEnum.benum7, ByteEnum.benum8, ByteEnum.benum9,
-                        ByteEnum.benum10,
+                ByteEnum.benum10,
                 ByteEnum.benum11
             };
 
@@ -209,9 +209,9 @@ public class AllTests {
         {
             ShortEnum s1[] = {
                 ShortEnum.senum1, ShortEnum.senum2, ShortEnum.senum3, ShortEnum.senum4,
-                        ShortEnum.senum5,
+                ShortEnum.senum5,
                 ShortEnum.senum6, ShortEnum.senum7, ShortEnum.senum8, ShortEnum.senum9,
-                        ShortEnum.senum10,
+                ShortEnum.senum10,
                 ShortEnum.senum11
             };
 
@@ -258,7 +258,7 @@ public class AllTests {
             os = new OutputStream(communicator);
             os.writeByte((byte) 2); // Invalid enumerator
             InputStream in =
-                    new InputStream(communicator, os.finished());
+                new InputStream(communicator, os.finished());
             ByteEnum.ice_read(in);
             test(false);
         } catch (MarshalException ex) {
@@ -268,7 +268,7 @@ public class AllTests {
             os = new OutputStream(communicator);
             os.writeByte((byte) 128); // Invalid enumerator
             InputStream in =
-                    new InputStream(communicator, os.finished());
+                new InputStream(communicator, os.finished());
             ByteEnum.ice_read(in);
             test(false);
         } catch (MarshalException ex) {
@@ -278,7 +278,7 @@ public class AllTests {
             os = new OutputStream(communicator);
             os.writeShort((short) -1); // Negative enumerators are not supported
             InputStream in =
-                    new InputStream(communicator, os.finished());
+                new InputStream(communicator, os.finished());
             ShortEnum.ice_read(in);
             test(false);
         } catch (MarshalException ex) {
@@ -288,7 +288,7 @@ public class AllTests {
             os = new OutputStream(communicator);
             os.writeShort((short) 0); // Invalid enumerator
             InputStream in =
-                    new InputStream(communicator, os.finished());
+                new InputStream(communicator, os.finished());
             ShortEnum.ice_read(in);
             test(false);
         } catch (MarshalException ex) {
@@ -298,7 +298,7 @@ public class AllTests {
             os = new OutputStream(communicator);
             os.writeShort((short) 32767); // Invalid enumerator
             InputStream in =
-                    new InputStream(communicator, os.finished());
+                new InputStream(communicator, os.finished());
             ShortEnum.ice_read(in);
             test(false);
         } catch (MarshalException ex) {
@@ -308,7 +308,7 @@ public class AllTests {
             os = new OutputStream(communicator);
             os.writeInt(-1); // Negative enumerators are not supported
             InputStream in =
-                    new InputStream(communicator, os.finished());
+                new InputStream(communicator, os.finished());
             IntEnum.ice_read(in);
             test(false);
         } catch (MarshalException ex) {
@@ -318,7 +318,7 @@ public class AllTests {
             os = new OutputStream(communicator);
             os.writeInt(2); // Invalid enumerator
             InputStream in =
-                    new InputStream(communicator, os.finished());
+                new InputStream(communicator, os.finished());
             IntEnum.ice_read(in);
             test(false);
         } catch (MarshalException ex) {

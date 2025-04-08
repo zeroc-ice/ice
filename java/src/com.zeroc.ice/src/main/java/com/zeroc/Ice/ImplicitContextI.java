@@ -17,7 +17,7 @@ abstract class ImplicitContextI implements ImplicitContext {
             return new PerThread();
         } else {
             throw new InitializationException(
-                    "'" + kind + "' is not a valid value for ImplicitContext");
+                "'" + kind + "' is not a valid value for ImplicitContext");
         }
     }
 
@@ -248,6 +248,6 @@ abstract class ImplicitContextI implements ImplicitContext {
         // Synchronized map Thread -> Context
         //
         private Map<Thread, Map<String, String>> _map =
-                Collections.synchronizedMap(new HashMap<>());
+            Collections.synchronizedMap(new HashMap<>());
     }
 }

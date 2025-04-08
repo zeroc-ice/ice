@@ -23,7 +23,10 @@ import com.zeroc.Ice.RemoteLoggerAlreadyAttachedException;
 import com.zeroc.Ice.RemoteLoggerPrx;
 import com.zeroc.Ice.Util;
 
-import test.Ice.admin.Test.*;
+import test.Ice.admin.Test.RemoteCommunicatorFactoryPrx;
+import test.Ice.admin.Test.RemoteCommunicatorPrx;
+import test.Ice.admin.Test.TestFacet;
+import test.Ice.admin.Test.TestFacetPrx;
 import test.TestHelper;
 
 import java.io.PrintWriter;
@@ -278,7 +281,7 @@ public class AllTests {
 
             ObjectPrx obj = rcom.getAdmin();
             LoggerAdminPrx logger =
-                    LoggerAdminPrx.checkedCast(obj, "Logger");
+                LoggerAdminPrx.checkedCast(obj, "Logger");
             test(logger != null);
 
             //
@@ -289,8 +292,8 @@ public class AllTests {
             test(r.returnValue.length == 4);
             test("NullLogger".equals(r.prefix));
             test(
-                    "testCat".equals(r.returnValue[0].traceCategory)
-                            && "trace".equals(r.returnValue[0].message));
+                "testCat".equals(r.returnValue[0].traceCategory)
+                    && "trace".equals(r.returnValue[0].message));
             test("warning".equals(r.returnValue[1].message));
             test("error".equals(r.returnValue[2].message));
             test("print".equals(r.returnValue[3].message));
@@ -313,8 +316,8 @@ public class AllTests {
 
             for (LogMessage msg : Arrays.asList(r.returnValue)) {
                 test(
-                        msg.type == LogMessageType.ErrorMessage
-                                || msg.type == LogMessageType.WarningMessage);
+                    msg.type == LogMessageType.ErrorMessage
+                        || msg.type == LogMessageType.WarningMessage);
             }
 
             //
@@ -325,7 +328,7 @@ public class AllTests {
             rcom.trace("testCat2", "B");
 
             messageTypes =
-                    new LogMessageType[]{LogMessageType.ErrorMessage, LogMessageType.TraceMessage};
+                new LogMessageType[]{LogMessageType.ErrorMessage, LogMessageType.TraceMessage};
             String[] categories = {"testCat"};
             r = logger.getLog(messageTypes, categories, -1);
             test(r.returnValue.length == 5);
@@ -333,9 +336,9 @@ public class AllTests {
 
             for (LogMessage msg : Arrays.asList(r.returnValue)) {
                 test(
-                        msg.type == LogMessageType.ErrorMessage
-                                || (msg.type == LogMessageType.TraceMessage
-                                        && "testCat".equals(msg.traceCategory)));
+                    msg.type == LogMessageType.ErrorMessage
+                        || (msg.type == LogMessageType.TraceMessage
+                        && "testCat".equals(msg.traceCategory)));
             }
 
             //
@@ -354,14 +357,14 @@ public class AllTests {
             // Now, test RemoteLogger
             //
             ObjectAdapter adapter =
-                    helper.communicator()
-                            .createObjectAdapterWithEndpoints(
-                                    "RemoteLoggerAdapter", "tcp -h localhost");
+                helper.communicator()
+                    .createObjectAdapterWithEndpoints(
+                        "RemoteLoggerAdapter", "tcp -h localhost");
 
             RemoteLoggerI remoteLogger = new RemoteLoggerI();
 
             RemoteLoggerPrx myProxy =
-                    RemoteLoggerPrx.uncheckedCast(adapter.addWithUUID(remoteLogger));
+                RemoteLoggerPrx.uncheckedCast(adapter.addWithUUID(remoteLogger));
 
             adapter.activate();
 

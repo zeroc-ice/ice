@@ -60,9 +60,9 @@ abstract class OutgoingAsyncBase<T> extends InvocationFuture<T> {
             try {
                 throw ee.getCause().fillInStackTrace();
             } catch (RuntimeException ex) // Includes LocalException
-            {
-                throw ex;
-            } catch (Throwable ex) {
+                {
+                    throw ex;
+                } catch (Throwable ex) {
                 throw new UnknownException(ex);
             }
         }
@@ -71,10 +71,10 @@ abstract class OutgoingAsyncBase<T> extends InvocationFuture<T> {
     protected OutgoingAsyncBase(Communicator com, Instance instance, String op) {
         super(com, instance, op);
         _os =
-                new OutputStream(
-                        Protocol.currentProtocolEncoding,
-                        instance.defaultsAndOverrides().defaultFormat,
-                        instance.cacheMessageBuffers() > 1);
+            new OutputStream(
+                Protocol.currentProtocolEncoding,
+                instance.defaultsAndOverrides().defaultFormat,
+                instance.cacheMessageBuffers() > 1);
     }
 
     protected OutgoingAsyncBase(Communicator com, Instance instance, String op, OutputStream os) {

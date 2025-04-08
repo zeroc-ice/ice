@@ -4,8 +4,9 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.AdapterDescriptor;
+import com.zeroc.IceGrid.ObjectDescriptor;
+import com.zeroc.IceGridGUI.Utils;
 
 import javax.swing.JCheckBox;
 
@@ -54,7 +55,7 @@ class AdapterEditor extends Editor {
         // getId() returns the name of the adapter!
         _endpoints.setText(resolver.substitute(properties.get(adapter.getId() + ".Endpoints")));
         _publishedEndpoints.setText(
-                resolver.substitute(properties.get(adapter.getId() + ".PublishedEndpoints")));
+            resolver.substitute(properties.get(adapter.getId() + ".PublishedEndpoints")));
 
         _registerProcess.setSelected(descriptor.registerProcess);
         _serverLifetime.setSelected(descriptor.serverLifetime);

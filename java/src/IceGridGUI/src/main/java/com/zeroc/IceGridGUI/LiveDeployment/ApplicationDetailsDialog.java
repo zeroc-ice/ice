@@ -6,7 +6,8 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
-import com.zeroc.IceGrid.*;
+import com.zeroc.IceGrid.ApplicationDescriptor;
+import com.zeroc.IceGrid.ApplicationInfo;
 
 import java.awt.Container;
 import java.text.DateFormat;
@@ -63,12 +64,12 @@ class ApplicationDetailsDialog extends JDialog {
         _name.setText(info.descriptor.name);
         _uuid.setText(info.uuid);
         _createTime.setText(
-                DateFormat.getDateTimeInstance()
-                        .format(new Date(info.createTime)));
+            DateFormat.getDateTimeInstance()
+                .format(new Date(info.createTime)));
         _createUser.setText(info.createUser);
         _updateTime.setText(
-                DateFormat.getDateTimeInstance()
-                        .format(new Date(info.updateTime)));
+            DateFormat.getDateTimeInstance()
+                .format(new Date(info.updateTime)));
         _updateUser.setText(info.updateUser);
         _revision.setText(Integer.toString(info.revision));
 

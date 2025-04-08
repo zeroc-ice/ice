@@ -8,7 +8,10 @@ import com.zeroc.Ice.ObjectPrx;
 import test.Ice.serialize.Test.*;
 import test.TestHelper;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.PrintWriter;
 import java.util.Arrays;
 
 public class AllTests {
@@ -56,7 +59,7 @@ public class AllTests {
             byte[] bytes = initial.getStruct1();
             ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
             com.zeroc.Ice.ObjectInputStream ois =
-                    new com.zeroc.Ice.ObjectInputStream(communicator, bais);
+                new com.zeroc.Ice.ObjectInputStream(communicator, bais);
             try {
                 Struct1 s = (Struct1) ois.readObject();
                 checkStruct1(s);
@@ -75,7 +78,7 @@ public class AllTests {
             byte[] bytes = initial.getBase();
             ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
             com.zeroc.Ice.ObjectInputStream ois =
-                    new com.zeroc.Ice.ObjectInputStream(communicator, bais);
+                new com.zeroc.Ice.ObjectInputStream(communicator, bais);
             try {
                 Base b = (Base) ois.readObject();
                 checkBase(b);
@@ -93,7 +96,7 @@ public class AllTests {
             byte[] bytes = initial.getEx();
             ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
             com.zeroc.Ice.ObjectInputStream ois =
-                    new com.zeroc.Ice.ObjectInputStream(communicator, bais);
+                new com.zeroc.Ice.ObjectInputStream(communicator, bais);
             try {
                 Ex ex = (Ex) ois.readObject();
                 checkStruct1(ex.s);
@@ -131,8 +134,8 @@ public class AllTests {
         test(Arrays.equals(b.seq1, new byte[]{0, 1, 2, 3, 4}));
         test(Arrays.equals(b.seq2, new int[]{5, 6, 7, 8, 9}));
         test(
-                Arrays.equals(
-                        b.seq3, new MyEnum[]{MyEnum.enum3, MyEnum.enum2, MyEnum.enum1}));
+            Arrays.equals(
+                b.seq3, new MyEnum[]{MyEnum.enum3, MyEnum.enum2, MyEnum.enum1}));
         test(Arrays.equals(b.seq4, new Base[]{b}));
         test(b.d1.get(Byte.valueOf((byte) 1)).equals(Boolean.TRUE));
         test(b.d2.get(Short.valueOf((short) 2)).equals(Integer.valueOf(3)));

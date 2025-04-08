@@ -106,11 +106,11 @@ public class AllTests {
 
         out.print("calling regular AMI operation with first proxy... ");
         retry1.opAsync(false)
-                .whenComplete(
-                        (result, ex) -> {
-                            test(ex == null);
-                            cb1.called();
-                        });
+            .whenComplete(
+                (result, ex) -> {
+                    test(ex == null);
+                    cb1.called();
+                });
         cb1.check();
         instrumentation.testInvocationCount(1);
         instrumentation.testFailureCount(0);
@@ -119,15 +119,15 @@ public class AllTests {
 
         out.print("calling AMI operation to kill connection with second proxy... ");
         retry2.opAsync(true)
-                .whenComplete(
-                        (result, ex) -> {
-                            test(
-                                    ex != null
-                                            && (ex instanceof ConnectionLostException
-                                                    || ex
-                                                            instanceof UnknownLocalException));
-                            cb2.called();
-                        });
+            .whenComplete(
+                (result, ex) -> {
+                    test(
+                        ex != null
+                            && (ex instanceof ConnectionLostException
+                            || ex
+                            instanceof UnknownLocalException));
+                    cb2.called();
+                });
         cb2.check();
         instrumentation.testInvocationCount(1);
         instrumentation.testFailureCount(1);
@@ -136,11 +136,11 @@ public class AllTests {
 
         out.print("calling regular AMI operation with first proxy again... ");
         retry1.opAsync(false)
-                .whenComplete(
-                        (result, ex) -> {
-                            test(ex == null);
-                            cb1.called();
-                        });
+            .whenComplete(
+                (result, ex) -> {
+                    test(ex == null);
+                    cb1.called();
+                });
         cb1.check();
         instrumentation.testInvocationCount(1);
         instrumentation.testFailureCount(0);

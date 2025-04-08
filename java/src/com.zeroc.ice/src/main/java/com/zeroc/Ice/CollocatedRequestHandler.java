@@ -39,10 +39,10 @@ final class CollocatedRequestHandler implements RequestHandler {
         _response = _reference.isTwoway();
 
         _logger =
-                _reference
-                        .getInstance()
-                        .initializationData()
-                        .logger; // Cached for better performance.
+            _reference
+                .getInstance()
+                .initializationData()
+                .logger; // Cached for better performance.
         _traceLevels = _reference.getInstance().traceLevels(); // Cached for better performance.
         _requestId = 0;
     }
@@ -107,17 +107,17 @@ final class CollocatedRequestHandler implements RequestHandler {
             outAsync.attachCollocatedObserver(_adapter, requestId);
 
             if (!sync
-                    || !_response
-                    || _reference.getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
+                || !_response
+                || _reference.getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
                 _adapter.getThreadPool()
-                        .dispatch(
-                                new InvokeAllAsync(
-                                        outAsync, outAsync.getOs(), requestId, batchRequestNum));
+                    .dispatch(
+                        new InvokeAllAsync(
+                            outAsync, outAsync.getOs(), requestId, batchRequestNum));
             } else if (_executor) {
                 _adapter.getThreadPool()
-                        .executeFromThisThread(
-                                new InvokeAllAsync(
-                                        outAsync, outAsync.getOs(), requestId, batchRequestNum));
+                    .executeFromThisThread(
+                        new InvokeAllAsync(
+                            outAsync, outAsync.getOs(), requestId, batchRequestNum));
             } else {
                 // Optimization: directly call dispatchAll if there's no executor.
                 if (sentAsync(outAsync)) {
@@ -200,17 +200,17 @@ final class CollocatedRequestHandler implements RequestHandler {
 
                 if (response != null) {
                     response.whenComplete(
-                            (result, exception) -> {
-                                if (exception != null) {
-                                    sendResponse(
-                                            request.current.createOutgoingResponse(exception),
-                                            requestId,
-                                            true);
-                                } else {
-                                    sendResponse(result, requestId, true);
-                                }
-                                // Any exception thrown by this closure is effectively ignored.
-                            });
+                        (result, exception) -> {
+                            if (exception != null) {
+                                sendResponse(
+                                    request.current.createOutgoingResponse(exception),
+                                    requestId,
+                                    true);
+                            } else {
+                                sendResponse(result, requestId, true);
+                            }
+                            // Any exception thrown by this closure is effectively ignored.
+                        });
                 }
 
                 --dispatchCount;
@@ -246,11 +246,11 @@ final class CollocatedRequestHandler implements RequestHandler {
 
                 // Adopt the OutputStream's buffer.
                 var inputStream =
-                        new InputStream(
-                                _reference.getInstance(),
-                                outputStream.getEncoding(),
-                                outputStream.getBuffer(),
-                                true); // adopt: true
+                    new InputStream(
+                        _reference.getInstance(),
+                        outputStream.getEncoding(),
+                        outputStream.getBuffer(),
+                        true); // adopt: true
 
                 inputStream.pos(Protocol.replyHdr.length + 4);
 
@@ -327,8 +327,8 @@ final class CollocatedRequestHandler implements RequestHandler {
     // invocation timeout, or we support
     // interrupts.
     private final Map<OutgoingAsyncBase, Integer> _sendAsyncRequests =
-            new HashMap<>();
+        new HashMap<>();
 
     private final Map<Integer, OutgoingAsyncBase> _asyncRequests =
-            new HashMap<>();
+        new HashMap<>();
 }

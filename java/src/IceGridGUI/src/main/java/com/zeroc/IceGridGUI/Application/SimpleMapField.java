@@ -2,7 +2,7 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.event.ActionEvent;
 import java.util.Map;
@@ -36,25 +36,25 @@ public class SimpleMapField extends JTable {
         }
 
         Action deleteRow =
-                new AbstractAction("Delete selected row(s)") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (_editable) {
-                            if (isEditing()) {
-                                getCellEditor().stopCellEditing();
-                            }
+            new AbstractAction("Delete selected row(s)") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (_editable) {
+                        if (isEditing()) {
+                            getCellEditor().stopCellEditing();
+                        }
 
-                            for (; ; ) {
-                                int selectedRow = getSelectedRow();
-                                if (selectedRow == -1) {
-                                    break;
-                                } else {
-                                    _model.removeRow(selectedRow);
-                                }
+                        for (; ; ) {
+                            int selectedRow = getSelectedRow();
+                            if (selectedRow == -1) {
+                                break;
+                            } else {
+                                _model.removeRow(selectedRow);
                             }
                         }
                     }
-                };
+                }
+            };
         getActionMap().put("delete", deleteRow);
         getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
     }
@@ -85,27 +85,27 @@ public class SimpleMapField extends JTable {
         }
 
         _model =
-                new DefaultTableModel(vector, _columnNames) {
-                    @Override
-                    public boolean isCellEditable(int row, int column) {
-                        return _editable;
-                    }
-                };
+            new DefaultTableModel(vector, _columnNames) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return _editable;
+                }
+            };
 
         _model.addTableModelListener(
-                new TableModelListener() {
-                    @Override
-                    public void tableChanged(TableModelEvent e) {
-                        if (_editable) {
-                            Object lastKey = _model.getValueAt(_model.getRowCount() - 1, 0);
-                            if (lastKey != null && !"".equals(lastKey)) {
-                                Object[] emptyRow = new Object[]{"", ""};
-                                _model.addRow(emptyRow);
-                            }
-                            _editor.updated();
+            new TableModelListener() {
+                @Override
+                public void tableChanged(TableModelEvent e) {
+                    if (_editable) {
+                        Object lastKey = _model.getValueAt(_model.getRowCount() - 1, 0);
+                        if (lastKey != null && !"".equals(lastKey)) {
+                            Object[] emptyRow = new Object[]{"", ""};
+                            _model.addRow(emptyRow);
                         }
+                        _editor.updated();
                     }
-                });
+                }
+            });
         setModel(_model);
 
         setCellSelectionEnabled(_editable);

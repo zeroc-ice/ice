@@ -39,17 +39,17 @@ public class Server extends TestHelper {
             int num = rargs.size() == 1 ? Integer.parseInt(rargs.get(0)) : 0;
 
             communicator
-                    .getProperties()
-                    .setProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
+                .getProperties()
+                .setProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
             ObjectAdapter adapter =
-                    communicator.createObjectAdapter("ControlAdapter");
+                communicator.createObjectAdapter("ControlAdapter");
             adapter.add(new TestIntfI(), Util.stringToIdentity("control"));
             adapter.activate();
 
             if (num == 0) {
                 properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
                 ObjectAdapter adapter2 =
-                        communicator.createObjectAdapter("TestAdapter");
+                    communicator.createObjectAdapter("TestAdapter");
                 adapter2.add(new TestIntfI(), Util.stringToIdentity("test"));
                 adapter2.activate();
             }
@@ -59,25 +59,25 @@ public class Server extends TestHelper {
                 endpoint.append("udp -h \"ff15::1:1\" -p ");
                 endpoint.append(getTestPort(10));
                 if (System.getProperty("os.name").contains("OS X")
-                        || System.getProperty("os.name").startsWith("Windows")) {
+                    || System.getProperty("os.name").startsWith("Windows")) {
                     endpoint.append(
-                            " --interface \"::1\""); // Use loopback to prevent other machines to
+                        " --interface \"::1\""); // Use loopback to prevent other machines to
                     // answer.
                 }
             } else {
                 endpoint.append("udp -h 239.255.1.1 -p ");
                 endpoint.append(getTestPort(10));
                 if (System.getProperty("os.name").contains("OS X")
-                        || System.getProperty("os.name").startsWith("Windows")) {
+                    || System.getProperty("os.name").startsWith("Windows")) {
                     endpoint.append(
-                            " --interface 127.0.0.1"); // Use loopback to prevent other machines to
+                        " --interface 127.0.0.1"); // Use loopback to prevent other machines to
                     // answer.
                 }
             }
             properties.setProperty("McastTestAdapter.Endpoints", endpoint.toString());
 
             ObjectAdapter mcastAdapter =
-                    communicator.createObjectAdapter("McastTestAdapter");
+                communicator.createObjectAdapter("McastTestAdapter");
             mcastAdapter.add(new TestIntfI(), Util.stringToIdentity("test"));
             mcastAdapter.activate();
 

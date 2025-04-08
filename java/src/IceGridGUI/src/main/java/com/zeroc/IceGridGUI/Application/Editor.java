@@ -5,7 +5,8 @@ package com.zeroc.IceGridGUI.Application;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.EditorBase;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -68,13 +69,14 @@ public class Editor extends EditorBase {
     }
 
     @Override
-    protected void appendProperties(DefaultFormBuilder builder) {}
+    protected void appendProperties(DefaultFormBuilder builder) {
+    }
 
     @Override
     protected void buildPropertiesPanel() {
         super.buildPropertiesPanel();
         JComponent buttonBar =
-                new ButtonBarBuilder().addGlue().addButton(_applyButton, _discardButton).build();
+            new ButtonBarBuilder().addGlue().addButton(_applyButton, _discardButton).build();
         buttonBar.setBorder(Borders.DIALOG);
         _propertiesPanel.add(buttonBar, BorderLayout.SOUTH);
     }
@@ -82,48 +84,48 @@ public class Editor extends EditorBase {
     Editor() {
         // _applyButton
         AbstractAction apply =
-                new AbstractAction("Apply") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (validate()) {
-                            if (applyUpdate(true)) {
-                                _target.getRoot().getTree().grabFocus();
-                            }
+            new AbstractAction("Apply") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (validate()) {
+                        if (applyUpdate(true)) {
+                            _target.getRoot().getTree().grabFocus();
                         }
                     }
-                };
+                }
+            };
         _applyButton = new JButton(apply);
         _applyButton.setEnabled(false);
 
         // _discardButton
         AbstractAction discard =
-                new AbstractAction("Discard") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        discardUpdate();
-                        _target.getRoot().getTree().grabFocus();
-                    }
-                };
+            new AbstractAction("Discard") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    discardUpdate();
+                    _target.getRoot().getTree().grabFocus();
+                }
+            };
         _discardButton = new JButton(discard);
         _discardButton.setEnabled(false);
 
         _updateListener =
-                new DocumentListener() {
-                    @Override
-                    public void changedUpdate(DocumentEvent e) {
-                        updated();
-                    }
+            new DocumentListener() {
+                @Override
+                public void changedUpdate(DocumentEvent e) {
+                    updated();
+                }
 
-                    @Override
-                    public void insertUpdate(DocumentEvent e) {
-                        updated();
-                    }
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    updated();
+                }
 
-                    @Override
-                    public void removeUpdate(DocumentEvent e) {
-                        updated();
-                    }
-                };
+                @Override
+                public void removeUpdate(DocumentEvent e) {
+                    updated();
+                }
+            };
     }
 
     // Used by the sub-editor (when there is one)
@@ -168,15 +170,15 @@ public class Editor extends EditorBase {
 
         if (errorCount > 0) {
             String message =
-                    errorCount == 1
-                            ? emptyFields + " cannot be empty"
-                            : "The following fields cannot be empty:\n" + emptyFields;
+                errorCount == 1
+                    ? emptyFields + " cannot be empty"
+                    : "The following fields cannot be empty:\n" + emptyFields;
 
             JOptionPane.showMessageDialog(
-                    _target.getCoordinator().getMainFrame(),
-                    message,
-                    "Validation failed",
-                    JOptionPane.ERROR_MESSAGE);
+                _target.getCoordinator().getMainFrame(),
+                message,
+                "Validation failed",
+                JOptionPane.ERROR_MESSAGE);
         }
 
         return errorCount == 0;

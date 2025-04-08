@@ -10,4 +10,5 @@ public record ConnectionOptions(
         int idleTimeout,
         boolean enableIdleCheck,
         int inactivityTimeout,
-        int maxDispatches) {}
+        int maxDispatches) {
+}

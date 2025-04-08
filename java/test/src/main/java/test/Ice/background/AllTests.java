@@ -113,10 +113,10 @@ public class AllTests {
 
                 try {
                     if (++count == 10) // Don't blast the connection with only oneway's
-                    {
-                        count = 0;
-                        _background.ice_twoway().ice_ping();
-                    }
+                        {
+                            count = 0;
+                            _background.ice_twoway().ice_ping();
+                        }
                     _background.op();
                     try {
                         Thread.sleep(1);
@@ -128,9 +128,9 @@ public class AllTests {
         }
 
         public synchronized void _destroy() // Thread.destroy is deprecated
-                {
-            _destroyed = true;
-        }
+            {
+                _destroyed = true;
+            }
 
         private boolean _destroyed;
         private BackgroundPrx _background;
@@ -185,9 +185,9 @@ public class AllTests {
         {
             LocatorPrx locator;
             obj =
-                    communicator
-                            .stringToProxy("locator:" + helper.getTestEndpoint(0))
-                            .ice_invocationTimeout(250);
+                communicator
+                    .stringToProxy("locator:" + helper.getTestEndpoint(0))
+                    .ice_invocationTimeout(250);
             locator = LocatorPrx.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_locator(locator).ice_oneway();
 
@@ -226,9 +226,9 @@ public class AllTests {
             RouterPrx router;
 
             obj =
-                    communicator
-                            .stringToProxy("router:" + helper.getTestEndpoint(0))
-                            .ice_invocationTimeout(250);
+                communicator
+                    .stringToProxy("router:" + helper.getTestEndpoint(0))
+                    .ice_invocationTimeout(250);
             router = RouterPrx.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_router(router).ice_oneway();
 
@@ -260,15 +260,15 @@ public class AllTests {
         out.println("ok");
 
         final boolean ws =
-                "test-ws"
-                        .equals(communicator
-                        .getProperties()
-                        .getIceProperty("Ice.Default.Protocol"));
+            "test-ws"
+                .equals(communicator
+                    .getProperties()
+                    .getIceProperty("Ice.Default.Protocol"));
         final boolean wss =
-                "test-wss"
-                        .equals(communicator
-                        .getProperties()
-                        .getIceProperty("Ice.Default.Protocol"));
+            "test-wss"
+                .equals(communicator
+                    .getProperties()
+                    .getIceProperty("Ice.Default.Protocol"));
         if (!ws && !wss) {
             out.print("testing buffered transport... ");
             out.flush();
@@ -598,7 +598,7 @@ public class AllTests {
         }
 
         if (!"test-ssl"
-                .equals(background
+            .equals(background
                 .ice_getCommunicator()
                 .getProperties()
                 .getIceProperty("Ice.Default.Protocol"))) {
@@ -784,7 +784,7 @@ public class AllTests {
 
         background.ice_ping();
         configuration.readReady(
-                false); // Required in C# to make sure beginRead() doesn't throw too soon.
+            false); // Required in C# to make sure beginRead() doesn't throw too soon.
         configuration.readException(new SocketException());
         CompletableFuture<Void> r = background.opAsync();
         try {
@@ -909,58 +909,58 @@ public class AllTests {
 
         // Fill up the receive and send buffers
         for (int i = 0; i < 200; i++) // 2MB
-        {
-            backgroundOneway.opWithPayloadAsync(seq).whenComplete((result, ex) -> test(false));
-        }
+            {
+                backgroundOneway.opWithPayloadAsync(seq).whenComplete((result, ex) -> test(false));
+            }
 
         OpAMICallback cb = new OpAMICallback();
         CompletableFuture<Void> r1 = background.opAsync();
         r1.whenComplete(
-                (result, ex) -> {
-                    if (ex != null) {
-                        cb.exception((LocalException) ex);
-                    } else {
-                        cb.response();
-                    }
-                });
+            (result, ex) -> {
+                if (ex != null) {
+                    cb.exception((LocalException) ex);
+                } else {
+                    cb.response();
+                }
+            });
         InvocationFuture<Void> f1 = Util.getInvocationFuture(r1);
         test(!f1.sentSynchronously() && !f1.isSent());
         f1.whenSent(
-                (sentSynchronously, ex) -> {
-                    if (ex != null) {
-                        cb.exception((LocalException) ex);
-                    } else {
-                        cb.sent(sentSynchronously);
-                    }
-                });
+            (sentSynchronously, ex) -> {
+                if (ex != null) {
+                    cb.exception((LocalException) ex);
+                } else {
+                    cb.sent(sentSynchronously);
+                }
+            });
 
         OpAMICallback cb2 = new OpAMICallback();
         CompletableFuture<Void> r2 = background.opAsync();
         r2.whenComplete(
-                (result, ex) -> {
-                    if (ex != null) {
-                        cb2.exception((LocalException) ex);
-                    } else {
-                        cb2.response();
-                    }
-                });
+            (result, ex) -> {
+                if (ex != null) {
+                    cb2.exception((LocalException) ex);
+                } else {
+                    cb2.response();
+                }
+            });
         InvocationFuture<Void> f2 = Util.getInvocationFuture(r2);
         test(!f2.sentSynchronously() && !f2.isSent());
         f2.whenSent(
-                (sentSynchronously, ex) -> {
-                    if (ex != null) {
-                        cb2.exception((LocalException) ex);
-                    } else {
-                        cb2.sent(sentSynchronously);
-                    }
-                });
+            (sentSynchronously, ex) -> {
+                if (ex != null) {
+                    cb2.exception((LocalException) ex);
+                } else {
+                    cb2.sent(sentSynchronously);
+                }
+            });
 
         test(
-                !Util.getInvocationFuture(backgroundOneway.opWithPayloadAsync(seq))
-                        .sentSynchronously());
+            !Util.getInvocationFuture(backgroundOneway.opWithPayloadAsync(seq))
+                .sentSynchronously());
         test(
-                !Util.getInvocationFuture(backgroundOneway.opWithPayloadAsync(seq))
-                        .sentSynchronously());
+            !Util.getInvocationFuture(backgroundOneway.opWithPayloadAsync(seq))
+                .sentSynchronously());
 
         test(!cb.response(false));
         test(!cb2.response(false));

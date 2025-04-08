@@ -19,13 +19,13 @@ public class Server extends TestHelper {
         try (Communicator communicator = initialize(properties)) {
             int num = Integer.parseInt(rargs.get(0));
             communicator
-                    .getProperties()
-                    .setProperty("ControlAdapter.Endpoints", getTestEndpoint(num));
+                .getProperties()
+                .setProperty("ControlAdapter.Endpoints", getTestEndpoint(num));
             communicator.getProperties().setProperty("ControlAdapter.AdapterId", "control" + num);
             communicator.getProperties().setProperty("ControlAdapter.ThreadPool.Size", "1");
 
             ObjectAdapter adapter =
-                    communicator().createObjectAdapter("ControlAdapter");
+                communicator().createObjectAdapter("ControlAdapter");
             adapter.add(new ControllerI(), Util.stringToIdentity("controller" + num));
             adapter.activate();
             serverReady();

@@ -75,7 +75,7 @@ final class PropertyNames
         true,
         false,
         new Property[]{
-        });
+            });
 
     public static final PropertyArray IceProps = new PropertyArray(
         "Ice",
@@ -242,7 +242,7 @@ final class PropertyNames
         false,
         true,
         new Property[]{
-        });
+            });
 
     public static final PropertyArray IceGridAdminProps = new PropertyArray(
         "IceGridAdmin",
@@ -259,7 +259,7 @@ final class PropertyNames
         false,
         true,
         new Property[]{
-        });
+            });
 
     public static final PropertyArray IceSSLProps = new PropertyArray(
         "IceSSL",
@@ -290,14 +290,14 @@ final class PropertyNames
         false,
         true,
         new Property[]{
-        });
+            });
 
     public static final PropertyArray IceStormAdminProps = new PropertyArray(
         "IceStormAdmin",
         false,
         true,
         new Property[]{
-        });
+            });
 
     public static final PropertyArray IceBTProps = new PropertyArray(
         "IceBT",
@@ -313,33 +313,33 @@ final class PropertyNames
         false,
         true,
         new Property[]{
-        });
+            });
 
     public static final PropertyArray DataStormProps = new PropertyArray(
         "DataStorm",
         false,
         true,
         new Property[]{
-        });
+            });
 
     public static final PropertyArray validProps[] =
-    {
-        IceProps,
-        IceMXProps,
-        IceDiscoveryProps,
-        IceLocatorDiscoveryProps,
-        IceBoxProps,
-        IceBoxAdminProps,
-        IceBridgeProps,
-        IceGridAdminProps,
-        IceGridProps,
-        IceSSLProps,
-        IceStormProps,
-        IceStormAdminProps,
-        IceBTProps,
-        Glacier2Props,
-        DataStormProps
-    };
+        {
+            IceProps,
+            IceMXProps,
+            IceDiscoveryProps,
+            IceLocatorDiscoveryProps,
+            IceBoxProps,
+            IceBoxAdminProps,
+            IceBridgeProps,
+            IceGridAdminProps,
+            IceGridProps,
+            IceSSLProps,
+            IceStormProps,
+            IceStormAdminProps,
+            IceBTProps,
+            Glacier2Props,
+            DataStormProps
+        };
 
     private PropertyNames() {
     }

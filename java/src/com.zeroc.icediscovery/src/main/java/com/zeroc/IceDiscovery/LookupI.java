@@ -45,9 +45,9 @@ class LookupI implements Lookup {
             final Identity id = new Identity(_requestId, "");
             for (Map.Entry<LookupPrx, LookupReplyPrx> entry : lookups.entrySet()) {
                 invokeWithLookup(
-                        domainId,
-                        entry.getKey(),
-                        LookupReplyPrx.uncheckedCast(entry.getValue().ice_identity(id)));
+                    domainId,
+                    entry.getKey(),
+                    LookupReplyPrx.uncheckedCast(entry.getValue().ice_identity(id)));
             }
         }
 
@@ -105,7 +105,7 @@ class LookupI implements Lookup {
                 _proxies.add(proxy);
                 if (_latency == 0) {
                     _latency =
-                            (long) ((System.nanoTime() - _start) * _latencyMultiplier / 100000.0);
+                        (long) ((System.nanoTime() - _start) * _latencyMultiplier / 100000.0);
                     if (_latency == 0) {
                         _latency = 1; // 1ms
                     }
@@ -134,8 +134,8 @@ class LookupI implements Lookup {
                     endpoints.addAll(Arrays.asList(prx.ice_getEndpoints()));
                 }
                 sendResponse(
-                        result.ice_endpoints(
-                                endpoints.toArray(new Endpoint[endpoints.size()])));
+                    result.ice_endpoints(
+                        endpoints.toArray(new Endpoint[endpoints.size()])));
             }
         }
 
@@ -148,13 +148,13 @@ class LookupI implements Lookup {
         protected void invokeWithLookup(
                 String domainId, LookupPrx lookup, LookupReplyPrx lookupReply) {
             lookup.findAdapterByIdAsync(domainId, _id, lookupReply)
-                    .whenCompleteAsync(
-                            (v, ex) -> {
-                                if (ex != null) {
-                                    adapterRequestException(AdapterRequest.this, ex);
-                                }
-                            },
-                            lookup.ice_executor());
+                .whenCompleteAsync(
+                    (v, ex) -> {
+                        if (ex != null) {
+                            adapterRequestException(AdapterRequest.this, ex);
+                        }
+                    },
+                    lookup.ice_executor());
         }
 
         private void sendResponse(ObjectPrx proxy) {
@@ -198,13 +198,13 @@ class LookupI implements Lookup {
         protected void invokeWithLookup(
                 String domainId, LookupPrx lookup, LookupReplyPrx lookupReply) {
             lookup.findObjectByIdAsync(domainId, _id, lookupReply)
-                    .whenCompleteAsync(
-                            (v, ex) -> {
-                                if (ex != null) {
-                                    objectRequestException(ObjectRequest.this, ex);
-                                }
-                            },
-                            lookup.ice_executor());
+                .whenCompleteAsync(
+                    (v, ex) -> {
+                        if (ex != null) {
+                            objectRequestException(ObjectRequest.this, ex);
+                        }
+                    },
+                    lookup.ice_executor());
         }
     }
 
@@ -232,13 +232,13 @@ class LookupI implements Lookup {
         Endpoint[] single = new Endpoint[1];
         for (Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet()) {
             UDPEndpointInfo info =
-                    (UDPEndpointInfo) entry.getKey().ice_getEndpoints()[0].getInfo();
+                (UDPEndpointInfo) entry.getKey().ice_getEndpoints()[0].getInfo();
             if (!info.mcastInterface.isEmpty()) {
                 for (Endpoint q : lookupReply.ice_getEndpoints()) {
                     EndpointInfo r = q.getInfo();
                     if (r instanceof IPEndpointInfo
-                            && ((IPEndpointInfo) r)
-                                    .host.equals(info.mcastInterface)) {
+                        && ((IPEndpointInfo) r)
+                        .host.equals(info.mcastInterface)) {
                         single[0] = q;
                         entry.setValue((LookupReplyPrx) lookupReply.ice_endpoints(single));
                     }
@@ -335,12 +335,12 @@ class LookupI implements Lookup {
             Identity id, String requestId, ObjectPrx proxy) {
         ObjectRequest request = _objectRequests.get(id);
         if (request != null
-                && request.getRequestId().equals(requestId)) // Ignore responses from old requests
-        {
-            request.response(proxy);
-            request.cancelTimer();
-            _objectRequests.remove(id);
-        }
+            && request.getRequestId().equals(requestId)) // Ignore responses from old requests
+            {
+                request.response(proxy);
+                request.cancelTimer();
+                _objectRequests.remove(id);
+            }
     }
 
     synchronized void foundAdapter(
@@ -350,13 +350,13 @@ class LookupI implements Lookup {
             boolean isReplicaGroup) {
         AdapterRequest request = _adapterRequests.get(adapterId);
         if (request != null
-                && request.getRequestId().equals(requestId)) // Ignore responses from old requests
-        {
-            if (request.response(proxy, isReplicaGroup)) {
-                request.cancelTimer();
-                _adapterRequests.remove(adapterId);
+            && request.getRequestId().equals(requestId)) // Ignore responses from old requests
+            {
+                if (request.response(proxy, isReplicaGroup)) {
+                    request.cancelTimer();
+                    _adapterRequests.remove(adapterId);
+                }
             }
-        }
     }
 
     synchronized void objectRequestTimedOut(ObjectRequest request) {

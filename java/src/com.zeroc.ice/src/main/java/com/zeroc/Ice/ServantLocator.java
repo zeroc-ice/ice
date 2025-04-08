@@ -14,7 +14,8 @@ public interface ServantLocator {
     /** Holds the result of operation locate. */
     public static class LocateResult {
         /** Default constructor. */
-        public LocateResult() {}
+        public LocateResult() {
+        }
 
         /**
          * This constructor makes shallow copies of the results for operation Locate.
@@ -80,7 +81,7 @@ public interface ServantLocator {
      * @see #locate
      */
     void finished(Current curr, Object servant, java.lang.Object cookie)
-            throws UserException;
+        throws UserException;
 
     /**
      * Called when the object adapter in which this servant locator is installed is destroyed.

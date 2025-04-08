@@ -30,7 +30,8 @@ public class MetricsHelper<T> {
             }
         }
 
-        protected AttributeResolver() {}
+        protected AttributeResolver() {
+        }
 
         public String resolve(MetricsHelper<?> helper, String attribute) {
             Resolver resolver = _attributes.get(attribute);
@@ -49,24 +50,24 @@ public class MetricsHelper<T> {
 
         public void add(final String name, final java.lang.reflect.Method method) {
             _attributes.put(
-                    name,
-                    new Resolver() {
-                        @Override
-                        public Object resolve(Object obj) throws Exception {
-                            return method.invoke(obj);
-                        }
-                    });
+                name,
+                new Resolver() {
+                    @Override
+                    public Object resolve(Object obj) throws Exception {
+                        return method.invoke(obj);
+                    }
+                });
         }
 
         public void add(final String name, final java.lang.reflect.Field field) {
             _attributes.put(
-                    name,
-                    new Resolver() {
-                        @Override
-                        public Object resolve(Object obj) throws Exception {
-                            return getField(name, field, obj);
-                        }
-                    });
+                name,
+                new Resolver() {
+                    @Override
+                    public Object resolve(Object obj) throws Exception {
+                        return getField(name, field, obj);
+                    }
+                });
         }
 
         public void add(
@@ -74,13 +75,13 @@ public class MetricsHelper<T> {
                 final java.lang.reflect.Method method,
                 final java.lang.reflect.Field field) {
             _attributes.put(
-                    name,
-                    new Resolver() {
-                        @Override
-                        public Object resolve(Object obj) throws Exception {
-                            return getField(name, field, method.invoke(obj));
-                        }
-                    });
+                name,
+                new Resolver() {
+                    @Override
+                    public Object resolve(Object obj) throws Exception {
+                        return getField(name, field, method.invoke(obj));
+                    }
+                });
         }
 
         public void add(
@@ -88,21 +89,21 @@ public class MetricsHelper<T> {
                 final java.lang.reflect.Method method,
                 final java.lang.reflect.Method subMethod) {
             _attributes.put(
-                    name,
-                    new Resolver() {
-                        @Override
-                        public Object resolve(Object obj) throws Exception {
-                            Object o = method.invoke(obj);
-                            if (o != null) {
-                                return subMethod.invoke(o);
-                            }
-                            throw new IllegalArgumentException(name);
+                name,
+                new Resolver() {
+                    @Override
+                    public Object resolve(Object obj) throws Exception {
+                        Object o = method.invoke(obj);
+                        if (o != null) {
+                            return subMethod.invoke(o);
                         }
-                    });
+                        throw new IllegalArgumentException(name);
+                    }
+                });
         }
 
         private Object getField(String name, java.lang.reflect.Field field, Object o)
-                throws IllegalArgumentException, IllegalAccessException {
+            throws IllegalArgumentException, IllegalAccessException {
             while (o != null) {
                 try {
                     return field.get(o);

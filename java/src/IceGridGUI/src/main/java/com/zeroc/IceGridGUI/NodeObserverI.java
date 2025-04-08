@@ -24,16 +24,16 @@ class NodeObserverI implements NodeObserver {
                     names += " " + node.info.name;
                 }
                 _coordinator.traceObserver(
-                        "nodeInit for node" + (nodes.length == 1 ? "" : "s") + names);
+                    "nodeInit for node" + (nodes.length == 1 ? "" : "s") + names);
             }
         }
 
         SwingUtilities.invokeLater(
-                () -> {
-                    for (NodeDynamicInfo node : nodes) {
-                        _coordinator.nodeUp(node);
-                    }
-                });
+            () -> {
+                for (NodeDynamicInfo node : nodes) {
+                    _coordinator.nodeUp(node);
+                }
+            });
     }
 
     @Override
@@ -59,12 +59,12 @@ class NodeObserverI implements NodeObserver {
             final String node, final ServerDynamicInfo updatedInfo, Current current) {
         if (_trace) {
             _coordinator.traceObserver(
-                    "updateServer for server "
-                            + updatedInfo.id
-                            + " on node "
-                            + node
-                            + "; new state is "
-                            + updatedInfo.state.toString());
+                "updateServer for server "
+                    + updatedInfo.id
+                    + " on node "
+                    + node
+                    + "; new state is "
+                    + updatedInfo.state.toString());
         }
 
         SwingUtilities.invokeLater(() -> _coordinator.updateServer(node, updatedInfo));
@@ -77,12 +77,12 @@ class NodeObserverI implements NodeObserver {
             Current current) {
         if (_trace) {
             _coordinator.traceObserver(
-                    "updateAdapter for adapter "
-                            + updatedInfo.id
-                            + " on node "
-                            + node
-                            + "; new proxy is "
-                            + (updatedInfo.proxy == null ? "null" : updatedInfo.proxy.toString()));
+                "updateAdapter for adapter "
+                    + updatedInfo.id
+                    + " on node "
+                    + node
+                    + "; new proxy is "
+                    + (updatedInfo.proxy == null ? "null" : updatedInfo.proxy.toString()));
         }
 
         SwingUtilities.invokeLater(() -> _coordinator.updateAdapter(node, updatedInfo));

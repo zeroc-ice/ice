@@ -18,17 +18,19 @@ public class TestServiceI implements Service {
         // String>>.
         // Set the callback on the admin facet.
         Object propFacet =
-                serviceManagerCommunicator.findAdminFacet("IceBox.Service.TestService.Properties");
+            serviceManagerCommunicator.findAdminFacet("IceBox.Service.TestService.Properties");
         if (propFacet != null) {
             NativePropertiesAdmin admin =
-                    (NativePropertiesAdmin) propFacet;
+                (NativePropertiesAdmin) propFacet;
             admin.addUpdateCallback(facet);
         }
     }
 
     @Override
-    public void start(String name, Communicator communicator, String[] args) {}
+    public void start(String name, Communicator communicator, String[] args) {
+    }
 
     @Override
-    public void stop() {}
+    public void stop() {
+    }
 }

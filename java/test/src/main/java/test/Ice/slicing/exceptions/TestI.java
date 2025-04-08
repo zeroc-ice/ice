@@ -70,7 +70,7 @@ public final class TestI implements TestIntf {
 
     @Override
     public void knownIntermediateAsKnownIntermediate(Current current)
-            throws KnownIntermediate {
+        throws KnownIntermediate {
         KnownIntermediate ki = new KnownIntermediate();
         ki.b = "KnownIntermediate.b";
         ki.ki = "KnownIntermediate.ki";
@@ -79,7 +79,7 @@ public final class TestI implements TestIntf {
 
     @Override
     public void knownMostDerivedAsKnownIntermediate(Current current)
-            throws KnownIntermediate {
+        throws KnownIntermediate {
         KnownMostDerived kmd = new KnownMostDerived();
         kmd.b = "KnownMostDerived.b";
         kmd.ki = "KnownMostDerived.ki";
@@ -89,7 +89,7 @@ public final class TestI implements TestIntf {
 
     @Override
     public void knownMostDerivedAsKnownMostDerived(Current current)
-            throws KnownMostDerived {
+        throws KnownMostDerived {
         KnownMostDerived kmd = new KnownMostDerived();
         kmd.b = "KnownMostDerived.b";
         kmd.ki = "KnownMostDerived.ki";
@@ -108,7 +108,7 @@ public final class TestI implements TestIntf {
 
     @Override
     public void unknownMostDerived1AsKnownIntermediate(Current current)
-            throws KnownIntermediate {
+        throws KnownIntermediate {
         UnknownMostDerived1 umd1 = new UnknownMostDerived1();
         umd1.b = "UnknownMostDerived1.b";
         umd1.ki = "UnknownMostDerived1.ki";

@@ -2,8 +2,13 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.CommunicatorDescriptor;
+import com.zeroc.IceGrid.IceBoxDescriptor;
+import com.zeroc.IceGrid.ServerDescriptor;
+import com.zeroc.IceGrid.TemplateDescriptor;
+import com.zeroc.IceGridGUI.ApplicationActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
 
 import javax.swing.JPopupMenu;
 
@@ -49,19 +54,19 @@ class ServerTemplates extends Templates {
     @Override
     public void newTemplateServer() {
         newServerTemplate(
-                new TemplateDescriptor(
-                        PlainServer.newServerDescriptor(),
-                        new LinkedList<String>(),
-                        new TreeMap<String, String>()));
+            new TemplateDescriptor(
+                PlainServer.newServerDescriptor(),
+                new LinkedList<String>(),
+                new TreeMap<String, String>()));
     }
 
     @Override
     public void newTemplateServerIceBox() {
         newServerTemplate(
-                new TemplateDescriptor(
-                        PlainServer.newIceBoxDescriptor(),
-                        new LinkedList<String>(),
-                        new TreeMap<String, String>()));
+            new TemplateDescriptor(
+                PlainServer.newIceBoxDescriptor(),
+                new LinkedList<String>(),
+                new TreeMap<String, String>()));
     }
 
     @Override
@@ -79,7 +84,7 @@ class ServerTemplates extends Templates {
     }
 
     ServerTemplates(Root parent, Map<String, TemplateDescriptor> descriptors)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         super(parent, "Server templates");
 
         _descriptors = descriptors;
@@ -157,7 +162,7 @@ class ServerTemplates extends Templates {
             Map<String, TemplateDescriptor> updates,
             String[] removeTemplates,
             Set<String> serviceTemplates)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         // One big set of removes
         removeChildren(removeTemplates);
 
@@ -184,7 +189,7 @@ class ServerTemplates extends Templates {
                 ServerTemplate serverTemplate = (ServerTemplate) q.getParent();
 
                 if (!updatedChildren.contains(serverTemplate)
-                        && !newChildren.contains(serverTemplate)) {
+                    && !newChildren.contains(serverTemplate)) {
                     serverTemplate.rebuild();
                     updatedChildren.add(serverTemplate);
                 }

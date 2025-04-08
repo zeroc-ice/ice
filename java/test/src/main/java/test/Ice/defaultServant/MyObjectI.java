@@ -6,7 +6,7 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.FacetNotExistException;
 import com.zeroc.Ice.ObjectNotExistException;
 
-import test.Ice.defaultServant.Test.*;
+import test.Ice.defaultServant.Test.MyObject;
 
 public final class MyObjectI implements MyObject {
     @Override

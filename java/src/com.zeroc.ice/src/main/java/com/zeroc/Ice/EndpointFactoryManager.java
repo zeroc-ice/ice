@@ -43,9 +43,9 @@ final class EndpointFactoryManager {
 
         if (arr.length == 0) {
             throw new ParseException(
-                    "Failed to parse endpoint '"
-                            + str
-                            + "': value has no non-whitespace characters");
+                "Failed to parse endpoint '"
+                    + str
+                    + "': value has no non-whitespace characters");
         }
 
         ArrayList<String> v = new ArrayList<>(Arrays.asList(arr));
@@ -68,11 +68,11 @@ final class EndpointFactoryManager {
             EndpointI e = factory.create(v, oaEndpoint);
             if (!v.isEmpty()) {
                 throw new ParseException(
-                        "Failed to parse endpoint '"
-                                + str
-                                + "': unrecognized argument '"
-                                + v.get(0)
-                                + "'");
+                    "Failed to parse endpoint '"
+                        + str
+                        + "': unrecognized argument '"
+                        + v.get(0)
+                        + "'");
             }
             return e;
 
@@ -100,11 +100,11 @@ final class EndpointFactoryManager {
             EndpointI ue = new OpaqueEndpointI(v);
             if (!v.isEmpty()) {
                 throw new ParseException(
-                        "Failed to parse endpoint '"
-                                + str
-                                + "': unrecognized argument '"
-                                + v.get(0)
-                                + "'");
+                    "Failed to parse endpoint '"
+                        + str
+                        + "': unrecognized argument '"
+                        + v.get(0)
+                        + "'");
             }
             factory = get(ue.type());
             if (factory != null) {
@@ -114,14 +114,14 @@ final class EndpointFactoryManager {
                 // the actual endpoint.
                 //
                 var os =
-                        new OutputStream(
-                                Protocol.currentProtocolEncoding,
-                                _instance.cacheMessageBuffers() > 1);
+                    new OutputStream(
+                        Protocol.currentProtocolEncoding,
+                        _instance.cacheMessageBuffers() > 1);
                 os.writeShort(ue.type());
                 ue.streamWrite(os);
                 var is =
-                        new InputStream(
-                                _instance, Protocol.currentProtocolEncoding, os.getBuffer(), true);
+                    new InputStream(
+                        _instance, Protocol.currentProtocolEncoding, os.getBuffer(), true);
                 is.pos(0);
                 is.readShort(); // type
                 is.startEncapsulation();

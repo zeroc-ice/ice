@@ -123,18 +123,18 @@ final class ObjectAdapterFactory {
             if (name.isEmpty()) {
                 String uuid = UUID.randomUUID().toString();
                 adapter =
-                        new ObjectAdapter(
-                                _instance, _communicator, this, uuid, null, true, sslEngineFactory);
+                    new ObjectAdapter(
+                        _instance, _communicator, this, uuid, null, true, sslEngineFactory);
             } else {
                 adapter =
-                        new ObjectAdapter(
-                                _instance,
-                                _communicator,
-                                this,
-                                name,
-                                router,
-                                false,
-                                sslEngineFactory);
+                    new ObjectAdapter(
+                        _instance,
+                        _communicator,
+                        this,
+                        name,
+                        router,
+                        false,
+                        sslEngineFactory);
             }
 
             synchronized (this) {

@@ -29,7 +29,7 @@ public final class Communicator implements AutoCloseable {
      */
     public void close() {
         _instance.destroy(
-                false); // Don't allow destroy to be interrupted if called from try with statement.
+            false); // Don't allow destroy to be interrupted if called from try with statement.
     }
 
     /**
@@ -150,8 +150,8 @@ public final class Communicator implements AutoCloseable {
      */
     public Map<String, String> proxyToProperty(ObjectPrx proxy, String prefix) {
         return proxy == null
-                ? new HashMap<>()
-                : proxy._getReference().toProperty(prefix);
+            ? new HashMap<>()
+            : proxy._getReference().toProperty(prefix);
     }
 
     /**
@@ -208,7 +208,7 @@ public final class Communicator implements AutoCloseable {
     public ObjectAdapter createObjectAdapter(String name, SSLEngineFactory sslEngineFactory) {
         if (name.isEmpty() && sslEngineFactory != null) {
             throw new IllegalArgumentException(
-                    "name cannot be empty when using an SSLEngineFactory");
+                "name cannot be empty when using an SSLEngineFactory");
         }
         return _instance.objectAdapterFactory().createObjectAdapter(name, null, sslEngineFactory);
     }

@@ -4,8 +4,10 @@ package test.Ice.seqMapping;
 
 import com.zeroc.Ice.Current;
 
-import test.Ice.seqMapping.AMD.Test.*;
-import test.Ice.seqMapping.Serialize.*;
+import test.Ice.seqMapping.AMD.Test.MyClass;
+import test.Ice.seqMapping.Serialize.Large;
+import test.Ice.seqMapping.Serialize.Small;
+import test.Ice.seqMapping.Serialize.Struct;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;

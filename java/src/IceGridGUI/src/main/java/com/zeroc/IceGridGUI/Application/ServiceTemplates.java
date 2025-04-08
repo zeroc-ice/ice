@@ -3,7 +3,9 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.ApplicationActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
 
 import javax.swing.JPopupMenu;
 
@@ -47,20 +49,20 @@ class ServiceTemplates extends Templates {
     @Override
     public void newTemplateService() {
         ServiceDescriptor sd =
-                new ServiceDescriptor(
-                        new LinkedList<AdapterDescriptor>(),
-                        new PropertySetDescriptor(
-                                new String[0], new LinkedList<PropertyDescriptor>()),
-                        new String[0],
-                        "",
-                        "",
-                        "");
+            new ServiceDescriptor(
+                new LinkedList<AdapterDescriptor>(),
+                new PropertySetDescriptor(
+                    new String[0], new LinkedList<PropertyDescriptor>()),
+                new String[0],
+                "",
+                "",
+                "");
 
         newServiceTemplate(
-                new TemplateDescriptor(
-                        sd,
-                        new LinkedList<String>(),
-                        new TreeMap<String, String>()));
+            new TemplateDescriptor(
+                sd,
+                new LinkedList<String>(),
+                new TreeMap<String, String>()));
     }
 
     @Override
@@ -71,7 +73,7 @@ class ServiceTemplates extends Templates {
     }
 
     ServiceTemplates(Root parent, Map<String, TemplateDescriptor> descriptors)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         super(parent, "Service templates");
 
         _descriptors = descriptors;
@@ -125,7 +127,7 @@ class ServiceTemplates extends Templates {
     }
 
     void update(Map<String, TemplateDescriptor> descriptors, String[] removeTemplates)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         //
         // Note: _descriptors is updated by Application
         //

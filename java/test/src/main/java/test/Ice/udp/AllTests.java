@@ -10,7 +10,9 @@ import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.SocketException;
 
-import test.Ice.udp.Test.*;
+import test.Ice.udp.Test.PingReply;
+import test.Ice.udp.Test.PingReplyPrx;
+import test.Ice.udp.Test.TestIntfPrx;
 import test.TestHelper;
 
 import java.io.PrintWriter;
@@ -66,7 +68,7 @@ public class AllTests {
         out.print("testing udp... ");
         out.flush();
         ObjectPrx base =
-                communicator.stringToProxy("test -d:" + helper.getTestEndpoint(0, "udp"));
+            communicator.stringToProxy("test -d:" + helper.getTestEndpoint(0, "udp"));
         TestIntfPrx obj = TestIntfPrx.uncheckedCast(base);
 
         int nRetry = 5;
@@ -133,18 +135,18 @@ public class AllTests {
                 endpoint.append("udp -h \"ff15::1:1\" -p ");
                 endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
                 if (System.getProperty("os.name").contains("OS X")
-                        || System.getProperty("os.name").startsWith("Windows")) {
+                    || System.getProperty("os.name").startsWith("Windows")) {
                     endpoint.append(
-                            " --interface \"::1\""); // Use loopback to prevent other machines to
+                        " --interface \"::1\""); // Use loopback to prevent other machines to
                     // answer.
                 }
             } else {
                 endpoint.append("udp -h 239.255.1.1 -p ");
                 endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
                 if (System.getProperty("os.name").contains("OS X")
-                        || System.getProperty("os.name").startsWith("Windows")) {
+                    || System.getProperty("os.name").startsWith("Windows")) {
                     endpoint.append(
-                            " --interface 127.0.0.1"); // Use loopback to prevent other machines to
+                        " --interface 127.0.0.1"); // Use loopback to prevent other machines to
                     // answer.
                 }
             }

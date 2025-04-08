@@ -10,7 +10,7 @@ import com.zeroc.IceGrid.NodeNotExistException;
 import com.zeroc.IceGrid.NodeUnreachableException;
 import com.zeroc.IceGrid.ServerNotExistException;
 import com.zeroc.IceGrid.ServerStartException;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.TreeNodeBase;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -160,38 +160,38 @@ public abstract class TreeNode extends TreeNodeBase {
     protected void amiFailure(String prefix, String title, Throwable e) {
         if (e instanceof ServerNotExistException) {
             ServerNotExistException sne =
-                    (ServerNotExistException) e;
+                (ServerNotExistException) e;
 
             amiFailure(
-                    prefix,
-                    title,
-                    "Server '" + sne.id + "' was not registered with the IceGrid Registry");
+                prefix,
+                title,
+                "Server '" + sne.id + "' was not registered with the IceGrid Registry");
         } else if (e instanceof ServerStartException) {
             ServerStartException ste = (ServerStartException) e;
             amiFailure(prefix, title, "Server '" + ste.id + "' did not start: " + ste.reason);
         } else if (e instanceof ApplicationNotExistException) {
             amiFailure(
-                    prefix, title, "This application was not registered with the IceGrid Registry");
+                prefix, title, "This application was not registered with the IceGrid Registry");
         } else if (e instanceof NodeNotExistException) {
             NodeNotExistException nnee =
-                    (NodeNotExistException) e;
+                (NodeNotExistException) e;
 
             amiFailure(
-                    prefix,
-                    title,
-                    "Node '" + nnee.name + " 'was not registered with the IceGrid Registry.");
+                prefix,
+                title,
+                "Node '" + nnee.name + " 'was not registered with the IceGrid Registry.");
         } else if (e instanceof NodeUnreachableException) {
             NodeUnreachableException nue =
-                    (NodeUnreachableException) e;
+                (NodeUnreachableException) e;
             amiFailure(prefix, title, "Node '" + nue.name + "' is unreachable: " + nue.reason);
         } else if (e instanceof DeploymentException) {
             DeploymentException de = (DeploymentException) e;
             amiFailure(prefix, title, "Deployment exception: " + de.reason);
         } else if (e instanceof ObjectNotExistException) {
             SwingUtilities.invokeLater(
-                    () -> {
-                        getCoordinator().getSessionKeeper().sessionLost();
-                    });
+                () -> {
+                    getCoordinator().getSessionKeeper().sessionLost();
+                });
         } else {
             amiFailure(prefix, title, title + ":\n" + e.toString());
         }
@@ -205,7 +205,7 @@ public abstract class TreeNode extends TreeNodeBase {
         getCoordinator().getStatusBar().setText(prefix + " failed!");
 
         JOptionPane.showMessageDialog(
-                getCoordinator().getMainFrame(), message, title, JOptionPane.ERROR_MESSAGE);
+            getCoordinator().getMainFrame(), message, title, JOptionPane.ERROR_MESSAGE);
     }
 
     protected void success(String prefix, String detail) {

@@ -26,8 +26,8 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
                 //
                 _sentSynchronously = true;
                 _proxy._getReference()
-                        .getBatchRequestQueue()
-                        .finishBatchRequest(_os, _proxy, _operation);
+                    .getBatchRequestQueue()
+                    .finishBatchRequest(_os, _proxy, _operation);
                 finished(true, false);
             } else {
                 // invokeImpl can throw and we handle the exception with abort.
@@ -56,7 +56,7 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
 
     @Override
     public int invokeRemote(ConnectionI connection, boolean compress, boolean response)
-            throws RetryException {
+        throws RetryException {
         _cachedConnection = connection;
         return connection.sendAsyncRequest(this, compress, response, 0);
     }
@@ -66,7 +66,7 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
         // The stream cannot be cached if the proxy is not a twoway or there is an invocation
         // timeout set.
         if (!_proxy.ice_isTwoway()
-                || _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
+            || _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
         }
@@ -113,10 +113,10 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
         // _is can already be initialized if the invocation is retried
         if (_is == null) {
             _is =
-                    new InputStream(
-                            _instance,
-                            Protocol.currentProtocolEncoding,
-                            _instance.cacheMessageBuffers() > 1);
+                new InputStream(
+                    _instance,
+                    Protocol.currentProtocolEncoding,
+                    _instance.cacheMessageBuffers() > 1);
         }
         _is.swap(is);
 

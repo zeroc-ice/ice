@@ -21,7 +21,7 @@ public class TestI implements TestIntf {
         _registry = registry;
 
         _registry.addObject(
-                _adapter1.add(new HelloI(), Util.stringToIdentity("hello")), null);
+            _adapter1.add(new HelloI(), Util.stringToIdentity("hello")), null);
     }
 
     @Override
@@ -32,13 +32,13 @@ public class TestI implements TestIntf {
     @Override
     public HelloPrx getHello(Current current) {
         return HelloPrx.uncheckedCast(
-                _adapter1.createIndirectProxy(Util.stringToIdentity("hello")));
+            _adapter1.createIndirectProxy(Util.stringToIdentity("hello")));
     }
 
     @Override
     public HelloPrx getReplicatedHello(Current current) {
         return HelloPrx.uncheckedCast(
-                _adapter1.createProxy(Util.stringToIdentity("hello")));
+            _adapter1.createProxy(Util.stringToIdentity("hello")));
     }
 
     @Override

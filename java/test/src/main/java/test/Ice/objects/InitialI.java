@@ -85,10 +85,12 @@ public final class InitialI implements Initial {
     }
 
     @Override
-    public void setRecursive(Recursive r, Current current) {}
+    public void setRecursive(Recursive r, Current current) {
+    }
 
     @Override
-    public void setCycle(Recursive r, Current current) {}
+    public void setCycle(Recursive r, Current current) {
+    }
 
     @Override
     public boolean acceptsClassCycles(Current current) {
@@ -137,7 +139,8 @@ public final class InitialI implements Initial {
     }
 
     @Override
-    public void setG(G theG, Current current) {}
+    public void setG(G theG, Current current) {
+    }
 
     @Override
     public Initial.OpBaseSeqResult opBaseSeq(Base[] inS, Current current) {
@@ -166,7 +169,7 @@ public final class InitialI implements Initial {
 
     @Override
     public void throwInnerSubEx(Current current)
-            throws test.Ice.objects.Test.Inner.Sub.Ex {
+        throws test.Ice.objects.Test.Inner.Sub.Ex {
         throw new test.Ice.objects.Test.Inner.Sub.Ex("Inner::Sub::Ex");
     }
 

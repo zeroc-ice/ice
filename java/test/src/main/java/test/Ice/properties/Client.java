@@ -34,7 +34,7 @@ public class Client extends TestHelper {
             //
             System.out.print("testing using Ice.Config with multiple config files... ");
             String[] args1 =
-                    new String[]{"--Ice.Config=config/config.1, config/config.2, config/config.3"};
+                new String[]{"--Ice.Config=config/config.1, config/config.2, config/config.3"};
             Properties properties = new Properties(args1);
             test("Config1".equals(properties.getProperty("Config1")));
             test("Config2".equals(properties.getProperty("Config2")));
@@ -48,30 +48,30 @@ public class Client extends TestHelper {
             Properties properties = new Properties(args1);
 
             String[] props =
-                    new String[]{
-                        "Foo\tBar", "3",
-                        "Foo\\tBar", "4",
-                        "Escape\\ Space", "2",
-                        "Prop1", "1",
-                        "Prop2", "2",
-                        "Prop3", "3",
-                        "My Prop1", "1",
-                        "My Prop2", "2",
-                        "My.Prop1", "a property",
-                        "My.Prop2", "a     property",
-                        "My.Prop3", "  a     property  ",
-                        "My.Prop4", "  a     property  ",
-                        "My.Prop5", "a \\ property",
-                        "foo=bar", "1",
-                        "foo#bar", "2",
-                        "foo bar", "3",
-                        "A", "1",
-                        "B", "2 3 4",
-                        "C", "5=#6",
-                        "AServer", "\\\\server\\dir",
-                        "BServer", "\\server\\dir",
-                        ""
-                    };
+                new String[]{
+                    "Foo\tBar", "3",
+                    "Foo\\tBar", "4",
+                    "Escape\\ Space", "2",
+                    "Prop1", "1",
+                    "Prop2", "2",
+                    "Prop3", "3",
+                    "My Prop1", "1",
+                    "My Prop2", "2",
+                    "My.Prop1", "a property",
+                    "My.Prop2", "a     property",
+                    "My.Prop3", "  a     property  ",
+                    "My.Prop4", "  a     property  ",
+                    "My.Prop5", "a \\ property",
+                    "foo=bar", "1",
+                    "foo#bar", "2",
+                    "foo bar", "3",
+                    "A", "1",
+                    "B", "2 3 4",
+                    "C", "5=#6",
+                    "AServer", "\\\\server\\dir",
+                    "BServer", "\\server\\dir",
+                    ""
+                };
 
             for (int i = 0; !props[i].isEmpty(); i += 2) {
                 test(properties.getProperty(props[i]).equals(props[i + 1]));
@@ -139,8 +139,8 @@ public class Client extends TestHelper {
                 var properties = communicator.getProperties();
 
                 System.out.print(
-                        "testing that creating an object adapter with unknown properties throws an"
-                                + " exception...");
+                    "testing that creating an object adapter with unknown properties throws an"
+                        + " exception...");
                 properties.setProperty("FooOA.Endpoints", "tcp -h 127.0.0.1");
                 properties.setProperty("FooOA.UnknownProperty", "bar");
                 try {
@@ -151,8 +151,8 @@ public class Client extends TestHelper {
                 System.out.println("ok");
 
                 System.out.print(
-                        "testing that creating a proxy with unknown properties throws an"
-                                + " exception...");
+                    "testing that creating a proxy with unknown properties throws an"
+                        + " exception...");
                 properties.setProperty("FooProxy", "test:tcp -h 127.0.0.1 -p 10000");
                 properties.setProperty("FooProxy.UnknownProperty", "bar");
                 try {
@@ -163,8 +163,8 @@ public class Client extends TestHelper {
                 System.out.println("ok");
 
                 System.out.print(
-                        "testing that setting a property in an opt-in prefix that is not configured"
-                                + " throws an exception...");
+                    "testing that setting a property in an opt-in prefix that is not configured"
+                        + " throws an exception...");
                 System.out.flush();
                 try {
                     properties.setProperty("IceGrid.InstanceName", "TestGrid");
@@ -177,8 +177,8 @@ public class Client extends TestHelper {
 
         {
             System.out.print(
-                    "testing that passing a property multiple times on the command line uses the"
-                            + " last value... ");
+                "testing that passing a property multiple times on the command line uses the"
+                    + " last value... ");
             System.out.flush();
             String[] commandLineArgs = {"--Ice.MessageSizeMax=10", "--Ice.MessageSizeMax=20"};
             Properties properties = new Properties(commandLineArgs);
@@ -188,7 +188,7 @@ public class Client extends TestHelper {
 
         {
             System.out.print(
-                    "testing that trying to read a non-numeric value as an int throws... ");
+                "testing that trying to read a non-numeric value as an int throws... ");
             System.out.flush();
 
             Properties properties = new Properties();

@@ -214,141 +214,141 @@ final class OpaqueEndpointI extends EndpointI {
     //
     @Override
     public int compareTo(EndpointI obj) // From java.lang.Comparable
-            {
-        if (!(obj instanceof OpaqueEndpointI)) {
-            return type() < obj.type() ? -1 : 1;
-        }
+        {
+            if (!(obj instanceof OpaqueEndpointI)) {
+                return type() < obj.type() ? -1 : 1;
+            }
 
-        OpaqueEndpointI p = (OpaqueEndpointI) obj;
-        if (this == p) {
-            return 0;
-        }
+            OpaqueEndpointI p = (OpaqueEndpointI) obj;
+            if (this == p) {
+                return 0;
+            }
 
-        if (_type < p._type) {
-            return -1;
-        } else if (p._type < _type) {
-            return 1;
-        }
-
-        if (_rawEncoding.major < p._rawEncoding.major) {
-            return -1;
-        } else if (p._rawEncoding.major < _rawEncoding.major) {
-            return 1;
-        }
-
-        if (_rawEncoding.minor < p._rawEncoding.minor) {
-            return -1;
-        } else if (p._rawEncoding.minor < _rawEncoding.minor) {
-            return 1;
-        }
-
-        if (_rawBytes.length < p._rawBytes.length) {
-            return -1;
-        } else if (p._rawBytes.length < _rawBytes.length) {
-            return 1;
-        }
-        for (int i = 0; i < _rawBytes.length; i++) {
-            if (_rawBytes[i] < p._rawBytes[i]) {
+            if (_type < p._type) {
                 return -1;
-            } else if (p._rawBytes[i] < _rawBytes[i]) {
+            } else if (p._type < _type) {
                 return 1;
             }
-        }
 
-        return 0;
-    }
+            if (_rawEncoding.major < p._rawEncoding.major) {
+                return -1;
+            } else if (p._rawEncoding.major < _rawEncoding.major) {
+                return 1;
+            }
+
+            if (_rawEncoding.minor < p._rawEncoding.minor) {
+                return -1;
+            } else if (p._rawEncoding.minor < _rawEncoding.minor) {
+                return 1;
+            }
+
+            if (_rawBytes.length < p._rawBytes.length) {
+                return -1;
+            } else if (p._rawBytes.length < _rawBytes.length) {
+                return 1;
+            }
+            for (int i = 0; i < _rawBytes.length; i++) {
+                if (_rawBytes[i] < p._rawBytes[i]) {
+                    return -1;
+                } else if (p._rawBytes[i] < _rawBytes[i]) {
+                    return 1;
+                }
+            }
+
+            return 0;
+        }
 
     @Override
     protected boolean checkOption(String option, String argument, String endpoint) {
         switch (option.charAt(1)) {
             case 't':
-                {
-                    if (_type > -1) {
-                        throw new ParseException(
-                                "multiple -t options in endpoint '" + endpoint + "'");
-                    }
-                    if (argument == null) {
-                        throw new ParseException(
-                                "no argument provided for -t option in endpoint '"
-                                        + endpoint
-                                        + "'");
-                    }
-
-                    int t;
-                    try {
-                        t = Integer.parseInt(argument);
-                    } catch (NumberFormatException ex) {
-                        throw new ParseException(
-                                "invalid type value '"
-                                        + argument
-                                        + "' in endpoint '"
-                                        + endpoint
-                                        + "'",
-                                ex);
-                    }
-
-                    if (t < 0 || t > 65535) {
-                        throw new ParseException(
-                                "type value '"
-                                        + argument
-                                        + "' out of range in endpoint '"
-                                        + endpoint
-                                        + "'");
-                    }
-
-                    _type = (short) t;
-                    return true;
+            {
+                if (_type > -1) {
+                    throw new ParseException(
+                        "multiple -t options in endpoint '" + endpoint + "'");
                 }
+                if (argument == null) {
+                    throw new ParseException(
+                        "no argument provided for -t option in endpoint '"
+                            + endpoint
+                            + "'");
+                }
+
+                int t;
+                try {
+                    t = Integer.parseInt(argument);
+                } catch (NumberFormatException ex) {
+                    throw new ParseException(
+                        "invalid type value '"
+                            + argument
+                            + "' in endpoint '"
+                            + endpoint
+                            + "'",
+                        ex);
+                }
+
+                if (t < 0 || t > 65535) {
+                    throw new ParseException(
+                        "type value '"
+                            + argument
+                            + "' out of range in endpoint '"
+                            + endpoint
+                            + "'");
+                }
+
+                _type = (short) t;
+                return true;
+            }
 
             case 'v':
-                {
-                    if (_rawBytes.length > 0) {
-                        throw new ParseException(
-                                "multiple -v options in endpoint '" + endpoint + "'");
-                    }
-                    if (argument == null) {
-                        throw new ParseException(
-                                "no argument provided for -v option in endpoint '"
-                                        + endpoint
-                                        + "'");
-                    }
-
-                    try {
-                        _rawBytes = Base64.decode(argument);
-                    } catch (IllegalArgumentException ex) {
-                        throw new ParseException(
-                                "invalid Base64 input in endpoint '" + endpoint + "'", ex);
-                    }
-                    return true;
+            {
+                if (_rawBytes.length > 0) {
+                    throw new ParseException(
+                        "multiple -v options in endpoint '" + endpoint + "'");
                 }
+                if (argument == null) {
+                    throw new ParseException(
+                        "no argument provided for -v option in endpoint '"
+                            + endpoint
+                            + "'");
+                }
+
+                try {
+                    _rawBytes = Base64.decode(argument);
+                } catch (IllegalArgumentException ex) {
+                    throw new ParseException(
+                        "invalid Base64 input in endpoint '" + endpoint + "'", ex);
+                }
+                return true;
+            }
 
             case 'e':
-                {
-                    if (argument == null) {
-                        throw new ParseException(
-                                "no argument provided for -e option in endpoint '"
-                                        + endpoint
-                                        + "'");
-                    }
-
-                    try {
-                        _rawEncoding = Util.stringToEncodingVersion(argument);
-                    } catch (ParseException ex) {
-                        throw new ParseException(
-                                "invalid encoding version '"
-                                        + argument
-                                        + "' in endpoint '"
-                                        + endpoint
-                                        + "'",
-                                ex);
-                    }
-                    return true;
+            {
+                if (argument == null) {
+                    throw new ParseException(
+                        "no argument provided for -e option in endpoint '"
+                            + endpoint
+                            + "'");
                 }
+
+                try {
+                    _rawEncoding = Util.stringToEncodingVersion(argument);
+                } catch (ParseException ex) {
+                    throw new ParseException(
+                        "invalid encoding version '"
+                            + argument
+                            + "' in endpoint '"
+                            + endpoint
+                            + "'",
+                        ex);
+                }
+                return true;
+            }
 
             default:
-                {
-                    return false;
-                }
+            {
+                return false;
+            }
         }
     }
 

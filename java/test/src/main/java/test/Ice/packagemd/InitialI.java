@@ -58,13 +58,13 @@ public final class InitialI implements Initial {
 
     @Override
     public void throwTest2E2AsE1(Current current)
-            throws test.Ice.packagemd.testpkg.Test2.E1 {
+        throws test.Ice.packagemd.testpkg.Test2.E1 {
         throw new test.Ice.packagemd.testpkg.Test2.E2();
     }
 
     @Override
     public void throwTest2E2AsE2(Current current)
-            throws test.Ice.packagemd.testpkg.Test2.E2 {
+        throws test.Ice.packagemd.testpkg.Test2.E2 {
         throw new test.Ice.packagemd.testpkg.Test2.E2();
     }
 
@@ -84,13 +84,13 @@ public final class InitialI implements Initial {
 
     @Override
     public void throwTest3E2AsE1(Current current)
-            throws test.Ice.packagemd.modpkg.Test3.E1 {
+        throws test.Ice.packagemd.modpkg.Test3.E1 {
         throw new test.Ice.packagemd.modpkg.Test3.E2();
     }
 
     @Override
     public void throwTest3E2AsE2(Current current)
-            throws test.Ice.packagemd.modpkg.Test3.E2 {
+        throws test.Ice.packagemd.modpkg.Test3.E2 {
         throw new test.Ice.packagemd.modpkg.Test3.E2();
     }
 

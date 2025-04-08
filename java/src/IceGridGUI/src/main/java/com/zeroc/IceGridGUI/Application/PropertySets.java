@@ -2,8 +2,10 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.PropertyDescriptor;
+import com.zeroc.IceGrid.PropertySetDescriptor;
+import com.zeroc.IceGridGUI.ApplicationActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
 
 import javax.swing.JPopupMenu;
 
@@ -47,8 +49,8 @@ class PropertySets extends ListTreeNode implements PropertySetParent {
     @Override
     public void newPropertySet() {
         PropertySetDescriptor descriptor =
-                new PropertySetDescriptor(
-                        new String[0], new LinkedList<PropertyDescriptor>());
+            new PropertySetDescriptor(
+                new String[0], new LinkedList<PropertyDescriptor>());
         newPropertySet(descriptor);
     }
 
@@ -61,7 +63,7 @@ class PropertySets extends ListTreeNode implements PropertySetParent {
     }
 
     PropertySets(TreeNode parent, Map<String, PropertySetDescriptor> desc)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         super(false, parent, "Property Sets");
         _descriptors = desc;
 
@@ -72,7 +74,7 @@ class PropertySets extends ListTreeNode implements PropertySetParent {
     }
 
     void update(Map<String, PropertySetDescriptor> updates, String[] removePropertySets)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         //
         // Note: _descriptors is updated by Root
         //

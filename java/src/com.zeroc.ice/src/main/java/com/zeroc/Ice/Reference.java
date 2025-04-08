@@ -205,8 +205,8 @@ public abstract class Reference implements Cloneable {
         DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
 
         return defaultsAndOverrides.overrideCompress.isPresent()
-                ? defaultsAndOverrides.overrideCompress
-                : _compress;
+            ? defaultsAndOverrides.overrideCompress
+            : _compress;
     }
 
     //
@@ -299,34 +299,34 @@ public abstract class Reference implements Cloneable {
 
         switch (_mode) {
             case ModeTwoway:
-                {
-                    // Don't print the default mode.
-                    break;
-                }
+            {
+                // Don't print the default mode.
+                break;
+            }
 
             case ModeOneway:
-                {
-                    s.append(" -o");
-                    break;
-                }
+            {
+                s.append(" -o");
+                break;
+            }
 
             case ModeBatchOneway:
-                {
-                    s.append(" -O");
-                    break;
-                }
+            {
+                s.append(" -O");
+                break;
+            }
 
             case ModeDatagram:
-                {
-                    s.append(" -d");
-                    break;
-                }
+            {
+                s.append(" -d");
+                break;
+            }
 
             case ModeBatchDatagram:
-                {
-                    s.append(" -D");
-                    break;
-                }
+            {
+                s.append(" -D");
+                break;
+            }
         }
 
         if (_secure) {
@@ -342,7 +342,7 @@ public abstract class Reference implements Cloneable {
         // We print the encoding if it's not 1.1 or if Ice.Default.EncodingVersion is set to
         // something other than 1.1.
         if (!_encoding.equals(Util.Encoding_1_1)
-                || !_instance.defaultsAndOverrides().defaultEncoding.equals(Util.Encoding_1_1)) {
+            || !_instance.defaultsAndOverrides().defaultEncoding.equals(Util.Encoding_1_1)) {
             s.append(" -e ");
             s.append(Util.encodingVersionToString(_encoding));
         }

@@ -127,31 +127,31 @@ public abstract class Communicator extends TreeNode {
             final String prefix = "Opening Ice Log file for " + getServerDisplayName() + "...";
 
             provideAdmin(
-                    prefix,
-                    admin -> {
-                        final LoggerAdminPrx loggerAdmin =
-                                LoggerAdminPrx.uncheckedCast(
-                                        getAdminFacet(admin, "Logger"));
-                        final String title = getDisplayName() + " Ice log";
-                        final String defaultFileName = getDefaultFileName();
+                prefix,
+                admin -> {
+                    final LoggerAdminPrx loggerAdmin =
+                        LoggerAdminPrx.uncheckedCast(
+                            getAdminFacet(admin, "Logger"));
+                    final String title = getDisplayName() + " Ice log";
+                    final String defaultFileName = getDefaultFileName();
 
-                        SwingUtilities.invokeLater(
-                                () -> {
-                                    success(prefix);
-                                    if (_showIceLogDialog == null) {
-                                        _showIceLogDialog =
-                                                new ShowIceLogDialog(
-                                                        Communicator.this,
-                                                        title,
-                                                        loggerAdmin,
-                                                        defaultFileName,
-                                                        getRoot().getLogMaxLines(),
-                                                        getRoot().getLogInitialLines());
-                                    } else {
-                                        _showIceLogDialog.toFront();
-                                    }
-                                });
-                    });
+                    SwingUtilities.invokeLater(
+                        () -> {
+                            success(prefix);
+                            if (_showIceLogDialog == null) {
+                                _showIceLogDialog =
+                                    new ShowIceLogDialog(
+                                        Communicator.this,
+                                        title,
+                                        loggerAdmin,
+                                        defaultFileName,
+                                        getRoot().getLogMaxLines(),
+                                        getRoot().getLogInitialLines());
+                            } else {
+                                _showIceLogDialog.toFront();
+                            }
+                        });
+                });
         } else {
             _showIceLogDialog.toFront();
         }
@@ -165,49 +165,49 @@ public abstract class Communicator extends TreeNode {
     protected void showRuntimeProperties() {
         final String prefix = "Retrieving properties for " + getDisplayName() + "...";
         provideAdmin(
-                prefix,
-                admin -> {
-                    final PropertiesAdminPrx propertiesAdmin =
-                            PropertiesAdminPrx.uncheckedCast(
-                                    getAdminFacet(admin, "Properties"));
+            prefix,
+            admin -> {
+                final PropertiesAdminPrx propertiesAdmin =
+                    PropertiesAdminPrx.uncheckedCast(
+                        getAdminFacet(admin, "Properties"));
 
-                    propertiesAdmin
-                            .getPropertiesForPrefixAsync("")
-                            .whenComplete(
-                                    (result, ex) -> {
-                                        if (ex == null) {
-                                            SwingUtilities.invokeLater(
-                                                    () -> {
-                                                        success(prefix);
-                                                        ((CommunicatorEditor) getEditor())
-                                                                .setRuntimeProperties(
-                                                                        (SortedMap<
-                                                                                        String,
-                                                                                        String>)
-                                                                                result,
-                                                                        Communicator.this);
-                                                    });
-                                        } else if (ex
-                                                        instanceof ObjectNotExistException
-                                                || ex
-                                                        instanceof FacetNotExistException) {
-                                            SwingUtilities.invokeLater(
-                                                    () ->
-                                                            getRoot()
-                                                                    .getCoordinator()
-                                                                    .getStatusBar()
-                                                                    .setText(
-                                                                            prefix
-                                                                                    + " Admin not available."));
-                                        } else {
-                                            amiFailure(
-                                                    prefix,
-                                                    "Failed to retrieve the properties for "
-                                                            + getDisplayName(),
-                                                    ex);
-                                        }
+                propertiesAdmin
+                    .getPropertiesForPrefixAsync("")
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex == null) {
+                                SwingUtilities.invokeLater(
+                                    () -> {
+                                        success(prefix);
+                                        ((CommunicatorEditor) getEditor())
+                                            .setRuntimeProperties(
+                                                (SortedMap<
+                                                    String,
+                                                    String>)
+                                                    result,
+                                                Communicator.this);
                                     });
-                });
+                            } else if (ex
+                                instanceof ObjectNotExistException
+                                || ex
+                                instanceof FacetNotExistException) {
+                                SwingUtilities.invokeLater(
+                                    () ->
+                                        getRoot()
+                                            .getCoordinator()
+                                            .getStatusBar()
+                                            .setText(
+                                                prefix
+                                                    + " Admin not available."));
+                            } else {
+                                amiFailure(
+                                    prefix,
+                                    "Failed to retrieve the properties for "
+                                        + getDisplayName(),
+                                    ex);
+                            }
+                        });
+            });
     }
 
     protected void fetchMetricsViewNames() {
@@ -218,67 +218,67 @@ public abstract class Communicator extends TreeNode {
 
         final String prefix = "Retrieving metrics for " + getDisplayName() + "...";
         if (!provideAdmin(
-                prefix,
-                admin -> {
-                    final MetricsAdminPrx metricsAdmin =
-                            MetricsAdminPrx.uncheckedCast(
-                                    getAdminFacet(admin, "Metrics"));
+            prefix,
+            admin -> {
+                final MetricsAdminPrx metricsAdmin =
+                    MetricsAdminPrx.uncheckedCast(
+                        getAdminFacet(admin, "Metrics"));
 
-                    metricsAdmin
-                            .getMetricsViewNamesAsync()
-                            .whenComplete(
-                                    (result, ex) -> {
-                                        if (ex == null) {
-                                            SwingUtilities.invokeLater(
-                                                    () -> {
-                                                        success(prefix);
-                                                        _metrics.clear();
-                                                        for (String name : result.returnValue) {
-                                                            insertSortedChild(
-                                                                    new MetricsView(
-                                                                            Communicator.this,
-                                                                            name,
-                                                                            metricsAdmin,
-                                                                            true),
-                                                                    _metrics,
-                                                                    null);
-                                                        }
-                                                        for (String name : result.disabledViews) {
-                                                            insertSortedChild(
-                                                                    new MetricsView(
-                                                                            Communicator.this,
-                                                                            name,
-                                                                            metricsAdmin,
-                                                                            false),
-                                                                    _metrics,
-                                                                    null);
-                                                        }
-                                                        getRoot()
-                                                                .getTreeModel()
-                                                                .nodeStructureChanged(
-                                                                        Communicator.this);
-                                                    });
-                                        } else if (ex
-                                                        instanceof ObjectNotExistException
-                                                || ex
-                                                        instanceof FacetNotExistException) {
-                                            SwingUtilities.invokeLater(
-                                                    () ->
-                                                            getRoot()
-                                                                    .getCoordinator()
-                                                                    .getStatusBar()
-                                                                    .setText(
-                                                                            prefix
-                                                                                    + " Admin not available."));
-                                        } else {
-                                            amiFailure(
-                                                    prefix,
-                                                    "Failed to retrieve the metrics for "
-                                                            + getDisplayName(),
-                                                    ex);
+                metricsAdmin
+                    .getMetricsViewNamesAsync()
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex == null) {
+                                SwingUtilities.invokeLater(
+                                    () -> {
+                                        success(prefix);
+                                        _metrics.clear();
+                                        for (String name : result.returnValue) {
+                                            insertSortedChild(
+                                                new MetricsView(
+                                                    Communicator.this,
+                                                    name,
+                                                    metricsAdmin,
+                                                    true),
+                                                _metrics,
+                                                null);
                                         }
+                                        for (String name : result.disabledViews) {
+                                            insertSortedChild(
+                                                new MetricsView(
+                                                    Communicator.this,
+                                                    name,
+                                                    metricsAdmin,
+                                                    false),
+                                                _metrics,
+                                                null);
+                                        }
+                                        getRoot()
+                                            .getTreeModel()
+                                            .nodeStructureChanged(
+                                                Communicator.this);
                                     });
-                })) {
+                            } else if (ex
+                                instanceof ObjectNotExistException
+                                || ex
+                                instanceof FacetNotExistException) {
+                                SwingUtilities.invokeLater(
+                                    () ->
+                                        getRoot()
+                                            .getCoordinator()
+                                            .getStatusBar()
+                                            .setText(
+                                                prefix
+                                                    + " Admin not available."));
+                            } else {
+                                amiFailure(
+                                    prefix,
+                                    "Failed to retrieve the metrics for "
+                                        + getDisplayName(),
+                                    ex);
+                            }
+                        });
+            })) {
             _metricsRetrieved = false;
         }
     }
@@ -294,8 +294,7 @@ public abstract class Communicator extends TreeNode {
         return new ArrayList<>(_metrics);
     }
 
-    protected abstract CompletableFuture<ObjectPrx>
-            getAdminAsync();
+    protected abstract CompletableFuture<ObjectPrx> getAdminAsync();
 
     protected ObjectPrx getAdminFacet(ObjectPrx admin, String facet) {
         return admin != null ? admin.ice_facet(facet) : null;
@@ -315,42 +314,42 @@ public abstract class Communicator extends TreeNode {
         getRoot().getCoordinator().getStatusBar().setText(prefix);
         try {
             getAdminAsync()
-                    .whenComplete(
-                            (admin, adminEx) -> {
-                                if (adminEx == null && admin != null) {
-                                    try {
-                                        consumer.accept(admin);
-                                    } catch (LocalException e) {
-                                        SwingUtilities.invokeLater(
-                                                () ->
-                                                        getRoot()
-                                                                .getCoordinator()
-                                                                .getStatusBar()
-                                                                .setText(
-                                                                        prefix
-                                                                                + " "
-                                                                                + e.toString()
-                                                                                + "."));
-                                    }
-                                } else if (adminEx == null
-                                        || adminEx
-                                                instanceof ObjectNotExistException) {
-                                    SwingUtilities.invokeLater(
-                                            () ->
-                                                    getRoot()
-                                                            .getCoordinator()
-                                                            .getStatusBar()
-                                                            .setText(
-                                                                    prefix
-                                                                            + " Admin not available."));
-                                } else {
-                                    amiFailure(
-                                            prefix,
-                                            "Failed to retrieve the Admin proxy for "
-                                                    + getServerDisplayName(),
-                                            adminEx);
-                                }
-                            });
+                .whenComplete(
+                    (admin, adminEx) -> {
+                        if (adminEx == null && admin != null) {
+                            try {
+                                consumer.accept(admin);
+                            } catch (LocalException e) {
+                                SwingUtilities.invokeLater(
+                                    () ->
+                                        getRoot()
+                                            .getCoordinator()
+                                            .getStatusBar()
+                                            .setText(
+                                                prefix
+                                                    + " "
+                                                    + e.toString()
+                                                    + "."));
+                            }
+                        } else if (adminEx == null
+                            || adminEx
+                            instanceof ObjectNotExistException) {
+                            SwingUtilities.invokeLater(
+                                () ->
+                                    getRoot()
+                                        .getCoordinator()
+                                        .getStatusBar()
+                                        .setText(
+                                            prefix
+                                                + " Admin not available."));
+                        } else {
+                            amiFailure(
+                                prefix,
+                                "Failed to retrieve the Admin proxy for "
+                                    + getServerDisplayName(),
+                                adminEx);
+                        }
+                    });
         } catch (LocalException e) {
             getRoot().getCoordinator().getStatusBar().setText(prefix + " " + e.toString() + ".");
             return false;

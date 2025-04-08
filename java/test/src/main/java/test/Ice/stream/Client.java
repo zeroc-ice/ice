@@ -84,9 +84,9 @@ public class Client extends TestHelper {
         void setFactory(ValueFactory factory) {
             if (factory == null) {
                 _factory =
-                        id -> {
-                            return new MyClass();
-                        };
+                    id -> {
+                        return new MyClass();
+                    };
             } else {
                 _factory = factory;
             }
@@ -253,7 +253,7 @@ public class Client extends TestHelper {
                 test(o2.bo == o.bo);
                 test(o2.by == o.by);
                 if ("1.0"
-                        .equals(communicator
+                    .equals(communicator
                         .getProperties()
                         .getIceProperty("Ice.Default.EncodingVersion"))) {
                     test(!o2.hasSh());
@@ -329,7 +329,7 @@ public class Client extends TestHelper {
                 byte[] data = out.finished();
                 in = new InputStream(communicator, data);
                 Small small2 =
-                        in.readSerializable(Small.class);
+                    in.readSerializable(Small.class);
                 test(small2.i == 99);
             }
 

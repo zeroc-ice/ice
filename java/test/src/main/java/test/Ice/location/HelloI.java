@@ -8,5 +8,6 @@ import test.Ice.location.Test.Hello;
 
 public class HelloI implements Hello {
     @Override
-    public void sayHello(Current current) {}
+    public void sayHello(Current current) {
+    }
 }

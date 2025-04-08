@@ -11,7 +11,8 @@ import test.Ice.inheritance.Test.MB.IB1Prx;
 import test.Ice.inheritance.Test.MB.IB2Prx;
 
 public final class ICI implements IC {
-    public ICI() {}
+    public ICI() {
+    }
 
     @Override
     public IAPrx iaop(IAPrx p, Current current) {

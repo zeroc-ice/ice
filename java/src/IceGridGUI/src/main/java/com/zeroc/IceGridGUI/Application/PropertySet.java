@@ -2,8 +2,11 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.PropertyDescriptor;
+import com.zeroc.IceGrid.PropertySetDescriptor;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 import java.awt.Component;
 import java.io.IOException;
@@ -34,7 +37,7 @@ class PropertySet extends TreeNode {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     // Actions
@@ -87,8 +90,8 @@ class PropertySet extends TreeNode {
         if (_editor == null) {
             if (_inServerInstance) {
                 _editor =
-                        (PropertySetEditor)
-                                getRoot().getEditor(ServerInstancePropertySetEditor.class, this);
+                    (PropertySetEditor)
+                        getRoot().getEditor(ServerInstancePropertySetEditor.class, this);
             } else {
                 _editor = (PropertySetEditor) getRoot().getEditor(PropertySetEditor.class, this);
             }
@@ -181,12 +184,12 @@ class PropertySet extends TreeNode {
     void write(XMLWriter writer) throws IOException {
         if (!_ephemeral) {
             writePropertySet(
-                    writer,
-                    _unsubstitutedId,
-                    _inServerInstance ? "service" : "id",
-                    _descriptor,
-                    null,
-                    null);
+                writer,
+                _unsubstitutedId,
+                _inServerInstance ? "service" : "id",
+                _descriptor,
+                null,
+                null);
         }
     }
 

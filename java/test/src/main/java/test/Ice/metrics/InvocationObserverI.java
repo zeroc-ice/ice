@@ -10,7 +10,7 @@ import com.zeroc.Ice.Instrumentation.RemoteObserver;
 import com.zeroc.Ice.ObjectAdapter;
 
 class InvocationObserverI extends ObserverI
-        implements InvocationObserver {
+    implements InvocationObserver {
     @Override
     public synchronized void reset() {
         super.reset();

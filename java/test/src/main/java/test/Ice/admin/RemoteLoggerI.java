@@ -70,7 +70,7 @@ class RemoteLoggerI implements RemoteLogger {
     private int _receivedCalls;
     private String _prefix;
     private final Deque<LogMessage> _initMessages =
-            new ArrayDeque<LogMessage>();
+        new ArrayDeque<LogMessage>();
     private final Deque<LogMessage> _logMessages =
-            new ArrayDeque<LogMessage>();
+        new ArrayDeque<LogMessage>();
 }

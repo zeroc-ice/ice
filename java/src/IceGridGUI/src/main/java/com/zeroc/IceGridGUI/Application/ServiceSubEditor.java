@@ -3,8 +3,8 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.ServiceDescriptor;
+import com.zeroc.IceGridGUI.Utils;
 
 import javax.swing.JTextField;
 
@@ -17,11 +17,11 @@ class ServiceSubEditor extends CommunicatorSubEditor {
 
         _entry.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _entry.setToolTipText(
-                "<html>The service entry point and optional arguments.<br>"
-                        + "C++: <i>shared object:function-name arg1 arg2 ...</i><br>"
-                        + "Java: <i>class-name arg1 arg2 ...</i><br>"
-                        + "C#, Visual Basic: <i>assembly:class-name arg1 arg2 ...</i>"
-                        + "</html>");
+            "<html>The service entry point and optional arguments.<br>"
+                + "C++: <i>shared object:function-name arg1 arg2 ...</i><br>"
+                + "Java: <i>class-name arg1 arg2 ...</i><br>"
+                + "C#, Visual Basic: <i>assembly:class-name arg1 arg2 ...</i>"
+                + "</html>");
     }
 
     ServiceDescriptor getServiceDescriptor() {
@@ -55,10 +55,10 @@ class ServiceSubEditor extends CommunicatorSubEditor {
 
     boolean validate() {
         return _mainEditor.check(
-                new String[]{
-                    "Service Name", _name.getText().trim(),
-                    "Entry Point", _entry.getText().trim()
-                });
+            new String[]{
+                "Service Name", _name.getText().trim(),
+                "Entry Point", _entry.getText().trim()
+            });
     }
 
     void show(boolean isEditable) {

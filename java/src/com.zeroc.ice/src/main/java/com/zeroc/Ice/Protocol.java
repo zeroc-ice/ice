@@ -102,37 +102,37 @@ final class Protocol {
     };
 
     public static final ProtocolVersion currentProtocol =
-            new ProtocolVersion(protocolMajor, protocolMinor);
+        new ProtocolVersion(protocolMajor, protocolMinor);
     public static final EncodingVersion currentProtocolEncoding =
-            new EncodingVersion(protocolEncodingMajor, protocolEncodingMinor);
+        new EncodingVersion(protocolEncodingMajor, protocolEncodingMinor);
 
     public static final EncodingVersion currentEncoding =
-            new EncodingVersion(encodingMajor, encodingMinor);
+        new EncodingVersion(encodingMajor, encodingMinor);
 
     public static void checkSupportedProtocol(ProtocolVersion v) {
         if (v.major != currentProtocol.major || v.minor > currentProtocol.minor) {
             throw new FeatureNotSupportedException(
-                    "Cannot send request using protocol version " + v.major + "." + v.minor);
+                "Cannot send request using protocol version " + v.major + "." + v.minor);
         }
     }
 
     public static void checkSupportedProtocolEncoding(EncodingVersion v) {
         if (v.major != currentProtocolEncoding.major || v.minor > currentProtocolEncoding.minor) {
             throw new MarshalException(
-                    "This Ice runtime does not support encoding version "
-                            + v.major
-                            + "."
-                            + v.minor);
+                "This Ice runtime does not support encoding version "
+                    + v.major
+                    + "."
+                    + v.minor);
         }
     }
 
     public static void checkSupportedEncoding(EncodingVersion v) {
         if (v.major != currentEncoding.major || v.minor > currentEncoding.minor) {
             throw new MarshalException(
-                    "This Ice runtime does not support encoding version "
-                            + v.major
-                            + "."
-                            + v.minor);
+                "This Ice runtime does not support encoding version "
+                    + v.major
+                    + "."
+                    + v.minor);
         }
     }
 

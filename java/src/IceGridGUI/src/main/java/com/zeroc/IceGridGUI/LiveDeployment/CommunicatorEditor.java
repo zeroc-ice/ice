@@ -4,8 +4,8 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.CommunicatorDescriptor;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.event.ActionEvent;
 import java.util.SortedMap;
@@ -25,14 +25,14 @@ class CommunicatorEditor extends Editor {
         _buildId.setEditable(false);
 
         Action refresh =
-                new AbstractAction("Refresh") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        _buildId.setText("");
-                        _runtimeProperties.clear();
-                        _target.showRuntimeProperties();
-                    }
-                };
+            new AbstractAction("Refresh") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    _buildId.setText("");
+                    _runtimeProperties.clear();
+                    _target.showRuntimeProperties();
+                }
+            };
         refresh.putValue(Action.SHORT_DESCRIPTION, "Retrieve again the properties");
         _refreshButton = new JButton(refresh);
     }

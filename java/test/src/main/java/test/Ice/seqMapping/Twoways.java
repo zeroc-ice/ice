@@ -4,8 +4,11 @@ package test.Ice.seqMapping;
 
 import com.zeroc.Ice.OperationNotExistException;
 
-import test.Ice.seqMapping.Serialize.*;
-import test.Ice.seqMapping.Test.*;
+import test.Ice.seqMapping.Serialize.Large;
+import test.Ice.seqMapping.Serialize.Small;
+import test.Ice.seqMapping.Serialize.Struct;
+import test.Ice.seqMapping.Test.MyClass;
+import test.Ice.seqMapping.Test.MyClassPrx;
 
 class Twoways {
     private static void test(boolean b) {

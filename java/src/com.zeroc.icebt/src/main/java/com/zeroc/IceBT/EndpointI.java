@@ -96,7 +96,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
             return this;
         } else {
             return new EndpointI(
-                    _instance, _addr, _uuid, _name, _channel, timeout, _connectionId, _compress);
+                _instance, _addr, _uuid, _name, _channel, timeout, _connectionId, _compress);
         }
     }
 
@@ -111,7 +111,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
             return this;
         } else {
             return new EndpointI(
-                    _instance, _addr, _uuid, _name, _channel, _timeout, connectionId, _compress);
+                _instance, _addr, _uuid, _name, _channel, _timeout, connectionId, _compress);
         }
     }
 
@@ -126,7 +126,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
             return this;
         } else {
             return new EndpointI(
-                    _instance, _addr, _uuid, _name, _channel, _timeout, _connectionId, compress);
+                _instance, _addr, _uuid, _name, _channel, _timeout, _connectionId, compress);
         }
     }
 
@@ -180,9 +180,9 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
         }
         EndpointI btEndpointI = (EndpointI) endpoint;
         return btEndpointI.type() == type()
-                && btEndpointI._addr.equals(_addr)
-                && btEndpointI._uuid.equals(_uuid)
-                && btEndpointI._channel == _channel;
+            && btEndpointI._addr.equals(_addr)
+            && btEndpointI._uuid.equals(_uuid)
+            && btEndpointI._channel == _channel;
     }
 
     @Override
@@ -250,7 +250,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
                 _addr = "";
             } else {
                 throw new ParseException(
-                        "'-a *' not valid for proxy endpoint '" + toString() + "'");
+                    "'-a *' not valid for proxy endpoint '" + toString() + "'");
             }
         }
 
@@ -340,19 +340,19 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
         if ("-a".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for -a option in endpoint '" + endpoint + "'");
+                    "no argument provided for -a option in endpoint '" + endpoint + "'");
             }
             if (!"*".equals(argument)
-                    && !BluetoothAdapter.checkBluetoothAddress(argument.toUpperCase())) {
+                && !BluetoothAdapter.checkBluetoothAddress(argument.toUpperCase())) {
                 throw new ParseException(
-                        "invalid address provided for -a option in endpoint '" + endpoint + "'");
+                    "invalid address provided for -a option in endpoint '" + endpoint + "'");
             }
             _addr = argument.toUpperCase(); // Android requires a hardware address to use upper case
             // letters.
         } else if ("-u".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for -u option in endpoint '" + endpoint + "'");
+                    "no argument provided for -u option in endpoint '" + endpoint + "'");
             }
             try {
                 UUID.fromString(argument);
@@ -363,30 +363,30 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
         } else if ("-c".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for -c option in endpoint '" + endpoint + "'");
+                    "no argument provided for -c option in endpoint '" + endpoint + "'");
             }
 
             try {
                 _channel = Integer.parseInt(argument);
             } catch (NumberFormatException ex) {
                 throw new ParseException(
-                        "invalid channel value '" + argument + "' in endpoint '" + endpoint + "'",
-                        ex);
+                    "invalid channel value '" + argument + "' in endpoint '" + endpoint + "'",
+                    ex);
             }
 
             if (_channel < 0 || _channel > 30) // RFCOMM channel limit is 30
-            {
-                throw new ParseException(
+                {
+                    throw new ParseException(
                         "channel value '"
-                                + argument
-                                + "' out of range in endpoint '"
-                                + endpoint
-                                + "'");
-            }
+                            + argument
+                            + "' out of range in endpoint '"
+                            + endpoint
+                            + "'");
+                }
         } else if ("-t".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for -t option in endpoint '" + endpoint + "'");
+                    "no argument provided for -t option in endpoint '" + endpoint + "'");
             }
 
             if ("infinite".equals(argument)) {
@@ -396,36 +396,36 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
                     _timeout = Integer.parseInt(argument);
                     if (_timeout < 1) {
                         throw new ParseException(
-                                "invalid timeout value '"
-                                        + argument
-                                        + "' in endpoint '"
-                                        + endpoint
-                                        + "'");
+                            "invalid timeout value '"
+                                + argument
+                                + "' in endpoint '"
+                                + endpoint
+                                + "'");
                     }
                 } catch (NumberFormatException ex) {
                     throw new ParseException(
-                            "invalid timeout value '"
-                                    + argument
-                                    + "' in endpoint '"
-                                    + endpoint
-                                    + "'",
-                            ex);
+                        "invalid timeout value '"
+                            + argument
+                            + "' in endpoint '"
+                            + endpoint
+                            + "'",
+                        ex);
                 }
             }
         } else if ("-z".equals(option)) {
             if (argument != null) {
                 throw new ParseException(
-                        "unexpected argument `"
-                                + argument
-                                + "' provided for -z option in "
-                                + endpoint);
+                    "unexpected argument `"
+                        + argument
+                        + "' provided for -z option in "
+                        + endpoint);
             }
 
             _compress = true;
         } else if ("--name".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for --name option in endpoint " + endpoint);
+                    "no argument provided for --name option in endpoint " + endpoint);
             }
 
             _name = argument;

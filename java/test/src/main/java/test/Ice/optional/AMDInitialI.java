@@ -282,7 +282,7 @@ public final class AMDInitialI implements Initial {
     @Override
     public CompletionStage<OpMStruct1MarshaledResult> opMStruct1Async(Current current) {
         return CompletableFuture.completedFuture(
-                new OpMStruct1MarshaledResult(Optional.of(new SmallStruct()), current));
+            new OpMStruct1MarshaledResult(Optional.of(new SmallStruct()), current));
     }
 
     @Override
@@ -294,7 +294,7 @@ public final class AMDInitialI implements Initial {
     @Override
     public CompletionStage<OpMSeq1MarshaledResult> opMSeq1Async(Current current) {
         return CompletableFuture.completedFuture(
-                new OpMSeq1MarshaledResult(Optional.of(new String[0]), current));
+            new OpMSeq1MarshaledResult(Optional.of(new String[0]), current));
     }
 
     @Override
@@ -306,7 +306,7 @@ public final class AMDInitialI implements Initial {
     @Override
     public CompletionStage<OpMDict1MarshaledResult> opMDict1Async(Current current) {
         return CompletableFuture.completedFuture(
-                new OpMDict1MarshaledResult(Optional.of(new HashMap<>()), current));
+            new OpMDict1MarshaledResult(Optional.of(new HashMap<>()), current));
     }
 
     @Override

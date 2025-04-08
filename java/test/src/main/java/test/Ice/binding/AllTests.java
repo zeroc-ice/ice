@@ -199,9 +199,9 @@ public class AllTests {
             adapters[4] = rcom.createObjectAdapter("AdapterRandom15", "default");
 
             boolean shortenTest =
-                    System.getProperty("os.name").startsWith("Windows")
-                            || System.getProperty("java.vendor").toLowerCase().indexOf("android")
-                                    >= 0;
+                System.getProperty("os.name").startsWith("Windows")
+                    || System.getProperty("java.vendor").toLowerCase().indexOf("android")
+                    >= 0;
 
             int count = 20;
             int adapterCount = adapters.length;
@@ -222,7 +222,7 @@ public class AllTests {
                 int i;
                 for (i = 0; i < proxies.length; i++) {
                     RemoteObjectAdapterPrx[] adpts =
-                            new RemoteObjectAdapterPrx[rand.nextInt(adapters.length)];
+                        new RemoteObjectAdapterPrx[rand.nextInt(adapters.length)];
                     if (adpts.length == 0) {
                         adpts = new RemoteObjectAdapterPrx[1];
                     }
@@ -735,7 +735,7 @@ public class AllTests {
                 }
 
                 rcom.createObjectAdapter(
-                        "Adapter83", (test.ice_getEndpoints()[1]).toString()); // Reactive tcp OA.
+                    "Adapter83", (test.ice_getEndpoints()[1]).toString()); // Reactive tcp OA.
 
                 for (i = 0; i < 5; i++) {
                     test("Adapter83".equals(test.getAdapterName()));
@@ -805,8 +805,8 @@ public class AllTests {
             anyboth.setProperty("Ice.IPv6", "1");
             anyboth.setProperty("Adapter.Endpoints", endpoint);
             anyboth.setProperty(
-                    "Adapter.PublishedEndpoints",
-                    endpoint + " -h \"::1\":" + endpoint + " -h 127.0.0.1");
+                "Adapter.PublishedEndpoints",
+                endpoint + " -h \"::1\":" + endpoint + " -h 127.0.0.1");
 
             Properties localipv4 = ipv4._clone();
             localipv4.setProperty("Adapter.Endpoints", "tcp -h 127.0.0.1");
@@ -815,7 +815,7 @@ public class AllTests {
             localipv6.setProperty("Adapter.Endpoints", "tcp -h \"::1\"");
 
             List<Properties> serverProps =
-                    new ArrayList<>(clientProps);
+                new ArrayList<>(clientProps);
             serverProps.add(anyipv4);
             serverProps.add(anyipv6);
             serverProps.add(anyboth);
@@ -841,7 +841,7 @@ public class AllTests {
                     }
 
                     String strPrx =
-                            oa.createProxy(Util.stringToIdentity("dummy")).toString();
+                        oa.createProxy(Util.stringToIdentity("dummy")).toString();
                     for (Properties q : clientProps) {
                         try (Communicator clientCommunicator = helper.initialize(q)) {
                             ObjectPrx prx = clientCommunicator.stringToProxy(strPrx);
@@ -858,22 +858,22 @@ public class AllTests {
                                 // with a DNS exception.
                             } catch (SocketException ex) {
                                 test(
-                                        (p == ipv4 && q == ipv6)
-                                                || (p == ipv6 && q == ipv4)
-                                                || (p == bothPreferIPv4 && q == ipv6)
-                                                || (p == bothPreferIPv6 && q == ipv4)
-                                                || (p == bothPreferIPv6
-                                                        && q == ipv6
-                                                        && ipv6NotSupported)
-                                                || (p == anyipv4 && q == ipv6)
-                                                || (p == anyipv6 && q == ipv4)
-                                                || (p == localipv4 && q == ipv6)
-                                                || (p == localipv6 && q == ipv4)
-                                                || (p == ipv6 && q == bothPreferIPv4)
-                                                || (p == bothPreferIPv6 && q == ipv6)
-                                                || (p == ipv6 && q == bothPreferIPv4)
-                                                || (p == ipv6 && q == bothPreferIPv6)
-                                                || (p == bothPreferIPv6 && q == ipv6));
+                                    (p == ipv4 && q == ipv6)
+                                        || (p == ipv6 && q == ipv4)
+                                        || (p == bothPreferIPv4 && q == ipv6)
+                                        || (p == bothPreferIPv6 && q == ipv4)
+                                        || (p == bothPreferIPv6
+                                        && q == ipv6
+                                        && ipv6NotSupported)
+                                        || (p == anyipv4 && q == ipv6)
+                                        || (p == anyipv6 && q == ipv4)
+                                        || (p == localipv4 && q == ipv6)
+                                        || (p == localipv6 && q == ipv4)
+                                        || (p == ipv6 && q == bothPreferIPv4)
+                                        || (p == bothPreferIPv6 && q == ipv6)
+                                        || (p == ipv6 && q == bothPreferIPv4)
+                                        || (p == ipv6 && q == bothPreferIPv6)
+                                        || (p == bothPreferIPv6 && q == ipv6));
                             }
                         }
                     }

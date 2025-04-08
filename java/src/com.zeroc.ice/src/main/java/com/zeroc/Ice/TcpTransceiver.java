@@ -87,20 +87,21 @@ final class TcpTransceiver implements Transceiver {
             }
 
             return new TCPConnectionInfo(
-                    incoming,
-                    adapterName,
-                    connectionId,
-                    socket.getLocalAddress().getHostAddress(),
-                    socket.getLocalPort(),
-                    remoteAddress,
-                    remotePort,
-                    rcvSize,
-                    sndSize);
+                incoming,
+                adapterName,
+                connectionId,
+                socket.getLocalAddress().getHostAddress(),
+                socket.getLocalPort(),
+                remoteAddress,
+                remotePort,
+                rcvSize,
+                sndSize);
         }
     }
 
     @Override
-    public void checkSendSize(Buffer buf) {}
+    public void checkSendSize(Buffer buf) {
+    }
 
     @Override
     public void setBufferSize(int rcvSize, int sndSize) {

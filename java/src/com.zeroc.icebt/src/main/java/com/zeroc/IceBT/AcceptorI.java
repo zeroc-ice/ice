@@ -68,11 +68,11 @@ final class AcceptorI implements Acceptor {
 
         // Use a helper thread to perform the blocking accept() calls.
         _thread =
-                new Thread() {
-                    public void run() {
-                        runAccept();
-                    }
-                };
+            new Thread() {
+                public void run() {
+                    runAccept();
+                }
+            };
         _thread.start();
 
         return _endpoint;

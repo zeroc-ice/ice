@@ -107,10 +107,10 @@ public class AllTests {
                 r = hold.setAsync(value + 1, random.nextInt(5));
                 f = Util.getInvocationFuture(r);
                 r.whenComplete(
-                        (result, ex) -> {
-                            test(ex == null);
-                            cb.response(result);
-                        });
+                    (result, ex) -> {
+                        test(ex == null);
+                        cb.response(result);
+                    });
                 ++value;
                 if (value % 100 == 0) {
                     f.waitForSent();
@@ -140,10 +140,10 @@ public class AllTests {
                 r = holdSerialized.setAsync(value + 1, random.nextInt(1));
                 f = Util.getInvocationFuture(r);
                 r.whenComplete(
-                        (result, ex) -> {
-                            test(ex == null);
-                            cb.response(result);
-                        });
+                    (result, ex) -> {
+                        test(ex == null);
+                        cb.response(result);
+                    });
                 ++value;
                 if (value % 100 == 0) {
                     f.waitForSent();

@@ -9,14 +9,15 @@ import test.Glacier2.router.Test.CallbackException;
 import test.Glacier2.router.Test.CallbackReceiverPrx;
 
 final class CallbackI implements Callback {
-    CallbackI() {}
+    CallbackI() {
+    }
 
     public void initiateCallback(CallbackReceiverPrx proxy, Current current) {
         proxy.callback(current.ctx);
     }
 
     public void initiateCallbackEx(CallbackReceiverPrx proxy, Current current)
-            throws CallbackException {
+        throws CallbackException {
         proxy.callbackEx(current.ctx);
     }
 

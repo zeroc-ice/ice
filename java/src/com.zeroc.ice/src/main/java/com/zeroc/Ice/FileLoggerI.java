@@ -27,7 +27,7 @@ final class FileLoggerI extends LoggerI {
     @Override
     public Logger cloneWithPrefix(String prefix) {
         throw new UnsupportedOperationException(
-                "cloneWithPrefix is not supported on a file logger");
+            "cloneWithPrefix is not supported on a file logger");
     }
 
     void destroy() {

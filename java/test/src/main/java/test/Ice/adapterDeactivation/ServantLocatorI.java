@@ -17,7 +17,7 @@ public final class ServantLocatorI implements ServantLocator {
 
         public ObjectPrx getServerProxy(Current current) {
             return ObjectPrx.createProxy(
-                    current.adapter.getCommunicator(), "dummy:tcp -h localhost -p 23456 -t 30000");
+                current.adapter.getCommunicator(), "dummy:tcp -h localhost -p 23456 -t 30000");
         }
 
         public ObjectPrx[] addProxies(

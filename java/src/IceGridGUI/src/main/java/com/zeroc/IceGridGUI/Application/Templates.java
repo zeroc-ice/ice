@@ -2,7 +2,7 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
+import com.zeroc.IceGrid.TemplateDescriptor;
 
 import java.util.LinkedList;
 import java.util.List;

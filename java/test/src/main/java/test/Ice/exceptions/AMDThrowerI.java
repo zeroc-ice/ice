@@ -17,7 +17,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public final class AMDThrowerI implements Thrower {
-    public AMDThrowerI() {}
+    public AMDThrowerI() {
+    }
 
     @Override
     public CompletionStage<Void> shutdownAsync(Current current) {
@@ -47,7 +48,7 @@ public final class AMDThrowerI implements Thrower {
 
     @Override
     public CompletionStage<Void> throwAorDasAorDAsync(int a, Current current)
-            throws A, D {
+        throws A, D {
         CompletableFuture<Void> r = new CompletableFuture<>();
         if (a > 0) {
             A ex = new A();
@@ -63,7 +64,7 @@ public final class AMDThrowerI implements Thrower {
 
     @Override
     public CompletionStage<Void> throwBasAAsync(int a, int b, Current current)
-            throws A {
+        throws A {
         CompletableFuture<Void> r = new CompletableFuture<>();
         B ex = new B();
         ex.aMem = a;
@@ -74,7 +75,7 @@ public final class AMDThrowerI implements Thrower {
 
     @Override
     public CompletionStage<Void> throwBasBAsync(int a, int b, Current current)
-            throws B {
+        throws B {
         CompletableFuture<Void> r = new CompletableFuture<>();
         B ex = new B();
         ex.aMem = a;
@@ -85,7 +86,7 @@ public final class AMDThrowerI implements Thrower {
 
     @Override
     public CompletionStage<Void> throwCasAAsync(int a, int b, int c, Current current)
-            throws A {
+        throws A {
         CompletableFuture<Void> r = new CompletableFuture<>();
         C ex = new C();
         ex.aMem = a;
@@ -97,7 +98,7 @@ public final class AMDThrowerI implements Thrower {
 
     @Override
     public CompletionStage<Void> throwCasBAsync(int a, int b, int c, Current current)
-            throws B {
+        throws B {
         CompletableFuture<Void> r = new CompletableFuture<>();
         C ex = new C();
         ex.aMem = a;
@@ -109,7 +110,7 @@ public final class AMDThrowerI implements Thrower {
 
     @Override
     public CompletionStage<Void> throwCasCAsync(int a, int b, int c, Current current)
-            throws C {
+        throws C {
         CompletableFuture<Void> r = new CompletableFuture<>();
         C ex = new C();
         ex.aMem = a;

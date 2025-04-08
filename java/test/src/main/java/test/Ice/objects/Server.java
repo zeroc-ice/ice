@@ -21,8 +21,8 @@ public class Server extends TestHelper {
             adapter.add(new InitialI(adapter), Util.stringToIdentity("initial"));
             adapter.add(new F2I(), Util.stringToIdentity("F21"));
             adapter.add(
-                    new UnexpectedObjectExceptionTestI(),
-                    Util.stringToIdentity("uoet"));
+                new UnexpectedObjectExceptionTestI(),
+                Util.stringToIdentity("uoet"));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

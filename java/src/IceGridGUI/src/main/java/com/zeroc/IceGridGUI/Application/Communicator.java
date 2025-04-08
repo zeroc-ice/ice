@@ -3,7 +3,9 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 import java.io.IOException;
 import java.util.*;
@@ -47,7 +49,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
 
             private int _index = 0;
             private Iterator<javax.swing.tree.TreeNode> _p =
-                    _childListArray[0].iterator();
+                _childListArray[0].iterator();
         };
     }
 
@@ -129,8 +131,8 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
         if (descriptor instanceof Adapter.AdapterCopy) {
             Adapter.AdapterCopy copy = (Adapter.AdapterCopy) descriptor;
             _adapters.newAdapter(
-                    Adapter.copyDescriptor(copy.descriptor),
-                    new HashMap<>(copy.parentProperties));
+                Adapter.copyDescriptor(copy.descriptor),
+                new HashMap<>(copy.parentProperties));
         } else if (descriptor instanceof ServiceInstanceDescriptor && _services.initialized()) {
             ServiceInstanceDescriptor d = (ServiceInstanceDescriptor) descriptor;
             _services.newService(ServiceInstance.copyDescriptor(d));
@@ -271,8 +273,8 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
                 _children.add(child);
                 if (fireEvent) {
                     getRoot()
-                            .getTreeModel()
-                            .nodesWereInserted(Communicator.this, new int[]{getIndex(child)});
+                        .getTreeModel()
+                        .nodesWereInserted(Communicator.this, new int[]{getIndex(child)});
                 }
             }
         }
@@ -283,8 +285,8 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
             _children.remove(child);
 
             getRoot()
-                    .getTreeModel()
-                    .nodesWereRemoved(Communicator.this, new int[]{index}, new Object[]{child});
+                .getTreeModel()
+                .nodesWereRemoved(Communicator.this, new int[]{index}, new Object[]{child});
             return index;
         }
 
@@ -369,7 +371,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
         }
 
         void write(XMLWriter writer, List<PropertyDescriptor> props)
-                throws IOException {
+            throws IOException {
             for (TreeNode p : _children) {
                 ((Adapter) p).write(writer, props);
             }
@@ -378,16 +380,16 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
         @Override
         void newChild() {
             AdapterDescriptor descriptor =
-                    new AdapterDescriptor(
-                            "NewAdapter",
-                            "",
-                            null,
-                            "",
-                            "",
-                            false,
-                            true,
-                            new LinkedList<ObjectDescriptor>(),
-                            new LinkedList<ObjectDescriptor>());
+                new AdapterDescriptor(
+                    "NewAdapter",
+                    "",
+                    null,
+                    "",
+                    "",
+                    false,
+                    true,
+                    new LinkedList<ObjectDescriptor>(),
+                    new LinkedList<ObjectDescriptor>());
 
             newAdapter(descriptor, null);
         }
@@ -435,8 +437,8 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
             descriptor.name = newName;
 
             Adapter adapter =
-                    new Adapter(
-                            Communicator.this, descriptor.name, descriptor, parentProperties, true);
+                new Adapter(
+                    Communicator.this, descriptor.name, descriptor, parentProperties, true);
             try {
                 addChild(adapter, true);
             } catch (UpdateFailedException e) {
@@ -454,34 +456,34 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
         @Override
         void newChild() {
             ServiceDescriptor serviceDescriptor =
-                    new ServiceDescriptor(
-                            new LinkedList<AdapterDescriptor>(),
-                            new PropertySetDescriptor(
-                                    new String[0], new LinkedList<PropertyDescriptor>()),
-                            new String[0],
-                            "",
-                            "NewService",
-                            "");
+                new ServiceDescriptor(
+                    new LinkedList<AdapterDescriptor>(),
+                    new PropertySetDescriptor(
+                        new String[0], new LinkedList<PropertyDescriptor>()),
+                    new String[0],
+                    "",
+                    "NewService",
+                    "");
 
             ServiceInstanceDescriptor descriptor =
-                    new ServiceInstanceDescriptor(
-                            "",
-                            new HashMap<String, String>(),
-                            serviceDescriptor,
-                            new PropertySetDescriptor(
-                                    new String[0], new LinkedList<PropertyDescriptor>()));
+                new ServiceInstanceDescriptor(
+                    "",
+                    new HashMap<String, String>(),
+                    serviceDescriptor,
+                    new PropertySetDescriptor(
+                        new String[0], new LinkedList<PropertyDescriptor>()));
 
             newService(descriptor);
         }
 
         void newServiceFromTemplate() {
             ServiceInstanceDescriptor descriptor =
-                    new ServiceInstanceDescriptor(
-                            "",
-                            new HashMap<String, String>(),
-                            null,
-                            new PropertySetDescriptor(
-                                    new String[0], new LinkedList<PropertyDescriptor>()));
+                new ServiceInstanceDescriptor(
+                    "",
+                    new HashMap<String, String>(),
+                    null,
+                    new PropertySetDescriptor(
+                        new String[0], new LinkedList<PropertyDescriptor>()));
             newService(descriptor);
         }
 
@@ -490,7 +492,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
             int listIndex = _children.indexOf(child);
 
             ServiceInstanceDescriptor descriptor =
-                    (ServiceInstanceDescriptor) child.getDescriptor();
+                (ServiceInstanceDescriptor) child.getDescriptor();
 
             getEnclosingEditable().markModified();
             getRoot().updated();
@@ -504,18 +506,18 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
 
             _children.remove(listIndex);
             getRoot()
-                    .getTreeModel()
-                    .nodesWereRemoved(Communicator.this, new int[]{index}, new Object[]{child});
+                .getTreeModel()
+                .nodesWereRemoved(Communicator.this, new int[]{index}, new Object[]{child});
             if (up) {
                 _children.add(listIndex - 1, child);
                 getRoot()
-                        .getTreeModel()
-                        .nodesWereInserted(Communicator.this, new int[]{index - 1});
+                    .getTreeModel()
+                    .nodesWereInserted(Communicator.this, new int[]{index - 1});
             } else {
                 _children.add(listIndex + 1, child);
                 getRoot()
-                        .getTreeModel()
-                        .nodesWereInserted(Communicator.this, new int[]{index + 1});
+                    .getTreeModel()
+                    .nodesWereInserted(Communicator.this, new int[]{index + 1});
             }
             getRoot().setSelectedNode(child);
             getCoordinator().showActions(child);
@@ -532,23 +534,23 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
 
                 if (Communicator.this instanceof PlainServer) {
                     TemplateDescriptor templateDescriptor =
-                            getRoot().findServiceTemplateDescriptor(descriptor.template);
+                        getRoot().findServiceTemplateDescriptor(descriptor.template);
 
                     if (templateDescriptor == null) {
                         throw new UpdateFailedException(
-                                "Cannot find template descriptor '"
-                                        + descriptor.template
-                                        + "' referenced by service-instance");
+                            "Cannot find template descriptor '"
+                                + descriptor.template
+                                + "' referenced by service-instance");
                     }
 
                     serviceResolver =
-                            new Utils.Resolver(
-                                    getResolver(),
-                                    descriptor.parameterValues,
-                                    templateDescriptor.parameterDefaults);
+                        new Utils.Resolver(
+                            getResolver(),
+                            descriptor.parameterValues,
+                            templateDescriptor.parameterDefaults);
 
                     ServiceDescriptor serviceDescriptor =
-                            (ServiceDescriptor) templateDescriptor.descriptor;
+                        (ServiceDescriptor) templateDescriptor.descriptor;
 
                     // If it's not null, it's a bug in the provider of this descriptor, e.g.
                     // the icegridadmin parsing code.
@@ -563,7 +565,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
                 }
 
                 return new ServiceInstance(
-                        Communicator.this, serviceName, displayString, descriptor, serviceResolver);
+                    Communicator.this, serviceName, displayString, descriptor, serviceResolver);
             } else {
                 ServiceDescriptor serviceDescriptor = descriptor.descriptor;
 
@@ -579,7 +581,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
                 }
 
                 return new PlainService(
-                        Communicator.this, serviceName, descriptor, serviceResolver);
+                    Communicator.this, serviceName, descriptor, serviceResolver);
             }
         }
 
@@ -588,7 +590,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
             // Rebuilding a Service is quite different since the creation of a service can
             // trigger an UpdateFailedException
             ServiceInstanceDescriptor descriptor =
-                    (ServiceInstanceDescriptor) child.getDescriptor();
+                (ServiceInstanceDescriptor) child.getDescriptor();
             int listIndex = _children.indexOf(child);
             assert listIndex != -1;
 
@@ -609,10 +611,10 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
                 if (t == null) {
                     if (getRoot().getServiceTemplates().getChildCount() == 0) {
                         JOptionPane.showMessageDialog(
-                                getCoordinator().getMainFrame(),
-                                "You need to create a service template before you can create a service from a template.",
-                                "No Service Template",
-                                JOptionPane.INFORMATION_MESSAGE);
+                            getCoordinator().getMainFrame(),
+                            "You need to create a service template before you can create a service from a template.",
+                            "No Service Template",
+                            JOptionPane.INFORMATION_MESSAGE);
                         return;
                     } else {
                         t = (ServiceTemplate) getRoot().getServiceTemplates().getChildAt(0);
@@ -624,7 +626,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
                 // Validate/update parameterValues
                 TemplateDescriptor td = (TemplateDescriptor) t.getDescriptor();
                 descriptor.parameterValues =
-                        Editor.makeParameterValues(descriptor.parameterValues, td.parameters);
+                    Editor.makeParameterValues(descriptor.parameterValues, td.parameters);
 
                 ServiceInstance service = new ServiceInstance(Communicator.this, name, descriptor);
                 try {
@@ -725,7 +727,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
         CommunicatorDescriptor descriptor = getCommunicatorDescriptor();
         removeProperty(key);
         ((LinkedList<PropertyDescriptor>) descriptor.propertySet.properties)
-                .addFirst(new PropertyDescriptor(key, newValue));
+            .addFirst(new PropertyDescriptor(key, newValue));
     }
 
     void removeProperty(String key) {

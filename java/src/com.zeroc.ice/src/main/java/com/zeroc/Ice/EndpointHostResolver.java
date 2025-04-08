@@ -20,17 +20,17 @@ class EndpointHostResolver {
         _preferIPv6 = instance.preferIPv6();
         try {
             _threadName =
-                    Util.createThreadName(
-                            _instance.initializationData().properties, "Ice.HostResolver");
+                Util.createThreadName(
+                    _instance.initializationData().properties, "Ice.HostResolver");
             _executor =
-                    Executors.newFixedThreadPool(
-                            1,
-                            Util.createThreadFactory(
-                                    _instance.initializationData().properties, _threadName));
+                Executors.newFixedThreadPool(
+                    1,
+                    Util.createThreadFactory(
+                        _instance.initializationData().properties, _threadName));
             updateObserver();
         } catch (RuntimeException ex) {
             String s =
-                    "cannot create thread for endpoint host resolver thread:\n" + Ex.toString(ex);
+                "cannot create thread for endpoint host resolver thread:\n" + Ex.toString(ex);
             _instance.initializationData().logger.error(s);
             throw ex;
         }
@@ -52,7 +52,7 @@ class EndpointHostResolver {
         NetworkProxy networkProxy = _instance.networkProxy();
         if (networkProxy == null) {
             List<InetSocketAddress> addrs =
-                    Network.getAddresses(host, port, _protocol, _preferIPv6, false);
+                Network.getAddresses(host, port, _protocol, _preferIPv6, false);
             if (addrs != null) {
                 callback.connectors(endpoint.connectors(addrs, networkProxy));
                 return;
@@ -66,58 +66,58 @@ class EndpointHostResolver {
         }
 
         _executor.execute(
-                () -> {
-                    synchronized (EndpointHostResolver.this) {
-                        if (_destroyed) {
-                            var ex = new CommunicatorDestroyedException();
-                            if (observer != null) {
-                                observer.failed(ex.ice_id());
-                                observer.detach();
-                            }
-                            callback.exception(ex);
-                            return;
-                        }
-                    }
-
-                    if (threadObserver != null) {
-                        threadObserver.stateChanged(
-                                ThreadState.ThreadStateIdle, ThreadState.ThreadStateInUseForOther);
-                    }
-
-                    Observer obsv = observer;
-                    try {
-                        int protocol = _protocol;
-                        NetworkProxy np = _instance.networkProxy();
-                        if (np != null) {
-                            np = np.resolveHost(_protocol);
-                            if (np != null) {
-                                protocol = np.getProtocolSupport();
-                            }
-                        }
-
-                        List<InetSocketAddress> addresses =
-                                Network.getAddresses(host, port, protocol, _preferIPv6, true);
-
-                        if (obsv != null) {
-                            obsv.detach();
-                            obsv = null;
-                        }
-
-                        callback.connectors(endpoint.connectors(addresses, np));
-                    } catch (LocalException ex) {
-                        if (obsv != null) {
-                            obsv.failed(ex.ice_id());
-                            obsv.detach();
+            () -> {
+                synchronized (EndpointHostResolver.this) {
+                    if (_destroyed) {
+                        var ex = new CommunicatorDestroyedException();
+                        if (observer != null) {
+                            observer.failed(ex.ice_id());
+                            observer.detach();
                         }
                         callback.exception(ex);
-                    } finally {
-                        if (threadObserver != null) {
-                            threadObserver.stateChanged(
-                                    ThreadState.ThreadStateInUseForOther,
-                                    ThreadState.ThreadStateIdle);
+                        return;
+                    }
+                }
+
+                if (threadObserver != null) {
+                    threadObserver.stateChanged(
+                        ThreadState.ThreadStateIdle, ThreadState.ThreadStateInUseForOther);
+                }
+
+                Observer obsv = observer;
+                try {
+                    int protocol = _protocol;
+                    NetworkProxy np = _instance.networkProxy();
+                    if (np != null) {
+                        np = np.resolveHost(_protocol);
+                        if (np != null) {
+                            protocol = np.getProtocolSupport();
                         }
                     }
-                });
+
+                    List<InetSocketAddress> addresses =
+                        Network.getAddresses(host, port, protocol, _preferIPv6, true);
+
+                    if (obsv != null) {
+                        obsv.detach();
+                        obsv = null;
+                    }
+
+                    callback.connectors(endpoint.connectors(addresses, np));
+                } catch (LocalException ex) {
+                    if (obsv != null) {
+                        obsv.failed(ex.ice_id());
+                        obsv.detach();
+                    }
+                    callback.exception(ex);
+                } finally {
+                    if (threadObserver != null) {
+                        threadObserver.stateChanged(
+                            ThreadState.ThreadStateInUseForOther,
+                            ThreadState.ThreadStateIdle);
+                    }
+                }
+            });
     }
 
     synchronized void destroy() {
@@ -148,11 +148,11 @@ class EndpointHostResolver {
 
     synchronized void updateObserver() {
         CommunicatorObserver obsv =
-                _instance.initializationData().observer;
+            _instance.initializationData().observer;
         if (obsv != null) {
             _observer =
-                    obsv.getThreadObserver(
-                            "Communicator", _threadName, ThreadState.ThreadStateIdle, _observer);
+                obsv.getThreadObserver(
+                    "Communicator", _threadName, ThreadState.ThreadStateIdle, _observer);
             if (_observer != null) {
                 _observer.attach();
             }
@@ -161,7 +161,7 @@ class EndpointHostResolver {
 
     private Observer getObserver(IPEndpointI endpoint) {
         CommunicatorObserver obsv =
-                _instance.initializationData().observer;
+            _instance.initializationData().observer;
         if (obsv != null) {
             return obsv.getEndpointLookupObserver(endpoint);
         }

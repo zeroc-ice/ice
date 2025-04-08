@@ -28,7 +28,7 @@ public final class InitialI implements Initial {
 
     @Override
     public void opOptionalException(OptionalInt a, Optional<String> b, Current current)
-            throws OptionalException {
+        throws OptionalException {
         OptionalException ex = new OptionalException();
         if (a.isPresent()) {
             ex.setA(a.getAsInt());
@@ -43,7 +43,7 @@ public final class InitialI implements Initial {
 
     @Override
     public void opDerivedException(OptionalInt a, Optional<String> b, Current current)
-            throws OptionalException {
+        throws OptionalException {
         DerivedException ex = new DerivedException();
         if (a.isPresent()) {
             ex.setA(a.getAsInt());
@@ -63,7 +63,7 @@ public final class InitialI implements Initial {
 
     @Override
     public void opRequiredException(OptionalInt a, Optional<String> b, Current current)
-            throws OptionalException {
+        throws OptionalException {
         RequiredException ex = new RequiredException();
         if (a.isPresent()) {
             ex.setA(a.getAsInt());
@@ -236,7 +236,8 @@ public final class InitialI implements Initial {
     }
 
     @Override
-    public void opClassAndUnknownOptional(A p, Current current) {}
+    public void opClassAndUnknownOptional(A p, Current current) {
+    }
 
     @Override
     public G opG(G g, Current current) {
@@ -244,7 +245,8 @@ public final class InitialI implements Initial {
     }
 
     @Override
-    public void opVoid(Current current) {}
+    public void opVoid(Current current) {
+    }
 
     @Override
     public OpMStruct1MarshaledResult opMStruct1(Current current) {

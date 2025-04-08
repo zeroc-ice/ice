@@ -7,7 +7,8 @@ import com.zeroc.IceGridGUI.LiveDeployment.Editor;
 import com.zeroc.IceGridGUI.LiveDeployment.Root;
 import com.zeroc.IceGridGUI.LiveDeployment.TreeNode;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
@@ -92,7 +93,7 @@ public class LiveDeploymentPane extends JSplitPane implements Tab {
         do {
             previousNode = _previousNodes.removeLast();
         } while (!_previousNodes.isEmpty()
-                && (previousNode == _currentNode || !_root.hasNode(previousNode)));
+            && (previousNode == _currentNode || !_root.hasNode(previousNode)));
 
         if (_previousNodes.isEmpty()) {
             _root.getCoordinator().getBackAction().setEnabled(false);
@@ -185,10 +186,10 @@ public class LiveDeploymentPane extends JSplitPane implements Tab {
         tree.setRootVisible(false);
 
         JScrollPane leftScroll =
-                new JScrollPane(
-                        tree,
-                        ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            new JScrollPane(
+                tree,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         leftScroll.setBorder(Borders.EMPTY);
 
         _leftPane = new SimpleInternalFrame("Runtime Components");

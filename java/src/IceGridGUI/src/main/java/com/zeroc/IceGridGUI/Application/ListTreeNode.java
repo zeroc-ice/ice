@@ -2,7 +2,8 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -99,7 +100,7 @@ abstract class ListTreeNode extends TreeNode {
     }
 
     void insertChildren(List newChildren, boolean fireEvent)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         DefaultTreeModel treeModel = fireEvent ? getRoot().getTreeModel() : null;
 
         String badChildId = insertSortedChildren(newChildren, _children, treeModel);

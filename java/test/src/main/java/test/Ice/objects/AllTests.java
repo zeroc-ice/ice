@@ -184,7 +184,7 @@ public class AllTests {
         {
             L l = new L("l");
             Map<String, Value> v1 =
-                    new HashMap<String, Value>();
+                new HashMap<String, Value>();
             v1.put("l", l);
             OpValueMapResult result = initial.opValueMap(v1);
             test("l".equals(((L) result.returnValue.get("l")).data));
@@ -283,7 +283,7 @@ public class AllTests {
         base = communicator.stringToProxy(ref);
         test(base != null);
         UnexpectedObjectExceptionTestPrx uoet =
-                UnexpectedObjectExceptionTestPrx.uncheckedCast(base);
+            UnexpectedObjectExceptionTestPrx.uncheckedCast(base);
         test(uoet != null);
         try {
             uoet.op();
@@ -327,15 +327,15 @@ public class AllTests {
             test("F12".equals(opF1Result.f12.name));
 
             Initial.OpF2Result opF2Result =
-                    initial.opF2(
-                            F2Prx.createProxy(communicator, "F21:" + helper.getTestEndpoint()));
+                initial.opF2(
+                    F2Prx.createProxy(communicator, "F21:" + helper.getTestEndpoint()));
             test("F21".equals(opF2Result.returnValue.ice_getIdentity().name));
             opF2Result.returnValue.op();
             test("F22".equals(opF2Result.f22.ice_getIdentity().name));
 
             if (initial.hasF3()) {
                 Initial.OpF3Result opF3Result =
-                        initial.opF3(new F3(new F1("F11"), F2Prx.createProxy(communicator, "F21")));
+                    initial.opF3(new F3(new F1("F11"), F2Prx.createProxy(communicator, "F21")));
                 test("F11".equals(opF3Result.returnValue.f1.name));
                 test("F21".equals(opF3Result.returnValue.f2.ice_getIdentity().name));
 

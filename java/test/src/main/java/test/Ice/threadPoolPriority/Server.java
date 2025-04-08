@@ -15,8 +15,8 @@ public class Server extends TestHelper {
         properties.setProperty("Ice.ThreadPool.Server.ThreadPriority", "10");
         try (Communicator communicator = initialize(properties)) {
             communicator
-                    .getProperties()
-                    .setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 10000");
+                .getProperties()
+                .setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 10000");
             ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
             adapter.add(new PriorityI(), Util.stringToIdentity("test"));
             adapter.activate();

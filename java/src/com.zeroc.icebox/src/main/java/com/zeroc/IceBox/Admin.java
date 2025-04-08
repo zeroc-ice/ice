@@ -15,15 +15,15 @@ import java.util.List;
 public final class Admin {
     private static void usage() {
         System.err.println(
-                "Usage: com.zeroc.IceBox.Admin [options] [command...]\n"
-                        + "Options:\n"
-                        + "-h, --help          Show this message.\n"
-                        + "-v, --version       Display the Ice version.\n"
-                        + "\n"
-                        + "Commands:\n"
-                        + "start SERVICE       Start a service.\n"
-                        + "stop SERVICE        Stop a service.\n"
-                        + "shutdown            Shutdown the server.");
+            "Usage: com.zeroc.IceBox.Admin [options] [command...]\n"
+                + "Options:\n"
+                + "-h, --help          Show this message.\n"
+                + "-v, --version       Display the Ice version.\n"
+                + "\n"
+                + "Commands:\n"
+                + "start SERVICE       Start a service.\n"
+                + "stop SERVICE        Stop a service.\n"
+                + "shutdown            Shutdown the server.");
     }
 
     public static void main(String[] args) {
@@ -32,16 +32,16 @@ public final class Admin {
 
         InitializationData initData = new InitializationData();
         initData.properties =
-                new Properties(Collections.singletonList("IceBoxAdmin"));
+            new Properties(Collections.singletonList("IceBoxAdmin"));
 
         try (Communicator communicator =
-                Util.initialize(args, initData, commands)) {
+            Util.initialize(args, initData, commands)) {
             Runtime.getRuntime()
-                    .addShutdownHook(
-                            new Thread(
-                                    () -> {
-                                        communicator.destroy();
-                                    }));
+                .addShutdownHook(
+                    new Thread(
+                        () -> {
+                            communicator.destroy();
+                        }));
 
             status = run(communicator, commands);
         }
@@ -71,19 +71,19 @@ public final class Admin {
         }
 
         ObjectPrx base =
-                communicator.propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
+            communicator.propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
 
         if (base == null) {
             System.err.println(
-                    "IceBox.Admin: property 'IceBoxAdmin.ServiceManager.Proxy' is not set");
+                "IceBox.Admin: property 'IceBoxAdmin.ServiceManager.Proxy' is not set");
             return 1;
         }
 
         ServiceManagerPrx manager =
-                ServiceManagerPrx.checkedCast(base);
+            ServiceManagerPrx.checkedCast(base);
         if (manager == null) {
             System.err.println(
-                    "IceBox.Admin: '" + base.toString() + "' is not an IceBox::ServiceManager");
+                "IceBox.Admin: '" + base.toString() + "' is not an IceBox::ServiceManager");
             return 1;
         }
 

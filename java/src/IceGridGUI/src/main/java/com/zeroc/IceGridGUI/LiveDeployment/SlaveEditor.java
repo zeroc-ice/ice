@@ -3,7 +3,6 @@
 package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.zeroc.IceGrid.*;
 
 import javax.swing.JTextField;
 

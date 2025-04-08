@@ -86,7 +86,7 @@ final class HTTPNetworkProxy implements NetworkProxy {
     public NetworkProxy resolveHost(int protocol) {
         assert (_host != null);
         return new HTTPNetworkProxy(
-                Network.getAddresses(_host, _port, protocol, false, true).get(0), protocol);
+            Network.getAddresses(_host, _port, protocol, false, true).get(0), protocol);
     }
 
     @Override

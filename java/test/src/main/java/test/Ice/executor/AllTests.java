@@ -75,7 +75,7 @@ public class AllTests {
 
         int mult = 1;
         if (!"tcp".equals(communicator.getProperties().getIceProperty("Ice.Default.Protocol"))
-                || helper.isAndroid()) {
+            || helper.isAndroid()) {
             mult = 4;
         }
 
@@ -95,32 +95,32 @@ public class AllTests {
             {
                 final Callback cb = new Callback();
                 p.opAsync()
-                        .whenCompleteAsync(
-                                (result, ex) -> {
-                                    if (ex != null) {
-                                        cb.exception(ex);
-                                    } else {
-                                        test(executor.isCustomExecutorThread());
-                                        cb.called();
-                                    }
-                                },
-                                executor);
+                    .whenCompleteAsync(
+                        (result, ex) -> {
+                            if (ex != null) {
+                                cb.exception(ex);
+                            } else {
+                                test(executor.isCustomExecutorThread());
+                                cb.called();
+                            }
+                        },
+                        executor);
                 cb.check();
             }
 
             {
                 final Callback cb = new Callback();
                 p.opAsync()
-                        .whenCompleteAsync(
-                                (result, ex) -> {
-                                    if (ex != null) {
-                                        cb.exception(ex);
-                                    } else {
-                                        test(executor.isCustomExecutorThread());
-                                        cb.called();
-                                    }
-                                },
-                                p.ice_executor());
+                    .whenCompleteAsync(
+                        (result, ex) -> {
+                            if (ex != null) {
+                                cb.exception(ex);
+                            } else {
+                                test(executor.isCustomExecutorThread());
+                                cb.called();
+                            }
+                        },
+                        p.ice_executor());
                 cb.check();
             }
 
@@ -128,17 +128,17 @@ public class AllTests {
                 TestIntfPrx i = p.ice_adapterId("dummy");
                 final Callback cb = new Callback();
                 i.opAsync()
-                        .whenCompleteAsync(
-                                (result, ex) -> {
-                                    if (ex != null) {
-                                        test(ex instanceof NoEndpointException);
-                                        test(executor.isCustomExecutorThread());
-                                        cb.called();
-                                    } else {
-                                        cb.exception(new RuntimeException());
-                                    }
-                                },
-                                executor);
+                    .whenCompleteAsync(
+                        (result, ex) -> {
+                            if (ex != null) {
+                                test(ex instanceof NoEndpointException);
+                                test(executor.isCustomExecutorThread());
+                                cb.called();
+                            } else {
+                                cb.exception(new RuntimeException());
+                            }
+                        },
+                        executor);
                 cb.check();
             }
 
@@ -146,17 +146,17 @@ public class AllTests {
                 TestIntfPrx i = p.ice_adapterId("dummy");
                 final Callback cb = new Callback();
                 i.opAsync()
-                        .whenCompleteAsync(
-                                (result, ex) -> {
-                                    if (ex != null) {
-                                        test(ex instanceof NoEndpointException);
-                                        test(executor.isCustomExecutorThread());
-                                        cb.called();
-                                    } else {
-                                        cb.exception(new RuntimeException());
-                                    }
-                                },
-                                p.ice_executor());
+                    .whenCompleteAsync(
+                        (result, ex) -> {
+                            if (ex != null) {
+                                test(ex instanceof NoEndpointException);
+                                test(executor.isCustomExecutorThread());
+                                cb.called();
+                            } else {
+                                cb.exception(new RuntimeException());
+                            }
+                        },
+                        p.ice_executor());
                 cb.check();
             }
 
@@ -168,23 +168,23 @@ public class AllTests {
                 final Callback cb = new Callback();
                 CompletableFuture<Void> r = to.sleepAsync(500 * mult);
                 r.whenCompleteAsync(
-                        (result, ex) -> {
-                            if (ex != null) {
-                                test(ex instanceof InvocationTimeoutException);
-                                test(executor.isCustomExecutorThread());
-                                cb.called();
-                            } else {
-                                cb.exception(new RuntimeException());
-                            }
+                    (result, ex) -> {
+                        if (ex != null) {
+                            test(ex instanceof InvocationTimeoutException);
+                            test(executor.isCustomExecutorThread());
+                            cb.called();
+                        } else {
+                            cb.exception(new RuntimeException());
+                        }
+                    },
+                    executor);
+                Util.getInvocationFuture(r)
+                    .whenSentAsync(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            test(executor.isCustomExecutorThread());
                         },
                         executor);
-                Util.getInvocationFuture(r)
-                        .whenSentAsync(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    test(executor.isCustomExecutorThread());
-                                },
-                                executor);
                 cb.check();
             }
 
@@ -196,23 +196,23 @@ public class AllTests {
                 final Callback cb = new Callback();
                 CompletableFuture<Void> r = to.sleepAsync(500 * mult);
                 r.whenCompleteAsync(
-                        (result, ex) -> {
-                            if (ex != null) {
-                                test(ex instanceof InvocationTimeoutException);
-                                test(executor.isCustomExecutorThread());
-                                cb.called();
-                            } else {
-                                cb.exception(new RuntimeException());
-                            }
-                        },
-                        executor);
+                    (result, ex) -> {
+                        if (ex != null) {
+                            test(ex instanceof InvocationTimeoutException);
+                            test(executor.isCustomExecutorThread());
+                            cb.called();
+                        } else {
+                            cb.exception(new RuntimeException());
+                        }
+                    },
+                    executor);
                 Util.getInvocationFuture(r)
-                        .whenSentAsync(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    test(executor.isCustomExecutorThread());
-                                },
-                                p.ice_executor());
+                    .whenSentAsync(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            test(executor.isCustomExecutorThread());
+                        },
+                        p.ice_executor());
                 cb.check();
             }
 
@@ -223,25 +223,25 @@ public class AllTests {
             p = p.ice_collocationOptimized(false);
             byte[] seq = new byte[10 * 1024];
             new Random()
-                    .nextBytes(seq); // Make sure the request doesn't compress too well.
+                .nextBytes(seq); // Make sure the request doesn't compress too well.
             CompletableFuture<Void> r = null;
             while (true) {
                 r = p.opWithPayloadAsync(seq);
                 r.whenComplete(
-                        (result, ex) -> {
-                            if (ex != null) {
-                                test(ex instanceof CommunicatorDestroyedException);
-                            } else {
-                                test(executor.isCustomExecutorThread());
-                            }
-                        });
+                    (result, ex) -> {
+                        if (ex != null) {
+                            test(ex instanceof CommunicatorDestroyedException);
+                        } else {
+                            test(executor.isCustomExecutorThread());
+                        }
+                    });
                 InvocationFuture<Void> f = Util.getInvocationFuture(r);
                 f.whenSentAsync(
-                        (sentSynchronously, ex) -> {
-                            test(ex == null);
-                            test(executor.isCustomExecutorThread());
-                        },
-                        executor);
+                    (sentSynchronously, ex) -> {
+                        test(ex == null);
+                        test(executor.isCustomExecutorThread());
+                    },
+                    executor);
                 if (!f.sentSynchronously()) {
                     break;
                 }

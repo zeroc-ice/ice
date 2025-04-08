@@ -8,8 +8,11 @@ import com.jgoodies.looks.BorderStyle;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.ServerDescriptor;
+import com.zeroc.IceGrid.ServerState;
+import com.zeroc.IceGridGUI.Coordinator;
+import com.zeroc.IceGridGUI.LiveActions;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.event.ActionEvent;
 
@@ -49,12 +52,12 @@ class ServerEditor extends CommunicatorEditor {
         _allocatable.setEnabled(false);
 
         Action gotoApplication =
-                new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png")) {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        ((Server) _target).openDefinition();
-                    }
-                };
+            new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png")) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    ((Server) _target).openDefinition();
+                }
+            };
         gotoApplication.putValue(Action.SHORT_DESCRIPTION, "View/Edit this application");
         _gotoApplication = new JButton(gotoApplication);
     }
@@ -100,12 +103,12 @@ class ServerEditor extends CommunicatorEditor {
         _pwd.setText(resolver.substitute(descriptor.pwd));
 
         Utils.Stringifier stringifier =
-                new Utils.Stringifier() {
-                    @Override
-                    public String toString(Object obj) {
-                        return resolver.substitute((String) obj);
-                    }
-                };
+            new Utils.Stringifier() {
+                @Override
+                public String toString(Object obj) {
+                    return resolver.substitute((String) obj);
+                }
+            };
 
         Utils.StringifyResult r = Utils.stringify(descriptor.options, stringifier, " ");
         _options.setText(r.returnValue);

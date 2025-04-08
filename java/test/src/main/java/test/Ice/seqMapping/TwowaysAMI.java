@@ -4,8 +4,10 @@ package test.Ice.seqMapping;
 
 import com.zeroc.Ice.OperationNotExistException;
 
-import test.Ice.seqMapping.Serialize.*;
-import test.Ice.seqMapping.Test.*;
+import test.Ice.seqMapping.Serialize.Large;
+import test.Ice.seqMapping.Serialize.Small;
+import test.Ice.seqMapping.Serialize.Struct;
+import test.Ice.seqMapping.Test.MyClassPrx;
 
 class TwowaysAMI {
     private static void test(boolean b) {
@@ -46,19 +48,19 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opSerialSmallJavaAsync(i)
-                    .whenComplete(
-                            (result, ex) -> {
-                                if (ex != null) {
-                                    test(
-                                            ex
-                                                    instanceof OperationNotExistException); // OK,
-                                    // talking to non-Java server.
-                                } else {
-                                    test(result.o == null);
-                                    test(result.returnValue == null);
-                                    cb.called();
-                                }
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        if (ex != null) {
+                            test(
+                                ex
+                                    instanceof OperationNotExistException); // OK,
+                            // talking to non-Java server.
+                        } else {
+                            test(result.o == null);
+                            test(result.returnValue == null);
+                            cb.called();
+                        }
+                    });
             test(cb.check());
         }
 
@@ -68,19 +70,19 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opSerialSmallJavaAsync(i)
-                    .whenComplete(
-                            (result, ex) -> {
-                                if (ex != null) {
-                                    test(
-                                            ex
-                                                    instanceof OperationNotExistException); // OK,
-                                    // talking to non-Java server.
-                                } else {
-                                    test(result.o.i == 99);
-                                    test(result.returnValue.i == 99);
-                                    cb.called();
-                                }
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        if (ex != null) {
+                            test(
+                                ex
+                                    instanceof OperationNotExistException); // OK,
+                            // talking to non-Java server.
+                        } else {
+                            test(result.o.i == 99);
+                            test(result.returnValue.i == 99);
+                            cb.called();
+                        }
+                    });
             test(cb.check());
         }
 
@@ -99,37 +101,37 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opSerialLargeJavaAsync(i)
-                    .whenComplete(
-                            (result, ex) -> {
-                                if (ex != null) {
-                                    test(
-                                            ex
-                                                    instanceof OperationNotExistException); // OK,
-                                    // talking to non-Java server.
-                                } else {
-                                    test(result.o.d1 == 1.0);
-                                    test(result.o.d2 == 2.0);
-                                    test(result.o.d3 == 3.0);
-                                    test(result.o.d4 == 4.0);
-                                    test(result.o.d5 == 5.0);
-                                    test(result.o.d6 == 6.0);
-                                    test(result.o.d7 == 7.0);
-                                    test(result.o.d8 == 8.0);
-                                    test(result.o.d9 == 9.0);
-                                    test(result.o.d10 == 10.0);
-                                    test(result.returnValue.d1 == 1.0);
-                                    test(result.returnValue.d2 == 2.0);
-                                    test(result.returnValue.d3 == 3.0);
-                                    test(result.returnValue.d4 == 4.0);
-                                    test(result.returnValue.d5 == 5.0);
-                                    test(result.returnValue.d6 == 6.0);
-                                    test(result.returnValue.d7 == 7.0);
-                                    test(result.returnValue.d8 == 8.0);
-                                    test(result.returnValue.d9 == 9.0);
-                                    test(result.returnValue.d10 == 10.0);
-                                    cb.called();
-                                }
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        if (ex != null) {
+                            test(
+                                ex
+                                    instanceof OperationNotExistException); // OK,
+                            // talking to non-Java server.
+                        } else {
+                            test(result.o.d1 == 1.0);
+                            test(result.o.d2 == 2.0);
+                            test(result.o.d3 == 3.0);
+                            test(result.o.d4 == 4.0);
+                            test(result.o.d5 == 5.0);
+                            test(result.o.d6 == 6.0);
+                            test(result.o.d7 == 7.0);
+                            test(result.o.d8 == 8.0);
+                            test(result.o.d9 == 9.0);
+                            test(result.o.d10 == 10.0);
+                            test(result.returnValue.d1 == 1.0);
+                            test(result.returnValue.d2 == 2.0);
+                            test(result.returnValue.d3 == 3.0);
+                            test(result.returnValue.d4 == 4.0);
+                            test(result.returnValue.d5 == 5.0);
+                            test(result.returnValue.d6 == 6.0);
+                            test(result.returnValue.d7 == 7.0);
+                            test(result.returnValue.d8 == 8.0);
+                            test(result.returnValue.d9 == 9.0);
+                            test(result.returnValue.d10 == 10.0);
+                            cb.called();
+                        }
+                    });
             test(cb.check());
         }
 
@@ -142,24 +144,24 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opSerialStructJavaAsync(i)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(result.o.o == null);
-                                test(result.o.o2 != null);
-                                test(((Struct) (result.o.o2)).o == null);
-                                test(((Struct) (result.o.o2)).o2 == result.o.o2);
-                                test(result.o.s == null);
-                                test("Hello".equals(result.o.s2));
-                                test(result.returnValue.o == null);
-                                test(result.returnValue.o2 != null);
-                                test(((Struct) (result.returnValue.o2)).o == null);
-                                test(
-                                        ((Struct) (result.returnValue.o2)).o2
-                                                == result.returnValue.o2);
-                                test(result.returnValue.s == null);
-                                test("Hello".equals(result.returnValue.s2));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(result.o.o == null);
+                        test(result.o.o2 != null);
+                        test(((Struct) (result.o.o2)).o == null);
+                        test(((Struct) (result.o.o2)).o2 == result.o.o2);
+                        test(result.o.s == null);
+                        test("Hello".equals(result.o.s2));
+                        test(result.returnValue.o == null);
+                        test(result.returnValue.o2 != null);
+                        test(((Struct) (result.returnValue.o2)).o == null);
+                        test(
+                            ((Struct) (result.returnValue.o2)).o2
+                                == result.returnValue.o2);
+                        test(result.returnValue.s == null);
+                        test("Hello".equals(result.returnValue.s2));
+                        cb.called();
+                    });
             test(cb.check());
         }
     }

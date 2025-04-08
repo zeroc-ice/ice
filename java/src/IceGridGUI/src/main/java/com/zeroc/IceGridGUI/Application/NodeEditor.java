@@ -4,8 +4,8 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.NodeDescriptor;
+import com.zeroc.IceGridGUI.Utils;
 
 import javax.swing.JOptionPane;
 
@@ -45,10 +45,10 @@ class NodeEditor extends Editor {
                     root.setSelectedNode(_target);
 
                     JOptionPane.showMessageDialog(
-                            root.getCoordinator().getMainFrame(),
-                            e.toString(),
-                            "Apply failed",
-                            JOptionPane.ERROR_MESSAGE);
+                        root.getCoordinator().getMainFrame(),
+                        e.toString(),
+                        "Apply failed",
+                        JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
@@ -75,10 +75,10 @@ class NodeEditor extends Editor {
                 } catch (UpdateFailedException e) {
                     ((Node) _target).restoreDescriptor(savedDescriptor);
                     JOptionPane.showMessageDialog(
-                            root.getCoordinator().getMainFrame(),
-                            e.toString(),
-                            "Apply failed",
-                            JOptionPane.ERROR_MESSAGE);
+                        root.getCoordinator().getMainFrame(),
+                        e.toString(),
+                        "Apply failed",
+                        JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
@@ -113,7 +113,7 @@ class NodeEditor extends Editor {
     NodeEditor() {
         _name.getDocument().addDocumentListener(_updateListener);
         _name.setToolTipText(
-                "Must match the IceGrid.Node.Name property of the desired icegridnode process");
+            "Must match the IceGrid.Node.Name property of the desired icegridnode process");
         _description.getDocument().addDocumentListener(_updateListener);
         _description.setToolTipText("An optional description for this node");
 
@@ -122,10 +122,10 @@ class NodeEditor extends Editor {
 
         _loadFactor.getDocument().addDocumentListener(_updateListener);
         _loadFactor.setToolTipText(
-                "<html>A floating point value.<br>"
-                        + "When not specified, IceGrid uses 1.0 divided by the<br>"
-                        + "<i>number of threads</i> on all platforms except Windows;<br>"
-                        + "on Windows, IceGrid uses 1.0.<html>");
+            "<html>A floating point value.<br>"
+                + "When not specified, IceGrid uses 1.0 divided by the<br>"
+                + "<i>number of threads</i> on all platforms except Windows;<br>"
+                + "on Windows, IceGrid uses 1.0.<html>");
     }
 
     @Override

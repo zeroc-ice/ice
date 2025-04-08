@@ -28,7 +28,8 @@ import java.util.concurrent.TimeUnit;
 
 public class AllTests {
     private static class Callback {
-        Callback() {}
+        Callback() {
+        }
 
         public synchronized void check() {
             while (!_called) {
@@ -105,24 +106,24 @@ public class AllTests {
             final Callback cb = new Callback();
             mainThread.interrupt();
             p.opAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             test(Thread.interrupted());
             cb.check();
 
             ExecutorService executor = Executors.newFixedThreadPool(1);
             executor.submit(
-                    () -> {
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException e) {
-                            test(false);
-                        }
-                        mainThread.interrupt();
-                    });
+                () -> {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        test(false);
+                    }
+                    mainThread.interrupt();
+                });
             try {
                 test(!mainThread.isInterrupted());
                 p.sleepAsync(2000).get();
@@ -163,14 +164,14 @@ public class AllTests {
                 // exception.
                 //
                 executor.submit(
-                        () -> {
-                            try {
-                                Thread.sleep(500);
-                            } catch (InterruptedException e) {
-                                test(false);
-                            }
-                            mainThread.interrupt();
-                        });
+                    () -> {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            test(false);
+                        }
+                        mainThread.interrupt();
+                    });
 
                 CompletableFuture<Void> r = null;
                 InvocationFuture<Void> f = null;
@@ -234,11 +235,11 @@ public class AllTests {
                 final Callback cb = new Callback();
                 mainThread.interrupt();
                 p.ice_getConnectionAsync()
-                        .whenComplete(
-                                (result, ex) -> {
-                                    test(ex == null);
-                                    cb.called();
-                                });
+                    .whenComplete(
+                        (result, ex) -> {
+                            test(ex == null);
+                            cb.called();
+                        });
                 test(Thread.interrupted());
                 cb.check();
             }
@@ -280,11 +281,11 @@ public class AllTests {
             mainThread.interrupt();
             r.whenComplete((result, ex) -> test(ex == null));
             Util.getInvocationFuture(r)
-                    .whenSent(
-                            (sentSynchronously, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenSent(
+                    (sentSynchronously, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             test(Thread.interrupted());
             cb.check();
         }
@@ -328,11 +329,11 @@ public class AllTests {
                 r = con.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                 r.whenComplete((result, ex) -> test(ex == null));
                 Util.getInvocationFuture(r)
-                        .whenSent(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    cb.called();
-                                });
+                    .whenSent(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            cb.called();
+                        });
                 test(Thread.interrupted());
                 cb.check();
             }
@@ -374,11 +375,11 @@ public class AllTests {
             r = communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
             r.whenComplete((result, ex) -> test(ex == null));
             Util.getInvocationFuture(r)
-                    .whenSent(
-                            (sentSynchronously, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenSent(
+                    (sentSynchronously, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             test(Thread.interrupted());
             cb.check();
         }
@@ -414,38 +415,38 @@ public class AllTests {
             final TestIntfPrx p2 = TestIntfPrx.checkedCast(o);
             final CountDownLatch waitSignal = new CountDownLatch(1);
             executor.submit(
-                    () -> {
-                        try {
-                            waitSignal.await();
-                        } catch (InterruptedException e) {
-                            test(false);
-                        }
-                        thread[0].interrupt();
-                    });
+                () -> {
+                    try {
+                        waitSignal.await();
+                    } catch (InterruptedException e) {
+                        test(false);
+                    }
+                    thread[0].interrupt();
+                });
             //
             // The whenComplete() action may be executed in the current thread (if the future is
             // already completed). We have to submit the runnable to the executor *before*
             // calling whenComplete() because this thread can block in sleep().
             //
             p2.opAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                try {
-                                    Thread.sleep(250);
-                                } catch (InterruptedException e1) {
-                                    test(false);
-                                }
-                                thread[0] = Thread.currentThread();
-                                waitSignal.countDown();
-                                try {
-                                    Thread.sleep(10000);
-                                    test(false);
-                                } catch (InterruptedException e) {
-                                    // Expected
-                                }
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        try {
+                            Thread.sleep(250);
+                        } catch (InterruptedException e1) {
+                            test(false);
+                        }
+                        thread[0] = Thread.currentThread();
+                        waitSignal.countDown();
+                        try {
+                            Thread.sleep(10000);
+                            test(false);
+                        } catch (InterruptedException e) {
+                            // Expected
+                        }
+                        cb.called();
+                    });
 
             try {
                 waitSignal.await();
@@ -468,16 +469,16 @@ public class AllTests {
         {
             final Callback cb = new Callback();
             p.sleepAsync(2000)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(
-                                        ex != null
-                                                && ex
-                                                        instanceof test.Ice.interrupt
-                                                                .Test
-                                                                .InterruptedException);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(
+                            ex != null
+                                && ex
+                                instanceof test.Ice.interrupt
+                                .Test
+                                .InterruptedException);
+                        cb.called();
+                    });
             try {
                 Thread.sleep(250);
             } catch (InterruptedException e) {
@@ -529,14 +530,14 @@ public class AllTests {
             }
 
             Runnable interruptMainThread =
-                    () -> {
-                        try {
-                            Thread.sleep(250);
-                        } catch (InterruptedException e) {
-                            test(false);
-                        }
-                        mainThread.interrupt();
-                    };
+                () -> {
+                    try {
+                        Thread.sleep(250);
+                    } catch (InterruptedException e) {
+                        test(false);
+                    }
+                    mainThread.interrupt();
+                };
 
             executor.execute(interruptMainThread);
             try {

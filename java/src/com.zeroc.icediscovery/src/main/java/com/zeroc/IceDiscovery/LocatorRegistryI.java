@@ -25,10 +25,10 @@ import java.util.concurrent.CompletionStage;
 class LocatorRegistryI implements LocatorRegistry {
     public LocatorRegistryI(Communicator com) {
         _wellKnownProxy =
-                com.stringToProxy("p")
-                        .ice_locator(null)
-                        .ice_router(null)
-                        .ice_collocationOptimized(true);
+            com.stringToProxy("p")
+                .ice_locator(null)
+                .ice_router(null)
+                .ice_collocationOptimized(true);
     }
 
     @Override
@@ -142,8 +142,8 @@ class LocatorRegistryI implements LocatorRegistry {
             if (prx != null) {
                 r.isReplicaGroup = true;
                 r.returnValue =
-                        prx.ice_endpoints(
-                                endpoints.toArray(new Endpoint[endpoints.size()]));
+                    prx.ice_endpoints(
+                        endpoints.toArray(new Endpoint[endpoints.size()]));
                 return r;
             }
         }

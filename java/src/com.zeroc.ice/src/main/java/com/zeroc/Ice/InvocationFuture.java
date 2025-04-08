@@ -268,14 +268,14 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         // this method.
         //
         _instance
-                .clientThreadPool()
-                .dispatch(
-                        new RunnableThreadPoolWorkItem(_cachedConnection) {
-                            @Override
-                            public void run() {
-                                invokeCompleted();
-                            }
-                        });
+            .clientThreadPool()
+            .dispatch(
+                new RunnableThreadPoolWorkItem(_cachedConnection) {
+                    @Override
+                    public void run() {
+                        invokeCompleted();
+                    }
+                });
     }
 
     public synchronized void cancelable(final CancellationHandler handler) {
@@ -300,7 +300,8 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         _exception = null;
     }
 
-    protected void cacheMessageBuffers() {}
+    protected void cacheMessageBuffers() {
+    }
 
     protected boolean sent(boolean done) {
         synchronized (this) {
@@ -423,21 +424,21 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
     protected void dispatch(final Runnable runnable) {
         try {
             _instance
-                    .clientThreadPool()
-                    .dispatch(
-                            new RunnableThreadPoolWorkItem(_cachedConnection) {
-                                @Override
-                                public void run() {
-                                    runnable.run();
-                                }
-                            });
+                .clientThreadPool()
+                .dispatch(
+                    new RunnableThreadPoolWorkItem(_cachedConnection) {
+                        @Override
+                        public void run() {
+                            runnable.run();
+                        }
+                    });
         } catch (CommunicatorDestroyedException ex) {
         }
     }
 
     private void warning(RuntimeException ex) {
         if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.AMICallback")
-                > 0) {
+            > 0) {
             String s = "exception raised by AMI callback:\n" + Ex.toString(ex);
             _instance.initializationData().logger.warning(s);
         }

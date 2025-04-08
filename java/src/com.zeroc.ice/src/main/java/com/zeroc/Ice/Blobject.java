@@ -25,14 +25,14 @@ public interface Blobject extends Object {
      *     it.
      */
     Object.Ice_invokeResult ice_invoke(byte[] inEncaps, Current current)
-            throws UserException;
+        throws UserException;
 
     @Override
     default CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
-            throws UserException {
+        throws UserException {
         byte[] inEncaps = request.inputStream.readEncapsulation(null);
         Object.Ice_invokeResult r = ice_invoke(inEncaps, request.current);
         return CompletableFuture.completedFuture(
-                request.current.createOutgoingResponse(r.returnValue, r.outParams));
+            request.current.createOutgoingResponse(r.returnValue, r.outParams));
     }
 }

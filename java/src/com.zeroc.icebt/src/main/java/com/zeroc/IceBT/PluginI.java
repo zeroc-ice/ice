@@ -23,12 +23,14 @@ class PluginI implements Plugin {
 
         Instance bts = new Instance(communicator, BTSEndpointType.value, "bts");
         f.addEndpointFactory(
-                new UnderlyingEndpointFactory(bts, SSLEndpointType.value, BTEndpointType.value));
+            new UnderlyingEndpointFactory(bts, SSLEndpointType.value, BTEndpointType.value));
     }
 
     @Override
-    public void initialize() {}
+    public void initialize() {
+    }
 
     @Override
-    public void destroy() {}
+    public void destroy() {
+    }
 }

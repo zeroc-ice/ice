@@ -20,8 +20,8 @@ public class Server extends TestHelper {
 
             // Accepts 10 connections.
             communicator
-                    .getProperties()
-                    .setProperty("TestAdapterMax10.Endpoints", getTestEndpoint(1));
+                .getProperties()
+                .setProperty("TestAdapterMax10.Endpoints", getTestEndpoint(1));
             communicator.getProperties().setProperty("TestAdapterMax10.MaxConnections", "10");
             var adapterMax10 = communicator.createObjectAdapter("TestAdapterMax10");
             adapterMax10.add(new TestIntfI(), new Identity("test", ""));

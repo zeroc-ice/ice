@@ -24,8 +24,8 @@ public class Server extends TestHelper {
         properties.setProperty("Ice.Package.Test", "test.IceSSL.configuration");
         try (Communicator communicator = initialize(properties)) {
             communicator
-                    .getProperties()
-                    .setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
+                .getProperties()
+                .setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             Identity id = Util.stringToIdentity("factory");
             adapter.add(new ServerFactoryI(rargs.get(0) + "/../certs"), id);

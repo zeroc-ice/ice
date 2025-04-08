@@ -18,8 +18,8 @@ public class Server extends TestHelper {
             properties.setProperty("TestAdapter.Endpoints", getTestEndpoint());
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(
-                    new RemoteCommunicatorFactoryI(),
-                    Util.stringToIdentity("factory"));
+                new RemoteCommunicatorFactoryI(),
+                Util.stringToIdentity("factory"));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

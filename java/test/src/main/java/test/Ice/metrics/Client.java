@@ -21,8 +21,8 @@ public class Client extends TestHelper {
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
         initData.properties.setProperty(
-                "Ice.Connection.Client.ConnectTimeout",
-                "1"); // speed up connection establishment tests
+            "Ice.Connection.Client.ConnectTimeout",
+            "1"); // speed up connection establishment tests
         initData.observer = observer;
 
         try (Communicator communicator = initialize(initData)) {

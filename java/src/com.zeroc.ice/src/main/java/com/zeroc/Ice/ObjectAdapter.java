@@ -405,7 +405,7 @@ public final class ObjectAdapter {
         // This code is not thread-safe, and it's not supposed to be.
         if (_dispatchPipeline != null) {
             throw new IllegalStateException(
-                    "All middleware must be installed before the first dispatch.");
+                "All middleware must be installed before the first dispatch.");
         }
         _middlewareStack.push(middleware);
         return this;
@@ -875,7 +875,7 @@ public final class ObjectAdapter {
      */
     public synchronized Endpoint[] getPublishedEndpoints() {
         return Arrays.copyOf(
-                _publishedEndpoints, _publishedEndpoints.length, Endpoint[].class);
+            _publishedEndpoints, _publishedEndpoints.length, Endpoint[].class);
     }
 
     /**
@@ -892,12 +892,12 @@ public final class ObjectAdapter {
             checkForDeactivation();
             if (_routerInfo != null) {
                 throw new IllegalArgumentException(
-                        "can't set published endpoints on object adapter associated with a router");
+                    "can't set published endpoints on object adapter associated with a router");
             }
 
             oldPublishedEndpoints = _publishedEndpoints;
             _publishedEndpoints =
-                    Arrays.copyOf(newEndpoints, newEndpoints.length, EndpointI[].class);
+                Arrays.copyOf(newEndpoints, newEndpoints.length, EndpointI[].class);
             locatorInfo = _locatorInfo;
         }
 
@@ -942,7 +942,7 @@ public final class ObjectAdapter {
 
                 EndpointI[] endpoints = ref.getEndpoints();
                 return Arrays.stream(_publishedEndpoints)
-                        .anyMatch(p -> Arrays.stream(endpoints).anyMatch(p::equivalent));
+                    .anyMatch(p -> Arrays.stream(endpoints).anyMatch(p::equivalent));
             }
         }
     }
@@ -1046,20 +1046,20 @@ public final class ObjectAdapter {
         if (_instance.initializationData().logger != null) {
             Logger logger = _instance.initializationData().logger;
             int warningLevel =
-                    _instance
-                            .initializationData()
-                            .properties
-                            .getIcePropertyAsInt("Ice.Warn.Dispatch");
+                _instance
+                    .initializationData()
+                    .properties
+                    .getIcePropertyAsInt("Ice.Warn.Dispatch");
             if (_instance.traceLevels().dispatch > 0 || warningLevel > 0) {
                 use(
-                        next ->
-                                new LoggerMiddleware(
-                                        next,
-                                        logger,
-                                        _instance.traceLevels().dispatch,
-                                        _instance.traceLevels().dispatchCat,
-                                        warningLevel,
-                                        _instance.toStringMode()));
+                    next ->
+                        new LoggerMiddleware(
+                            next,
+                            logger,
+                            _instance.traceLevels().dispatch,
+                            _instance.traceLevels().dispatchCat,
+                            warningLevel,
+                            _instance.toStringMode()));
             }
         }
         if (_instance.initializationData().observer != null) {
@@ -1079,7 +1079,7 @@ public final class ObjectAdapter {
 
         try {
             Properties.validatePropertiesWithPrefix(
-                    _name, properties, PropertyNames.ObjectAdapterProps);
+                _name, properties, PropertyNames.ObjectAdapterProps);
         } catch (PropertyException ex) {
             // Prevent finalizer from complaining about the adapter not being destroyed.
             _state = StateDestroyed;
@@ -1094,7 +1094,7 @@ public final class ObjectAdapter {
             _state = StateDestroyed;
 
             throw new InitializationException(
-                    "Object adapter '" + _name + "' requires configuration.");
+                "Object adapter '" + _name + "' requires configuration.");
         }
 
         _id = properties.getProperty(_name + ".AdapterId");
@@ -1111,19 +1111,19 @@ public final class ObjectAdapter {
             // Prevent finalizer from complaining about the adapter not being destroyed.
             _state = StateDestroyed;
             throw new InitializationException(
-                    "invalid proxy options '"
-                            + proxyOptions
-                            + "' for object adapter '"
-                            + _name
-                            + "'.",
-                    ex);
+                "invalid proxy options '"
+                    + proxyOptions
+                    + "' for object adapter '"
+                    + _name
+                    + "'.",
+                ex);
         }
 
         {
             final int defaultMessageSizeMax = instance.messageSizeMax() / 1024;
             int num =
-                    properties.getPropertyAsIntWithDefault(
-                            _name + ".MessageSizeMax", defaultMessageSizeMax);
+                properties.getPropertyAsIntWithDefault(
+                    _name + ".MessageSizeMax", defaultMessageSizeMax);
             if (num < 1 || num > 0x7fffffff / 1024) {
                 _messageSizeMax = 0x7fffffff;
             } else {
@@ -1151,7 +1151,7 @@ public final class ObjectAdapter {
 
                 if (!properties.getProperty(_name + ".Endpoints").isEmpty()) {
                     throw new InitializationException(
-                            "An object adapter with a router cannot accept incoming connections.");
+                        "An object adapter with a router cannot accept incoming connections.");
                 }
 
                 //
@@ -1159,8 +1159,8 @@ public final class ObjectAdapter {
                 //
                 if (_routerInfo.getAdapter() != null) {
                     throw new AlreadyRegisteredException(
-                            "object adapter with router",
-                            _communicator.identityToString(router.ice_getIdentity()));
+                        "object adapter with router",
+                        _communicator.identityToString(router.ice_getIdentity()));
                 }
 
                 //
@@ -1182,23 +1182,23 @@ public final class ObjectAdapter {
                 // factory might change it, for example, to fill in the real port number.
                 //
                 List<EndpointI> endpoints =
-                        parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
+                    parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
 
                 for (EndpointI endpoint : endpoints) {
                     for (EndpointI expanded : endpoint.expandHost()) {
                         _incomingConnectionFactories.add(
-                                new IncomingConnectionFactory(instance, expanded, this));
+                            new IncomingConnectionFactory(instance, expanded, this));
                     }
                 }
                 if (endpoints.isEmpty()) {
                     TraceLevels tl = _instance.traceLevels();
                     if (tl.network >= 2) {
                         _instance
-                                .initializationData()
-                                .logger
-                                .trace(
-                                        tl.networkCat,
-                                        "created adapter '" + name + "' without endpoints");
+                            .initializationData()
+                            .logger
+                            .trace(
+                                tl.networkCat,
+                                "created adapter '" + name + "' without endpoints");
                     }
                 }
             }
@@ -1210,7 +1210,7 @@ public final class ObjectAdapter {
 
             if (properties.getProperty(_name + ".Locator").length() > 0) {
                 setLocator(
-                        LocatorPrx.uncheckedCast(communicator.propertyToProxy(_name + ".Locator")));
+                    LocatorPrx.uncheckedCast(communicator.propertyToProxy(_name + ".Locator")));
             } else {
                 setLocator(_instance.referenceFactory().getDefaultLocator());
             }
@@ -1230,14 +1230,14 @@ public final class ObjectAdapter {
         try {
             if (_state < StateDeactivated) {
                 _instance
-                        .initializationData()
-                        .logger
-                        .warning("object adapter `" + getName() + "' has not been deactivated");
+                    .initializationData()
+                    .logger
+                    .warning("object adapter `" + getName() + "' has not been deactivated");
             } else if (_state != StateDestroyed) {
                 _instance
-                        .initializationData()
-                        .logger
-                        .warning("object adapter `" + getName() + "' has not been destroyed");
+                    .initializationData()
+                    .logger
+                    .warning("object adapter `" + getName() + "' has not been destroyed");
             } else {
                 Assert.FinalizerAssert(_threadPool == null);
                 // Not cleared, it needs to be immutable.
@@ -1264,7 +1264,7 @@ public final class ObjectAdapter {
     private ObjectPrx newDirectProxy(Identity ident, String facet) {
         // Create a reference and return a proxy for this reference.
         var ref =
-                _instance.referenceFactory().create(ident, facet, _reference, _publishedEndpoints);
+            _instance.referenceFactory().create(ident, facet, _reference, _publishedEndpoints);
         return new _ObjectPrxI(ref);
     }
 
@@ -1290,7 +1290,7 @@ public final class ObjectAdapter {
     private static void checkIdentity(Identity ident) {
         if (ident.name == null || ident.name.isEmpty()) {
             throw new IllegalArgumentException(
-                    "The name of an Ice object identity cannot be empty.");
+                "The name of an Ice object identity cannot be empty.");
         }
 
         if (ident.category == null) {
@@ -1371,31 +1371,31 @@ public final class ObjectAdapter {
             // Parse published endpoints. If set, these are used instead of the connection factory
             // endpoints.
             var endpointsList =
-                    parseEndpoints(
-                            _instance
-                                    .initializationData()
-                                    .properties
-                                    .getProperty(_name + ".PublishedEndpoints"),
-                            false);
+                parseEndpoints(
+                    _instance
+                        .initializationData()
+                        .properties
+                        .getProperty(_name + ".PublishedEndpoints"),
+                    false);
 
             if (endpointsList.isEmpty()) {
                 // If the PublishedEndpoints property isn't set, we compute the published endpoints
                 // from the factory endpoints.
                 endpointsList =
-                        _incomingConnectionFactories.stream()
-                                .map(IncomingConnectionFactory::endpoint)
-                                .toList();
+                    _incomingConnectionFactories.stream()
+                        .map(IncomingConnectionFactory::endpoint)
+                        .toList();
 
                 // Remove all loopback/multicast endpoints.
                 var endpointsNoLoopback =
-                        endpointsList.stream().filter(e -> !e.isLoopbackOrMulticast()).toList();
+                    endpointsList.stream().filter(e -> !e.isLoopbackOrMulticast()).toList();
 
                 // Retrieve published host.
                 String publishedHost =
-                        _instance
-                                .initializationData()
-                                .properties
-                                .getProperty(_name + ".PublishedHost");
+                    _instance
+                        .initializationData()
+                        .properties
+                        .getProperty(_name + ".PublishedHost");
 
                 Stream<EndpointI> endpoints;
 
@@ -1411,7 +1411,7 @@ public final class ObjectAdapter {
                             publishedHost = InetAddress.getLocalHost().getHostName();
                         } catch (UnknownHostException e) {
                             throw new InitializationException(
-                                    "failed to get the local host name", e);
+                                "failed to get the local host name", e);
                         }
                     }
                 }
@@ -1420,7 +1420,7 @@ public final class ObjectAdapter {
                 // local options.
                 final String publishedHostCapture = publishedHost;
                 endpoints =
-                        endpoints.map(e -> e.toPublishedEndpoint(publishedHostCapture)).distinct();
+                    endpoints.map(e -> e.toPublishedEndpoint(publishedHostCapture)).distinct();
 
                 endpointsArray = endpoints.toArray(EndpointI[]::new);
             } else {
@@ -1441,9 +1441,9 @@ public final class ObjectAdapter {
                 first = false;
             }
             _instance
-                    .initializationData()
-                    .logger
-                    .trace(_instance.traceLevels().networkCat, s.toString());
+                .initializationData()
+                .logger
+                .trace(_instance.traceLevels().networkCat, s.toString());
         }
         return endpointsArray;
     }
@@ -1476,9 +1476,9 @@ public final class ObjectAdapter {
                 s.append("' endpoints with the locator registry:\n");
                 s.append("the object adapter is not known to the locator registry");
                 _instance
-                        .initializationData()
-                        .logger
-                        .trace(_instance.traceLevels().locationCat, s.toString());
+                    .initializationData()
+                    .logger
+                    .trace(_instance.traceLevels().locationCat, s.toString());
             }
 
             throw new NotRegisteredException("object adapter", _id);
@@ -1492,9 +1492,9 @@ public final class ObjectAdapter {
                 s.append(_replicaGroupId);
                 s.append("' is not known to the locator registry");
                 _instance
-                        .initializationData()
-                        .logger
-                        .trace(_instance.traceLevels().locationCat, s.toString());
+                    .initializationData()
+                    .logger
+                    .trace(_instance.traceLevels().locationCat, s.toString());
             }
 
             throw new NotRegisteredException("replica group", _replicaGroupId);
@@ -1506,9 +1506,9 @@ public final class ObjectAdapter {
                 s.append("' endpoints with the locator registry:\n");
                 s.append("the object adapter endpoints are already set");
                 _instance
-                        .initializationData()
-                        .logger
-                        .trace(_instance.traceLevels().locationCat, s.toString());
+                    .initializationData()
+                    .logger
+                    .trace(_instance.traceLevels().locationCat, s.toString());
             }
 
             throw new ObjectAdapterIdInUseException(_id);
@@ -1524,9 +1524,9 @@ public final class ObjectAdapter {
                 s.append("' endpoints with the locator registry:\n");
                 s.append(e.toString());
                 _instance
-                        .initializationData()
-                        .logger
-                        .trace(_instance.traceLevels().locationCat, s.toString());
+                    .initializationData()
+                    .logger
+                    .trace(_instance.traceLevels().locationCat, s.toString());
             }
             throw e; // TODO: Shall we raise a special exception instead of a non obvious local
             // exception?
@@ -1548,9 +1548,9 @@ public final class ObjectAdapter {
                 }
             }
             _instance
-                    .initializationData()
-                    .logger
-                    .trace(_instance.traceLevels().locationCat, s.toString());
+                .initializationData()
+                .logger
+                .trace(_instance.traceLevels().locationCat, s.toString());
         }
     }
 }

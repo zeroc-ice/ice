@@ -7,13 +7,15 @@ import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.SyscallException;
 
-import test.Ice.metrics.AMD.Test.*;
+import test.Ice.metrics.AMD.Test.Metrics;
+import test.Ice.metrics.AMD.Test.UserEx;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public final class AMDMetricsI implements Metrics {
-    public AMDMetricsI() {}
+    public AMDMetricsI() {
+    }
 
     @Override
     public CompletionStage<Void> opAsync(Current current) {
@@ -28,7 +30,7 @@ public final class AMDMetricsI implements Metrics {
 
     @Override
     public CompletionStage<Void> opWithUserExceptionAsync(Current current)
-            throws UserEx {
+        throws UserEx {
         CompletableFuture<Void> r = new CompletableFuture<>();
         r.completeExceptionally(new UserEx());
         return r;

@@ -152,8 +152,8 @@ final class UdpMulticastServerTransceiver implements Transceiver {
     public String toDetailedString() {
         StringBuilder s = new StringBuilder(toString());
         List<String> intfs =
-                Network.getInterfacesForMulticast(
-                        _mcastInterface, Network.getProtocolSupport(_addr));
+            Network.getInterfacesForMulticast(
+                _mcastInterface, Network.getProtocolSupport(_addr));
         if (!intfs.isEmpty()) {
             s.append("\nlocal interfaces = ");
             s.append(String.join(", ", intfs));
@@ -165,17 +165,17 @@ final class UdpMulticastServerTransceiver implements Transceiver {
     public synchronized ConnectionInfo getInfo(
             boolean incoming, String adapterName, String connectionId) {
         return new UDPConnectionInfo(
-                incoming,
-                adapterName,
-                connectionId,
-                _socket != null ? _socket.getLocalAddress().getHostAddress() : "",
-                _socket != null ? _socket.getLocalPort() : -1,
-                "",
-                -1,
-                _socket != null ? _addr.getAddress().getHostAddress() : "",
-                _socket != null ? _addr.getPort() : -1,
-                _size,
-                0);
+            incoming,
+            adapterName,
+            connectionId,
+            _socket != null ? _socket.getLocalAddress().getHostAddress() : "",
+            _socket != null ? _socket.getLocalPort() : -1,
+            "",
+            -1,
+            _socket != null ? _addr.getAddress().getHostAddress() : "",
+            _socket != null ? _addr.getPort() : -1,
+            _size,
+            0);
     }
 
     @Override
@@ -234,12 +234,12 @@ final class UdpMulticastServerTransceiver implements Transceiver {
             }
 
             _thread =
-                    new Thread() {
-                        public void run() {
-                            setName("IceUDPMulticast.ReadThread");
-                            runReadThread();
-                        }
-                    };
+                new Thread() {
+                    public void run() {
+                        setName("IceUDPMulticast.ReadThread");
+                        runReadThread();
+                    }
+                };
         } catch (Exception ex) {
             if (_socket != null) {
                 _socket.close();
@@ -274,8 +274,8 @@ final class UdpMulticastServerTransceiver implements Transceiver {
         //
         if (sz < (_udpOverhead + Protocol.headerSize)) {
             _instance
-                    .logger()
-                    .warning("Invalid Ice.UDP.RcvSize value of " + sz + " adjusted to " + _size);
+                .logger()
+                .warning("Invalid Ice.UDP.RcvSize value of " + sz + " adjusted to " + _size);
         } else if (sz != _size) {
             _newSize = sz;
         }
@@ -306,12 +306,12 @@ final class UdpMulticastServerTransceiver implements Transceiver {
                 BufSizeWarnInfo winfo = _instance.getBufSizeWarn(UDPEndpointType.value);
                 if (!winfo.rcvWarn || winfo.rcvSize != _newSize) {
                     _instance
-                            .logger()
-                            .warning(
-                                    "UDP receive buffer size: requested size of "
-                                            + _newSize
-                                            + " adjusted to "
-                                            + _size);
+                        .logger()
+                        .warning(
+                            "UDP receive buffer size: requested size of "
+                                + _newSize
+                                + " adjusted to "
+                                + _size);
                     _instance.setRcvBufSizeWarn(UDPEndpointType.value, _newSize);
                 }
             }

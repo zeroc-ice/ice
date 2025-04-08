@@ -9,7 +9,9 @@ import com.zeroc.Ice.UnknownException;
 
 import test.Ice.serialize.Test.*;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 
 public final class InitialI implements Initial {

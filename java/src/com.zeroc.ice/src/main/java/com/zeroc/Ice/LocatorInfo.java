@@ -21,7 +21,7 @@ final class LocatorInfo {
             if (proxy != null) {
                 Reference r = ((_ObjectPrxI) proxy)._getReference();
                 if (_ref.isWellKnown()
-                        && !Protocol.isSupported(_ref.getEncoding(), r.getEncoding())) {
+                    && !Protocol.isSupported(_ref.getEncoding(), r.getEncoding())) {
                     //
                     // If a well-known proxy and the returned proxy encoding isn't supported, we're
                     // done: there's
@@ -37,10 +37,10 @@ final class LocatorInfo {
                     //
                     if (_ref.getInstance().traceLevels().location >= 1) {
                         locatorInfo.trace(
-                                "retrieved adapter for well-known object from locator, "
-                                        + "adding to locator cache",
-                                _ref,
-                                r);
+                            "retrieved adapter for well-known object from locator, "
+                                + "adding to locator cache",
+                            _ref,
+                            r);
                     }
                     locatorInfo.getEndpoints(r, _ref, _ttl, _callback);
                     return;
@@ -84,11 +84,11 @@ final class LocatorInfo {
                 if (!_response && _exception == null) {
                     _callbacks.add(callback);
                     if (wellKnownRef
-                            != null) // This request is to resolve the endpoints of a cached
-                    // well-known object ref
-                    {
-                        _wellKnownRefs.add(wellKnownRef);
-                    }
+                        != null) // This request is to resolve the endpoints of a cached
+                        // well-known object ref
+                        {
+                            _wellKnownRefs.add(wellKnownRef);
+                        }
                     if (!_sent) {
                         _sent = true;
                         send();
@@ -158,22 +158,22 @@ final class LocatorInfo {
         protected void send() {
             try {
                 _locatorInfo
-                        .getLocator()
-                        .findObjectByIdAsync(_ref.getIdentity())
-                        .whenComplete(
-                                (ObjectPrx proxy, Throwable ex) -> {
-                                    if (ex != null) {
-                                        if (ex instanceof LocalException) {
-                                            exception((LocalException) ex);
-                                        } else if (ex instanceof UserException) {
-                                            exception((UserException) ex);
-                                        } else {
-                                            exception(new UnknownException(ex));
-                                        }
-                                    } else {
-                                        response(proxy);
-                                    }
-                                });
+                    .getLocator()
+                    .findObjectByIdAsync(_ref.getIdentity())
+                    .whenComplete(
+                        (ObjectPrx proxy, Throwable ex) -> {
+                            if (ex != null) {
+                                if (ex instanceof LocalException) {
+                                    exception((LocalException) ex);
+                                } else if (ex instanceof UserException) {
+                                    exception((UserException) ex);
+                                } else {
+                                    exception(new UnknownException(ex));
+                                }
+                            } else {
+                                response(proxy);
+                            }
+                        });
             } catch (Exception ex) {
                 exception(ex);
             }
@@ -190,22 +190,22 @@ final class LocatorInfo {
         protected void send() {
             try {
                 _locatorInfo
-                        .getLocator()
-                        .findAdapterByIdAsync(_ref.getAdapterId())
-                        .whenComplete(
-                                (ObjectPrx proxy, Throwable ex) -> {
-                                    if (ex != null) {
-                                        if (ex instanceof LocalException) {
-                                            exception((LocalException) ex);
-                                        } else if (ex instanceof UserException) {
-                                            exception((UserException) ex);
-                                        } else {
-                                            exception(new UnknownException(ex));
-                                        }
-                                    } else {
-                                        response(proxy);
-                                    }
-                                });
+                    .getLocator()
+                    .findAdapterByIdAsync(_ref.getAdapterId())
+                    .whenComplete(
+                        (ObjectPrx proxy, Throwable ex) -> {
+                            if (ex != null) {
+                                if (ex instanceof LocalException) {
+                                    exception((LocalException) ex);
+                                } else if (ex instanceof UserException) {
+                                    exception((UserException) ex);
+                                } else {
+                                    exception(new UnknownException(ex));
+                                }
+                            } else {
+                                response(proxy);
+                            }
+                        });
             } catch (Exception ex) {
                 exception(ex);
             }
@@ -270,9 +270,9 @@ final class LocatorInfo {
             // with some endpoints which are preferred to be tried first.
             //
             _locatorRegistry =
-                    locatorRegistry
-                            .ice_locator(null)
-                            .ice_endpointSelection(EndpointSelectionType.Ordered);
+                locatorRegistry
+                    .ice_locator(null)
+                    .ice_endpointSelection(EndpointSelectionType.Ordered);
             return _locatorRegistry;
         }
     }
@@ -342,9 +342,9 @@ final class LocatorInfo {
                 if (!r.isIndirect()) {
                     if (ref.getInstance().traceLevels().location >= 2) {
                         trace(
-                                "removed endpoints for well-known object from locator cache",
-                                ref,
-                                r.getEndpoints());
+                            "removed endpoints for well-known object from locator cache",
+                            ref,
+                            r.getEndpoints());
                     }
                 } else if (!r.isWellKnown()) {
                     if (ref.getInstance().traceLevels().location >= 2) {
@@ -382,9 +382,9 @@ final class LocatorInfo {
         }
 
         ref.getInstance()
-                .initializationData()
-                .logger
-                .trace(ref.getInstance().traceLevels().locationCat, s.toString());
+            .initializationData()
+            .logger
+            .trace(ref.getInstance().traceLevels().locationCat, s.toString());
     }
 
     private void trace(String msg, Reference ref, Reference resolved) {
@@ -400,9 +400,9 @@ final class LocatorInfo {
         s.append(resolved.getAdapterId());
 
         ref.getInstance()
-                .initializationData()
-                .logger
-                .trace(ref.getInstance().traceLevels().locationCat, s.toString());
+            .initializationData()
+            .logger
+            .trace(ref.getInstance().traceLevels().locationCat, s.toString());
     }
 
     private void getEndpointsException(Reference ref, Exception exc) {
@@ -418,8 +418,8 @@ final class LocatorInfo {
                 s.append("adapter = ");
                 s.append(ref.getAdapterId());
                 instance.initializationData()
-                        .logger
-                        .trace(instance.traceLevels().locationCat, s.toString());
+                    .logger
+                    .trace(instance.traceLevels().locationCat, s.toString());
             }
 
             throw new NotRegisteredException("object adapter", ref.getAdapterId());
@@ -431,8 +431,8 @@ final class LocatorInfo {
                 s.append("object = ");
                 s.append(Util.identityToString(ref.getIdentity(), instance.toStringMode()));
                 instance.initializationData()
-                        .logger
-                        .trace(instance.traceLevels().locationCat, s.toString());
+                    .logger
+                    .trace(instance.traceLevels().locationCat, s.toString());
             }
 
             final String id = Util.identityToString(ref.getIdentity(), instance.toStringMode());
@@ -455,8 +455,8 @@ final class LocatorInfo {
                 }
                 s.append("reason = ").append(ex);
                 instance.initializationData()
-                        .logger
-                        .trace(instance.traceLevels().locationCat, s.toString());
+                    .logger
+                    .trace(instance.traceLevels().locationCat, s.toString());
             }
             throw ex;
         } catch (Exception ex) {
@@ -475,14 +475,14 @@ final class LocatorInfo {
             } else {
                 if (ref.isWellKnown()) {
                     trace(
-                            "retrieved endpoints for well-known proxy from locator, adding to locator cache",
-                            ref,
-                            endpoints);
+                        "retrieved endpoints for well-known proxy from locator, adding to locator cache",
+                        ref,
+                        endpoints);
                 } else {
                     trace(
-                            "retrieved endpoints for adapter from locator, adding to locator cache",
-                            ref,
-                            endpoints);
+                        "retrieved endpoints for adapter from locator, adding to locator cache",
+                        ref,
+                        endpoints);
                 }
             }
         } else {
@@ -501,8 +501,8 @@ final class LocatorInfo {
                 s.append("\n");
             }
             instance.initializationData()
-                    .logger
-                    .trace(instance.traceLevels().locationCat, s.toString());
+                .logger
+                .trace(instance.traceLevels().locationCat, s.toString());
         }
     }
 
@@ -514,8 +514,8 @@ final class LocatorInfo {
             s.append("adapter = ");
             s.append(ref.getAdapterId());
             instance.initializationData()
-                    .logger
-                    .trace(instance.traceLevels().locationCat, s.toString());
+                .logger
+                .trace(instance.traceLevels().locationCat, s.toString());
         }
 
         Request request = _adapterRequests.get(ref.getAdapterId());
@@ -535,8 +535,8 @@ final class LocatorInfo {
             s.append("well-known proxy = ");
             s.append(ref.toString());
             instance.initializationData()
-                    .logger
-                    .trace(instance.traceLevels().locationCat, s.toString());
+                .logger
+                .trace(instance.traceLevels().locationCat, s.toString());
         }
 
         Request request = _objectRequests.get(ref.getIdentity());
@@ -567,7 +567,7 @@ final class LocatorInfo {
             if (proxy != null && !((_ObjectPrxI) proxy)._getReference().isIndirect()) {
                 // Cache the adapter endpoints.
                 _table.addAdapterEndpoints(
-                        ref.getAdapterId(), ((_ObjectPrxI) proxy)._getReference().getEndpoints());
+                    ref.getAdapterId(), ((_ObjectPrxI) proxy)._getReference().getEndpoints());
             } else if (notRegistered) {
                 // If the adapter isn't registered anymore, remove it from the cache.
                 _table.removeAdapterEndpoints(ref.getAdapterId());

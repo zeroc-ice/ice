@@ -34,37 +34,37 @@ public final class HoldI implements Hold {
             _adapter.activate();
         } else {
             _timer.schedule(
-                    new TimerTask() {
-                        @Override
-                        public void run() {
-                            try {
-                                putOnHold(0, null);
-                            } catch (ObjectAdapterDeactivatedException ex) {
-                            }
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        try {
+                            putOnHold(0, null);
+                        } catch (ObjectAdapterDeactivatedException ex) {
                         }
-                    },
-                    delay);
+                    }
+                },
+                delay);
         }
     }
 
     @Override
     public void waitForHold(final Current current) {
         _timer.schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        try {
-                            current.adapter.waitForHold();
+            new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        current.adapter.waitForHold();
 
-                            current.adapter.activate();
-                        } catch (LocalException ex) {
-                            // This shouldn't occur. The test ensures all the waitForHold timers are
-                            // finished before shutting down the communicator.
-                            test(false);
-                        }
+                        current.adapter.activate();
+                    } catch (LocalException ex) {
+                        // This shouldn't occur. The test ensures all the waitForHold timers are
+                        // finished before shutting down the communicator.
+                        test(false);
                     }
-                },
-                0);
+                }
+            },
+            0);
     }
 
     @Override

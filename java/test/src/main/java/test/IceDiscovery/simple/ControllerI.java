@@ -8,7 +8,7 @@ import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Properties;
 
-import test.IceDiscovery.simple.Test.*;
+import test.IceDiscovery.simple.Test.Controller;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,5 +55,5 @@ public final class ControllerI implements Controller {
     }
 
     private final Map<String, ObjectAdapter> _adapters =
-            new HashMap<String, ObjectAdapter>();
+        new HashMap<String, ObjectAdapter>();
 }

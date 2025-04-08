@@ -42,23 +42,23 @@ public class ParametersField extends JTable {
         }
 
         Action deleteRow =
-                new AbstractAction("Delete selected row(s)") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (isEditing()) {
-                            getCellEditor().stopCellEditing();
-                        }
+            new AbstractAction("Delete selected row(s)") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (isEditing()) {
+                        getCellEditor().stopCellEditing();
+                    }
 
-                        for (; ; ) {
-                            int selectedRow = getSelectedRow();
-                            if (selectedRow == -1) {
-                                break;
-                            } else {
-                                _model.removeRow(selectedRow);
-                            }
+                    for (; ; ) {
+                        int selectedRow = getSelectedRow();
+                        if (selectedRow == -1) {
+                            break;
+                        } else {
+                            _model.removeRow(selectedRow);
                         }
                     }
-                };
+                }
+            };
         getActionMap().put("delete", deleteRow);
         getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
     }
@@ -88,17 +88,17 @@ public class ParametersField extends JTable {
         _model = new DefaultTableModel(vector, _columnNames);
 
         _model.addTableModelListener(
-                new TableModelListener() {
-                    @Override
-                    public void tableChanged(TableModelEvent e) {
-                        Object lastKey = _model.getValueAt(_model.getRowCount() - 1, 0);
-                        if (lastKey != null && !"".equals(lastKey)) {
-                            _model.addRow(new Object[]{"", _noDefault});
-                        }
-
-                        _editor.updated();
+            new TableModelListener() {
+                @Override
+                public void tableChanged(TableModelEvent e) {
+                    Object lastKey = _model.getValueAt(_model.getRowCount() - 1, 0);
+                    if (lastKey != null && !"".equals(lastKey)) {
+                        _model.addRow(new Object[]{"", _noDefault});
                     }
-                });
+
+                    _editor.updated();
+                }
+            });
         setModel(_model);
 
         TableColumn valColumn = getColumnModel().getColumn(1);

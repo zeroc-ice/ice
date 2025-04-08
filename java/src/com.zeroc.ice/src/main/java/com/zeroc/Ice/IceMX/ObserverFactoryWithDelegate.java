@@ -6,10 +6,10 @@ import com.zeroc.Ice.Instrumentation.Observer;
 import com.zeroc.Ice.MetricsAdminI;
 
 public class ObserverFactoryWithDelegate<
-                T extends Metrics,
-                OImpl extends ObserverWithDelegate<T, O>,
-                O extends Observer>
-        extends ObserverFactory<T, OImpl> {
+    T extends Metrics,
+    OImpl extends ObserverWithDelegate<T, O>,
+    O extends Observer>
+    extends ObserverFactory<T, OImpl> {
     public ObserverFactoryWithDelegate(
             MetricsAdminI metrics, String name, Class<T> cl) {
         super(metrics, name, cl);

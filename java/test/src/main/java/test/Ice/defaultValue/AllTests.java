@@ -168,7 +168,7 @@ public class AllTests {
         out.flush();
         {
             StructNoDefaults v =
-                    new StructNoDefaults();
+                new StructNoDefaults();
             test(v.bo == false);
             test(v.b == 0);
             test(v.s == 0);
@@ -184,7 +184,7 @@ public class AllTests {
             test(v.dict == null);
 
             ExceptionNoDefaults e =
-                    new ExceptionNoDefaults();
+                new ExceptionNoDefaults();
             test(e.str.isEmpty());
             test(e.c1 == Color.red);
             test(e.bs == null);
@@ -192,7 +192,7 @@ public class AllTests {
             test(e.dict == null);
 
             ClassNoDefaults cl =
-                    new ClassNoDefaults();
+                new ClassNoDefaults();
             test(cl.str.isEmpty());
             test(cl.c1 == Color.red);
             test(cl.bs == null);

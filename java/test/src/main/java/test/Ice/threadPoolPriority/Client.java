@@ -15,7 +15,7 @@ public class Client extends TestHelper {
         PrintWriter out = getWriter();
         try (Communicator communicator = initialize(args)) {
             ObjectPrx object =
-                    communicator.stringToProxy("test:" + getTestEndpoint(0) + " -t 10000");
+                communicator.stringToProxy("test:" + getTestEndpoint(0) + " -t 10000");
             PriorityPrx priority = PriorityPrx.checkedCast(object);
             out.print("testing thread priority... ");
             out.flush();

@@ -24,7 +24,7 @@ final class TraceUtil {
             byte type = printMessage(s, is, connection);
 
             logger.trace(
-                    tl.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.toString());
+                tl.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.toString());
 
             str.pos(p);
         }
@@ -40,8 +40,8 @@ final class TraceUtil {
             byte type = printMessage(s, str, connection);
 
             logger.trace(
-                    tl.protocolCat,
-                    "received " + getMessageTypeAsString(type) + " " + s.toString());
+                tl.protocolCat,
+                "received " + getMessageTypeAsString(type) + " " + s.toString());
 
             str.pos(p);
         }
@@ -163,28 +163,28 @@ final class TraceUtil {
             out.write("\nmode = " + (int) mode + ' ');
             switch (OperationMode.values()[mode]) {
                 case Normal:
-                    {
-                        out.write("(normal)");
-                        break;
-                    }
+                {
+                    out.write("(normal)");
+                    break;
+                }
 
                 case Nonmutating:
-                    {
-                        out.write("(nonmutating)");
-                        break;
-                    }
+                {
+                    out.write("(nonmutating)");
+                    break;
+                }
 
                 case Idempotent:
-                    {
-                        out.write("(idempotent)");
-                        break;
-                    }
+                {
+                    out.write("(idempotent)");
+                    break;
+                }
 
                 default:
-                    {
-                        out.write("(unknown)");
-                        break;
-                    }
+                {
+                    out.write("(unknown)");
+                    break;
+                }
             }
 
             int sz = stream.readSize();
@@ -234,28 +234,28 @@ final class TraceUtil {
             out.write("\ncompression status = " + (int) compress + ' ');
             switch (compress) {
                 case (byte) 0:
-                    {
-                        out.write("(not compressed; do not compress response, if any)");
-                        break;
-                    }
+                {
+                    out.write("(not compressed; do not compress response, if any)");
+                    break;
+                }
 
                 case (byte) 1:
-                    {
-                        out.write("(not compressed; compress response, if any)");
-                        break;
-                    }
+                {
+                    out.write("(not compressed; compress response, if any)");
+                    break;
+                }
 
                 case (byte) 2:
-                    {
-                        out.write("(compressed; compress response, if any)");
-                        break;
-                    }
+                {
+                    out.write("(compressed; compress response, if any)");
+                    break;
+                }
 
                 default:
-                    {
-                        out.write("(unknown)");
-                        break;
-                    }
+                {
+                    out.write("(unknown)");
+                    break;
+                }
             }
 
             int size = stream.readInt();
@@ -274,33 +274,33 @@ final class TraceUtil {
         switch (type) {
             case Protocol.closeConnectionMsg:
             case Protocol.validateConnectionMsg:
-                {
-                    // We're done.
-                    break;
-                }
+            {
+                // We're done.
+                break;
+            }
 
             case Protocol.requestMsg:
-                {
-                    printRequest(s, str);
-                    break;
-                }
+            {
+                printRequest(s, str);
+                break;
+            }
 
             case Protocol.requestBatchMsg:
-                {
-                    printBatchRequest(s, str);
-                    break;
-                }
+            {
+                printBatchRequest(s, str);
+                break;
+            }
 
             case Protocol.replyMsg:
-                {
-                    printReply(s, str);
-                    break;
-                }
+            {
+                printReply(s, str);
+                break;
+            }
 
             default:
-                {
-                    break;
-                }
+            {
+                break;
+            }
         }
 
         if (connection != null) {

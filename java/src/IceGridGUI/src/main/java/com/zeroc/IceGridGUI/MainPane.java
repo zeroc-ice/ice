@@ -4,7 +4,8 @@ package com.zeroc.IceGridGUI;
 
 import com.zeroc.IceGridGUI.Application.Root;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -69,21 +70,21 @@ public class MainPane extends JTabbedPane {
         setBorder(new EmptyBorder(10, 10, 10, 10));
 
         addChangeListener(
-                new ChangeListener() {
-                    @Override
-                    public void stateChanged(ChangeEvent evt) {
-                        Tab tab = (Tab) getSelectedComponent();
-                        tab.selected();
-                    }
-                });
+            new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent evt) {
+                    Tab tab = (Tab) getSelectedComponent();
+                    tab.selected();
+                }
+            });
 
         _registryIcon = Utils.getIcon("/icons/16x16/registry_bound_application.png");
         _fileIcon = Utils.getIcon("/icons/16x16/file_bound_application.png");
 
         addTab(
-                "Live Deployment",
-                Utils.getIcon("/icons/16x16/live_deployment.png"),
-                _coordinator.getLiveDeploymentPane());
+            "Live Deployment",
+            Utils.getIcon("/icons/16x16/live_deployment.png"),
+            _coordinator.getLiveDeploymentPane());
     }
 
     private String computeTitle(String name) {

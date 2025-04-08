@@ -26,13 +26,13 @@ public class AllTests {
         // the connection after it gets a transport frame from the client.
         if (helper.getTestProtocol().startsWith("ws")) {
             postCloseDelay =
-                    () -> {
-                        try {
-                            Thread.sleep(50);
-                        } catch (InterruptedException ex) {
-                            // ignore
-                        }
-                    };
+                () -> {
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException ex) {
+                        // ignore
+                    }
+                };
         }
 
         testCreateConnections(p, 100, helper.getWriter(), postCloseDelay);
@@ -71,11 +71,11 @@ public class AllTests {
     private static void testCreateConnectionsWithMax(
             TestIntfPrx p, int max, PrintWriter output, Runnable postCloseDelay) {
         output.write(
-                "testing the creation of "
-                        + max
-                        + " connections with connection lost at "
-                        + (max + 1)
-                        + "... ");
+            "testing the creation of "
+                + max
+                + " connections with connection lost at "
+                + (max + 1)
+                + "... ");
         output.flush();
 
         var connectionList = new ArrayList<Connection>();
@@ -109,11 +109,11 @@ public class AllTests {
     private static void testCreateConnectionsWithMaxAndRecovery(
             TestIntfPrx p, int max, PrintWriter output, Runnable postCloseDelay) {
         output.write(
-                "testing the creation of "
-                        + max
-                        + " connections with connection lost at "
-                        + (max + 1)
-                        + " then recovery... ");
+            "testing the creation of "
+                + max
+                + " connections with connection lost at "
+                + (max + 1)
+                + " then recovery... ");
         output.flush();
 
         var connectionList = new ArrayList<Connection>();

@@ -39,15 +39,15 @@ public class AllTests {
     }
 
     public static void allTests(TestHelper helper)
-            throws AdapterAlreadyActiveException,
-                    AdapterNotFoundException,
-                    InterruptedException {
+        throws AdapterAlreadyActiveException,
+        AdapterNotFoundException,
+        InterruptedException {
         Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
 
         ServerManagerPrx manager =
-                ServerManagerPrx.checkedCast(
-                        communicator.stringToProxy("ServerManager:" + helper.getTestEndpoint(0)));
+            ServerManagerPrx.checkedCast(
+                communicator.stringToProxy("ServerManager:" + helper.getTestEndpoint(0)));
         test(manager != null);
 
         TestLocatorPrx locator = TestLocatorPrx.uncheckedCast(communicator.getDefaultLocator());
@@ -68,8 +68,8 @@ public class AllTests {
 
         out.print("testing ice_locator and ice_getLocator... ");
         test(
-                Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator())
-                        == 0);
+            Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator())
+                == 0);
         var anotherLocator = LocatorPrx.createProxy(communicator, "anotherLocator");
         base = base.ice_locator(anotherLocator);
         test(Util.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) == 0);
@@ -81,8 +81,8 @@ public class AllTests {
         communicator.setDefaultLocator(locator);
         base = communicator.stringToProxy("test @ TestAdapter");
         test(
-                Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator())
-                        == 0);
+            Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator())
+                == 0);
 
         //
         // We also test ice_router/ice_getRouter (perhaps we should add a test/Ice/router test?)
@@ -238,7 +238,7 @@ public class AllTests {
         out.print("testing locator cache timeout... ");
         out.flush();
         ObjectPrx basencc =
-                communicator.stringToProxy("test@TestAdapter").ice_connectionCached(false);
+            communicator.stringToProxy("test@TestAdapter").ice_connectionCached(false);
         int count = locator.getRequestCount();
         basencc.ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         test(++count == locator.getRequestCount());
@@ -251,9 +251,9 @@ public class AllTests {
         test(++count == locator.getRequestCount());
 
         communicator
-                .stringToProxy("test")
-                .ice_locatorCacheTimeout(0)
-                .ice_ping(); // No locator cache.
+            .stringToProxy("test")
+            .ice_locatorCacheTimeout(0)
+            .ice_ping(); // No locator cache.
         count += 2;
         test(count == locator.getRequestCount());
         communicator.stringToProxy("test").ice_locatorCacheTimeout(2).ice_ping(); // 2s timeout
@@ -273,11 +273,11 @@ public class AllTests {
         test(count == locator.getRequestCount());
 
         test(
-                communicator
-                        .stringToProxy("test")
-                        .ice_locatorCacheTimeout(Duration.ofSeconds(99))
-                        .ice_getLocatorCacheTimeout()
-                        .equals(Duration.ofSeconds(99)));
+            communicator
+                .stringToProxy("test")
+                .ice_locatorCacheTimeout(Duration.ofSeconds(99))
+                .ice_getLocatorCacheTimeout()
+                .equals(Duration.ofSeconds(99)));
 
         out.println("ok");
 
@@ -308,12 +308,12 @@ public class AllTests {
         for (int i = 0; i < 1000; i++) {
             CompletableFuture<Void> f = hello.sayHelloAsync();
             f.whenComplete(
-                    (result, ex) -> {
-                        if (ex != null) {
-                            ex.printStackTrace();
-                            test(false);
-                        }
-                    });
+                (result, ex) -> {
+                    if (ex != null) {
+                        ex.printStackTrace();
+                        test(false);
+                    }
+                });
             results.add(f);
         }
         while (!results.isEmpty()) {
@@ -329,9 +329,9 @@ public class AllTests {
         for (int i = 0; i < 1000; i++) {
             CompletableFuture<Void> f = hello.sayHelloAsync();
             f.whenComplete(
-                    (result, ex) -> {
-                        test(ex != null && ex instanceof NotRegisteredException);
-                    });
+                (result, ex) -> {
+                    test(ex != null && ex instanceof NotRegisteredException);
+                });
             results.add(f);
         }
         while (!results.isEmpty()) {
@@ -362,8 +362,8 @@ public class AllTests {
         try {
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
             registry.setAdapterDirectProxy(
-                    "TestAdapter3",
-                    communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
+                "TestAdapter3",
+                communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
         } catch (LocalException ex) {
             ex.printStackTrace();
@@ -402,7 +402,7 @@ public class AllTests {
         }
         registry.addObject(communicator.stringToProxy("test3@TestAdapter4")); // Update
         registry.setAdapterDirectProxy(
-                "TestAdapter4", communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
+            "TestAdapter4", communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
 
         try {
             communicator.stringToProxy("test3").ice_ping();
@@ -418,7 +418,7 @@ public class AllTests {
         }
 
         registry.setAdapterDirectProxy(
-                "TestAdapter4", communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
+            "TestAdapter4", communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
         try {
             communicator.stringToProxy("test3").ice_ping();
         } catch (LocalException ex) {
@@ -463,24 +463,24 @@ public class AllTests {
             properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
             try (Communicator ic = helper.initialize(properties)) {
                 registry.setAdapterDirectProxy(
-                        "TestAdapter5", locator.findAdapterById("TestAdapter"));
+                    "TestAdapter5", locator.findAdapterById("TestAdapter"));
                 registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
 
                 count = locator.getRequestCount();
                 ic.stringToProxy("test@TestAdapter5")
-                        .ice_locatorCacheTimeout(0)
-                        .ice_ping(); // No locator cache.
+                    .ice_locatorCacheTimeout(0)
+                    .ice_ping(); // No locator cache.
                 ic.stringToProxy("test3")
-                        .ice_locatorCacheTimeout(0)
-                        .ice_ping(); // No locator cache.
+                    .ice_locatorCacheTimeout(0)
+                    .ice_ping(); // No locator cache.
                 count += 3;
                 test(count == locator.getRequestCount());
                 registry.setAdapterDirectProxy("TestAdapter5", null);
                 registry.addObject(
-                        communicator.stringToProxy("test3:" + helper.getTestEndpoint(99)));
+                    communicator.stringToProxy("test3:" + helper.getTestEndpoint(99)));
                 ic.stringToProxy("test@TestAdapter5")
-                        .ice_locatorCacheTimeout(10)
-                        .ice_ping(); // 10s timeout.
+                    .ice_locatorCacheTimeout(10)
+                    .ice_ping(); // 10s timeout.
                 ic.stringToProxy("test3").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
                 test(count == locator.getRequestCount());
                 Thread.sleep(1200);
@@ -488,15 +488,15 @@ public class AllTests {
                 // The following request should trigger the background updates but still use the
                 // cached endpoints and therefore succeed.
                 ic.stringToProxy("test@TestAdapter5")
-                        .ice_locatorCacheTimeout(1)
-                        .ice_ping(); // 1s timeout.
+                    .ice_locatorCacheTimeout(1)
+                    .ice_ping(); // 1s timeout.
                 ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
 
                 try {
                     while (true) {
                         ic.stringToProxy("test@TestAdapter5")
-                                .ice_locatorCacheTimeout(1)
-                                .ice_ping(); // 1s timeout.
+                            .ice_locatorCacheTimeout(1)
+                            .ice_ping(); // 1s timeout.
                         Thread.sleep(10);
                     }
                 } catch (LocalException ex) {
@@ -506,8 +506,8 @@ public class AllTests {
                 try {
                     while (true) {
                         ic.stringToProxy("test3")
-                                .ice_locatorCacheTimeout(1)
-                                .ice_ping(); // 1s timeout.
+                            .ice_locatorCacheTimeout(1)
+                            .ice_ping(); // 1s timeout.
                         Thread.sleep(10);
                     }
                 } catch (LocalException ex) {
@@ -542,14 +542,14 @@ public class AllTests {
         hello = HelloPrx.checkedCast(communicator.stringToProxy("hello"));
         count = locator.getRequestCount();
         communicator
-                .stringToProxy("test@TestAdapter")
-                .ice_encodingVersion(Util.Encoding_1_1)
-                .ice_ping();
+            .stringToProxy("test@TestAdapter")
+            .ice_encodingVersion(Util.Encoding_1_1)
+            .ice_ping();
         test(count == locator.getRequestCount());
         communicator
-                .stringToProxy("test@TestAdapter10")
-                .ice_encodingVersion(Util.Encoding_1_0)
-                .ice_ping();
+            .stringToProxy("test@TestAdapter10")
+            .ice_encodingVersion(Util.Encoding_1_0)
+            .ice_ping();
         test(++count == locator.getRequestCount());
         communicator.stringToProxy("test -e 1.0@TestAdapter10-2").ice_ping();
         test(++count == locator.getRequestCount());
@@ -584,10 +584,10 @@ public class AllTests {
         out.print("testing indirect proxies to collocated objects... ");
 
         communicator
-                .getProperties()
-                .setProperty("Hello.AdapterId", UUID.randomUUID().toString());
+            .getProperties()
+            .setProperty("Hello.AdapterId", UUID.randomUUID().toString());
         ObjectAdapter adapter =
-                communicator.createObjectAdapterWithEndpoints("Hello", "default");
+            communicator.createObjectAdapterWithEndpoints("Hello", "default");
 
         Identity id = new Identity();
         id.name = UUID.randomUUID().toString();
@@ -595,9 +595,9 @@ public class AllTests {
 
         // Ensure that calls on the well-known proxy is collocated.
         HelloPrx helloPrx =
-                HelloPrx.checkedCast(
-                        communicator.stringToProxy(
-                                "\"" + communicator.identityToString(id) + "\""));
+            HelloPrx.checkedCast(
+                communicator.stringToProxy(
+                    "\"" + communicator.identityToString(id) + "\""));
         test(helloPrx.ice_getConnection() == null);
 
         // Ensure that calls on the indirect proxy (with adapter ID) is collocated

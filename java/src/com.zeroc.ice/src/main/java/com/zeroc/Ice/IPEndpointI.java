@@ -76,8 +76,8 @@ abstract class IPEndpointI extends EndpointI {
         }
 
         List<InetSocketAddress> addresses =
-                Network.getAddresses(
-                        _host, _port, _instance.protocolSupport(), _instance.preferIPv6(), true);
+            Network.getAddresses(
+                _host, _port, _instance.protocolSupport(), _instance.preferIPv6(), true);
 
         var result = new ArrayList<EndpointI>(addresses.size());
         for (InetSocketAddress addr : addresses) {
@@ -110,8 +110,8 @@ abstract class IPEndpointI extends EndpointI {
 
         IPEndpointI ipEndpointI = (IPEndpointI) endpoint;
         return ipEndpointI.type() == type()
-                && ipEndpointI._normalizedHost.equals(_normalizedHost)
-                && ipEndpointI._port == _port;
+            && ipEndpointI._normalizedHost.equals(_normalizedHost)
+            && ipEndpointI._port == _port;
     }
 
     public List<Connector> connectors(
@@ -225,7 +225,7 @@ abstract class IPEndpointI extends EndpointI {
                 _normalizedHost = "";
             } else {
                 throw new ParseException(
-                        "'-h *' not valid for proxy endpoint '" + toString() + "'");
+                    "'-h *' not valid for proxy endpoint '" + toString() + "'");
             }
         }
 
@@ -240,7 +240,7 @@ abstract class IPEndpointI extends EndpointI {
             }
         } else if (oaEndpoint) {
             throw new ParseException(
-                    "'--sourceAddress' not valid for object adapter endpoint '" + toString() + "'");
+                "'--sourceAddress' not valid for object adapter endpoint '" + toString() + "'");
         }
     }
 
@@ -249,44 +249,44 @@ abstract class IPEndpointI extends EndpointI {
         if ("-h".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for -h option in endpoint '" + endpoint + "'");
+                    "no argument provided for -h option in endpoint '" + endpoint + "'");
             }
             _host = argument;
             _normalizedHost = normalizeHost(argument);
         } else if ("-p".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for -p option in endpoint '" + endpoint + "'");
+                    "no argument provided for -p option in endpoint '" + endpoint + "'");
             }
 
             try {
                 _port = Integer.parseInt(argument);
             } catch (NumberFormatException ex) {
                 throw new ParseException(
-                        "invalid port value '" + argument + "' in endpoint '" + endpoint + "'", ex);
+                    "invalid port value '" + argument + "' in endpoint '" + endpoint + "'", ex);
             }
 
             if (_port < 0 || _port > 65535) {
                 throw new ParseException(
-                        "port value '"
-                                + argument
-                                + "' out of range in endpoint '"
-                                + endpoint
-                                + "'");
+                    "port value '"
+                        + argument
+                        + "' out of range in endpoint '"
+                        + endpoint
+                        + "'");
             }
         } else if ("--sourceAddress".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for --sourceAddress option in endpoint '"
-                                + endpoint
-                                + "'");
+                    "no argument provided for --sourceAddress option in endpoint '"
+                        + endpoint
+                        + "'");
             }
             _sourceAddr = Network.getNumericAddress(argument);
             if (_sourceAddr == null) {
                 throw new ParseException(
-                        "invalid IP address provided for --sourceAddress option in endpoint '"
-                                + endpoint
-                                + "'");
+                    "invalid IP address provided for --sourceAddress option in endpoint '"
+                        + endpoint
+                        + "'");
             }
         } else {
             return false;

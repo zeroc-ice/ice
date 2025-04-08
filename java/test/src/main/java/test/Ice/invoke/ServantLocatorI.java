@@ -23,10 +23,12 @@ public class ServantLocatorI implements ServantLocator {
 
     @Override
     public void finished(
-            Current current, Object servant, java.lang.Object cookie) {}
+            Current current, Object servant, java.lang.Object cookie) {
+    }
 
     @Override
-    public void deactivate(String category) {}
+    public void deactivate(String category) {
+    }
 
     private final ServantLocator.LocateResult _blobject;
 }

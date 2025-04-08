@@ -62,8 +62,8 @@ public class Client extends TestHelper {
                 out.print("testing router finder... ");
                 out.flush();
                 var finder =
-                        RouterFinderPrx.createProxy(
-                                communicator, "Ice/RouterFinder:" + getTestEndpoint(50));
+                    RouterFinderPrx.createProxy(
+                        communicator, "Ice/RouterFinder:" + getTestEndpoint(50));
                 test(finder.getRouter().ice_getIdentity().equals(router.ice_getIdentity()));
                 out.println("ok");
             }
@@ -167,7 +167,7 @@ public class Client extends TestHelper {
                 out.print("pinging object with client endpoint... ");
                 out.flush();
                 ObjectPrx baseC =
-                        communicator.stringToProxy("collocated:" + getTestEndpoint(50));
+                    communicator.stringToProxy("collocated:" + getTestEndpoint(50));
                 try {
                     baseC.ice_ping();
                 } catch (ObjectNotExistException ex) {
@@ -192,8 +192,8 @@ public class Client extends TestHelper {
                 out.flush();
                 communicator.getProperties().setProperty("Ice.PrintAdapterReady", "0");
                 adapter =
-                        communicator.createObjectAdapterWithRouter(
-                                "CallbackReceiverAdapter", router);
+                    communicator.createObjectAdapterWithRouter(
+                        "CallbackReceiverAdapter", router);
                 adapter.activate();
                 out.println("ok");
             }
@@ -221,14 +221,14 @@ public class Client extends TestHelper {
                 callbackReceiverIdent.name = "callbackReceiver";
                 callbackReceiverIdent.category = category;
                 twowayR =
-                        CallbackReceiverPrx.uncheckedCast(
-                                adapter.add(callbackReceiver, callbackReceiverIdent));
+                    CallbackReceiverPrx.uncheckedCast(
+                        adapter.add(callbackReceiver, callbackReceiverIdent));
                 Identity fakeCallbackReceiverIdent = new Identity();
                 fakeCallbackReceiverIdent.name = "callbackReceiver";
                 fakeCallbackReceiverIdent.category = "dummy";
                 fakeTwowayR =
-                        CallbackReceiverPrx.uncheckedCast(
-                                adapter.add(callbackReceiver, fakeCallbackReceiverIdent));
+                    CallbackReceiverPrx.uncheckedCast(
+                        adapter.add(callbackReceiver, fakeCallbackReceiverIdent));
                 out.println("ok");
             }
 
@@ -289,9 +289,9 @@ public class Client extends TestHelper {
                 Map<String, String> context = new HashMap<>();
                 context.put("_fwd", "t");
                 CallbackPrx otherCategoryTwoway =
-                        CallbackPrx.uncheckedCast(
-                                twoway.ice_identity(
-                                        Util.stringToIdentity("c2/callback")));
+                    CallbackPrx.uncheckedCast(
+                        twoway.ice_identity(
+                            Util.stringToIdentity("c2/callback")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
                 out.println("ok");
@@ -304,9 +304,9 @@ public class Client extends TestHelper {
                 context.put("_fwd", "t");
                 try {
                     CallbackPrx otherCategoryTwoway =
-                            CallbackPrx.uncheckedCast(
-                                    twoway.ice_identity(
-                                            Util.stringToIdentity("c3/callback")));
+                        CallbackPrx.uncheckedCast(
+                            twoway.ice_identity(
+                                Util.stringToIdentity("c3/callback")));
                     otherCategoryTwoway.initiateCallback(twowayR, context);
                     test(false);
                 } catch (ObjectNotExistException ex) {
@@ -320,9 +320,9 @@ public class Client extends TestHelper {
                 Map<String, String> context = new HashMap<>();
                 context.put("_fwd", "t");
                 CallbackPrx otherCategoryTwoway =
-                        CallbackPrx.uncheckedCast(
-                                twoway.ice_identity(
-                                        Util.stringToIdentity("_userid/callback")));
+                    CallbackPrx.uncheckedCast(
+                        twoway.ice_identity(
+                            Util.stringToIdentity("_userid/callback")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
                 out.println("ok");
@@ -389,8 +389,8 @@ public class Client extends TestHelper {
                 {
                     out.print("testing stringToProxy for process object... ");
                     processBase =
-                            communicator.stringToProxy(
-                                    "Glacier2/admin -f Process:" + getTestEndpoint(51));
+                        communicator.stringToProxy(
+                            "Glacier2/admin -f Process:" + getTestEndpoint(51));
                     out.println("ok");
                 }
 

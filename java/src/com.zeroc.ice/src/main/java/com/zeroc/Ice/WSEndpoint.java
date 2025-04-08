@@ -121,21 +121,21 @@ final class WSEndpoint extends EndpointI {
         }
         final String host = ipInfo != null ? (ipInfo.host + ":" + ipInfo.port) : "";
         EndpointI_connectors cb =
-                new EndpointI_connectors() {
-                    @Override
-                    public void connectors(List<Connector> connectors) {
-                        List<Connector> l = new ArrayList<>();
-                        for (Connector c : connectors) {
-                            l.add(new WSConnector(_instance, c, host, _resource));
-                        }
-                        callback.connectors(l);
+            new EndpointI_connectors() {
+                @Override
+                public void connectors(List<Connector> connectors) {
+                    List<Connector> l = new ArrayList<>();
+                    for (Connector c : connectors) {
+                        l.add(new WSConnector(_instance, c, host, _resource));
                     }
+                    callback.connectors(l);
+                }
 
-                    @Override
-                    public void exception(LocalException ex) {
-                        callback.exception(ex);
-                    }
-                };
+                @Override
+                public void exception(LocalException ex) {
+                    callback.exception(ex);
+                }
+            };
         _delegate.connectors_async(cb);
     }
 
@@ -237,22 +237,22 @@ final class WSEndpoint extends EndpointI {
     protected boolean checkOption(String option, String argument, String endpoint) {
         switch (option.charAt(1)) {
             case 'r':
-                {
-                    if (argument == null) {
-                        throw new ParseException(
-                                "no argument provided for -r option in endpoint '"
-                                        + endpoint
-                                        + _delegate.options()
-                                        + "'");
-                    }
-                    _resource = argument;
-                    return true;
+            {
+                if (argument == null) {
+                    throw new ParseException(
+                        "no argument provided for -r option in endpoint '"
+                            + endpoint
+                            + _delegate.options()
+                            + "'");
                 }
+                _resource = argument;
+                return true;
+            }
 
             default:
-                {
-                    return false;
-                }
+            {
+                return false;
+            }
         }
     }
 

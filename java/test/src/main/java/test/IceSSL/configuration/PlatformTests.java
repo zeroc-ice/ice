@@ -38,7 +38,7 @@ public class PlatformTests {
                 keyStore.load(input, "password".toCharArray());
             }
             KeyManagerFactory keyManagerFactory =
-                    KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             keyManagerFactory.init(keyStore, "password".toCharArray());
             return keyManagerFactory;
         } catch (Exception ex) {
@@ -54,7 +54,7 @@ public class PlatformTests {
                 keyStore.load(input, "password".toCharArray());
             }
             TrustManagerFactory trustManagerFactory =
-                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init(keyStore);
             return trustManagerFactory;
         } catch (Exception ex) {
@@ -65,31 +65,31 @@ public class PlatformTests {
 
     public static Communicator createServer(
             TestHelper helper, String keyStorePath, String trustStorePath)
-            throws NoSuchAlgorithmException, KeyManagementException {
+        throws NoSuchAlgorithmException, KeyManagementException {
         var sslContext = SSLContext.getInstance("TLS");
 
         KeyManagerFactory keyManagerFactory =
-                keyStorePath == null ? null : loadKeyManagerFactory(keyStorePath);
+            keyStorePath == null ? null : loadKeyManagerFactory(keyStorePath);
         TrustManagerFactory trustManagerFactory =
-                trustStorePath == null ? null : loadTrustManagerFactory(trustStorePath);
+            trustStorePath == null ? null : loadTrustManagerFactory(trustStorePath);
         boolean clientCertificateRequired = trustStorePath != null;
 
         KeyManager[] keyManagers =
-                keyManagerFactory == null ? null : keyManagerFactory.getKeyManagers();
+            keyManagerFactory == null ? null : keyManagerFactory.getKeyManagers();
         TrustManager[] trustManagers =
-                trustManagerFactory == null ? null : trustManagerFactory.getTrustManagers();
+            trustManagerFactory == null ? null : trustManagerFactory.getTrustManagers();
         sslContext.init(keyManagers, trustManagers, null);
 
         var communicator = Util.initialize();
         var adapter =
-                communicator.createObjectAdapterWithEndpoints(
-                        "ServerAdapter",
-                        helper.getTestEndpoint(10, "ssl"),
-                        (String peerHost, int peerPort) -> {
-                            var engine = sslContext.createSSLEngine(peerHost, peerPort);
-                            engine.setNeedClientAuth(clientCertificateRequired);
-                            return engine;
-                        });
+            communicator.createObjectAdapterWithEndpoints(
+                "ServerAdapter",
+                helper.getTestEndpoint(10, "ssl"),
+                (String peerHost, int peerPort) -> {
+                    var engine = sslContext.createSSLEngine(peerHost, peerPort);
+                    engine.setNeedClientAuth(clientCertificateRequired);
+                    return engine;
+                });
         adapter.add(new ServerI(communicator), Util.stringToIdentity("server"));
         adapter.activate();
         return communicator;
@@ -97,23 +97,23 @@ public class PlatformTests {
 
     public static Communicator createClient(
             TestHelper helper, String keyStorePath, String trustStorePath)
-            throws NoSuchAlgorithmException, KeyManagementException {
+        throws NoSuchAlgorithmException, KeyManagementException {
         var sslContext = SSLContext.getInstance("TLS");
 
         KeyManagerFactory keyManagerFactory =
-                keyStorePath == null ? null : loadKeyManagerFactory(keyStorePath);
+            keyStorePath == null ? null : loadKeyManagerFactory(keyStorePath);
         TrustManagerFactory trustManagerFactory =
-                trustStorePath == null ? null : loadTrustManagerFactory(trustStorePath);
+            trustStorePath == null ? null : loadTrustManagerFactory(trustStorePath);
 
         KeyManager[] keyManagers =
-                keyManagerFactory == null ? null : keyManagerFactory.getKeyManagers();
+            keyManagerFactory == null ? null : keyManagerFactory.getKeyManagers();
         TrustManager[] trustManagers =
-                trustManagerFactory == null ? null : trustManagerFactory.getTrustManagers();
+            trustManagerFactory == null ? null : trustManagerFactory.getTrustManagers();
         sslContext.init(keyManagers, trustManagers, null);
 
         var initializationData = new InitializationData();
         initializationData.clientSSLEngineFactory =
-                (String peerHost, int peerPort) -> sslContext.createSSLEngine(peerHost, peerPort);
+            (String peerHost, int peerPort) -> sslContext.createSSLEngine(peerHost, peerPort);
         return Util.initialize(initializationData);
     }
 
@@ -125,13 +125,13 @@ public class PlatformTests {
             out.flush();
 
             try (var serverCommunicator =
-                    createServer(helper, certificatesPath + "/s_rsa_ca1.jks", null)) {
+                createServer(helper, certificatesPath + "/s_rsa_ca1.jks", null)) {
                 try (var clientCommunicator =
-                        createClient(helper, null, certificatesPath + "/cacert1.jks")) {
+                    createClient(helper, null, certificatesPath + "/cacert1.jks")) {
                     var obj =
-                            ServerPrx.createProxy(
-                                    clientCommunicator,
-                                    "server:" + helper.getTestEndpoint(10, "ssl"));
+                        ServerPrx.createProxy(
+                            clientCommunicator,
+                            "server:" + helper.getTestEndpoint(10, "ssl"));
                     obj.ice_ping();
                 }
             }
@@ -152,9 +152,9 @@ public class PlatformTests {
 
             try (var clientCommunicator = createClient(helper, null, null)) {
                 var obj =
-                        ObjectPrx.createProxy(
-                                clientCommunicator,
-                                "Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
+                    ObjectPrx.createProxy(
+                        clientCommunicator,
+                        "Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
                 obj.ice_ping();
             }
             out.println("ok");
@@ -172,13 +172,13 @@ public class PlatformTests {
             out.flush();
 
             try (var serverCommunicator =
-                    createServer(helper, certificatesPath + "/s_rsa_ca1.jks", null)) {
+                createServer(helper, certificatesPath + "/s_rsa_ca1.jks", null)) {
                 try (var clientCommunicator =
-                        createClient(helper, null, certificatesPath + "/cacert2.jks")) {
+                    createClient(helper, null, certificatesPath + "/cacert2.jks")) {
                     var obj =
-                            ServerPrx.createProxy(
-                                    clientCommunicator,
-                                    "server:" + helper.getTestEndpoint(10, "ssl"));
+                        ServerPrx.createProxy(
+                            clientCommunicator,
+                            "server:" + helper.getTestEndpoint(10, "ssl"));
 
                     try {
                         obj.ice_ping();
@@ -207,13 +207,13 @@ public class PlatformTests {
             var trustedStorePath = certificatesPath + "/cacert1.jks";
 
             try (var serverCommunicator =
-                    createServer(helper, serverCertificatePath, trustedStorePath)) {
+                createServer(helper, serverCertificatePath, trustedStorePath)) {
                 try (var clientCommunicator =
-                        createClient(helper, clientCertificatePath, trustedStorePath)) {
+                    createClient(helper, clientCertificatePath, trustedStorePath)) {
                     var obj =
-                            ServerPrx.createProxy(
-                                    clientCommunicator,
-                                    "server:" + helper.getTestEndpoint(10, "ssl"));
+                        ServerPrx.createProxy(
+                            clientCommunicator,
+                            "server:" + helper.getTestEndpoint(10, "ssl"));
                     obj.ice_ping();
                 }
             }
@@ -237,13 +237,13 @@ public class PlatformTests {
             var trustedStorePath = certificatesPath + "/cacert1.jks";
 
             try (var serverCommunicator =
-                    createServer(helper, serverCertificatePath, trustedStorePath)) {
+                createServer(helper, serverCertificatePath, trustedStorePath)) {
                 try (var clientCommunicator =
-                        createClient(helper, clientCertificatePath, trustedStorePath)) {
+                    createClient(helper, clientCertificatePath, trustedStorePath)) {
                     var obj =
-                            ServerPrx.createProxy(
-                                    clientCommunicator,
-                                    "server:" + helper.getTestEndpoint(10, "ssl"));
+                        ServerPrx.createProxy(
+                            clientCommunicator,
+                            "server:" + helper.getTestEndpoint(10, "ssl"));
 
                     try {
                         obj.ice_ping();
@@ -334,30 +334,30 @@ public class PlatformTests {
             var sslContext = SSLContext.getInstance("TLS");
             sslContext.init(new KeyManager[]{keyManager}, null, null);
             var adapter =
-                    serverCommunicator.createObjectAdapterWithEndpoints(
-                            "ServerAdapter",
-                            helper.getTestEndpoint(10, "ssl"),
-                            (String peerHost, int peerPort) -> {
-                                return sslContext.createSSLEngine(peerHost, peerPort);
-                            });
+                serverCommunicator.createObjectAdapterWithEndpoints(
+                    "ServerAdapter",
+                    helper.getTestEndpoint(10, "ssl"),
+                    (String peerHost, int peerPort) -> {
+                        return sslContext.createSSLEngine(peerHost, peerPort);
+                    });
             adapter.add(
-                    new ServerI(serverCommunicator), Util.stringToIdentity("server"));
+                new ServerI(serverCommunicator), Util.stringToIdentity("server"));
             adapter.activate();
 
             try (var clientCommunicator =
-                    createClient(helper, null, certificatesPath + "/cacert1.jks")) {
+                createClient(helper, null, certificatesPath + "/cacert1.jks")) {
                 var obj =
-                        ServerPrx.createProxy(
-                                clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+                    ServerPrx.createProxy(
+                        clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
                 obj.ice_ping();
             }
 
             // CA2 is not accepted with the initial configuration
             try (var clientCommunicator =
-                    createClient(helper, null, certificatesPath + "/cacert2.jks")) {
+                createClient(helper, null, certificatesPath + "/cacert2.jks")) {
                 var obj =
-                        ServerPrx.createProxy(
-                                clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+                    ServerPrx.createProxy(
+                        clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
                 try {
                     obj.ice_ping();
                     test(false);
@@ -370,19 +370,19 @@ public class PlatformTests {
 
             // CA2 is accepted with the new configuration
             try (var clientCommunicator =
-                    createClient(helper, null, certificatesPath + "/cacert2.jks")) {
+                createClient(helper, null, certificatesPath + "/cacert2.jks")) {
                 var obj =
-                        ServerPrx.createProxy(
-                                clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+                    ServerPrx.createProxy(
+                        clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
                 obj.ice_ping();
             }
 
             // CA1 is not accepted with the initial configuration
             try (var clientCommunicator =
-                    createClient(helper, null, certificatesPath + "/cacert1.jks")) {
+                createClient(helper, null, certificatesPath + "/cacert1.jks")) {
                 var obj =
-                        ServerPrx.createProxy(
-                                clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+                    ServerPrx.createProxy(
+                        clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
                 try {
                     obj.ice_ping();
                     test(false);

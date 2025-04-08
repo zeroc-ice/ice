@@ -19,7 +19,7 @@ public final class EndpointFactoryI extends EndpointFactoryWithUnderlying {
     public EndpointFactory cloneWithUnderlying(
             ProtocolInstance instance, short underlying) {
         return new EndpointFactoryI(
-                new Instance(_instance.engine(), instance.type(), instance.protocol()), underlying);
+            new Instance(_instance.engine(), instance.type(), instance.protocol()), underlying);
     }
 
     @Override

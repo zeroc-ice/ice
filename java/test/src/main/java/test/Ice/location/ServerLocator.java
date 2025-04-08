@@ -26,7 +26,7 @@ public class ServerLocator implements TestLocator {
     @Override
     public CompletionStage<ObjectPrx> findAdapterByIdAsync(
             String adapter, Current current)
-            throws AdapterNotFoundException {
+        throws AdapterNotFoundException {
         ++_requestCount;
         if ("TestAdapter10".equals(adapter) || "TestAdapter10-2".equals(adapter)) {
             assert (current.encoding.equals(Util.Encoding_1_0));
@@ -45,7 +45,7 @@ public class ServerLocator implements TestLocator {
     @Override
     public CompletionStage<ObjectPrx> findObjectByIdAsync(
             Identity id, Current current)
-            throws ObjectNotFoundException {
+        throws ObjectNotFoundException {
         ++_requestCount;
         // We add a small delay to make sure locator request queuing gets tested when running the
         // test on a fast machine

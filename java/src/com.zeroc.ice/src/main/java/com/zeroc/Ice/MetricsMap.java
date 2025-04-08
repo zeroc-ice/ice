@@ -157,7 +157,7 @@ public class MetricsMap<T extends Metrics> {
 
         SubMapCloneFactory<S> createCloneFactory(String subMapPrefix, Properties properties) {
             return new SubMapCloneFactory<S>(
-                    new MetricsMap<S>(subMapPrefix, _class, properties, null), _field);
+                new MetricsMap<S>(subMapPrefix, _class, properties, null), _field);
         }
 
         private final Class<S> _class;
@@ -183,7 +183,7 @@ public class MetricsMap<T extends Metrics> {
         if (!groupBy.isEmpty()) {
             String v = "";
             boolean attribute =
-                    Character.isLetter(groupBy.charAt(0)) || Character.isDigit(groupBy.charAt(0));
+                Character.isLetter(groupBy.charAt(0)) || Character.isDigit(groupBy.charAt(0));
             if (!attribute) {
                 _groupByAttributes.add("");
             }
@@ -385,8 +385,8 @@ public class MetricsMap<T extends Metrics> {
         Map<String, String> rules = properties.getPropertiesForPrefix(name + '.');
         for (Map.Entry<String, String> e : rules.entrySet()) {
             pats.put(
-                    e.getKey().substring(name.length() + 1),
-                    Pattern.compile(e.getValue()));
+                e.getKey().substring(name.length() + 1),
+                Pattern.compile(e.getValue()));
         }
         return pats;
     }

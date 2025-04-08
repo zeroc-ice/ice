@@ -17,8 +17,8 @@ public class Client extends TestHelper {
 
             // Shutdown the IceBox server.
             var prx =
-                    ProcessPrx.createProxy(
-                            communicator(), "DemoIceBox/admin -f Process:default -p 9996");
+                ProcessPrx.createProxy(
+                    communicator(), "DemoIceBox/admin -f Process:default -p 9996");
             prx.shutdown();
         }
     }

@@ -31,21 +31,21 @@ public class Client extends TestHelper {
         def_sd.put("abc", "def");
         ObjectPrx def_prx = communicator.stringToProxy("test");
         S2 def_s2 =
-                new S2(
-                        true,
-                        (byte) 98,
-                        (short) 99,
-                        100,
-                        101,
-                        (float) 1.0,
-                        2.0,
-                        "string",
-                        def_ss,
-                        def_il,
-                        def_sd,
-                        def_s,
-                        def_cls,
-                        def_prx);
+            new S2(
+                true,
+                (byte) 98,
+                (short) 99,
+                100,
+                101,
+                (float) 1.0,
+                2.0,
+                "string",
+                def_ss,
+                def_il,
+                def_sd,
+                def_s,
+                def_cls,
+                def_prx);
 
         // Compare default-constructed structures.
         {

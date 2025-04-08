@@ -12,5 +12,6 @@ public final class BluetoothServerSocket implements Closeable {
         return null;
     }
 
-    public void close() throws IOException {}
+    public void close() throws IOException {
+    }
 }

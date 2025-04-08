@@ -10,9 +10,9 @@ import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 
 public class CustomExecutor
-        implements Runnable,
-                BiConsumer<Runnable, Connection>,
-                Executor {
+    implements Runnable,
+    BiConsumer<Runnable, Connection>,
+    Executor {
     private static void test(boolean b) {
         if (!b) {
             throw new RuntimeException();

@@ -114,11 +114,11 @@ public class AllTests {
                 out.flush();
                 PidCallback cb = new PidCallback();
                 obj.pidAsync()
-                        .whenComplete(
-                                (result, ex) -> {
-                                    test(ex == null);
-                                    cb.response(result);
-                                });
+                    .whenComplete(
+                        (result, ex) -> {
+                            test(ex == null);
+                            cb.response(result);
+                        });
                 cb.check();
                 int pid = cb.pid();
                 test(pid != oldPid);
@@ -137,11 +137,11 @@ public class AllTests {
                     out.flush();
                     Callback cb = new Callback();
                     obj.shutdownAsync()
-                            .whenComplete(
-                                    (result, ex) -> {
-                                        test(ex == null);
-                                        cb.called();
-                                    });
+                        .whenComplete(
+                            (result, ex) -> {
+                                test(ex == null);
+                                cb.called();
+                            });
                     cb.check();
                     out.println("ok");
                 }
@@ -164,22 +164,22 @@ public class AllTests {
                     out.flush();
                     AbortCallback cb = new AbortCallback();
                     obj.abortAsync()
-                            .whenComplete(
-                                    (result, ex) -> {
-                                        test(ex != null);
-                                        cb.completed(ex);
-                                    });
+                        .whenComplete(
+                            (result, ex) -> {
+                                test(ex != null);
+                                cb.completed(ex);
+                            });
                     cb.check();
                     out.println("ok");
                 }
             } else if (j == 2 || j == 3) {
                 if (!ami) {
                     out.print(
-                            "aborting server #"
-                                    + i
-                                    + " and #"
-                                    + (i + 1)
-                                    + " with idempotent call... ");
+                        "aborting server #"
+                            + i
+                            + " and #"
+                            + (i + 1)
+                            + " with idempotent call... ");
                     out.flush();
                     try {
                         obj.idempotentAbort();
@@ -193,19 +193,19 @@ public class AllTests {
                     }
                 } else {
                     out.print(
-                            "aborting server #"
-                                    + i
-                                    + " and #"
-                                    + (i + 1)
-                                    + " with idempotent AMI call... ");
+                        "aborting server #"
+                            + i
+                            + " and #"
+                            + (i + 1)
+                            + " with idempotent AMI call... ");
                     out.flush();
                     AbortCallback cb = new AbortCallback();
                     obj.idempotentAbortAsync()
-                            .whenComplete(
-                                    (result, ex) -> {
-                                        test(ex != null);
-                                        cb.completed(ex);
-                                    });
+                        .whenComplete(
+                            (result, ex) -> {
+                                test(ex != null);
+                                cb.completed(ex);
+                            });
                     cb.check();
                     out.println("ok");
                 }

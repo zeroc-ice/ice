@@ -21,7 +21,7 @@ public class Server extends TestHelper {
             adapter.addServantLocator(new ServantLocatorI(""), "");
             adapter.add(new TestI(), Util.stringToIdentity("asm"));
             adapter.add(
-                    new TestActivationI(), Util.stringToIdentity("test/activation"));
+                new TestActivationI(), Util.stringToIdentity("test/activation"));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

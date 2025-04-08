@@ -73,7 +73,7 @@ public class AllTests {
             InitializationData initData = new InitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty(
-                    "Ice.Plugin.Test", "test.Ice.classLoader.PluginFactoryI");
+                "Ice.Plugin.Test", "test.Ice.classLoader.PluginFactoryI");
             MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
             initData.classLoader = classLoader;
             try (Communicator ic = helper.initialize(initData)) {

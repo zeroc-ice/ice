@@ -5,7 +5,8 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.LiveActions;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.Component;
 import java.awt.Cursor;
@@ -35,57 +36,57 @@ class Slave extends Communicator {
 
         try {
             getCoordinator()
-                    .getMainFrame()
-                    .setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                .getMainFrame()
+                .setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
             getCoordinator()
-                    .getAdmin()
-                    .shutdownRegistryAsync(_id)
-                    .whenComplete(
-                            (result, ex) -> {
-                                amiComplete(prefix, "Failed to shutdown " + _id, ex);
-                            });
+                .getAdmin()
+                .shutdownRegistryAsync(_id)
+                .whenComplete(
+                    (result, ex) -> {
+                        amiComplete(prefix, "Failed to shutdown " + _id, ex);
+                    });
 
         } catch (LocalException e) {
             failure(prefix, "Failed to shutdown " + _id, e.toString());
         } finally {
             getCoordinator()
-                    .getMainFrame()
-                    .setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                .getMainFrame()
+                .setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
     @Override
     public void retrieveOutput(final boolean stdout) {
         getRoot()
-                .openShowLogFileDialog(
-                        new ShowLogFileDialog.FileIteratorFactory() {
-                            @Override
-                            public FileIteratorPrx open(int count)
-                                    throws FileNotAvailableException,
-                                            RegistryNotExistException,
-                                            RegistryUnreachableException {
-                                AdminSessionPrx session = getCoordinator().getSession();
+            .openShowLogFileDialog(
+                new ShowLogFileDialog.FileIteratorFactory() {
+                    @Override
+                    public FileIteratorPrx open(int count)
+                        throws FileNotAvailableException,
+                        RegistryNotExistException,
+                        RegistryUnreachableException {
+                        AdminSessionPrx session = getCoordinator().getSession();
 
-                                FileIteratorPrx result;
-                                if (stdout) {
-                                    result = session.openRegistryStdOut(_id, count);
-                                } else {
-                                    result = session.openRegistryStdErr(_id, count);
-                                }
-                                return result;
-                            }
+                        FileIteratorPrx result;
+                        if (stdout) {
+                            result = session.openRegistryStdOut(_id, count);
+                        } else {
+                            result = session.openRegistryStdErr(_id, count);
+                        }
+                        return result;
+                    }
 
-                            @Override
-                            public String getTitle() {
-                                return "Registry " + _title + " " + (stdout ? "stdout" : "stderr");
-                            }
+                    @Override
+                    public String getTitle() {
+                        return "Registry " + _title + " " + (stdout ? "stdout" : "stderr");
+                    }
 
-                            @Override
-                            public String getDefaultFilename() {
-                                return _id + (stdout ? ".out" : ".err");
-                            }
-                        });
+                    @Override
+                    public String getDefaultFilename() {
+                        return _id + (stdout ? ".out" : ".err");
+                    }
+                });
     }
 
     @Override
@@ -149,7 +150,7 @@ class Slave extends Communicator {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     RegistryInfo getInfo() {

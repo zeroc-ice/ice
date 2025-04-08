@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.*;
+import java.nio.channels.SelectableChannel;
 import java.util.UUID;
 
 final class TransceiverI implements Transceiver {
@@ -156,9 +156,9 @@ final class TransceiverI implements Transceiver {
                 // Copy directly from the source buffer's backing array.
                 byte[] arr = _readBuffer.b.array();
                 buf.b.put(
-                        arr,
-                        _readBuffer.b.arrayOffset() + _readBuffer.b.position(),
-                        bytesAvailable);
+                    arr,
+                    _readBuffer.b.arrayOffset() + _readBuffer.b.position(),
+                    bytesAvailable);
                 _readBuffer.b.position(_readBuffer.b.position() + bytesAvailable);
             } else {
                 // Copy using a temporary array.
@@ -202,16 +202,16 @@ final class TransceiverI implements Transceiver {
         assert connectionId.equals(_connectionId);
 
         return new ConnectionInfo(
-                incoming,
-                adapterName,
-                connectionId,
-                _instance.bluetoothAdapter().getAddress(),
-                -1, // localChannel - not available, use default value of -1
-                _remoteAddr,
-                -1, // remoteChannel - not available, use default value of -1
-                _uuid,
-                _rcvSize,
-                _sndSize);
+            incoming,
+            adapterName,
+            connectionId,
+            _instance.bluetoothAdapter().getAddress(),
+            -1, // localChannel - not available, use default value of -1
+            _remoteAddr,
+            -1, // remoteChannel - not available, use default value of -1
+            _uuid,
+            _rcvSize,
+            _sndSize);
     }
 
     @Override
@@ -221,7 +221,8 @@ final class TransceiverI implements Transceiver {
     }
 
     @Override
-    public void checkSendSize(Buffer buf) {}
+    public void checkSendSize(Buffer buf) {
+    }
 
     // Used by ConnectorI.
     TransceiverI(Instance instance, String remoteAddr, String uuid, String connectionId) {
@@ -234,20 +235,20 @@ final class TransceiverI implements Transceiver {
         init();
 
         Thread connectThread =
-                new Thread() {
-                    public void run() {
-                        String name = "IceBT.ConnectThread";
-                        if (_remoteAddr != null && !_remoteAddr.isEmpty()) {
-                            name += "-" + _remoteAddr;
-                        }
-                        if (!_uuid.isEmpty()) {
-                            name += "-" + _uuid;
-                        }
-                        setName(name);
-
-                        runConnectThread();
+            new Thread() {
+                public void run() {
+                    String name = "IceBT.ConnectThread";
+                    if (_remoteAddr != null && !_remoteAddr.isEmpty()) {
+                        name += "-" + _remoteAddr;
                     }
-                };
+                    if (!_uuid.isEmpty()) {
+                        name += "-" + _uuid;
+                    }
+                    setName(name);
+
+                    runConnectThread();
+                }
+            };
         connectThread.setDaemon(true);
         connectThread.start();
     }
@@ -278,9 +279,9 @@ final class TransceiverI implements Transceiver {
 
         final int defaultBufSize = 128 * 1024;
         _rcvSize =
-                _instance.properties().getPropertyAsIntWithDefault("IceBT.RcvSize", defaultBufSize);
+            _instance.properties().getPropertyAsIntWithDefault("IceBT.RcvSize", defaultBufSize);
         _sndSize =
-                _instance.properties().getPropertyAsIntWithDefault("IceBT.SndSize", defaultBufSize);
+            _instance.properties().getPropertyAsIntWithDefault("IceBT.SndSize", defaultBufSize);
 
         _readBuffer = new Buffer(false);
         _writeBuffer = new Buffer(false);
@@ -304,7 +305,7 @@ final class TransceiverI implements Transceiver {
 
             // This can block for several seconds.
             BluetoothSocket socket =
-                    device.createRfcommSocketToServiceRecord(UUID.fromString(_uuid));
+                device.createRfcommSocketToServiceRecord(UUID.fromString(_uuid));
             socket.connect();
 
             synchronized (this) {
@@ -340,23 +341,23 @@ final class TransceiverI implements Transceiver {
         final String suffix = s;
 
         _readThread =
-                new Thread() {
-                    public void run() {
-                        setName("IceBT.ReadThread" + suffix);
+            new Thread() {
+                public void run() {
+                    setName("IceBT.ReadThread" + suffix);
 
-                        runReadThread();
-                    }
-                };
+                    runReadThread();
+                }
+            };
         _readThread.start();
 
         _writeThread =
-                new Thread() {
-                    public void run() {
-                        setName("IceBT.WriteThread" + suffix);
+            new Thread() {
+                public void run() {
+                    setName("IceBT.WriteThread" + suffix);
 
-                        runWriteThread();
-                    }
-                };
+                    runWriteThread();
+                }
+            };
         _writeThread.start();
     }
 
@@ -380,8 +381,8 @@ final class TransceiverI implements Transceiver {
                     // If we've read too much data, wait until the application consumes some before
                     // we read again.
                     while (_state == StateConnected
-                            && _exception == null
-                            && _readBuffer.b.position() > _rcvSize) {
+                        && _exception == null
+                        && _readBuffer.b.position() > _rcvSize) {
                         try {
                             wait();
                         } catch (InterruptedException ex) {
@@ -446,8 +447,8 @@ final class TransceiverI implements Transceiver {
 
                 synchronized (this) {
                     while (_state == StateConnected
-                            && _exception == null
-                            && _writeBuffer.b.position() == 0) {
+                        && _exception == null
+                        && _writeBuffer.b.position() == 0) {
                         try {
                             wait();
                         } catch (InterruptedException ex) {
@@ -475,7 +476,7 @@ final class TransceiverI implements Transceiver {
                 synchronized (this) {
                     // After the write is complete, indicate whether we can accept more data.
                     _readyCallback.ready(
-                            SocketOperation.Write, _writeBuffer.b.position() < _sndSize);
+                        SocketOperation.Write, _writeBuffer.b.position() < _sndSize);
                 }
             }
         } catch (IOException ex) {

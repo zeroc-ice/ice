@@ -47,7 +47,7 @@ public final class ServantLocatorI implements ServantLocator {
         }
 
         if ("invalidReturnValue".equals(current.id.name)
-                || "invalidReturnType".equals(current.id.name)) {
+            || "invalidReturnType".equals(current.id.name)) {
             return new ServantLocator.LocateResult();
         }
 
@@ -68,7 +68,7 @@ public final class ServantLocatorI implements ServantLocator {
     @Override
     public void finished(
             Current current, Object servant, java.lang.Object cookie)
-            throws UserException {
+        throws UserException {
         synchronized (this) {
             test(!_deactivated);
         }
@@ -110,16 +110,7 @@ public final class ServantLocatorI implements ServantLocator {
             throw new UnknownLocalException("reason");
         } else if ("unknownException".equals(current.operation)) {
             throw new UnknownException("reason");
-        }
-        //
-        // User exceptions are checked exceptions in Java, so it's not possible to throw it from the
-        // servant locator.
-        //
-        //      else if(current.operation.equals("userException"))
-        //      {
-        //          throw new TestIntfUserException();
-        //      }
-        else if ("localException".equals(current.operation)) {
+        } else if ("localException".equals(current.operation)) {
             throw new SocketException();
         } else if ("javaException".equals(current.operation)) {
             throw new RuntimeException("message");

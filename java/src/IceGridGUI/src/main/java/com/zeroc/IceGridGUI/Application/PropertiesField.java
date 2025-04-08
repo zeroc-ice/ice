@@ -4,8 +4,10 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.Ice.ToStringMode;
 import com.zeroc.Ice.Util;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.AdapterDescriptor;
+import com.zeroc.IceGrid.ObjectDescriptor;
+import com.zeroc.IceGrid.PropertyDescriptor;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.event.ActionEvent;
 import java.util.HashSet;
@@ -40,25 +42,25 @@ public class PropertiesField extends JTable {
         }
 
         Action deleteRow =
-                new AbstractAction("Delete selected row(s)") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (_editable) {
-                            if (isEditing()) {
-                                getCellEditor().stopCellEditing();
-                            }
+            new AbstractAction("Delete selected row(s)") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (_editable) {
+                        if (isEditing()) {
+                            getCellEditor().stopCellEditing();
+                        }
 
-                            for (; ; ) {
-                                int selectedRow = getSelectedRow();
-                                if (selectedRow == -1) {
-                                    break;
-                                } else {
-                                    _model.removeRow(selectedRow);
-                                }
+                        for (; ; ) {
+                            int selectedRow = getSelectedRow();
+                            if (selectedRow == -1) {
+                                break;
+                            } else {
+                                _model.removeRow(selectedRow);
                             }
                         }
                     }
-                };
+                }
+            };
         getActionMap().put("delete", deleteRow);
         getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
     }
@@ -90,13 +92,13 @@ public class PropertiesField extends JTable {
 
                 for (ObjectDescriptor q : p.objects) {
                     hiddenPropertyValues.add(
-                            Util.identityToString(
-                                    q.id, ToStringMode.Unicode));
+                        Util.identityToString(
+                            q.id, ToStringMode.Unicode));
                 }
                 for (ObjectDescriptor q : p.allocatables) {
                     hiddenPropertyValues.add(
-                            Util.identityToString(
-                                    q.id, ToStringMode.Unicode));
+                        Util.identityToString(
+                            q.id, ToStringMode.Unicode));
                 }
             }
         }
@@ -108,7 +110,7 @@ public class PropertiesField extends JTable {
         }
 
         Vector<Vector<String>> vector =
-                new Vector<>(properties.size());
+            new Vector<>(properties.size());
         for (PropertyDescriptor p : properties) {
             if (hiddenPropertyNames.contains(p.name)) {
                 // We keep them at the top of the list
@@ -142,26 +144,26 @@ public class PropertiesField extends JTable {
         }
 
         _model =
-                new DefaultTableModel(vector, _columnNames) {
-                    @Override
-                    public boolean isCellEditable(int row, int column) {
-                        return _editable;
-                    }
-                };
+            new DefaultTableModel(vector, _columnNames) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return _editable;
+                }
+            };
 
         _model.addTableModelListener(
-                new TableModelListener() {
-                    @Override
-                    public void tableChanged(TableModelEvent e) {
-                        if (_editable) {
-                            Object lastKey = _model.getValueAt(_model.getRowCount() - 1, 0);
-                            if (lastKey != null && !"".equals(lastKey)) {
-                                _model.addRow(new Object[]{"", ""});
-                            }
-                            _editor.updated();
+            new TableModelListener() {
+                @Override
+                public void tableChanged(TableModelEvent e) {
+                    if (_editable) {
+                        Object lastKey = _model.getValueAt(_model.getRowCount() - 1, 0);
+                        if (lastKey != null && !"".equals(lastKey)) {
+                            _model.addRow(new Object[]{"", ""});
                         }
+                        _editor.updated();
                     }
-                });
+                }
+            });
         setModel(_model);
 
         setCellSelectionEnabled(_editable);
@@ -182,7 +184,7 @@ public class PropertiesField extends JTable {
         Vector<Vector> vector = _model.getDataVector();
 
         LinkedList<PropertyDescriptor> result =
-                new LinkedList<>(_hiddenProperties);
+            new LinkedList<>(_hiddenProperties);
 
         for (Vector row : vector) {
             // Eliminate rows with null or empty keys
@@ -207,7 +209,7 @@ public class PropertiesField extends JTable {
     private boolean _editable;
 
     private final LinkedList<PropertyDescriptor> _hiddenProperties =
-            new LinkedList<>();
+        new LinkedList<>();
 
     private final Editor _editor;
 }

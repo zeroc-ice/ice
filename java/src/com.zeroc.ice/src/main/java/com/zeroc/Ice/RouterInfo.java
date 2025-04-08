@@ -60,9 +60,9 @@ final class RouterInfo {
     public EndpointI[] getClientEndpoints() {
         synchronized (this) {
             if (_clientEndpoints != null) // Lazy initialization.
-            {
-                return _clientEndpoints;
-            }
+                {
+                    return _clientEndpoints;
+                }
         }
 
         Router.GetClientProxyResult r = _router.getClientProxy();
@@ -81,20 +81,20 @@ final class RouterInfo {
         }
 
         _router.getClientProxyAsync()
-                .whenComplete(
-                        (Router.GetClientProxyResult r, Throwable ex) -> {
-                            if (ex != null) {
-                                if (ex instanceof LocalException) {
-                                    callback.setException((LocalException) ex);
-                                } else {
-                                    callback.setException(new UnknownException(ex));
-                                }
-                            } else {
-                                callback.setEndpoints(
-                                        setClientEndpoints(
-                                                r.returnValue, r.hasRoutingTable.orElse(true)));
-                            }
-                        });
+            .whenComplete(
+                (Router.GetClientProxyResult r, Throwable ex) -> {
+                    if (ex != null) {
+                        if (ex instanceof LocalException) {
+                            callback.setException((LocalException) ex);
+                        } else {
+                            callback.setException(new UnknownException(ex));
+                        }
+                    } else {
+                        callback.setEndpoints(
+                            setClientEndpoints(
+                                r.returnValue, r.hasRoutingTable.orElse(true)));
+                    }
+                });
     }
 
     public EndpointI[] getServerEndpoints() {
@@ -122,19 +122,19 @@ final class RouterInfo {
         }
 
         _router.addProxiesAsync(new ObjectPrx[]{new _ObjectPrxI(reference)})
-                .whenComplete(
-                        (ObjectPrx[] evictedProxies, Throwable ex) -> {
-                            if (ex != null) {
-                                if (ex instanceof LocalException) {
-                                    callback.setException((LocalException) ex);
-                                } else {
-                                    callback.setException(new UnknownException(ex));
-                                }
-                            } else {
-                                addAndEvictProxies(identity, evictedProxies);
-                                callback.addedProxy();
-                            }
-                        });
+            .whenComplete(
+                (ObjectPrx[] evictedProxies, Throwable ex) -> {
+                    if (ex != null) {
+                        if (ex instanceof LocalException) {
+                            callback.setException((LocalException) ex);
+                        } else {
+                            callback.setException(new UnknownException(ex));
+                        }
+                    } else {
+                        addAndEvictProxies(identity, evictedProxies);
+                        callback.addedProxy();
+                    }
+                });
 
         return false;
     }
@@ -156,9 +156,9 @@ final class RouterInfo {
         if (_clientEndpoints == null) {
             _hasRoutingTable = hasRoutingTable;
             _clientEndpoints =
-                    clientProxy == null
-                            ? ((_ObjectPrxI) _router)._getReference().getEndpoints()
-                            : ((_ObjectPrxI) clientProxy)._getReference().getEndpoints();
+                clientProxy == null
+                    ? ((_ObjectPrxI) _router)._getReference().getEndpoints()
+                    : ((_ObjectPrxI) clientProxy)._getReference().getEndpoints();
         }
         return _clientEndpoints;
     }

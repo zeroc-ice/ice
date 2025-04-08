@@ -9,7 +9,8 @@ import test.Ice.inheritance.Test.MB.IB2;
 import test.Ice.inheritance.Test.MB.IB2Prx;
 
 public final class IB2I implements IB2 {
-    public IB2I() {}
+    public IB2I() {
+    }
 
     @Override
     public IAPrx iaop(IAPrx p, Current current) {

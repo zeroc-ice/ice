@@ -14,11 +14,11 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>> {
         _name = name;
         _class = cl;
         _metrics.registerMap(
-                name,
-                _class,
-                () -> {
-                    update();
-                });
+            name,
+            _class,
+            () -> {
+                update();
+            });
     }
 
     public void destroy() {

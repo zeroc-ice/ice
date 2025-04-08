@@ -3,7 +3,8 @@
 package com.zeroc.IceGridGUI;
 
 import com.zeroc.Ice.Current;
-import com.zeroc.IceGrid.*;
+import com.zeroc.IceGrid.AdapterInfo;
+import com.zeroc.IceGrid.AdapterObserver;
 
 import javax.swing.SwingUtilities;
 
@@ -30,9 +31,9 @@ class AdapterObserverI implements AdapterObserver {
         }
 
         SwingUtilities.invokeLater(
-                () -> {
-                    _coordinator.adapterInit(adapters);
-                });
+            () -> {
+                _coordinator.adapterInit(adapters);
+            });
     }
 
     @Override
@@ -42,9 +43,9 @@ class AdapterObserverI implements AdapterObserver {
         }
 
         SwingUtilities.invokeLater(
-                () -> {
-                    _coordinator.adapterAdded(info);
-                });
+            () -> {
+                _coordinator.adapterAdded(info);
+            });
     }
 
     @Override
@@ -54,9 +55,9 @@ class AdapterObserverI implements AdapterObserver {
         }
 
         SwingUtilities.invokeLater(
-                () -> {
-                    _coordinator.adapterUpdated(info);
-                });
+            () -> {
+                _coordinator.adapterUpdated(info);
+            });
     }
 
     @Override
@@ -66,9 +67,9 @@ class AdapterObserverI implements AdapterObserver {
         }
 
         SwingUtilities.invokeLater(
-                () -> {
-                    _coordinator.adapterRemoved(id);
-                });
+            () -> {
+                _coordinator.adapterRemoved(id);
+            });
     }
 
     private final Coordinator _coordinator;

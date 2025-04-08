@@ -23,10 +23,12 @@ public class TestI implements TestIntf {
         }
     }
 
-    TestI() {}
+    TestI() {
+    }
 
     @Override
-    public void op(Current current) {}
+    public void op(Current current) {
+    }
 
     @Override
     public int opWithResult(Current current) {
@@ -39,7 +41,8 @@ public class TestI implements TestIntf {
     }
 
     @Override
-    public void opWithPayload(byte[] seq, Current current) {}
+    public void opWithPayload(byte[] seq, Current current) {
+    }
 
     @Override
     public synchronized void opBatch(Current current) {
@@ -102,15 +105,15 @@ public class TestI implements TestIntf {
         reply = reply.ice_fixed(current.con);
         boolean expectSuccess = !current.ctx.containsKey("ONE");
         return reply.replyAsync()
-                .handle(
-                        (r, ex) -> {
-                            if (expectSuccess) {
-                                test(ex == null);
-                            } else {
-                                test(ex instanceof ObjectNotExistException);
-                            }
-                            return null; // means success
-                        });
+            .handle(
+                (r, ex) -> {
+                    if (expectSuccess) {
+                        test(ex == null);
+                    } else {
+                        test(ex instanceof ObjectNotExistException);
+                    }
+                    return null; // means success
+                });
     }
 
     @Override
@@ -131,15 +134,15 @@ public class TestI implements TestIntf {
         // We can't wait for the connection to be closed - this would cause a self dead-lock. So
         // instead we just initiate the closure in the background.
         CompletableFuture.runAsync(
-                () -> {
-                    try {
-                        current.con.close();
-                    } catch (Exception e) {
-                        // make sure the closure is graceful
-                        System.err.println("********** Connection.close failed: " + e);
-                        test(false);
-                    }
-                });
+            () -> {
+                try {
+                    current.con.close();
+                } catch (Exception e) {
+                    // make sure the closure is graceful
+                    System.err.println("********** Connection.close failed: " + e);
+                    test(false);
+                }
+            });
     }
 
     @Override
@@ -175,11 +178,11 @@ public class TestI implements TestIntf {
         if (_shutdown) {
             return;
         } else if (_pending
-                != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
-        {
-            _pending.complete(null);
-            _pending = null;
-        }
+            != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
+            {
+                _pending.complete(null);
+                _pending = null;
+            }
     }
 
     @Override

@@ -51,9 +51,9 @@ public final class Server {
     private static void usage() {
         System.err.println("Usage: com.zeroc.IceBox.Server [options] --Ice.Config=<file>\n");
         System.err.println(
-                "Options:\n"
-                        + "-h, --help           Show this message.\n"
-                        + "-v, --version        Display the Ice version.");
+            "Options:\n"
+                + "-h, --help           Show this message.\n"
+                + "-v, --version        Display the Ice version.");
     }
 
     private static int run(Communicator communicator, List<String> argSeq) {
@@ -83,7 +83,7 @@ public final class Server {
         }
 
         ServiceManagerI serviceManagerImpl =
-                new ServiceManagerI(communicator, argSeq.toArray(new String[0]));
+            new ServiceManagerI(communicator, argSeq.toArray(new String[0]));
         return serviceManagerImpl.run();
     }
 
@@ -97,7 +97,7 @@ public final class Server {
         ShutdownHook shutdownHook = null;
 
         try (Communicator communicator =
-                Util.initialize(args, initData, argSeq)) {
+            Util.initialize(args, initData, argSeq)) {
             shutdownHook = new ShutdownHook(communicator);
             Runtime.getRuntime().addShutdownHook(shutdownHook);
 

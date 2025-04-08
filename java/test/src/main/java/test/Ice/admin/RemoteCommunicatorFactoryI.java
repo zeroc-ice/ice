@@ -12,7 +12,8 @@ import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 
-import test.Ice.admin.Test.*;
+import test.Ice.admin.Test.RemoteCommunicatorFactory;
+import test.Ice.admin.Test.RemoteCommunicatorPrx;
 
 import java.util.Map;
 
@@ -32,29 +33,33 @@ public class RemoteCommunicatorFactoryI implements RemoteCommunicatorFactory {
 
         if (initData.properties.getPropertyAsInt("NullLogger") > 0) {
             initData.logger =
-                    new Logger() {
-                        @Override
-                        public void print(String message) {}
+                new Logger() {
+                    @Override
+                    public void print(String message) {
+                    }
 
-                        @Override
-                        public void trace(String category, String message) {}
+                    @Override
+                    public void trace(String category, String message) {
+                    }
 
-                        @Override
-                        public void warning(String message) {}
+                    @Override
+                    public void warning(String message) {
+                    }
 
-                        @Override
-                        public void error(String message) {}
+                    @Override
+                    public void error(String message) {
+                    }
 
-                        @Override
-                        public String getPrefix() {
-                            return "NullLogger";
-                        }
+                    @Override
+                    public String getPrefix() {
+                        return "NullLogger";
+                    }
 
-                        @Override
-                        public Logger cloneWithPrefix(String prefix) {
-                            return this;
-                        }
-                    };
+                    @Override
+                    public Logger cloneWithPrefix(String prefix) {
+                        return this;
+                    }
+                };
         }
 
         //
@@ -77,7 +82,7 @@ public class RemoteCommunicatorFactoryI implements RemoteCommunicatorFactory {
 
         if (propFacet != null) {
             NativePropertiesAdmin admin =
-                    (NativePropertiesAdmin) propFacet;
+                (NativePropertiesAdmin) propFacet;
             assert admin != null;
             admin.addUpdateCallback(servant);
         }

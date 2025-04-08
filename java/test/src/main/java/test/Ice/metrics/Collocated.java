@@ -33,19 +33,19 @@ public class Collocated extends TestHelper {
             // adapter.activate(); // Don't activate OA to ensure collocation is used.
 
             communicator
-                    .getProperties()
-                    .setProperty("ForwardingAdapter.Endpoints", getTestEndpoint(1));
+                .getProperties()
+                .setProperty("ForwardingAdapter.Endpoints", getTestEndpoint(1));
             ObjectAdapter forwardingAdapter =
-                    communicator.createObjectAdapter("ForwardingAdapter");
+                communicator.createObjectAdapter("ForwardingAdapter");
             forwardingAdapter.addDefaultServant(adapter.dispatchPipeline(), "");
 
             communicator
-                    .getProperties()
-                    .setProperty("ControllerAdapter.Endpoints", getTestEndpoint(2));
+                .getProperties()
+                .setProperty("ControllerAdapter.Endpoints", getTestEndpoint(2));
             ObjectAdapter controllerAdapter =
-                    communicator.createObjectAdapter("ControllerAdapter");
+                communicator.createObjectAdapter("ControllerAdapter");
             controllerAdapter.add(
-                    new ControllerI(adapter), Util.stringToIdentity("controller"));
+                new ControllerI(adapter), Util.stringToIdentity("controller"));
             // controllerAdapter.activate(); // Don't activate OA to ensure collocation is used.
 
             MetricsPrx metrics = AllTests.allTests(this, observer);

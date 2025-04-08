@@ -15,7 +15,8 @@ import test.Ice.exceptions.Test.D;
 import test.Ice.exceptions.Test.Thrower;
 
 public final class ThrowerI implements Thrower {
-    public ThrowerI() {}
+    public ThrowerI() {
+    }
 
     @Override
     public void shutdown(Current current) {
@@ -98,7 +99,7 @@ public final class ThrowerI implements Thrower {
 
     @Override
     public void throwUndeclaredC(int a, int b, int c, Current current)
-            throws UserException {
+        throws UserException {
         throw new C(a, b, c);
     }
 

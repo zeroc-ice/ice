@@ -141,7 +141,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
     public com.zeroc.Ice.Acceptor acceptor(
             String adapterName, SSLEngineFactory sslEngineFactory) {
         return new Acceptor(
-                this, _configuration, _endpoint.acceptor(adapterName, sslEngineFactory));
+            this, _configuration, _endpoint.acceptor(adapterName, sslEngineFactory));
     }
 
     public EndpointI endpoint(com.zeroc.Ice.EndpointI delEndp) {

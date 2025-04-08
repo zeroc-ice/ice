@@ -45,7 +45,7 @@ public class BZip2 {
             //
             BufferedOutputStream bos = new BufferedOutputStream(compressed);
             java.lang.Object[] args =
-                    new java.lang.Object[]{bos, Integer.valueOf(compressionLevel)};
+                new java.lang.Object[]{bos, Integer.valueOf(compressionLevel)};
             OutputStream os = (OutputStream) _bzOutputStreamCtor.newInstance(args);
             os.write(data, offset + headerSize, uncompressedLen);
             os.close();
@@ -90,7 +90,7 @@ public class BZip2 {
         int uncompressedSize = buf.b.getInt();
         if (uncompressedSize <= headerSize) {
             throw new MarshalException(
-                    "Unexpected message size after uncompress: " + uncompressedSize);
+                "Unexpected message size after uncompress: " + uncompressedSize);
         }
         if (uncompressedSize > messageSizeMax) {
             Ex.throwMemoryLimitException(uncompressedSize, messageSizeMax);
@@ -127,8 +127,8 @@ public class BZip2 {
             // compressed data in a ByteArrayInputStream.
             //
             ByteArrayInputStream bais =
-                    new ByteArrayInputStream(
-                            compressed, offset + headerSize + 4, compressedLen);
+                new ByteArrayInputStream(
+                    compressed, offset + headerSize + 4, compressedLen);
 
             java.lang.Object[] args = new java.lang.Object[]{bais};
             InputStream is = (InputStream) _bzInputStreamCtor.newInstance(args);
@@ -167,17 +167,17 @@ public class BZip2 {
                 Class<?> cls;
                 Class<?>[] types = new Class<?>[1];
                 cls =
-                        Util.findClass(
-                                "org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream",
-                                null);
+                    Util.findClass(
+                        "org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream",
+                        null);
                 if (cls != null) {
                     types[0] = InputStream.class;
                     _bzInputStreamCtor = cls.getDeclaredConstructor(types);
                 }
                 cls =
-                        Util.findClass(
-                                "org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream",
-                                null);
+                    Util.findClass(
+                        "org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream",
+                        null);
                 if (cls != null) {
                     types = new Class<?>[2];
                     types[0] = OutputStream.class;
@@ -197,10 +197,12 @@ public class BZip2 {
         }
 
         @Override
-        public void close() throws IOException {}
+        public void close() throws IOException {
+        }
 
         @Override
-        public void flush() throws IOException {}
+        public void flush() throws IOException {
+        }
 
         @Override
         public void write(byte[] b) throws IOException {

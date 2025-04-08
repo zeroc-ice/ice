@@ -26,24 +26,24 @@ public final class Network {
     private static Pattern IPV4_PATTERN;
     private static Pattern IPV6_PATTERN;
     private static final String ipv4Pattern =
-            "(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])";
+        "(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])";
     private static final String ipv6Pattern =
-            "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-"
-                    + "fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1"
-                    + ",4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,"
-                    + "4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-"
-                    + "F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])"
-                    + "\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}"
-                    + "[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))";
+        "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-"
+            + "fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1"
+            + ",4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,"
+            + "4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-"
+            + "F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])"
+            + "\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}"
+            + "[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))";
 
     static {
         try {
             IPV4_PATTERN =
-                    Pattern.compile(
-                            ipv4Pattern, Pattern.CASE_INSENSITIVE);
+                Pattern.compile(
+                    ipv4Pattern, Pattern.CASE_INSENSITIVE);
             IPV6_PATTERN =
-                    Pattern.compile(
-                            ipv6Pattern, Pattern.CASE_INSENSITIVE);
+                Pattern.compile(
+                    ipv6Pattern, Pattern.CASE_INSENSITIVE);
         } catch (PatternSyntaxException ex) {
             assert false;
         }
@@ -138,7 +138,7 @@ public final class Network {
         try {
             if (addr.getAddress().isMulticastAddress()) {
                 var familyStr =
-                        addr.getAddress() instanceof Inet6Address ? "INET6" : "INET";
+                    addr.getAddress() instanceof Inet6Address ? "INET6" : "INET";
                 var family = StandardProtocolFamily.valueOf(familyStr);
                 return DatagramChannel.open(family);
             } else {
@@ -168,8 +168,8 @@ public final class Network {
         }
         try {
             iface =
-                    NetworkInterface.getByInetAddress(
-                            InetAddress.getByName(intf));
+                NetworkInterface.getByInetAddress(
+                    InetAddress.getByName(intf));
             if (iface != null) {
                 return iface;
             }
@@ -530,10 +530,10 @@ public final class Network {
             try {
                 if (protocol != EnableIPv4) {
                     return new InetSocketAddress(
-                            InetAddress.getByName("::0"), port);
+                        InetAddress.getByName("::0"), port);
                 } else {
                     return new InetSocketAddress(
-                            InetAddress.getByName("0.0.0.0"), port);
+                        InetAddress.getByName("0.0.0.0"), port);
                 }
             } catch (UnknownHostException ex) {
                 assert false;
@@ -577,7 +577,7 @@ public final class Network {
             List<InetSocketAddress> addrs = new ArrayList<>();
             try {
                 addrs.add(
-                        new InetSocketAddress(InetAddress.getByName(host), port));
+                    new InetSocketAddress(InetAddress.getByName(host), port));
             } catch (UnknownHostException ex) {
                 assert false;
             }
@@ -626,14 +626,14 @@ public final class Network {
         ArrayList<InetAddress> result = new ArrayList<>();
         try {
             Enumeration<NetworkInterface> ifaces =
-                    NetworkInterface.getNetworkInterfaces();
+                NetworkInterface.getNetworkInterfaces();
             while (ifaces.hasMoreElements()) {
                 NetworkInterface iface = ifaces.nextElement();
                 Enumeration<InetAddress> addrs = iface.getInetAddresses();
                 while (addrs.hasMoreElements()) {
                     InetAddress addr = addrs.nextElement();
                     if (!result.contains(addr)
-                            && (protocol == EnableBoth || isValidAddr(addr, protocol))) {
+                        && (protocol == EnableBoth || isValidAddr(addr, protocol))) {
                         result.add(addr);
                         break;
                     }
@@ -674,9 +674,9 @@ public final class Network {
         }
 
         int rcvSize =
-                instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+            instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
         int sndSize =
-                instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
+            instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
 
         setTcpBufSize(socket, rcvSize, sndSize, instance);
     }
@@ -699,11 +699,11 @@ public final class Network {
                 BufSizeWarnInfo winfo = instance.getBufSizeWarn(TCPEndpointType.value);
                 if (!winfo.rcvWarn || rcvSize != winfo.rcvSize) {
                     instance.logger()
-                            .warning(
-                                    "TCP receive buffer size: requested size of "
-                                            + rcvSize
-                                            + " adjusted to "
-                                            + size);
+                        .warning(
+                            "TCP receive buffer size: requested size of "
+                                + rcvSize
+                                + " adjusted to "
+                                + size);
                     instance.setRcvBufSizeWarn(TCPEndpointType.value, rcvSize);
                 }
             }
@@ -722,11 +722,11 @@ public final class Network {
                 BufSizeWarnInfo winfo = instance.getBufSizeWarn(TCPEndpointType.value);
                 if (!winfo.sndWarn || sndSize != winfo.sndSize) {
                     instance.logger()
-                            .warning(
-                                    "TCP send buffer size: requested size of "
-                                            + sndSize
-                                            + " adjusted to "
-                                            + size);
+                        .warning(
+                            "TCP send buffer size: requested size of "
+                                + sndSize
+                                + " adjusted to "
+                                + size);
                     instance.setSndBufSizeWarn(TCPEndpointType.value, sndSize);
                 }
             }
@@ -748,7 +748,7 @@ public final class Network {
         // Get property for buffer size.
         //
         int sizeRequested =
-                instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+            instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
         if (sizeRequested > 0) {
             //
             // Try to set the buffer size. The kernel will silently adjust the size to an acceptable
@@ -762,11 +762,11 @@ public final class Network {
                 BufSizeWarnInfo winfo = instance.getBufSizeWarn(TCPEndpointType.value);
                 if (!winfo.rcvWarn || sizeRequested != winfo.rcvSize) {
                     instance.logger()
-                            .warning(
-                                    "TCP receive buffer size: requested size of "
-                                            + sizeRequested
-                                            + " adjusted to "
-                                            + size);
+                        .warning(
+                            "TCP receive buffer size: requested size of "
+                                + sizeRequested
+                                + " adjusted to "
+                                + size);
                     instance.setRcvBufSizeWarn(TCPEndpointType.value, sizeRequested);
                 }
             }
@@ -892,8 +892,8 @@ public final class Network {
             bytes = addr.getAddress();
         }
         return bytes != null
-                && ((bytes.length == 16 && protocol == EnableIPv6)
-                        || (bytes.length == 4 && protocol == EnableIPv4));
+            && ((bytes.length == 16 && protocol == EnableIPv6)
+            || (bytes.length == 4 && protocol == EnableIPv4));
     }
 
     public static String addrToString(InetAddress addr, int port) {
@@ -971,7 +971,7 @@ public final class Network {
             if (lhs.getAddress().getAddress().length < rhs.getAddress().getAddress().length) {
                 return _ipv6 ? 1 : -1;
             } else if (lhs.getAddress().getAddress().length
-                    > rhs.getAddress().getAddress().length) {
+                > rhs.getAddress().getAddress().length) {
                 return _ipv6 ? -1 : 1;
             } else {
                 return 0;

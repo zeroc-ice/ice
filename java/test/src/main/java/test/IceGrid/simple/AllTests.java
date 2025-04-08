@@ -68,8 +68,8 @@ public class AllTests {
         finderId.category = "Ice";
         finderId.name = "LocatorFinder";
         LocatorFinderPrx finder =
-                LocatorFinderPrx.checkedCast(
-                        communicator.getDefaultLocator().ice_identity(finderId));
+            LocatorFinderPrx.checkedCast(
+                communicator.getDefaultLocator().ice_identity(finderId));
         test(finder.getLocator() != null);
         out.println("ok");
 
@@ -78,15 +78,15 @@ public class AllTests {
         {
             // Add test well-known object
             RegistryPrx registry =
-                    RegistryPrx.checkedCast(
-                            communicator.stringToProxy(
-                                    communicator.getDefaultLocator().ice_getIdentity().category
-                                            + "/Registry"));
+                RegistryPrx.checkedCast(
+                    communicator.stringToProxy(
+                        communicator.getDefaultLocator().ice_getIdentity().category
+                            + "/Registry"));
             test(registry != null);
 
             try {
                 AdminSessionPrx session =
-                        registry.createAdminSession("foo", "bar");
+                    registry.createAdminSession("foo", "bar");
                 session.getAdmin().addObjectWithType(base, "::Test");
                 session.destroy();
             } catch (UserException ex) {
@@ -99,12 +99,12 @@ public class AllTests {
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty(
-                    "Ice.Plugin.IceLocatorDiscovery",
-                    "IceLocatorDiscovery:com.zeroc.IceLocatorDiscovery.PluginFactory");
+                "Ice.Plugin.IceLocatorDiscovery",
+                "IceLocatorDiscovery:com.zeroc.IceLocatorDiscovery.PluginFactory");
             initData.properties.setProperty(
-                    "IceLocatorDiscovery.Port", Integer.toString(helper.getTestPort(99)));
+                "IceLocatorDiscovery.Port", Integer.toString(helper.getTestPort(99)));
             initData.properties.setProperty(
-                    "AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
+                "AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
             initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
 
             Communicator comm = Util.initialize(initData);
@@ -114,16 +114,16 @@ public class AllTests {
 
             test(comm.getDefaultLocator().getRegistry() != null);
             test(
-                    LocatorPrx.uncheckedCast(comm.getDefaultLocator())
-                                    .getLocalRegistry()
-                            != null);
+                LocatorPrx.uncheckedCast(comm.getDefaultLocator())
+                    .getLocalRegistry()
+                    != null);
             test(
-                    LocatorPrx.uncheckedCast(comm.getDefaultLocator())
-                                    .getLocalQuery()
-                            != null);
+                LocatorPrx.uncheckedCast(comm.getDefaultLocator())
+                    .getLocalQuery()
+                    != null);
 
             ObjectAdapter adapter =
-                    comm.createObjectAdapter("AdapterForDiscoveryTest");
+                comm.createObjectAdapter("AdapterForDiscoveryTest");
             adapter.activate();
             adapter.deactivate();
             comm.destroy();
@@ -147,7 +147,7 @@ public class AllTests {
             test(LocatorPrx.checkedCast(comm.getDefaultLocator()) == null);
             try {
                 LocatorPrx.uncheckedCast(comm.getDefaultLocator())
-                        .getLocalQuery();
+                    .getLocalQuery();
             } catch (OperationNotExistException ex) {
             }
 
@@ -168,10 +168,10 @@ public class AllTests {
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty(
-                    "Ice.Plugin.IceLocatorDiscovery",
-                    "com.zeroc.IceLocatorDiscovery.PluginFactory");
+                "Ice.Plugin.IceLocatorDiscovery",
+                "com.zeroc.IceLocatorDiscovery.PluginFactory");
             initData.properties.setProperty(
-                    "IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
+                "IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
             comm = Util.initialize(initData);
             test(comm.getDefaultLocator() != null);
             try {
@@ -185,10 +185,10 @@ public class AllTests {
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "0");
             initData.properties.setProperty(
-                    "Ice.Plugin.IceLocatorDiscovery",
-                    "com.zeroc.IceLocatorDiscovery.PluginFactory");
+                "Ice.Plugin.IceLocatorDiscovery",
+                "com.zeroc.IceLocatorDiscovery.PluginFactory");
             initData.properties.setProperty(
-                    "IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
+                "IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
             comm = Util.initialize(initData);
             test(comm.getDefaultLocator() != null);
             try {
@@ -202,8 +202,8 @@ public class AllTests {
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
             initData.properties.setProperty(
-                    "Ice.Plugin.IceLocatorDiscovery",
-                    "com.zeroc.IceLocatorDiscovery.PluginFactory");
+                "Ice.Plugin.IceLocatorDiscovery",
+                "com.zeroc.IceLocatorDiscovery.PluginFactory");
             {
                 String intf = initData.properties.getIceProperty("IceLocatorDiscovery.Interface");
                 if (!intf.isEmpty()) {
@@ -211,15 +211,15 @@ public class AllTests {
                 }
                 String port = Integer.toString(helper.getTestPort(99));
                 initData.properties.setProperty(
-                        "IceLocatorDiscovery.Lookup",
-                        "udp -h "
-                                + multicast
-                                + " --interface unknown:"
-                                + "udp -h "
-                                + multicast
-                                + " -p "
-                                + port
-                                + intf);
+                    "IceLocatorDiscovery.Lookup",
+                    "udp -h "
+                        + multicast
+                        + " --interface unknown:"
+                        + "udp -h "
+                        + multicast
+                        + " -p "
+                        + port
+                        + intf);
             }
             comm = Util.initialize(initData);
             test(comm.getDefaultLocator() != null);
@@ -311,10 +311,10 @@ public class AllTests {
         out.println("ok");
 
         RegistryPrx registry =
-                RegistryPrx.checkedCast(
-                        communicator.stringToProxy(
-                                communicator.getDefaultLocator().ice_getIdentity().category
-                                        + "/Registry"));
+            RegistryPrx.checkedCast(
+                communicator.stringToProxy(
+                    communicator.getDefaultLocator().ice_getIdentity().category
+                        + "/Registry"));
         test(registry != null);
         AdminSessionPrx session = null;
         try {

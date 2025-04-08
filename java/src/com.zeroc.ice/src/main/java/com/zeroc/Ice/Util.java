@@ -297,8 +297,8 @@ public final class Util {
             return StringUtil.escapeString(ident.name, "/", toStringMode);
         } else {
             return StringUtil.escapeString(ident.category, "/", toStringMode)
-                    + '/'
-                    + StringUtil.escapeString(ident.name, "/", toStringMode);
+                + '/'
+                + StringUtil.escapeString(ident.name, "/", toStringMode);
         }
     }
 
@@ -503,7 +503,7 @@ public final class Util {
             CompletableFuture<T> f) {
         if (!(f instanceof InvocationFuture)) {
             throw new IllegalArgumentException(
-                    "future did not originate from an asynchronous proxy invocation");
+                "future did not originate from an asynchronous proxy invocation");
         }
         return (InvocationFuture<T>) f;
     }
@@ -581,7 +581,7 @@ public final class Util {
      * @hidden Public because it's used by SSL.
      */
     public static InputStream openResource(ClassLoader cl, String path)
-            throws IOException {
+        throws IOException {
         //
         // Calling getResourceAsStream on the class loader means all paths are absolute,
         // whereas calling it on the class means all paths are relative to the class

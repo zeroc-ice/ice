@@ -9,7 +9,8 @@ import com.zeroc.Ice.NoEndpointException;
 import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.Util;
 
-import test.IceDiscovery.simple.Test.*;
+import test.IceDiscovery.simple.Test.ControllerPrx;
+import test.IceDiscovery.simple.Test.TestIntfPrx;
 import test.TestHelper;
 
 import java.util.ArrayList;
@@ -159,8 +160,8 @@ public class AllTests {
                 adapterIds.add("oa2");
                 adapterIds.add("oa3");
                 intf =
-                        TestIntfPrx.createProxy(communicator, "object @ rg")
-                                .ice_connectionCached(false);
+                    TestIntfPrx.createProxy(communicator, "object @ rg")
+                        .ice_connectionCached(false);
                 int nRetry = 100;
                 while (!adapterIds.isEmpty() && --nRetry > 0) {
                     adapterIds.remove(intf.getAdapterId());
@@ -199,7 +200,7 @@ public class AllTests {
                 InitializationData initData = new InitializationData();
                 initData.properties = communicator.getProperties()._clone();
                 initData.properties.setProperty(
-                        "IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
+                    "IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
                 Communicator comm = Util.initialize(initData);
                 test(comm.getDefaultLocator() != null);
                 try {
@@ -218,15 +219,15 @@ public class AllTests {
                 }
                 String port = initData.properties.getIceProperty("IceDiscovery.Port");
                 initData.properties.setProperty(
-                        "IceDiscovery.Lookup",
-                        "udp -h "
-                                + multicast
-                                + " --interface unknown:"
-                                + "udp -h "
-                                + multicast
-                                + " -p "
-                                + port
-                                + intf);
+                    "IceDiscovery.Lookup",
+                    "udp -h "
+                        + multicast
+                        + " --interface unknown:"
+                        + "udp -h "
+                        + multicast
+                        + " -p "
+                        + port
+                        + intf);
                 Communicator comm = Util.initialize(initData);
                 test(comm.getDefaultLocator() != null);
                 comm.stringToProxy("controller0@control0").ice_ping();

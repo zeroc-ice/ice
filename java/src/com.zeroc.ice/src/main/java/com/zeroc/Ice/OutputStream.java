@@ -71,9 +71,9 @@ public final class OutputStream {
      */
     public OutputStream(Communicator communicator) {
         this(
-                communicator.getInstance().defaultsAndOverrides().defaultEncoding,
-                communicator.getInstance().defaultsAndOverrides().defaultFormat,
-                communicator.getInstance().cacheMessageBuffers() > 1);
+            communicator.getInstance().defaultsAndOverrides().defaultEncoding,
+            communicator.getInstance().defaultsAndOverrides().defaultFormat,
+            communicator.getInstance().cacheMessageBuffers() > 1);
     }
 
     OutputStream(Buffer buf, EncodingVersion encoding) {
@@ -279,7 +279,7 @@ public final class OutputStream {
     public void writeEncapsulation(byte[] v) {
         if (v.length < 6) {
             throw new MarshalException(
-                    "A byte sequence with " + v.length + " bytes is not a valid encapsulation.");
+                "A byte sequence with " + v.length + " bytes is not a valid encapsulation.");
         }
         expand(v.length);
         _buf.b.put(v);
@@ -321,8 +321,8 @@ public final class OutputStream {
         if (_encapsStack != null && _encapsStack.encoder != null) {
             _encapsStack.encoder.writePendingValues();
         } else if (_encapsStack != null
-                ? _encapsStack.encoding_1_0
-                : _encoding.equals(Util.Encoding_1_0)) {
+            ? _encapsStack.encoding_1_0
+            : _encoding.equals(Util.Encoding_1_0)) {
             //
             // If using the 1.0 encoding and no instances were written, we still write an empty
             // sequence for pending instances if requested (i.e.: if this is called).
@@ -1444,13 +1444,14 @@ public final class OutputStream {
             return false;
         }
 
-        void writePendingValues() {}
+        void writePendingValues() {
+        }
 
         protected int registerTypeId(String typeId) {
             if (_typeIdMap == null) // Lazy initialization
-            {
-                _typeIdMap = new TreeMap<>();
-            }
+                {
+                    _typeIdMap = new TreeMap<>();
+                }
 
             Integer p = _typeIdMap.get(typeId);
             if (p != null) {
@@ -1585,7 +1586,7 @@ public final class OutputStream {
                 }
             }
             _stream.writeSize(
-                    0); // Zero marker indicates end of sequence of sequences of instances.
+                0); // Zero marker indicates end of sequence of sequences of instances.
         }
 
         private int registerValue(Value v) {
@@ -1639,10 +1640,10 @@ public final class OutputStream {
                 _stream.writeSize(0);
             } else if (_current != null && _encaps.format == FormatType.SlicedFormat) {
                 if (_current.indirectionTable == null) // Lazy initialization
-                {
-                    _current.indirectionTable = new ArrayList<>();
-                    _current.indirectionMap = new IdentityHashMap<>();
-                }
+                    {
+                        _current.indirectionTable = new ArrayList<>();
+                        _current.indirectionMap = new IdentityHashMap<>();
+                    }
 
                 //
                 // If writing an instance within a slice and using the sliced format, write an index
@@ -1653,8 +1654,8 @@ public final class OutputStream {
                 if (index == null) {
                     _current.indirectionTable.add(v);
                     final int idx =
-                            _current.indirectionTable
-                                    .size(); // Position + 1 (0 is reserved for nil)
+                        _current.indirectionTable
+                            .size(); // Position + 1 (0 is reserved for nil)
                     _current.indirectionMap.put(v, idx);
                     _stream.writeSize(idx);
                 } else {
@@ -1693,7 +1694,7 @@ public final class OutputStream {
         @Override
         void startSlice(String typeId, int compactId, boolean last) {
             assert ((_current.indirectionTable == null || _current.indirectionTable.isEmpty())
-                    && (_current.indirectionMap == null || _current.indirectionMap.isEmpty()));
+                && (_current.indirectionMap == null || _current.indirectionMap.isEmpty()));
 
             _current.sliceFlagsPos = _stream.pos();
 
@@ -1830,10 +1831,10 @@ public final class OutputStream {
                 //
                 if (info.instances != null && info.instances.length > 0) {
                     if (_current.indirectionTable == null) // Lazy initialization
-                    {
-                        _current.indirectionTable = new ArrayList<>();
-                        _current.indirectionMap = new IdentityHashMap<>();
-                    }
+                        {
+                            _current.indirectionTable = new ArrayList<>();
+                            _current.indirectionMap = new IdentityHashMap<>();
+                        }
                     for (Value o : info.instances) {
                         _current.indirectionTable.add(o);
                     }
@@ -1924,8 +1925,8 @@ public final class OutputStream {
 
     private boolean isEncoding_1_0() {
         return _encapsStack != null
-                ? _encapsStack.encoding_1_0
-                : _encoding.equals(Util.Encoding_1_0);
+            ? _encapsStack.encoding_1_0
+            : _encoding.equals(Util.Encoding_1_0);
     }
 
     private Encaps _encapsStack;
@@ -1933,28 +1934,28 @@ public final class OutputStream {
 
     private void initEncaps() {
         if (_encapsStack == null) // Lazy initialization
-        {
-            _encapsStack = _encapsCache;
-            if (_encapsStack != null) {
-                _encapsCache = _encapsCache.next;
-            } else {
-                _encapsStack = new Encaps();
+            {
+                _encapsStack = _encapsCache;
+                if (_encapsStack != null) {
+                    _encapsCache = _encapsCache.next;
+                } else {
+                    _encapsStack = new Encaps();
+                }
+                _encapsStack.setEncoding(_encoding);
             }
-            _encapsStack.setEncoding(_encoding);
-        }
 
         if (_encapsStack.format == null) {
             _encapsStack.format = _format;
         }
 
         if (_encapsStack.encoder == null) // Lazy initialization.
-        {
-            if (_encapsStack.encoding_1_0) {
-                _encapsStack.encoder = new EncapsEncoder10(this, _encapsStack);
-            } else {
-                _encapsStack.encoder = new EncapsEncoder11(this, _encapsStack);
+            {
+                if (_encapsStack.encoding_1_0) {
+                    _encapsStack.encoder = new EncapsEncoder10(this, _encapsStack);
+                } else {
+                    _encapsStack.encoder = new EncapsEncoder11(this, _encapsStack);
+                }
             }
-        }
     }
 
     /**

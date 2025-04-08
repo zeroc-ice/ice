@@ -4,8 +4,13 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.Ice.ToStringMode;
 import com.zeroc.Ice.Util;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.AdapterDescriptor;
+import com.zeroc.IceGrid.ObjectDescriptor;
+import com.zeroc.IceGrid.PropertyDescriptor;
+import com.zeroc.IceGrid.PropertySetDescriptor;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 import java.io.IOException;
 import java.util.*;
@@ -69,7 +74,7 @@ public abstract class TreeNode extends TreeNodeBase {
     }
 
     static void writeVariables(XMLWriter writer, Map<String, String> variables)
-            throws IOException {
+        throws IOException {
         for (Map.Entry<String, String> p : variables.entrySet()) {
             List<String[]> attributes = new LinkedList<>();
             attributes.add(createAttribute("name", p.getKey()));
@@ -84,7 +89,7 @@ public abstract class TreeNode extends TreeNodeBase {
             PropertySetDescriptor psd,
             List<AdapterDescriptor> adapters,
             String[] logs)
-            throws IOException {
+        throws IOException {
         writePropertySet(writer, "", "", psd, adapters, logs);
     }
 
@@ -95,7 +100,7 @@ public abstract class TreeNode extends TreeNodeBase {
             PropertySetDescriptor psd,
             List<AdapterDescriptor> adapters,
             String[] logs)
-            throws IOException {
+        throws IOException {
         if (id.isEmpty() && psd.references.length == 0 && psd.properties.isEmpty()) {
             return;
         }
@@ -112,13 +117,13 @@ public abstract class TreeNode extends TreeNodeBase {
 
                 for (ObjectDescriptor q : p.objects) {
                     hiddenPropertyValues.add(
-                            Util.identityToString(
-                                    q.id, ToStringMode.Unicode));
+                        Util.identityToString(
+                            q.id, ToStringMode.Unicode));
                 }
                 for (ObjectDescriptor q : p.allocatables) {
                     hiddenPropertyValues.add(
-                            Util.identityToString(
-                                    q.id, ToStringMode.Unicode));
+                        Util.identityToString(
+                            q.id, ToStringMode.Unicode));
                 }
             }
         }
@@ -163,7 +168,7 @@ public abstract class TreeNode extends TreeNodeBase {
 
     static void writeLogs(
             XMLWriter writer, String[] logs, List<PropertyDescriptor> properties)
-            throws IOException {
+        throws IOException {
         for (String log : logs) {
             List<String[]> attributes = new LinkedList<>();
             attributes.add(createAttribute("path", log));
@@ -189,11 +194,11 @@ public abstract class TreeNode extends TreeNodeBase {
             XMLWriter writer,
             List<ObjectDescriptor> objects,
             List<PropertyDescriptor> properties)
-            throws IOException {
+        throws IOException {
         for (ObjectDescriptor p : objects) {
             List<String[]> attributes = new LinkedList<>();
             String strId =
-                    Util.identityToString(p.id, ToStringMode.Unicode);
+                Util.identityToString(p.id, ToStringMode.Unicode);
             attributes.add(createAttribute("identity", strId));
             if (!p.type.isEmpty()) {
                 attributes.add(createAttribute("type", p.type));
@@ -215,7 +220,7 @@ public abstract class TreeNode extends TreeNodeBase {
             XMLWriter writer,
             List<String> parameters,
             Map<String, String> defaultValues)
-            throws IOException {
+        throws IOException {
         for (String p : new LinkedHashSet<String>(parameters)) {
             String val = defaultValues.get(p);
             List<String[]> attributes = new LinkedList<>();

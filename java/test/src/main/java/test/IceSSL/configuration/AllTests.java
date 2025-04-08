@@ -53,12 +53,12 @@ public class AllTests {
         InitializationData initData = new InitializationData();
         initData.properties = new Properties();
         initData.properties.setProperty(
-                "IceSSL.DefaultDir", defaultProperties.getIceProperty("IceSSL.DefaultDir"));
+            "IceSSL.DefaultDir", defaultProperties.getIceProperty("IceSSL.DefaultDir"));
         initData.properties.setProperty(
-                "Ice.Default.Host", defaultProperties.getIceProperty("Ice.Default.Host"));
+            "Ice.Default.Host", defaultProperties.getIceProperty("Ice.Default.Host"));
         if (defaultProperties.getIceProperty("Ice.IPv6").length() > 0) {
             initData.properties.setProperty(
-                    "Ice.IPv6", defaultProperties.getIceProperty("Ice.IPv6"));
+                "Ice.IPv6", defaultProperties.getIceProperty("Ice.IPv6"));
         }
         initData.properties.setProperty("Ice.RetryIntervals", "-1");
         return initData;
@@ -137,8 +137,8 @@ public class AllTests {
             try {
                 server.noCert();
                 test(
-                        ((ConnectionInfo) server.ice_getConnection().getInfo())
-                                .verified);
+                    ((ConnectionInfo) server.ice_getConnection().getInfo())
+                        .verified);
             } catch (LocalException ex) {
                 ex.printStackTrace();
                 test(false);
@@ -195,16 +195,16 @@ public class AllTests {
             server = fact.createServer(d);
             try {
                 X509Certificate clientCert =
-                        loadCertificate(defaultDir + "/c_rsa_ca1.jks", "cert");
+                    loadCertificate(defaultDir + "/c_rsa_ca1.jks", "cert");
                 server.checkCert(
-                        clientCert.getSubjectX500Principal().toString(),
-                        clientCert.getIssuerX500Principal().toString());
+                    clientCert.getSubjectX500Principal().toString(),
+                    clientCert.getIssuerX500Principal().toString());
 
                 X509Certificate serverCert =
-                        loadCertificate(defaultDir + "/s_rsa_ca1.jks", "cert");
+                    loadCertificate(defaultDir + "/s_rsa_ca1.jks", "cert");
 
                 ConnectionInfo info =
-                        (ConnectionInfo) server.ice_getConnection().getInfo();
+                    (ConnectionInfo) server.ice_getConnection().getInfo();
 
                 test(info.certs.length == 1);
                 test(info.verified);
@@ -222,10 +222,10 @@ public class AllTests {
             server = fact.createServer(d);
             try {
                 X509Certificate clientCert =
-                        loadCertificate(defaultDir + "/c_rsa_ca1.jks", "cert");
+                    loadCertificate(defaultDir + "/c_rsa_ca1.jks", "cert");
                 server.checkCert(
-                        clientCert.getSubjectX500Principal().toString(),
-                        clientCert.getIssuerX500Principal().toString());
+                    clientCert.getSubjectX500Principal().toString(),
+                    clientCert.getIssuerX500Principal().toString());
             } catch (Exception ex) {
                 ex.printStackTrace();
                 test(false);
@@ -631,9 +631,9 @@ public class AllTests {
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty(
-                    "IceSSL.TrustOnly",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Server");
+                "IceSSL.TrustOnly",
+                "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                    + " emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -652,9 +652,9 @@ public class AllTests {
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty(
-                    "IceSSL.TrustOnly",
-                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Server");
+                "IceSSL.TrustOnly",
+                "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                    + " emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -672,9 +672,9 @@ public class AllTests {
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty(
-                    "IceSSL.TrustOnly",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Server");
+                "IceSSL.TrustOnly",
+                "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                    + " emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -698,9 +698,9 @@ public class AllTests {
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put(
-                    "IceSSL.TrustOnly",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Client");
+                "IceSSL.TrustOnly",
+                "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                    + " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -719,9 +719,9 @@ public class AllTests {
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put(
-                    "IceSSL.TrustOnly",
-                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Client");
+                "IceSSL.TrustOnly",
+                "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                    + " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -908,7 +908,7 @@ public class AllTests {
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty(
-                    "IceSSL.TrustOnly", "!CN=Server1"); // Should not match "Server"
+                "IceSSL.TrustOnly", "!CN=Server1"); // Should not match "Server"
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -985,9 +985,9 @@ public class AllTests {
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty(
-                    "IceSSL.TrustOnly.Client",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Server");
+                "IceSSL.TrustOnly.Client",
+                "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                    + " emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -995,9 +995,9 @@ public class AllTests {
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             // Should have no effect.
             d.put(
-                    "IceSSL.TrustOnly.Client",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Server");
+                "IceSSL.TrustOnly.Client",
+                "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                    + " emailAddress=info@zeroc.com, CN=Server");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -1011,9 +1011,9 @@ public class AllTests {
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty(
-                    "IceSSL.TrustOnly.Client",
-                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Server");
+                "IceSSL.TrustOnly.Client",
+                "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                    + " emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -1090,18 +1090,18 @@ public class AllTests {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             // Should have no effect.
             initData.properties.setProperty(
-                    "IceSSL.TrustOnly.Server",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Client");
+                "IceSSL.TrustOnly.Server",
+                "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                    + " emailAddress=info@zeroc.com, CN=Client");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put(
-                    "IceSSL.TrustOnly.Server",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Client");
+                "IceSSL.TrustOnly.Server",
+                "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                    + " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -1120,9 +1120,9 @@ public class AllTests {
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put(
-                    "IceSSL.TrustOnly.Server",
-                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Client");
+                "IceSSL.TrustOnly.Server",
+                "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                    + " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -1198,9 +1198,9 @@ public class AllTests {
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server", "CN=bogus");
             d.put(
-                    "IceSSL.TrustOnly.Server.ServerAdapter",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Client");
+                "IceSSL.TrustOnly.Server.ServerAdapter",
+                "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                    + " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -1219,9 +1219,9 @@ public class AllTests {
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put(
-                    "IceSSL.TrustOnly.Server.ServerAdapter",
-                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
-                            + " emailAddress=info@zeroc.com, CN=Client");
+                "IceSSL.TrustOnly.Server.ServerAdapter",
+                "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                    + " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -1278,8 +1278,8 @@ public class AllTests {
             initData = createClientProps(defaultProperties);
             Communicator comm = Util.initialize(initData);
             ObjectPrx p =
-                    comm.stringToProxy(
-                            "dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
+                comm.stringToProxy(
+                    "dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
             while (true) {
                 try {
                     p.ice_ping();
@@ -1289,8 +1289,8 @@ public class AllTests {
                     break;
                 } catch (LocalException ex) {
                     if ((ex instanceof ConnectTimeoutException)
-                            || (ex instanceof SocketException)
-                            || (ex instanceof DNSException)) {
+                        || (ex instanceof SocketException)
+                        || (ex instanceof DNSException)) {
                         if (++retryCount < retryMax) {
                             out.print("retrying... ");
                             out.flush();
@@ -1318,15 +1318,15 @@ public class AllTests {
             while (true) {
                 try {
                     WSConnectionInfo info =
-                            (WSConnectionInfo) p.ice_getConnection().getInfo();
+                        (WSConnectionInfo) p.ice_getConnection().getInfo();
                     ConnectionInfo sslinfo =
-                            (ConnectionInfo) info.underlying;
+                        (ConnectionInfo) info.underlying;
                     test(sslinfo.verified);
                     break;
                 } catch (LocalException ex) {
                     if ((ex instanceof ConnectTimeoutException)
-                            || (ex instanceof SocketException)
-                            || (ex instanceof DNSException)) {
+                        || (ex instanceof SocketException)
+                        || (ex instanceof DNSException)) {
                         if (++retryCount < retryMax) {
                             out.print("retrying... ");
                             out.flush();

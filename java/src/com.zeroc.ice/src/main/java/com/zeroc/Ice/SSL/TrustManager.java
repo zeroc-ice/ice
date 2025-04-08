@@ -30,14 +30,14 @@ class TrustManager {
             key = "IceSSL.TrustOnly.Server";
             parse(properties.getProperty(key), _rejectAllServer, _acceptAllServer);
             Map<String, String> dict =
-                    properties.getPropertiesForPrefix("IceSSL.TrustOnly.Server.");
+                properties.getPropertiesForPrefix("IceSSL.TrustOnly.Server.");
             for (Map.Entry<String, String> p : dict.entrySet()) {
                 key = p.getKey();
                 String name = key.substring("IceSSL.TrustOnly.Server.".length());
                 List<List<RFC2253.RDNPair>> reject =
-                        new LinkedList<List<RFC2253.RDNPair>>();
+                    new LinkedList<List<RFC2253.RDNPair>>();
                 List<List<RFC2253.RDNPair>> accept =
-                        new LinkedList<List<RFC2253.RDNPair>>();
+                    new LinkedList<List<RFC2253.RDNPair>>();
                 parse(p.getValue(), reject, accept);
                 if (!reject.isEmpty()) {
                     _rejectServer.put(name, reject);
@@ -53,10 +53,10 @@ class TrustManager {
 
     boolean verify(ConnectionInfo info, String desc) {
         List<List<List<RFC2253.RDNPair>>>
-                reject =
-                        new LinkedList<List<List<RFC2253.RDNPair>>>(),
-                accept =
-                        new LinkedList<List<List<RFC2253.RDNPair>>>();
+            reject =
+                new LinkedList<List<List<RFC2253.RDNPair>>>(),
+            accept =
+                new LinkedList<List<List<RFC2253.RDNPair>>>();
 
         if (!_rejectAll.isEmpty()) {
             reject.add(_rejectAll);
@@ -67,7 +67,7 @@ class TrustManager {
             }
             if (!info.adapterName.isEmpty()) {
                 List<List<RFC2253.RDNPair>> p =
-                        _rejectServer.get(info.adapterName);
+                    _rejectServer.get(info.adapterName);
                 if (p != null) {
                     reject.add(p);
                 }
@@ -87,7 +87,7 @@ class TrustManager {
             }
             if (!info.adapterName.isEmpty()) {
                 List<List<RFC2253.RDNPair>> p =
-                        _acceptServer.get(info.adapterName);
+                    _acceptServer.get(info.adapterName);
                 if (p != null) {
                     accept.add(p);
                 }
@@ -110,7 +110,7 @@ class TrustManager {
         //
         if (info.certs != null && info.certs.length > 0) {
             X500Principal subjectDN =
-                    ((X509Certificate) info.certs[0]).getSubjectX500Principal();
+                ((X509Certificate) info.certs[0]).getSubjectX500Principal();
             String subjectName = subjectDN.getName(X500Principal.RFC2253);
             assert subjectName != null;
             try {
@@ -120,27 +120,27 @@ class TrustManager {
                 if (_traceLevel > 0) {
                     if (info.incoming) {
                         _communicator
-                                .getLogger()
-                                .trace(
-                                        "Security",
-                                        "trust manager evaluating client:\n"
-                                                + "subject = "
-                                                + subjectName
-                                                + "\n"
-                                                + "adapter = "
-                                                + info.adapterName
-                                                + "\n"
-                                                + desc);
+                            .getLogger()
+                            .trace(
+                                "Security",
+                                "trust manager evaluating client:\n"
+                                    + "subject = "
+                                    + subjectName
+                                    + "\n"
+                                    + "adapter = "
+                                    + info.adapterName
+                                    + "\n"
+                                    + desc);
                     } else {
                         _communicator
-                                .getLogger()
-                                .trace(
-                                        "Security",
-                                        "trust manager evaluating server:\n"
-                                                + "subject = "
-                                                + subjectName
-                                                + "\n"
-                                                + desc);
+                            .getLogger()
+                            .trace(
+                                "Security",
+                                "trust manager evaluating server:\n"
+                                    + "subject = "
+                                    + subjectName
+                                    + "\n"
+                                    + desc);
                     }
                 }
                 List<RFC2253.RDNPair> dn = RFC2253.parseStrict(subjectName);
@@ -174,12 +174,12 @@ class TrustManager {
                 }
             } catch (ParseException ex) {
                 _communicator
-                        .getLogger()
-                        .warning(
-                                "Ice.SSL: unable to parse certificate DN `"
-                                        + subjectName
-                                        + "'\nreason: "
-                                        + ex.getMessage());
+                    .getLogger()
+                    .warning(
+                        "Ice.SSL: unable to parse certificate DN `"
+                            + subjectName
+                            + "'\nreason: "
+                            + ex.getMessage());
             }
 
             //
@@ -225,7 +225,7 @@ class TrustManager {
             String value,
             List<List<RFC2253.RDNPair>> reject,
             List<List<RFC2253.RDNPair>> accept)
-            throws ParseException {
+        throws ParseException {
         //
         // Java X500Principal.getName says:
         //
@@ -313,20 +313,20 @@ class TrustManager {
     private final int _traceLevel;
 
     private final List<List<RFC2253.RDNPair>> _rejectAll =
-            new LinkedList<List<RFC2253.RDNPair>>();
+        new LinkedList<List<RFC2253.RDNPair>>();
     private final List<List<RFC2253.RDNPair>> _rejectClient =
-            new LinkedList<List<RFC2253.RDNPair>>();
+        new LinkedList<List<RFC2253.RDNPair>>();
     private final List<List<RFC2253.RDNPair>> _rejectAllServer =
-            new LinkedList<List<RFC2253.RDNPair>>();
+        new LinkedList<List<RFC2253.RDNPair>>();
     private final Map<String, List<List<RFC2253.RDNPair>>> _rejectServer =
-            new HashMap<String, List<List<RFC2253.RDNPair>>>();
+        new HashMap<String, List<List<RFC2253.RDNPair>>>();
 
     private final List<List<RFC2253.RDNPair>> _acceptAll =
-            new LinkedList<List<RFC2253.RDNPair>>();
+        new LinkedList<List<RFC2253.RDNPair>>();
     private final List<List<RFC2253.RDNPair>> _acceptClient =
-            new LinkedList<List<RFC2253.RDNPair>>();
+        new LinkedList<List<RFC2253.RDNPair>>();
     private final List<List<RFC2253.RDNPair>> _acceptAllServer =
-            new LinkedList<List<RFC2253.RDNPair>>();
+        new LinkedList<List<RFC2253.RDNPair>>();
     private final Map<String, List<List<RFC2253.RDNPair>>> _acceptServer =
-            new HashMap<String, List<List<RFC2253.RDNPair>>>();
+        new HashMap<String, List<List<RFC2253.RDNPair>>>();
 }

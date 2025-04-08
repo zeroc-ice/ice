@@ -7,7 +7,8 @@ import com.zeroc.Ice.Current;
 import test.Ice.facets.Test.D;
 
 public final class DI implements D {
-    public DI() {}
+    public DI() {
+    }
 
     @Override
     public String callA(Current current) {

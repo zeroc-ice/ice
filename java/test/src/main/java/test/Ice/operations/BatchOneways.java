@@ -28,8 +28,8 @@ class BatchOneways {
     static class BatchRequestInterceptorI implements BatchRequestInterceptor {
         public void enqueue(BatchRequest request, int count, int size) {
             test(
-                    "opByteSOneway".equals(request.getOperation())
-                            || "ice_ping".equals(request.getOperation()));
+                "opByteSOneway".equals(request.getOperation())
+                    || "ice_ping".equals(request.getOperation()));
             test(request.getProxy().ice_isBatchOneway());
 
             if (count > 0) {
@@ -88,16 +88,16 @@ class BatchOneways {
 
         int count = 0;
         while (count < 27) // 3 * 9 requests auto-flushed.
-        {
-            count += p.opByteSOnewayCallCount();
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ex) {
+            {
+                count += p.opByteSOnewayCallCount();
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ex) {
+                }
             }
-        }
 
         final boolean bluetooth =
-                properties.getIceProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+            properties.getIceProperty("Ice.Default.Protocol").indexOf("bt") == 0;
         if (batch.ice_getConnection() != null && !bluetooth) {
             MyClassPrx batch1 = p.ice_batchOneway();
             MyClassPrx batch2 = p.ice_batchOneway();
@@ -173,10 +173,10 @@ class BatchOneways {
 
         p.ice_ping();
         if (supportsCompress
-                && p.ice_getConnection() != null
-                && properties.getIceProperty("Ice.Override.Compress").isEmpty()) {
+            && p.ice_getConnection() != null
+            && properties.getIceProperty("Ice.Override.Compress").isEmpty()) {
             ObjectPrx prx =
-                    p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();
+                p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();
 
             MyClassPrx batchC1 = MyClassPrx.uncheckedCast(prx.ice_compress(false));
             MyClassPrx batchC2 = MyClassPrx.uncheckedCast(prx.ice_compress(true));
@@ -196,19 +196,19 @@ class BatchOneways {
             batchC1.opByteSOneway(bs1);
             batchC1.opByteSOneway(bs1);
             batchC1.ice_getConnection()
-                    .flushBatchRequests(CompressBatch.BasedOnProxy);
+                .flushBatchRequests(CompressBatch.BasedOnProxy);
 
             batchC1.opByteSOneway(bs1);
             batchC2.opByteSOneway(bs1);
             batchC1.opByteSOneway(bs1);
             batchC1.ice_getConnection()
-                    .flushBatchRequests(CompressBatch.BasedOnProxy);
+                .flushBatchRequests(CompressBatch.BasedOnProxy);
 
             batchC1.opByteSOneway(bs1);
             batchC3.opByteSOneway(bs1);
             batchC1.opByteSOneway(bs1);
             batchC1.ice_getConnection()
-                    .flushBatchRequests(CompressBatch.BasedOnProxy);
+                .flushBatchRequests(CompressBatch.BasedOnProxy);
         }
     }
 

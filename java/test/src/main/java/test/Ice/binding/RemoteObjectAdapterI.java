@@ -13,8 +13,8 @@ public class RemoteObjectAdapterI implements RemoteObjectAdapter {
     public RemoteObjectAdapterI(ObjectAdapter adapter) {
         _adapter = adapter;
         _testIntf =
-                TestIntfPrx.uncheckedCast(
-                        _adapter.add(new TestI(), Util.stringToIdentity("test")));
+            TestIntfPrx.uncheckedCast(
+                _adapter.add(new TestI(), Util.stringToIdentity("test")));
         _adapter.activate();
     }
 

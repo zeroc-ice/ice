@@ -29,9 +29,9 @@ public class RemoteCommunicatorI implements RemoteCommunicator {
                 Communicator com = current.adapter.getCommunicator();
                 com.getProperties().setProperty(name + ".ThreadPool.Size", "1");
                 ObjectAdapter adapter =
-                        com.createObjectAdapterWithEndpoints(name, endpoints);
+                    com.createObjectAdapterWithEndpoints(name, endpoints);
                 return RemoteObjectAdapterPrx.uncheckedCast(
-                        current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
+                    current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
             } catch (SocketException ex) {
                 if (--retry == 0) {
                     throw ex;

@@ -46,8 +46,8 @@ public class Collocated extends TestHelper {
                 setupObjectAdapter(communicator2);
 
                 RetryPrx retry =
-                        AllTests.allTests(
-                                this, communicator, communicator2, instrumentation, "retry");
+                    AllTests.allTests(
+                        this, communicator, communicator2, instrumentation, "retry");
                 retry.shutdown();
             }
         }

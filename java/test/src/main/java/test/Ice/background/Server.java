@@ -27,8 +27,8 @@ public class Server extends TestHelper {
                 String adapter, Current current) {
             _controller.checkCallPause(current);
             return CompletableFuture.completedFuture(
-                    current.adapter.createDirectProxy(
-                            Util.stringToIdentity("dummy")));
+                current.adapter.createDirectProxy(
+                    Util.stringToIdentity("dummy")));
         }
 
         @Override
@@ -96,15 +96,15 @@ public class Server extends TestHelper {
         //
         properties.setProperty("Ice.Plugin.Test", "test.Ice.background.PluginFactory");
         properties.setProperty(
-                "Ice.Default.Protocol",
-                "test-" + properties.getIceProperty("Ice.Default.Protocol"));
+            "Ice.Default.Protocol",
+            "test-" + properties.getIceProperty("Ice.Default.Protocol"));
         properties.setProperty("Ice.Package.Test", "test.Ice.background");
 
         try (Communicator communicator = initialize(properties)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator
-                    .getProperties()
-                    .setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
+                .getProperties()
+                .setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
             communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
             PluginI plugin = (PluginI) communicator().getPluginManager().getPlugin("Test");
@@ -112,25 +112,25 @@ public class Server extends TestHelper {
 
             ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
             ObjectAdapter adapter2 =
-                    communicator().createObjectAdapter("ControllerAdapter");
+                communicator().createObjectAdapter("ControllerAdapter");
 
             BackgroundControllerI backgroundController =
-                    new BackgroundControllerI(configuration, adapter);
+                new BackgroundControllerI(configuration, adapter);
 
             adapter.add(
-                    new BackgroundI(backgroundController),
-                    Util.stringToIdentity("background"));
+                new BackgroundI(backgroundController),
+                Util.stringToIdentity("background"));
             adapter.add(
-                    new LocatorI(backgroundController),
-                    Util.stringToIdentity("locator"));
+                new LocatorI(backgroundController),
+                Util.stringToIdentity("locator"));
             adapter.add(
-                    new RouterI(backgroundController),
-                    Util.stringToIdentity("router"));
+                new RouterI(backgroundController),
+                Util.stringToIdentity("router"));
             adapter.activate();
 
             adapter2.add(
-                    backgroundController,
-                    Util.stringToIdentity("backgroundController"));
+                backgroundController,
+                Util.stringToIdentity("backgroundController"));
             adapter2.activate();
             serverReady();
             communicator.waitForShutdown();

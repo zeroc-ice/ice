@@ -3,7 +3,9 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 import java.awt.Component;
 import java.io.IOException;
@@ -33,7 +35,7 @@ class ReplicaGroup extends TreeNode {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     // Actions
@@ -146,8 +148,8 @@ class ReplicaGroup extends TreeNode {
             }
 
             if (_descriptor.loadBalancing == null
-                    && _descriptor.description.isEmpty()
-                    && _descriptor.objects.isEmpty()) {
+                && _descriptor.description.isEmpty()
+                && _descriptor.objects.isEmpty()) {
                 writer.writeElement("replica-group", attributes);
             } else {
                 writer.writeStartTag("replica-group", attributes);
@@ -167,7 +169,7 @@ class ReplicaGroup extends TreeNode {
                 } else if (_descriptor.loadBalancing instanceof AdaptiveLoadBalancingPolicy) {
                     attributes.add(createAttribute("type", "adaptive"));
                     AdaptiveLoadBalancingPolicy policy =
-                            (AdaptiveLoadBalancingPolicy) _descriptor.loadBalancing;
+                        (AdaptiveLoadBalancingPolicy) _descriptor.loadBalancing;
                     attributes.add(createAttribute("load-sample", policy.loadSample));
                 }
                 attributes.add(createAttribute("n-replicas", _descriptor.loadBalancing.nReplicas));

@@ -304,15 +304,15 @@ public class SimpleInternalFrame extends JPanel {
      */
     protected Color getTextForeground(boolean isSelected) {
         Color c =
-                UIManager.getColor(
-                        isSelected
-                                ? "SimpleInternalFrame.activeTitleForeground"
-                                : "SimpleInternalFrame.inactiveTitleForeground");
+            UIManager.getColor(
+                isSelected
+                    ? "SimpleInternalFrame.activeTitleForeground"
+                    : "SimpleInternalFrame.inactiveTitleForeground");
         if (c != null) {
             return c;
         }
         return UIManager.getColor(
-                isSelected ? "InternalFrame.activeTitleForeground" : "Label.foreground");
+            isSelected ? "InternalFrame.activeTitleForeground" : "Label.foreground");
     }
 
     /**
@@ -375,9 +375,9 @@ public class SimpleInternalFrame extends JPanel {
                 shadow = Color.GRAY;
             }
             Color lightShadow =
-                    new Color(shadow.getRed(), shadow.getGreen(), shadow.getBlue(), 170);
+                new Color(shadow.getRed(), shadow.getGreen(), shadow.getBlue(), 170);
             Color lighterShadow =
-                    new Color(shadow.getRed(), shadow.getGreen(), shadow.getBlue(), 70);
+                new Color(shadow.getRed(), shadow.getGreen(), shadow.getBlue(), 70);
             g.translate(x, y);
 
             g.setColor(shadow);

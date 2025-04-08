@@ -10,13 +10,13 @@ final class ServantManager implements Object {
     private Instance _instance;
     private final String _adapterName;
     private final Map<Identity, Map<String, Object>> _servantMapMap =
-            new HashMap<Identity, Map<String, Object>>();
+        new HashMap<Identity, Map<String, Object>>();
     private final Map<String, Object> _defaultServantMap = new HashMap<String, Object>();
     private final Map<String, ServantLocator> _locatorMap = new HashMap<String, ServantLocator>();
 
     @Override
     public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
-            throws UserException {
+        throws UserException {
         final Current current = request.current;
         Object servant = findServant(current.id, current.facet);
 
@@ -64,26 +64,26 @@ final class ServantManager implements Object {
             final ServantLocator locatorFinal = locator;
             final java.lang.Object cookieFinal = cookie;
             return response.handle(
-                    (r, ex) -> {
-                        try {
-                            locatorFinal.finished(current, servantFinal, cookieFinal);
-                        } catch (UserException finishedEx) {
-                            ex = finishedEx;
+                (r, ex) -> {
+                    try {
+                        locatorFinal.finished(current, servantFinal, cookieFinal);
+                    } catch (UserException finishedEx) {
+                        ex = finishedEx;
+                    }
+                    if (ex != null) {
+                        // We only marshal errors and runtime exceptions (including
+                        // CompletionException) at a higher level.
+                        if (ex instanceof Error errorEx) {
+                            throw errorEx;
                         }
-                        if (ex != null) {
-                            // We only marshal errors and runtime exceptions (including
-                            // CompletionException) at a higher level.
-                            if (ex instanceof Error errorEx) {
-                                throw errorEx;
-                            }
-                            if (ex instanceof RuntimeException runtimeEx) {
-                                throw runtimeEx;
-                            }
-                            return current.createOutgoingResponse(ex);
-                        } else {
-                            return r;
+                        if (ex instanceof RuntimeException runtimeEx) {
+                            throw runtimeEx;
                         }
-                    });
+                        return current.createOutgoingResponse(ex);
+                    } else {
+                        return r;
+                    }
+                });
         } else {
             // Skip the encapsulation. This allows the next batch requests in the same InputStream
             // to proceed.
@@ -318,14 +318,14 @@ final class ServantManager implements Object {
                 locator.deactivate(p.getKey());
             } catch (Exception ex) {
                 String s =
-                        "exception during locator deactivation:\n"
-                                + "object adapter: `"
-                                + _adapterName
-                                + "'\n"
-                                + "locator category: `"
-                                + p.getKey()
-                                + "'\n"
-                                + Ex.toString(ex);
+                    "exception during locator deactivation:\n"
+                        + "object adapter: `"
+                        + _adapterName
+                        + "'\n"
+                        + "locator category: `"
+                        + p.getKey()
+                        + "'\n"
+                        + Ex.toString(ex);
                 logger.error(s);
             }
         }

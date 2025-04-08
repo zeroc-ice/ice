@@ -7,7 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 final class LocatorTable {
-    LocatorTable() {}
+    LocatorTable() {
+    }
 
     synchronized void clear() {
         _adapterEndpointsTable.clear();
@@ -17,10 +18,10 @@ final class LocatorTable {
     synchronized EndpointI[] getAdapterEndpoints(
             String adapter, Duration ttl, Holder<Boolean> cached) {
         if (ttl.isZero()) // Locator cache disabled.
-        {
-            cached.value = false;
-            return null;
-        }
+            {
+                cached.value = false;
+                return null;
+            }
 
         EndpointTableEntry entry = _adapterEndpointsTable.get(adapter);
         if (entry != null) {
@@ -33,7 +34,7 @@ final class LocatorTable {
 
     synchronized void addAdapterEndpoints(String adapter, EndpointI[] endpoints) {
         _adapterEndpointsTable.put(
-                adapter, new EndpointTableEntry(Time.currentMonotonicTimeMillis(), endpoints));
+            adapter, new EndpointTableEntry(Time.currentMonotonicTimeMillis(), endpoints));
     }
 
     synchronized EndpointI[] removeAdapterEndpoints(String adapter) {
@@ -43,10 +44,10 @@ final class LocatorTable {
 
     synchronized Reference getObjectReference(Identity id, Duration ttl, Holder<Boolean> cached) {
         if (ttl.isZero()) // Locator cache disabled.
-        {
-            cached.value = false;
-            return null;
-        }
+            {
+                cached.value = false;
+                return null;
+            }
 
         ReferenceTableEntry entry = _objectTable.get(id);
         if (entry != null) {
@@ -69,9 +70,9 @@ final class LocatorTable {
     private boolean checkTTL(long time, Duration ttl) {
         assert (!ttl.isZero());
         if (ttl.compareTo(Duration.ZERO) < 0) // TTL = infinite
-        {
-            return true;
-        } else {
+            {
+                return true;
+            } else {
             return Time.currentMonotonicTimeMillis() - time <= ttl.toMillis();
         }
     }
@@ -97,6 +98,6 @@ final class LocatorTable {
     }
 
     private final Map<String, EndpointTableEntry> _adapterEndpointsTable =
-            new HashMap<>();
+        new HashMap<>();
     private final Map<Identity, ReferenceTableEntry> _objectTable = new HashMap<>();
 }

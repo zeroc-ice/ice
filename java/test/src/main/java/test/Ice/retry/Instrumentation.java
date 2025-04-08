@@ -20,7 +20,8 @@ public class Instrumentation {
 
     class InvocationObserverI implements InvocationObserver {
         @Override
-        public void attach() {}
+        public void attach() {
+        }
 
         @Override
         public void detach() {
@@ -44,7 +45,8 @@ public class Instrumentation {
         }
 
         @Override
-        public void userException() {}
+        public void userException() {
+        }
 
         @Override
         public RemoteObserver getRemoteObserver(
@@ -60,7 +62,7 @@ public class Instrumentation {
     }
 
     private final InvocationObserver invocationObserver =
-            new InvocationObserverI();
+        new InvocationObserverI();
 
     class CommunicatorObserverI implements CommunicatorObserver {
         @Override
@@ -106,11 +108,12 @@ public class Instrumentation {
         }
 
         @Override
-        public void setObserverUpdater(ObserverUpdater u) {}
+        public void setObserverUpdater(ObserverUpdater u) {
+        }
     }
 
     private final CommunicatorObserver communicatorObserver =
-            new CommunicatorObserverI();
+        new CommunicatorObserverI();
 
     public CommunicatorObserver getObserver() {
         return communicatorObserver;
