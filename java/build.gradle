@@ -100,8 +100,14 @@ checkstyle {
 }
 
 rewrite {
-    activeRecipe("org.openrewrite.staticanalysis.CodeCleanup")
+    activeRecipe(
+        'org.openrewrite.staticanalysis.CodeCleanup',
+        'org.openrewrite.java.format.AutoFormat',
+        'org.openrewrite.staticanalysis.RemoveCallsToObjectFinalize',
+        'org.openrewrite.java.RemoveUnusedImports'
+    )
     checkstyleConfigFile = file("config/checkstyle/checkstyle.xml")
+    activeStyle('com.zeroc.IceRewriteRules')
     setExportDatatables(true)
     exclusion(
         '**/*.gradle',
@@ -117,11 +123,15 @@ rewrite {
         'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowIceLogDialog.java',
         'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowLogFileDialog.java',
         'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/Utils.java',
+        'java/test/src/main/java/test/Ice/operations/Twoways.java',
     )
 }
 
 dependencies {
-    rewrite("org.openrewrite.recipe:rewrite-static-analysis:2.5.1")
+    rewrite(
+        "org.openrewrite.recipe:rewrite-static-analysis:2.5.1",
+        "org.openrewrite.recipe:rewrite-java-dependencies:1.31.0",
+    )
 }
 
 //Use -PdryRunFailSkip in the command line to avoid failing the project during an OpenRewrite dryRun.

@@ -52,74 +52,74 @@ class Twoways {
 
         test(
                 "\\".equals(s0.value)
-                        && sw0.value.equals(s0.value)
+                        && s0.value.equals(sw0.value)
                         && s0.value.equals(literals[0])
                         && s0.value.equals(literals[11]));
 
         test(
                 "A".equals(s1.value)
-                        && sw1.value.equals(s1.value)
+                        && s1.value.equals(sw1.value)
                         && s1.value.equals(literals[1])
                         && s1.value.equals(literals[12]));
 
         test(
                 "Ice".equals(s2.value)
-                        && sw2.value.equals(s2.value)
+                        && s2.value.equals(sw2.value)
                         && s2.value.equals(literals[2])
                         && s2.value.equals(literals[13]));
 
         test(
                 "A21".equals(s3.value)
-                        && sw3.value.equals(s3.value)
+                        && s3.value.equals(sw3.value)
                         && s3.value.equals(literals[3])
                         && s3.value.equals(literals[14]));
 
         test(
                 "\\u0041 \\U00000041".equals(s4.value)
-                        && sw4.value.equals(s4.value)
+                        && s4.value.equals(sw4.value)
                         && s4.value.equals(literals[4])
                         && s4.value.equals(literals[15]));
 
         test(
                 "\u00FF".equals(s5.value)
-                        && sw5.value.equals(s5.value)
+                        && s5.value.equals(sw5.value)
                         && s5.value.equals(literals[5])
                         && s5.value.equals(literals[16]));
 
         test(
                 "\u03FF".equals(s6.value)
-                        && sw6.value.equals(s6.value)
+                        && s6.value.equals(sw6.value)
                         && s6.value.equals(literals[6])
                         && s6.value.equals(literals[17]));
 
         test(
                 "\u05F0".equals(s7.value)
-                        && sw7.value.equals(s7.value)
+                        && s7.value.equals(sw7.value)
                         && s7.value.equals(literals[7])
                         && s7.value.equals(literals[18]));
 
         test(
                 "\uD800\uDC00".equals(s8.value)
-                        && sw8.value.equals(s8.value)
+                        && s8.value.equals(sw8.value)
                         && s8.value.equals(literals[8])
                         && s8.value.equals(literals[19]));
 
         test(
                 "\uD83C\uDF4C".equals(s9.value)
-                        && sw9.value.equals(s9.value)
+                        && s9.value.equals(sw9.value)
                         && s9.value.equals(literals[9])
                         && s9.value.equals(literals[20]));
 
         test(
                 "\u0DA7".equals(s10.value)
-                        && sw10.value.equals(s10.value)
+                        && s10.value.equals(sw10.value)
                         && s10.value.equals(literals[10])
                         && s10.value.equals(literals[21]));
 
         test(
                 "\'\"\u003f\\\u0007\b\f\n\r\t\u000b\6".equals(ss0.value)
-                        && ss1.value.equals(ss0.value)
-                        && ss2.value.equals(ss0.value)
+                        && ss0.value.equals(ss1.value)
+                        && ss0.value.equals(ss2.value)
                         && ss0.value.equals(literals[22])
                         && ss0.value.equals(literals[23])
                         && ss0.value.equals(literals[24]));
@@ -131,8 +131,8 @@ class Twoways {
         test("\\u0041\\".equals(ss5.value) && ss5.value.equals(literals[27]));
 
         test(
-                su1.value.equals(su0.value)
-                        && su2.value.equals(su0.value)
+                su0.value.equals(su1.value)
+                        && su0.value.equals(su2.value)
                         && su0.value.equals(literals[28])
                         && su0.value.equals(literals[29])
                         && su0.value.equals(literals[30]));
