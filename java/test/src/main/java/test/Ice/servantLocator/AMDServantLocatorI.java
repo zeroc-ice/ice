@@ -22,7 +22,7 @@ public final class AMDServantLocatorI implements ServantLocator {
         _requestId = -1;
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("nofinalizer")
     @Override
     protected synchronized void finalize() throws Throwable {
         test(_deactivated);

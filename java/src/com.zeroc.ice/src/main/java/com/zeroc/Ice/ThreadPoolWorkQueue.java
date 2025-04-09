@@ -13,7 +13,7 @@ final class ThreadPoolWorkQueue extends EventHandler {
         _registered = SocketOperation.Read;
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("nofinalizer")
     @Override
     protected synchronized void finalize() throws Throwable {
         try {

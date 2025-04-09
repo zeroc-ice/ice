@@ -30,7 +30,7 @@ public final class ServantLocatorI implements ServantLocator {
         _deactivated = false;
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("nofinalizer")
     @Override
     protected synchronized void finalize() throws Throwable {
         test(_deactivated);

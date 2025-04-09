@@ -1224,7 +1224,7 @@ public final class ObjectAdapter {
         return _sslEngineFactory;
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("nofinalizer")
     @Override
     protected synchronized void finalize() throws Throwable {
         try {

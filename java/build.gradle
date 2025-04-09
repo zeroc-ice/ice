@@ -101,10 +101,11 @@ checkstyle {
 
 rewrite {
     activeRecipe(
+        'org.openrewrite.staticanalysis.RemoveCallsToObjectFinalize',
+        'org.openrewrite.java.RemoveUnusedImports',
         'org.openrewrite.java.format.AutoFormat',
         'org.openrewrite.staticanalysis.CodeCleanup',
-        'org.openrewrite.staticanalysis.RemoveCallsToObjectFinalize',
-        'org.openrewrite.java.RemoveUnusedImports'
+        'org.openrewrite.staticanalysis.RemoveCallsToObjectFinalize'
     )
     checkstyleConfigFile = file("config/checkstyle/checkstyle.xml")
     activeStyle('com.zeroc.IceRewriteRules')
@@ -125,7 +126,7 @@ rewrite {
 dependencies {
     rewrite(
         "org.openrewrite.recipe:rewrite-static-analysis:2.5.1",
-        "org.openrewrite.recipe:rewrite-java-dependencies:1.31.0",
+        "org.openrewrite.recipe:rewrite-java-dependencies:1.31.0"
     )
 }
 

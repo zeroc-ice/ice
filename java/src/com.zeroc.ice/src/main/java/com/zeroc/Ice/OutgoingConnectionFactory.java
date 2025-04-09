@@ -220,7 +220,7 @@ final class OutgoingConnectionFactory {
         _destroyed = false;
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("nofinalizer")
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
