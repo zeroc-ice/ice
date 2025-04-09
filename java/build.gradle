@@ -114,15 +114,11 @@ rewrite {
         'com/zeroc/Ice/PropertyNames.java',
         '**/generated/**/*',
         '**/*.kts',
-        //REENABLE ALL EXCLUSIONS AFTER MANUALLY MAKING ADJUSTMENTS
-        //'java/src/com.zeroc.ice/src/main/java/com/zeroc/ice/Properties.java',
-        //'java/src/com.zeroc.ice/src/main/java/com/zeroc/ice/InputStream.java',
-        //'java/src/com.zeroc.ice/src/main/java/com/zeroc/ice/SSL/TransceiverI.java',
-        //'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/Server.java',
-        //'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/Service.java',
-        //'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowIceLogDialog.java',
-        //'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowLogFileDialog.java',
-        //'java/test/src/main/java/test/Ice/operations/Twoways.java',
+        'java/src/com.zeroc.ice/src/main/java/com/zeroc/ice/Properties.java',
+        'java/src/com.zeroc.ice/src/main/java/com/zeroc/ice/InputStream.java',
+        'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowIceLogDialog.java',
+        'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowLogFileDialog.java',
+        'java/test/src/main/java/test/Ice/operations/Twoways.java',
     )
 }
 
