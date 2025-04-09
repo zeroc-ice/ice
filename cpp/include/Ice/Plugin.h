@@ -61,6 +61,7 @@ namespace Ice
         /// @throws AlreadyRegisteredException Thrown when a plug-in already exists with the given name.
         virtual void addPlugin(std::string name, PluginPtr pi) = 0;
 
+        /// @private
         /// Destroys this plug-in manager. Called when the communicator is being destroyed.
         virtual void destroy() noexcept = 0;
     };
