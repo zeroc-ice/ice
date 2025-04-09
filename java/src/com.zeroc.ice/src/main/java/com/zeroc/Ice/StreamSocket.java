@@ -52,7 +52,7 @@ class StreamSocket {
         _desc = Network.fdToString(_fd);
     }
 
-    @SuppressWarnings("nofinalizer")
+    @SuppressWarnings({"nofinalizer", "deprecation"})
     @Override
     protected synchronized void finalize() throws Throwable {
         try {

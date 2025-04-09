@@ -212,7 +212,7 @@ final class ObjectAdapterFactory {
         _communicator = communicator;
     }
 
-    @SuppressWarnings("nofinalizer")
+    @SuppressWarnings({"nofinalizer", "deprecation"})
     @Override
     protected synchronized void finalize() throws Throwable {
         try {

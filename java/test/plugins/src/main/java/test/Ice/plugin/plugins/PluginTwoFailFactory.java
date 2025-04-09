@@ -35,7 +35,7 @@ public class PluginTwoFailFactory implements PluginFactory {
             _destroyed = true;
         }
 
-        @SuppressWarnings("nofinalizer")
+        @SuppressWarnings({"nofinalizer", "deprecation"})
         @Override
         protected void finalize() throws Throwable {
             try {

@@ -30,7 +30,7 @@ public class PluginFactory implements com.zeroc.Ice.PluginFactory {
             _destroyed = true;
         }
 
-        @SuppressWarnings("nofinalizer")
+        @SuppressWarnings({"nofinalizer", "deprecation"})
         @Override
         protected void finalize() throws Throwable {
             try {

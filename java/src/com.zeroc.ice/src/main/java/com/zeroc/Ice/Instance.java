@@ -907,7 +907,7 @@ public final class Instance implements Function<String, Class<?>> {
         }
     }
 
-    @SuppressWarnings("nofinalizer")
+    @SuppressWarnings({"nofinalizer", "deprecation"})
     @Override
     protected synchronized void finalize() throws Throwable {
         try {

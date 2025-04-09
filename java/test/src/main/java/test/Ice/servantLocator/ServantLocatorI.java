@@ -22,7 +22,7 @@ public final class ServantLocatorI implements ServantLocator {
         _requestId = -1;
     }
 
-    @SuppressWarnings("nofinalizer")
+    @SuppressWarnings({"nofinalizer", "deprecation"})
     @Override
     protected synchronized void finalize() throws Throwable {
         test(_deactivated);

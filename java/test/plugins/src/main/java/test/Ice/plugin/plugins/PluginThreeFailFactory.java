@@ -28,7 +28,7 @@ public class PluginThreeFailFactory implements PluginFactory {
             test(false);
         }
 
-        @SuppressWarnings("nofinalizer")
+        @SuppressWarnings({"nofinalizer", "deprecation"})
         @Override
         protected void finalize() throws Throwable {
             try {

@@ -96,7 +96,7 @@ class TcpAcceptor implements Acceptor {
         }
     }
 
-    @SuppressWarnings("nofinalizer")
+    @SuppressWarnings({"nofinalizer", "deprecation"})
     @Override
     protected synchronized void finalize() throws Throwable {
         try {

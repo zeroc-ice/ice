@@ -314,7 +314,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
         }
     }
 
-    @SuppressWarnings("nofinalizer")
+    @SuppressWarnings({"nofinalizer", "deprecation"})
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
