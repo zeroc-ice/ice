@@ -47,7 +47,7 @@ namespace Ice
         /// @return The old callback, which may be nullptr.
         CtrlCHandlerCallback setCallback(CtrlCHandlerCallback cb);
 
-        /// Obtains the current signal callback.
+        /// Gets the current signal callback.
         /// @return The callback.
         [[nodiscard]] CtrlCHandlerCallback getCallback() const;
     };

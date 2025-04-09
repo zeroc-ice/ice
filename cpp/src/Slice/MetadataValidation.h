@@ -78,7 +78,7 @@ namespace Slice
         /// This should always be the case if `acceptedArgumentKind` is either of the `...TextArgument` enumerators.
         std::optional<StringList> validArgumentValues = std::nullopt;
 
-        /// Specifies in what contexts the metadata can appear (i.e. can it apply to defintions, references, both?)
+        /// Specifies in what contexts the metadata can appear (i.e. can it apply to definitions, references, both?)
         MetadataApplicationContext acceptedContext = MetadataApplicationContext::Definitions;
 
         /// Indicates whether it's valid and meaningful for this metadata to appear multiple times on the same thing.

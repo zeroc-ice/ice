@@ -10,7 +10,7 @@
 
 namespace Ice::SSL
 {
-    /// Thrown if the certificate cannot be read.
+    /// The exception that is thrown when a certificate cannot be read.
     class ICE_API CertificateReadException final : public Ice::LocalException
     {
     public:
@@ -19,7 +19,7 @@ namespace Ice::SSL
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// Thrown if the certificate cannot be encoded.
+    /// The exception that is thrown when a certificate cannot be encoded.
     class ICE_API CertificateEncodingException final : public Ice::LocalException
     {
     public:

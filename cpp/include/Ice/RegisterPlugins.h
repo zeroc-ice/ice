@@ -22,58 +22,62 @@ namespace Ice
     // Checking for the API_EXPORTS macro is necessary to prevent inconsistent DLL linkage errors on Windows.
     //
 
-#ifndef ICE_API_EXPORTS
-    /// When using static libraries, calling this function ensures the UDP transport is
-    /// linked with the application.
-    /// @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
-    /// If false, the plug-in is only loaded during communicator initialization if its corresponding
-    /// plug-in property is set to 1.
+#if !defined(ICE_API_EXPORTS) || defined(ICE_DOXYGEN)
+    /// Ensures the UDP transport plug-in is linked with the application.
+    /// @param loadOnInitialize If `true`, the plug-in is always loaded (created) during communicator initialization.
+    /// If `false`, the plug-in is only loaded during communicator initialization when the property `Ice.Plugin.IceUDP`
+    /// is set to any value, such as "1".
+    /// @remark You only need to call this function if you are using static libraries. The Ice shared library calls
+    /// this function automatically with @p loadOnInitialize set to `true`.
+    /// @see #registerPluginFactory
     ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceUDP(bool loadOnInitialize = true);
 
-    /// When using static libraries, calling this function ensures the WebSocket transport is
-    /// linked with the application.
-    /// @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
-    /// If false, the plug-in is only loaded during communicator initialization if its corresponding
-    /// plug-in property is set to 1.
+    /// Ensures the WebSocket transport plug-in is linked with the application.
+    /// @param loadOnInitialize If `true`, the plug-in is always loaded (created) during communicator initialization.
+    /// If `false`, the plug-in is only loaded during communicator initialization when the property `Ice.Plugin.IceWS`
+    /// is set to any value, such as "1".
+    /// @remark You only need to call this function if you are using static libraries. The Ice shared library calls
+    /// this function automatically with @p loadOnInitialize set to `true`.
+    /// @see #registerPluginFactory
     ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceWS(bool loadOnInitialize = true);
 #endif
 
-#ifndef ICE_DISCOVERY_API_EXPORTS
-    /// When using static libraries, calling this function ensures the IceDiscovery plug-in is
-    /// linked with the application.
-    /// @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
-    /// If false, the plug-in is only loaded during communicator initialization if its corresponding
-    /// plug-in property is set to 1.
+#if !defined(ICE_DISCOVERY_API_EXPORTS) || defined(ICE_DOXYGEN)
+    /// Ensures the IceDiscovery plug-in is linked with the application.
+    /// @param loadOnInitialize If `true`, the plug-in is always loaded (created) during communicator initialization.
+    /// If `false`, the plug-in is only loaded during communicator initialization when the property
+    /// `Ice.Plugin.IceDiscovery` is set to any value, such as "1".
+    /// @see #registerPluginFactory
     ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceDiscovery(bool loadOnInitialize = true);
 #endif
 
-#ifndef ICE_LOCATOR_DISCOVERY_API_EXPORTS
-    /// When using static libraries, calling this function ensures the IceLocatorDiscovery plug-in is
-    /// linked with the application.
-    /// @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
-    /// If false, the plug-in is only loaded during communicator initialization if its corresponding
-    /// plug-in property is set to 1.
+#if !defined(ICE_LOCATOR_DISCOVERY_API_EXPORTS) || defined(ICE_DOXYGEN)
+    /// Ensures the IceLocatorDiscovery plug-in is linked with the application.
+    /// @param loadOnInitialize If `true`, the plug-in is always loaded (created) during communicator initialization.
+    /// If `false`, the plug-in is only loaded during communicator initialization when the property
+    /// `Ice.Plugin.IceLocatorDiscovery` is set to any value, such as "1".
+    /// @see #registerPluginFactory
     ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceLocatorDiscovery(bool loadOnInitialize = true);
 #endif
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if (!defined(_WIN32) && !defined(__APPLE__)) || defined(ICE_DOXYGEN)
 #    ifndef ICEBT_API_EXPORTS
-    /// When using static libraries, calling this function ensures the IceBT plug-in is
-    /// linked with the application.
-    /// @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
-    /// If false, the plug-in is only loaded during communicator initialization if its corresponding
-    /// plug-in property is set to 1.
+    /// Ensures the IceBT transport plug-in is linked with the application.
+    /// @param loadOnInitialize If `true`, the plug-in is always loaded (created) during communicator initialization.
+    /// If `false`, the plug-in is only loaded during communicator initialization when the property `Ice.Plugin.IceBT`
+    /// is set to any value, such as "1".
+    /// @see #registerPluginFactory
     ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceBT(bool loadOnInitialize = true);
 #    endif
 #endif
 
-#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
+#if (defined(__APPLE__) && TARGET_OS_IPHONE != 0) || defined(ICE_DOXYGEN)
 #    ifndef ICEIAP_API_EXPORTS
-    /// When using static libraries, calling this function ensures the iAP plug-in is
-    /// linked with the application.
-    /// @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
-    /// If false, the plug-in is only loaded during communicator initialization if its corresponding
-    /// plug-in property is set to 1.
+    /// Ensures the IceIAP transport plug-in is linked with the application.
+    /// @param loadOnInitialize If `true`, the plug-in is always loaded (created) during communicator initialization.
+    /// If `false`, the plug-in is only loaded during communicator initialization when the property `Ice.Plugin.IceIAP`
+    /// is set to any value, such as "1".
+    /// @see #registerPluginFactory
     ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceIAP(bool loadOnInitialize = true);
 #    endif
 #endif
