@@ -72,8 +72,8 @@ namespace Slice
         writeOpDocComment(const OperationPtr& operation, const std::vector<std::string>& extraParams, bool isAsync);
         void writeParameterDocComments(const DocComment&, const ParameterList&);
 
-        void moduleStart(const ModulePtr&);
-        void moduleEnd(const ModulePtr&);
+        void modulePrefixStart(const ModulePtr&);
+        void modulePrefixEnd(const ModulePtr&);
 
         IceInternal::Output& _out;
     };

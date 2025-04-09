@@ -872,7 +872,7 @@ Slice::CsVisitor::writeParameterDocComments(const DocComment& comment, const Par
 }
 
 void
-Slice::CsVisitor::moduleStart(const ModulePtr& p)
+Slice::CsVisitor::modulePrefixStart(const ModulePtr& p)
 {
     string ns = getNamespacePrefix(p);
     if (!ns.empty())
@@ -884,7 +884,7 @@ Slice::CsVisitor::moduleStart(const ModulePtr& p)
 }
 
 void
-Slice::CsVisitor::moduleEnd(const ModulePtr& p)
+Slice::CsVisitor::modulePrefixEnd(const ModulePtr& p)
 {
     if (!getNamespacePrefix(p).empty())
     {
@@ -983,7 +983,7 @@ Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out
 bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
-    moduleStart(p);
+    modulePrefixStart(p);
     _out << sp;
     _out << nl << "namespace " << p->mappedName();
     _out << sb;
@@ -995,7 +995,7 @@ void
 Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr& p)
 {
     _out << eb;
-    moduleEnd(p);
+    modulePrefixEnd(p);
 }
 
 bool
@@ -2264,7 +2264,7 @@ Slice::Gen::ResultVisitor::visitModuleStart(const ModulePtr& p)
 {
     if (hasResultType(p))
     {
-        moduleStart(p);
+        modulePrefixStart(p);
         _out << sp << nl << "namespace " << p->mappedName();
         _out << sb;
         return true;
@@ -2276,7 +2276,7 @@ void
 Slice::Gen::ResultVisitor::visitModuleEnd(const ModulePtr& p)
 {
     _out << eb;
-    moduleEnd(p);
+    modulePrefixEnd(p);
 }
 
 void
@@ -2355,7 +2355,7 @@ Slice::Gen::ServantVisitor::visitModuleStart(const ModulePtr& p)
         return false;
     }
 
-    moduleStart(p);
+    modulePrefixStart(p);
     _out << sp << nl << "namespace " << p->mappedName();
     _out << sb;
     return true;
@@ -2365,7 +2365,7 @@ void
 Slice::Gen::ServantVisitor::visitModuleEnd(const ModulePtr& p)
 {
     _out << eb;
-    moduleEnd(p);
+    modulePrefixEnd(p);
 }
 
 bool

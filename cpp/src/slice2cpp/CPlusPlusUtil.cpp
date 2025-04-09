@@ -783,16 +783,12 @@ Slice::writeIceTuple(IceInternal::Output& out, const DataMemberList& dataMembers
     out << "> ice_tuple() const";
 
     out << sb;
-    out << nl << "return std::tie(";
-    for (auto pi = dataMembers.begin(); pi != dataMembers.end(); ++pi)
+    out << nl << "return std::tie" << spar;
+    for (const auto& member : dataMembers)
     {
-        if (pi != dataMembers.begin())
-        {
-            out << ", ";
-        }
-        out << (*pi)->mappedName();
+        out << member->mappedName();
     }
-    out << ");" << eb;
+    out << epar << ";" << eb;
 }
 
 string

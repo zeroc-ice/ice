@@ -2131,6 +2131,7 @@ Slice::Gen::DataDefVisitor::visitStructEnd(const StructPtr& p)
     H << eb << ';';
 
     const string scoped = p->mappedScoped();
+    const string name = p->mappedName();
 
     C << sp << nl << "void";
     C << nl << scoped.substr(2) << "::ice_printFields(std::ostream& os) const";
@@ -2139,12 +2140,12 @@ Slice::Gen::DataDefVisitor::visitStructEnd(const StructPtr& p)
     C << eb;
 
     H << sp;
-    H << nl << "/// Outputs the description of " << getArticleFor(p->mappedName()) << ' ' << p->mappedName()
+    H << nl << "/// Outputs the description of " << getArticleFor(name) << ' ' << name
       << " to a stream, including all its fields.";
     H << nl << "/// @param os The output stream.";
     H << nl << "/// @param value The instance to output.";
     H << nl << "/// @return The output stream.";
-    H << nl << _dllExport << "std::ostream& operator<<(std::ostream& os, const " << p->mappedName() << "& value);";
+    H << nl << _dllExport << "std::ostream& operator<<(std::ostream& os, const " << name << "& value);";
 
     if (!p->hasMetadata("cpp:custom-print"))
     {
