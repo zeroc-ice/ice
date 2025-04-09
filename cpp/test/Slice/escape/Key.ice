@@ -22,7 +22,7 @@ module and
     {
         ["amd", "cpp:identifier:escaped_case"] void case(
             ["cpp:identifier:escaped_catch"] int catch,
-            out ["cpp:identifier:escaped_try"] int try
+            ["cpp:identifier:escaped_try"] out int try
         );
 
         ["cpp:identifier:escaped_explicit"] void explicit();
