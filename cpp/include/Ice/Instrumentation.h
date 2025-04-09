@@ -137,7 +137,7 @@ namespace Ice::Instrumentation
     class ConnectionObserver : public virtual Observer
     {
     public:
-        /// Notifies the observer of the number of bytes over the connection.
+        /// Notifies the observer of the number of bytes sent over the connection.
         /// @param num The number of bytes sent.
         virtual void sentBytes(int num) = 0;
 
