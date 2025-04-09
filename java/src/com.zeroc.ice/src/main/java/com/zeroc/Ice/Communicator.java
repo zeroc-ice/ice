@@ -234,6 +234,7 @@ public final class Communicator implements AutoCloseable {
         return createObjectAdapterWithEndpoints(name, endpoints, null);
     }
 
+    @SuppressWarnings("javadocparagraph")
     /**
      * Create a new object adapter with endpoints. This operation sets the property <code>
      * <em>name</em>.Endpoints</code>, and then calls {@link #createObjectAdapter}. It is provided
