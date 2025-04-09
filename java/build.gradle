@@ -101,8 +101,8 @@ checkstyle {
 
 rewrite {
     activeRecipe(
-        'org.openrewrite.staticanalysis.CodeCleanup',
         'org.openrewrite.java.format.AutoFormat',
+        'org.openrewrite.staticanalysis.CodeCleanup',
         'org.openrewrite.staticanalysis.RemoveCallsToObjectFinalize',
         'org.openrewrite.java.RemoveUnusedImports'
     )
@@ -114,16 +114,15 @@ rewrite {
         'com/zeroc/Ice/PropertyNames.java',
         '**/generated/**/*',
         '**/*.kts',
-        'java/src/com.zeroc.ice/src/main/java/com/zeroc/ice/Properties.java',
-        'java/src/com.zeroc.ice/src/main/java/com/zeroc/ice/InputStream.java',
-        'java/src/com.zeroc.ice/src/main/java/com/zeroc/ice/SSL/TransceiverI.java',
-        'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/Node.java',
-        'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/Server.java',
-        'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/Service.java',
-        'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowIceLogDialog.java',
-        'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowLogFileDialog.java',
-        'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/Utils.java',
-        'java/test/src/main/java/test/Ice/operations/Twoways.java',
+        //REENABLE ALL EXCLUSIONS AFTER MANUALLY MAKING ADJUSTMENTS
+        //'java/src/com.zeroc.ice/src/main/java/com/zeroc/ice/Properties.java',
+        //'java/src/com.zeroc.ice/src/main/java/com/zeroc/ice/InputStream.java',
+        //'java/src/com.zeroc.ice/src/main/java/com/zeroc/ice/SSL/TransceiverI.java',
+        //'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/Server.java',
+        //'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/Service.java',
+        //'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowIceLogDialog.java',
+        //'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowLogFileDialog.java',
+        //'java/test/src/main/java/test/Ice/operations/Twoways.java',
     )
 }
 

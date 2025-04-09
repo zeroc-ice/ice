@@ -2,6 +2,16 @@
 
 package com.zeroc.Ice;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PushbackInputStream;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -25,14 +35,15 @@ public final class Properties {
     }
 
     /** Creates a new empty property set. */
-    public Properties() {}
+    public Properties() {
+    }
 
     /**
      * Creates a property set initialized with a list of opt-in prefixes.
      *
      * @param optInPrefixes A list of prefixes that are opt-in.
      */
-    public Properties(java.util.List<String> optInPrefixes) {
+    public Properties(List<String> optInPrefixes) {
         _optInPrefixes.addAll(optInPrefixes);
     }
 
@@ -59,7 +70,7 @@ public final class Properties {
      * @param remainingArgs If non null, the given list will contain on return the command-line
      *     arguments that were not used to set properties.
      */
-    public Properties(String[] args, java.util.List<String> remainingArgs) {
+    public Properties(String[] args, List<String> remainingArgs) {
         this(args, null, remainingArgs);
     }
 
@@ -92,13 +103,13 @@ public final class Properties {
      * @param remainingArgs If non null, the given list will contain on return the command-line
      *     arguments that were not used to set properties.
      */
-    public Properties(String[] args, Properties defaults, java.util.List<String> remainingArgs) {
+    public Properties(String[] args, Properties defaults, List<String> remainingArgs) {
         if (defaults != null) {
             //
             // NOTE: we can't just do a shallow copy of the map as the map values
             // would otherwise be shared between the two Properties object.
             //
-            for (java.util.Map.Entry<String, PropertyValue> p : defaults._properties.entrySet()) {
+            for (Map.Entry<String, PropertyValue> p : defaults._properties.entrySet()) {
                 _properties.put(p.getKey(), p.getValue().clone());
             }
 
@@ -140,7 +151,7 @@ public final class Properties {
         if (remainingArgs != null) {
             remainingArgs.clear();
             if (args.length > 0) {
-                remainingArgs.addAll(java.util.Arrays.asList(args));
+                remainingArgs.addAll(Arrays.asList(args));
             }
         }
     }
@@ -247,7 +258,7 @@ public final class Properties {
                 return Integer.parseInt(pv.value);
             } catch (NumberFormatException ex) {
                 throw new PropertyException(
-                        "property '" + key + "' has an invalid integer value: '" + pv.value + "'");
+                    "property '" + key + "' has an invalid integer value: '" + pv.value + "'");
             }
         }
 
@@ -312,10 +323,10 @@ public final class Properties {
             String[] result = StringUtil.splitString(pv.value, ", \t\r\n");
             if (result == null) {
                 Util.getProcessLogger()
-                        .warning(
-                                "mismatched quotes in property " +
-                                        key +
-                                        "'s value, returning default value");
+                    .warning(
+                        "mismatched quotes in property "
+                            + key
+                            + "'s value, returning default value");
                 return value;
             }
             if (result.length == 0) {
@@ -334,9 +345,9 @@ public final class Properties {
      * @param prefix The prefix to search for (empty string if none).
      * @return The matching property set.
      */
-    public synchronized java.util.Map<String, String> getPropertiesForPrefix(String prefix) {
-        java.util.HashMap<String, String> result = new java.util.HashMap<>();
-        for (java.util.Map.Entry<String, PropertyValue> p : _properties.entrySet()) {
+    public synchronized Map<String, String> getPropertiesForPrefix(String prefix) {
+        HashMap<String, String> result = new HashMap<>();
+        for (Map.Entry<String, PropertyValue> p : _properties.entrySet()) {
             String key = p.getKey();
             if (prefix.isEmpty() || key.startsWith(prefix)) {
                 PropertyValue pv = p.getValue();
@@ -370,19 +381,19 @@ public final class Properties {
         // property.
         PropertyArray propertyArray = findIcePropertyArray(key);
         if (propertyArray != null) {
-            if (propertyArray.isOptIn() &&
-                    _optInPrefixes.stream().noneMatch(propertyArray.name()::equals)) {
+            if (propertyArray.isOptIn()
+                && _optInPrefixes.stream().noneMatch(propertyArray.name()::equals)) {
 
                 throw new PropertyException(
-                        "unable to set '" +
-                                key +
-                                "': property prefix '" +
-                                propertyArray.name() +
-                                "' is opt-in and must be explicitly enabled");
+                    "unable to set '"
+                        + key
+                        + "': property prefix '"
+                        + propertyArray.name()
+                        + "' is opt-in and must be explicitly enabled");
             }
 
             Property prop =
-                    findProperty(key.substring(propertyArray.name().length() + 1), propertyArray);
+                findProperty(key.substring(propertyArray.name().length() + 1), propertyArray);
             if (prop == null) {
                 throw new PropertyException("unknown Ice property: " + key);
             }
@@ -420,7 +431,7 @@ public final class Properties {
     public synchronized String[] getCommandLineOptions() {
         String[] result = new String[_properties.size()];
         int i = 0;
-        for (java.util.Map.Entry<String, PropertyValue> p : _properties.entrySet()) {
+        for (Map.Entry<String, PropertyValue> p : _properties.entrySet()) {
             result[i++] = "--" + p.getKey() + "=" + p.getValue().value;
         }
         assert (i == result.length);
@@ -445,7 +456,7 @@ public final class Properties {
         }
         prefix = "--" + prefix;
 
-        java.util.ArrayList<String> result = new java.util.ArrayList<>();
+        ArrayList<String> result = new ArrayList<>();
         for (String opt : options) {
             if (opt.startsWith(prefix)) {
                 if (opt.indexOf('=') == -1) {
@@ -484,19 +495,19 @@ public final class Properties {
      * @param file The property file.
      */
     public void load(String file) {
-        if (System.getProperty("os.name").startsWith("Windows") &&
-                (file.startsWith("HKCU\\") || file.startsWith("HKLM\\"))) {
+        if (System.getProperty("os.name").startsWith("Windows")
+            && (file.startsWith("HKCU\\") || file.startsWith("HKLM\\"))) {
             try {
                 java.lang.Process process =
-                        Runtime.getRuntime().exec(new String[]{"reg", "query", file});
+                    Runtime.getRuntime().exec(new String[]{"reg", "query", file});
                 process.waitFor();
                 if (process.exitValue() != 0) {
                     throw new InitializationException(
-                            "Could not read Windows registry key '" + file + "'");
+                        "Could not read Windows registry key '" + file + "'");
                 }
 
                 java.io.InputStream is = process.getInputStream();
-                java.io.StringWriter sw = new java.io.StringWriter();
+                StringWriter sw = new StringWriter();
                 int c;
                 while ((c = is.read()) != -1) {
                     sw.write(c);
@@ -507,8 +518,8 @@ public final class Properties {
                     int pos = line.indexOf("REG_SZ");
                     if (pos != -1) {
                         setProperty(
-                                line.substring(0, pos).trim(),
-                                line.substring(pos + 6, line.length()).trim());
+                            line.substring(0, pos).trim(),
+                            line.substring(pos + 6, line.length()).trim());
                         continue;
                     }
 
@@ -546,10 +557,10 @@ public final class Properties {
                 throw ex;
             } catch (Exception ex) {
                 throw new InitializationException(
-                        "Could not read Windows registry key `" + file + "'", ex);
+                    "Could not read Windows registry key `" + file + "'", ex);
             }
         } else {
-            java.io.PushbackInputStream is = null;
+            PushbackInputStream is = null;
             try {
                 java.io.InputStream f = Util.openResource(getClass().getClassLoader(), file);
                 if (f == null) {
@@ -559,21 +570,21 @@ public final class Properties {
                 // Skip UTF-8 BOM if present.
                 //
                 byte[] bom = new byte[3];
-                is = new java.io.PushbackInputStream(f, bom.length);
+                is = new PushbackInputStream(f, bom.length);
                 int read = is.read(bom, 0, bom.length);
-                if (read < 3 ||
-                        bom[0] != (byte) 0xEF ||
-                        bom[1] != (byte) 0xBB ||
-                        bom[2] != (byte) 0xBF) {
+                if (read < 3
+                    || bom[0] != (byte) 0xEF
+                    || bom[1] != (byte) 0xBB
+                    || bom[2] != (byte) 0xBF) {
                     if (read > 0) {
                         is.unread(bom, 0, read);
                     }
                 }
 
-                java.io.InputStreamReader isr = new java.io.InputStreamReader(is, "UTF-8");
-                java.io.BufferedReader br = new java.io.BufferedReader(isr);
+                InputStreamReader isr = new InputStreamReader(is, "UTF-8");
+                BufferedReader br = new BufferedReader(isr);
                 parse(br);
-            } catch (java.io.IOException ex) {
+            } catch (IOException ex) {
                 throw new FileException("Cannot read '" + file + "'", ex);
             } finally {
                 if (is != null) {
@@ -599,15 +610,15 @@ public final class Properties {
         // would otherwise be shared between the two Properties objects.
         //
         // _properties = new java.util.HashMap<String, PropertyValue>(props._properties);
-        for (java.util.Map.Entry<String, PropertyValue> p : _properties.entrySet()) {
+        for (Map.Entry<String, PropertyValue> p : _properties.entrySet()) {
             clonedProperties._properties.put(p.getKey(), p.getValue().clone());
         }
         return clonedProperties;
     }
 
-    public synchronized java.util.List<String> getUnusedProperties() {
-        java.util.List<String> unused = new java.util.ArrayList<>();
-        for (java.util.Map.Entry<String, PropertyValue> p : _properties.entrySet()) {
+    public synchronized List<String> getUnusedProperties() {
+        List<String> unused = new ArrayList<>();
+        for (Map.Entry<String, PropertyValue> p : _properties.entrySet()) {
             PropertyValue pv = p.getValue();
             if (!pv.used) {
                 unused.add(p.getKey());
@@ -616,13 +627,13 @@ public final class Properties {
         return unused;
     }
 
-    private void parse(java.io.BufferedReader in) {
+    private void parse(BufferedReader in) {
         try {
             String line;
             while ((line = in.readLine()) != null) {
                 parseLine(line);
             }
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             throw new SyscallException(ex);
         }
     }
@@ -640,123 +651,123 @@ public final class Properties {
             char c = line.charAt(i);
             switch (state) {
                 case ParseStateKey:
-                    {
-                        switch (c) {
-                            case '\\':
-                                if (i < line.length() - 1) {
-                                    c = line.charAt(++i);
-                                    switch (c) {
-                                        case '\\':
-                                        case '#':
-                                        case '=':
-                                            key += whitespace;
-                                            whitespace = "";
-                                            key += c;
-                                            break;
+                {
+                    switch (c) {
+                        case '\\':
+                            if (i < line.length() - 1) {
+                                c = line.charAt(++i);
+                                switch (c) {
+                                    case '\\':
+                                    case '#':
+                                    case '=':
+                                        key += whitespace;
+                                        whitespace = "";
+                                        key += c;
+                                        break;
 
-                                        case ' ':
-                                            if (!key.isEmpty()) {
-                                                whitespace += c;
-                                            }
-                                            break;
+                                    case ' ':
+                                        if (!key.isEmpty()) {
+                                            whitespace += c;
+                                        }
+                                        break;
 
-                                        default:
-                                            key += whitespace;
-                                            whitespace = "";
-                                            key += '\\';
-                                            key += c;
-                                            break;
-                                    }
-                                } else {
-                                    key += whitespace;
-                                    key += c;
+                                    default:
+                                        key += whitespace;
+                                        whitespace = "";
+                                        key += '\\';
+                                        key += c;
+                                        break;
                                 }
-                                break;
-
-                            case ' ':
-                            case '\t':
-                            case '\r':
-                            case '\n':
-                                if (!key.isEmpty()) {
-                                    whitespace += c;
-                                }
-                                break;
-
-                            case '=':
-                                whitespace = "";
-                                state = ParseStateValue;
-                                break;
-
-                            case '#':
-                                finished = true;
-                                break;
-
-                            default:
+                            } else {
                                 key += whitespace;
-                                whitespace = "";
                                 key += c;
-                                break;
-                        }
-                        break;
+                            }
+                            break;
+
+                        case ' ':
+                        case '\t':
+                        case '\r':
+                        case '\n':
+                            if (!key.isEmpty()) {
+                                whitespace += c;
+                            }
+                            break;
+
+                        case '=':
+                            whitespace = "";
+                            state = ParseStateValue;
+                            break;
+
+                        case '#':
+                            finished = true;
+                            break;
+
+                        default:
+                            key += whitespace;
+                            whitespace = "";
+                            key += c;
+                            break;
                     }
+                    break;
+                }
 
                 case ParseStateValue:
-                    {
-                        switch (c) {
-                            case '\\':
-                                if (i < line.length() - 1) {
-                                    c = line.charAt(++i);
-                                    switch (c) {
-                                        case '\\':
-                                        case '#':
-                                        case '=':
-                                            value += value.isEmpty() ? escapedspace : whitespace;
-                                            whitespace = "";
-                                            escapedspace = "";
-                                            value += c;
-                                            break;
+                {
+                    switch (c) {
+                        case '\\':
+                            if (i < line.length() - 1) {
+                                c = line.charAt(++i);
+                                switch (c) {
+                                    case '\\':
+                                    case '#':
+                                    case '=':
+                                        value += value.isEmpty() ? escapedspace : whitespace;
+                                        whitespace = "";
+                                        escapedspace = "";
+                                        value += c;
+                                        break;
 
-                                        case ' ':
-                                            whitespace += c;
-                                            escapedspace += c;
-                                            break;
+                                    case ' ':
+                                        whitespace += c;
+                                        escapedspace += c;
+                                        break;
 
-                                        default:
-                                            value += value.isEmpty() ? escapedspace : whitespace;
-                                            whitespace = "";
-                                            escapedspace = "";
-                                            value += '\\';
-                                            value += c;
-                                            break;
-                                    }
-                                } else {
-                                    value += value.isEmpty() ? escapedspace : whitespace;
-                                    value += c;
+                                    default:
+                                        value += value.isEmpty() ? escapedspace : whitespace;
+                                        whitespace = "";
+                                        escapedspace = "";
+                                        value += '\\';
+                                        value += c;
+                                        break;
                                 }
-                                break;
-
-                            case ' ':
-                            case '\t':
-                            case '\r':
-                            case '\n':
-                                if (!value.isEmpty()) {
-                                    whitespace += c;
-                                }
-                                break;
-
-                            case '#':
-                                finished = true;
-                                break;
-
-                            default:
+                            } else {
                                 value += value.isEmpty() ? escapedspace : whitespace;
-                                whitespace = "";
-                                escapedspace = "";
                                 value += c;
-                                break;
-                        }
-                        break;
+                            }
+                            break;
+
+                        case ' ':
+                        case '\t':
+                        case '\r':
+                        case '\n':
+                            if (!value.isEmpty()) {
+                                whitespace += c;
+                            }
+                            break;
+
+                        case '#':
+                            finished = true;
+                            break;
+
+                        default:
+                            value += value.isEmpty() ? escapedspace : whitespace;
+                            whitespace = "";
+                            escapedspace = "";
+                            value += c;
+                            break;
                     }
+                    break;
+                }
             }
             if (finished) {
                 break;
@@ -764,8 +775,8 @@ public final class Properties {
         }
         value += escapedspace;
 
-        if ((state == ParseStateKey && !key.isEmpty()) ||
-                (state == ParseStateValue && key.isEmpty())) {
+        if ((state == ParseStateKey && !key.isEmpty())
+            || (state == ParseStateValue && key.isEmpty())) {
             Util.getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
             return;
         } else if (key.isEmpty()) {
@@ -826,9 +837,9 @@ public final class Properties {
                 //  - shorter than the property pattern
                 //  - the property pattern must start with the key
                 // - the pattern character after the key must be a dot
-                if (key.length() > pattern.length() &&
-                        key.startsWith(pattern) &&
-                        key.charAt(pattern.length()) == '.') {
+                if (key.length() > pattern.length()
+                    && key.startsWith(pattern)
+                    && key.charAt(pattern.length()) == '.') {
                     String substring = key.substring(pattern.length() + 1);
                     // Check if the suffix is a valid property. If so, return it. If it's not,
                     // continue searching the current property array.
@@ -859,23 +870,23 @@ public final class Properties {
         }
 
         var unknownProperties =
-                properties.getPropertiesForPrefix(prefix + ".").keySet().stream()
-                        .filter(
-                                key ->
-                                        findProperty(
-                                                        key.substring(prefix.length() + 1),
-                                                        propertyArray) ==
-                                                null)
-                        .collect(Collectors.toList());
+            properties.getPropertiesForPrefix(prefix + ".").keySet().stream()
+                .filter(
+                    key ->
+                        findProperty(
+                            key.substring(prefix.length() + 1),
+                            propertyArray)
+                            == null)
+                .collect(Collectors.toList());
 
         if (unknownProperties.size() > 0) {
             throw new PropertyException(
-                    "found unknown properties for " +
-                            propertyArray.name() +
-                            ": '" +
-                            prefix +
-                            "'\n    " +
-                            String.join("\n    ", unknownProperties));
+                "found unknown properties for "
+                    + propertyArray.name()
+                    + ": '"
+                    + prefix
+                    + "'\n    "
+                    + String.join("\n    ", unknownProperties));
         }
     }
 
@@ -894,10 +905,10 @@ public final class Properties {
 
         String prefix = key.substring(0, dotPos);
 
-        return java.util.Arrays.stream(PropertyNames.validProps)
-                .filter(properties -> properties.name().equals(prefix))
-                .findFirst()
-                .orElse(null);
+        return Arrays.stream(PropertyNames.validProps)
+            .filter(properties -> properties.name().equals(prefix))
+            .findFirst()
+            .orElse(null);
     }
 
     /*
@@ -913,7 +924,7 @@ public final class Properties {
         }
 
         Property prop =
-                findProperty(key.substring(propertyArray.name().length() + 1), propertyArray);
+            findProperty(key.substring(propertyArray.name().length() + 1), propertyArray);
         if (prop == null) {
             throw new PropertyException("unknown Ice property: " + key);
         }
@@ -922,6 +933,6 @@ public final class Properties {
 
     private static final int ParseStateKey = 0;
     private static final int ParseStateValue = 1;
-    private final java.util.HashMap<String, PropertyValue> _properties = new java.util.HashMap<>();
-    private final java.util.List<String> _optInPrefixes = new java.util.ArrayList<>();
+    private final HashMap<String, PropertyValue> _properties = new HashMap<>();
+    private final List<String> _optInPrefixes = new ArrayList<>();
 }

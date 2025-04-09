@@ -4,8 +4,8 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ObjectPrx;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.LiveActions;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.Component;
 import java.awt.Cursor;
@@ -29,7 +29,24 @@ import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import com.zeroc.IceGrid.AdapterDynamicInfo;
 import com.zeroc.IceGrid.AdminPrx;
+import com.zeroc.IceGrid.AdminSessionPrx;
+import com.zeroc.IceGrid.ApplicationDescriptor;
+import com.zeroc.IceGrid.FileIteratorPrx;
+import com.zeroc.IceGrid.FileNotAvailableException;
+import com.zeroc.IceGrid.NodeDescriptor;
+import com.zeroc.IceGrid.NodeDynamicInfo;
+import com.zeroc.IceGrid.NodeInfo;
+import com.zeroc.IceGrid.NodeNotExistException;
+import com.zeroc.IceGrid.NodeUnreachableException;
+import com.zeroc.IceGrid.NodeUpdateDescriptor;
+import com.zeroc.IceGrid.PropertySetDescriptor;
+import com.zeroc.IceGrid.ServerDescriptor;
+import com.zeroc.IceGrid.ServerDynamicInfo;
+import com.zeroc.IceGrid.ServerInstanceDescriptor;
+import com.zeroc.IceGrid.ServerState;
+import com.zeroc.IceGrid.TemplateDescriptor;
 
 class Node extends Communicator {
     // Actions
@@ -48,33 +65,33 @@ class Node extends Communicator {
     @Override
     public void retrieveOutput(final boolean stdout) {
         getRoot()
-                .openShowLogFileDialog(
-                        new ShowLogFileDialog.FileIteratorFactory() {
-                            @Override
-                            public FileIteratorPrx open(int count)
-                                    throws FileNotAvailableException,
-                                            NodeNotExistException,
-                                            NodeUnreachableException {
-                                AdminSessionPrx session = getRoot().getCoordinator().getSession();
-                                FileIteratorPrx result;
-                                if (stdout) {
-                                    result = session.openNodeStdOut(_id, count);
-                                } else {
-                                    result = session.openNodeStdErr(_id, count);
-                                }
-                                return result;
-                            }
+            .openShowLogFileDialog(
+                new ShowLogFileDialog.FileIteratorFactory() {
+                    @Override
+                    public FileIteratorPrx open(int count)
+                        throws FileNotAvailableException,
+                        NodeNotExistException,
+                        NodeUnreachableException {
+                        AdminSessionPrx session = getRoot().getCoordinator().getSession();
+                        FileIteratorPrx result;
+                        if (stdout) {
+                            result = session.openNodeStdOut(_id, count);
+                        } else {
+                            result = session.openNodeStdErr(_id, count);
+                        }
+                        return result;
+                    }
 
-                            @Override
-                            public String getTitle() {
-                                return "Node " + _id + " " + (stdout ? "stdout" : "stderr");
-                            }
+                    @Override
+                    public String getTitle() {
+                        return "Node " + _id + " " + (stdout ? "stdout" : "stderr");
+                    }
 
-                            @Override
-                            public String getDefaultFilename() {
-                                return _id + (stdout ? ".out" : ".err");
-                            }
-                        });
+                    @Override
+                    public String getDefaultFilename() {
+                        return _id + (stdout ? ".out" : ".err");
+                    }
+                });
     }
 
     @Override
@@ -84,22 +101,22 @@ class Node extends Communicator {
 
         try {
             getCoordinator()
-                    .getMainFrame()
-                    .setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                .getMainFrame()
+                .setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
             getCoordinator()
-                    .getAdmin()
-                    .shutdownNodeAsync(_id)
-                    .whenComplete(
-                            (result, ex) -> {
-                                amiComplete(prefix, "Failed to shutdown " + _id, ex);
-                            });
+                .getAdmin()
+                .shutdownNodeAsync(_id)
+                .whenComplete(
+                    (result, ex) -> {
+                        amiComplete(prefix, "Failed to shutdown " + _id, ex);
+                    });
         } catch (LocalException e) {
             failure(prefix, "Failed to shutdown " + _id, e.toString());
         } finally {
             getCoordinator()
-                    .getMainFrame()
-                    .setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                .getMainFrame()
+                .setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
@@ -183,7 +200,7 @@ class Node extends Communicator {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     //
@@ -230,13 +247,13 @@ class Node extends Communicator {
         _childrenArray[1] = _servers;
 
         NodeDescriptor nodeDesc =
-                new NodeDescriptor(
-                        update.variables,
-                        update.serverInstances,
-                        update.servers,
-                        update.loadFactor == null ? "" : update.loadFactor.value,
-                        update.description == null ? "" : update.description.value,
-                        update.propertySets);
+            new NodeDescriptor(
+                update.variables,
+                update.serverInstances,
+                update.servers,
+                update.loadFactor == null ? "" : update.loadFactor.value,
+                update.description == null ? "" : update.description.value,
+                update.propertySets);
 
         appDesc.nodes.put(_id, nodeDesc);
         add(appDesc, nodeDesc);
@@ -246,11 +263,11 @@ class Node extends Communicator {
             PropertySetDescriptor descriptor, String applicationName, Utils.Resolver resolver) {
         Utils.ExpandedPropertySet result = new Utils.ExpandedPropertySet();
         ArrayList<Utils.ExpandedPropertySet> references =
-                new ArrayList<Utils.ExpandedPropertySet>();
+            new ArrayList<Utils.ExpandedPropertySet>();
 
         for (String ref : descriptor.references) {
             PropertySetDescriptor resolved =
-                    findNamedPropertySet(resolver.substitute(ref), applicationName);
+                findNamedPropertySet(resolver.substitute(ref), applicationName);
             if (resolved == null) {
                 continue;
             }
@@ -283,7 +300,7 @@ class Node extends Communicator {
         data.descriptor = nodeDesc;
         @SuppressWarnings("unchecked")
         Utils.Resolver resolver =
-                new Utils.Resolver(new Map[]{nodeDesc.variables, appDesc.variables});
+            new Utils.Resolver(new Map[]{nodeDesc.variables, appDesc.variables});
         data.resolver = resolver;
         data.resolver.put("application", appDesc.name);
         data.resolver.put("node", _id);
@@ -334,13 +351,13 @@ class Node extends Communicator {
         if (data == null) {
             if (update != null) {
                 NodeDescriptor nodeDesc =
-                        new NodeDescriptor(
-                                update.variables,
-                                update.serverInstances,
-                                update.servers,
-                                update.loadFactor == null ? "" : update.loadFactor.value,
-                                update.description == null ? "" : update.description.value,
-                                update.propertySets);
+                    new NodeDescriptor(
+                        update.variables,
+                        update.serverInstances,
+                        update.servers,
+                        update.loadFactor == null ? "" : update.loadFactor.value,
+                        update.description == null ? "" : update.description.value,
+                        update.propertySets);
 
                 appDesc.nodes.put(_id, nodeDesc);
                 add(appDesc, nodeDesc);
@@ -370,8 +387,8 @@ class Node extends Communicator {
             }
 
             nodeDesc.propertySets
-                    .keySet()
-                    .removeAll(Arrays.asList(update.removePropertySets));
+                .keySet()
+                .removeAll(Arrays.asList(update.removePropertySets));
             nodeDesc.propertySets.putAll(update.propertySets);
 
             // Remove servers
@@ -380,9 +397,9 @@ class Node extends Communicator {
                 if (server == null) {
                     // This should never happen
                     String errorMsg =
-                            "LiveDeployment/Node: unable to remove server '" +
-                                    id +
-                                    "'; please report this bug.";
+                        "LiveDeployment/Node: unable to remove server '"
+                            + id
+                            + "'; please report this bug.";
 
                     getCoordinator().getCommunicator().getLogger().error(errorMsg);
                 } else {
@@ -391,8 +408,8 @@ class Node extends Communicator {
                     int index = getIndex(server);
                     _servers.remove(server);
                     getRoot()
-                            .getTreeModel()
-                            .nodesWereRemoved(this, new int[]{index}, new Object[]{server});
+                        .getTreeModel()
+                        .nodesWereRemoved(this, new int[]{index}, new Object[]{server});
                 }
             }
 
@@ -438,7 +455,7 @@ class Node extends Communicator {
                 if (server.getApplication() == appDesc) {
                     if (!freshServers.contains(server)) {
                         server.rebuild(
-                                data.resolver, variablesChanged, serviceTemplates, serverTemplates);
+                            data.resolver, variablesChanged, serviceTemplates, serverTemplates);
                     }
                 }
             }
@@ -633,44 +650,44 @@ class Node extends Communicator {
 
             try {
                 admin.getNodeLoadAsync(_id)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    if (ex == null) {
-                                        NumberFormat format;
-                                        if (_windows) {
-                                            format = NumberFormat.getPercentInstance();
-                                            format.setMaximumFractionDigits(1);
-                                            format.setMinimumFractionDigits(1);
-                                        } else {
-                                            format = NumberFormat.getNumberInstance();
-                                            format.setMaximumFractionDigits(2);
-                                            format.setMinimumFractionDigits(2);
-                                        }
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex == null) {
+                                NumberFormat format;
+                                if (_windows) {
+                                    format = NumberFormat.getPercentInstance();
+                                    format.setMaximumFractionDigits(1);
+                                    format.setMinimumFractionDigits(1);
+                                } else {
+                                    format = NumberFormat.getNumberInstance();
+                                    format.setMaximumFractionDigits(2);
+                                    format.setMinimumFractionDigits(2);
+                                }
 
-                                        final String load =
-                                                format.format(result.avg1) +
-                                                        " " +
-                                                        format.format(result.avg5) +
-                                                        " " +
-                                                        format.format(result.avg15);
+                                final String load =
+                                    format.format(result.avg1)
+                                        + " "
+                                        + format.format(result.avg5)
+                                        + " "
+                                        + format.format(result.avg15);
 
-                                        SwingUtilities.invokeLater(
-                                                () -> {
-                                                    success(prefix);
-                                                    _editor.setLoad(load, Node.this);
-                                                });
-                                    } else {
-                                        amiFailure(
-                                                prefix,
-                                                "Failed to retrieve load for " + getDisplayName(),
-                                                ex);
-                                    }
-                                });
+                                SwingUtilities.invokeLater(
+                                    () -> {
+                                        success(prefix);
+                                        _editor.setLoad(load, Node.this);
+                                    });
+                            } else {
+                                amiFailure(
+                                    prefix,
+                                    "Failed to retrieve load for " + getDisplayName(),
+                                    ex);
+                            }
+                        });
             } catch (LocalException e) {
                 getRoot()
-                        .getCoordinator()
-                        .getStatusBar()
-                        .setText(prefix + " " + e.toString() + ".");
+                    .getCoordinator()
+                    .getStatusBar()
+                    .setText(prefix + " " + e.toString() + ".");
             }
         }
     }
@@ -681,7 +698,7 @@ class Node extends Communicator {
             ServerInstanceDescriptor instanceDescriptor) {
         // Find template
         TemplateDescriptor templateDescriptor =
-                application.serverTemplates.get(instanceDescriptor.template);
+            application.serverTemplates.get(instanceDescriptor.template);
         assert templateDescriptor != null;
 
         ServerDescriptor serverDescriptor = (ServerDescriptor) templateDescriptor.descriptor;
@@ -690,10 +707,10 @@ class Node extends Communicator {
 
         // Build resolver
         Utils.Resolver instanceResolver =
-                new Utils.Resolver(
-                        resolver,
-                        instanceDescriptor.parameterValues,
-                        templateDescriptor.parameterDefaults);
+            new Utils.Resolver(
+                resolver,
+                instanceDescriptor.parameterValues,
+                templateDescriptor.parameterDefaults);
 
         String serverId = instanceResolver.substitute(serverDescriptor.id);
         instanceResolver.put("server", serverId);
@@ -715,15 +732,15 @@ class Node extends Communicator {
 
         // Create server
         return new Server(
-                this,
-                serverId,
-                instanceResolver,
-                instanceDescriptor,
-                serverDescriptor,
-                application,
-                serverState,
-                pid,
-                enabled);
+            this,
+            serverId,
+            instanceResolver,
+            instanceDescriptor,
+            serverDescriptor,
+            application,
+            serverState,
+            pid,
+            enabled);
     }
 
     private Server createServer(
@@ -752,15 +769,15 @@ class Node extends Communicator {
 
         // Create server
         return new Server(
-                this,
-                serverId,
-                instanceResolver,
-                null,
-                serverDescriptor,
-                application,
-                serverState,
-                pid,
-                enabled);
+            this,
+            serverId,
+            instanceResolver,
+            null,
+            serverDescriptor,
+            application,
+            serverState,
+            pid,
+            enabled);
     }
 
     private void insertServer(Server server) {

@@ -8,7 +8,9 @@ import com.zeroc.IceBox.AlreadyStartedException;
 import com.zeroc.IceBox.AlreadyStoppedException;
 import com.zeroc.IceBox.ServiceManagerPrx;
 import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.LiveActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.Component;
 import java.io.File;
@@ -59,20 +61,20 @@ public class Service extends Communicator {
 
             try {
                 serviceManager
-                        .startServiceAsync(_id)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    if (ex == null ||
-                                            ex instanceof
-                                                    AlreadyStartedException) {
-                                        amiSuccess(prefix);
-                                    } else {
-                                        amiFailure(
-                                                prefix,
-                                                "Failed to start service " + _id,
-                                                ex.toString());
-                                    }
-                                });
+                    .startServiceAsync(_id)
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex == null
+                                || ex
+                                instanceof AlreadyStartedException) {
+                                amiSuccess(prefix);
+                            } else {
+                                amiFailure(
+                                    prefix,
+                                    "Failed to start service " + _id,
+                                    ex.toString());
+                            }
+                        });
             } catch (LocalException e) {
                 failure(prefix, "Failed to start service " + _id, e.toString());
             }
@@ -89,20 +91,20 @@ public class Service extends Communicator {
 
             try {
                 serviceManager
-                        .stopServiceAsync(_id)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    if (ex == null ||
-                                            ex instanceof
-                                                    AlreadyStoppedException) {
-                                        amiSuccess(prefix);
-                                    } else {
-                                        amiFailure(
-                                                prefix,
-                                                "Failed to stop service " + _id,
-                                                ex.toString());
-                                    }
-                                });
+                    .stopServiceAsync(_id)
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex == null
+                                || ex
+                                instanceof AlreadyStoppedException) {
+                                amiSuccess(prefix);
+                            } else {
+                                amiFailure(
+                                    prefix,
+                                    "Failed to stop service " + _id,
+                                    ex.toString());
+                            }
+                        });
             } catch (LocalException e) {
                 failure(prefix, "Failed to stop service " + _id, e.toString());
             }
@@ -125,49 +127,49 @@ public class Service extends Communicator {
             }
 
             path =
-                    (String)
-                            JOptionPane.showInputDialog(
-                                    getCoordinator().getMainFrame(),
-                                    "Which log file do you want to retrieve?",
-                                    "Retrieve Log File",
-                                    JOptionPane.QUESTION_MESSAGE,
-                                    null,
-                                    pathArray,
-                                    pathArray[0]);
+                (String)
+                    JOptionPane.showInputDialog(
+                        getCoordinator().getMainFrame(),
+                        "Which log file do you want to retrieve?",
+                        "Retrieve Log File",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        pathArray,
+                        pathArray[0]);
         }
 
         if (path != null) {
             final String fPath = path;
 
             getRoot()
-                    .openShowLogFileDialog(
-                            new ShowLogFileDialog.FileIteratorFactory() {
-                                @Override
-                                public FileIteratorPrx open(int count)
-                                        throws FileNotAvailableException,
-                                                ServerNotExistException,
-                                                NodeUnreachableException,
-                                                DeploymentException {
-                                    AdminSessionPrx session =
-                                            getRoot().getCoordinator().getSession();
-                                    return session.openServerLog(_parent.getId(), fPath, count);
-                                }
+                .openShowLogFileDialog(
+                    new ShowLogFileDialog.FileIteratorFactory() {
+                        @Override
+                        public FileIteratorPrx open(int count)
+                            throws FileNotAvailableException,
+                            ServerNotExistException,
+                            NodeUnreachableException,
+                            DeploymentException {
+                            AdminSessionPrx session =
+                                getRoot().getCoordinator().getSession();
+                            return session.openServerLog(_parent.getId(), fPath, count);
+                        }
 
-                                @Override
-                                public String getTitle() {
-                                    return "Service " +
-                                            _parent.getId() +
-                                            "/" +
-                                            _id +
-                                            " " +
-                                            new File(fPath).getName();
-                                }
+                        @Override
+                        public String getTitle() {
+                            return "Service "
+                                + _parent.getId()
+                                + "/"
+                                + _id
+                                + " "
+                                + new File(fPath).getName();
+                        }
 
-                                @Override
-                                public String getDefaultFilename() {
-                                    return new File(fPath).getName();
-                                }
-                            });
+                        @Override
+                        public String getDefaultFilename() {
+                            return new File(fPath).getName();
+                        }
+                    });
         }
     }
 
@@ -196,7 +198,7 @@ public class Service extends Communicator {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     @Override
@@ -232,7 +234,7 @@ public class Service extends Communicator {
     @Override
     protected CompletableFuture<ObjectPrx> getAdminAsync() {
         return CompletableFuture.completedFuture(
-                ((Server) _parent).getAdmin());
+            ((Server) _parent).getAdmin());
     }
 
     @Override
@@ -241,10 +243,10 @@ public class Service extends Communicator {
 
         try {
             if (Integer.valueOf(
-                            ((Server) _parent)
-                                    .getProperties()
-                                    .get("IceBox.UseSharedCommunicator." + _id)) >
-                    0) {
+                ((Server) _parent)
+                    .getProperties()
+                    .get("IceBox.UseSharedCommunicator." + _id))
+                > 0) {
                 facetName = "IceBox.SharedCommunicator." + facet;
             }
         } catch (NumberFormatException ex) {
@@ -393,9 +395,9 @@ public class Service extends Communicator {
             }
 
             insertSortedChild(
-                    new Adapter(this, adapterName, _resolver, adapterId, p, proxy),
-                    _adapters,
-                    null);
+                new Adapter(this, adapterName, _resolver, adapterId, p, proxy),
+                _adapters,
+                null);
         }
     }
 

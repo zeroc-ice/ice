@@ -10,15 +10,36 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.LogMessage;
 import com.zeroc.Ice.LogMessageType;
+import com.zeroc.Ice.LoggerAdminPrx;
+import com.zeroc.Ice.RemoteLogger;
 import com.zeroc.Ice.RemoteLoggerPrx;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.Coordinator;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayDeque;
+import java.util.Date;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.UUID;
+import java.util.Vector;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
@@ -38,7 +59,9 @@ import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 class ShowIceLogDialog extends JDialog {
     private class MenuBar extends JMenuBar {
@@ -46,11 +69,11 @@ class ShowIceLogDialog extends JDialog {
             putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
             putClientProperty(PlasticLookAndFeel.BORDER_STYLE_KEY, BorderStyle.SEPARATOR);
 
-            final int MENU_MASK = java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+            final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
             // File menu
             JMenu fileMenu = new JMenu("File");
-            fileMenu.setMnemonic(java.awt.event.KeyEvent.VK_F);
+            fileMenu.setMnemonic(KeyEvent.VK_F);
             add(fileMenu);
 
             ButtonGroup bg = new ButtonGroup();
@@ -67,130 +90,130 @@ class ShowIceLogDialog extends JDialog {
             fileMenu.addSeparator();
 
             Action save =
-                    new AbstractAction("Save As...") {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            JFileChooser fileChooser =
-                                    _parent.getRoot().getCoordinator().getSaveIceLogChooser();
+                new AbstractAction("Save As...") {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        JFileChooser fileChooser =
+                            _parent.getRoot().getCoordinator().getSaveIceLogChooser();
 
-                            fileChooser.setSelectedFile(
-                                    new java.io.File(
-                                            fileChooser.getCurrentDirectory(),
-                                            _defaultFileName + ".csv"));
+                        fileChooser.setSelectedFile(
+                            new File(
+                                fileChooser.getCurrentDirectory(),
+                                _defaultFileName + ".csv"));
 
-                            java.io.File file = null;
+                        File file = null;
 
-                            while (file == null) {
-                                int result = fileChooser.showSaveDialog(ShowIceLogDialog.this);
-                                if (result == JFileChooser.APPROVE_OPTION) {
-                                    file = fileChooser.getSelectedFile();
+                        while (file == null) {
+                            int result = fileChooser.showSaveDialog(ShowIceLogDialog.this);
+                            if (result == JFileChooser.APPROVE_OPTION) {
+                                file = fileChooser.getSelectedFile();
 
-                                    if (file != null) {
-                                        if (!file.exists() && file.getName().indexOf('.') == -1) {
-                                            file =
-                                                    new java.io.File(
-                                                            file.getAbsolutePath() + ".csv");
+                                if (file != null) {
+                                    if (!file.exists() && file.getName().indexOf('.') == -1) {
+                                        file =
+                                            new File(
+                                                file.getAbsolutePath() + ".csv");
+                                    }
+
+                                    OutputStreamWriter os = null;
+
+                                    try {
+                                        os =
+                                            new OutputStreamWriter(
+                                                new FileOutputStream(file));
+
+                                        for (Object p : _tableModel.getDataVector()) {
+                                            @SuppressWarnings("unchecked")
+                                            Vector<Object> row =
+                                                (Vector<Object>) p;
+                                            String txt =
+                                                "\""
+                                                    + renderDate(
+                                                    (Date)
+                                                        row.elementAt(0))
+                                                    + "\","
+                                                    + renderLogMessageType(
+                                                    (LogMessageType)
+                                                        row.elementAt(1))
+                                                    + ",\""
+                                                    + row.elementAt(2)
+                                                    .toString()
+                                                    .replace("\"", "\"\"")
+                                                    + "\",\""
+                                                    + row.elementAt(3)
+                                                    .toString()
+                                                    .replace("\"", "\"\"")
+                                                    + "\"";
+
+                                            txt += "\r\n";
+                                            os.write(txt, 0, txt.length());
                                         }
-
-                                        java.io.OutputStreamWriter os = null;
-
-                                        try {
-                                            os =
-                                                    new java.io.OutputStreamWriter(
-                                                            new java.io.FileOutputStream(file));
-
-                                            for (Object p : _tableModel.getDataVector()) {
-                                                @SuppressWarnings("unchecked")
-                                                java.util.Vector<Object> row =
-                                                        (java.util.Vector<Object>) p;
-                                                String txt =
-                                                        "\"" +
-                                                                renderDate(
-                                                                        (java.util.Date)
-                                                                                row.elementAt(0)) +
-                                                                "\"," +
-                                                                renderLogMessageType(
-                                                                        (LogMessageType)
-                                                                                row.elementAt(1)) +
-                                                                ",\"" +
-                                                                row.elementAt(2)
-                                                                        .toString()
-                                                                        .replace("\"", "\"\"") +
-                                                                "\",\"" +
-                                                                row.elementAt(3)
-                                                                        .toString()
-                                                                        .replace("\"", "\"\"") +
-                                                                "\"";
-
-                                                txt += "\r\n";
-                                                os.write(txt, 0, txt.length());
-                                            }
-                                        } catch (java.io.IOException io) {
-                                            JOptionPane.showMessageDialog(
-                                                    ShowIceLogDialog.this,
-                                                    io.toString(),
-                                                    "Cannot write file",
-                                                    JOptionPane.ERROR_MESSAGE);
-                                        } finally {
-                                            if (os != null) {
-                                                try {
-                                                    os.close();
-                                                } catch (java.io.IOException io) {
-                                                }
+                                    } catch (IOException io) {
+                                        JOptionPane.showMessageDialog(
+                                            ShowIceLogDialog.this,
+                                            io.toString(),
+                                            "Cannot write file",
+                                            JOptionPane.ERROR_MESSAGE);
+                                    } finally {
+                                        if (os != null) {
+                                            try {
+                                                os.close();
+                                            } catch (IOException io) {
                                             }
                                         }
                                     }
-                                } else {
-                                    break; // while
                                 }
+                            } else {
+                                break; // while
                             }
                         }
-                    };
+                    }
+                };
             save.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, MENU_MASK));
             save.putValue(Action.SHORT_DESCRIPTION, "Save As...");
             fileMenu.add(save);
             fileMenu.addSeparator();
 
             fileMenu.add(
-                    new AbstractAction("Close") {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            close(true);
-                        }
-                    });
+                new AbstractAction("Close") {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        close(true);
+                    }
+                });
             JMenu editMenu = new JMenu("Edit");
-            editMenu.setMnemonic(java.awt.event.KeyEvent.VK_E);
+            editMenu.setMnemonic(KeyEvent.VK_E);
             add(editMenu);
 
             Action copy =
-                    new AbstractAction("Copy") {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            String txt = new String();
-                            for (int i : _table.getSelectedRows()) {
-                                int j = _table.convertRowIndexToModel(i);
+                new AbstractAction("Copy") {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        String txt = new String();
+                        for (int i : _table.getSelectedRows()) {
+                            int j = _table.convertRowIndexToModel(i);
 
-                                txt +=
-                                        renderDate((java.util.Date) _tableModel.getValueAt(j, 0)) +
-                                                "\t" +
-                                                renderLogMessageType(
-                                                        (LogMessageType)
-                                                                _tableModel.getValueAt(j, 1)) +
-                                                "\t" +
-                                                _tableModel.getValueAt(j, 2).toString() +
-                                                "\t" +
-                                                renderMessage(
-                                                        _tableModel.getValueAt(j, 3).toString()) +
-                                                "\n";
-                            }
-
-                            var ss = new StringSelection(txt);
-
-                            java.awt.Toolkit.getDefaultToolkit()
-                                    .getSystemClipboard()
-                                    .setContents(ss, null);
+                            txt +=
+                                renderDate((Date) _tableModel.getValueAt(j, 0))
+                                    + "\t"
+                                    + renderLogMessageType(
+                                    (LogMessageType)
+                                        _tableModel.getValueAt(j, 1))
+                                    + "\t"
+                                    + _tableModel.getValueAt(j, 2).toString()
+                                    + "\t"
+                                    + renderMessage(
+                                    _tableModel.getValueAt(j, 3).toString())
+                                    + "\n";
                         }
-                    };
+
+                        var ss = new StringSelection(txt);
+
+                        Toolkit.getDefaultToolkit()
+                            .getSystemClipboard()
+                            .setContents(ss, null);
+                    }
+                };
             copy.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, MENU_MASK));
             copy.putValue(Action.SHORT_DESCRIPTION, "Copy");
             _table.getActionMap().put("copy", copy);
@@ -199,34 +222,34 @@ class ShowIceLogDialog extends JDialog {
 
             editMenu.addSeparator();
             Action selectAll =
-                    new AbstractAction("Select All") {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            _table.grabFocus();
-                            _table.selectAll();
-                        }
-                    };
+                new AbstractAction("Select All") {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        _table.grabFocus();
+                        _table.selectAll();
+                    }
+                };
             selectAll.putValue(
-                    Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_A, MENU_MASK));
+                Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_A, MENU_MASK));
             selectAll.putValue(Action.SHORT_DESCRIPTION, "Select All");
 
             editMenu.add(selectAll);
             editMenu.addSeparator();
             editMenu.add(
-                    new AbstractAction("Preferences...") {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            new LogPrefsDialog(ShowIceLogDialog.this);
-                        }
-                    });
+                new AbstractAction("Preferences...") {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        new LogPrefsDialog(ShowIceLogDialog.this);
+                    }
+                });
             editMenu.addSeparator();
             editMenu.add(
-                    new AbstractAction("Filter...") {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            new LogFilterDialog(ShowIceLogDialog.this);
-                        }
-                    });
+                new AbstractAction("Filter...") {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        new LogFilterDialog(ShowIceLogDialog.this);
+                    }
+                });
         }
     }
 
@@ -257,22 +280,22 @@ class ShowIceLogDialog extends JDialog {
         }
     }
 
-    private class RemoteLoggerI implements com.zeroc.Ice.RemoteLogger {
+    private class RemoteLoggerI implements RemoteLogger {
         @Override
         public synchronized void init(String prefix, LogMessage[] logMessages, Current current) {
             // Ignore prefix
 
             if (!_destroyed) {
                 _rowCount =
-                        logMessages.length + _queue.size() < _maxRows ?
-                                logMessages.length + _queue.size()
-                                : _maxRows;
+                    logMessages.length + _queue.size() < _maxRows
+                        ? logMessages.length + _queue.size()
+                        : _maxRows;
 
                 final Object[][] data = new Object[_rowCount][];
 
                 int i = _rowCount - 1;
 
-                for (java.util.Iterator<LogMessage> p = _queue.descendingIterator();
+                for (Iterator<LogMessage> p = _queue.descendingIterator();
                         p.hasNext() && i >= 0;
                         i--) {
                     data[i] = logMessageToRow(p.next());
@@ -289,12 +312,12 @@ class ShowIceLogDialog extends JDialog {
                 _paused = false;
 
                 SwingUtilities.invokeLater(
-                        () -> {
-                            _tableModel.setDataVector(data, _columnNames);
-                            _table.scrollRectToVisible(
-                                    _table.getCellRect(_table.getRowCount() - 1, 0, true));
-                            _pause.setEnabled(true);
-                        });
+                    () -> {
+                        _tableModel.setDataVector(data, _columnNames);
+                        _table.scrollRectToVisible(
+                            _table.getCellRect(_table.getRowCount() - 1, 0, true));
+                        _pause.setEnabled(true);
+                    });
             }
         }
 
@@ -322,12 +345,12 @@ class ShowIceLogDialog extends JDialog {
                 _rowCount -= rowsToRemove;
 
                 SwingUtilities.invokeLater(
-                        () -> {
-                            int i = rowsToRemove;
-                            while (i-- > 0) {
-                                _tableModel.removeRow(0);
-                            }
-                        });
+                    () -> {
+                        int i = rowsToRemove;
+                        while (i-- > 0) {
+                            _tableModel.removeRow(0);
+                        }
+                    });
             }
         }
 
@@ -358,20 +381,20 @@ class ShowIceLogDialog extends JDialog {
             }
 
             SwingUtilities.invokeLater(
-                    () -> {
-                        _tableModel.addRow(row);
-                        int i = rowsToRemove;
-                        while (i-- > 0) {
-                            _tableModel.removeRow(0);
-                        }
-                        _table.scrollRectToVisible(
-                                _table.getCellRect(_table.getRowCount() - 1, 0, true));
-                    });
+                () -> {
+                    _tableModel.addRow(row);
+                    int i = rowsToRemove;
+                    while (i-- > 0) {
+                        _tableModel.removeRow(0);
+                    }
+                    _table.scrollRectToVisible(
+                        _table.getCellRect(_table.getRowCount() - 1, 0, true));
+                });
         }
 
         private boolean _paused = true;
         private boolean _destroyed;
-        private final java.util.Deque<LogMessage> _queue = new java.util.ArrayDeque<>();
+        private final Deque<LogMessage> _queue = new ArrayDeque<>();
         private int _rowCount;
         private int _maxRows = _maxMessages;
     }
@@ -382,7 +405,7 @@ class ShowIceLogDialog extends JDialog {
             if (value == null) {
                 setText("");
             } else {
-                setText(renderDate((java.util.Date) value));
+                setText(renderDate((Date) value));
             }
         }
     }
@@ -412,7 +435,7 @@ class ShowIceLogDialog extends JDialog {
     ShowIceLogDialog(
             TreeNode parent,
             String title,
-            com.zeroc.Ice.LoggerAdminPrx loggerAdmin,
+            LoggerAdminPrx loggerAdmin,
             String defaultFileName,
             int maxMessages,
             int initialMessages) {
@@ -428,101 +451,101 @@ class ShowIceLogDialog extends JDialog {
 
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(
-                new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        close(true);
-                    }
-                });
+            new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    close(true);
+                }
+            });
 
         _pause =
-                new AbstractAction("Pause") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        pause();
-                    }
-                };
+            new AbstractAction("Pause") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    pause();
+                }
+            };
 
         _play =
-                new AbstractAction("Play") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        play();
-                    }
-                };
+            new AbstractAction("Play") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    play();
+                }
+            };
 
         _stop =
-                new AbstractAction("Stop") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        stop();
-                    }
-                };
+            new AbstractAction("Stop") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    stop();
+                }
+            };
 
         _tableModel =
-                new DefaultTableModel(_columnNames, 0) {
-                    @Override
-                    public boolean isCellEditable(int row, int column) {
-                        return false;
-                    }
-                };
+            new DefaultTableModel(_columnNames, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
 
         _table =
-                new JTable(_tableModel) {
-                    @Override
-                    public java.awt.Component prepareRenderer(
-                            javax.swing.table.TableCellRenderer renderer, int row, int column) {
-                        java.awt.Component c = super.prepareRenderer(renderer, row, column);
+            new JTable(_tableModel) {
+                @Override
+                public Component prepareRenderer(
+                            TableCellRenderer renderer, int row, int column) {
+                    Component c = super.prepareRenderer(renderer, row, column);
 
-                        if (!isRowSelected(row)) {
-                            int modelRow = convertRowIndexToModel(row);
-                            LogMessageType type =
-                                    (LogMessageType) getModel().getValueAt(modelRow, 1);
-                            if (type != null) {
-                                switch (type) {
-                                    case ErrorMessage:
-                                        {
-                                            c.setBackground(Color.RED);
-                                            break;
-                                        }
-                                    case WarningMessage:
-                                        {
-                                            c.setBackground(Color.ORANGE);
-                                            break;
-                                        }
-                                    case PrintMessage:
-                                        {
-                                            c.setBackground(Color.LIGHT_GRAY);
-                                            break;
-                                        }
-                                    default:
-                                        {
-                                            c.setBackground(getBackground());
-                                            break;
-                                        }
+                    if (!isRowSelected(row)) {
+                        int modelRow = convertRowIndexToModel(row);
+                        LogMessageType type =
+                            (LogMessageType) getModel().getValueAt(modelRow, 1);
+                        if (type != null) {
+                            switch (type) {
+                                case ErrorMessage:
+                                {
+                                    c.setBackground(Color.RED);
+                                    break;
+                                }
+                                case WarningMessage:
+                                {
+                                    c.setBackground(Color.ORANGE);
+                                    break;
+                                }
+                                case PrintMessage:
+                                {
+                                    c.setBackground(Color.LIGHT_GRAY);
+                                    break;
+                                }
+                                default:
+                                {
+                                    c.setBackground(getBackground());
+                                    break;
                                 }
                             }
                         }
-                        return c;
                     }
+                    return c;
+                }
 
-                    @Override
-                    public String getToolTipText(java.awt.event.MouseEvent e) {
-                        String tip = null;
-                        java.awt.Point p = e.getPoint();
-                        int row = rowAtPoint(p);
-                        int col = columnAtPoint(p);
+                @Override
+                public String getToolTipText(MouseEvent e) {
+                    String tip = null;
+                    Point p = e.getPoint();
+                    int row = rowAtPoint(p);
+                    int col = columnAtPoint(p);
 
-                        if (col == 3 && row >= 0) // Log message
+                    if (col == 3 && row >= 0) // Log message
                         {
                             Object obj = getValueAt(row, col);
                             if (obj != null) {
                                 tip = "<html>" + obj.toString().replace("\n", "<br>") + "</html>";
                             }
                         }
-                        return tip;
-                    }
-                };
+                    return tip;
+                }
+            };
 
         _table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         _table.setAutoCreateColumnsFromModel(false);
@@ -555,20 +578,20 @@ class ShowIceLogDialog extends JDialog {
         getContentPane().add(new ToolBar(), BorderLayout.PAGE_START);
 
         JScrollPane scrollPane =
-                new JScrollPane(
-                        _table,
-                        ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            new JScrollPane(
+                _table,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         getContentPane().add(scrollPane);
 
         setResizable(true);
         pack();
         Utils.restoreWindowBounds(
-                this,
-                _preferences,
-                "IceLogDialog",
-                _parent.getRoot().getCoordinator().getMainFrame());
+            this,
+            _preferences,
+            "IceLogDialog",
+            _parent.getRoot().getCoordinator().getMainFrame());
         _parent.getRoot().addShowIceLogDialog(_title, this);
 
         setVisible(true);
@@ -597,43 +620,43 @@ class ShowIceLogDialog extends JDialog {
             _pause.setEnabled(false); // Init will enable Pause
 
             String id =
-                    _loggerAdmin.ice_getIdentity().name +
-                            "-" +
-                            java.util.UUID.randomUUID().toString();
+                _loggerAdmin.ice_getIdentity().name
+                    + "-"
+                    + UUID.randomUUID().toString();
             _remoteLogger = new RemoteLoggerI();
             _remoteLoggerPrx =
-                    RemoteLoggerPrx.uncheckedCast(
-                            _parent.getRoot().getCoordinator().addCallback(_remoteLogger, id, ""));
+                RemoteLoggerPrx.uncheckedCast(
+                    _parent.getRoot().getCoordinator().addCallback(_remoteLogger, id, ""));
 
             final String prefix =
-                    "Attaching remote logger to " + _loggerAdmin.ice_getIdentity().name + "...";
+                "Attaching remote logger to " + _loggerAdmin.ice_getIdentity().name + "...";
             final String errorTitle =
-                    "Failed to attach remote logger to " + _loggerAdmin.ice_getIdentity().name;
+                "Failed to attach remote logger to " + _loggerAdmin.ice_getIdentity().name;
             _parent.getRoot().getCoordinator().getStatusBar().setText(prefix);
 
             try {
                 _loggerAdmin
-                        .attachRemoteLoggerAsync(
-                                _remoteLoggerPrx,
-                                _messageTypeFilter,
-                                _traceCategoryFilter,
-                                _initialMessages)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    if (ex == null) {
-                                        _parent.getRoot().amiSuccess(prefix);
-                                    } else {
-                                        SwingUtilities.invokeLater(
-                                                () -> {
-                                                    _parent.getRoot()
-                                                            .failure(
-                                                                    prefix,
-                                                                    errorTitle,
-                                                                    ex.toString());
-                                                    stopped();
-                                                });
-                                    }
-                                });
+                    .attachRemoteLoggerAsync(
+                        _remoteLoggerPrx,
+                        _messageTypeFilter,
+                        _traceCategoryFilter,
+                        _initialMessages)
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex == null) {
+                                _parent.getRoot().amiSuccess(prefix);
+                            } else {
+                                SwingUtilities.invokeLater(
+                                    () -> {
+                                        _parent.getRoot()
+                                            .failure(
+                                                prefix,
+                                                errorTitle,
+                                                ex.toString());
+                                        stopped();
+                                    });
+                            }
+                        });
             } catch (LocalException ex) {
                 _parent.getRoot().failure(prefix, errorTitle, ex.toString());
                 stopped();
@@ -648,26 +671,26 @@ class ShowIceLogDialog extends JDialog {
         if (_remoteLogger != null) {
             if (detach) {
                 final String prefix =
-                        "Detaching remote logger from " +
-                                _loggerAdmin.ice_getIdentity().name +
-                                "...";
+                    "Detaching remote logger from "
+                        + _loggerAdmin.ice_getIdentity().name
+                        + "...";
                 _parent.getRoot().getCoordinator().getStatusBar().setText(prefix);
 
                 try {
                     _loggerAdmin
-                            .detachRemoteLoggerAsync(_remoteLoggerPrx)
-                            .whenComplete(
-                                    (result, ex) -> {
-                                        if (ex == null) {
-                                            if (result) {
-                                                _parent.getRoot().amiSuccess(prefix);
-                                            } else {
-                                                _parent.getRoot().amiSuccess(prefix, "not found");
-                                            }
-                                        } else {
-                                            _parent.getRoot().amiSuccess(prefix, ex.toString());
-                                        }
-                                    });
+                        .detachRemoteLoggerAsync(_remoteLoggerPrx)
+                        .whenComplete(
+                            (result, ex) -> {
+                                if (ex == null) {
+                                    if (result) {
+                                        _parent.getRoot().amiSuccess(prefix);
+                                    } else {
+                                        _parent.getRoot().amiSuccess(prefix, "not found");
+                                    }
+                                } else {
+                                    _parent.getRoot().amiSuccess(prefix, ex.toString());
+                                }
+                            });
                 } catch (LocalException ex) {
                     _parent.getRoot().success(prefix, ex.ice_id());
                 }
@@ -681,8 +704,8 @@ class ShowIceLogDialog extends JDialog {
 
         if (_remoteLoggerPrx != null) {
             _parent.getRoot()
-                    .getCoordinator()
-                    .removeCallback(_remoteLoggerPrx.ice_getIdentity().name, "");
+                .getCoordinator()
+                .removeCallback(_remoteLoggerPrx.ice_getIdentity().name, "");
             _remoteLoggerPrx = null;
         }
 
@@ -755,7 +778,7 @@ class ShowIceLogDialog extends JDialog {
     private Object[] logMessageToRow(LogMessage msg) {
         Object[] row = new Object[4];
 
-        row[0] = new java.util.Date(msg.timestamp / 1000);
+        row[0] = new Date(msg.timestamp / 1000);
         row[1] = msg.type;
         row[2] = msg.traceCategory;
         row[3] = msg.message;
@@ -764,12 +787,12 @@ class ShowIceLogDialog extends JDialog {
     }
 
     private final TreeNode _parent;
-    private final com.zeroc.Ice.LoggerAdminPrx _loggerAdmin;
+    private final LoggerAdminPrx _loggerAdmin;
     private final String _title;
     private final String _defaultFileName;
 
     private RemoteLoggerI _remoteLogger;
-    private com.zeroc.Ice.RemoteLoggerPrx _remoteLoggerPrx;
+    private RemoteLoggerPrx _remoteLoggerPrx;
 
     private int _maxMessages;
     private int _initialMessages;
@@ -777,9 +800,9 @@ class ShowIceLogDialog extends JDialog {
     private LogMessageType[] _messageTypeFilter;
     private String[] _traceCategoryFilter;
 
-    private Action _play;
-    private Action _pause;
-    private Action _stop;
+    private final Action _play;
+    private final Action _pause;
+    private final Action _stop;
 
     private JRadioButtonMenuItem _playItem;
     private JRadioButtonMenuItem _pauseItem;
@@ -790,13 +813,13 @@ class ShowIceLogDialog extends JDialog {
     private JToggleButton _stopButton;
 
     private final Object[] _columnNames =
-            new Object[]{"Timestamp", "Type", "Trace Category", "Log Message"};
+        new Object[]{"Timestamp", "Type", "Trace Category", "Log Message"};
     private final DefaultTableModel _tableModel;
     private final JTable _table;
 
     private final Preferences _preferences;
 
-    private static String renderDate(java.util.Date date) {
+    private static String renderDate(Date date) {
         return _dateFormat.format(date) + _timeFormat.format(date);
     }
 
@@ -811,9 +834,9 @@ class ShowIceLogDialog extends JDialog {
         return msg.replace("\n", " ");
     }
 
-    private static final java.text.DateFormat _dateFormat =
-            java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
+    private static final DateFormat _dateFormat =
+        DateFormat.getDateInstance(DateFormat.SHORT);
 
-    private static final java.text.DateFormat _timeFormat =
-            new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
+    private static final DateFormat _timeFormat =
+        new SimpleDateFormat(" HH:mm:ss:SSS");
 }

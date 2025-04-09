@@ -3,6 +3,30 @@
 package com.zeroc.Ice;
 
 import java.io.IOException;
+import java.io.ObjectStreamClass;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
+import java.nio.charset.Charset;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
+import java.util.TreeMap;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Interface to read sequence of bytes encoded using the Ice encoding and recreate the corresponding
@@ -19,9 +43,9 @@ public final class InputStream {
      */
     public InputStream(Communicator communicator, byte[] data) {
         this(
-                communicator.getInstance(),
-                communicator.getInstance().defaultsAndOverrides().defaultEncoding,
-                new Buffer(data));
+            communicator.getInstance(),
+            communicator.getInstance().defaultsAndOverrides().defaultEncoding,
+            new Buffer(data));
     }
 
     /**
@@ -30,11 +54,11 @@ public final class InputStream {
      * @param communicator The communicator to use when initializing the stream.
      * @param buf The byte buffer containing encoded Slice types.
      */
-    public InputStream(Communicator communicator, java.nio.ByteBuffer buf) {
+    public InputStream(Communicator communicator, ByteBuffer buf) {
         this(
-                communicator.getInstance(),
-                communicator.getInstance().defaultsAndOverrides().defaultEncoding,
-                new Buffer(buf));
+            communicator.getInstance(),
+            communicator.getInstance().defaultsAndOverrides().defaultEncoding,
+            new Buffer(buf));
     }
 
     /**
@@ -56,7 +80,7 @@ public final class InputStream {
      * @param buf The byte buffer containing encoded Slice types.
      */
     public InputStream(
-            Communicator communicator, EncodingVersion encoding, java.nio.ByteBuffer buf) {
+            Communicator communicator, EncodingVersion encoding, ByteBuffer buf) {
         this(communicator.getInstance(), encoding, new Buffer(buf));
     }
 
@@ -255,7 +279,7 @@ public final class InputStream {
             //
             try {
                 _buf.b.get();
-            } catch (java.nio.BufferUnderflowException ex) {
+            } catch (BufferUnderflowException ex) {
                 throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
             }
         }
@@ -287,7 +311,7 @@ public final class InputStream {
         if (encoding.equals(Util.Encoding_1_0)) {
             if (sz != 6) {
                 throw new MarshalException(
-                        sz + "is not a valid encapsulation size for a 1.0 empty encapsulation.");
+                    sz + "is not a valid encapsulation size for a 1.0 empty encapsulation.");
             }
         } else {
             //
@@ -327,7 +351,7 @@ public final class InputStream {
         try {
             _buf.b.get(v);
             return v;
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -376,10 +400,10 @@ public final class InputStream {
      * @return The Slice type ID for this slice.
      */
     public String startSlice() // Returns type ID of next slice
-            {
-        assert (_encapsStack != null && _encapsStack.decoder != null);
-        return _encapsStack.decoder.startSlice();
-    }
+        {
+            assert (_encapsStack != null && _encapsStack.decoder != null);
+            return _encapsStack.decoder.startSlice();
+        }
 
     /** Indicates that the end of a value or exception slice has been reached. */
     public void endSlice() {
@@ -402,9 +426,9 @@ public final class InputStream {
     public void readPendingValues() {
         if (_encapsStack != null && _encapsStack.decoder != null) {
             _encapsStack.decoder.readPendingValues();
-        } else if (_encapsStack != null ?
-                _encapsStack.encoding_1_0
-                : _encoding.equals(Util.Encoding_1_0)) {
+        } else if (_encapsStack != null
+            ? _encapsStack.encoding_1_0
+            : _encoding.equals(Util.Encoding_1_0)) {
             //
             // If using the 1.0 encoding and no instances were read, we still read an empty sequence
             // of pending instances if requested (i.e.: if this is called).
@@ -433,7 +457,7 @@ public final class InputStream {
             } else {
                 return b < 0 ? b + 256 : b;
             }
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -500,7 +524,7 @@ public final class InputStream {
         try {
             _buf.b.get(v);
             return v;
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -529,7 +553,7 @@ public final class InputStream {
     public byte readByte() {
         try {
             return _buf.b.get();
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -540,11 +564,11 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.Optional<Byte> readByte(int tag) {
+    public Optional<Byte> readByte(int tag) {
         if (readOptional(tag, OptionalFormat.F1)) {
-            return java.util.Optional.of(readByte());
+            return Optional.of(readByte());
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -559,7 +583,7 @@ public final class InputStream {
             byte[] v = new byte[sz];
             _buf.b.get(v);
             return v;
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -570,11 +594,11 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.Optional<byte[]> readByteSeq(int tag) {
+    public Optional<byte[]> readByteSeq(int tag) {
         if (readOptional(tag, OptionalFormat.VSize)) {
-            return java.util.Optional.of(readByteSeq());
+            return Optional.of(readByteSeq());
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -583,16 +607,16 @@ public final class InputStream {
      *
      * @return A byte buffer "slice" of the internal buffer.
      */
-    public java.nio.ByteBuffer readByteBuffer() {
+    public ByteBuffer readByteBuffer() {
         try {
             final int sz = readAndCheckSeqSize(1);
-            java.nio.ByteBuffer v = _buf.b.slice();
+            ByteBuffer v = _buf.b.slice();
             // Cast to java.nio.Buffer to avoid incompatible covariant
             // return type used in Java 9 java.nio.ByteBuffer
             ((java.nio.Buffer) v).limit(sz);
             _buf.position(_buf.b.position() + sz);
             return v.asReadOnlyBuffer();
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -604,7 +628,7 @@ public final class InputStream {
      * @param cl The class for the serializable type.
      * @return The deserialized Java object.
      */
-    public <T extends java.io.Serializable> T readSerializable(Class<T> cl) {
+    public <T extends Serializable> T readSerializable(Class<T> cl) {
         int sz = readAndCheckSeqSize(1);
         if (sz == 0) {
             return null;
@@ -637,12 +661,12 @@ public final class InputStream {
      * @param cl The class for the serializable type.
      * @return The optional value (if any).
      */
-    public <T extends java.io.Serializable> java.util.Optional<T> readSerializable(
+    public <T extends Serializable> Optional<T> readSerializable(
             int tag, Class<T> cl) {
         if (readOptional(tag, OptionalFormat.VSize)) {
-            return java.util.Optional.of(readSerializable(cl));
+            return Optional.of(readSerializable(cl));
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -654,7 +678,7 @@ public final class InputStream {
     public boolean readBool() {
         try {
             return _buf.b.get() == 1;
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -665,11 +689,11 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.Optional<Boolean> readBool(int tag) {
+    public Optional<Boolean> readBool(int tag) {
         if (readOptional(tag, OptionalFormat.F1)) {
-            return java.util.Optional.of(readBool());
+            return Optional.of(readBool());
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -686,7 +710,7 @@ public final class InputStream {
                 v[i] = _buf.b.get() == 1;
             }
             return v;
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -697,11 +721,11 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.Optional<boolean[]> readBoolSeq(int tag) {
+    public Optional<boolean[]> readBoolSeq(int tag) {
         if (readOptional(tag, OptionalFormat.VSize)) {
-            return java.util.Optional.of(readBoolSeq());
+            return Optional.of(readBoolSeq());
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -713,7 +737,7 @@ public final class InputStream {
     public short readShort() {
         try {
             return _buf.b.getShort();
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -724,11 +748,11 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.Optional<Short> readShort(int tag) {
+    public Optional<Short> readShort(int tag) {
         if (readOptional(tag, OptionalFormat.F2)) {
-            return java.util.Optional.of(readShort());
+            return Optional.of(readShort());
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -741,11 +765,11 @@ public final class InputStream {
         try {
             final int sz = readAndCheckSeqSize(2);
             short[] v = new short[sz];
-            java.nio.ShortBuffer shortBuf = _buf.b.asShortBuffer();
+            ShortBuffer shortBuf = _buf.b.asShortBuffer();
             shortBuf.get(v);
             _buf.position(_buf.b.position() + sz * 2);
             return v;
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -756,12 +780,12 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.Optional<short[]> readShortSeq(int tag) {
+    public Optional<short[]> readShortSeq(int tag) {
         if (readOptional(tag, OptionalFormat.VSize)) {
             skipSize();
-            return java.util.Optional.of(readShortSeq());
+            return Optional.of(readShortSeq());
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -770,17 +794,17 @@ public final class InputStream {
      *
      * @return A short buffer "slice" of the internal buffer.
      */
-    public java.nio.ShortBuffer readShortBuffer() {
+    public ShortBuffer readShortBuffer() {
         try {
             final int sz = readAndCheckSeqSize(2);
-            java.nio.ShortBuffer shortBuf = _buf.b.asShortBuffer();
-            java.nio.ShortBuffer v = shortBuf.slice();
+            ShortBuffer shortBuf = _buf.b.asShortBuffer();
+            ShortBuffer v = shortBuf.slice();
             // Cast to java.nio.Buffer to avoid incompatible covariant
             // return type used in Java 9 java.nio.ShortBuffer
             ((java.nio.Buffer) v).limit(sz);
             _buf.position(_buf.b.position() + sz * 2);
             return v.asReadOnlyBuffer();
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -793,7 +817,7 @@ public final class InputStream {
     public int readInt() {
         try {
             return _buf.b.getInt();
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -804,11 +828,11 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.OptionalInt readInt(int tag) {
+    public OptionalInt readInt(int tag) {
         if (readOptional(tag, OptionalFormat.F4)) {
-            return java.util.OptionalInt.of(readInt());
+            return OptionalInt.of(readInt());
         } else {
-            return java.util.OptionalInt.empty();
+            return OptionalInt.empty();
         }
     }
 
@@ -821,11 +845,11 @@ public final class InputStream {
         try {
             final int sz = readAndCheckSeqSize(4);
             int[] v = new int[sz];
-            java.nio.IntBuffer intBuf = _buf.b.asIntBuffer();
+            IntBuffer intBuf = _buf.b.asIntBuffer();
             intBuf.get(v);
             _buf.position(_buf.b.position() + sz * 4);
             return v;
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -836,12 +860,12 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.Optional<int[]> readIntSeq(int tag) {
+    public Optional<int[]> readIntSeq(int tag) {
         if (readOptional(tag, OptionalFormat.VSize)) {
             skipSize();
-            return java.util.Optional.of(readIntSeq());
+            return Optional.of(readIntSeq());
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -850,17 +874,17 @@ public final class InputStream {
      *
      * @return An int buffer "slice" of the internal buffer.
      */
-    public java.nio.IntBuffer readIntBuffer() {
+    public IntBuffer readIntBuffer() {
         try {
             final int sz = readAndCheckSeqSize(4);
-            java.nio.IntBuffer intBuf = _buf.b.asIntBuffer();
-            java.nio.IntBuffer v = intBuf.slice();
+            IntBuffer intBuf = _buf.b.asIntBuffer();
+            IntBuffer v = intBuf.slice();
             // Cast to java.nio.Buffer to avoid incompatible covariant
             // return type used in Java 9 java.nio.IntBuffer
             ((java.nio.Buffer) v).limit(sz);
             _buf.position(_buf.b.position() + sz * 4);
             return v.asReadOnlyBuffer();
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -873,7 +897,7 @@ public final class InputStream {
     public long readLong() {
         try {
             return _buf.b.getLong();
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -884,11 +908,11 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.OptionalLong readLong(int tag) {
+    public OptionalLong readLong(int tag) {
         if (readOptional(tag, OptionalFormat.F8)) {
-            return java.util.OptionalLong.of(readLong());
+            return OptionalLong.of(readLong());
         } else {
-            return java.util.OptionalLong.empty();
+            return OptionalLong.empty();
         }
     }
 
@@ -901,11 +925,11 @@ public final class InputStream {
         try {
             final int sz = readAndCheckSeqSize(8);
             long[] v = new long[sz];
-            java.nio.LongBuffer longBuf = _buf.b.asLongBuffer();
+            LongBuffer longBuf = _buf.b.asLongBuffer();
             longBuf.get(v);
             _buf.position(_buf.b.position() + sz * 8);
             return v;
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -916,12 +940,12 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.Optional<long[]> readLongSeq(int tag) {
+    public Optional<long[]> readLongSeq(int tag) {
         if (readOptional(tag, OptionalFormat.VSize)) {
             skipSize();
-            return java.util.Optional.of(readLongSeq());
+            return Optional.of(readLongSeq());
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -930,17 +954,17 @@ public final class InputStream {
      *
      * @return A long buffer "slice" of the internal buffer.
      */
-    public java.nio.LongBuffer readLongBuffer() {
+    public LongBuffer readLongBuffer() {
         try {
             final int sz = readAndCheckSeqSize(8);
-            java.nio.LongBuffer longBuf = _buf.b.asLongBuffer();
-            java.nio.LongBuffer v = longBuf.slice();
+            LongBuffer longBuf = _buf.b.asLongBuffer();
+            LongBuffer v = longBuf.slice();
             // Cast to java.nio.Buffer to avoid incompatible covariant
             // return type used in Java 9 java.nio.LongBuffer
             ((java.nio.Buffer) v).limit(sz);
             _buf.position(_buf.b.position() + sz * 8);
             return v.asReadOnlyBuffer();
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -953,7 +977,7 @@ public final class InputStream {
     public float readFloat() {
         try {
             return _buf.b.getFloat();
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -964,11 +988,11 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.Optional<Float> readFloat(int tag) {
+    public Optional<Float> readFloat(int tag) {
         if (readOptional(tag, OptionalFormat.F4)) {
-            return java.util.Optional.of(readFloat());
+            return Optional.of(readFloat());
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -981,11 +1005,11 @@ public final class InputStream {
         try {
             final int sz = readAndCheckSeqSize(4);
             float[] v = new float[sz];
-            java.nio.FloatBuffer floatBuf = _buf.b.asFloatBuffer();
+            FloatBuffer floatBuf = _buf.b.asFloatBuffer();
             floatBuf.get(v);
             _buf.position(_buf.b.position() + sz * 4);
             return v;
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -996,12 +1020,12 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.Optional<float[]> readFloatSeq(int tag) {
+    public Optional<float[]> readFloatSeq(int tag) {
         if (readOptional(tag, OptionalFormat.VSize)) {
             skipSize();
-            return java.util.Optional.of(readFloatSeq());
+            return Optional.of(readFloatSeq());
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -1010,17 +1034,17 @@ public final class InputStream {
      *
      * @return A float buffer "slice" of the internal buffer.
      */
-    public java.nio.FloatBuffer readFloatBuffer() {
+    public FloatBuffer readFloatBuffer() {
         try {
             final int sz = readAndCheckSeqSize(4);
-            java.nio.FloatBuffer floatBuf = _buf.b.asFloatBuffer();
-            java.nio.FloatBuffer v = floatBuf.slice();
+            FloatBuffer floatBuf = _buf.b.asFloatBuffer();
+            FloatBuffer v = floatBuf.slice();
             // Cast to java.nio.Buffer to avoid incompatible covariant
             // return type used in Java 9 java.nio.FloatBuffer
             ((java.nio.Buffer) v).limit(sz);
             _buf.position(_buf.b.position() + sz * 4);
             return v.asReadOnlyBuffer();
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -1033,7 +1057,7 @@ public final class InputStream {
     public double readDouble() {
         try {
             return _buf.b.getDouble();
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -1044,11 +1068,11 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.OptionalDouble readDouble(int tag) {
+    public OptionalDouble readDouble(int tag) {
         if (readOptional(tag, OptionalFormat.F8)) {
-            return java.util.OptionalDouble.of(readDouble());
+            return OptionalDouble.of(readDouble());
         } else {
-            return java.util.OptionalDouble.empty();
+            return OptionalDouble.empty();
         }
     }
 
@@ -1061,11 +1085,11 @@ public final class InputStream {
         try {
             final int sz = readAndCheckSeqSize(8);
             double[] v = new double[sz];
-            java.nio.DoubleBuffer doubleBuf = _buf.b.asDoubleBuffer();
+            DoubleBuffer doubleBuf = _buf.b.asDoubleBuffer();
             doubleBuf.get(v);
             _buf.position(_buf.b.position() + sz * 8);
             return v;
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
@@ -1076,12 +1100,12 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.Optional<double[]> readDoubleSeq(int tag) {
+    public Optional<double[]> readDoubleSeq(int tag) {
         if (readOptional(tag, OptionalFormat.VSize)) {
             skipSize();
-            return java.util.Optional.of(readDoubleSeq());
+            return Optional.of(readDoubleSeq());
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -1091,22 +1115,22 @@ public final class InputStream {
      *
      * @return A double buffer "slice" of the internal buffer.
      */
-    public java.nio.DoubleBuffer readDoubleBuffer() {
+    public DoubleBuffer readDoubleBuffer() {
         try {
             final int sz = readAndCheckSeqSize(8);
-            java.nio.DoubleBuffer doubleBuf = _buf.b.asDoubleBuffer();
-            java.nio.DoubleBuffer v = doubleBuf.slice();
+            DoubleBuffer doubleBuf = _buf.b.asDoubleBuffer();
+            DoubleBuffer v = doubleBuf.slice();
             // Cast to java.nio.Buffer to avoid incompatible covariant
             // return type used in Java 9 java.nio.DoubleBuffer
             ((java.nio.Buffer) v).limit(sz);
             _buf.position(_buf.b.position() + sz * 8);
             return v.asReadOnlyBuffer();
-        } catch (java.nio.BufferUnderflowException ex) {
+        } catch (BufferUnderflowException ex) {
             throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
         }
     }
 
-    static final java.nio.charset.Charset _utf8 = java.nio.charset.Charset.forName("UTF8");
+    static final Charset _utf8 = Charset.forName("UTF8");
 
     /**
      * Extracts a string from the stream.
@@ -1162,10 +1186,10 @@ public final class InputStream {
                     }
                 }
                 return new String(_stringChars, 0, len);
-            } catch (java.io.UnsupportedEncodingException ex) {
+            } catch (UnsupportedEncodingException ex) {
                 assert false;
                 return "";
-            } catch (java.nio.BufferUnderflowException ex) {
+            } catch (BufferUnderflowException ex) {
                 throw new MarshalException(END_OF_BUFFER_MESSAGE, ex);
             }
         }
@@ -1177,11 +1201,11 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.Optional<String> readString(int tag) {
+    public Optional<String> readString(int tag) {
         if (readOptional(tag, OptionalFormat.VSize)) {
-            return java.util.Optional.of(readString());
+            return Optional.of(readString());
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -1205,12 +1229,12 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.Optional<String[]> readStringSeq(int tag) {
+    public Optional<String[]> readStringSeq(int tag) {
         if (readOptional(tag, OptionalFormat.FSize)) {
             skip(4);
-            return java.util.Optional.of(readStringSeq());
+            return Optional.of(readStringSeq());
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -1220,16 +1244,16 @@ public final class InputStream {
      * @return The extracted proxy.
      */
     public ObjectPrx readProxy() {
-        var ident = com.zeroc.Ice.Identity.ice_read(this);
+        var ident = Identity.ice_read(this);
         if (ident.name.isEmpty()) {
             return null;
         } else {
             var ref = _instance.referenceFactory().create(ident, this);
-            return new com.zeroc.Ice._ObjectPrxI(ref);
+            return new _ObjectPrxI(ref);
         }
     }
 
-    public <T extends ObjectPrx> T readProxy(java.util.function.Function<ObjectPrx, T> cast) {
+    public <T extends ObjectPrx> T readProxy(Function<ObjectPrx, T> cast) {
         return cast.apply(readProxy());
     }
 
@@ -1240,12 +1264,12 @@ public final class InputStream {
      * @param tag The numeric tag associated with the value.
      * @return The optional value (if any).
      */
-    public java.util.Optional<ObjectPrx> readProxy(int tag) {
+    public Optional<ObjectPrx> readProxy(int tag) {
         if (readOptional(tag, OptionalFormat.FSize)) {
             skip(4);
-            return java.util.Optional.of(readProxy());
+            return Optional.of(readProxy());
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -1259,13 +1283,13 @@ public final class InputStream {
      *     proxy type.
      * @return The optional value (if any).
      */
-    public <T extends ObjectPrx> java.util.Optional<T> readProxy(
-            int tag, java.util.function.Function<ObjectPrx, T> cast) {
+    public <T extends ObjectPrx> Optional<T> readProxy(
+            int tag, Function<ObjectPrx, T> cast) {
         if (readOptional(tag, OptionalFormat.FSize)) {
             skip(4);
-            return java.util.Optional.of(readProxy(cast));
+            return Optional.of(readProxy(cast));
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -1298,16 +1322,16 @@ public final class InputStream {
      *     corresponding instance has been fully unmarshaled.
      * @param cls The type of the Ice.Value to unmarshal.
      */
-    public <T extends Value> void readValue(java.util.function.Consumer<T> cb, Class<T> cls) {
+    public <T extends Value> void readValue(Consumer<T> cb, Class<T> cls) {
         initEncaps();
         _encapsStack.decoder.readValue(
-                v -> {
-                    if (v == null || cls.isInstance(v)) {
-                        cb.accept(cls.cast(v));
-                    } else {
-                        Ex.throwUOE(cls, v);
-                    }
-                });
+            v -> {
+                if (v == null || cls.isInstance(v)) {
+                    cb.accept(cls.cast(v));
+                } else {
+                    Ex.throwUOE(cls, v);
+                }
+            });
     }
 
     /**
@@ -1317,7 +1341,7 @@ public final class InputStream {
      *     extracts Slice values in stages. The Ice run time calls accept on the consumer when the
      *     corresponding instance has been fully unmarshaled.
      */
-    public void readValue(java.util.function.Consumer<Value> cb) {
+    public void readValue(Consumer<Value> cb) {
         readValue(cb, Value.class);
     }
 
@@ -1374,7 +1398,7 @@ public final class InputStream {
             } else {
                 if (format != expectedFormat) {
                     throw new MarshalException(
-                            "invalid optional data member `" + tag + "': unexpected format");
+                        "invalid optional data member `" + tag + "': unexpected format");
                 }
                 return true;
             }
@@ -1384,44 +1408,44 @@ public final class InputStream {
     private void skipOptional(OptionalFormat format) {
         switch (format) {
             case F1:
-                {
-                    skip(1);
-                    break;
-                }
+            {
+                skip(1);
+                break;
+            }
             case F2:
-                {
-                    skip(2);
-                    break;
-                }
+            {
+                skip(2);
+                break;
+            }
             case F4:
-                {
-                    skip(4);
-                    break;
-                }
+            {
+                skip(4);
+                break;
+            }
             case F8:
-                {
-                    skip(8);
-                    break;
-                }
+            {
+                skip(8);
+                break;
+            }
             case Size:
-                {
-                    skipSize();
-                    break;
-                }
+            {
+                skipSize();
+                break;
+            }
             case VSize:
-                {
-                    skip(readSize());
-                    break;
-                }
+            {
+                skip(readSize());
+                break;
+            }
             case FSize:
-                {
-                    skip(readInt());
-                    break;
-                }
+            {
+                skip(readInt());
+                break;
+            }
             case Class:
-                {
-                    throw new MarshalException("cannot skip an optional class");
-                }
+            {
+                throw new MarshalException("cannot skip an optional class");
+            }
         }
     }
 
@@ -1514,7 +1538,7 @@ public final class InputStream {
             }
         } catch (Exception ex) {
             throw new MarshalException(
-                    "Failed to create user exception with type ID '" + id + "'.", ex);
+                "Failed to create user exception with type ID '" + id + "'.", ex);
         }
 
         return userEx;
@@ -1534,12 +1558,12 @@ public final class InputStream {
     private abstract static class EncapsDecoder {
 
         protected class PatchEntry {
-            public PatchEntry(java.util.function.Consumer<Value> cb, int classGraphDepth) {
+            public PatchEntry(Consumer<Value> cb, int classGraphDepth) {
                 this.cb = cb;
                 this.classGraphDepth = classGraphDepth;
             }
 
-            public java.util.function.Consumer<Value> cb;
+            public Consumer<Value> cb;
             public int classGraphDepth;
         }
 
@@ -1547,17 +1571,17 @@ public final class InputStream {
                 InputStream stream,
                 int classGraphDepthMax,
                 ValueFactoryManager f,
-                java.util.function.Function<String, Class<?>> cr) {
+                Function<String, Class<?>> cr) {
             _stream = stream;
             _classGraphDepthMax = classGraphDepthMax;
             _classGraphDepth = 0;
             _valueFactoryManager = f;
             _classResolver = cr;
             _typeIdIndex = 0;
-            _unmarshaledMap = new java.util.TreeMap<>();
+            _unmarshaledMap = new TreeMap<>();
         }
 
-        abstract void readValue(java.util.function.Consumer<Value> cb);
+        abstract void readValue(Consumer<Value> cb);
 
         abstract void throwException(UserExceptionFactory factory) throws UserException;
 
@@ -1575,12 +1599,12 @@ public final class InputStream {
             return false;
         }
 
-        void readPendingValues() {}
+        void readPendingValues() {
+        }
 
         protected String readTypeId(boolean isIndex) {
-            if (_typeIdMap == null) // Lazy initialization
-            {
-                _typeIdMap = new java.util.TreeMap<>();
+            if (_typeIdMap == null) {// Lazy initialization
+                _typeIdMap = new TreeMap<>();
             }
 
             if (isIndex) {
@@ -1600,13 +1624,12 @@ public final class InputStream {
         protected Class<?> resolveClass(String typeId) {
             Class<?> cls = null;
             if (_typeIdCache == null) {
-                _typeIdCache = new java.util.HashMap<>(); // Lazy initialization.
+                _typeIdCache = new HashMap<>(); // Lazy initialization.
             } else {
                 cls = _typeIdCache.get(typeId);
             }
 
-            if (cls == EncapsDecoder.class) // Marker for non-existent class.
-            {
+            if (cls == EncapsDecoder.class) {// Marker for non-existent class.
                 cls = null;
             } else if (cls == null) {
                 try {
@@ -1614,7 +1637,7 @@ public final class InputStream {
                     _typeIdCache.put(typeId, cls != null ? cls : EncapsDecoder.class);
                 } catch (Exception ex) {
                     throw new MarshalException(
-                            "Failed to create a class with type ID '" + typeId + "'.", ex);
+                        "Failed to create a class with type ID '" + typeId + "'.", ex);
                 }
             }
 
@@ -1652,7 +1675,7 @@ public final class InputStream {
                         v = (Value) cls.getDeclaredConstructor().newInstance();
                     } catch (Exception ex) {
                         throw new MarshalException(
-                                "Failed to create a class with type ID '" + typeId + "'.", ex);
+                            "Failed to create a class with type ID '" + typeId + "'.", ex);
                     }
                 }
             }
@@ -1660,7 +1683,7 @@ public final class InputStream {
             return v;
         }
 
-        protected void addPatchEntry(int index, java.util.function.Consumer<Value> cb) {
+        protected void addPatchEntry(int index, Consumer<Value> cb) {
             assert (index > 0);
 
             //
@@ -1673,22 +1696,21 @@ public final class InputStream {
                 return;
             }
 
-            if (_patchMap == null) // Lazy initialization
-            {
-                _patchMap = new java.util.TreeMap<>();
+            if (_patchMap == null) { // Lazy initialization
+                _patchMap = new TreeMap<>();
             }
 
             //
             // Add patch entry if the instance isn't unmarshaled yet, the callback will be called
             // when the instance is unmarshaled.
             //
-            java.util.LinkedList<PatchEntry> l = _patchMap.get(index);
+            LinkedList<PatchEntry> l = _patchMap.get(index);
             if (l == null) {
                 //
                 // We have no outstanding instances to be patched for this index, so make a new
                 // entry in the patch map.
                 //
-                l = new java.util.LinkedList<>();
+                l = new LinkedList<>();
                 _patchMap.put(index, l);
             }
 
@@ -1714,7 +1736,7 @@ public final class InputStream {
                 //
                 // Patch all instances now that the instance is unmarshaled.
                 //
-                java.util.LinkedList<PatchEntry> l = _patchMap.get(index);
+                LinkedList<PatchEntry> l = _patchMap.get(index);
                 if (l != null) {
                     assert (!l.isEmpty());
 
@@ -1736,9 +1758,8 @@ public final class InputStream {
             if ((_patchMap == null || _patchMap.isEmpty()) && _valueList == null) {
                 v.ice_postUnmarshal();
             } else {
-                if (_valueList == null) // Lazy initialization
-                {
-                    _valueList = new java.util.ArrayList<>();
+                if (_valueList == null) {// Lazy initialization
+                    _valueList = new ArrayList<>();
                 }
                 _valueList.add(v);
 
@@ -1758,17 +1779,17 @@ public final class InputStream {
         protected final int _classGraphDepthMax;
         protected int _classGraphDepth;
         protected ValueFactoryManager _valueFactoryManager;
-        protected java.util.function.Function<String, Class<?>> _classResolver;
+        protected Function<String, Class<?>> _classResolver;
 
         //
         // Encapsulation attributes for value unmarshaling.
         //
-        protected java.util.TreeMap<Integer, java.util.LinkedList<PatchEntry>> _patchMap;
-        private java.util.TreeMap<Integer, Value> _unmarshaledMap;
-        private java.util.TreeMap<Integer, String> _typeIdMap;
+        protected TreeMap<Integer, LinkedList<PatchEntry>> _patchMap;
+        private TreeMap<Integer, Value> _unmarshaledMap;
+        private TreeMap<Integer, String> _typeIdMap;
         private int _typeIdIndex;
-        private java.util.List<Value> _valueList;
-        private java.util.HashMap<String, Class<?>> _typeIdCache;
+        private List<Value> _valueList;
+        private HashMap<String, Class<?>> _typeIdCache;
     }
 
     private static final class EncapsDecoder10 extends EncapsDecoder {
@@ -1776,13 +1797,13 @@ public final class InputStream {
                 InputStream stream,
                 int classGraphDepthMax,
                 ValueFactoryManager f,
-                java.util.function.Function<String, Class<?>> cr) {
+                Function<String, Class<?>> cr) {
             super(stream, classGraphDepthMax, f, cr);
             _sliceType = SliceType.NoSlice;
         }
 
         @Override
-        void readValue(java.util.function.Consumer<Value> cb) {
+        void readValue(Consumer<Value> cb) {
             //
             // Object references are encoded as a negative integer in 1.0.
             //
@@ -1907,13 +1928,13 @@ public final class InputStream {
             // whether or not the type ID is encoded as a string or as an index. For exceptions, the
             // type ID is always encoded as a string.
             //
-            if (_sliceType ==
-                    SliceType.ValueSlice) // For exceptions, the type ID is always encoded as a
-            // string
-            {
-                boolean isIndex = _stream.readBool();
-                _typeId = readTypeId(isIndex);
-            } else {
+            if (_sliceType
+                == SliceType.ValueSlice) // For exceptions, the type ID is always encoded as a
+                // string
+                {
+                    boolean isIndex = _stream.readBool();
+                    _typeId = readTypeId(isIndex);
+                } else {
                 _typeId = _stream.readString();
             }
 
@@ -1926,7 +1947,8 @@ public final class InputStream {
         }
 
         @Override
-        void endSlice() {}
+        void endSlice() {
+        }
 
         @Override
         void skipSlice() {
@@ -1976,7 +1998,7 @@ public final class InputStream {
                 //
                 if (_typeId.equals(Value.ice_staticId())) {
                     throw new MarshalException(
-                            "Cannot find value factory for type ID '" + mostDerivedId + "'.");
+                        "Cannot find value factory for type ID '" + mostDerivedId + "'.");
                 }
 
                 v = newInstance(_typeId);
@@ -2034,21 +2056,21 @@ public final class InputStream {
                 InputStream stream,
                 int classGraphDepthMax,
                 ValueFactoryManager f,
-                java.util.function.Function<String, Class<?>> cr) {
+                Function<String, Class<?>> cr) {
             super(stream, classGraphDepthMax, f, cr);
             _current = null;
             _valueIdIndex = 1;
         }
 
         @Override
-        void readValue(java.util.function.Consumer<Value> cb) {
+        void readValue(Consumer<Value> cb) {
             int index = _stream.readSize();
             if (index < 0) {
                 throw new MarshalException("invalid object id");
             } else if (index == 0) {
                 cb.accept(null);
-            } else if (_current != null &&
-                    (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0) {
+            } else if (_current != null
+                && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0) {
                 //
                 // When reading a class instance within a slice and there's an indirect instance
                 // table, always read an indirect reference
@@ -2060,9 +2082,8 @@ public final class InputStream {
                 // derive an index into the indirection table that we'll read
                 // at the end of the slice.
                 //
-                if (_current.indirectPatchList == null) // Lazy initialization
-                {
-                    _current.indirectPatchList = new java.util.ArrayDeque<>();
+                if (_current.indirectPatchList == null) {// Lazy initialization
+                    _current.indirectPatchList = new ArrayDeque<>();
                 }
                 IndirectPatchEntry e = new IndirectPatchEntry();
                 e.index = index - 1;
@@ -2119,7 +2140,7 @@ public final class InputStream {
 
                 if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0) {
                     throw new MarshalException(
-                            "cannot unmarshal user exception with type ID '" + mostDerivedId + "'");
+                        "cannot unmarshal user exception with type ID '" + mostDerivedId + "'");
                 }
 
                 startSlice();
@@ -2163,18 +2184,18 @@ public final class InputStream {
             // for exceptions it's always encoded as a string.
             //
             if (_current.sliceType == SliceType.ValueSlice) {
-                if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) ==
-                        Protocol.FLAG_HAS_TYPE_ID_COMPACT) // Must be checked 1st!
-                {
-                    _current.typeId = "";
-                    _current.compactId = _stream.readSize();
-                } else if ((_current.sliceFlags &
-                                (Protocol.FLAG_HAS_TYPE_ID_INDEX |
-                                        Protocol.FLAG_HAS_TYPE_ID_STRING)) !=
-                        0) {
+                if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT)
+                    == Protocol.FLAG_HAS_TYPE_ID_COMPACT) // Must be checked 1st!
+                    {
+                        _current.typeId = "";
+                        _current.compactId = _stream.readSize();
+                    } else if ((_current.sliceFlags
+                    & (Protocol.FLAG_HAS_TYPE_ID_INDEX
+                    | Protocol.FLAG_HAS_TYPE_ID_STRING))
+                    != 0) {
                     _current.typeId =
-                            readTypeId(
-                                    (_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
+                        readTypeId(
+                            (_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
                     _current.compactId = -1;
                 } else {
                     //
@@ -2229,8 +2250,8 @@ public final class InputStream {
                 if (indirectionTable.length == 0) {
                     throw new MarshalException("empty indirection table");
                 }
-                if ((_current.indirectPatchList == null || _current.indirectPatchList.isEmpty()) &&
-                        (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0) {
+                if ((_current.indirectPatchList == null || _current.indirectPatchList.isEmpty())
+                    && (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0) {
                     throw new MarshalException("no references to indirection table");
                 }
 
@@ -2262,12 +2283,12 @@ public final class InputStream {
             } else {
                 if (_current.sliceType == SliceType.ValueSlice) {
                     throw new MarshalException(
-                            "Cannot find value factory for type ID '" +
-                                    _current.typeId +
-                                    "' and compact format prevents slicing.");
+                        "Cannot find value factory for type ID '"
+                            + _current.typeId
+                            + "' and compact format prevents slicing.");
                 } else {
                     throw new MarshalException(
-                            "cannot find user exception for type ID '" + _current.typeId + "'");
+                        "cannot find user exception for type ID '" + _current.typeId + "'");
                 }
             }
 
@@ -2277,7 +2298,7 @@ public final class InputStream {
             //
             if (_current.sliceType == SliceType.ValueSlice) {
                 boolean hasOptionalMembers =
-                        (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
+                    (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
 
                 Buffer buffer = _stream.getBuffer();
                 final int end = buffer.b.position();
@@ -2295,23 +2316,21 @@ public final class InputStream {
                 buffer.position(end);
 
                 var info =
-                        new SliceInfo(
-                                _current.typeId,
-                                _current.compactId,
-                                bytes,
-                                hasOptionalMembers,
-                                (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0);
+                    new SliceInfo(
+                        _current.typeId,
+                        _current.compactId,
+                        bytes,
+                        hasOptionalMembers,
+                        (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0);
 
-                if (_current.slices == null) // Lazy initialization
-                {
-                    _current.slices = new java.util.ArrayList<>();
+                if (_current.slices == null) {// Lazy initialization
+                    _current.slices = new ArrayList<>();
                 }
                 _current.slices.add(info);
             }
 
-            if (_current.indirectionTables == null) // Lazy initialization
-            {
-                _current.indirectionTables = new java.util.ArrayList<>();
+            if (_current.indirectionTables == null) {// Lazy initialization
+                _current.indirectionTables = new ArrayList<>();
             }
 
             //
@@ -2339,7 +2358,7 @@ public final class InputStream {
             return false;
         }
 
-        private int readInstance(int index, java.util.function.Consumer<Value> cb) {
+        private int readInstance(int index, Consumer<Value> cb) {
             assert (index > 0);
 
             if (index > 1) {
@@ -2373,7 +2392,7 @@ public final class InputStream {
                     // Translate a compact (numeric) type ID into a class.
                     //
                     if (_compactIdCache == null) {
-                        _compactIdCache = new java.util.TreeMap<>(); // Lazy initialization.
+                        _compactIdCache = new TreeMap<>(); // Lazy initialization.
                     } else {
                         //
                         // Check the cache to see if we've already translated the compact type ID
@@ -2386,9 +2405,9 @@ public final class InputStream {
                                 updateCache = false;
                             } catch (Exception ex) {
                                 throw new MarshalException(
-                                        "Cannot find value factory for type ID '" +
-                                                _current.compactId +
-                                                "' and compact format prevents slicing.");
+                                    "Cannot find value factory for type ID '"
+                                        + _current.compactId
+                                        + "' and compact format prevents slicing.");
                             }
                         }
                     }
@@ -2472,8 +2491,7 @@ public final class InputStream {
         }
 
         private SlicedData readSlicedData() {
-            if (_current.slices == null) // No preserved slices.
-            {
+            if (_current.slices == null) {// No preserved slices.
                 return null;
             }
 
@@ -2513,7 +2531,7 @@ public final class InputStream {
 
         private static final class IndirectPatchEntry {
             int index;
-            java.util.function.Consumer<Value> cb;
+            Consumer<Value> cb;
         }
 
         private static final class InstanceData {
@@ -2528,15 +2546,15 @@ public final class InputStream {
             // Instance attributes
             SliceType sliceType;
             boolean skipFirstSlice;
-            java.util.List<SliceInfo> slices; // Preserved slices.
-            java.util.List<int[]> indirectionTables;
+            List<SliceInfo> slices; // Preserved slices.
+            List<int[]> indirectionTables;
 
             // Slice attributes
             byte sliceFlags;
             int sliceSize;
             String typeId;
             int compactId;
-            java.util.Deque<IndirectPatchEntry> indirectPatchList;
+            Deque<IndirectPatchEntry> indirectPatchList;
 
             final InstanceData previous;
             InstanceData next;
@@ -2544,7 +2562,7 @@ public final class InputStream {
 
         private InstanceData _current;
         private int _valueIdIndex; // The ID of the next instance to unmarshal.
-        private java.util.TreeMap<Integer, Class<?>> _compactIdCache; // Cache of compact type IDs.
+        private TreeMap<Integer, Class<?>> _compactIdCache; // Cache of compact type IDs.
     }
 
     private static final class Encaps {
@@ -2574,9 +2592,9 @@ public final class InputStream {
     private EncodingVersion _encoding;
 
     private boolean isEncoding_1_0() {
-        return _encapsStack != null ?
-                _encapsStack.encoding_1_0
-                : _encoding.equals(Util.Encoding_1_0);
+        return _encapsStack != null
+            ? _encapsStack.encoding_1_0
+            : _encoding.equals(Util.Encoding_1_0);
     }
 
     private Encaps _encapsStack;
@@ -2584,27 +2602,26 @@ public final class InputStream {
 
     private void initEncaps() {
         if (_encapsStack == null) // Lazy initialization
-        {
-            _encapsStack = _encapsCache;
-            if (_encapsStack != null) {
-                _encapsCache = _encapsCache.next;
-            } else {
-                _encapsStack = new Encaps();
+            {
+                _encapsStack = _encapsCache;
+                if (_encapsStack != null) {
+                    _encapsCache = _encapsCache.next;
+                } else {
+                    _encapsStack = new Encaps();
+                }
+                _encapsStack.setEncoding(_encoding);
+                _encapsStack.sz = _buf.b.limit();
             }
-            _encapsStack.setEncoding(_encoding);
-            _encapsStack.sz = _buf.b.limit();
-        }
 
-        if (_encapsStack.decoder == null) // Lazy initialization.
-        {
+        if (_encapsStack.decoder == null) {// Lazy initialization.
             if (_encapsStack.encoding_1_0) {
                 _encapsStack.decoder =
-                        new EncapsDecoder10(
-                                this, _classGraphDepthMax, _valueFactoryManager, _classResolver);
+                    new EncapsDecoder10(
+                        this, _classGraphDepthMax, _valueFactoryManager, _classResolver);
             } else {
                 _encapsStack.decoder =
-                        new EncapsDecoder11(
-                                this, _classGraphDepthMax, _valueFactoryManager, _classResolver);
+                    new EncapsDecoder11(
+                        this, _classGraphDepthMax, _valueFactoryManager, _classResolver);
             }
         }
     }
@@ -2612,10 +2629,10 @@ public final class InputStream {
     private void traceSkipSlice(String typeId, SliceType sliceType) {
         if (_instance.traceLevels().slicing > 0) {
             TraceUtil.traceSlicing(
-                    sliceType == SliceType.ExceptionSlice ? "exception" : "object",
-                    typeId,
-                    "Slicing",
-                    _instance.initializationData().logger);
+                sliceType == SliceType.ExceptionSlice ? "exception" : "object",
+                typeId,
+                "Slicing",
+                _instance.initializationData().logger);
         }
     }
 
@@ -2625,14 +2642,14 @@ public final class InputStream {
      */
     private class ObjectInputStreamWrapper extends java.io.ObjectInputStream {
         public ObjectInputStreamWrapper(Instance instance, java.io.InputStream in)
-                throws IOException {
+            throws IOException {
             super(in);
             _instance = instance;
         }
 
         @Override
-        protected Class<?> resolveClass(java.io.ObjectStreamClass cls)
-                throws IOException, ClassNotFoundException {
+        protected Class<?> resolveClass(ObjectStreamClass cls)
+            throws IOException, ClassNotFoundException {
 
             try {
                 Class<?> c = _instance.findClass(cls.getName());
@@ -2654,8 +2671,8 @@ public final class InputStream {
     private int _minSeqSize;
 
     private final ValueFactoryManager _valueFactoryManager;
-    private final java.util.function.Function<String, Class<?>> _classResolver;
+    private final Function<String, Class<?>> _classResolver;
 
     private static final String END_OF_BUFFER_MESSAGE =
-            "Attempting to unmarshal past the end of the buffer.";
+        "Attempting to unmarshal past the end of the buffer.";
 }
