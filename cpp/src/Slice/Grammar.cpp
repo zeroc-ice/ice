@@ -3011,7 +3011,7 @@ yyreduce:
             const bool isOutParam = param->isOutParam();
             if (!isOutParam && seenOutParam)
             {
-                currentUnit->error("parameter '" + param->name() + "': in-parameters cannot follow out-parameters");
+                currentUnit->error("parameter '" + param->name() + "': in-parameters cannot come after out-parameters");
             }
             seenOutParam |= isOutParam;
         }
