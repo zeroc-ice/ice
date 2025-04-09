@@ -3005,8 +3005,8 @@ yyreduce:
     {
         // Check that all out parameters come before all in parameters.
         auto op = dynamic_pointer_cast<Operation>(yyvsp[-2]);
-        bool seenOutParam;
-        for (const auto& param : parameters)
+        bool seenOutParam = false;
+        for (const auto& param : op->parameters())
         {
             const bool isOutParam = param->isOutParam();
             if (!isOutParam && seenOutParam)
@@ -3605,7 +3605,7 @@ yyreduce:
     if (op)
     {
         param = op->createParameter(tsp->name, tsp->type, tsp->isOptional, tsp->tag);
-        currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
+        currentUnit->currentContainer()->checkIntroduced(tsp->name, param);
     }
     yyval = param;
 }
@@ -3652,7 +3652,7 @@ yyreduce:
 {
     if (auto param = dynamic_pointer_cast<Parameter>(yyvsp[0]))
     {
-        parameter->setIsOutParameter();
+        param->setIsOutParam();
     }
     yyval = yyvsp[0];
 }

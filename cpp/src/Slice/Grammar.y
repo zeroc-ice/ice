@@ -1274,8 +1274,8 @@ operation
     {
         // Check that all out parameters come before all in parameters.
         auto op = dynamic_pointer_cast<Operation>($1);
-        bool seenOutParam;
-        for (const auto& param : parameters)
+        bool seenOutParam = false;
+        for (const auto& param : op->parameters())
         {
             const bool isOutParam = param->isOutParam();
             if (!isOutParam && seenOutParam)
@@ -1284,7 +1284,7 @@ operation
             }
             seenOutParam |= isOutParam;
         }
-        
+
         currentUnit->popContainer();
     }
     $$ = $1;
@@ -1793,7 +1793,7 @@ parameter
     if (op)
     {
         param = op->createParameter(tsp->name, tsp->type, tsp->isOptional, tsp->tag);
-        currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
+        currentUnit->currentContainer()->checkIntroduced(tsp->name, param);
     }
     $$ = param;
 }
@@ -1828,7 +1828,7 @@ parameter
 {
     if (auto param = dynamic_pointer_cast<Parameter>($2))
     {
-        parameter->setIsOutParameter();
+        param->setIsOutParam();
     }
     $$ = $2;
 }

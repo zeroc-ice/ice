@@ -3339,7 +3339,7 @@ Slice::Operation::returnAndOutParameters(const string& returnsName)
         // Create the dummy return-value parameter.
         const string fixedName = returnsName + (shouldEscapeReturnsName ? "_" : "");
         ParameterPtr returnParam =
-            make_shared<Parameter>(shared_from_this(), fixedName, _returnType, false, _returnIsOptional, _returnTag);
+            make_shared<Parameter>(shared_from_this(), fixedName, _returnType, _returnIsOptional, _returnTag);
         returnParam->setMetadata(getMetadata());
 
         outParams.push_back(returnParam);
