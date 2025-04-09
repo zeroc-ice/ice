@@ -2,7 +2,6 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.CommunicatorDescriptor;
 import com.zeroc.IceGrid.IceBoxDescriptor;
 import com.zeroc.IceGrid.ServerDescriptor;
 import com.zeroc.IceGrid.TemplateDescriptor;
@@ -19,7 +18,6 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import javax.swing.JPopupMenu;
-
 
 class ServerTemplates extends Templates {
     public static Map<String, TemplateDescriptor> copyDescriptors(

@@ -14,7 +14,6 @@ import test.Ice.slicing.exceptions.server.Test.UnknownIntermediate;
 import test.Ice.slicing.exceptions.server.Test.UnknownMostDerived1;
 import test.Ice.slicing.exceptions.server.Test.UnknownMostDerived2;
 
-
 public final class TestI implements TestIntf {
     @Override
     public void shutdown(Current current) {

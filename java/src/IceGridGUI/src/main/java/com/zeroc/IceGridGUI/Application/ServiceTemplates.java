@@ -20,7 +20,6 @@ import java.util.TreeMap;
 
 import javax.swing.JPopupMenu;
 
-
 class ServiceTemplates extends Templates {
     public static Map<String, TemplateDescriptor> copyDescriptors(
             Map<String, TemplateDescriptor> descriptors) {

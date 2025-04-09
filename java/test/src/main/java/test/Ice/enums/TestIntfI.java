@@ -10,7 +10,6 @@ import test.Ice.enums.Test.ShortEnum;
 import test.Ice.enums.Test.SimpleEnum;
 import test.Ice.enums.Test.TestIntf;
 
-
 public final class TestIntfI implements TestIntf {
     @Override
     public TestIntf.OpByteResult opByte(ByteEnum b1, Current current) {

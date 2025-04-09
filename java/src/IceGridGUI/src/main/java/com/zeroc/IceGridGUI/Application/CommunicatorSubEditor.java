@@ -17,7 +17,6 @@ import java.util.TreeMap;
 
 import javax.swing.JScrollPane;
 
-
 import javax.swing.JTextArea;
 
 class CommunicatorSubEditor {

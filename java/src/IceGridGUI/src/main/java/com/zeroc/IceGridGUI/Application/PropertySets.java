@@ -15,7 +15,6 @@ import java.util.Map;
 
 import javax.swing.JPopupMenu;
 
-
 class PropertySets extends ListTreeNode implements PropertySetParent {
     public static Map<String, PropertySetDescriptor> copyDescriptors(
             Map<String, PropertySetDescriptor> descriptors) {

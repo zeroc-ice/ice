@@ -23,7 +23,6 @@ import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
 
-
 import javax.swing.JPopupMenu;
 
 class Nodes extends ListTreeNode {

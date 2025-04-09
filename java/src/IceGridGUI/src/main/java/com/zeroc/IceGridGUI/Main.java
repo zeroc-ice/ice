@@ -15,7 +15,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
-
 public class Main extends JFrame {
     public static void main(final String[] args) {
         // Initialize L&F in main thread before Swing is used

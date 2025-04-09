@@ -2,7 +2,6 @@
 
 package test.Ice.operations;
 
-
 import test.TestHelper;
 import test.Ice.operations.Test.AnotherStruct;
 import test.Ice.operations.Test.MyClass;

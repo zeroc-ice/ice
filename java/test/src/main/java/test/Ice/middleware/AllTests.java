@@ -2,7 +2,6 @@
 
 package test.Ice.middleware;
 
-
 import test.Ice.middleware.Test.MyObject;
 import test.Ice.middleware.Test.MyObjectPrx;
 import test.TestHelper;

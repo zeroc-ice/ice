@@ -23,7 +23,6 @@ import test.Ice.operations.Test.MyStruct1;
 import test.Ice.operations.Test.Structure;
 import test.Ice.operations.Test.*;
 
-
 public final class MyDerivedClassI implements MyDerivedClass {
     private static void test(boolean b) {
         if (!b) {
