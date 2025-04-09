@@ -3196,7 +3196,7 @@ Slice::Operation::hasMarshaledResult() const
 }
 
 ParameterPtr
-Slice::Operation::createParameter(const string& name, const TypePtr& type, bool isOutParam, bool isOptional, int tag)
+Slice::Operation::createParameter(const string& name, const TypePtr& type, bool isOptional, int tag)
 {
     ContainedList matches = unit()->findContents(thisScope() + name);
     if (!matches.empty())
@@ -3218,21 +3218,6 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
     }
 
     checkIdentifier(name); // Don't return here -- we create the parameter anyway.
-
-    //
-    // Check that in parameters don't follow out parameters.
-    //
-    if (!_contents.empty())
-    {
-        ParameterPtr p = dynamic_pointer_cast<Parameter>(_contents.back());
-        assert(p);
-        if (p->isOutParam() && !isOutParam)
-        {
-            ostringstream os;
-            os << "'" << name << "': in parameters cannot follow out parameters";
-            unit()->error(os.str());
-        }
-    }
 
     if (isOptional)
     {
@@ -3256,7 +3241,7 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
         }
     }
 
-    ParameterPtr p = make_shared<Parameter>(shared_from_this(), name, type, isOutParam, isOptional, tag);
+    ParameterPtr p = make_shared<Parameter>(shared_from_this(), name, type, isOptional, tag);
     unit()->addContent(p);
     _contents.push_back(p);
     return p;
@@ -4465,6 +4450,17 @@ Slice::Parameter::isOutParam() const
     return _isOutParam;
 }
 
+void
+Slice::Parameter::setIsOutParam()
+{
+    // Emit an error if this parameter was already marked as 'out' (meaning 'out' was written multiple times in a row).
+    if (_isOutParam)
+    {
+        unit()->error("parameter '" + _name + "' was marked 'out' multiple times");
+    }
+    _isOutParam = true;
+}
+
 bool
 Slice::Parameter::optional() const
 {
@@ -4493,12 +4489,10 @@ Slice::Parameter::Parameter(
     const ContainerPtr& container,
     const string& name,
     TypePtr type,
-    bool isOutParam,
     bool isOptional,
     int tag)
     : Contained(container, name),
       _type(std::move(type)),
-      _isOutParam(isOutParam),
       _optional(isOptional),
       _tag(tag)
 {

@@ -207,6 +207,14 @@ file_metadata
 ;
 
 // ----------------------------------------------------------------------
+local_metadata
+// ----------------------------------------------------------------------
+: ICE_METADATA_OPEN metadata_list ICE_METADATA_CLOSE
+{
+    $$ = $2;
+}
+
+// ----------------------------------------------------------------------
 metadata
 // ----------------------------------------------------------------------
 : metadata_directives
@@ -221,14 +229,14 @@ metadata
 // ----------------------------------------------------------------------
 metadata_directives
 // ----------------------------------------------------------------------
-: ICE_METADATA_OPEN metadata_list ICE_METADATA_CLOSE
+: local_metadata
 {
-    $$ = $2;
+    $$ = $1;
 }
-| metadata_directives ICE_METADATA_OPEN metadata_list ICE_METADATA_CLOSE
+| metadata_directives local_metadata
 {
     auto metadata1 = dynamic_pointer_cast<MetadataListTok>($1);
-    auto metadata2 = dynamic_pointer_cast<MetadataListTok>($3);
+    auto metadata2 = dynamic_pointer_cast<MetadataListTok>($2);
     metadata1->v.splice(metadata1->v.end(), std::move(metadata2->v));
     $$ = metadata1;
 }
@@ -1264,13 +1272,22 @@ operation
 {
     if ($1)
     {
+        // Check that all out parameters come before all in parameters.
+        auto op = dynamic_pointer_cast<Operation>($1);
+        bool seenOutParam;
+        for (const auto& param : parameters)
+        {
+            const bool isOutParam = param->isOutParam();
+            if (!isOutParam && seenOutParam)
+            {
+                currentUnit->error("parameter '" + param->name() + "': in-parameters cannot follow out-parameters");
+            }
+            seenOutParam |= isOutParam;
+        }
+        
         currentUnit->popContainer();
-        $$ = $1;
     }
-    else
-    {
-        $$ = nullptr;
-    }
+    $$ = $1;
 }
 throws
 {
@@ -1765,19 +1782,64 @@ enumerator_initializer
 ;
 
 // ----------------------------------------------------------------------
-out_qualifier
+parameter
 // ----------------------------------------------------------------------
-: ICE_OUT
+: optional_type_id
 {
-    auto out = make_shared<BoolTok>();
-    out->v = true;
-    $$ = out;
+    auto tsp = dynamic_pointer_cast<OptionalDefTok>($1);
+    ParameterPtr param;
+
+    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
+    if (op)
+    {
+        param = op->createParameter(tsp->name, tsp->type, tsp->isOptional, tsp->tag);
+        currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
+    }
+    $$ = param;
 }
-| %empty
+| type keyword
 {
-    auto out = make_shared<BoolTok>();
-    out->v = false;
-    $$ = out;
+    auto type = dynamic_pointer_cast<Type>($1);
+    auto ident = dynamic_pointer_cast<StringTok>($2);
+    ParameterPtr param;
+
+    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
+    if (op)
+    {
+        param = op->createParameter(ident->v, type, false, 0); // Dummy
+        currentUnit->error("keyword '" + ident->v + "' cannot be used as parameter name");
+    }
+    $$ = param;
+}
+| type
+{
+    auto type = dynamic_pointer_cast<Type>($1);
+    ParameterPtr param;
+
+    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
+    if (op)
+    {
+        param = op->createParameter(Ice::generateUUID(), type, false, 0); // Dummy
+        currentUnit->error("missing parameter name");
+    }
+    $$ = param;
+}
+| ICE_OUT parameter
+{
+    if (auto param = dynamic_pointer_cast<Parameter>($2))
+    {
+        parameter->setIsOutParameter();
+    }
+    $$ = $2;
+}
+| local_metadata parameter
+{
+    if (auto param = dynamic_pointer_cast<Parameter>($2))
+    {
+        auto metadata = dynamic_pointer_cast<MetadataListTok>($1);
+        param->appendMetadata(std::move(metadata->v));
+    }
+    $$ = $2;
 }
 ;
 
@@ -1791,84 +1853,8 @@ parameters
 // ----------------------------------------------------------------------
 parameter_list
 // ----------------------------------------------------------------------
-: out_qualifier metadata optional_type_id
-{
-    auto isOutParam = dynamic_pointer_cast<BoolTok>($1);
-    auto tsp = dynamic_pointer_cast<OptionalDefTok>($3);
-    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
-    if (op)
-    {
-        ParameterPtr pd = op->createParameter(tsp->name, tsp->type, isOutParam->v, tsp->isOptional, tsp->tag);
-        currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
-        auto metadata = dynamic_pointer_cast<MetadataListTok>($2);
-        if (!metadata->v.empty())
-        {
-            pd->appendMetadata(std::move(metadata->v));
-        }
-    }
-}
-| parameter_list ',' out_qualifier metadata optional_type_id
-{
-    auto isOutParam = dynamic_pointer_cast<BoolTok>($3);
-    auto tsp = dynamic_pointer_cast<OptionalDefTok>($5);
-    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
-    if (op)
-    {
-        ParameterPtr pd = op->createParameter(tsp->name, tsp->type, isOutParam->v, tsp->isOptional, tsp->tag);
-        currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
-        auto metadata = dynamic_pointer_cast<MetadataListTok>($4);
-        if (!metadata->v.empty())
-        {
-            pd->appendMetadata(std::move(metadata->v));
-        }
-    }
-}
-| out_qualifier metadata type keyword
-{
-    auto isOutParam = dynamic_pointer_cast<BoolTok>($1);
-    auto type = dynamic_pointer_cast<Type>($3);
-    auto ident = dynamic_pointer_cast<StringTok>($4);
-    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
-    if (op)
-    {
-        op->createParameter(ident->v, type, isOutParam->v, false, 0); // Dummy
-        currentUnit->error("keyword '" + ident->v + "' cannot be used as parameter name");
-    }
-}
-| parameter_list ',' out_qualifier metadata type keyword
-{
-    auto isOutParam = dynamic_pointer_cast<BoolTok>($3);
-    auto type = dynamic_pointer_cast<Type>($5);
-    auto ident = dynamic_pointer_cast<StringTok>($6);
-    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
-    if (op)
-    {
-        op->createParameter(ident->v, type, isOutParam->v, false, 0); // Dummy
-        currentUnit->error("keyword '" + ident->v + "' cannot be used as parameter name");
-    }
-}
-| out_qualifier metadata type
-{
-    auto isOutParam = dynamic_pointer_cast<BoolTok>($1);
-    auto type = dynamic_pointer_cast<Type>($3);
-    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
-    if (op)
-    {
-        op->createParameter(Ice::generateUUID(), type, isOutParam->v, false, 0); // Dummy
-        currentUnit->error("missing parameter name");
-    }
-}
-| parameter_list ',' out_qualifier metadata type
-{
-    auto isOutParam = dynamic_pointer_cast<BoolTok>($3);
-    auto type = dynamic_pointer_cast<Type>($5);
-    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
-    if (op)
-    {
-        op->createParameter(Ice::generateUUID(), type, isOutParam->v, false, 0); // Dummy
-        currentUnit->error("missing parameter name");
-    }
-}
+: parameter
+| parameter_list ',' parameter
 ;
 
 // ----------------------------------------------------------------------

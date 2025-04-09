@@ -678,7 +678,7 @@ namespace Slice
         [[nodiscard]] bool hasMarshaledResult() const;
 
         ParameterPtr
-        createParameter(const std::string& name, const TypePtr& type, bool isOutParam, bool isOptional, int tag);
+        createParameter(const std::string& name, const TypePtr& type, bool isOptional, int tag);
 
         [[nodiscard]] ParameterList parameters() const;
         /// Returns a list of all this operation's in-parameters (all parameters not marked with 'out').
@@ -985,11 +985,11 @@ namespace Slice
             const ContainerPtr& container,
             const std::string& name,
             TypePtr type,
-            bool isOutParam,
             bool isOptional,
             int tag);
         [[nodiscard]] TypePtr type() const;
         [[nodiscard]] bool isOutParam() const;
+        void setIsOutParam();
         [[nodiscard]] bool optional() const;
         [[nodiscard]] int tag() const;
         [[nodiscard]] std::string kindOf() const final;
@@ -997,7 +997,7 @@ namespace Slice
 
     private:
         TypePtr _type;
-        bool _isOutParam;
+        bool _isOutParam{false};
         bool _optional;
         int _tag;
     };
