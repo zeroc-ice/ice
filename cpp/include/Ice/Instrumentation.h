@@ -126,7 +126,7 @@ namespace Ice::Instrumentation
     class ThreadObserver : public virtual Observer
     {
     public:
-        /// Notifies the observer ofa thread state change.
+        /// Notifies the observer of a thread state change.
         /// @param oldState The previous thread state.
         /// @param newState The new thread state.
         virtual void stateChanged(ThreadState oldState, ThreadState newState) = 0;
