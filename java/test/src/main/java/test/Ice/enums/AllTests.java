@@ -8,8 +8,21 @@ import com.zeroc.Ice.MarshalException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.OutputStream;
 
-import test.Ice.enums.Test.*;
 import test.TestHelper;
+import test.Ice.enums.Test.ByteConst1;
+import test.Ice.enums.Test.ByteConst2;
+import test.Ice.enums.Test.ByteEnum;
+import test.Ice.enums.Test.IntConst1;
+import test.Ice.enums.Test.IntConst2;
+import test.Ice.enums.Test.IntEnum;
+import test.Ice.enums.Test.LongConst1;
+import test.Ice.enums.Test.LongConst2;
+import test.Ice.enums.Test.ShortConst1;
+import test.Ice.enums.Test.ShortConst2;
+import test.Ice.enums.Test.ShortEnum;
+import test.Ice.enums.Test.SimpleEnum;
+import test.Ice.enums.Test.TestIntf;
+import test.Ice.enums.Test.TestIntfPrx;
 
 import java.io.PrintWriter;
 

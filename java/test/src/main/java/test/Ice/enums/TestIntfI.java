@@ -4,7 +4,12 @@ package test.Ice.enums;
 
 import com.zeroc.Ice.Current;
 
-import test.Ice.enums.Test.*;
+import test.Ice.enums.Test.ByteEnum;
+import test.Ice.enums.Test.IntEnum;
+import test.Ice.enums.Test.ShortEnum;
+import test.Ice.enums.Test.SimpleEnum;
+import test.Ice.enums.Test.TestIntf;
+
 
 public final class TestIntfI implements TestIntf {
     @Override

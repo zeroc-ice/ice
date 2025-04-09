@@ -3,7 +3,10 @@
 package com.zeroc.IceGridGUI;
 
 import com.zeroc.Ice.Current;
-import com.zeroc.IceGrid.*;
+import com.zeroc.IceGrid.AdapterDynamicInfo;
+import com.zeroc.IceGrid.NodeDynamicInfo;
+import com.zeroc.IceGrid.NodeObserver;
+import com.zeroc.IceGrid.ServerDynamicInfo;
 
 import javax.swing.SwingUtilities;
 

@@ -9,7 +9,12 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.ParseException;
 import com.zeroc.Ice.Util;
-import com.zeroc.IceGrid.*;
+import com.zeroc.IceGrid.AdaptiveLoadBalancingPolicy;
+import com.zeroc.IceGrid.ObjectDescriptor;
+import com.zeroc.IceGrid.OrderedLoadBalancingPolicy;
+import com.zeroc.IceGrid.RandomLoadBalancingPolicy;
+import com.zeroc.IceGrid.ReplicaGroupDescriptor;
+import com.zeroc.IceGrid.RoundRobinLoadBalancingPolicy;
 import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.event.ItemEvent;

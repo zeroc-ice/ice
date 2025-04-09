@@ -2,7 +2,6 @@
 
 package test.Ice.middleware;
 
-import com.zeroc.Ice.*;
 
 import test.Ice.middleware.Test.MyObject;
 import test.Ice.middleware.Test.MyObjectPrx;
@@ -15,7 +14,17 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.ErrorObserverMiddleware;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.IncomingRequest;
 import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.OutgoingResponse;
+import com.zeroc.Ice.UnknownException;
+import com.zeroc.Ice.UserException;
 
 public class AllTests {
 

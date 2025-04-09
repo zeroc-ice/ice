@@ -10,7 +10,12 @@ import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.SecurityException;
 import com.zeroc.Ice.Util;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
@@ -22,7 +27,17 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.net.ssl.*;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SNIServerName;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509ExtendedKeyManager;
+import javax.net.ssl.X509TrustManager;
+
 
 public class SSLEngine {
     public SSLEngine(Communicator communicator) {
@@ -477,6 +492,7 @@ public class SSLEngine {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private InputStream openResource(String path) throws IOException {
         boolean isAbsolute = false;
         try {

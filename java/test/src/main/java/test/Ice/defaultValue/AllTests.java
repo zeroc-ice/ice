@@ -2,7 +2,6 @@
 
 package test.Ice.defaultValue;
 
-import test.Ice.defaultValue.Test.*;
 import test.TestHelper;
 
 import java.io.PrintWriter;
@@ -10,8 +9,28 @@ import java.io.PrintWriter;
 import test.Ice.defaultValue.Test.StructNoDefaults;
 
 import test.Ice.defaultValue.Test.ExceptionNoDefaults;
-
+import test.Ice.defaultValue.Test.Struct1;
+import test.Ice.defaultValue.Test.Struct2;
+import test.Ice.defaultValue.Test.Base;
+import test.Ice.defaultValue.Test.BaseEx;
 import test.Ice.defaultValue.Test.ClassNoDefaults;
+import test.Ice.defaultValue.Test.Color;
+import test.Ice.defaultValue.Test.ConstBool;
+import test.Ice.defaultValue.Test.ConstByte;
+import test.Ice.defaultValue.Test.ConstColor1;
+import test.Ice.defaultValue.Test.ConstColor2;
+import test.Ice.defaultValue.Test.ConstColor3;
+import test.Ice.defaultValue.Test.ConstDouble;
+import test.Ice.defaultValue.Test.ConstFloat;
+import test.Ice.defaultValue.Test.ConstInt;
+import test.Ice.defaultValue.Test.ConstLong;
+import test.Ice.defaultValue.Test.ConstNestedColor1;
+import test.Ice.defaultValue.Test.ConstNestedColor2;
+import test.Ice.defaultValue.Test.ConstNestedColor3;
+import test.Ice.defaultValue.Test.ConstShort;
+import test.Ice.defaultValue.Test.ConstString;
+import test.Ice.defaultValue.Test.Derived;
+import test.Ice.defaultValue.Test.DerivedEx;
 
 public class AllTests {
     private static void test(boolean b) {

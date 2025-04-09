@@ -7,7 +7,13 @@ import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.UnknownException;
 
-import test.Ice.serialize.Test.*;
+import test.Ice.serialize.Test.Base;
+import test.Ice.serialize.Test.Derived;
+import test.Ice.serialize.Test.Ex;
+import test.Ice.serialize.Test.Initial;
+import test.Ice.serialize.Test.InitialPrx;
+import test.Ice.serialize.Test.MyEnum;
+import test.Ice.serialize.Test.Struct1;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

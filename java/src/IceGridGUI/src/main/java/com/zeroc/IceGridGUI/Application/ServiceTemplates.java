@@ -2,14 +2,24 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
+import com.zeroc.IceGrid.AdapterDescriptor;
+import com.zeroc.IceGrid.PropertyDescriptor;
+import com.zeroc.IceGrid.PropertySetDescriptor;
+import com.zeroc.IceGrid.ServiceDescriptor;
+import com.zeroc.IceGrid.TemplateDescriptor;
 import com.zeroc.IceGridGUI.ApplicationActions;
 import com.zeroc.IceGridGUI.TreeNodeBase;
 import com.zeroc.IceGridGUI.Utils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
 import javax.swing.JPopupMenu;
 
-import java.util.*;
 
 class ServiceTemplates extends Templates {
     public static Map<String, TemplateDescriptor> copyDescriptors(

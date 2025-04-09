@@ -6,7 +6,24 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Value;
 
-import test.Ice.objects.Test.*;
+import test.Ice.objects.Test.A1;
+import test.Ice.objects.Test.B;
+import test.Ice.objects.Test.Base;
+import test.Ice.objects.Test.C;
+import test.Ice.objects.Test.Compact;
+import test.Ice.objects.Test.CompactExt;
+import test.Ice.objects.Test.D;
+import test.Ice.objects.Test.D1;
+import test.Ice.objects.Test.EDerived;
+import test.Ice.objects.Test.F1;
+import test.Ice.objects.Test.F2Prx;
+import test.Ice.objects.Test.F3;
+import test.Ice.objects.Test.G;
+import test.Ice.objects.Test.Initial;
+import test.Ice.objects.Test.K;
+import test.Ice.objects.Test.L;
+import test.Ice.objects.Test.M;
+import test.Ice.objects.Test.Recursive;
 import test.Ice.objects.Test.Inner.A;
 import test.Ice.objects.Test.Inner.Ex;
 

@@ -2,14 +2,28 @@
 
 package test.Ice.operations;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.zeroc.Ice.BZip2;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.OperationMode;
 import com.zeroc.Ice.Util;
 
+import test.Ice.operations.Test.MyClass;
+import test.Ice.operations.Test.MyClass1;
+import test.Ice.operations.Test.MyClassPrx;
+import test.Ice.operations.Test.MyDerivedClass;
+import test.Ice.operations.Test.MyEnum;
+import test.Ice.operations.Test.MyStruct;
+import test.Ice.operations.Test.MyStruct1;
+import test.Ice.operations.Test.Structure;
 import test.Ice.operations.Test.*;
 
-import java.util.*;
+
 
 public final class MyDerivedClassI implements MyDerivedClass {
     private static void test(boolean b) {

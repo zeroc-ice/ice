@@ -4,15 +4,19 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
-import com.zeroc.IceGrid.AdapterDescriptor;
 import com.zeroc.IceGrid.CommunicatorDescriptor;
 import com.zeroc.IceGrid.PropertyDescriptor;
-import com.zeroc.IceGrid.PropertySetDescriptor;
 import com.zeroc.IceGridGUI.Utils;
+
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.JScrollPane;
 
-import java.util.*;
 
 import javax.swing.JTextArea;
 
@@ -31,6 +35,7 @@ class CommunicatorSubEditor {
         _logFiles.setToolTipText("Log files used by this server or service");
     }
 
+    @SuppressWarnings("deprecation")
     void appendProperties(DefaultFormBuilder builder) {
         builder.append("Description");
         builder.nextLine();

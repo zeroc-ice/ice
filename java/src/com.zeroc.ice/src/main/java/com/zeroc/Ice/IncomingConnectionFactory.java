@@ -420,7 +420,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
         }
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "nofinalizer"})
     @Override
     protected synchronized void finalize() throws Throwable {
         try {

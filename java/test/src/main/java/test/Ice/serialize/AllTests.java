@@ -5,8 +5,13 @@ package test.Ice.serialize;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ObjectPrx;
 
-import test.Ice.serialize.Test.*;
 import test.TestHelper;
+import test.Ice.serialize.Test.Base;
+import test.Ice.serialize.Test.Derived;
+import test.Ice.serialize.Test.Ex;
+import test.Ice.serialize.Test.InitialPrx;
+import test.Ice.serialize.Test.MyEnum;
+import test.Ice.serialize.Test.Struct1;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

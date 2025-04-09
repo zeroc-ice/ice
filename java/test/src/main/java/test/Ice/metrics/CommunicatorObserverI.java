@@ -5,8 +5,16 @@ package test.Ice.metrics;
 import com.zeroc.Ice.ConnectionInfo;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Endpoint;
-import com.zeroc.Ice.Instrumentation.*;
 import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
+import com.zeroc.Ice.Instrumentation.ConnectionObserver;
+import com.zeroc.Ice.Instrumentation.ConnectionState;
+import com.zeroc.Ice.Instrumentation.DispatchObserver;
+import com.zeroc.Ice.Instrumentation.InvocationObserver;
+import com.zeroc.Ice.Instrumentation.Observer;
+import com.zeroc.Ice.Instrumentation.ObserverUpdater;
+import com.zeroc.Ice.Instrumentation.ThreadObserver;
+import com.zeroc.Ice.Instrumentation.ThreadState;
 
 import java.util.Map;
 

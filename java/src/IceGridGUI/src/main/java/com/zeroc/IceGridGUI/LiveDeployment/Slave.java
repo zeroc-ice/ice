@@ -4,7 +4,12 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ObjectPrx;
-import com.zeroc.IceGrid.*;
+import com.zeroc.IceGrid.AdminSessionPrx;
+import com.zeroc.IceGrid.FileIteratorPrx;
+import com.zeroc.IceGrid.FileNotAvailableException;
+import com.zeroc.IceGrid.RegistryInfo;
+import com.zeroc.IceGrid.RegistryNotExistException;
+import com.zeroc.IceGrid.RegistryUnreachableException;
 import com.zeroc.IceGridGUI.LiveActions;
 import com.zeroc.IceGridGUI.Utils;
 

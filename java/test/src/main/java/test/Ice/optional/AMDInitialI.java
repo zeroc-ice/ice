@@ -5,7 +5,24 @@ package test.Ice.optional;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Value;
 
-import test.Ice.optional.AMD.Test.*;
+import test.Ice.optional.AMD.Test.A;
+import test.Ice.optional.AMD.Test.DerivedException;
+import test.Ice.optional.AMD.Test.FixedStruct;
+import test.Ice.optional.AMD.Test.G;
+import test.Ice.optional.AMD.Test.Initial;
+import test.Ice.optional.AMD.Test.Initial.OpMDict1MarshaledResult;
+import test.Ice.optional.AMD.Test.Initial.OpMDict2MarshaledResult;
+import test.Ice.optional.AMD.Test.Initial.OpMSeq1MarshaledResult;
+import test.Ice.optional.AMD.Test.Initial.OpMSeq2MarshaledResult;
+import test.Ice.optional.AMD.Test.Initial.OpMStruct1MarshaledResult;
+import test.Ice.optional.AMD.Test.Initial.OpMStruct2MarshaledResult;
+import test.Ice.optional.AMD.Test.MyEnum;
+import test.Ice.optional.AMD.Test.MyInterfacePrx;
+import test.Ice.optional.AMD.Test.OneOptional;
+import test.Ice.optional.AMD.Test.OptionalException;
+import test.Ice.optional.AMD.Test.RequiredException;
+import test.Ice.optional.AMD.Test.SmallStruct;
+import test.Ice.optional.AMD.Test.VarStruct;
 
 import java.util.HashMap;
 import java.util.List;

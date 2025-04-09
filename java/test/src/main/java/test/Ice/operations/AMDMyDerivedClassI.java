@@ -6,9 +6,21 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.OperationMode;
 import com.zeroc.Ice.Util;
 
+import test.Ice.operations.AMD.Test.MyClass;
+import test.Ice.operations.AMD.Test.MyClass1;
+import test.Ice.operations.AMD.Test.MyClassPrx;
+import test.Ice.operations.AMD.Test.MyDerivedClass;
+import test.Ice.operations.AMD.Test.MyEnum;
+import test.Ice.operations.AMD.Test.MyStruct;
+import test.Ice.operations.AMD.Test.MyStruct1;
+import test.Ice.operations.AMD.Test.Structure;
 import test.Ice.operations.AMD.Test.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -692,7 +704,7 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
     public CompletionStage<String[]> opStringLiteralsAsync(Current current) {
         return CompletableFuture.completedFuture(
             new String[]{
-                s0.value,
+                s1.value,
                 s1.value,
                 s2.value,
                 s3.value,

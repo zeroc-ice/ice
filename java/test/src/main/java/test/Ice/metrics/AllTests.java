@@ -10,7 +10,6 @@ import com.zeroc.Ice.ConnectionI;
 import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.DNSException;
 import com.zeroc.Ice.EndpointInfo;
-import com.zeroc.Ice.IceMX.*;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.PropertiesAdminPrx;
@@ -29,7 +28,15 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
+import com.zeroc.Ice.IceMX.ChildInvocationMetrics;
+import com.zeroc.Ice.IceMX.ConnectionMetrics;
+import com.zeroc.Ice.IceMX.DispatchMetrics;
+import com.zeroc.Ice.IceMX.InvocationMetrics;
 import com.zeroc.Ice.IceMX.Metrics;
+import com.zeroc.Ice.IceMX.MetricsAdmin;
+import com.zeroc.Ice.IceMX.MetricsAdminPrx;
+import com.zeroc.Ice.IceMX.MetricsFailures;
+import com.zeroc.Ice.IceMX.UnknownMetricsView;
 
 public class AllTests {
     private static void test(boolean b) {

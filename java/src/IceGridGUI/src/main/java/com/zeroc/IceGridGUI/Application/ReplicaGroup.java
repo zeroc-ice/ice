@@ -2,7 +2,11 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
+import com.zeroc.IceGrid.AdaptiveLoadBalancingPolicy;
+import com.zeroc.IceGrid.OrderedLoadBalancingPolicy;
+import com.zeroc.IceGrid.RandomLoadBalancingPolicy;
+import com.zeroc.IceGrid.ReplicaGroupDescriptor;
+import com.zeroc.IceGrid.RoundRobinLoadBalancingPolicy;
 import com.zeroc.IceGridGUI.TreeNodeBase;
 import com.zeroc.IceGridGUI.Utils;
 import com.zeroc.IceGridGUI.XMLWriter;

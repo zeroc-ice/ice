@@ -124,7 +124,6 @@ class BatchRequestQueue {
         public int batchRequestNum;
         public boolean compress;
     }
-    ;
 
     public synchronized SwapResult swap(OutputStream os) {
         if (_batchRequestNum == 0) {

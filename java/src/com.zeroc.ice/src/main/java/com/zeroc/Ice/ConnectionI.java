@@ -8,8 +8,16 @@ import com.zeroc.Ice.Instrumentation.ConnectionState;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.channels.SelectableChannel;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -1234,7 +1242,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         }
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "nofinalizer"})
     @Override
     protected synchronized void finalize() throws Throwable {
         try {

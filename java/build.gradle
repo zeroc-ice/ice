@@ -49,6 +49,9 @@ subprojects {
     //makes checkstyle wait for rewrite. hopefully
     tasks.withType(Checkstyle) {
         dependsOn(rewriteDryRun)
+        exclude(
+            '**/generated/**'
+        )
     }
 
 }
@@ -102,10 +105,10 @@ checkstyle {
 rewrite {
     activeRecipe(
         'org.openrewrite.staticanalysis.RemoveCallsToObjectFinalize',
+        'org.openrewrite.staticanalysis.DefaultComesLast',
         'org.openrewrite.java.RemoveUnusedImports',
         'org.openrewrite.java.format.AutoFormat',
-        'org.openrewrite.staticanalysis.CodeCleanup',
-        'org.openrewrite.staticanalysis.RemoveCallsToObjectFinalize'
+        'org.openrewrite.staticanalysis.CodeCleanup'
     )
     checkstyleConfigFile = file("config/checkstyle/checkstyle.xml")
     activeStyle('com.zeroc.IceRewriteRules')

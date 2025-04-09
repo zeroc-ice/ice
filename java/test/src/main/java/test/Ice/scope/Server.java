@@ -8,8 +8,13 @@ import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 
-import test.Ice.scope.Test.*;
 import test.TestHelper;
+import test.Ice.scope.Test.MyClass;
+import test.Ice.scope.Test.MyEnum;
+import test.Ice.scope.Test.MyInterface;
+import test.Ice.scope.Test.MyOtherClass;
+import test.Ice.scope.Test.MyOtherStruct;
+import test.Ice.scope.Test.MyStruct;
 
 import java.util.Map;
 

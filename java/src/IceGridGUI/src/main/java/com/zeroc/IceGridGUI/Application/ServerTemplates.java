@@ -10,9 +10,16 @@ import com.zeroc.IceGridGUI.ApplicationActions;
 import com.zeroc.IceGridGUI.TreeNodeBase;
 import com.zeroc.IceGridGUI.Utils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
 import javax.swing.JPopupMenu;
 
-import java.util.*;
 
 class ServerTemplates extends Templates {
     public static Map<String, TemplateDescriptor> copyDescriptors(

@@ -2,7 +2,13 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.IceMX.*;
+import com.zeroc.Ice.IceMX.CollocatedMetrics;
+import com.zeroc.Ice.IceMX.InvocationMetrics;
+import com.zeroc.Ice.IceMX.MetricsHelper;
+import com.zeroc.Ice.IceMX.MetricsHelper.AttributeResolver;
+import com.zeroc.Ice.IceMX.Observer.MetricsUpdate;
+import com.zeroc.Ice.IceMX.ObserverWithDelegate;
+import com.zeroc.Ice.IceMX.RemoteMetrics;
 import com.zeroc.Ice.Instrumentation.CollocatedObserver;
 import com.zeroc.Ice.Instrumentation.InvocationObserver;
 import com.zeroc.Ice.Instrumentation.RemoteObserver;

@@ -2,11 +2,18 @@
 
 package com.zeroc.Ice.SSL;
 
-import com.zeroc.Ice.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.zeroc.Ice.Acceptor;
+import com.zeroc.Ice.Connector;
+import com.zeroc.Ice.EndpointI_connectors;
+import com.zeroc.Ice.IPEndpointInfo;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.OutputStream;
+import com.zeroc.Ice.Transceiver;
 
 final class EndpointI extends com.zeroc.Ice.EndpointI {
     public EndpointI(Instance instance, com.zeroc.Ice.EndpointI delegate) {

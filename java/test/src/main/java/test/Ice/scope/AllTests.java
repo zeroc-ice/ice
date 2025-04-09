@@ -4,8 +4,14 @@ package test.Ice.scope;
 
 import com.zeroc.Ice.Communicator;
 
-import test.Ice.scope.Test.*;
 import test.TestHelper;
+import test.Ice.scope.Test.MyClass;
+import test.Ice.scope.Test.MyEnum;
+import test.Ice.scope.Test.MyInterface;
+import test.Ice.scope.Test.MyInterfacePrx;
+import test.Ice.scope.Test.MyOtherClass;
+import test.Ice.scope.Test.MyOtherStruct;
+import test.Ice.scope.Test.MyStruct;
 
 import java.util.HashMap;
 

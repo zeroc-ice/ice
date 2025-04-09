@@ -4,8 +4,6 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.UserException;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
 
 import java.awt.Component;
 import java.awt.Cursor;
@@ -18,12 +16,27 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
-import javax.swing.*;
+import javax.swing.ActionMap;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import com.zeroc.IceGrid.AccessDeniedException;
+import com.zeroc.IceGrid.ApplicationDescriptor;
+import com.zeroc.IceGrid.ApplicationUpdateDescriptor;
 import com.zeroc.IceGrid.BoxedString;
+import com.zeroc.IceGrid.IceBoxDescriptor;
+import com.zeroc.IceGrid.ServiceInstanceDescriptor;
+import com.zeroc.IceGrid.TemplateDescriptor;
+import com.zeroc.IceGridGUI.ApplicationActions;
+import com.zeroc.IceGridGUI.ApplicationPane;
+import com.zeroc.IceGridGUI.Coordinator;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 public class Root extends ListTreeNode {
     /** Construct a normal, existing Application */

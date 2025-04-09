@@ -17,8 +17,12 @@ import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Util;
 
-import test.Ice.ami.Test.*;
 import test.TestHelper;
+import test.Ice.ami.Test.PingReply;
+import test.Ice.ami.Test.PingReplyPrx;
+import test.Ice.ami.Test.TestIntfControllerPrx;
+import test.Ice.ami.Test.TestIntfException;
+import test.Ice.ami.Test.TestIntfPrx;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;

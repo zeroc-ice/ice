@@ -4,7 +4,9 @@ package com.zeroc.IceGridGUI;
 
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.TimeoutException;
-import com.zeroc.IceGrid.*;
+import com.zeroc.IceGrid.ApplicationInfo;
+import com.zeroc.IceGrid.ApplicationObserver;
+import com.zeroc.IceGrid.ApplicationUpdateInfo;
 
 import javax.swing.SwingUtilities;
 

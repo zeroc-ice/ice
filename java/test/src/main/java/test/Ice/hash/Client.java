@@ -9,8 +9,15 @@ import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.ProxyIdentityFacetKey;
 import com.zeroc.Ice.ProxyIdentityKey;
 
-import test.Ice.hash.Test.*;
 import test.TestHelper;
+import test.Ice.hash.Test.Color;
+import test.Ice.hash.Test.ColorPalette;
+import test.Ice.hash.Test.Draw;
+import test.Ice.hash.Test.Pen;
+import test.Ice.hash.Test.Point;
+import test.Ice.hash.Test.PointD;
+import test.Ice.hash.Test.PointF;
+import test.Ice.hash.Test.Polyline;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

@@ -5,7 +5,24 @@ package test.Ice.optional;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Value;
 
-import test.Ice.optional.Test.*;
+import test.Ice.optional.Test.A;
+import test.Ice.optional.Test.DerivedException;
+import test.Ice.optional.Test.FixedStruct;
+import test.Ice.optional.Test.G;
+import test.Ice.optional.Test.Initial;
+import test.Ice.optional.Test.Initial.OpMDict1MarshaledResult;
+import test.Ice.optional.Test.Initial.OpMDict2MarshaledResult;
+import test.Ice.optional.Test.Initial.OpMSeq1MarshaledResult;
+import test.Ice.optional.Test.Initial.OpMSeq2MarshaledResult;
+import test.Ice.optional.Test.Initial.OpMStruct1MarshaledResult;
+import test.Ice.optional.Test.Initial.OpMStruct2MarshaledResult;
+import test.Ice.optional.Test.MyEnum;
+import test.Ice.optional.Test.MyInterfacePrx;
+import test.Ice.optional.Test.OneOptional;
+import test.Ice.optional.Test.OptionalException;
+import test.Ice.optional.Test.RequiredException;
+import test.Ice.optional.Test.SmallStruct;
+import test.Ice.optional.Test.VarStruct;
 
 import java.util.HashMap;
 import java.util.List;

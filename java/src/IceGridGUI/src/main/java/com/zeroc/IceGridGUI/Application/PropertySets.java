@@ -7,9 +7,14 @@ import com.zeroc.IceGrid.PropertySetDescriptor;
 import com.zeroc.IceGridGUI.ApplicationActions;
 import com.zeroc.IceGridGUI.TreeNodeBase;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import javax.swing.JPopupMenu;
 
-import java.util.*;
 
 class PropertySets extends ListTreeNode implements PropertySetParent {
     public static Map<String, PropertySetDescriptor> copyDescriptors(

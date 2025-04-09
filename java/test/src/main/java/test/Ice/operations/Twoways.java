@@ -2,10 +2,19 @@
 
 package test.Ice.operations;
 
-import com.zeroc.Ice.*;
 
-import test.Ice.operations.Test.*;
 import test.TestHelper;
+import test.Ice.operations.Test.AnotherStruct;
+import test.Ice.operations.Test.MyClass;
+import test.Ice.operations.Test.MyClass1;
+import test.Ice.operations.Test.MyClassPrx;
+import test.Ice.operations.Test.MyDerivedClass;
+import test.Ice.operations.Test.MyDerivedClassPrx;
+import test.Ice.operations.Test.MyEnum;
+import test.Ice.operations.Test.MyStruct;
+import test.Ice.operations.Test.MyStruct1;
+import test.Ice.operations.Test.Structure;
+import test.Ice.operations.Test.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,9 +22,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.LocatorPrx;
 import com.zeroc.Ice.Object;
-
+import com.zeroc.Ice.ObjectNotExistException;
+import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+import com.zeroc.Ice.Locator;
 
 class Twoways {
     private static void test(boolean b) {

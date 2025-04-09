@@ -5,8 +5,12 @@ package test.Ice.slicing.exceptions;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ObjectPrx;
 
-import test.Ice.slicing.exceptions.client.Test.*;
 import test.TestHelper;
+import test.Ice.slicing.exceptions.client.Test.Base;
+import test.Ice.slicing.exceptions.client.Test.KnownDerived;
+import test.Ice.slicing.exceptions.client.Test.KnownIntermediate;
+import test.Ice.slicing.exceptions.client.Test.KnownMostDerived;
+import test.Ice.slicing.exceptions.client.Test.TestIntfPrx;
 
 import java.io.PrintWriter;
 
