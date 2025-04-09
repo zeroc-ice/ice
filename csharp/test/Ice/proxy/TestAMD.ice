@@ -4,7 +4,7 @@
 
 #include "Ice/Context.ice"
 
-["cs:namespace:Ice.proxy.AMD"]
+["cs:identifier:Ice.proxy.AMD.Test"]
 module Test
 {
     ["amd"] interface MyClass

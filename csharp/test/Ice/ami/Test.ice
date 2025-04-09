@@ -5,7 +5,7 @@
 #include "Ice/BuiltinSequences.ice"
 #include "Ice/Identity.ice"
 
-["cs:namespace:Ice.ami"]
+["cs:identifier:Ice.ami.Test"]
 module Test
 {
     exception TestIntfException

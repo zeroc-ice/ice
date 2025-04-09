@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.maxDispatches"]
+["cs:identifier:Ice.maxDispatches.Test"]
 module Test
 {
     interface TestIntf

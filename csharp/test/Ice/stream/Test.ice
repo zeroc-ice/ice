@@ -2,12 +2,12 @@
 
 #pragma once
 
+#include "Ice/BuiltinSequences.ice"
+
 // Suppress invalid metadata warnings which we expect this test to generate.
 [["suppress-warning"]]
 
-#include "Ice/BuiltinSequences.ice"
-
-["cs:namespace:Ice.stream"]
+["cs:identifier:Ice.stream.Test"]
 module Test
 {
     enum MyEnum

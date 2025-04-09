@@ -15,21 +15,20 @@ namespace
     static string getCSharpNamespace(const ContainedPtr& cont, bool& hasCSharpNamespaceAttribute)
     {
         // Traverse to the top-level module.
-        ModulePtr m;
         ContainedPtr p = cont;
         string csharpNamespace;
         while (true)
         {
             if (dynamic_pointer_cast<Module>(p))
             {
-                m = dynamic_pointer_cast<Module>(p);
+                // TODO we should be using the `mappedName` here, not the slice `name`.
                 if (csharpNamespace.empty())
                 {
-                    csharpNamespace = m->name();
+                    csharpNamespace = p->name();
                 }
                 else
                 {
-                    csharpNamespace = m->name() + "." + csharpNamespace;
+                    csharpNamespace = p->name() + "." + csharpNamespace;
                 }
             }
 
@@ -40,10 +39,9 @@ namespace
             p = dynamic_pointer_cast<Contained>(p->container());
             assert(p);
         }
+        assert(dynamic_pointer_cast<Module>(p));
 
-        assert(m);
-
-        if (auto metadata = m->getMetadataArgs("cs:namespace"))
+        if (auto metadata = p->getMetadataArgs("cs:namespace"))
         {
             hasCSharpNamespaceAttribute = true;
             return *metadata + "." + csharpNamespace;

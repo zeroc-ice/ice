@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.invoke"]
+["cs:identifier:Ice.invoke.Test"]
 module Test
 {
     exception MyException

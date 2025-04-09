@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.servantLocator"]
+["cs:identifier:Ice.servantLocator.Test"]
 module Test
 {
     exception TestIntfUserException

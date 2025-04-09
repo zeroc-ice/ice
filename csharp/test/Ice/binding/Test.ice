@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.binding"]
+["cs:identifier:Ice.binding.Test"]
 module Test
 {
     interface TestIntf

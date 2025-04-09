@@ -1,7 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
 #pragma once
-["cs:namespace:Ice.optional.AMD"]
+
+["cs:identifier:Ice.optional.AMD.Test"]
 module Test
 {
     class OneOptional

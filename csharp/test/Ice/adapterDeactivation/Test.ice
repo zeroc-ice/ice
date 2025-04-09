@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.adapterDeactivation"]
+["cs:identifier:Ice.adapterDeactivation.Test"]
 module Test
 {
     interface TestIntf

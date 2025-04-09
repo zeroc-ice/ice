@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.seqMapping.AMD"]
+["cs:identifier:Ice.seqMapping.AMD.Test"]
 module Test
 {
     sequence<byte> AByteS;

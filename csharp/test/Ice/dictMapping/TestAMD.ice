@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.dictMapping.AMD"]
+["cs:identifier:Ice.dictMapping.AMD.Test"]
 module Test
 {
     dictionary<int, int> NV;

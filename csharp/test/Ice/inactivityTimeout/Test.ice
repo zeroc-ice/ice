@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.inactivityTimeout"]
+["cs:identifier:Ice.inactivityTimeout.Test"]
 module Test
 {
     interface TestIntf

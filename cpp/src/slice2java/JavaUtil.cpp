@@ -320,31 +320,18 @@ Slice::JavaGenerator::output() const
 string
 Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& contained)
 {
-    //
     // Traverse to the top-level module.
-    //
-    ModulePtr m;
     ContainedPtr p = contained;
-    while (true)
+    while (!p->isTopLevel())
     {
-        if (dynamic_pointer_cast<Module>(p))
-        {
-            m = dynamic_pointer_cast<Module>(p);
-        }
-
-        if (p->isTopLevel())
-        {
-            break;
-        }
         p = dynamic_pointer_cast<Contained>(p->container());
         assert(p);
     }
-
-    assert(m);
+    assert(dynamic_pointer_cast<Module>(p));
 
     // The 'java:package' metadata can be defined as file metadata or applied to a top-level module.
     // We check for the metadata at the top-level module first and then fall back to the global scope.
-    if (auto metadataArgs = m->getMetadataArgs("java:package"))
+    if (auto metadataArgs = p->getMetadataArgs("java:package"))
     {
         return *metadataArgs;
     }

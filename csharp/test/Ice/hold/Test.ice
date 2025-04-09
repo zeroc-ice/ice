@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.hold"]
+["cs:identifier:Ice.hold.Test"]
 module Test
 {
     interface Hold

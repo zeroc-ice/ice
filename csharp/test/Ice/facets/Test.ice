@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.facets"]
+["cs:identifier:Ice.facets.Test"]
 module Test
 {
     interface Empty

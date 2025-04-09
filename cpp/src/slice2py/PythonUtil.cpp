@@ -2434,8 +2434,11 @@ Slice::Python::validateMetadata(const UnitPtr& unit)
     MetadataInfo packageInfo = {
         .validOn = {typeid(Module), typeid(Unit)},
         .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
-        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
+        .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
         {
+            const string msg = "'python:package' is deprecated; use 'python:identifier' to remap modules instead";
+            p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
+
             // If 'python:package' is applied to a module, it must be a top-level module.
             // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
             if (auto mod = dynamic_pointer_cast<Module>(p); mod && !mod->isTopLevel())

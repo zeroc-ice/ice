@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
 #pragma once
-["cs:namespace:Ice.objects"]
 
+["cs:identifier:Ice.objects.Test"]
 module Test
 {
     class F1

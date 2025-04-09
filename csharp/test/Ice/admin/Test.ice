@@ -5,7 +5,7 @@
 
 #include "Ice/PropertyDict.ice"
 
-["cs:namespace:Ice.admin"]
+["cs:identifier:Ice.admin.Test"]
 module Test
 {
     interface RemoteCommunicator

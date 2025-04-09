@@ -4,7 +4,7 @@
 
 #include "Ice/Identity.ice"
 
-["cs:namespace:Ice.udp"]
+["cs:identifier:Ice.udp.Test"]
 module Test
 {
     interface PingReply

@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.inheritance"]
+["cs:identifier:Ice.inheritance.Test"]
 module Test
 {
     module MA

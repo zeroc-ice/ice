@@ -2,7 +2,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.retry"]
+["cs:identifier:Ice.retry.Test"]
 module Test
 {
     interface Retry
