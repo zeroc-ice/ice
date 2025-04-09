@@ -4485,12 +4485,7 @@ Slice::Parameter::visit(ParserVisitor* visitor)
     visitor->visitParameter(shared_from_this());
 }
 
-Slice::Parameter::Parameter(
-    const ContainerPtr& container,
-    const string& name,
-    TypePtr type,
-    bool isOptional,
-    int tag)
+Slice::Parameter::Parameter(const ContainerPtr& container, const string& name, TypePtr type, bool isOptional, int tag)
     : Contained(container, name),
       _type(std::move(type)),
       _optional(isOptional),

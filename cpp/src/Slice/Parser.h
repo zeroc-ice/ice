@@ -677,8 +677,7 @@ namespace Slice
         [[nodiscard]] Mode mode() const;
         [[nodiscard]] bool hasMarshaledResult() const;
 
-        ParameterPtr
-        createParameter(const std::string& name, const TypePtr& type, bool isOptional, int tag);
+        ParameterPtr createParameter(const std::string& name, const TypePtr& type, bool isOptional, int tag);
 
         [[nodiscard]] ParameterList parameters() const;
         /// Returns a list of all this operation's in-parameters (all parameters not marked with 'out').
@@ -981,12 +980,7 @@ namespace Slice
     class Parameter final : public Contained, public std::enable_shared_from_this<Parameter>
     {
     public:
-        Parameter(
-            const ContainerPtr& container,
-            const std::string& name,
-            TypePtr type,
-            bool isOptional,
-            int tag);
+        Parameter(const ContainerPtr& container, const std::string& name, TypePtr type, bool isOptional, int tag);
         [[nodiscard]] TypePtr type() const;
         [[nodiscard]] bool isOutParam() const;
         void setIsOutParam();
