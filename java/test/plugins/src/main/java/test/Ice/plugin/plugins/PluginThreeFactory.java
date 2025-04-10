@@ -2,15 +2,19 @@
 
 package test.Ice.plugin.plugins;
 
-public class PluginThreeFactory implements com.zeroc.Ice.PluginFactory {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Plugin;
+import com.zeroc.Ice.PluginFactory;
+
+public class PluginThreeFactory implements PluginFactory {
     @Override
-    public com.zeroc.Ice.Plugin create(
-            com.zeroc.Ice.Communicator communicator, String name, String[] args) {
+    public Plugin create(
+            Communicator communicator, String name, String[] args) {
         return new PluginThree(communicator);
     }
 
     static class PluginThree extends BasePlugin {
-        public PluginThree(com.zeroc.Ice.Communicator communicator) {
+        public PluginThree(Communicator communicator) {
             super(communicator);
         }
 

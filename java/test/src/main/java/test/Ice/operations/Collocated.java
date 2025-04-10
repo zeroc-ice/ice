@@ -2,14 +2,19 @@
 
 package test.Ice.operations;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 
 import java.io.PrintWriter;
 
-public class Collocated extends test.TestHelper {
+import test.TestHelper;
+
+public class Collocated extends TestHelper {
     public void run(String[] args) {
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.operations");
         properties.setProperty("Ice.BatchAutoFlushSize", "100");
 
@@ -19,11 +24,11 @@ public class Collocated extends test.TestHelper {
         // scheduling so we suppress this warning.
         //
         properties.setProperty("Ice.Warn.Dispatch", "0");
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(properties)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            com.zeroc.Ice.ObjectPrx prx =
-                    adapter.add(new MyDerivedClassI(), Util.stringToIdentity("test"));
+            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            ObjectPrx prx =
+                adapter.add(new MyDerivedClassI(), Util.stringToIdentity("test"));
             // adapter.activate(); // Don't activate OA to ensure collocation is used.
 
             if (prx.ice_getConnection() != null) {
@@ -34,17 +39,17 @@ public class Collocated extends test.TestHelper {
         }
     }
 
-    private static void testCollocatedIPv6Invocation(test.TestHelper helper) {
+    private static void testCollocatedIPv6Invocation(TestHelper helper) {
         int port = helper.getTestPort(1);
         PrintWriter output = helper.getWriter();
         output.print("testing collocated invocation with normalized IPv6 address... ");
         output.flush();
-        try (var communicator = com.zeroc.Ice.Util.initialize()) {
+        try (var communicator = Util.initialize()) {
             communicator
-                    .getProperties()
-                    .setProperty("TestAdapter.Endpoints", "tcp -h \"0:0:0:0:0:0:0:1\" -p " + port);
+                .getProperties()
+                .setProperty("TestAdapter.Endpoints", "tcp -h \"0:0:0:0:0:0:0:1\" -p " + port);
             var adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new MyDerivedClassI(), com.zeroc.Ice.Util.stringToIdentity("test"));
+            adapter.add(new MyDerivedClassI(), Util.stringToIdentity("test"));
 
             var prx = ObjectPrx.createProxy(communicator, "test:tcp -h \"::1\" -p " + port);
             prx = prx.ice_invocationTimeout(100);

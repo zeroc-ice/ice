@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.util.ArrayList;
+
 /**
  * @hidden Public because it's used by IceBT, SSL, and the 'Ice/background' test.
  */
@@ -14,7 +16,7 @@ public interface EndpointFactory {
 
     String protocol();
 
-    EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint);
+    EndpointI create(ArrayList<String> args, boolean oaEndpoint);
 
     EndpointI read(InputStream s);
 

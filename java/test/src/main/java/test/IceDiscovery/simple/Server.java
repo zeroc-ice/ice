@@ -2,21 +2,31 @@
 
 package test.IceDiscovery.simple;
 
-public class Server extends test.TestHelper {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+
+import test.TestHelper;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Server extends TestHelper {
     public void run(String[] args) {
-        java.util.List<String> rargs = new java.util.ArrayList<String>();
-        com.zeroc.Ice.Properties properties = createTestProperties(args, rargs);
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
+        List<String> rargs = new ArrayList<String>();
+        Properties properties = createTestProperties(args, rargs);
+        try (Communicator communicator = initialize(properties)) {
             int num = Integer.parseInt(rargs.get(0));
             communicator
-                    .getProperties()
-                    .setProperty("ControlAdapter.Endpoints", getTestEndpoint(num));
+                .getProperties()
+                .setProperty("ControlAdapter.Endpoints", getTestEndpoint(num));
             communicator.getProperties().setProperty("ControlAdapter.AdapterId", "control" + num);
             communicator.getProperties().setProperty("ControlAdapter.ThreadPool.Size", "1");
 
-            com.zeroc.Ice.ObjectAdapter adapter =
-                    communicator().createObjectAdapter("ControlAdapter");
-            adapter.add(new ControllerI(), com.zeroc.Ice.Util.stringToIdentity("controller" + num));
+            ObjectAdapter adapter =
+                communicator().createObjectAdapter("ControlAdapter");
+            adapter.add(new ControllerI(), Util.stringToIdentity("controller" + num));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

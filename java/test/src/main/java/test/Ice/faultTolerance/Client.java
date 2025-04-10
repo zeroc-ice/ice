@@ -2,22 +2,30 @@
 
 package test.Ice.faultTolerance;
 
-public class Client extends test.TestHelper {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Properties;
+
+import test.TestHelper;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Client extends TestHelper {
     private static void usage() {
         System.err.println("Usage: Client port...");
     }
 
     public void run(String[] args) {
-        java.util.List<String> remainingArgs = new java.util.ArrayList<String>();
-        com.zeroc.Ice.Properties properties = createTestProperties(args, remainingArgs);
+        List<String> remainingArgs = new ArrayList<String>();
+        Properties properties = createTestProperties(args, remainingArgs);
         properties.setProperty("Ice.Package.Test", "test.Ice.faultTolerance");
         //
         // This test aborts servers, so we don't want warnings.
         //
         properties.setProperty("Ice.Warn.Connections", "0");
 
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
-            java.util.List<Integer> ports = new java.util.ArrayList<>(args.length);
+        try (Communicator communicator = initialize(properties)) {
+            List<Integer> ports = new ArrayList<>(args.length);
             for (String arg : remainingArgs) {
                 if (arg.charAt(0) == '-') {
                     usage();

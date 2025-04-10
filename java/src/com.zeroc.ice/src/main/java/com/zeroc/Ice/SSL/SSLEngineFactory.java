@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice.SSL;
 
+import javax.net.ssl.SSLEngine;
+
 /** A factory for javax.net.ssl.SSLEngine objects. */
 @FunctionalInterface
 public interface SSLEngineFactory {
@@ -13,5 +15,5 @@ public interface SSLEngineFactory {
      *     -1.
      * @return The new SSLEngine instance.
      */
-    javax.net.ssl.SSLEngine createSSLEngine(String peerHost, int peerPort);
+    SSLEngine createSSLEngine(String peerHost, int peerPort);
 }

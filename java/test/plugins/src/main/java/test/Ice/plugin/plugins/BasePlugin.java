@@ -2,8 +2,11 @@
 
 package test.Ice.plugin.plugins;
 
-public abstract class BasePlugin implements com.zeroc.Ice.Plugin {
-    public BasePlugin(com.zeroc.Ice.Communicator communicator) {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Plugin;
+
+public abstract class BasePlugin implements Plugin {
+    public BasePlugin(Communicator communicator) {
         _communicator = communicator;
     }
 
@@ -21,8 +24,8 @@ public abstract class BasePlugin implements com.zeroc.Ice.Plugin {
         }
     }
 
-    protected com.zeroc.Ice.Communicator _communicator;
-    protected boolean _initialized = false;
-    protected boolean _destroyed = false;
-    protected BasePlugin _other = null;
+    protected Communicator _communicator;
+    protected boolean _initialized;
+    protected boolean _destroyed;
+    protected BasePlugin _other;
 }

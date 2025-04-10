@@ -4,10 +4,13 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.AdapterDescriptor;
+import com.zeroc.IceGrid.ObjectDescriptor;
+import com.zeroc.IceGridGUI.Utils;
 
 import javax.swing.JCheckBox;
+
+import java.util.Map;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -47,12 +50,12 @@ class AdapterEditor extends Editor {
         _replicaGroupId.setText(resolver.substitute(descriptor.replicaGroupId));
         _priority.setText(resolver.substitute(descriptor.priority));
 
-        java.util.Map<String, String> properties = adapter.getProperties();
+        Map<String, String> properties = adapter.getProperties();
 
         // getId() returns the name of the adapter!
         _endpoints.setText(resolver.substitute(properties.get(adapter.getId() + ".Endpoints")));
         _publishedEndpoints.setText(
-                resolver.substitute(properties.get(adapter.getId() + ".PublishedEndpoints")));
+            resolver.substitute(properties.get(adapter.getId() + ".PublishedEndpoints")));
 
         _registerProcess.setSelected(descriptor.registerProcess);
         _serverLifetime.setSelected(descriptor.serverLifetime);
@@ -143,19 +146,19 @@ class AdapterEditor extends Editor {
         _propertiesPanel.setName("Adapter Properties");
     }
 
-    private JTextField _currentStatus = new JTextField(20);
-    private JTextField _currentEndpoints = new JTextField(20);
+    private final JTextField _currentStatus = new JTextField(20);
+    private final JTextField _currentEndpoints = new JTextField(20);
 
-    private JTextArea _description = new JTextArea(3, 20);
-    private JTextField _id = new JTextField(20);
-    private JTextField _replicaGroupId = new JTextField(20);
-    private JTextField _priority = new JTextField(20);
-    private JTextField _endpoints = new JTextField(20);
-    private JTextField _publishedEndpoints = new JTextField(20);
+    private final JTextArea _description = new JTextArea(3, 20);
+    private final JTextField _id = new JTextField(20);
+    private final JTextField _replicaGroupId = new JTextField(20);
+    private final JTextField _priority = new JTextField(20);
+    private final JTextField _endpoints = new JTextField(20);
+    private final JTextField _publishedEndpoints = new JTextField(20);
 
-    private JCheckBox _registerProcess = new JCheckBox("Register Process");
-    private JCheckBox _serverLifetime = new JCheckBox("Server Lifetime");
+    private final JCheckBox _registerProcess = new JCheckBox("Register Process");
+    private final JCheckBox _serverLifetime = new JCheckBox("Server Lifetime");
 
-    private TableField _objects = new TableField("Identity", "Type");
-    private TableField _allocatables = new TableField("Identity", "Type");
+    private final TableField _objects = new TableField("Identity", "Type");
+    private final TableField _allocatables = new TableField("Identity", "Type");
 }

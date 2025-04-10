@@ -2,7 +2,13 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.IceMX.*;
+import com.zeroc.Ice.IceMX.CollocatedMetrics;
+import com.zeroc.Ice.IceMX.InvocationMetrics;
+import com.zeroc.Ice.IceMX.MetricsHelper;
+import com.zeroc.Ice.IceMX.MetricsHelper.AttributeResolver;
+import com.zeroc.Ice.IceMX.Observer.MetricsUpdate;
+import com.zeroc.Ice.IceMX.ObserverWithDelegate;
+import com.zeroc.Ice.IceMX.RemoteMetrics;
 import com.zeroc.Ice.Instrumentation.CollocatedObserver;
 import com.zeroc.Ice.Instrumentation.InvocationObserver;
 import com.zeroc.Ice.Instrumentation.RemoteObserver;
@@ -11,24 +17,24 @@ import com.zeroc.Ice.Instrumentation.RemoteObserver;
  * @hidden Public because it's used by IceMX (via reflection).
  */
 public class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics, InvocationObserver>
-        implements InvocationObserver {
+    implements InvocationObserver {
     public static final class RemoteInvocationHelper extends MetricsHelper<RemoteMetrics> {
         private static final AttributeResolver _attributes =
-                new AttributeResolver() {
-                    {
-                        try {
-                            Class<?> cl = RemoteInvocationHelper.class;
-                            add("parent", cl.getDeclaredMethod("getParent"));
-                            add("id", cl.getDeclaredMethod("getId"));
-                            add("requestId", cl.getDeclaredMethod("getRequestId"));
-                            CommunicatorObserverI.addConnectionAttributes(
-                                    this, RemoteInvocationHelper.class);
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                            assert (false);
-                        }
+            new AttributeResolver() {
+                {
+                    try {
+                        Class<?> cl = RemoteInvocationHelper.class;
+                        add("parent", cl.getDeclaredMethod("getParent"));
+                        add("id", cl.getDeclaredMethod("getId"));
+                        add("requestId", cl.getDeclaredMethod("getRequestId"));
+                        CommunicatorObserverI.addConnectionAttributes(
+                            this, RemoteInvocationHelper.class);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        assert false;
                     }
-                };
+                }
+            };
 
         RemoteInvocationHelper(ConnectionInfo con, Endpoint endpt, int requestId, int size) {
             super(_attributes);
@@ -47,7 +53,7 @@ public class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics,
             if (_id == null) {
                 _id = _endpoint.toString();
                 if (_connectionInfo.connectionId != null
-                        && !_connectionInfo.connectionId.isEmpty()) {
+                    && !_connectionInfo.connectionId.isEmpty()) {
                     _id += " [" + _connectionInfo.connectionId + "]";
                 }
             }
@@ -91,19 +97,19 @@ public class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics,
 
     public static final class CollocatedInvocationHelper extends MetricsHelper<CollocatedMetrics> {
         private static final AttributeResolver _attributes =
-                new AttributeResolver() {
-                    {
-                        try {
-                            Class<?> cl = CollocatedInvocationHelper.class;
-                            add("parent", cl.getDeclaredMethod("getParent"));
-                            add("id", cl.getDeclaredMethod("getId"));
-                            add("requestId", cl.getDeclaredMethod("getRequestId"));
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                            assert (false);
-                        }
+            new AttributeResolver() {
+                {
+                    try {
+                        Class<?> cl = CollocatedInvocationHelper.class;
+                        add("parent", cl.getDeclaredMethod("getParent"));
+                        add("id", cl.getDeclaredMethod("getId"));
+                        add("requestId", cl.getDeclaredMethod("getRequestId"));
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        assert false;
                     }
-                };
+                }
+            };
 
         CollocatedInvocationHelper(ObjectAdapter adapter, int requestId, int size) {
             super(_attributes);
@@ -158,11 +164,11 @@ public class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics,
             delegate = _delegate.getRemoteObserver(con, edpt, requestId, sz);
         }
         return getObserver(
-                "Remote",
-                new RemoteInvocationHelper(con, edpt, requestId, sz),
-                RemoteMetrics.class,
-                RemoteObserverI.class,
-                delegate);
+            "Remote",
+            new RemoteInvocationHelper(con, edpt, requestId, sz),
+            RemoteMetrics.class,
+            RemoteObserverI.class,
+            delegate);
     }
 
     @Override
@@ -172,26 +178,26 @@ public class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics,
             delegate = _delegate.getCollocatedObserver(adapter, requestId, sz);
         }
         return getObserver(
-                "Collocated",
-                new CollocatedInvocationHelper(adapter, requestId, sz),
-                CollocatedMetrics.class,
-                CollocatedObserverI.class,
-                delegate);
+            "Collocated",
+            new CollocatedInvocationHelper(adapter, requestId, sz),
+            CollocatedMetrics.class,
+            CollocatedObserverI.class,
+            delegate);
     }
 
     final MetricsUpdate<InvocationMetrics> _incrementRetry =
-            new MetricsUpdate<InvocationMetrics>() {
-                @Override
-                public void update(InvocationMetrics v) {
-                    ++v.retry;
-                }
-            };
+        new MetricsUpdate<InvocationMetrics>() {
+            @Override
+            public void update(InvocationMetrics v) {
+                ++v.retry;
+            }
+        };
 
     final MetricsUpdate<InvocationMetrics> _userException =
-            new MetricsUpdate<InvocationMetrics>() {
-                @Override
-                public void update(InvocationMetrics v) {
-                    ++v.userException;
-                }
-            };
+        new MetricsUpdate<InvocationMetrics>() {
+            @Override
+            public void update(InvocationMetrics v) {
+                ++v.userException;
+            }
+        };
 }

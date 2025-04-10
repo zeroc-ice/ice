@@ -2,6 +2,8 @@
 
 package test.Ice.faultTolerance;
 
+import com.zeroc.Ice.Current;
+
 import test.Ice.faultTolerance.Test.TestIntf;
 
 public final class TestI implements TestIntf {
@@ -10,24 +12,24 @@ public final class TestI implements TestIntf {
     }
 
     @Override
-    public void shutdown(com.zeroc.Ice.Current current) {
+    public void shutdown(Current current) {
         current.adapter.getCommunicator().shutdown();
     }
 
     @Override
-    public void abort(com.zeroc.Ice.Current current) {
+    public void abort(Current current) {
         Runtime.getRuntime().halt(0);
     }
 
     @Override
-    public void idempotentAbort(com.zeroc.Ice.Current current) {
+    public void idempotentAbort(Current current) {
         Runtime.getRuntime().halt(0);
     }
 
     @Override
-    public int pid(com.zeroc.Ice.Current current) {
+    public int pid(Current current) {
         return _pseudoPid;
     }
 
-    private int _pseudoPid;
+    private final int _pseudoPid;
 }

@@ -2,10 +2,20 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.CommunicatorDescriptor;
+import com.zeroc.IceGrid.IceBoxDescriptor;
+import com.zeroc.IceGrid.ServerDescriptor;
+import com.zeroc.IceGrid.ServiceInstanceDescriptor;
+import com.zeroc.IceGrid.TemplateDescriptor;
+import com.zeroc.IceGridGUI.ApplicationActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
@@ -50,7 +60,7 @@ class ServerTemplate extends Communicator {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     // Actions
@@ -64,9 +74,9 @@ class ServerTemplate extends Communicator {
         } else {
             Object clipboard = getCoordinator().getClipboard();
             actions[PASTE] =
-                    clipboard != null
-                            && ((isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
-                                    || (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy)));
+                clipboard != null
+                    && ((isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
+                    || (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy)));
         }
 
         actions[DELETE] = true;
@@ -158,14 +168,14 @@ class ServerTemplate extends Communicator {
         _templateDescriptor.parameters = clone.parameters;
 
         PlainServer.shallowRestore(
-                (ServerDescriptor) clone.descriptor,
-                (ServerDescriptor) _templateDescriptor.descriptor);
+            (ServerDescriptor) clone.descriptor,
+            (ServerDescriptor) _templateDescriptor.descriptor);
     }
 
     // Application is needed to lookup service templates
     ServerTemplate(
             boolean brandNew, ServerTemplates parent, String name, TemplateDescriptor descriptor)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         super(parent, name);
         _editable = new Editable(brandNew);
         _ephemeral = false;
@@ -183,13 +193,13 @@ class ServerTemplate extends Communicator {
     }
 
     @Override
-    void write(XMLWriter writer) throws java.io.IOException {
+    void write(XMLWriter writer) throws IOException {
         if (!_ephemeral) {
-            java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
+            List<String[]> attributes = new LinkedList<String[]>();
             attributes.add(createAttribute("id", _id));
             writer.writeStartTag("server-template", attributes);
             writeParameters(
-                    writer, _templateDescriptor.parameters, _templateDescriptor.parameterDefaults);
+                writer, _templateDescriptor.parameters, _templateDescriptor.parameterDefaults);
 
             if (_templateDescriptor.descriptor instanceof IceBoxDescriptor) {
                 IceBoxDescriptor descriptor = (IceBoxDescriptor) _templateDescriptor.descriptor;
@@ -203,12 +213,12 @@ class ServerTemplate extends Communicator {
                 PlainServer.writeEnvs(writer, descriptor.envs);
 
                 writePropertySet(
-                        writer,
-                        "",
-                        "",
-                        descriptor.propertySet,
-                        descriptor.adapters,
-                        descriptor.logs);
+                    writer,
+                    "",
+                    "",
+                    descriptor.propertySet,
+                    descriptor.adapters,
+                    descriptor.logs);
                 writeLogs(writer, descriptor.logs, descriptor.propertySet.properties);
 
                 _adapters.write(writer, descriptor.propertySet.properties);
@@ -226,7 +236,7 @@ class ServerTemplate extends Communicator {
                 PlainServer.writeEnvs(writer, descriptor.envs);
 
                 writePropertySet(
-                        writer, descriptor.propertySet, descriptor.adapters, descriptor.logs);
+                    writer, descriptor.propertySet, descriptor.adapters, descriptor.logs);
                 writeLogs(writer, descriptor.logs, descriptor.propertySet.properties);
 
                 _adapters.write(writer, descriptor.propertySet.properties);
@@ -252,7 +262,7 @@ class ServerTemplate extends Communicator {
 
             if (isIceBox()) {
                 IceBoxDescriptor iceBoxDescriptor =
-                        (IceBoxDescriptor) _templateDescriptor.descriptor;
+                    (IceBoxDescriptor) _templateDescriptor.descriptor;
 
                 _services.init(iceBoxDescriptor.services);
             }
@@ -277,7 +287,7 @@ class ServerTemplate extends Communicator {
     }
 
     @Override
-    java.util.List<? extends TemplateInstance> findInstances() {
+    List<? extends TemplateInstance> findInstances() {
         return getRoot().findServerInstances(_id);
     }
 

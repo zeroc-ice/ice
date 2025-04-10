@@ -1,0 +1,9 @@
+type: specs.openrewrite.org/v1beta/style
+name: com.zeroc.IceRewriteRules
+styleConfigs:
+  - org.openrewrite.java.style.TabsAndIndentsStyle:
+      indentSize: 4
+      continuationIndent: 4
+      tabSize: 4
+  - org.openrewrite.java.style.OperatorWrapStyle:
+      wrapOption: NL

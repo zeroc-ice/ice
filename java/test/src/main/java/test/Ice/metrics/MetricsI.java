@@ -2,49 +2,55 @@
 
 package test.Ice.metrics;
 
-import test.Ice.metrics.Test.*;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.ObjectNotExistException;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.SyscallException;
+
+import test.Ice.metrics.Test.Metrics;
+import test.Ice.metrics.Test.UserEx;
 
 public final class MetricsI implements Metrics {
     public MetricsI() {}
 
     @Override
-    public void op(com.zeroc.Ice.Current current) {}
+    public void op(Current current) {}
 
     @Override
-    public void fail(com.zeroc.Ice.Current current) {
+    public void fail(Current current) {
         current.con.abort();
     }
 
     @Override
-    public void opWithUserException(com.zeroc.Ice.Current current) throws UserEx {
+    public void opWithUserException(Current current) throws UserEx {
         throw new UserEx();
     }
 
     @Override
-    public void opWithRequestFailedException(com.zeroc.Ice.Current current) {
-        throw new com.zeroc.Ice.ObjectNotExistException();
+    public void opWithRequestFailedException(Current current) {
+        throw new ObjectNotExistException();
     }
 
     @Override
-    public void opWithLocalException(com.zeroc.Ice.Current current) {
-        throw new com.zeroc.Ice.SyscallException(null);
+    public void opWithLocalException(Current current) {
+        throw new SyscallException(null);
     }
 
     @Override
-    public void opWithUnknownException(com.zeroc.Ice.Current current) {
+    public void opWithUnknownException(Current current) {
         throw new IllegalArgumentException();
     }
 
     @Override
-    public void opByteS(byte[] bs, com.zeroc.Ice.Current current) {}
+    public void opByteS(byte[] bs, Current current) {}
 
     @Override
-    public com.zeroc.Ice.ObjectPrx getAdmin(com.zeroc.Ice.Current current) {
+    public ObjectPrx getAdmin(Current current) {
         return current.adapter.getCommunicator().getAdmin();
     }
 
     @Override
-    public void shutdown(com.zeroc.Ice.Current current) {
+    public void shutdown(Current current) {
         current.adapter.getCommunicator().shutdown();
     }
 }

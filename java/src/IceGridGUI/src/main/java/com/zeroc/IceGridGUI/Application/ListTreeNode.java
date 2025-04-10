@@ -2,10 +2,16 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.XMLWriter;
 
+import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
+import javax.swing.AbstractListModel;
 import javax.swing.tree.DefaultTreeModel;
 
 /** An editable TreeNode that holds a list of children */
@@ -23,7 +29,7 @@ abstract class ListTreeNode extends TreeNode {
                 return _p.next();
             }
 
-            private java.util.Iterator<TreeNodeBase> _p = _children.iterator();
+            private Iterator<TreeNodeBase> _p = _children.iterator();
         };
     }
 
@@ -78,7 +84,7 @@ abstract class ListTreeNode extends TreeNode {
     }
 
     @Override
-    void write(XMLWriter writer) throws java.io.IOException {
+    void write(XMLWriter writer) throws IOException {
         for (TreeNodeBase p : _children) {
             TreeNode node = (TreeNode) p;
             node.write(writer);
@@ -93,8 +99,8 @@ abstract class ListTreeNode extends TreeNode {
         }
     }
 
-    void insertChildren(java.util.List newChildren, boolean fireEvent)
-            throws UpdateFailedException {
+    void insertChildren(List newChildren, boolean fireEvent)
+        throws UpdateFailedException {
         DefaultTreeModel treeModel = fireEvent ? getRoot().getTreeModel() : null;
 
         String badChildId = insertSortedChildren(newChildren, _children, treeModel);
@@ -108,7 +114,7 @@ abstract class ListTreeNode extends TreeNode {
         int index = getIndex(child);
         _children.remove(child);
 
-        getRoot().getTreeModel().nodesWereRemoved(this, new int[] {index}, new Object[] {child});
+        getRoot().getTreeModel().nodesWereRemoved(this, new int[]{index}, new Object[]{child});
         return index;
     }
 
@@ -116,7 +122,7 @@ abstract class ListTreeNode extends TreeNode {
         removeSortedChildren(childIds, _children, getRoot().getTreeModel());
     }
 
-    void childrenChanged(java.util.List children) {
+    void childrenChanged(List children) {
         childrenChanged(children, getRoot().getTreeModel());
     }
 
@@ -133,7 +139,7 @@ abstract class ListTreeNode extends TreeNode {
     }
 
     /** Adapts ListTreeNode to a ComboBoxModel */
-    class ComboBoxModel extends javax.swing.AbstractListModel implements javax.swing.ComboBoxModel {
+    class ComboBoxModel extends AbstractListModel implements javax.swing.ComboBoxModel {
         @Override
         public Object getElementAt(int index) {
             if (_firstItem != null) {
@@ -181,7 +187,7 @@ abstract class ListTreeNode extends TreeNode {
         private Object _selectedItem;
     }
 
-    protected final java.util.LinkedList<TreeNodeBase> _children = new java.util.LinkedList<>();
+    protected final LinkedList<TreeNodeBase> _children = new LinkedList<>();
     protected Editable _editable;
 
     private static Editor _editor;

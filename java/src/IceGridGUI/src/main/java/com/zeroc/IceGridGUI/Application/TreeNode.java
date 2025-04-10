@@ -2,10 +2,24 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.Ice.ToStringMode;
+import com.zeroc.Ice.Util;
+import com.zeroc.IceGrid.AdapterDescriptor;
+import com.zeroc.IceGrid.ObjectDescriptor;
+import com.zeroc.IceGrid.PropertyDescriptor;
+import com.zeroc.IceGrid.PropertySetDescriptor;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
+import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class TreeNode extends TreeNodeBase {
     public abstract Editor getEditor();
@@ -14,7 +28,7 @@ public abstract class TreeNode extends TreeNodeBase {
 
     abstract Object getDescriptor();
 
-    abstract void write(XMLWriter writer) throws java.io.IOException;
+    abstract void write(XMLWriter writer) throws IOException;
 
     // Ephemeral objects are destroyed when discard their changes
     public boolean isEphemeral() {
@@ -62,13 +76,13 @@ public abstract class TreeNode extends TreeNodeBase {
     }
 
     static String[] createAttribute(String name, String value) {
-        return new String[] {name, value};
+        return new String[]{name, value};
     }
 
-    static void writeVariables(XMLWriter writer, java.util.Map<String, String> variables)
-            throws java.io.IOException {
-        for (java.util.Map.Entry<String, String> p : variables.entrySet()) {
-            java.util.List<String[]> attributes = new java.util.LinkedList<>();
+    static void writeVariables(XMLWriter writer, Map<String, String> variables)
+        throws IOException {
+        for (Map.Entry<String, String> p : variables.entrySet()) {
+            List<String[]> attributes = new LinkedList<>();
             attributes.add(createAttribute("name", p.getKey()));
             attributes.add(createAttribute("value", p.getValue()));
 
@@ -79,9 +93,9 @@ public abstract class TreeNode extends TreeNodeBase {
     static void writePropertySet(
             XMLWriter writer,
             PropertySetDescriptor psd,
-            java.util.List<AdapterDescriptor> adapters,
+            List<AdapterDescriptor> adapters,
             String[] logs)
-            throws java.io.IOException {
+        throws IOException {
         writePropertySet(writer, "", "", psd, adapters, logs);
     }
 
@@ -90,17 +104,17 @@ public abstract class TreeNode extends TreeNodeBase {
             String id,
             String idAttrName,
             PropertySetDescriptor psd,
-            java.util.List<AdapterDescriptor> adapters,
+            List<AdapterDescriptor> adapters,
             String[] logs)
-            throws java.io.IOException {
+        throws IOException {
         if (id.isEmpty() && psd.references.length == 0 && psd.properties.isEmpty()) {
             return;
         }
 
         // We don't show the .Endpoint of adapters,
         // since they already appear in the Adapter descriptors
-        java.util.Set<String> hiddenPropertyNames = new java.util.HashSet<>();
-        java.util.Set<String> hiddenPropertyValues = new java.util.HashSet<>();
+        Set<String> hiddenPropertyNames = new HashSet<>();
+        Set<String> hiddenPropertyValues = new HashSet<>();
 
         if (adapters != null) {
             for (AdapterDescriptor p : adapters) {
@@ -109,13 +123,13 @@ public abstract class TreeNode extends TreeNodeBase {
 
                 for (ObjectDescriptor q : p.objects) {
                     hiddenPropertyValues.add(
-                            com.zeroc.Ice.Util.identityToString(
-                                    q.id, com.zeroc.Ice.ToStringMode.Unicode));
+                        Util.identityToString(
+                            q.id, ToStringMode.Unicode));
                 }
                 for (ObjectDescriptor q : p.allocatables) {
                     hiddenPropertyValues.add(
-                            com.zeroc.Ice.Util.identityToString(
-                                    q.id, com.zeroc.Ice.ToStringMode.Unicode));
+                        Util.identityToString(
+                            q.id, ToStringMode.Unicode));
                 }
             }
         }
@@ -126,7 +140,7 @@ public abstract class TreeNode extends TreeNodeBase {
             }
         }
 
-        java.util.List<String[]> attributes = new java.util.LinkedList<>();
+        List<String[]> attributes = new LinkedList<>();
         if (!id.isEmpty()) {
             attributes.add(createAttribute(idAttrName, id));
         }
@@ -159,10 +173,10 @@ public abstract class TreeNode extends TreeNodeBase {
     }
 
     static void writeLogs(
-            XMLWriter writer, String[] logs, java.util.List<PropertyDescriptor> properties)
-            throws java.io.IOException {
+            XMLWriter writer, String[] logs, List<PropertyDescriptor> properties)
+        throws IOException {
         for (String log : logs) {
-            java.util.List<String[]> attributes = new java.util.LinkedList<>();
+            List<String[]> attributes = new LinkedList<>();
             attributes.add(createAttribute("path", log));
             String prop = lookupName(log, properties);
             if (prop != null) {
@@ -172,7 +186,7 @@ public abstract class TreeNode extends TreeNodeBase {
         }
     }
 
-    static String lookupName(String val, java.util.List<PropertyDescriptor> properties) {
+    static String lookupName(String val, List<PropertyDescriptor> properties) {
         for (PropertyDescriptor p : properties) {
             if (p.value.equals(val)) {
                 return p.name;
@@ -184,13 +198,13 @@ public abstract class TreeNode extends TreeNodeBase {
     static void writeObjects(
             String elt,
             XMLWriter writer,
-            java.util.List<ObjectDescriptor> objects,
-            java.util.List<PropertyDescriptor> properties)
-            throws java.io.IOException {
+            List<ObjectDescriptor> objects,
+            List<PropertyDescriptor> properties)
+        throws IOException {
         for (ObjectDescriptor p : objects) {
-            java.util.List<String[]> attributes = new java.util.LinkedList<>();
+            List<String[]> attributes = new LinkedList<>();
             String strId =
-                    com.zeroc.Ice.Util.identityToString(p.id, com.zeroc.Ice.ToStringMode.Unicode);
+                Util.identityToString(p.id, ToStringMode.Unicode);
             attributes.add(createAttribute("identity", strId));
             if (!p.type.isEmpty()) {
                 attributes.add(createAttribute("type", p.type));
@@ -210,12 +224,12 @@ public abstract class TreeNode extends TreeNodeBase {
 
     static void writeParameters(
             XMLWriter writer,
-            java.util.List<String> parameters,
-            java.util.Map<String, String> defaultValues)
-            throws java.io.IOException {
-        for (String p : new java.util.LinkedHashSet<String>(parameters)) {
+            List<String> parameters,
+            Map<String, String> defaultValues)
+        throws IOException {
+        for (String p : new LinkedHashSet<String>(parameters)) {
             String val = defaultValues.get(p);
-            java.util.List<String[]> attributes = new java.util.LinkedList<>();
+            List<String[]> attributes = new LinkedList<>();
             attributes.add(createAttribute("name", p));
             if (val != null) {
                 attributes.add(createAttribute("default", val));
@@ -224,12 +238,12 @@ public abstract class TreeNode extends TreeNodeBase {
         }
     }
 
-    static java.util.LinkedList<String[]> parameterValuesToAttributes(
-            java.util.Map<String, String> parameterValues, java.util.List<String> parameters) {
-        java.util.LinkedList<String[]> result = new java.util.LinkedList<>();
+    static LinkedList<String[]> parameterValuesToAttributes(
+            Map<String, String> parameterValues, List<String> parameters) {
+        LinkedList<String[]> result = new LinkedList<>();
 
         // We use a LinkedHashSet to maintain order while eliminating duplicates
-        for (String p : new java.util.LinkedHashSet<String>(parameters)) {
+        for (String p : new LinkedHashSet<String>(parameters)) {
             String val = parameterValues.get(p);
             if (val != null) {
                 result.add(createAttribute(p, val));

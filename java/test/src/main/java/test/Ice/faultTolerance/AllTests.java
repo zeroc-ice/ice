@@ -2,7 +2,15 @@
 
 package test.Ice.faultTolerance;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ConnectFailedException;
+import com.zeroc.Ice.ConnectionLostException;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.SocketException;
+
 import test.Ice.faultTolerance.Test.TestIntfPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 
@@ -22,8 +30,7 @@ public class AllTests {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
 
             _called = false;
@@ -55,18 +62,15 @@ public class AllTests {
         public void completed(Throwable ex) {
             try {
                 throw ex;
-            } catch (com.zeroc.Ice.ConnectionLostException exc) {
-            } catch (com.zeroc.Ice.ConnectFailedException exc) {
-            } catch (com.zeroc.Ice.SocketException exc) {
-            } catch (Throwable exc) {
+            } catch (ConnectionLostException exc) {} catch (ConnectFailedException exc) {} catch (SocketException exc) {} catch (Throwable exc) {
                 test(false);
             }
             called();
         }
     }
 
-    public static void allTests(test.TestHelper helper, int[] ports) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static void allTests(TestHelper helper, int[] ports) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
 
         out.print("testing stringToProxy... ");
@@ -75,7 +79,7 @@ public class AllTests {
         for (int port : ports) {
             ref += ":" + helper.getTestEndpoint(port);
         }
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 
@@ -88,7 +92,7 @@ public class AllTests {
 
         int oldPid = 0;
         boolean ami = false;
-        for (int i = 1, j = 0; i <= ports.length; ++i, ++j) {
+        for (int i = 1, j = 0; i <= ports.length; i++, j++) {
             if (j > 3) {
                 j = 0;
                 ami = !ami;
@@ -106,11 +110,11 @@ public class AllTests {
                 out.flush();
                 PidCallback cb = new PidCallback();
                 obj.pidAsync()
-                        .whenComplete(
-                                (result, ex) -> {
-                                    test(ex == null);
-                                    cb.response(result);
-                                });
+                    .whenComplete(
+                        (result, ex) -> {
+                            test(ex == null);
+                            cb.response(result);
+                        });
                 cb.check();
                 int pid = cb.pid();
                 test(pid != oldPid);
@@ -129,11 +133,11 @@ public class AllTests {
                     out.flush();
                     Callback cb = new Callback();
                     obj.shutdownAsync()
-                            .whenComplete(
-                                    (result, ex) -> {
-                                        test(ex == null);
-                                        cb.called();
-                                    });
+                        .whenComplete(
+                            (result, ex) -> {
+                                test(ex == null);
+                                cb.called();
+                            });
                     cb.check();
                     out.println("ok");
                 }
@@ -144,11 +148,11 @@ public class AllTests {
                     try {
                         obj.abort();
                         test(false);
-                    } catch (com.zeroc.Ice.ConnectionLostException ex) {
+                    } catch (ConnectionLostException ex) {
                         out.println("ok");
-                    } catch (com.zeroc.Ice.ConnectFailedException exc) {
+                    } catch (ConnectFailedException exc) {
                         out.println("ok");
-                    } catch (com.zeroc.Ice.SocketException ex) {
+                    } catch (SocketException ex) {
                         out.println("ok");
                     }
                 } else {
@@ -156,55 +160,55 @@ public class AllTests {
                     out.flush();
                     AbortCallback cb = new AbortCallback();
                     obj.abortAsync()
-                            .whenComplete(
-                                    (result, ex) -> {
-                                        test(ex != null);
-                                        cb.completed(ex);
-                                    });
+                        .whenComplete(
+                            (result, ex) -> {
+                                test(ex != null);
+                                cb.completed(ex);
+                            });
                     cb.check();
                     out.println("ok");
                 }
             } else if (j == 2 || j == 3) {
                 if (!ami) {
                     out.print(
-                            "aborting server #"
-                                    + i
-                                    + " and #"
-                                    + (i + 1)
-                                    + " with idempotent call... ");
+                        "aborting server #"
+                            + i
+                            + " and #"
+                            + (i + 1)
+                            + " with idempotent call... ");
                     out.flush();
                     try {
                         obj.idempotentAbort();
                         test(false);
-                    } catch (com.zeroc.Ice.ConnectionLostException ex) {
+                    } catch (ConnectionLostException ex) {
                         out.println("ok");
-                    } catch (com.zeroc.Ice.ConnectFailedException exc) {
+                    } catch (ConnectFailedException exc) {
                         out.println("ok");
-                    } catch (com.zeroc.Ice.SocketException ex) {
+                    } catch (SocketException ex) {
                         out.println("ok");
                     }
                 } else {
                     out.print(
-                            "aborting server #"
-                                    + i
-                                    + " and #"
-                                    + (i + 1)
-                                    + " with idempotent AMI call... ");
+                        "aborting server #"
+                            + i
+                            + " and #"
+                            + (i + 1)
+                            + " with idempotent AMI call... ");
                     out.flush();
                     AbortCallback cb = new AbortCallback();
                     obj.idempotentAbortAsync()
-                            .whenComplete(
-                                    (result, ex) -> {
-                                        test(ex != null);
-                                        cb.completed(ex);
-                                    });
+                        .whenComplete(
+                            (result, ex) -> {
+                                test(ex != null);
+                                cb.completed(ex);
+                            });
                     cb.check();
                     out.println("ok");
                 }
 
                 ++i;
             } else {
-                assert (false);
+                assert false;
             }
         }
 
@@ -213,8 +217,10 @@ public class AllTests {
         try {
             obj.ice_ping();
             test(false);
-        } catch (com.zeroc.Ice.LocalException ex) {
+        } catch (LocalException ex) {
             out.println("ok");
         }
     }
+
+    private AllTests() {}
 }

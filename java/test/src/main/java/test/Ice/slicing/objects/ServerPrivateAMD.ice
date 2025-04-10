@@ -89,8 +89,7 @@ module Test
     }
 
     exception PreservedException
-    {
-    }
+    {}
 
     ["amd"] ["format:sliced"]
     interface TestIntf

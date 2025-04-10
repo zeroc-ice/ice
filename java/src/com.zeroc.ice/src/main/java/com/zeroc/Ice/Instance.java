@@ -2,28 +2,48 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
+import com.zeroc.Ice.Instrumentation.ObserverUpdater;
+import com.zeroc.Ice.Instrumentation.ThreadObserver;
 import com.zeroc.Ice.Instrumentation.ThreadState;
+import com.zeroc.Ice.SSL.EndpointFactoryI;
+import com.zeroc.Ice.SSL.SSLEngine;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * @hidden Public because it's used by SSL.
  */
-public final class Instance implements java.util.function.Function<String, Class<?>> {
+public final class Instance implements Function<String, Class<?>> {
     private static class ThreadObserverHelper {
         ThreadObserverHelper(String threadName) {
             _threadName = threadName;
         }
 
         public synchronized void updateObserver(
-                com.zeroc.Ice.Instrumentation.CommunicatorObserver obsv) {
+                CommunicatorObserver obsv) {
             assert (obsv != null);
 
             _observer =
-                    obsv.getThreadObserver(
-                            "Communicator", _threadName, ThreadState.ThreadStateIdle, _observer);
+                obsv.getThreadObserver(
+                    "Communicator", _threadName, ThreadState.ThreadStateIdle, _observer);
             if (_observer != null) {
                 _observer.attach();
             }
@@ -33,14 +53,14 @@ public final class Instance implements java.util.function.Function<String, Class
             _threadObserver = _observer;
             if (_threadObserver != null) {
                 _threadObserver.stateChanged(
-                        ThreadState.ThreadStateIdle, ThreadState.ThreadStateInUseForOther);
+                    ThreadState.ThreadStateIdle, ThreadState.ThreadStateInUseForOther);
             }
         }
 
         protected void afterExecute() {
             if (_threadObserver != null) {
                 _threadObserver.stateChanged(
-                        ThreadState.ThreadStateInUseForOther, ThreadState.ThreadStateIdle);
+                    ThreadState.ThreadStateInUseForOther, ThreadState.ThreadStateIdle);
                 _threadObserver = null;
             }
         }
@@ -51,11 +71,11 @@ public final class Instance implements java.util.function.Function<String, Class
         // _observer. Reference assignment is atomic in Java so it
         // also doesn't need to be synchronized.
         //
-        private volatile com.zeroc.Ice.Instrumentation.ThreadObserver _observer;
-        private com.zeroc.Ice.Instrumentation.ThreadObserver _threadObserver;
+        private volatile ThreadObserver _observer;
+        private ThreadObserver _threadObserver;
     }
 
-    private static class Timer extends java.util.concurrent.ScheduledThreadPoolExecutor {
+    private static class Timer extends ScheduledThreadPoolExecutor {
         Timer(Properties props, String threadName) {
             super(1, Util.createThreadFactory(props, threadName)); // Single thread executor
             setRemoveOnCancelPolicy(true);
@@ -63,7 +83,7 @@ public final class Instance implements java.util.function.Function<String, Class
             _observerHelper = new ThreadObserverHelper(threadName);
         }
 
-        public void updateObserver(com.zeroc.Ice.Instrumentation.CommunicatorObserver obsv) {
+        public void updateObserver(CommunicatorObserver obsv) {
             _observerHelper.updateObserver(obsv);
         }
 
@@ -80,19 +100,19 @@ public final class Instance implements java.util.function.Function<String, Class
         private final ThreadObserverHelper _observerHelper;
     }
 
-    private static class QueueExecutor extends java.util.concurrent.ThreadPoolExecutor {
+    private static class QueueExecutor extends ThreadPoolExecutor {
         QueueExecutor(Properties props, String threadName) {
             super(
-                    1,
-                    1,
-                    0,
-                    TimeUnit.MILLISECONDS,
-                    new java.util.concurrent.LinkedBlockingQueue<Runnable>(),
-                    Util.createThreadFactory(props, threadName));
+                1,
+                1,
+                0,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(),
+                Util.createThreadFactory(props, threadName));
             _observerHelper = new ThreadObserverHelper(threadName);
         }
 
-        public void updateObserver(com.zeroc.Ice.Instrumentation.CommunicatorObserver obsv) {
+        public void updateObserver(CommunicatorObserver obsv) {
             _observerHelper.updateObserver(obsv);
         }
 
@@ -110,14 +130,14 @@ public final class Instance implements java.util.function.Function<String, Class
             shutdown();
             while (!isTerminated()) {
                 // A very long time.
-                awaitTermination(100000, java.util.concurrent.TimeUnit.SECONDS);
+                awaitTermination(100000, TimeUnit.SECONDS);
             }
         }
 
         private final ThreadObserverHelper _observerHelper;
     }
 
-    private class ObserverUpdaterI implements com.zeroc.Ice.Instrumentation.ObserverUpdater {
+    private class ObserverUpdaterI implements ObserverUpdater {
         @Override
         public void updateConnectionObservers() {
             Instance.this.updateConnectionObservers();
@@ -223,14 +243,14 @@ public final class Instance implements java.util.function.Function<String, Class
         }
 
         if (_serverThreadPool == null) // Lazy initialization.
-        {
-            if (_state == StateDestroyInProgress) {
-                throw new CommunicatorDestroyedException();
-            }
+            {
+                if (_state == StateDestroyInProgress) {
+                    throw new CommunicatorDestroyedException();
+                }
 
-            int timeout = _initData.properties.getIcePropertyAsInt("Ice.ServerIdleTime");
-            _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
-        }
+                int timeout = _initData.properties.getIcePropertyAsInt("Ice.ServerIdleTime");
+                _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
+            }
 
         return _serverThreadPool;
     }
@@ -258,7 +278,7 @@ public final class Instance implements java.util.function.Function<String, Class
         return _retryIntervals.clone();
     }
 
-    public synchronized java.util.concurrent.ScheduledExecutorService timer() {
+    public synchronized ScheduledExecutorService timer() {
         if (_state == StateDestroyed) {
             throw new CommunicatorDestroyedException();
         }
@@ -315,7 +335,7 @@ public final class Instance implements java.util.function.Function<String, Class
     }
 
     public synchronized ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminIdentity) {
-        boolean createAdapter = (adminAdapter == null);
+        boolean createAdapter = adminAdapter == null;
 
         synchronized (this) {
             if (_state == StateDestroyed) {
@@ -323,10 +343,10 @@ public final class Instance implements java.util.function.Function<String, Class
             }
 
             if (adminIdentity == null
-                    || adminIdentity.name == null
-                    || adminIdentity.name.isEmpty()) {
+                || adminIdentity.name == null
+                || adminIdentity.name.isEmpty()) {
                 throw new IllegalArgumentException(
-                        "The admin identity '" + adminIdentity + "' is not valid");
+                    "The admin identity '" + adminIdentity + "' is not valid");
             }
 
             if (_adminAdapter != null) {
@@ -340,7 +360,7 @@ public final class Instance implements java.util.function.Function<String, Class
             if (createAdapter) {
                 if (!_initData.properties.getIceProperty("Ice.Admin.Endpoints").isEmpty()) {
                     adminAdapter =
-                            _objectAdapterFactory.createObjectAdapter("Ice.Admin", null, null);
+                        _objectAdapterFactory.createObjectAdapter("Ice.Admin", null, null);
                 } else {
                     throw new InitializationException("Ice.Admin.Endpoints is not set");
                 }
@@ -385,16 +405,16 @@ public final class Instance implements java.util.function.Function<String, Class
             } else if (_adminEnabled) {
                 if (!_initData.properties.getIceProperty("Ice.Admin.Endpoints").isEmpty()) {
                     adminAdapter =
-                            _objectAdapterFactory.createObjectAdapter("Ice.Admin", null, null);
+                        _objectAdapterFactory.createObjectAdapter("Ice.Admin", null, null);
                 } else {
                     return null;
                 }
                 adminIdentity =
-                        new Identity(
-                                "admin",
-                                _initData.properties.getIceProperty("Ice.Admin.InstanceName"));
+                    new Identity(
+                        "admin",
+                        _initData.properties.getIceProperty("Ice.Admin.InstanceName"));
                 if (adminIdentity.category.isEmpty()) {
-                    adminIdentity.category = java.util.UUID.randomUUID().toString();
+                    adminIdentity.category = UUID.randomUUID().toString();
                 }
 
                 _adminIdentity = adminIdentity;
@@ -431,7 +451,7 @@ public final class Instance implements java.util.function.Function<String, Class
         }
 
         if (_adminAdapter == null
-                || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
+            || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
             if (_adminFacets.get(facet) != null) {
                 throw new AlreadyRegisteredException("facet", facet);
             }
@@ -449,7 +469,7 @@ public final class Instance implements java.util.function.Function<String, Class
         Object result;
 
         if (_adminAdapter == null
-                || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
+            || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
             result = _adminFacets.remove(facet);
             if (result == null) {
                 throw new NotRegisteredException("facet", facet);
@@ -469,7 +489,7 @@ public final class Instance implements java.util.function.Function<String, Class
         Object result = null;
 
         if (_adminAdapter == null
-                || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
+            || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
             result = _adminFacets.get(facet);
         } else {
             result = _adminAdapter.findFacet(_adminIdentity, facet);
@@ -478,15 +498,15 @@ public final class Instance implements java.util.function.Function<String, Class
         return result;
     }
 
-    public synchronized java.util.Map<String, Object> findAllAdminFacets() {
+    public synchronized Map<String, Object> findAllAdminFacets() {
         if (_state == StateDestroyed) {
             throw new CommunicatorDestroyedException();
         }
 
         if (_adminAdapter == null) {
-            return new java.util.HashMap<>(_adminFacets);
+            return new HashMap<>(_adminFacets);
         } else {
-            java.util.Map<String, Object> result = _adminAdapter.findAllFacets(_adminIdentity);
+            Map<String, Object> result = _adminAdapter.findAllFacets(_adminIdentity);
             if (!_adminFacets.isEmpty()) {
                 // Also returns filtered facets
                 result.putAll(_adminFacets);
@@ -582,7 +602,7 @@ public final class Instance implements java.util.function.Function<String, Class
             String[] packagePrefixes = _builtInModulePackagePrefixes.get(topLevelModule);
             if (packagePrefixes == null) {
                 packagePrefixes =
-                        _initData.properties.getIcePropertyAsList("Ice.Package." + topLevelModule);
+                    _initData.properties.getIcePropertyAsList("Ice.Package." + topLevelModule);
             }
 
             if (packagePrefixes != null) {
@@ -599,10 +619,10 @@ public final class Instance implements java.util.function.Function<String, Class
         if (c == null) {
             String packagePrefix = _initData.properties.getIceProperty("Ice.Default.Package");
             c =
-                    getConcreteClass(
-                            packagePrefix.isEmpty()
-                                    ? fullyQualifiedClassName
-                                    : packagePrefix + "." + fullyQualifiedClassName);
+                getConcreteClass(
+                    packagePrefix.isEmpty()
+                        ? fullyQualifiedClassName
+                        : packagePrefix + "." + fullyQualifiedClassName);
         }
 
         //
@@ -637,7 +657,7 @@ public final class Instance implements java.util.function.Function<String, Class
             try {
                 return (String) c.getField("typeId").get(null);
             } catch (Exception ex) {
-                assert (false);
+                assert false;
             }
         }
         return "";
@@ -680,7 +700,7 @@ public final class Instance implements java.util.function.Function<String, Class
                     String stdOut = properties.getIceProperty("Ice.StdOut");
                     String stdErr = properties.getIceProperty("Ice.StdErr");
 
-                    java.io.PrintStream outStream = null;
+                    PrintStream outStream = null;
 
                     if (!stdOut.isEmpty()) {
                         //
@@ -691,9 +711,9 @@ public final class Instance implements java.util.function.Function<String, Class
 
                         try {
                             outStream =
-                                    new java.io.PrintStream(
-                                            new java.io.FileOutputStream(stdOut, true));
-                        } catch (java.io.FileNotFoundException ex) {
+                                new PrintStream(
+                                    new FileOutputStream(stdOut, true));
+                        } catch (FileNotFoundException ex) {
                             throw new FileException("cannot append to '" + stdOut + "'", ex);
                         }
 
@@ -710,9 +730,9 @@ public final class Instance implements java.util.function.Function<String, Class
                         } else {
                             try {
                                 System.setErr(
-                                        new java.io.PrintStream(
-                                                new java.io.FileOutputStream(stdErr, true)));
-                            } catch (java.io.FileNotFoundException ex) {
+                                    new PrintStream(
+                                        new FileOutputStream(stdErr, true)));
+                            } catch (FileNotFoundException ex) {
                                 throw new FileException("cannot append to '" + stdErr + "'", ex);
                             }
                         }
@@ -724,25 +744,25 @@ public final class Instance implements java.util.function.Function<String, Class
             if (_initData.logger == null) {
                 String logFile = properties.getIceProperty("Ice.LogFile");
                 if (properties.getIcePropertyAsInt("Ice.UseSyslog") > 0
-                        && !System.getProperty("os.name").startsWith("Windows")) {
+                    && !System.getProperty("os.name").startsWith("Windows")) {
                     if (!logFile.isEmpty()) {
                         throw new InitializationException(
-                                "Both syslog and file logger cannot be enabled.");
+                            "Both syslog and file logger cannot be enabled.");
                     }
                     _initData.logger =
-                            new SysLoggerI(
-                                    properties.getIceProperty("Ice.ProgramName"),
-                                    properties.getIceProperty("Ice.SyslogFacility"),
-                                    properties.getIceProperty("Ice.SyslogHost"),
-                                    properties.getIcePropertyAsInt("Ice.SyslogPort"));
+                        new SysLoggerI(
+                            properties.getIceProperty("Ice.ProgramName"),
+                            properties.getIceProperty("Ice.SyslogFacility"),
+                            properties.getIceProperty("Ice.SyslogHost"),
+                            properties.getIcePropertyAsInt("Ice.SyslogPort"));
                 } else if (!logFile.isEmpty()) {
                     _initData.logger =
-                            new FileLoggerI(properties.getIceProperty("Ice.ProgramName"), logFile);
+                        new FileLoggerI(properties.getIceProperty("Ice.ProgramName"), logFile);
                 } else {
                     _initData.logger = Util.getProcessLogger();
                     if (_initData.logger instanceof LoggerI) {
                         _initData.logger =
-                                new LoggerI(properties.getIceProperty("Ice.ProgramName"));
+                            new LoggerI(properties.getIceProperty("Ice.ProgramName"));
                     }
                 }
             }
@@ -762,12 +782,12 @@ public final class Instance implements java.util.function.Function<String, Class
                     _messageSizeMax = 0x7fffffff;
                 } else {
                     _messageSizeMax =
-                            num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+                        num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
                 }
             }
 
             if (properties.getIceProperty("Ice.BatchAutoFlushSize").isEmpty()
-                    && !properties.getIceProperty("Ice.BatchAutoFlush").isEmpty()) {
+                && !properties.getIceProperty("Ice.BatchAutoFlush").isEmpty()) {
                 if (properties.getIcePropertyAsInt("Ice.BatchAutoFlush") > 0) {
                     _batchAutoFlushSize = _messageSizeMax;
                 } else {
@@ -781,7 +801,7 @@ public final class Instance implements java.util.function.Function<String, Class
                     _batchAutoFlushSize = 0x7fffffff;
                 } else {
                     _batchAutoFlushSize =
-                            num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
+                        num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
                 }
             }
 
@@ -795,19 +815,19 @@ public final class Instance implements java.util.function.Function<String, Class
             }
 
             String toStringModeStr = properties.getIceProperty("Ice.ToStringMode");
-            if (toStringModeStr.equals("Unicode")) {
+            if ("Unicode".equals(toStringModeStr)) {
                 _toStringMode = ToStringMode.Unicode;
-            } else if (toStringModeStr.equals("ASCII")) {
+            } else if ("ASCII".equals(toStringModeStr)) {
                 _toStringMode = ToStringMode.ASCII;
-            } else if (toStringModeStr.equals("Compat")) {
+            } else if ("Compat".equals(toStringModeStr)) {
                 _toStringMode = ToStringMode.Compat;
             } else {
                 throw new InitializationException(
-                        "The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
+                    "The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
             }
 
             _implicitContext =
-                    ImplicitContextI.create(properties.getIceProperty("Ice.ImplicitContext"));
+                ImplicitContextI.create(properties.getIceProperty("Ice.ImplicitContext"));
 
             _routerManager = new RouterManager();
 
@@ -832,28 +852,28 @@ public final class Instance implements java.util.function.Function<String, Class
 
             _networkProxy = createNetworkProxy(properties, _protocolSupport);
 
-            _sslEngine = new com.zeroc.Ice.SSL.SSLEngine(communicator);
+            _sslEngine = new SSLEngine(communicator);
             _endpointFactoryManager = new EndpointFactoryManager(this);
 
             ProtocolInstance tcpProtocol =
-                    new ProtocolInstance(this, TCPEndpointType.value, "tcp", false);
+                new ProtocolInstance(this, TCPEndpointType.value, "tcp", false);
             _endpointFactoryManager.add(new TcpEndpointFactory(tcpProtocol));
 
             ProtocolInstance udpProtocol =
-                    new ProtocolInstance(this, UDPEndpointType.value, "udp", false);
+                new ProtocolInstance(this, UDPEndpointType.value, "udp", false);
             _endpointFactoryManager.add(new UdpEndpointFactory(udpProtocol));
 
             com.zeroc.Ice.SSL.Instance sslInstance =
-                    new com.zeroc.Ice.SSL.Instance(_sslEngine, SSLEndpointType.value, "ssl");
+                new com.zeroc.Ice.SSL.Instance(_sslEngine, SSLEndpointType.value, "ssl");
             _endpointFactoryManager.add(
-                    new com.zeroc.Ice.SSL.EndpointFactoryI(sslInstance, TCPEndpointType.value));
+                new EndpointFactoryI(sslInstance, TCPEndpointType.value));
 
             ProtocolInstance wsProtocol =
-                    new ProtocolInstance(this, WSEndpointType.value, "ws", false);
+                new ProtocolInstance(this, WSEndpointType.value, "ws", false);
             _endpointFactoryManager.add(new WSEndpointFactory(wsProtocol, TCPEndpointType.value));
 
             ProtocolInstance wssProtocol =
-                    new ProtocolInstance(this, WSSEndpointType.value, "wss", true);
+                new ProtocolInstance(this, WSSEndpointType.value, "wss", true);
             _endpointFactoryManager.add(new WSEndpointFactory(wssProtocol, SSLEndpointType.value));
 
             _pluginManager = new PluginManagerI(communicator, this);
@@ -870,7 +890,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
             String[] arr = properties.getIcePropertyAsList("Ice.RetryIntervals");
             if (arr.length == 0) {
-                _retryIntervals = new int[] {0};
+                _retryIntervals = new int[]{0};
             } else {
                 _retryIntervals = new int[arr.length];
 
@@ -899,7 +919,7 @@ public final class Instance implements java.util.function.Function<String, Class
         }
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"nofinalizer", "deprecation"})
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
@@ -916,8 +936,7 @@ public final class Instance implements java.util.function.Function<String, Class
             Assert.FinalizerAssert(_endpointFactoryManager == null);
             Assert.FinalizerAssert(_pluginManager == null);
             Assert.FinalizerAssert(_retryQueue == null);
-        } catch (Exception ex) {
-        } finally {
+        } catch (Exception ex) {} finally {
             super.finalize();
         }
     }
@@ -953,7 +972,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
         String[] facetFilter = properties.getIcePropertyAsList("Ice.Admin.Facets");
         if (facetFilter.length > 0) {
-            _adminFacetFilter.addAll(java.util.Arrays.asList(facetFilter));
+            _adminFacetFilter.addAll(Arrays.asList(facetFilter));
         }
 
         if (_adminEnabled) {
@@ -1037,7 +1056,7 @@ public final class Instance implements java.util.function.Function<String, Class
         //
         if (_referenceFactory.getDefaultRouter() == null) {
             RouterPrx router =
-                    RouterPrx.uncheckedCast(communicator.propertyToProxy("Ice.Default.Router"));
+                RouterPrx.uncheckedCast(communicator.propertyToProxy("Ice.Default.Router"));
             if (router != null) {
                 _referenceFactory = _referenceFactory.setDefaultRouter(router);
             }
@@ -1045,7 +1064,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
         if (_referenceFactory.getDefaultLocator() == null) {
             LocatorPrx loc =
-                    LocatorPrx.uncheckedCast(communicator.propertyToProxy("Ice.Default.Locator"));
+                LocatorPrx.uncheckedCast(communicator.propertyToProxy("Ice.Default.Locator"));
             if (loc != null) {
                 _referenceFactory = _referenceFactory.setDefaultLocator(loc);
             }
@@ -1173,7 +1192,7 @@ public final class Instance implements java.util.function.Function<String, Class
                 if (_timer != null) {
                     while (!_timer.isTerminated()) {
                         // A very long time.
-                        _timer.awaitTermination(100000, java.util.concurrent.TimeUnit.SECONDS);
+                        _timer.awaitTermination(100000, TimeUnit.SECONDS);
                     }
                 }
             } catch (InterruptedException ex) {
@@ -1195,11 +1214,11 @@ public final class Instance implements java.util.function.Function<String, Class
             }
 
             if (_initData.properties.getIcePropertyAsInt("Ice.Warn.UnusedProperties") > 0) {
-                java.util.List<String> unusedProperties =
-                        _initData.properties.getUnusedProperties();
+                List<String> unusedProperties =
+                    _initData.properties.getUnusedProperties();
                 if (!unusedProperties.isEmpty()) {
                     StringBuilder message =
-                            new StringBuilder("The following properties were set but never read:");
+                        new StringBuilder("The following properties were set but never read:");
                     for (String p : unusedProperties) {
                         message.append("\n    ");
                         message.append(p);
@@ -1254,7 +1273,7 @@ public final class Instance implements java.util.function.Function<String, Class
         } finally {
             synchronized (this) {
                 if (_state == StateDestroyInProgress) {
-                    assert (interruptible);
+                    assert interruptible;
                     _state = StateActive;
                     notifyAll();
                 }
@@ -1307,23 +1326,23 @@ public final class Instance implements java.util.function.Function<String, Class
         String propertyPrefix = adapterName + ".Connection";
 
         return new ConnectionOptions(
-                properties.getPropertyAsIntWithDefault(
-                        propertyPrefix + ".ConnectTimeout",
-                        _serverConnectionOptions.connectTimeout()),
-                properties.getPropertyAsIntWithDefault(
-                        propertyPrefix + ".CloseTimeout", _serverConnectionOptions.closeTimeout()),
-                properties.getPropertyAsIntWithDefault(
-                        propertyPrefix + ".IdleTimeout", _serverConnectionOptions.idleTimeout()),
-                properties.getPropertyAsIntWithDefault(
-                                propertyPrefix + ".EnableIdleCheck",
-                                _serverConnectionOptions.enableIdleCheck() ? 1 : 0)
-                        > 0,
-                properties.getPropertyAsIntWithDefault(
-                        propertyPrefix + ".InactivityTimeout",
-                        _serverConnectionOptions.inactivityTimeout()),
-                properties.getPropertyAsIntWithDefault(
-                        propertyPrefix + ".MaxDispatches",
-                        _serverConnectionOptions.maxDispatches()));
+            properties.getPropertyAsIntWithDefault(
+                propertyPrefix + ".ConnectTimeout",
+                _serverConnectionOptions.connectTimeout()),
+            properties.getPropertyAsIntWithDefault(
+                propertyPrefix + ".CloseTimeout", _serverConnectionOptions.closeTimeout()),
+            properties.getPropertyAsIntWithDefault(
+                propertyPrefix + ".IdleTimeout", _serverConnectionOptions.idleTimeout()),
+            properties.getPropertyAsIntWithDefault(
+                propertyPrefix + ".EnableIdleCheck",
+                _serverConnectionOptions.enableIdleCheck() ? 1 : 0)
+                > 0,
+            properties.getPropertyAsIntWithDefault(
+                propertyPrefix + ".InactivityTimeout",
+                _serverConnectionOptions.inactivityTimeout()),
+            properties.getPropertyAsIntWithDefault(
+                propertyPrefix + ".MaxDispatches",
+                _serverConnectionOptions.maxDispatches()));
     }
 
     private void updateConnectionObservers() {
@@ -1332,8 +1351,7 @@ public final class Instance implements java.util.function.Function<String, Class
             _outgoingConnectionFactory.updateConnectionObservers();
             assert (_objectAdapterFactory != null);
             _objectAdapterFactory.updateConnectionObservers();
-        } catch (CommunicatorDestroyedException ex) {
-        }
+        } catch (CommunicatorDestroyedException ex) {}
     }
 
     private void updateThreadObservers() {
@@ -1352,15 +1370,14 @@ public final class Instance implements java.util.function.Function<String, Class
             if (_timer != null) {
                 _timer.updateObserver(_initData.observer);
             }
-        } catch (CommunicatorDestroyedException ex) {
-        }
+        } catch (CommunicatorDestroyedException ex) {}
     }
 
     private String[] validatePackages() {
         final String prefix = "Ice.Package.";
-        java.util.Map<String, String> map = _initData.properties.getPropertiesForPrefix(prefix);
-        java.util.List<String> packages = new java.util.ArrayList<>();
-        for (java.util.Map.Entry<String, String> p : map.entrySet()) {
+        Map<String, String> map = _initData.properties.getPropertiesForPrefix(prefix);
+        List<String> packages = new ArrayList<>();
+        for (Map.Entry<String, String> p : map.entrySet()) {
             String key = p.getKey();
             String pkg = p.getValue();
             if (key.length() == prefix.length()) {
@@ -1371,8 +1388,7 @@ public final class Instance implements java.util.function.Function<String, Class
             Class<?> cls = null;
             try {
                 cls = findClass(className);
-            } catch (Exception ex) {
-            }
+            } catch (Exception ex) {}
             if (cls == null) {
                 _initData.logger.warning("unable to validate package: " + key + "=" + pkg);
             } else {
@@ -1388,8 +1404,8 @@ public final class Instance implements java.util.function.Function<String, Class
     }
 
     private synchronized void addAllAdminFacets() {
-        java.util.Map<String, Object> filteredFacets = new java.util.HashMap<>();
-        for (java.util.Map.Entry<String, Object> p : _adminFacets.entrySet()) {
+        Map<String, Object> filteredFacets = new HashMap<>();
+        for (Map.Entry<String, Object> p : _adminFacets.entrySet()) {
             if (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(p.getKey())) {
                 _adminAdapter.addFacet(p.getValue(), _adminIdentity, p.getKey());
             } else {
@@ -1423,7 +1439,7 @@ public final class Instance implements java.util.function.Function<String, Class
                 }
 
                 throw new InitializationException(
-                        "Locator knows nothing about server `" + serverId + "'");
+                    "Locator knows nothing about server `" + serverId + "'");
             } catch (LocalException ex) {
                 if (_traceLevels.location >= 1) {
                     StringBuilder s = new StringBuilder(128);
@@ -1461,7 +1477,7 @@ public final class Instance implements java.util.function.Function<String, Class
         proxyHost = properties.getIceProperty("Ice.HTTPProxyHost");
         if (!proxyHost.isEmpty()) {
             return new HTTPNetworkProxy(
-                    proxyHost, properties.getIcePropertyAsInt("Ice.HTTPProxyPort"));
+                proxyHost, properties.getIcePropertyAsInt("Ice.HTTPProxyPort"));
         }
 
         return null;
@@ -1470,12 +1486,12 @@ public final class Instance implements java.util.function.Function<String, Class
     private ConnectionOptions readConnectionOptions(String propertyPrefix) {
         Properties properties = _initData.properties;
         return new ConnectionOptions(
-                properties.getIcePropertyAsInt(propertyPrefix + ".ConnectTimeout"),
-                properties.getIcePropertyAsInt(propertyPrefix + ".CloseTimeout"),
-                properties.getIcePropertyAsInt(propertyPrefix + ".IdleTimeout"),
-                properties.getIcePropertyAsInt(propertyPrefix + ".EnableIdleCheck") > 0,
-                properties.getIcePropertyAsInt(propertyPrefix + ".InactivityTimeout"),
-                properties.getIcePropertyAsInt(propertyPrefix + ".MaxDispatches"));
+            properties.getIcePropertyAsInt(propertyPrefix + ".ConnectTimeout"),
+            properties.getIcePropertyAsInt(propertyPrefix + ".CloseTimeout"),
+            properties.getIcePropertyAsInt(propertyPrefix + ".IdleTimeout"),
+            properties.getIcePropertyAsInt(propertyPrefix + ".EnableIdleCheck") > 0,
+            properties.getIcePropertyAsInt(propertyPrefix + ".InactivityTimeout"),
+            properties.getIcePropertyAsInt(propertyPrefix + ".MaxDispatches"));
     }
 
     private static final int StateActive = 0;
@@ -1509,37 +1525,37 @@ public final class Instance implements java.util.function.Function<String, Class
     private EndpointFactoryManager _endpointFactoryManager;
     private PluginManager _pluginManager;
 
-    private boolean _adminEnabled = false;
+    private boolean _adminEnabled;
     private ObjectAdapter _adminAdapter;
-    private java.util.Map<String, Object> _adminFacets = new java.util.HashMap<>();
-    private java.util.Set<String> _adminFacetFilter = new java.util.HashSet<>();
+    private Map<String, Object> _adminFacets = new HashMap<>();
+    private final Set<String> _adminFacetFilter = new HashSet<>();
     private Identity _adminIdentity;
-    private java.util.Map<Short, BufSizeWarnInfo> _setBufSizeWarn = new java.util.HashMap<>();
+    private final Map<Short, BufSizeWarnInfo> _setBufSizeWarn = new HashMap<>();
 
-    private java.util.Map<String, String> _sliceTypeIdToClassMap = new java.util.HashMap<>();
+    private final Map<String, String> _sliceTypeIdToClassMap = new HashMap<>();
     private String[] _packages;
 
-    private static boolean _oneOffDone = false;
-    private com.zeroc.Ice.SSL.SSLEngine _sslEngine;
+    private static boolean _oneOffDone;
+    private SSLEngine _sslEngine;
 
-    private Map<String, String[]> _builtInModulePackagePrefixes =
-            java.util.Collections.unmodifiableMap(
-                    new HashMap<String, String[]>() {
-                        {
-                            put("Glacier2", new String[] {"com.zeroc"});
-                            put("Ice", new String[] {"com.zeroc"});
-                            put("IceBox", new String[] {"com.zeroc"});
-                            put("IceDiscovery", new String[] {"com.zeroc"});
-                            put("IceGrid", new String[] {"com.zeroc"});
-                            put("IceLocatorDiscovery", new String[] {"com.zeroc"});
-                            put(
-                                    "IceMX",
-                                    new String[] {
-                                        "com.zeroc.Ice", "com.zeroc.Glacier2", "com.zeroc.IceStorm"
-                                    });
-                            put("IceStorm", new String[] {"com.zeroc"});
-                        }
-                    });
+    private final Map<String, String[]> _builtInModulePackagePrefixes =
+        Collections.unmodifiableMap(
+            new HashMap<String, String[]>() {
+                {
+                    put("Glacier2", new String[]{"com.zeroc"});
+                    put("Ice", new String[]{"com.zeroc"});
+                    put("IceBox", new String[]{"com.zeroc"});
+                    put("IceDiscovery", new String[]{"com.zeroc"});
+                    put("IceGrid", new String[]{"com.zeroc"});
+                    put("IceLocatorDiscovery", new String[]{"com.zeroc"});
+                    put(
+                        "IceMX",
+                        new String[]{
+                            "com.zeroc.Ice", "com.zeroc.Glacier2", "com.zeroc.IceStorm"
+                        });
+                    put("IceStorm", new String[]{"com.zeroc"});
+                }
+            });
 
     private ConnectionOptions _clientConnectionOptions;
     private ConnectionOptions _serverConnectionOptions;

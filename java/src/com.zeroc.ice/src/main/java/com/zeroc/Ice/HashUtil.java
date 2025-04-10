@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.util.Arrays;
+
 /**
  * @hidden Public because it's used by IceBT, IceGridGUI, and the generated code.
  */
@@ -43,42 +45,44 @@ public final class HashUtil {
     }
 
     public static int hashAdd(int hashCode, boolean[] arr) {
-        return shift(hashCode) ^ java.util.Arrays.hashCode(arr);
+        return shift(hashCode) ^ Arrays.hashCode(arr);
     }
 
     public static int hashAdd(int hashCode, byte[] arr) {
-        return shift(hashCode) ^ java.util.Arrays.hashCode(arr);
+        return shift(hashCode) ^ Arrays.hashCode(arr);
     }
 
     public static int hashAdd(int hashCode, char[] arr) {
-        return shift(hashCode) ^ java.util.Arrays.hashCode(arr);
+        return shift(hashCode) ^ Arrays.hashCode(arr);
     }
 
     public static int hashAdd(int hashCode, short[] arr) {
-        return shift(hashCode) ^ java.util.Arrays.hashCode(arr);
+        return shift(hashCode) ^ Arrays.hashCode(arr);
     }
 
     public static int hashAdd(int hashCode, int[] arr) {
-        return shift(hashCode) ^ java.util.Arrays.hashCode(arr);
+        return shift(hashCode) ^ Arrays.hashCode(arr);
     }
 
     public static int hashAdd(int hashCode, long[] arr) {
-        return shift(hashCode) ^ java.util.Arrays.hashCode(arr);
+        return shift(hashCode) ^ Arrays.hashCode(arr);
     }
 
     public static int hashAdd(int hashCode, float[] arr) {
-        return shift(hashCode) ^ java.util.Arrays.hashCode(arr);
+        return shift(hashCode) ^ Arrays.hashCode(arr);
     }
 
     public static int hashAdd(int hashCode, double[] arr) {
-        return shift(hashCode) ^ java.util.Arrays.hashCode(arr);
+        return shift(hashCode) ^ Arrays.hashCode(arr);
     }
 
     public static int hashAdd(int hashCode, java.lang.Object[] arr) {
-        return shift(hashCode) ^ java.util.Arrays.hashCode(arr);
+        return shift(hashCode) ^ Arrays.hashCode(arr);
     }
 
     private static int shift(int hashCode) {
-        return ((hashCode << 5) + hashCode);
+        return (hashCode << 5) + hashCode;
     }
+
+    private HashUtil() {}
 }

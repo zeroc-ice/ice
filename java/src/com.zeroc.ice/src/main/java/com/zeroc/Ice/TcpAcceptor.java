@@ -2,9 +2,12 @@
 
 package com.zeroc.Ice;
 
+import java.net.InetSocketAddress;
+import java.nio.channels.ServerSocketChannel;
+
 class TcpAcceptor implements Acceptor {
     @Override
-    public java.nio.channels.ServerSocketChannel fd() {
+    public ServerSocketChannel fd() {
         return _fd;
     }
 
@@ -85,28 +88,27 @@ class TcpAcceptor implements Acceptor {
             }
 
             _addr =
-                    Network.getAddressForServer(
-                            host, port, instance.protocolSupport(), instance.preferIPv6());
+                Network.getAddressForServer(
+                    host, port, instance.protocolSupport(), instance.preferIPv6());
         } catch (RuntimeException ex) {
             _fd = null;
             throw ex;
         }
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"nofinalizer", "deprecation"})
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
             Assert.FinalizerAssert(_fd == null);
-        } catch (Exception ex) {
-        } finally {
+        } catch (Exception ex) {} finally {
             super.finalize();
         }
     }
 
     private TcpEndpointI _endpoint;
     private final ProtocolInstance _instance;
-    private java.nio.channels.ServerSocketChannel _fd;
+    private ServerSocketChannel _fd;
     private final int _backlog;
-    private java.net.InetSocketAddress _addr;
+    private InetSocketAddress _addr;
 }

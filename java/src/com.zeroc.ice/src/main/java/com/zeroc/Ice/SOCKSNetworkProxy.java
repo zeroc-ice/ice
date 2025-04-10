@@ -2,22 +2,27 @@
 
 package com.zeroc.Ice;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.nio.ByteOrder;
+
 final class SOCKSNetworkProxy implements NetworkProxy {
     public SOCKSNetworkProxy(String host, int port) {
         _host = host;
         _port = port;
     }
 
-    private SOCKSNetworkProxy(java.net.InetSocketAddress address) {
+    private SOCKSNetworkProxy(InetSocketAddress address) {
         _address = address;
     }
 
     @Override
-    public void beginWrite(java.net.InetSocketAddress endpoint, Buffer buf) {
-        final java.net.InetAddress addr = endpoint.getAddress();
+    public void beginWrite(InetSocketAddress endpoint, Buffer buf) {
+        final InetAddress addr = endpoint.getAddress();
         if (addr == null) {
             throw new FeatureNotSupportedException("SOCKS4 does not support domain names");
-        } else if (!(addr instanceof java.net.Inet4Address)) {
+        } else if (!(addr instanceof Inet4Address)) {
             throw new FeatureNotSupportedException("SOCKS4 only supports IPv4 addresses");
         }
 
@@ -25,8 +30,8 @@ final class SOCKSNetworkProxy implements NetworkProxy {
         // SOCKS connect request
         //
         buf.resize(9, false);
-        final java.nio.ByteOrder order = buf.b.order();
-        buf.b.order(java.nio.ByteOrder.BIG_ENDIAN); // Network byte order.
+        final ByteOrder order = buf.b.order();
+        buf.b.order(ByteOrder.BIG_ENDIAN); // Network byte order.
         buf.position(0);
         buf.b.put((byte) 0x04); // SOCKS version 4.
         buf.b.put((byte) 0x01); // Command, establish a TCP/IP stream connection
@@ -75,11 +80,11 @@ final class SOCKSNetworkProxy implements NetworkProxy {
     public NetworkProxy resolveHost(int protocolSupport) {
         assert (_host != null);
         return new SOCKSNetworkProxy(
-                Network.getAddresses(_host, _port, protocolSupport, false, true).get(0));
+            Network.getAddresses(_host, _port, protocolSupport, false, true).get(0));
     }
 
     @Override
-    public java.net.InetSocketAddress getAddress() {
+    public InetSocketAddress getAddress() {
         assert (_address != null); // Host must be resolved.
         return _address;
     }
@@ -96,5 +101,5 @@ final class SOCKSNetworkProxy implements NetworkProxy {
 
     private String _host;
     private int _port;
-    private java.net.InetSocketAddress _address;
+    private InetSocketAddress _address;
 }

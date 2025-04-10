@@ -2,26 +2,33 @@
 
 package test.Ice.timeout;
 
-public class Server extends test.TestHelper {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+
+import test.TestHelper;
+
+public class Server extends TestHelper {
     public void run(String[] args) {
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.timeout");
 
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(properties)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator
-                    .getProperties()
-                    .setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+                .getProperties()
+                .setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
             communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new TimeoutI(), com.zeroc.Ice.Util.stringToIdentity("timeout"));
+            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new TimeoutI(), Util.stringToIdentity("timeout"));
             adapter.activate();
 
-            com.zeroc.Ice.ObjectAdapter controllerAdapter =
-                    communicator.createObjectAdapter("ControllerAdapter");
+            ObjectAdapter controllerAdapter =
+                communicator.createObjectAdapter("ControllerAdapter");
             controllerAdapter.add(
-                    new ControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("controller"));
+                new ControllerI(adapter), Util.stringToIdentity("controller"));
             controllerAdapter.activate();
             serverReady();
             communicator.waitForShutdown();

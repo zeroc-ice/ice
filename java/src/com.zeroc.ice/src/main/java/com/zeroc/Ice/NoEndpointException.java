@@ -14,7 +14,7 @@ public final class NoEndpointException extends LocalException {
 
     public static NoEndpointException fromProxyString(String proxyString) {
         return new NoEndpointException(
-                "No suitable endpoint available for proxy '" + proxyString + "'");
+            "No suitable endpoint available for proxy '" + proxyString + "'");
     }
 
     private static final long serialVersionUID = -5026638954785808518L;

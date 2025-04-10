@@ -2,11 +2,15 @@
 
 package test.Ice.custom;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectPrx;
+
 import test.Ice.custom.Test.A;
 import test.Ice.custom.Test.E;
 import test.Ice.custom.Test.S;
 import test.Ice.custom.Test.TestIntf;
 import test.Ice.custom.Test.TestIntfPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
@@ -29,13 +33,13 @@ public class AllTests {
         }
     }
 
-    public static TestIntfPrx allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static TestIntfPrx allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "test:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(ref);
+        ObjectPrx obj = communicator.stringToProxy(ref);
         test(obj != null);
         out.println("ok");
 
@@ -222,8 +226,8 @@ public class AllTests {
         }
 
         {
-            final byte[] fullSeq = new byte[] {0, 1, 2, 3, 4, 5, 6, 7};
-            final byte[] usedSeq = new byte[] {2, 3, 4, 5};
+            final byte[] fullSeq = new byte[]{0, 1, 2, 3, 4, 5, 6, 7};
+            final byte[] usedSeq = new byte[]{2, 3, 4, 5};
 
             ByteBuffer buffer = ByteBuffer.wrap(fullSeq, 2, 4);
             TestIntf.OpByteBufferSeqResult bufferR = t.opByteBufferSeq(buffer);
@@ -237,8 +241,8 @@ public class AllTests {
         }
 
         {
-            final short[] fullSeq = new short[] {0, 1, 2, 3, 4, 5, 6, 7};
-            final short[] usedSeq = new short[] {2, 3, 4, 5};
+            final short[] fullSeq = new short[]{0, 1, 2, 3, 4, 5, 6, 7};
+            final short[] usedSeq = new short[]{2, 3, 4, 5};
 
             ShortBuffer buffer = ShortBuffer.wrap(fullSeq, 2, 4);
             TestIntf.OpShortBufferSeqResult bufferR = t.opShortBufferSeq(buffer);
@@ -252,8 +256,8 @@ public class AllTests {
         }
 
         {
-            final int[] fullSeq = new int[] {0, 1, 2, 3, 4, 5, 6, 7};
-            final int[] usedSeq = new int[] {2, 3, 4, 5};
+            final int[] fullSeq = new int[]{0, 1, 2, 3, 4, 5, 6, 7};
+            final int[] usedSeq = new int[]{2, 3, 4, 5};
 
             IntBuffer buffer = IntBuffer.wrap(fullSeq, 2, 4);
             TestIntf.OpIntBufferSeqResult bufferR = t.opIntBufferSeq(buffer);
@@ -267,8 +271,8 @@ public class AllTests {
         }
 
         {
-            final long[] fullSeq = new long[] {0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L};
-            final long[] usedSeq = new long[] {2L, 3L, 4L, 5L};
+            final long[] fullSeq = new long[]{0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L};
+            final long[] usedSeq = new long[]{2L, 3L, 4L, 5L};
 
             LongBuffer buffer = LongBuffer.wrap(fullSeq, 2, 4);
             TestIntf.OpLongBufferSeqResult bufferR = t.opLongBufferSeq(buffer);
@@ -282,8 +286,8 @@ public class AllTests {
         }
 
         {
-            final float[] fullSeq = new float[] {0, 1, 2, 3, 4, 5, 6, 7};
-            final float[] usedSeq = new float[] {2, 3, 4, 5};
+            final float[] fullSeq = new float[]{0, 1, 2, 3, 4, 5, 6, 7};
+            final float[] usedSeq = new float[]{2, 3, 4, 5};
 
             FloatBuffer buffer = FloatBuffer.wrap(fullSeq, 2, 4);
             TestIntf.OpFloatBufferSeqResult bufferR = t.opFloatBufferSeq(buffer);
@@ -297,8 +301,8 @@ public class AllTests {
         }
 
         {
-            final double[] fullSeq = new double[] {0, 1, 2, 3, 4, 5, 6, 7};
-            final double[] usedSeq = new double[] {2, 3, 4, 5};
+            final double[] fullSeq = new double[]{0, 1, 2, 3, 4, 5, 6, 7};
+            final double[] usedSeq = new double[]{2, 3, 4, 5};
 
             DoubleBuffer buffer = DoubleBuffer.wrap(fullSeq, 2, 4);
             TestIntf.OpDoubleBufferSeqResult bufferR = t.opDoubleBufferSeq(buffer);
@@ -315,4 +319,6 @@ public class AllTests {
 
         return t;
     }
+
+    private AllTests() {}
 }

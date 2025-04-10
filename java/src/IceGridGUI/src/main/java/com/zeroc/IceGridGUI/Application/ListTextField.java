@@ -2,9 +2,12 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.Utils;
 
 import javax.swing.JTextField;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /** A special field used to show/edit a list of strings separated by whitespace */
 public class ListTextField extends JTextField {
@@ -12,21 +15,21 @@ public class ListTextField extends JTextField {
         super(columns);
     }
 
-    public void setList(java.util.List<String> list, final Utils.Resolver resolver) {
+    public void setList(List<String> list, final Utils.Resolver resolver) {
         Utils.Stringifier stringifier =
-                new Utils.Stringifier() {
-                    @Override
-                    public String toString(Object obj) {
-                        return Utils.substitute((String) obj, resolver);
-                    }
-                };
+            new Utils.Stringifier() {
+                @Override
+                public String toString(Object obj) {
+                    return Utils.substitute((String) obj, resolver);
+                }
+            };
 
         setText(Utils.stringify(list, stringifier, " ").returnValue);
     }
 
-    public java.util.LinkedList<String> getList() {
+    public LinkedList<String> getList() {
         String text = getText().trim();
-        java.util.LinkedList<String> result = new java.util.LinkedList<>();
+        LinkedList<String> result = new LinkedList<>();
 
         while (!text.isEmpty()) {
             if (text.startsWith("\"")) {

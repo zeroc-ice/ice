@@ -3,6 +3,9 @@
 package com.zeroc.Ice;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @hidden Public because it's used by the generated code.
@@ -57,7 +60,7 @@ public abstract class Reference implements Cloneable {
         return _instance;
     }
 
-    public final java.util.Map<String, String> getContext() {
+    public final Map<String, String> getContext() {
         return _context;
     }
 
@@ -65,7 +68,7 @@ public abstract class Reference implements Cloneable {
         return _invocationTimeout;
     }
 
-    public java.util.Optional<Boolean> getCompress() {
+    public Optional<Boolean> getCompress() {
         return _compress;
     }
 
@@ -102,7 +105,7 @@ public abstract class Reference implements Cloneable {
     // a new reference based on the existing one, with the
     // corresponding value changed.
     //
-    public final Reference changeContext(java.util.Map<String, String> newContext) {
+    public final Reference changeContext(Map<String, String> newContext) {
         if (newContext == null) {
             newContext = _emptyContext;
         }
@@ -110,7 +113,7 @@ public abstract class Reference implements Cloneable {
         if (newContext.isEmpty()) {
             r._context = _emptyContext;
         } else {
-            r._context = new java.util.HashMap<>(newContext);
+            r._context = new HashMap<>(newContext);
         }
         return r;
     }
@@ -153,7 +156,7 @@ public abstract class Reference implements Cloneable {
 
     public Reference changeCompress(boolean newCompress) {
         Reference r = _instance.referenceFactory().copy(this);
-        r._compress = java.util.Optional.of(newCompress);
+        r._compress = Optional.of(newCompress);
         return r;
     }
 
@@ -198,12 +201,12 @@ public abstract class Reference implements Cloneable {
     }
 
     // Gets the effective compression setting, taking into account the override.
-    public java.util.Optional<Boolean> getCompressOverride() {
+    public Optional<Boolean> getCompressOverride() {
         DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
 
         return defaultsAndOverrides.overrideCompress.isPresent()
-                ? defaultsAndOverrides.overrideCompress
-                : _compress;
+            ? defaultsAndOverrides.overrideCompress
+            : _compress;
     }
 
     //
@@ -296,34 +299,34 @@ public abstract class Reference implements Cloneable {
 
         switch (_mode) {
             case ModeTwoway:
-                {
-                    // Don't print the default mode.
-                    break;
-                }
+            {
+                // Don't print the default mode.
+                break;
+            }
 
             case ModeOneway:
-                {
-                    s.append(" -o");
-                    break;
-                }
+            {
+                s.append(" -o");
+                break;
+            }
 
             case ModeBatchOneway:
-                {
-                    s.append(" -O");
-                    break;
-                }
+            {
+                s.append(" -O");
+                break;
+            }
 
             case ModeDatagram:
-                {
-                    s.append(" -d");
-                    break;
-                }
+            {
+                s.append(" -d");
+                break;
+            }
 
             case ModeBatchDatagram:
-                {
-                    s.append(" -D");
-                    break;
-                }
+            {
+                s.append(" -D");
+                break;
+            }
         }
 
         if (_secure) {
@@ -339,7 +342,7 @@ public abstract class Reference implements Cloneable {
         // We print the encoding if it's not 1.1 or if Ice.Default.EncodingVersion is set to
         // something other than 1.1.
         if (!_encoding.equals(Util.Encoding_1_1)
-                || !_instance.defaultsAndOverrides().defaultEncoding.equals(Util.Encoding_1_1)) {
+            || !_instance.defaultsAndOverrides().defaultEncoding.equals(Util.Encoding_1_1)) {
             s.append(" -e ");
             s.append(Util.encodingVersionToString(_encoding));
         }
@@ -352,7 +355,7 @@ public abstract class Reference implements Cloneable {
     //
     // Convert the reference to its property form.
     //
-    public abstract java.util.Map<String, String> toProperty(String prefix);
+    public abstract Map<String, String> toProperty(String prefix);
 
     abstract RequestHandler getRequestHandler();
 
@@ -416,16 +419,16 @@ public abstract class Reference implements Cloneable {
         return c;
     }
 
-    private static java.util.Map<String, String> _emptyContext = new java.util.HashMap<>();
+    private static final Map<String, String> _emptyContext = new HashMap<>();
 
     private final Instance _instance;
     private final Communicator _communicator;
 
     private int _mode;
     private boolean _secure;
-    private java.util.Optional<Boolean> _compress;
+    private Optional<Boolean> _compress;
     private Identity _identity;
-    private java.util.Map<String, String> _context;
+    private Map<String, String> _context;
     private String _facet;
     private final ProtocolVersion _protocol;
     private EncodingVersion _encoding;
@@ -438,11 +441,11 @@ public abstract class Reference implements Cloneable {
             String facet,
             int mode,
             boolean secure,
-            java.util.Optional<Boolean> compress,
+            Optional<Boolean> compress,
             ProtocolVersion protocol,
             EncodingVersion encoding,
             Duration invocationTimeout,
-            java.util.Map<String, String> context) {
+            Map<String, String> context) {
         //
         // Validate string arguments.
         //
@@ -456,7 +459,7 @@ public abstract class Reference implements Cloneable {
         _secure = secure;
         _compress = compress;
         _identity = identity;
-        _context = context != null ? new java.util.HashMap<>(context) : _emptyContext;
+        _context = context != null ? new HashMap<>(context) : _emptyContext;
         _facet = facet;
         _protocol = protocol;
         _encoding = encoding;

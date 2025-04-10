@@ -54,5 +54,5 @@ class ServerTemplateEditor extends TemplateEditor {
         }
     }
 
-    private ServerSubEditor _subEditor;
+    private final ServerSubEditor _subEditor;
 }

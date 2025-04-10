@@ -2,18 +2,23 @@
 
 package test.Ice.location;
 
+import com.zeroc.Ice.AdapterNotFoundException;
+import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.ObjectNotFoundException;
 import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.ProcessPrx;
 
 import test.Ice.location.Test.TestLocatorRegistry;
 
+import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class ServerLocatorRegistry implements TestLocatorRegistry {
     @Override
     public CompletionStage<Void> setAdapterDirectProxyAsync(
-            String adapter, ObjectPrx object, com.zeroc.Ice.Current current) {
+            String adapter, ObjectPrx object, Current current) {
         if (object != null) {
             _adapters.put(adapter, object);
         } else {
@@ -24,7 +29,7 @@ public class ServerLocatorRegistry implements TestLocatorRegistry {
 
     @Override
     public CompletionStage<Void> setReplicatedAdapterDirectProxyAsync(
-            String adapter, String replica, ObjectPrx object, com.zeroc.Ice.Current current) {
+            String adapter, String replica, ObjectPrx object, Current current) {
         if (object != null) {
             _adapters.put(adapter, object);
             _adapters.put(replica, object);
@@ -37,31 +42,31 @@ public class ServerLocatorRegistry implements TestLocatorRegistry {
 
     @Override
     public CompletionStage<Void> setServerProcessProxyAsync(
-            String id, com.zeroc.Ice.ProcessPrx proxy, com.zeroc.Ice.Current current) {
+            String id, ProcessPrx proxy, Current current) {
         return CompletableFuture.completedFuture((Void) null);
     }
 
     @Override
-    public void addObject(ObjectPrx object, com.zeroc.Ice.Current current) {
+    public void addObject(ObjectPrx object, Current current) {
         _objects.put(object.ice_getIdentity(), object);
     }
 
-    public ObjectPrx getAdapter(String adapter) throws com.zeroc.Ice.AdapterNotFoundException {
+    public ObjectPrx getAdapter(String adapter) throws AdapterNotFoundException {
         ObjectPrx obj = _adapters.get(adapter);
         if (obj == null) {
-            throw new com.zeroc.Ice.AdapterNotFoundException();
+            throw new AdapterNotFoundException();
         }
         return obj;
     }
 
-    public ObjectPrx getObject(Identity id) throws com.zeroc.Ice.ObjectNotFoundException {
+    public ObjectPrx getObject(Identity id) throws ObjectNotFoundException {
         ObjectPrx obj = _objects.get(id);
         if (obj == null) {
-            throw new com.zeroc.Ice.ObjectNotFoundException();
+            throw new ObjectNotFoundException();
         }
         return obj;
     }
 
-    private java.util.HashMap<String, ObjectPrx> _adapters = new java.util.HashMap<>();
-    private java.util.HashMap<Identity, ObjectPrx> _objects = new java.util.HashMap<>();
+    private final HashMap<String, ObjectPrx> _adapters = new HashMap<>();
+    private final HashMap<Identity, ObjectPrx> _objects = new HashMap<>();
 }

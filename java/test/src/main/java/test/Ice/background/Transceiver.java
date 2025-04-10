@@ -3,12 +3,17 @@
 package test.Ice.background;
 
 import com.zeroc.Ice.Buffer;
+import com.zeroc.Ice.ConnectionInfo;
+import com.zeroc.Ice.EndpointI;
+import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ReadyCallback;
 import com.zeroc.Ice.SocketOperation;
 
+import java.nio.channels.SelectableChannel;
+
 final class Transceiver implements com.zeroc.Ice.Transceiver {
     @Override
-    public java.nio.channels.SelectableChannel fd() {
+    public SelectableChannel fd() {
         return _transceiver.fd();
     }
 
@@ -48,7 +53,7 @@ final class Transceiver implements com.zeroc.Ice.Transceiver {
     }
 
     @Override
-    public int closing(boolean initiator, com.zeroc.Ice.LocalException ex) {
+    public int closing(boolean initiator, LocalException ex) {
         return _transceiver.closing(initiator, ex);
     }
 
@@ -58,7 +63,7 @@ final class Transceiver implements com.zeroc.Ice.Transceiver {
     }
 
     @Override
-    public com.zeroc.Ice.EndpointI bind() {
+    public EndpointI bind() {
         return _transceiver.bind();
     }
 
@@ -131,7 +136,7 @@ final class Transceiver implements com.zeroc.Ice.Transceiver {
     }
 
     @Override
-    public com.zeroc.Ice.ConnectionInfo getInfo(
+    public ConnectionInfo getInfo(
             boolean incoming, String adapterName, String connectionId) {
         return _transceiver.getInfo(incoming, adapterName, connectionId);
     }
@@ -168,6 +173,6 @@ final class Transceiver implements com.zeroc.Ice.Transceiver {
     private ReadyCallback _readyCallback;
     private boolean _initialized;
     private final boolean _buffered;
-    private Buffer _readBuffer;
+    private final Buffer _readBuffer;
     private int _readBufferPos;
 }

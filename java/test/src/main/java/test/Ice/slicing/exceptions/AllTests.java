@@ -2,7 +2,17 @@
 
 package test.Ice.slicing.exceptions;
 
-import test.Ice.slicing.exceptions.client.Test.*;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectPrx;
+
+import test.TestHelper;
+import test.Ice.slicing.exceptions.client.Test.Base;
+import test.Ice.slicing.exceptions.client.Test.KnownDerived;
+import test.Ice.slicing.exceptions.client.Test.KnownIntermediate;
+import test.Ice.slicing.exceptions.client.Test.KnownMostDerived;
+import test.Ice.slicing.exceptions.client.Test.TestIntfPrx;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {
@@ -20,8 +30,7 @@ public class AllTests {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
 
             _called = false;
@@ -36,14 +45,14 @@ public class AllTests {
         private boolean _called;
     }
 
-    public static TestIntfPrx allTests(test.TestHelper helper, boolean collocated) {
-        java.io.PrintWriter out = helper.getWriter();
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static TestIntfPrx allTests(TestHelper helper, boolean collocated) {
+        PrintWriter out = helper.getWriter();
+        Communicator communicator = helper.communicator();
 
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "Test:" + helper.getTestEndpoint(0) + " -t 10000";
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 
@@ -61,8 +70,8 @@ public class AllTests {
                 test.baseAsBase();
                 test(false);
             } catch (Base b) {
-                test(b.b.equals("Base.b"));
-                test(b.ice_id().equals("::Test::Base"));
+                test("Base.b".equals(b.b));
+                test("::Test::Base".equals(b.ice_id()));
             } catch (Exception ex) {
                 test(false);
             }
@@ -74,14 +83,14 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.baseAsBaseAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof Base);
-                                Base b = (Base) ex;
-                                test(b.b.equals("Base.b"));
-                                test(b.ice_id().equals("::Test::Base"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof Base);
+                        Base b = (Base) ex;
+                        test("Base.b".equals(b.b));
+                        test("::Test::Base".equals(b.ice_id()));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -93,8 +102,8 @@ public class AllTests {
                 test.unknownDerivedAsBase();
                 test(false);
             } catch (Base b) {
-                test(b.b.equals("UnknownDerived.b"));
-                test(b.ice_id().equals("::Test::Base"));
+                test("UnknownDerived.b".equals(b.b));
+                test("::Test::Base".equals(b.ice_id()));
             } catch (Exception ex) {
                 test(false);
             }
@@ -106,14 +115,14 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.unknownDerivedAsBaseAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof Base);
-                                Base b = (Base) ex;
-                                test(b.b.equals("UnknownDerived.b"));
-                                test(b.ice_id().equals("::Test::Base"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof Base);
+                        Base b = (Base) ex;
+                        test("UnknownDerived.b".equals(b.b));
+                        test("::Test::Base".equals(b.ice_id()));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -125,9 +134,9 @@ public class AllTests {
                 test.knownDerivedAsBase();
                 test(false);
             } catch (KnownDerived k) {
-                test(k.b.equals("KnownDerived.b"));
-                test(k.kd.equals("KnownDerived.kd"));
-                test(k.ice_id().equals("::Test::KnownDerived"));
+                test("KnownDerived.b".equals(k.b));
+                test("KnownDerived.kd".equals(k.kd));
+                test("::Test::KnownDerived".equals(k.ice_id()));
             } catch (Exception ex) {
                 test(false);
             }
@@ -139,15 +148,15 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.knownDerivedAsBaseAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof KnownDerived);
-                                KnownDerived k = (KnownDerived) ex;
-                                test(k.b.equals("KnownDerived.b"));
-                                test(k.kd.equals("KnownDerived.kd"));
-                                test(k.ice_id().equals("::Test::KnownDerived"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof KnownDerived);
+                        KnownDerived k = (KnownDerived) ex;
+                        test("KnownDerived.b".equals(k.b));
+                        test("KnownDerived.kd".equals(k.kd));
+                        test("::Test::KnownDerived".equals(k.ice_id()));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -159,9 +168,9 @@ public class AllTests {
                 test.knownDerivedAsKnownDerived();
                 test(false);
             } catch (KnownDerived k) {
-                test(k.b.equals("KnownDerived.b"));
-                test(k.kd.equals("KnownDerived.kd"));
-                test(k.ice_id().equals("::Test::KnownDerived"));
+                test("KnownDerived.b".equals(k.b));
+                test("KnownDerived.kd".equals(k.kd));
+                test("::Test::KnownDerived".equals(k.ice_id()));
             } catch (Exception ex) {
                 test(false);
             }
@@ -173,15 +182,15 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.knownDerivedAsKnownDerivedAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof KnownDerived);
-                                KnownDerived k = (KnownDerived) ex;
-                                test(k.b.equals("KnownDerived.b"));
-                                test(k.kd.equals("KnownDerived.kd"));
-                                test(k.ice_id().equals("::Test::KnownDerived"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof KnownDerived);
+                        KnownDerived k = (KnownDerived) ex;
+                        test("KnownDerived.b".equals(k.b));
+                        test("KnownDerived.kd".equals(k.kd));
+                        test("::Test::KnownDerived".equals(k.ice_id()));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -193,8 +202,8 @@ public class AllTests {
                 test.unknownIntermediateAsBase();
                 test(false);
             } catch (Base b) {
-                test(b.b.equals("UnknownIntermediate.b"));
-                test(b.ice_id().equals("::Test::Base"));
+                test("UnknownIntermediate.b".equals(b.b));
+                test("::Test::Base".equals(b.ice_id()));
             } catch (Exception ex) {
                 test(false);
             }
@@ -206,14 +215,14 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.unknownIntermediateAsBaseAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof Base);
-                                Base b = (Base) ex;
-                                test(b.b.equals("UnknownIntermediate.b"));
-                                test(b.ice_id().equals("::Test::Base"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof Base);
+                        Base b = (Base) ex;
+                        test("UnknownIntermediate.b".equals(b.b));
+                        test("::Test::Base".equals(b.ice_id()));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -225,9 +234,9 @@ public class AllTests {
                 test.knownIntermediateAsBase();
                 test(false);
             } catch (KnownIntermediate ki) {
-                test(ki.b.equals("KnownIntermediate.b"));
-                test(ki.ki.equals("KnownIntermediate.ki"));
-                test(ki.ice_id().equals("::Test::KnownIntermediate"));
+                test("KnownIntermediate.b".equals(ki.b));
+                test("KnownIntermediate.ki".equals(ki.ki));
+                test("::Test::KnownIntermediate".equals(ki.ice_id()));
             } catch (Exception ex) {
                 test(false);
             }
@@ -239,15 +248,15 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.knownIntermediateAsBaseAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof KnownIntermediate);
-                                KnownIntermediate ki = (KnownIntermediate) ex;
-                                test(ki.b.equals("KnownIntermediate.b"));
-                                test(ki.ki.equals("KnownIntermediate.ki"));
-                                test(ki.ice_id().equals("::Test::KnownIntermediate"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof KnownIntermediate);
+                        KnownIntermediate ki = (KnownIntermediate) ex;
+                        test("KnownIntermediate.b".equals(ki.b));
+                        test("KnownIntermediate.ki".equals(ki.ki));
+                        test("::Test::KnownIntermediate".equals(ki.ice_id()));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -259,10 +268,10 @@ public class AllTests {
                 test.knownMostDerivedAsBase();
                 test(false);
             } catch (KnownMostDerived kmd) {
-                test(kmd.b.equals("KnownMostDerived.b"));
-                test(kmd.ki.equals("KnownMostDerived.ki"));
-                test(kmd.kmd.equals("KnownMostDerived.kmd"));
-                test(kmd.ice_id().equals("::Test::KnownMostDerived"));
+                test("KnownMostDerived.b".equals(kmd.b));
+                test("KnownMostDerived.ki".equals(kmd.ki));
+                test("KnownMostDerived.kmd".equals(kmd.kmd));
+                test("::Test::KnownMostDerived".equals(kmd.ice_id()));
             } catch (Exception ex) {
                 test(false);
             }
@@ -274,16 +283,16 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.knownMostDerivedAsBaseAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof KnownMostDerived);
-                                KnownMostDerived kmd = (KnownMostDerived) ex;
-                                test(kmd.b.equals("KnownMostDerived.b"));
-                                test(kmd.ki.equals("KnownMostDerived.ki"));
-                                test(kmd.kmd.equals("KnownMostDerived.kmd"));
-                                test(kmd.ice_id().equals("::Test::KnownMostDerived"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof KnownMostDerived);
+                        KnownMostDerived kmd = (KnownMostDerived) ex;
+                        test("KnownMostDerived.b".equals(kmd.b));
+                        test("KnownMostDerived.ki".equals(kmd.ki));
+                        test("KnownMostDerived.kmd".equals(kmd.kmd));
+                        test("::Test::KnownMostDerived".equals(kmd.ice_id()));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -295,9 +304,9 @@ public class AllTests {
                 test.knownIntermediateAsKnownIntermediate();
                 test(false);
             } catch (KnownIntermediate ki) {
-                test(ki.b.equals("KnownIntermediate.b"));
-                test(ki.ki.equals("KnownIntermediate.ki"));
-                test(ki.ice_id().equals("::Test::KnownIntermediate"));
+                test("KnownIntermediate.b".equals(ki.b));
+                test("KnownIntermediate.ki".equals(ki.ki));
+                test("::Test::KnownIntermediate".equals(ki.ice_id()));
             } catch (Exception ex) {
                 test(false);
             }
@@ -309,15 +318,15 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.knownIntermediateAsKnownIntermediateAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof KnownIntermediate);
-                                KnownIntermediate ki = (KnownIntermediate) ex;
-                                test(ki.b.equals("KnownIntermediate.b"));
-                                test(ki.ki.equals("KnownIntermediate.ki"));
-                                test(ki.ice_id().equals("::Test::KnownIntermediate"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof KnownIntermediate);
+                        KnownIntermediate ki = (KnownIntermediate) ex;
+                        test("KnownIntermediate.b".equals(ki.b));
+                        test("KnownIntermediate.ki".equals(ki.ki));
+                        test("::Test::KnownIntermediate".equals(ki.ice_id()));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -329,10 +338,10 @@ public class AllTests {
                 test.knownMostDerivedAsKnownIntermediate();
                 test(false);
             } catch (KnownMostDerived kmd) {
-                test(kmd.b.equals("KnownMostDerived.b"));
-                test(kmd.ki.equals("KnownMostDerived.ki"));
-                test(kmd.kmd.equals("KnownMostDerived.kmd"));
-                test(kmd.ice_id().equals("::Test::KnownMostDerived"));
+                test("KnownMostDerived.b".equals(kmd.b));
+                test("KnownMostDerived.ki".equals(kmd.ki));
+                test("KnownMostDerived.kmd".equals(kmd.kmd));
+                test("::Test::KnownMostDerived".equals(kmd.ice_id()));
             } catch (Exception ex) {
                 test(false);
             }
@@ -344,16 +353,16 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.knownMostDerivedAsKnownIntermediateAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof KnownMostDerived);
-                                KnownMostDerived kmd = (KnownMostDerived) ex;
-                                test(kmd.b.equals("KnownMostDerived.b"));
-                                test(kmd.ki.equals("KnownMostDerived.ki"));
-                                test(kmd.kmd.equals("KnownMostDerived.kmd"));
-                                test(kmd.ice_id().equals("::Test::KnownMostDerived"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof KnownMostDerived);
+                        KnownMostDerived kmd = (KnownMostDerived) ex;
+                        test("KnownMostDerived.b".equals(kmd.b));
+                        test("KnownMostDerived.ki".equals(kmd.ki));
+                        test("KnownMostDerived.kmd".equals(kmd.kmd));
+                        test("::Test::KnownMostDerived".equals(kmd.ice_id()));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -365,10 +374,10 @@ public class AllTests {
                 test.knownMostDerivedAsKnownMostDerived();
                 test(false);
             } catch (KnownMostDerived kmd) {
-                test(kmd.b.equals("KnownMostDerived.b"));
-                test(kmd.ki.equals("KnownMostDerived.ki"));
-                test(kmd.kmd.equals("KnownMostDerived.kmd"));
-                test(kmd.ice_id().equals("::Test::KnownMostDerived"));
+                test("KnownMostDerived.b".equals(kmd.b));
+                test("KnownMostDerived.ki".equals(kmd.ki));
+                test("KnownMostDerived.kmd".equals(kmd.kmd));
+                test("::Test::KnownMostDerived".equals(kmd.ice_id()));
             } catch (Exception ex) {
                 test(false);
             }
@@ -380,16 +389,16 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.knownMostDerivedAsKnownMostDerivedAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof KnownMostDerived);
-                                KnownMostDerived kmd = (KnownMostDerived) ex;
-                                test(kmd.b.equals("KnownMostDerived.b"));
-                                test(kmd.ki.equals("KnownMostDerived.ki"));
-                                test(kmd.kmd.equals("KnownMostDerived.kmd"));
-                                test(kmd.ice_id().equals("::Test::KnownMostDerived"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof KnownMostDerived);
+                        KnownMostDerived kmd = (KnownMostDerived) ex;
+                        test("KnownMostDerived.b".equals(kmd.b));
+                        test("KnownMostDerived.ki".equals(kmd.ki));
+                        test("KnownMostDerived.kmd".equals(kmd.kmd));
+                        test("::Test::KnownMostDerived".equals(kmd.ice_id()));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -401,9 +410,9 @@ public class AllTests {
                 test.unknownMostDerived1AsBase();
                 test(false);
             } catch (KnownIntermediate ki) {
-                test(ki.b.equals("UnknownMostDerived1.b"));
-                test(ki.ki.equals("UnknownMostDerived1.ki"));
-                test(ki.ice_id().equals("::Test::KnownIntermediate"));
+                test("UnknownMostDerived1.b".equals(ki.b));
+                test("UnknownMostDerived1.ki".equals(ki.ki));
+                test("::Test::KnownIntermediate".equals(ki.ice_id()));
             } catch (Exception ex) {
                 test(false);
             }
@@ -415,15 +424,15 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.unknownMostDerived1AsBaseAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof KnownIntermediate);
-                                KnownIntermediate ki = (KnownIntermediate) ex;
-                                test(ki.b.equals("UnknownMostDerived1.b"));
-                                test(ki.ki.equals("UnknownMostDerived1.ki"));
-                                test(ki.ice_id().equals("::Test::KnownIntermediate"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof KnownIntermediate);
+                        KnownIntermediate ki = (KnownIntermediate) ex;
+                        test("UnknownMostDerived1.b".equals(ki.b));
+                        test("UnknownMostDerived1.ki".equals(ki.ki));
+                        test("::Test::KnownIntermediate".equals(ki.ice_id()));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -435,9 +444,9 @@ public class AllTests {
                 test.unknownMostDerived1AsKnownIntermediate();
                 test(false);
             } catch (KnownIntermediate ki) {
-                test(ki.b.equals("UnknownMostDerived1.b"));
-                test(ki.ki.equals("UnknownMostDerived1.ki"));
-                test(ki.ice_id().equals("::Test::KnownIntermediate"));
+                test("UnknownMostDerived1.b".equals(ki.b));
+                test("UnknownMostDerived1.ki".equals(ki.ki));
+                test("::Test::KnownIntermediate".equals(ki.ice_id()));
             } catch (Exception ex) {
                 test(false);
             }
@@ -449,15 +458,15 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.unknownMostDerived1AsKnownIntermediateAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof KnownIntermediate);
-                                KnownIntermediate ki = (KnownIntermediate) ex;
-                                test(ki.b.equals("UnknownMostDerived1.b"));
-                                test(ki.ki.equals("UnknownMostDerived1.ki"));
-                                test(ki.ice_id().equals("::Test::KnownIntermediate"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof KnownIntermediate);
+                        KnownIntermediate ki = (KnownIntermediate) ex;
+                        test("UnknownMostDerived1.b".equals(ki.b));
+                        test("UnknownMostDerived1.ki".equals(ki.ki));
+                        test("::Test::KnownIntermediate".equals(ki.ice_id()));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
@@ -469,8 +478,8 @@ public class AllTests {
                 test.unknownMostDerived2AsBase();
                 test(false);
             } catch (Base b) {
-                test(b.b.equals("UnknownMostDerived2.b"));
-                test(b.ice_id().equals("::Test::Base"));
+                test("UnknownMostDerived2.b".equals(b.b));
+                test("::Test::Base".equals(b.ice_id()));
             } catch (Exception ex) {
                 test(false);
             }
@@ -482,18 +491,20 @@ public class AllTests {
         {
             Callback cb = new Callback();
             test.unknownMostDerived2AsBaseAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex != null && ex instanceof Base);
-                                Base b = (Base) ex;
-                                test(b.b.equals("UnknownMostDerived2.b"));
-                                test(b.ice_id().equals("::Test::Base"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex != null && ex instanceof Base);
+                        Base b = (Base) ex;
+                        test("UnknownMostDerived2.b".equals(b.b));
+                        test("::Test::Base".equals(b.ice_id()));
+                        cb.called();
+                    });
             cb.check();
         }
         out.println("ok");
 
         return test;
     }
+
+    private AllTests() {}
 }

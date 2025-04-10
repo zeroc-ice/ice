@@ -2,12 +2,20 @@
 
 package test.Ice.executor;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.CommunicatorDestroyedException;
 import com.zeroc.Ice.InvocationFuture;
+import com.zeroc.Ice.InvocationTimeoutException;
+import com.zeroc.Ice.NoEndpointException;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Util;
 
 import test.Ice.executor.Test.TestIntfControllerPrx;
 import test.Ice.executor.Test.TestIntfPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 public class AllTests {
@@ -21,8 +29,7 @@ public class AllTests {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
             if (_exception != null) {
                 throw _exception;
@@ -57,17 +64,17 @@ public class AllTests {
         }
     }
 
-    public static void allTests(test.TestHelper helper, final CustomExecutor executor) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static void allTests(TestHelper helper, final CustomExecutor executor) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
 
         String sref = "test:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(sref);
+        ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         int mult = 1;
-        if (!communicator.getProperties().getIceProperty("Ice.Default.Protocol").equals("tcp")
-                || helper.isAndroid()) {
+        if (!"tcp".equals(communicator.getProperties().getIceProperty("Ice.Default.Protocol"))
+            || helper.isAndroid()) {
             mult = 4;
         }
 
@@ -87,32 +94,32 @@ public class AllTests {
             {
                 final Callback cb = new Callback();
                 p.opAsync()
-                        .whenCompleteAsync(
-                                (result, ex) -> {
-                                    if (ex != null) {
-                                        cb.exception(ex);
-                                    } else {
-                                        test(executor.isCustomExecutorThread());
-                                        cb.called();
-                                    }
-                                },
-                                executor);
+                    .whenCompleteAsync(
+                        (result, ex) -> {
+                            if (ex != null) {
+                                cb.exception(ex);
+                            } else {
+                                test(executor.isCustomExecutorThread());
+                                cb.called();
+                            }
+                        },
+                        executor);
                 cb.check();
             }
 
             {
                 final Callback cb = new Callback();
                 p.opAsync()
-                        .whenCompleteAsync(
-                                (result, ex) -> {
-                                    if (ex != null) {
-                                        cb.exception(ex);
-                                    } else {
-                                        test(executor.isCustomExecutorThread());
-                                        cb.called();
-                                    }
-                                },
-                                p.ice_executor());
+                    .whenCompleteAsync(
+                        (result, ex) -> {
+                            if (ex != null) {
+                                cb.exception(ex);
+                            } else {
+                                test(executor.isCustomExecutorThread());
+                                cb.called();
+                            }
+                        },
+                        p.ice_executor());
                 cb.check();
             }
 
@@ -120,17 +127,17 @@ public class AllTests {
                 TestIntfPrx i = p.ice_adapterId("dummy");
                 final Callback cb = new Callback();
                 i.opAsync()
-                        .whenCompleteAsync(
-                                (result, ex) -> {
-                                    if (ex != null) {
-                                        test(ex instanceof com.zeroc.Ice.NoEndpointException);
-                                        test(executor.isCustomExecutorThread());
-                                        cb.called();
-                                    } else {
-                                        cb.exception(new RuntimeException());
-                                    }
-                                },
-                                executor);
+                    .whenCompleteAsync(
+                        (result, ex) -> {
+                            if (ex != null) {
+                                test(ex instanceof NoEndpointException);
+                                test(executor.isCustomExecutorThread());
+                                cb.called();
+                            } else {
+                                cb.exception(new RuntimeException());
+                            }
+                        },
+                        executor);
                 cb.check();
             }
 
@@ -138,17 +145,17 @@ public class AllTests {
                 TestIntfPrx i = p.ice_adapterId("dummy");
                 final Callback cb = new Callback();
                 i.opAsync()
-                        .whenCompleteAsync(
-                                (result, ex) -> {
-                                    if (ex != null) {
-                                        test(ex instanceof com.zeroc.Ice.NoEndpointException);
-                                        test(executor.isCustomExecutorThread());
-                                        cb.called();
-                                    } else {
-                                        cb.exception(new RuntimeException());
-                                    }
-                                },
-                                p.ice_executor());
+                    .whenCompleteAsync(
+                        (result, ex) -> {
+                            if (ex != null) {
+                                test(ex instanceof NoEndpointException);
+                                test(executor.isCustomExecutorThread());
+                                cb.called();
+                            } else {
+                                cb.exception(new RuntimeException());
+                            }
+                        },
+                        p.ice_executor());
                 cb.check();
             }
 
@@ -160,23 +167,23 @@ public class AllTests {
                 final Callback cb = new Callback();
                 CompletableFuture<Void> r = to.sleepAsync(500 * mult);
                 r.whenCompleteAsync(
-                        (result, ex) -> {
-                            if (ex != null) {
-                                test(ex instanceof com.zeroc.Ice.InvocationTimeoutException);
-                                test(executor.isCustomExecutorThread());
-                                cb.called();
-                            } else {
-                                cb.exception(new RuntimeException());
-                            }
+                    (result, ex) -> {
+                        if (ex != null) {
+                            test(ex instanceof InvocationTimeoutException);
+                            test(executor.isCustomExecutorThread());
+                            cb.called();
+                        } else {
+                            cb.exception(new RuntimeException());
+                        }
+                    },
+                    executor);
+                Util.getInvocationFuture(r)
+                    .whenSentAsync(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            test(executor.isCustomExecutorThread());
                         },
                         executor);
-                com.zeroc.Ice.Util.getInvocationFuture(r)
-                        .whenSentAsync(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    test(executor.isCustomExecutorThread());
-                                },
-                                executor);
                 cb.check();
             }
 
@@ -188,23 +195,23 @@ public class AllTests {
                 final Callback cb = new Callback();
                 CompletableFuture<Void> r = to.sleepAsync(500 * mult);
                 r.whenCompleteAsync(
-                        (result, ex) -> {
-                            if (ex != null) {
-                                test(ex instanceof com.zeroc.Ice.InvocationTimeoutException);
-                                test(executor.isCustomExecutorThread());
-                                cb.called();
-                            } else {
-                                cb.exception(new RuntimeException());
-                            }
+                    (result, ex) -> {
+                        if (ex != null) {
+                            test(ex instanceof InvocationTimeoutException);
+                            test(executor.isCustomExecutorThread());
+                            cb.called();
+                        } else {
+                            cb.exception(new RuntimeException());
+                        }
+                    },
+                    executor);
+                Util.getInvocationFuture(r)
+                    .whenSentAsync(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            test(executor.isCustomExecutorThread());
                         },
-                        executor);
-                com.zeroc.Ice.Util.getInvocationFuture(r)
-                        .whenSentAsync(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    test(executor.isCustomExecutorThread());
-                                },
-                                p.ice_executor());
+                        p.ice_executor());
                 cb.check();
             }
 
@@ -214,26 +221,26 @@ public class AllTests {
             testController.holdAdapter();
             p = p.ice_collocationOptimized(false);
             byte[] seq = new byte[10 * 1024];
-            new java.util.Random()
-                    .nextBytes(seq); // Make sure the request doesn't compress too well.
+            new Random()
+                .nextBytes(seq); // Make sure the request doesn't compress too well.
             CompletableFuture<Void> r = null;
             while (true) {
                 r = p.opWithPayloadAsync(seq);
                 r.whenComplete(
-                        (result, ex) -> {
-                            if (ex != null) {
-                                test(ex instanceof com.zeroc.Ice.CommunicatorDestroyedException);
-                            } else {
-                                test(executor.isCustomExecutorThread());
-                            }
-                        });
-                InvocationFuture<Void> f = com.zeroc.Ice.Util.getInvocationFuture(r);
-                f.whenSentAsync(
-                        (sentSynchronously, ex) -> {
-                            test(ex == null);
+                    (result, ex) -> {
+                        if (ex != null) {
+                            test(ex instanceof CommunicatorDestroyedException);
+                        } else {
                             test(executor.isCustomExecutorThread());
-                        },
-                        executor);
+                        }
+                    });
+                InvocationFuture<Void> f = Util.getInvocationFuture(r);
+                f.whenSentAsync(
+                    (sentSynchronously, ex) -> {
+                        test(ex == null);
+                        test(executor.isCustomExecutorThread());
+                    },
+                    executor);
                 if (!f.sentSynchronously()) {
                     break;
                 }
@@ -244,4 +251,6 @@ public class AllTests {
         out.println("ok");
         p.shutdown();
     }
+
+    private AllTests() {}
 }

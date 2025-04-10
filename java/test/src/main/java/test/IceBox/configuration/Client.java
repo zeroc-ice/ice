@@ -2,17 +2,23 @@
 
 package test.IceBox.configuration;
 
-public class Client extends test.TestHelper {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ProcessPrx;
+import com.zeroc.Ice.Properties;
+
+import test.TestHelper;
+
+public class Client extends TestHelper {
     public void run(String[] args) {
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.IceBox.configuration");
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(properties)) {
             AllTests.allTests(this);
 
             // Shutdown the IceBox server.
             var prx =
-                    com.zeroc.Ice.ProcessPrx.createProxy(
-                            communicator(), "DemoIceBox/admin -f Process:default -p 9996");
+                ProcessPrx.createProxy(
+                    communicator(), "DemoIceBox/admin -f Process:default -p 9996");
             prx.shutdown();
         }
     }

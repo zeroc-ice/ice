@@ -2,13 +2,15 @@
 
 package com.zeroc.Ice.SSL;
 
+import java.security.cert.Certificate;
+
 /** Provides access to the connection details of an SSL connection */
 public final class ConnectionInfo extends com.zeroc.Ice.ConnectionInfo {
     /** The negotiated cipher suite. */
     public final String cipher;
 
     /** The certificate chain. */
-    public final java.security.cert.Certificate[] certs;
+    public final Certificate[] certs;
 
     /** The certificate chain verification status. */
     public final boolean verified;
@@ -17,7 +19,7 @@ public final class ConnectionInfo extends com.zeroc.Ice.ConnectionInfo {
     ConnectionInfo(
             com.zeroc.Ice.ConnectionInfo underlying,
             String cipher,
-            java.security.cert.Certificate[] certs,
+            Certificate[] certs,
             boolean verified) {
         super(underlying);
         this.cipher = cipher;

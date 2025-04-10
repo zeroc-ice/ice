@@ -3,20 +3,29 @@
 package test.IceSSL.configuration;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ConnectionLostException;
+import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.SecurityException;
+import com.zeroc.Ice.Util;
 
 import test.IceSSL.configuration.Test.ServerPrx;
 import test.TestHelper;
 
 import java.io.FileInputStream;
 import java.io.PrintWriter;
+import java.net.Socket;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509ExtendedKeyManager;
@@ -35,7 +44,7 @@ public class PlatformTests {
                 keyStore.load(input, "password".toCharArray());
             }
             KeyManagerFactory keyManagerFactory =
-                    KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             keyManagerFactory.init(keyStore, "password".toCharArray());
             return keyManagerFactory;
         } catch (Exception ex) {
@@ -51,7 +60,7 @@ public class PlatformTests {
                 keyStore.load(input, "password".toCharArray());
             }
             TrustManagerFactory trustManagerFactory =
-                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init(keyStore);
             return trustManagerFactory;
         } catch (Exception ex) {
@@ -62,56 +71,56 @@ public class PlatformTests {
 
     public static Communicator createServer(
             TestHelper helper, String keyStorePath, String trustStorePath)
-            throws NoSuchAlgorithmException, KeyManagementException {
+        throws NoSuchAlgorithmException, KeyManagementException {
         var sslContext = SSLContext.getInstance("TLS");
 
         KeyManagerFactory keyManagerFactory =
-                keyStorePath == null ? null : loadKeyManagerFactory(keyStorePath);
+            keyStorePath == null ? null : loadKeyManagerFactory(keyStorePath);
         TrustManagerFactory trustManagerFactory =
-                trustStorePath == null ? null : loadTrustManagerFactory(trustStorePath);
+            trustStorePath == null ? null : loadTrustManagerFactory(trustStorePath);
         boolean clientCertificateRequired = trustStorePath != null;
 
         KeyManager[] keyManagers =
-                keyManagerFactory == null ? null : keyManagerFactory.getKeyManagers();
+            keyManagerFactory == null ? null : keyManagerFactory.getKeyManagers();
         TrustManager[] trustManagers =
-                trustManagerFactory == null ? null : trustManagerFactory.getTrustManagers();
+            trustManagerFactory == null ? null : trustManagerFactory.getTrustManagers();
         sslContext.init(keyManagers, trustManagers, null);
 
-        var communicator = com.zeroc.Ice.Util.initialize();
+        var communicator = Util.initialize();
         var adapter =
-                communicator.createObjectAdapterWithEndpoints(
-                        "ServerAdapter",
-                        helper.getTestEndpoint(10, "ssl"),
-                        (String peerHost, int peerPort) -> {
-                            var engine = sslContext.createSSLEngine(peerHost, peerPort);
-                            engine.setNeedClientAuth(clientCertificateRequired);
-                            return engine;
-                        });
-        adapter.add(new ServerI(communicator), com.zeroc.Ice.Util.stringToIdentity("server"));
+            communicator.createObjectAdapterWithEndpoints(
+                "ServerAdapter",
+                helper.getTestEndpoint(10, "ssl"),
+                (String peerHost, int peerPort) -> {
+                    var engine = sslContext.createSSLEngine(peerHost, peerPort);
+                    engine.setNeedClientAuth(clientCertificateRequired);
+                    return engine;
+                });
+        adapter.add(new ServerI(communicator), Util.stringToIdentity("server"));
         adapter.activate();
         return communicator;
     }
 
     public static Communicator createClient(
             TestHelper helper, String keyStorePath, String trustStorePath)
-            throws NoSuchAlgorithmException, KeyManagementException {
+        throws NoSuchAlgorithmException, KeyManagementException {
         var sslContext = SSLContext.getInstance("TLS");
 
         KeyManagerFactory keyManagerFactory =
-                keyStorePath == null ? null : loadKeyManagerFactory(keyStorePath);
+            keyStorePath == null ? null : loadKeyManagerFactory(keyStorePath);
         TrustManagerFactory trustManagerFactory =
-                trustStorePath == null ? null : loadTrustManagerFactory(trustStorePath);
+            trustStorePath == null ? null : loadTrustManagerFactory(trustStorePath);
 
         KeyManager[] keyManagers =
-                keyManagerFactory == null ? null : keyManagerFactory.getKeyManagers();
+            keyManagerFactory == null ? null : keyManagerFactory.getKeyManagers();
         TrustManager[] trustManagers =
-                trustManagerFactory == null ? null : trustManagerFactory.getTrustManagers();
+            trustManagerFactory == null ? null : trustManagerFactory.getTrustManagers();
         sslContext.init(keyManagers, trustManagers, null);
 
-        var initializationData = new com.zeroc.Ice.InitializationData();
+        var initializationData = new InitializationData();
         initializationData.clientSSLEngineFactory =
-                (String peerHost, int peerPort) -> sslContext.createSSLEngine(peerHost, peerPort);
-        return com.zeroc.Ice.Util.initialize(initializationData);
+            (String peerHost, int peerPort) -> sslContext.createSSLEngine(peerHost, peerPort);
+        return Util.initialize(initializationData);
     }
 
     public static void clientValidatesServerUsingTrustStore(
@@ -122,13 +131,13 @@ public class PlatformTests {
             out.flush();
 
             try (var serverCommunicator =
-                    createServer(helper, certificatesPath + "/s_rsa_ca1.jks", null)) {
+                createServer(helper, certificatesPath + "/s_rsa_ca1.jks", null)) {
                 try (var clientCommunicator =
-                        createClient(helper, null, certificatesPath + "/cacert1.jks")) {
+                    createClient(helper, null, certificatesPath + "/cacert1.jks")) {
                     var obj =
-                            ServerPrx.createProxy(
-                                    clientCommunicator,
-                                    "server:" + helper.getTestEndpoint(10, "ssl"));
+                        ServerPrx.createProxy(
+                            clientCommunicator,
+                            "server:" + helper.getTestEndpoint(10, "ssl"));
                     obj.ice_ping();
                 }
             }
@@ -149,9 +158,9 @@ public class PlatformTests {
 
             try (var clientCommunicator = createClient(helper, null, null)) {
                 var obj =
-                        ObjectPrx.createProxy(
-                                clientCommunicator,
-                                "Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
+                    ObjectPrx.createProxy(
+                        clientCommunicator,
+                        "Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
                 obj.ice_ping();
             }
             out.println("ok");
@@ -169,18 +178,18 @@ public class PlatformTests {
             out.flush();
 
             try (var serverCommunicator =
-                    createServer(helper, certificatesPath + "/s_rsa_ca1.jks", null)) {
+                createServer(helper, certificatesPath + "/s_rsa_ca1.jks", null)) {
                 try (var clientCommunicator =
-                        createClient(helper, null, certificatesPath + "/cacert2.jks")) {
+                    createClient(helper, null, certificatesPath + "/cacert2.jks")) {
                     var obj =
-                            ServerPrx.createProxy(
-                                    clientCommunicator,
-                                    "server:" + helper.getTestEndpoint(10, "ssl"));
+                        ServerPrx.createProxy(
+                            clientCommunicator,
+                            "server:" + helper.getTestEndpoint(10, "ssl"));
 
                     try {
                         obj.ice_ping();
                         test(false);
-                    } catch (com.zeroc.Ice.SecurityException ex) {
+                    } catch (SecurityException ex) {
                         // Expected
                     }
                 }
@@ -204,13 +213,13 @@ public class PlatformTests {
             var trustedStorePath = certificatesPath + "/cacert1.jks";
 
             try (var serverCommunicator =
-                    createServer(helper, serverCertificatePath, trustedStorePath)) {
+                createServer(helper, serverCertificatePath, trustedStorePath)) {
                 try (var clientCommunicator =
-                        createClient(helper, clientCertificatePath, trustedStorePath)) {
+                    createClient(helper, clientCertificatePath, trustedStorePath)) {
                     var obj =
-                            ServerPrx.createProxy(
-                                    clientCommunicator,
-                                    "server:" + helper.getTestEndpoint(10, "ssl"));
+                        ServerPrx.createProxy(
+                            clientCommunicator,
+                            "server:" + helper.getTestEndpoint(10, "ssl"));
                     obj.ice_ping();
                 }
             }
@@ -234,20 +243,20 @@ public class PlatformTests {
             var trustedStorePath = certificatesPath + "/cacert1.jks";
 
             try (var serverCommunicator =
-                    createServer(helper, serverCertificatePath, trustedStorePath)) {
+                createServer(helper, serverCertificatePath, trustedStorePath)) {
                 try (var clientCommunicator =
-                        createClient(helper, clientCertificatePath, trustedStorePath)) {
+                    createClient(helper, clientCertificatePath, trustedStorePath)) {
                     var obj =
-                            ServerPrx.createProxy(
-                                    clientCommunicator,
-                                    "server:" + helper.getTestEndpoint(10, "ssl"));
+                        ServerPrx.createProxy(
+                            clientCommunicator,
+                            "server:" + helper.getTestEndpoint(10, "ssl"));
 
                     try {
                         obj.ice_ping();
                         test(false);
-                    } catch (com.zeroc.Ice.SecurityException ex) {
+                    } catch (SecurityException ex) {
                         // Expected
-                    } catch (com.zeroc.Ice.ConnectionLostException ex) {
+                    } catch (ConnectionLostException ex) {
                         // Expected
                     }
                 }
@@ -279,86 +288,86 @@ public class PlatformTests {
 
             @Override
             public String chooseClientAlias(
-                    String[] keyType, java.security.Principal[] issuers, java.net.Socket socket) {
+                    String[] keyType, Principal[] issuers, Socket socket) {
                 return _decoratee.chooseClientAlias(keyType, issuers, socket);
             }
 
             @Override
             public String chooseEngineClientAlias(
                     String[] keyType,
-                    java.security.Principal[] issuers,
-                    javax.net.ssl.SSLEngine engine) {
+                    Principal[] issuers,
+                    SSLEngine engine) {
                 return _decoratee.chooseEngineClientAlias(keyType, issuers, engine);
             }
 
             @Override
             public String chooseServerAlias(
-                    String keyType, java.security.Principal[] issuers, java.net.Socket socket) {
+                    String keyType, Principal[] issuers, Socket socket) {
                 return _decoratee.chooseServerAlias(keyType, issuers, socket);
             }
 
             @Override
             public String chooseEngineServerAlias(
                     String keyType,
-                    java.security.Principal[] issuers,
-                    javax.net.ssl.SSLEngine engine) {
+                    Principal[] issuers,
+                    SSLEngine engine) {
                 return _decoratee.chooseEngineServerAlias(keyType, issuers, engine);
             }
 
             @Override
-            public java.security.cert.X509Certificate[] getCertificateChain(String alias) {
+            public X509Certificate[] getCertificateChain(String alias) {
                 return _decoratee.getCertificateChain(alias);
             }
 
             @Override
-            public String[] getClientAliases(String keyType, java.security.Principal[] issuers) {
+            public String[] getClientAliases(String keyType, Principal[] issuers) {
                 return _decoratee.getClientAliases(keyType, issuers);
             }
 
             @Override
-            public String[] getServerAliases(String keyType, java.security.Principal[] issuers) {
+            public String[] getServerAliases(String keyType, Principal[] issuers) {
                 return _decoratee.getServerAliases(keyType, issuers);
             }
 
             @Override
-            public java.security.PrivateKey getPrivateKey(String alias) {
+            public PrivateKey getPrivateKey(String alias) {
                 return _decoratee.getPrivateKey(alias);
             }
         }
 
-        try (var serverCommunicator = com.zeroc.Ice.Util.initialize()) {
+        try (var serverCommunicator = Util.initialize()) {
             var keyManager = new ReloadableKeyManager(certificatesPath + "/s_rsa_ca1.jks");
             var sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(new KeyManager[] {keyManager}, null, null);
+            sslContext.init(new KeyManager[]{keyManager}, null, null);
             var adapter =
-                    serverCommunicator.createObjectAdapterWithEndpoints(
-                            "ServerAdapter",
-                            helper.getTestEndpoint(10, "ssl"),
-                            (String peerHost, int peerPort) -> {
-                                return sslContext.createSSLEngine(peerHost, peerPort);
-                            });
+                serverCommunicator.createObjectAdapterWithEndpoints(
+                    "ServerAdapter",
+                    helper.getTestEndpoint(10, "ssl"),
+                    (String peerHost, int peerPort) -> {
+                        return sslContext.createSSLEngine(peerHost, peerPort);
+                    });
             adapter.add(
-                    new ServerI(serverCommunicator), com.zeroc.Ice.Util.stringToIdentity("server"));
+                new ServerI(serverCommunicator), Util.stringToIdentity("server"));
             adapter.activate();
 
             try (var clientCommunicator =
-                    createClient(helper, null, certificatesPath + "/cacert1.jks")) {
+                createClient(helper, null, certificatesPath + "/cacert1.jks")) {
                 var obj =
-                        ServerPrx.createProxy(
-                                clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+                    ServerPrx.createProxy(
+                        clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
                 obj.ice_ping();
             }
 
             // CA2 is not accepted with the initial configuration
             try (var clientCommunicator =
-                    createClient(helper, null, certificatesPath + "/cacert2.jks")) {
+                createClient(helper, null, certificatesPath + "/cacert2.jks")) {
                 var obj =
-                        ServerPrx.createProxy(
-                                clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+                    ServerPrx.createProxy(
+                        clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
                 try {
                     obj.ice_ping();
                     test(false);
-                } catch (com.zeroc.Ice.SecurityException ex) {
+                } catch (SecurityException ex) {
                     // Expected
                 }
             }
@@ -367,23 +376,23 @@ public class PlatformTests {
 
             // CA2 is accepted with the new configuration
             try (var clientCommunicator =
-                    createClient(helper, null, certificatesPath + "/cacert2.jks")) {
+                createClient(helper, null, certificatesPath + "/cacert2.jks")) {
                 var obj =
-                        ServerPrx.createProxy(
-                                clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+                    ServerPrx.createProxy(
+                        clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
                 obj.ice_ping();
             }
 
             // CA1 is not accepted with the initial configuration
             try (var clientCommunicator =
-                    createClient(helper, null, certificatesPath + "/cacert1.jks")) {
+                createClient(helper, null, certificatesPath + "/cacert1.jks")) {
                 var obj =
-                        ServerPrx.createProxy(
-                                clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
+                    ServerPrx.createProxy(
+                        clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
                 try {
                     obj.ice_ping();
                     test(false);
-                } catch (com.zeroc.Ice.SecurityException ex) {
+                } catch (SecurityException ex) {
                     // Expected
                 }
             }
@@ -407,4 +416,6 @@ public class PlatformTests {
 
         serverHotCertificateReload(helper, certificatesPath);
     }
+
+    private PlatformTests() {}
 }

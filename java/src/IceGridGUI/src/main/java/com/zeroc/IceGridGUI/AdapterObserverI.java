@@ -2,7 +2,9 @@
 
 package com.zeroc.IceGridGUI;
 
-import com.zeroc.IceGrid.*;
+import com.zeroc.Ice.Current;
+import com.zeroc.IceGrid.AdapterInfo;
+import com.zeroc.IceGrid.AdapterObserver;
 
 import javax.swing.SwingUtilities;
 
@@ -14,7 +16,7 @@ class AdapterObserverI implements AdapterObserver {
 
     @Override
     public synchronized void adapterInit(
-            final AdapterInfo[] adapters, com.zeroc.Ice.Current current) {
+            final AdapterInfo[] adapters, Current current) {
         if (_trace) {
             if (adapters.length == 0) {
                 _coordinator.traceObserver("adapterInit (no adapter)");
@@ -29,45 +31,45 @@ class AdapterObserverI implements AdapterObserver {
         }
 
         SwingUtilities.invokeLater(
-                () -> {
-                    _coordinator.adapterInit(adapters);
-                });
+            () -> {
+                _coordinator.adapterInit(adapters);
+            });
     }
 
     @Override
-    public void adapterAdded(final AdapterInfo info, com.zeroc.Ice.Current current) {
+    public void adapterAdded(final AdapterInfo info, Current current) {
         if (_trace) {
             _coordinator.traceObserver("adapterAdded for adapter " + info.id);
         }
 
         SwingUtilities.invokeLater(
-                () -> {
-                    _coordinator.adapterAdded(info);
-                });
+            () -> {
+                _coordinator.adapterAdded(info);
+            });
     }
 
     @Override
-    public void adapterUpdated(final AdapterInfo info, com.zeroc.Ice.Current current) {
+    public void adapterUpdated(final AdapterInfo info, Current current) {
         if (_trace) {
             _coordinator.traceObserver("adapterUpdated for adapter " + info.id);
         }
 
         SwingUtilities.invokeLater(
-                () -> {
-                    _coordinator.adapterUpdated(info);
-                });
+            () -> {
+                _coordinator.adapterUpdated(info);
+            });
     }
 
     @Override
-    public void adapterRemoved(final String id, com.zeroc.Ice.Current current) {
+    public void adapterRemoved(final String id, Current current) {
         if (_trace) {
             _coordinator.traceObserver("adapterRemoved for adapter " + id);
         }
 
         SwingUtilities.invokeLater(
-                () -> {
-                    _coordinator.adapterRemoved(id);
-                });
+            () -> {
+                _coordinator.adapterRemoved(id);
+            });
     }
 
     private final Coordinator _coordinator;

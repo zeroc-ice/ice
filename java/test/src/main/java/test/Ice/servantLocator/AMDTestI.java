@@ -2,6 +2,9 @@
 
 package test.Ice.servantLocator;
 
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.ObjectNotExistException;
+
 import test.Ice.servantLocator.AMD.Test.TestImpossibleException;
 import test.Ice.servantLocator.AMD.Test.TestIntf;
 import test.Ice.servantLocator.AMD.Test.TestIntfUserException;
@@ -11,27 +14,27 @@ import java.util.concurrent.CompletionStage;
 
 public final class AMDTestI implements TestIntf {
     @Override
-    public CompletionStage<Void> requestFailedExceptionAsync(com.zeroc.Ice.Current current) {
+    public CompletionStage<Void> requestFailedExceptionAsync(Current current) {
         return CompletableFuture.completedFuture((Void) null);
     }
 
     @Override
-    public CompletionStage<Void> unknownUserExceptionAsync(com.zeroc.Ice.Current current) {
+    public CompletionStage<Void> unknownUserExceptionAsync(Current current) {
         return CompletableFuture.completedFuture((Void) null);
     }
 
     @Override
-    public CompletionStage<Void> unknownLocalExceptionAsync(com.zeroc.Ice.Current current) {
+    public CompletionStage<Void> unknownLocalExceptionAsync(Current current) {
         return CompletableFuture.completedFuture((Void) null);
     }
 
     @Override
-    public CompletionStage<Void> unknownExceptionAsync(com.zeroc.Ice.Current current) {
+    public CompletionStage<Void> unknownExceptionAsync(Current current) {
         return CompletableFuture.completedFuture((Void) null);
     }
 
     @Override
-    public CompletionStage<Void> localExceptionAsync(com.zeroc.Ice.Current current) {
+    public CompletionStage<Void> localExceptionAsync(Current current) {
         return CompletableFuture.completedFuture((Void) null);
     }
 
@@ -41,21 +44,21 @@ public final class AMDTestI implements TestIntf {
     //     }
 
     @Override
-    public CompletionStage<Void> javaExceptionAsync(com.zeroc.Ice.Current current) {
+    public CompletionStage<Void> javaExceptionAsync(Current current) {
         return CompletableFuture.completedFuture((Void) null);
     }
 
     @Override
     public CompletionStage<Void> unknownExceptionWithServantExceptionAsync(
-            com.zeroc.Ice.Current current) {
+            Current current) {
         CompletableFuture<Void> f = new CompletableFuture<>();
-        f.completeExceptionally(new com.zeroc.Ice.ObjectNotExistException());
+        f.completeExceptionally(new ObjectNotExistException());
         return f;
     }
 
     @Override
     public CompletionStage<String> impossibleExceptionAsync(
-            boolean shouldThrow, com.zeroc.Ice.Current current) {
+            boolean shouldThrow, Current current) {
         if (shouldThrow) {
             CompletableFuture<String> f = new CompletableFuture<>();
             f.completeExceptionally(new TestImpossibleException());
@@ -71,7 +74,7 @@ public final class AMDTestI implements TestIntf {
 
     @Override
     public CompletionStage<String> intfUserExceptionAsync(
-            boolean shouldThrow, com.zeroc.Ice.Current current) {
+            boolean shouldThrow, Current current) {
         if (shouldThrow) {
             CompletableFuture<String> f = new CompletableFuture<>();
             f.completeExceptionally(new TestIntfUserException());
@@ -86,27 +89,27 @@ public final class AMDTestI implements TestIntf {
     }
 
     @Override
-    public CompletionStage<Void> asyncResponseAsync(com.zeroc.Ice.Current current) {
+    public CompletionStage<Void> asyncResponseAsync(Current current) {
         //
         // The Java 8 mapping does not support this test.
         //
         // return CompletableFuture.completedFuture((Void)null);
-        throw new com.zeroc.Ice.ObjectNotExistException();
+        throw new ObjectNotExistException();
     }
 
     @Override
-    public CompletionStage<Void> asyncExceptionAsync(com.zeroc.Ice.Current current) {
+    public CompletionStage<Void> asyncExceptionAsync(Current current) {
         //
         // The Java 8 mapping does not support this test.
         //
         // CompletableFuture<Void> f = new CompletableFuture<>();
         // f.completeExceptionally(new TestIntfUserException());
         // return f;
-        throw new com.zeroc.Ice.ObjectNotExistException();
+        throw new ObjectNotExistException();
     }
 
     @Override
-    public CompletionStage<Void> shutdownAsync(com.zeroc.Ice.Current current) {
+    public CompletionStage<Void> shutdownAsync(Current current) {
         current.adapter.getCommunicator().shutdown();
         return CompletableFuture.completedFuture((Void) null);
     }

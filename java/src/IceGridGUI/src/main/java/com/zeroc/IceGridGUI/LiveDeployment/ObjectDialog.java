@@ -28,9 +28,9 @@ import javax.swing.WindowConstants;
 class ObjectDialog extends JDialog {
     ObjectDialog(final Root root, boolean readOnly) {
         super(
-                root.getCoordinator().getMainFrame(),
-                (readOnly ? "" : "New ") + "Dynamic Well-Known Object - IceGrid GUI",
-                true);
+            root.getCoordinator().getMainFrame(),
+            (readOnly ? "" : "New ") + "Dynamic Well-Known Object - IceGrid GUI",
+            true);
 
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         _mainFrame = root.getCoordinator().getMainFrame();
@@ -74,36 +74,36 @@ class ObjectDialog extends JDialog {
         } else {
             JButton okButton = new JButton("OK");
             ActionListener okListener =
-                    new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            if (_proxy.isEditable()) {
-                                String type = null;
-                                if (_typeCombo.getSelectedItem() != QUERY_OBJECT) {
-                                    type = _typeCombo.getSelectedItem().toString();
-                                }
-
-                                root.addObject(_proxy.getText(), type, ObjectDialog.this);
-                            } else {
-                                setVisible(false);
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (_proxy.isEditable()) {
+                            String type = null;
+                            if (_typeCombo.getSelectedItem() != QUERY_OBJECT) {
+                                type = _typeCombo.getSelectedItem().toString();
                             }
+
+                            root.addObject(_proxy.getText(), type, ObjectDialog.this);
+                        } else {
+                            setVisible(false);
                         }
-                    };
+                    }
+                };
             okButton.addActionListener(okListener);
             getRootPane().setDefaultButton(okButton);
 
             JButton cancelButton = new JButton("Cancel");
             ActionListener cancelListener =
-                    new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            setVisible(false);
-                        }
-                    };
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        setVisible(false);
+                    }
+                };
             cancelButton.addActionListener(cancelListener);
 
             JComponent buttonBar =
-                    new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
+                new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
             buttonBar.setBorder(Borders.DIALOG);
 
             contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
@@ -136,14 +136,14 @@ class ObjectDialog extends JDialog {
 
     private JTextArea _proxy = new JTextArea(3, 40);
     private JTextField _type = new JTextField(40);
-    private JComboBox _typeCombo = new JComboBox(new Object[] {QUERY_OBJECT});
+    private JComboBox _typeCombo = new JComboBox(new Object[]{QUERY_OBJECT});
     private JFrame _mainFrame;
 
     private static final Object QUERY_OBJECT =
-            new Object() {
-                @Override
-                public String toString() {
-                    return "Query object to retrieve type";
-                }
-            };
+        new Object() {
+            @Override
+            public String toString() {
+                return "Query object to retrieve type";
+            }
+        };
 }

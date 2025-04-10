@@ -14,7 +14,7 @@ import test.TestHelper;
 import java.io.PrintWriter;
 
 public class AllTests {
-    static void allTests(test.TestHelper helper) {
+    static void allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
         String proxyString = "test: " + helper.getTestEndpoint();
         var p = TestIntfPrx.createProxy(communicator, proxyString);
@@ -25,13 +25,13 @@ public class AllTests {
 
         testIdleCheckDoesNotAbortBackPressuredConnection(p, helper.getWriter());
         testConnectionAbortedByIdleCheck(
-                helper, proxyStringDefaultMax, communicator.getProperties(), helper.getWriter());
+            helper, proxyStringDefaultMax, communicator.getProperties(), helper.getWriter());
         testEnableDisableIdleCheck(
-                helper, true, proxyString3s, communicator.getProperties(), helper.getWriter());
+            helper, true, proxyString3s, communicator.getProperties(), helper.getWriter());
         testEnableDisableIdleCheck(
-                helper, false, proxyString3s, communicator.getProperties(), helper.getWriter());
+            helper, false, proxyString3s, communicator.getProperties(), helper.getWriter());
         testNoIdleTimeout(
-                helper, proxyStringNoIdleTimeout, communicator.getProperties(), helper.getWriter());
+            helper, proxyStringNoIdleTimeout, communicator.getProperties(), helper.getWriter());
 
         p.shutdown();
     }
@@ -65,7 +65,7 @@ public class AllTests {
     private static void testConnectionAbortedByIdleCheck(
             TestHelper helper, String proxyString, Properties properties, PrintWriter output) {
         output.write(
-                "testing that the idle check aborts a connection that does not receive anything for 1s... ");
+            "testing that the idle check aborts a connection that does not receive anything for 1s... ");
         output.flush();
 
         // Create a new communicator with the desired properties.
@@ -154,4 +154,6 @@ public class AllTests {
             throw new RuntimeException();
         }
     }
+
+    private AllTests() {}
 }

@@ -2,6 +2,12 @@
 
 package com.zeroc.Ice;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.HashSet;
+import java.util.Set;
+
 final class TraceUtil {
     public static void traceSend(
             OutputStream str,
@@ -14,11 +20,11 @@ final class TraceUtil {
             var is = new InputStream(instance, str.getEncoding(), str.getBuffer(), false);
             is.pos(0);
 
-            java.io.StringWriter s = new java.io.StringWriter();
+            StringWriter s = new StringWriter();
             byte type = printMessage(s, is, connection);
 
             logger.trace(
-                    tl.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.toString());
+                tl.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.toString());
 
             str.pos(p);
         }
@@ -30,12 +36,12 @@ final class TraceUtil {
             int p = str.pos();
             str.pos(0);
 
-            java.io.StringWriter s = new java.io.StringWriter();
+            StringWriter s = new StringWriter();
             byte type = printMessage(s, str, connection);
 
             logger.trace(
-                    tl.protocolCat,
-                    "received " + getMessageTypeAsString(type) + " " + s.toString());
+                tl.protocolCat,
+                "received " + getMessageTypeAsString(type) + " " + s.toString());
 
             str.pos(p);
         }
@@ -51,7 +57,7 @@ final class TraceUtil {
             int p = str.pos();
             str.pos(0);
 
-            java.io.StringWriter s = new java.io.StringWriter();
+            StringWriter s = new StringWriter();
             s.write(heading);
             printMessage(s, str, connection);
 
@@ -60,18 +66,18 @@ final class TraceUtil {
         }
     }
 
-    private static java.util.Set<String> slicingIds = new java.util.HashSet<>();
+    private static final Set<String> slicingIds = new HashSet<>();
 
     public static synchronized void traceSlicing(
             String kind, String typeId, String slicingCat, Logger logger) {
         if (slicingIds.add(typeId)) {
-            java.io.StringWriter s = new java.io.StringWriter();
+            StringWriter s = new StringWriter();
             s.write("unknown " + kind + " type `" + typeId + "'");
             logger.trace(slicingCat, s.toString());
         }
     }
 
-    private static void printIdentityFacetOperation(java.io.Writer out, InputStream stream) {
+    private static void printIdentityFacetOperation(Writer out, InputStream stream) {
         try {
             ToStringMode toStringMode = stream.instance().toStringMode();
 
@@ -86,12 +92,12 @@ final class TraceUtil {
 
             String operation = stream.readString();
             out.write("\noperation = " + operation);
-        } catch (java.io.IOException ex) {
-            assert (false);
+        } catch (IOException ex) {
+            assert false;
         }
     }
 
-    private static void printRequest(java.io.StringWriter s, InputStream str) {
+    private static void printRequest(StringWriter s, InputStream str) {
         int requestId = str.readInt();
         s.write("\nrequest id = " + requestId);
         if (requestId == 0) {
@@ -101,17 +107,17 @@ final class TraceUtil {
         printRequestHeader(s, str);
     }
 
-    private static void printBatchRequest(java.io.StringWriter s, InputStream str) {
+    private static void printBatchRequest(StringWriter s, InputStream str) {
         int batchRequestNum = str.readInt();
         s.write("\nnumber of requests = " + batchRequestNum);
 
-        for (int i = 0; i < batchRequestNum; ++i) {
+        for (int i = 0; i < batchRequestNum; i++) {
             s.write("\nrequest #" + i + ':');
             printRequestHeader(s, str);
         }
     }
 
-    private static void printReply(java.io.StringWriter s, InputStream str) {
+    private static void printReply(StringWriter s, InputStream str) {
         int requestId = str.readInt();
         s.write("\nrequest id = " + requestId);
 
@@ -149,7 +155,7 @@ final class TraceUtil {
         }
     }
 
-    private static void printRequestHeader(java.io.Writer out, InputStream stream) {
+    private static void printRequestHeader(Writer out, InputStream stream) {
         printIdentityFacetOperation(out, stream);
 
         try {
@@ -157,28 +163,28 @@ final class TraceUtil {
             out.write("\nmode = " + (int) mode + ' ');
             switch (OperationMode.values()[mode]) {
                 case Normal:
-                    {
-                        out.write("(normal)");
-                        break;
-                    }
+                {
+                    out.write("(normal)");
+                    break;
+                }
 
                 case Nonmutating:
-                    {
-                        out.write("(nonmutating)");
-                        break;
-                    }
+                {
+                    out.write("(nonmutating)");
+                    break;
+                }
 
                 case Idempotent:
-                    {
-                        out.write("(idempotent)");
-                        break;
-                    }
+                {
+                    out.write("(idempotent)");
+                    break;
+                }
 
                 default:
-                    {
-                        out.write("(unknown)");
-                        break;
-                    }
+                {
+                    out.write("(unknown)");
+                    break;
+                }
             }
 
             int sz = stream.readSize();
@@ -197,12 +203,12 @@ final class TraceUtil {
                 out.write("\nencoding = ");
                 out.write(Util.encodingVersionToString(v));
             }
-        } catch (java.io.IOException ex) {
-            assert (false);
+        } catch (IOException ex) {
+            assert false;
         }
     }
 
-    private static byte printHeader(java.io.Writer out, InputStream stream) {
+    private static byte printHeader(Writer out, InputStream stream) {
         stream.readByte(); // Don't bother printing the magic number
         stream.readByte();
         stream.readByte();
@@ -228,73 +234,73 @@ final class TraceUtil {
             out.write("\ncompression status = " + (int) compress + ' ');
             switch (compress) {
                 case (byte) 0:
-                    {
-                        out.write("(not compressed; do not compress response, if any)");
-                        break;
-                    }
+                {
+                    out.write("(not compressed; do not compress response, if any)");
+                    break;
+                }
 
                 case (byte) 1:
-                    {
-                        out.write("(not compressed; compress response, if any)");
-                        break;
-                    }
+                {
+                    out.write("(not compressed; compress response, if any)");
+                    break;
+                }
 
                 case (byte) 2:
-                    {
-                        out.write("(compressed; compress response, if any)");
-                        break;
-                    }
+                {
+                    out.write("(compressed; compress response, if any)");
+                    break;
+                }
 
                 default:
-                    {
-                        out.write("(unknown)");
-                        break;
-                    }
+                {
+                    out.write("(unknown)");
+                    break;
+                }
             }
 
             int size = stream.readInt();
             out.write("\nmessage size = " + size);
             return type;
-        } catch (java.io.IOException ex) {
-            assert (false);
+        } catch (IOException ex) {
+            assert false;
             return 0;
         }
     }
 
     private static byte printMessage(
-            java.io.StringWriter s, InputStream str, ConnectionI connection) {
+            StringWriter s, InputStream str, ConnectionI connection) {
         byte type = printHeader(s, str);
 
         switch (type) {
             case Protocol.closeConnectionMsg:
             case Protocol.validateConnectionMsg:
-                {
-                    // We're done.
-                    break;
-                }
+            {
+                // We're done.
+                break;
+            }
 
             case Protocol.requestMsg:
-                {
-                    printRequest(s, str);
-                    break;
-                }
+            {
+                printRequest(s, str);
+                break;
+            }
 
             case Protocol.requestBatchMsg:
-                {
-                    printBatchRequest(s, str);
-                    break;
-                }
+            {
+                printBatchRequest(s, str);
+                break;
+            }
 
             case Protocol.replyMsg:
-                {
-                    printReply(s, str);
-                    break;
-                }
+            {
+                printReply(s, str);
+                break;
+            }
 
             default:
-                {
-                    break;
-                }
+            {
+                break;
+            }
         }
 
         if (connection != null) {
@@ -327,4 +333,6 @@ final class TraceUtil {
                 return "unknown";
         }
     }
+
+    private TraceUtil() {}
 }

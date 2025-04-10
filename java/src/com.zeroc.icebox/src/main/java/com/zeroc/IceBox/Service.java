@@ -2,6 +2,8 @@
 
 package com.zeroc.IceBox;
 
+import com.zeroc.Ice.Communicator;
+
 /** An application service managed by a {@link ServiceManager}. */
 public interface Service {
     /**
@@ -17,7 +19,7 @@ public interface Service {
      * @param args The service arguments that were not converted into properties.
      * @throws FailureException Raised if {@link #start} failed.
      */
-    void start(String name, com.zeroc.Ice.Communicator communicator, String[] args);
+    void start(String name, Communicator communicator, String[] args);
 
     /** Stop the service. */
     void stop();

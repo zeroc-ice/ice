@@ -2,11 +2,20 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.IceGrid.AdminSessionPrx;
+import com.zeroc.IceGrid.FileIteratorPrx;
+import com.zeroc.IceGrid.FileNotAvailableException;
+import com.zeroc.IceGrid.RegistryInfo;
+import com.zeroc.IceGrid.RegistryNotExistException;
+import com.zeroc.IceGrid.RegistryUnreachableException;
+import com.zeroc.IceGridGUI.LiveActions;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.Component;
 import java.awt.Cursor;
+import java.util.concurrent.CompletableFuture;
 
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
@@ -17,7 +26,7 @@ class Slave extends Communicator {
     // Actions
     @Override
     public boolean[] getAvailableActions() {
-        boolean[] actions = new boolean[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
+        boolean[] actions = new boolean[TreeNode.ACTION_COUNT];
         actions[SHUTDOWN_REGISTRY] = true;
         actions[RETRIEVE_ICE_LOG] = true;
         actions[RETRIEVE_STDOUT] = true;
@@ -32,57 +41,57 @@ class Slave extends Communicator {
 
         try {
             getCoordinator()
-                    .getMainFrame()
-                    .setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                .getMainFrame()
+                .setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
             getCoordinator()
-                    .getAdmin()
-                    .shutdownRegistryAsync(_id)
-                    .whenComplete(
-                            (result, ex) -> {
-                                amiComplete(prefix, "Failed to shutdown " + _id, ex);
-                            });
+                .getAdmin()
+                .shutdownRegistryAsync(_id)
+                .whenComplete(
+                    (result, ex) -> {
+                        amiComplete(prefix, "Failed to shutdown " + _id, ex);
+                    });
 
-        } catch (com.zeroc.Ice.LocalException e) {
+        } catch (LocalException e) {
             failure(prefix, "Failed to shutdown " + _id, e.toString());
         } finally {
             getCoordinator()
-                    .getMainFrame()
-                    .setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                .getMainFrame()
+                .setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
     @Override
     public void retrieveOutput(final boolean stdout) {
         getRoot()
-                .openShowLogFileDialog(
-                        new ShowLogFileDialog.FileIteratorFactory() {
-                            @Override
-                            public FileIteratorPrx open(int count)
-                                    throws FileNotAvailableException,
-                                            RegistryNotExistException,
-                                            RegistryUnreachableException {
-                                AdminSessionPrx session = getCoordinator().getSession();
+            .openShowLogFileDialog(
+                new ShowLogFileDialog.FileIteratorFactory() {
+                    @Override
+                    public FileIteratorPrx open(int count)
+                        throws FileNotAvailableException,
+                        RegistryNotExistException,
+                        RegistryUnreachableException {
+                        AdminSessionPrx session = getCoordinator().getSession();
 
-                                FileIteratorPrx result;
-                                if (stdout) {
-                                    result = session.openRegistryStdOut(_id, count);
-                                } else {
-                                    result = session.openRegistryStdErr(_id, count);
-                                }
-                                return result;
-                            }
+                        FileIteratorPrx result;
+                        if (stdout) {
+                            result = session.openRegistryStdOut(_id, count);
+                        } else {
+                            result = session.openRegistryStdErr(_id, count);
+                        }
+                        return result;
+                    }
 
-                            @Override
-                            public String getTitle() {
-                                return "Registry " + _title + " " + (stdout ? "stdout" : "stderr");
-                            }
+                    @Override
+                    public String getTitle() {
+                        return "Registry " + _title + " " + (stdout ? "stdout" : "stderr");
+                    }
 
-                            @Override
-                            public String getDefaultFilename() {
-                                return _id + (stdout ? ".out" : ".err");
-                            }
-                        });
+                    @Override
+                    public String getDefaultFilename() {
+                        return _id + (stdout ? ".out" : ".err");
+                    }
+                });
     }
 
     @Override
@@ -113,7 +122,7 @@ class Slave extends Communicator {
 
     // Communicator overrides
     @Override
-    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync() {
+    protected CompletableFuture<ObjectPrx> getAdminAsync() {
         return getRoot().getCoordinator().getAdmin().getRegistryAdminAsync(_id);
     }
 
@@ -146,7 +155,7 @@ class Slave extends Communicator {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     RegistryInfo getInfo() {

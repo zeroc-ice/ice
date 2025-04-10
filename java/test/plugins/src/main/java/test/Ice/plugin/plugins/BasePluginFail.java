@@ -2,8 +2,11 @@
 
 package test.Ice.plugin.plugins;
 
-public abstract class BasePluginFail implements com.zeroc.Ice.Plugin {
-    public BasePluginFail(com.zeroc.Ice.Communicator communicator) {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Plugin;
+
+public abstract class BasePluginFail implements Plugin {
+    public BasePluginFail(Communicator communicator) {
         _communicator = communicator;
         _initialized = false;
         _destroyed = false;
@@ -23,7 +26,7 @@ public abstract class BasePluginFail implements com.zeroc.Ice.Plugin {
         }
     }
 
-    protected com.zeroc.Ice.Communicator _communicator;
+    protected Communicator _communicator;
     protected boolean _initialized;
     protected boolean _destroyed;
     protected BasePluginFail _one;

@@ -6,12 +6,10 @@
 module Test
 {
     exception TestIntfUserException
-    {
-    }
+    {}
 
     exception TestImpossibleException
-    {
-    }
+    {}
 
     ["amd"] interface TestIntf
     {

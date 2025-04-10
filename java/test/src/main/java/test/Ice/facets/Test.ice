@@ -6,8 +6,7 @@
 module Test
 {
     interface Empty
-    {
-    }
+    {}
 
     interface A
     {

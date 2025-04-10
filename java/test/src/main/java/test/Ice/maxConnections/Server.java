@@ -4,7 +4,9 @@ package test.Ice.maxConnections;
 
 import com.zeroc.Ice.Identity;
 
-public class Server extends test.TestHelper {
+import test.TestHelper;
+
+public class Server extends TestHelper {
     public void run(String[] args) {
         var properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.maxConnections");
@@ -18,8 +20,8 @@ public class Server extends test.TestHelper {
 
             // Accepts 10 connections.
             communicator
-                    .getProperties()
-                    .setProperty("TestAdapterMax10.Endpoints", getTestEndpoint(1));
+                .getProperties()
+                .setProperty("TestAdapterMax10.Endpoints", getTestEndpoint(1));
             communicator.getProperties().setProperty("TestAdapterMax10.MaxConnections", "10");
             var adapterMax10 = communicator.createObjectAdapter("TestAdapterMax10");
             adapterMax10.add(new TestIntfI(), new Identity("test", ""));

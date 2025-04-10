@@ -2,9 +2,11 @@
 
 package com.zeroc.Ice;
 
+import java.nio.channels.ServerSocketChannel;
+
 final class WSAcceptor implements Acceptor {
     @Override
-    public java.nio.channels.ServerSocketChannel fd() {
+    public ServerSocketChannel fd() {
         return _delegate.fd();
     }
 

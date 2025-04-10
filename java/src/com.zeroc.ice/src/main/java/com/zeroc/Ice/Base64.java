@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.nio.ByteBuffer;
+
 // We would prefer to use java.util.Base64 but unfortunately that class isn't supported in Android
 // until Android O, so we are using our own implementation.
 final class Base64 {
@@ -10,8 +12,8 @@ final class Base64 {
             return "";
         }
 
-        int base64Bytes = (((plainSeq.length * 4) / 3) + 1);
-        int newlineBytes = (((base64Bytes * 2) / 76) + 1);
+        int base64Bytes = ((plainSeq.length * 4) / 3) + 1;
+        int newlineBytes = ((base64Bytes * 2) / 76) + 1;
         int totalBytes = base64Bytes + newlineBytes;
 
         StringBuilder retval = new StringBuilder(totalBytes);
@@ -81,11 +83,11 @@ final class Base64 {
                 newStr.append(c);
             } else {
                 throw new IllegalArgumentException(
-                        "invalid base64 character `"
-                                + str.charAt(j)
-                                + "' (ordinal "
-                                + ((int) str.charAt(j))
-                                + ")");
+                    "invalid base64 character `"
+                        + str.charAt(j)
+                        + "' (ordinal "
+                        + ((int) str.charAt(j))
+                        + ")");
             }
         }
 
@@ -101,7 +103,7 @@ final class Base64 {
         // Figure out how long the final sequence is going to be.
         int totalBytes = (newStr.length() * 3 / 4) + 1;
 
-        java.nio.ByteBuffer retval = java.nio.ByteBuffer.allocate(totalBytes);
+        ByteBuffer retval = ByteBuffer.allocate(totalBytes);
 
         int by1;
         int by2;
@@ -222,4 +224,6 @@ final class Base64 {
 
         return 63;
     }
+
+    private Base64() {}
 }

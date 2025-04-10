@@ -2,23 +2,33 @@
 
 package test.Ice.slicing.exceptions;
 
-import test.Ice.slicing.exceptions.server.Test.*;
+import com.zeroc.Ice.Current;
+
+import test.Ice.slicing.exceptions.server.Test.Base;
+import test.Ice.slicing.exceptions.server.Test.KnownDerived;
+import test.Ice.slicing.exceptions.server.Test.KnownIntermediate;
+import test.Ice.slicing.exceptions.server.Test.KnownMostDerived;
+import test.Ice.slicing.exceptions.server.Test.TestIntf;
+import test.Ice.slicing.exceptions.server.Test.UnknownDerived;
+import test.Ice.slicing.exceptions.server.Test.UnknownIntermediate;
+import test.Ice.slicing.exceptions.server.Test.UnknownMostDerived1;
+import test.Ice.slicing.exceptions.server.Test.UnknownMostDerived2;
 
 public final class TestI implements TestIntf {
     @Override
-    public void shutdown(com.zeroc.Ice.Current current) {
+    public void shutdown(Current current) {
         current.adapter.getCommunicator().shutdown();
     }
 
     @Override
-    public void baseAsBase(com.zeroc.Ice.Current current) throws Base {
+    public void baseAsBase(Current current) throws Base {
         Base b = new Base();
         b.b = "Base.b";
         throw b;
     }
 
     @Override
-    public void unknownDerivedAsBase(com.zeroc.Ice.Current current) throws Base {
+    public void unknownDerivedAsBase(Current current) throws Base {
         UnknownDerived d = new UnknownDerived();
         d.b = "UnknownDerived.b";
         d.ud = "UnknownDerived.ud";
@@ -26,7 +36,7 @@ public final class TestI implements TestIntf {
     }
 
     @Override
-    public void knownDerivedAsBase(com.zeroc.Ice.Current current) throws Base {
+    public void knownDerivedAsBase(Current current) throws Base {
         KnownDerived d = new KnownDerived();
         d.b = "KnownDerived.b";
         d.kd = "KnownDerived.kd";
@@ -34,7 +44,7 @@ public final class TestI implements TestIntf {
     }
 
     @Override
-    public void knownDerivedAsKnownDerived(com.zeroc.Ice.Current current) throws KnownDerived {
+    public void knownDerivedAsKnownDerived(Current current) throws KnownDerived {
         KnownDerived d = new KnownDerived();
         d.b = "KnownDerived.b";
         d.kd = "KnownDerived.kd";
@@ -42,7 +52,7 @@ public final class TestI implements TestIntf {
     }
 
     @Override
-    public void unknownIntermediateAsBase(com.zeroc.Ice.Current current) throws Base {
+    public void unknownIntermediateAsBase(Current current) throws Base {
         UnknownIntermediate ui = new UnknownIntermediate();
         ui.b = "UnknownIntermediate.b";
         ui.ui = "UnknownIntermediate.ui";
@@ -50,7 +60,7 @@ public final class TestI implements TestIntf {
     }
 
     @Override
-    public void knownIntermediateAsBase(com.zeroc.Ice.Current current) throws Base {
+    public void knownIntermediateAsBase(Current current) throws Base {
         KnownIntermediate ki = new KnownIntermediate();
         ki.b = "KnownIntermediate.b";
         ki.ki = "KnownIntermediate.ki";
@@ -58,7 +68,7 @@ public final class TestI implements TestIntf {
     }
 
     @Override
-    public void knownMostDerivedAsBase(com.zeroc.Ice.Current current) throws Base {
+    public void knownMostDerivedAsBase(Current current) throws Base {
         KnownMostDerived kmd = new KnownMostDerived();
         kmd.b = "KnownMostDerived.b";
         kmd.ki = "KnownMostDerived.ki";
@@ -67,8 +77,8 @@ public final class TestI implements TestIntf {
     }
 
     @Override
-    public void knownIntermediateAsKnownIntermediate(com.zeroc.Ice.Current current)
-            throws KnownIntermediate {
+    public void knownIntermediateAsKnownIntermediate(Current current)
+        throws KnownIntermediate {
         KnownIntermediate ki = new KnownIntermediate();
         ki.b = "KnownIntermediate.b";
         ki.ki = "KnownIntermediate.ki";
@@ -76,8 +86,8 @@ public final class TestI implements TestIntf {
     }
 
     @Override
-    public void knownMostDerivedAsKnownIntermediate(com.zeroc.Ice.Current current)
-            throws KnownIntermediate {
+    public void knownMostDerivedAsKnownIntermediate(Current current)
+        throws KnownIntermediate {
         KnownMostDerived kmd = new KnownMostDerived();
         kmd.b = "KnownMostDerived.b";
         kmd.ki = "KnownMostDerived.ki";
@@ -86,8 +96,8 @@ public final class TestI implements TestIntf {
     }
 
     @Override
-    public void knownMostDerivedAsKnownMostDerived(com.zeroc.Ice.Current current)
-            throws KnownMostDerived {
+    public void knownMostDerivedAsKnownMostDerived(Current current)
+        throws KnownMostDerived {
         KnownMostDerived kmd = new KnownMostDerived();
         kmd.b = "KnownMostDerived.b";
         kmd.ki = "KnownMostDerived.ki";
@@ -96,7 +106,7 @@ public final class TestI implements TestIntf {
     }
 
     @Override
-    public void unknownMostDerived1AsBase(com.zeroc.Ice.Current current) throws Base {
+    public void unknownMostDerived1AsBase(Current current) throws Base {
         UnknownMostDerived1 umd1 = new UnknownMostDerived1();
         umd1.b = "UnknownMostDerived1.b";
         umd1.ki = "UnknownMostDerived1.ki";
@@ -105,8 +115,8 @@ public final class TestI implements TestIntf {
     }
 
     @Override
-    public void unknownMostDerived1AsKnownIntermediate(com.zeroc.Ice.Current current)
-            throws KnownIntermediate {
+    public void unknownMostDerived1AsKnownIntermediate(Current current)
+        throws KnownIntermediate {
         UnknownMostDerived1 umd1 = new UnknownMostDerived1();
         umd1.b = "UnknownMostDerived1.b";
         umd1.ki = "UnknownMostDerived1.ki";
@@ -115,7 +125,7 @@ public final class TestI implements TestIntf {
     }
 
     @Override
-    public void unknownMostDerived2AsBase(com.zeroc.Ice.Current current) throws Base {
+    public void unknownMostDerived2AsBase(Current current) throws Base {
         UnknownMostDerived2 umd2 = new UnknownMostDerived2();
         umd2.b = "UnknownMostDerived2.b";
         umd2.ui = "UnknownMostDerived2.ui";

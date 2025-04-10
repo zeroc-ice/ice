@@ -2,9 +2,35 @@
 
 package test.Ice.defaultValue;
 
-import test.Ice.defaultValue.Test.*;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+
+import test.Ice.defaultValue.Test.StructNoDefaults;
+
+import test.Ice.defaultValue.Test.ExceptionNoDefaults;
+import test.Ice.defaultValue.Test.Struct1;
+import test.Ice.defaultValue.Test.Struct2;
+import test.Ice.defaultValue.Test.Base;
+import test.Ice.defaultValue.Test.BaseEx;
+import test.Ice.defaultValue.Test.ClassNoDefaults;
+import test.Ice.defaultValue.Test.Color;
+import test.Ice.defaultValue.Test.ConstBool;
+import test.Ice.defaultValue.Test.ConstByte;
+import test.Ice.defaultValue.Test.ConstColor1;
+import test.Ice.defaultValue.Test.ConstColor2;
+import test.Ice.defaultValue.Test.ConstColor3;
+import test.Ice.defaultValue.Test.ConstDouble;
+import test.Ice.defaultValue.Test.ConstFloat;
+import test.Ice.defaultValue.Test.ConstInt;
+import test.Ice.defaultValue.Test.ConstLong;
+import test.Ice.defaultValue.Test.ConstNestedColor1;
+import test.Ice.defaultValue.Test.ConstNestedColor2;
+import test.Ice.defaultValue.Test.ConstNestedColor3;
+import test.Ice.defaultValue.Test.ConstShort;
+import test.Ice.defaultValue.Test.ConstString;
+import test.Ice.defaultValue.Test.Derived;
+import test.Ice.defaultValue.Test.DerivedEx;
 
 public class AllTests {
     private static void test(boolean b) {
@@ -13,7 +39,7 @@ public class AllTests {
         }
     }
 
-    public static void allTests(test.TestHelper helper) {
+    public static void allTests(TestHelper helper) {
         PrintWriter out = helper.getWriter();
 
         out.print("testing default values... ");
@@ -54,7 +80,7 @@ public class AllTests {
             test(v.l == ConstLong.value);
             test(v.f == ConstFloat.value);
             test(v.d == ConstDouble.value);
-            test(v.str.equals(ConstString.value));
+            test(ConstString.value.equals(v.str));
             test(v.c1 == ConstColor1.value);
             test(v.c2 == ConstColor2.value);
             test(v.c3 == ConstColor3.value);
@@ -73,7 +99,7 @@ public class AllTests {
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str.equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \007 \u0007"));
+            test("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \007 \u0007".equals(v.str));
             test(v.noDefault.isEmpty());
             test(v.zeroI == 0);
             test(v.zeroL == 0);
@@ -93,7 +119,7 @@ public class AllTests {
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str.equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \007 \u0007"));
+            test("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \007 \u0007".equals(v.str));
             test(v.c1 == Color.red);
             test(v.c2 == Color.green);
             test(v.c3 == Color.blue);
@@ -160,8 +186,8 @@ public class AllTests {
         out.write("testing default constructor... ");
         out.flush();
         {
-            test.Ice.defaultValue.Test.StructNoDefaults v =
-                    new test.Ice.defaultValue.Test.StructNoDefaults();
+            StructNoDefaults v =
+                new StructNoDefaults();
             test(v.bo == false);
             test(v.b == 0);
             test(v.s == 0);
@@ -170,24 +196,24 @@ public class AllTests {
             test(v.f == 0.0);
             test(v.d == 0.0);
             test(v.str.isEmpty());
-            test(v.c1 == test.Ice.defaultValue.Test.Color.red);
+            test(v.c1 == Color.red);
             test(v.bs == null);
             test(v.is == null);
             test(v.st != null);
             test(v.dict == null);
 
-            test.Ice.defaultValue.Test.ExceptionNoDefaults e =
-                    new test.Ice.defaultValue.Test.ExceptionNoDefaults();
+            ExceptionNoDefaults e =
+                new ExceptionNoDefaults();
             test(e.str.isEmpty());
-            test(e.c1 == test.Ice.defaultValue.Test.Color.red);
+            test(e.c1 == Color.red);
             test(e.bs == null);
             test(e.st != null);
             test(e.dict == null);
 
-            test.Ice.defaultValue.Test.ClassNoDefaults cl =
-                    new test.Ice.defaultValue.Test.ClassNoDefaults();
+            ClassNoDefaults cl =
+                new ClassNoDefaults();
             test(cl.str.isEmpty());
-            test(cl.c1 == test.Ice.defaultValue.Test.Color.red);
+            test(cl.c1 == Color.red);
             test(cl.bs == null);
             test(cl.st != null);
             test(cl.dict == null);
@@ -195,4 +221,6 @@ public class AllTests {
 
         out.println("ok");
     }
+
+    private AllTests() {}
 }

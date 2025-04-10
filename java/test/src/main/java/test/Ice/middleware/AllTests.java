@@ -2,9 +2,9 @@
 
 package test.Ice.middleware;
 
-import com.zeroc.Ice.*;
-
-import test.Ice.middleware.Test.*;
+import test.Ice.middleware.Test.MyObject;
+import test.Ice.middleware.Test.MyObjectPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -13,16 +13,28 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.ErrorObserverMiddleware;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.IncomingRequest;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.OutgoingResponse;
+import com.zeroc.Ice.UnknownException;
+import com.zeroc.Ice.UserException;
+
 public class AllTests {
 
-    private static class Middleware implements com.zeroc.Ice.Object {
-        private final com.zeroc.Ice.Object _next;
+    private static class Middleware implements Object {
+        private final Object _next;
         private final String _name;
         private final List<String> _inLog;
         private final List<String> _outLog;
 
         Middleware(
-                com.zeroc.Ice.Object next, String name, List<String> inLog, List<String> outLog) {
+                Object next, String name, List<String> inLog, List<String> outLog) {
             _next = next;
             _name = name;
             _inLog = inLog;
@@ -31,14 +43,14 @@ public class AllTests {
 
         @Override
         public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
-                throws UserException {
+            throws UserException {
             _inLog.add(_name);
             return _next.dispatch(request)
-                    .thenApply(
-                            response -> {
-                                _outLog.add(_name);
-                                return response;
-                            });
+                .thenApply(
+                    response -> {
+                        _outLog.add(_name);
+                        return response;
+                    });
         }
     }
 
@@ -70,7 +82,7 @@ public class AllTests {
         Error error;
     }
 
-    public static void allTests(test.TestHelper helper) {
+    public static void allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
         PrintWriter output = helper.getWriter();
         testMiddlewareExecutionOrder(communicator, output);
@@ -98,8 +110,8 @@ public class AllTests {
         ObjectPrx obj = oa.add(new MyObjectI(), new Identity("test", ""));
 
         oa.use(next -> new Middleware(next, "A", inLog, outLog))
-                .use(next -> new Middleware(next, "B", inLog, outLog))
-                .use(next -> new Middleware(next, "C", inLog, outLog));
+            .use(next -> new Middleware(next, "B", inLog, outLog))
+            .use(next -> new Middleware(next, "C", inLog, outLog));
 
         var p = MyObjectPrx.uncheckedCast(obj);
 
@@ -117,11 +129,11 @@ public class AllTests {
     private static void testErrorObserverMiddleware(
             Communicator communicator, PrintWriter output, boolean withError, boolean amd) {
         output.write(
-                "testing error observer middleware "
-                        + (withError ? "with" : "without")
-                        + " error"
-                        + (amd ? " + amd" : "")
-                        + "... ");
+            "testing error observer middleware "
+                + (withError ? "with" : "without")
+                + " error"
+                + (amd ? " + amd" : "")
+                + "... ");
         output.flush();
 
         // Arrange
@@ -160,4 +172,6 @@ public class AllTests {
             throw new RuntimeException();
         }
     }
+
+    private AllTests() {}
 }

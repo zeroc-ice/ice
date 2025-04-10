@@ -2,22 +2,25 @@
 
 package test.Ice.ami;
 
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.ObjectAdapter;
+
 import test.Ice.ami.Test.TestIntfController;
 
 class TestControllerI implements TestIntfController {
     @Override
-    public void holdAdapter(com.zeroc.Ice.Current current) {
+    public void holdAdapter(Current current) {
         _adapter.hold();
     }
 
     @Override
-    public void resumeAdapter(com.zeroc.Ice.Current current) {
+    public void resumeAdapter(Current current) {
         _adapter.activate();
     }
 
-    public TestControllerI(com.zeroc.Ice.ObjectAdapter adapter) {
+    public TestControllerI(ObjectAdapter adapter) {
         _adapter = adapter;
     }
 
-    private final com.zeroc.Ice.ObjectAdapter _adapter;
+    private final ObjectAdapter _adapter;
 }

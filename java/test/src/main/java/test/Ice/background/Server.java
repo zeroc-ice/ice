@@ -2,31 +2,44 @@
 
 package test.Ice.background;
 
-import test.Ice.background.PluginFactory.PluginI;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.Locator;
+import com.zeroc.Ice.LocatorRegistryPrx;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Router;
+import com.zeroc.Ice.Util;
 
+import test.Ice.background.PluginFactory.PluginI;
+import test.TestHelper;
+
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public class Server extends test.TestHelper {
-    public static class LocatorI implements com.zeroc.Ice.Locator {
+public class Server extends TestHelper {
+    public static class LocatorI implements Locator {
         @Override
-        public CompletionStage<com.zeroc.Ice.ObjectPrx> findAdapterByIdAsync(
-                String adapter, com.zeroc.Ice.Current current) {
+        public CompletionStage<ObjectPrx> findAdapterByIdAsync(
+                String adapter, Current current) {
             _controller.checkCallPause(current);
             return CompletableFuture.completedFuture(
-                    current.adapter.createDirectProxy(
-                            com.zeroc.Ice.Util.stringToIdentity("dummy")));
+                current.adapter.createDirectProxy(
+                    Util.stringToIdentity("dummy")));
         }
 
         @Override
-        public CompletionStage<com.zeroc.Ice.ObjectPrx> findObjectByIdAsync(
-                com.zeroc.Ice.Identity id, com.zeroc.Ice.Current current) {
+        public CompletionStage<ObjectPrx> findObjectByIdAsync(
+                Identity id, Current current) {
             _controller.checkCallPause(current);
             return CompletableFuture.completedFuture(current.adapter.createDirectProxy(id));
         }
 
         @Override
-        public com.zeroc.Ice.LocatorRegistryPrx getRegistry(com.zeroc.Ice.Current current) {
+        public LocatorRegistryPrx getRegistry(Current current) {
             return null;
         }
 
@@ -37,24 +50,24 @@ public class Server extends test.TestHelper {
         private final BackgroundControllerI _controller;
     }
 
-    public static class RouterI implements com.zeroc.Ice.Router {
+    public static class RouterI implements Router {
         @Override
-        public com.zeroc.Ice.Router.GetClientProxyResult getClientProxy(
-                com.zeroc.Ice.Current current) {
+        public Router.GetClientProxyResult getClientProxy(
+                Current current) {
             _controller.checkCallPause(current);
-            return new com.zeroc.Ice.Router.GetClientProxyResult(null, java.util.Optional.of(true));
+            return new Router.GetClientProxyResult(null, Optional.of(true));
         }
 
         @Override
-        public com.zeroc.Ice.ObjectPrx getServerProxy(com.zeroc.Ice.Current current) {
+        public ObjectPrx getServerProxy(Current current) {
             _controller.checkCallPause(current);
             return null;
         }
 
         @Override
-        public com.zeroc.Ice.ObjectPrx[] addProxies(
-                com.zeroc.Ice.ObjectPrx[] proxies, com.zeroc.Ice.Current current) {
-            return new com.zeroc.Ice.ObjectPrx[0];
+        public ObjectPrx[] addProxies(
+                ObjectPrx[] proxies, Current current) {
+            return new ObjectPrx[0];
         }
 
         RouterI(BackgroundControllerI controller) {
@@ -66,7 +79,7 @@ public class Server extends test.TestHelper {
 
     @Override
     public void run(String[] args) {
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
 
         //
         // This test kills connections, so we don't want warnings.
@@ -83,41 +96,41 @@ public class Server extends test.TestHelper {
         //
         properties.setProperty("Ice.Plugin.Test", "test.Ice.background.PluginFactory");
         properties.setProperty(
-                "Ice.Default.Protocol",
-                "test-" + properties.getIceProperty("Ice.Default.Protocol"));
+            "Ice.Default.Protocol",
+            "test-" + properties.getIceProperty("Ice.Default.Protocol"));
         properties.setProperty("Ice.Package.Test", "test.Ice.background");
 
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(properties)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator
-                    .getProperties()
-                    .setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
+                .getProperties()
+                .setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
             communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
             PluginI plugin = (PluginI) communicator().getPluginManager().getPlugin("Test");
             Configuration configuration = plugin.getConfiguration();
 
-            com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-            com.zeroc.Ice.ObjectAdapter adapter2 =
-                    communicator().createObjectAdapter("ControllerAdapter");
+            ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+            ObjectAdapter adapter2 =
+                communicator().createObjectAdapter("ControllerAdapter");
 
             BackgroundControllerI backgroundController =
-                    new BackgroundControllerI(configuration, adapter);
+                new BackgroundControllerI(configuration, adapter);
 
             adapter.add(
-                    new BackgroundI(backgroundController),
-                    com.zeroc.Ice.Util.stringToIdentity("background"));
+                new BackgroundI(backgroundController),
+                Util.stringToIdentity("background"));
             adapter.add(
-                    new LocatorI(backgroundController),
-                    com.zeroc.Ice.Util.stringToIdentity("locator"));
+                new LocatorI(backgroundController),
+                Util.stringToIdentity("locator"));
             adapter.add(
-                    new RouterI(backgroundController),
-                    com.zeroc.Ice.Util.stringToIdentity("router"));
+                new RouterI(backgroundController),
+                Util.stringToIdentity("router"));
             adapter.activate();
 
             adapter2.add(
-                    backgroundController,
-                    com.zeroc.Ice.Util.stringToIdentity("backgroundController"));
+                backgroundController,
+                Util.stringToIdentity("backgroundController"));
             adapter2.activate();
             serverReady();
             communicator.waitForShutdown();

@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.util.ArrayList;
+
 final class UdpEndpointFactory implements EndpointFactory {
     UdpEndpointFactory(ProtocolInstance instance) {
         _instance = instance;
@@ -18,7 +20,7 @@ final class UdpEndpointFactory implements EndpointFactory {
     }
 
     @Override
-    public EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint) {
+    public EndpointI create(ArrayList<String> args, boolean oaEndpoint) {
         IPEndpointI endpt = new UdpEndpointI(_instance);
         endpt.initWithOptions(args, oaEndpoint);
         return endpt;

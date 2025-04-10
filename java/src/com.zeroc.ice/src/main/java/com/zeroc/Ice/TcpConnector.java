@@ -2,11 +2,14 @@
 
 package com.zeroc.Ice;
 
+import java.net.InetSocketAddress;
+import java.util.Objects;
+
 final class TcpConnector implements Connector {
     @Override
     public Transceiver connect() {
         return new TcpTransceiver(
-                _instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
+            _instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
     }
 
     @Override
@@ -37,9 +40,9 @@ final class TcpConnector implements Connector {
     //
     TcpConnector(
             ProtocolInstance instance,
-            java.net.InetSocketAddress addr,
+            InetSocketAddress addr,
             NetworkProxy proxy,
-            java.net.InetSocketAddress sourceAddr,
+            InetSocketAddress sourceAddr,
             int timeout,
             String connectionId) {
         _instance = instance;
@@ -69,17 +72,17 @@ final class TcpConnector implements Connector {
             return false;
         }
 
-        if (!java.util.Objects.equals(_sourceAddr, p._sourceAddr)) {
+        if (!Objects.equals(_sourceAddr, p._sourceAddr)) {
             return false;
         }
 
-        return java.util.Objects.equals(_addr, p._addr);
+        return Objects.equals(_addr, p._addr);
     }
 
     private final ProtocolInstance _instance;
-    private java.net.InetSocketAddress _addr;
-    private NetworkProxy _proxy;
-    private java.net.InetSocketAddress _sourceAddr;
-    private int _timeout;
+    private final InetSocketAddress _addr;
+    private final NetworkProxy _proxy;
+    private final InetSocketAddress _sourceAddr;
+    private final int _timeout;
     private String _connectionId = "";
 }

@@ -24,10 +24,10 @@ class TestIntfI implements TestIntf {
         var future = new CompletableFuture<Void>();
 
         _responder.queueResponse(
-                () -> {
-                    decDispatchCount();
-                    future.complete(null);
-                });
+            () -> {
+                decDispatchCount();
+                future.complete(null);
+            });
 
         return future;
     }

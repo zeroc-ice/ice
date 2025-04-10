@@ -3,7 +3,7 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.Utils;
 
 class PlainServerEditor extends AbstractServerEditor {
     @Override
@@ -59,5 +59,5 @@ class PlainServerEditor extends AbstractServerEditor {
         }
     }
 
-    private ServerSubEditor _subEditor;
+    private final ServerSubEditor _subEditor;
 }

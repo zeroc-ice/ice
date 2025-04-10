@@ -2,5 +2,7 @@
 
 package test.Ice.metrics;
 
+import com.zeroc.Ice.Instrumentation.RemoteObserver;
+
 class RemoteObserverI extends ChildInvocationObserverI
-        implements com.zeroc.Ice.Instrumentation.RemoteObserver {}
+    implements RemoteObserver {}

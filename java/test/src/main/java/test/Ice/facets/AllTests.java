@@ -2,14 +2,22 @@
 
 package test.Ice.facets;
 
+import com.zeroc.Ice.AlreadyRegisteredException;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.NotRegisteredException;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Util;
 
 import test.Ice.facets.Test.DPrx;
 import test.Ice.facets.Test.FPrx;
 import test.Ice.facets.Test.GPrx;
 import test.Ice.facets.Test.HPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.Map;
 
 public class AllTests {
     private static void test(boolean b) {
@@ -18,31 +26,31 @@ public class AllTests {
         }
     }
 
-    public static GPrx allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static GPrx allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         out.print("testing Ice.Admin.Facets property... ");
         test(communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets").length == 0);
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
         String[] facetFilter =
-                communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
-        test(facetFilter.length == 1 && facetFilter[0].equals("foobar"));
+            communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
+        test(facetFilter.length == 1 && "foobar".equals(facetFilter[0]));
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foo\\'bar");
         facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
-        test(facetFilter.length == 1 && facetFilter[0].equals("foo'bar"));
+        test(facetFilter.length == 1 && "foo'bar".equals(facetFilter[0]));
         communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
         facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         test(
-                facetFilter.length == 3
-                        && facetFilter[0].equals("foo bar")
-                        && facetFilter[1].equals("toto")
-                        && facetFilter[2].equals("titi"));
+            facetFilter.length == 3
+                && "foo bar".equals(facetFilter[0])
+                && "toto".equals(facetFilter[1])
+                && "titi".equals(facetFilter[2]));
         communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
         facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         test(
-                facetFilter.length == 2
-                        && facetFilter[0].equals("foo bar' toto")
-                        && facetFilter[1].equals("titi"));
+            facetFilter.length == 2
+                && "foo bar' toto".equals(facetFilter[0])
+                && "titi".equals(facetFilter[1]));
         // communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
         // facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         // test(facetFilter.length == 0);
@@ -51,50 +59,47 @@ public class AllTests {
 
         out.print("testing facet registration exceptions... ");
         final String host =
-                communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0
-                        ? "::1"
-                        : "127.0.0.1";
+            communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0
+                ? "::1"
+                : "127.0.0.1";
         communicator
-                .getProperties()
-                .setProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h \"" + host + "\"");
-        com.zeroc.Ice.ObjectAdapter adapter =
-                communicator.createObjectAdapter("FacetExceptionTestAdapter");
-        com.zeroc.Ice.Object obj = new EmptyI();
-        adapter.add(obj, com.zeroc.Ice.Util.stringToIdentity("d"));
-        adapter.addFacet(obj, com.zeroc.Ice.Util.stringToIdentity("d"), "facetABCD");
+            .getProperties()
+            .setProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h \"" + host + "\"");
+        ObjectAdapter adapter =
+            communicator.createObjectAdapter("FacetExceptionTestAdapter");
+        Object obj = new EmptyI();
+        adapter.add(obj, Util.stringToIdentity("d"));
+        adapter.addFacet(obj, Util.stringToIdentity("d"), "facetABCD");
         try {
-            adapter.addFacet(obj, com.zeroc.Ice.Util.stringToIdentity("d"), "facetABCD");
+            adapter.addFacet(obj, Util.stringToIdentity("d"), "facetABCD");
             test(false);
-        } catch (com.zeroc.Ice.AlreadyRegisteredException ex) {
-        }
-        adapter.removeFacet(com.zeroc.Ice.Util.stringToIdentity("d"), "facetABCD");
+        } catch (AlreadyRegisteredException ex) {}
+        adapter.removeFacet(Util.stringToIdentity("d"), "facetABCD");
         try {
-            adapter.removeFacet(com.zeroc.Ice.Util.stringToIdentity("d"), "facetABCD");
+            adapter.removeFacet(Util.stringToIdentity("d"), "facetABCD");
             test(false);
-        } catch (com.zeroc.Ice.NotRegisteredException ex) {
-        }
+        } catch (NotRegisteredException ex) {}
         out.println("ok");
 
         out.print("testing removeAllFacets... ");
-        com.zeroc.Ice.Object obj1 = new EmptyI();
-        com.zeroc.Ice.Object obj2 = new EmptyI();
-        adapter.addFacet(obj1, com.zeroc.Ice.Util.stringToIdentity("id1"), "f1");
-        adapter.addFacet(obj2, com.zeroc.Ice.Util.stringToIdentity("id1"), "f2");
-        com.zeroc.Ice.Object obj3 = new EmptyI();
-        adapter.addFacet(obj1, com.zeroc.Ice.Util.stringToIdentity("id2"), "f1");
-        adapter.addFacet(obj2, com.zeroc.Ice.Util.stringToIdentity("id2"), "f2");
-        adapter.addFacet(obj3, com.zeroc.Ice.Util.stringToIdentity("id2"), "");
-        java.util.Map<String, com.zeroc.Ice.Object> fm =
-                adapter.removeAllFacets(com.zeroc.Ice.Util.stringToIdentity("id1"));
+        Object obj1 = new EmptyI();
+        Object obj2 = new EmptyI();
+        adapter.addFacet(obj1, Util.stringToIdentity("id1"), "f1");
+        adapter.addFacet(obj2, Util.stringToIdentity("id1"), "f2");
+        Object obj3 = new EmptyI();
+        adapter.addFacet(obj1, Util.stringToIdentity("id2"), "f1");
+        adapter.addFacet(obj2, Util.stringToIdentity("id2"), "f2");
+        adapter.addFacet(obj3, Util.stringToIdentity("id2"), "");
+        Map<String, Object> fm =
+            adapter.removeAllFacets(Util.stringToIdentity("id1"));
         test(fm.size() == 2);
         test(fm.get("f1") == obj1);
         test(fm.get("f2") == obj2);
         try {
-            adapter.removeAllFacets(com.zeroc.Ice.Util.stringToIdentity("id1"));
+            adapter.removeAllFacets(Util.stringToIdentity("id1"));
             test(false);
-        } catch (com.zeroc.Ice.NotRegisteredException ex) {
-        }
-        fm = adapter.removeAllFacets(com.zeroc.Ice.Util.stringToIdentity("id2"));
+        } catch (NotRegisteredException ex) {}
+        fm = adapter.removeAllFacets(Util.stringToIdentity("id2"));
         test(fm.size() == 3);
         test(fm.get("f1") == obj1);
         test(fm.get("f2") == obj2);
@@ -155,45 +160,47 @@ public class AllTests {
         d = DPrx.checkedCast(db);
         test(d != null);
         test(d.equals(db));
-        test(d.callA().equals("A"));
-        test(d.callB().equals("B"));
-        test(d.callC().equals("C"));
-        test(d.callD().equals("D"));
+        test("A".equals(d.callA()));
+        test("B".equals(d.callB()));
+        test("C".equals(d.callC()));
+        test("D".equals(d.callD()));
         out.println("ok");
 
         out.print("testing facets A, B, C, and D... ");
         out.flush();
         df = DPrx.checkedCast(d, "facetABCD");
         test(df != null);
-        test(df.callA().equals("A"));
-        test(df.callB().equals("B"));
-        test(df.callC().equals("C"));
-        test(df.callD().equals("D"));
+        test("A".equals(df.callA()));
+        test("B".equals(df.callB()));
+        test("C".equals(df.callC()));
+        test("D".equals(df.callD()));
         out.println("ok");
 
         out.print("testing facets E and F... ");
         out.flush();
         FPrx ff = FPrx.checkedCast(d, "facetEF");
         test(ff != null);
-        test(ff.callE().equals("E"));
-        test(ff.callF().equals("F"));
+        test("E".equals(ff.callE()));
+        test("F".equals(ff.callF()));
         out.println("ok");
 
         out.print("testing facet G... ");
         out.flush();
         GPrx gf = GPrx.checkedCast(ff, "facetGH");
         test(gf != null);
-        test(gf.callG().equals("G"));
+        test("G".equals(gf.callG()));
         out.println("ok");
 
         out.print("testing whether casting preserves the facet... ");
         out.flush();
         HPrx hf = HPrx.checkedCast(gf);
         test(hf != null);
-        test(hf.callG().equals("G"));
-        test(hf.callH().equals("H"));
+        test("G".equals(hf.callG()));
+        test("H".equals(hf.callH()));
         out.println("ok");
 
         return gf;
     }
+
+    private AllTests() {}
 }

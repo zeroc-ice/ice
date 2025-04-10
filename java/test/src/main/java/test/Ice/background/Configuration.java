@@ -2,8 +2,11 @@
 
 package test.Ice.background;
 
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.SocketOperation;
+
 public final class Configuration {
-    public synchronized void connectorsException(com.zeroc.Ice.LocalException ex) {
+    public synchronized void connectorsException(LocalException ex) {
         _connectorsException = ex;
     }
 
@@ -13,7 +16,7 @@ public final class Configuration {
         }
     }
 
-    public synchronized void connectException(com.zeroc.Ice.LocalException ex) {
+    public synchronized void connectException(LocalException ex) {
         _connectException = ex;
     }
 
@@ -24,7 +27,7 @@ public final class Configuration {
     }
 
     public synchronized void initializeSocketStatus(int status) {
-        if (status == com.zeroc.Ice.SocketOperation.None) {
+        if (status == SocketOperation.None) {
             _initializeResetCount = 0;
             return;
         }
@@ -32,13 +35,13 @@ public final class Configuration {
         _initializeSocketStatus = status;
     }
 
-    public synchronized void initializeException(com.zeroc.Ice.LocalException ex) {
+    public synchronized void initializeException(LocalException ex) {
         _initializeException = ex;
     }
 
     public synchronized int initializeSocketStatus() {
         if (_initializeResetCount == 0) {
-            return com.zeroc.Ice.SocketOperation.None;
+            return SocketOperation.None;
         }
         --_initializeResetCount;
         return _initializeSocketStatus;
@@ -54,7 +57,7 @@ public final class Configuration {
         _readReadyCount = ready ? 0 : 10;
     }
 
-    public synchronized void readException(com.zeroc.Ice.LocalException ex) {
+    public synchronized void readException(LocalException ex) {
         _readException = ex;
     }
 
@@ -76,7 +79,7 @@ public final class Configuration {
         _writeReadyCount = ready ? 0 : 10;
     }
 
-    public synchronized void writeException(com.zeroc.Ice.LocalException ex) {
+    public synchronized void writeException(LocalException ex) {
         _writeException = ex;
     }
 
@@ -102,14 +105,14 @@ public final class Configuration {
         return _buffered;
     }
 
-    private com.zeroc.Ice.LocalException _connectorsException;
-    private com.zeroc.Ice.LocalException _connectException;
+    private LocalException _connectorsException;
+    private LocalException _connectException;
     private int _initializeSocketStatus;
     private int _initializeResetCount;
-    private com.zeroc.Ice.LocalException _initializeException;
+    private LocalException _initializeException;
     private int _readReadyCount;
-    private com.zeroc.Ice.LocalException _readException;
+    private LocalException _readException;
     private int _writeReadyCount;
-    private com.zeroc.Ice.LocalException _writeException;
+    private LocalException _writeException;
     private boolean _buffered;
 }

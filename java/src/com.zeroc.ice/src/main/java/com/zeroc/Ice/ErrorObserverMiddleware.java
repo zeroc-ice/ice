@@ -28,35 +28,35 @@ public final class ErrorObserverMiddleware implements Object {
 
     @Override
     public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
-            throws UserException {
+        throws UserException {
         try {
             return _next.dispatch(request)
-                    .exceptionally(
-                            exception -> {
-                                // _errorObserver can throw an exception that effectively replaces
-                                // exception for dependent completion stages.
-                                if (exception instanceof Error error) {
-                                    _errorObserver.accept(error);
-                                    throw error;
-                                } else if (exception
-                                                instanceof CompletionException completionException
-                                        && completionException.getCause() instanceof Error error) {
-                                    // This can occur when the closure of a parent completion stage
-                                    // throws an error.
-                                    _errorObserver.accept(error);
-                                }
+                .exceptionally(
+                    exception -> {
+                        // _errorObserver can throw an exception that effectively replaces
+                        // exception for dependent completion stages.
+                        if (exception instanceof Error error) {
+                            _errorObserver.accept(error);
+                            throw error;
+                        } else if (exception
+                            instanceof CompletionException completionException
+                            && completionException.getCause() instanceof Error error) {
+                            // This can occur when the closure of a parent completion stage
+                            // throws an error.
+                            _errorObserver.accept(error);
+                        }
 
-                                if (exception instanceof RuntimeException runtimeException) {
-                                    // Rethrow as-is. Note that Java does not wrap
-                                    // CompletionException in CompletionException.
-                                    throw runtimeException;
-                                }
+                        if (exception instanceof RuntimeException runtimeException) {
+                            // Rethrow as-is. Note that Java does not wrap
+                            // CompletionException in CompletionException.
+                            throw runtimeException;
+                        }
 
-                                // exception is a Throwable that is not an Error or a
-                                // RuntimeException. We can't throw it so we marshal this exception
-                                // into a response.
-                                return request.current.createOutgoingResponse(exception);
-                            });
+                        // exception is a Throwable that is not an Error or a
+                        // RuntimeException. We can't throw it so we marshal this exception
+                        // into a response.
+                        return request.current.createOutgoingResponse(exception);
+                    });
         } catch (Error error) {
             // synchronous error
             _errorObserver.accept(error);

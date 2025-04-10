@@ -2,46 +2,50 @@
 
 package test.Slice.structure;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectPrx;
+
 import test.Slice.structure.Test.C;
 import test.Slice.structure.Test.S1;
 import test.Slice.structure.Test.S2;
+import test.TestHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Client extends test.TestHelper {
-    private static void allTests(com.zeroc.Ice.Communicator communicator) {
+public class Client extends TestHelper {
+    private static void allTests(Communicator communicator) {
         System.out.print("testing equals() for Slice structures... ");
         System.out.flush();
 
         // Define some default values.
         C def_cls = new C(5);
         S1 def_s = new S1("name");
-        String[] def_ss = new String[] {"one", "two", "three"};
+        String[] def_ss = new String[]{"one", "two", "three"};
         ArrayList<Integer> def_il = new ArrayList<>();
         def_il.add(1);
         def_il.add(2);
         def_il.add(3);
         Map<String, String> def_sd = new HashMap<>();
         def_sd.put("abc", "def");
-        com.zeroc.Ice.ObjectPrx def_prx = communicator.stringToProxy("test");
+        ObjectPrx def_prx = communicator.stringToProxy("test");
         S2 def_s2 =
-                new S2(
-                        true,
-                        (byte) 98,
-                        (short) 99,
-                        100,
-                        101,
-                        (float) 1.0,
-                        2.0,
-                        "string",
-                        def_ss,
-                        def_il,
-                        def_sd,
-                        def_s,
-                        def_cls,
-                        def_prx);
+            new S2(
+                true,
+                (byte) 98,
+                (short) 99,
+                100,
+                101,
+                (float) 1.0,
+                2.0,
+                "string",
+                def_ss,
+                def_il,
+                def_sd,
+                def_s,
+                def_cls,
+                def_prx);
 
         // Compare default-constructed structures.
         {
@@ -251,7 +255,7 @@ public class Client extends test.TestHelper {
     }
 
     public void run(String[] args) {
-        try (com.zeroc.Ice.Communicator communicator = initialize(args)) {
+        try (Communicator communicator = initialize(args)) {
             allTests(communicator);
         }
     }

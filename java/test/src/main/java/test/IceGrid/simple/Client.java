@@ -2,14 +2,19 @@
 
 package test.IceGrid.simple;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Properties;
+
+import test.TestHelper;
+
 import java.util.stream.Stream;
 
-public class Client extends test.TestHelper {
+public class Client extends TestHelper {
     public void run(String[] args) {
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.IceGrid.simple");
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
-            boolean withDeploy = Stream.of(args).anyMatch(v -> v.equals("--with-deploy"));
+        try (Communicator communicator = initialize(properties)) {
+            boolean withDeploy = Stream.of(args).anyMatch(v -> "--with-deploy".equals(v));
 
             if (!withDeploy) {
                 AllTests.allTests(this);

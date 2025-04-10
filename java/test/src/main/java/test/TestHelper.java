@@ -2,7 +2,18 @@
 
 package test;
 
-import com.zeroc.Ice.*;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public abstract class TestHelper {
     public static void test(boolean b) {
@@ -16,7 +27,7 @@ public abstract class TestHelper {
     public interface ControllerHelper {
         void communicatorInitialized(Communicator c);
 
-        java.io.InputStream loadResource(String name);
+        InputStream loadResource(String name);
 
         void serverReady();
     }
@@ -25,7 +36,7 @@ public abstract class TestHelper {
         return getTestEndpoint(_communicator.getProperties(), 0, "");
     }
 
-    public static String getTestEndpoint(com.zeroc.Ice.Properties properties) {
+    public static String getTestEndpoint(Properties properties) {
         return getTestEndpoint(properties, 0, "");
     }
 
@@ -33,7 +44,7 @@ public abstract class TestHelper {
         return getTestEndpoint(_communicator.getProperties(), num, "");
     }
 
-    public static String getTestEndpoint(com.zeroc.Ice.Properties properties, int num) {
+    public static String getTestEndpoint(Properties properties, int num) {
         return getTestEndpoint(properties, num, "");
     }
 
@@ -42,7 +53,7 @@ public abstract class TestHelper {
     }
 
     public static String getTestEndpoint(
-            com.zeroc.Ice.Properties properties, int num, String prot) {
+            Properties properties, int num, String prot) {
         String protocol = prot;
         if (protocol.isEmpty()) {
             protocol = properties.getIceProperty("Ice.Default.Protocol");
@@ -55,21 +66,21 @@ public abstract class TestHelper {
             // The client locates the server using its address and a UUID.
             switch (num) {
                 case 0:
-                    {
-                        return "default -u 5e08f4de-5015-4507-abe1-a7807002db3d";
-                    }
+                {
+                    return "default -u 5e08f4de-5015-4507-abe1-a7807002db3d";
+                }
                 case 1:
-                    {
-                        return "default -u dae56460-2485-46fd-a3ca-8b730e1e868b";
-                    }
+                {
+                    return "default -u dae56460-2485-46fd-a3ca-8b730e1e868b";
+                }
                 case 2:
-                    {
-                        return "default -u 99e08bc6-fcda-4758-afd0-a8c00655c999";
-                    }
+                {
+                    return "default -u 99e08bc6-fcda-4758-afd0-a8c00655c999";
+                }
                 default:
-                    {
-                        assert (false);
-                    }
+                {
+                    assert false;
+                }
             }
         }
         return protocol + " -p " + Integer.toString(basePort + num);
@@ -79,7 +90,7 @@ public abstract class TestHelper {
         return getTestHost(_communicator.getProperties());
     }
 
-    public static String getTestHost(com.zeroc.Ice.Properties properties) {
+    public static String getTestHost(Properties properties) {
         return properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
     }
 
@@ -87,7 +98,7 @@ public abstract class TestHelper {
         return getTestProtocol(_communicator.getProperties());
     }
 
-    public static String getTestProtocol(com.zeroc.Ice.Properties properties) {
+    public static String getTestProtocol(Properties properties) {
         return properties.getIceProperty("Ice.Default.Protocol");
     }
 
@@ -95,7 +106,7 @@ public abstract class TestHelper {
         return getTestPort(_communicator.getProperties(), num);
     }
 
-    public static int getTestPort(com.zeroc.Ice.Properties properties, int num) {
+    public static int getTestPort(Properties properties, int num) {
         return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
     }
 
@@ -103,12 +114,12 @@ public abstract class TestHelper {
         return createTestProperties(args, null);
     }
 
-    public Properties createTestProperties(String[] args, java.util.List<String> rArgs) {
-        rArgs = rArgs == null ? new java.util.ArrayList<String>() : rArgs;
+    public Properties createTestProperties(String[] args, List<String> rArgs) {
+        rArgs = rArgs == null ? new ArrayList<String>() : rArgs;
         Properties properties = new Properties(args, rArgs);
         args = properties.parseCommandLineOptions("Test", rArgs.toArray(new String[rArgs.size()]));
         rArgs.clear();
-        rArgs.addAll(java.util.Arrays.asList(args));
+        rArgs.addAll(Arrays.asList(args));
         return properties;
     }
 
@@ -160,14 +171,14 @@ public abstract class TestHelper {
     }
 
     public static boolean isAndroid() {
-        return com.zeroc.Ice.Util.isAndroid();
+        return Util.isAndroid();
     }
 
-    public void setWriter(java.io.Writer writer) {
-        _printWriter = new java.io.PrintWriter(writer);
+    public void setWriter(Writer writer) {
+        _printWriter = new PrintWriter(writer);
     }
 
-    public java.io.PrintWriter getWriter() {
+    public PrintWriter getWriter() {
         return _printWriter;
     }
 
@@ -195,8 +206,8 @@ public abstract class TestHelper {
         }
 
         @Override
-        public java.io.InputStream getResourceAsStream(String name) {
-            java.io.InputStream resource = _controllerHelper.loadResource(name);
+        public InputStream getResourceAsStream(String name) {
+            InputStream resource = _controllerHelper.loadResource(name);
             if (resource == null) {
                 resource = super.getResourceAsStream(name);
             }
@@ -207,6 +218,6 @@ public abstract class TestHelper {
     private ControllerHelper _controllerHelper;
     private ClassLoader _classLoader;
     private Communicator _communicator;
-    private java.io.PrintWriter _printWriter =
-            new java.io.PrintWriter(new java.io.OutputStreamWriter(System.out), true);
+    private PrintWriter _printWriter =
+        new PrintWriter(new OutputStreamWriter(System.out), true);
 }

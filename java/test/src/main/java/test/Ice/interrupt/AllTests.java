@@ -2,13 +2,20 @@
 
 package test.Ice.interrupt;
 
+import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.CompressBatch;
+import com.zeroc.Ice.Connection;
+import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.InvocationFuture;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.OperationInterruptedException;
 import com.zeroc.Ice.Util;
 
 import test.Ice.interrupt.Test.CannotInterruptException;
 import test.Ice.interrupt.Test.TestIntfControllerPrx;
 import test.Ice.interrupt.Test.TestIntfPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 import java.util.concurrent.CompletableFuture;
@@ -16,6 +23,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class AllTests {
@@ -26,8 +34,7 @@ public class AllTests {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
 
             _called = false;
@@ -39,7 +46,7 @@ public class AllTests {
             notify();
         }
 
-        private boolean _called = false;
+        private boolean _called;
     }
 
     private static void test(boolean b) {
@@ -57,11 +64,11 @@ public class AllTests {
         }
     }
 
-    public static void allTests(test.TestHelper helper) throws InterruptedException {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static void allTests(TestHelper helper) throws InterruptedException {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         String sref = "test:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(sref);
+        ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         final TestIntfPrx p = TestIntfPrx.uncheckedCast(obj);
@@ -87,41 +94,41 @@ public class AllTests {
                 mainThread.interrupt();
                 r.get();
                 test(false);
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
                 // Expected
                 test(!mainThread.isInterrupted());
-            } catch (java.util.concurrent.ExecutionException ex) {
+            } catch (ExecutionException ex) {
                 test(false);
             }
 
             final Callback cb = new Callback();
             mainThread.interrupt();
             p.opAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             test(Thread.interrupted());
             cb.check();
 
-            ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(1);
+            ExecutorService executor = Executors.newFixedThreadPool(1);
             executor.submit(
-                    () -> {
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException e) {
-                            test(false);
-                        }
-                        mainThread.interrupt();
-                    });
+                () -> {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        test(false);
+                    }
+                    mainThread.interrupt();
+                });
             try {
                 test(!mainThread.isInterrupted());
                 p.sleepAsync(2000).get();
                 test(false);
             } catch (ExecutionException ex) {
                 test(false);
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
                 // Expected
             }
 
@@ -133,7 +140,7 @@ public class AllTests {
                     InvocationFuture<Void> f = Util.getInvocationFuture(r);
                     f.waitForSent();
                     test(Thread.interrupted());
-                } catch (com.zeroc.Ice.OperationInterruptedException ex) {
+                } catch (OperationInterruptedException ex) {
                     // Expected
                 }
 
@@ -155,14 +162,14 @@ public class AllTests {
                 // exception.
                 //
                 executor.submit(
-                        () -> {
-                            try {
-                                Thread.sleep(500);
-                            } catch (InterruptedException e) {
-                                test(false);
-                            }
-                            mainThread.interrupt();
-                        });
+                    () -> {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            test(false);
+                        }
+                        mainThread.interrupt();
+                    });
 
                 CompletableFuture<Void> r = null;
                 InvocationFuture<Void> f = null;
@@ -175,7 +182,7 @@ public class AllTests {
                     f = Util.getInvocationFuture(r);
                     f.waitForSent();
                     test(false);
-                } catch (com.zeroc.Ice.OperationInterruptedException ex) {
+                } catch (OperationInterruptedException ex) {
                     // Expected
                 }
                 //
@@ -205,7 +212,7 @@ public class AllTests {
 
                 p.ice_getConnection().close();
 
-                CompletableFuture<com.zeroc.Ice.Connection> r = p.ice_getConnectionAsync();
+                CompletableFuture<Connection> r = p.ice_getConnectionAsync();
                 mainThread.interrupt();
                 try {
                     r.get();
@@ -217,7 +224,7 @@ public class AllTests {
                     mainThread.interrupted();
                 } catch (ExecutionException ex) {
                     test(false);
-                } catch (java.lang.InterruptedException ex) {
+                } catch (InterruptedException ex) {
                     // Expected
                 }
 
@@ -226,11 +233,11 @@ public class AllTests {
                 final Callback cb = new Callback();
                 mainThread.interrupt();
                 p.ice_getConnectionAsync()
-                        .whenComplete(
-                                (result, ex) -> {
-                                    test(ex == null);
-                                    cb.called();
-                                });
+                    .whenComplete(
+                        (result, ex) -> {
+                            test(ex == null);
+                            cb.called();
+                        });
                 test(Thread.interrupted());
                 cb.check();
             }
@@ -259,7 +266,7 @@ public class AllTests {
                 mainThread.interrupted();
             } catch (ExecutionException ex) {
                 test(false);
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
                 // Expected
             }
 
@@ -272,11 +279,11 @@ public class AllTests {
             mainThread.interrupt();
             r.whenComplete((result, ex) -> test(ex == null));
             Util.getInvocationFuture(r)
-                    .whenSent(
-                            (sentSynchronously, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenSent(
+                    (sentSynchronously, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             test(Thread.interrupted());
             cb.check();
         }
@@ -306,7 +313,7 @@ public class AllTests {
                     mainThread.interrupted();
                 } catch (ExecutionException ex) {
                     test(false);
-                } catch (java.lang.InterruptedException ex) {
+                } catch (InterruptedException ex) {
                     // Expected
                 }
 
@@ -315,16 +322,16 @@ public class AllTests {
                 p2.op();
 
                 final Callback cb = new Callback();
-                com.zeroc.Ice.Connection con = p2.ice_getConnection();
+                Connection con = p2.ice_getConnection();
                 mainThread.interrupt();
                 r = con.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                 r.whenComplete((result, ex) -> test(ex == null));
                 Util.getInvocationFuture(r)
-                        .whenSent(
-                                (sentSynchronously, ex) -> {
-                                    test(ex == null);
-                                    cb.called();
-                                });
+                    .whenSent(
+                        (sentSynchronously, ex) -> {
+                            test(ex == null);
+                            cb.called();
+                        });
                 test(Thread.interrupted());
                 cb.check();
             }
@@ -353,7 +360,7 @@ public class AllTests {
                 mainThread.interrupted();
             } catch (ExecutionException ex) {
                 test(false);
-            } catch (java.lang.InterruptedException ex) {
+            } catch (InterruptedException ex) {
                 // Expected
             }
 
@@ -366,11 +373,11 @@ public class AllTests {
             r = communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
             r.whenComplete((result, ex) -> test(ex == null));
             Util.getInvocationFuture(r)
-                    .whenSent(
-                            (sentSynchronously, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenSent(
+                    (sentSynchronously, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             test(Thread.interrupted());
             cb.check();
         }
@@ -382,23 +389,23 @@ public class AllTests {
             //
             // Check that CommunicatorDestroyedException is raised directly.
             //
-            com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+            InitializationData initData = new InitializationData();
             initData.properties = communicator.getProperties()._clone();
-            com.zeroc.Ice.Communicator ic = helper.initialize(initData);
+            Communicator ic = helper.initialize(initData);
 
             Thread.currentThread().interrupt();
             try {
                 ic.destroy();
                 failIfNotInterrupted();
-            } catch (com.zeroc.Ice.OperationInterruptedException ex) {
+            } catch (OperationInterruptedException ex) {
                 // Expected
             }
             ic.destroy();
 
-            ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(2);
+            ExecutorService executor = Executors.newFixedThreadPool(2);
 
             ic = helper.initialize(initData);
-            com.zeroc.Ice.ObjectPrx o = ic.stringToProxy(p.toString());
+            ObjectPrx o = ic.stringToProxy(p.toString());
 
             final Thread[] thread = new Thread[1];
 
@@ -406,38 +413,38 @@ public class AllTests {
             final TestIntfPrx p2 = TestIntfPrx.checkedCast(o);
             final CountDownLatch waitSignal = new CountDownLatch(1);
             executor.submit(
-                    () -> {
-                        try {
-                            waitSignal.await();
-                        } catch (InterruptedException e) {
-                            test(false);
-                        }
-                        thread[0].interrupt();
-                    });
+                () -> {
+                    try {
+                        waitSignal.await();
+                    } catch (InterruptedException e) {
+                        test(false);
+                    }
+                    thread[0].interrupt();
+                });
             //
             // The whenComplete() action may be executed in the current thread (if the future is
             // already completed). We have to submit the runnable to the executor *before*
             // calling whenComplete() because this thread can block in sleep().
             //
             p2.opAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                try {
-                                    Thread.sleep(250);
-                                } catch (InterruptedException e1) {
-                                    test(false);
-                                }
-                                thread[0] = Thread.currentThread();
-                                waitSignal.countDown();
-                                try {
-                                    Thread.sleep(10000);
-                                    test(false);
-                                } catch (InterruptedException e) {
-                                    // Expected
-                                }
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        try {
+                            Thread.sleep(250);
+                        } catch (InterruptedException e1) {
+                            test(false);
+                        }
+                        thread[0] = Thread.currentThread();
+                        waitSignal.countDown();
+                        try {
+                            Thread.sleep(10000);
+                            test(false);
+                        } catch (InterruptedException e) {
+                            // Expected
+                        }
+                        cb.called();
+                    });
 
             try {
                 waitSignal.await();
@@ -460,17 +467,16 @@ public class AllTests {
         {
             final Callback cb = new Callback();
             p.sleepAsync(2000)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(
-                                        ex != null
-                                                && ex
-                                                        instanceof
-                                                        test.Ice.interrupt
-                                                                .Test
-                                                                .InterruptedException);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(
+                            ex != null
+                                && ex
+                                instanceof test.Ice.interrupt
+                                .Test
+                                .InterruptedException);
+                        cb.called();
+                    });
             try {
                 Thread.sleep(250);
             } catch (InterruptedException e) {
@@ -489,19 +495,19 @@ public class AllTests {
         out.flush();
         {
             final Thread mainThread = Thread.currentThread();
-            ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(1);
-            com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+            ExecutorService executor = Executors.newFixedThreadPool(1);
+            InitializationData initData = new InitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("ClientTestAdapter.Endpoints", "tcp -h *");
-            com.zeroc.Ice.Communicator ic = helper.initialize(initData);
-            final com.zeroc.Ice.ObjectAdapter adapter = ic.createObjectAdapter("ClientTestAdapter");
+            Communicator ic = helper.initialize(initData);
+            final ObjectAdapter adapter = ic.createObjectAdapter("ClientTestAdapter");
             adapter.activate();
 
             try {
                 mainThread.interrupt();
                 adapter.waitForHold();
                 test(false);
-            } catch (com.zeroc.Ice.OperationInterruptedException e) {
+            } catch (OperationInterruptedException e) {
                 // Expected.
             }
 
@@ -509,7 +515,7 @@ public class AllTests {
                 mainThread.interrupt();
                 adapter.waitForDeactivate();
                 test(false);
-            } catch (com.zeroc.Ice.OperationInterruptedException e) {
+            } catch (OperationInterruptedException e) {
                 // Expected.
             }
 
@@ -517,25 +523,25 @@ public class AllTests {
                 mainThread.interrupt();
                 ic.waitForShutdown();
                 test(false);
-            } catch (com.zeroc.Ice.OperationInterruptedException e) {
+            } catch (OperationInterruptedException e) {
                 // Expected.
             }
 
             Runnable interruptMainThread =
-                    () -> {
-                        try {
-                            Thread.sleep(250);
-                        } catch (InterruptedException e) {
-                            test(false);
-                        }
-                        mainThread.interrupt();
-                    };
+                () -> {
+                    try {
+                        Thread.sleep(250);
+                    } catch (InterruptedException e) {
+                        test(false);
+                    }
+                    mainThread.interrupt();
+                };
 
             executor.execute(interruptMainThread);
             try {
                 adapter.waitForHold();
                 test(false);
-            } catch (com.zeroc.Ice.OperationInterruptedException e) {
+            } catch (OperationInterruptedException e) {
                 // Expected.
             }
 
@@ -543,7 +549,7 @@ public class AllTests {
             try {
                 adapter.waitForDeactivate();
                 test(false);
-            } catch (com.zeroc.Ice.OperationInterruptedException e) {
+            } catch (OperationInterruptedException e) {
                 // Expected.
             }
 
@@ -551,7 +557,7 @@ public class AllTests {
             try {
                 ic.waitForShutdown();
                 test(false);
-            } catch (com.zeroc.Ice.OperationInterruptedException e) {
+            } catch (OperationInterruptedException e) {
                 // Expected.
             }
 
@@ -566,4 +572,6 @@ public class AllTests {
 
         p.shutdown();
     }
+
+    private AllTests() {}
 }

@@ -41,6 +41,6 @@ class ProtocolPluginFacadeI implements ProtocolPluginFacade {
         return _instance.findClass(className);
     }
 
-    private Instance _instance;
-    private Communicator _communicator;
+    private final Instance _instance;
+    private final Communicator _communicator;
 }

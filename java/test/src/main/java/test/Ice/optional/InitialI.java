@@ -3,9 +3,30 @@
 package test.Ice.optional;
 
 import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Value;
 
-import test.Ice.optional.Test.*;
+import test.Ice.optional.Test.A;
+import test.Ice.optional.Test.DerivedException;
+import test.Ice.optional.Test.FixedStruct;
+import test.Ice.optional.Test.G;
+import test.Ice.optional.Test.Initial;
+import test.Ice.optional.Test.Initial.OpMDict1MarshaledResult;
+import test.Ice.optional.Test.Initial.OpMDict2MarshaledResult;
+import test.Ice.optional.Test.Initial.OpMSeq1MarshaledResult;
+import test.Ice.optional.Test.Initial.OpMSeq2MarshaledResult;
+import test.Ice.optional.Test.Initial.OpMStruct1MarshaledResult;
+import test.Ice.optional.Test.Initial.OpMStruct2MarshaledResult;
+import test.Ice.optional.Test.MyEnum;
+import test.Ice.optional.Test.MyInterfacePrx;
+import test.Ice.optional.Test.OneOptional;
+import test.Ice.optional.Test.OptionalException;
+import test.Ice.optional.Test.RequiredException;
+import test.Ice.optional.Test.SmallStruct;
+import test.Ice.optional.Test.VarStruct;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -18,13 +39,13 @@ public final class InitialI implements Initial {
     }
 
     @Override
-    public com.zeroc.Ice.Value pingPong(com.zeroc.Ice.Value obj, Current current) {
+    public Value pingPong(Value obj, Current current) {
         return obj;
     }
 
     @Override
     public void opOptionalException(OptionalInt a, Optional<String> b, Current current)
-            throws OptionalException {
+        throws OptionalException {
         OptionalException ex = new OptionalException();
         if (a.isPresent()) {
             ex.setA(a.getAsInt());
@@ -39,7 +60,7 @@ public final class InitialI implements Initial {
 
     @Override
     public void opDerivedException(OptionalInt a, Optional<String> b, Current current)
-            throws OptionalException {
+        throws OptionalException {
         DerivedException ex = new DerivedException();
         if (a.isPresent()) {
             ex.setA(a.getAsInt());
@@ -59,7 +80,7 @@ public final class InitialI implements Initial {
 
     @Override
     public void opRequiredException(OptionalInt a, Optional<String> b, Current current)
-            throws OptionalException {
+        throws OptionalException {
         RequiredException ex = new RequiredException();
         if (a.isPresent()) {
             ex.setA(a.getAsInt());
@@ -192,7 +213,7 @@ public final class InitialI implements Initial {
 
     @Override
     public Initial.OpSmallStructListResult opSmallStructList(
-            Optional<java.util.List<SmallStruct>> p1, Current current) {
+            Optional<List<SmallStruct>> p1, Current current) {
         return new Initial.OpSmallStructListResult(p1, p1);
     }
 
@@ -204,7 +225,7 @@ public final class InitialI implements Initial {
 
     @Override
     public Initial.OpFixedStructListResult opFixedStructList(
-            Optional<java.util.List<FixedStruct>> p1, Current current) {
+            Optional<List<FixedStruct>> p1, Current current) {
         return new Initial.OpFixedStructListResult(p1, p1);
     }
 
@@ -221,13 +242,13 @@ public final class InitialI implements Initial {
 
     @Override
     public Initial.OpIntIntDictResult opIntIntDict(
-            Optional<java.util.Map<Integer, Integer>> p1, Current current) {
+            Optional<Map<Integer, Integer>> p1, Current current) {
         return new Initial.OpIntIntDictResult(p1, p1);
     }
 
     @Override
     public Initial.OpStringIntDictResult opStringIntDict(
-            Optional<java.util.Map<String, Integer>> p1, Current current) {
+            Optional<Map<String, Integer>> p1, Current current) {
         return new Initial.OpStringIntDictResult(p1, p1);
     }
 
@@ -264,12 +285,12 @@ public final class InitialI implements Initial {
 
     @Override
     public OpMDict1MarshaledResult opMDict1(Current current) {
-        return new OpMDict1MarshaledResult(Optional.of(new java.util.HashMap<>()), current);
+        return new OpMDict1MarshaledResult(Optional.of(new HashMap<>()), current);
     }
 
     @Override
     public OpMDict2MarshaledResult opMDict2(
-            Optional<java.util.Map<String, Integer>> p1, Current current) {
+            Optional<Map<String, Integer>> p1, Current current) {
         return new OpMDict2MarshaledResult(p1, p1, current);
     }
 

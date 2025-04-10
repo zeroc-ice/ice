@@ -6,13 +6,14 @@ import com.zeroc.Ice.Communicator;
 
 import test.Ice.maxDispatches.Test.ResponderPrx;
 import test.Ice.maxDispatches.Test.TestIntfPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 public class AllTests {
-    static void allTests(test.TestHelper helper) {
+    static void allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
         String proxyString = "test: " + helper.getTestEndpoint();
         var p = TestIntfPrx.createProxy(communicator, proxyString);
@@ -52,7 +53,7 @@ public class AllTests {
 
         var futureList = new ArrayList<CompletableFuture<Void>>();
 
-        for (int i = 0; i < maxCount + 20; ++i) {
+        for (int i = 0; i < maxCount + 20; i++) {
             futureList.add(p.opAsync());
         }
 
@@ -67,7 +68,7 @@ public class AllTests {
 
         responder.start();
 
-        for (int i = 0; i < maxCount + 20; ++i) {
+        for (int i = 0; i < maxCount + 20; i++) {
             futureList.get(i).join();
         }
 
@@ -81,4 +82,6 @@ public class AllTests {
             throw new RuntimeException();
         }
     }
+
+    private AllTests() {}
 }

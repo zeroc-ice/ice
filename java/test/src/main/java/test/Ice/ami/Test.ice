@@ -9,8 +9,7 @@
 module Test
 {
     exception TestIntfException
-    {
-    }
+    {}
 
     interface PingReply
     {

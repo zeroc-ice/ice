@@ -2,7 +2,9 @@
 
 package com.zeroc.Ice;
 
+import java.net.InetSocketAddress;
 import java.time.Duration;
+import java.util.Optional;
 
 final class DefaultsAndOverrides {
     DefaultsAndOverrides(Properties properties) {
@@ -23,7 +25,7 @@ final class DefaultsAndOverrides {
             defaultSourceAddress = Network.getNumericAddress(value);
             if (defaultSourceAddress == null) {
                 throw new InitializationException(
-                        "invalid IP address set for Ice.Default.SourceAddress: `" + value + "'");
+                    "invalid IP address set for Ice.Default.SourceAddress: `" + value + "'");
             }
         } else {
             defaultSourceAddress = null;
@@ -34,48 +36,48 @@ final class DefaultsAndOverrides {
             boolean b = properties.getIcePropertyAsInt("Ice.Override.Compress") > 0;
             if (b && !BZip2.supported()) {
                 System.err.println(
-                        "warning: bzip2 support not available, Ice.Override.Compress ignored");
+                    "warning: bzip2 support not available, Ice.Override.Compress ignored");
                 b = false;
             }
-            overrideCompress = java.util.Optional.of(b);
+            overrideCompress = Optional.of(b);
         } else {
-            overrideCompress = java.util.Optional.empty();
+            overrideCompress = Optional.empty();
         }
 
         value = properties.getIceProperty("Ice.Override.Secure");
         if (!value.isEmpty()) {
             boolean overrideSecureValue = properties.getIcePropertyAsInt("Ice.Override.Secure") > 0;
-            overrideSecure = java.util.Optional.of(overrideSecureValue);
+            overrideSecure = Optional.of(overrideSecureValue);
         } else {
-            overrideSecure = java.util.Optional.empty();
+            overrideSecure = Optional.empty();
         }
 
         defaultCollocationOptimization =
-                properties.getIcePropertyAsInt("Ice.Default.CollocationOptimized") > 0;
+            properties.getIcePropertyAsInt("Ice.Default.CollocationOptimized") > 0;
 
         value = properties.getIceProperty("Ice.Default.EndpointSelection");
-        if (value.equals("Random")) {
+        if ("Random".equals(value)) {
             defaultEndpointSelection = EndpointSelectionType.Random;
-        } else if (value.equals("Ordered")) {
+        } else if ("Ordered".equals(value)) {
             defaultEndpointSelection = EndpointSelectionType.Ordered;
         } else {
             throw new ParseException(
-                    "illegal value '"
-                            + value
-                            + "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
+                "illegal value '"
+                    + value
+                    + "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
         }
 
         intValue = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
         if (intValue < -1) {
             throw new InitializationException(
-                    "invalid value for Ice.Default.LocatorCacheTimeout: " + intValue);
+                "invalid value for Ice.Default.LocatorCacheTimeout: " + intValue);
         }
         defaultLocatorCacheTimeout = Duration.ofSeconds(intValue);
 
         intValue = properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout");
         if (intValue < 1 && intValue != -1) {
             throw new InitializationException(
-                    "invalid value for Ice.Default.InvocationTimeout: " + intValue);
+                "invalid value for Ice.Default.InvocationTimeout: " + intValue);
         }
         defaultInvocationTimeout = Duration.ofMillis(intValue);
 
@@ -90,7 +92,7 @@ final class DefaultsAndOverrides {
     }
 
     public final String defaultHost;
-    public final java.net.InetSocketAddress defaultSourceAddress;
+    public final InetSocketAddress defaultSourceAddress;
     public final String defaultProtocol;
     public final boolean defaultCollocationOptimization;
     public final EndpointSelectionType defaultEndpointSelection;
@@ -100,6 +102,6 @@ final class DefaultsAndOverrides {
     public final EncodingVersion defaultEncoding;
     public final FormatType defaultFormat;
 
-    public final java.util.Optional<Boolean> overrideCompress;
-    public final java.util.Optional<Boolean> overrideSecure;
+    public final Optional<Boolean> overrideCompress;
+    public final Optional<Boolean> overrideSecure;
 }

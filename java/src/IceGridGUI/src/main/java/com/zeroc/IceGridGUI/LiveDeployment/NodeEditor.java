@@ -4,7 +4,7 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
-import com.zeroc.IceGrid.*;
+import com.zeroc.IceGrid.NodeInfo;
 
 import java.awt.event.ActionEvent;
 
@@ -23,16 +23,16 @@ class NodeEditor extends CommunicatorEditor {
         _loadAverage.setEditable(false);
 
         Action refreshLoad =
-                new AbstractAction("Refresh") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        _loadAverage.setText("");
-                        _loadRetrieved = false;
-                        ((Node) _target).showLoad();
-                    }
-                };
+            new AbstractAction("Refresh") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    _loadAverage.setText("");
+                    _loadRetrieved = false;
+                    ((Node) _target).showLoad();
+                }
+            };
         refreshLoad.putValue(
-                Action.SHORT_DESCRIPTION, "Fetch the latest values from this IceGrid Node");
+            Action.SHORT_DESCRIPTION, "Fetch the latest values from this IceGrid Node");
         _refreshLoadButton = new JButton(refreshLoad);
     }
 
@@ -56,11 +56,11 @@ class NodeEditor extends CommunicatorEditor {
             _os.setText(info.os + " " + info.release + " " + info.version);
             _os.setCaretPosition(0);
             _machineType.setText(
-                    info.machine
-                            + " with "
-                            + info.nProcessors
-                            + " CPU thread"
-                            + (info.nProcessors >= 2 ? "s" : ""));
+                info.machine
+                    + " with "
+                    + info.nProcessors
+                    + " CPU thread"
+                    + (info.nProcessors >= 2 ? "s" : ""));
 
             if (node.isRunningWindows()) {
                 _loadAverageLabel.setText("CPU Usage");
@@ -68,7 +68,7 @@ class NodeEditor extends CommunicatorEditor {
             } else {
                 _loadAverageLabel.setText("Load Average");
                 _loadAverage.setToolTipText(
-                        "Load average in the past 1 min, 5 min and 15 min period");
+                    "Load average in the past 1 min, 5 min and 15 min period");
             }
 
             if (_target != previous || !_loadRetrieved) {
@@ -135,13 +135,13 @@ class NodeEditor extends CommunicatorEditor {
         _propertiesPanel.setName("Node Properties");
     }
 
-    private JTextField _hostname = new JTextField(20);
-    private JTextField _os = new JTextField(20);
-    private JTextField _machineType = new JTextField(20);
-    private JLabel _loadAverageLabel = new JLabel();
-    private JTextField _loadAverage = new JTextField(20);
-    private JButton _refreshLoadButton;
-    private boolean _loadRetrieved = false;
+    private final JTextField _hostname = new JTextField(20);
+    private final JTextField _os = new JTextField(20);
+    private final JTextField _machineType = new JTextField(20);
+    private final JLabel _loadAverageLabel = new JLabel();
+    private final JTextField _loadAverage = new JTextField(20);
+    private final JButton _refreshLoadButton;
+    private boolean _loadRetrieved;
 
-    private TableField _loadFactor = new TableField("Application", "Value");
+    private final TableField _loadFactor = new TableField("Application", "Value");
 }

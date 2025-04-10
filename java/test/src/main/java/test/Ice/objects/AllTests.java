@@ -2,6 +2,13 @@
 
 package test.Ice.objects;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.MarshalException;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.OperationNotExistException;
+import com.zeroc.Ice.UnknownLocalException;
+import com.zeroc.Ice.Value;
+
 import test.Ice.objects.Test.A1;
 import test.Ice.objects.Test.B;
 import test.Ice.objects.Test.Base;
@@ -25,8 +32,11 @@ import test.Ice.objects.Test.Recursive;
 import test.Ice.objects.Test.S;
 import test.Ice.objects.Test.StructKey;
 import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AllTests {
     private static void test(boolean b) {
@@ -35,13 +45,13 @@ public class AllTests {
         }
     }
 
-    public static InitialPrx allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static InitialPrx allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "initial:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 
@@ -153,32 +163,32 @@ public class AllTests {
             K k = initial.getK();
             test(k.value instanceof L);
             L l = (L) k.value;
-            test(l.data.equals("l"));
+            test("l".equals(l.data));
         }
         out.println("ok");
 
         out.print("testing Value as parameter... ");
         {
-            com.zeroc.Ice.Value v1 = new L("l");
+            Value v1 = new L("l");
             OpValueResult result = initial.opValue(v1);
-            test(((L) result.returnValue).data.equals("l"));
-            test(((L) result.v2).data.equals("l"));
+            test("l".equals(((L) result.returnValue).data));
+            test("l".equals(((L) result.v2).data));
         }
         {
             L l = new L("l");
-            com.zeroc.Ice.Value[] v1 = {l};
+            Value[] v1 = {l};
             OpValueSeqResult result = initial.opValueSeq(v1);
-            test(((L) result.returnValue[0]).data.equals("l"));
-            test(((L) result.v2[0]).data.equals("l"));
+            test("l".equals(((L) result.returnValue[0]).data));
+            test("l".equals(((L) result.v2[0]).data));
         }
         {
             L l = new L("l");
-            java.util.Map<String, com.zeroc.Ice.Value> v1 =
-                    new java.util.HashMap<String, com.zeroc.Ice.Value>();
+            Map<String, Value> v1 =
+                new HashMap<String, Value>();
             v1.put("l", l);
             OpValueMapResult result = initial.opValueMap(v1);
-            test(((L) result.returnValue.get("l")).data.equals("l"));
-            test(((L) result.v2.get("l")).data.equals("l"));
+            test("l".equals(((L) result.returnValue.get("l")).data));
+            test("l".equals(((L) result.v2.get("l")).data));
         }
         out.println("ok");
 
@@ -186,10 +196,10 @@ public class AllTests {
         out.flush();
         D1 d1 = new D1(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
         d1 = initial.getD1(d1);
-        test(d1.a1.name.equals("a1"));
-        test(d1.a2.name.equals("a2"));
-        test(d1.a3.name.equals("a3"));
-        test(d1.a4.name.equals("a4"));
+        test("a1".equals(d1.a1.name));
+        test("a2".equals(d1.a2.name));
+        test("a3".equals(d1.a3.name));
+        test("a4".equals(d1.a4.name));
         out.println("ok");
 
         out.print("throw EDerived... ");
@@ -198,10 +208,10 @@ public class AllTests {
             initial.throwEDerived();
             test(false);
         } catch (EDerived ederived) {
-            test(ederived.a1.name.equals("a1"));
-            test(ederived.a2.name.equals("a2"));
-            test(ederived.a3.name.equals("a3"));
-            test(ederived.a4.name.equals("a4"));
+            test("a1".equals(ederived.a1.name));
+            test("a2".equals(ederived.a2.name));
+            test("a3".equals(ederived.a3.name));
+            test("a4".equals(ederived.a4.name));
         }
         out.println("ok");
 
@@ -209,8 +219,7 @@ public class AllTests {
         out.flush();
         try {
             initial.setG(new G(new S("hello"), "g"));
-        } catch (com.zeroc.Ice.OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
         out.println("ok");
 
         out.print("testing sequences...");
@@ -224,8 +233,7 @@ public class AllTests {
             inS[0] = new Base(new S(), "");
             sr = initial.opBaseSeq(inS);
             test(sr.returnValue.length == 1 && sr.outSeq.length == 1);
-        } catch (com.zeroc.Ice.OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
         out.println("ok");
 
         out.print("testing recursive type... ");
@@ -233,7 +241,7 @@ public class AllTests {
         Recursive top = new Recursive();
         Recursive bottom = top;
         int maxDepth = 10;
-        for (int i = 1; i < maxDepth; ++i) {
+        for (int i = 1; i < maxDepth; i++) {
             bottom.v = new Recursive();
             bottom = bottom.v;
         }
@@ -246,7 +254,7 @@ public class AllTests {
         try {
             initial.setRecursive(top);
             test(false);
-        } catch (com.zeroc.Ice.UnknownLocalException ex) {
+        } catch (UnknownLocalException ex) {
             // Expected marshal exception from the server (max class graph depth reached)
         }
         out.println("ok");
@@ -255,8 +263,7 @@ public class AllTests {
         out.flush();
         try {
             test(initial.getCompact() != null);
-        } catch (com.zeroc.Ice.OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
         out.println("ok");
 
         out.print("testing marshaled results...");
@@ -273,12 +280,12 @@ public class AllTests {
         base = communicator.stringToProxy(ref);
         test(base != null);
         UnexpectedObjectExceptionTestPrx uoet =
-                UnexpectedObjectExceptionTestPrx.uncheckedCast(base);
+            UnexpectedObjectExceptionTestPrx.uncheckedCast(base);
         test(uoet != null);
         try {
             uoet.op();
             test(false);
-        } catch (com.zeroc.Ice.MarshalException ex) {
+        } catch (MarshalException ex) {
             test(ex.getMessage().contains("'::Test::AlsoEmpty'"));
             test(ex.getMessage().contains("'::Test::Empty'"));
         } catch (Exception ex) {
@@ -291,7 +298,7 @@ public class AllTests {
         out.flush();
         {
             M m = new M();
-            m.v = new java.util.HashMap<StructKey, L>();
+            m.v = new HashMap<StructKey, L>();
             StructKey k1 = new StructKey(1, "1");
             m.v.put(k1, new L("one"));
             StructKey k2 = new StructKey(2, "2");
@@ -301,11 +308,11 @@ public class AllTests {
             test(opMResult.returnValue.v.size() == 2);
             test(opMResult.v2.v.size() == 2);
 
-            test(opMResult.returnValue.v.get(k1).data.equals("one"));
-            test(opMResult.v2.v.get(k1).data.equals("one"));
+            test("one".equals(opMResult.returnValue.v.get(k1).data));
+            test("one".equals(opMResult.v2.v.get(k1).data));
 
-            test(opMResult.returnValue.v.get(k2).data.equals("two"));
-            test(opMResult.v2.v.get(k2).data.equals("two"));
+            test("two".equals(opMResult.returnValue.v.get(k2).data));
+            test("two".equals(opMResult.v2.v.get(k2).data));
         }
         out.println("ok");
 
@@ -313,24 +320,24 @@ public class AllTests {
         out.flush();
         {
             Initial.OpF1Result opF1Result = initial.opF1(new F1("F11"));
-            test(opF1Result.returnValue.name.equals("F11"));
-            test(opF1Result.f12.name.equals("F12"));
+            test("F11".equals(opF1Result.returnValue.name));
+            test("F12".equals(opF1Result.f12.name));
 
             Initial.OpF2Result opF2Result =
-                    initial.opF2(
-                            F2Prx.createProxy(communicator, "F21:" + helper.getTestEndpoint()));
-            test(opF2Result.returnValue.ice_getIdentity().name.equals("F21"));
+                initial.opF2(
+                    F2Prx.createProxy(communicator, "F21:" + helper.getTestEndpoint()));
+            test("F21".equals(opF2Result.returnValue.ice_getIdentity().name));
             opF2Result.returnValue.op();
-            test(opF2Result.f22.ice_getIdentity().name.equals("F22"));
+            test("F22".equals(opF2Result.f22.ice_getIdentity().name));
 
             if (initial.hasF3()) {
                 Initial.OpF3Result opF3Result =
-                        initial.opF3(new F3(new F1("F11"), F2Prx.createProxy(communicator, "F21")));
-                test(opF3Result.returnValue.f1.name.equals("F11"));
-                test(opF3Result.returnValue.f2.ice_getIdentity().name.equals("F21"));
+                    initial.opF3(new F3(new F1("F11"), F2Prx.createProxy(communicator, "F21")));
+                test("F11".equals(opF3Result.returnValue.f1.name));
+                test("F21".equals(opF3Result.returnValue.f2.ice_getIdentity().name));
 
-                test(opF3Result.f32.f1.name.equals("F12"));
-                test(opF3Result.f32.f2.ice_getIdentity().name.equals("F22"));
+                test("F12".equals(opF3Result.f32.f1.name));
+                test("F22".equals(opF3Result.f32.f2.ice_getIdentity().name));
             }
         }
         out.println("ok");
@@ -344,7 +351,7 @@ public class AllTests {
             try {
                 initial.setCycle(rec);
                 test(acceptsCycles);
-            } catch (com.zeroc.Ice.UnknownLocalException ex) {
+            } catch (UnknownLocalException ex) {
                 test(!acceptsCycles);
             }
         }
@@ -352,4 +359,6 @@ public class AllTests {
 
         return initial;
     }
+
+    private AllTests() {}
 }

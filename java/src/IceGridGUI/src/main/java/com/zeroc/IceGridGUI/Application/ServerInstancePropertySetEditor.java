@@ -2,7 +2,7 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGridGUI.Utils;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -51,5 +51,5 @@ class ServerInstancePropertySetEditor extends PropertySetEditor {
         _id.setEnabled(resolver == null);
     }
 
-    private JComboBox _id = new JComboBox();
+    private final JComboBox _id = new JComboBox();
 }

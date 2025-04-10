@@ -2,10 +2,34 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.IceBox.AlreadyStartedException;
+import com.zeroc.IceBox.AlreadyStoppedException;
+import com.zeroc.IceBox.ServiceManagerPrx;
+import com.zeroc.IceGrid.AdapterDescriptor;
+import com.zeroc.IceGrid.AdapterDynamicInfo;
+import com.zeroc.IceGrid.AdminSessionPrx;
+import com.zeroc.IceGrid.DeploymentException;
+import com.zeroc.IceGrid.FileIteratorPrx;
+import com.zeroc.IceGrid.FileNotAvailableException;
+import com.zeroc.IceGrid.NodeUnreachableException;
+import com.zeroc.IceGrid.PropertySetDescriptor;
+import com.zeroc.IceGrid.ServerNotExistException;
+import com.zeroc.IceGrid.ServerState;
+import com.zeroc.IceGrid.ServiceDescriptor;
+import com.zeroc.IceGrid.ServiceInstanceDescriptor;
+import com.zeroc.IceGridGUI.LiveActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.Component;
+import java.io.File;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.concurrent.CompletableFuture;
 
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
@@ -17,7 +41,7 @@ public class Service extends Communicator {
     // Actions
     @Override
     public boolean[] getAvailableActions() {
-        boolean[] actions = new boolean[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
+        boolean[] actions = new boolean[TreeNode.ACTION_COUNT];
 
         ServerState serverState = ((Server) _parent).getState();
 
@@ -40,7 +64,7 @@ public class Service extends Communicator {
 
     @Override
     public void start() {
-        com.zeroc.IceBox.ServiceManagerPrx serviceManager = ((Server) _parent).getServiceManager();
+        ServiceManagerPrx serviceManager = ((Server) _parent).getServiceManager();
 
         if (serviceManager != null) {
             final String prefix = "Starting service '" + _id + "'...";
@@ -48,22 +72,21 @@ public class Service extends Communicator {
 
             try {
                 serviceManager
-                        .startServiceAsync(_id)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    if (ex == null
-                                            || ex
-                                                    instanceof
-                                                    com.zeroc.IceBox.AlreadyStartedException) {
-                                        amiSuccess(prefix);
-                                    } else {
-                                        amiFailure(
-                                                prefix,
-                                                "Failed to start service " + _id,
-                                                ex.toString());
-                                    }
-                                });
-            } catch (com.zeroc.Ice.LocalException e) {
+                    .startServiceAsync(_id)
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex == null
+                                || ex
+                                instanceof AlreadyStartedException) {
+                                amiSuccess(prefix);
+                            } else {
+                                amiFailure(
+                                    prefix,
+                                    "Failed to start service " + _id,
+                                    ex.toString());
+                            }
+                        });
+            } catch (LocalException e) {
                 failure(prefix, "Failed to start service " + _id, e.toString());
             }
         }
@@ -71,7 +94,7 @@ public class Service extends Communicator {
 
     @Override
     public void stop() {
-        com.zeroc.IceBox.ServiceManagerPrx serviceManager = ((Server) _parent).getServiceManager();
+        ServiceManagerPrx serviceManager = ((Server) _parent).getServiceManager();
 
         if (serviceManager != null) {
             final String prefix = "Stopping service '" + _id + "'...";
@@ -79,22 +102,21 @@ public class Service extends Communicator {
 
             try {
                 serviceManager
-                        .stopServiceAsync(_id)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    if (ex == null
-                                            || ex
-                                                    instanceof
-                                                    com.zeroc.IceBox.AlreadyStoppedException) {
-                                        amiSuccess(prefix);
-                                    } else {
-                                        amiFailure(
-                                                prefix,
-                                                "Failed to stop service " + _id,
-                                                ex.toString());
-                                    }
-                                });
-            } catch (com.zeroc.Ice.LocalException e) {
+                    .stopServiceAsync(_id)
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex == null
+                                || ex
+                                instanceof AlreadyStoppedException) {
+                                amiSuccess(prefix);
+                            } else {
+                                amiFailure(
+                                    prefix,
+                                    "Failed to stop service " + _id,
+                                    ex.toString());
+                            }
+                        });
+            } catch (LocalException e) {
                 failure(prefix, "Failed to stop service " + _id, e.toString());
             }
         }
@@ -116,49 +138,49 @@ public class Service extends Communicator {
             }
 
             path =
-                    (String)
-                            JOptionPane.showInputDialog(
-                                    getCoordinator().getMainFrame(),
-                                    "Which log file do you want to retrieve?",
-                                    "Retrieve Log File",
-                                    JOptionPane.QUESTION_MESSAGE,
-                                    null,
-                                    pathArray,
-                                    pathArray[0]);
+                (String)
+                    JOptionPane.showInputDialog(
+                        getCoordinator().getMainFrame(),
+                        "Which log file do you want to retrieve?",
+                        "Retrieve Log File",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        pathArray,
+                        pathArray[0]);
         }
 
         if (path != null) {
             final String fPath = path;
 
             getRoot()
-                    .openShowLogFileDialog(
-                            new ShowLogFileDialog.FileIteratorFactory() {
-                                @Override
-                                public FileIteratorPrx open(int count)
-                                        throws FileNotAvailableException,
-                                                ServerNotExistException,
-                                                NodeUnreachableException,
-                                                DeploymentException {
-                                    AdminSessionPrx session =
-                                            getRoot().getCoordinator().getSession();
-                                    return session.openServerLog(_parent.getId(), fPath, count);
-                                }
+                .openShowLogFileDialog(
+                    new ShowLogFileDialog.FileIteratorFactory() {
+                        @Override
+                        public FileIteratorPrx open(int count)
+                            throws FileNotAvailableException,
+                            ServerNotExistException,
+                            NodeUnreachableException,
+                            DeploymentException {
+                            AdminSessionPrx session =
+                                getRoot().getCoordinator().getSession();
+                            return session.openServerLog(_parent.getId(), fPath, count);
+                        }
 
-                                @Override
-                                public String getTitle() {
-                                    return "Service "
-                                            + _parent.getId()
-                                            + "/"
-                                            + _id
-                                            + " "
-                                            + new java.io.File(fPath).getName();
-                                }
+                        @Override
+                        public String getTitle() {
+                            return "Service "
+                                + _parent.getId()
+                                + "/"
+                                + _id
+                                + " "
+                                + new File(fPath).getName();
+                        }
 
-                                @Override
-                                public String getDefaultFilename() {
-                                    return new java.io.File(fPath).getName();
-                                }
-                            });
+                        @Override
+                        public String getDefaultFilename() {
+                            return new File(fPath).getName();
+                        }
+                    });
         }
     }
 
@@ -187,7 +209,7 @@ public class Service extends Communicator {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     @Override
@@ -221,25 +243,24 @@ public class Service extends Communicator {
     //
 
     @Override
-    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync() {
-        return java.util.concurrent.CompletableFuture.completedFuture(
-                ((Server) _parent).getAdmin());
+    protected CompletableFuture<ObjectPrx> getAdminAsync() {
+        return CompletableFuture.completedFuture(
+            ((Server) _parent).getAdmin());
     }
 
     @Override
-    protected com.zeroc.Ice.ObjectPrx getAdminFacet(com.zeroc.Ice.ObjectPrx admin, String facet) {
+    protected ObjectPrx getAdminFacet(ObjectPrx admin, String facet) {
         String facetName = "IceBox.Service." + _id + "." + facet;
 
         try {
             if (Integer.valueOf(
-                            ((Server) _parent)
-                                    .getProperties()
-                                    .get("IceBox.UseSharedCommunicator." + _id))
-                    > 0) {
+                ((Server) _parent)
+                    .getProperties()
+                    .get("IceBox.UseSharedCommunicator." + _id))
+                > 0) {
                 facetName = "IceBox.SharedCommunicator." + facet;
             }
-        } catch (NumberFormatException ex) {
-        }
+        } catch (NumberFormatException ex) {}
 
         if (admin != null) {
             return admin.ice_facet(facetName);
@@ -298,9 +319,9 @@ public class Service extends Communicator {
         return false;
     }
 
-    int updateAdapters(java.util.List<AdapterDynamicInfo> infoList) {
+    int updateAdapters(List<AdapterDynamicInfo> infoList) {
         int result = 0;
-        java.util.Iterator<Adapter> p = _adapters.iterator();
+        Iterator<Adapter> p = _adapters.iterator();
         while (p.hasNext() && result < infoList.size()) {
             Adapter adapter = p.next();
             if (adapter.update(infoList)) {
@@ -354,8 +375,8 @@ public class Service extends Communicator {
         return _instanceDescriptor;
     }
 
-    java.util.SortedMap<String, String> getProperties() {
-        java.util.List<Utils.ExpandedPropertySet> psList = new java.util.LinkedList<>();
+    SortedMap<String, String> getProperties() {
+        List<Utils.ExpandedPropertySet> psList = new LinkedList<>();
         Node node = (Node) _parent.getParent();
 
         String applicationName = ((Server) _parent).getApplication().name;
@@ -378,15 +399,15 @@ public class Service extends Communicator {
             String adapterName = Utils.substitute(p.name, _resolver);
 
             String adapterId = Utils.substitute(p.id, _resolver);
-            com.zeroc.Ice.ObjectPrx proxy = null;
+            ObjectPrx proxy = null;
             if (!adapterId.isEmpty()) {
                 proxy = ((Node) _parent.getParent()).getProxy(adapterId);
             }
 
             insertSortedChild(
-                    new Adapter(this, adapterName, _resolver, adapterId, p, proxy),
-                    _adapters,
-                    null);
+                new Adapter(this, adapterName, _resolver, adapterId, p, proxy),
+                _adapters,
+                null);
         }
     }
 
@@ -413,9 +434,9 @@ public class Service extends Communicator {
     private final PropertySetDescriptor _serverInstancePSDescriptor;
     private final Utils.Resolver _resolver;
 
-    private java.util.List<Adapter> _adapters = new java.util.LinkedList<>();
+    private List<Adapter> _adapters = new LinkedList<>();
 
-    private boolean _started = false;
+    private boolean _started;
 
     private static ServiceEditor _editor;
     private static DefaultTreeCellRenderer _cellRenderer;

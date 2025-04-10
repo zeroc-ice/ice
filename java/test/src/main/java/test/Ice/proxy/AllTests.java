@@ -2,19 +2,36 @@
 
 package test.Ice.proxy;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Connection;
 import com.zeroc.Ice.EncodingVersion;
+import com.zeroc.Ice.Endpoint;
 import com.zeroc.Ice.EndpointSelectionType;
 import com.zeroc.Ice.FacetNotExistException;
+import com.zeroc.Ice.FeatureNotSupportedException;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.LocatorPrx;
+import com.zeroc.Ice.MarshalException;
+import com.zeroc.Ice.NoEndpointException;
 import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.OperationMode;
+import com.zeroc.Ice.OutputStream;
 import com.zeroc.Ice.ParseException;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.RouterPrx;
+import com.zeroc.Ice.ToStringMode;
+import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.Util;
 
 import test.Ice.proxy.Test.DiamondClassPrx;
 import test.Ice.proxy.Test.MyClassPrx;
 import test.Ice.proxy.Test.MyDerivedClassPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AllTests {
     private static void test(boolean b) {
@@ -23,11 +40,11 @@ public class AllTests {
         }
     }
 
-    public static MyClassPrx allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static MyClassPrx allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
         final boolean bluetooth =
-                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
-                        == 0;
+            communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
+                == 0;
         PrintWriter out = helper.getWriter();
 
         out.print("testing stringToProxy... ");
@@ -38,94 +55,91 @@ public class AllTests {
 
         ObjectPrx b1 = communicator.stringToProxy("test");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getAdapterId().isEmpty()
-                        && b1.ice_getFacet().isEmpty());
+            "test".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && b1.ice_getAdapterId().isEmpty()
+                && b1.ice_getFacet().isEmpty());
         b1 = communicator.stringToProxy("test ");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getFacet().isEmpty());
+            "test".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && b1.ice_getFacet().isEmpty());
         b1 = communicator.stringToProxy(" test ");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getFacet().isEmpty());
+            "test".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && b1.ice_getFacet().isEmpty());
         b1 = communicator.stringToProxy(" test");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getFacet().isEmpty());
+            "test".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && b1.ice_getFacet().isEmpty());
         b1 = communicator.stringToProxy("'test -f facet'");
         test(
-                b1.ice_getIdentity().name.equals("test -f facet")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getFacet().isEmpty());
+            "test -f facet".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && b1.ice_getFacet().isEmpty());
         try {
             b1 = communicator.stringToProxy("\"test -f facet'");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         b1 = communicator.stringToProxy("\"test -f facet\"");
         test(
-                b1.ice_getIdentity().name.equals("test -f facet")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getFacet().isEmpty());
+            "test -f facet".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && b1.ice_getFacet().isEmpty());
         b1 = communicator.stringToProxy("\"test -f facet@test\"");
         test(
-                b1.ice_getIdentity().name.equals("test -f facet@test")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getFacet().isEmpty());
+            "test -f facet@test".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && b1.ice_getFacet().isEmpty());
         b1 = communicator.stringToProxy("\"test -f facet@test @test\"");
         test(
-                b1.ice_getIdentity().name.equals("test -f facet@test @test")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getFacet().isEmpty());
+            "test -f facet@test @test".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && b1.ice_getFacet().isEmpty());
         try {
             b1 = communicator.stringToProxy("test test");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         b1 = communicator.stringToProxy("test\\040test");
         test(
-                b1.ice_getIdentity().name.equals("test test")
-                        && b1.ice_getIdentity().category.isEmpty());
+            "test test".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty());
         try {
             b1 = communicator.stringToProxy("test\\777");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         b1 = communicator.stringToProxy("test\\40test");
-        test(b1.ice_getIdentity().name.equals("test test"));
+        test("test test".equals(b1.ice_getIdentity().name));
 
         // Test some octal corner cases.
         b1 = communicator.stringToProxy("test\\4test");
-        test(b1.ice_getIdentity().name.equals("test\4test"));
+        test("test\4test".equals(b1.ice_getIdentity().name));
         b1 = communicator.stringToProxy("test\\04test");
-        test(b1.ice_getIdentity().name.equals("test\4test"));
+        test("test\4test".equals(b1.ice_getIdentity().name));
         b1 = communicator.stringToProxy("test\\004test");
-        test(b1.ice_getIdentity().name.equals("test\4test"));
+        test("test\4test".equals(b1.ice_getIdentity().name));
         b1 = communicator.stringToProxy("test\\1114test");
-        test(b1.ice_getIdentity().name.equals("test\1114test"));
+        test("test\1114test".equals(b1.ice_getIdentity().name));
 
         b1 = communicator.stringToProxy("test\\b\\f\\n\\r\\t\\'\\\"\\\\test");
         test(
-                b1.ice_getIdentity().name.equals("test\b\f\n\r\t\'\"\\test")
-                        && b1.ice_getIdentity().category.isEmpty());
+            "test\b\f\n\r\t\'\"\\test".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty());
 
         b1 = communicator.stringToProxy("category/test");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.equals("category")
-                        && b1.ice_getAdapterId().isEmpty());
+            "test".equals(b1.ice_getIdentity().name)
+                && "category".equals(b1.ice_getIdentity().category)
+                && b1.ice_getAdapterId().isEmpty());
 
         b1 = communicator.stringToProxy("test:tcp --sourceAddress \"::1\"");
         test(b1.equals(communicator.stringToProxy(b1.toString())));
 
         b1 =
-                communicator.stringToProxy(
-                        "test:udp --sourceAddress \"::1\" --interface \"0:0:0:0:0:0:0:1%lo\"");
+            communicator.stringToProxy(
+                "test:udp --sourceAddress \"::1\" --interface \"0:0:0:0:0:0:0:1%lo\"");
         test(b1.equals(communicator.stringToProxy(b1.toString())));
 
         b1 = communicator.stringToProxy("");
@@ -135,120 +149,114 @@ public class AllTests {
         try {
             b1 = communicator.stringToProxy("\"\" test"); // Invalid trailing characters.
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         try {
             b1 = communicator.stringToProxy("test:"); // Missing endpoint.
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         b1 = communicator.stringToProxy("test@adapter");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getAdapterId().equals("adapter"));
+            "test".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && "adapter".equals(b1.ice_getAdapterId()));
         try {
             b1 = communicator.stringToProxy("id@adapter test");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         b1 = communicator.stringToProxy("category/test@adapter");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.equals("category")
-                        && b1.ice_getAdapterId().equals("adapter"));
+            "test".equals(b1.ice_getIdentity().name)
+                && "category".equals(b1.ice_getIdentity().category)
+                && "adapter".equals(b1.ice_getAdapterId()));
         b1 = communicator.stringToProxy("category/test@adapter:tcp");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.equals("category")
-                        && b1.ice_getAdapterId().equals("adapter:tcp"));
+            "test".equals(b1.ice_getIdentity().name)
+                && "category".equals(b1.ice_getIdentity().category)
+                && "adapter:tcp".equals(b1.ice_getAdapterId()));
         b1 = communicator.stringToProxy("'category 1/test'@adapter");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.equals("category 1")
-                        && b1.ice_getAdapterId().equals("adapter"));
+            "test".equals(b1.ice_getIdentity().name)
+                && "category 1".equals(b1.ice_getIdentity().category)
+                && "adapter".equals(b1.ice_getAdapterId()));
         b1 = communicator.stringToProxy("'category/test 1'@adapter");
         test(
-                b1.ice_getIdentity().name.equals("test 1")
-                        && b1.ice_getIdentity().category.equals("category")
-                        && b1.ice_getAdapterId().equals("adapter"));
+            "test 1".equals(b1.ice_getIdentity().name)
+                && "category".equals(b1.ice_getIdentity().category)
+                && "adapter".equals(b1.ice_getAdapterId()));
         b1 = communicator.stringToProxy("'category/test'@'adapter 1'");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.equals("category")
-                        && b1.ice_getAdapterId().equals("adapter 1"));
+            "test".equals(b1.ice_getIdentity().name)
+                && "category".equals(b1.ice_getIdentity().category)
+                && "adapter 1".equals(b1.ice_getAdapterId()));
         b1 = communicator.stringToProxy("\"category \\/test@foo/test\"@adapter");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.equals("category /test@foo")
-                        && b1.ice_getAdapterId().equals("adapter"));
+            "test".equals(b1.ice_getIdentity().name)
+                && "category /test@foo".equals(b1.ice_getIdentity().category)
+                && "adapter".equals(b1.ice_getAdapterId()));
         b1 = communicator.stringToProxy("\"category \\/test@foo/test\"@\"adapter:tcp\"");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.equals("category /test@foo")
-                        && b1.ice_getAdapterId().equals("adapter:tcp"));
+            "test".equals(b1.ice_getIdentity().name)
+                && "category /test@foo".equals(b1.ice_getIdentity().category)
+                && "adapter:tcp".equals(b1.ice_getAdapterId()));
 
         b1 = communicator.stringToProxy("id -f facet");
         test(
-                b1.ice_getIdentity().name.equals("id")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getFacet().equals("facet"));
+            "id".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && "facet".equals(b1.ice_getFacet()));
         b1 = communicator.stringToProxy("id -f 'facet x'");
         test(
-                b1.ice_getIdentity().name.equals("id")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getFacet().equals("facet x"));
+            "id".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && "facet x".equals(b1.ice_getFacet()));
         b1 = communicator.stringToProxy("id -f \"facet x\"");
         test(
-                b1.ice_getIdentity().name.equals("id")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getFacet().equals("facet x"));
+            "id".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && "facet x".equals(b1.ice_getFacet()));
         try {
             b1 = communicator.stringToProxy("id -f \"facet x");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         try {
             b1 = communicator.stringToProxy("id -f \'facet x");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         b1 = communicator.stringToProxy("test -f facet:tcp");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getFacet().equals("facet")
-                        && b1.ice_getAdapterId().isEmpty());
+            "test".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && "facet".equals(b1.ice_getFacet())
+                && b1.ice_getAdapterId().isEmpty());
         b1 = communicator.stringToProxy("test -f \"facet:tcp\"");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getFacet().equals("facet:tcp")
-                        && b1.ice_getAdapterId().isEmpty());
+            "test".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && "facet:tcp".equals(b1.ice_getFacet())
+                && b1.ice_getAdapterId().isEmpty());
         b1 = communicator.stringToProxy("test -f facet@test");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getFacet().equals("facet")
-                        && b1.ice_getAdapterId().equals("test"));
+            "test".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && "facet".equals(b1.ice_getFacet())
+                && "test".equals(b1.ice_getAdapterId()));
         b1 = communicator.stringToProxy("test -f 'facet@test'");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getFacet().equals("facet@test")
-                        && b1.ice_getAdapterId().isEmpty());
+            "test".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && "facet@test".equals(b1.ice_getFacet())
+                && b1.ice_getAdapterId().isEmpty());
         b1 = communicator.stringToProxy("test -f 'facet@test'@test");
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getFacet().equals("facet@test")
-                        && b1.ice_getAdapterId().equals("test"));
+            "test".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && "facet@test".equals(b1.ice_getFacet())
+                && "test".equals(b1.ice_getAdapterId()));
         try {
             b1 = communicator.stringToProxy("test -f facet@test @test");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         b1 = communicator.stringToProxy("test");
         test(b1.ice_isTwoway());
         b1 = communicator.stringToProxy("test -t");
@@ -275,16 +283,15 @@ public class AllTests {
         test(b1.ice_getEncodingVersion().major == 6 && b1.ice_getEncodingVersion().minor == 5);
 
         b1 = communicator.stringToProxy("test -p 1.0 -e 1.0");
-        test(b1.toString().equals("test -e 1.0"));
+        test("test -e 1.0".equals(b1.toString()));
 
         b1 = communicator.stringToProxy("test -p 6.5 -e 1.0");
-        test(b1.toString().equals("test -p 6.5 -e 1.0"));
+        test("test -p 6.5 -e 1.0".equals(b1.toString()));
 
         try {
             communicator.stringToProxy("test:tcp@adapterId");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         // This is an unknown endpoint warning, not a parse exception.
         //
         // try
@@ -298,8 +305,7 @@ public class AllTests {
         try {
             communicator.stringToProxy("test: :tcp");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         //
         // Test invalid endpoint syntax
@@ -307,102 +313,97 @@ public class AllTests {
         try {
             communicator.createObjectAdapterWithEndpoints("BadAdapter", " : ");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             communicator.createObjectAdapterWithEndpoints("BadAdapter", "tcp: ");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             communicator.createObjectAdapterWithEndpoints("BadAdapter", ":tcp");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         //
         // Test for bug ICE-5543: escaped escapes in stringToIdentity
         //
-        com.zeroc.Ice.Identity id = new com.zeroc.Ice.Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
-        com.zeroc.Ice.Identity id2 =
-                com.zeroc.Ice.Util.stringToIdentity(communicator.identityToString(id));
+        Identity id = new Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
+        Identity id2 =
+            Util.stringToIdentity(communicator.identityToString(id));
         test(id.equals(id2));
 
-        id = new com.zeroc.Ice.Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
-        id2 = com.zeroc.Ice.Util.stringToIdentity(communicator.identityToString(id));
+        id = new Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
+        id2 = Util.stringToIdentity(communicator.identityToString(id));
         test(id.equals(id2));
 
-        id = new com.zeroc.Ice.Identity("/test", "cat/");
+        id = new Identity("/test", "cat/");
         String idStr = communicator.identityToString(id);
-        test(idStr.equals("cat\\//\\/test"));
-        id2 = com.zeroc.Ice.Util.stringToIdentity(idStr);
+        test("cat\\//\\/test".equals(idStr));
+        id2 = Util.stringToIdentity(idStr);
         test(id.equals(id2));
 
         // Input string with various pitfalls
-        id = com.zeroc.Ice.Util.stringToIdentity("\\342\\x82\\254\\60\\x9\\60\\");
+        id = Util.stringToIdentity("\\342\\x82\\254\\60\\x9\\60\\");
         // Use the Unicode value instead of a literal Euro symbol
-        test(id.name.equals("\u20ac0\t0\\") && id.category.isEmpty());
+        test("\u20ac0\t0\\".equals(id.name) && id.category.isEmpty());
 
         try {
             // Illegal character < 32
-            id = com.zeroc.Ice.Util.stringToIdentity("xx\01FooBar");
+            id = Util.stringToIdentity("xx\01FooBar");
             test(false);
-        } catch (ParseException e) {
-        }
+        } catch (ParseException e) {}
 
         try {
             // Illegal surrogate
-            id = com.zeroc.Ice.Util.stringToIdentity("xx\\ud911");
+            id = Util.stringToIdentity("xx\\ud911");
             test(false);
-        } catch (ParseException e) {
-        }
+        } catch (ParseException e) {}
 
         // Testing bytes 127 (\x7F, \177) and €
         // Use the Unicode value instead of a literal Euro symbol
-        id = new com.zeroc.Ice.Identity("test", "\177\u20ac");
+        id = new Identity("test", "\177\u20ac");
 
-        idStr = com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.Unicode);
-        test(idStr.equals("\\u007f\u20ac/test"));
-        id2 = com.zeroc.Ice.Util.stringToIdentity(idStr);
+        idStr = Util.identityToString(id, ToStringMode.Unicode);
+        test("\\u007f\u20ac/test".equals(idStr));
+        id2 = Util.stringToIdentity(idStr);
         test(id.equals(id2));
-        test(com.zeroc.Ice.Util.identityToString(id).equals(idStr));
+        test(Util.identityToString(id).equals(idStr));
 
-        idStr = com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.ASCII);
-        test(idStr.equals("\\u007f\\u20ac/test"));
-        id2 = com.zeroc.Ice.Util.stringToIdentity(idStr);
-        test(id.equals(id2));
-
-        idStr = com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.Compat);
-        test(idStr.equals("\\177\\342\\202\\254/test"));
-        id2 = com.zeroc.Ice.Util.stringToIdentity(idStr);
+        idStr = Util.identityToString(id, ToStringMode.ASCII);
+        test("\\u007f\\u20ac/test".equals(idStr));
+        id2 = Util.stringToIdentity(idStr);
         test(id.equals(id2));
 
-        id2 = com.zeroc.Ice.Util.stringToIdentity(communicator.identityToString(id));
+        idStr = Util.identityToString(id, ToStringMode.Compat);
+        test("\\177\\342\\202\\254/test".equals(idStr));
+        id2 = Util.stringToIdentity(idStr);
+        test(id.equals(id2));
+
+        id2 = Util.stringToIdentity(communicator.identityToString(id));
         test(id.equals(id2));
 
         // More unicode character
         id =
-                new com.zeroc.Ice.Identity(
-                        "banana \016-\ud83c\udf4c\u20ac\u00a2\u0024", "greek \ud800\udd6a");
+            new Identity(
+                "banana \016-\ud83c\udf4c\u20ac\u00a2\u0024", "greek \ud800\udd6a");
 
-        idStr = com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.Unicode);
-        test(idStr.equals("greek \ud800\udd6a/banana \\u000e-\ud83c\udf4c\u20ac\u00a2$"));
-        id2 = com.zeroc.Ice.Util.stringToIdentity(idStr);
+        idStr = Util.identityToString(id, ToStringMode.Unicode);
+        test("greek \ud800\udd6a/banana \\u000e-\ud83c\udf4c\u20ac\u00a2$".equals(idStr));
+        id2 = Util.stringToIdentity(idStr);
         test(id.equals(id2));
 
-        idStr = com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.ASCII);
-        test(idStr.equals("greek \\U0001016a/banana \\u000e-\\U0001f34c\\u20ac\\u00a2$"));
-        id2 = com.zeroc.Ice.Util.stringToIdentity(idStr);
+        idStr = Util.identityToString(id, ToStringMode.ASCII);
+        test("greek \\U0001016a/banana \\u000e-\\U0001f34c\\u20ac\\u00a2$".equals(idStr));
+        id2 = Util.stringToIdentity(idStr);
         test(id.equals(id2));
 
-        idStr = com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.Compat);
-        id2 = com.zeroc.Ice.Util.stringToIdentity(idStr);
+        idStr = Util.identityToString(id, ToStringMode.Compat);
+        id2 = Util.stringToIdentity(idStr);
         test(
-                idStr.equals(
-                        "greek \\360\\220\\205\\252/banana"
-                                + " \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$"));
+            idStr.equals(
+                "greek \\360\\220\\205\\252/banana"
+                    + " \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$"));
         test(id.equals(id2));
 
         out.println("ok");
@@ -410,35 +411,35 @@ public class AllTests {
         out.print("testing proxyToString... ");
         out.flush();
         b1 = communicator.stringToProxy(ref);
-        com.zeroc.Ice.ObjectPrx b2 = communicator.stringToProxy(communicator.proxyToString(b1));
+        ObjectPrx b2 = communicator.stringToProxy(communicator.proxyToString(b1));
         test(b1.equals(b2));
 
         if (b1.ice_getConnection() != null) // not colloc-optimized target
-        {
-            b2 = b1.ice_getConnection().createProxy(com.zeroc.Ice.Util.stringToIdentity("fixed"));
-            String str = communicator.proxyToString(b2);
-            test(b2.toString().equals(str));
-            String str2 =
+            {
+                b2 = b1.ice_getConnection().createProxy(Util.stringToIdentity("fixed"));
+                String str = communicator.proxyToString(b2);
+                test(b2.toString().equals(str));
+                String str2 =
                     b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).toString();
 
-            // Verify that the stringified fixed proxy is the same as a regular stringified proxy
-            // but without endpoints
-            test(str2.startsWith(str));
-            test(str2.charAt(str.length()) == ':');
-        }
+                // Verify that the stringified fixed proxy is the same as a regular stringified proxy
+                // but without endpoints
+                test(str2.startsWith(str));
+                test(str2.charAt(str.length()) == ':');
+            }
         out.println("ok");
 
         out.print("testing propertyToProxy... ");
         out.flush();
-        com.zeroc.Ice.Properties prop = communicator.getProperties();
+        Properties prop = communicator.getProperties();
         String propertyPrefix = "Foo.Proxy";
         prop.setProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(
-                b1.ice_getIdentity().name.equals("test")
-                        && b1.ice_getIdentity().category.isEmpty()
-                        && b1.ice_getAdapterId().isEmpty()
-                        && b1.ice_getFacet().isEmpty());
+            "test".equals(b1.ice_getIdentity().name)
+                && b1.ice_getIdentity().category.isEmpty()
+                && b1.ice_getAdapterId().isEmpty()
+                && b1.ice_getFacet().isEmpty());
 
         String property;
 
@@ -447,8 +448,8 @@ public class AllTests {
         prop.setProperty(property, "locator:tcp -p 10000");
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(
-                b1.ice_getLocator() != null
-                        && b1.ice_getLocator().ice_getIdentity().name.equals("locator"));
+            b1.ice_getLocator() != null
+                && "locator".equals(b1.ice_getLocator().ice_getIdentity().name));
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".LocatorCacheTimeout";
@@ -464,8 +465,8 @@ public class AllTests {
         prop.setProperty(property, "locator:tcp -p 10000");
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(
-                b1.ice_getLocator() != null
-                        && b1.ice_getLocator().ice_getIdentity().name.equals("locator"));
+            b1.ice_getLocator() != null
+                && "locator".equals(b1.ice_getLocator().ice_getIdentity().name));
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".LocatorCacheTimeout";
@@ -490,8 +491,8 @@ public class AllTests {
         prop.setProperty(property, "router:tcp -p 10000");
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(
-                b1.ice_getRouter() != null
-                        && b1.ice_getRouter().ice_getIdentity().name.equals("router"));
+            b1.ice_getRouter() != null
+                && "router".equals(b1.ice_getRouter().ice_getIdentity().name));
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".PreferSecure";
@@ -536,13 +537,13 @@ public class AllTests {
         test(b1.ice_getContext().get("c1") == null);
         prop.setProperty(property, "TEST");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getContext().get("c1").equals("TEST"));
+        test("TEST".equals(b1.ice_getContext().get("c1")));
 
         property = propertyPrefix + ".Context.c2";
         test(b1.ice_getContext().get("c2") == null);
         prop.setProperty(property, "TEST");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getContext().get("c2").equals("TEST"));
+        test("TEST".equals(b1.ice_getContext().get("c2")));
 
         prop.setProperty(propertyPrefix + ".Context.c1", "");
         prop.setProperty(propertyPrefix + ".Context.c2", "");
@@ -577,36 +578,36 @@ public class AllTests {
         locator = locator.ice_locatorCacheTimeout(300);
         locator = locator.ice_invocationTimeout(1500);
 
-        locator = locator.ice_router(com.zeroc.Ice.RouterPrx.uncheckedCast(router));
-        b1 = b1.ice_locator(com.zeroc.Ice.LocatorPrx.uncheckedCast(locator));
+        locator = locator.ice_router(RouterPrx.uncheckedCast(router));
+        b1 = b1.ice_locator(LocatorPrx.uncheckedCast(locator));
 
-        java.util.Map<String, String> proxyProps = communicator.proxyToProperty(b1, "Test");
+        Map<String, String> proxyProps = communicator.proxyToProperty(b1, "Test");
         test(proxyProps.size() == 21);
 
-        test(proxyProps.get("Test").equals("test -e 1.0"));
-        test(proxyProps.get("Test.CollocationOptimized").equals("1"));
-        test(proxyProps.get("Test.ConnectionCached").equals("1"));
-        test(proxyProps.get("Test.PreferSecure").equals("0"));
-        test(proxyProps.get("Test.EndpointSelection").equals("Ordered"));
-        test(proxyProps.get("Test.LocatorCacheTimeout").equals("100"));
-        test(proxyProps.get("Test.InvocationTimeout").equals("1234"));
+        test("test -e 1.0".equals(proxyProps.get("Test")));
+        test("1".equals(proxyProps.get("Test.CollocationOptimized")));
+        test("1".equals(proxyProps.get("Test.ConnectionCached")));
+        test("0".equals(proxyProps.get("Test.PreferSecure")));
+        test("Ordered".equals(proxyProps.get("Test.EndpointSelection")));
+        test("100".equals(proxyProps.get("Test.LocatorCacheTimeout")));
+        test("1234".equals(proxyProps.get("Test.InvocationTimeout")));
 
-        test(proxyProps.get("Test.Locator").equals("locator"));
+        test("locator".equals(proxyProps.get("Test.Locator")));
         // Locator collocation optimization is always disabled.
         // test(proxyProps.get("Test.Locator.CollocationOptimized").equals("1"));
-        test(proxyProps.get("Test.Locator.ConnectionCached").equals("0"));
-        test(proxyProps.get("Test.Locator.PreferSecure").equals("1"));
-        test(proxyProps.get("Test.Locator.EndpointSelection").equals("Random"));
-        test(proxyProps.get("Test.Locator.LocatorCacheTimeout").equals("300"));
-        test(proxyProps.get("Test.Locator.InvocationTimeout").equals("1500"));
+        test("0".equals(proxyProps.get("Test.Locator.ConnectionCached")));
+        test("1".equals(proxyProps.get("Test.Locator.PreferSecure")));
+        test("Random".equals(proxyProps.get("Test.Locator.EndpointSelection")));
+        test("300".equals(proxyProps.get("Test.Locator.LocatorCacheTimeout")));
+        test("1500".equals(proxyProps.get("Test.Locator.InvocationTimeout")));
 
-        test(proxyProps.get("Test.Locator.Router").equals("router"));
-        test(proxyProps.get("Test.Locator.Router.CollocationOptimized").equals("0"));
-        test(proxyProps.get("Test.Locator.Router.ConnectionCached").equals("1"));
-        test(proxyProps.get("Test.Locator.Router.PreferSecure").equals("1"));
-        test(proxyProps.get("Test.Locator.Router.EndpointSelection").equals("Random"));
-        test(proxyProps.get("Test.Locator.Router.LocatorCacheTimeout").equals("200"));
-        test(proxyProps.get("Test.Locator.Router.InvocationTimeout").equals("1500"));
+        test("router".equals(proxyProps.get("Test.Locator.Router")));
+        test("0".equals(proxyProps.get("Test.Locator.Router.CollocationOptimized")));
+        test("1".equals(proxyProps.get("Test.Locator.Router.ConnectionCached")));
+        test("1".equals(proxyProps.get("Test.Locator.Router.PreferSecure")));
+        test("Random".equals(proxyProps.get("Test.Locator.Router.EndpointSelection")));
+        test("200".equals(proxyProps.get("Test.Locator.Router.LocatorCacheTimeout")));
+        test("1500".equals(proxyProps.get("Test.Locator.Router.InvocationTimeout")));
 
         out.println("ok");
 
@@ -617,8 +618,8 @@ public class AllTests {
 
         out.print("testing proxy methods... ");
         out.flush();
-        test(base.ice_facet("facet").ice_getFacet().equals("facet"));
-        test(base.ice_adapterId("id").ice_getAdapterId().equals("id"));
+        test("facet".equals(base.ice_facet("facet").ice_getFacet()));
+        test("id".equals(base.ice_adapterId("id").ice_getAdapterId()));
         test(base.ice_twoway().ice_isTwoway());
         test(base.ice_oneway().ice_isOneway());
         test(base.ice_batchOneway().ice_isBatchOneway());
@@ -631,45 +632,45 @@ public class AllTests {
         test(base.ice_preferSecure(true).ice_isPreferSecure());
         test(!base.ice_preferSecure(false).ice_isPreferSecure());
         test(
-                base.ice_encodingVersion(Util.Encoding_1_0)
-                        .ice_getEncodingVersion()
-                        .equals(Util.Encoding_1_0));
+            base.ice_encodingVersion(Util.Encoding_1_0)
+                .ice_getEncodingVersion()
+                .equals(Util.Encoding_1_0));
         test(
-                base.ice_encodingVersion(Util.Encoding_1_1)
-                        .ice_getEncodingVersion()
-                        .equals(Util.Encoding_1_1));
+            base.ice_encodingVersion(Util.Encoding_1_1)
+                .ice_getEncodingVersion()
+                .equals(Util.Encoding_1_1));
         test(
-                !base.ice_encodingVersion(Util.Encoding_1_0)
-                        .ice_getEncodingVersion()
-                        .equals(Util.Encoding_1_1));
+            !base.ice_encodingVersion(Util.Encoding_1_0)
+                .ice_getEncodingVersion()
+                .equals(Util.Encoding_1_1));
 
         test(
-                base.ice_invocationTimeout(10)
-                        .ice_getInvocationTimeout()
-                        .equals(Duration.ofMillis(10)));
+            base.ice_invocationTimeout(10)
+                .ice_getInvocationTimeout()
+                .equals(Duration.ofMillis(10)));
         test(base.ice_invocationTimeout(0).ice_getInvocationTimeout().equals(Duration.ZERO));
         test(
-                base.ice_invocationTimeout(-1)
-                        .ice_getInvocationTimeout()
-                        .equals(Duration.ofMillis(-1)));
+            base.ice_invocationTimeout(-1)
+                .ice_getInvocationTimeout()
+                .equals(Duration.ofMillis(-1)));
         test(
-                base.ice_invocationTimeout(-2)
-                        .ice_getInvocationTimeout()
-                        .equals(Duration.ofMillis(-2)));
+            base.ice_invocationTimeout(-2)
+                .ice_getInvocationTimeout()
+                .equals(Duration.ofMillis(-2)));
 
         test(
-                base.ice_locatorCacheTimeout(10)
-                        .ice_getLocatorCacheTimeout()
-                        .equals(Duration.ofSeconds(10)));
+            base.ice_locatorCacheTimeout(10)
+                .ice_getLocatorCacheTimeout()
+                .equals(Duration.ofSeconds(10)));
         test(base.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout().equals(Duration.ZERO));
         test(
-                base.ice_locatorCacheTimeout(-1)
-                        .ice_getLocatorCacheTimeout()
-                        .equals(Duration.ofSeconds(-1)));
+            base.ice_locatorCacheTimeout(-1)
+                .ice_getLocatorCacheTimeout()
+                .equals(Duration.ofSeconds(-1)));
         test(
-                base.ice_locatorCacheTimeout(-2)
-                        .ice_getLocatorCacheTimeout()
-                        .equals(Duration.ofSeconds(-2)));
+            base.ice_locatorCacheTimeout(-2)
+                .ice_getLocatorCacheTimeout()
+                .equals(Duration.ofSeconds(-2)));
 
         // Ensure that the proxy methods can be called unambiguously with the correct return type.
         var diamondClass = DiamondClassPrx.uncheckedCast(base);
@@ -697,24 +698,24 @@ public class AllTests {
 
         test(compObj.ice_collocationOptimized(true).equals(compObj.ice_collocationOptimized(true)));
         test(
-                !compObj.ice_collocationOptimized(false)
-                        .equals(compObj.ice_collocationOptimized(true)));
+            !compObj.ice_collocationOptimized(false)
+                .equals(compObj.ice_collocationOptimized(true)));
 
         test(compObj.ice_connectionCached(true).equals(compObj.ice_connectionCached(true)));
         test(!compObj.ice_connectionCached(false).equals(compObj.ice_connectionCached(true)));
 
         test(
-                compObj.ice_endpointSelection(EndpointSelectionType.Random)
-                        .equals(compObj.ice_endpointSelection(EndpointSelectionType.Random)));
+            compObj.ice_endpointSelection(EndpointSelectionType.Random)
+                .equals(compObj.ice_endpointSelection(EndpointSelectionType.Random)));
         test(
-                !compObj.ice_endpointSelection(EndpointSelectionType.Random)
-                        .equals(compObj.ice_endpointSelection(EndpointSelectionType.Ordered)));
+            !compObj.ice_endpointSelection(EndpointSelectionType.Random)
+                .equals(compObj.ice_endpointSelection(EndpointSelectionType.Ordered)));
 
         test(compObj.ice_connectionId("id2").equals(compObj.ice_connectionId("id2")));
         test(!compObj.ice_connectionId("id1").equals(compObj.ice_connectionId("id2")));
 
-        test(compObj.ice_connectionId("id1").ice_getConnectionId().equals("id1"));
-        test(compObj.ice_connectionId("id2").ice_getConnectionId().equals("id2"));
+        test("id1".equals(compObj.ice_connectionId("id1").ice_getConnectionId()));
+        test("id2".equals(compObj.ice_connectionId("id2").ice_getConnectionId()));
 
         test(compObj.ice_compress(true).equals(compObj.ice_compress(true)));
         test(!compObj.ice_compress(false).equals(compObj.ice_compress(true)));
@@ -723,25 +724,25 @@ public class AllTests {
         test(compObj.ice_compress(true).ice_getCompress().get() == true);
         test(compObj.ice_compress(false).ice_getCompress().get() == false);
 
-        var loc1 = com.zeroc.Ice.LocatorPrx.createProxy(communicator, "loc1:tcp -p 10000");
-        var loc2 = com.zeroc.Ice.LocatorPrx.createProxy(communicator, "loc2:tcp -p 10000");
+        var loc1 = LocatorPrx.createProxy(communicator, "loc1:tcp -p 10000");
+        var loc2 = LocatorPrx.createProxy(communicator, "loc2:tcp -p 10000");
         test(compObj.ice_locator(null).equals(compObj.ice_locator(null)));
         test(compObj.ice_locator(loc1).equals(compObj.ice_locator(loc1)));
         test(!compObj.ice_locator(loc1).equals(compObj.ice_locator(null)));
         test(!compObj.ice_locator(null).equals(compObj.ice_locator(loc2)));
         test(!compObj.ice_locator(loc1).equals(compObj.ice_locator(loc2)));
 
-        var rtr1 = com.zeroc.Ice.RouterPrx.createProxy(communicator, "rtr1:tcp -p 10000");
-        var rtr2 = com.zeroc.Ice.RouterPrx.createProxy(communicator, "rtr2:tcp -p 10000");
+        var rtr1 = RouterPrx.createProxy(communicator, "rtr1:tcp -p 10000");
+        var rtr2 = RouterPrx.createProxy(communicator, "rtr2:tcp -p 10000");
         test(compObj.ice_router(null).equals(compObj.ice_router(null)));
         test(compObj.ice_router(rtr1).equals(compObj.ice_router(rtr1)));
         test(!compObj.ice_router(rtr1).equals(compObj.ice_router(null)));
         test(!compObj.ice_router(null).equals(compObj.ice_router(rtr2)));
         test(!compObj.ice_router(rtr1).equals(compObj.ice_router(rtr2)));
 
-        java.util.Map<String, String> ctx1 = new java.util.HashMap<>();
+        Map<String, String> ctx1 = new HashMap<>();
         ctx1.put("ctx1", "v1");
-        java.util.Map<String, String> ctx2 = new java.util.HashMap<>();
+        Map<String, String> ctx2 = new HashMap<>();
         ctx2.put("ctx2", "v2");
         test(compObj.ice_context(null).equals(compObj.ice_context(null)));
         test(compObj.ice_context(ctx1).equals(compObj.ice_context(ctx1)));
@@ -770,27 +771,27 @@ public class AllTests {
         compObj2 = communicator.stringToProxy("foo@MyAdapter1");
         test(!compObj1.equals(compObj2));
 
-        com.zeroc.Ice.Endpoint[] endpts1 =
-                communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints();
-        com.zeroc.Ice.Endpoint[] endpts2 =
-                communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001").ice_getEndpoints();
+        Endpoint[] endpts1 =
+            communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints();
+        Endpoint[] endpts2 =
+            communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001").ice_getEndpoints();
         test(!endpts1[0].equals(endpts2[0]));
         test(
-                endpts1[0].equals(
-                        communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")
-                                .ice_getEndpoints()[0]));
+            endpts1[0].equals(
+                communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")
+                    .ice_getEndpoints()[0]));
 
         test(
-                compObj1.ice_encodingVersion(Util.Encoding_1_0)
-                        .equals(compObj1.ice_encodingVersion(Util.Encoding_1_0)));
+            compObj1.ice_encodingVersion(Util.Encoding_1_0)
+                .equals(compObj1.ice_encodingVersion(Util.Encoding_1_0)));
         test(
-                !compObj1.ice_encodingVersion(Util.Encoding_1_0)
-                        .equals(compObj1.ice_encodingVersion(Util.Encoding_1_1)));
+            !compObj1.ice_encodingVersion(Util.Encoding_1_0)
+                .equals(compObj1.ice_encodingVersion(Util.Encoding_1_1)));
 
-        com.zeroc.Ice.Connection baseConnection = base.ice_getConnection();
+        Connection baseConnection = base.ice_getConnection();
         if (baseConnection != null && !bluetooth) {
-            com.zeroc.Ice.Connection baseConnection2 =
-                    base.ice_connectionId("base2").ice_getConnection();
+            Connection baseConnection2 =
+                base.ice_connectionId("base2").ice_getConnection();
             compObj1 = compObj1.ice_fixed(baseConnection);
             compObj2 = compObj2.ice_fixed(baseConnection2);
             test(!compObj1.equals(compObj2));
@@ -818,14 +819,14 @@ public class AllTests {
         out.print("testing checked cast with context... ");
         out.flush();
 
-        java.util.Map<String, String> c = cl.getContext();
+        Map<String, String> c = cl.getContext();
         test(c == null || c.isEmpty());
 
-        c = new java.util.HashMap<>();
+        c = new HashMap<>();
         c.put("one", "hello");
         c.put("two", "world");
         cl = MyClassPrx.checkedCast(base, c);
-        java.util.Map<String, String> c2 = cl.getContext();
+        Map<String, String> c2 = cl.getContext();
         test(c.equals(c2));
         out.println("ok");
 
@@ -833,7 +834,7 @@ public class AllTests {
             out.print("testing ice_fixed... ");
             out.flush();
             {
-                com.zeroc.Ice.Connection connection = cl.ice_getConnection();
+                Connection connection = cl.ice_getConnection();
                 if (connection != null) {
                     test(!cl.ice_isFixed());
                     MyClassPrx prx = cl.ice_fixed(connection); // Test proxy return type.
@@ -841,45 +842,43 @@ public class AllTests {
                     prx.ice_ping();
                     test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                     test(
-                            cl.ice_facet("facet")
-                                    .ice_fixed(connection)
-                                    .ice_getFacet()
-                                    .equals("facet"));
+                        "facet"
+                            .equals(cl.ice_facet("facet")
+                                .ice_fixed(connection)
+                                .ice_getFacet()));
                     test(cl.ice_oneway().ice_fixed(connection).ice_isOneway());
-                    java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
+                    Map<String, String> ctx = new HashMap<String, String>();
                     ctx.put("one", "hello");
                     ctx.put("two", "world");
                     test(cl.ice_fixed(connection).ice_getContext().isEmpty());
                     test(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().size() == 2);
                     test(
-                            cl.ice_fixed(connection)
-                                    .ice_getInvocationTimeout()
-                                    .equals(Duration.ofMillis(-1)));
+                        cl.ice_fixed(connection)
+                            .ice_getInvocationTimeout()
+                            .equals(Duration.ofMillis(-1)));
                     test(
-                            cl.ice_invocationTimeout(10)
-                                    .ice_fixed(connection)
-                                    .ice_getInvocationTimeout()
-                                    .equals(Duration.ofMillis(10)));
+                        cl.ice_invocationTimeout(10)
+                            .ice_fixed(connection)
+                            .ice_getInvocationTimeout()
+                            .equals(Duration.ofMillis(10)));
                     test(cl.ice_fixed(connection).ice_getConnection() == connection);
                     test(
-                            cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection()
-                                    == connection);
+                        cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection()
+                            == connection);
                     test(cl.ice_compress(true).ice_fixed(connection).ice_getCompress().get());
-                    com.zeroc.Ice.Connection fixedConnection =
-                            cl.ice_connectionId("ice_fixed").ice_getConnection();
+                    Connection fixedConnection =
+                        cl.ice_connectionId("ice_fixed").ice_getConnection();
                     test(
-                            cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection()
-                                    == fixedConnection);
+                        cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection()
+                            == fixedConnection);
                     try {
                         cl.ice_secure(!connection.getEndpoint().getInfo().secure())
-                                .ice_fixed(connection)
-                                .ice_ping();
-                    } catch (com.zeroc.Ice.NoEndpointException ex) {
-                    }
+                            .ice_fixed(connection)
+                            .ice_ping();
+                    } catch (NoEndpointException ex) {}
                     try {
                         cl.ice_datagram().ice_fixed(connection).ice_ping();
-                    } catch (com.zeroc.Ice.NoEndpointException ex) {
-                    }
+                    } catch (NoEndpointException ex) {}
                 } else {
                     try {
                         cl.ice_fixed(connection);
@@ -899,7 +898,7 @@ public class AllTests {
         try {
             cl20.ice_ping();
             test(false);
-        } catch (com.zeroc.Ice.MarshalException ex) {
+        } catch (MarshalException ex) {
             // Cannot marshal with the 2.0 encoding version.
         }
 
@@ -919,37 +918,37 @@ public class AllTests {
         try {
             // Send request with bogus 1.2 encoding.
             EncodingVersion version = new EncodingVersion((byte) 1, (byte) 2);
-            com.zeroc.Ice.OutputStream os = new com.zeroc.Ice.OutputStream(communicator);
+            OutputStream os = new OutputStream(communicator);
             os.startEncapsulation();
             os.endEncapsulation();
             byte[] inEncaps = os.finished();
             inEncaps[4] = version.major;
             inEncaps[5] = version.minor;
-            cl.ice_invoke("ice_ping", com.zeroc.Ice.OperationMode.Normal, inEncaps);
+            cl.ice_invoke("ice_ping", OperationMode.Normal, inEncaps);
             test(false);
-        } catch (com.zeroc.Ice.UnknownLocalException ex) {
+        } catch (UnknownLocalException ex) {
             var message = ex.getMessage();
             test(
-                    message.contains("::Ice::MarshalException")
-                            || message.contains("Ice.MarshalException"));
+                message.contains("::Ice::MarshalException")
+                    || message.contains("Ice.MarshalException"));
         }
 
         try {
             // Send request with bogus 2.0 encoding.
             EncodingVersion version = new EncodingVersion((byte) 2, (byte) 0);
-            com.zeroc.Ice.OutputStream os = new com.zeroc.Ice.OutputStream(communicator);
+            OutputStream os = new OutputStream(communicator);
             os.startEncapsulation();
             os.endEncapsulation();
             byte[] inEncaps = os.finished();
             inEncaps[4] = version.major;
             inEncaps[5] = version.minor;
-            cl.ice_invoke("ice_ping", com.zeroc.Ice.OperationMode.Normal, inEncaps);
+            cl.ice_invoke("ice_ping", OperationMode.Normal, inEncaps);
             test(false);
-        } catch (com.zeroc.Ice.UnknownLocalException ex) {
+        } catch (UnknownLocalException ex) {
             var message = ex.getMessage();
             test(
-                    message.contains("::Ice::MarshalException")
-                            || message.contains("Ice.MarshalException"));
+                message.contains("::Ice::MarshalException")
+                    || message.contains("Ice.MarshalException"));
         }
 
         out.println("ok");
@@ -961,7 +960,7 @@ public class AllTests {
         try {
             cl20.ice_ping();
             test(false);
-        } catch (com.zeroc.Ice.FeatureNotSupportedException ex) {
+        } catch (FeatureNotSupportedException ex) {
             // Server 2.0 proxy doesn't support 1.0 version.
         }
 
@@ -984,117 +983,106 @@ public class AllTests {
             // Invalid -x option
             communicator.stringToProxy("id:opaque -t 99 -v abc -x abc");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Missing -t and -v
             communicator.stringToProxy("id:opaque");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Repeated -t
             communicator.stringToProxy("id:opaque -t 1 -t 1 -v abc");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Repeated -v
             communicator.stringToProxy("id:opaque -t 1 -v abc -v abc");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Missing -t
             communicator.stringToProxy("id:opaque -v abc");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Missing -v
             communicator.stringToProxy("id:opaque -t 1");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Missing arg for -t
             communicator.stringToProxy("id:opaque -t -v abc");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Missing arg for -v
             communicator.stringToProxy("id:opaque -t 1 -v");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Not a number for -t
             communicator.stringToProxy("id:opaque -t x -v abc");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // < 0 for -t
             communicator.stringToProxy("id:opaque -t -1 -v abc");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Invalid char for -v
             communicator.stringToProxy("id:opaque -t 99 -v x?c");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         // Legal TCP endpoint expressed as opaque endpoint
         ObjectPrx p1 =
-                communicator.stringToProxy(
-                        "test -e 1.1:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+            communicator.stringToProxy(
+                "test -e 1.1:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
         String pstr = communicator.proxyToString(p1);
-        test(pstr.equals("test:tcp -h 127.0.0.1 -p 12010 -t 10000"));
+        test("test:tcp -h 127.0.0.1 -p 12010 -t 10000".equals(pstr));
 
         // Opaque endpoint encoded with 1.1 encoding.
         ObjectPrx p2 =
-                communicator.stringToProxy(
-                        "test:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
-        test(communicator.proxyToString(p2).equals("test:tcp -h 127.0.0.1 -p 12010 -t 10000"));
+            communicator.stringToProxy(
+                "test:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+        test("test:tcp -h 127.0.0.1 -p 12010 -t 10000".equals(communicator.proxyToString(p2)));
 
         if (communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") == 0) {
             // Two legal TCP endpoints expressed as opaque endpoints
             p1 =
-                    communicator.stringToProxy(
-                            "test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque"
-                                    + " -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
+                communicator.stringToProxy(
+                    "test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque"
+                        + " -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
             pstr = communicator.proxyToString(p1);
             test(
-                    pstr.equals(
-                            "test -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p"
-                                    + " 12011 -t 10000"));
+                pstr.equals(
+                    "test -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p"
+                        + " 12011 -t 10000"));
 
             //
             // Test that an SSL endpoint and a nonsense endpoint get
             // written back out as an opaque endpoint.
             //
             p1 =
-                    communicator.stringToProxy(
-                            "test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque"
-                                    + " -t 99 -e 1.0 -v abch");
+                communicator.stringToProxy(
+                    "test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque"
+                        + " -t 99 -e 1.0 -v abch");
             pstr = communicator.proxyToString(p1);
             test(
-                    pstr.equals(
-                            "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e"
-                                    + " 1.0 -v abch"));
+                pstr.equals(
+                    "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e"
+                        + " 1.0 -v abch"));
 
             //
             // Test that the proxy with an SSL endpoint and a nonsense
@@ -1105,16 +1093,16 @@ public class AllTests {
             p2 = derived.echo(p1);
             pstr = communicator.proxyToString(p2);
             test(
-                    pstr.equals(
-                            "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e"
-                                    + " 1.0 -v abch"));
+                pstr.equals(
+                    "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e"
+                        + " 1.0 -v abch"));
         }
         out.println("ok");
 
         out.print("testing communicator shutdown/destroy... ");
         out.flush();
         {
-            com.zeroc.Ice.Communicator co = com.zeroc.Ice.Util.initialize();
+            Communicator co = Util.initialize();
             co.shutdown();
             test(co.isShutdown());
             co.waitForShutdown();
@@ -1128,4 +1116,6 @@ public class AllTests {
 
         return cl;
     }
+
+    private AllTests() {}
 }

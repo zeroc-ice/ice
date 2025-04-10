@@ -15,13 +15,13 @@ class ProxyGetConnection extends ProxyOutgoingAsyncBase<Connection> {
 
     @Override
     public boolean completed(InputStream is) {
-        assert (false);
+        assert false;
         return false;
     }
 
     @Override
     public int invokeRemote(ConnectionI connection, boolean compress, boolean response)
-            throws RetryException {
+        throws RetryException {
         _cachedConnection = connection;
         if (finished(true, true)) {
             invokeCompletedAsync();

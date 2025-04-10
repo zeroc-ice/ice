@@ -353,6 +353,5 @@ module Test2
     *
     **/
     interface MyDerivedClass extends Test::MyClass
-    {
-    }
+    {}
 }

@@ -2,12 +2,28 @@
 
 package test.Ice.adapterDeactivation;
 
+import com.zeroc.Ice.AlreadyRegisteredException;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ConnectFailedException;
+import com.zeroc.Ice.Endpoint;
 import com.zeroc.Ice.EndpointInfo;
 import com.zeroc.Ice.IPEndpointInfo;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.InitializationException;
+import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectAdapterDestroyedException;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.OperationNotExistException;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.RouterPrx;
+import com.zeroc.Ice.Util;
 
 import test.Ice.adapterDeactivation.Test.TestIntfPrx;
+import test.TestHelper;
 
+import java.io.PrintWriter;
 import java.util.Arrays;
 
 public class AllTests {
@@ -19,18 +35,18 @@ public class AllTests {
 
     private static EndpointInfo getUnderlying(EndpointInfo endpointInfo) {
         return endpointInfo.underlying == null
-                ? endpointInfo
-                : getUnderlying(endpointInfo.underlying);
+            ? endpointInfo
+            : getUnderlying(endpointInfo.underlying);
     }
 
-    public static TestIntfPrx allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
-        java.io.PrintWriter out = helper.getWriter();
+    public static TestIntfPrx allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "test:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 
@@ -44,22 +60,21 @@ public class AllTests {
         {
             out.print("creating/destroying/recreating object adapter... ");
             out.flush();
-            com.zeroc.Ice.ObjectAdapter adapter =
-                    communicator.createObjectAdapterWithEndpoints(
-                            "TransientTestAdapter", "default");
+            ObjectAdapter adapter =
+                communicator.createObjectAdapterWithEndpoints(
+                    "TransientTestAdapter", "default");
             try {
                 communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
                 test(false);
-            } catch (com.zeroc.Ice.AlreadyRegisteredException ex) {
-            }
+            } catch (AlreadyRegisteredException ex) {}
             adapter.destroy();
             //
             // Use a different port than the first adapter to avoid an "address already in use"
             // error.
             //
             adapter =
-                    communicator.createObjectAdapterWithEndpoints(
-                            "TransientTestAdapter", "default");
+                communicator.createObjectAdapterWithEndpoints(
+                    "TransientTestAdapter", "default");
             adapter.destroy();
             out.println("ok");
         }
@@ -73,9 +88,9 @@ public class AllTests {
         {
             out.print("testing connection closure... ");
             out.flush();
-            for (int i = 0; i < 10; ++i) {
-                try (com.zeroc.Ice.Communicator comm =
-                        helper.initialize(communicator.getProperties()._clone())) {
+            for (int i = 0; i < 10; i++) {
+                try (Communicator comm =
+                    helper.initialize(communicator.getProperties()._clone())) {
                     comm.stringToProxy("test:" + helper.getTestEndpoint(0)).ice_pingAsync();
                 }
             }
@@ -86,19 +101,19 @@ public class AllTests {
         out.flush();
         {
             communicator
-                    .getProperties()
-                    .setProperty(
-                            "PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
-            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("PAdapter");
+                .getProperties()
+                .setProperty(
+                    "PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
+            ObjectAdapter adapter = communicator.createObjectAdapter("PAdapter");
             test(adapter.getPublishedEndpoints().length == 1);
-            com.zeroc.Ice.Endpoint endpt = adapter.getPublishedEndpoints()[0];
-            test(endpt.toString().equals("tcp -h localhost -p 12345 -t 30000"));
-            com.zeroc.Ice.ObjectPrx prx =
-                    communicator.stringToProxy(
-                            "dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000");
+            Endpoint endpt = adapter.getPublishedEndpoints()[0];
+            test("tcp -h localhost -p 12345 -t 30000".equals(endpt.toString()));
+            ObjectPrx prx =
+                communicator.stringToProxy(
+                    "dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000");
             adapter.setPublishedEndpoints(prx.ice_getEndpoints());
             test(adapter.getPublishedEndpoints().length == 2);
-            com.zeroc.Ice.Identity id = new com.zeroc.Ice.Identity();
+            Identity id = new Identity();
             id.name = "dummy";
             test(Arrays.equals(adapter.createProxy(id).ice_getEndpoints(), prx.ice_getEndpoints()));
             test(Arrays.equals(adapter.getPublishedEndpoints(), prx.ice_getEndpoints()));
@@ -115,10 +130,10 @@ public class AllTests {
             // PublishedHost not set
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.length == 1);
                 IPEndpointInfo ipEndpointInfo =
-                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                    (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
                 test(ipEndpointInfo.host.length() > 0);
                 adapter.destroy();
             }
@@ -126,11 +141,11 @@ public class AllTests {
             communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.length == 1);
                 IPEndpointInfo ipEndpointInfo =
-                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
-                test(ipEndpointInfo.host.equals("test.zeroc.com"));
+                    (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                test("test.zeroc.com".equals(ipEndpointInfo.host));
                 adapter.destroy();
             }
 
@@ -140,59 +155,59 @@ public class AllTests {
             communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.length == 1);
                 IPEndpointInfo ipEndpointInfo =
-                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
-                test(ipEndpointInfo.host.equals("127.0.0.1"));
+                    (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                test("127.0.0.1".equals(ipEndpointInfo.host));
                 adapter.destroy();
             }
 
             communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 IPEndpointInfo ipEndpointInfo =
-                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
-                test(ipEndpointInfo.host.equals("test.zeroc.com"));
+                    (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                test("test.zeroc.com".equals(ipEndpointInfo.host));
                 adapter.destroy();
             }
 
             // Two loopback endpoints with different ports
             communicator
-                    .getProperties()
-                    .setProperty(
-                            "PHAdapter.Endpoints",
-                            "default -h 127.0.0.1 -p 12345:default -h 127.0.0.1");
+                .getProperties()
+                .setProperty(
+                    "PHAdapter.Endpoints",
+                    "default -h 127.0.0.1 -p 12345:default -h 127.0.0.1");
 
             communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.length == 2);
                 IPEndpointInfo ipEndpointInfo0 =
-                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                    (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
                 IPEndpointInfo ipEndpointInfo1 =
-                        (IPEndpointInfo) getUnderlying(publishedEndpoints[1].getInfo());
+                    (IPEndpointInfo) getUnderlying(publishedEndpoints[1].getInfo());
 
-                test(ipEndpointInfo0.host.equals("127.0.0.1") && ipEndpointInfo0.port == 12345);
-                test(ipEndpointInfo1.host.equals("127.0.0.1") && ipEndpointInfo1.port != 12345);
+                test("127.0.0.1".equals(ipEndpointInfo0.host) && ipEndpointInfo0.port == 12345);
+                test("127.0.0.1".equals(ipEndpointInfo1.host) && ipEndpointInfo1.port != 12345);
                 adapter.destroy();
             }
 
             // Two endpoints - one loopback, one not loopback
             communicator
-                    .getProperties()
-                    .setProperty(
-                            "PHAdapter.Endpoints", "default -h 127.0.0.1 -p 12345:default -h *");
+                .getProperties()
+                .setProperty(
+                    "PHAdapter.Endpoints", "default -h 127.0.0.1 -p 12345:default -h *");
 
             communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.length == 1); // loopback filtered out
                 IPEndpointInfo ipEndpointInfo =
-                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                    (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
                 test(ipEndpointInfo.host.length() > 0 && ipEndpointInfo.port != 12345);
                 adapter.destroy();
             }
@@ -200,28 +215,28 @@ public class AllTests {
             communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.length == 1); // loopback filtered out
                 IPEndpointInfo ipEndpointInfo =
-                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
-                test(ipEndpointInfo.host.equals("test.zeroc.com") && ipEndpointInfo.port != 12345);
+                    (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                test("test.zeroc.com".equals(ipEndpointInfo.host) && ipEndpointInfo.port != 12345);
                 adapter.destroy();
             }
 
             // Two non-loopback endpoints
             communicator
-                    .getProperties()
-                    .setProperty("PHAdapter.Endpoints", "tcp -h * -p 12345:default -h *");
+                .getProperties()
+                .setProperty("PHAdapter.Endpoints", "tcp -h * -p 12345:default -h *");
 
             communicator.getProperties().setProperty("PHAdapter.PublishedHost", "");
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.length == 2);
                 IPEndpointInfo ipEndpointInfo0 =
-                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                    (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
                 IPEndpointInfo ipEndpointInfo1 =
-                        (IPEndpointInfo) getUnderlying(publishedEndpoints[1].getInfo());
+                    (IPEndpointInfo) getUnderlying(publishedEndpoints[1].getInfo());
                 test(ipEndpointInfo0.host.length() > 0 && ipEndpointInfo0.port == 12345);
                 test(ipEndpointInfo1.host.length() > 0 && ipEndpointInfo1.port != 12345);
                 adapter.destroy();
@@ -230,18 +245,18 @@ public class AllTests {
             communicator.getProperties().setProperty("PHAdapter.PublishedHost", "test.zeroc.com");
             {
                 ObjectAdapter adapter = communicator.createObjectAdapter("PHAdapter");
-                com.zeroc.Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
                 test(publishedEndpoints.length == 2);
                 IPEndpointInfo ipEndpointInfo0 =
-                        (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
+                    (IPEndpointInfo) getUnderlying(publishedEndpoints[0].getInfo());
                 IPEndpointInfo ipEndpointInfo1 =
-                        (IPEndpointInfo) getUnderlying(publishedEndpoints[1].getInfo());
+                    (IPEndpointInfo) getUnderlying(publishedEndpoints[1].getInfo());
                 test(
-                        ipEndpointInfo0.host.equals("test.zeroc.com")
-                                && ipEndpointInfo0.port == 12345);
+                    "test.zeroc.com".equals(ipEndpointInfo0.host)
+                        && ipEndpointInfo0.port == 12345);
                 test(
-                        ipEndpointInfo1.host.equals("test.zeroc.com")
-                                && ipEndpointInfo1.port != 12345);
+                    "test.zeroc.com".equals(ipEndpointInfo1.host)
+                        && ipEndpointInfo1.port != 12345);
                 adapter.destroy();
             }
         }
@@ -286,27 +301,26 @@ public class AllTests {
             try {
                 obj.ice_getConnection().setAdapter(adapter);
                 test(false);
-            } catch (com.zeroc.Ice.ObjectAdapterDestroyedException ex) {
-            }
+            } catch (ObjectAdapterDestroyedException ex) {}
             out.println("ok");
         }
 
         out.print("testing object adapter with router... ");
         out.flush();
         {
-            com.zeroc.Ice.Identity routerId = new com.zeroc.Ice.Identity();
+            Identity routerId = new Identity();
             routerId.name = "router";
-            com.zeroc.Ice.RouterPrx router =
-                    com.zeroc.Ice.RouterPrx.uncheckedCast(
-                            base.ice_identity(routerId).ice_connectionId("rc"));
-            com.zeroc.Ice.ObjectAdapter adapter =
-                    communicator.createObjectAdapterWithRouter("", router);
+            RouterPrx router =
+                RouterPrx.uncheckedCast(
+                    base.ice_identity(routerId).ice_connectionId("rc"));
+            ObjectAdapter adapter =
+                communicator.createObjectAdapterWithRouter("", router);
 
             test(adapter.getPublishedEndpoints().length == 1);
             test(
-                    adapter.getPublishedEndpoints()[0]
-                            .toString()
-                            .equals("tcp -h localhost -p 23456 -t 30000"));
+                "tcp -h localhost -p 23456 -t 30000"
+                    .equals(adapter.getPublishedEndpoints()[0]
+                        .toString()));
             try {
                 adapter.setPublishedEndpoints(router.ice_getEndpoints());
                 test(false);
@@ -318,45 +332,43 @@ public class AllTests {
 
             try {
                 routerId.name = "test";
-                router = com.zeroc.Ice.RouterPrx.uncheckedCast(base.ice_identity(routerId));
+                router = RouterPrx.uncheckedCast(base.ice_identity(routerId));
                 communicator.createObjectAdapterWithRouter("", router);
                 test(false);
-            } catch (com.zeroc.Ice.OperationNotExistException ex) {
+            } catch (OperationNotExistException ex) {
                 // Expected: the "test" object doesn't implement Ice::Router!
             }
             try {
                 router =
-                        com.zeroc.Ice.RouterPrx.createProxy(
-                                communicator, "test:" + helper.getTestEndpoint(1));
+                    RouterPrx.createProxy(
+                        communicator, "test:" + helper.getTestEndpoint(1));
                 communicator.createObjectAdapterWithRouter("", router);
                 test(false);
-            } catch (com.zeroc.Ice.ConnectFailedException ex) {
-            }
+            } catch (ConnectFailedException ex) {}
             try {
                 router =
-                        com.zeroc.Ice.RouterPrx.createProxy(
-                                communicator, "test:" + helper.getTestEndpoint(1));
+                    RouterPrx.createProxy(
+                        communicator, "test:" + helper.getTestEndpoint(1));
 
                 communicator
-                        .getProperties()
-                        .setProperty("AdapterWithRouter.Endpoints", "tcp -h 127.0.0.1");
+                    .getProperties()
+                    .setProperty("AdapterWithRouter.Endpoints", "tcp -h 127.0.0.1");
                 communicator.createObjectAdapterWithRouter("AdapterWithRouter", router);
                 test(false);
-            } catch (com.zeroc.Ice.InitializationException ex) {
-            }
+            } catch (InitializationException ex) {}
         }
         out.println("ok");
 
         out.print("testing object adapter creation with port in use... ");
         out.flush();
         {
-            com.zeroc.Ice.ObjectAdapter adapter1 =
-                    communicator.createObjectAdapterWithEndpoints(
-                            "Adpt1", helper.getTestEndpoint(10));
+            ObjectAdapter adapter1 =
+                communicator.createObjectAdapterWithEndpoints(
+                    "Adpt1", helper.getTestEndpoint(10));
             try {
                 communicator.createObjectAdapterWithEndpoints("Adpt2", helper.getTestEndpoint(10));
                 test(false);
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
                 // Expected can't re-use the same endpoint.
             }
             adapter1.destroy();
@@ -377,9 +389,9 @@ public class AllTests {
         } else {
             try {
                 obj.ice_invocationTimeout(100)
-                        .ice_ping(); // Use timeout to speed up testing on Windows
+                    .ice_ping(); // Use timeout to speed up testing on Windows
                 test(false);
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
                 out.println("ok");
                 out.flush();
             }
@@ -388,42 +400,42 @@ public class AllTests {
         out.print("testing server idle time...");
         out.flush();
         Thread thread1 =
-                new Thread(
-                        () -> {
-                            com.zeroc.Ice.InitializationData initData =
-                                    new com.zeroc.Ice.InitializationData();
-                            initData.properties = new com.zeroc.Ice.Properties();
-                            initData.properties.setProperty("Ice.ServerIdleTime", "1");
-                            try (com.zeroc.Ice.Communicator idleCommunicator =
-                                    com.zeroc.Ice.Util.initialize(initData)) {
-                                com.zeroc.Ice.ObjectAdapter adapter =
-                                        idleCommunicator.createObjectAdapterWithEndpoints(
-                                                "IdleAdapter", "tcp -h 127.0.0.1");
-                                adapter.activate();
-                                idleCommunicator.waitForShutdown();
-                            }
-                        });
+            new Thread(
+                () -> {
+                    InitializationData initData =
+                        new InitializationData();
+                    initData.properties = new Properties();
+                    initData.properties.setProperty("Ice.ServerIdleTime", "1");
+                    try (Communicator idleCommunicator =
+                        Util.initialize(initData)) {
+                        ObjectAdapter adapter =
+                            idleCommunicator.createObjectAdapterWithEndpoints(
+                                "IdleAdapter", "tcp -h 127.0.0.1");
+                        adapter.activate();
+                        idleCommunicator.waitForShutdown();
+                    }
+                });
         Thread thread2 =
-                new Thread(
-                        () -> {
-                            com.zeroc.Ice.InitializationData initData =
-                                    new com.zeroc.Ice.InitializationData();
-                            initData.properties = new com.zeroc.Ice.Properties();
-                            initData.properties.setProperty("Ice.ServerIdleTime", "0");
-                            try (com.zeroc.Ice.Communicator idleCommunicator =
-                                    com.zeroc.Ice.Util.initialize(initData)) {
-                                com.zeroc.Ice.ObjectAdapter adapter =
-                                        idleCommunicator.createObjectAdapterWithEndpoints(
-                                                "IdleAdapter", "tcp -h 127.0.0.1");
-                                adapter.activate();
-                                try {
-                                    Thread.sleep(1200);
-                                } catch (InterruptedException ex) {
-                                    test(false);
-                                }
-                                test(!idleCommunicator.isShutdown());
-                            }
-                        });
+            new Thread(
+                () -> {
+                    InitializationData initData =
+                        new InitializationData();
+                    initData.properties = new Properties();
+                    initData.properties.setProperty("Ice.ServerIdleTime", "0");
+                    try (Communicator idleCommunicator =
+                        Util.initialize(initData)) {
+                        ObjectAdapter adapter =
+                            idleCommunicator.createObjectAdapterWithEndpoints(
+                                "IdleAdapter", "tcp -h 127.0.0.1");
+                        adapter.activate();
+                        try {
+                            Thread.sleep(1200);
+                        } catch (InterruptedException ex) {
+                            test(false);
+                        }
+                        test(!idleCommunicator.isShutdown());
+                    }
+                });
         thread1.start();
         thread2.start();
         try {
@@ -436,4 +448,6 @@ public class AllTests {
 
         return obj;
     }
+
+    private AllTests() {}
 }

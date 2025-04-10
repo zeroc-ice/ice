@@ -8,8 +8,7 @@
 module Test
 {
     exception InterruptedException
-    {
-    }
+    {}
 
     interface TestIntf
     {
@@ -22,8 +21,7 @@ module Test
     }
 
     exception CannotInterruptException
-    {
-    }
+    {}
 
     interface TestIntfController
     {

@@ -2,14 +2,16 @@
 
 package test.Ice.middleware;
 
-import test.Ice.middleware.Test.*;
+import com.zeroc.Ice.Current;
+
+import test.Ice.middleware.Test.MyObject;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 final class MyObjectI implements MyObject {
     @Override
-    public CompletionStage<String> getNameAsync(com.zeroc.Ice.Current current) {
+    public CompletionStage<String> getNameAsync(Current current) {
         return CompletableFuture.completedFuture("Foo");
     }
 }

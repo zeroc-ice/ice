@@ -2,9 +2,16 @@
 
 package test.Ice.ami;
 
-public class Server extends test.TestHelper {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+
+import test.TestHelper;
+
+public class Server extends TestHelper {
     public void run(String[] args) {
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.ami");
         //
         // This test kills connections, so we don't want warnings.
@@ -17,23 +24,23 @@ public class Server extends test.TestHelper {
         //
         properties.setProperty("Ice.TCP.RcvSize", "50000");
 
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(properties)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator
-                    .getProperties()
-                    .setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+                .getProperties()
+                .setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
             communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            com.zeroc.Ice.ObjectAdapter adapter2 =
-                    communicator.createObjectAdapter("ControllerAdapter");
+            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            ObjectAdapter adapter2 =
+                communicator.createObjectAdapter("ControllerAdapter");
 
-            adapter.add(new TestI(), com.zeroc.Ice.Util.stringToIdentity("test"));
-            adapter.add(new TestII(), com.zeroc.Ice.Util.stringToIdentity("test2"));
+            adapter.add(new TestI(), Util.stringToIdentity("test"));
+            adapter.add(new TestII(), Util.stringToIdentity("test2"));
             adapter.activate();
             adapter2.add(
-                    new TestControllerI(adapter),
-                    com.zeroc.Ice.Util.stringToIdentity("testController"));
+                new TestControllerI(adapter),
+                Util.stringToIdentity("testController"));
             adapter2.activate();
             serverReady();
             communicator.waitForShutdown();

@@ -2,9 +2,14 @@
 
 package test.Ice.executor;
 
-public class Client extends test.TestHelper {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
+
+import test.TestHelper;
+
+public class Client extends TestHelper {
     public void run(String[] args) {
-        com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+        InitializationData initData = new InitializationData();
         initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.executor");
 
@@ -16,7 +21,7 @@ public class Client extends test.TestHelper {
         initData.properties.setProperty("Ice.TCP.SndSize", "50000");
 
         initData.executor = executor;
-        try (com.zeroc.Ice.Communicator communicator = initialize(initData)) {
+        try (Communicator communicator = initialize(initData)) {
             AllTests.allTests(this, executor);
         }
         executor.terminate();

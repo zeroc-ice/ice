@@ -2,18 +2,20 @@
 
 package test.Ice.facets;
 
+import com.zeroc.Ice.Current;
+
 import test.Ice.facets.Test.B;
 
 public final class BI implements B {
     public BI() {}
 
     @Override
-    public String callA(com.zeroc.Ice.Current current) {
+    public String callA(Current current) {
         return "A";
     }
 
     @Override
-    public String callB(com.zeroc.Ice.Current current) {
+    public String callB(Current current) {
         return "B";
     }
 }

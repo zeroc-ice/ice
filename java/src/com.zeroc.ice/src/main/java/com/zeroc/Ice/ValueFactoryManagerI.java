@@ -2,6 +2,9 @@
 
 package com.zeroc.Ice;
 
+import java.util.HashMap;
+import java.util.Map;
+
 final class ValueFactoryManagerI implements ValueFactoryManager {
     public synchronized void add(ValueFactory factory, String id) {
         if (_factoryMap.containsKey(id)) {
@@ -14,5 +17,5 @@ final class ValueFactoryManagerI implements ValueFactoryManager {
         return _factoryMap.get(id);
     }
 
-    private final java.util.Map<String, ValueFactory> _factoryMap = new java.util.HashMap<>();
+    private final Map<String, ValueFactory> _factoryMap = new HashMap<>();
 }

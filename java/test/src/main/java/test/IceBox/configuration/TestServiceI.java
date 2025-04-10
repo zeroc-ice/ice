@@ -2,13 +2,18 @@
 
 package test.IceBox.configuration;
 
-public class TestServiceI implements com.zeroc.IceBox.Service {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.Util;
+import com.zeroc.IceBox.Service;
+
+public class TestServiceI implements Service {
     @Override
-    public void start(String name, com.zeroc.Ice.Communicator communicator, String[] args) {
+    public void start(String name, Communicator communicator, String[] args) {
         communicator.getProperties().setProperty("Ice.Package.Test", "test.IceBox.configuration");
 
-        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter(name + "OA");
-        adapter.add(new TestI(args), com.zeroc.Ice.Util.stringToIdentity("test"));
+        ObjectAdapter adapter = communicator.createObjectAdapter(name + "OA");
+        adapter.add(new TestI(args), Util.stringToIdentity("test"));
         adapter.activate();
     }
 

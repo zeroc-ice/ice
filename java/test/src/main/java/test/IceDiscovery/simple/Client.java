@@ -2,11 +2,19 @@
 
 package test.IceDiscovery.simple;
 
-public class Client extends test.TestHelper {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Properties;
+
+import test.TestHelper;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Client extends TestHelper {
     public void run(String[] args) {
-        java.util.List<String> rargs = new java.util.ArrayList<String>();
-        com.zeroc.Ice.Properties properties = createTestProperties(args, rargs);
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
+        List<String> rargs = new ArrayList<String>();
+        Properties properties = createTestProperties(args, rargs);
+        try (Communicator communicator = initialize(properties)) {
             int num;
             try {
                 num = rargs.size() == 1 ? Integer.parseInt(rargs.get(0)) : 0;

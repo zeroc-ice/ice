@@ -2,30 +2,37 @@
 
 package com.zeroc.Ice.SSL;
 
-public final class EndpointFactoryI extends com.zeroc.Ice.EndpointFactoryWithUnderlying {
+import com.zeroc.Ice.EndpointFactory;
+import com.zeroc.Ice.EndpointFactoryWithUnderlying;
+import com.zeroc.Ice.InputStream;
+import com.zeroc.Ice.ProtocolInstance;
+
+import java.util.ArrayList;
+
+public final class EndpointFactoryI extends EndpointFactoryWithUnderlying {
     public EndpointFactoryI(Instance instance, short type) {
         super(instance, type);
         _instance = instance;
     }
 
     @Override
-    public com.zeroc.Ice.EndpointFactory cloneWithUnderlying(
-            com.zeroc.Ice.ProtocolInstance instance, short underlying) {
+    public EndpointFactory cloneWithUnderlying(
+            ProtocolInstance instance, short underlying) {
         return new EndpointFactoryI(
-                new Instance(_instance.engine(), instance.type(), instance.protocol()), underlying);
+            new Instance(_instance.engine(), instance.type(), instance.protocol()), underlying);
     }
 
     @Override
     public com.zeroc.Ice.EndpointI createWithUnderlying(
             com.zeroc.Ice.EndpointI underlying,
-            java.util.ArrayList<String> args,
+            ArrayList<String> args,
             boolean oaEndpoint) {
         return new EndpointI(_instance, underlying);
     }
 
     @Override
     public com.zeroc.Ice.EndpointI readWithUnderlying(
-            com.zeroc.Ice.EndpointI underlying, com.zeroc.Ice.InputStream s) {
+            com.zeroc.Ice.EndpointI underlying, InputStream s) {
         return new EndpointI(_instance, underlying);
     }
 

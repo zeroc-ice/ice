@@ -2,12 +2,19 @@
 
 package test.Ice.scope;
 
-public class Client extends test.TestHelper {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Properties;
+
+import test.TestHelper;
+
+import java.io.PrintWriter;
+
+public class Client extends TestHelper {
     public void run(String[] args) {
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.scope");
-        java.io.PrintWriter out = getWriter();
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
+        PrintWriter out = getWriter();
+        try (Communicator communicator = initialize(properties)) {
             out.print("test using same type name in different Slice modules... ");
             out.flush();
             AllTests.allTests(this);

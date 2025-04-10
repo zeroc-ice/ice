@@ -2,6 +2,9 @@
 
 package com.zeroc.Ice;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletionException;
 import java.util.function.BiConsumer;
@@ -30,7 +33,7 @@ public final class Current implements Cloneable {
     public OperationMode mode;
 
     /** The request context. */
-    public final java.util.Map<String, String> ctx;
+    public final Map<String, String> ctx;
 
     /** The request ID. 0 means the request is a one-way request. */
     public final int requestId;
@@ -58,7 +61,7 @@ public final class Current implements Cloneable {
             String facet,
             String operation,
             OperationMode mode,
-            java.util.Map<String, String> ctx,
+            Map<String, String> ctx,
             int requestId,
             EncodingVersion encoding) {
         // We may occasionally construct a Current with a null adapter, however we never
@@ -91,9 +94,9 @@ public final class Current implements Cloneable {
     public void checkNonIdempotent() {
         if (mode != OperationMode.Normal) {
             throw new MarshalException(
-                    String.format(
-                            "Operation mode mismatch for operation '%s': received %s for non-idempotent operation",
-                            operation, mode));
+                String.format(
+                    "Operation mode mismatch for operation '%s': received %s for non-idempotent operation",
+                    operation, mode));
         }
     }
 
@@ -209,8 +212,8 @@ public final class Current implements Cloneable {
             // The default class format doesn't matter since we always encode user exceptions in
             // Sliced format.;
             ostr =
-                    new OutputStream(
-                            Protocol.currentProtocolEncoding, FormatType.SlicedFormat, false);
+                new OutputStream(
+                    Protocol.currentProtocolEncoding, FormatType.SlicedFormat, false);
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(requestId);
         } else {
@@ -242,9 +245,9 @@ public final class Current implements Cloneable {
         } else {
             replyStatus = ReplyStatus.UnknownException.value();
             exceptionId =
-                    exc.getClass().getName() != null
-                            ? exc.getClass().getName()
-                            : "java.lang.Exception";
+                exc.getClass().getName() != null
+                    ? exc.getClass().getName()
+                    : "java.lang.Exception";
         }
 
         if (replyStatus > ReplyStatus.UserException.value() && requestId != 0) {
@@ -254,7 +257,7 @@ public final class Current implements Cloneable {
             ostr.writeByte((byte) replyStatus);
 
             if (replyStatus >= ReplyStatus.ObjectNotExist.value()
-                    && replyStatus <= ReplyStatus.OperationNotExist.value()) {
+                && replyStatus <= ReplyStatus.OperationNotExist.value()) {
 
                 Identity objectId = new Identity();
                 String objectFacet = "";
@@ -275,9 +278,9 @@ public final class Current implements Cloneable {
                 Identity.ice_write(ostr, objectId);
 
                 if (objectFacet.isEmpty()) {
-                    ostr.writeStringSeq(new String[] {});
+                    ostr.writeStringSeq(new String[]{});
                 } else {
-                    ostr.writeStringSeq(new String[] {objectFacet});
+                    ostr.writeStringSeq(new String[]{objectFacet});
                 }
                 ostr.writeString(operationName);
                 // and we don't use the dispatchExceptionMessage.
@@ -291,8 +294,8 @@ public final class Current implements Cloneable {
             }
         }
 
-        var stringWriter = new java.io.StringWriter();
-        var printWriter = new java.io.PrintWriter(stringWriter);
+        var stringWriter = new StringWriter();
+        var printWriter = new PrintWriter(stringWriter);
         exc.printStackTrace(printWriter);
         printWriter.flush();
 
@@ -323,13 +326,13 @@ public final class Current implements Cloneable {
         } else {
             assert (adapter != null);
             var ostr =
-                    new OutputStream(
-                            Protocol.currentProtocolEncoding,
-                            adapter.getCommunicator()
-                                    .getInstance()
-                                    .defaultsAndOverrides()
-                                    .defaultFormat,
-                            false);
+                new OutputStream(
+                    Protocol.currentProtocolEncoding,
+                    adapter.getCommunicator()
+                        .getInstance()
+                        .defaultsAndOverrides()
+                        .defaultFormat,
+                    false);
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(requestId);
             ostr.writeByte((byte) replyStatus.value());

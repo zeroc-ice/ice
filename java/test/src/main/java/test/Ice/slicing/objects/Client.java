@@ -2,13 +2,17 @@
 
 package test.Ice.slicing.objects;
 
-import test.Ice.slicing.objects.client.Test.TestIntfPrx;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Properties;
 
-public class Client extends test.TestHelper {
+import test.Ice.slicing.objects.client.Test.TestIntfPrx;
+import test.TestHelper;
+
+public class Client extends TestHelper {
     public void run(String[] args) {
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.slicing.objects.client");
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(properties)) {
             TestIntfPrx test = AllTests.allTests(this, false);
             test.shutdown();
         }

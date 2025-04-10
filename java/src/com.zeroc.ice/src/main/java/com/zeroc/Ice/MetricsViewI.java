@@ -5,6 +5,10 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.IceMX.Metrics;
 import com.zeroc.Ice.IceMX.MetricsFailures;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 class MetricsViewI {
     MetricsViewI(String name) {
         _name = name;
@@ -20,10 +24,10 @@ class MetricsViewI {
         //
         String viewPrefix = "IceMX.Metrics." + _name + ".";
         String mapsPrefix = viewPrefix + "Map.";
-        java.util.Map<String, String> mapsProps = properties.getPropertiesForPrefix(mapsPrefix);
+        Map<String, String> mapsProps = properties.getPropertiesForPrefix(mapsPrefix);
 
         String mapPrefix;
-        java.util.Map<String, String> mapProps = new java.util.HashMap<>();
+        Map<String, String> mapProps = new HashMap<>();
         if (!mapsProps.isEmpty()) {
             mapPrefix = mapsPrefix + mapName + ".";
             mapProps = properties.getPropertiesForPrefix(mapPrefix);
@@ -59,9 +63,9 @@ class MetricsViewI {
         return _maps.remove(mapName) != null;
     }
 
-    public java.util.Map<String, Metrics[]> getMetrics() {
-        java.util.Map<String, Metrics[]> metrics = new java.util.HashMap<>();
-        for (java.util.Map.Entry<String, MetricsMap<?>> e : _maps.entrySet()) {
+    public Map<String, Metrics[]> getMetrics() {
+        Map<String, Metrics[]> metrics = new HashMap<>();
+        for (Map.Entry<String, MetricsMap<?>> e : _maps.entrySet()) {
             metrics.put(e.getKey(), e.getValue().getMetrics());
         }
         return metrics;
@@ -83,7 +87,7 @@ class MetricsViewI {
         return null;
     }
 
-    public java.util.Collection<String> getMaps() {
+    public Collection<String> getMaps() {
         return _maps.keySet();
     }
 
@@ -93,5 +97,5 @@ class MetricsViewI {
     }
 
     private final String _name;
-    private final java.util.Map<String, MetricsMap<?>> _maps = new java.util.HashMap<>();
+    private final Map<String, MetricsMap<?>> _maps = new HashMap<>();
 }

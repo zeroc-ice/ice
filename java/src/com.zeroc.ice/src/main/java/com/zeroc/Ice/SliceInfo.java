@@ -14,7 +14,7 @@ public final class SliceInfo {
     public final byte[] bytes;
 
     /** The class instances referenced by this slice. */
-    public com.zeroc.Ice.Value[] instances;
+    public Value[] instances;
 
     /** Whether or not the slice contains optional members. */
     public final boolean hasOptionalMembers;

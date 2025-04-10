@@ -3,6 +3,7 @@
 package com.zeroc.Ice;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 //
 // Class to provide a java.io.OutputStream on top of our stream.
@@ -20,7 +21,7 @@ import java.io.IOException;
 // as a single byte, followed by the contents of the _bytes buffer.
 //
 
-class OutputStreamWrapper extends java.io.OutputStream {
+class OutputStreamWrapper extends OutputStream {
     public OutputStreamWrapper(com.zeroc.Ice.OutputStream s) {
         _s = s;
         _spos = s.pos();
@@ -134,8 +135,8 @@ class OutputStreamWrapper extends java.io.OutputStream {
         }
     }
 
-    private com.zeroc.Ice.OutputStream _s;
-    private int _spos;
+    private final com.zeroc.Ice.OutputStream _s;
+    private final int _spos;
     private byte[] _bytes;
     private int _pos;
 }

@@ -2,11 +2,18 @@
 
 package test.Ice.classLoader;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.ObjectPrx;
+
 import test.Ice.classLoader.Test.ConcreteClass;
 import test.Ice.classLoader.Test.E;
 import test.Ice.classLoader.Test.InitialPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.LinkedList;
+import java.util.List;
 
 public class AllTests {
     private static class MyClassLoader extends ClassLoader {
@@ -28,7 +35,7 @@ public class AllTests {
             return _names.contains(name);
         }
 
-        private java.util.List<String> _names = new java.util.LinkedList<>();
+        private List<String> _names = new LinkedList<>();
     }
 
     private static void test(boolean b) {
@@ -37,8 +44,8 @@ public class AllTests {
         }
     }
 
-    public static void allTests(test.TestHelper helper, boolean collocated) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static void allTests(TestHelper helper, boolean collocated) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
 
         //
@@ -47,11 +54,11 @@ public class AllTests {
         {
             out.print("testing package... ");
             out.flush();
-            com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+            InitializationData initData = new InitializationData();
             initData.properties = communicator.getProperties()._clone();
             MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
             initData.classLoader = classLoader;
-            try (com.zeroc.Ice.Communicator ic = helper.initialize(initData)) {
+            try (Communicator ic = helper.initialize(initData)) {
                 test(classLoader.check("test.Ice.classLoader.Test._Marker"));
                 out.println("ok");
             }
@@ -63,13 +70,13 @@ public class AllTests {
         {
             out.print("testing plug-in... ");
             out.flush();
-            com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+            InitializationData initData = new InitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty(
-                    "Ice.Plugin.Test", "test.Ice.classLoader.PluginFactoryI");
+                "Ice.Plugin.Test", "test.Ice.classLoader.PluginFactoryI");
             MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
             initData.classLoader = classLoader;
-            try (com.zeroc.Ice.Communicator ic = helper.initialize(initData)) {
+            try (Communicator ic = helper.initialize(initData)) {
                 test(classLoader.check("test.Ice.classLoader.PluginFactoryI"));
                 out.println("ok");
             }
@@ -79,13 +86,13 @@ public class AllTests {
         // Marshaling tests.
         //
         {
-            com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+            InitializationData initData = new InitializationData();
             initData.properties = communicator.getProperties()._clone();
             MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
             initData.classLoader = classLoader;
-            try (com.zeroc.Ice.Communicator ic = helper.initialize(initData)) {
+            try (Communicator ic = helper.initialize(initData)) {
                 String ref = "initial:" + helper.getTestEndpoint(0);
-                com.zeroc.Ice.ObjectPrx base = ic.stringToProxy(ref);
+                ObjectPrx base = ic.stringToProxy(ref);
                 test(base != null);
 
                 InitialPrx initial = InitialPrx.checkedCast(base);
@@ -112,8 +119,7 @@ public class AllTests {
                 try {
                     initial.throwException();
                     test(false);
-                } catch (E ex) {
-                }
+                } catch (E ex) {}
                 test(classLoader.check("test.Ice.classLoader.Test.E"));
                 out.println("ok");
 
@@ -122,4 +128,6 @@ public class AllTests {
             }
         }
     }
+
+    private AllTests() {}
 }

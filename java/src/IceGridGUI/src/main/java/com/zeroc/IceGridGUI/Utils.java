@@ -2,17 +2,33 @@
 
 package com.zeroc.IceGridGUI;
 
-import com.zeroc.IceGrid.*;
+import com.zeroc.IceGrid.PropertyDescriptor;
 
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -22,7 +38,7 @@ import javax.swing.KeyStroke;
 
 public class Utils {
     public static ImageIcon getIcon(String path) {
-        java.net.URL imgURL = Utils.class.getResource(path);
+        URL imgURL = Utils.class.getResource(path);
         if (imgURL == null) {
             System.err.println("Could not find icon " + path);
             return null;
@@ -38,10 +54,10 @@ public class Utils {
             Graphics2D g = null;
             try {
                 BufferedImage image =
-                        GraphicsEnvironment.getLocalGraphicsEnvironment()
-                                .getDefaultScreenDevice()
-                                .getDefaultConfiguration()
-                                .createCompatibleImage(icon.getIconWidth(), icon.getIconHeight());
+                    GraphicsEnvironment.getLocalGraphicsEnvironment()
+                        .getDefaultScreenDevice()
+                        .getDefaultConfiguration()
+                        .createCompatibleImage(icon.getIconWidth(), icon.getIconHeight());
                 g = image.createGraphics();
                 icon.paintIcon(null, g, 0, 0);
                 return image;
@@ -55,20 +71,20 @@ public class Utils {
 
     public static void addEscapeListener(final JDialog dialog) {
         dialog.getRootPane()
-                .registerKeyboardAction(
-                        new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                dialog.dispose();
-                            }
-                        },
-                        KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
-                        JComponent.WHEN_IN_FOCUSED_WINDOW);
+            .registerKeyboardAction(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        dialog.dispose();
+                    }
+                },
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
     public static void removeEscapeListener(JDialog dialog) {
         dialog.getRootPane()
-                .unregisterKeyboardAction(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
+            .unregisterKeyboardAction(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
     }
 
     // Extract Ice version in the form XXYYZZ, e.g.  030201 (for 3.2.1)
@@ -96,7 +112,7 @@ public class Utils {
                         result *= 100;
                     } else {
                         result +=
-                                Integer.parseInt(version.substring(firstDotPos + 1, secondDotPos));
+                            Integer.parseInt(version.substring(firstDotPos + 1, secondDotPos));
                         result *= 100;
                         result += Integer.parseInt(version.substring(secondDotPos + 1));
                     }
@@ -109,10 +125,10 @@ public class Utils {
     }
 
     public static void storeWindowBounds(
-            java.awt.Window window, java.util.prefs.Preferences prefs) {
-        if (window instanceof java.awt.Frame) {
-            java.awt.Frame frame = (java.awt.Frame) window;
-            boolean maximized = frame.getExtendedState() == java.awt.Frame.MAXIMIZED_BOTH;
+            Window window, Preferences prefs) {
+        if (window instanceof Frame) {
+            Frame frame = (Frame) window;
+            boolean maximized = frame.getExtendedState() == Frame.MAXIMIZED_BOTH;
             prefs.putBoolean("maximized", maximized);
         }
 
@@ -123,19 +139,18 @@ public class Utils {
         prefs.putInt("height", rect.height);
     }
 
-    public static java.util.prefs.Preferences restoreWindowBounds(
-            java.awt.Window window,
-            java.util.prefs.Preferences parent,
+    public static Preferences restoreWindowBounds(
+            Window window,
+            Preferences parent,
             String node,
-            java.awt.Component parentComponent) {
-        java.util.prefs.Preferences prefs = null;
+            Component parentComponent) {
+        Preferences prefs = null;
 
         try {
             if (parent.nodeExists(node)) {
                 prefs = parent.node(node);
             }
-        } catch (java.util.prefs.BackingStoreException ex) {
-        }
+        } catch (BackingStoreException ex) {}
 
         boolean locationVisible = false;
 
@@ -153,14 +168,14 @@ public class Utils {
                 visibleBounds.add(s.getDefaultConfiguration().getBounds());
             }
             locationVisible =
-                    visibleBounds.contains(x, y)
-                            || (maximized && visibleBounds.contains(x + 20, y + 20));
+                visibleBounds.contains(x, y)
+                    || (maximized && visibleBounds.contains(x + 20, y + 20));
 
             if (locationVisible) {
                 if (maximized) {
-                    java.awt.Frame frame = (java.awt.Frame) window;
+                    Frame frame = (Frame) window;
                     frame.setBounds(new Rectangle(x + 20, y + 20, width, height));
-                    frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+                    frame.setExtendedState(Frame.MAXIMIZED_BOTH);
                 } else {
                     window.setBounds(new Rectangle(x, y, width, height));
                 }
@@ -172,8 +187,8 @@ public class Utils {
 
         if (!locationVisible) {
             if (parentComponent != null) {
-                java.awt.Dimension parentSize = parentComponent.getSize();
-                java.awt.Dimension thisSize = window.getSize();
+                Dimension parentSize = parentComponent.getSize();
+                Dimension thisSize = window.getSize();
                 if (parentSize.width < thisSize.width || parentSize.height < thisSize.height) {
                     window.setLocationRelativeTo(null);
                 } else {
@@ -198,11 +213,11 @@ public class Utils {
 
     // Stringify helpers
     public static StringifyResult stringify(
-            java.util.Collection<?> col, Stringifier stringifier, String separator) {
+            Collection<?> col, Stringifier stringifier, String separator) {
         StringifyResult r = new StringifyResult();
         r.returnValue = "";
 
-        java.util.Iterator<?> p = col.iterator();
+        Iterator<?> p = col.iterator();
 
         boolean firstElement = true;
         while (p.hasNext()) {
@@ -235,33 +250,33 @@ public class Utils {
         return r;
     }
 
-    public static StringifyResult stringify(java.util.Collection<?> col, String separator) {
+    public static StringifyResult stringify(Collection<?> col, String separator) {
         Stringifier stringifier =
-                new Stringifier() {
-                    @Override
-                    public String toString(Object obj) {
-                        return (String) obj;
-                    }
-                };
+            new Stringifier() {
+                @Override
+                public String toString(Object obj) {
+                    return (String) obj;
+                }
+            };
         return stringify(col, stringifier, separator);
     }
 
     public static StringifyResult stringify(String[] stringSeq, String separator) {
-        return stringify(java.util.Arrays.asList(stringSeq), separator);
+        return stringify(Arrays.asList(stringSeq), separator);
     }
 
     public static StringifyResult stringify(
-            java.util.Map<String, String> stringMap, final String pairSeparator, String separator) {
+            Map<String, String> stringMap, final String pairSeparator, String separator) {
         Stringifier stringifier =
-                new Stringifier() {
-                    @Override
-                    public String toString(Object obj) {
-                        @SuppressWarnings("unchecked")
-                        java.util.Map.Entry<String, String> entry =
-                                (java.util.Map.Entry<String, String>) obj;
-                        return entry.getKey() + pairSeparator + entry.getValue();
-                    }
-                };
+            new Stringifier() {
+                @Override
+                public String toString(Object obj) {
+                    @SuppressWarnings("unchecked")
+                    Map.Entry<String, String> entry =
+                        (Map.Entry<String, String>) obj;
+                    return entry.getKey() + pairSeparator + entry.getValue();
+                }
+            };
 
         return stringify(stringMap.entrySet(), stringifier, separator);
     }
@@ -269,13 +284,13 @@ public class Utils {
     public static class Resolver {
         // Application-level resolver
         @SuppressWarnings("unchecked") // unchecked conversion
-        public Resolver(java.util.Map<String, String> variables) {
-            this(new java.util.Map[] {variables});
+        public Resolver(Map<String, String> variables) {
+            this(new Map[]{variables});
         }
 
-        public Resolver(java.util.Map<String, String>[] variables) {
+        public Resolver(Map<String, String>[] variables) {
             _variables = variables;
-            _predefinedVariables = new java.util.HashMap<>();
+            _predefinedVariables = new HashMap<>();
 
             _parameters = null;
             _subResolver = this;
@@ -284,8 +299,8 @@ public class Utils {
         // Resolver for instance; in-parameters are not yet substituted
         public Resolver(
                 Resolver parent,
-                java.util.Map<String, String> parameters,
-                java.util.Map<String, String> defaults) {
+                Map<String, String> parameters,
+                Map<String, String> defaults) {
             _variables = parent._variables;
 
             // Whenever the parent's predefined variables change, the resolver must be recreated
@@ -295,7 +310,7 @@ public class Utils {
         // Resolver for plain server or service
         public Resolver(Resolver parent) {
             _variables = parent._variables;
-            _predefinedVariables = new java.util.HashMap<>(parent._predefinedVariables);
+            _predefinedVariables = new HashMap<>(parent._predefinedVariables);
             _parameters = parent._parameters;
             if (_parameters == null) {
                 _subResolver = this;
@@ -305,8 +320,8 @@ public class Utils {
         }
 
         private Resolver(
-                java.util.Map<String, String>[] variables,
-                java.util.Map<String, String> predefinedVariables) {
+                Map<String, String>[] variables,
+                Map<String, String> predefinedVariables) {
             _variables = variables;
             _predefinedVariables = predefinedVariables;
 
@@ -327,7 +342,7 @@ public class Utils {
                 return val;
             }
 
-            for (java.util.Map<String, String> map : _variables) {
+            for (Map<String, String> map : _variables) {
                 val = map.get(name);
                 if (val != null) {
                     return _subResolver.substitute(val);
@@ -350,10 +365,10 @@ public class Utils {
         // Reset parameters and pre-defined variables
         public void reset(
                 Resolver parent,
-                java.util.Map<String, String> parameters,
-                java.util.Map<String, String> defaults) {
+                Map<String, String> parameters,
+                Map<String, String> defaults) {
             assert _variables == parent._variables;
-            _predefinedVariables = new java.util.HashMap<>(parent._predefinedVariables);
+            _predefinedVariables = new HashMap<>(parent._predefinedVariables);
 
             _parameters = parent.substituteParameterValues(parameters, defaults);
             _subResolver = new Resolver(_variables, _predefinedVariables);
@@ -361,7 +376,7 @@ public class Utils {
 
         public void reset(Resolver parent) {
             assert _variables == parent._variables;
-            _predefinedVariables = new java.util.HashMap<>(parent._predefinedVariables);
+            _predefinedVariables = new HashMap<>(parent._predefinedVariables);
 
             assert _parameters == parent._parameters;
             if (_parameters == null) {
@@ -372,7 +387,7 @@ public class Utils {
         }
 
         // The sorted substituted parameters
-        public java.util.Map<String, String> getParameters() {
+        public Map<String, String> getParameters() {
             return _parameters;
         }
 
@@ -422,13 +437,13 @@ public class Utils {
         }
 
         // Substitute all the values from the input map
-        public java.util.Map<String, String> substituteParameterValues(
-                java.util.Map<String, String> input, java.util.Map<String, String> defaults) {
-            java.util.Map<String, String> result = new java.util.HashMap<>();
-            for (java.util.Map.Entry<String, String> p : input.entrySet()) {
+        public Map<String, String> substituteParameterValues(
+                Map<String, String> input, Map<String, String> defaults) {
+            Map<String, String> result = new HashMap<>();
+            for (Map.Entry<String, String> p : input.entrySet()) {
                 result.put(p.getKey(), substitute(p.getValue()));
             }
-            for (java.util.Map.Entry<String, String> p : defaults.entrySet()) {
+            for (Map.Entry<String, String> p : defaults.entrySet()) {
                 if (!result.containsKey(p.getKey())) {
                     result.put(p.getKey(), substitute(p.getValue()));
                 }
@@ -436,9 +451,9 @@ public class Utils {
             return result;
         }
 
-        private java.util.Map<String, String>[] _variables;
-        private java.util.Map<String, String> _parameters;
-        private java.util.Map<String, String> _predefinedVariables;
+        private Map<String, String>[] _variables;
+        private Map<String, String> _parameters;
+        private Map<String, String> _predefinedVariables;
 
         private Resolver _subResolver;
     }
@@ -454,27 +469,27 @@ public class Utils {
     // An expanded property set (i.e. containing other property sets)
     public static class ExpandedPropertySet {
         public ExpandedPropertySet[] references;
-        public java.util.List<PropertyDescriptor> properties; // list of PropertyDescriptor
+        public List<PropertyDescriptor> properties; // list of PropertyDescriptor
     }
 
-    public static java.util.SortedMap<String, String> propertySetsToMap(
-            java.util.List<ExpandedPropertySet> propertySets, Resolver resolver) {
-        java.util.SortedMap<String, String> toMap = new java.util.TreeMap<>();
+    public static SortedMap<String, String> propertySetsToMap(
+            List<ExpandedPropertySet> propertySets, Resolver resolver) {
+        SortedMap<String, String> toMap = new TreeMap<>();
         for (ExpandedPropertySet p : propertySets) {
             addSet(p, resolver, toMap);
         }
         return toMap;
     }
 
-    public static java.util.SortedMap<String, String> propertySetToMap(
+    public static SortedMap<String, String> propertySetToMap(
             ExpandedPropertySet propertySet, Resolver resolver) {
-        java.util.List<ExpandedPropertySet> list = new java.util.LinkedList<>();
+        List<ExpandedPropertySet> list = new LinkedList<>();
         list.add(propertySet);
         return propertySetsToMap(list, resolver);
     }
 
     private static void addSet(
-            ExpandedPropertySet set, Resolver resolver, java.util.SortedMap<String, String> toMap) {
+            ExpandedPropertySet set, Resolver resolver, SortedMap<String, String> toMap) {
         for (ExpandedPropertySet s : set.references) {
             addSet(s, resolver, toMap);
         }
@@ -485,4 +500,6 @@ public class Utils {
             toMap.put(name, val);
         }
     }
+
+    private Utils() {}
 }

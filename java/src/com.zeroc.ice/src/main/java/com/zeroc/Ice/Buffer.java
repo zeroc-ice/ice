@@ -2,6 +2,9 @@
 
 package com.zeroc.Ice;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
 /**
  * An instance of java.nio.ByteBuffer cannot grow beyond its initial capacity. This class wraps a
  * ByteBuffer and supports reallocation.
@@ -10,10 +13,10 @@ package com.zeroc.Ice;
  */
 public class Buffer {
     public Buffer(boolean direct) {
-        this(direct, java.nio.ByteOrder.LITTLE_ENDIAN);
+        this(direct, ByteOrder.LITTLE_ENDIAN);
     }
 
-    public Buffer(boolean direct, java.nio.ByteOrder order) {
+    public Buffer(boolean direct, ByteOrder order) {
         b = _emptyBuffer;
         _size = 0;
         _capacity = 0;
@@ -22,11 +25,11 @@ public class Buffer {
     }
 
     public Buffer(byte[] data) {
-        this(data, java.nio.ByteOrder.LITTLE_ENDIAN);
+        this(data, ByteOrder.LITTLE_ENDIAN);
     }
 
-    public Buffer(byte[] data, java.nio.ByteOrder order) {
-        b = java.nio.ByteBuffer.wrap(data);
+    public Buffer(byte[] data, ByteOrder order) {
+        b = ByteBuffer.wrap(data);
         b.order(order);
         _size = data.length;
         _capacity = 0;
@@ -34,11 +37,11 @@ public class Buffer {
         _order = order;
     }
 
-    public Buffer(java.nio.ByteBuffer data) {
-        this(data, java.nio.ByteOrder.LITTLE_ENDIAN);
+    public Buffer(ByteBuffer data) {
+        this(data, ByteOrder.LITTLE_ENDIAN);
     }
 
-    public Buffer(java.nio.ByteBuffer data, java.nio.ByteOrder order) {
+    public Buffer(ByteBuffer data, ByteOrder order) {
         b = data;
         b.order(order);
         _size = data.remaining();
@@ -79,12 +82,12 @@ public class Buffer {
     }
 
     public void swap(Buffer buf) {
-        final java.nio.ByteBuffer bb = buf.b;
+        final ByteBuffer bb = buf.b;
         final int size = buf._size;
         final int capacity = buf._capacity;
         final boolean direct = buf._direct;
         final int shrinkCounter = buf._shrinkCounter;
-        final java.nio.ByteOrder order = buf._order;
+        final ByteOrder order = buf._order;
 
         buf.b = b;
         buf._size = _size;
@@ -122,7 +125,7 @@ public class Buffer {
     // caller is writing to a location that is already in the buffer.
     //
     public void expand(int n) {
-        final int sz = (b == _emptyBuffer) ? n : b.position() + n;
+        final int sz = b == _emptyBuffer ? n : b.position() + n;
         if (sz > _size) {
             resize(sz, false);
         }
@@ -178,12 +181,12 @@ public class Buffer {
         }
 
         try {
-            java.nio.ByteBuffer buf;
+            ByteBuffer buf;
 
             if (_direct) {
-                buf = java.nio.ByteBuffer.allocateDirect(_capacity);
+                buf = ByteBuffer.allocateDirect(_capacity);
             } else {
-                buf = java.nio.ByteBuffer.allocate(_capacity);
+                buf = ByteBuffer.allocate(_capacity);
             }
 
             if (b == _emptyBuffer) {
@@ -205,13 +208,13 @@ public class Buffer {
         }
     }
 
-    public java.nio.ByteBuffer b;
+    public ByteBuffer b;
     // Sentinel used for null buffer.
-    public java.nio.ByteBuffer _emptyBuffer = java.nio.ByteBuffer.allocate(0);
+    public ByteBuffer _emptyBuffer = ByteBuffer.allocate(0);
 
     private int _size;
     private int _capacity; // Cache capacity to avoid excessive method calls.
     private boolean _direct; // Use direct buffers?
     private int _shrinkCounter;
-    private java.nio.ByteOrder _order;
+    private ByteOrder _order;
 }

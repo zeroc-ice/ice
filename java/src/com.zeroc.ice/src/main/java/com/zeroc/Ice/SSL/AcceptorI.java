@@ -2,14 +2,20 @@
 
 package com.zeroc.Ice.SSL;
 
-final class AcceptorI implements com.zeroc.Ice.Acceptor {
+import com.zeroc.Ice.Acceptor;
+import com.zeroc.Ice.ReadyCallback;
+import com.zeroc.Ice.Transceiver;
+
+import java.nio.channels.ServerSocketChannel;
+
+final class AcceptorI implements Acceptor {
     @Override
-    public java.nio.channels.ServerSocketChannel fd() {
+    public ServerSocketChannel fd() {
         return _delegate.fd();
     }
 
     @Override
-    public void setReadyCallback(com.zeroc.Ice.ReadyCallback callback) {
+    public void setReadyCallback(ReadyCallback callback) {
         _delegate.setReadyCallback(callback);
     }
 
@@ -25,9 +31,9 @@ final class AcceptorI implements com.zeroc.Ice.Acceptor {
     }
 
     @Override
-    public com.zeroc.Ice.Transceiver accept() {
+    public Transceiver accept() {
         return new TransceiverI(
-                _instance, _delegate.accept(), _adapterName, true, _sslEngineFactory);
+            _instance, _delegate.accept(), _adapterName, true, _sslEngineFactory);
     }
 
     @Override
@@ -48,7 +54,7 @@ final class AcceptorI implements com.zeroc.Ice.Acceptor {
     AcceptorI(
             EndpointI endpoint,
             Instance instance,
-            com.zeroc.Ice.Acceptor delegate,
+            Acceptor delegate,
             String adapterName,
             SSLEngineFactory sslEngineFactory) {
         _endpoint = endpoint;
@@ -57,8 +63,8 @@ final class AcceptorI implements com.zeroc.Ice.Acceptor {
         _adapterName = adapterName;
         if (sslEngineFactory == null) {
             _sslEngineFactory =
-                    (peerHost, peerPort) ->
-                            instance.engine().createSSLEngine(true, peerHost, peerPort);
+                (peerHost, peerPort) ->
+                    instance.engine().createSSLEngine(true, peerHost, peerPort);
         } else {
             _sslEngineFactory = sslEngineFactory;
         }
@@ -66,7 +72,7 @@ final class AcceptorI implements com.zeroc.Ice.Acceptor {
 
     private EndpointI _endpoint;
     private final Instance _instance;
-    private com.zeroc.Ice.Acceptor _delegate;
-    private String _adapterName;
+    private final Acceptor _delegate;
+    private final String _adapterName;
     private SSLEngineFactory _sslEngineFactory;
 }

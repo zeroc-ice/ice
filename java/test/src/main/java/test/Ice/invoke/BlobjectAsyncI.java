@@ -2,26 +2,35 @@
 
 package test.Ice.invoke;
 
+import com.zeroc.Ice.BlobjectAsync;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.InputStream;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.OperationNotExistException;
+import com.zeroc.Ice.OutputStream;
+import com.zeroc.Ice.UserException;
+
 import test.Ice.invoke.Test.MyException;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public class BlobjectAsyncI implements com.zeroc.Ice.BlobjectAsync {
+public class BlobjectAsyncI implements BlobjectAsync {
     @Override
-    public CompletionStage<com.zeroc.Ice.Object.Ice_invokeResult> ice_invokeAsync(
-            byte[] inParams, com.zeroc.Ice.Current current) throws com.zeroc.Ice.UserException {
-        com.zeroc.Ice.Communicator communicator = current.adapter.getCommunicator();
-        com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, inParams);
+    public CompletionStage<Object.Ice_invokeResult> ice_invokeAsync(
+            byte[] inParams, Current current) throws UserException {
+        Communicator communicator = current.adapter.getCommunicator();
+        InputStream in = new InputStream(communicator, inParams);
         in.startEncapsulation();
-        com.zeroc.Ice.OutputStream out = new com.zeroc.Ice.OutputStream(communicator);
+        OutputStream out = new OutputStream(communicator);
         out.startEncapsulation();
-        com.zeroc.Ice.Object.Ice_invokeResult r = new com.zeroc.Ice.Object.Ice_invokeResult();
-        if (current.operation.equals("opOneway")) {
+        Object.Ice_invokeResult r = new Object.Ice_invokeResult();
+        if ("opOneway".equals(current.operation)) {
             r.returnValue = true;
             r.outParams = new byte[0];
             return CompletableFuture.completedFuture(r);
-        } else if (current.operation.equals("opString")) {
+        } else if ("opString".equals(current.operation)) {
             String s = in.readString();
             out.writeString(s);
             out.writeString(s);
@@ -29,7 +38,7 @@ public class BlobjectAsyncI implements com.zeroc.Ice.BlobjectAsync {
             r.returnValue = true;
             r.outParams = out.finished();
             return CompletableFuture.completedFuture(r);
-        } else if (current.operation.equals("opException")) {
+        } else if ("opException".equals(current.operation)) {
             if (current.ctx.containsKey("raise")) {
                 throw new MyException();
             }
@@ -39,14 +48,14 @@ public class BlobjectAsyncI implements com.zeroc.Ice.BlobjectAsync {
             r.returnValue = false;
             r.outParams = out.finished();
             return CompletableFuture.completedFuture(r);
-        } else if (current.operation.equals("shutdown")) {
+        } else if ("shutdown".equals(current.operation)) {
             communicator.shutdown();
             r.returnValue = true;
             r.outParams = new byte[0];
             return CompletableFuture.completedFuture(r);
-        } else if (current.operation.equals("ice_isA")) {
+        } else if ("ice_isA".equals(current.operation)) {
             String s = in.readString();
-            if (s.equals("::Test::MyClass")) {
+            if ("::Test::MyClass".equals(s)) {
                 out.writeBool(true);
             } else {
                 out.writeBool(false);
@@ -56,7 +65,7 @@ public class BlobjectAsyncI implements com.zeroc.Ice.BlobjectAsync {
             r.outParams = out.finished();
             return CompletableFuture.completedFuture(r);
         } else {
-            throw new com.zeroc.Ice.OperationNotExistException();
+            throw new OperationNotExistException();
         }
     }
 }

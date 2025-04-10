@@ -2,15 +2,23 @@
 
 package com.zeroc.IceBox;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public final class Server {
     static class ShutdownHook extends Thread {
-        private com.zeroc.Ice.Communicator _communicator;
+        private Communicator _communicator;
         private final java.lang.Object _doneMutex = new java.lang.Object();
-        private boolean _done = false;
+        private boolean _done;
 
-        ShutdownHook(com.zeroc.Ice.Communicator communicator) {
+        ShutdownHook(Communicator communicator) {
             _communicator = communicator;
         }
 
@@ -43,17 +51,17 @@ public final class Server {
     private static void usage() {
         System.err.println("Usage: com.zeroc.IceBox.Server [options] --Ice.Config=<file>\n");
         System.err.println(
-                "Options:\n"
-                        + "-h, --help           Show this message.\n"
-                        + "-v, --version        Display the Ice version.");
+            "Options:\n"
+                + "-h, --help           Show this message.\n"
+                + "-v, --version        Display the Ice version.");
     }
 
-    private static int run(com.zeroc.Ice.Communicator communicator, java.util.List<String> argSeq) {
+    private static int run(Communicator communicator, List<String> argSeq) {
         final String prefix = "IceBox.Service.";
-        com.zeroc.Ice.Properties properties = communicator.getProperties();
-        java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
+        Properties properties = communicator.getProperties();
+        Map<String, String> services = properties.getPropertiesForPrefix(prefix);
 
-        java.util.List<String> iceBoxArgs = new java.util.ArrayList<String>(argSeq);
+        List<String> iceBoxArgs = new ArrayList<String>(argSeq);
 
         for (String key : services.keySet()) {
             String name = key.substring(prefix.length());
@@ -61,11 +69,11 @@ public final class Server {
         }
 
         for (String arg : iceBoxArgs) {
-            if (arg.equals("-h") || arg.equals("--help")) {
+            if ("-h".equals(arg) || "--help".equals(arg)) {
                 usage();
                 return 0;
-            } else if (arg.equals("-v") || arg.equals("--version")) {
-                System.out.println(com.zeroc.Ice.Util.stringVersion());
+            } else if ("-v".equals(arg) || "--version".equals(arg)) {
+                System.out.println(Util.stringVersion());
                 return 0;
             } else {
                 System.err.println("IceBox.Server: unknown option `" + arg + "'");
@@ -75,21 +83,21 @@ public final class Server {
         }
 
         ServiceManagerI serviceManagerImpl =
-                new ServiceManagerI(communicator, argSeq.toArray(new String[0]));
+            new ServiceManagerI(communicator, argSeq.toArray(new String[0]));
         return serviceManagerImpl.run();
     }
 
     public static void main(String[] args) {
         int status = 0;
-        java.util.List<String> argSeq = new java.util.ArrayList<>();
+        List<String> argSeq = new ArrayList<>();
 
-        com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
-        initData.properties = new com.zeroc.Ice.Properties(Collections.singletonList("IceBox"));
+        InitializationData initData = new InitializationData();
+        initData.properties = new Properties(Collections.singletonList("IceBox"));
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
         ShutdownHook shutdownHook = null;
 
-        try (com.zeroc.Ice.Communicator communicator =
-                com.zeroc.Ice.Util.initialize(args, initData, argSeq)) {
+        try (Communicator communicator =
+            Util.initialize(args, initData, argSeq)) {
             shutdownHook = new ShutdownHook(communicator);
             Runtime.getRuntime().addShutdownHook(shutdownHook);
 

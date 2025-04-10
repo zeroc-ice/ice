@@ -2,7 +2,9 @@
 
 package test.Ice.idleTimeout;
 
-public class Client extends test.TestHelper {
+import test.TestHelper;
+
+public class Client extends TestHelper {
     @Override
     public void run(String[] args) {
         var properties = createTestProperties(args);

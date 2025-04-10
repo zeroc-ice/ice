@@ -7,8 +7,12 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.ProcessPrx;
+import com.zeroc.IceGrid.AdminPrx;
+import com.zeroc.IceGridGUI.Coordinator;
 
 import java.awt.Container;
 import java.awt.event.ActionEvent;
@@ -44,91 +48,91 @@ class WriteMessageDialog extends JDialog {
 
         JButton okButton = new JButton("OK");
         ActionListener okListener =
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        final Coordinator c = root.getCoordinator();
+            new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    final Coordinator c = root.getCoordinator();
 
-                        AdminPrx admin = c.getAdmin();
-                        if (admin == null) {
-                            JOptionPane.showMessageDialog(
-                                    _mainFrame,
-                                    "No longer connected to IceGrid Registry",
-                                    "Writing message to server '" + _target + "' failed",
-                                    JOptionPane.ERROR_MESSAGE);
-                        } else {
-                            com.zeroc.Ice.Identity adminId =
-                                    new com.zeroc.Ice.Identity(_target, c.getServerAdminCategory());
+                    AdminPrx admin = c.getAdmin();
+                    if (admin == null) {
+                        JOptionPane.showMessageDialog(
+                            _mainFrame,
+                            "No longer connected to IceGrid Registry",
+                            "Writing message to server '" + _target + "' failed",
+                            JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        Identity adminId =
+                            new Identity(_target, c.getServerAdminCategory());
 
-                            final com.zeroc.Ice.ProcessPrx process =
-                                    com.zeroc.Ice.ProcessPrx.uncheckedCast(
-                                            admin.ice_identity(adminId).ice_facet("Process"));
+                        final ProcessPrx process =
+                            ProcessPrx.uncheckedCast(
+                                admin.ice_identity(adminId).ice_facet("Process"));
 
-                            final String prefix = "Writing message to server '" + _target + "'...";
-                            c.getStatusBar().setText(prefix);
+                        final String prefix = "Writing message to server '" + _target + "'...";
+                        c.getStatusBar().setText(prefix);
 
-                            try {
-                                process.writeMessageAsync(
-                                                _message.getText(), _stdOut.isSelected() ? 1 : 2)
-                                        .whenComplete(
-                                                (result, ex) -> {
-                                                    if (ex == null) {
-                                                        SwingUtilities.invokeLater(
-                                                                () -> {
-                                                                    c.getStatusBar()
-                                                                            .setText(
-                                                                                    prefix
-                                                                                            + "done.");
-                                                                });
-                                                    } else {
-                                                        SwingUtilities.invokeLater(
-                                                                () -> {
-                                                                    c.getStatusBar()
-                                                                            .setText(
-                                                                                    prefix
-                                                                                            + "failed!");
-
-                                                                    JOptionPane.showMessageDialog(
-                                                                            _mainFrame,
-                                                                            "Communication exception: "
-                                                                                    + ex.toString(),
-                                                                            "Writing message to server '"
-                                                                                    + process
-                                                                                            .ice_getIdentity()
-                                                                                            .name
-                                                                                    + "' failed",
-                                                                            JOptionPane
-                                                                                    .ERROR_MESSAGE);
-                                                                });
-                                                    }
+                        try {
+                            process.writeMessageAsync(
+                                _message.getText(), _stdOut.isSelected() ? 1 : 2)
+                                .whenComplete(
+                                    (result, ex) -> {
+                                        if (ex == null) {
+                                            SwingUtilities.invokeLater(
+                                                () -> {
+                                                    c.getStatusBar()
+                                                        .setText(
+                                                            prefix
+                                                                + "done.");
                                                 });
+                                        } else {
+                                            SwingUtilities.invokeLater(
+                                                () -> {
+                                                    c.getStatusBar()
+                                                        .setText(
+                                                            prefix
+                                                                + "failed!");
 
-                            } catch (com.zeroc.Ice.LocalException ex) {
-                                c.getStatusBar().setText(prefix + "failed.");
-                                JOptionPane.showMessageDialog(
-                                        _mainFrame,
-                                        "Communication exception: " + ex.toString(),
-                                        "Writing message to server '" + _target + "' failed",
-                                        JOptionPane.ERROR_MESSAGE);
+                                                    JOptionPane.showMessageDialog(
+                                                        _mainFrame,
+                                                        "Communication exception: "
+                                                            + ex.toString(),
+                                                        "Writing message to server '"
+                                                            + process
+                                                            .ice_getIdentity()
+                                                            .name
+                                                            + "' failed",
+                                                        JOptionPane
+                                                            .ERROR_MESSAGE);
+                                                });
+                                        }
+                                    });
 
-                                return;
-                            }
+                        } catch (LocalException ex) {
+                            c.getStatusBar().setText(prefix + "failed.");
+                            JOptionPane.showMessageDialog(
+                                _mainFrame,
+                                "Communication exception: " + ex.toString(),
+                                "Writing message to server '" + _target + "' failed",
+                                JOptionPane.ERROR_MESSAGE);
+
+                            return;
                         }
-
-                        setVisible(false);
                     }
-                };
+
+                    setVisible(false);
+                }
+            };
         okButton.addActionListener(okListener);
         getRootPane().setDefaultButton(okButton);
 
         JButton cancelButton = new JButton("Cancel");
         ActionListener cancelListener =
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        setVisible(false);
-                    }
-                };
+            new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    setVisible(false);
+                }
+            };
         cancelButton.addActionListener(cancelListener);
 
         FormLayout layout = new FormLayout("left:pref, 3dlu, fill:pref:grow", "");
@@ -139,10 +143,10 @@ class WriteMessageDialog extends JDialog {
 
         _message.setLineWrap(true);
         JScrollPane scrollPane =
-                new JScrollPane(
-                        _message,
-                        ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            new JScrollPane(
+                _message,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         builder.append(scrollPane, 3);
         builder.nextLine();
         builder.append(_stdOut);
@@ -150,7 +154,7 @@ class WriteMessageDialog extends JDialog {
         builder.nextLine();
 
         JComponent buttonBar =
-                new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
+            new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
         buttonBar.setBorder(Borders.DIALOG);
 
         Container contentPane = getContentPane();
@@ -169,8 +173,8 @@ class WriteMessageDialog extends JDialog {
         setVisible(true);
     }
 
-    private JRadioButton _stdOut;
-    private JTextArea _message = new JTextArea(3, 40);
+    private final JRadioButton _stdOut;
+    private final JTextArea _message = new JTextArea(3, 40);
     private String _target;
-    private JFrame _mainFrame;
+    private final JFrame _mainFrame;
 }

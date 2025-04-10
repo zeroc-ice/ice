@@ -3,6 +3,11 @@
 package com.zeroc.Ice;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /** Base interface of all object proxies. */
 public interface ObjectPrx {
@@ -30,7 +35,7 @@ public interface ObjectPrx {
      * @return <code>true</code> if the target object has the interface specified by <code>id</code>
      *     or derives from the interface specified by <code>id</code>.
      */
-    boolean ice_isA(String id, java.util.Map<String, String> context);
+    boolean ice_isA(String id, Map<String, String> context);
 
     /**
      * Tests whether this object supports a specific Slice interface.
@@ -38,7 +43,7 @@ public interface ObjectPrx {
      * @param id The type ID of the Slice interface to test against.
      * @return A future for the completion of the request.
      */
-    java.util.concurrent.CompletableFuture<Boolean> ice_isAAsync(String id);
+    CompletableFuture<Boolean> ice_isAAsync(String id);
 
     /**
      * Tests whether this object supports a specific Slice interface.
@@ -47,8 +52,8 @@ public interface ObjectPrx {
      * @param context The context map for the invocation.
      * @return A future for the completion of the request.
      */
-    java.util.concurrent.CompletableFuture<Boolean> ice_isAAsync(
-            String id, java.util.Map<String, String> context);
+    CompletableFuture<Boolean> ice_isAAsync(
+            String id, Map<String, String> context);
 
     /** Tests whether the target object of this proxy can be reached. */
     void ice_ping();
@@ -58,14 +63,14 @@ public interface ObjectPrx {
      *
      * @param context The context map for the invocation.
      */
-    void ice_ping(java.util.Map<String, String> context);
+    void ice_ping(Map<String, String> context);
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
      * @return A future for the completion of the request.
      */
-    java.util.concurrent.CompletableFuture<Void> ice_pingAsync();
+    CompletableFuture<Void> ice_pingAsync();
 
     /**
      * Tests whether the target object of this proxy can be reached.
@@ -73,8 +78,8 @@ public interface ObjectPrx {
      * @param context The context map for the invocation.
      * @return A future for the completion of the request.
      */
-    java.util.concurrent.CompletableFuture<Void> ice_pingAsync(
-            java.util.Map<String, String> context);
+    CompletableFuture<Void> ice_pingAsync(
+            Map<String, String> context);
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -91,14 +96,14 @@ public interface ObjectPrx {
      * @return The Slice type IDs of the interfaces supported by the target object, in alphabetical
      *     order.
      */
-    String[] ice_ids(java.util.Map<String, String> context);
+    String[] ice_ids(Map<String, String> context);
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
      * @return A future for the completion of the request.
      */
-    java.util.concurrent.CompletableFuture<String[]> ice_idsAsync();
+    CompletableFuture<String[]> ice_idsAsync();
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -106,8 +111,8 @@ public interface ObjectPrx {
      * @param context The context map for the invocation.
      * @return A future for the completion of the request.
      */
-    java.util.concurrent.CompletableFuture<String[]> ice_idsAsync(
-            java.util.Map<String, String> context);
+    CompletableFuture<String[]> ice_idsAsync(
+            Map<String, String> context);
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of
@@ -124,7 +129,7 @@ public interface ObjectPrx {
      * @param context The context map for the invocation.
      * @return The Slice type ID of the most-derived interface.
      */
-    String ice_id(java.util.Map<String, String> context);
+    String ice_id(Map<String, String> context);
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of
@@ -132,7 +137,7 @@ public interface ObjectPrx {
      *
      * @return A future for the completion of the request.
      */
-    java.util.concurrent.CompletableFuture<String> ice_idAsync();
+    CompletableFuture<String> ice_idAsync();
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of
@@ -141,8 +146,8 @@ public interface ObjectPrx {
      * @param context The context map for the invocation.
      * @return A future for the completion of the request.
      */
-    java.util.concurrent.CompletableFuture<String> ice_idAsync(
-            java.util.Map<String, String> context);
+    CompletableFuture<String> ice_idAsync(
+            Map<String, String> context);
 
     /**
      * Invokes an operation dynamically.
@@ -154,7 +159,7 @@ public interface ObjectPrx {
      * @see Blobject
      * @see OperationMode
      */
-    com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(
+    Object.Ice_invokeResult ice_invoke(
             String operation, OperationMode mode, byte[] inParams);
 
     /**
@@ -168,11 +173,11 @@ public interface ObjectPrx {
      * @see Blobject
      * @see OperationMode
      */
-    com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(
+    Object.Ice_invokeResult ice_invoke(
             String operation,
             OperationMode mode,
             byte[] inParams,
-            java.util.Map<String, String> context);
+            Map<String, String> context);
 
     /**
      * Invokes an operation dynamically and asynchronously.
@@ -184,7 +189,7 @@ public interface ObjectPrx {
      * @see Blobject
      * @see OperationMode
      */
-    java.util.concurrent.CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> ice_invokeAsync(
+    CompletableFuture<Object.Ice_invokeResult> ice_invokeAsync(
             String operation, OperationMode mode, byte[] inParams);
 
     /**
@@ -199,11 +204,11 @@ public interface ObjectPrx {
      * @see Blobject
      * @see OperationMode
      */
-    java.util.concurrent.CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> ice_invokeAsync(
+    CompletableFuture<Object.Ice_invokeResult> ice_invokeAsync(
             String operation,
             OperationMode mode,
             byte[] inParams,
-            java.util.Map<String, String> context);
+            Map<String, String> context);
 
     /**
      * Returns the identity embedded in this proxy.
@@ -226,7 +231,7 @@ public interface ObjectPrx {
      * @return The per-proxy context. If the proxy does not have a per-proxy (implicit) context, the
      *     return value is <code>null</code>.
      */
-    java.util.Map<String, String> ice_getContext();
+    Map<String, String> ice_getContext();
 
     /**
      * Returns a proxy that is identical to this proxy, except for the per-proxy context.
@@ -234,7 +239,7 @@ public interface ObjectPrx {
      * @param newContext The context for the new proxy.
      * @return The proxy with the new per-proxy context.
      */
-    ObjectPrx ice_context(java.util.Map<String, String> newContext);
+    ObjectPrx ice_context(Map<String, String> newContext);
 
     /**
      * Returns the facet for this proxy.
@@ -313,7 +318,7 @@ public interface ObjectPrx {
      * @param connection The fixed proxy connection.
      * @return A fixed proxy bound to the given connection.
      */
-    ObjectPrx ice_fixed(com.zeroc.Ice.Connection connection);
+    ObjectPrx ice_fixed(Connection connection);
 
     /**
      * Returns whether this proxy is a fixed proxy.
@@ -583,7 +588,7 @@ public interface ObjectPrx {
      * @return The compression override setting. If no optional value is present, no override is
      *     set. Otherwise, true if compression is enabled, false otherwise.
      */
-    java.util.Optional<Boolean> ice_getCompress();
+    Optional<Boolean> ice_getCompress();
 
     /**
      * Returns a proxy that is identical to this proxy, except for its connection ID.
@@ -608,7 +613,7 @@ public interface ObjectPrx {
      *
      * @return The Executor object.
      */
-    default java.util.concurrent.Executor ice_executor() {
+    default Executor ice_executor() {
         return _getReference().getThreadPool();
     }
 
@@ -617,7 +622,7 @@ public interface ObjectPrx {
      *
      * @return A future for the completion of the request.
      */
-    java.util.concurrent.CompletableFuture<Connection> ice_getConnectionAsync();
+    CompletableFuture<Connection> ice_getConnectionAsync();
 
     /**
      * Returns the cached {@link Connection} for this proxy. If the proxy does not yet have an
@@ -641,7 +646,7 @@ public interface ObjectPrx {
      *
      * @return A future for the completion of the request.
      */
-    java.util.concurrent.CompletableFuture<Void> ice_flushBatchRequestsAsync();
+    CompletableFuture<Void> ice_flushBatchRequestsAsync();
 
     /**
      * Returns whether this proxy equals the passed object. Two proxies are equal if they are equal
@@ -680,7 +685,7 @@ public interface ObjectPrx {
         if (ref == null) {
             throw new ParseException("Invalid empty proxy string.");
         }
-        return new com.zeroc.Ice._ObjectPrxI(ref);
+        return new _ObjectPrxI(ref);
     }
 
     /**
@@ -704,8 +709,8 @@ public interface ObjectPrx {
      * @param context The <code>Context</code> map for the invocation.
      * @return <code>obj</code>.
      */
-    static ObjectPrx checkedCast(ObjectPrx obj, java.util.Map<String, String> context) {
-        return (obj != null && obj.ice_isA(ice_staticId, context)) ? obj : null;
+    static ObjectPrx checkedCast(ObjectPrx obj, Map<String, String> context) {
+        return obj != null && obj.ice_isA(ice_staticId, context) ? obj : null;
     }
 
     /**
@@ -732,8 +737,8 @@ public interface ObjectPrx {
      * @return The new proxy with the specified facet.
      */
     static ObjectPrx checkedCast(
-            ObjectPrx obj, String facet, java.util.Map<String, String> context) {
-        return (obj == null) ? null : checkedCast(obj.ice_facet(facet), context);
+            ObjectPrx obj, String facet, Map<String, String> context) {
+        return obj == null ? null : checkedCast(obj.ice_facet(facet), context);
     }
 
     /**
@@ -756,7 +761,7 @@ public interface ObjectPrx {
      * @return The new proxy with the specified facet.
      */
     static ObjectPrx uncheckedCast(ObjectPrx obj, String facet) {
-        return (obj == null) ? null : obj.ice_facet(facet);
+        return obj == null ? null : obj.ice_facet(facet);
     }
 
     /**
@@ -803,5 +808,5 @@ public interface ObjectPrx {
      * For example, <code>prx.op(noExplicitContext)</code> is the same as <code>prx.op()</code> and
      * does not override the current implicit context (if any).
      */
-    static final java.util.Map<String, String> noExplicitContext = new java.util.HashMap<>();
+    static final Map<String, String> noExplicitContext = new HashMap<>();
 }

@@ -4,13 +4,16 @@ package test.Ice.maxConnections;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Connection;
+import com.zeroc.Ice.ConnectionLostException;
 
 import test.Ice.maxConnections.Test.TestIntfPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 public class AllTests {
-    static void allTests(test.TestHelper helper) {
+    static void allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
         String proxyString = "test: " + helper.getTestEndpoint();
         var p = TestIntfPrx.createProxy(communicator, proxyString);
@@ -23,13 +26,13 @@ public class AllTests {
         // the connection after it gets a transport frame from the client.
         if (helper.getTestProtocol().startsWith("ws")) {
             postCloseDelay =
-                    () -> {
-                        try {
-                            Thread.sleep(50);
-                        } catch (InterruptedException ex) {
-                            // ignore
-                        }
-                    };
+                () -> {
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException ex) {
+                        // ignore
+                    }
+                };
         }
 
         testCreateConnections(p, 100, helper.getWriter(), postCloseDelay);
@@ -45,7 +48,7 @@ public class AllTests {
         output.write("testing the creation of " + connectionCount + " connections... ");
         output.flush();
 
-        var connectionList = new java.util.ArrayList<Connection>();
+        var connectionList = new ArrayList<Connection>();
         for (int i = 0; i < connectionCount; i++) {
             p = p.ice_connectionId("connection-" + i);
             p.ice_ping();
@@ -68,14 +71,14 @@ public class AllTests {
     private static void testCreateConnectionsWithMax(
             TestIntfPrx p, int max, PrintWriter output, Runnable postCloseDelay) {
         output.write(
-                "testing the creation of "
-                        + max
-                        + " connections with connection lost at "
-                        + (max + 1)
-                        + "... ");
+            "testing the creation of "
+                + max
+                + " connections with connection lost at "
+                + (max + 1)
+                + "... ");
         output.flush();
 
-        var connectionList = new java.util.ArrayList<Connection>();
+        var connectionList = new ArrayList<Connection>();
         for (int i = 0; i < max; i++) {
             p = p.ice_connectionId("connection-" + i);
             p.ice_ping();
@@ -86,7 +89,7 @@ public class AllTests {
         try {
             p.ice_ping();
             test(false);
-        } catch (com.zeroc.Ice.ConnectionLostException ex) {
+        } catch (ConnectionLostException ex) {
             // expected, the server aborts the connection when MaxConnections is reached
         }
 
@@ -106,14 +109,14 @@ public class AllTests {
     private static void testCreateConnectionsWithMaxAndRecovery(
             TestIntfPrx p, int max, PrintWriter output, Runnable postCloseDelay) {
         output.write(
-                "testing the creation of "
-                        + max
-                        + " connections with connection lost at "
-                        + (max + 1)
-                        + " then recovery... ");
+            "testing the creation of "
+                + max
+                + " connections with connection lost at "
+                + (max + 1)
+                + " then recovery... ");
         output.flush();
 
-        var connectionList = new java.util.ArrayList<Connection>();
+        var connectionList = new ArrayList<Connection>();
         for (int i = 0; i < max; i++) {
             p = p.ice_connectionId("connection-" + i);
             p.ice_ping();
@@ -124,7 +127,7 @@ public class AllTests {
         try {
             p.ice_ping();
             test(false);
-        } catch (com.zeroc.Ice.ConnectionLostException ex) {
+        } catch (ConnectionLostException ex) {
             // expected
         }
 
@@ -165,4 +168,6 @@ public class AllTests {
             throw new RuntimeException();
         }
     }
+
+    private AllTests() {}
 }

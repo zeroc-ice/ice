@@ -54,5 +54,5 @@ class ServiceTemplateEditor extends TemplateEditor {
         }
     }
 
-    private ServiceSubEditor _subEditor;
+    private final ServiceSubEditor _subEditor;
 }

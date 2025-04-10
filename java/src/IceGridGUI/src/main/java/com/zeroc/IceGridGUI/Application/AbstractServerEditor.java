@@ -2,7 +2,8 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
+import com.zeroc.IceGrid.ServerDescriptor;
+import com.zeroc.IceGrid.ServerInstanceDescriptor;
 
 import javax.swing.JOptionPane;
 
@@ -47,10 +48,10 @@ abstract class AbstractServerEditor extends Editor {
                     root.setSelectedNode(_target);
 
                     JOptionPane.showMessageDialog(
-                            root.getCoordinator().getMainFrame(),
-                            e.toString(),
-                            "Apply failed",
-                            JOptionPane.ERROR_MESSAGE);
+                        root.getCoordinator().getMainFrame(),
+                        e.toString(),
+                        "Apply failed",
+                        JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
@@ -91,19 +92,19 @@ abstract class AbstractServerEditor extends Editor {
                     root.setSelectedNode(_target);
 
                     JOptionPane.showMessageDialog(
-                            root.getCoordinator().getMainFrame(),
-                            e.toString(),
-                            "Apply failed",
-                            JOptionPane.ERROR_MESSAGE);
+                        root.getCoordinator().getMainFrame(),
+                        e.toString(),
+                        "Apply failed",
+                        JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
                 // Success
                 node.getEditable()
-                        .removeElement(
-                                _target.getId(),
-                                server.getEditable(),
-                                Server.class); // replaced by brand new Server
+                    .removeElement(
+                        _target.getId(),
+                        server.getEditable(),
+                        Server.class); // replaced by brand new Server
 
                 _target = node.findChildWithDescriptor(server.getDescriptor());
                 root.updated();

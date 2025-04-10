@@ -3,6 +3,7 @@
 package com.zeroc.Ice;
 
 import java.time.Duration;
+import java.util.Map;
 
 class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
     public ProxyIceInvoke(
@@ -14,7 +15,7 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
         _is = null;
     }
 
-    public void invoke(byte[] inParams, java.util.Map<String, String> ctx) {
+    public void invoke(byte[] inParams, Map<String, String> ctx) {
         try {
             prepare(ctx);
             writeParamEncaps(inParams);
@@ -25,8 +26,8 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
                 //
                 _sentSynchronously = true;
                 _proxy._getReference()
-                        .getBatchRequestQueue()
-                        .finishBatchRequest(_os, _proxy, _operation);
+                    .getBatchRequestQueue()
+                    .finishBatchRequest(_os, _proxy, _operation);
                 finished(true, false);
             } else {
                 // invokeImpl can throw and we handle the exception with abort.
@@ -55,7 +56,7 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
 
     @Override
     public int invokeRemote(ConnectionI connection, boolean compress, boolean response)
-            throws RetryException {
+        throws RetryException {
         _cachedConnection = connection;
         return connection.sendAsyncRequest(this, compress, response, 0);
     }
@@ -65,7 +66,7 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
         // The stream cannot be cached if the proxy is not a twoway or there is an invocation
         // timeout set.
         if (!_proxy.ice_isTwoway()
-                || _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
+            || _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
         }
@@ -112,10 +113,10 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
         // _is can already be initialized if the invocation is retried
         if (_is == null) {
             _is =
-                    new InputStream(
-                            _instance,
-                            Protocol.currentProtocolEncoding,
-                            _instance.cacheMessageBuffers() > 1);
+                new InputStream(
+                    _instance,
+                    Protocol.currentProtocolEncoding,
+                    _instance.cacheMessageBuffers() > 1);
         }
         _is.swap(is);
 
@@ -138,5 +139,5 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
     private InputStream _is;
 
     // True if this AMI request is being used for a generated synchronous invocation.
-    private boolean _synchronous;
+    private final boolean _synchronous;
 }

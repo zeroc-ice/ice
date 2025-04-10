@@ -20,15 +20,15 @@ class CellRenderer implements TreeCellRenderer {
             boolean hasFocus) {
         TreeCellRenderer node = (TreeCellRenderer) value;
         Component result =
-                node.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+            node.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
         if (result == null) {
             result =
-                    _defaultRenderer.getTreeCellRendererComponent(
-                            tree, value, sel, expanded, leaf, row, hasFocus);
+                _defaultRenderer.getTreeCellRendererComponent(
+                    tree, value, sel, expanded, leaf, row, hasFocus);
         }
         return result;
     }
 
-    private TreeCellRenderer _defaultRenderer = new DefaultTreeCellRenderer();
+    private final TreeCellRenderer _defaultRenderer = new DefaultTreeCellRenderer();
 }

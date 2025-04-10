@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.nio.channels.SelectableChannel;
+
 /**
  * @hidden Public because it's used by IceBT, SSL, and the 'Ice/background' test.
  */
@@ -13,7 +15,7 @@ public interface Transceiver {
      * @return The selectable channel that will be registered with the thread pool's selector or
      *     null if the transceiver doesn't use a selectable channel.
      */
-    java.nio.channels.SelectableChannel fd();
+    SelectableChannel fd();
 
     /**
      * Sets the transceiver ready callback. This method is called by the thread pool to provide a

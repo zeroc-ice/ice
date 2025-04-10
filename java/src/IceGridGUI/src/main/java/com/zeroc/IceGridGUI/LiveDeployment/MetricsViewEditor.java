@@ -4,7 +4,16 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.Ice.FacetNotExistException;
+import com.zeroc.Ice.FileException;
+import com.zeroc.Ice.HashUtil;
+import com.zeroc.Ice.IceMX.Metrics;
+import com.zeroc.Ice.IceMX.MetricsAdminPrx;
+import com.zeroc.Ice.IceMX.MetricsFailures;
+import com.zeroc.Ice.ObjectNotExistException;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+import com.zeroc.IceGridGUI.Coordinator;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -21,11 +30,16 @@ import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
@@ -124,9 +138,9 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             int row = e.getY() / _table.getRowHeight();
 
             if (row < _table.getRowCount()
-                    && row >= 0
-                    && column < _table.getColumnCount()
-                    && column >= 0) {
+                && row >= 0
+                && column < _table.getColumnCount()
+                && column >= 0) {
                 Object value = _table.getValueAt(row, column);
                 if (value instanceof JButton) {
                     ((JButton) value).doClick();
@@ -145,8 +159,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
 
             // If selected node is a MetricsView and it is enabled; start the refresh thread.
             if (e.isAddedPath()
-                    && e.getPath().getLastPathComponent() instanceof MetricsView
-                    && ((MetricsView) e.getPath().getLastPathComponent()).isEnabled()) {
+                && e.getPath().getLastPathComponent() instanceof MetricsView
+                && ((MetricsView) e.getPath().getLastPathComponent()).isEnabled()) {
                 MetricsViewEditor.startRefresh((MetricsView) e.getPath().getLastPathComponent());
             }
 
@@ -165,31 +179,31 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             tree.addTreeSelectionListener(new SelectionListener());
 
             Set<String> sectionSort = new LinkedHashSet<>();
-            _properties = new com.zeroc.Ice.Properties();
+            _properties = new Properties();
 
             _properties.load("metrics.cfg");
             sectionSort.addAll(
-                    java.util.Arrays.asList(
-                            _properties.getIcePropertyAsList("IceGridGUI.Metrics")));
+                Arrays.asList(
+                    _properties.getIcePropertyAsList("IceGridGUI.Metrics")));
 
             String metricsDefs =
-                    coord.getProperties().getIceProperty("IceGridAdmin.MetricsConfigs");
+                coord.getProperties().getIceProperty("IceGridAdmin.MetricsConfigs");
             if (!metricsDefs.isEmpty()) {
                 for (String s : metricsDefs.split(",")) {
                     try {
                         _properties.load(s.trim());
-                    } catch (com.zeroc.Ice.FileException ex) {
+                    } catch (FileException ex) {
                         coord.getCommunicator().getLogger().warning(ex.getMessage());
                     }
                     sectionSort.addAll(
-                            java.util.Arrays.asList(
-                                    _properties.getIcePropertyAsList("IceGridGUI.Metrics")));
+                        Arrays.asList(
+                            _properties.getIcePropertyAsList("IceGridGUI.Metrics")));
                 }
             }
 
             for (String name : sectionSort) {
                 String displayName =
-                        _properties.getPropertyWithDefault("IceGridGUI.Metrics." + name, "");
+                    _properties.getPropertyWithDefault("IceGridGUI.Metrics." + name, "");
                 if (!displayName.isEmpty()) {
                     _sectionNames.put(name, displayName);
                 }
@@ -207,15 +221,15 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
     static synchronized void startRefresh(final MetricsView node) {
         assert (_refreshFuture == null);
         _refreshFuture =
-                node.getCoordinator()
-                        .getScheduledExecutor()
-                        .scheduleAtFixedRate(
-                                () -> {
-                                    node.fetchMetricsView();
-                                },
-                                0,
-                                _refreshPeriod,
-                                java.util.concurrent.TimeUnit.SECONDS);
+            node.getCoordinator()
+                .getScheduledExecutor()
+                .scheduleAtFixedRate(
+                    () -> {
+                        node.fetchMetricsView();
+                    },
+                    0,
+                    _refreshPeriod,
+                    TimeUnit.SECONDS);
     }
 
     static synchronized void stopRefresh() {
@@ -231,7 +245,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
 
     public static class MetricsViewInfo {
         public MetricsViewInfo(MetricsView view) {
-            java.util.List<String> fullId = ((Communicator) view.getParent()).getFullId();
+            List<String> fullId = ((Communicator) view.getParent()).getFullId();
 
             assert !fullId.isEmpty();
 
@@ -280,13 +294,13 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
 
         @Override
         public int hashCode() {
-            int h = com.zeroc.Ice.HashUtil.hashAdd(5381, component);
-            return com.zeroc.Ice.HashUtil.hashAdd(h, view);
+            int h = HashUtil.hashAdd(5381, component);
+            return HashUtil.hashAdd(h, view);
         }
 
         public String component;
         public String view;
-        public com.zeroc.Ice.IceMX.MetricsAdminPrx admin;
+        public MetricsAdminPrx admin;
     }
 
     public static class MetricsCell {
@@ -314,13 +328,13 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             }
             MetricsCell that = (MetricsCell) other;
             return this._id.equals(that._id)
-                    && this._field.getFieldName().equals(that._field.getFieldName());
+                && this._field.getFieldName().equals(that._field.getFieldName());
         }
 
         @Override
         public int hashCode() {
-            int h = com.zeroc.Ice.HashUtil.hashAdd(5381, _id);
-            return com.zeroc.Ice.HashUtil.hashAdd(h, _field.getFieldName());
+            int h = HashUtil.hashAdd(5381, _id);
+            return HashUtil.hashAdd(h, _field.getFieldName());
         }
 
         public double getScaleFactor() {
@@ -331,8 +345,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             _scaleFactor = scaleFactor;
         }
 
-        public Number getValue(com.zeroc.Ice.IceMX.Metrics m, long timestamp) {
-            Number value = ((Number) getField().getValue(m, timestamp));
+        public Number getValue(Metrics m, long timestamp) {
+            Number value = (Number) getField().getValue(m, timestamp);
             if (value == null) {
                 return value;
             } else {
@@ -376,7 +390,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         private double _scaleFactor = 1.0d;
         private double _last;
         private double _average = 0;
-        private int _samples = 0;
+        private int _samples;
         private double _min;
         private double _max;
     }
@@ -386,11 +400,10 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             _data = data;
             try {
                 _flavors =
-                        new DataFlavor[] {
-                            (DataFlavor) MetricsViewTransferableData.dataFlavor().clone()
-                        };
-            } catch (CloneNotSupportedException ex) {
-            }
+                    new DataFlavor[]{
+                        (DataFlavor) MetricsViewTransferableData.dataFlavor().clone()
+                    };
+            } catch (CloneNotSupportedException ex) {}
         }
 
         @Override
@@ -428,11 +441,11 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             if (_flavor == null) {
                 try {
                     _flavor =
-                            new DataFlavor(
-                                    DataFlavor.javaJVMLocalObjectMimeType
-                                            + ";class=\""
-                                            + MetricsViewTransferableData.class.getName()
-                                            + "\"");
+                        new DataFlavor(
+                            DataFlavor.javaJVMLocalObjectMimeType
+                                + ";class=\""
+                                + MetricsViewTransferableData.class.getName()
+                                + "\"");
                 } catch (ClassNotFoundException ex) {
                     // Cannot happen
                     ex.printStackTrace();
@@ -456,32 +469,32 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             TableModel model = (TableModel) table.getModel();
 
             int idColumn =
-                    table.getColumnModel()
-                            .getColumnIndex(
-                                    _properties.getProperty(
-                                            "IceGridGUI.Metrics."
-                                                    + model.getMetricsName()
-                                                    + ".id.columnName"));
+                table.getColumnModel()
+                    .getColumnIndex(
+                        _properties.getProperty(
+                            "IceGridGUI.Metrics."
+                                + model.getMetricsName()
+                                + ".id.columnName"));
 
             for (int row : selectedRows) {
                 List<MetricsCell> cells = new ArrayList<>();
                 String id =
-                        model.getValueAt(table.convertRowIndexToModel(row), idColumn).toString();
+                    model.getValueAt(table.convertRowIndexToModel(row), idColumn).toString();
                 for (int col : selectedColumns) {
                     MetricsField field =
-                            model.getMetricFields().get(table.convertColumnIndexToModel(col));
+                        model.getMetricFields().get(table.convertColumnIndexToModel(col));
                     Class columnClass = field.getColumnClass();
 
                     if (!numeric) {
                         cells.add(new MetricsCell(id, field.createField()));
                     } else if (columnClass.equals(int.class)
-                            || columnClass.equals(Integer.class)
-                            || columnClass.equals(long.class)
-                            || columnClass.equals(Long.class)
-                            || columnClass.equals(float.class)
-                            || columnClass.equals(Float.class)
-                            || columnClass.equals(double.class)
-                            || columnClass.equals(Double.class)) {
+                        || columnClass.equals(Integer.class)
+                        || columnClass.equals(long.class)
+                        || columnClass.equals(Long.class)
+                        || columnClass.equals(float.class)
+                        || columnClass.equals(Float.class)
+                        || columnClass.equals(double.class)
+                        || columnClass.equals(Double.class)) {
                         cells.add(new MetricsCell(id, field.createField()));
                     }
                 }
@@ -511,8 +524,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
 
             if (!rows.isEmpty()) {
                 return new Transferable(
-                        new MetricsViewTransferableData(
-                                new MetricsViewInfo(_node), model.getMetricsName(), rows));
+                    new MetricsViewTransferableData(
+                        new MetricsViewInfo(_node), model.getMetricsName(), rows));
             } else {
                 return null;
             }
@@ -527,19 +540,19 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
 
     public void show(
             final MetricsView node,
-            final Map<java.lang.String, com.zeroc.Ice.IceMX.Metrics[]> data,
+            final Map<String, Metrics[]> data,
             final long timestamp) {
         boolean rebuildPanel = false;
         if (!node.isEnabled()) {
             _tables.clear();
             rebuildPanel = true;
         } else if (data != null) {
-            for (final Map.Entry<String, com.zeroc.Ice.IceMX.Metrics[]> entry : data.entrySet()) {
+            for (final Map.Entry<String, Metrics[]> entry : data.entrySet()) {
                 if (_tables.get(entry.getKey()) != null) {
                     continue;
                 }
 
-                com.zeroc.Ice.IceMX.Metrics[] objects = entry.getValue();
+                Metrics[] objects = entry.getValue();
                 if (objects == null || objects.length == 0) {
                     continue;
                 }
@@ -550,16 +563,15 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                     Field objectField = null;
                     try {
                         objectField = objects[0].getClass().getField(name);
-                    } catch (NoSuchFieldException ex) {
-                    }
+                    } catch (NoSuchFieldException ex) {}
                     MetricsField field =
-                            createField(
-                                    node,
-                                    prefix + "." + name,
-                                    entry.getKey(),
-                                    name,
-                                    objectField,
-                                    this);
+                        createField(
+                            node,
+                            prefix + "." + name,
+                            entry.getKey(),
+                            name,
+                            objectField,
+                            this);
                     if (field != null) {
                         model.addField(field);
                     }
@@ -569,26 +581,26 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                 }
 
                 final JTable table =
-                        new JTable(model) {
-                            // Implement table header tool tips.
-                            @Override
-                            protected JTableHeader createDefaultTableHeader() {
-                                return new JTableHeader(columnModel) {
-                                    @Override
-                                    public String getToolTipText(MouseEvent e) {
-                                        int index =
-                                                columnModel
-                                                        .getColumn(
-                                                                columnModel.getColumnIndexAtX(
-                                                                        e.getPoint().x))
-                                                        .getModelIndex();
-                                        return model.getMetricFields()
-                                                .get(index)
-                                                .getColumnToolTip();
-                                    }
-                                };
-                            }
-                        };
+                    new JTable(model) {
+                        // Implement table header tool tips.
+                        @Override
+                        protected JTableHeader createDefaultTableHeader() {
+                            return new JTableHeader(columnModel) {
+                                @Override
+                                public String getToolTipText(MouseEvent e) {
+                                    int index =
+                                        columnModel
+                                            .getColumn(
+                                                columnModel.getColumnIndexAtX(
+                                                    e.getPoint().x))
+                                            .getModelIndex();
+                                    return model.getMetricFields()
+                                        .get(index)
+                                        .getColumnToolTip();
+                                }
+                            };
+                        }
+                    };
 
                 // Adjust row height for larger fonts
                 int fontSize = table.getFont().getSize();
@@ -604,71 +616,71 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                 table.setAutoCreateRowSorter(true);
                 table.setTransferHandler(new TransferHandler(node));
                 table.addMouseListener(
-                        new MouseAdapter() {
-                            @Override
-                            public void mousePressed(MouseEvent e) {
-                                createAndShowMenu(e);
-                            }
+                    new MouseAdapter() {
+                        @Override
+                        public void mousePressed(MouseEvent e) {
+                            createAndShowMenu(e);
+                        }
 
-                            @Override
-                            public void mouseReleased(MouseEvent e) {
-                                createAndShowMenu(e);
-                            }
+                        @Override
+                        public void mouseReleased(MouseEvent e) {
+                            createAndShowMenu(e);
+                        }
 
-                            public void createAndShowMenu(MouseEvent e) {
-                                if (e.isPopupTrigger()) {
-                                    JPopupMenu popup = new JPopupMenu();
-                                    JMenu addToGraph = new JMenu("Add To Metrics Graph");
-                                    popup.add(addToGraph);
-                                    final Map<String, List<MetricsCell>> rows =
-                                            getSelectedRows(table, true);
-                                    addToGraph.setEnabled(!rows.isEmpty());
-                                    JMenuItem newGraph = new JMenuItem("New Metrics Graph");
-                                    newGraph.addActionListener(
-                                            new ActionListener() {
-                                                @Override
-                                                public void actionPerformed(ActionEvent e) {
-                                                    Coordinator.IGraphView view =
-                                                            node.getCoordinator().createGraphView();
-                                                    if (view != null) {
-                                                        view.addSeries(
-                                                                new MetricsViewTransferableData(
-                                                                        new MetricsViewInfo(node),
-                                                                        entry.getKey(),
-                                                                        rows));
-                                                    }
-                                                }
-                                            });
-                                    addToGraph.add(newGraph);
+                        public void createAndShowMenu(MouseEvent e) {
+                            if (e.isPopupTrigger()) {
+                                JPopupMenu popup = new JPopupMenu();
+                                JMenu addToGraph = new JMenu("Add To Metrics Graph");
+                                popup.add(addToGraph);
+                                final Map<String, List<MetricsCell>> rows =
+                                    getSelectedRows(table, true);
+                                addToGraph.setEnabled(!rows.isEmpty());
+                                JMenuItem newGraph = new JMenuItem("New Metrics Graph");
+                                newGraph.addActionListener(
+                                    new ActionListener() {
+                                        @Override
+                                        public void actionPerformed(ActionEvent e) {
+                                            Coordinator.IGraphView view =
+                                                node.getCoordinator().createGraphView();
+                                            if (view != null) {
+                                                view.addSeries(
+                                                    new MetricsViewTransferableData(
+                                                        new MetricsViewInfo(node),
+                                                        entry.getKey(),
+                                                        rows));
+                                            }
+                                        }
+                                    });
+                                addToGraph.add(newGraph);
 
-                                    Coordinator.IGraphView[] graphs =
-                                            node.getCoordinator().getGraphViews();
-                                    for (final Coordinator.IGraphView view : graphs) {
-                                        JMenuItem item = new JMenuItem(view.getTitle());
-                                        addToGraph.add(item);
-                                        item.addActionListener(
-                                                new ActionListener() {
-                                                    @Override
-                                                    public void actionPerformed(ActionEvent e) {
-                                                        view.addSeries(
-                                                                new MetricsViewTransferableData(
-                                                                        new MetricsViewInfo(node),
-                                                                        entry.getKey(),
-                                                                        rows));
-                                                    }
-                                                });
-                                    }
-                                    popup.show(e.getComponent(), e.getX(), e.getY());
+                                Coordinator.IGraphView[] graphs =
+                                    node.getCoordinator().getGraphViews();
+                                for (final Coordinator.IGraphView view : graphs) {
+                                    JMenuItem item = new JMenuItem(view.getTitle());
+                                    addToGraph.add(item);
+                                    item.addActionListener(
+                                        new ActionListener() {
+                                            @Override
+                                            public void actionPerformed(ActionEvent e) {
+                                                view.addSeries(
+                                                    new MetricsViewTransferableData(
+                                                        new MetricsViewInfo(node),
+                                                        entry.getKey(),
+                                                        rows));
+                                            }
+                                        });
                                 }
+                                popup.show(e.getComponent(), e.getX(), e.getY());
                             }
-                        });
+                        }
+                    });
 
                 for (Map.Entry<Integer, MetricsField> fieldEntry :
                         model.getMetricFields().entrySet()) {
                     if (fieldEntry.getValue().getCellRenderer() != null) {
                         table.getColumnModel()
-                                .getColumn(fieldEntry.getKey().intValue())
-                                .setCellRenderer(fieldEntry.getValue().getCellRenderer());
+                            .getColumn(fieldEntry.getKey().intValue())
+                            .setCellRenderer(fieldEntry.getValue().getCellRenderer());
                     }
                 }
 
@@ -683,9 +695,9 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
 
         if (data != null) {
             // Load the data.
-            for (Map.Entry<String, com.zeroc.Ice.IceMX.Metrics[]> entry : data.entrySet()) {
+            for (Map.Entry<String, Metrics[]> entry : data.entrySet()) {
                 String key = entry.getKey();
-                com.zeroc.Ice.IceMX.Metrics[] values = entry.getValue();
+                Metrics[] values = entry.getValue();
                 JTable table = _tables.get(key);
                 if (table == null) {
                     continue;
@@ -696,29 +708,29 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
 
                 model.getDataVector().removeAllElements();
                 model.fireTableDataChanged();
-                for (com.zeroc.Ice.IceMX.Metrics m : values) {
+                for (Metrics m : values) {
                     model.addMetrics(m, timestamp);
                 }
 
                 int idColumn =
-                        table.getColumnModel()
-                                .getColumnIndex(
-                                        _properties.getProperty(
-                                                "IceGridGUI.Metrics." + key + ".id.columnName"));
+                    table.getColumnModel()
+                        .getColumnIndex(
+                            _properties.getProperty(
+                                "IceGridGUI.Metrics." + key + ".id.columnName"));
                 if (!rows.isEmpty()) {
-                    for (int i = table.getRowCount() - 1; i >= 0; --i) {
+                    for (int i = table.getRowCount() - 1; i >= 0; i--) {
                         String id = (String) table.getValueAt(i, idColumn);
                         List<MetricsCell> columns = rows.get(id);
                         if (columns != null) {
                             for (MetricsCell cell : columns) {
                                 int j =
-                                        table.getColumnModel()
-                                                .getColumnIndex(cell.getField().getColumnName());
+                                    table.getColumnModel()
+                                        .getColumnIndex(cell.getField().getColumnName());
 
                                 table.getSelectionModel().addSelectionInterval(i, i);
                                 table.getColumnModel()
-                                        .getSelectionModel()
-                                        .addSelectionInterval(j, j);
+                                    .getSelectionModel()
+                                    .addSelectionInterval(j, j);
                             }
                         }
                     }
@@ -735,29 +747,29 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             Field objectField,
             MetricsFieldContext context) {
         String className =
-                _properties.getPropertyWithDefault(
-                        prefix + ".fieldClass",
-                        "com.zeroc.IceGridGUI.LiveDeployment.MetricsViewEditor$DeclaredMetricsField");
+            _properties.getPropertyWithDefault(
+                prefix + ".fieldClass",
+                "com.zeroc.IceGridGUI.LiveDeployment.MetricsViewEditor$DeclaredMetricsField");
 
         if (!className.startsWith("com.zeroc.")) {
             className = "com.zeroc." + className;
         }
 
-        Class<?> cls = com.zeroc.Ice.Util.findClass(className, null);
+        Class<?> cls = Util.findClass(className, null);
         if (cls == null) {
             System.err.println("Could not find class " + className);
             return null;
         }
         try {
             java.lang.reflect.Constructor<?> ctor =
-                    cls.getDeclaredConstructor(
-                            MetricsView.class,
-                            String.class,
-                            String.class,
-                            String.class,
-                            Field.class);
+                cls.getDeclaredConstructor(
+                    MetricsView.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    Field.class);
             MetricsField field =
-                    (MetricsField) ctor.newInstance(node, prefix, mapName, name, objectField);
+                (MetricsField) ctor.newInstance(node, prefix, mapName, name, objectField);
             field.setContext(context);
             Map<String, String> properties = _properties.getPropertiesForPrefix(prefix);
             for (Map.Entry<String, String> propEntry : properties.entrySet()) {
@@ -766,24 +778,24 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                 }
 
                 if (!propEntry
-                        .getKey()
-                        .substring(0, propEntry.getKey().lastIndexOf('.'))
-                        .equals(prefix)) {
+                    .getKey()
+                    .substring(0, propEntry.getKey().lastIndexOf('.'))
+                    .equals(prefix)) {
                     // Sub metric property.
                     continue;
                 }
 
                 String setterName =
-                        propEntry.getKey().substring(propEntry.getKey().lastIndexOf('.') + 1);
+                    propEntry.getKey().substring(propEntry.getKey().lastIndexOf('.') + 1);
                 setterName =
-                        "set"
-                                + Character.toUpperCase(setterName.charAt(0))
-                                + setterName.substring(1);
+                    "set"
+                        + Character.toUpperCase(setterName.charAt(0))
+                        + setterName.substring(1);
 
                 try {
                     java.lang.reflect.Method setter =
-                            cls.getMethod(setterName, new Class[] {String.class});
-                    setter.invoke(field, new Object[] {propEntry.getValue()});
+                        cls.getMethod(setterName, new Class[]{String.class});
+                    setter.invoke(field, new Object[]{propEntry.getValue()});
                 } catch (NoSuchMethodException ex) {
                     continue;
                 } catch (java.lang.reflect.InvocationTargetException ex) {
@@ -832,11 +844,11 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         }
         for (Map.Entry<String, JTable> entry : tables.entrySet()) {
             current =
-                    createScrollTable(
-                            current,
-                            sb.toString() + entry.getKey(),
-                            entry.getKey(),
-                            entry.getValue());
+                createScrollTable(
+                    current,
+                    sb.toString() + entry.getKey(),
+                    entry.getKey(),
+                    entry.getValue());
             if (top == null) {
                 top = current;
             }
@@ -851,11 +863,11 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             JSplitPane currentPane, final String key, String title, JTable table) {
         JPanel panel = new JPanel();
         TitledBorder border =
-                BorderFactory.createTitledBorder(
-                        BorderFactory.createEmptyBorder(),
-                        title,
-                        TitledBorder.LEFT,
-                        TitledBorder.CENTER);
+            BorderFactory.createTitledBorder(
+                BorderFactory.createEmptyBorder(),
+                title,
+                TitledBorder.LEFT,
+                TitledBorder.CENTER);
         panel.setBorder(border);
         panel.setLayout(new BorderLayout(0, 0));
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
@@ -868,22 +880,22 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         }
         splitPane.setDividerLocation(_prefs.getInt(key, 120));
         splitPane.addPropertyChangeListener(
-                JSplitPane.DIVIDER_LOCATION_PROPERTY,
-                new PropertyChangeListener() {
-                    @Override
-                    public void propertyChange(PropertyChangeEvent e) {
-                        _prefs.putInt(key, Integer.valueOf((Integer) e.getNewValue()));
-                        try {
-                            _prefs.flush();
-                        } catch (java.util.prefs.BackingStoreException ex) {
-                            JOptionPane.showMessageDialog(
-                                    null,
-                                    ex.toString(),
-                                    "Error saving preferences",
-                                    JOptionPane.ERROR_MESSAGE);
-                        }
+            JSplitPane.DIVIDER_LOCATION_PROPERTY,
+            new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent e) {
+                    _prefs.putInt(key, Integer.valueOf((Integer) e.getNewValue()));
+                    try {
+                        _prefs.flush();
+                    } catch (BackingStoreException ex) {
+                        JOptionPane.showMessageDialog(
+                            null,
+                            ex.toString(),
+                            "Error saving preferences",
+                            JOptionPane.ERROR_MESSAGE);
                     }
-                });
+                }
+            });
         return splitPane;
     }
 
@@ -898,7 +910,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             _metricsName = metricsName;
         }
 
-        public void addMetrics(com.zeroc.Ice.IceMX.Metrics m, long timestamp) {
+        public void addMetrics(Metrics m, long timestamp) {
             Object[] row = new Object[_fields.size()];
 
             for (Map.Entry<Integer, MetricsField> entry : _fields.entrySet()) {
@@ -947,8 +959,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         Map<Integer, MetricsField> _fields = new HashMap<>();
     }
 
-    private static java.util.concurrent.Future<?> _refreshFuture;
-    private Map<String, JTable> _tables = new HashMap<>();
+    private static Future<?> _refreshFuture;
+    private final Map<String, JTable> _tables = new HashMap<>();
 
     static class ColumnInfo {
         public ColumnInfo(String name, String displayName) {
@@ -986,7 +998,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         TableCellRenderer getCellRenderer();
 
         /** Return the value of the field for the given metrics object. */
-        Object getValue(com.zeroc.Ice.IceMX.Metrics m, long timestamp);
+        Object getValue(Metrics m, long timestamp);
 
         /** Set up a field identical to this but without the transient data. */
         MetricsField createField();
@@ -1046,7 +1058,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         @Override
         public MetricsField createField() {
             return MetricsViewEditor.createField(
-                    _node, _prefix, _metricsName, _fieldName, _objectField, _context);
+                _node, _prefix, _metricsName, _fieldName, _objectField, _context);
         }
 
         @Override
@@ -1084,12 +1096,12 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             super(node, prefix, metricsName, fieldName, field);
             if (field == null) {
                 throw new IllegalArgumentException(
-                        "Field argument must be non null, "
-                                + "Metrics object: `"
-                                + metricsName
-                                + "' field: `"
-                                + fieldName
-                                + "'");
+                    "Field argument must be non null, "
+                        + "Metrics object: `"
+                        + metricsName
+                        + "' field: `"
+                        + fieldName
+                        + "'");
             }
             Class columnClass = field.getType();
             if (columnClass.equals(int.class)) {
@@ -1122,7 +1134,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         }
 
         @Override
-        public Object getValue(com.zeroc.Ice.IceMX.Metrics m, long timestamp) {
+        public Object getValue(Metrics m, long timestamp) {
             try {
                 return m.getClass().getField(getFieldName()).get(m);
             } catch (NoSuchFieldException ex) {
@@ -1166,27 +1178,27 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         }
 
         @Override
-        public Object getValue(com.zeroc.Ice.IceMX.Metrics m2, long timestamp) {
-            com.zeroc.Ice.IceMX.Metrics m1 = _deltas.get(m2.id);
+        public Object getValue(Metrics m2, long timestamp) {
+            Metrics m1 = _deltas.get(m2.id);
             _deltas.put(m2.id, m2);
             if (m1 == null) {
                 return null;
             }
             if ((m2.total - m1.total) - (m2.current - m1.current) == 0
-                    || (m2.totalLifetime - m1.totalLifetime) == 0) {
+                || (m2.totalLifetime - m1.totalLifetime) == 0) {
                 return 0.0f;
             } else {
                 return (float)
-                        (((m2.totalLifetime - m1.totalLifetime) / _scaleFactor)
-                                        / (m2.total - m1.total)
-                                - (m2.current - m1.current));
+                    (((m2.totalLifetime - m1.totalLifetime) / _scaleFactor)
+                        / (m2.total - m1.total)
+                        - (m2.current - m1.current));
             }
         }
 
         private double _scaleFactor = 1.0d;
         private String _columnName;
         private TableCellRenderer _cellRenderer;
-        private final Map<String, com.zeroc.Ice.IceMX.Metrics> _deltas = new HashMap<>();
+        private final Map<String, Metrics> _deltas = new HashMap<>();
     }
 
     public static class DeltaMeasurement {
@@ -1228,7 +1240,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         }
 
         @Override
-        public Object getValue(com.zeroc.Ice.IceMX.Metrics m, long timestamp) {
+        public Object getValue(Metrics m, long timestamp) {
             DeltaMeasurement d1 = _deltas.get(m.id);
             DeltaMeasurement d2 = new DeltaMeasurement();
             try {
@@ -1273,9 +1285,9 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                     last = 0.0d;
                 } else {
                     last =
-                            (double)
-                                    ((d2.value - d1.value)
-                                            / ((d2.timestamp - d1.timestamp) / _scaleFactor));
+                        (double)
+                            ((d2.value - d1.value)
+                                / ((d2.timestamp - d1.timestamp) / _scaleFactor));
                 }
             }
             _last.put(m.id, last);
@@ -1310,126 +1322,122 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         }
 
         @Override
-        public Object getValue(final com.zeroc.Ice.IceMX.Metrics m, long timestamp) {
+        public Object getValue(final Metrics m, long timestamp) {
             JButton button = new JButton(Integer.toString(m.failures));
             if (m.failures > 0) {
                 button.addActionListener(
-                        new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                final DefaultTableModel model = new DefaultTableModel();
-                                model.addColumn("Count");
-                                model.addColumn("Type");
-                                model.addColumn("Identity");
-                                final JTable table = new JTable(model);
+                    new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            final DefaultTableModel model = new DefaultTableModel();
+                            model.addColumn("Count");
+                            model.addColumn("Type");
+                            model.addColumn("Identity");
+                            final JTable table = new JTable(model);
 
-                                // Adjust row height for larger fonts
-                                int fontSize = table.getFont().getSize();
-                                int minRowHeight = fontSize + fontSize / 3;
-                                if (table.getRowHeight() < minRowHeight) {
-                                    table.setRowHeight(minRowHeight);
-                                }
+                            // Adjust row height for larger fonts
+                            int fontSize = table.getFont().getSize();
+                            int minRowHeight = fontSize + fontSize / 3;
+                            if (table.getRowHeight() < minRowHeight) {
+                                table.setRowHeight(minRowHeight);
+                            }
 
-                                table.setPreferredSize(new Dimension(550, 200));
+                            table.setPreferredSize(new Dimension(550, 200));
 
-                                table.setPreferredScrollableViewportSize(table.getPreferredSize());
-                                table.setCellSelectionEnabled(false);
+                            table.setPreferredScrollableViewportSize(table.getPreferredSize());
+                            table.setCellSelectionEnabled(false);
 
-                                table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-                                table.getColumnModel().getColumn(0).setPreferredWidth(50);
-                                table.getColumnModel().getColumn(1).setPreferredWidth(250);
-                                table.getColumnModel().getColumn(2).setPreferredWidth(250);
+                            table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+                            table.getColumnModel().getColumn(0).setPreferredWidth(50);
+                            table.getColumnModel().getColumn(1).setPreferredWidth(250);
+                            table.getColumnModel().getColumn(2).setPreferredWidth(250);
 
-                                JScrollPane scrollPane = new JScrollPane(table);
+                            JScrollPane scrollPane = new JScrollPane(table);
 
-                                getMetricsNode()
-                                        .getCoordinator()
-                                        .getMainFrame()
-                                        .setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                                java.util.concurrent.CompletableFuture<
-                                                com.zeroc.Ice.IceMX.MetricsFailures>
-                                        r =
-                                                getMetricsNode()
-                                                        .fetchMetricsFailures(
-                                                                getMetricsName(), m.id);
-                                if (r != null) {
-                                    r.whenComplete(
-                                            (result, ex) -> {
-                                                if (ex == null) {
-                                                    SwingUtilities.invokeLater(
-                                                            () -> {
-                                                                for (Map.Entry<String, Integer>
+                            getMetricsNode()
+                                .getCoordinator()
+                                .getMainFrame()
+                                .setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                            CompletableFuture<
+                                MetricsFailures>
+                                r =
+                                    getMetricsNode()
+                                        .fetchMetricsFailures(
+                                            getMetricsName(), m.id);
+                            if (r != null) {
+                                r.whenComplete(
+                                    (result, ex) -> {
+                                        if (ex == null) {
+                                            SwingUtilities.invokeLater(
+                                                () -> {
+                                                    for (Map.Entry<String, Integer>
                                                                         entry :
                                                                                 result.failures
                                                                                         .entrySet()) {
-                                                                    Object[] row = new Object[3];
-                                                                    row[0] =
-                                                                            entry.getValue()
-                                                                                    .toString();
-                                                                    row[1] = entry.getKey();
-                                                                    row[2] = m.id;
-                                                                    model.addRow(row);
-                                                                }
-                                                                getMetricsNode()
-                                                                        .getCoordinator()
-                                                                        .getMainFrame()
-                                                                        .setCursor(
-                                                                                Cursor
-                                                                                        .getPredefinedCursor(
-                                                                                                Cursor
-                                                                                                        .DEFAULT_CURSOR));
-                                                            });
-                                                } else {
-                                                    SwingUtilities.invokeLater(
-                                                            () -> {
-                                                                getMetricsNode()
-                                                                        .getCoordinator()
-                                                                        .getMainFrame()
-                                                                        .setCursor(
-                                                                                Cursor
-                                                                                        .getPredefinedCursor(
-                                                                                                Cursor
-                                                                                                        .DEFAULT_CURSOR));
-                                                                if (ex
-                                                                        instanceof
-                                                                        com.zeroc.Ice
-                                                                                .ObjectNotExistException) {
-                                                                    // Server is down.
-                                                                } else if (ex
-                                                                        instanceof
-                                                                        com.zeroc.Ice
-                                                                                .FacetNotExistException) {
-                                                                    // MetricsAdmin facet not
-                                                                    // present.
-                                                                } else {
-                                                                    ex.printStackTrace();
-                                                                    JOptionPane.showMessageDialog(
-                                                                            getMetricsNode()
-                                                                                    .getCoordinator()
-                                                                                    .getMainFrame(),
-                                                                            "Error: "
-                                                                                    + ex.toString(),
-                                                                            "Error",
-                                                                            JOptionPane
-                                                                                    .ERROR_MESSAGE);
-                                                                }
-                                                            });
-                                                }
-                                            });
-                                }
-
-                                JOptionPane.showMessageDialog(
-                                        getMetricsNode().getCoordinator().getMainFrame(),
-                                        scrollPane,
-                                        "Metrics Failures",
-                                        JOptionPane.PLAIN_MESSAGE);
-                                getMetricsNode()
-                                        .getCoordinator()
-                                        .getMainFrame()
-                                        .setCursor(
-                                                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                                        Object[] row = new Object[3];
+                                                        row[0] =
+                                                            entry.getValue()
+                                                                .toString();
+                                                        row[1] = entry.getKey();
+                                                        row[2] = m.id;
+                                                        model.addRow(row);
+                                                    }
+                                                    getMetricsNode()
+                                                        .getCoordinator()
+                                                        .getMainFrame()
+                                                        .setCursor(
+                                                            Cursor
+                                                                .getPredefinedCursor(
+                                                                    Cursor
+                                                                        .DEFAULT_CURSOR));
+                                                });
+                                        } else {
+                                            SwingUtilities.invokeLater(
+                                                () -> {
+                                                    getMetricsNode()
+                                                        .getCoordinator()
+                                                        .getMainFrame()
+                                                        .setCursor(
+                                                            Cursor
+                                                                .getPredefinedCursor(
+                                                                    Cursor
+                                                                        .DEFAULT_CURSOR));
+                                                    if (ex
+                                                        instanceof ObjectNotExistException) {
+                                                        // Server is down.
+                                                    } else if (ex
+                                                        instanceof FacetNotExistException) {
+                                                        // MetricsAdmin facet not
+                                                        // present.
+                                                    } else {
+                                                        ex.printStackTrace();
+                                                        JOptionPane.showMessageDialog(
+                                                            getMetricsNode()
+                                                                .getCoordinator()
+                                                                .getMainFrame(),
+                                                            "Error: "
+                                                                + ex.toString(),
+                                                            "Error",
+                                                            JOptionPane
+                                                                .ERROR_MESSAGE);
+                                                    }
+                                                });
+                                        }
+                                    });
                             }
-                        });
+
+                            JOptionPane.showMessageDialog(
+                                getMetricsNode().getCoordinator().getMainFrame(),
+                                scrollPane,
+                                "Metrics Failures",
+                                JOptionPane.PLAIN_MESSAGE);
+                            getMetricsNode()
+                                .getCoordinator()
+                                .getMainFrame()
+                                .setCursor(
+                                    Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                        }
+                    });
             } else {
                 button.setEnabled(false);
             }
@@ -1460,113 +1468,113 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
         }
 
         @Override
-        public Object getValue(final com.zeroc.Ice.IceMX.Metrics m, final long timestamp) {
+        public Object getValue(final Metrics m, final long timestamp) {
             try {
-                final com.zeroc.Ice.IceMX.Metrics[] objects =
-                        (com.zeroc.Ice.IceMX.Metrics[])
-                                m.getClass().getField(getFieldName()).get(m);
+                final Metrics[] objects =
+                    (Metrics[])
+                        m.getClass().getField(getFieldName()).get(m);
                 JButton button = new JButton(Integer.toString(objects.length));
                 button.setEnabled(objects.length > 0);
                 if (objects.length > 0) {
                     button.addActionListener(
-                            new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent event) {
-                                    final TableModel model = new TableModel(getMetricsName());
-                                    String prefix =
-                                            "IceGridGUI.Metrics."
-                                                    + getMetricsName()
-                                                    + "."
-                                                    + getFieldName();
-                                    String[] names =
-                                            _properties.getPropertyAsList(prefix + ".fields");
-                                    for (String name : names) {
-                                        Field objectField = null;
-                                        try {
-                                            objectField = objects[0].getClass().getField(name);
-                                        } catch (NoSuchFieldException ex) {
-                                        }
-                                        MetricsField field =
-                                                MetricsViewEditor.createField(
-                                                        getMetricsNode(),
-                                                        prefix + "." + name,
-                                                        getFieldName(),
-                                                        name,
-                                                        objectField,
-                                                        getContext());
-                                        if (field != null) {
-                                            model.addField(field);
-                                        }
+                        new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent event) {
+                                final TableModel model = new TableModel(getMetricsName());
+                                String prefix =
+                                    "IceGridGUI.Metrics."
+                                        + getMetricsName()
+                                        + "."
+                                        + getFieldName();
+                                String[] names =
+                                    _properties.getPropertyAsList(prefix + ".fields");
+                                for (String name : names) {
+                                    Field objectField = null;
+                                    try {
+                                        objectField = objects[0].getClass().getField(name);
+                                    } catch (NoSuchFieldException ex) {
                                     }
-                                    if (model.getMetricFields().isEmpty()) {
-                                        return;
+                                    MetricsField field =
+                                        MetricsViewEditor.createField(
+                                            getMetricsNode(),
+                                            prefix + "." + name,
+                                            getFieldName(),
+                                            name,
+                                            objectField,
+                                            getContext());
+                                    if (field != null) {
+                                        model.addField(field);
                                     }
+                                }
+                                if (model.getMetricFields().isEmpty()) {
+                                    return;
+                                }
 
-                                    final JTable table =
-                                            new JTable(model) {
-                                                // Implement table header tool tips.
+                                final JTable table =
+                                    new JTable(model) {
+                                        // Implement table header tool tips.
+                                        @Override
+                                        protected JTableHeader createDefaultTableHeader() {
+                                            return new JTableHeader(columnModel) {
                                                 @Override
-                                                protected JTableHeader createDefaultTableHeader() {
-                                                    return new JTableHeader(columnModel) {
-                                                        @Override
-                                                        public String getToolTipText(MouseEvent e) {
-                                                            int index =
-                                                                    columnModel
-                                                                            .getColumn(
-                                                                                    columnModel
-                                                                                            .getColumnIndexAtX(
-                                                                                                    e
-                                                                                                            .getPoint()
-                                                                                                            .x))
-                                                                            .getModelIndex();
-                                                            return model.getMetricFields()
-                                                                    .get(index)
-                                                                    .getColumnToolTip();
-                                                        }
-                                                    };
+                                                public String getToolTipText(MouseEvent e) {
+                                                    int index =
+                                                        columnModel
+                                                            .getColumn(
+                                                                columnModel
+                                                                    .getColumnIndexAtX(
+                                                                        e
+                                                                            .getPoint()
+                                                                            .x))
+                                                            .getModelIndex();
+                                                    return model.getMetricFields()
+                                                        .get(index)
+                                                        .getColumnToolTip();
                                                 }
                                             };
-                                    table.addMouseListener(new ButtonMouseListener(table));
-                                    table.setAutoCreateRowSorter(true);
-
-                                    // Adjust row height for larger fonts
-                                    int fontSize = table.getFont().getSize();
-                                    int minRowHeight = fontSize + fontSize / 3;
-                                    if (table.getRowHeight() < minRowHeight) {
-                                        table.setRowHeight(minRowHeight);
-                                    }
-
-                                    for (Map.Entry<Integer, MetricsField> fieldEntry :
-                                            model.getMetricFields().entrySet()) {
-                                        if (fieldEntry.getValue().getCellRenderer() != null) {
-                                            table.getColumnModel()
-                                                    .getColumn(fieldEntry.getKey().intValue())
-                                                    .setCellRenderer(
-                                                            fieldEntry
-                                                                    .getValue()
-                                                                    .getCellRenderer());
                                         }
-                                    }
+                                    };
+                                table.addMouseListener(new ButtonMouseListener(table));
+                                table.setAutoCreateRowSorter(true);
 
-                                    int idColumn =
-                                            table.getColumnModel()
-                                                    .getColumnIndex(
-                                                            _properties.getProperty(
-                                                                    prefix + ".id.columnName"));
-
-                                    for (com.zeroc.Ice.IceMX.Metrics m : objects) {
-                                        model.addMetrics(m, timestamp);
-                                    }
-
-                                    JScrollPane scrollPane = new JScrollPane(table);
-                                    scrollPane.setPreferredSize(new Dimension(800, 600));
-                                    JOptionPane.showMessageDialog(
-                                            getMetricsNode().getCoordinator().getMainFrame(),
-                                            scrollPane,
-                                            getColumnName(),
-                                            JOptionPane.PLAIN_MESSAGE);
+                                // Adjust row height for larger fonts
+                                int fontSize = table.getFont().getSize();
+                                int minRowHeight = fontSize + fontSize / 3;
+                                if (table.getRowHeight() < minRowHeight) {
+                                    table.setRowHeight(minRowHeight);
                                 }
-                            });
+
+                                for (Map.Entry<Integer, MetricsField> fieldEntry :
+                                            model.getMetricFields().entrySet()) {
+                                    if (fieldEntry.getValue().getCellRenderer() != null) {
+                                        table.getColumnModel()
+                                            .getColumn(fieldEntry.getKey().intValue())
+                                            .setCellRenderer(
+                                                fieldEntry
+                                                    .getValue()
+                                                    .getCellRenderer());
+                                    }
+                                }
+
+                                int idColumn =
+                                    table.getColumnModel()
+                                        .getColumnIndex(
+                                            _properties.getProperty(
+                                                prefix + ".id.columnName"));
+
+                                for (Metrics m : objects) {
+                                    model.addMetrics(m, timestamp);
+                                }
+
+                                JScrollPane scrollPane = new JScrollPane(table);
+                                scrollPane.setPreferredSize(new Dimension(800, 600));
+                                JOptionPane.showMessageDialog(
+                                    getMetricsNode().getCoordinator().getMainFrame(),
+                                    scrollPane,
+                                    getColumnName(),
+                                    JOptionPane.PLAIN_MESSAGE);
+                            }
+                        });
                 }
                 return button;
             } catch (NoSuchFieldException ex) {
@@ -1580,9 +1588,9 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
     }
 
     private static final int _refreshPeriod = 5;
-    private static com.zeroc.Ice.Properties _properties;
+    private static Properties _properties;
     private static String[] _sectionSort;
-    private static Map<String, String> _sectionNames = new HashMap<>();
+    private static final Map<String, String> _sectionNames = new HashMap<>();
     private static TreePath _selectedPath;
     private final Preferences _prefs;
 }

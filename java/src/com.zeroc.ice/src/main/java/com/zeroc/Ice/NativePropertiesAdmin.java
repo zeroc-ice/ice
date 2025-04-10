@@ -2,6 +2,9 @@
 
 package com.zeroc.Ice;
 
+import java.util.Map;
+import java.util.function.Consumer;
+
 /**
  * Interface implemented by the Property admin facet. It allows users to add and remove callbacks
  * that notify the application when Ice properties are updated at run time.
@@ -13,12 +16,12 @@ public interface NativePropertiesAdmin {
      *
      * @param callback The new callback.
      */
-    void addUpdateCallback(java.util.function.Consumer<java.util.Map<String, String>> callback);
+    void addUpdateCallback(Consumer<Map<String, String>> callback);
 
     /**
      * Removes a previously registered update callback.
      *
      * @param callback The callback to remove.
      */
-    void removeUpdateCallback(java.util.function.Consumer<java.util.Map<String, String>> callback);
+    void removeUpdateCallback(Consumer<Map<String, String>> callback);
 }

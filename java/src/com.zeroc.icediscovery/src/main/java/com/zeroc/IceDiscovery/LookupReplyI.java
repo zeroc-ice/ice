@@ -2,6 +2,10 @@
 
 package com.zeroc.IceDiscovery;
 
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.ObjectPrx;
+
 class LookupReplyI implements LookupReply {
     public LookupReplyI(LookupI lookup) {
         _lookup = lookup;
@@ -9,18 +13,18 @@ class LookupReplyI implements LookupReply {
 
     @Override
     public void foundObjectById(
-            com.zeroc.Ice.Identity id,
-            com.zeroc.Ice.ObjectPrx proxy,
-            com.zeroc.Ice.Current current) {
+            Identity id,
+            ObjectPrx proxy,
+            Current current) {
         _lookup.foundObject(id, current.id.name, proxy);
     }
 
     @Override
     public void foundAdapterById(
             String adapterId,
-            com.zeroc.Ice.ObjectPrx proxy,
+            ObjectPrx proxy,
             boolean isReplicaGroup,
-            com.zeroc.Ice.Current current) {
+            Current current) {
         _lookup.foundAdapter(adapterId, current.id.name, proxy, isReplicaGroup);
     }
 

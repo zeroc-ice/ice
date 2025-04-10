@@ -2,9 +2,17 @@
 
 package test.Ice.exceptions;
 
-public class Collocated extends test.TestHelper {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.Util;
+
+import test.TestHelper;
+
+public class Collocated extends TestHelper {
     public void run(String[] args) {
-        com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+        InitializationData initData = new InitializationData();
         //
         // For this test, we need a dummy logger, otherwise the
         // assertion test will print an error message.
@@ -16,11 +24,11 @@ public class Collocated extends test.TestHelper {
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
         initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        try (com.zeroc.Ice.Communicator communicator = initialize(initData)) {
+        try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            com.zeroc.Ice.Object object = new ThrowerI();
-            adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("thrower"));
+            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            Object object = new ThrowerI();
+            adapter.add(object, Util.stringToIdentity("thrower"));
             AllTests.allTests(this);
         }
     }

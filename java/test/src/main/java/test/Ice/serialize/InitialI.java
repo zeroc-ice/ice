@@ -2,12 +2,26 @@
 
 package test.Ice.serialize;
 
-import test.Ice.serialize.Test.*;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.UnknownException;
 
-import java.io.*;
+import test.Ice.serialize.Test.Base;
+import test.Ice.serialize.Test.Derived;
+import test.Ice.serialize.Test.Ex;
+import test.Ice.serialize.Test.Initial;
+import test.Ice.serialize.Test.InitialPrx;
+import test.Ice.serialize.Test.MyEnum;
+import test.Ice.serialize.Test.Struct1;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.HashMap;
 
 public final class InitialI implements Initial {
-    InitialI(com.zeroc.Ice.ObjectAdapter adapter, com.zeroc.Ice.Identity ident) {
+    InitialI(ObjectAdapter adapter, Identity ident) {
         _s = new Struct1();
         _s.bo = true;
         _s.by = (byte) 1;
@@ -24,47 +38,47 @@ public final class InitialI implements Initial {
         _d.b = _d;
         _d.o = _d;
         _d.s = _s;
-        _d.seq1 = new byte[] {0, 1, 2, 3, 4};
-        _d.seq2 = new int[] {5, 6, 7, 8, 9};
-        _d.seq3 = new MyEnum[] {MyEnum.enum3, MyEnum.enum2, MyEnum.enum1};
-        _d.seq4 = new Base[] {_d};
-        _d.d1 = new java.util.HashMap<>();
+        _d.seq1 = new byte[]{0, 1, 2, 3, 4};
+        _d.seq2 = new int[]{5, 6, 7, 8, 9};
+        _d.seq3 = new MyEnum[]{MyEnum.enum3, MyEnum.enum2, MyEnum.enum1};
+        _d.seq4 = new Base[]{_d};
+        _d.d1 = new HashMap<>();
         _d.d1.put((byte) 1, true);
-        _d.d2 = new java.util.HashMap<>();
+        _d.d2 = new HashMap<>();
         _d.d2.put((short) 2, 3);
-        _d.d3 = new java.util.HashMap<>();
+        _d.d3 = new HashMap<>();
         _d.d3.put("enum3", MyEnum.enum3);
-        _d.d4 = new java.util.HashMap<>();
+        _d.d4 = new HashMap<>();
         _d.d4.put("b", _d);
         _d.p = _s.p;
     }
 
     @Override
-    public byte[] getStruct1(com.zeroc.Ice.Current current) {
+    public byte[] getStruct1(Current current) {
         try {
             ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
             ObjectOutputStream stream = new ObjectOutputStream(byteStream);
             stream.writeObject(_s);
             return byteStream.toByteArray();
         } catch (IOException ex) {
-            throw new com.zeroc.Ice.UnknownException("dummy", ex);
+            throw new UnknownException("dummy", ex);
         }
     }
 
     @Override
-    public byte[] getBase(com.zeroc.Ice.Current current) {
+    public byte[] getBase(Current current) {
         try {
             ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
             ObjectOutputStream stream = new ObjectOutputStream(byteStream);
             stream.writeObject(_d);
             return byteStream.toByteArray();
         } catch (IOException ex) {
-            throw new com.zeroc.Ice.UnknownException("reason", ex);
+            throw new UnknownException("reason", ex);
         }
     }
 
     @Override
-    public byte[] getEx(com.zeroc.Ice.Current current) {
+    public byte[] getEx(Current current) {
         try {
             Ex ex = new Ex();
             ex.s = _s;
@@ -75,15 +89,15 @@ public final class InitialI implements Initial {
             stream.writeObject(ex);
             return byteStream.toByteArray();
         } catch (IOException ex) {
-            throw new com.zeroc.Ice.UnknownException("reason", ex);
+            throw new UnknownException("reason", ex);
         }
     }
 
     @Override
-    public void shutdown(com.zeroc.Ice.Current current) {
+    public void shutdown(Current current) {
         current.adapter.getCommunicator().shutdown();
     }
 
-    private Struct1 _s;
-    private Derived _d;
+    private final Struct1 _s;
+    private final Derived _d;
 }

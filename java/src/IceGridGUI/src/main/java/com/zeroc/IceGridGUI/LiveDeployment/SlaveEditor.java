@@ -3,7 +3,6 @@
 package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.zeroc.IceGrid.*;
 
 import javax.swing.JTextField;
 
@@ -34,5 +33,5 @@ class SlaveEditor extends CommunicatorEditor {
         _propertiesPanel.setName("Slave Registry Properties");
     }
 
-    private JTextField _hostname = new JTextField(20);
+    private final JTextField _hostname = new JTextField(20);
 }

@@ -2,12 +2,20 @@
 
 package test.Ice.admin;
 
-class RemoteLoggerI implements com.zeroc.Ice.RemoteLogger {
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.LogMessage;
+import com.zeroc.Ice.LogMessageType;
+import com.zeroc.Ice.RemoteLogger;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+class RemoteLoggerI implements RemoteLogger {
     @Override
     public synchronized void init(
-            String prefix, com.zeroc.Ice.LogMessage[] logMessages, com.zeroc.Ice.Current current) {
+            String prefix, LogMessage[] logMessages, Current current) {
         _prefix = prefix;
-        for (int i = 0; i < logMessages.length; ++i) {
+        for (int i = 0; i < logMessages.length; i++) {
             _initMessages.add(logMessages[i]);
         }
         _receivedCalls++;
@@ -16,26 +24,26 @@ class RemoteLoggerI implements com.zeroc.Ice.RemoteLogger {
 
     @Override
     public synchronized void log(
-            com.zeroc.Ice.LogMessage logMessage, com.zeroc.Ice.Current current) {
+            LogMessage logMessage, Current current) {
         _logMessages.add(logMessage);
         _receivedCalls++;
         notifyAll();
     }
 
     synchronized void checkNextInit(
-            String prefix, com.zeroc.Ice.LogMessageType type, String message, String category) {
+            String prefix, LogMessageType type, String message, String category) {
         test(_prefix.equals(prefix));
         test(!_initMessages.isEmpty());
-        com.zeroc.Ice.LogMessage logMessage = _initMessages.pop();
+        LogMessage logMessage = _initMessages.pop();
         test(logMessage.type == type);
         test(logMessage.message.equals(message));
         test(logMessage.traceCategory.equals(category));
     }
 
     synchronized void checkNextLog(
-            com.zeroc.Ice.LogMessageType type, String message, String category) {
+            LogMessageType type, String message, String category) {
         test(!_logMessages.isEmpty());
-        com.zeroc.Ice.LogMessage logMessage = _logMessages.pop();
+        LogMessage logMessage = _logMessages.pop();
         test(logMessage.type == type);
         test(logMessage.message.equals(message));
         test(logMessage.traceCategory.equals(category));
@@ -61,8 +69,8 @@ class RemoteLoggerI implements com.zeroc.Ice.RemoteLogger {
 
     private int _receivedCalls;
     private String _prefix;
-    private java.util.Deque<com.zeroc.Ice.LogMessage> _initMessages =
-            new java.util.ArrayDeque<com.zeroc.Ice.LogMessage>();
-    private java.util.Deque<com.zeroc.Ice.LogMessage> _logMessages =
-            new java.util.ArrayDeque<com.zeroc.Ice.LogMessage>();
+    private final Deque<LogMessage> _initMessages =
+        new ArrayDeque<LogMessage>();
+    private final Deque<LogMessage> _logMessages =
+        new ArrayDeque<LogMessage>();
 }

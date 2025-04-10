@@ -2,8 +2,10 @@
 
 package test.Ice.metrics;
 
+import com.zeroc.Ice.Instrumentation.ChildInvocationObserver;
+
 class ChildInvocationObserverI extends ObserverI
-        implements com.zeroc.Ice.Instrumentation.ChildInvocationObserver {
+    implements ChildInvocationObserver {
     @Override
     public synchronized void reset() {
         super.reset();

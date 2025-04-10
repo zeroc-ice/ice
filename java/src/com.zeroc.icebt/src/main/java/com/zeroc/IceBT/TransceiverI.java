@@ -7,14 +7,19 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
 import com.zeroc.Ice.Buffer;
+import com.zeroc.Ice.ConnectFailedException;
+import com.zeroc.Ice.EndpointI;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ReadyCallback;
 import com.zeroc.Ice.SocketException;
 import com.zeroc.Ice.SocketOperation;
 import com.zeroc.Ice.Transceiver;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.*;
+import java.nio.channels.SelectableChannel;
 import java.util.UUID;
 
 final class TransceiverI implements Transceiver {
@@ -63,7 +68,7 @@ final class TransceiverI implements Transceiver {
             if (_socket != null) {
                 try {
                     _socket.close();
-                } catch (java.io.IOException ex) {
+                } catch (IOException ex) {
                     // Ignore.
                 }
                 _socket = null;
@@ -99,8 +104,8 @@ final class TransceiverI implements Transceiver {
     }
 
     @Override
-    public com.zeroc.Ice.EndpointI bind() {
-        assert (false);
+    public EndpointI bind() {
+        assert false;
         return null;
     }
 
@@ -151,9 +156,9 @@ final class TransceiverI implements Transceiver {
                 // Copy directly from the source buffer's backing array.
                 byte[] arr = _readBuffer.b.array();
                 buf.b.put(
-                        arr,
-                        _readBuffer.b.arrayOffset() + _readBuffer.b.position(),
-                        bytesAvailable);
+                    arr,
+                    _readBuffer.b.arrayOffset() + _readBuffer.b.position(),
+                    bytesAvailable);
                 _readBuffer.b.position(_readBuffer.b.position() + bytesAvailable);
             } else {
                 // Copy using a temporary array.
@@ -197,16 +202,16 @@ final class TransceiverI implements Transceiver {
         assert connectionId.equals(_connectionId);
 
         return new ConnectionInfo(
-                incoming,
-                adapterName,
-                connectionId,
-                _instance.bluetoothAdapter().getAddress(),
-                -1, // localChannel - not available, use default value of -1
-                _remoteAddr,
-                -1, // remoteChannel - not available, use default value of -1
-                _uuid,
-                _rcvSize,
-                _sndSize);
+            incoming,
+            adapterName,
+            connectionId,
+            _instance.bluetoothAdapter().getAddress(),
+            -1, // localChannel - not available, use default value of -1
+            _remoteAddr,
+            -1, // remoteChannel - not available, use default value of -1
+            _uuid,
+            _rcvSize,
+            _sndSize);
     }
 
     @Override
@@ -229,20 +234,20 @@ final class TransceiverI implements Transceiver {
         init();
 
         Thread connectThread =
-                new Thread() {
-                    public void run() {
-                        String name = "IceBT.ConnectThread";
-                        if (_remoteAddr != null && !_remoteAddr.isEmpty()) {
-                            name += "-" + _remoteAddr;
-                        }
-                        if (!_uuid.isEmpty()) {
-                            name += "-" + _uuid;
-                        }
-                        setName(name);
-
-                        runConnectThread();
+            new Thread() {
+                public void run() {
+                    String name = "IceBT.ConnectThread";
+                    if (_remoteAddr != null && !_remoteAddr.isEmpty()) {
+                        name += "-" + _remoteAddr;
                     }
-                };
+                    if (!_uuid.isEmpty()) {
+                        name += "-" + _uuid;
+                    }
+                    setName(name);
+
+                    runConnectThread();
+                }
+            };
         connectThread.setDaemon(true);
         connectThread.start();
     }
@@ -273,9 +278,9 @@ final class TransceiverI implements Transceiver {
 
         final int defaultBufSize = 128 * 1024;
         _rcvSize =
-                _instance.properties().getPropertyAsIntWithDefault("IceBT.RcvSize", defaultBufSize);
+            _instance.properties().getPropertyAsIntWithDefault("IceBT.RcvSize", defaultBufSize);
         _sndSize =
-                _instance.properties().getPropertyAsIntWithDefault("IceBT.SndSize", defaultBufSize);
+            _instance.properties().getPropertyAsIntWithDefault("IceBT.SndSize", defaultBufSize);
 
         _readBuffer = new Buffer(false);
         _writeBuffer = new Buffer(false);
@@ -299,7 +304,7 @@ final class TransceiverI implements Transceiver {
 
             // This can block for several seconds.
             BluetoothSocket socket =
-                    device.createRfcommSocketToServiceRecord(UUID.fromString(_uuid));
+                device.createRfcommSocketToServiceRecord(UUID.fromString(_uuid));
             socket.connect();
 
             synchronized (this) {
@@ -314,13 +319,13 @@ final class TransceiverI implements Transceiver {
                 _socket = socket;
                 startReadWriteThreads();
             }
-        } catch (java.io.IOException ex) {
-            exception(new com.zeroc.Ice.ConnectFailedException(ex));
+        } catch (IOException ex) {
+            exception(new ConnectFailedException(ex));
         } catch (Exception ex) {
-            exception(new com.zeroc.Ice.SocketException(ex));
+            exception(new SocketException(ex));
         } finally {
             // This causes the Ice run time to invoke initialize() again.
-            _readyCallback.ready(com.zeroc.Ice.SocketOperation.Read, true);
+            _readyCallback.ready(SocketOperation.Read, true);
         }
     }
 
@@ -335,28 +340,28 @@ final class TransceiverI implements Transceiver {
         final String suffix = s;
 
         _readThread =
-                new Thread() {
-                    public void run() {
-                        setName("IceBT.ReadThread" + suffix);
+            new Thread() {
+                public void run() {
+                    setName("IceBT.ReadThread" + suffix);
 
-                        runReadThread();
-                    }
-                };
+                    runReadThread();
+                }
+            };
         _readThread.start();
 
         _writeThread =
-                new Thread() {
-                    public void run() {
-                        setName("IceBT.WriteThread" + suffix);
+            new Thread() {
+                public void run() {
+                    setName("IceBT.WriteThread" + suffix);
 
-                        runWriteThread();
-                    }
-                };
+                    runWriteThread();
+                }
+            };
         _writeThread.start();
     }
 
     private void runReadThread() {
-        java.io.InputStream in = null;
+        InputStream in = null;
 
         try {
             byte[] buf = null;
@@ -375,8 +380,8 @@ final class TransceiverI implements Transceiver {
                     // If we've read too much data, wait until the application consumes some before
                     // we read again.
                     while (_state == StateConnected
-                            && _exception == null
-                            && _readBuffer.b.position() > _rcvSize) {
+                        && _exception == null
+                        && _readBuffer.b.position() > _rcvSize) {
                         try {
                             wait();
                         } catch (InterruptedException ex) {
@@ -403,7 +408,7 @@ final class TransceiverI implements Transceiver {
                     }
                 }
             }
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             exception(new SocketException(ex));
             // Mark as ready for reading so that the Ice run time will invoke read() and we can
             // report the exception.
@@ -417,7 +422,7 @@ final class TransceiverI implements Transceiver {
             if (in != null) {
                 try {
                     in.close();
-                } catch (java.io.IOException ex) {
+                } catch (IOException ex) {
                     // Ignore.
                 }
             }
@@ -425,7 +430,7 @@ final class TransceiverI implements Transceiver {
     }
 
     private void runWriteThread() {
-        java.io.OutputStream out = null;
+        OutputStream out = null;
 
         try {
             synchronized (this) {
@@ -441,8 +446,8 @@ final class TransceiverI implements Transceiver {
 
                 synchronized (this) {
                     while (_state == StateConnected
-                            && _exception == null
-                            && _writeBuffer.b.position() == 0) {
+                        && _exception == null
+                        && _writeBuffer.b.position() == 0) {
                         try {
                             wait();
                         } catch (InterruptedException ex) {
@@ -470,16 +475,16 @@ final class TransceiverI implements Transceiver {
                 synchronized (this) {
                     // After the write is complete, indicate whether we can accept more data.
                     _readyCallback.ready(
-                            SocketOperation.Write, _writeBuffer.b.position() < _sndSize);
+                        SocketOperation.Write, _writeBuffer.b.position() < _sndSize);
                 }
             }
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             exception(new SocketException(ex));
         } finally {
             if (out != null) {
                 try {
                     out.close();
-                } catch (java.io.IOException ex) {
+                } catch (IOException ex) {
                     // Ignore.
                 }
             }

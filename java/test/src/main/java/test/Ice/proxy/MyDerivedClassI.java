@@ -2,31 +2,36 @@
 
 package test.Ice.proxy;
 
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.ObjectPrx;
+
 import test.Ice.proxy.Test.MyDerivedClass;
+
+import java.util.Map;
 
 public final class MyDerivedClassI implements MyDerivedClass {
     public MyDerivedClassI() {}
 
     @Override
-    public com.zeroc.Ice.ObjectPrx echo(com.zeroc.Ice.ObjectPrx obj, com.zeroc.Ice.Current c) {
+    public ObjectPrx echo(ObjectPrx obj, Current c) {
         return obj;
     }
 
     @Override
-    public void shutdown(com.zeroc.Ice.Current c) {
+    public void shutdown(Current c) {
         c.adapter.getCommunicator().shutdown();
     }
 
     @Override
-    public java.util.Map<String, String> getContext(com.zeroc.Ice.Current current) {
+    public Map<String, String> getContext(Current current) {
         return _ctx;
     }
 
     @Override
-    public boolean ice_isA(String s, com.zeroc.Ice.Current current) {
+    public boolean ice_isA(String s, Current current) {
         _ctx = current.ctx;
         return MyDerivedClass.super.ice_isA(s, current);
     }
 
-    private java.util.Map<String, String> _ctx;
+    private Map<String, String> _ctx;
 }

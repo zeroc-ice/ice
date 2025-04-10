@@ -2,8 +2,10 @@
 
 package test.Ice.servantLocator;
 
+import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.OperationNotExistException;
 import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.UnknownUserException;
@@ -12,6 +14,7 @@ import test.Ice.servantLocator.Test.TestActivationPrx;
 import test.Ice.servantLocator.Test.TestImpossibleException;
 import test.Ice.servantLocator.Test.TestIntfPrx;
 import test.Ice.servantLocator.Test.TestIntfUserException;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 
@@ -22,14 +25,14 @@ public class AllTests {
         }
     }
 
-    public static void testExceptions(TestIntfPrx obj, test.TestHelper helper) {
+    public static void testExceptions(TestIntfPrx obj, TestHelper helper) {
         try {
             obj.requestFailedException();
             test(false);
         } catch (ObjectNotExistException ex) {
             test(ex.id.equals(obj.ice_getIdentity()));
             test(ex.facet.equals(obj.ice_getFacet()));
-            test(ex.operation.equals("requestFailedException"));
+            test("requestFailedException".equals(ex.operation));
         }
 
         try {
@@ -37,21 +40,21 @@ public class AllTests {
             test(false);
         } catch (UnknownUserException ex) {
             helper.getWriter().flush();
-            test(ex.getMessage().equals("reason"));
+            test("reason".equals(ex.getMessage()));
         }
 
         try {
             obj.unknownLocalException();
             test(false);
         } catch (UnknownLocalException ex) {
-            test(ex.getMessage().equals("reason"));
+            test("reason".equals(ex.getMessage()));
         }
 
         try {
             obj.unknownException();
             test(false);
         } catch (UnknownException ex) {
-            test(ex.getMessage().equals("reason"));
+            test("reason".equals(ex.getMessage()));
         }
 
         //
@@ -80,8 +83,8 @@ public class AllTests {
         } catch (UnknownLocalException ex) {
             var message = ex.getMessage();
             test(
-                    message.contains("Ice::SocketException")
-                            || message.contains("Ice.SocketException"));
+                message.contains("Ice::SocketException")
+                    || message.contains("Ice.SocketException"));
         } catch (Throwable ex) {
             test(false);
         }
@@ -91,8 +94,7 @@ public class AllTests {
             test(false);
         } catch (UnknownException ex) {
             test(ex.getMessage().contains("java.lang.RuntimeException: message"));
-        } catch (com.zeroc.Ice.OperationNotExistException ex) {
-        } catch (Throwable ex) {
+        } catch (OperationNotExistException ex) {} catch (Throwable ex) {
             // System.err.println(ex);
             test(false);
         }
@@ -101,7 +103,7 @@ public class AllTests {
             obj.unknownExceptionWithServantException();
             test(false);
         } catch (UnknownException ex) {
-            test(ex.getMessage().equals("reason"));
+            test("reason".equals(ex.getMessage()));
         } catch (Throwable ex) {
             test(false);
         }
@@ -149,13 +151,13 @@ public class AllTests {
         }
     }
 
-    public static TestIntfPrx allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static TestIntfPrx allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "asm:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 
@@ -170,12 +172,12 @@ public class AllTests {
         out.flush();
         try {
             ObjectPrx o =
-                    communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
+                communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
             o.ice_ids();
             test(false);
         } catch (UnknownUserException ex) {
             var expected =
-                    "The reply carries a user exception that does not conform to the operation's exception specification: ::Test::TestIntfUserException";
+                "The reply carries a user exception that does not conform to the operation's exception specification: ::Test::TestIntfUserException";
             test(ex.getMessage().equals(expected));
         } catch (Throwable ex) {
             test(false);
@@ -183,12 +185,12 @@ public class AllTests {
 
         try {
             ObjectPrx o =
-                    communicator.stringToProxy("category/finished:" + helper.getTestEndpoint(0));
+                communicator.stringToProxy("category/finished:" + helper.getTestEndpoint(0));
             o.ice_ids();
             test(false);
         } catch (UnknownUserException ex) {
             var expected =
-                    "The reply carries a user exception that does not conform to the operation's exception specification: ::Test::TestIntfUserException";
+                "The reply carries a user exception that does not conform to the operation's exception specification: ::Test::TestIntfUserException";
             test(ex.getMessage().equals(expected));
         } catch (Throwable ex) {
             test(false);
@@ -201,9 +203,8 @@ public class AllTests {
         obj = TestIntfPrx.checkedCast(base);
         try {
             TestIntfPrx.checkedCast(
-                    communicator.stringToProxy("category/unknown:" + helper.getTestEndpoint(0)));
-        } catch (ObjectNotExistException ex) {
-        }
+                communicator.stringToProxy("category/unknown:" + helper.getTestEndpoint(0)));
+        } catch (ObjectNotExistException ex) {}
         out.println("ok");
 
         out.print("testing default servant locator... ");
@@ -214,14 +215,12 @@ public class AllTests {
         obj = TestIntfPrx.checkedCast(base);
         try {
             TestIntfPrx.checkedCast(
-                    communicator.stringToProxy("anothercat/unknown:" + helper.getTestEndpoint(0)));
-        } catch (ObjectNotExistException ex) {
-        }
+                communicator.stringToProxy("anothercat/unknown:" + helper.getTestEndpoint(0)));
+        } catch (ObjectNotExistException ex) {}
         try {
             TestIntfPrx.checkedCast(
-                    communicator.stringToProxy("unknown:" + helper.getTestEndpoint(0)));
-        } catch (ObjectNotExistException ex) {
-        }
+                communicator.stringToProxy("unknown:" + helper.getTestEndpoint(0)));
+        } catch (ObjectNotExistException ex) {}
         out.println("ok");
 
         out.print("testing locate exceptions... ");
@@ -288,4 +287,6 @@ public class AllTests {
 
         return obj;
     }
+
+    private AllTests() {}
 }

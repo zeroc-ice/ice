@@ -33,8 +33,8 @@ public class DispatchException extends LocalException {
     private static String createMessage(String message, int replyStatus) {
         if (message == null) {
             return "The dispatch failed with reply status "
-                    + replyStatusToString(replyStatus)
-                    + ".";
+                + replyStatusToString(replyStatus)
+                + ".";
         } else {
             return message;
         }

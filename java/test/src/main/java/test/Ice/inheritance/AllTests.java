@@ -2,11 +2,15 @@
 
 package test.Ice.inheritance;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectPrx;
+
 import test.Ice.inheritance.Test.InitialPrx;
 import test.Ice.inheritance.Test.MA.IAPrx;
 import test.Ice.inheritance.Test.MA.ICPrx;
 import test.Ice.inheritance.Test.MB.IB1Prx;
 import test.Ice.inheritance.Test.MB.IB2Prx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 
@@ -17,13 +21,13 @@ public class AllTests {
         }
     }
 
-    public static InitialPrx allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static InitialPrx allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "initial:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 
@@ -133,4 +137,6 @@ public class AllTests {
 
         return initial;
     }
+
+    private AllTests() {}
 }

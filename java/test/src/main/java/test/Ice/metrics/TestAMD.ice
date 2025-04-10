@@ -6,8 +6,7 @@
 module Test
 {
     exception UserEx
-    {
-    }
+    {}
 
     sequence<byte> ByteSeq;
 

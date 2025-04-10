@@ -2,6 +2,8 @@
 
 package test.Ice.inheritance;
 
+import com.zeroc.Ice.Current;
+
 import test.Ice.inheritance.Test.MA.IAPrx;
 import test.Ice.inheritance.Test.MA.IC;
 import test.Ice.inheritance.Test.MA.ICPrx;
@@ -12,22 +14,22 @@ public final class ICI implements IC {
     public ICI() {}
 
     @Override
-    public IAPrx iaop(IAPrx p, com.zeroc.Ice.Current current) {
+    public IAPrx iaop(IAPrx p, Current current) {
         return p;
     }
 
     @Override
-    public ICPrx icop(ICPrx p, com.zeroc.Ice.Current current) {
+    public ICPrx icop(ICPrx p, Current current) {
         return p;
     }
 
     @Override
-    public IB1Prx ib1op(IB1Prx p, com.zeroc.Ice.Current current) {
+    public IB1Prx ib1op(IB1Prx p, Current current) {
         return p;
     }
 
     @Override
-    public IB2Prx ib2op(IB2Prx p, com.zeroc.Ice.Current current) {
+    public IB2Prx ib2op(IB2Prx p, Current current) {
         return p;
     }
 }

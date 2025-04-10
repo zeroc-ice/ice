@@ -4,16 +4,21 @@
 
 package android.bluetooth;
 
-public final class BluetoothSocket implements java.io.Closeable {
-    public void close() throws java.io.IOException {}
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-    public void connect() throws java.io.IOException {}
+public final class BluetoothSocket implements Closeable {
+    public void close() throws IOException {}
 
-    public java.io.InputStream getInputStream() throws java.io.IOException {
+    public void connect() throws IOException {}
+
+    public InputStream getInputStream() throws IOException {
         return null;
     }
 
-    public java.io.OutputStream getOutputStream() throws java.io.IOException {
+    public OutputStream getOutputStream() throws IOException {
         return null;
     }
 

@@ -2,8 +2,10 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import java.util.List;
+
 interface TemplateInstance {
-    Object rebuild(java.util.List<Editable> editables) throws UpdateFailedException;
+    Object rebuild(List<Editable> editables) throws UpdateFailedException;
 
     void restore(Object backupObj);
 }

@@ -2,7 +2,10 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
+
+import java.util.function.BiConsumer;
 
 /**
  * A class that encapsulates data to initialize a communicator.
@@ -37,7 +40,7 @@ public final class InitializationData implements Cloneable {
     public Logger logger;
 
     /** The communicator observer used by the Ice run-time. */
-    public com.zeroc.Ice.Instrumentation.CommunicatorObserver observer;
+    public CommunicatorObserver observer;
 
     /** threadStart is called whenever the communicator starts a new thread. */
     public Runnable threadStart;
@@ -60,7 +63,7 @@ public final class InitializationData implements Cloneable {
      * favorite thread. It must execute the the provided <code>Runnable</code> parameter. The con
      * parameter represents the connection associated with this call.
      */
-    public java.util.function.BiConsumer<Runnable, Connection> executor;
+    public BiConsumer<Runnable, Connection> executor;
 
     /** The batch request interceptor. */
     public BatchRequestInterceptor batchRequestInterceptor;

@@ -2,6 +2,11 @@
 
 package com.zeroc.Ice;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+
 //
 // Class to provide a java.io.InputStream on top of a ByteBuffer.
 // We use this to deserialize arbitrary Java serializable classes from
@@ -9,32 +14,32 @@ package com.zeroc.Ice;
 // that passes all methods through.
 //
 
-class InputStreamWrapper extends java.io.InputStream {
-    public InputStreamWrapper(int size, java.nio.ByteBuffer buf) {
+class InputStreamWrapper extends InputStream {
+    public InputStreamWrapper(int size, ByteBuffer buf) {
         _buf = buf;
         _markPos = 0;
     }
 
     @Override
-    public int read() throws java.io.IOException {
+    public int read() throws IOException {
         try {
             return _buf.get();
         } catch (Exception ex) {
-            throw new java.io.IOException(ex.toString());
+            throw new IOException(ex.toString());
         }
     }
 
     @Override
-    public int read(byte[] b) throws java.io.IOException {
+    public int read(byte[] b) throws IOException {
         return read(b, 0, b.length);
     }
 
     @Override
-    public int read(byte[] b, int offset, int count) throws java.io.IOException {
+    public int read(byte[] b, int offset, int count) throws IOException {
         try {
             _buf.get(b, offset, count);
         } catch (Exception ex) {
-            throw new java.io.IOException(ex.toString());
+            throw new IOException(ex.toString());
         }
         return count;
     }
@@ -50,10 +55,10 @@ class InputStreamWrapper extends java.io.InputStream {
     }
 
     @Override
-    public void reset() throws java.io.IOException {
+    public void reset() throws IOException {
         // Cast to java.nio.Buffer to avoid incompatible covariant
         // return type used in Java 9 java.nio.ByteBuffer
-        ((java.nio.Buffer) _buf).position(_markPos);
+        ((Buffer) _buf).position(_markPos);
     }
 
     @Override
@@ -62,8 +67,8 @@ class InputStreamWrapper extends java.io.InputStream {
     }
 
     @Override
-    public void close() throws java.io.IOException {}
+    public void close() throws IOException {}
 
-    private java.nio.ByteBuffer _buf;
+    private final ByteBuffer _buf;
     private int _markPos;
 }

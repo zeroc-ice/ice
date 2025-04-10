@@ -2,9 +2,18 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.Ice.CommunicatorDestroyedException;
+import com.zeroc.Ice.ConnectionRefusedException;
+import com.zeroc.Ice.FacetNotExistException;
+import com.zeroc.Ice.IceMX.MetricsAdminPrx;
+import com.zeroc.Ice.IceMX.MetricsFailures;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.ObjectNotExistException;
+import com.zeroc.IceGridGUI.LiveActions;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.Component;
+import java.util.concurrent.CompletableFuture;
 
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
@@ -22,7 +31,7 @@ class MetricsView extends TreeNode {
     // Actions
     @Override
     public boolean[] getAvailableActions() {
-        boolean[] actions = new boolean[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
+        boolean[] actions = new boolean[TreeNode.ACTION_COUNT];
         actions[ENABLE_METRICS_VIEW] = !_enabled;
         actions[DISABLE_METRICS_VIEW] = _enabled;
         return actions;
@@ -47,13 +56,13 @@ class MetricsView extends TreeNode {
         Icon icon = _enabled ? _enabledIcon : _disabledIcon;
         _cellRenderer.setLeafIcon(icon);
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     MetricsView(
             TreeNode parent,
             String name,
-            com.zeroc.Ice.IceMX.MetricsAdminPrx admin,
+            MetricsAdminPrx admin,
             boolean enabled) {
         super(parent, name);
         _name = name;
@@ -67,107 +76,95 @@ class MetricsView extends TreeNode {
         if (_admin != null) {
             if (enabled) {
                 _admin.enableMetricsViewAsync(_name)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    if (ex == null) {
-                                        SwingUtilities.invokeLater(
-                                                () -> {
-                                                    _enabled = true;
-                                                    getRoot()
-                                                            .getTreeModel()
-                                                            .nodeChanged(MetricsView.this);
-                                                    getRoot()
-                                                            .getCoordinator()
-                                                            .showActions(MetricsView.this);
-                                                    if (getRoot()
-                                                                    .getTree()
-                                                                    .getLastSelectedPathComponent()
-                                                            == MetricsView.this) {
-                                                        // If the metrics view is selected when
-                                                        // enabled success, we must start the
-                                                        // refresh thread to pull updates.
-                                                        MetricsViewEditor.startRefresh(
-                                                                MetricsView.this);
-                                                    }
-                                                });
-                                    } else {
-                                        MetricsViewEditor.stopRefresh();
-                                        SwingUtilities.invokeLater(
-                                                () -> {
-                                                    if (ex
-                                                                    instanceof
-                                                                    com.zeroc.Ice
-                                                                            .ObjectNotExistException
-                                                            || ex
-                                                                    instanceof
-                                                                    com.zeroc.Ice
-                                                                            .ConnectionRefusedException) {
-                                                        // Server is down.
-                                                    } else if (!(ex
-                                                            instanceof
-                                                            com.zeroc.Ice
-                                                                    .CommunicatorDestroyedException)) {
-                                                        ex.printStackTrace();
-                                                        JOptionPane.showMessageDialog(
-                                                                getCoordinator().getMainFrame(),
-                                                                "Error: " + ex.toString(),
-                                                                "Error",
-                                                                JOptionPane.ERROR_MESSAGE);
-                                                    }
-                                                });
-                                    }
-                                });
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex == null) {
+                                SwingUtilities.invokeLater(
+                                    () -> {
+                                        _enabled = true;
+                                        getRoot()
+                                            .getTreeModel()
+                                            .nodeChanged(MetricsView.this);
+                                        getRoot()
+                                            .getCoordinator()
+                                            .showActions(MetricsView.this);
+                                        if (getRoot()
+                                            .getTree()
+                                            .getLastSelectedPathComponent()
+                                            == MetricsView.this) {
+                                            // If the metrics view is selected when
+                                            // enabled success, we must start the
+                                            // refresh thread to pull updates.
+                                            MetricsViewEditor.startRefresh(
+                                                MetricsView.this);
+                                        }
+                                    });
+                            } else {
+                                MetricsViewEditor.stopRefresh();
+                                SwingUtilities.invokeLater(
+                                    () -> {
+                                        if (ex
+                                            instanceof ObjectNotExistException
+                                            || ex
+                                            instanceof ConnectionRefusedException) {
+                                            // Server is down.
+                                        } else if (!(ex
+                                            instanceof CommunicatorDestroyedException)) {
+                                            ex.printStackTrace();
+                                            JOptionPane.showMessageDialog(
+                                                getCoordinator().getMainFrame(),
+                                                "Error: " + ex.toString(),
+                                                "Error",
+                                                JOptionPane.ERROR_MESSAGE);
+                                        }
+                                    });
+                            }
+                        });
             } else {
                 _admin.disableMetricsViewAsync(_name)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    if (ex == null) {
-                                        SwingUtilities.invokeLater(
-                                                () -> {
-                                                    _enabled = false;
-                                                    _editor.show(MetricsView.this, null, 0);
-                                                    getRoot()
-                                                            .getTreeModel()
-                                                            .nodeChanged(MetricsView.this);
-                                                    getRoot()
-                                                            .getCoordinator()
-                                                            .showActions(MetricsView.this);
-                                                    if (getRoot()
-                                                                    .getTree()
-                                                                    .getLastSelectedPathComponent()
-                                                            == MetricsView.this) {
-                                                        // If the metrics view is selected when
-                                                        // disabled success, we stop the refresh.
-                                                        MetricsViewEditor.stopRefresh();
-                                                    }
-                                                });
-                                    } else {
-                                        MetricsViewEditor.stopRefresh();
-                                        SwingUtilities.invokeLater(
-                                                () -> {
-                                                    if (ex
-                                                                    instanceof
-                                                                    com.zeroc.Ice
-                                                                            .ObjectNotExistException
-                                                            || ex
-                                                                    instanceof
-                                                                    com.zeroc.Ice
-                                                                            .ConnectionRefusedException) {
-                                                        // Server is down.
-                                                    } else if (!(ex
-                                                            instanceof
-                                                            com.zeroc.Ice
-                                                                    .CommunicatorDestroyedException)) {
-                                                        ex.printStackTrace();
-                                                        JOptionPane.showMessageDialog(
-                                                                getCoordinator().getMainFrame(),
-                                                                "Error: " + ex.toString(),
-                                                                "Error",
-                                                                JOptionPane.ERROR_MESSAGE);
-                                                    }
-                                                });
-                                    }
-                                });
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex == null) {
+                                SwingUtilities.invokeLater(
+                                    () -> {
+                                        _enabled = false;
+                                        _editor.show(MetricsView.this, null, 0);
+                                        getRoot()
+                                            .getTreeModel()
+                                            .nodeChanged(MetricsView.this);
+                                        getRoot()
+                                            .getCoordinator()
+                                            .showActions(MetricsView.this);
+                                        if (getRoot()
+                                            .getTree()
+                                            .getLastSelectedPathComponent()
+                                            == MetricsView.this) {
+                                            // If the metrics view is selected when
+                                            // disabled success, we stop the refresh.
+                                            MetricsViewEditor.stopRefresh();
+                                        }
+                                    });
+                            } else {
+                                MetricsViewEditor.stopRefresh();
+                                SwingUtilities.invokeLater(
+                                    () -> {
+                                        if (ex
+                                            instanceof ObjectNotExistException
+                                            || ex
+                                            instanceof ConnectionRefusedException) {
+                                            // Server is down.
+                                        } else if (!(ex
+                                            instanceof CommunicatorDestroyedException)) {
+                                            ex.printStackTrace();
+                                            JOptionPane.showMessageDialog(
+                                                getCoordinator().getMainFrame(),
+                                                "Error: " + ex.toString(),
+                                                "Error",
+                                                JOptionPane.ERROR_MESSAGE);
+                                        }
+                                    });
+                            }
+                        });
             }
         }
     }
@@ -180,7 +177,7 @@ class MetricsView extends TreeNode {
         return _name;
     }
 
-    com.zeroc.Ice.IceMX.MetricsAdminPrx getMetricsAdmin() {
+    MetricsAdminPrx getMetricsAdmin() {
         return _admin;
     }
 
@@ -198,17 +195,16 @@ class MetricsView extends TreeNode {
         return _popup;
     }
 
-    public java.util.concurrent.CompletableFuture<com.zeroc.Ice.IceMX.MetricsFailures>
-            fetchMetricsFailures(String map, String id) {
+    public CompletableFuture<MetricsFailures> fetchMetricsFailures(String map, String id) {
         if (_admin != null) {
             try {
                 return _admin.getMetricsFailuresAsync(_name, map, id);
-            } catch (com.zeroc.Ice.LocalException e) {
+            } catch (LocalException e) {
                 JOptionPane.showMessageDialog(
-                        getCoordinator().getMainFrame(),
-                        "Error: " + e.toString(),
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
+                    getCoordinator().getMainFrame(),
+                    "Error: " + e.toString(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
             }
         }
         return null;
@@ -218,62 +214,54 @@ class MetricsView extends TreeNode {
         if (_admin != null) {
             try {
                 _admin.getMetricsViewAsync(_name)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    if (ex == null) {
-                                        SwingUtilities.invokeLater(
-                                                () -> {
-                                                    _editor.show(
-                                                            MetricsView.this,
-                                                            result.returnValue,
-                                                            result.timestamp);
-                                                });
-                                    } else {
-                                        MetricsViewEditor.stopRefresh();
-                                        SwingUtilities.invokeLater(
-                                                () -> {
-                                                    if (ex
-                                                                    instanceof
-                                                                    com.zeroc.Ice
-                                                                            .ObjectNotExistException
-                                                            || ex
-                                                                    instanceof
-                                                                    com.zeroc.Ice
-                                                                            .ConnectionRefusedException) {
-                                                        // Server is down.
-                                                    } else if (ex
-                                                            instanceof
-                                                            com.zeroc.Ice.FacetNotExistException) {
-                                                        // MetricsAdmin facet not present.
-                                                    } else if (!(ex
-                                                            instanceof
-                                                            com.zeroc.Ice
-                                                                    .CommunicatorDestroyedException)) {
-                                                        ex.printStackTrace();
-                                                        JOptionPane.showMessageDialog(
-                                                                getCoordinator().getMainFrame(),
-                                                                "Error: " + ex.toString(),
-                                                                "Error",
-                                                                JOptionPane.ERROR_MESSAGE);
-                                                    }
-                                                });
-                                    }
-                                });
-            } catch (com.zeroc.Ice.CommunicatorDestroyedException e) {
-            } catch (com.zeroc.Ice.LocalException e) {
+                    .whenComplete(
+                        (result, ex) -> {
+                            if (ex == null) {
+                                SwingUtilities.invokeLater(
+                                    () -> {
+                                        _editor.show(
+                                            MetricsView.this,
+                                            result.returnValue,
+                                            result.timestamp);
+                                    });
+                            } else {
+                                MetricsViewEditor.stopRefresh();
+                                SwingUtilities.invokeLater(
+                                    () -> {
+                                        if (ex
+                                            instanceof ObjectNotExistException
+                                            || ex
+                                            instanceof ConnectionRefusedException) {
+                                            // Server is down.
+                                        } else if (ex
+                                            instanceof FacetNotExistException) {
+                                            // MetricsAdmin facet not present.
+                                        } else if (!(ex
+                                            instanceof CommunicatorDestroyedException)) {
+                                            ex.printStackTrace();
+                                            JOptionPane.showMessageDialog(
+                                                getCoordinator().getMainFrame(),
+                                                "Error: " + ex.toString(),
+                                                "Error",
+                                                JOptionPane.ERROR_MESSAGE);
+                                        }
+                                    });
+                            }
+                        });
+            } catch (CommunicatorDestroyedException e) {} catch (LocalException e) {
                 MetricsViewEditor.stopRefresh();
                 JOptionPane.showMessageDialog(
-                        getCoordinator().getMainFrame(),
-                        "Error: " + e.toString(),
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
+                    getCoordinator().getMainFrame(),
+                    "Error: " + e.toString(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
-    private String _name;
-    private com.zeroc.Ice.IceMX.MetricsAdminPrx _admin;
-    private MetricsViewEditor _editor;
+    private final String _name;
+    private final MetricsAdminPrx _admin;
+    private final MetricsViewEditor _editor;
     private boolean _enabled;
     private static JPopupMenu _popup;
     private static DefaultTreeCellRenderer _cellRenderer;
