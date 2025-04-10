@@ -2009,6 +2009,5 @@ public class AllTests {
         private boolean _enabled;
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

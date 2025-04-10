@@ -7,8 +7,7 @@ import com.zeroc.Ice.Current;
 import test.Ice.binding.Test.TestIntf;
 
 public class TestI implements TestIntf {
-    TestI() {
-    }
+    TestI() {}
 
     @Override
     public String getAdapterName(Current current) {

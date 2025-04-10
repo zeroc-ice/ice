@@ -105,6 +105,5 @@ module Test
     }
 
     interface MyInterface
-    {
-    };
+    {};
 }

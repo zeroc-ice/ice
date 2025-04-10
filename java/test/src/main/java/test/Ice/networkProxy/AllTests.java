@@ -72,12 +72,10 @@ public class AllTests {
             try {
                 test.ice_ping();
                 test(false);
-            } catch (LocalException ex) {
-            }
+            } catch (LocalException ex) {}
         }
         out.println("ok");
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

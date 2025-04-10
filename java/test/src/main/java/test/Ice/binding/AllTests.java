@@ -142,8 +142,7 @@ public class AllTests {
                 String name = test.getAdapterName();
                 final int nRetry = 10;
                 int i;
-                for (i = 0; i < nRetry && test.getAdapterName().equals(name); i++) {
-                }
+                for (i = 0; i < nRetry && test.getAdapterName().equals(name); i++) {}
                 test(i == nRetry);
 
                 for (RemoteObjectAdapterPrx p : adapters) {
@@ -238,8 +237,7 @@ public class AllTests {
                 for (TestIntfPrx p : proxies) {
                     try {
                         p.ice_ping();
-                    } catch (LocalException ex) {
-                    }
+                    } catch (LocalException ex) {}
                 }
 
                 Set<Connection> connections = new HashSet<>();
@@ -306,8 +304,7 @@ public class AllTests {
                 String name = getAdapterNameWithAMI(test);
                 final int nRetry = 10;
                 int i;
-                for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals(name); i++) {
-                }
+                for (i = 0; i < nRetry && getAdapterNameWithAMI(test).equals(name); i++) {}
                 test(i == nRetry);
 
                 for (RemoteObjectAdapterPrx p : adapters) {
@@ -403,16 +400,13 @@ public class AllTests {
             // Ensure that endpoints are tried in order by deactivating the adapters
             // one after the other.
             //
-            for (i = 0; i < nRetry && "Adapter31".equals(test.getAdapterName()); i++) {
-            }
+            for (i = 0; i < nRetry && "Adapter31".equals(test.getAdapterName()); i++) {}
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(0));
-            for (i = 0; i < nRetry && "Adapter32".equals(test.getAdapterName()); i++) {
-            }
+            for (i = 0; i < nRetry && "Adapter32".equals(test.getAdapterName()); i++) {}
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(1));
-            for (i = 0; i < nRetry && "Adapter33".equals(test.getAdapterName()); i++) {
-            }
+            for (i = 0; i < nRetry && "Adapter33".equals(test.getAdapterName()); i++) {}
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(2));
 
@@ -434,18 +428,15 @@ public class AllTests {
             // order.
             //
             adapters.add(rcom.createObjectAdapter("Adapter36", endpoints[2].toString()));
-            for (i = 0; i < nRetry && "Adapter36".equals(test.getAdapterName()); i++) {
-            }
+            for (i = 0; i < nRetry && "Adapter36".equals(test.getAdapterName()); i++) {}
             test(i == nRetry);
             test.ice_getConnection().close();
             adapters.add(rcom.createObjectAdapter("Adapter35", endpoints[1].toString()));
-            for (i = 0; i < nRetry && "Adapter35".equals(test.getAdapterName()); i++) {
-            }
+            for (i = 0; i < nRetry && "Adapter35".equals(test.getAdapterName()); i++) {}
             test(i == nRetry);
             test.ice_getConnection().close();
             adapters.add(rcom.createObjectAdapter("Adapter34", endpoints[0].toString()));
-            for (i = 0; i < nRetry && "Adapter34".equals(test.getAdapterName()); i++) {
-            }
+            for (i = 0; i < nRetry && "Adapter34".equals(test.getAdapterName()); i++) {}
             test(i == nRetry);
 
             deactivate(rcom, adapters);
@@ -571,16 +562,13 @@ public class AllTests {
             // Ensure that endpoints are tried in order by deactivating the adapters
             // one after the other.
             //
-            for (i = 0; i < nRetry && "Adapter61".equals(test.getAdapterName()); i++) {
-            }
+            for (i = 0; i < nRetry && "Adapter61".equals(test.getAdapterName()); i++) {}
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(0));
-            for (i = 0; i < nRetry && "Adapter62".equals(test.getAdapterName()); i++) {
-            }
+            for (i = 0; i < nRetry && "Adapter62".equals(test.getAdapterName()); i++) {}
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(1));
-            for (i = 0; i < nRetry && "Adapter63".equals(test.getAdapterName()); i++) {
-            }
+            for (i = 0; i < nRetry && "Adapter63".equals(test.getAdapterName()); i++) {}
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(2));
 
@@ -602,16 +590,13 @@ public class AllTests {
             // order.
             //
             adapters.add(rcom.createObjectAdapter("Adapter66", endpoints[2].toString()));
-            for (i = 0; i < nRetry && "Adapter66".equals(test.getAdapterName()); i++) {
-            }
+            for (i = 0; i < nRetry && "Adapter66".equals(test.getAdapterName()); i++) {}
             test(i == nRetry);
             adapters.add(rcom.createObjectAdapter("Adapter65", endpoints[1].toString()));
-            for (i = 0; i < nRetry && "Adapter65".equals(test.getAdapterName()); i++) {
-            }
+            for (i = 0; i < nRetry && "Adapter65".equals(test.getAdapterName()); i++) {}
             test(i == nRetry);
             adapters.add(rcom.createObjectAdapter("Adapter64", endpoints[0].toString()));
-            for (i = 0; i < nRetry && "Adapter64".equals(test.getAdapterName()); i++) {
-            }
+            for (i = 0; i < nRetry && "Adapter64".equals(test.getAdapterName()); i++) {}
             test(i == nRetry);
 
             deactivate(rcom, adapters);
@@ -638,16 +623,13 @@ public class AllTests {
             // Ensure that endpoints are tried in order by deactivating the adapters
             // one after the other.
             //
-            for (i = 0; i < nRetry && "AdapterAMI61".equals(getAdapterNameWithAMI(test)); i++) {
-            }
+            for (i = 0; i < nRetry && "AdapterAMI61".equals(getAdapterNameWithAMI(test)); i++) {}
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(0));
-            for (i = 0; i < nRetry && "AdapterAMI62".equals(getAdapterNameWithAMI(test)); i++) {
-            }
+            for (i = 0; i < nRetry && "AdapterAMI62".equals(getAdapterNameWithAMI(test)); i++) {}
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(1));
-            for (i = 0; i < nRetry && "AdapterAMI63".equals(getAdapterNameWithAMI(test)); i++) {
-            }
+            for (i = 0; i < nRetry && "AdapterAMI63".equals(getAdapterNameWithAMI(test)); i++) {}
             test(i == nRetry);
             rcom.deactivateObjectAdapter(adapters.get(2));
 
@@ -669,16 +651,13 @@ public class AllTests {
             // order.
             //
             adapters.add(rcom.createObjectAdapter("AdapterAMI66", endpoints[2].toString()));
-            for (i = 0; i < nRetry && "AdapterAMI66".equals(getAdapterNameWithAMI(test)); i++) {
-            }
+            for (i = 0; i < nRetry && "AdapterAMI66".equals(getAdapterNameWithAMI(test)); i++) {}
             test(i == nRetry);
             adapters.add(rcom.createObjectAdapter("AdapterAMI65", endpoints[1].toString()));
-            for (i = 0; i < nRetry && "AdapterAMI65".equals(getAdapterNameWithAMI(test)); i++) {
-            }
+            for (i = 0; i < nRetry && "AdapterAMI65".equals(getAdapterNameWithAMI(test)); i++) {}
             test(i == nRetry);
             adapters.add(rcom.createObjectAdapter("AdapterAMI64", endpoints[0].toString()));
-            for (i = 0; i < nRetry && "AdapterAMI64".equals(getAdapterNameWithAMI(test)); i++) {
-            }
+            for (i = 0; i < nRetry && "AdapterAMI64".equals(getAdapterNameWithAMI(test)); i++) {}
             test(i == nRetry);
 
             deactivate(rcom, adapters);
@@ -699,8 +678,7 @@ public class AllTests {
             test(test.ice_getConnection() != testUDP.ice_getConnection());
             try {
                 testUDP.getAdapterName();
-            } catch (TwowayOnlyException ex) {
-            }
+            } catch (TwowayOnlyException ex) {}
         }
         out.println("ok");
 
@@ -885,6 +863,5 @@ public class AllTests {
         rcom.shutdown();
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

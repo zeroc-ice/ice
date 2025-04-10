@@ -1405,8 +1405,7 @@ public class Coordinator {
                                             JOptionPane.ERROR_MESSAGE);
                                     });
                                 break;
-                            } catch (InterruptedException e) {
-                            } catch (java.lang.reflect.InvocationTargetException e) {
+                            } catch (InterruptedException e) {} catch (java.lang.reflect.InvocationTargetException e) {
                                 break;
                             }
                         }
@@ -2121,8 +2120,7 @@ public class Coordinator {
                 RouterPrx.uncheckedCast(_communicator.getDefaultRouter())
                     .destroySessionAsync();
             }
-        } catch (LocalException e) {
-        }
+        } catch (LocalException e) {}
     }
 
     void showVars() {
@@ -2273,8 +2271,7 @@ public class Coordinator {
         if (_icegridadminProcess != null) {
             try {
                 _icegridadminProcess.destroy();
-            } catch (Exception e) {
-            }
+            } catch (Exception e) {}
             _icegridadminProcess = null;
             _fileParser = null;
         }
@@ -2982,11 +2979,7 @@ public class Coordinator {
                     (IGraphView)
                         ctor.newInstance(new Object[]{Coordinator.this, title.toString()});
                 _graphViews.add(view);
-            } catch (NoSuchMethodException ex) {
-            } catch (InstantiationException ex) {
-            } catch (IllegalAccessException ex) {
-            } catch (java.lang.reflect.InvocationTargetException ex) {
-            }
+            } catch (NoSuchMethodException ex) {} catch (InstantiationException ex) {} catch (IllegalAccessException ex) {} catch (java.lang.reflect.InvocationTargetException ex) {}
         }
         return view;
     }

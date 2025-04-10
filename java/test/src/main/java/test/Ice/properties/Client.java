@@ -118,8 +118,7 @@ public class Client extends TestHelper {
             try {
                 properties.getIceProperty("Ice.UnknownProperty");
                 test(false);
-            } catch (PropertyException ex) {
-            }
+            } catch (PropertyException ex) {}
             System.out.println("ok");
         }
 
@@ -129,8 +128,7 @@ public class Client extends TestHelper {
             try {
                 properties.setProperty("Ice.UnknownProperty", "bar");
                 test(false);
-            } catch (PropertyException ex) {
-            }
+            } catch (PropertyException ex) {}
             System.out.println("ok");
         }
 
@@ -146,8 +144,7 @@ public class Client extends TestHelper {
                 try {
                     communicator.createObjectAdapter("FooOA");
                     test(false);
-                } catch (PropertyException ex) {
-                }
+                } catch (PropertyException ex) {}
                 System.out.println("ok");
 
                 System.out.print(
@@ -158,8 +155,7 @@ public class Client extends TestHelper {
                 try {
                     communicator.propertyToProxy("FooProxy");
                     test(false);
-                } catch (PropertyException ex) {
-                }
+                } catch (PropertyException ex) {}
                 System.out.println("ok");
 
                 System.out.print(
@@ -169,8 +165,7 @@ public class Client extends TestHelper {
                 try {
                     properties.setProperty("IceGrid.InstanceName", "TestGrid");
                     test(false);
-                } catch (PropertyException ex) {
-                }
+                } catch (PropertyException ex) {}
                 System.out.println("ok");
             }
         }
@@ -196,8 +191,7 @@ public class Client extends TestHelper {
             try {
                 properties.getIcePropertyAsInt("Foo");
                 test(false);
-            } catch (PropertyException ex) {
-            }
+            } catch (PropertyException ex) {}
             System.out.println("ok");
         }
     }

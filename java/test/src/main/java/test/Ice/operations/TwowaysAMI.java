@@ -42,8 +42,7 @@ class TwowaysAMI {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
 
             _called = false;
@@ -242,8 +241,7 @@ class TwowaysAMI {
                             try {
                                 result.p3.opVoid();
                                 test(false);
-                            } catch (ObjectNotExistException e) {
-                            }
+                            } catch (ObjectNotExistException e) {}
                         }
                         cb.called();
                     });
@@ -1759,6 +1757,5 @@ class TwowaysAMI {
         }
     }
 
-    private TwowaysAMI() {
-    }
+    private TwowaysAMI() {}
 }

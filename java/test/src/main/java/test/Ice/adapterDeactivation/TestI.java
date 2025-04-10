@@ -22,7 +22,6 @@ public final class TestI implements TestIntf {
         current.adapter.deactivate();
         try {
             Thread.sleep(100);
-        } catch (InterruptedException ex) {
-        }
+        } catch (InterruptedException ex) {}
     }
 }

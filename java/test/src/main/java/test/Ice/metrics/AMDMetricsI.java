@@ -14,8 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public final class AMDMetricsI implements Metrics {
-    public AMDMetricsI() {
-    }
+    public AMDMetricsI() {}
 
     @Override
     public CompletionStage<Void> opAsync(Current current) {

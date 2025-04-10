@@ -12,8 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public final class AMDMyDerivedClassI implements MyDerivedClass {
-    public AMDMyDerivedClassI() {
-    }
+    public AMDMyDerivedClassI() {}
 
     @Override
     public CompletionStage<ObjectPrx> echoAsync(

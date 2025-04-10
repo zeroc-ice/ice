@@ -6,8 +6,7 @@
 module Test
 {
     exception MyException
-    {
-    }
+    {}
 
     interface MyClass
     {

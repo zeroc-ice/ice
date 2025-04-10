@@ -8,8 +8,7 @@ package com.zeroc.Ice;
 // otherwise it's executed by a thread pool thread (after promoting a follower thread).
 //
 abstract class RunnableThreadPoolWorkItem implements ThreadPoolWorkItem, Runnable {
-    public RunnableThreadPoolWorkItem() {
-    }
+    public RunnableThreadPoolWorkItem() {}
 
     public RunnableThreadPoolWorkItem(Connection connection) {
         _connection = connection;

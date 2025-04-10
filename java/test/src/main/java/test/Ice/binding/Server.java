@@ -19,20 +19,16 @@ public class Server extends TestHelper {
         initData.logger =
             new Logger() {
                 @Override
-                public void print(String message) {
-                }
+                public void print(String message) {}
 
                 @Override
-                public void trace(String category, String message) {
-                }
+                public void trace(String category, String message) {}
 
                 @Override
-                public void warning(String message) {
-                }
+                public void warning(String message) {}
 
                 @Override
-                public void error(String message) {
-                }
+                public void error(String message) {}
 
                 @Override
                 public String getPrefix() {

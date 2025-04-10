@@ -92,8 +92,7 @@ class BatchOneways {
                 count += p.opByteSOnewayCallCount();
                 try {
                     Thread.sleep(10);
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
 
         final boolean bluetooth =
@@ -168,8 +167,7 @@ class BatchOneways {
         boolean supportsCompress = true;
         try {
             supportsCompress = p.supportsCompress();
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
 
         p.ice_ping();
         if (supportsCompress
@@ -212,6 +210,5 @@ class BatchOneways {
         }
     }
 
-    private BatchOneways() {
-    }
+    private BatchOneways() {}
 }

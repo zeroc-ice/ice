@@ -218,8 +218,7 @@ public abstract class UserException extends java.lang.Exception {
             }
         }
 
-        private ExceptionWriter() {
-        }
+        private ExceptionWriter() {}
     }
 
     private static final long serialVersionUID = 0L;

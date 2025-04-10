@@ -14,8 +14,7 @@ public interface ServantLocator {
     /** Holds the result of operation locate. */
     public static class LocateResult {
         /** Default constructor. */
-        public LocateResult() {
-        }
+        public LocateResult() {}
 
         /**
          * This constructor makes shallow copies of the results for operation Locate.

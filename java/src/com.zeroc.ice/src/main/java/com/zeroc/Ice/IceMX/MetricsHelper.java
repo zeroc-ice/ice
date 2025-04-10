@@ -30,8 +30,7 @@ public class MetricsHelper<T> {
             }
         }
 
-        protected AttributeResolver() {
-        }
+        protected AttributeResolver() {}
 
         public String resolve(MetricsHelper<?> helper, String attribute) {
             Resolver resolver = _attributes.get(attribute);

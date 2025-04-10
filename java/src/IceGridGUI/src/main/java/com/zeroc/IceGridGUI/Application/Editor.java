@@ -69,8 +69,7 @@ public class Editor extends EditorBase {
     }
 
     @Override
-    protected void appendProperties(DefaultFormBuilder builder) {
-    }
+    protected void appendProperties(DefaultFormBuilder builder) {}
 
     @Override
     protected void buildPropertiesPanel() {

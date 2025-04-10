@@ -320,6 +320,5 @@ public class AllTests {
         return t;
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

@@ -170,8 +170,7 @@ public class Client extends TestHelper {
                     communicator.stringToProxy("collocated:" + getTestEndpoint(50));
                 try {
                     baseC.ice_ping();
-                } catch (ObjectNotExistException ex) {
-                }
+                } catch (ObjectNotExistException ex) {}
                 out.println("ok");
             }
 

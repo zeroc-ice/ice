@@ -186,6 +186,5 @@ final class Protocol {
     public static final byte FLAG_HAS_SLICE_SIZE = (byte) (1 << 4);
     public static final byte FLAG_IS_LAST_SLICE = (byte) (1 << 5);
 
-    private Protocol() {
-    }
+    private Protocol() {}
 }

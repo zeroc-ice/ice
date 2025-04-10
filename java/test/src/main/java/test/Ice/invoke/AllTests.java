@@ -83,8 +83,7 @@ public class AllTests {
                 inS.startEncapsulation();
                 try {
                     inS.throwException();
-                } catch (MyException ex) {
-                } catch (Exception ex) {
+                } catch (MyException ex) {} catch (Exception ex) {
                     test(false);
                 }
                 inS.endEncapsulation();
@@ -134,8 +133,7 @@ public class AllTests {
                 inS.startEncapsulation();
                 try {
                     inS.throwException();
-                } catch (MyException ex) {
-                } catch (Exception ex) {
+                } catch (MyException ex) {} catch (Exception ex) {
                     test(false);
                 }
                 inS.endEncapsulation();
@@ -147,6 +145,5 @@ public class AllTests {
         return cl;
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

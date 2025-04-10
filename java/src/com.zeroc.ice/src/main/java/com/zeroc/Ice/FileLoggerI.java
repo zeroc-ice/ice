@@ -33,15 +33,13 @@ final class FileLoggerI extends LoggerI {
     void destroy() {
         try {
             _out.close();
-        } catch (IOException ex) {
-        }
+        } catch (IOException ex) {}
     }
 
     @Override
     protected void writeMessage(String message) {
         try {
             _out.write(message.getBytes());
-        } catch (IOException ex) {
-        }
+        } catch (IOException ex) {}
     }
 }

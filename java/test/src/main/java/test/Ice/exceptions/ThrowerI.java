@@ -15,8 +15,7 @@ import test.Ice.exceptions.Test.D;
 import test.Ice.exceptions.Test.Thrower;
 
 public final class ThrowerI implements Thrower {
-    public ThrowerI() {
-    }
+    public ThrowerI() {}
 
     @Override
     public void shutdown(Current current) {

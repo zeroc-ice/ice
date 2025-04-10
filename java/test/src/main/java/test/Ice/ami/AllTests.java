@@ -70,8 +70,7 @@ public class AllTests {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
 
             _called = false;
@@ -895,13 +894,11 @@ public class AllTests {
                     try {
                         r1.join();
                         test(false);
-                    } catch (CancellationException ex) {
-                    }
+                    } catch (CancellationException ex) {}
                     try {
                         r2.join();
                         test(false);
-                    } catch (CancellationException ex) {
-                    }
+                    } catch (CancellationException ex) {}
                 } finally {
                     testController.resumeAdapter();
                 }
@@ -925,13 +922,11 @@ public class AllTests {
                     try {
                         r1.join();
                         test(false);
-                    } catch (CancellationException ex) {
-                    }
+                    } catch (CancellationException ex) {}
                     try {
                         r2.join();
                         test(false);
-                    } catch (CancellationException ex) {
-                    }
+                    } catch (CancellationException ex) {}
                 } finally {
                     testController.resumeAdapter();
                 }
@@ -1146,6 +1141,5 @@ public class AllTests {
         p.shutdown();
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

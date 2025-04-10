@@ -122,6 +122,5 @@ public class AllTests {
         System.out.println("ok");
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

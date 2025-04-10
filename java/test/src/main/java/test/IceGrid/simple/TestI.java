@@ -7,8 +7,7 @@ import com.zeroc.Ice.Current;
 import test.IceGrid.simple.Test.TestIntf;
 
 public class TestI implements TestIntf {
-    public TestI() {
-    }
+    public TestI() {}
 
     @Override
     public void shutdown(Current current) {

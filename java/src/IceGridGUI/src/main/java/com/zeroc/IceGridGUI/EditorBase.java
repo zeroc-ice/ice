@@ -28,8 +28,7 @@ public abstract class EditorBase {
         return null;
     }
 
-    protected void appendProperties(DefaultFormBuilder builder) {
-    }
+    protected void appendProperties(DefaultFormBuilder builder) {}
 
     protected JComponent createPropertiesPanel() {
         return null;

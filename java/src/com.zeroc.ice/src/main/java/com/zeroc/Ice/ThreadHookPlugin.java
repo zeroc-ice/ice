@@ -33,8 +33,7 @@ public class ThreadHookPlugin implements Plugin {
      * notification hooks.
      */
     @Override
-    public void initialize() {
-    }
+    public void initialize() {}
 
     /**
      * Called by the Ice run time when the communicator is destroyed. The derived class can override
@@ -42,6 +41,5 @@ public class ThreadHookPlugin implements Plugin {
      * hooks.
      */
     @Override
-    public void destroy() {
-    }
+    public void destroy() {}
 }

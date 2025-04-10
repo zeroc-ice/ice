@@ -156,8 +156,7 @@ public class Client extends TestHelper {
                 try {
                     in.readBool();
                     test(false);
-                } catch (MarshalException ex) {
-                }
+                } catch (MarshalException ex) {}
             }
 
             {

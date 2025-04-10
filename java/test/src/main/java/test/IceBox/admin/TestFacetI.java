@@ -11,8 +11,7 @@ import java.util.function.Consumer;
 
 public class TestFacetI
     implements TestFacet, Consumer<Map<String, String>> {
-    public TestFacetI() {
-    }
+    public TestFacetI() {}
 
     @Override
     public synchronized Map<String, String> getChanges(Current current) {

@@ -377,8 +377,7 @@ class LookupI implements Lookup {
                 request.invoke(_domainId, _lookups);
                 request.scheduleTimer(_timeout);
                 return;
-            } catch (LocalException ex) {
-            }
+            } catch (LocalException ex) {}
         }
 
         request.finished(null);
@@ -419,8 +418,7 @@ class LookupI implements Lookup {
                 request.invoke(_domainId, _lookups);
                 request.scheduleTimer(_timeout);
                 return;
-            } catch (LocalException ex) {
-            }
+            } catch (LocalException ex) {}
         }
 
         request.finished(null);

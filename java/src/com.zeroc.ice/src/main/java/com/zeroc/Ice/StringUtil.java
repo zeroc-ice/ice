@@ -589,6 +589,5 @@ public final class StringUtil {
         return true;
     }
 
-    private StringUtil() {
-    }
+    private StringUtil() {}
 }

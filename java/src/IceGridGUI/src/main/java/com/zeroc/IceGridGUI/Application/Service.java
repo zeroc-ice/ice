@@ -2,5 +2,4 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-interface Service extends TemplateInstance, DescriptorHolder {
-}
+interface Service extends TemplateInstance, DescriptorHolder {}

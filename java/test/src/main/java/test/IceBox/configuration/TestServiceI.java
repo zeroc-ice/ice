@@ -18,6 +18,5 @@ public class TestServiceI implements Service {
     }
 
     @Override
-    public void stop() {
-    }
+    public void stop() {}
 }

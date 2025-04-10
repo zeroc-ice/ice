@@ -50,8 +50,7 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
             try {
                 _opVoidThread.join();
                 _opVoidThread = null;
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
         }
 
         current.adapter.getCommunicator().shutdown();
@@ -71,8 +70,7 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
             try {
                 _opVoidThread.join();
                 _opVoidThread = null;
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
         }
 
         CompletableFuture<Void> f = new CompletableFuture<>();

@@ -27,8 +27,7 @@ class ApplicationObserverI implements ApplicationObserver {
         if (!_initialized) {
             try {
                 wait(timeout);
-            } catch (InterruptedException e) {
-            }
+            } catch (InterruptedException e) {}
         }
 
         if (_initialized) {

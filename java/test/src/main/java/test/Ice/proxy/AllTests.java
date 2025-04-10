@@ -82,8 +82,7 @@ public class AllTests {
         try {
             b1 = communicator.stringToProxy("\"test -f facet'");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         b1 = communicator.stringToProxy("\"test -f facet\"");
         test(
             "test -f facet".equals(b1.ice_getIdentity().name)
@@ -102,8 +101,7 @@ public class AllTests {
         try {
             b1 = communicator.stringToProxy("test test");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         b1 = communicator.stringToProxy("test\\040test");
         test(
             "test test".equals(b1.ice_getIdentity().name)
@@ -111,8 +109,7 @@ public class AllTests {
         try {
             b1 = communicator.stringToProxy("test\\777");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         b1 = communicator.stringToProxy("test\\40test");
         test("test test".equals(b1.ice_getIdentity().name));
 
@@ -152,13 +149,11 @@ public class AllTests {
         try {
             b1 = communicator.stringToProxy("\"\" test"); // Invalid trailing characters.
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         try {
             b1 = communicator.stringToProxy("test:"); // Missing endpoint.
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         b1 = communicator.stringToProxy("test@adapter");
         test(
@@ -168,8 +163,7 @@ public class AllTests {
         try {
             b1 = communicator.stringToProxy("id@adapter test");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         b1 = communicator.stringToProxy("category/test@adapter");
         test(
             "test".equals(b1.ice_getIdentity().name)
@@ -224,13 +218,11 @@ public class AllTests {
         try {
             b1 = communicator.stringToProxy("id -f \"facet x");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         try {
             b1 = communicator.stringToProxy("id -f \'facet x");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         b1 = communicator.stringToProxy("test -f facet:tcp");
         test(
             "test".equals(b1.ice_getIdentity().name)
@@ -264,8 +256,7 @@ public class AllTests {
         try {
             b1 = communicator.stringToProxy("test -f facet@test @test");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         b1 = communicator.stringToProxy("test");
         test(b1.ice_isTwoway());
         b1 = communicator.stringToProxy("test -t");
@@ -300,8 +291,7 @@ public class AllTests {
         try {
             communicator.stringToProxy("test:tcp@adapterId");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         // This is an unknown endpoint warning, not a parse exception.
         //
         // try
@@ -315,8 +305,7 @@ public class AllTests {
         try {
             communicator.stringToProxy("test: :tcp");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         //
         // Test invalid endpoint syntax
@@ -324,20 +313,17 @@ public class AllTests {
         try {
             communicator.createObjectAdapterWithEndpoints("BadAdapter", " : ");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             communicator.createObjectAdapterWithEndpoints("BadAdapter", "tcp: ");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             communicator.createObjectAdapterWithEndpoints("BadAdapter", ":tcp");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         //
         // Test for bug ICE-5543: escaped escapes in stringToIdentity
@@ -366,15 +352,13 @@ public class AllTests {
             // Illegal character < 32
             id = Util.stringToIdentity("xx\01FooBar");
             test(false);
-        } catch (ParseException e) {
-        }
+        } catch (ParseException e) {}
 
         try {
             // Illegal surrogate
             id = Util.stringToIdentity("xx\\ud911");
             test(false);
-        } catch (ParseException e) {
-        }
+        } catch (ParseException e) {}
 
         // Testing bytes 127 (\x7F, \177) and €
         // Use the Unicode value instead of a literal Euro symbol
@@ -891,12 +875,10 @@ public class AllTests {
                         cl.ice_secure(!connection.getEndpoint().getInfo().secure())
                             .ice_fixed(connection)
                             .ice_ping();
-                    } catch (NoEndpointException ex) {
-                    }
+                    } catch (NoEndpointException ex) {}
                     try {
                         cl.ice_datagram().ice_fixed(connection).ice_ping();
-                    } catch (NoEndpointException ex) {
-                    }
+                    } catch (NoEndpointException ex) {}
                 } else {
                     try {
                         cl.ice_fixed(connection);
@@ -1001,78 +983,67 @@ public class AllTests {
             // Invalid -x option
             communicator.stringToProxy("id:opaque -t 99 -v abc -x abc");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Missing -t and -v
             communicator.stringToProxy("id:opaque");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Repeated -t
             communicator.stringToProxy("id:opaque -t 1 -t 1 -v abc");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Repeated -v
             communicator.stringToProxy("id:opaque -t 1 -v abc -v abc");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Missing -t
             communicator.stringToProxy("id:opaque -v abc");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Missing -v
             communicator.stringToProxy("id:opaque -t 1");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Missing arg for -t
             communicator.stringToProxy("id:opaque -t -v abc");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Missing arg for -v
             communicator.stringToProxy("id:opaque -t 1 -v");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Not a number for -t
             communicator.stringToProxy("id:opaque -t x -v abc");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // < 0 for -t
             communicator.stringToProxy("id:opaque -t -1 -v abc");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         try {
             // Invalid char for -v
             communicator.stringToProxy("id:opaque -t 99 -v x?c");
             test(false);
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
 
         // Legal TCP endpoint expressed as opaque endpoint
         ObjectPrx p1 =
@@ -1146,6 +1117,5 @@ public class AllTests {
         return cl;
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

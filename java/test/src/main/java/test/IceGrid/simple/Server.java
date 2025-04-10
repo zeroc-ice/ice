@@ -28,8 +28,7 @@ public class Server extends TestHelper {
             adapter.add(object, Util.stringToIdentity(id));
             try {
                 adapter.activate();
-            } catch (ObjectAdapterDeactivatedException ex) {
-            }
+            } catch (ObjectAdapterDeactivatedException ex) {}
             communicator().waitForShutdown();
         }
     }

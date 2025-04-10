@@ -119,8 +119,7 @@ public class AllTests {
                 try {
                     initial.throwException();
                     test(false);
-                } catch (E ex) {
-                }
+                } catch (E ex) {}
                 test(classLoader.check("test.Ice.classLoader.Test.E"));
                 out.println("ok");
 
@@ -130,6 +129,5 @@ public class AllTests {
         }
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

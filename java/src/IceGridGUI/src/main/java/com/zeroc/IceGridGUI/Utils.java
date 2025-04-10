@@ -150,8 +150,7 @@ public class Utils {
             if (parent.nodeExists(node)) {
                 prefs = parent.node(node);
             }
-        } catch (BackingStoreException ex) {
-        }
+        } catch (BackingStoreException ex) {}
 
         boolean locationVisible = false;
 
@@ -502,6 +501,5 @@ public class Utils {
         }
     }
 
-    private Utils() {
-    }
+    private Utils() {}
 }

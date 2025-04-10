@@ -28,8 +28,7 @@ class BackgroundControllerI implements BackgroundController {
             try {
                 wait();
                 break;
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
         }
     }
 

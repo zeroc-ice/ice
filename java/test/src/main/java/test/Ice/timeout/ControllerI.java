@@ -19,8 +19,7 @@ class ControllerI implements Controller {
             _adapter.waitForHold();
             try {
                 sleep(_timeout);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
             _adapter.activate();
         }
 

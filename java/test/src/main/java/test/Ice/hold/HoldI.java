@@ -39,8 +39,7 @@ public final class HoldI implements Hold {
                     public void run() {
                         try {
                             putOnHold(0, null);
-                        } catch (ObjectAdapterDeactivatedException ex) {
-                        }
+                        } catch (ObjectAdapterDeactivatedException ex) {}
                     }
                 },
                 delay);
@@ -71,8 +70,7 @@ public final class HoldI implements Hold {
     public int set(int value, int delay, Current current) {
         try {
             Thread.sleep(delay);
-        } catch (InterruptedException ex) {
-        }
+        } catch (InterruptedException ex) {}
 
         synchronized (this) {
             int tmp = _last;

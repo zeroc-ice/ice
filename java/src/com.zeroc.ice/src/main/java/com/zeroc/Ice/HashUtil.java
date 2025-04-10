@@ -84,6 +84,5 @@ public final class HashUtil {
         return (hashCode << 5) + hashCode;
     }
 
-    private HashUtil() {
-    }
+    private HashUtil() {}
 }

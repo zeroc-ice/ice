@@ -221,8 +221,7 @@ final class TransceiverI implements Transceiver {
     }
 
     @Override
-    public void checkSendSize(Buffer buf) {
-    }
+    public void checkSendSize(Buffer buf) {}
 
     // Used by ConnectorI.
     TransceiverI(Instance instance, String remoteAddr, String uuid, String connectionId) {

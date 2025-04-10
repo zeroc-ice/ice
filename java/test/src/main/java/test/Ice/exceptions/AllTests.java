@@ -90,26 +90,22 @@ public class AllTests {
             try {
                 adapter.add(obj, Util.stringToIdentity("x"));
                 test(false);
-            } catch (AlreadyRegisteredException ex) {
-            }
+            } catch (AlreadyRegisteredException ex) {}
 
             try {
                 adapter.add(obj, Util.stringToIdentity(""));
                 test(false);
-            } catch (IllegalArgumentException ex) {
-            }
+            } catch (IllegalArgumentException ex) {}
             try {
                 adapter.add(null, Util.stringToIdentity("x"));
                 test(false);
-            } catch (IllegalArgumentException ex) {
-            }
+            } catch (IllegalArgumentException ex) {}
 
             adapter.remove(Util.stringToIdentity("x"));
             try {
                 adapter.remove(Util.stringToIdentity("x"));
                 test(false);
-            } catch (NotRegisteredException ex) {
-            }
+            } catch (NotRegisteredException ex) {}
             adapter.deactivate();
             out.println("ok");
         }
@@ -123,8 +119,7 @@ public class AllTests {
             try {
                 adapter.addServantLocator(loc, "x");
                 test(false);
-            } catch (AlreadyRegisteredException ex) {
-            }
+            } catch (AlreadyRegisteredException ex) {}
 
             adapter.deactivate();
             out.println("ok");
@@ -137,8 +132,7 @@ public class AllTests {
             try {
                 communicator.getValueFactoryManager().add(of, "::x");
                 test(false);
-            } catch (AlreadyRegisteredException ex) {
-            }
+            } catch (AlreadyRegisteredException ex) {}
             out.println("ok");
         }
 
@@ -287,8 +281,7 @@ public class AllTests {
             try {
                 thrower.throwUndeclaredA(1);
                 test(false);
-            } catch (UnknownUserException ex) {
-            } catch (Throwable ex) {
+            } catch (UnknownUserException ex) {} catch (Throwable ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -296,8 +289,7 @@ public class AllTests {
             try {
                 thrower.throwUndeclaredB(1, 2);
                 test(false);
-            } catch (UnknownUserException ex) {
-            } catch (Throwable ex) {
+            } catch (UnknownUserException ex) {} catch (Throwable ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -305,8 +297,7 @@ public class AllTests {
             try {
                 thrower.throwUndeclaredC(1, 2, 3);
                 test(false);
-            } catch (UnknownUserException ex) {
-            } catch (Throwable ex) {
+            } catch (UnknownUserException ex) {} catch (Throwable ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -321,9 +312,7 @@ public class AllTests {
             try {
                 thrower.throwAssertException();
                 test(false);
-            } catch (ConnectionLostException ex) {
-            } catch (UnknownException ex) {
-            } catch (Throwable ex) {
+            } catch (ConnectionLostException ex) {} catch (UnknownException ex) {} catch (Throwable ex) {
                 ex.printStackTrace();
                 test(false);
             }
@@ -347,8 +336,7 @@ public class AllTests {
             try {
                 thrower.throwMemoryLimitException(new byte[20 * 1024]); // 20KB
                 test(false);
-            } catch (ConnectionLostException ex) {
-            } catch (UnknownLocalException ex) {
+            } catch (ConnectionLostException ex) {} catch (UnknownLocalException ex) {
                 // Expected with JS bidir server
             } catch (SocketException ex) {
                 // This can be raised if the connection is closed during the client's call to
@@ -374,8 +362,7 @@ public class AllTests {
                 try {
                     thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
                     test(false);
-                } catch (ConnectionLostException ex) {
-                }
+                } catch (ConnectionLostException ex) {}
             } catch (ConnectionRefusedException ex) {
                 // Expected with JS bidir server
             }
@@ -442,8 +429,7 @@ public class AllTests {
         try {
             thrower.throwLocalException();
             test(false);
-        } catch (UnknownLocalException ex) {
-        } catch (Throwable ex) {
+        } catch (UnknownLocalException ex) {} catch (Throwable ex) {
             ex.printStackTrace();
             test(false);
         }
@@ -451,9 +437,7 @@ public class AllTests {
         try {
             thrower.throwLocalExceptionIdempotent();
             test(false);
-        } catch (UnknownLocalException ex) {
-        } catch (OperationNotExistException ex) {
-        } catch (Throwable ex) {
+        } catch (UnknownLocalException ex) {} catch (OperationNotExistException ex) {} catch (Throwable ex) {
             ex.printStackTrace();
             test(false);
         }
@@ -466,8 +450,7 @@ public class AllTests {
         try {
             thrower.throwNonIceException();
             test(false);
-        } catch (UnknownException ex) {
-        } catch (Throwable ex) {
+        } catch (UnknownException ex) {} catch (Throwable ex) {
             out.println(ex);
             test(false);
         }
@@ -529,8 +512,7 @@ public class AllTests {
         try {
             thrower.throwAfterException();
             test(false);
-        } catch (A ex) {
-        } catch (LocalException ex) {
+        } catch (A ex) {} catch (LocalException ex) {
             test(false);
         } catch (Throwable ex) {
             out.println(ex);
@@ -783,6 +765,5 @@ public class AllTests {
         return thrower;
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

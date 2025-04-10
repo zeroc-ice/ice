@@ -43,8 +43,7 @@ public class AllTests {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
             _called = false;
         }
@@ -120,10 +119,8 @@ public class AllTests {
                     _background.op();
                     try {
                         Thread.sleep(1);
-                    } catch (InterruptedException ex) {
-                    }
-                } catch (LocalException ex) {
-                }
+                    } catch (InterruptedException ex) {}
+                } catch (LocalException ex) {}
             }
         }
 
@@ -195,8 +192,7 @@ public class AllTests {
             try {
                 obj.ice_ping();
                 test(false);
-            } catch (TimeoutException ex) {
-            }
+            } catch (TimeoutException ex) {}
             backgroundController.resumeCall("findAdapterById");
 
             obj = communicator.stringToProxy("locator:" + helper.getTestEndpoint(0));
@@ -236,8 +232,7 @@ public class AllTests {
             try {
                 obj.ice_ping();
                 test(false);
-            } catch (TimeoutException ex) {
-            }
+            } catch (TimeoutException ex) {}
             backgroundController.resumeCall("getClientProxy");
 
             obj = communicator.stringToProxy("router:" + helper.getTestEndpoint(0));
@@ -320,8 +315,7 @@ public class AllTests {
             try {
                 prx.op();
                 test(false);
-            } catch (LocalException ex) {
-            }
+            } catch (LocalException ex) {}
 
             CompletableFuture<Void> r = prx.opAsync();
             InvocationFuture<Void> f = Util.getInvocationFuture(r);
@@ -355,13 +349,11 @@ public class AllTests {
             background.ice_getCachedConnection().abort();
             try {
                 Thread.sleep(10);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
             configuration.connectException(null);
             try {
                 background.ice_ping();
-            } catch (LocalException ex) {
-            }
+            } catch (LocalException ex) {}
         }
 
         thread1._destroy();
@@ -370,8 +362,7 @@ public class AllTests {
         try {
             thread1.join();
             thread2.join();
-        } catch (InterruptedException e) {
-        }
+        } catch (InterruptedException e) {}
     }
 
     private static void initializeTests(
@@ -396,8 +387,7 @@ public class AllTests {
             try {
                 prx.op();
                 test(false);
-            } catch (SocketException ex) {
-            }
+            } catch (SocketException ex) {}
 
             CompletableFuture<Void> r = prx.opAsync();
             InvocationFuture<Void> f = Util.getInvocationFuture(r);
@@ -497,13 +487,11 @@ public class AllTests {
             background.ice_getCachedConnection().abort();
             try {
                 Thread.sleep(10);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
             configuration.initializeException(null);
             try {
                 background.ice_ping();
-            } catch (LocalException ex) {
-            }
+            } catch (LocalException ex) {}
             try {
                 background.ice_ping();
             } catch (LocalException ex) {
@@ -527,13 +515,11 @@ public class AllTests {
             background.ice_getCachedConnection().abort();
             try {
                 Thread.sleep(10);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
             ctl.initializeException(false);
             try {
                 background.ice_ping();
-            } catch (LocalException ex) {
-            }
+            } catch (LocalException ex) {}
             try {
                 background.ice_ping();
             } catch (LocalException ex) {
@@ -558,8 +544,7 @@ public class AllTests {
         try {
             thread1.join();
             thread2.join();
-        } catch (InterruptedException e) {
-        }
+        } catch (InterruptedException e) {}
     }
 
     private static void validationTests(
@@ -1043,26 +1028,22 @@ public class AllTests {
 
             try {
                 Thread.sleep(10);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
             configuration.writeException(new SocketException());
             try {
                 background.op();
-            } catch (LocalException ex) {
-            }
+            } catch (LocalException ex) {}
             configuration.writeException(null);
 
             try {
                 Thread.sleep(10);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
 
             background.ice_ping();
             background.ice_getCachedConnection().abort();
             try {
                 Thread.sleep(10);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
 
             background.ice_getCachedConnection().abort();
         }
@@ -1073,10 +1054,8 @@ public class AllTests {
         try {
             thread1.join();
             thread2.join();
-        } catch (InterruptedException e) {
-        }
+        } catch (InterruptedException e) {}
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

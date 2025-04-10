@@ -74,8 +74,7 @@ final class PropertyNames
         "LMDB",
         true,
         false,
-        new Property[]{
-            });
+        new Property[]{});
 
     public static final PropertyArray IceProps = new PropertyArray(
         "Ice",
@@ -241,8 +240,7 @@ final class PropertyNames
         "IceBridge",
         false,
         true,
-        new Property[]{
-            });
+        new Property[]{});
 
     public static final PropertyArray IceGridAdminProps = new PropertyArray(
         "IceGridAdmin",
@@ -258,8 +256,7 @@ final class PropertyNames
         "IceGrid",
         false,
         true,
-        new Property[]{
-            });
+        new Property[]{});
 
     public static final PropertyArray IceSSLProps = new PropertyArray(
         "IceSSL",
@@ -289,15 +286,13 @@ final class PropertyNames
         "IceStorm",
         false,
         true,
-        new Property[]{
-            });
+        new Property[]{});
 
     public static final PropertyArray IceStormAdminProps = new PropertyArray(
         "IceStormAdmin",
         false,
         true,
-        new Property[]{
-            });
+        new Property[]{});
 
     public static final PropertyArray IceBTProps = new PropertyArray(
         "IceBT",
@@ -312,15 +307,13 @@ final class PropertyNames
         "Glacier2",
         false,
         true,
-        new Property[]{
-            });
+        new Property[]{});
 
     public static final PropertyArray DataStormProps = new PropertyArray(
         "DataStorm",
         false,
         true,
-        new Property[]{
-            });
+        new Property[]{});
 
     public static final PropertyArray validProps[] =
         {
@@ -341,6 +334,5 @@ final class PropertyNames
             DataStormProps
         };
 
-    private PropertyNames() {
-    }
+    private PropertyNames() {}
 }

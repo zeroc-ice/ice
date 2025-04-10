@@ -248,8 +248,7 @@ class MetricsView extends TreeNode {
                                     });
                             }
                         });
-            } catch (CommunicatorDestroyedException e) {
-            } catch (LocalException e) {
+            } catch (CommunicatorDestroyedException e) {} catch (LocalException e) {
                 MetricsViewEditor.stopRefresh();
                 JOptionPane.showMessageDialog(
                     getCoordinator().getMainFrame(),

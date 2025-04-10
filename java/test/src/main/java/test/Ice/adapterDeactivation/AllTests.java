@@ -66,8 +66,7 @@ public class AllTests {
             try {
                 communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
                 test(false);
-            } catch (AlreadyRegisteredException ex) {
-            }
+            } catch (AlreadyRegisteredException ex) {}
             adapter.destroy();
             //
             // Use a different port than the first adapter to avoid an "address already in use"
@@ -302,8 +301,7 @@ public class AllTests {
             try {
                 obj.ice_getConnection().setAdapter(adapter);
                 test(false);
-            } catch (ObjectAdapterDestroyedException ex) {
-            }
+            } catch (ObjectAdapterDestroyedException ex) {}
             out.println("ok");
         }
 
@@ -346,8 +344,7 @@ public class AllTests {
                         communicator, "test:" + helper.getTestEndpoint(1));
                 communicator.createObjectAdapterWithRouter("", router);
                 test(false);
-            } catch (ConnectFailedException ex) {
-            }
+            } catch (ConnectFailedException ex) {}
             try {
                 router =
                     RouterPrx.createProxy(
@@ -358,8 +355,7 @@ public class AllTests {
                     .setProperty("AdapterWithRouter.Endpoints", "tcp -h 127.0.0.1");
                 communicator.createObjectAdapterWithRouter("AdapterWithRouter", router);
                 test(false);
-            } catch (InitializationException ex) {
-            }
+            } catch (InitializationException ex) {}
         }
         out.println("ok");
 
@@ -453,6 +449,5 @@ public class AllTests {
         return obj;
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

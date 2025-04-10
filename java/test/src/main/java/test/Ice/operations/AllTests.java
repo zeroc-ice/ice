@@ -57,6 +57,5 @@ public class AllTests {
         return cl;
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

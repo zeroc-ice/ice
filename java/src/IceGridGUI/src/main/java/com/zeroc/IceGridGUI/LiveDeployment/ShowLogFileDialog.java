@@ -170,8 +170,7 @@ class ShowLogFileDialog extends JDialog {
                         } else if (!firstRun) {
                             try {
                                 wait(_threadPeriod);
-                            } catch (InterruptedException e) {
-                            }
+                            } catch (InterruptedException e) {}
                         } else {
                             firstRun = false;
                         }
@@ -528,8 +527,7 @@ class ShowLogFileDialog extends JDialog {
 
             try {
                 _thread.join();
-            } catch (InterruptedException e) {
-            }
+            } catch (InterruptedException e) {}
 
             _thread = null;
             _stopItem.setSelected(true);

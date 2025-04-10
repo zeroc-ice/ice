@@ -32,8 +32,7 @@ final class CallbackReceiverI implements CallbackReceiver {
             try {
                 wait(30000);
                 TestHelper.test(_callback);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
         }
 
         _callback = false;

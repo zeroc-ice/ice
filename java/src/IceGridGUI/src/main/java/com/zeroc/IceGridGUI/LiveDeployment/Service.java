@@ -260,8 +260,7 @@ public class Service extends Communicator {
                 > 0) {
                 facetName = "IceBox.SharedCommunicator." + facet;
             }
-        } catch (NumberFormatException ex) {
-        }
+        } catch (NumberFormatException ex) {}
 
         if (admin != null) {
             return admin.ice_facet(facetName);

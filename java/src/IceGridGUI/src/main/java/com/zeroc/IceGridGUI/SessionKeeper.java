@@ -449,8 +449,7 @@ public class SessionKeeper {
     }
 
     public class ConnectionInfo implements Comparable<ConnectionInfo> {
-        public ConnectionInfo() {
-        }
+        public ConnectionInfo() {}
 
         public ConnectionInfo(String uuid, Preferences prefs) {
             _uuid = uuid;
@@ -856,8 +855,7 @@ public class SessionKeeper {
         }
 
         @Override
-        public void focusLost(FocusEvent fe) {
-        }
+        public void focusLost(FocusEvent fe) {}
 
         private JTextComponent _field;
     }
@@ -1277,8 +1275,7 @@ public class SessionKeeper {
                     new JRadioButton(
                         new AbstractAction("TCP") {
                             @Override
-                            public void actionPerformed(ActionEvent e) {
-                            }
+                            public void actionPerformed(ActionEvent e) {}
                         });
                 group.add(_directDefaultEndpointTCP);
 
@@ -1286,8 +1283,7 @@ public class SessionKeeper {
                     new JRadioButton(
                         new AbstractAction("SSL") {
                             @Override
-                            public void actionPerformed(ActionEvent e) {
-                            }
+                            public void actionPerformed(ActionEvent e) {}
                         });
                 group.add(_directDefaultEndpointSSL);
                 _directDefaultEndpointTCP.setSelected(true);
@@ -1387,8 +1383,7 @@ public class SessionKeeper {
                     new JRadioButton(
                         new AbstractAction("SSL") {
                             @Override
-                            public void actionPerformed(ActionEvent e) {
-                            }
+                            public void actionPerformed(ActionEvent e) {}
                         });
                 group.add(_routedDefaultEndpointSSL);
                 _routedDefaultEndpointTCP.setSelected(true);
@@ -2878,8 +2873,7 @@ public class SessionKeeper {
                     return true;
                 }
             }
-        } catch (ParseException ex) {
-        }
+        } catch (ParseException ex) {}
         return false;
     }
 
@@ -3410,8 +3404,7 @@ public class SessionKeeper {
             }
         } catch (UnrecoverableKeyException ex) {
             return true;
-        } catch (Exception ex) {
-        }
+        } catch (Exception ex) {}
         return false;
     }
 
@@ -3527,8 +3520,7 @@ public class SessionKeeper {
                     }
 
                     @Override
-                    public void setValueAt(Object value, int row, int col) {
-                    }
+                    public void setValueAt(Object value, int row, int col) {}
                 };
 
             _certificatesTable = new JTable(_tableModel);

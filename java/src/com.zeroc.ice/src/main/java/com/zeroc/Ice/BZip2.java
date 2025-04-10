@@ -197,12 +197,10 @@ public class BZip2 {
         }
 
         @Override
-        public void close() throws IOException {
-        }
+        public void close() throws IOException {}
 
         @Override
-        public void flush() throws IOException {
-        }
+        public void flush() throws IOException {}
 
         @Override
         public void write(byte[] b) throws IOException {
@@ -233,6 +231,5 @@ public class BZip2 {
         private int _pos;
     }
 
-    private BZip2() {
-    }
+    private BZip2() {}
 }

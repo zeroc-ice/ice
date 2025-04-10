@@ -36,8 +36,7 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>> {
         O old = null;
         try {
             old = (O) observer;
-        } catch (ClassCastException ex) {
-        }
+        } catch (ClassCastException ex) {}
         List<MetricsMap<T>.Entry> metricsObjects = null;
         for (MetricsMap<T> m : _maps) {
             MetricsMap<T>.Entry e = m.getMatching(helper, old != null ? old.getEntry(m) : null);

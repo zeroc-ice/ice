@@ -1599,8 +1599,7 @@ public final class InputStream {
             return false;
         }
 
-        void readPendingValues() {
-        }
+        void readPendingValues() {}
 
         protected String readTypeId(boolean isIndex) {
             if (_typeIdMap == null) {// Lazy initialization
@@ -1947,8 +1946,7 @@ public final class InputStream {
         }
 
         @Override
-        void endSlice() {
-        }
+        void endSlice() {}
 
         @Override
         void skipSlice() {

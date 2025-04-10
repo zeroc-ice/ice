@@ -87,16 +87,14 @@ class LocatorRegistryI implements LocatorRegistry {
             try {
                 prx.ice_adapterId(a).ice_ping();
                 adapterIds.add(a);
-            } catch (LocalException ex) {
-            }
+            } catch (LocalException ex) {}
         }
         if (adapterIds.isEmpty()) {
             for (String a : _adapters.keySet()) {
                 try {
                     prx.ice_adapterId(a).ice_ping();
                     adapterIds.add(a);
-                } catch (LocalException ex) {
-                }
+                } catch (LocalException ex) {}
             }
         }
 

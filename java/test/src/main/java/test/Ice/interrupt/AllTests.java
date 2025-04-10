@@ -28,15 +28,13 @@ import java.util.concurrent.TimeUnit;
 
 public class AllTests {
     private static class Callback {
-        Callback() {
-        }
+        Callback() {}
 
         public synchronized void check() {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
 
             _called = false;
@@ -575,6 +573,5 @@ public class AllTests {
         p.shutdown();
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

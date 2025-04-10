@@ -183,8 +183,7 @@ public final class Network {
             if (iface != null) {
                 return iface;
             }
-        } catch (Exception ex) {
-        }
+        } catch (Exception ex) {}
         try {
             iface =
                 NetworkInterface.getByInetAddress(
@@ -192,8 +191,7 @@ public final class Network {
             if (iface != null) {
                 return iface;
             }
-        } catch (Exception ex) {
-        }
+        } catch (Exception ex) {}
         throw new IllegalArgumentException("couldn't find interface `" + intf + "'");
     }
 
@@ -961,8 +959,7 @@ public final class Network {
         if (!address.isEmpty() && isNumericAddress(address)) {
             try {
                 addr = new InetSocketAddress(InetAddress.getByName(address), 0);
-            } catch (UnknownHostException ex) {
-            }
+            } catch (UnknownHostException ex) {}
         }
         return addr;
     }
@@ -973,8 +970,7 @@ public final class Network {
         }
         try {
             return InetAddress.getByName(host).isAnyLocalAddress();
-        } catch (UnknownHostException ex) {
-        } catch (java.lang.SecurityException ex) {
+        } catch (UnknownHostException ex) {} catch (java.lang.SecurityException ex) {
             throw new SocketException(ex);
         }
         return false;
@@ -1003,6 +999,5 @@ public final class Network {
     private static final IPAddressComparator _preferIPv4Comparator = new IPAddressComparator(false);
     private static final IPAddressComparator _preferIPv6Comparator = new IPAddressComparator(true);
 
-    private Network() {
-    }
+    private Network() {}
 }

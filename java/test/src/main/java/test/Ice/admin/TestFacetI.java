@@ -8,6 +8,5 @@ import test.Ice.admin.Test.TestFacet;
 
 public class TestFacetI implements TestFacet {
     @Override
-    public void op(Current current) {
-    }
+    public void op(Current current) {}
 }

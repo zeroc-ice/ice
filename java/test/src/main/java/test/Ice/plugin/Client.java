@@ -29,8 +29,7 @@ public class Client extends TestHelper {
                 jarFile
                     + ":test.Ice.plugin.plugins.PluginFactory "
                     + "'C:\\Program Files\\' --DatabasePath 'C:\\Program Files\\Application\\db'");
-            try (Communicator communicator = initialize(properties)) {
-            }
+            try (Communicator communicator = initialize(properties)) {}
             printWriter.println("ok");
         }
 
@@ -63,8 +62,7 @@ public class Client extends TestHelper {
                 jarFile + ":test.Ice.plugin.plugins.PluginThreeFactory");
             properties.setProperty(
                 "Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
-            try (Communicator communicator = initialize(properties)) {
-            }
+            try (Communicator communicator = initialize(properties)) {}
             printWriter.println("ok");
         }
 

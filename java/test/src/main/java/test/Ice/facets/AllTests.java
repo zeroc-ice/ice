@@ -73,14 +73,12 @@ public class AllTests {
         try {
             adapter.addFacet(obj, Util.stringToIdentity("d"), "facetABCD");
             test(false);
-        } catch (AlreadyRegisteredException ex) {
-        }
+        } catch (AlreadyRegisteredException ex) {}
         adapter.removeFacet(Util.stringToIdentity("d"), "facetABCD");
         try {
             adapter.removeFacet(Util.stringToIdentity("d"), "facetABCD");
             test(false);
-        } catch (NotRegisteredException ex) {
-        }
+        } catch (NotRegisteredException ex) {}
         out.println("ok");
 
         out.print("testing removeAllFacets... ");
@@ -100,8 +98,7 @@ public class AllTests {
         try {
             adapter.removeAllFacets(Util.stringToIdentity("id1"));
             test(false);
-        } catch (NotRegisteredException ex) {
-        }
+        } catch (NotRegisteredException ex) {}
         fm = adapter.removeAllFacets(Util.stringToIdentity("id2"));
         test(fm.size() == 3);
         test(fm.get("f1") == obj1);
@@ -205,6 +202,5 @@ public class AllTests {
         return gf;
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

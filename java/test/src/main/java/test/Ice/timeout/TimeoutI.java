@@ -8,12 +8,10 @@ import test.Ice.timeout.Test.Timeout;
 
 class TimeoutI implements Timeout {
     @Override
-    public void op(Current current) {
-    }
+    public void op(Current current) {}
 
     @Override
-    public void sendData(byte[] seq, Current current) {
-    }
+    public void sendData(byte[] seq, Current current) {}
 
     @Override
     public void sleep(int to, Current current) {

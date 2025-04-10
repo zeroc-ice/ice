@@ -29,8 +29,7 @@ public class AllTests {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
             if (_exception != null) {
                 throw _exception;
@@ -253,6 +252,5 @@ public class AllTests {
         p.shutdown();
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

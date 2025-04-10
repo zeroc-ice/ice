@@ -20,8 +20,7 @@ final class UdpTransceiver implements Transceiver {
     }
 
     @Override
-    public void setReadyCallback(ReadyCallback callback) {
-    }
+    public void setReadyCallback(ReadyCallback callback) {}
 
     @Override
     public int initialize(Buffer readBuffer, Buffer writeBuffer) {
@@ -45,8 +44,7 @@ final class UdpTransceiver implements Transceiver {
 
         try {
             _fd.close();
-        } catch (IOException ex) {
-        }
+        } catch (IOException ex) {}
         _fd = null;
     }
 
@@ -470,8 +468,7 @@ final class UdpTransceiver implements Transceiver {
     protected synchronized void finalize() throws Throwable {
         try {
             Assert.FinalizerAssert(_fd == null);
-        } catch (Exception ex) {
-        } finally {
+        } catch (Exception ex) {} finally {
             super.finalize();
         }
     }

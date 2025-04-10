@@ -212,6 +212,5 @@ public class AllTests {
         out.println("ok");
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

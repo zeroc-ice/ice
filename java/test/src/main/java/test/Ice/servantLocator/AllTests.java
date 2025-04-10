@@ -94,8 +94,7 @@ public class AllTests {
             test(false);
         } catch (UnknownException ex) {
             test(ex.getMessage().contains("java.lang.RuntimeException: message"));
-        } catch (OperationNotExistException ex) {
-        } catch (Throwable ex) {
+        } catch (OperationNotExistException ex) {} catch (Throwable ex) {
             // System.err.println(ex);
             test(false);
         }
@@ -205,8 +204,7 @@ public class AllTests {
         try {
             TestIntfPrx.checkedCast(
                 communicator.stringToProxy("category/unknown:" + helper.getTestEndpoint(0)));
-        } catch (ObjectNotExistException ex) {
-        }
+        } catch (ObjectNotExistException ex) {}
         out.println("ok");
 
         out.print("testing default servant locator... ");
@@ -218,13 +216,11 @@ public class AllTests {
         try {
             TestIntfPrx.checkedCast(
                 communicator.stringToProxy("anothercat/unknown:" + helper.getTestEndpoint(0)));
-        } catch (ObjectNotExistException ex) {
-        }
+        } catch (ObjectNotExistException ex) {}
         try {
             TestIntfPrx.checkedCast(
                 communicator.stringToProxy("unknown:" + helper.getTestEndpoint(0)));
-        } catch (ObjectNotExistException ex) {
-        }
+        } catch (ObjectNotExistException ex) {}
         out.println("ok");
 
         out.print("testing locate exceptions... ");
@@ -292,6 +288,5 @@ public class AllTests {
         return obj;
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

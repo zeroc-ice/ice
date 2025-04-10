@@ -71,6 +71,5 @@ class Ex {
         return sw.toString();
     }
 
-    private Ex() {
-    }
+    private Ex() {}
 }

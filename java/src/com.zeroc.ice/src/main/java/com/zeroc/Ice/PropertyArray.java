@@ -2,5 +2,4 @@
 
 package com.zeroc.Ice;
 
-record PropertyArray(String name, boolean prefixOnly, boolean isOptIn, Property[] properties) {
-}
+record PropertyArray(String name, boolean prefixOnly, boolean isOptIn, Property[] properties) {}

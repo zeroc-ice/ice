@@ -118,8 +118,7 @@ public class AllTests {
             try {
                 to.sleep(1000);
                 test(false);
-            } catch (InvocationTimeoutException ex) {
-            }
+            } catch (InvocationTimeoutException ex) {}
             timeout.ice_ping();
             to = timeout.ice_invocationTimeout(1000);
             test(connection == to.ice_getConnection());
@@ -187,8 +186,7 @@ public class AllTests {
             closureThread.start();
             try {
                 Thread.sleep(50);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
 
             // We set a connect timeout of '1s', so the connection should still be useable here.
             try {
@@ -199,8 +197,7 @@ public class AllTests {
 
             try {
                 closureThread.join(); // Ensure the connection closure completed.
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
 
             try {
                 connection.getInfo();
@@ -210,8 +207,7 @@ public class AllTests {
 
             try {
                 closureThread.join(); // Ensure the connection closure thread completed.
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
 
             controller.resumeAdapter();
             timeout.op(); // Ensure adapter is active.
@@ -234,8 +230,7 @@ public class AllTests {
             try {
                 proxy.sleep(500);
                 test(false);
-            } catch (InvocationTimeoutException ex) {
-            }
+            } catch (InvocationTimeoutException ex) {}
 
             try {
                 proxy.sleepAsync(500).join();
@@ -265,6 +260,5 @@ public class AllTests {
         controller.shutdown();
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

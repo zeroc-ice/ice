@@ -321,6 +321,5 @@ class RFC2253 {
     private static final String special = ",=+<>#;";
     private static final String hexvalid = "0123456789abcdefABCDEF";
 
-    private RFC2253() {
-    }
+    private RFC2253() {}
 }

@@ -25,8 +25,7 @@ class TwowaysAMI {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
 
             _called = false;
@@ -166,6 +165,5 @@ class TwowaysAMI {
         }
     }
 
-    private TwowaysAMI() {
-    }
+    private TwowaysAMI() {}
 }

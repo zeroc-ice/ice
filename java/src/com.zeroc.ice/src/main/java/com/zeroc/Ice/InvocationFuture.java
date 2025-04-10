@@ -85,8 +85,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
             if (cause instanceof InterruptedException) {
                 throw new OperationInterruptedException(cause);
             }
-        } catch (Exception ex) {
-        }
+        } catch (Exception ex) {}
     }
 
     /**
@@ -300,8 +299,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         _exception = null;
     }
 
-    protected void cacheMessageBuffers() {
-    }
+    protected void cacheMessageBuffers() {}
 
     protected boolean sent(boolean done) {
         synchronized (this) {
@@ -432,8 +430,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
                             runnable.run();
                         }
                     });
-        } catch (CommunicatorDestroyedException ex) {
-        }
+        } catch (CommunicatorDestroyedException ex) {}
     }
 
     private void warning(RuntimeException ex) {

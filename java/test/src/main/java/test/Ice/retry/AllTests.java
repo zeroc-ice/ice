@@ -31,8 +31,7 @@ public class AllTests {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
 
             _called = false;
@@ -86,8 +85,7 @@ public class AllTests {
             test(false);
         } catch (UnknownLocalException ex) {
             // Expected with collocation
-        } catch (ConnectionLostException ex) {
-        }
+        } catch (ConnectionLostException ex) {}
         instrumentation.testInvocationCount(1);
         instrumentation.testFailureCount(1);
         instrumentation.testRetryCount(0);
@@ -162,8 +160,7 @@ public class AllTests {
             out.print("testing non-idempotent operation with bi-dir proxy... ");
             try {
                 ((RetryPrx) retry1.ice_fixed(retry1.ice_getCachedConnection())).opIdempotent(4);
-            } catch (LocalException ex) {
-            }
+            } catch (LocalException ex) {}
             instrumentation.testInvocationCount(1);
             instrumentation.testFailureCount(1);
             instrumentation.testRetryCount(0);
@@ -180,8 +177,7 @@ public class AllTests {
         try {
             retry1.opNotIdempotent();
             test(false);
-        } catch (LocalException ex) {
-        }
+        } catch (LocalException ex) {}
         instrumentation.testInvocationCount(1);
         instrumentation.testFailureCount(1);
         instrumentation.testRetryCount(0);
@@ -227,6 +223,5 @@ public class AllTests {
         return retry1;
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

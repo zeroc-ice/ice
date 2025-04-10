@@ -1458,8 +1458,7 @@ public final class OutputStream {
             return false;
         }
 
-        void writePendingValues() {
-        }
+        void writePendingValues() {}
 
         protected int registerTypeId(String typeId) {
             if (_typeIdMap == null) // Lazy initialization

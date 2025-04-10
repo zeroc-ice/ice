@@ -23,12 +23,10 @@ public class TestI implements TestIntf {
         }
     }
 
-    TestI() {
-    }
+    TestI() {}
 
     @Override
-    public void op(Current current) {
-    }
+    public void op(Current current) {}
 
     @Override
     public int opWithResult(Current current) {
@@ -41,8 +39,7 @@ public class TestI implements TestIntf {
     }
 
     @Override
-    public void opWithPayload(byte[] seq, Current current) {
-    }
+    public void opWithPayload(byte[] seq, Current current) {}
 
     @Override
     public synchronized void opBatch(Current current) {
@@ -121,8 +118,7 @@ public class TestI implements TestIntf {
         while (_batchCount < count) {
             try {
                 wait(5000);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
         }
         boolean result = count == _batchCount;
         _batchCount = 0;
@@ -154,8 +150,7 @@ public class TestI implements TestIntf {
     public void sleep(int ms, Current current) {
         try {
             Thread.sleep(ms);
-        } catch (InterruptedException ex) {
-        }
+        } catch (InterruptedException ex) {}
     }
 
     @Override

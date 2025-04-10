@@ -27,10 +27,8 @@ public class TestServiceI implements Service {
     }
 
     @Override
-    public void start(String name, Communicator communicator, String[] args) {
-    }
+    public void start(String name, Communicator communicator, String[] args) {}
 
     @Override
-    public void stop() {
-    }
+    public void stop() {}
 }

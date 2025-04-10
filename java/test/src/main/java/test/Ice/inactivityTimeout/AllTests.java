@@ -42,8 +42,7 @@ public class AllTests {
         // tests the client side.
         try {
             Thread.sleep(4000);
-        } catch (InterruptedException ex) {
-        }
+        } catch (InterruptedException ex) {}
 
         p.ice_ping();
         Connection connection2 = p.ice_getConnection();
@@ -73,8 +72,7 @@ public class AllTests {
             // tests the server side.
             try {
                 Thread.sleep(4000);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
             p.ice_ping();
             Connection connection2 = p.ice_getConnection();
             test(connection2 != connection);
@@ -105,8 +103,7 @@ public class AllTests {
         if (oneway) {
             try {
                 Thread.sleep(4000);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
         }
         p.ice_ping();
         Connection connection2 = p.ice_getConnection();
@@ -128,6 +125,5 @@ public class AllTests {
         }
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

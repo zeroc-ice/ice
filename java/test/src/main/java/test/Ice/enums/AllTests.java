@@ -274,8 +274,7 @@ public class AllTests {
                 new InputStream(communicator, os.finished());
             ByteEnum.ice_read(in);
             test(false);
-        } catch (MarshalException ex) {
-        }
+        } catch (MarshalException ex) {}
 
         try {
             os = new OutputStream(communicator);
@@ -284,8 +283,7 @@ public class AllTests {
                 new InputStream(communicator, os.finished());
             ByteEnum.ice_read(in);
             test(false);
-        } catch (MarshalException ex) {
-        }
+        } catch (MarshalException ex) {}
 
         try {
             os = new OutputStream(communicator);
@@ -294,8 +292,7 @@ public class AllTests {
                 new InputStream(communicator, os.finished());
             ShortEnum.ice_read(in);
             test(false);
-        } catch (MarshalException ex) {
-        }
+        } catch (MarshalException ex) {}
 
         try {
             os = new OutputStream(communicator);
@@ -304,8 +301,7 @@ public class AllTests {
                 new InputStream(communicator, os.finished());
             ShortEnum.ice_read(in);
             test(false);
-        } catch (MarshalException ex) {
-        }
+        } catch (MarshalException ex) {}
 
         try {
             os = new OutputStream(communicator);
@@ -314,8 +310,7 @@ public class AllTests {
                 new InputStream(communicator, os.finished());
             ShortEnum.ice_read(in);
             test(false);
-        } catch (MarshalException ex) {
-        }
+        } catch (MarshalException ex) {}
 
         try {
             os = new OutputStream(communicator);
@@ -324,8 +319,7 @@ public class AllTests {
                 new InputStream(communicator, os.finished());
             IntEnum.ice_read(in);
             test(false);
-        } catch (MarshalException ex) {
-        }
+        } catch (MarshalException ex) {}
 
         try {
             os = new OutputStream(communicator);
@@ -334,14 +328,12 @@ public class AllTests {
                 new InputStream(communicator, os.finished());
             IntEnum.ice_read(in);
             test(false);
-        } catch (MarshalException ex) {
-        }
+        } catch (MarshalException ex) {}
 
         out.println("ok");
 
         return proxy;
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

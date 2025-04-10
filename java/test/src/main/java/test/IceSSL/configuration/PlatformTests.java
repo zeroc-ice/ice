@@ -417,6 +417,5 @@ public class PlatformTests {
         serverHotCertificateReload(helper, certificatesPath);
     }
 
-    private PlatformTests() {
-    }
+    private PlatformTests() {}
 }

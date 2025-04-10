@@ -18,8 +18,7 @@ final class ThreadPoolWorkQueue extends EventHandler {
     protected synchronized void finalize() throws Throwable {
         try {
             Assert.FinalizerAssert(_destroyed);
-        } catch (Exception ex) {
-        } finally {
+        } catch (Exception ex) {} finally {
             super.finalize();
         }
     }

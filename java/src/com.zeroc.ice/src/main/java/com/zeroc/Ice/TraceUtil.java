@@ -334,6 +334,5 @@ final class TraceUtil {
         }
     }
 
-    private TraceUtil() {
-    }
+    private TraceUtil() {}
 }

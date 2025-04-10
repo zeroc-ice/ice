@@ -578,8 +578,7 @@ public final class MyDerivedClassI implements MyDerivedClass {
     }
 
     @Override
-    public void opDerived(Current current) {
-    }
+    public void opDerived(Current current) {}
 
     @Override
     public byte opByte1(byte value, Current current) {

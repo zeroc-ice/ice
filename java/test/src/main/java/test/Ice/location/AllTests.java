@@ -373,13 +373,11 @@ public class AllTests {
         try {
             communicator.stringToProxy("test@TestAdapter3").ice_locatorCacheTimeout(0).ice_ping();
             test(false);
-        } catch (LocalException ex) {
-        }
+        } catch (LocalException ex) {}
         try {
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
             test(false);
-        } catch (LocalException ex) {
-        }
+        } catch (LocalException ex) {}
         registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
         try {
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
@@ -407,8 +405,7 @@ public class AllTests {
         try {
             communicator.stringToProxy("test3").ice_ping();
             test(false);
-        } catch (LocalException ex) {
-        }
+        } catch (LocalException ex) {}
         registry.setAdapterDirectProxy("TestAdapter4", locator.findAdapterById("TestAdapter"));
         try {
             communicator.stringToProxy("test3").ice_ping();
@@ -429,18 +426,15 @@ public class AllTests {
         try {
             communicator.stringToProxy("test@TestAdapter4").ice_locatorCacheTimeout(0).ice_ping();
             test(false);
-        } catch (LocalException ex) {
-        }
+        } catch (LocalException ex) {}
         try {
             communicator.stringToProxy("test@TestAdapter4").ice_ping();
             test(false);
-        } catch (LocalException ex) {
-        }
+        } catch (LocalException ex) {}
         try {
             communicator.stringToProxy("test3").ice_ping();
             test(false);
-        } catch (LocalException ex) {
-        }
+        } catch (LocalException ex) {}
         registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
         try {
             communicator.stringToProxy("test3").ice_ping();
@@ -452,8 +446,7 @@ public class AllTests {
         try {
             communicator.stringToProxy("test4").ice_ping();
             test(false);
-        } catch (NoEndpointException ex) {
-        }
+        } catch (NoEndpointException ex) {}
         out.println("ok");
 
         out.print("testing locator cache background updates... ");
@@ -565,20 +558,17 @@ public class AllTests {
         try {
             obj2.ice_ping();
             test(false);
-        } catch (LocalException ex) {
-        }
+        } catch (LocalException ex) {}
 
         try {
             obj3.ice_ping();
             test(false);
-        } catch (LocalException ex) {
-        }
+        } catch (LocalException ex) {}
 
         try {
             obj5.ice_ping();
             test(false);
-        } catch (LocalException ex) {
-        }
+        } catch (LocalException ex) {}
         out.println("ok");
 
         out.print("testing indirect proxies to collocated objects... ");
@@ -616,6 +606,5 @@ public class AllTests {
         out.println("ok");
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

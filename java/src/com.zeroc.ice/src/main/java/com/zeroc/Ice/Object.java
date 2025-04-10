@@ -16,8 +16,7 @@ public interface Object {
     /** Holds the results of a call to <code>ice_invoke</code>. */
     public class Ice_invokeResult {
         /** Default initializes the members. */
-        public Ice_invokeResult() {
-        }
+        public Ice_invokeResult() {}
 
         /**
          * One-shot constructor to initialize the members.

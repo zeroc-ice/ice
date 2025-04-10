@@ -152,6 +152,5 @@ public class AllTests {
         d.p.ice_ping();
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

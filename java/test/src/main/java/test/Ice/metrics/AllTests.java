@@ -63,8 +63,7 @@ public class AllTests {
                 // before the metric is really updated.
                 try {
                     Thread.sleep(100);
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
                 r = metrics.getMetricsView("View");
                 s = (ConnectionMetrics) r.returnValue.get("Connection")[0];
             }
@@ -80,8 +79,7 @@ public class AllTests {
             if (observer.getCurrent() != value) {
                 try {
                     Thread.sleep(10);
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             } else {
                 break;
             }
@@ -102,8 +100,7 @@ public class AllTests {
             while (_wait) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
             _wait = true;
         }
@@ -168,8 +165,7 @@ public class AllTests {
             }
             try {
                 Thread.sleep(50);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
         }
     }
 
@@ -218,8 +214,7 @@ public class AllTests {
 
     static class Noop implements Runnable {
         @Override
-        public void run() {
-        }
+        public void run() {}
     }
 
     static class Connect implements Runnable {
@@ -235,8 +230,7 @@ public class AllTests {
 
             try {
                 proxy.ice_ping();
-            } catch (LocalException ex) {
-            }
+            } catch (LocalException ex) {}
 
             if (proxy.ice_getCachedConnection() != null) {
                 proxy.ice_getCachedConnection().close();
@@ -655,8 +649,7 @@ public class AllTests {
             try {
                 communicator.stringToProxy("test:" + endpoint).ice_connectionId("con2").ice_ping();
                 test(false);
-            } catch (ConnectTimeoutException ex) {
-            } catch (LocalException ex) {
+            } catch (ConnectTimeoutException ex) {} catch (LocalException ex) {
                 test(false);
             }
             controller.resume();
@@ -778,8 +771,7 @@ public class AllTests {
             try {
                 prx.ice_ping();
                 prx.ice_getConnection().close();
-            } catch (LocalException ex) {
-            }
+            } catch (LocalException ex) {}
 
             test(
                 clientMetrics.getMetricsView("View").returnValue.get("EndpointLookup").length
@@ -876,29 +868,24 @@ public class AllTests {
         try {
             metrics.opWithUserException();
             test(false);
-        } catch (UserEx ex) {
-        }
+        } catch (UserEx ex) {}
         try {
             metrics.opWithRequestFailedException();
             test(false);
-        } catch (RequestFailedException ex) {
-        }
+        } catch (RequestFailedException ex) {}
         try {
             metrics.opWithLocalException();
             test(false);
-        } catch (LocalException ex) {
-        }
+        } catch (LocalException ex) {}
         try {
             metrics.opWithUnknownException();
             test(false);
-        } catch (UnknownException ex) {
-        }
+        } catch (UnknownException ex) {}
         if (!collocated) {
             try {
                 metrics.fail();
                 test(false);
-            } catch (ConnectionLostException ex) {
-            }
+            } catch (ConnectionLostException ex) {}
         }
         map = toMap(serverMetrics.getMetricsView("View").returnValue.get("Dispatch"));
         test(map.size() == (!collocated ? 6 : 5));
@@ -1019,8 +1006,7 @@ public class AllTests {
         try {
             metrics.opWithUserException();
             test(false);
-        } catch (UserEx ex) {
-        }
+        } catch (UserEx ex) {}
 
         try {
             metrics.opWithUserExceptionAsync().join();
@@ -1040,8 +1026,7 @@ public class AllTests {
         try {
             metrics.opWithRequestFailedException();
             test(false);
-        } catch (RequestFailedException ex) {
-        }
+        } catch (RequestFailedException ex) {}
 
         try {
             metrics.opWithRequestFailedExceptionAsync().join();
@@ -1061,8 +1046,7 @@ public class AllTests {
         try {
             metrics.opWithLocalException();
             test(false);
-        } catch (LocalException ex) {
-        }
+        } catch (LocalException ex) {}
 
         try {
             metrics.opWithLocalExceptionAsync().join();
@@ -1082,8 +1066,7 @@ public class AllTests {
         try {
             metrics.opWithUnknownException();
             test(false);
-        } catch (UnknownException ex) {
-        }
+        } catch (UnknownException ex) {}
 
         try {
             metrics.opWithUnknownExceptionAsync().join();
@@ -1104,8 +1087,7 @@ public class AllTests {
             try {
                 metrics.fail();
                 test(false);
-            } catch (ConnectionLostException ex) {
-            }
+            } catch (ConnectionLostException ex) {}
 
             try {
                 metrics.failAsync().join();
@@ -1243,8 +1225,7 @@ public class AllTests {
         MetricsPrx metricsBatchOneway = metrics.ice_batchOneway();
         metricsBatchOneway.op();
         metricsBatchOneway.opAsync().join();
-        metricsBatchOneway.opAsync().whenComplete((response, ex) -> {
-        });
+        metricsBatchOneway.opAsync().whenComplete((response, ex) -> {});
 
         map = toMap(clientMetrics.getMetricsView("View").returnValue.get("Invocation"));
         test(map.size() == 1);
@@ -1345,8 +1326,7 @@ public class AllTests {
 
         try {
             clientMetrics.enableMetricsView("UnknownView");
-        } catch (UnknownMetricsView ex) {
-        }
+        } catch (UnknownMetricsView ex) {}
 
         out.println("ok");
 
@@ -1407,6 +1387,5 @@ public class AllTests {
         return metrics;
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

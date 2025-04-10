@@ -219,8 +219,7 @@ public class AllTests {
         out.flush();
         try {
             initial.setG(new G(new S("hello"), "g"));
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
         out.println("ok");
 
         out.print("testing sequences...");
@@ -234,8 +233,7 @@ public class AllTests {
             inS[0] = new Base(new S(), "");
             sr = initial.opBaseSeq(inS);
             test(sr.returnValue.length == 1 && sr.outSeq.length == 1);
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
         out.println("ok");
 
         out.print("testing recursive type... ");
@@ -265,8 +263,7 @@ public class AllTests {
         out.flush();
         try {
             test(initial.getCompact() != null);
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
         out.println("ok");
 
         out.print("testing marshaled results...");
@@ -363,6 +360,5 @@ public class AllTests {
         return initial;
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

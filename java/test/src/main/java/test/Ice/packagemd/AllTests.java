@@ -157,6 +157,5 @@ public class AllTests {
         return initial;
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

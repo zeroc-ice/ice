@@ -30,8 +30,7 @@ public class Instrumentation {
 
     class InvocationObserverI implements InvocationObserver {
         @Override
-        public void attach() {
-        }
+        public void attach() {}
 
         @Override
         public void detach() {
@@ -55,8 +54,7 @@ public class Instrumentation {
         }
 
         @Override
-        public void userException() {
-        }
+        public void userException() {}
 
         @Override
         public RemoteObserver getRemoteObserver(
@@ -118,8 +116,7 @@ public class Instrumentation {
         }
 
         @Override
-        public void setObserverUpdater(ObserverUpdater u) {
-        }
+        public void setObserverUpdater(ObserverUpdater u) {}
     }
 
     private final CommunicatorObserver communicatorObserver =
@@ -144,8 +141,7 @@ public class Instrumentation {
             }
             try {
                 Thread.sleep(10);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
         }
         if (value.value != expected) {
             System.err.println("value = " + value.value + ", expected = " + expected);

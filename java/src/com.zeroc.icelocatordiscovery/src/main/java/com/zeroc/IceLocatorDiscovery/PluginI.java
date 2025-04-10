@@ -516,8 +516,7 @@ class PluginI implements Plugin {
                                         _timeout,
                                         TimeUnit.MILLISECONDS);
                                 return;
-                            } catch (LocalException ex) {
-                            }
+                            } catch (LocalException ex) {}
                             _pendingRetryCount = 0;
                         }
 

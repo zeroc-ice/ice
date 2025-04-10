@@ -24,10 +24,8 @@ class Oneways {
         try {
             p.opByte((byte) 0xff, (byte) 0x0f);
             test(false);
-        } catch (TwowayOnlyException ex) {
-        }
+        } catch (TwowayOnlyException ex) {}
     }
 
-    private Oneways() {
-    }
+    private Oneways() {}
 }

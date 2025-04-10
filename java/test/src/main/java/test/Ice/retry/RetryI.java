@@ -8,8 +8,7 @@ import com.zeroc.Ice.Current;
 import test.Ice.retry.Test.Retry;
 
 public final class RetryI implements Retry {
-    public RetryI() {
-    }
+    public RetryI() {}
 
     @Override
     public void op(boolean kill, Current current) {
@@ -50,8 +49,7 @@ public final class RetryI implements Retry {
             try {
                 Thread.sleep(delay);
                 break;
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
         }
     }
 

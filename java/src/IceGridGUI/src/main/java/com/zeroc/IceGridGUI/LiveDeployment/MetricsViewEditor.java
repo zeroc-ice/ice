@@ -403,8 +403,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                     new DataFlavor[]{
                         (DataFlavor) MetricsViewTransferableData.dataFlavor().clone()
                     };
-            } catch (CloneNotSupportedException ex) {
-            }
+            } catch (CloneNotSupportedException ex) {}
         }
 
         @Override
@@ -564,8 +563,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                     Field objectField = null;
                     try {
                         objectField = objects[0].getClass().getField(name);
-                    } catch (NoSuchFieldException ex) {
-                    }
+                    } catch (NoSuchFieldException ex) {}
                     MetricsField field =
                         createField(
                             node,

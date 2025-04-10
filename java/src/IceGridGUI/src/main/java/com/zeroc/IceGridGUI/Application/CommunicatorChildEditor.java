@@ -11,8 +11,7 @@ abstract class CommunicatorChildEditor extends Editor {
 
     abstract Communicator.ChildList getChildList();
 
-    void postUpdate() {
-    }
+    void postUpdate() {}
 
     @Override
     @SuppressWarnings("unchecked")

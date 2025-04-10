@@ -10,8 +10,7 @@ import test.Ice.proxy.Test.MyDerivedClass;
 import java.util.Map;
 
 public final class MyDerivedClassI implements MyDerivedClass {
-    public MyDerivedClassI() {
-    }
+    public MyDerivedClassI() {}
 
     @Override
     public ObjectPrx echo(ObjectPrx obj, Current c) {

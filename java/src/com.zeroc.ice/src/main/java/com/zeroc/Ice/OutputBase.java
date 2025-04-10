@@ -51,8 +51,7 @@ final class OutputBase {
             FileWriter fw = new FileWriter(s);
             BufferedWriter bw = new BufferedWriter(fw);
             _out = new PrintWriter(bw);
-        } catch (IOException ex) {
-        }
+        } catch (IOException ex) {}
     }
 
     public void print(String s) {

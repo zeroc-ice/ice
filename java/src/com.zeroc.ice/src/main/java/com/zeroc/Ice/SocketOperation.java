@@ -13,6 +13,5 @@ public class SocketOperation {
     public static final int Write = SelectionKey.OP_WRITE;
     public static final int Connect = SelectionKey.OP_CONNECT;
 
-    private SocketOperation() {
-    }
+    private SocketOperation() {}
 }

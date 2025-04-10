@@ -177,12 +177,10 @@ class ServiceInstanceEditor extends CommunicatorChildEditor {
                 }
 
                 @Override
-                public void intervalAdded(ListDataEvent e) {
-                }
+                public void intervalAdded(ListDataEvent e) {}
 
                 @Override
-                public void intervalRemoved(ListDataEvent e) {
-                }
+                public void intervalRemoved(ListDataEvent e) {}
             };
 
         _template.getModel().addListDataListener(templateListener);

@@ -67,8 +67,7 @@ class InputStreamWrapper extends InputStream {
     }
 
     @Override
-    public void close() throws IOException {
-    }
+    public void close() throws IOException {}
 
     private final ByteBuffer _buf;
     private int _markPos;

@@ -1251,8 +1251,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             Assert.FinalizerAssert(_upcallCount == 0);
             Assert.FinalizerAssert(_sendStreams.isEmpty());
             Assert.FinalizerAssert(_asyncRequests.isEmpty());
-        } catch (Exception ex) {
-        } finally {
+        } catch (Exception ex) {} finally {
             super.finalize();
         }
     }

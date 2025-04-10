@@ -46,6 +46,5 @@ final class ObserverHelper {
 
     private static final Map<String, String> _emptyContext = new HashMap<>();
 
-    private ObserverHelper() {
-    }
+    private ObserverHelper() {}
 }

@@ -37,8 +37,7 @@ final class Selector {
     void destroy() {
         try {
             _selector.close();
-        } catch (IOException ex) {
-        }
+        } catch (IOException ex) {}
         _selector = null;
     }
 
@@ -232,8 +231,7 @@ final class Selector {
 
                 try {
                     Thread.sleep(1);
-                } catch (InterruptedException ex2) {
-                }
+                } catch (InterruptedException ex2) {}
             }
 
             break;

@@ -645,8 +645,7 @@ public final class Util {
                 if (cl != null) {
                     c = loadClass(className, cl);
                 }
-            } catch (java.lang.SecurityException ex) {
-            }
+            } catch (java.lang.SecurityException ex) {}
         }
 
         //
@@ -669,8 +668,7 @@ public final class Util {
                 if (cl != null) {
                     c = loadClass(className, cl);
                 }
-            } catch (java.lang.SecurityException ex) {
-            }
+            } catch (java.lang.SecurityException ex) {}
         }
 
         return c;
@@ -700,8 +698,7 @@ public final class Util {
 
         try {
             return Integer.parseInt(pri);
-        } catch (NumberFormatException ex) {
-        }
+        } catch (NumberFormatException ex) {}
         return Thread.NORM_PRIORITY;
     }
 
@@ -772,6 +769,5 @@ public final class Util {
     private static final java.lang.Object _processLoggerMutex = new java.lang.Object();
     private static Logger _processLogger;
 
-    private Util() {
-    }
+    private Util() {}
 }

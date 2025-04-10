@@ -600,8 +600,7 @@ public class ServiceManagerI implements ServiceManager {
         while (_pendingStatusChanges) {
             try {
                 wait();
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
         }
 
         // For each service, we call stop on the service and flush its database environment to
@@ -721,8 +720,7 @@ public class ServiceManagerI implements ServiceManager {
             ServiceInfo c = null;
             try {
                 c = (ServiceInfo) super.clone();
-            } catch (CloneNotSupportedException ex) {
-            }
+            } catch (CloneNotSupportedException ex) {}
             return c;
         }
 

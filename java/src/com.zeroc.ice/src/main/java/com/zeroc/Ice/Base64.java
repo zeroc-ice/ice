@@ -225,6 +225,5 @@ final class Base64 {
         return 63;
     }
 
-    private Base64() {
-    }
+    private Base64() {}
 }

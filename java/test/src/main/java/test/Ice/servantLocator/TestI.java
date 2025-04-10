@@ -11,32 +11,26 @@ import test.Ice.servantLocator.Test.TestIntfUserException;
 
 public final class TestI implements TestIntf {
     @Override
-    public void requestFailedException(Current current) {
-    }
+    public void requestFailedException(Current current) {}
 
     @Override
-    public void unknownUserException(Current current) {
-    }
+    public void unknownUserException(Current current) {}
 
     @Override
-    public void unknownLocalException(Current current) {
-    }
+    public void unknownLocalException(Current current) {}
 
     @Override
-    public void unknownException(Current current) {
-    }
+    public void unknownException(Current current) {}
 
     @Override
-    public void localException(Current current) {
-    }
+    public void localException(Current current) {}
 
     //     public void userException(com.zeroc.Ice.Current current)
     //     {
     //     }
 
     @Override
-    public void javaException(Current current) {
-    }
+    public void javaException(Current current) {}
 
     @Override
     public void unknownExceptionWithServantException(Current current) {

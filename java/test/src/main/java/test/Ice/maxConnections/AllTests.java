@@ -169,6 +169,5 @@ public class AllTests {
         }
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

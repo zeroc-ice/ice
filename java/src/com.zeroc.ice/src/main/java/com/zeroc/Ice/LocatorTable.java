@@ -7,8 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 final class LocatorTable {
-    LocatorTable() {
-    }
+    LocatorTable() {}
 
     synchronized void clear() {
         _adapterEndpointsTable.clear();

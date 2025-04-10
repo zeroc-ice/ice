@@ -27,10 +27,8 @@ class PluginI implements Plugin {
     }
 
     @Override
-    public void initialize() {
-    }
+    public void initialize() {}
 
     @Override
-    public void destroy() {
-    }
+    public void destroy() {}
 }

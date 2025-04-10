@@ -22,8 +22,7 @@ class BatchOnewaysAMI {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
 
             _called = false;
@@ -76,8 +75,7 @@ class BatchOnewaysAMI {
                 count += p.opByteSOnewayCallCount();
                 try {
                     Thread.sleep(10);
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
 
         final boolean bluetooth =
@@ -114,6 +112,5 @@ class BatchOnewaysAMI {
         batch.ice_pingAsync();
     }
 
-    private BatchOnewaysAMI() {
-    }
+    private BatchOnewaysAMI() {}
 }

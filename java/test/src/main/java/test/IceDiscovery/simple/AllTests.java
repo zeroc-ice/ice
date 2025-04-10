@@ -60,24 +60,21 @@ public class AllTests {
             try {
                 communicator.stringToProxy("object @ oa1").ice_ping();
                 test(false);
-            } catch (NoEndpointException ex) {
-            }
+            } catch (NoEndpointException ex) {}
 
             proxies.get(0).activateObjectAdapter("oa", "oa1", "");
 
             try {
                 communicator.stringToProxy("object @ oa1").ice_ping();
                 test(false);
-            } catch (ObjectNotExistException ex) {
-            }
+            } catch (ObjectNotExistException ex) {}
 
             proxies.get(0).deactivateObjectAdapter("oa");
 
             try {
                 communicator.stringToProxy("object @ oa1").ice_ping();
                 test(false);
-            } catch (NoEndpointException ex) {
-            }
+            } catch (NoEndpointException ex) {}
         }
         System.out.println("ok");
 
@@ -116,12 +113,10 @@ public class AllTests {
 
             try {
                 communicator.stringToProxy("object @ oa1").ice_ping();
-            } catch (ObjectNotExistException ex) {
-            }
+            } catch (ObjectNotExistException ex) {}
             try {
                 communicator.stringToProxy("object @ oa2").ice_ping();
-            } catch (ObjectNotExistException ex) {
-            }
+            } catch (ObjectNotExistException ex) {}
 
             proxies.get(0).deactivateObjectAdapter("oa");
             proxies.get(1).deactivateObjectAdapter("oa");
@@ -206,8 +201,7 @@ public class AllTests {
                 try {
                     comm.stringToProxy("controller0@control0").ice_ping();
                     test(false);
-                } catch (LocalException ex) {
-                }
+                } catch (LocalException ex) {}
                 comm.destroy();
             }
             {
@@ -244,6 +238,5 @@ public class AllTests {
         System.out.println("ok");
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

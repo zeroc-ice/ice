@@ -35,8 +35,7 @@ public final class Properties {
     }
 
     /** Creates a new empty property set. */
-    public Properties() {
-    }
+    public Properties() {}
 
     /**
      * Creates a property set initialized with a list of opt-in prefixes.

@@ -27,8 +27,7 @@ import java.util.concurrent.CompletionStage;
 
 public class Client extends TestHelper {
     public static class _catchI implements _catch {
-        public _catchI() {
-        }
+        public _catchI() {}
 
         @Override
         public CompletionStage<Integer> myCheckedCastAsync(
@@ -39,8 +38,7 @@ public class Client extends TestHelper {
     }
 
     public static class _defaultI implements _default {
-        public _defaultI() {
-        }
+        public _defaultI() {}
 
         @Override
         public void _do(Current current) {
@@ -49,8 +47,7 @@ public class Client extends TestHelper {
     }
 
     public static class notifyI extends notify {
-        public notifyI() {
-        }
+        public notifyI() {}
     }
 
     public static class finalizeServantI implements _finalize {
@@ -62,8 +59,7 @@ public class Client extends TestHelper {
         }
 
         @Override
-        public void _do(Current current) {
-        }
+        public void _do(Current current) {}
 
         @Override
         public _assert _notify(

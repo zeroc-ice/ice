@@ -26,8 +26,7 @@ class OnewaysAMI {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
 
             _called = false;
@@ -62,24 +61,21 @@ class OnewaysAMI {
             try {
                 p.ice_isAAsync("::Test::MyClass").join();
                 test(false);
-            } catch (TwowayOnlyException ex) {
-            }
+            } catch (TwowayOnlyException ex) {}
         }
 
         {
             try {
                 p.ice_idAsync();
                 test(false);
-            } catch (TwowayOnlyException ex) {
-            }
+            } catch (TwowayOnlyException ex) {}
         }
 
         {
             try {
                 p.ice_idsAsync();
                 test(false);
-            } catch (TwowayOnlyException ex) {
-            }
+            } catch (TwowayOnlyException ex) {}
         }
 
         {
@@ -112,11 +108,9 @@ class OnewaysAMI {
             try {
                 p.opByteAsync((byte) 0xff, (byte) 0x0f);
                 test(false);
-            } catch (TwowayOnlyException ex) {
-            }
+            } catch (TwowayOnlyException ex) {}
         }
     }
 
-    private OnewaysAMI() {
-    }
+    private OnewaysAMI() {}
 }

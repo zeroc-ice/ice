@@ -154,8 +154,7 @@ public class AllTests {
                 try {
                     comm.createAdmin(null, id);
                     test(false);
-                } catch (InitializationException ex) {
-                }
+                } catch (InitializationException ex) {}
 
                 ObjectAdapter adapter = comm.createObjectAdapter("");
                 test(comm.createAdmin(adapter, id) != null);
@@ -591,6 +590,5 @@ public class AllTests {
         factory.shutdown();
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

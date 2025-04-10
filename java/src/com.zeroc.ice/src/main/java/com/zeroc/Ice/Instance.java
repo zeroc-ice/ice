@@ -936,8 +936,7 @@ public final class Instance implements Function<String, Class<?>> {
             Assert.FinalizerAssert(_endpointFactoryManager == null);
             Assert.FinalizerAssert(_pluginManager == null);
             Assert.FinalizerAssert(_retryQueue == null);
-        } catch (Exception ex) {
-        } finally {
+        } catch (Exception ex) {} finally {
             super.finalize();
         }
     }
@@ -1352,8 +1351,7 @@ public final class Instance implements Function<String, Class<?>> {
             _outgoingConnectionFactory.updateConnectionObservers();
             assert (_objectAdapterFactory != null);
             _objectAdapterFactory.updateConnectionObservers();
-        } catch (CommunicatorDestroyedException ex) {
-        }
+        } catch (CommunicatorDestroyedException ex) {}
     }
 
     private void updateThreadObservers() {
@@ -1372,8 +1370,7 @@ public final class Instance implements Function<String, Class<?>> {
             if (_timer != null) {
                 _timer.updateObserver(_initData.observer);
             }
-        } catch (CommunicatorDestroyedException ex) {
-        }
+        } catch (CommunicatorDestroyedException ex) {}
     }
 
     private String[] validatePackages() {
@@ -1391,8 +1388,7 @@ public final class Instance implements Function<String, Class<?>> {
             Class<?> cls = null;
             try {
                 cls = findClass(className);
-            } catch (Exception ex) {
-            }
+            } catch (Exception ex) {}
             if (cls == null) {
                 _initData.logger.warning("unable to validate package: " + key + "=" + pkg);
             } else {

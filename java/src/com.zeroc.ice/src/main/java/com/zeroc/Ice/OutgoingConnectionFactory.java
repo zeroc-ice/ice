@@ -237,8 +237,7 @@ final class OutgoingConnectionFactory {
             Assert.FinalizerAssert(_connectionsByEndpoint.isEmpty());
             Assert.FinalizerAssert(_pendingConnectCount == 0);
             Assert.FinalizerAssert(_pending.isEmpty());
-        } catch (Exception ex) {
-        } finally {
+        } catch (Exception ex) {} finally {
             super.finalize();
         }
     }

@@ -223,8 +223,7 @@ final class ObjectAdapterFactory {
             Assert.FinalizerAssert(_instance == null);
             Assert.FinalizerAssert(_communicator == null);
             Assert.FinalizerAssert(_adapters.isEmpty());
-        } catch (Exception ex) {
-        } finally {
+        } catch (Exception ex) {} finally {
             super.finalize();
         }
     }

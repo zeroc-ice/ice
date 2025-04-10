@@ -21,8 +21,7 @@ final class ThreadPool implements Executor {
             current.ioCompleted();
             try {
                 _instance.objectAdapterFactory().shutdown();
-            } catch (CommunicatorDestroyedException ex) {
-            }
+            } catch (CommunicatorDestroyedException ex) {}
         }
     }
 
@@ -219,8 +218,7 @@ final class ThreadPool implements Executor {
     protected synchronized void finalize() throws Throwable {
         try {
             Assert.FinalizerAssert(_destroyed);
-        } catch (Exception ex) {
-        } finally {
+        } catch (Exception ex) {} finally {
             super.finalize();
         }
     }

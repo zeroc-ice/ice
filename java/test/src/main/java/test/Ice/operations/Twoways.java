@@ -259,8 +259,7 @@ class Twoways {
             try {
                 r.p3.opVoid();
                 test(false);
-            } catch (ObjectNotExistException ex) {
-            }
+            } catch (ObjectNotExistException ex) {}
 
             r = p.opMyClass(null);
             test(r.p2 == null);
@@ -1404,8 +1403,7 @@ class Twoways {
                         thread.start();
                         try {
                             thread.join();
-                        } catch (InterruptedException ex) {
-                        }
+                        } catch (InterruptedException ex) {}
                     }
                 }
             }
@@ -1478,6 +1476,5 @@ class Twoways {
         }
     }
 
-    private Twoways() {
-    }
+    private Twoways() {}
 }

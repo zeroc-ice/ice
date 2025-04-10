@@ -110,6 +110,5 @@ class Twoways {
         }
     }
 
-    private Twoways() {
-    }
+    private Twoways() {}
 }

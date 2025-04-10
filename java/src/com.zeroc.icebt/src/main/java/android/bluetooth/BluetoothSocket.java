@@ -10,11 +10,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public final class BluetoothSocket implements Closeable {
-    public void close() throws IOException {
-    }
+    public void close() throws IOException {}
 
-    public void connect() throws IOException {
-    }
+    public void connect() throws IOException {}
 
     public InputStream getInputStream() throws IOException {
         return null;

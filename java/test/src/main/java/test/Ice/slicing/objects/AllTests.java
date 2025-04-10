@@ -58,8 +58,7 @@ public class AllTests {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
 
             _called = false;
@@ -275,8 +274,7 @@ public class AllTests {
             try {
                 SBase sb = test.SBSUnknownDerivedAsSBaseCompact();
                 test("SBSUnknownDerived.sb".equals(sb.sb));
-            } catch (OperationNotExistException ex) {
-            } catch (Exception ex) {
+            } catch (OperationNotExistException ex) {} catch (Exception ex) {
                 test(false);
             }
         } else {
@@ -289,8 +287,7 @@ public class AllTests {
                 test(false);
             } catch (MarshalException ex) {
                 // Expected.
-            } catch (OperationNotExistException ex) {
-            } catch (Exception ex) {
+            } catch (OperationNotExistException ex) {} catch (Exception ex) {
                 test(false);
             }
         }
@@ -1783,8 +1780,7 @@ public class AllTests {
             test(p2.pi == 3);
             test("preserved".equals(p2.ps));
             test(p2.pb == p2);
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
 
         try {
             //
@@ -1806,8 +1802,7 @@ public class AllTests {
                 test(p2 != null);
                 test("preserved".equals(p2.pu));
             }
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
 
         try {
             //
@@ -1827,8 +1822,7 @@ public class AllTests {
                 test(p2.pi == 3);
                 test(p2.pbs[0] == p2);
             }
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
 
         try {
             //
@@ -1848,8 +1842,7 @@ public class AllTests {
                 test(p2.pi == 3);
                 test(p2.pbs[0] == p2);
             }
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
 
         try {
             //
@@ -1894,8 +1887,7 @@ public class AllTests {
                 test(p3.pcd2 == p3.pi);
                 test(p3.pcd3 == p3.pbs[10]);
             }
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
 
         try {
             //
@@ -1913,8 +1905,7 @@ public class AllTests {
             } else {
                 test(p.ice_getSlicedData() == null);
             }
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
         out.println("ok");
 
         out.print("preserved classes (AMI)... ");
@@ -1943,8 +1934,7 @@ public class AllTests {
                         cb.called();
                     });
             cb.check();
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
 
         try {
             //
@@ -1973,8 +1963,7 @@ public class AllTests {
                         cb.called();
                     });
             cb.check();
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
 
         try {
             //
@@ -2015,8 +2004,7 @@ public class AllTests {
                         });
                 cb.check();
             }
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
 
         try {
             //
@@ -2057,8 +2045,7 @@ public class AllTests {
                         });
                 cb.check();
             }
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
 
         try {
             //
@@ -2124,8 +2111,7 @@ public class AllTests {
                         });
                 cb.check();
             }
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
 
         try {
             //
@@ -2137,8 +2123,7 @@ public class AllTests {
             if (!test.ice_getEncodingVersion().equals(Util.Encoding_1_0)) {
                 test.ice_encodingVersion(Util.Encoding_1_0).checkPBSUnknown(p);
             }
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
 
         out.println("ok");
 
@@ -2214,14 +2199,12 @@ public class AllTests {
             }
 
             PreservedI.counter = 0;
-        } catch (OperationNotExistException ex) {
-        }
+        } catch (OperationNotExistException ex) {}
 
         out.println("ok");
 
         return test;
     }
 
-    private AllTests() {
-    }
+    private AllTests() {}
 }

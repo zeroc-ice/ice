@@ -426,8 +426,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
         try {
             Assert.FinalizerAssert(_state == StateFinished);
             Assert.FinalizerAssert(_connections.isEmpty());
-        } catch (Exception ex) {
-        } finally {
+        } catch (Exception ex) {} finally {
             super.finalize();
         }
     }

@@ -100,8 +100,7 @@ final class TcpTransceiver implements Transceiver {
     }
 
     @Override
-    public void checkSendSize(Buffer buf) {
-    }
+    public void checkSendSize(Buffer buf) {}
 
     @Override
     public void setBufferSize(int rcvSize, int sndSize) {

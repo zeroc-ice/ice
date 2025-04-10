@@ -168,9 +168,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                         addSeries((MetricsViewTransferableData) t.getTransferData(flavor));
                         break;
                     }
-                } catch (UnsupportedFlavorException ex) {
-                } catch (IOException ex) {
-                }
+                } catch (UnsupportedFlavorException ex) {} catch (IOException ex) {}
             }
 
             return true;

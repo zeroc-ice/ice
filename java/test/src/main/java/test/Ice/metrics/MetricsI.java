@@ -11,12 +11,10 @@ import test.Ice.metrics.Test.Metrics;
 import test.Ice.metrics.Test.UserEx;
 
 public final class MetricsI implements Metrics {
-    public MetricsI() {
-    }
+    public MetricsI() {}
 
     @Override
-    public void op(Current current) {
-    }
+    public void op(Current current) {}
 
     @Override
     public void fail(Current current) {
@@ -44,8 +42,7 @@ public final class MetricsI implements Metrics {
     }
 
     @Override
-    public void opByteS(byte[] bs, Current current) {
-    }
+    public void opByteS(byte[] bs, Current current) {}
 
     @Override
     public ObjectPrx getAdmin(Current current) {

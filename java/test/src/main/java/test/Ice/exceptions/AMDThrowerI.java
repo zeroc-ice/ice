@@ -17,8 +17,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public final class AMDThrowerI implements Thrower {
-    public AMDThrowerI() {
-    }
+    public AMDThrowerI() {}
 
     @Override
     public CompletionStage<Void> shutdownAsync(Current current) {

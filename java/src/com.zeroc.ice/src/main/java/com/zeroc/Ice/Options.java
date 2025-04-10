@@ -338,6 +338,5 @@ public final class Options {
         return vec.toArray(new String[0]);
     }
 
-    private Options() {
-    }
+    private Options() {}
 }
