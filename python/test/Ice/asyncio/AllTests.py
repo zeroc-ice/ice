@@ -2,8 +2,8 @@
 
 import sys
 import asyncio
-import threading
 import Ice
+import Ice.asyncio
 import Test
 
 
@@ -86,8 +86,6 @@ async def allTestsAsync(helper, communicator):
 
     print("ok")
 
-    await p.shutdownAsync()
-
     sys.stdout.write("testing communicator shutdownCompleted... ")
     sys.stdout.flush()
 
@@ -96,18 +94,49 @@ async def allTestsAsync(helper, communicator):
     test(not shutdownCompletedFuture.done())
     test(not testCommunicator.isShutdown())
 
-    # Call destroy() from a separate thread to avoid blocking the event loop
-    def destroy_communicator():
-        testCommunicator.destroy()
-
-    destroy_thread = threading.Thread(target=destroy_communicator)
-    destroy_thread.start()
+    destroyFuture = testCommunicator.destroyAsync()
 
     await shutdownCompletedFuture
 
     test(shutdownCompletedFuture.done())
     test(testCommunicator.isShutdown())
 
-    destroy_thread.join()
+    await destroyFuture
+    print("ok")
+
+    sys.stdout.write("testing communicator asynchronous context manager... ")
+    sys.stdout.flush()
+
+    initData = Ice.InitializationData()
+    # Copy the existing properties to the new communicator for the SSL setup
+    initData.properties = communicator.getProperties()
+    initData.eventLoopAdapter = Ice.asyncio.EventLoopAdapter(asyncio.get_running_loop())
+
+    async with Ice.initialize(initData=initData) as testCommunicator:
+        p1 = Test.TestIntfPrx(testCommunicator, f"test:{helper.getTestEndpoint(num=0)}")
+        await p1.opAsync()
+
+    try:
+        await p1.opAsync()
+        test(False)
+    except Ice.CommunicatorDestroyedException:
+        pass
+
+    async with Ice.initialize(initData=initData) as testCommunicator:
+        p1 = Test.TestIntfPrx(testCommunicator, f"test:{helper.getTestEndpoint(num=0)}")
+        await p1.opAsync()
+
+        # Destroy the communicator, this is uncommon but possible. It will force the C++ destroyAsync callback
+        # used in the asynchronous context manager implementation to be called from the event loop thread.
+        testCommunicator.destroy()
+
+        try:
+            await p1.opAsync()
+            test(False)
+        except Ice.CommunicatorDestroyedException:
+            pass
 
     print("ok")
+
+    # Shutdown the server
+    await p.shutdownAsync()

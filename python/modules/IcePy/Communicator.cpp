@@ -50,6 +50,14 @@ namespace IcePy
         std::exception_ptr* shutdownException;
         bool shutdown;
         ExecutorPtr* executor;
+
+        std::promise<void> destroyAsyncDone;
+        std::future<void> destroyAsyncDoneFuture;
+        std::atomic<bool> destroyAsyncStarted{false};
+
+        CommunicatorObject() : destroyAsyncDoneFuture(destroyAsyncDone.get_future())
+        {
+        }
     };
 }
 
@@ -68,6 +76,12 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     self->shutdownException = nullptr;
     self->shutdown = false;
     self->executor = nullptr;
+
+    std::promise<void> destroyAsyncDone;
+    self->destroyAsyncDone = std::move(destroyAsyncDone);
+    self->destroyAsyncDoneFuture = self->destroyAsyncDone.get_future();
+    self->destroyAsyncStarted = false;
+
     return self;
 }
 
@@ -242,9 +256,20 @@ communicatorDealloc(CommunicatorObject* self)
         }
     }
 
-    delete self->communicator;
-    delete self->shutdownException;
-    delete self->shutdownFuture;
+    {
+        // Release Python's global interpreter lock to avoid a potential deadlock.
+        // The Communicator destructor joins the destroyAsync callback thread, the destroyAsync callback
+        // needs to acquire the GIL.
+        AllowThreads allowThreads;
+        if (self->destroyAsyncStarted.load(std::memory_order_acquire))
+        {
+            self->destroyAsyncDoneFuture.wait();
+        }
+        delete self->communicator;
+        delete self->shutdownException;
+        delete self->shutdownFuture;
+        delete self->executor;
+    }
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
@@ -283,62 +308,70 @@ communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
 }
 
 extern "C" PyObject*
-communicatorDestroyAsync(CommunicatorObject* self, PyObject* /*args*/)
+communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
 {
     assert(self->communicator);
+
+    // This method is called only once, Communicator.py reuses the future for other callers
+    [[maybe_unused]]bool alreadyStarted = self->destroyAsyncStarted.exchange(true, std::memory_order_release);
+    assert(!alreadyStarted);
 
     auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*self->communicator)->getValueFactoryManager());
     assert(vfm);
 
-    auto futureType = reinterpret_cast<PyTypeObject*>(lookupType("Ice.Future"));
-    assert(futureType);
-
-    PyObjectHandle emptyArgs{PyTuple_New(0)};
-    PyObjectHandle future{futureType->tp_new(futureType, emptyArgs.get(), nullptr)};
-    if (!future.get())
+    PyObject* completed;
+    if (!PyArg_ParseTuple(args, "O", &completed))
     {
         return nullptr;
     }
 
-    // Call Ice.Future.__init__
-    futureType->tp_init(future.get(), emptyArgs.get(), nullptr);
+    if (!PyCallable_Check(completed))
+    {
+        PyErr_SetString(PyExc_TypeError, "completed must be callable");
+        return nullptr;
+    }
 
-    // Create a new reference to prevent premature release of the future object. The reference will be released by
-    // the destroy callback.
-    PyObject* futureObject = Py_NewRef(future.get());
-
+    // We create a new reference to `completed` to ensure it remains alive until the callback is invoked.
+    // This is necessary in case the user abandons the future, for example by cancelling it.
     (*self->communicator)
         ->destroyAsync(
-            [self, vfm, futureObject]()
+            [self, completed = Py_NewRef(completed), vfm]()
             {
-                // Ensure the current thread is able to call into Python.
-                AdoptThread adoptThread;
-
-                // Adopt the future object so it is released within this scope.
-                PyObjectHandle futureGuard{futureObject};
-
-                vfm->destroy();
-
-                if (self->executor)
                 {
-                    (*self->executor)->setCommunicator(nullptr); // Break cyclic reference.
-                }
+                    AdoptThread adoptThread;
 
-                // Break cyclic reference between this object and its Python wrapper.
-                Py_XDECREF(self->wrapper);
-                self->wrapper = nullptr;
+                    // Adopt the completed object so it is released within this scope.
+                    PyObjectHandle completedHandle{completed};
 
-                PyObject* err = PyErr_Occurred();
-                if (err)
-                {
-                    PyObjectHandle discard{callMethod(futureGuard.get(), "set_exception", err)};
+                    vfm->destroy();
+
+                    if (self->executor)
+                    {
+                        (*self->executor)->setCommunicator(nullptr); // Break cyclic reference.
+                    }
+
+                    // Break cyclic reference between this object and its Python wrapper.
+                    Py_XDECREF(self->wrapper);
+                    self->wrapper = nullptr;
+
+                    PyObjectHandle emptyArgs{PyTuple_New(0)};
+                    if (!emptyArgs.get())
+                    {
+                        PyErr_SetString(PyExc_RuntimeError, "failed to create args tuple");
+                        return;
+                    }
+
+                    PyObjectHandle result{PyObject_Call(completed, emptyArgs.get(), nullptr)};
+                    assert(result.get() == nullptr || result.get() == Py_None);
+                    if (result.get() == nullptr)
+                    {
+                        PyErr_PrintEx(0);
+                    }
                 }
-                else
-                {
-                    PyObjectHandle discard{callMethod(futureGuard.get(), "set_result", Py_None)};
-                }
+                // Notify the promise that the destroyAsync callback has completed.
+                self->destroyAsyncDone.set_value();
             });
-    return IcePy::wrapFuture(*self->communicator, future.get());
+    return Py_None;
 }
 
 extern "C" PyObject*
@@ -1385,8 +1418,8 @@ static PyMethodDef CommunicatorMethods[] = {
     {"destroy", reinterpret_cast<PyCFunction>(communicatorDestroy), METH_NOARGS, PyDoc_STR("destroy() -> None")},
     {"destroyAsync",
      reinterpret_cast<PyCFunction>(communicatorDestroyAsync),
-     METH_NOARGS,
-     PyDoc_STR("destroyAsync() -> Ice.Future")},
+     METH_VARARGS,
+     PyDoc_STR("destroyAsync(callable) -> None")},
     {"shutdown", reinterpret_cast<PyCFunction>(communicatorShutdown), METH_NOARGS, PyDoc_STR("shutdown() -> None")},
     {"waitForShutdown",
      reinterpret_cast<PyCFunction>(communicatorWaitForShutdown),
