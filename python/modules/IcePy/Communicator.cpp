@@ -302,7 +302,8 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
         return nullptr;
     }
 
-    // We create a new reference to completed to ensure it is not released before the callback is called.
+    // We create a new reference to `completed` to ensure it remains alive until the callback is invoked.
+    // This is necessary in case the user abandons the future, for example by cancelling it.
     (*self->communicator)
         ->destroyAsync(
             [self, completed = Py_NewRef(completed), vfm]()
