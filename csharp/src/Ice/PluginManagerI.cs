@@ -13,6 +13,9 @@ namespace Ice;
 /// </summary>
 public interface PluginFactory
 {
+    /// <summary>Gets the preferred name for plug-ins created by this factory.</summary>
+    string preferredName { get; }
+
     /// <summary>
     /// Called by the Ice run time to create a new plug-in.
     /// </summary>
@@ -27,18 +30,6 @@ public interface PluginFactory
 internal sealed class PluginManagerI : PluginManager
 {
     private const string _kindOfObject = "plugin";
-
-    internal static void registerPluginFactory(string name, PluginFactory factory, bool loadOnInit)
-    {
-        if (!_factories.ContainsKey(name))
-        {
-            _factories[name] = factory;
-            if (loadOnInit)
-            {
-                _loadOnInitialization.Add(name);
-            }
-        }
-    }
 
     public void initializePlugins()
     {
@@ -187,25 +178,19 @@ internal sealed class PluginManagerI : PluginManager
         Properties properties = _communicator.getProperties();
         Dictionary<string, string> plugins = properties.getPropertiesForPrefix(prefix);
 
-        //
-        // First, load static plugin factories which were setup to load on
-        // communicator initialization. If a matching plugin property is
-        // set, we load the plugin with the plugin specification. The
-        // entryPoint will be ignored but the rest of the plugin
-        // specification might be used.
-        //
-        foreach (string name in _loadOnInitialization)
+        // First, create plug-ins using the plug-in factories from initData, in order.
+        foreach (PluginFactory pluginFactory in _communicator.instance.initializationData().pluginFactories)
         {
+            string name = pluginFactory.preferredName;
             string key = $"Ice.Plugin.{name}";
-            plugins.TryGetValue(key, out string? r);
-            if (r is not null)
+            if (plugins.TryGetValue(key, out string? pluginSpec))
             {
-                loadPlugin(name, r, ref cmdArgs);
+                loadPlugin(pluginFactory, name, pluginSpec, ref cmdArgs);
                 plugins.Remove(key);
             }
             else
             {
-                loadPlugin(name, "", ref cmdArgs);
+                loadPlugin(pluginFactory, name, "", ref cmdArgs);
             }
         }
 
@@ -243,7 +228,7 @@ internal sealed class PluginManagerI : PluginManager
             plugins.TryGetValue(key, out string? value);
             if (value is not null)
             {
-                loadPlugin(loadOrder[i], value, ref cmdArgs);
+                loadPlugin(null, loadOrder[i], value, ref cmdArgs);
                 plugins.Remove(key);
             }
             else
@@ -257,11 +242,11 @@ internal sealed class PluginManagerI : PluginManager
         //
         foreach (KeyValuePair<string, string> entry in plugins)
         {
-            loadPlugin(entry.Key[prefix.Length..], entry.Value, ref cmdArgs);
+            loadPlugin(null, entry.Key[prefix.Length..], entry.Value, ref cmdArgs);
         }
     }
 
-    private void loadPlugin(string name, string pluginSpec, ref string[] cmdArgs)
+    private void loadPlugin(PluginFactory? pluginFactory, string name, string pluginSpec, ref string[] cmdArgs)
     {
         Debug.Assert(_communicator is not null);
 
@@ -305,12 +290,8 @@ internal sealed class PluginManagerI : PluginManager
         }
 
         string err = "unable to load plug-in `" + entryPoint + "': ";
-        //
-        // Always check the static plugin factory table first, it takes
-        // precedence over the entryPoint specified in the plugin
-        // property value.
-        //
-        if (!_factories.TryGetValue(name, out PluginFactory? pluginFactory))
+
+        if (pluginFactory is null)
         {
             //
             // Extract the assembly name and the class name.
@@ -433,8 +414,6 @@ internal sealed class PluginManagerI : PluginManager
 
     internal record class PluginInfo(string name, Plugin plugin);
 
-    private static readonly Dictionary<string, PluginFactory> _factories = new Dictionary<string, PluginFactory>();
-    private static readonly List<string> _loadOnInitialization = new List<string>();
     private Communicator? _communicator;
     private readonly ArrayList _plugins;
     private bool _initialized;
