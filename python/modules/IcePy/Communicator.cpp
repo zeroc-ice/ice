@@ -299,13 +299,12 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
     if (!PyCallable_Check(setResult))
     {
         PyErr_SetString(PyExc_TypeError, "setResult must be callable");
-        Py_DECREF(setResult);
         return nullptr;
     }
 
     (*self->communicator)
         ->destroyAsync(
-            [self, setResult, vfm]()
+            [self, setResult = Py_NewRef(setResult), vfm]()
             {
                 // Ensure the current thread is able to call into Python.
                 AdoptThread adoptThread;
