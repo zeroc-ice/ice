@@ -290,21 +290,22 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
     auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*self->communicator)->getValueFactoryManager());
     assert(vfm);
 
-    PyObject* setResult;
-    if (!PyArg_ParseTuple(args, "O", &setResult))
+    PyObject* completed;
+    if (!PyArg_ParseTuple(args, "O", &completed))
     {
         return nullptr;
     }
 
-    if (!PyCallable_Check(setResult))
+    if (!PyCallable_Check(completed))
     {
-        PyErr_SetString(PyExc_TypeError, "setResult must be callable");
+        PyErr_SetString(PyExc_TypeError, "completed must be callable");
         return nullptr;
     }
 
+    // We create a new reference to completed to ensure it is not released before the callback is called.
     (*self->communicator)
         ->destroyAsync(
-            [self, setResult = Py_NewRef(setResult), vfm]()
+            [self, completed = Py_NewRef(completed), vfm]()
             {
                 // Ensure the current thread is able to call into Python.
                 AdoptThread adoptThread;
@@ -320,22 +321,22 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
                 Py_XDECREF(self->wrapper);
                 self->wrapper = nullptr;
 
-                PyObject* setResultArgs = PyTuple_Pack(1, Py_None);
-                if (!setResultArgs)
+                PyObject* emptyArgs = PyTuple_New(0);
+                if (!emptyArgs)
                 {
                     PyErr_SetString(PyExc_RuntimeError, "failed to create args tuple");
                     return;
                 }
 
-                // Calling setResult completes the future that Communicator.__aexit__ is awaiting. Note that the
+                // Calling completed completes the future that Communicator.__aexit__ is awaiting. Note that the
                 // future's callbacks can start running before PyObject_Call returns. In a typical Ice application, the
                 // main script exits once this future is completed, which can trigger Python interpreter finalization.
                 //
                 // If the interpreter is already finalizing by the time PyObject_Call returns, we must avoid releasing
-                // the references to setResult and setResultArgs, as invoking Python API functions (like Py_DECREF)
+                // the references to completed and emptyArgs, as invoking Python API functions (like Py_DECREF)
                 // during finalization is not safe. In that case, we intentionally leak these objects to prevent
                 // potential crashes.
-                PyObject* result = PyObject_Call(setResult, setResultArgs, nullptr);
+                PyObject* result = PyObject_Call(completed, emptyArgs, nullptr);
                 assert(result == nullptr || result == Py_None);
                 if (result == nullptr)
                 {
@@ -344,11 +345,11 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
 
 #if PY_VERSION_HEX >= 0x030D0000
                 // With Python 3.13 and later, we use Py_IsFinalizing to conditionally release the references to
-                // setResult and setResultArgs when the interpreter is not finalizing.
+                // completed and emptyArgs when the interpreter is not finalizing.
                 if (!Py_IsFinalizing())
                 {
-                    Py_DECREF(setResult);
-                    Py_DECREF(setResultArgs);
+                    Py_DECREF(completed);
+                    Py_DECREF(emptyArgs);
                 }
 #endif
             });

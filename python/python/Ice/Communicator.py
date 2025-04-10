@@ -46,12 +46,7 @@ class Communicator:
         return self
 
     async def __aexit__(self, type, value, traceback):
-        future = Future()
-        set_result = future.set_result
-        if self._eventLoopAdapter:
-            future = self._eventLoopAdapter.wrapFuture(future)
-        self._impl.destroyAsync(set_result)
-        await future
+        await self.destroyAsync()
 
     @property
     def eventLoopAdapter(self):
@@ -76,6 +71,23 @@ class Communicator:
         calls to destroy are ignored.
         """
         self._impl.destroy()
+
+    def destroyAsync(self):
+        """
+        Asynchronously destroy the communicator. This operation calls shutdown implicitly. Calling destroy cleans up
+        memory, and shuts down this communicator's client functionality and destroys all object adapters. Subsequent
+        calls to destroy are ignored.
+        """
+        future = Future()
+        def completed():
+            future.set_result(None)
+
+        wrappedFuture = future
+        if self._eventLoopAdapter:
+            wrappedFuture = self._eventLoopAdapter.wrapFuture(wrappedFuture)
+
+        self._impl.destroyAsync(completed)
+        return wrappedFuture
 
     def shutdown(self):
         """
