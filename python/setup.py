@@ -96,7 +96,7 @@ def filter_source(filename):
     if "ios/" in filename:
         return False
 
-    if "addDefaultPluginFactories_min" in filename:
+    if "AddDefaultPluginFactories_min" in filename:
         return False
 
     # Bzip2lib sources
