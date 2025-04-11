@@ -3,6 +3,11 @@
 #include "Ice/Ice.h"
 #include "TestHelper.h"
 
+// Link with IceLocatorDiscovery on Windows.
+#if defined(_MSC_VER) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
+#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery"))
+#endif
+
 using namespace std;
 using namespace Test;
 

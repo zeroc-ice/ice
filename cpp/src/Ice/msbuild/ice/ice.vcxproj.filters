@@ -402,7 +402,7 @@
     <ClCompile Include="..\..\ReferenceFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\addDefaultPluginFactories_all.cpp">
+    <ClCompile Include="..\..\AddDefaultPluginFactories_all.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\RequestHandler.cpp">
@@ -934,7 +934,7 @@
     <ClInclude Include="..\..\..\..\include\Ice\ReferenceF.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\addDefaultPluginFactories.h">
+    <ClInclude Include="..\..\..\..\include\Ice\AddDefaultPluginFactories.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\RequestHandlerF.h">

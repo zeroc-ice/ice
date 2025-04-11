@@ -66,10 +66,7 @@ createIceIAP(const CommunicatorPtr& com, const string&, const StringSeq&)
 
 namespace Ice
 {
-    ICEIAP_API void registerIceIAP(bool loadOnInitialize)
-    {
-        Ice::registerPluginFactory("IceIAP", createIceIAP, loadOnInitialize);
-    }
+    ICEIAP_API PluginFactory iapPluginFactory() { return {"IceIAP", createIceIAP}; }
 }
 
 IceObjC::iAPEndpointI::iAPEndpointI(

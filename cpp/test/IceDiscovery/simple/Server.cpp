@@ -4,6 +4,11 @@
 #include "TestHelper.h"
 #include "TestI.h"
 
+// Link with IceDiscovery on Windows.
+#if defined(_MSC_VER) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
+#    pragma comment(lib, ICE_LIBNAME("IceDiscovery"))
+#endif
+
 using namespace std;
 
 class Server : public Test::TestHelper
