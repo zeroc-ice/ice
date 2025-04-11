@@ -71,8 +71,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     }
 
     // Add plug-in factories.
-    initData.pluginFactories =
-    {
+    initData.pluginFactories = {
         Ice::udpPluginFactory(),
         Ice::wsPluginFactory(),
 #if defined(__APPLE__) && TARGET_OS_IPHONE != 0
