@@ -65,46 +65,6 @@ Client::run(int argc, char** argv)
     string pluginDir = argv[argc - 1];
     pluginDir += "/";
 
-    Ice::registerPluginFactory("Static1", createMyPlugin, true); // true = Load on communicator initialization
-    Ice::registerPluginFactory("Static2", createMyPlugin, false);
-
-    cout << "testing static plugin factory... " << flush;
-    try
-    {
-        Ice::CommunicatorHolder communicator = initialize(argc, argv);
-        MyPluginPtr plugin = dynamic_pointer_cast<MyPlugin>(communicator->getPluginManager()->getPlugin("Static1"));
-        test(plugin && plugin->isInitialized());
-        try
-        {
-            communicator->getPluginManager()->getPlugin("Static2");
-        }
-        catch (const Ice::NotRegisteredException&)
-        {
-        }
-    }
-    catch (const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        test(false);
-    }
-
-    try
-    {
-        Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-        properties->setProperty("Ice.Plugin.Static2", "1");
-        Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-        MyPluginPtr plugin = dynamic_pointer_cast<MyPlugin>(communicator->getPluginManager()->getPlugin("Static1"));
-        test(plugin && plugin->isInitialized());
-        plugin = dynamic_pointer_cast<MyPlugin>(communicator->getPluginManager()->getPlugin("Static2"));
-        test(plugin && plugin->isInitialized());
-    }
-    catch (const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        test(false);
-    }
-    cout << "ok" << endl;
-
     cout << "testing a simple plug-in... " << flush;
     try
     {

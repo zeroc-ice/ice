@@ -65,7 +65,7 @@ define_macros = [
     ('ICE_API', '/**/'),
     ('ICE_DISCOVERY_API', '/**/'),
     ('ICE_LOCATOR_DISCOVERY_API', '/**/'),
-    ('ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT', '/**/')]
+    ('ICE_PLUGIN_FACTORY_DECLSPEC_IMPORT', '/**/')]
 
 # Platform-specific compile and link arguments
 if sys.platform == 'darwin':
@@ -96,7 +96,7 @@ def filter_source(filename):
     if "ios/" in filename:
         return False
 
-    if "RegisterPluginsInit_min" in filename:
+    if "addDefaultPluginFactories_min" in filename:
         return False
 
     # Bzip2lib sources

@@ -263,13 +263,6 @@ Ice::setProcessLogger(const LoggerPtr& logger)
     processLogger = logger;
 }
 
-void
-Ice::registerPluginFactory(std::string name, PluginFactory factory, bool loadOnInitialize)
-{
-    lock_guard lock(globalMutex);
-    PluginManagerI::registerPluginFactory(std::move(name), factory, loadOnInitialize);
-}
-
 InstancePtr
 IceInternal::getInstance(const CommunicatorPtr& communicator)
 {

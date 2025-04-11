@@ -66,8 +66,8 @@ public sealed record class InitializationData
     public SslClientAuthenticationOptions? clientAuthenticationOptions { get; set; }
 
     /// <summary>
-    /// Gets or sets the plug-in factories. The communicator creates a plug-in for each of these factories using the
-    /// plug-in's preferred name, as returned by the <see cref="PluginFactory.preferredName"/> property.
+    /// Gets or sets the plug-in factories. The corresponding plug-ins are created during communicator initialization,
+    /// in order, before all other plug-ins.
     /// </summary>
     public IList<PluginFactory> pluginFactories { get; set; } = ImmutableList<PluginFactory>.Empty;
 }

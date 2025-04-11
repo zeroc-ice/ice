@@ -44,6 +44,11 @@ allTests(Test::TestHelper* helper)
         // registries and make sure locator requests are forwarded.
         //
         Ice::InitializationData initData;
+        initData.pluginFactories = {
+            Ice::udpPluginFactory(),
+            Ice::wsPluginFactory(),
+            Ice::locatorDiscoveryPluginFactory()};
+
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.Default.Locator", "");
         initData.properties->setProperty(
@@ -67,16 +72,12 @@ allTests(Test::TestHelper* helper)
 
         com->destroy();
 
-        //
-        // Now, ensure that the IceGrid discovery locator correctly handles failure to find a locator. Also test
-        // Ice::registerIceLocatorDiscovery()
-        //
-#ifdef ICE_STATIC_LIBS
-        Ice::registerIceLocatorDiscovery();
-#endif
+        // Now, ensure that the IceGrid discovery locator correctly handles failure to find a locator.
+
         initData.properties->setProperty("IceLocatorDiscovery.InstanceName", "unknown");
         initData.properties->setProperty("IceLocatorDiscovery.RetryCount", "1");
         initData.properties->setProperty("IceLocatorDiscovery.Timeout", "100");
+
         com = Ice::initialize(initData);
         test(com->getDefaultLocator());
         try

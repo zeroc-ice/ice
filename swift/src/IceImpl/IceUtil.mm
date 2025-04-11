@@ -8,27 +8,6 @@
 
 #import "Ice/StringUtil.h"
 
-namespace
-{
-    class Init
-    {
-    public:
-        Init()
-        {
-            // Register plug-ins included in the Ice framework (a single binary file)
-            // See also RegisterPluginsInit_all.cpp in cpp/src/Ice
-            Ice::registerIceWS(true);
-            Ice::registerIceUDP(true);
-            Ice::registerIceDiscovery(false);
-            Ice::registerIceLocatorDiscovery(false);
-#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
-            Ice::registerIceIAP(false);
-#endif
-        }
-    };
-    Init init;
-}
-
 @implementation ICEUtil
 static Class<ICELocalExceptionFactory> _exceptionFactory;
 static Class<ICEConnectionInfoFactory> _connectionInfoFactory;
@@ -89,6 +68,27 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     if (logger)
     {
         initData.logger = std::make_shared<LoggerWrapperI>(logger);
+    }
+
+    // Add plug-in factories.
+    initData.pluginFactories =
+    {
+        Ice::udpPluginFactory(),
+        Ice::wsPluginFactory(),
+#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
+        Ice::iapPluginFactory(),
+#endif
+    };
+
+    // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.
+    if (!initData.properties->getIceProperty("Ice.Plugin.IceDiscovery").empty())
+    {
+        initData.pluginFactories.push_back(Ice::discoveryPluginFactory());
+    }
+
+    if (!initData.properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery").empty())
+    {
+        initData.pluginFactories.push_back(Ice::locatorDiscoveryPluginFactory());
     }
 
     try

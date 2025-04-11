@@ -3,6 +3,7 @@
 #include "TestHelper.h"
 #include "Ice/Ice.h"
 
+#include <algorithm>
 #include <sstream>
 
 using namespace std;
@@ -123,20 +124,11 @@ StreamHelper::sputc(char c)
 
 #endif
 
-Test::TestHelper::TestHelper(bool registerPlugins)
+Test::TestHelper::TestHelper(bool registerPlugins) : _registerPlugins(registerPlugins)
 {
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
     instance = this;
 #endif
-
-    if (registerPlugins)
-    {
-        Ice::registerIceWS(true);
-        Ice::registerIceUDP(true);
-#ifdef ICE_HAS_BT
-        Ice::registerIceBT(false);
-#endif
-    }
 
 #if defined(_WIN32)
     _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
@@ -298,6 +290,7 @@ Test::TestHelper::initialize(int& argc, char* argv[], const Ice::PropertiesPtr& 
 Ice::CommunicatorPtr
 Test::TestHelper::initialize(int& argc, char* argv[], Ice::InitializationData initData)
 {
+    addDefaultPluginFactories(initData.pluginFactories);
     _communicator = Ice::initialize(argc, argv, std::move(initData));
     if (_controllerHelper)
     {
@@ -347,3 +340,30 @@ Test::TestHelper::shutdownOnInterrupt()
     _ctrlCHandler->setCallback(shutdownOnInterruptCallback);
 }
 #endif
+
+void
+Test::TestHelper::addDefaultPluginFactories(std::vector<Ice::PluginFactory>& factories) const
+{
+    // TODO: we should not register these plug-ins all the time.
+
+    if (_registerPlugins)
+    {
+        if (find_if(
+            factories.begin(),
+            factories.end(),
+                [](const Ice::PluginFactory& factory)
+                { return factory.pluginName == "IceWS"; }) == factories.end())
+        {
+            factories.insert(factories.begin(), Ice::wsPluginFactory());
+        }
+
+        if (find_if(
+            factories.begin(),
+            factories.end(),
+                [](const Ice::PluginFactory& factory)
+                { return factory.pluginName == "IceUDP"; }) == factories.end())
+        {
+            factories.insert(factories.begin(), Ice::udpPluginFactory());
+        }
+    }
+}

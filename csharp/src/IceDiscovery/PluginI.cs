@@ -6,7 +6,7 @@ namespace IceDiscovery;
 
 public sealed class PluginFactory : Ice.PluginFactory
 {
-    public string preferredName => "IceDiscovery";
+    public string pluginName => "IceDiscovery";
 
     public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args) => new PluginI(communicator);
 }

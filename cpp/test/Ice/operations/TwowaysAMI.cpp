@@ -996,7 +996,7 @@ makeExceptionClosure(CallbackPtr& cb)
 }
 
 void
-twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
+twowaysAMI(const CommunicatorPtr& communicator, Test::TestHelper* testHelper, const MyClassPrx& p)
 {
     {
         CallbackPtr cb = make_shared<Callback>();
@@ -2008,6 +2008,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                 InitializationData initData;
                 initData.properties = communicator->getProperties()->clone();
                 initData.properties->setProperty("Ice.ImplicitContext", impl);
+                testHelper->addDefaultPluginFactories(initData.pluginFactories);
 
                 CommunicatorPtr ic = initialize(initData);
 

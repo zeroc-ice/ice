@@ -13,8 +13,8 @@ namespace Ice;
 /// </summary>
 public interface PluginFactory
 {
-    /// <summary>Gets the preferred name for plug-ins created by this factory.</summary>
-    string preferredName { get; }
+    /// <summary>Gets the default and preferred name for plug-ins created by this factory.</summary>
+    string pluginName { get; }
 
     /// <summary>
     /// Called by the Ice run time to create a new plug-in.
@@ -181,7 +181,7 @@ internal sealed class PluginManagerI : PluginManager
         // First, create plug-ins using the plug-in factories from initData, in order.
         foreach (PluginFactory pluginFactory in _communicator.instance.initializationData().pluginFactories)
         {
-            string name = pluginFactory.preferredName;
+            string name = pluginFactory.pluginName;
             string key = $"Ice.Plugin.{name}";
             if (plugins.TryGetValue(key, out string? pluginSpec))
             {

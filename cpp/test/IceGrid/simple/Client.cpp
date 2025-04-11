@@ -15,9 +15,6 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceLocatorDiscovery(false);
-#endif
     Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv);
     bool withDeploy = false;
 

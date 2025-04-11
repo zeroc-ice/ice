@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Ice/Ice.h"
-#include "Ice/RegisterPlugins.h"
 #include "Test.h"
 #include "TestHelper.h"
 
@@ -17,14 +16,11 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-#ifdef ICE_STATIC_LIBS
-    //
-    // Explicitly register the IceDiscovery plugin to test registerIceDiscovery.
-    //
-    Ice::registerIceDiscovery();
-#endif
+    Ice::InitializationData initData;
+    initData.properties = createTestProperties(argc, argv);
+    initData.pluginFactories = {Ice::discoveryPluginFactory()};
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, std::move(initData));
     int num = argc == 2 ? stoi(argv[1]) : 1;
 
     void allTests(Test::TestHelper*, int);

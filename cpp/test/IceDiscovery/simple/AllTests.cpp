@@ -207,6 +207,7 @@ allTests(Test::TestHelper* helper, int num)
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
             initData.properties->setProperty("IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
+            initData.pluginFactories = {Ice::udpPluginFactory(), Ice::wsPluginFactory(), Ice::discoveryPluginFactory()};
             Ice::CommunicatorPtr com = Ice::initialize(initData);
             test(com->getDefaultLocator());
             try
@@ -231,6 +232,7 @@ allTests(Test::TestHelper* helper, int num)
             initData.properties->setProperty(
                 "IceDiscovery.Lookup",
                 "udp -h " + multicast + " --interface unknown:" + "udp -h " + multicast + " -p " + port + intf);
+            initData.pluginFactories = {Ice::udpPluginFactory(), Ice::wsPluginFactory(), Ice::discoveryPluginFactory()};
             Ice::CommunicatorPtr com = Ice::initialize(initData);
             test(com->getDefaultLocator());
             ObjectPrx(com, "controller0@control0")->ice_ping();

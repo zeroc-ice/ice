@@ -2,7 +2,7 @@
 
 public class PluginTwoFactory : Ice.PluginFactory
 {
-    public string preferredName => "Test";
+    public string pluginName => "Test";
 
     public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args) => new PluginTwo(communicator);
 

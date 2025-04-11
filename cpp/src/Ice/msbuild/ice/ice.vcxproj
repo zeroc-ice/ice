@@ -591,7 +591,7 @@
     <ClCompile Include="..\..\Proxy.cpp" />
     <ClCompile Include="..\..\Reference.cpp" />
     <ClCompile Include="..\..\ReferenceFactory.cpp" />
-    <ClCompile Include="..\..\RegisterPluginsInit_all.cpp" />
+    <ClCompile Include="..\..\addDefaultPluginFactories_all.cpp" />
     <ClCompile Include="..\..\RequestHandler.cpp" />
     <ClCompile Include="..\..\RetryQueue.cpp" />
     <ClCompile Include="..\..\RouterInfo.cpp" />
@@ -1007,7 +1007,7 @@
     <ClInclude Include="..\..\..\..\include\Ice\ProxyF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\ProxyFunctions.h" />
     <ClInclude Include="..\..\..\..\include\Ice\ReferenceF.h" />
-    <ClInclude Include="..\..\..\..\include\Ice\RegisterPlugins.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\addDefaultPluginFactories.h" />
     <ClInclude Include="..\..\..\..\include\Ice\RequestHandlerF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\ServantLocator.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Service.h" />

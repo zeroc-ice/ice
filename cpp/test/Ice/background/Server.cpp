@@ -87,9 +87,6 @@ public:
 void
 Server::run(int argc, char** argv)
 {
-#ifdef ICE_STATIC_LIBS
-    registerPluginFactory("Test", createTestTransport, false);
-#endif
     PropertiesPtr properties = createTestProperties(argc, argv);
 
     //
@@ -112,7 +109,11 @@ Server::run(int argc, char** argv)
     string defaultProtocol = properties->getIceProperty("Ice.Default.Protocol");
     properties->setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
 
-    CommunicatorHolder communicator = initialize(argc, argv, properties);
+    Ice::InitializationData initData;
+    initData.properties = properties;
+    initData.pluginFactories = {{"Test", createTestTransport}};
+
+    CommunicatorHolder communicator = initialize(argc, argv, std::move(initData));
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
     communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
