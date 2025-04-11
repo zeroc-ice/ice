@@ -349,19 +349,17 @@ Test::TestHelper::addDefaultPluginFactories(std::vector<Ice::PluginFactory>& fac
     if (_registerPlugins)
     {
         if (find_if(
-            factories.begin(),
-            factories.end(),
-                [](const Ice::PluginFactory& factory)
-                { return factory.pluginName == "IceWS"; }) == factories.end())
+                factories.begin(),
+                factories.end(),
+                [](const Ice::PluginFactory& factory) { return factory.pluginName == "IceWS"; }) == factories.end())
         {
             factories.insert(factories.begin(), Ice::wsPluginFactory());
         }
 
         if (find_if(
-            factories.begin(),
-            factories.end(),
-                [](const Ice::PluginFactory& factory)
-                { return factory.pluginName == "IceUDP"; }) == factories.end())
+                factories.begin(),
+                factories.end(),
+                [](const Ice::PluginFactory& factory) { return factory.pluginName == "IceUDP"; }) == factories.end())
         {
             factories.insert(factories.begin(), Ice::udpPluginFactory());
         }
