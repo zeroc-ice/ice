@@ -250,6 +250,11 @@ internal sealed class PluginManagerI : PluginManager
     {
         Debug.Assert(_communicator is not null);
 
+        if (findPlugin(name) is not null)
+        {
+            throw new AlreadyRegisteredException(_kindOfObject, name);
+        }
+
         string[] args = [];
         string entryPoint = "";
         if (pluginSpec.Length > 0)
