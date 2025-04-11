@@ -242,7 +242,14 @@ communicatorDealloc(CommunicatorObject* self)
         }
     }
 
-    delete self->communicator;
+    {
+        // Release Python's Global Interpreter Lock (GIL) to prevent potential deadlocks.
+        // The communicator destructor waits for destroyAsync callback threads to complete.
+        // If the GIL isn't released here, callbacks attempting to acquire it will deadlock.
+        AllowThreads allowThreads;
+        delete self->communicator;
+    }
+
     delete self->shutdownException;
     delete self->shutdownFuture;
     delete self->executor;
