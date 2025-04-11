@@ -268,8 +268,8 @@ communicatorDealloc(CommunicatorObject* self)
         delete self->communicator;
         delete self->shutdownException;
         delete self->shutdownFuture;
-        delete self->executor;
     }
+    delete self->executor;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
