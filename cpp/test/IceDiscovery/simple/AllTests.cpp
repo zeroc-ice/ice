@@ -210,7 +210,10 @@ allTests(Test::TestHelper* helper, int num)
 
             if (IceInternal::isMinBuild())
             {
-                initData.pluginFactories = {Ice::udpPluginFactory(), Ice::wsPluginFactory(), Ice::discoveryPluginFactory()};
+                initData.pluginFactories = {
+                    Ice::udpPluginFactory(),
+                    Ice::wsPluginFactory(),
+                    Ice::discoveryPluginFactory()};
             }
 
             Ice::CommunicatorPtr com = Ice::initialize(initData);
@@ -240,7 +243,10 @@ allTests(Test::TestHelper* helper, int num)
 
             if (IceInternal::isMinBuild())
             {
-                initData.pluginFactories = {Ice::udpPluginFactory(), Ice::wsPluginFactory(), Ice::discoveryPluginFactory()};
+                initData.pluginFactories = {
+                    Ice::udpPluginFactory(),
+                    Ice::wsPluginFactory(),
+                    Ice::discoveryPluginFactory()};
             }
 
             Ice::CommunicatorPtr com = Ice::initialize(initData);

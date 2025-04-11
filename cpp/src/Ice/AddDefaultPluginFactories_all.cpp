@@ -39,4 +39,8 @@ IceInternal::addDefaultPluginFactories(vector<Ice::PluginFactory>& pluginFactori
     pluginFactories.insert(pluginFactories.begin(), defaultPluginFactories.begin(), defaultPluginFactories.end());
 }
 
-bool IceInternal::isMinBuild() { return false; }
+bool
+IceInternal::isMinBuild()
+{
+    return false;
+}
