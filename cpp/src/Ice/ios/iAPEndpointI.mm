@@ -15,7 +15,6 @@
 #    include "Ice/LocalExceptions.h"
 #    include "Ice/OutputStream.h"
 #    include "Ice/Properties.h"
-#    include "Ice/RegisterPlugins.h"
 #    include "iAPConnector.h"
 #    include "iAPEndpointI.h"
 
