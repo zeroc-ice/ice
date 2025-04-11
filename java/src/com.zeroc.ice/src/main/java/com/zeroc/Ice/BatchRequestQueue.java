@@ -162,10 +162,6 @@ class BatchRequestQueue {
         _exception = ex;
     }
 
-    public synchronized boolean isEmpty() {
-        return _batchStream.size() == Protocol.requestBatchHdr.length;
-    }
-
     private void waitStreamInUse(boolean flush) {
         //
         // This is similar to a mutex lock in that the stream is

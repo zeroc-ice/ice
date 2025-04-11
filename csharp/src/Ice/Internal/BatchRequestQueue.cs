@@ -180,14 +180,6 @@ internal sealed class BatchRequestQueue
         }
     }
 
-    internal bool isEmpty()
-    {
-        lock (_mutex)
-        {
-            return _batchStream.size() == Protocol.requestBatchHdr.Length;
-        }
-    }
-
     private void waitStreamInUse(bool flush)
     {
         //

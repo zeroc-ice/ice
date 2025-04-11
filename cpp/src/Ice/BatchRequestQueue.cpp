@@ -186,13 +186,6 @@ BatchRequestQueue::destroy(std::exception_ptr ex)
     _exception = ex;
 }
 
-bool
-BatchRequestQueue::isEmpty()
-{
-    lock_guard lock(_mutex);
-    return _batchStream.b.size() == sizeof(requestBatchHdr);
-}
-
 void
 BatchRequestQueue::enqueueBatchRequest(const Ice::ObjectPrx& proxy)
 {

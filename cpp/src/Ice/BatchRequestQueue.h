@@ -26,7 +26,6 @@ namespace IceInternal
         int swap(Ice::OutputStream*, bool&) noexcept;
 
         void destroy(std::exception_ptr);
-        bool isEmpty();
 
         void enqueueBatchRequest(const Ice::ObjectPrx&);
 
