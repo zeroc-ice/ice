@@ -92,4 +92,13 @@ namespace Ice
 
 }
 
+namespace IceInternal
+{
+    /// Indicates whether the current Ice library provides the minimum set of built-in plug-ins, namely IceTCP and
+    /// IceSSL.
+    /// @return `true` when the Ice library provides the minimum set of built-in plug-ins, `false` when it also provides
+    /// IceUDP and IceWS.
+    ICE_API bool isMinBuild();
+}
+
 #endif

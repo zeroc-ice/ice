@@ -5,9 +5,9 @@
 
 #include "Ice/BuiltinSequences.h"
 #include "Ice/CommunicatorF.h"
-#include "Ice/Initialize.h"
 #include "Ice/InstanceF.h"
 #include "Ice/Plugin.h"
+#include "Ice/PluginFactory.h"
 
 #include <map>
 #include <mutex>

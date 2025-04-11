@@ -43,16 +43,23 @@ Client::run(int argc, char** argv)
     //
     properties->setProperty("Ice.TCP.SndSize", "50000");
 
+    Ice::InitializationData initData;
+    initData.properties = properties;
+
     //
     // Setup the test transport plug-in.
     //
-    properties->setProperty("Ice.Plugin.Test", "TestTransport:createTestTransport");
+    if (IceInternal::isMinBuild())
+    {
+        initData.pluginFactories = {{"Test", createTestTransport}};
+    }
+    else
+    {
+        properties->setProperty("Ice.Plugin.Test", "TestTransport:createTestTransport");
+    }
+
     string defaultProtocol = properties->getIceProperty("Ice.Default.Protocol");
     properties->setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
-
-    Ice::InitializationData initData;
-    initData.properties = properties;
-    initData.pluginFactories = {{"Test", createTestTransport}};
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, std::move(initData));
     BackgroundPrx allTests(Test::TestHelper*);

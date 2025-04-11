@@ -15,3 +15,5 @@ IceInternal::addDefaultPluginFactories(vector<Ice::PluginFactory>& pluginFactori
 {
     pluginFactories.insert(pluginFactories.begin(), {{"IceTCP", createIceTCP}, {"IceSSL", createIceSSL}});
 }
+
+bool IceInternal::isMinBuild() { return true; }

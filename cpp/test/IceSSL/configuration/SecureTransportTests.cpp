@@ -55,7 +55,10 @@ Ice::CommunicatorPtr
 createServer(ServerAuthenticationOptions serverAuthenticationOptions, TestHelper* helper)
 {
     Ice::InitializationData initData;
-    initData.pluginFactories = {Ice::wsPluginFactory()};
+    if (IceInternal::isMinBuild())
+    {
+        initData.pluginFactories = {Ice::wsPluginFactory()};
+    }
 
     Ice::CommunicatorPtr communicator = initialize(std::move(initData));
 
@@ -74,7 +77,10 @@ createClient(const optional<ClientAuthenticationOptions>& clientAuthenticationOp
     Ice::InitializationData initData{
         .clientAuthenticationOptions = clientAuthenticationOptions.value_or(ClientAuthenticationOptions{})};
 
-    initData.pluginFactories = {Ice::wsPluginFactory()};
+    if (IceInternal::isMinBuild())
+    {
+        initData.pluginFactories = {Ice::wsPluginFactory()};
+    }
 
     return initialize(std::move(initData));
 }

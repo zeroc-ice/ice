@@ -39,7 +39,10 @@ createServer(ServerAuthenticationOptions serverAuthenticationOptions, TestHelper
     // Disable IPv6 for compatibility with Docker containers running on macOS.
     properties->setProperty("Ice.IPv6", "0");
     Ice::InitializationData initData{.properties = properties};
-    initData.pluginFactories = {Ice::wsPluginFactory()};
+    if (IceInternal::isMinBuild())
+    {
+        initData.pluginFactories = {Ice::wsPluginFactory()};
+    }
     Ice::CommunicatorPtr communicator = initialize(initData);
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints(
         "ServerAdapter",
@@ -59,7 +62,10 @@ createClient(const optional<ClientAuthenticationOptions>& clientAuthenticationOp
     Ice::InitializationData initData{
         .properties = properties,
         .clientAuthenticationOptions = clientAuthenticationOptions.value_or(ClientAuthenticationOptions{})};
-    initData.pluginFactories = {Ice::wsPluginFactory()};
+    if (IceInternal::isMinBuild())
+    {
+        initData.pluginFactories = {Ice::wsPluginFactory()};
+    }
     return initialize(initData);
 }
 

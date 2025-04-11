@@ -23,9 +23,12 @@ Server::run(int argc, char** argv)
     Ice::InitializationData initData;
     initData.properties = createTestProperties(argc, argv);
 
-    // We can provide udpPluginFactory() here, but it's optional even with a static build since we use TestHelper's
-    // initialize with registerPlugins = true (the default).
-    initData.pluginFactories = {Ice::udpPluginFactory(), Ice::discoveryPluginFactory()};
+    if (IceInternal::isMinBuild())
+    {
+        // We can provide udpPluginFactory() here, but it's optional even with a static build since we use TestHelper's
+        // initialize with registerPlugins = true (the default).
+        initData.pluginFactories = {Ice::udpPluginFactory(), Ice::discoveryPluginFactory()};
+    }
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, std::move(initData));
     Ice::PropertiesPtr properties = communicator->getProperties();

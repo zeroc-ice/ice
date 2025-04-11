@@ -344,22 +344,20 @@ Test::TestHelper::shutdownOnInterrupt()
 void
 Test::TestHelper::addDefaultPluginFactories(std::vector<Ice::PluginFactory>& factories) const
 {
-    // TODO: we should not register these plug-ins all the time.
-
-    if (_registerPlugins)
+    if (_registerPlugins && IceInternal::isMinBuild())
     {
-        if (find_if(
+        if (none_of(
                 factories.begin(),
                 factories.end(),
-                [](const Ice::PluginFactory& factory) { return factory.pluginName == "IceWS"; }) == factories.end())
+                [](const Ice::PluginFactory& factory) { return factory.pluginName == "IceWS"; }))
         {
             factories.insert(factories.begin(), Ice::wsPluginFactory());
         }
 
-        if (find_if(
+        if (none_of(
                 factories.begin(),
                 factories.end(),
-                [](const Ice::PluginFactory& factory) { return factory.pluginName == "IceUDP"; }) == factories.end())
+                [](const Ice::PluginFactory& factory) { return factory.pluginName == "IceUDP"; }))
         {
             factories.insert(factories.begin(), Ice::udpPluginFactory());
         }

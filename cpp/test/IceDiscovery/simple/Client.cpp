@@ -23,7 +23,11 @@ Client::run(int argc, char** argv)
 {
     Ice::InitializationData initData;
     initData.properties = createTestProperties(argc, argv);
-    initData.pluginFactories = {Ice::discoveryPluginFactory()};
+
+    if (IceInternal::isMinBuild())
+    {
+        initData.pluginFactories = {Ice::discoveryPluginFactory()};
+    }
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, std::move(initData));
     int num = argc == 2 ? stoi(argv[1]) : 1;
