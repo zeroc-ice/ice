@@ -6,6 +6,7 @@ from .Properties import Properties
 from ._LoggerI import LoggerI
 from .Logger import Logger
 from typing import final
+from .Future import Future
 
 @final
 class Communicator:
@@ -45,7 +46,7 @@ class Communicator:
         return self
 
     async def __aexit__(self, type, value, traceback):
-        await self._impl.destroyAsync()
+        await self.destroyAsync()
 
     @property
     def eventLoopAdapter(self):
@@ -70,6 +71,23 @@ class Communicator:
         calls to destroy are ignored.
         """
         self._impl.destroy()
+
+    def destroyAsync(self):
+        """
+        Asynchronously destroy the communicator. This operation calls shutdown implicitly. Calling destroy cleans up
+        memory, and shuts down this communicator's client functionality and destroys all object adapters. Subsequent
+        calls to destroy are ignored.
+        """
+        future = Future()
+        def completed():
+            future.set_result(None)
+
+        wrappedFuture = future
+        if self._eventLoopAdapter:
+            wrappedFuture = self._eventLoopAdapter.wrapFuture(wrappedFuture)
+
+        self._impl.destroyAsync(completed)
+        return wrappedFuture
 
     def shutdown(self):
         """

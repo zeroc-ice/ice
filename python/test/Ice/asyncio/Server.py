@@ -15,18 +15,16 @@ class Server(TestHelper):
 
         async def runAsync():
 
-            loop = asyncio.get_running_loop()
-
             initData = Ice.InitializationData()
             initData.properties = self.createTestProperties(args)
             initData.properties.setProperty("Ice.Warn.Dispatch", "0")
-            initData.eventLoopAdapter = Ice.asyncio.EventLoopAdapter(loop)
+            initData.eventLoopAdapter = Ice.asyncio.EventLoopAdapter(asyncio.get_running_loop())
 
             async with self.initialize(initData) as communicator:
                 communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
                 adapter = communicator.createObjectAdapter("TestAdapter")
                 adapter.add(TestI.TestIntfI(), Ice.stringToIdentity("test"))
                 adapter.activate()
-                await loop.run_in_executor(None, communicator.waitForShutdown)
+                await communicator.shutdownCompleted()
 
         asyncio.run(runAsync(), debug=True)
