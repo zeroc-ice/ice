@@ -77,7 +77,7 @@ namespace Ice
     /// Returns the factory for the Bluetooth transport plug-in, IceBT.
     /// @return The factory for the IceBT plug-in.
     /// @see InitializationData::plugins
-    ICE_PLUGIN_FACTORY_DECLSPEC_IMPORT Pluginfactory btPluginFactory();
+    ICE_PLUGIN_FACTORY_DECLSPEC_IMPORT PluginFactory btPluginFactory();
 #    endif
 #endif
 
@@ -86,7 +86,7 @@ namespace Ice
     /// Returns the factory for the iAP transport plug-in, IceIAP.
     /// @return The factory for the IceIAP plug-in.
     /// @see InitializationData::plugins
-    ICE_PLUGIN_FACTORY_DECLSPEC_IMPORT Pluginfactory iapPluginFactory();
+    ICE_PLUGIN_FACTORY_DECLSPEC_IMPORT PluginFactory iapPluginFactory();
 #    endif
 #endif
 
