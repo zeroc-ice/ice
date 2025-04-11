@@ -308,8 +308,10 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
         ->destroyAsync(
             [self, completed = Py_NewRef(completed), vfm]()
             {
-                // Ensure the current thread is able to call into Python.
-                AdoptThread adoptThread;
+                // Ensure the current thread can call into Python. We avoid using AdoptThread because it unconditionally
+                // releases the GIL when it goes out of scope. Here, we want to avoid releasing the GIL if interpreter
+                // finalization starts before the call to PyObject_Call(completed) returns.
+                PyGILState_STATE gilState = PyGILState_Ensure();
 
                 vfm->destroy();
 
@@ -353,6 +355,12 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
                     Py_DECREF(emptyArgs);
                 }
 #endif
+                // Check whether we still own the GIL. If interpreter finalization has begun, we may no longer hold the
+                // GIL and must avoid calling PyGILState_Release unless we do
+                if (PyGILState_Check())
+                {
+                    PyGILState_Release(gilState);
+                }
             });
     return Py_None;
 }
