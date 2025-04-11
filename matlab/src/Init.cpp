@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Ice/Ice.h"
-#include "Ice/RegisterPlugins.h"
 #include "Util.h"
 #include "ice.h"
 
