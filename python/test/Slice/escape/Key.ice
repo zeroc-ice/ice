@@ -22,7 +22,7 @@ module and
     {
         ["amd"] ["python:identifier:_elif"] void elif(
             ["python:identifier:_else"] int else,
-            out ["python:identifier:_except"] int except
+            ["python:identifier:_except"] out int except
         );
     }
 

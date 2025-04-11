@@ -121,88 +121,88 @@ module Test
 
     interface TestIntf
     {
-        ["cpp:array"] ShortSeq opShortArray(["cpp:array"] ShortSeq inSeq, out ["cpp:array"] ShortSeq outSeq);
+        ["cpp:array"] ShortSeq opShortArray(["cpp:array"] ShortSeq inSeq, ["cpp:array"] out ShortSeq outSeq);
 
-        ["cpp:array"] DoubleSeq opDoubleArray(bool padding, ["cpp:array"] DoubleSeq inSeq, out ["cpp:array"] DoubleSeq outSeq);
+        ["cpp:array"] DoubleSeq opDoubleArray(bool padding, ["cpp:array"] DoubleSeq inSeq, ["cpp:array"] out DoubleSeq outSeq);
 
-        ["cpp:array"] BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, out ["cpp:array"] BoolSeq outSeq);
+        ["cpp:array"] BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, ["cpp:array"] out BoolSeq outSeq);
 
-        ["cpp:array"] ByteList opByteArray(["cpp:array"] ByteList inSeq, out ["cpp:array"] ByteList outSeq);
+        ["cpp:array"] ByteList opByteArray(["cpp:array"] ByteList inSeq, ["cpp:array"] out ByteList outSeq);
 
-        ["cpp:array"] VariableList opVariableArray(["cpp:array"] VariableList inSeq, out ["cpp:array"] VariableList outSeq);
+        ["cpp:array"] VariableList opVariableArray(["cpp:array"] VariableList inSeq, ["cpp:array"] out VariableList outSeq);
 
         ["cpp:type:std::deque<bool>"] BoolSeq
-        opBoolSeq(["cpp:type:std::deque<bool>"] BoolSeq inSeq, out ["cpp:type:std::deque<bool>"]BoolSeq outSeq);
+        opBoolSeq(["cpp:type:std::deque<bool>"] BoolSeq inSeq, ["cpp:type:std::deque<bool>"] out BoolSeq outSeq);
 
         BoolList opBoolList(BoolList inSeq, out BoolList outSeq);
 
         BoolDequeList opBoolDequeList(BoolDequeList inSeq, out BoolDequeList outSeq);
         ["cpp:array"] BoolDequeList opBoolDequeListArray(["cpp:array"] BoolDequeList inSeq,
-            out ["cpp:array"] BoolDequeList outSeq);
+            ["cpp:array"] out BoolDequeList outSeq);
 
         ["cpp:type:std::deque<std::byte>"] ByteSeq
         opByteSeq(["cpp:type:std::deque<std::byte>"] ByteSeq inSeq,
-            out ["cpp:type:std::deque<std::byte>"] ByteSeq outSeq);
+            ["cpp:type:std::deque<std::byte>"] out ByteSeq outSeq);
 
         ByteList opByteList(ByteList inSeq, out ByteList outSeq);
 
         ["cpp:type:MyByteSeq"] ByteSeq
-        opMyByteSeq(["cpp:type:MyByteSeq"] ByteSeq inSeq, out ["cpp:type:MyByteSeq"] ByteSeq outSeq);
+        opMyByteSeq(["cpp:type:MyByteSeq"] ByteSeq inSeq, ["cpp:type:MyByteSeq"] out ByteSeq outSeq);
 
         ["cpp:type:std::deque<std::string>"] StringSeq
         opStringSeq(["cpp:type:std::deque<std::string>"] StringSeq inSeq,
-            out ["cpp:type:std::deque<std::string>"] StringSeq outSeq);
+            ["cpp:type:std::deque<std::string>"] out StringSeq outSeq);
 
         StringList opStringList(StringList inSeq, out StringList outSeq);
 
         ["cpp:type:std::deque<::Test::Fixed>"] FixedSeq
         opFixedSeq(["cpp:type:std::deque<::Test::Fixed>"] FixedSeq inSeq,
-            out ["cpp:type:std::deque<::Test::Fixed>"] FixedSeq outSeq);
+            ["cpp:type:std::deque<::Test::Fixed>"] out FixedSeq outSeq);
 
         FixedList opFixedList(FixedList inSeq, out FixedList outSeq);
 
         ["cpp:type:std::deque<::Test::Variable>"] VariableSeq
         opVariableSeq(["cpp:type:std::deque<::Test::Variable>"] VariableSeq inSeq,
-            out ["cpp:type:std::deque<::Test::Variable>"] VariableSeq outSeq);
+            ["cpp:type:std::deque<::Test::Variable>"] out VariableSeq outSeq);
 
         VariableList opVariableList(VariableList inSeq, out VariableList outSeq);
 
         ["cpp:type:std::deque<::Test::StringStringDict>"] StringStringDictSeq
         opStringStringDictSeq(["cpp:type:std::deque<::Test::StringStringDict>"] StringStringDictSeq inSeq,
-            out ["cpp:type:std::deque<::Test::StringStringDict>"] StringStringDictSeq outSeq);
+            ["cpp:type:std::deque<::Test::StringStringDict>"] out StringStringDictSeq outSeq);
 
         StringStringDictList opStringStringDictList(StringStringDictList inSeq, out StringStringDictList outSeq);
 
         ["cpp:type:std::deque<::Test::E>"] ESeq
-        opESeq(["cpp:type:std::deque<::Test::E>"] ESeq inSeq, out ["cpp:type:std::deque<::Test::E>"] ESeq outSeq);
+        opESeq(["cpp:type:std::deque<::Test::E>"] ESeq inSeq, ["cpp:type:std::deque<::Test::E>"] out ESeq outSeq);
 
         EList opEList(EList inSeq, out EList outSeq);
 
         ["cpp:type:std::deque<std::optional<::Test::DPrx>>"] DPrxSeq
         opDPrxSeq(["cpp:type:std::deque<std::optional<::Test::DPrx>>"] DPrxSeq inSeq,
-            out ["cpp:type:std::deque<std::optional<::Test::DPrx>>"] DPrxSeq outSeq);
+            ["cpp:type:std::deque<std::optional<::Test::DPrx>>"] out DPrxSeq outSeq);
 
         DPrxList opDPrxList(DPrxList inSeq, out DPrxList outSeq);
 
         ["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq
         opCSeq(["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq inSeq,
-            out ["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq outSeq);
+            ["cpp:type:std::deque<std::shared_ptr<Test::C>>"] out CSeq outSeq);
 
         CList opCList(CList inSeq, out CList outSeq);
 
-        void opOutArrayByteSeq(ByteSeq org, out ["cpp:array"] ByteSeq copy);
+        void opOutArrayByteSeq(ByteSeq org, ["cpp:array"] out ByteSeq copy);
 
         IntStringDict opIntStringDict(IntStringDict idict, out IntStringDict odict);
 
         ["cpp:type:::Test::CustomMap< int64_t, int64_t>"] LongLongDict
         opVarDict(["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] StringIntDict idict,
-            out ["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] StringIntDict odict);
+            ["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] out StringIntDict odict);
 
         ShortBuffer opShortBuffer(ShortBuffer inS, out ShortBuffer outS);
 
         ["cpp:type:::Test::CustomBuffer<bool>"] BoolSeq opBoolBuffer(
             ["cpp:type:::Test::CustomBuffer<bool>"] BoolSeq inS,
-            out ["cpp:type:::Test::CustomBuffer<bool>"] BoolSeq outS);
+            ["cpp:type:::Test::CustomBuffer<bool>"] out BoolSeq outS);
 
         BufferStruct opBufferStruct(BufferStruct s);
 

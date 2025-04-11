@@ -25,7 +25,7 @@ module abstract
         ["java:identifier:myCheckedCast"]
         ["amd"] void checkedCast(
             ["java:identifier:escaped_clone"] int clone,
-            out ["java:identifier:escaped_continue"] int continue
+            ["java:identifier:escaped_continue"] out int continue
         );
     }
 

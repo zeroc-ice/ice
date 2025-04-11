@@ -66,8 +66,8 @@ module and
         array foreach(
             ["php:identifier:_global"] echo global,
             ["php:identifier:_include"] optional(require_once) function* include,
-            out ["php:identifier:_new"] endfor new,
-            out ["php:identifier:_static"] optional(2) endforeach static
+            ["php:identifier:_new"] out endfor new,
+            ["php:identifier:_static"] out optional(2) endforeach static
         ) throws endif, endwhile;
     }
 }

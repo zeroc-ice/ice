@@ -22,7 +22,7 @@ module import
     {
         ["amd"] ["swift:identifier:`case`"] void case(
             ["swift:identifier:`class`"] int \class,
-            out ["swift:identifier:`try`"] int try
+            ["swift:identifier:`try`"] out int try
         );
     }
 
