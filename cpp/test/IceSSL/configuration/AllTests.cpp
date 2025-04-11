@@ -383,6 +383,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         optional<Test::ServerFactoryPrx> fact;
         CommunicatorPtr comm;
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
+
         //
         // Test IceSSL.VerifyPeer=0. Client does not have a certificate,
         // and doesn't trust the server certificate.
@@ -815,6 +817,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         ImportCerts import(defaultDir, certificates);
 
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "", "");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         CommunicatorPtr comm = initialize(initData);
@@ -947,6 +950,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         //
 
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1008,6 +1012,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         // certificate in the default directory.
         //
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "");
         initData.properties->setProperty("IceSSL.CAs", defaultDir);
         CommunicatorPtr comm = initialize(initData);
@@ -1033,6 +1038,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     cout << "testing multiple CA certificates... " << flush;
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacerts");
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1060,6 +1066,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     cout << "testing DER CA certificate... " << flush;
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "");
         initData.properties->setProperty("IceSSL.CAs", "cacert1.der");
         CommunicatorPtr comm = initialize(initData);
@@ -1091,6 +1098,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     //
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty(
             "IceSSL.TrustOnly",
@@ -1116,6 +1124,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty(
             "IceSSL.TrustOnly",
@@ -1139,6 +1148,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty(
             "IceSSL.TrustOnly",
@@ -1163,6 +1173,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
@@ -1185,6 +1196,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
@@ -1206,6 +1218,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "CN=Server");
         CommunicatorPtr comm = initialize(initData);
@@ -1227,6 +1240,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "!CN=Server");
         CommunicatorPtr comm = initialize(initData);
@@ -1247,6 +1261,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
@@ -1268,6 +1283,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
@@ -1288,6 +1304,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "CN=Client");
         CommunicatorPtr comm = initialize(initData);
@@ -1308,6 +1325,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
@@ -1329,6 +1347,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "C=Canada,CN=Server");
         CommunicatorPtr comm = initialize(initData);
@@ -1349,6 +1368,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "!C=Canada,CN=Server");
         CommunicatorPtr comm = initialize(initData);
@@ -1370,6 +1390,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "C=Canada;CN=Server");
         CommunicatorPtr comm = initialize(initData);
@@ -1391,6 +1412,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "!C=Canada;!CN=Server");
         CommunicatorPtr comm = initialize(initData);
@@ -1411,6 +1433,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "!CN=Server1"); // Should not match "Server"
         CommunicatorPtr comm = initialize(initData);
@@ -1432,6 +1455,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
@@ -1457,6 +1481,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         // Test rejection when client does not supply a certificate.
         //
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "", "");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         CommunicatorPtr comm = initialize(initData);
@@ -1482,6 +1507,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         // Test rejection when client does not supply a certificate.
         //
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "", "");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         CommunicatorPtr comm = initialize(initData);
@@ -1507,6 +1533,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         // Rejection takes precedence (client).
         //
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "ST=Florida;!CN=Server;C=US");
         CommunicatorPtr comm = initialize(initData);
@@ -1530,6 +1557,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         // Rejection takes precedence (server).
         //
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
@@ -1554,6 +1582,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     cout << "testing IceSSL.TrustOnly.Client... " << flush;
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty(
             "IceSSL.TrustOnly.Client",
@@ -1582,6 +1611,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty(
             "IceSSL.TrustOnly.Client",
@@ -1605,6 +1635,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
@@ -1627,6 +1658,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly.Client", "CN=Client");
         CommunicatorPtr comm = initialize(initData);
@@ -1647,6 +1679,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly.Client", "!CN=Client");
         CommunicatorPtr comm = initialize(initData);
@@ -1671,6 +1704,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     cout << "testing IceSSL.TrustOnly.Server... " << flush;
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         // Should have no effect.
         initData.properties->setProperty(
@@ -1699,6 +1733,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
@@ -1720,6 +1755,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         // Should have no effect.
         initData.properties->setProperty("IceSSL.TrustOnly.Server", "!CN=Server");
@@ -1742,6 +1778,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
@@ -1762,6 +1799,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
@@ -1785,6 +1823,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     cout << "testing IceSSL.TrustOnly.Server.<AdapterName>... " << flush;
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
@@ -1808,6 +1847,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
@@ -1829,6 +1869,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
@@ -1849,6 +1890,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     {
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         CommunicatorPtr comm = initialize(initData);
 
@@ -1910,6 +1952,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         for (int i = 0; clientFindCertProperties[i] != 0; i++)
         {
             InitializationData initData;
+            helper->addDefaultPluginFactories(initData.pluginFactories);
             initData.properties = createClientProps(defaultProps, p12);
             initData.properties->setProperty("IceSSL.CAs", "cacert1.pem");
             initData.properties->setProperty("IceSSL.CertStore", "My");
@@ -1953,6 +1996,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         for (int i = 0; failFindCertProperties[i] != 0; i++)
         {
             InitializationData initData;
+            helper->addDefaultPluginFactories(initData.pluginFactories);
             initData.properties = createClientProps(defaultProps, p12);
             initData.properties->setProperty("IceSSL.CAs", "cacert1.pem");
             initData.properties->setProperty("IceSSL.FindCert", failFindCertProperties[i]);
@@ -1983,6 +2027,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         for (int i = 0; clientFindCertProperties[i] != 0; i++)
         {
             InitializationData initData;
+            helper->addDefaultPluginFactories(initData.pluginFactories);
             initData.properties = createClientProps(defaultProps, p12);
             initData.properties->setProperty("IceSSL.CAs", "cacert1.pem");
             initData.properties->setProperty("IceSSL.FindCert", clientFindCertProperties[i]);
@@ -2043,6 +2088,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         for (int i = 0; clientFindCertProperties[i] != nullptr; i++)
         {
             InitializationData initData;
+            helper->addDefaultPluginFactories(initData.pluginFactories);
             initData.properties = createClientProps(defaultProps, p12);
             initData.properties->setProperty("IceSSL.CAs", "cacert1.pem");
             initData.properties->setProperty("IceSSL.Keychain", "../certs/Find.keychain");
@@ -2087,6 +2133,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         for (int i = 0; failFindCertProperties[i] != nullptr; i++)
         {
             InitializationData initData;
+            helper->addDefaultPluginFactories(initData.pluginFactories);
             initData.properties = createClientProps(defaultProps, p12);
             initData.properties->setProperty("IceSSL.Keychain", "../certs/Find.keychain");
             initData.properties->setProperty("IceSSL.KeychainPassword", "password");
@@ -2116,6 +2163,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         cout << "testing certificate revocation using CRL... " << flush;
         CommunicatorPtr comm;
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
 
         // First test with non revoked certificate that include CRL distribution point
         initData.properties = createClientProps(defaultProps, p12, "", "cacert3");
@@ -2260,6 +2308,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         cout << "testing certificate revocation using OCSP... " << flush;
         CommunicatorPtr comm;
         InitializationData initData;
+        helper->addDefaultPluginFactories(initData.pluginFactories);
 
         // First test with non revoked certificate that include AIA info
         initData.properties = createClientProps(defaultProps, p12, "", "cacert4");
@@ -2401,6 +2450,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         {
             int retryCount = 0;
             InitializationData initData;
+            helper->addDefaultPluginFactories(initData.pluginFactories);
             initData.properties = createClientProps(defaultProps, false);
             initData.properties->setProperty("IceSSL.DefaultDir", "");
             initData.properties->setProperty("IceSSL.CheckCertName", "2");
@@ -2442,6 +2492,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         {
             int retryCount = 0;
             InitializationData initData;
+            helper->addDefaultPluginFactories(initData.pluginFactories);
             initData.properties = createClientProps(defaultProps, false);
             initData.properties->setProperty("IceSSL.DefaultDir", "");
             initData.properties->setProperty("IceSSL.UsePlatformCAs", "1");

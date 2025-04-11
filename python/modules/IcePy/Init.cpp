@@ -8,7 +8,6 @@
 #include "EndpointInfo.h"
 #include "Executor.h"
 #include "Ice/Initialize.h"
-#include "Ice/RegisterPlugins.h"
 #include "ImplicitContext.h"
 #include "Logger.h"
 #include "ObjectAdapter.h"
@@ -19,12 +18,6 @@
 #include "Slice.h"
 #include "Types.h"
 #include "ValueFactoryManager.h"
-
-// Link with IceDiscovery and IceLocatorDiscovery on Windows for "shared" builds.
-#if defined(_MSC_VER) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
-#    pragma comment(lib, ICE_LIBNAME("IceDiscovery"))
-#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery"))
-#endif
 
 using namespace std;
 using namespace IcePy;
@@ -133,9 +126,6 @@ PyMODINIT_FUNC ICE_DECLSPEC_EXPORT
 #endif
 PyInit_IcePy(void)
 {
-    Ice::registerIceDiscovery(false);
-    Ice::registerIceLocatorDiscovery(false);
-
     // Create the IcePy  module.
     PyObject* module{PyModule_Create(&iceModule)};
 

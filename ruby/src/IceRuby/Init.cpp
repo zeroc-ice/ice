@@ -12,8 +12,6 @@
 #include "Types.h"
 #include "ValueFactoryManager.h"
 
-#include "Ice/RegisterPlugins.h"
-
 using namespace std;
 using namespace IceRuby;
 
@@ -23,9 +21,6 @@ extern "C"
 {
     ICE_DECLSPEC_EXPORT void Init_IceRuby()
     {
-        Ice::registerIceDiscovery(false);
-        Ice::registerIceLocatorDiscovery(false);
-
         iceModule = rb_define_module("Ice");
         initCommunicator(iceModule);
         initLogger(iceModule);

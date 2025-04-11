@@ -111,9 +111,17 @@ namespace Test
 
         virtual void run(int argc, char* argv[]) = 0;
 
+        /// Adds the IceDP and IceWS plug-in factories to the front of @p factories, unless _registerPlugins is `false`
+        /// or these factories are already in @p factories.
+        /// @param factories The vector of plug-in factories to add to.
+        void addDefaultPluginFactories(std::vector<Ice::PluginFactory>& factories) const;
+
     private:
+        void addPluginFactories();
+
         ControllerHelper* _controllerHelper{nullptr};
         Ice::CommunicatorPtr _communicator;
+        bool _registerPlugins{true};
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
         Ice::CtrlCHandler* _ctrlCHandler{nullptr};
 #endif

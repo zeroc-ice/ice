@@ -35,6 +35,12 @@ using namespace IcePy;
 #    pragma GCC diagnostic ignored "-Wcast-function-type"
 #endif
 
+// Link with IceDiscovery and IceLocatorDiscovery on Windows for "shared" builds.
+#if defined(_MSC_VER) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
+#    pragma comment(lib, ICE_LIBNAME("IceDiscovery"))
+#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery"))
+#endif
+
 static unsigned long mainThreadId;
 
 using CommunicatorMap = map<Ice::CommunicatorPtr, PyObject*>;
@@ -175,6 +181,17 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
     // Always accept cycles in Python
     data.properties->setProperty("Ice.AcceptClassCycles", "1");
+
+    // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.
+    if (!data.properties->getIceProperty("Ice.Plugin.IceDiscovery").empty())
+    {
+        data.pluginFactories.push_back(Ice::discoveryPluginFactory());
+    }
+
+    if (!data.properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery").empty())
+    {
+        data.pluginFactories.push_back(Ice::locatorDiscoveryPluginFactory());
+    }
 
     Ice::CommunicatorPtr communicator;
     try

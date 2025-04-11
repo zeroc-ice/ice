@@ -25,10 +25,6 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerPluginFactory("Test", createTestTransport, false);
-#endif
-
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
 
     //
@@ -54,7 +50,11 @@ Client::run(int argc, char** argv)
     string defaultProtocol = properties->getIceProperty("Ice.Default.Protocol");
     properties->setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    Ice::InitializationData initData;
+    initData.properties = properties;
+    initData.pluginFactories = {{"Test", createTestTransport}};
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, std::move(initData));
     BackgroundPrx allTests(Test::TestHelper*);
     BackgroundPrx background = allTests(this);
     background->shutdown();

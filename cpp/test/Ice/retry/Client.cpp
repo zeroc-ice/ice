@@ -31,6 +31,7 @@ Client::run(int argc, char** argv)
     initData.properties->setProperty("Ice.PrintStackTraces", "0");
 
     initData.properties->setProperty("Ice.RetryIntervals", "0 1 10 1");
+    addDefaultPluginFactories(initData.pluginFactories);
     Ice::CommunicatorHolder ich1 = Ice::initialize(argc, argv, initData);
 
     //

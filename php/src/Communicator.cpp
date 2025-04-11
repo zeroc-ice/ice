@@ -1200,6 +1200,17 @@ ZEND_FUNCTION(Ice_initialize)
     // Always accept cycles in PHP
     initData.properties->setProperty("Ice.AcceptClassCycles", "1");
 
+    // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.
+    if (!initData.properties->getIceProperty("Ice.Plugin.IceDiscovery").empty())
+    {
+        initData.pluginFactories.push_back(Ice::discoveryPluginFactory());
+    }
+
+    if (!initData.properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery").empty())
+    {
+        initData.pluginFactories.push_back(Ice::locatorDiscoveryPluginFactory());
+    }
+
     CommunicatorInfoIPtr info = initializeCommunicator(return_value, seq, zvargs != 0, std::move(initData));
     if (!info)
     {

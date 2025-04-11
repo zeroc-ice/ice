@@ -51,7 +51,7 @@ extern "C"
 
 namespace Ice
 {
-    ICE_API void registerIceWS(bool loadOnInitialize) { registerPluginFactory("IceWS", createIceWS, loadOnInitialize); }
+    ICE_API PluginFactory wsPluginFactory() { return {"IceWS", createIceWS}; }
 }
 
 WSEndpointFactoryPlugin::WSEndpointFactoryPlugin(const CommunicatorPtr& communicator)

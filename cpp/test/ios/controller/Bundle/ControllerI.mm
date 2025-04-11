@@ -337,8 +337,6 @@ ProcessControllerI::getHost(string protocol, bool ipv6, const Ice::Current& c)
 
 ControllerI::ControllerI(id<ControllerView> controller, NSString* ipv4, NSString* ipv6)
 {
-    Ice::registerIceDiscovery();
-
     Ice::InitializationData initData = Ice::InitializationData();
     initData.properties = Ice::createProperties();
     initData.properties->setProperty("Ice.ThreadPool.Server.SizeMax", "10");

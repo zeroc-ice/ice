@@ -27,10 +27,7 @@ extern "C"
 
 namespace Ice
 {
-    ICEBT_API void registerIceBT(bool loadOnInitialize)
-    {
-        Ice::registerPluginFactory("IceBT", createIceBT, loadOnInitialize);
-    }
+    ICEBT_API PluginFactory btPluginFactory() { return {"IceBT", createIceBT}; }
 }
 
 //

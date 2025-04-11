@@ -34,7 +34,6 @@
 #    include "Plugin.h"
 #    include "Properties.h"
 #    include "ProxyFunctions.h"
-#    include "RegisterPlugins.h"
 #    include "SSL/ClientAuthenticationOptions.h"
 #    include "SSL/ConnectionInfo.h"
 #    include "SSL/EndpointInfo.h"

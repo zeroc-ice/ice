@@ -15,7 +15,8 @@ Ice_extra_sources       := $(filter-out src/Ice/SSL/SecureTransport%.cpp src/Ice
 endif
 
 Ice_excludes            = src/Ice/DLLMain.cpp
-Ice[shared]_excludes    = src/Ice/RegisterPluginsInit_min.cpp
+Ice[shared]_excludes    = src/Ice/AddDefaultPluginFactories_min.cpp
+Ice[static]_excludes    = src/Ice/AddDefaultPluginFactories_all.cpp
 
 ifeq ($(os),Linux)
 ifeq ($(shell pkg-config --exists libsystemd 2> /dev/null && echo yes),yes)
@@ -25,13 +26,12 @@ endif
 
 ios_extrasources :=  $(wildcard $(addprefix $(currentdir)/ios/,*.cpp *.mm))
 ios_excludes := $(wildcard $(addprefix $(currentdir)/,\
-	CtrlCHandler.cpp \
-	OutputUtil.cpp \
-	RegisterPluginsInit_all.cpp \
-	Service.cpp \
-	SysLoggerI.cpp \
-	SystemdJournalI.cpp \
-	Tcp*.cpp))
+    CtrlCHandler.cpp \
+    OutputUtil.cpp \
+    Service.cpp \
+    SysLoggerI.cpp \
+    SystemdJournalI.cpp \
+    Tcp*.cpp))
 
 Ice[iphoneos]_excludes                  = $(ios_excludes)
 Ice[iphoneos]_extra_sources             = $(ios_extrasources)

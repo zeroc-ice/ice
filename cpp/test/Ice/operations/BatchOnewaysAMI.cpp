@@ -10,7 +10,7 @@
 using namespace std;
 
 void
-batchOnewaysAMI(const Test::MyClassPrx& p)
+batchOnewaysAMI(const Test::MyClassPrx& p, Test::TestHelper*)
 {
     const Test::ByteS bs1(10 * 1024);
     Test::MyClassPrx batch = p->ice_batchOneway();

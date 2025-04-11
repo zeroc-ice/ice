@@ -28,13 +28,7 @@ createIceDiscovery(const Ice::CommunicatorPtr& communicator, const string&, cons
 
 namespace Ice
 {
-    ICE_DISCOVERY_API void registerIceDiscovery(bool loadOnInitialize)
-    {
-        Ice::registerPluginFactory("IceDiscovery", createIceDiscovery, loadOnInitialize);
-
-        // Also register the UDP plugin (required for static builds)
-        registerIceUDP(true);
-    }
+    ICE_DISCOVERY_API PluginFactory discoveryPluginFactory() { return {"IceDiscovery", createIceDiscovery}; }
 }
 
 PluginI::PluginI(Ice::CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}

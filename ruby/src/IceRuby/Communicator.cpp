@@ -213,6 +213,17 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         // Always accept cycles in Ruby
         data.properties->setProperty("Ice.AcceptClassCycles", "1");
 
+        // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.
+        if (!data.properties->getIceProperty("Ice.Plugin.IceDiscovery").empty())
+        {
+            data.pluginFactories.push_back(Ice::discoveryPluginFactory());
+        }
+
+        if (!data.properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery").empty())
+        {
+            data.pluginFactories.push_back(Ice::locatorDiscoveryPluginFactory());
+        }
+
         //
         // Remaining command line options are passed to the communicator
         // as an argument vector in case they contain plugin properties.

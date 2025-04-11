@@ -18,49 +18,6 @@ const char* const Ice::PluginManagerI::_kindOfObject = "plugin";
 Ice::Plugin::~Plugin() = default;               // avoid weak vtable
 Ice::PluginManager::~PluginManager() = default; // avoid weak vtable
 
-namespace
-{
-    map<string, PluginFactory>* factories = nullptr;
-    vector<string>* loadOnInitialization = nullptr;
-
-    class PluginFactoryDestroy
-    {
-    public:
-        ~PluginFactoryDestroy()
-        {
-            delete factories;
-            factories = nullptr;
-
-            delete loadOnInitialization;
-            loadOnInitialization = nullptr;
-        }
-    };
-    PluginFactoryDestroy destroy;
-}
-
-void
-Ice::PluginManagerI::registerPluginFactory(std::string name, PluginFactory factory, bool loadOnInit)
-{
-    if (!factories)
-    {
-        factories = new map<string, PluginFactory>();
-    }
-
-    auto p = factories->find(name);
-    if (p == factories->end())
-    {
-        factories->insert(make_pair(name, factory));
-        if (loadOnInit)
-        {
-            if (!loadOnInitialization)
-            {
-                loadOnInitialization = new vector<string>();
-            }
-            loadOnInitialization->push_back(std::move(name));
-        }
-    }
-}
-
 void
 Ice::PluginManagerI::initializePlugins()
 {
@@ -229,28 +186,21 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
     PropertiesPtr properties = _communicator->getProperties();
     PropertyDict plugins = properties->getPropertiesForPrefix(prefix);
 
-    //
-    // First, load static plugin factories which were setup to load on
-    // communicator initialization. If a matching plugin property is
-    // set, we load the plugin with the plugin specification. The
-    // entryPoint will be ignored but the rest of the plugin
-    // specification might be used.
-    //
-    if (loadOnInitialization)
+    // First, create plug-ins using the plug-in factories from initData, in order.
+    for (const auto& pluginFactory : getInstance(_communicator)->initializationData().pluginFactories)
     {
-        for (const auto& p : *loadOnInitialization)
+        string name = pluginFactory.pluginName;
+
+        string key = prefix + name;
+        auto r = plugins.find(key);
+        if (r != plugins.end())
         {
-            string property = prefix + p;
-            auto r = plugins.find(property);
-            if (r != plugins.end())
-            {
-                loadPlugin(p, r->second, cmdArgs);
-                plugins.erase(r);
-            }
-            else
-            {
-                loadPlugin(p, "", cmdArgs);
-            }
+            loadPlugin(pluginFactory.factoryFunc, name, r->second, cmdArgs);
+            plugins.erase(r);
+        }
+        else
+        {
+            loadPlugin(pluginFactory.factoryFunc, name, "", cmdArgs);
         }
     }
 
@@ -277,7 +227,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
         auto r = plugins.find(property);
         if (r != plugins.end())
         {
-            libraryLoaded |= loadPlugin(name, r->second, cmdArgs);
+            libraryLoaded |= loadPlugin(nullptr, name, r->second, cmdArgs);
             plugins.erase(r);
         }
         else
@@ -292,7 +242,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
 
     for (const auto& [key, value] : plugins)
     {
-        libraryLoaded |= loadPlugin(key.substr(prefix.size()), value, cmdArgs);
+        libraryLoaded |= loadPlugin(nullptr, key.substr(prefix.size()), value, cmdArgs);
     }
     stringSeqToArgs(cmdArgs, argc, argv);
 
@@ -300,9 +250,20 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
 }
 
 bool
-Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, StringSeq& cmdArgs)
+Ice::PluginManagerI::loadPlugin(
+    PluginFactoryFunc factoryFunc,
+    const string& name,
+    const string& pluginSpec,
+    StringSeq& cmdArgs)
 {
     assert(_communicator);
+
+    if (findPlugin(name))
+    {
+        // We check and throw this exception before creating the plug-in. For example, the plug-in constructor can
+        // register endpoint types, and we don't want such duplication to ever occur.
+        throw AlreadyRegisteredException{__FILE__, __LINE__, _kindOfObject, name};
+    }
 
     bool libraryLoaded = false;
 
@@ -344,27 +305,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
         cmdArgs = properties->parseCommandLineOptions(name, cmdArgs);
     }
 
-    PluginFactory factory = nullptr;
-
-    //
-    // Always check the static plugin factory table first, it takes
-    // precedence over the entryPoint specified in the plugin
-    // property value.
-    //
-    if (factories)
-    {
-        auto p = factories->find(name);
-        if (p != factories->end())
-        {
-            factory = p->second;
-        }
-    }
-
-    //
-    // If we didn't find the factory, get the factory using the entry
-    // point symbol.
-    //
-    if (!factory)
+    if (!factoryFunc)
     {
         assert(!entryPoint.empty());
         DynamicLibrary library;
@@ -382,14 +323,14 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
         }
         libraryLoaded = true;
 
-        factory = reinterpret_cast<PluginFactory>(sym);
+        factoryFunc = reinterpret_cast<PluginFactoryFunc>(sym);
     }
 
     //
     // Invoke the factory function. No exceptions can be raised
     // by the factory function because it's declared extern "C".
     //
-    PluginPtr plugin(factory(_communicator, name, args));
+    PluginPtr plugin{factoryFunc(_communicator, name, args)};
     if (!plugin)
     {
         throw PluginInitializationException(__FILE__, __LINE__, "failure in entry point '" + entryPoint + "'");
