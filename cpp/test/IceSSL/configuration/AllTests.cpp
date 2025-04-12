@@ -383,7 +383,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         optional<Test::ServerFactoryPrx> fact;
         CommunicatorPtr comm;
         InitializationData initData;
-
         //
         // Test IceSSL.VerifyPeer=0. Client does not have a certificate,
         // and doesn't trust the server certificate.
@@ -391,8 +390,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         initData.properties = createClientProps(defaultProps, p12, "", "");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-
-        installTransport(initData);
         comm = initialize(initData);
         fact = Test::ServerFactoryPrx{comm, factoryRef};
 
@@ -820,8 +817,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "", "");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-        installTransport(initData);
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -953,8 +948,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        installTransport(initData);
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact{comm, factoryRef};
         Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1_exp", "cacert1");
@@ -1017,8 +1010,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "");
         initData.properties->setProperty("IceSSL.CAs", defaultDir);
-        installTransport(initData);
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact{comm, factoryRef};
         Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "");
@@ -1043,8 +1034,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacerts");
-        installTransport(initData);
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact{comm, factoryRef};
         Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca2", "cacerts");
@@ -1073,8 +1062,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "");
         initData.properties->setProperty("IceSSL.CAs", "cacert1.der");
-        installTransport(initData);
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact{comm, factoryRef};
         Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "");
@@ -1109,8 +1096,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "IceSSL.TrustOnly",
             "C=US, ST=Florida, O=ZeroC\\, Inc.,"
             "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
-        installTransport(initData);
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1136,8 +1121,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "IceSSL.TrustOnly",
             "!C=US, ST=Florida, O=ZeroC\\, Inc.,"
             "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
-        installTransport(initData);
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1161,8 +1144,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "IceSSL.TrustOnly",
             "C=US, ST=Florida, O=\"ZeroC, Inc.\","
             "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
-        installTransport(initData);
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1183,8 +1164,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        installTransport(initData);
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1207,8 +1186,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        installTransport(initData);
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1231,8 +1208,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "CN=Server");
-        installTransport(initData);
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1254,8 +1229,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "!CN=Server");
-        installTransport(initData);
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1275,8 +1248,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        installTransport(initData);
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1298,7 +1269,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1320,7 +1290,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "CN=Client");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1340,7 +1309,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1363,7 +1331,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "C=Canada,CN=Server");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1384,7 +1351,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "!C=Canada,CN=Server");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1406,7 +1372,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "C=Canada;CN=Server");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1428,7 +1393,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "!C=Canada;!CN=Server");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1449,7 +1413,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "!CN=Server1"); // Should not match "Server"
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1470,7 +1433,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1497,7 +1459,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "", "");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1523,7 +1484,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "", "");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1549,7 +1509,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly", "ST=Florida;!CN=Server;C=US");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1572,7 +1531,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         //
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1601,7 +1559,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "IceSSL.TrustOnly.Client",
             "C=US, ST=Florida, O=ZeroC\\, Inc.,"
             "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1630,7 +1587,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "IceSSL.TrustOnly.Client",
             "!C=US, ST=Florida, O=ZeroC\\, Inc.,"
             "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1650,7 +1606,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1674,7 +1629,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly.Client", "CN=Client");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1695,7 +1649,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.TrustOnly.Client", "!CN=Client");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1724,7 +1677,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "IceSSL.TrustOnly.Server",
             "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice,"
             "emailAddress=info@zeroc.com,CN=Client");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1748,7 +1700,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1772,7 +1723,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         // Should have no effect.
         initData.properties->setProperty("IceSSL.TrustOnly.Server", "!CN=Server");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1793,7 +1743,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1814,7 +1763,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1838,7 +1786,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1862,7 +1809,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1884,7 +1830,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1905,7 +1850,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        installTransport(initData);
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact{comm, factoryRef};
@@ -1976,7 +1920,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             initData.properties->setProperty("IceSSL.TrustOnly", "CN=Server");
 
-            installTransport(initData);
             CommunicatorPtr comm = initialize(initData);
 
             optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -2015,7 +1958,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             initData.properties->setProperty("IceSSL.FindCert", failFindCertProperties[i]);
             try
             {
-                installTransport(initData);
                 CommunicatorPtr comm = initialize(initData);
                 cerr << failFindCertProperties[i] << endl;
                 import.cleanup();
@@ -2046,7 +1988,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             initData.properties->setProperty("IceSSL.FindCert", clientFindCertProperties[i]);
             try
             {
-                installTransport(initData);
                 CommunicatorPtr comm = initialize(initData);
                 test(false);
             }
@@ -2113,7 +2054,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #    ifndef ICE_USE_SECURE_TRANSPORT_IOS
             initData.properties->setProperty("IceSSL.TrustOnly", "CN=Server");
 #    endif
-            installTransport(initData);
             CommunicatorPtr comm = initialize(initData);
 
             optional<Test::ServerFactoryPrx> fact = Test::ServerFactoryPrx(comm, factoryRef);
@@ -2153,7 +2093,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             initData.properties->setProperty("IceSSL.FindCert", failFindCertProperties[i]);
             try
             {
-                installTransport(initData);
                 CommunicatorPtr comm = initialize(initData);
                 printf("failed %s", failFindCertProperties[i]);
                 test(false);
