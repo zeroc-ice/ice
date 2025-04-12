@@ -163,14 +163,14 @@ Test::TestHelper::setControllerHelper(ControllerHelper* controllerHelper)
 }
 
 string
-Test::TestHelper::getTestEndpoint(const std::string& prot)
+Test::TestHelper::getTestEndpoint(const std::string& prot) const
 {
     assert(_communicator);
     return getTestEndpoint(_communicator->getProperties(), 0, prot);
 }
 
 string
-Test::TestHelper::getTestEndpoint(int num, const std::string& prot)
+Test::TestHelper::getTestEndpoint(int num, const std::string& prot) const
 {
     assert(_communicator);
     return getTestEndpoint(_communicator->getProperties(), num, prot);
@@ -225,7 +225,7 @@ Test::TestHelper::getTestEndpoint(const Ice::PropertiesPtr& properties, int num,
 }
 
 string
-Test::TestHelper::getTestHost()
+Test::TestHelper::getTestHost() const
 {
     assert(_communicator);
     return getTestHost(_communicator->getProperties());
@@ -238,7 +238,7 @@ Test::TestHelper::getTestHost(const Ice::PropertiesPtr& properties)
 }
 
 string
-Test::TestHelper::getTestProtocol()
+Test::TestHelper::getTestProtocol() const
 {
     assert(_communicator);
     return getTestProtocol(_communicator->getProperties());
@@ -251,7 +251,7 @@ Test::TestHelper::getTestProtocol(const Ice::PropertiesPtr& properties)
 }
 
 int
-Test::TestHelper::getTestPort(int num)
+Test::TestHelper::getTestPort(int num) const
 {
     assert(_communicator);
     return getTestPort(_communicator->getProperties(), num);
@@ -290,7 +290,27 @@ Test::TestHelper::initialize(int& argc, char* argv[], const Ice::PropertiesPtr& 
 Ice::CommunicatorPtr
 Test::TestHelper::initialize(int& argc, char* argv[], Ice::InitializationData initData)
 {
-    addDefaultPluginFactories(initData.pluginFactories);
+    if (_registerPlugins && IceInternal::isMinBuild())
+    {
+        auto& factories = initData.pluginFactories;
+
+        if (none_of(
+                factories.begin(),
+                factories.end(),
+                [](const Ice::PluginFactory& factory) { return factory.pluginName == "IceWS"; }))
+        {
+            factories.insert(factories.begin(), Ice::wsPluginFactory());
+        }
+
+        if (none_of(
+                factories.begin(),
+                factories.end(),
+                [](const Ice::PluginFactory& factory) { return factory.pluginName == "IceUDP"; }))
+        {
+            factories.insert(factories.begin(), Ice::udpPluginFactory());
+        }
+    }
+
     _communicator = Ice::initialize(argc, argv, std::move(initData));
     if (_controllerHelper)
     {
@@ -342,24 +362,23 @@ Test::TestHelper::shutdownOnInterrupt()
 #endif
 
 void
-Test::TestHelper::addDefaultPluginFactories(std::vector<Ice::PluginFactory>& factories) const
+Ice::installTransport(InitializationData& initData)
 {
-    if (_registerPlugins && IceInternal::isMinBuild())
+    if (IceInternal::isMinBuild())
     {
-        if (none_of(
-                factories.begin(),
-                factories.end(),
-                [](const Ice::PluginFactory& factory) { return factory.pluginName == "IceWS"; }))
+        assert(initData.properties);
+        string transport = TestHelper::getTestProtocol(initData.properties);
+        if (transport == "ws" || transport == "wss")
         {
-            factories.insert(factories.begin(), Ice::wsPluginFactory());
-        }
+            auto& factories = initData.pluginFactories;
 
-        if (none_of(
-                factories.begin(),
-                factories.end(),
-                [](const Ice::PluginFactory& factory) { return factory.pluginName == "IceUDP"; }))
-        {
-            factories.insert(factories.begin(), Ice::udpPluginFactory());
+            if (none_of(
+                    factories.begin(),
+                    factories.end(),
+                    [](const Ice::PluginFactory& factory) { return factory.pluginName == "IceWS"; }))
+            {
+                factories.insert(factories.begin(), Ice::wsPluginFactory());
+            }
         }
     }
 }

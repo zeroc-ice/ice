@@ -27,7 +27,7 @@ testClientInactivityTimeout(const TestIntfPrx& p)
 }
 
 void
-testServerInactivityTimeout(const string& proxyString, const PropertiesPtr& properties, Test::TestHelper* helper)
+testServerInactivityTimeout(const string& proxyString, const PropertiesPtr& properties)
 {
     cout << "testing that the server side inactivity timeout shuts down the connection... " << flush;
 
@@ -35,7 +35,7 @@ testServerInactivityTimeout(const string& proxyString, const PropertiesPtr& prop
     Ice::InitializationData initData;
     initData.properties = properties->clone();
     initData.properties->setProperty("Ice.Connection.Client.InactivityTimeout", "5");
-    helper->addDefaultPluginFactories(initData.pluginFactories);
+    installTransport(initData);
     Ice::CommunicatorHolder holder = initialize(initData);
     TestIntfPrx p(holder.communicator(), proxyString);
 
@@ -97,7 +97,7 @@ allTests(TestHelper* helper)
     string proxyString3s = "test: " + helper->getTestEndpoint(1);
 
     testClientInactivityTimeout(p);
-    testServerInactivityTimeout(proxyString3s, communicator->getProperties(), helper);
+    testServerInactivityTimeout(proxyString3s, communicator->getProperties());
     testWithOutstandingRequest(p, false);
     testWithOutstandingRequest(p, true);
 

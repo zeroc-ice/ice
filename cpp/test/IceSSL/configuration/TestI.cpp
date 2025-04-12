@@ -61,10 +61,6 @@ ServerFactoryI::createServer(Test::Properties props, const Current&)
         initData.properties->setProperty(prop.first, prop.second);
     }
     initData.properties->setProperty("IceSSL.DefaultDir", _defaultDir);
-    if (IceInternal::isMinBuild())
-    {
-        initData.pluginFactories = {Ice::wsPluginFactory()};
-    }
 
     CommunicatorPtr communicator = initialize(initData);
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("ServerAdapter", "ssl");

@@ -15,9 +15,9 @@ allTests(Test::TestHelper* helper)
     Test::MyDerivedClassPrx derived(communicator, ref);
 
     cout << "testing twoway operations... " << flush;
-    void twoways(const Ice::CommunicatorPtr&, Test::TestHelper*, const Test::MyClassPrx&);
-    twoways(communicator, helper, cl);
-    twoways(communicator, helper, derived);
+    void twoways(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
+    twoways(communicator, cl);
+    twoways(communicator, derived);
     derived->opDerived();
     cout << "ok" << endl;
 
@@ -27,9 +27,9 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing twoway operations with AMI... " << flush;
-    void twowaysAMI(const Ice::CommunicatorPtr&, Test::TestHelper*, const Test::MyClassPrx&);
-    twowaysAMI(communicator, helper, cl);
-    twowaysAMI(communicator, helper, derived);
+    void twowaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
+    twowaysAMI(communicator, cl);
+    twowaysAMI(communicator, derived);
     cout << "ok" << endl;
 
     cout << "testing oneway operations with AMI... " << flush;
@@ -38,15 +38,15 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing batch oneway operations... " << flush;
-    void batchOneways(const Test::MyClassPrx&, Test::TestHelper*);
-    batchOneways(cl, helper);
-    batchOneways(derived, helper);
+    void batchOneways(const Test::MyClassPrx&);
+    batchOneways(cl);
+    batchOneways(derived);
     cout << "ok" << endl;
 
     cout << "testing batch AMI oneway operations... " << flush;
-    void batchOnewaysAMI(const Test::MyClassPrx&, Test::TestHelper*);
-    batchOnewaysAMI(cl, helper);
-    batchOnewaysAMI(derived, helper);
+    void batchOnewaysAMI(const Test::MyClassPrx&);
+    batchOnewaysAMI(cl);
+    batchOnewaysAMI(derived);
     cout << "ok" << endl;
 
     return cl;

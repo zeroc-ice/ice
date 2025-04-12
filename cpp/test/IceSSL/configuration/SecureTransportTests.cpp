@@ -54,13 +54,7 @@ const char* const keychainPassword = "password";
 Ice::CommunicatorPtr
 createServer(ServerAuthenticationOptions serverAuthenticationOptions, TestHelper* helper)
 {
-    Ice::InitializationData initData;
-    if (IceInternal::isMinBuild())
-    {
-        initData.pluginFactories = {Ice::wsPluginFactory()};
-    }
-
-    Ice::CommunicatorPtr communicator = initialize(std::move(initData));
+    Ice::CommunicatorPtr communicator = initialize();
 
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints(
         "ServerAdapter",

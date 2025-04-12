@@ -58,7 +58,7 @@ namespace
 }
 
 void
-batchOneways(const MyClassPrx& p, Test::TestHelper* testHelper)
+batchOneways(const MyClassPrx& p)
 {
     const ByteS bs1(10 * 1024);
 
@@ -138,7 +138,7 @@ batchOneways(const MyClassPrx& p, Test::TestHelper* testHelper)
         initData.batchRequestInterceptor = [=](const BatchRequest& request, int countP, int size)
         { interceptor->enqueue(request, countP, size); };
 
-        testHelper->addDefaultPluginFactories(initData.pluginFactories);
+        installTransport(initData);
 
         CommunicatorPtr ic = initialize(initData);
 

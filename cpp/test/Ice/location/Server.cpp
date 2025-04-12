@@ -18,6 +18,7 @@ Server::run(int argc, char** argv)
 {
     Ice::InitializationData initData;
     initData.properties = createTestProperties(argc, argv);
+    installTransport(initData);
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
     //
@@ -39,7 +40,6 @@ Server::run(int argc, char** argv)
     ServerLocatorRegistryPtr registry = make_shared<ServerLocatorRegistry>();
     registry->addObject(adapter->createProxy(Ice::stringToIdentity("ServerManager")));
 
-    addDefaultPluginFactories(initData.pluginFactories);
     Ice::ObjectPtr object = make_shared<ServerManagerI>(registry, initData);
     adapter->add(object, Ice::stringToIdentity("ServerManager"));
 

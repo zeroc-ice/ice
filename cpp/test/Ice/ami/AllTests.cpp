@@ -478,7 +478,7 @@ allTests(TestHelper* helper, bool collocated)
         {
             InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
-            helper->addDefaultPluginFactories(initData.pluginFactories);
+            installTransport(initData);
             CommunicatorPtr ic = initialize(initData);
             TestIntfPrx p2(ic, p->ice_toString());
             ic->destroy();
@@ -526,7 +526,7 @@ allTests(TestHelper* helper, bool collocated)
         {
             InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
-            helper->addDefaultPluginFactories(initData.pluginFactories);
+            installTransport(initData);
             CommunicatorPtr ic = initialize(initData);
             TestIntfPrx p2(ic, p->ice_toString());
             ic->destroy();

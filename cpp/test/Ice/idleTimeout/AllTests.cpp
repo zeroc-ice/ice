@@ -27,7 +27,7 @@ testIdleCheckDoesNotAbortBackPressuredConnection(const TestIntfPrx& p)
 // misconfigure the client with an idle timeout of 3s to send heartbeats every 1.5s, which is too long to prevent the
 // server from aborting the connection.
 void
-testConnectionAbortedByIdleCheck(const string& proxyString, const PropertiesPtr& properties, TestHelper* helper)
+testConnectionAbortedByIdleCheck(const string& proxyString, const PropertiesPtr& properties)
 {
     cout << "testing that the idle check aborts a connection that does not receive anything for 1s... " << flush;
 
@@ -36,7 +36,7 @@ testConnectionAbortedByIdleCheck(const string& proxyString, const PropertiesPtr&
     initData.properties = properties->clone();
     initData.properties->setProperty("Ice.Connection.Client.IdleTimeout", "3");
     initData.properties->setProperty("Ice.Warn.Connections", "0");
-    helper->addDefaultPluginFactories(initData.pluginFactories);
+    installTransport(initData);
     Ice::CommunicatorHolder holder = initialize(initData);
     TestIntfPrx p(holder.communicator(), proxyString);
 
@@ -59,7 +59,7 @@ testConnectionAbortedByIdleCheck(const string& proxyString, const PropertiesPtr&
 // Verifies the behavior with the idle check enabled or disabled when the client and the server have mismatched idle
 // timeouts (here: 3s on the server side and 1s on the client side).
 void
-testEnableDisableIdleCheck(bool enabled, const string& proxyString, const PropertiesPtr& properties, TestHelper* helper)
+testEnableDisableIdleCheck(bool enabled, const string& proxyString, const PropertiesPtr& properties)
 {
     cout << "testing connection with idle check " << (enabled ? "enabled" : "disabled") << "... " << flush;
 
@@ -69,7 +69,7 @@ testEnableDisableIdleCheck(bool enabled, const string& proxyString, const Proper
     initData.properties->setProperty("Ice.Connection.Client.IdleTimeout", "1");
     initData.properties->setProperty("Ice.Connection.Client.EnableIdleCheck", enabled ? "1" : "0");
     initData.properties->setProperty("Ice.Warn.Connections", "0");
-    helper->addDefaultPluginFactories(initData.pluginFactories);
+    installTransport(initData);
     Ice::CommunicatorHolder holder = initialize(initData);
     TestIntfPrx p(holder.communicator(), proxyString);
 
@@ -90,7 +90,7 @@ testEnableDisableIdleCheck(bool enabled, const string& proxyString, const Proper
 }
 
 void
-testNoIdleTimeout(const string& proxyString, const PropertiesPtr& properties, TestHelper* helper)
+testNoIdleTimeout(const string& proxyString, const PropertiesPtr& properties)
 {
     cout << "testing connection with idle timeout set to 0... " << flush;
 
@@ -98,7 +98,7 @@ testNoIdleTimeout(const string& proxyString, const PropertiesPtr& properties, Te
     Ice::InitializationData initData;
     initData.properties = properties->clone();
     initData.properties->setProperty("Ice.Connection.Client.IdleTimeout", "0");
-    helper->addDefaultPluginFactories(initData.pluginFactories);
+    installTransport(initData);
     Ice::CommunicatorHolder holder = initialize(initData);
     TestIntfPrx p(holder.communicator(), proxyString);
 
@@ -121,10 +121,10 @@ allTests(TestHelper* helper)
     string proxyStringNoIdleTimeout = "test: " + helper->getTestEndpoint(3);
 
     testIdleCheckDoesNotAbortBackPressuredConnection(p);
-    testConnectionAbortedByIdleCheck(proxyStringDefaultMax, communicator->getProperties(), helper);
-    testEnableDisableIdleCheck(true, proxyString3s, communicator->getProperties(), helper);
-    testEnableDisableIdleCheck(false, proxyString3s, communicator->getProperties(), helper);
-    testNoIdleTimeout(proxyStringNoIdleTimeout, communicator->getProperties(), helper);
+    testConnectionAbortedByIdleCheck(proxyStringDefaultMax, communicator->getProperties());
+    testEnableDisableIdleCheck(true, proxyString3s, communicator->getProperties());
+    testEnableDisableIdleCheck(false, proxyString3s, communicator->getProperties());
+    testNoIdleTimeout(proxyStringNoIdleTimeout, communicator->getProperties());
 
     p->shutdown();
 }

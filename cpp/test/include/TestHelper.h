@@ -82,18 +82,18 @@ namespace Test
 
         void setControllerHelper(ControllerHelper*);
 
-        std::string getTestEndpoint(const std::string&);
-        std::string getTestEndpoint(int num = 0, const std::string& prot = "");
+        [[nodiscard]] std::string getTestEndpoint(const std::string&) const;
+        [[nodiscard]] std::string getTestEndpoint(int num = 0, const std::string& prot = "") const;
         static std::string
         getTestEndpoint(const Ice::PropertiesPtr& properties, int num = 0, const std::string& prot = "");
 
-        std::string getTestHost();
+        [[nodiscard]] std::string getTestHost() const;
         static std::string getTestHost(const Ice::PropertiesPtr&);
 
-        std::string getTestProtocol();
+        [[nodiscard]] std::string getTestProtocol() const;
         static std::string getTestProtocol(const Ice::PropertiesPtr&);
 
-        int getTestPort(int port = 0);
+        [[nodiscard]] int getTestPort(int port = 0) const;
         static int getTestPort(const Ice::PropertiesPtr&, int port = 0);
 
         static Ice::PropertiesPtr createTestProperties(int&, char*[]);
@@ -111,14 +111,7 @@ namespace Test
 
         virtual void run(int argc, char* argv[]) = 0;
 
-        /// Adds the IceDP and IceWS plug-in factories to the front of @p factories, unless _registerPlugins is `false`
-        /// or these factories are already in @p factories.
-        /// @param factories The vector of plug-in factories to add to.
-        void addDefaultPluginFactories(std::vector<Ice::PluginFactory>& factories) const;
-
     private:
-        void addPluginFactories();
-
         ControllerHelper* _controllerHelper{nullptr};
         Ice::CommunicatorPtr _communicator;
         bool _registerPlugins{true};
@@ -170,6 +163,14 @@ namespace Test
         return status;
     }
 #endif
+}
+
+namespace Ice
+{
+    /// Installs the plug-in factory for the current transport into @p initData, if needed.
+    /// Relies on @p initData's properties to determine the transport.
+    /// @param initData The initialization data to modify.
+    TEST_API void installTransport(InitializationData& initData);
 }
 
 #if TARGET_OS_IPHONE != 0

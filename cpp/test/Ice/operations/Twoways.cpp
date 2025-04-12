@@ -47,7 +47,7 @@ namespace
 }
 
 void
-twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper* testHelper, const Test::MyClassPrx& p)
+twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
     Test::StringS literals = p->opStringLiterals();
 
@@ -1673,7 +1673,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper* testHelper, 
                 Ice::InitializationData initData;
                 initData.properties = communicator->getProperties()->clone();
                 initData.properties->setProperty("Ice.ImplicitContext", impl);
-                testHelper->addDefaultPluginFactories(initData.pluginFactories);
+                installTransport(initData);
 
                 Ice::CommunicatorPtr ic = Ice::initialize(initData);
 
