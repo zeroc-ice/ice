@@ -59,23 +59,6 @@ namespace Ice
     }
 #endif
 
-    /// A special plug-in that installs a thread hook during a communicator's initialization.
-    /// Both initialize and destroy are no-op. See InitializationData.
-    /// @headerfile Ice/Ice.h
-    class ICE_API ThreadHookPlugin : public Ice::Plugin
-    {
-    public:
-        /// Installs the thread hooks.
-        /// @param communicator The communicator in which to install the thread hooks.
-        /// @param start The start callback.
-        /// @param stop The stop callback.
-        ThreadHookPlugin(const CommunicatorPtr& communicator, std::function<void()> start, std::function<void()> stop);
-
-        void initialize() override;
-
-        void destroy() override;
-    };
-
     /// Represents a set of options that you can specify when initializing a communicator.
     /// @headerfile Ice/Ice.h
     struct InitializationData
