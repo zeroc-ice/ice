@@ -121,7 +121,7 @@ rewrite {
     setExportDatatables(true)
     exclusion(
         // OpenRewrite is technically capable of modifying Groovy and Kotlin files, but we are avoiding this for now.
-        '**/*.gradle', 
+        '**/*.gradle',
         '**/*.kts',
         // I have been explicitly instructed not to modify the below file.
         'com/zeroc/Ice/PropertyNames.java',
