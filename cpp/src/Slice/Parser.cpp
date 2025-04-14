@@ -533,7 +533,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
             {
                 // Check that the '@param <name>' corresponds to an actual parameter in the operation.
                 const ParameterList params = operationTarget->parameters();
-                const auto paramNameCheck = [&name](const ParameterPtr& p) { return p->name() == name; };
+                const auto paramNameCheck = [&name](const ParameterPtr& param) { return param->name() == name; };
                 if (std::find_if(params.begin(), params.end(), paramNameCheck) == params.end())
                 {
                     const string msg = "'" + paramTag + " " + name +
