@@ -46,7 +46,7 @@ subprojects {
         options.deprecation = true
     }
 
-    //makes checkstyle wait for rewrite. hopefully
+    // We want Checkstyle to generally run after Rewrite and to exclude files generated from Slice.
     tasks.withType(Checkstyle) {
         dependsOn(rewriteDryRun)
         exclude(
@@ -120,14 +120,19 @@ rewrite {
     activeStyle('com.zeroc.IceRewriteRules')
     setExportDatatables(true)
     exclusion(
-        '**/*.gradle',
-        'com/zeroc/Ice/PropertyNames.java',
-        '**/generated/**/*',
+        // OpenRewrite is technically capable of modifying Groovy and Kotlin files, but we are avoiding this for now.
+        '**/*.gradle', 
         '**/*.kts',
+        // I have been explicitly instructed not to modify the below file.
+        'com/zeroc/Ice/PropertyNames.java',
+        // These are all generated files, and thus should not be subject to modification from OpenRewrite.
+        '**/generated/**/*',
+        // The following four files all have issues regarding the import shortener because of Ice object names.
         'java/src/com.zeroc.ice/src/main/java/com/zeroc/Ice/Properties.java',
         'java/src/com.zeroc.ice/src/main/java/com/zeroc/Ice/InputStream.java',
         'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowIceLogDialog.java',
         'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowLogFileDialog.java',
+        // This file is never effectively fixed by OpenRewrite, yet OpenRewrite continually attempts to reformat it.
         'java/test/src/main/java/test/Ice/operations/Twoways.java',
     )
 }
@@ -139,7 +144,7 @@ dependencies {
     )
 }
 
-//Use -PdryRunFailSkip in the command line to avoid failing the project during an OpenRewrite dryRun.
+// Use -PdryRunFailSkip in the command line to avoid failing the project during an OpenRewrite dryRun.
 task rewriteDryRunFailable {
     if (!project.hasProperty("dryRunFailSkip")) {
         rewrite.failOnDryRunResults = true
