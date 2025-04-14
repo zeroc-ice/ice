@@ -242,9 +242,17 @@ communicatorDealloc(CommunicatorObject* self)
         }
     }
 
-    delete self->communicator;
+    {
+        // Release Python's Global Interpreter Lock (GIL) to prevent potential deadlocks.
+        // The communicator destructor waits for destroyAsync callback threads to complete.
+        // If the GIL isn't released here, callbacks attempting to acquire it will deadlock.
+        AllowThreads allowThreads;
+        delete self->communicator;
+    }
+
     delete self->shutdownException;
     delete self->shutdownFuture;
+    delete self->executor;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
@@ -283,39 +291,34 @@ communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
 }
 
 extern "C" PyObject*
-communicatorDestroyAsync(CommunicatorObject* self, PyObject* /*args*/)
+communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
 {
     assert(self->communicator);
-
     auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*self->communicator)->getValueFactoryManager());
     assert(vfm);
 
-    auto futureType = reinterpret_cast<PyTypeObject*>(lookupType("Ice.Future"));
-    assert(futureType);
-
-    PyObjectHandle emptyArgs{PyTuple_New(0)};
-    PyObjectHandle future{futureType->tp_new(futureType, emptyArgs.get(), nullptr)};
-    if (!future.get())
+    PyObject* completed;
+    if (!PyArg_ParseTuple(args, "O", &completed))
     {
         return nullptr;
     }
 
-    // Call Ice.Future.__init__
-    futureType->tp_init(future.get(), emptyArgs.get(), nullptr);
+    if (!PyCallable_Check(completed))
+    {
+        PyErr_SetString(PyExc_TypeError, "completed must be callable");
+        return nullptr;
+    }
 
-    // Create a new reference to prevent premature release of the future object. The reference will be released by
-    // the destroy callback.
-    PyObject* futureObject = Py_NewRef(future.get());
-
+    // We create a new reference to `completed` to ensure it remains alive until the callback is invoked.
+    // This is necessary in case the user abandons the future, for example by cancelling it.
     (*self->communicator)
         ->destroyAsync(
-            [self, vfm, futureObject]()
+            [self, completed = Py_NewRef(completed), vfm]()
             {
-                // Ensure the current thread is able to call into Python.
-                AdoptThread adoptThread;
-
-                // Adopt the future object so it is released within this scope.
-                PyObjectHandle futureGuard{futureObject};
+                // Ensure the current thread can call into Python. We avoid using AdoptThread because it unconditionally
+                // releases the GIL when it goes out of scope. Here, we want to avoid releasing the GIL if interpreter
+                // finalization starts before the call to PyObject_Call(completed) returns.
+                PyGILState_STATE gilState = PyGILState_Ensure();
 
                 vfm->destroy();
 
@@ -328,17 +331,45 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* /*args*/)
                 Py_XDECREF(self->wrapper);
                 self->wrapper = nullptr;
 
-                PyObject* err = PyErr_Occurred();
-                if (err)
+                PyObject* emptyArgs = PyTuple_New(0);
+                if (!emptyArgs)
                 {
-                    PyObjectHandle discard{callMethod(futureGuard.get(), "set_exception", err)};
+                    PyErr_SetString(PyExc_RuntimeError, "failed to create args tuple");
+                    return;
                 }
-                else
+
+                // Calling completed completes the future that Communicator.__aexit__ is awaiting. Note that the
+                // future's callbacks can start running before PyObject_Call returns. In a typical Ice application, the
+                // main script exits once this future is completed, which can trigger Python interpreter finalization.
+                //
+                // If the interpreter is already finalizing by the time PyObject_Call returns, we must avoid releasing
+                // the references to completed and emptyArgs, as invoking Python API functions (like Py_DECREF)
+                // during finalization is not safe. In that case, we intentionally leak these objects to prevent
+                // potential crashes.
+                PyObject* result = PyObject_Call(completed, emptyArgs, nullptr);
+                assert(result == nullptr || result == Py_None);
+                if (result == nullptr)
                 {
-                    PyObjectHandle discard{callMethod(futureGuard.get(), "set_result", Py_None)};
+                    PyErr_PrintEx(0);
+                }
+
+#if PY_VERSION_HEX >= 0x030D0000
+                // With Python 3.13 and later, we use Py_IsFinalizing to conditionally release the references to
+                // completed and emptyArgs when the interpreter is not finalizing.
+                if (!Py_IsFinalizing())
+                {
+                    Py_DECREF(completed);
+                    Py_DECREF(emptyArgs);
+                }
+#endif
+                // Check whether we still own the GIL. If interpreter finalization has begun, we may no longer hold the
+                // GIL and must avoid calling PyGILState_Release unless we do.
+                if (PyGILState_Check())
+                {
+                    PyGILState_Release(gilState);
                 }
             });
-    return IcePy::wrapFuture(*self->communicator, future.get());
+    return Py_None;
 }
 
 extern "C" PyObject*
@@ -1385,8 +1416,8 @@ static PyMethodDef CommunicatorMethods[] = {
     {"destroy", reinterpret_cast<PyCFunction>(communicatorDestroy), METH_NOARGS, PyDoc_STR("destroy() -> None")},
     {"destroyAsync",
      reinterpret_cast<PyCFunction>(communicatorDestroyAsync),
-     METH_NOARGS,
-     PyDoc_STR("destroyAsync() -> Ice.Future")},
+     METH_VARARGS,
+     PyDoc_STR("destroyAsync(callable) -> None")},
     {"shutdown", reinterpret_cast<PyCFunction>(communicatorShutdown), METH_NOARGS, PyDoc_STR("shutdown() -> None")},
     {"waitForShutdown",
      reinterpret_cast<PyCFunction>(communicatorWaitForShutdown),
