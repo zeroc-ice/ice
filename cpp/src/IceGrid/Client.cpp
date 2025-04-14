@@ -25,10 +25,6 @@
 #    include <io.h>
 #endif
 
-#if defined(_MSC_VER) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
-#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery")) // Automatically link IceLocatorDiscovery[D].lib
-#endif
-
 using namespace std;
 using namespace IceInternal;
 

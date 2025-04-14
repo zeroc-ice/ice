@@ -64,16 +64,16 @@
     <ClCompile Include="..\..\LocatorI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\IceDiscovery.cpp">
+    <ClCompile Include="Win32\Debug\Lookup.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Debug\IceDiscovery.cpp">
+    <ClCompile Include="x64\Debug\Lookup.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\IceDiscovery.cpp">
+    <ClCompile Include="Win32\Release\Lookup.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\IceDiscovery.cpp">
+    <ClCompile Include="x64\Release\Lookup.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
   </ItemGroup>
@@ -87,16 +87,16 @@
     <ClInclude Include="..\..\LocatorI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Debug\IceDiscovery.h">
+    <ClInclude Include="Win32\Debug\Lookup.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Debug\IceDiscovery.h">
+    <ClInclude Include="x64\Debug\Lookup.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Release\IceDiscovery.h">
+    <ClInclude Include="Win32\Release\Lookup.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Release\IceDiscovery.h">
+    <ClInclude Include="x64\Release\Lookup.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
   </ItemGroup>
@@ -106,7 +106,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\IceDiscovery\IceDiscovery.ice">
+    <SliceCompile Include="..\..\..\..\..\slice\IceDiscovery\Lookup.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
   </ItemGroup>

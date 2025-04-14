@@ -2,6 +2,7 @@
 
 #include "Ice/Ice.h"
 #include "IceGrid/IceGrid.h"
+#include "IceLocatorDiscovery/IceLocatorDiscovery.h"
 #include "Test.h"
 #include "TestHelper.h"
 
@@ -51,7 +52,7 @@ allTests(Test::TestHelper* helper)
             initData.pluginFactories = {
                 Ice::udpPluginFactory(),
                 Ice::wsPluginFactory(),
-                Ice::locatorDiscoveryPluginFactory()};
+                IceLocatorDiscovery::locatorDiscoveryPluginFactory()};
 
             setPluginProperty = false;
         }

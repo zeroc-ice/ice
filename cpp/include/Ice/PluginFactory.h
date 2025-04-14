@@ -10,22 +10,6 @@
 
 #include <string>
 
-#ifndef ICE_DISCOVERY_API
-#    ifdef ICE_DISCOVERY_API_EXPORTS
-#        define ICE_DISCOVERY_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICE_DISCOVERY_API /**/
-#    endif
-#endif
-
-#ifndef ICE_LOCATOR_DISCOVERY_API
-#    if defined(ICE_LOCATOR_DISCOVERY_API_EXPORTS)
-#        define ICE_LOCATOR_DISCOVERY_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICE_LOCATOR_DISCOVERY_API ICE_DECLSPEC_IMPORT
-#    endif
-#endif
-
 namespace Ice
 {
     class Plugin;
@@ -72,19 +56,6 @@ namespace Ice
     /// @see InitializationData::pluginFactories
     ICE_API PluginFactory iapPluginFactory();
 #endif
-
-    // The following plug-ins are not provided by the Ice library. We declare them here because IceDiscovery and
-    // IceLocatorDiscovery have no header files.
-
-    /// Returns the factory for the IceDiscovery plug-in.
-    /// @return The factory for the IceDiscovery plug-in.
-    /// @see InitializationData::pluginFactories
-    ICE_DISCOVERY_API PluginFactory discoveryPluginFactory();
-
-    /// Returns the factory for the IceLocatorDiscovery plug-in.
-    /// @return The factory for the IceLocatorDiscovery plug-in.
-    /// @see InitializationData::pluginFactories
-    ICE_LOCATOR_DISCOVERY_API PluginFactory locatorDiscoveryPluginFactory();
 }
 
 namespace IceInternal

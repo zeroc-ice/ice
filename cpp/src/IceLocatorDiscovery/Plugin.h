@@ -3,10 +3,7 @@
 #ifndef LOCATOR_DISCOVERY_PLUGIN_I_H
 #define LOCATOR_DISCOVERY_PLUGIN_I_H
 
-#include "Ice/Config.h"
-#include "Ice/Locator.h"
-#include "Ice/Plugin.h"
-#include "Ice/PluginFactory.h" // for ICE_LOCATOR_DISCOVERY_API
+#include "IceLocatorDiscovery/IceLocatorDiscovery.h"
 
 #include <chrono>
 

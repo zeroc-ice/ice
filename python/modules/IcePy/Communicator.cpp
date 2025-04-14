@@ -12,6 +12,8 @@
 #include "Ice/Properties.h"
 #include "Ice/Router.h"
 #include "Ice/ValueFactory.h"
+#include "IceDiscovery/IceDiscovery.h"
+#include "IceLocatorDiscovery/IceLocatorDiscovery.h"
 #include "ImplicitContext.h"
 #include "Logger.h"
 #include "ObjectAdapter.h"
@@ -33,12 +35,6 @@ using namespace IcePy;
 
 #if defined(__GNUC__) && ((__GNUC__ >= 8))
 #    pragma GCC diagnostic ignored "-Wcast-function-type"
-#endif
-
-// Link with IceDiscovery and IceLocatorDiscovery on Windows for "shared" builds.
-#if defined(_MSC_VER) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
-#    pragma comment(lib, ICE_LIBNAME("IceDiscovery"))
-#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery"))
 #endif
 
 static unsigned long mainThreadId;
@@ -185,12 +181,12 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.
     if (!data.properties->getIceProperty("Ice.Plugin.IceDiscovery").empty())
     {
-        data.pluginFactories.push_back(Ice::discoveryPluginFactory());
+        data.pluginFactories.push_back(IceDiscovery::discoveryPluginFactory());
     }
 
     if (!data.properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery").empty())
     {
-        data.pluginFactories.push_back(Ice::locatorDiscoveryPluginFactory());
+        data.pluginFactories.push_back(IceLocatorDiscovery::locatorDiscoveryPluginFactory());
     }
 
     Ice::CommunicatorPtr communicator;
