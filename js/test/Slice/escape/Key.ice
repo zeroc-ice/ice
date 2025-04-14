@@ -21,7 +21,7 @@ module await
     ["js:identifier:_case"]
     interface case
     {
-        ["amd"] ["js:identifier:_catch"] void catch(int checked, out ["js:identifier:_continue"] int continue);
+        ["amd"] ["js:identifier:_catch"] void catch(int checked, ["js:identifier:_continue"] out int continue);
     }
 
     ["js:identifier:_typeof"]
@@ -80,14 +80,14 @@ module await
             ["js:identifier:_if"] optional(3) explicit* if,
             optional(5) while internal,
             out optional(7) string namespace,
-            out ["js:identifier:_null"] optional(8) explicit* null);
+            ["js:identifier:_null"] out optional(8) explicit* null);
 
         ["amd"] ["js:identifier:_continue"]
         optional(1) break continue(optional(2) var goto,
             ["js:identifier:_if"] optional(3) explicit* if,
             optional(5) while internal,
             out optional(7) string namespace,
-            out ["js:identifier:_null"] optional(8) explicit* null);
+            ["js:identifier:_null"] out optional(8) explicit* null);
     }
 
     ["js:identifier:_public"]
