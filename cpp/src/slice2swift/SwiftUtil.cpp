@@ -540,12 +540,12 @@ SwiftGenerator::validateMetadata(const UnitPtr& u)
             {
                 if (contained->hasMetadata("swift:identifier"))
                 {
-                    return "the 'swift:module' metadata cannot be used alongside 'swift:identifier' - both change the mapped name of this module";
+                    return "the 'swift:module' metadata cannot be used alongside 'swift:identifier' - both change the "
+                           "mapped name of this module";
                 }
             }
             return nullopt;
-        }
-    };
+        }};
     knownMetadata.emplace("swift:module", moduleInfo);
 
     // Pass this information off to the parser's metadata validation logic.
