@@ -88,6 +88,9 @@ jobs:
           path: artifacts
           pattern: pip-packages-*
 
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Setup Python
         uses: ./.github/actions/setup-python
 
