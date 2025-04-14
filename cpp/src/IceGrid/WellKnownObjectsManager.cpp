@@ -132,10 +132,10 @@ WellKnownObjectsManager::getWellKnownObjectReplicatedProxy(const Ice::Identity& 
         for (const auto& endpoint : proxy->ice_getEndpoints())
         {
             // Avoid duplicates.
-            if (find_if(
+            if (none_of(
                     registryEndpoints.begin(),
                     registryEndpoints.end(),
-                    [&endpoint](const Ice::EndpointPtr& p) { return *endpoint == *p; }) == registryEndpoints.end())
+                    [&endpoint](const Ice::EndpointPtr& p) { return *endpoint == *p; }))
             {
                 newEndpoints.push_back(endpoint);
             }

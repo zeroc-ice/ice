@@ -1231,10 +1231,10 @@ ObjectAdapterI::computePublishedEndpoints()
             for (const auto& endpoint : endpoints)
             {
                 EndpointIPtr newEndpoint = endpoint->toPublishedEndpoint(publishedHost);
-                if (find_if(
+                if (none_of(
                         newEndpoints.begin(),
                         newEndpoints.end(),
-                        [&newEndpoint](const EndpointIPtr& p) { return *newEndpoint == *p; }) == newEndpoints.end())
+                        [&newEndpoint](const EndpointIPtr& p) { return *newEndpoint == *p; }))
                 {
                     newEndpoints.push_back(newEndpoint);
                 }

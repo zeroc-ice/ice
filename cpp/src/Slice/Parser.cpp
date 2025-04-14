@@ -2781,10 +2781,10 @@ Slice::InterfaceDecl::isInList(const GraphPartitionList& gpl, const InterfaceDef
 {
     for (const auto& i : gpl)
     {
-        if (find_if(
+        if (any_of(
                 i.begin(),
                 i.end(),
-                [scope = interfaceDef->scoped()](const auto& other) { return other->scoped() == scope; }) != i.end())
+                [scope = interfaceDef->scoped()](const auto& other) { return other->scoped() == scope; }))
         {
             return true;
         }
@@ -3060,10 +3060,10 @@ Slice::InterfaceDef::allOperations() const
     {
         for (const auto& q : p->allOperations())
         {
-            if (find_if(
+            if (none_of(
                     result.begin(),
                     result.end(),
-                    [name = q->name()](const auto& other) { return other->name() == name; }) == result.end())
+                    [name = q->name()](const auto& other) { return other->name() == name; }))
             {
                 result.push_back(q);
             }
@@ -3072,10 +3072,10 @@ Slice::InterfaceDef::allOperations() const
 
     for (const auto& q : operations())
     {
-        if (find_if(
+        if (none_of(
                 result.begin(),
                 result.end(),
-                [name = q->name()](const auto& other) { return other->name() == name; }) == result.end())
+                [name = q->name()](const auto& other) { return other->name() == name; }))
         {
             result.push_back(q);
         }

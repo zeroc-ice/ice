@@ -1960,8 +1960,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
         outParamsHasOpt |= p->returnIsOptional();
     }
     outParamsHasOpt |=
-        std::find_if(outParams.begin(), outParams.end(), [](const ParameterPtr& q) { return q->optional(); }) !=
-        outParams.end();
+        std::any_of(outParams.begin(), outParams.end(), [](const ParameterPtr& q) { return q->optional(); });
 
     for (const auto& q : inParams)
     {
