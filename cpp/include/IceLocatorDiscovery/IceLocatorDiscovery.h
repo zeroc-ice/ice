@@ -13,8 +13,8 @@
 #    endif
 #endif
 
-#if defined(_MSC_VER) && !defined(ICE_LOCATOR_DISCOVER_EXPORTS) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
-#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery")) // Automatically link IceLocatorDiscovery[D].lib
+#if defined(_MSC_VER) && !defined(ICE_LOCATOR_DISCOVERY_API_EXPORTS) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
+#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery")) // Automatically link with IceLocatorDiscovery[D].lib
 #endif
 
 namespace IceLocatorDiscovery

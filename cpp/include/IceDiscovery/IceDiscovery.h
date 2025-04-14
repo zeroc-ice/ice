@@ -14,7 +14,7 @@
 #endif
 
 #if defined(_MSC_VER) && !defined(ICE_DISCOVERY_API_EXPORTS) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
-#    pragma comment(lib, ICE_LIBNAME("IceDiscovery")) // Automatically link IceDiscovery[D].lib
+#    pragma comment(lib, ICE_LIBNAME("IceDiscovery")) // Automatically link with IceDiscovery[D].lib
 #endif
 
 namespace IceDiscovery
