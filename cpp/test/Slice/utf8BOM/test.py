@@ -22,7 +22,7 @@ class SliceUtf8BomTestCase(ClientTestCase):
             current.write("Checking for UTF8-BOM marker... ")
             with open(test_file_name, 'rb') as test_file:
                 BOM = test_file.read(3)
-                if (BOM[0] != 0xEF or BOM[1] != 0xBB or BOM[2] != 0xBF):
+                if BOM != b'\xEF\xBB\xBF':
                     raise RuntimeError("BOM marker is missing from 'Slice/utf8BOM/Test.ice'!")
             current.writeln("ok")
 
