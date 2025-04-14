@@ -38,7 +38,7 @@ IceInternal::addDefaultPluginFactories(vector<Ice::PluginFactory>& pluginFactori
             [&wsPluginFactory](const Ice::PluginFactory& factory)
             { return factory.pluginName == wsPluginFactory.pluginName; }))
     {
-        defaultPluginFactories.push_back(Ice::wsPluginFactory());
+        defaultPluginFactories.push_back(std::move(wsPluginFactory));
     }
 
     pluginFactories.insert(pluginFactories.begin(), defaultPluginFactories.begin(), defaultPluginFactories.end());
