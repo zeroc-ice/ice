@@ -499,8 +499,8 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
     }
 
     // Some tags are only valid if they're applied to an operation.
-    // If they aren't, we want to ignore the tag and issue a warning.
-    bool isOperation = (bool)dynamic_pointer_cast<Operation>(p);
+    // And we need a reference to the operation to make sure any names used in the tag match the names in the operation.
+    OperationPtr operationTarget = dynamic_pointer_cast<Operation>(p);
 
     const string ws = " \t";
     const string paramTag = "@param";
@@ -522,40 +522,81 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
 
         if (parseNamedCommentLine(l, paramTag, name, lineText))
         {
-            if (!isOperation)
+            if (!operationTarget)
             {
                 // If '@param' was put on anything other than an operation, ignore it and issue a warning.
-                string msg = "the '" + paramTag + "' tag is only valid on operations";
+                const string msg = "the '" + paramTag + "' tag is only valid on operations";
                 p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 currentSection = nullptr;
             }
             else
             {
+                // Check that the '@param <name>' corresponds to an actual parameter in the operation.
+                bool matchFound = false;
+                for (const auto& param : operationTarget->parameters())
+                {
+                    if (param->name() == name)
+                    {
+                        matchFound = true;
+                        break;
+                    }
+                }
+                if (!matchFound)
+                {
+                    const string msg = "'" + paramTag + " " + name + "' does not correspond to any parameter in operation '" + p->name() + "'";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                }
+
                 comment._parameters[name] = {};
                 currentSection = &(comment._parameters[name]);
             }
         }
         else if (parseNamedCommentLine(l, throwsTag, name, lineText))
         {
-            if (!isOperation)
+            if (!operationTarget)
             {
                 // If '@throws' was put on anything other than an operation, ignore it and issue a warning.
-                string msg = "the '" + throwsTag + "' tag is only valid on operations";
+                const string msg = "the '" + throwsTag + "' tag is only valid on operations";
                 p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 currentSection = nullptr;
             }
             else
             {
+                // Check if the exception exists...
+                const ExceptionPtr exceptionTarget = operationTarget->lookupException(name, false);
+                if (!exceptionTarget)
+                {
+                    const string msg = "'" + throwsTag + " " + name + "': no exception with this name could be found from the current scope";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                }
+                else
+                {
+                    // ... and matches one of the exceptions in the operation's specification.
+                    bool matchFound = false;
+                    for (const auto& ex : operationTarget->throws())
+                    {
+                        if (ex->isBaseOf(exceptionTarget) || ex->scoped() == exceptionTarget->scoped())
+                        {
+                            matchFound = true;
+                            break;
+                        }
+                    }
+                    if (!matchFound)
+                    {
+                        const string msg = "'" + throwsTag + " " + name + "': this exception is not listed in (or a sub-exception of) this operation's exception specification";
+                        p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    }
+                }
                 comment._exceptions[name] = {};
                 currentSection = &(comment._exceptions[name]);
             }
         }
         else if (parseNamedCommentLine(l, exceptionTag, name, lineText))
         {
-            if (!isOperation)
+            if (!operationTarget)
             {
                 // If '@exception' was put on anything other than an operation, ignore it and issue a warning.
-                string msg = "the '" + exceptionTag + "' tag is only valid on operations";
+                const string msg = "the '" + exceptionTag + "' tag is only valid on operations";
                 p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 currentSection = nullptr;
             }
@@ -574,29 +615,35 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
             lineText = IceInternal::trim(lineText);
             if (lineText.empty())
             {
-                p->unit()
-                    ->warning(p->file(), p->line(), InvalidComment, "missing link target after '" + seeTag + "' tag");
+                const string msg = "missing link target after '" + seeTag + "' tag";
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
             }
             else if (lineText.back() == '.')
             {
                 // '@see' tags aren't allowed to end with periods.
                 // They do not take sentences, and the trailing period will trip up some language's doc-comments.
-                string msg = "ignoring trailing '.' character in '" + seeTag + "' tag";
+                const string msg = "ignoring trailing '.' character in '" + seeTag + "' tag";
                 p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 lineText.pop_back();
             }
         }
         else if (parseCommentLine(l, returnTag, lineText))
         {
-            if (!isOperation)
+            if (!operationTarget)
             {
                 // If '@return' was put on anything other than an operation, ignore it and issue a warning.
-                string msg = "the '" + returnTag + "' tag is only valid on operations";
+                const string msg = "the '" + returnTag + "' tag is only valid on operations";
                 p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 currentSection = nullptr;
             }
             else
             {
+                if (!operationTarget->returnType())
+                {
+                    // If '@return' was applied to a void operation (one without a return-type), issue a warning.
+                    const string msg = "'" + returnTag + "' is only valid on operations with non-void return types";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                }
                 currentSection = &(comment._returns);
             }
         }
@@ -613,7 +660,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 if (l[0] == '@')
                 {
                     auto unknownTag = l.substr(0, l.find_first_of(" \t:"));
-                    string msg = "ignoring unknown doc tag '" + unknownTag + "' in comment";
+                    const string msg = "ignoring unknown doc tag '" + unknownTag + "' in comment";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                     currentSection = nullptr;
                 }
