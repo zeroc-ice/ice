@@ -20,20 +20,25 @@ IceInternal::addDefaultPluginFactories(vector<Ice::PluginFactory>& pluginFactori
     // These built-in plug-ins are always available and not returned by a Ice::namePluginFactory function.
     vector<Ice::PluginFactory> defaultPluginFactories{{"IceTCP", createIceTCP}, {"IceSSL", createIceSSL}};
 
+    Ice::PluginFactory udpPluginFactory{Ice::udpPluginFactory()};
+    Ice::PluginFactory wsPluginFactory{Ice::wsPluginFactory()};
+
     if (none_of(
             pluginFactories.begin(),
             pluginFactories.end(),
-            [](const Ice::PluginFactory& factory) { return factory.pluginName == "IceUDP"; }))
+            [&udpPluginFactory](const Ice::PluginFactory& factory)
+            { return factory.pluginName == udpPluginFactory.pluginName; }))
     {
-        defaultPluginFactories.push_back({"IceUDP", createIceUDP});
+        defaultPluginFactories.push_back(std::move(udpPluginFactory));
     }
 
     if (none_of(
             pluginFactories.begin(),
             pluginFactories.end(),
-            [](const Ice::PluginFactory& factory) { return factory.pluginName == "IceWS"; }))
+            [&wsPluginFactory](const Ice::PluginFactory& factory)
+            { return factory.pluginName == wsPluginFactory.pluginName; }))
     {
-        defaultPluginFactories.push_back({"IceWS", createIceWS});
+        defaultPluginFactories.push_back(Ice::wsPluginFactory());
     }
 
     pluginFactories.insert(pluginFactories.begin(), defaultPluginFactories.begin(), defaultPluginFactories.end());

@@ -10,6 +10,22 @@
 
 #include <string>
 
+#ifndef ICE_DISCOVERY_API
+#    ifdef ICE_DISCOVERY_API_EXPORTS
+#        define ICE_DISCOVERY_API ICE_DECLSPEC_EXPORT
+#    else
+#        define ICE_DISCOVERY_API /**/
+#    endif
+#endif
+
+#ifndef ICE_LOCATOR_DISCOVERY_API
+#    if defined(ICE_LOCATOR_DISCOVERY_API_EXPORTS)
+#        define ICE_LOCATOR_DISCOVERY_API ICE_DECLSPEC_EXPORT
+#    else
+#        define ICE_LOCATOR_DISCOVERY_API ICE_DECLSPEC_IMPORT
+#    endif
+#endif
+
 namespace Ice
 {
     class Plugin;
@@ -34,62 +50,41 @@ namespace Ice
         PluginFactoryFunc factoryFunc;
     };
 
-#ifndef ICE_PLUGIN_FACTORY_DECLSPEC_IMPORT
-#    define ICE_PLUGIN_FACTORY_DECLSPEC_IMPORT ICE_DECLSPEC_IMPORT
-#endif
+    // Transport plug-ins provided by the Ice library.
 
-    //
-    // Checking for the API_EXPORTS macro is necessary to prevent inconsistent DLL linkage errors on Windows.
-    //
-
-#if !defined(ICE_API_EXPORTS) || defined(ICE_DOXYGEN)
     /// Returns the factory for the UDP transport plug-in, IceUDP.
     /// @return The factory for the IceUDP plug-in.
     /// @remark You only need to call this function if you are using static libraries. The Ice shared library adds the
     /// IceUDP plug-in automatically.
-    /// @see InitializationData::plugins
-    ICE_PLUGIN_FACTORY_DECLSPEC_IMPORT PluginFactory udpPluginFactory();
+    /// @see InitializationData::pluginFactories
+    ICE_API PluginFactory udpPluginFactory();
 
     /// Returns the factory for the WebSocket transport plug-in, IceWS.
     /// @return The factory for the IceWS plug-in.
     /// @remark You only need to call this function if you are using static libraries. The Ice shared library adds the
     /// IceWS plug-in automatically.
-    /// @see InitializationData::plugins
-    ICE_PLUGIN_FACTORY_DECLSPEC_IMPORT PluginFactory wsPluginFactory();
-#endif
-
-#if !defined(ICE_DISCOVERY_API_EXPORTS) || defined(ICE_DOXYGEN)
-    /// Returns the factory for the IceDiscovery plug-in.
-    /// @return The factory for the IceDiscovery plug-in.
-    /// @see InitializationData::plugins
-    ICE_PLUGIN_FACTORY_DECLSPEC_IMPORT PluginFactory discoveryPluginFactory();
-#endif
-
-#if !defined(ICE_LOCATOR_DISCOVERY_API_EXPORTS) || defined(ICE_DOXYGEN)
-    /// Returns the factory for the IceLocatorDiscovery plug-in.
-    /// @return The factory for the IceLocatorDiscovery plug-in.
-    /// @see InitializationData::plugins
-    ICE_PLUGIN_FACTORY_DECLSPEC_IMPORT PluginFactory locatorDiscoveryPluginFactory();
-#endif
-
-#if (!defined(_WIN32) && !defined(__APPLE__)) || defined(ICE_DOXYGEN)
-#    ifndef ICEBT_API_EXPORTS
-    /// Returns the factory for the Bluetooth transport plug-in, IceBT.
-    /// @return The factory for the IceBT plug-in.
-    /// @see InitializationData::plugins
-    ICE_PLUGIN_FACTORY_DECLSPEC_IMPORT PluginFactory btPluginFactory();
-#    endif
-#endif
+    /// @see InitializationData::pluginFactories
+    ICE_API PluginFactory wsPluginFactory();
 
 #if (defined(__APPLE__) && TARGET_OS_IPHONE != 0) || defined(ICE_DOXYGEN)
-#    ifndef ICEIAP_API_EXPORTS
     /// Returns the factory for the iAP transport plug-in, IceIAP.
     /// @return The factory for the IceIAP plug-in.
-    /// @see InitializationData::plugins
-    ICE_PLUGIN_FACTORY_DECLSPEC_IMPORT PluginFactory iapPluginFactory();
-#    endif
+    /// @see InitializationData::pluginFactories
+    ICE_API PluginFactory iapPluginFactory();
 #endif
 
+    // The following plug-ins are not provided by the Ice library. We declare them here because IceDiscovery and
+    // IceLocatorDiscovery have no header files.
+
+    /// Returns the factory for the IceDiscovery plug-in.
+    /// @return The factory for the IceDiscovery plug-in.
+    /// @see InitializationData::pluginFactories
+    ICE_DISCOVERY_API PluginFactory discoveryPluginFactory();
+
+    /// Returns the factory for the IceLocatorDiscovery plug-in.
+    /// @return The factory for the IceLocatorDiscovery plug-in.
+    /// @see InitializationData::pluginFactories
+    ICE_LOCATOR_DISCOVERY_API PluginFactory locatorDiscoveryPluginFactory();
 }
 
 namespace IceInternal

@@ -294,20 +294,25 @@ Test::TestHelper::initialize(int& argc, char* argv[], Ice::InitializationData in
     {
         auto& factories = initData.pluginFactories;
 
+        Ice::PluginFactory udpPluginFactory{Ice::udpPluginFactory()};
+        Ice::PluginFactory wsPluginFactory{Ice::wsPluginFactory()};
+
         if (none_of(
                 factories.begin(),
                 factories.end(),
-                [](const Ice::PluginFactory& factory) { return factory.pluginName == "IceWS"; }))
+                [&wsPluginFactory](const Ice::PluginFactory& factory)
+                { return factory.pluginName == wsPluginFactory.pluginName; }))
         {
-            factories.insert(factories.begin(), Ice::wsPluginFactory());
+            factories.insert(factories.begin(), wsPluginFactory);
         }
 
         if (none_of(
                 factories.begin(),
                 factories.end(),
-                [](const Ice::PluginFactory& factory) { return factory.pluginName == "IceUDP"; }))
+                [&udpPluginFactory](const Ice::PluginFactory& factory)
+                { return factory.pluginName == udpPluginFactory.pluginName; }))
         {
-            factories.insert(factories.begin(), Ice::udpPluginFactory());
+            factories.insert(factories.begin(), udpPluginFactory);
         }
     }
 
@@ -372,12 +377,15 @@ Ice::installTransport(InitializationData& initData)
         {
             auto& factories = initData.pluginFactories;
 
+            Ice::PluginFactory wsPluginFactory{Ice::wsPluginFactory()};
+
             if (none_of(
                     factories.begin(),
                     factories.end(),
-                    [](const Ice::PluginFactory& factory) { return factory.pluginName == "IceWS"; }))
+                    [&wsPluginFactory](const Ice::PluginFactory& factory)
+                    { return factory.pluginName == wsPluginFactory.pluginName; }))
             {
-                factories.insert(factories.begin(), Ice::wsPluginFactory());
+                factories.insert(factories.begin(), wsPluginFactory);
             }
         }
     }

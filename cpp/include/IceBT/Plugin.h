@@ -4,6 +4,7 @@
 #define ICE_BT_PLUGIN_H
 
 #include "Ice/Plugin.h"
+#include "Ice/PluginFactory.h"
 #include "Types.h"
 
 #include <functional>
@@ -12,6 +13,11 @@
 /// The Bluetooth transport plug-in.
 namespace IceBT
 {
+    /// Returns the factory for the Bluetooth transport plug-in, IceBT.
+    /// @return The factory for the IceBT plug-in.
+    /// @see InitializationData::pluginFactories
+    ICEBT_API Ice::PluginFactory btPluginFactory();
+
     /// A name-value map.
     using PropertyMap = std::map<std::string, std::string>;
 

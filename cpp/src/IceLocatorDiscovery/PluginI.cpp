@@ -171,12 +171,10 @@ createIceLocatorDiscovery(const Ice::CommunicatorPtr& communicator, const string
     return new PluginI(communicator);
 }
 
-namespace Ice
+Ice::PluginFactory
+Ice::locatorDiscoveryPluginFactory()
 {
-    ICE_LOCATOR_DISCOVERY_API PluginFactory locatorDiscoveryPluginFactory()
-    {
-        return {"IceLocatorDiscovery", createIceLocatorDiscovery};
-    }
+    return {"IceLocatorDiscovery", createIceLocatorDiscovery};
 }
 
 Plugin::~Plugin() = default;

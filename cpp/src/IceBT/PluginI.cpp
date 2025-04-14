@@ -25,9 +25,10 @@ extern "C"
     }
 }
 
-namespace Ice
+PluginFactory
+IceBT::btPluginFactory()
 {
-    ICEBT_API PluginFactory btPluginFactory() { return {"IceBT", createIceBT}; }
+    return {"IceBT", createIceBT};
 }
 
 //
