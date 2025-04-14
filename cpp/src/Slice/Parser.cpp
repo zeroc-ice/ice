@@ -536,7 +536,8 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 const auto paramNameCheck = [&name](const ParameterPtr& p) { return p->name() == name; };
                 if (std::find_if(params.begin(), params.end(), paramNameCheck) == params.end())
                 {
-                    const string msg = "'" + paramTag + " " + name + "' does not correspond to any parameter in operation '" + p->name() + "'";
+                    const string msg = "'" + paramTag + " " + name +
+                                       "' does not correspond to any parameter in operation '" + p->name() + "'";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 }
 
@@ -554,10 +555,12 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 }
             }
         }
-        else if (parseNamedCommentLine(l, throwsTag, name, lineText) || parseNamedCommentLine(l, exceptionTag, name, lineText))
+        else if (
+            parseNamedCommentLine(l, throwsTag, name, lineText) ||
+            parseNamedCommentLine(l, exceptionTag, name, lineText))
         {
             // '@throws' and '@exception' are equivalent. But we want to use the correct one in our warning messages.
-            const string actualTag = (l.find(throwsTag) == 0)? throwsTag : exceptionTag;
+            const string actualTag = (l.find(throwsTag) == 0) ? throwsTag : exceptionTag;
             if (!operationTarget)
             {
                 // If '@throws'/'@exception' was put on anything other than an operation, ignore it and issue a warning.
@@ -571,17 +574,20 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 const ExceptionPtr exceptionTarget = operationTarget->lookupException(name, false);
                 if (!exceptionTarget)
                 {
-                    const string msg = "'" + actualTag + " " + name + "': no exception with this name could be found from the current scope";
+                    const string msg = "'" + actualTag + " " + name +
+                                       "': no exception with this name could be found from the current scope";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 }
                 else
                 {
                     // ... and matches one of the exceptions in the operation's specification.
                     const ExceptionList exceptionSpec = operationTarget->throws();
-                    const auto exceptionCheck = [&name, &exceptionTarget](const ExceptionPtr& ex) { return ex->isBaseOf(exceptionTarget) || ex->scoped() == exceptionTarget->scoped(); };
+                    const auto exceptionCheck = [&name, &exceptionTarget](const ExceptionPtr& ex)
+                    { return ex->isBaseOf(exceptionTarget) || ex->scoped() == exceptionTarget->scoped(); };
                     if (std::find_if(exceptionSpec.begin(), exceptionSpec.end(), exceptionCheck) == exceptionSpec.end())
                     {
-                        const string msg = "'" + actualTag + " " + name + "': this exception is not listed in (or a sub-exception of) this operation's exception specification";
+                        const string msg = "'" + actualTag + " " + name + "': this exception is not listed in" +
+                                           "(or a sub-exception of) this operation's exception specification";
                         p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                     }
 
