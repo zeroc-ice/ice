@@ -13,7 +13,7 @@
 #include "BuiltinSequences.ice"
 
 /// The Ice Management eXtension facility.
-["swift:module:Ice:MX"]
+["swift:identifier:Ice"]
 module IceMX
 {
     /// A dictionary of strings to integers.

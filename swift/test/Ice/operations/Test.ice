@@ -415,15 +415,12 @@ module Test
     const string wsu2 = "\U00000128\U00000178\U000000FF\U00000100\U00001F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
 }
 
-["swift:module:Test:Test2"]
+["swift:identifier:Test"]
 module Test2
 {
-    /**
-    *
-    * Makes sure that proxy operations are correctly generated when extending an interface from
-    * a different module (ICE-7639).
-    *
-    **/
+    // Makes sure that proxy operations are correctly generated when extending an interface from
+    // a different module (ICE-7639).
+    ["swift:identifier:Test2MyDerivedClass"]
     interface MyDerivedClass extends Test::MyClass
     {
     }

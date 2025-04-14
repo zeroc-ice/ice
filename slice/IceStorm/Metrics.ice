@@ -14,7 +14,7 @@
 
 #include "Ice/Metrics.ice"
 
-["swift:module:IceStorm:MX"]
+["swift:identifier:IceStorm"]
 module IceMX
 {
     /// Provides information about one or more IceStorm topics.
