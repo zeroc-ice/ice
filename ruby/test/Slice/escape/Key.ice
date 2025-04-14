@@ -34,7 +34,7 @@ module BEGIN
     interface break
     {
         ["ruby:identifier:_case"]
-        void case(["ruby:identifier:_clone"] int clone, out ["ruby:identifier:_def"] int def);
+        void case(["ruby:identifier:_clone"] int clone, ["ruby:identifier:_def"] out int def);
 
         ["ruby:identifier:PascalOperation"]
         END instance_variables();
