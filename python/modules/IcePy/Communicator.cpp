@@ -363,7 +363,7 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
                 }
 #endif
                 // Check whether we still own the GIL. If interpreter finalization has begun, we may no longer hold the
-                // GIL and must avoid calling PyGILState_Release unless we do
+                // GIL and must avoid calling PyGILState_Release unless we do.
                 if (PyGILState_Check())
                 {
                     PyGILState_Release(gilState);
