@@ -99,8 +99,10 @@ jobs:
             cp -vf $file ${{ github.workspace }}/dist
           done
 
-          python3 -m pip install twine --user
-          python3 -m twine upload --verbose --repository-url ${{ inputs.repository_url }} ${{ github.workspace }}/dist/*
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install twine
+          twine upload --verbose --repository-url ${{ inputs.repository_url }} ${{ github.workspace }}/dist/*
         env:
           TWINE_USERNAME: ${{ inputs.repository_username }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
