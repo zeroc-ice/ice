@@ -27,7 +27,7 @@ class SliceUtf8BomTestCase(ClientTestCase):
             current.writeln("ok")
 
             # Run 'slice2cpp' over the file to make sure the parser can correctly handle the BOM.
-            # We expect a '0' exit code (indicating success) and nothing should be output to the console.
+            # We expect a '0' exit code (indicating success) and nothing to be output to the console.
             current.write("Compiling Slice file with UTF8-BOM marker... ")
             args = [test_file_name, "--output-dir", "tmp"]
             slice2cpp.run(current, args, exitstatus=0)
