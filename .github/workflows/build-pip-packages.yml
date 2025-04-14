@@ -88,6 +88,9 @@ jobs:
           path: artifacts
           pattern: pip-packages-*
 
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+
       - name: Publish PIP Package
         run: |
           set -eux
