@@ -508,18 +508,7 @@ extern "C" PyObject*
 communicatorIsShutdown(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
-    bool isShutdown;
-    try
-    {
-        isShutdown = (*self->communicator)->isShutdown();
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
-        return nullptr;
-    }
-
-    return isShutdown ? Py_True : Py_False;
+    return (*self->communicator)->isShutdown() ? Py_True : Py_False;
 }
 
 extern "C" PyObject*
@@ -1053,17 +1042,7 @@ extern "C" PyObject*
 communicatorGetProperties(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
-    Ice::PropertiesPtr properties;
-    try
-    {
-        properties = (*self->communicator)->getProperties();
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
-        return nullptr;
-    }
-
+    Ice::PropertiesPtr properties = (*self->communicator)->getProperties();
     return createProperties(properties);
 }
 
@@ -1071,24 +1050,11 @@ extern "C" PyObject*
 communicatorGetLogger(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
-    Ice::LoggerPtr logger;
-    try
-    {
-        logger = (*self->communicator)->getLogger();
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
-        return nullptr;
-    }
+    Ice::LoggerPtr logger = (*self->communicator)->getLogger();
 
-    //
-    // The communicator's logger can either be a C++ object (such as
-    // the default logger supplied by the Ice run time), or a C++
-    // wrapper around a Python implementation. If the latter, we
-    // return it directly. Otherwise, we create a Python object
-    // that delegates to the C++ object.
-    //
+    // The communicator's logger can either be a C++ object (such as the default logger supplied by the Ice run time),
+    // or a C++ wrapper around a Python implementation. If the latter, we return it directly. Otherwise, we create a
+    // Python object that delegates to the C++ object.
     LoggerWrapperPtr wrapper = dynamic_pointer_cast<LoggerWrapper>(logger);
     if (wrapper)
     {
@@ -1109,13 +1075,7 @@ extern "C" PyObject*
 communicatorGetImplicitContext(CommunicatorObject* self, PyObject* /*args*/)
 {
     Ice::ImplicitContextPtr implicitContext = (*self->communicator)->getImplicitContext();
-
-    if (!implicitContext)
-    {
-        return Py_None;
-    }
-
-    return createImplicitContext(implicitContext);
+    return implicitContext ? createImplicitContext(implicitContext) : Py_None;
 }
 
 extern "C" PyObject*
