@@ -532,31 +532,36 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
             else
             {
                 // Check that the '@param <name>' corresponds to an actual parameter in the operation.
-                bool matchFound = false;
-                for (const auto& param : operationTarget->parameters())
-                {
-                    if (param->name() == name)
-                    {
-                        matchFound = true;
-                        break;
-                    }
-                }
-                if (!matchFound)
+                const ParameterList params = operationTarget->parameters();
+                const auto paramNameCheck = [&name](const ParameterPtr& p) { return p->name() == name; };
+                if (std::find_if(params.begin(), params.end(), paramNameCheck) == params.end())
                 {
                     const string msg = "'" + paramTag + " " + name + "' does not correspond to any parameter in operation '" + p->name() + "'";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 }
 
-                comment._parameters[name] = {};
-                currentSection = &(comment._parameters[name]);
+                // Check if this is a duplicate tag. If it is, ignore it and issue a warning.
+                if (comment._parameters.count(name) != 0)
+                {
+                    const string msg = "ignoring duplicate doc-comment tag: '" + paramTag + " " + name + "'";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    currentSection = nullptr;
+                }
+                else
+                {
+                    comment._parameters[name] = {};
+                    currentSection = &(comment._parameters[name]);
+                }
             }
         }
-        else if (parseNamedCommentLine(l, throwsTag, name, lineText))
+        else if (parseNamedCommentLine(l, throwsTag, name, lineText) || parseNamedCommentLine(l, exceptionTag, name, lineText))
         {
+            // '@throws' and '@exception' are equivalent. But we want to use the correct one in our warning messages.
+            const string actualTag = (l.find(throwsTag) == 0)? throwsTag : exceptionTag;
             if (!operationTarget)
             {
-                // If '@throws' was put on anything other than an operation, ignore it and issue a warning.
-                const string msg = "the '" + throwsTag + "' tag is only valid on operations";
+                // If '@throws'/'@exception' was put on anything other than an operation, ignore it and issue a warning.
+                const string msg = "the '" + actualTag + "' tag is only valid on operations";
                 p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 currentSection = nullptr;
             }
@@ -566,44 +571,33 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 const ExceptionPtr exceptionTarget = operationTarget->lookupException(name, false);
                 if (!exceptionTarget)
                 {
-                    const string msg = "'" + throwsTag + " " + name + "': no exception with this name could be found from the current scope";
+                    const string msg = "'" + actualTag + " " + name + "': no exception with this name could be found from the current scope";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 }
                 else
                 {
                     // ... and matches one of the exceptions in the operation's specification.
-                    bool matchFound = false;
-                    for (const auto& ex : operationTarget->throws())
+                    const ExceptionList exceptionSpec = operationTarget->throws();
+                    const auto exceptionCheck = [&name, &exceptionTarget](const ExceptionPtr& ex) { return ex->isBaseOf(exceptionTarget) || ex->scoped() == exceptionTarget->scoped(); };
+                    if (std::find_if(exceptionSpec.begin(), exceptionSpec.end(), exceptionCheck) == exceptionSpec.end())
                     {
-                        if (ex->isBaseOf(exceptionTarget) || ex->scoped() == exceptionTarget->scoped())
-                        {
-                            matchFound = true;
-                            break;
-                        }
-                    }
-                    if (!matchFound)
-                    {
-                        const string msg = "'" + throwsTag + " " + name + "': this exception is not listed in (or a sub-exception of) this operation's exception specification";
+                        const string msg = "'" + actualTag + " " + name + "': this exception is not listed in (or a sub-exception of) this operation's exception specification";
                         p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                     }
+
+                    // Check if this is a duplicate tag. If it is, ignore it and issue a warning.
+                    if (comment._exceptions.count(name) != 0)
+                    {
+                        const string msg = "ignoring duplicate doc-comment tag: '" + actualTag + " " + name + "'";
+                        p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                        currentSection = nullptr;
+                    }
+                    else
+                    {
+                        comment._exceptions[name] = {};
+                        currentSection = &(comment._exceptions[name]);
+                    }
                 }
-                comment._exceptions[name] = {};
-                currentSection = &(comment._exceptions[name]);
-            }
-        }
-        else if (parseNamedCommentLine(l, exceptionTag, name, lineText))
-        {
-            if (!operationTarget)
-            {
-                // If '@exception' was put on anything other than an operation, ignore it and issue a warning.
-                const string msg = "the '" + exceptionTag + "' tag is only valid on operations";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
-                currentSection = nullptr;
-            }
-            else
-            {
-                comment._exceptions[name] = {};
-                currentSection = &(comment._exceptions[name]);
             }
         }
         else if (parseCommentLine(l, seeTag, lineText))
@@ -644,13 +638,34 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                     const string msg = "'" + returnTag + "' is only valid on operations with non-void return types";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 }
-                currentSection = &(comment._returns);
+
+                // Check if this is a duplicate tag. If it is, ignore it and issue a warning.
+                if (!comment._returns.empty())
+                {
+                    const string msg = "ignoring duplicate doc-comment tag: '" + returnTag + "'";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    currentSection = nullptr;
+                }
+                else
+                {
+                    currentSection = &(comment._returns);
+                }
             }
         }
         else if (parseCommentLine(l, deprecatedTag, lineText))
         {
-            comment._isDeprecated = true;
-            currentSection = &(comment._deprecated);
+            // Check if this is a duplicate tag (ie. multiple '@deprecated'). If it is, ignore it and issue a warning.
+            if (comment._isDeprecated)
+            {
+                const string msg = "ignoring duplicate doc-comment tag: '" + deprecatedTag + "'";
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                currentSection = nullptr;
+            }
+            else
+            {
+                comment._isDeprecated = true;
+                currentSection = &(comment._deprecated);
+            }
         }
         else // This line didn't introduce a new tag. Either we're in the overview or a tag whose content is multi-line.
         {
