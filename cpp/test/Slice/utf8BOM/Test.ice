@@ -1,10 +1,9 @@
-// Copyright (c) ZeroC, Inc.
+﻿// Copyright (c) ZeroC, Inc.
+
+// This file is encoded in UTF8 with BOM
 
 #pragma once
 
-//
-// This file is encoded in UTF8 with BOM
-//
 module foo
 {
 }
