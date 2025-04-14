@@ -12,7 +12,7 @@ class SliceUtf8BomTestCase(ClientTestCase):
         slice2cpp = SliceTranslator("slice2cpp")
 
         # Temporary output directory for 'slice2cpp to use.
-        outdir = "{0}/tmp".format(testdir)
+        outdir = "{0}/tmp".format(os.getcwd())
         if os.path.exists(outdir):
             shutil.rmtree(outdir)
         os.mkdir(outdir)
