@@ -164,7 +164,18 @@ propertiesGetProperty(PropertiesObject* self, PyObject* args)
     }
 
     assert(self->properties);
-    return createString((*self->properties)->getProperty(key));
+    string value;
+    try
+    {
+        value = (*self->properties)->getProperty(key);
+    }
+    catch (...)
+    {
+        setPythonException(current_exception());
+        return nullptr;
+    }
+
+    return createString(value);
 }
 
 extern "C" PyObject*
@@ -329,7 +340,16 @@ propertiesGetPropertyAsList(PropertiesObject* self, PyObject* args)
     }
 
     assert(self->properties);
-    Ice::StringSeq value = (*self->properties)->getPropertyAsList(key);
+    Ice::StringSeq value;
+    try
+    {
+        value = (*self->properties)->getPropertyAsList(key);
+    }
+    catch (...)
+    {
+        setPythonException(current_exception());
+        return nullptr;
+    }
 
     PyObjectHandle list{PyList_New(0)};
     if (!list)
@@ -407,7 +427,16 @@ propertiesGetPropertyAsListWithDefault(PropertiesObject* self, PyObject* args)
         return nullptr;
     }
 
-    Ice::StringSeq value = (*self->properties)->getPropertyAsListWithDefault(key, def);
+    Ice::StringSeq value;
+    try
+    {
+        value = (*self->properties)->getPropertyAsListWithDefault(key, def);
+    }
+    catch (...)
+    {
+        setPythonException(current_exception());
+        return nullptr;
+    }
 
     PyObjectHandle list{PyList_New(0)};
     if (!list)
@@ -496,7 +525,16 @@ extern "C" PyObject*
 propertiesGetCommandLineOptions(PropertiesObject* self, PyObject* /*args*/)
 {
     assert(self->properties);
-    Ice::StringSeq options = (*self->properties)->getCommandLineOptions();
+    Ice::StringSeq options;
+    try
+    {
+        options = (*self->properties)->getCommandLineOptions();
+    }
+    catch (...)
+    {
+        setPythonException(current_exception());
+        return nullptr;
+    }
 
     PyObjectHandle list{PyList_New(0)};
     if (!list)

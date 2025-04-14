@@ -501,16 +501,8 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
     }
     else
     {
-        try
-        {
-            AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-            (*self->adapter)->waitForDeactivate();
-        }
-        catch (...)
-        {
-            setPythonException(current_exception());
-            return nullptr;
-        }
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+        (*self->adapter)->waitForDeactivate();
     }
 
     return Py_True;
