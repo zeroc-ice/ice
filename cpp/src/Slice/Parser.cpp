@@ -582,7 +582,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 {
                     // ... and matches one of the exceptions in the operation's specification.
                     const ExceptionList exceptionSpec = operationTarget->throws();
-                    const auto exceptionCheck = [&name, &exceptionTarget](const ExceptionPtr& ex)
+                    const auto exceptionCheck = [&exceptionTarget](const ExceptionPtr& ex)
                     { return ex->isBaseOf(exceptionTarget) || ex->scoped() == exceptionTarget->scoped(); };
                     if (std::find_if(exceptionSpec.begin(), exceptionSpec.end(), exceptionCheck) == exceptionSpec.end())
                     {
