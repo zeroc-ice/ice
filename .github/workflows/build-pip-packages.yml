@@ -90,13 +90,14 @@ jobs:
 
       - name: Publish PIP Package
         run: |
+          set -eux
           mkdir -p ${{ github.workspace }}/dist
           find artifacts -name 'zeroc_ice-*' -type f | while read -r file; do
-            cp -f $file ${{ github.workspace }}/dist
+            cp -vf $file ${{ github.workspace }}/dist
           done
 
           python3 -m pip install twine --user
-          python3 -m twine upload --repository-url ${{ inputs.repository_url }} ${{ github.workspace }}/dist/*
+          python3 -m twine upload --verbose --repository-url ${{ inputs.repository_url }} ${{ github.workspace }}/dist/*
         env:
           TWINE_USERNAME: ${{ inputs.repository_username }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
