@@ -138,30 +138,6 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, const wchar_t* argv[])
 }
 #endif
 
-Ice::ThreadHookPlugin::ThreadHookPlugin(
-    const CommunicatorPtr& communicator,
-    function<void()> threadStart,
-    function<void()> threadStop)
-{
-    if (communicator == nullptr)
-    {
-        throw PluginInitializationException(__FILE__, __LINE__, "communicator cannot be null");
-    }
-
-    IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
-    instance->setThreadHook(std::move(threadStart), std::move(threadStop));
-}
-
-void
-Ice::ThreadHookPlugin::initialize()
-{
-}
-
-void
-Ice::ThreadHookPlugin::destroy()
-{
-}
-
 Ice::CommunicatorPtr
 Ice::initialize(int& argc, const char* argv[], InitializationData initData)
 {

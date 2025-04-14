@@ -252,6 +252,8 @@ Slice sequences, enabled by the `cpp:array` metadata directive, and a compatible
 earlier releases, this unaligned unmarshaling was turned on automatically on x86 and x64 CPUs, and turned off on all
 other CPUs.
 
+- Removed StringConverterPlugin and ThreadHookPlugin.
+
 ## C# Changes
 
 - The thread pools created by Ice no longer set a synchronization context. As a result, the continuation from an async
@@ -259,6 +261,12 @@ invocation made from an Ice thread pool thread executes in a .NET thread pool th
 was executed in a thread managed by the same Ice thread pool unless you specified `.ConfigureAwait(false)`.
 
 - The `cs:attribute` Slice metadata is now limited to enums, enumerators, fields, and constants.
+
+- Removed ThreadHookPlugin.
+
+## Java Changes
+
+- Removed ThreadHookPlugin.
 
 ## MATLAB Changes
 
