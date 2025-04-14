@@ -40,6 +40,8 @@ Collocated::run(int argc, char** argv)
     initData.properties->setProperty("Ice.Warn.Connections", "0");
     initData.properties->setProperty("Ice.Warn.Dispatch", "0");
 
+    installTransport(initData);
+
     Ice::CommunicatorHolder ich1 = Ice::initialize(argc, argv, initData);
 
     //

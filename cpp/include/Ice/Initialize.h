@@ -11,6 +11,7 @@
 #include "Instrumentation.h"
 #include "Logger.h"
 #include "Plugin.h"
+#include "PluginFactory.h"
 #include "PropertiesF.h"
 #include "SSL/ClientAuthenticationOptions.h"
 #include "StringUtil.h"
@@ -126,6 +127,10 @@ namespace Ice
         /// @see SSL::SecureTransportClientAuthenticationOptions
         /// @see SSL::SchannelClientAuthenticationOptions
         std::optional<SSL::ClientAuthenticationOptions> clientAuthenticationOptions{};
+
+        /// A list of plug-in factories. The corresponding plug-ins are created during communicator initialization,
+        /// in order, before all other plug-ins.
+        std::vector<PluginFactory> pluginFactories{};
     };
 
     /// Creates a new communicator.
@@ -222,23 +227,6 @@ namespace Ice
     /// configured at the time the communicator is created.
     /// @param logger The new per-process logger instance.
     ICE_API void setProcessLogger(const LoggerPtr& logger);
-
-    /// A plug-in factory function is responsible for creating an Ice plug-in.
-    /// @param communicator The communicator in which the plug-in will be installed.
-    /// @param name The name assigned to the plug-in.
-    /// @param args Additional arguments included in the plug-in's configuration.
-    /// @return The new plug-in object.
-    using PluginFactory = Ice::Plugin* (*)(const Ice::CommunicatorPtr& communicator,
-                                           const std::string& name,
-                                           const Ice::StringSeq& args);
-
-    /// Registers a plug-in factory function.
-    /// @param name The name assigned to the plug-in.
-    /// @param factory The factory function.
-    /// @param loadOnInit If `true`, the plug-in is always loaded (created) during communicator initialization, even if
-    /// `Ice.Plugin.name` is not set. When `false`, the plug-in is loaded (created) during communicator initialization
-    /// only when `Ice.Plugin.name` is set to a non-empty value.
-    ICE_API void registerPluginFactory(std::string name, PluginFactory factory, bool loadOnInit);
 
     /// Converts a stringified identity into an Identity.
     /// @param str The stringified identity.

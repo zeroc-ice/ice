@@ -7,20 +7,16 @@
 #include "Ice/CommunicatorF.h"
 #include "Ice/InstanceF.h"
 #include "Ice/Plugin.h"
+#include "Ice/PluginFactory.h"
 
 #include <map>
 #include <mutex>
 
 namespace Ice
 {
-    using PluginFactory = Ice::Plugin* (*)(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
-
     class PluginManagerI final : public PluginManager
     {
     public:
-        // Register a plugin factory (internal).
-        static void registerPluginFactory(std::string, PluginFactory, bool);
-
         void initializePlugins() final;
         StringSeq getPlugins() final;
         PluginPtr getPlugin(std::string_view) final;
@@ -36,7 +32,12 @@ namespace Ice
         bool loadPlugins(int& argc, const char* argv[]);
 
     private:
-        bool loadPlugin(const std::string&, const std::string&, StringSeq&);
+        bool loadPlugin(
+            PluginFactoryFunc pluginFactoryFunc,
+            const std::string& name,
+            const std::string& pluginSpec,
+            StringSeq& cmdArgs);
+
         [[nodiscard]] PluginPtr findPlugin(std::string_view) const;
 
         struct PluginInfo

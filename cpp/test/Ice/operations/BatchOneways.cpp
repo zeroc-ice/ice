@@ -137,6 +137,9 @@ batchOneways(const MyClassPrx& p)
 
         initData.batchRequestInterceptor = [=](const BatchRequest& request, int countP, int size)
         { interceptor->enqueue(request, countP, size); };
+
+        installTransport(initData);
+
         CommunicatorPtr ic = initialize(initData);
 
         auto batch4 = MyClassPrx(ic, p->ice_toString())->ice_batchOneway();

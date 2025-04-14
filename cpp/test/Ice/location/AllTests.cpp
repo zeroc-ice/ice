@@ -488,6 +488,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
+        installTransport(initData);
         Ice::CommunicatorPtr ic = Ice::initialize(initData);
 
         registry->setAdapterDirectProxy("TestAdapter5", locator->findAdapterById("TestAdapter"));

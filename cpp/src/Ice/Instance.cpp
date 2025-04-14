@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Instance.h"
+#include "AddDefaultPluginFactories.h"
 #include "CheckIdentity.h"
 #include "ConnectionFactory.h"
 #include "ConsoleUtil.h"
@@ -27,7 +28,6 @@
 #include "PluginManagerI.h"
 #include "PropertiesAdminI.h"
 #include "ReferenceFactory.h"
-#include "RegisterPluginsInit.h"
 #include "RetryQueue.h"
 #include "RouterInfo.h"
 #include "SSL/SSLEngine.h"
@@ -172,11 +172,6 @@ namespace
     };
 
     Init init;
-
-    //
-    // Static initializer to register plugins.
-    //
-    IceInternal::RegisterPluginsInit initPlugins;
 }
 
 namespace IceInternal // Required because ObserverUpdaterI is a friend of Instance
@@ -1355,6 +1350,8 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     assert(!_serverThreadPool);
     auto pluginManagerImpl = dynamic_pointer_cast<PluginManagerI>(_pluginManager);
     assert(pluginManagerImpl);
+
+    addDefaultPluginFactories(_initData.pluginFactories);
     bool libraryLoaded = pluginManagerImpl->loadPlugins(argc, argv);
 
     // On Windows, if we loaded any plugin and stack trace collection is enabled, we need to call

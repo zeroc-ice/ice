@@ -82,18 +82,18 @@ namespace Test
 
         void setControllerHelper(ControllerHelper*);
 
-        std::string getTestEndpoint(const std::string&);
-        std::string getTestEndpoint(int num = 0, const std::string& prot = "");
+        [[nodiscard]] std::string getTestEndpoint(const std::string&) const;
+        [[nodiscard]] std::string getTestEndpoint(int num = 0, const std::string& prot = "") const;
         static std::string
         getTestEndpoint(const Ice::PropertiesPtr& properties, int num = 0, const std::string& prot = "");
 
-        std::string getTestHost();
+        [[nodiscard]] std::string getTestHost() const;
         static std::string getTestHost(const Ice::PropertiesPtr&);
 
-        std::string getTestProtocol();
+        [[nodiscard]] std::string getTestProtocol() const;
         static std::string getTestProtocol(const Ice::PropertiesPtr&);
 
-        int getTestPort(int port = 0);
+        [[nodiscard]] int getTestPort(int port = 0) const;
         static int getTestPort(const Ice::PropertiesPtr&, int port = 0);
 
         static Ice::PropertiesPtr createTestProperties(int&, char*[]);
@@ -114,6 +114,7 @@ namespace Test
     private:
         ControllerHelper* _controllerHelper{nullptr};
         Ice::CommunicatorPtr _communicator;
+        bool _registerPlugins{true};
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
         Ice::CtrlCHandler* _ctrlCHandler{nullptr};
 #endif
@@ -162,6 +163,14 @@ namespace Test
         return status;
     }
 #endif
+}
+
+namespace Ice
+{
+    /// Installs the plug-in factory for the current transport into @p initData, if needed.
+    /// Relies on @p initData's properties to determine the transport.
+    /// @param initData The initialization data to modify.
+    TEST_API void installTransport(InitializationData& initData);
 }
 
 #if TARGET_OS_IPHONE != 0

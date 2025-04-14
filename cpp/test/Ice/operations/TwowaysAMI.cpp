@@ -2008,6 +2008,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                 InitializationData initData;
                 initData.properties = communicator->getProperties()->clone();
                 initData.properties->setProperty("Ice.ImplicitContext", impl);
+                installTransport(initData);
 
                 CommunicatorPtr ic = initialize(initData);
 

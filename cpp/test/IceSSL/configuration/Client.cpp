@@ -11,7 +11,7 @@ using namespace std;
 class Client : public Test::TestHelper
 {
 public:
-    Client() : Test::TestHelper(false) {}
+    Client() = default;
 
     void run(int, char**) override;
 };
@@ -19,8 +19,6 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-    Ice::registerIceWS(); // for static builds
-
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     string testdir;
 #if TARGET_OS_IPHONE == 0

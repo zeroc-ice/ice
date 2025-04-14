@@ -55,6 +55,7 @@ Ice::CommunicatorPtr
 createServer(ServerAuthenticationOptions serverAuthenticationOptions, TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = initialize();
+
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints(
         "ServerAdapter",
         helper->getTestEndpoint(10, "ssl"),
@@ -67,8 +68,15 @@ createServer(ServerAuthenticationOptions serverAuthenticationOptions, TestHelper
 Ice::CommunicatorPtr
 createClient(const optional<ClientAuthenticationOptions>& clientAuthenticationOptions = nullopt)
 {
-    return initialize(Ice::InitializationData{
-        .clientAuthenticationOptions = clientAuthenticationOptions.value_or(ClientAuthenticationOptions{})});
+    Ice::InitializationData initData{
+        .clientAuthenticationOptions = clientAuthenticationOptions.value_or(ClientAuthenticationOptions{})};
+
+    if (IceInternal::isMinBuild())
+    {
+        initData.pluginFactories = {Ice::wsPluginFactory()};
+    }
+
+    return initialize(std::move(initData));
 }
 
 void

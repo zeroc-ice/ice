@@ -3,6 +3,11 @@
 #include "Ice/Ice.h"
 #include "TestHelper.h"
 
+// Link with IceLocatorDiscovery on Windows.
+#if defined(_MSC_VER) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
+#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery"))
+#endif
+
 using namespace std;
 using namespace Test;
 
@@ -15,9 +20,6 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceLocatorDiscovery(false);
-#endif
     Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv);
     bool withDeploy = false;
 

@@ -15,9 +15,9 @@ allTests(Test::TestHelper* helper)
     Test::MyDerivedClassPrx derived(communicator, ref);
 
     cout << "testing twoway operations... " << flush;
-    void twoways(const Ice::CommunicatorPtr&, Test::TestHelper*, const Test::MyClassPrx&);
-    twoways(communicator, helper, cl);
-    twoways(communicator, helper, derived);
+    void twoways(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
+    twoways(communicator, cl);
+    twoways(communicator, derived);
     derived->opDerived();
     cout << "ok" << endl;
 

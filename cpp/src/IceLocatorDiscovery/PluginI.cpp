@@ -173,12 +173,9 @@ createIceLocatorDiscovery(const Ice::CommunicatorPtr& communicator, const string
 
 namespace Ice
 {
-    ICE_LOCATOR_DISCOVERY_API void registerIceLocatorDiscovery(bool loadOnInitialize)
+    ICE_LOCATOR_DISCOVERY_API PluginFactory locatorDiscoveryPluginFactory()
     {
-        Ice::registerPluginFactory("IceLocatorDiscovery", createIceLocatorDiscovery, loadOnInitialize);
-
-        // Also register the UDP plugin (required for static builds).
-        registerIceUDP(true);
+        return {"IceLocatorDiscovery", createIceLocatorDiscovery};
     }
 }
 

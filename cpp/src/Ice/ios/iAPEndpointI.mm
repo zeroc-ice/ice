@@ -15,7 +15,6 @@
 #    include "Ice/LocalExceptions.h"
 #    include "Ice/OutputStream.h"
 #    include "Ice/Properties.h"
-#    include "Ice/RegisterPlugins.h"
 #    include "iAPConnector.h"
 #    include "iAPEndpointI.h"
 
@@ -66,10 +65,7 @@ createIceIAP(const CommunicatorPtr& com, const string&, const StringSeq&)
 
 namespace Ice
 {
-    ICEIAP_API void registerIceIAP(bool loadOnInitialize)
-    {
-        Ice::registerPluginFactory("IceIAP", createIceIAP, loadOnInitialize);
-    }
+    ICEIAP_API PluginFactory iapPluginFactory() { return {"IceIAP", createIceIAP}; }
 }
 
 IceObjC::iAPEndpointI::iAPEndpointI(

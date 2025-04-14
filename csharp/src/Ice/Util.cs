@@ -2,6 +2,7 @@
 
 #nullable enable
 
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Net.Security;
 
@@ -63,6 +64,12 @@ public sealed record class InitializationData
     /// Gets or sets the <see cref="SslClientAuthenticationOptions"/> used by the client-side ssl transport.
     /// </summary>
     public SslClientAuthenticationOptions? clientAuthenticationOptions { get; set; }
+
+    /// <summary>
+    /// Gets or sets the plug-in factories. The corresponding plug-ins are created during communicator initialization,
+    /// in order, before all other plug-ins.
+    /// </summary>
+    public IList<PluginFactory> pluginFactories { get; set; } = ImmutableList<PluginFactory>.Empty;
 }
 
 /// <summary>
@@ -486,9 +493,6 @@ public sealed class Util
     }
 
     private static string majorMinorToString(byte major, byte minor) => $"{major}.{minor}";
-
-    public static void registerPluginFactory(string name, PluginFactory factory, bool loadOnInit) =>
-        PluginManagerI.registerPluginFactory(name, factory, loadOnInit);
 
     public static readonly ProtocolVersion currentProtocol =
         new ProtocolVersion(Ice.Internal.Protocol.protocolMajor, Ice.Internal.Protocol.protocolMinor);

@@ -79,6 +79,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.Connection.Client.ConnectTimeout", "-1");
+        installTransport(initData);
         Ice::CommunicatorHolder ich(initData);
 
         TimeoutPrx to(ich.communicator(), sref);

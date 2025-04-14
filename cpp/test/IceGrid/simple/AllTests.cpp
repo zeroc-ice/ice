@@ -44,11 +44,26 @@ allTests(Test::TestHelper* helper)
         // registries and make sure locator requests are forwarded.
         //
         Ice::InitializationData initData;
+
+        bool setPluginProperty = true;
+        if (IceInternal::isMinBuild())
+        {
+            initData.pluginFactories = {
+                Ice::udpPluginFactory(),
+                Ice::wsPluginFactory(),
+                Ice::locatorDiscoveryPluginFactory()};
+
+            setPluginProperty = false;
+        }
+
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.Default.Locator", "");
-        initData.properties->setProperty(
-            "Ice.Plugin.IceLocatorDiscovery",
-            "IceLocatorDiscovery:createIceLocatorDiscovery");
+        if (setPluginProperty)
+        {
+            initData.properties->setProperty(
+                "Ice.Plugin.IceLocatorDiscovery",
+                "IceLocatorDiscovery:createIceLocatorDiscovery");
+        }
         initData.properties->setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
         initData.properties->setProperty("AdapterForDiscoveryTest.Endpoints", "default");
 
@@ -67,16 +82,12 @@ allTests(Test::TestHelper* helper)
 
         com->destroy();
 
-        //
-        // Now, ensure that the IceGrid discovery locator correctly handles failure to find a locator. Also test
-        // Ice::registerIceLocatorDiscovery()
-        //
-#ifdef ICE_STATIC_LIBS
-        Ice::registerIceLocatorDiscovery();
-#endif
+        // Now, ensure that the IceGrid discovery locator correctly handles failure to find a locator.
+
         initData.properties->setProperty("IceLocatorDiscovery.InstanceName", "unknown");
         initData.properties->setProperty("IceLocatorDiscovery.RetryCount", "1");
         initData.properties->setProperty("IceLocatorDiscovery.Timeout", "100");
+
         com = Ice::initialize(initData);
         test(com->getDefaultLocator());
         try
@@ -124,9 +135,12 @@ allTests(Test::TestHelper* helper)
         //
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.Default.Locator", "");
-        initData.properties->setProperty(
-            "Ice.Plugin.IceLocatorDiscovery",
-            "IceLocatorDiscovery:createIceLocatorDiscovery");
+        if (setPluginProperty)
+        {
+            initData.properties->setProperty(
+                "Ice.Plugin.IceLocatorDiscovery",
+                "IceLocatorDiscovery:createIceLocatorDiscovery");
+        }
         initData.properties->setProperty("IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
         com = Ice::initialize(initData);
         test(com->getDefaultLocator());
@@ -143,9 +157,12 @@ allTests(Test::TestHelper* helper)
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.Default.Locator", "");
         initData.properties->setProperty("IceLocatorDiscovery.RetryCount", "0");
-        initData.properties->setProperty(
-            "Ice.Plugin.IceLocatorDiscovery",
-            "IceLocatorDiscovery:createIceLocatorDiscovery");
+        if (setPluginProperty)
+        {
+            initData.properties->setProperty(
+                "Ice.Plugin.IceLocatorDiscovery",
+                "IceLocatorDiscovery:createIceLocatorDiscovery");
+        }
         initData.properties->setProperty("IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
         com = Ice::initialize(initData);
         test(com->getDefaultLocator());
@@ -162,9 +179,12 @@ allTests(Test::TestHelper* helper)
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.Default.Locator", "");
         initData.properties->setProperty("IceLocatorDiscovery.RetryCount", "1");
-        initData.properties->setProperty(
-            "Ice.Plugin.IceLocatorDiscovery",
-            "IceLocatorDiscovery:createIceLocatorDiscovery");
+        if (setPluginProperty)
+        {
+            initData.properties->setProperty(
+                "Ice.Plugin.IceLocatorDiscovery",
+                "IceLocatorDiscovery:createIceLocatorDiscovery");
+        }
         {
             string intf = initData.properties->getIceProperty("IceLocatorDiscovery.Interface");
             if (!intf.empty())

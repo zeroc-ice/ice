@@ -2404,6 +2404,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             initData.properties = createClientProps(defaultProps, false);
             initData.properties->setProperty("IceSSL.DefaultDir", "");
             initData.properties->setProperty("IceSSL.CheckCertName", "2");
+            initData.pluginFactories = {Ice::wsPluginFactory()};
             CommunicatorPtr comm = initialize(initData);
             Ice::ObjectPrx p(comm, "Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
             while (true)
@@ -2446,6 +2447,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             initData.properties->setProperty("IceSSL.DefaultDir", "");
             initData.properties->setProperty("IceSSL.UsePlatformCAs", "1");
             initData.properties->setProperty("IceSSL.CheckCertName", "2");
+            initData.pluginFactories = {Ice::wsPluginFactory()};
             CommunicatorPtr comm = initialize(initData);
             Ice::ObjectPrx p(comm, "Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
             while (true)

@@ -63,11 +63,11 @@ public class AllTests : Test.AllTests
             var initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().Clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
-                                            "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
             initData.properties.setProperty("IceLocatorDiscovery.Port", helper.getTestPort(99).ToString());
             initData.properties.setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
             initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
+
+            initData.pluginFactories = [new IceLocatorDiscovery.PluginFactory()];
 
             Ice.Communicator com = Ice.Util.initialize(initData);
             test(com.getDefaultLocator() != null);
@@ -137,10 +137,11 @@ public class AllTests : Test.AllTests
             //
             initData.properties = communicator.getProperties().Clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
-                                            "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
             initData.properties.setProperty("IceLocatorDiscovery.Lookup",
                                              "udp -h " + multicast + " --interface unknown");
+
+            initData.pluginFactories = [new IceLocatorDiscovery.PluginFactory()];
+
             com = Ice.Util.initialize(initData);
             test(com.getDefaultLocator() != null);
             try
@@ -156,10 +157,11 @@ public class AllTests : Test.AllTests
             initData.properties = communicator.getProperties().Clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "0");
-            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
-                                            "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
             initData.properties.setProperty("IceLocatorDiscovery.Lookup",
                                              "udp -h " + multicast + " --interface unknown");
+
+            initData.pluginFactories = [new IceLocatorDiscovery.PluginFactory()];
+
             com = Ice.Util.initialize(initData);
             test(com.getDefaultLocator() != null);
             try
@@ -175,8 +177,6 @@ public class AllTests : Test.AllTests
             initData.properties = communicator.getProperties().Clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
-            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
-                                            "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
             {
                 string intf = initData.properties.getIceProperty("IceLocatorDiscovery.Interface");
                 if (intf.Length > 0)
@@ -188,6 +188,9 @@ public class AllTests : Test.AllTests
                                                  "udp -h " + multicast + " --interface unknown:" +
                                                  "udp -h " + multicast + " -p " + port + intf);
             }
+
+            initData.pluginFactories = [new IceLocatorDiscovery.PluginFactory()];
+
             com = Ice.Util.initialize(initData);
             test(com.getDefaultLocator() != null);
             try

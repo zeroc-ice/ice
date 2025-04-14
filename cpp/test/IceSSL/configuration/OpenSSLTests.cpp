@@ -58,6 +58,10 @@ createClient(const optional<ClientAuthenticationOptions>& clientAuthenticationOp
     Ice::InitializationData initData{
         .properties = properties,
         .clientAuthenticationOptions = clientAuthenticationOptions.value_or(ClientAuthenticationOptions{})};
+    if (IceInternal::isMinBuild())
+    {
+        initData.pluginFactories = {Ice::wsPluginFactory()};
+    }
     return initialize(initData);
 }
 

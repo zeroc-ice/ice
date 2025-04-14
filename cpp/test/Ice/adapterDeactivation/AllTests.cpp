@@ -58,6 +58,7 @@ allTests(Test::TestHelper* helper)
         {
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
+            installTransport(initData);
             Ice::CommunicatorHolder comm(initData);
             comm->stringToProxy("test:" + helper->getTestEndpoint())->ice_pingAsync(nullptr);
         }

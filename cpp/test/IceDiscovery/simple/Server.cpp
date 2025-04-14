@@ -4,6 +4,11 @@
 #include "TestHelper.h"
 #include "TestI.h"
 
+// Link with IceDiscovery on Windows.
+#if defined(_MSC_VER) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
+#    pragma comment(lib, ICE_LIBNAME("IceDiscovery"))
+#endif
+
 using namespace std;
 
 class Server : public Test::TestHelper
@@ -15,11 +20,17 @@ public:
 void
 Server::run(int argc, char** argv)
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceDiscovery();
-#endif
+    Ice::InitializationData initData;
+    initData.properties = createTestProperties(argc, argv);
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    if (IceInternal::isMinBuild())
+    {
+        // We can provide udpPluginFactory() here, but it's optional even with a static build since we use TestHelper's
+        // initialize with registerPlugins = true (the default).
+        initData.pluginFactories = {Ice::udpPluginFactory(), Ice::discoveryPluginFactory()};
+    }
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, std::move(initData));
     Ice::PropertiesPtr properties = communicator->getProperties();
 
     int num = argc == 2 ? stoi(argv[1]) : 0;

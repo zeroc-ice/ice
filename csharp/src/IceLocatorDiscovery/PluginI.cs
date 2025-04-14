@@ -7,8 +7,9 @@ namespace IceLocatorDiscovery;
 
 public sealed class PluginFactory : Ice.PluginFactory
 {
-    public Ice.Plugin
-    create(Ice.Communicator communicator, string name, string[] args) => new PluginI(communicator);
+    public string pluginName => "IceLocatorDiscovery";
+
+    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args) => new PluginI(communicator);
 }
 
 internal class Request : TaskCompletionSource<Ice.Object_Ice_invokeResult>
@@ -671,10 +672,4 @@ internal class PluginI : Ice.Plugin
     private LocatorI _locator;
     private Ice.LocatorPrx _locatorPrx;
     private Ice.LocatorPrx _defaultLocator;
-}
-
-public static class Util
-{
-    public static void registerIceLocatorDiscovery(bool loadOnInitialize) =>
-        Ice.Util.registerPluginFactory("IceLocatorDiscovery", new PluginFactory(), loadOnInitialize);
 }

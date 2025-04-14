@@ -87,9 +87,6 @@ public:
 void
 Server::run(int argc, char** argv)
 {
-#ifdef ICE_STATIC_LIBS
-    registerPluginFactory("Test", createTestTransport, false);
-#endif
     PropertiesPtr properties = createTestProperties(argc, argv);
 
     //
@@ -105,14 +102,25 @@ Server::run(int argc, char** argv)
     //
     properties->setProperty("Ice.TCP.RcvSize", "50000");
 
+    Ice::InitializationData initData;
+    initData.properties = properties;
+
     //
     // Setup the test transport plug-in.
     //
-    properties->setProperty("Ice.Plugin.Test", "TestTransport:createTestTransport");
+    if (IceInternal::isMinBuild())
+    {
+        initData.pluginFactories = {{"Test", createTestTransport}};
+    }
+    else
+    {
+        properties->setProperty("Ice.Plugin.Test", "TestTransport:createTestTransport");
+    }
+
     string defaultProtocol = properties->getIceProperty("Ice.Default.Protocol");
     properties->setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
 
-    CommunicatorHolder communicator = initialize(argc, argv, properties);
+    CommunicatorHolder communicator = initialize(argc, argv, std::move(initData));
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
     communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));

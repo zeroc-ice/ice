@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Ice/Ice.h"
-#include "Ice/RegisterPlugins.h"
 #include "Util.h"
 #include "ice.h"
 
@@ -13,21 +12,6 @@
 
 using namespace std;
 using namespace IceMatlab;
-
-namespace
-{
-    class Init
-    {
-    public:
-        Init()
-        {
-            Ice::registerIceDiscovery(false);
-            Ice::registerIceLocatorDiscovery(false);
-        }
-    };
-
-    Init init;
-}
 
 extern "C"
 {
@@ -57,6 +41,17 @@ extern "C"
 
             // Always accept cycles in MATLAB.
             initData.properties->setProperty("Ice.AcceptClassCycles", "1");
+
+            // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.
+            if (!initData.properties->getIceProperty("Ice.Plugin.IceDiscovery").empty())
+            {
+                initData.pluginFactories.push_back(Ice::discoveryPluginFactory());
+            }
+
+            if (!initData.properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery").empty())
+            {
+                initData.pluginFactories.push_back(Ice::locatorDiscoveryPluginFactory());
+            }
 
             *r = new shared_ptr<Ice::Communicator>(Ice::initialize(a, initData));
 
