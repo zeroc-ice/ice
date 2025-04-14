@@ -117,9 +117,10 @@ module Test
     }
 }
 
-["swift:module:Test:Test2"]
+["swift:identifier:Test"]
 module Test2
 {
+    ["swift:identifier:Test2Sub2"]
     module Sub2
     {
         enum NestedEnum2

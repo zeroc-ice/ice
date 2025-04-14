@@ -14,7 +14,7 @@
 
 #include "Ice/Metrics.ice"
 
-["swift:module:Glacier2:MX"]
+["swift:identifier:Glacier2"]
 module IceMX
 {
     /// Provides information about Glacier2 sessions.

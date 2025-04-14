@@ -2,6 +2,8 @@
 
 #pragma once
 
+[["suppress-warning:deprecated"]] // for 'swift:module'
+
 module Test
 {
     struct MyStruct

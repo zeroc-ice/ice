@@ -531,6 +531,20 @@ SwiftGenerator::validateMetadata(const UnitPtr& u)
         .validOn = {typeid(Module)},
         // Even though it's really 'module:prefix' the validator sees this as a single argument since there's no commas.
         .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+        .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
+        {
+            const string msg = "'swift:module' is deprecated; use 'swift:identifier' to remap modules instead";
+            p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
+
+            if (auto contained = dynamic_pointer_cast<Contained>(p))
+            {
+                if (contained->hasMetadata("swift:identifier"))
+                {
+                    return "the 'swift:module' metadata cannot be used alongside 'swift:identifier' - both change the mapped name of this module";
+                }
+            }
+            return nullopt;
+        }
     };
     knownMetadata.emplace("swift:module", moduleInfo);
 
@@ -1603,8 +1617,6 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
     const string opName = op->mappedName();
     const ParameterList inParams = op->inParameters();
     const bool returnsAnyValues = op->returnsAnyValues();
-
-    const string swiftModule = getSwiftModule(getTopLevelModule(op));
 
     out << sp;
     out << nl << "public func _iceD_" << removeEscaping(opName)
