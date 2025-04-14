@@ -9,7 +9,7 @@
 
 namespace IceInternal
 {
-    /// Adds the default plug-in factories, for IceSSL, IceTCP, plus, depending on the build, IceUDP and IceWS.
+    /// Adds the default plug-in factories for IceSSL, IceTCP, and, depending on the build, IceUDP and IceWS.
     void addDefaultPluginFactories(std::vector<Ice::PluginFactory>&);
 }
 
