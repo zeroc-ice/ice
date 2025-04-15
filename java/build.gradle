@@ -47,7 +47,13 @@ subprojects {
     }
 
     // We want Checkstyle to generally run after Rewrite and to exclude files generated from Slice.
+    // You need to use -PenableCops to be able to invoke the checkstyle, rewriteRun, and rewriteDryRun tasks
+    // The tasks still need to be manually called if nothing else invokes them.
     tasks.withType(Checkstyle) {
+        task ->
+            if (!project.hasProperty("enableCops")) {
+                task.enabled = false 
+            }
         dependsOn(rewriteDryRun)
         exclude(
             '**/generated/**'
@@ -145,9 +151,21 @@ dependencies {
 }
 
 // Use -PenableDryRunFail in the command line to enable failing the project during any operation with rewriteDryRun.
-task rewriteDryRunFailable {
+// You need to use -PenableCops to be able to invoke the checkstyle, rewriteRun, and rewriteDryRun tasks.
+// The tasks still need to be manually called if nothing else invokes them.
+tasks.named('rewriteDryRun') {
+    task ->
+        if (!project.hasProperty("enableCops")) {
+            task.enabled = false
+        }
     if (project.hasProperty("enableDryRunFail")) {
         rewrite.failOnDryRunResults = true
     }
-    finalizedBy rewriteDryRun
+}
+
+tasks.named('rewriteRun') {
+    task ->
+        if (!project.hasProperty("enableCops")) {
+            task.enabled = false
+        }
 }
