@@ -144,9 +144,9 @@ dependencies {
     )
 }
 
-// Use -PdryRunFailSkip in the command line to avoid failing the project during an OpenRewrite dryRun.
+// Use -PenableDryRunFail in the command line to enable failing the project during any operation with rewriteDryRun.
 task rewriteDryRunFailable {
-    if (!project.hasProperty("dryRunFailSkip")) {
+    if (project.hasProperty("enableDryRunFail")) {
         rewrite.failOnDryRunResults = true
     }
     finalizedBy rewriteDryRun

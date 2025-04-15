@@ -1,0 +1,18 @@
+name: Java
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["main"]
+
+jobs:
+  rewriteCatch:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Setup Java
+        uses: ./.github/actions/setup-java
+
+      - name: Run rewriteDryRun with build failure enabled
+        uses: ./java/gradlew rewriteDryRun -PenableDryRunFail
