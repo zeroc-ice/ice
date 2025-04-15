@@ -14,8 +14,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
       - name: Setup Java
         uses: ./.github/actions/setup-java
+
+      - name: Build slice2java
+        run: make -C cpp slice2java
 
       - name: Run rewriteDryRun with build failure enabled
         run: ./java/gradlew rewriteDryRun -PenableDryRunFail --project-dir ./java/
