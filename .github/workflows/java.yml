@@ -25,4 +25,4 @@ jobs:
 
       - name: Run rewriteDryRun with build failure enabled
         working-directory: java
-        run: ./java/gradlew rewriteDryRun -PenableCops -PfailOnDryRunResults
+        run: ./gradlew rewriteDryRun -PenableCops -PfailOnDryRunResults
