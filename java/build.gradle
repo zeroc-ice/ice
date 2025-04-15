@@ -155,7 +155,6 @@ tasks.named('rewriteDryRun') {
     task ->
         task.enabled = project.hasProperty("enableCops")
     rewrite.failOnDryRunResults = project.hasProperty("failOnDryRunResults")
-    
 }
 
 tasks.named('rewriteRun') {
