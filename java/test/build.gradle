@@ -20,7 +20,7 @@ sourceSets {
 dependencies {
     implementation project(':ice')
     runtimeOnly project(':icediscovery')
-    runtimeOnly project(':icelocatordiscovery')
+    implementation project(':icelocatordiscovery')
     implementation project(':icebox')
     implementation project(':glacier2')
     implementation project(':icestorm')

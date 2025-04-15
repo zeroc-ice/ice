@@ -6,6 +6,11 @@ import com.zeroc.Ice.Communicator;
 
 public class PluginFactory implements com.zeroc.Ice.PluginFactory {
     @Override
+    public String getPluginName() {
+        return "Test";
+    }
+
+    @Override
     public com.zeroc.Ice.Plugin create(
             Communicator communicator, String name, String[] args) {
         return new Plugin(args);
