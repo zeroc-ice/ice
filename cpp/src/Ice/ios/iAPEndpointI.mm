@@ -22,14 +22,6 @@
 
 #    include <fstream>
 
-#    ifndef ICEIAP_API
-#        if defined(ICEIAP_API_EXPORTS)
-#            define ICEIAP_API ICE_DECLSPEC_EXPORT
-#        else
-#            define ICEIAP_API ICE_DECLSPEC_IMPORT
-#        endif
-#    endif
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -57,15 +49,16 @@ namespace
     };
 }
 
-extern "C" ICEIAP_API Plugin*
+extern "C" ICE_API Plugin*
 createIceIAP(const CommunicatorPtr& com, const string&, const StringSeq&)
 {
     return new iAPEndpointFactoryPlugin(com);
 }
 
-namespace Ice
+PluginFactory
+Ice::iapPluginFactory()
 {
-    ICEIAP_API PluginFactory iapPluginFactory() { return {"IceIAP", createIceIAP}; }
+    return {"IceIAP", createIceIAP};
 }
 
 IceObjC::iAPEndpointI::iAPEndpointI(

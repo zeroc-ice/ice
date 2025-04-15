@@ -171,25 +171,25 @@
     <ClCompile Include="..\..\WellKnownObjectsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\IceLocatorDiscovery.cpp">
+    <ClCompile Include="Win32\Debug\Lookup.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Internal.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Debug\IceLocatorDiscovery.cpp">
+    <ClCompile Include="x64\Debug\Lookup.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\Internal.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\IceLocatorDiscovery.cpp">
+    <ClCompile Include="Win32\Release\Lookup.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Release\Internal.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\IceLocatorDiscovery.cpp">
+    <ClCompile Include="x64\Release\Lookup.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
     <ClCompile Include="x64\Release\Internal.cpp">
@@ -203,16 +203,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Win32\Debug\IceLocatorDiscovery.h">
+    <ClInclude Include="Win32\Debug\Lookup.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Debug\IceLocatorDiscovery.h">
+    <ClInclude Include="x64\Debug\Lookup.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Release\IceLocatorDiscovery.h">
+    <ClInclude Include="Win32\Release\Lookup.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Release\IceLocatorDiscovery.h">
+    <ClInclude Include="x64\Release\Lookup.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="Win32\Debug\Internal.h">
@@ -232,7 +232,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice">
+    <SliceCompile Include="..\..\..\..\..\slice\IceLocatorDiscovery\Lookup.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\Internal.ice">

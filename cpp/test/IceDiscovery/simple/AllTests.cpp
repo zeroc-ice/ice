@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Ice/Ice.h"
+#include "IceDiscovery/IceDiscovery.h"
 #include "Test.h"
 #include "TestHelper.h"
 
@@ -213,7 +214,7 @@ allTests(Test::TestHelper* helper, int num)
                 initData.pluginFactories = {
                     Ice::udpPluginFactory(),
                     Ice::wsPluginFactory(),
-                    Ice::discoveryPluginFactory()};
+                    IceDiscovery::discoveryPluginFactory()};
             }
 
             Ice::CommunicatorPtr com = Ice::initialize(initData);
@@ -246,7 +247,7 @@ allTests(Test::TestHelper* helper, int num)
                 initData.pluginFactories = {
                     Ice::udpPluginFactory(),
                     Ice::wsPluginFactory(),
-                    Ice::discoveryPluginFactory()};
+                    IceDiscovery::discoveryPluginFactory()};
             }
 
             Ice::CommunicatorPtr com = Ice::initialize(initData);

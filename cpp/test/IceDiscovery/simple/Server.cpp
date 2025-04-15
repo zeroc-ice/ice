@@ -1,13 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Ice/Ice.h"
+#include "IceDiscovery/IceDiscovery.h"
 #include "TestHelper.h"
 #include "TestI.h"
-
-// Link with IceDiscovery on Windows.
-#if defined(_MSC_VER) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
-#    pragma comment(lib, ICE_LIBNAME("IceDiscovery"))
-#endif
 
 using namespace std;
 
@@ -27,7 +23,7 @@ Server::run(int argc, char** argv)
     {
         // We can provide udpPluginFactory() here, but it's optional even with a static build since we use TestHelper's
         // initialize with registerPlugins = true (the default).
-        initData.pluginFactories = {Ice::udpPluginFactory(), Ice::discoveryPluginFactory()};
+        initData.pluginFactories = {Ice::udpPluginFactory(), IceDiscovery::discoveryPluginFactory()};
     }
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, std::move(initData));

@@ -2,9 +2,9 @@
 
 #include "../Ice/Network.h" // For getInterfacesForMulticast
 #include "../Ice/Timer.h"
-#include "Ice/Ice.h"
 #include "Ice/LoggerUtil.h"
-#include "IceLocatorDiscovery.h"
+#include "IceLocatorDiscovery/IceLocatorDiscovery.h"
+#include "Lookup.h"
 #include "Plugin.h"
 
 #include <algorithm>
@@ -171,12 +171,10 @@ createIceLocatorDiscovery(const Ice::CommunicatorPtr& communicator, const string
     return new PluginI(communicator);
 }
 
-namespace Ice
+Ice::PluginFactory
+IceLocatorDiscovery::locatorDiscoveryPluginFactory()
 {
-    ICE_LOCATOR_DISCOVERY_API PluginFactory locatorDiscoveryPluginFactory()
-    {
-        return {"IceLocatorDiscovery", createIceLocatorDiscovery};
-    }
+    return {"IceLocatorDiscovery", createIceLocatorDiscovery};
 }
 
 Plugin::~Plugin() = default;

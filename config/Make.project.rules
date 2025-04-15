@@ -108,7 +108,7 @@ $(addprefix $3/,$(call source-to-object,$4)): $(addprefix $2/,$(call generated-t
 					      $(foreach d,$5,$($d_targets))
 endif
 
-# Add a dedependency on generated headers from dependencies. This will only work if dependency
+# Add a dependency on generated headers from dependencies. This will only work if dependency
 # Makefile.mk are loaded before this component Makefile.mk.
 $(addprefix $3/,$(call source-to-object,$4)): | $(foreach d,$5,$($($d_component)_generated_headers))
 

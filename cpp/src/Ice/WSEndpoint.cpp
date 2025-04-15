@@ -49,9 +49,10 @@ extern "C"
     }
 }
 
-namespace Ice
+PluginFactory
+Ice::wsPluginFactory()
 {
-    ICE_API PluginFactory wsPluginFactory() { return {"IceWS", createIceWS}; }
+    return {"IceWS", createIceWS};
 }
 
 WSEndpointFactoryPlugin::WSEndpointFactoryPlugin(const CommunicatorPtr& communicator)

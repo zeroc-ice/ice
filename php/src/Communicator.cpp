@@ -1,14 +1,15 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Communicator.h"
+#include "Ice/Options.h"
+#include "Ice/StringUtil.h"
+#include "IceDiscovery/IceDiscovery.h"
+#include "IceLocatorDiscovery/IceLocatorDiscovery.h"
 #include "Logger.h"
 #include "Properties.h"
 #include "Proxy.h"
 #include "Types.h"
 #include "Util.h"
-
-#include "Ice/Options.h"
-#include "Ice/StringUtil.h"
 
 #include <chrono>
 #include <condition_variable>
@@ -1203,12 +1204,12 @@ ZEND_FUNCTION(Ice_initialize)
     // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.
     if (!initData.properties->getIceProperty("Ice.Plugin.IceDiscovery").empty())
     {
-        initData.pluginFactories.push_back(Ice::discoveryPluginFactory());
+        initData.pluginFactories.push_back(IceDiscovery::discoveryPluginFactory());
     }
 
     if (!initData.properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery").empty())
     {
-        initData.pluginFactories.push_back(Ice::locatorDiscoveryPluginFactory());
+        initData.pluginFactories.push_back(IceLocatorDiscovery::locatorDiscoveryPluginFactory());
     }
 
     CommunicatorInfoIPtr info = initializeCommunicator(return_value, seq, zvargs != 0, std::move(initData));

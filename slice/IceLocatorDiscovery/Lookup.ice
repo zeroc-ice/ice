@@ -2,7 +2,6 @@
 
 #pragma once
 
-[["cpp:doxygen:include:IceLocatorDiscovery/IceLocatorDiscovery.h"]]
 [["cpp:header-ext:h"]]
 
 [["java:package:com.zeroc"]]

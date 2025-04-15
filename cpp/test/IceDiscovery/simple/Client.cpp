@@ -1,13 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Ice/Ice.h"
+#include "IceDiscovery/IceDiscovery.h"
 #include "Test.h"
 #include "TestHelper.h"
-
-// Link with IceDiscovery on Windows.
-#if defined(_MSC_VER) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
-#    pragma comment(lib, ICE_LIBNAME("IceDiscovery"))
-#endif
 
 using namespace std;
 using namespace Test;
@@ -26,7 +22,7 @@ Client::run(int argc, char** argv)
 
     if (IceInternal::isMinBuild())
     {
-        initData.pluginFactories = {Ice::discoveryPluginFactory()};
+        initData.pluginFactories = {IceDiscovery::discoveryPluginFactory()};
     }
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, std::move(initData));

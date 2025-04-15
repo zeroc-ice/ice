@@ -1,10 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
-#include "Ice/PluginFactory.h"
 #import <Foundation/Foundation.h>
 
 #include "Controller.h"
 #include "Ice/Ice.h"
+#include "IceDiscovery/IceDiscovery.h"
 #include "TestHelper.h"
 
 #include <dlfcn.h>
@@ -347,7 +347,7 @@ ControllerI::ControllerI(id<ControllerView> controller, NSString* ipv4, NSString
     // initData.properties->setProperty("Ice.Trace.Protocol", "2");
     initData.properties->setProperty("ControllerAdapter.AdapterId", Ice::generateUUID());
 
-    initData.pluginFactories = {Ice::udpPluginFactory(), Ice::discoveryPluginFactory()};
+    initData.pluginFactories = {Ice::udpPluginFactory(), IceDiscovery::discoveryPluginFactory()};
 
     _communicator = Ice::initialize(initData);
 

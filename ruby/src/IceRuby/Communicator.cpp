@@ -6,6 +6,8 @@
 #include "Ice/Locator.h"
 #include "Ice/Properties.h"
 #include "Ice/Router.h"
+#include "IceDiscovery/IceDiscovery.h"
+#include "IceLocatorDiscovery/IceLocatorDiscovery.h"
 #include "ImplicitContext.h"
 #include "Logger.h"
 #include "Properties.h"
@@ -216,12 +218,12 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.
         if (!data.properties->getIceProperty("Ice.Plugin.IceDiscovery").empty())
         {
-            data.pluginFactories.push_back(Ice::discoveryPluginFactory());
+            data.pluginFactories.push_back(IceDiscovery::discoveryPluginFactory());
         }
 
         if (!data.properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery").empty())
         {
-            data.pluginFactories.push_back(Ice::locatorDiscoveryPluginFactory());
+            data.pluginFactories.push_back(IceLocatorDiscovery::locatorDiscoveryPluginFactory());
         }
 
         //

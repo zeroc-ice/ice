@@ -64,8 +64,7 @@ define_macros = [
     ('ICE_DISABLE_PRAGMA_COMMENT', None),
     ('ICE_API', '/**/'),
     ('ICE_DISCOVERY_API', '/**/'),
-    ('ICE_LOCATOR_DISCOVERY_API', '/**/'),
-    ('ICE_PLUGIN_FACTORY_DECLSPEC_IMPORT', '/**/')]
+    ('ICE_LOCATOR_DISCOVERY_API', '/**/')]
 
 # Platform-specific compile and link arguments
 if sys.platform == 'darwin':

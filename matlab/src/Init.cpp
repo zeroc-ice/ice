@@ -1,14 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Ice/Ice.h"
+#include "IceDiscovery/IceDiscovery.h"
+#include "IceLocatorDiscovery/IceLocatorDiscovery.h"
 #include "Util.h"
 #include "ice.h"
-
-// Link with IceDiscovery and IceLocatorDiscovery on Windows
-#if defined(_MSC_VER) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
-#    pragma comment(lib, ICE_LIBNAME("IceDiscovery"))
-#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery"))
-#endif
 
 using namespace std;
 using namespace IceMatlab;
@@ -45,12 +41,12 @@ extern "C"
             // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.
             if (!initData.properties->getIceProperty("Ice.Plugin.IceDiscovery").empty())
             {
-                initData.pluginFactories.push_back(Ice::discoveryPluginFactory());
+                initData.pluginFactories.push_back(IceDiscovery::discoveryPluginFactory());
             }
 
             if (!initData.properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery").empty())
             {
-                initData.pluginFactories.push_back(Ice::locatorDiscoveryPluginFactory());
+                initData.pluginFactories.push_back(IceLocatorDiscovery::locatorDiscoveryPluginFactory());
             }
 
             *r = new shared_ptr<Ice::Communicator>(Ice::initialize(a, initData));

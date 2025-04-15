@@ -21,12 +21,12 @@ $(eval $(call make-global-rule,distclean,$(languages)))
 $(eval $(call make-global-rule,install,$(languages)))
 
 #
-# Install documentation and slice files (don't install IceDiscovery and IceLocatorDiscovery slice files)
+# Install documentation and slice files (don't install IceDiscovery and IceLocatorDiscovery Lookup slice files)
 #
 install:: install-doc install-slice
 
 $(eval $(call install-data-files,$(wildcard $(top_srcdir)/*LICENSE),$(top_srcdir),$(install_docdir),\
          install-doc,"Installing documentation files"))
 
-$(eval $(call install-data-files,$(filter-out %Discovery.ice,$(wildcard $(slicedir)/*/*.ice)),$(slicedir),$(install_slicedir),\
+$(eval $(call install-data-files,$(filter-out Lookup.ice,$(wildcard $(slicedir)/*/*.ice)),$(slicedir),$(install_slicedir),\
          install-slice,"Installing slice files"))

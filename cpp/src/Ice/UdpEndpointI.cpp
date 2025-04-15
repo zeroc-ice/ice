@@ -25,9 +25,10 @@ extern "C"
     }
 }
 
-namespace Ice
+PluginFactory
+Ice::udpPluginFactory()
 {
-    ICE_API PluginFactory udpPluginFactory() { return {"IceUDP", createIceUDP}; }
+    return {"IceUDP", createIceUDP};
 }
 
 IceInternal::UdpEndpointI::UdpEndpointI(

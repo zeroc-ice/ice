@@ -2,11 +2,13 @@
 
 #import "include/IceUtil.h"
 #import "Convert.h"
+#import "Ice/StringUtil.h"
 #import "LoggerWrapperI.h"
 #import "include/Logger.h"
 #import "include/Properties.h"
 
-#import "Ice/StringUtil.h"
+#include "IceDiscovery/IceDiscovery.h"
+#include "IceLocatorDiscovery/IceLocatorDiscovery.h"
 
 @implementation ICEUtil
 static Class<ICELocalExceptionFactory> _exceptionFactory;
@@ -82,12 +84,12 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.
     if (!initData.properties->getIceProperty("Ice.Plugin.IceDiscovery").empty())
     {
-        initData.pluginFactories.push_back(Ice::discoveryPluginFactory());
+        initData.pluginFactories.push_back(IceDiscovery::discoveryPluginFactory());
     }
 
     if (!initData.properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery").empty())
     {
-        initData.pluginFactories.push_back(Ice::locatorDiscoveryPluginFactory());
+        initData.pluginFactories.push_back(IceLocatorDiscovery::locatorDiscoveryPluginFactory());
     }
 
     try

@@ -2,20 +2,12 @@
 
 #include "PluginI.h"
 #include "../Ice/Network.h" // For getInterfacesForMulticast
-#include "Ice/Ice.h"
+#include "IceDiscovery/IceDiscovery.h"
 #include "LocatorI.h"
 #include "LookupI.h"
 
 using namespace std;
 using namespace IceDiscovery;
-
-#ifndef ICE_DISCOVERY_API
-#    ifdef ICE_DISCOVERY_API_EXPORTS
-#        define ICE_DISCOVERY_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICE_DISCOVERY_API /**/
-#    endif
-#endif
 
 //
 // Plugin factory function.
@@ -26,9 +18,10 @@ createIceDiscovery(const Ice::CommunicatorPtr& communicator, const string&, cons
     return new PluginI(communicator);
 }
 
-namespace Ice
+Ice::PluginFactory
+IceDiscovery::discoveryPluginFactory()
 {
-    ICE_DISCOVERY_API PluginFactory discoveryPluginFactory() { return {"IceDiscovery", createIceDiscovery}; }
+    return {"IceDiscovery", createIceDiscovery};
 }
 
 PluginI::PluginI(Ice::CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
