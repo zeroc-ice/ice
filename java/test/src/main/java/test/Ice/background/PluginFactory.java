@@ -35,6 +35,11 @@ public class PluginFactory implements com.zeroc.Ice.PluginFactory {
     }
 
     @Override
+    public String getPluginName() {
+        return "Test";
+    }
+
+    @Override
     public Plugin create(
             Communicator communicator, String name, String[] args) {
         return new PluginI(communicator);

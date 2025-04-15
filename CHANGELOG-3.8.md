@@ -252,6 +252,10 @@ Slice sequences, enabled by the `cpp:array` metadata directive, and a compatible
 earlier releases, this unaligned unmarshaling was turned on automatically on x86 and x64 CPUs, and turned off on all
 other CPUs.
 
+- Replaced the `Ice::registerPluginFactory` mechanism (with `Ice::registerIceUDP`, `Ice::registerIceDiscovery`, etc.)
+by plug-in factories on InitializationData. The corresponding plug-ins are created during communicator initialization.
+See `InitializationData::pluginFactories`.
+
 - Removed StringConverterPlugin and ThreadHookPlugin.
 
 ## C# Changes
@@ -262,9 +266,15 @@ was executed in a thread managed by the same Ice thread pool unless you specifie
 
 - The `cs:attribute` Slice metadata is now limited to enums, enumerators, fields, and constants.
 
+- Replaced the `Ice.Util.registerPluginFactory` mechanism by plug-in factories on InitializationData. The corresponding
+plug-ins are created during communicator initialization. See `InitializationData.pluginFactories`.
+
 - Removed ThreadHookPlugin.
 
 ## Java Changes
+
+- Add plug-in factories to InitializationData. The corresponding plug-ins are created during communicator
+initialization. See `InitializationData.pluginFactories`.
 
 - Removed ThreadHookPlugin.
 

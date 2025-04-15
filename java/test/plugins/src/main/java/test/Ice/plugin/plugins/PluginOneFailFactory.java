@@ -8,6 +8,11 @@ import com.zeroc.Ice.PluginFactory;
 
 public class PluginOneFailFactory implements PluginFactory {
     @Override
+    public String getPluginName() {
+        return "Test";
+    }
+
+    @Override
     public Plugin create(
             Communicator communicator, String name, String[] args) {
         return new PluginOneFail(communicator);

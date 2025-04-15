@@ -301,7 +301,7 @@ internal sealed class PluginManagerI : PluginManager
             //
             // Extract the assembly name and the class name.
             //
-            int sepPos = entryPoint!.IndexOf(':', StringComparison.Ordinal);
+            int sepPos = entryPoint.IndexOf(':', StringComparison.Ordinal);
             if (sepPos != -1)
             {
                 const string driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";

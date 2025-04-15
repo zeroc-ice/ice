@@ -22,10 +22,12 @@ import com.zeroc.IceGrid.PermissionDeniedException;
 import com.zeroc.IceGrid.RegistryPrx;
 import com.zeroc.IceGrid.ServerNotExistException;
 import com.zeroc.IceGrid.ServerStopException;
+import com.zeroc.IceLocatorDiscovery.PluginFactory;
 
 import test.IceGrid.simple.Test.TestIntfPrx;
 import test.TestHelper;
 
+import java.util.Collections;
 import java.io.PrintWriter;
 
 public class AllTests {
@@ -96,11 +98,10 @@ public class AllTests {
             // Ensure the IceGrid discovery locator can discover the registries and make sure
             // locator requests are forwarded.
             InitializationData initData = new InitializationData();
+            initData.pluginFactories = Collections.singletonList(new PluginFactory());
+
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty(
-                "Ice.Plugin.IceLocatorDiscovery",
-                "IceLocatorDiscovery:com.zeroc.IceLocatorDiscovery.PluginFactory");
             initData.properties.setProperty(
                 "IceLocatorDiscovery.Port", Integer.toString(helper.getTestPort(99)));
             initData.properties.setProperty(
@@ -165,9 +166,6 @@ public class AllTests {
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty(
-                "Ice.Plugin.IceLocatorDiscovery",
-                "com.zeroc.IceLocatorDiscovery.PluginFactory");
-            initData.properties.setProperty(
                 "IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
             comm = Util.initialize(initData);
             test(comm.getDefaultLocator() != null);
@@ -181,9 +179,6 @@ public class AllTests {
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "0");
             initData.properties.setProperty(
-                "Ice.Plugin.IceLocatorDiscovery",
-                "com.zeroc.IceLocatorDiscovery.PluginFactory");
-            initData.properties.setProperty(
                 "IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
             comm = Util.initialize(initData);
             test(comm.getDefaultLocator() != null);
@@ -196,9 +191,6 @@ public class AllTests {
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
-            initData.properties.setProperty(
-                "Ice.Plugin.IceLocatorDiscovery",
-                "com.zeroc.IceLocatorDiscovery.PluginFactory");
             {
                 String intf = initData.properties.getIceProperty("IceLocatorDiscovery.Interface");
                 if (!intf.isEmpty()) {

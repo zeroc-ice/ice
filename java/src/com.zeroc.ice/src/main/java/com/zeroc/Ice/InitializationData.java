@@ -5,6 +5,8 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
@@ -15,7 +17,7 @@ import java.util.function.BiConsumer;
  * @see Logger
  */
 public final class InitializationData implements Cloneable {
-    /** Creates an instance with all members set to <code>null</code>. */
+    /** Creates an instance with all members set to <code>null</code> or empty. */
     public InitializationData() {}
 
     /** Creates and returns a copy of this object. */
@@ -77,4 +79,10 @@ public final class InitializationData implements Cloneable {
      * the SSLEngineFactory.
      */
     public SSLEngineFactory clientSSLEngineFactory;
+
+    /**
+     * The plug-in factories. The corresponding plug-ins are created during communicator initialization,
+     * in order, before all other plug-ins.
+     */
+    public List<PluginFactory> pluginFactories = Collections.emptyList();
 }

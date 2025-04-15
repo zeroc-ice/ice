@@ -5,6 +5,7 @@ package test.Ice.background;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.Locator;
 import com.zeroc.Ice.LocatorRegistryPrx;
 import com.zeroc.Ice.ObjectAdapter;
@@ -16,6 +17,7 @@ import com.zeroc.Ice.Util;
 import test.Ice.background.PluginFactory.PluginI;
 import test.TestHelper;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -91,16 +93,17 @@ public class Server extends TestHelper {
         // these buffers.
         properties.setProperty("Ice.TCP.RcvSize", "50000");
 
-        //
-        // Setup the test transport plug-in.
-        //
-        properties.setProperty("Ice.Plugin.Test", "test.Ice.background.PluginFactory");
         properties.setProperty(
             "Ice.Default.Protocol",
             "test-" + properties.getIceProperty("Ice.Default.Protocol"));
         properties.setProperty("Ice.Package.Test", "test.Ice.background");
 
-        try (Communicator communicator = initialize(properties)) {
+        // Install transport plug-in.
+        var initData = new InitializationData();
+        initData.properties = properties;
+        initData.pluginFactories = Collections.singletonList(new PluginFactory());
+
+        try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator
                 .getProperties()

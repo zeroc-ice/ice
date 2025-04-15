@@ -8,6 +8,11 @@ import com.zeroc.Ice.Plugin;
 /** Creates IceDiscovery plug-ins. */
 public class PluginFactory implements com.zeroc.Ice.PluginFactory {
     @Override
+    public String getPluginName() {
+        return "IceDiscovery";
+    }
+
+    @Override
     public Plugin create(
             Communicator communicator, String name, String[] args) {
         return new PluginI(communicator);

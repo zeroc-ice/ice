@@ -3,7 +3,10 @@
 package test.Ice.background;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.Properties;
+
+import java.util.Collections;
 
 import test.Ice.background.PluginFactory.PluginI;
 import test.Ice.background.Test.BackgroundPrx;
@@ -28,16 +31,18 @@ public class Client extends TestHelper {
         //
         properties.setProperty("Ice.TCP.SndSize", "50000");
 
-        //
-        // Setup the test transport plug-in.
-        //
-        properties.setProperty("Ice.Plugin.Test", "test.Ice.background.PluginFactory");
         properties.setProperty(
             "Ice.Default.Protocol",
             "test-" + properties.getIceProperty("Ice.Default.Protocol"));
 
         properties.setProperty("Ice.Package.Test", "test.Ice.background");
-        try (Communicator communicator = initialize(properties)) {
+
+        // Install transport plug-in.
+        var initData = new InitializationData();
+        initData.properties = properties;
+        initData.pluginFactories = Collections.singletonList(new PluginFactory());
+
+        try (Communicator communicator = initialize(initData)) {
             PluginI plugin = (PluginI) communicator().getPluginManager().getPlugin("Test");
             BackgroundPrx background = AllTests.allTests(plugin.getConfiguration(), this);
             background.shutdown();

@@ -138,6 +138,22 @@ final class PluginManagerI implements PluginManager {
     public String[] loadPlugins(String[] cmdArgs) {
         assert (_communicator != null);
 
+        final String prefix = "Ice.Plugin.";
+        Properties properties = _communicator.getProperties();
+        Map<String, String> plugins = properties.getPropertiesForPrefix(prefix);
+
+        // First, create plug-ins using the plug-in factories from initData, in order.
+        for (PluginFactory pluginFactory : _communicator.getInstance().initializationData().pluginFactories) {
+            String name = pluginFactory.getPluginName();
+            String key = "Ice.Plugin." + name;
+            if (plugins.containsKey(key)) {
+                cmdArgs = loadPlugin(pluginFactory, name, plugins.get(key), cmdArgs);
+                plugins.remove(key);
+            } else {
+                cmdArgs = loadPlugin(pluginFactory, name, "", cmdArgs);
+            }
+        }
+
         //
         // Load and initialize the plug-ins defined in the property set
         // with the prefix "Ice.Plugin.". These properties should
@@ -149,9 +165,6 @@ final class PluginManagerI implements PluginManager {
         // specified plug-ins in the specified order, then load any
         // remaining plug-ins.
         //
-        final String prefix = "Ice.Plugin.";
-        Properties properties = _communicator.getProperties();
-        Map<String, String> plugins = properties.getPropertiesForPrefix(prefix);
 
         final String[] loadOrder = properties.getIcePropertyAsList("Ice.PluginLoadOrder");
         for (String name : loadOrder) {
@@ -163,7 +176,7 @@ final class PluginManagerI implements PluginManager {
             boolean hasKey = plugins.containsKey(key);
             if (hasKey) {
                 final String value = plugins.get(key);
-                cmdArgs = loadPlugin(name, value, cmdArgs);
+                cmdArgs = loadPlugin(null, name, value, cmdArgs);
                 plugins.remove(key);
             } else {
                 throw new PluginInitializationException("plug-in '" + name + "' not defined");
@@ -176,14 +189,18 @@ final class PluginManagerI implements PluginManager {
         for (var entry : plugins.entrySet()) {
             cmdArgs =
                 loadPlugin(
-                    entry.getKey().substring(prefix.length()), entry.getValue(), cmdArgs);
+                    null, entry.getKey().substring(prefix.length()), entry.getValue(), cmdArgs);
         }
 
         return cmdArgs;
     }
 
-    private String[] loadPlugin(String name, String pluginSpec, String[] cmdArgs) {
+    private String[] loadPlugin(PluginFactory pluginFactory, String name, String pluginSpec, String[] cmdArgs) {
         assert (_communicator != null);
+
+        if (findPlugin(name) != null) {
+            throw new AlreadyRegisteredException(_kindOfObject, name);
+        }
 
         //
         // We support the following formats:
@@ -195,169 +212,171 @@ final class PluginManagerI implements PluginManager {
         // "<path with spaces>:<class-name>" [args]
         //
 
-        String[] args;
-        try {
-            args = Options.split(pluginSpec);
-        } catch (ParseException ex) {
-            throw new PluginInitializationException(
-                "invalid arguments for plug-in `" + name + "'", ex);
-        }
-
-        assert (args.length > 0);
-
-        final String entryPoint = args[0];
-
-        final boolean isWindows = System.getProperty("os.name").startsWith("Windows");
+        String[] args = new String[0];
+        String entryPoint = "";
+        String classDir = null; // Path name of JAR file or subdirectory.
+        String className = "InvalidClass";
         boolean absolutePath = false;
 
-        //
-        // Find first ':' that isn't part of the file path.
-        //
-        int pos = entryPoint.indexOf(':');
-        if (isWindows) {
-            final String driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            if (pos == 1
-                && entryPoint.length() > 2
-                && driveLetters.indexOf(entryPoint.charAt(0)) != -1
-                && (entryPoint.charAt(2) == '\\' || entryPoint.charAt(2) == '/')) {
-                absolutePath = true;
-                pos = entryPoint.indexOf(':', pos + 1);
+        if (!pluginSpec.isEmpty()) {
+            try {
+                args = Options.split(pluginSpec);
+            } catch (ParseException ex) {
+                throw new PluginInitializationException(
+                    "invalid arguments for plug-in `" + name + "'", ex);
             }
-            if (!absolutePath) {
-                absolutePath = entryPoint.startsWith("\\\\");
-            }
-        } else {
-            absolutePath = entryPoint.startsWith("/");
-        }
 
-        if ((pos == -1 && absolutePath) || (pos != -1 && entryPoint.length() <= pos + 1)) {
-            //
-            // Class name is missing.
-            //
-            throw new PluginInitializationException(
-                "invalid entry point for plug-in `" + name + "':\n" + entryPoint);
-        }
+            assert (args.length > 0);
 
-        //
-        // Extract the JAR file or subdirectory, if any.
-        //
-        String classDir = null; // Path name of JAR file or subdirectory.
-        String className;
+            entryPoint = args[0];
 
-        if (pos == -1) {
-            className = entryPoint;
-        } else {
-            classDir = entryPoint.substring(0, pos).trim();
-            className = entryPoint.substring(pos + 1).trim();
-        }
-
-        //
-        // Shift the arguments.
-        //
-        String[] tmp = new String[args.length - 1];
-        System.arraycopy(args, 1, tmp, 0, args.length - 1);
-        args = tmp;
-
-        //
-        // Convert command-line options into properties. First we
-        // convert the options from the plug-in configuration, then
-        // we convert the options from the application command-line.
-        //
-        Properties properties = _communicator.getProperties();
-        args = properties.parseCommandLineOptions(name, args);
-        cmdArgs = properties.parseCommandLineOptions(name, cmdArgs);
-
-        //
-        // Instantiate the class.
-        //
-        PluginFactory pluginFactory = null;
-        try {
-            Class<?> c = null;
+            final boolean isWindows = System.getProperty("os.name").startsWith("Windows");
 
             //
-            // Use a class loader if the user specified a JAR file or class directory.
+            // Find first ':' that isn't part of the file path.
             //
-            if (classDir != null) {
-                try {
-                    if (!absolutePath) {
-                        classDir =
-                            new File(
-                                System.getProperty("user.dir")
-                                    + File.separator
-                                    + classDir)
-                                .getCanonicalPath();
-                    }
-
-                    if (!classDir.endsWith(File.separator)
-                        && !classDir.toLowerCase().endsWith(".jar")) {
-                        classDir += File.separator;
-                    }
-                    classDir = URLEncoder.encode(classDir, "UTF-8");
-
-                    //
-                    // Reuse an existing class loader if we have already loaded a plug-in with
-                    // the same value for classDir, otherwise create a new one.
-                    //
-                    ClassLoader cl = null;
-
-                    if (_classLoaders == null) {
-                        _classLoaders = new HashMap<>();
-                    } else {
-                        cl = _classLoaders.get(classDir);
-                    }
-
-                    if (cl == null) {
-                        final URL[] url =
-                            new URL[]{new URL("file", null, classDir)};
-
-                        //
-                        // Use the custom class loader (if any) as the parent.
-                        //
-                        if (_instance.initializationData().classLoader != null) {
-                            cl =
-                                new URLClassLoader(
-                                    url, _instance.initializationData().classLoader);
-                        } else {
-                            cl = new URLClassLoader(url);
-                        }
-
-                        _classLoaders.put(classDir, cl);
-                    }
-
-                    c = cl.loadClass(className);
-                } catch (MalformedURLException ex) {
-                    throw new PluginInitializationException(
-                        "invalid entry point format `" + pluginSpec + "'", ex);
-                } catch (IOException ex) {
-                    throw new PluginInitializationException(
-                        "invalid path in entry point `" + pluginSpec + "'", ex);
-                } catch (ClassNotFoundException ex) {
-                    // Ignored
+            int pos = entryPoint.indexOf(':');
+            if (isWindows) {
+                final String driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                if (pos == 1
+                    && entryPoint.length() > 2
+                    && driveLetters.indexOf(entryPoint.charAt(0)) != -1
+                    && (entryPoint.charAt(2) == '\\' || entryPoint.charAt(2) == '/')) {
+                    absolutePath = true;
+                    pos = entryPoint.indexOf(':', pos + 1);
+                }
+                if (!absolutePath) {
+                    absolutePath = entryPoint.startsWith("\\\\");
                 }
             } else {
-                c = _communicator.getInstance().findClass(className);
+                absolutePath = entryPoint.startsWith("/");
             }
 
-            if (c == null) {
-                throw new PluginInitializationException("class " + className + " not found");
-            }
-
-            java.lang.Object obj = c.getDeclaredConstructor().newInstance();
-            try {
-                pluginFactory = (PluginFactory) obj;
-            } catch (ClassCastException ex) {
+            if ((pos == -1 && absolutePath) || (pos != -1 && entryPoint.length() <= pos + 1)) {
+                //
+                // Class name is missing.
+                //
                 throw new PluginInitializationException(
-                    "class " + className + " does not implement PluginFactory", ex);
+                    "invalid entry point for plug-in `" + name + "':\n" + entryPoint);
             }
-        } catch (NoSuchMethodException ex) {
-            throw new PluginInitializationException("unable to instantiate class " + className, ex);
-        } catch (java.lang.reflect.InvocationTargetException ex) {
-            throw new PluginInitializationException("unable to instantiate class " + className, ex);
-        } catch (IllegalAccessException ex) {
-            throw new PluginInitializationException(
-                "unable to access default constructor in class " + className, ex);
-        } catch (InstantiationException ex) {
-            throw new PluginInitializationException("unable to instantiate class " + className, ex);
+
+            //
+            // Extract the JAR file or subdirectory, if any.
+            //
+
+            if (pos == -1) {
+                className = entryPoint;
+            } else {
+                classDir = entryPoint.substring(0, pos).trim();
+                className = entryPoint.substring(pos + 1).trim();
+            }
+
+            //
+            // Shift the arguments.
+            //
+            String[] tmp = new String[args.length - 1];
+            System.arraycopy(args, 1, tmp, 0, args.length - 1);
+            args = tmp;
+
+            //
+            // Convert command-line options into properties. First we
+            // convert the options from the plug-in configuration, then
+            // we convert the options from the application command-line.
+            //
+            Properties properties = _communicator.getProperties();
+            args = properties.parseCommandLineOptions(name, args);
+            cmdArgs = properties.parseCommandLineOptions(name, cmdArgs);
+        }
+
+        if (pluginFactory == null) {
+            try {
+                Class<?> c = null;
+
+                //
+                // Use a class loader if the user specified a JAR file or class directory.
+                //
+                if (classDir != null) {
+                    try {
+                        if (!absolutePath) {
+                            classDir =
+                                new File(
+                                    System.getProperty("user.dir")
+                                        + File.separator
+                                        + classDir)
+                                    .getCanonicalPath();
+                        }
+
+                        if (!classDir.endsWith(File.separator)
+                            && !classDir.toLowerCase().endsWith(".jar")) {
+                            classDir += File.separator;
+                        }
+                        classDir = URLEncoder.encode(classDir, "UTF-8");
+
+                        //
+                        // Reuse an existing class loader if we have already loaded a plug-in with
+                        // the same value for classDir, otherwise create a new one.
+                        //
+                        ClassLoader cl = null;
+
+                        if (_classLoaders == null) {
+                            _classLoaders = new HashMap<>();
+                        } else {
+                            cl = _classLoaders.get(classDir);
+                        }
+
+                        if (cl == null) {
+                            final URL[] url =
+                                new URL[]{new URL("file", null, classDir)};
+
+                            //
+                            // Use the custom class loader (if any) as the parent.
+                            //
+                            if (_instance.initializationData().classLoader != null) {
+                                cl =
+                                    new URLClassLoader(
+                                        url, _instance.initializationData().classLoader);
+                            } else {
+                                cl = new URLClassLoader(url);
+                            }
+
+                            _classLoaders.put(classDir, cl);
+                        }
+
+                        c = cl.loadClass(className);
+                    } catch (MalformedURLException ex) {
+                        throw new PluginInitializationException(
+                            "invalid entry point format '" + pluginSpec + "'", ex);
+                    } catch (IOException ex) {
+                        throw new PluginInitializationException(
+                            "invalid path in entry point '" + pluginSpec + "'", ex);
+                    } catch (ClassNotFoundException ex) {
+                        // Ignored
+                    }
+                } else {
+                    c = _communicator.getInstance().findClass(className);
+                }
+
+                if (c == null) {
+                    throw new PluginInitializationException("class " + className + " not found");
+                }
+
+                java.lang.Object obj = c.getDeclaredConstructor().newInstance();
+                try {
+                    pluginFactory = (PluginFactory) obj;
+                } catch (ClassCastException ex) {
+                    throw new PluginInitializationException(
+                        "class " + className + " does not implement PluginFactory", ex);
+                }
+            } catch (NoSuchMethodException ex) {
+                throw new PluginInitializationException("unable to instantiate class " + className, ex);
+            } catch (java.lang.reflect.InvocationTargetException ex) {
+                throw new PluginInitializationException("unable to instantiate class " + className, ex);
+            } catch (IllegalAccessException ex) {
+                throw new PluginInitializationException(
+                    "unable to access default constructor in class " + className, ex);
+            } catch (InstantiationException ex) {
+                throw new PluginInitializationException("unable to instantiate class " + className, ex);
+            }
         }
 
         //
