@@ -24,4 +24,5 @@ jobs:
         run: make -C cpp slice2java
 
       - name: Run rewriteDryRun with build failure enabled
-        run: ./java/gradlew rewriteDryRun -PenableDryRunFail -PenableCops --project-dir ./java/
+        working-directory: java
+        run: ./java/gradlew rewriteDryRun -PenableCops -PfailOnDryRunResults

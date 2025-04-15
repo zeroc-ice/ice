@@ -51,9 +51,7 @@ subprojects {
     // The tasks still need to be manually called if nothing else invokes them.
     tasks.withType(Checkstyle) {
         task ->
-            if (!project.hasProperty("enableCops")) {
-                task.enabled = false
-            }
+            task.enabled = project.hasProperty("enableCops")
         dependsOn(rewriteDryRun)
         exclude(
             '**/generated/**'
@@ -150,22 +148,17 @@ dependencies {
     )
 }
 
-// Use -PenableDryRunFail in the command line to enable failing the project during any operation with rewriteDryRun.
+// Use -PfailOnDryRunResults in the command line to enable failing the project during any operation with rewriteDryRun.
 // You need to use -PenableCops to be able to invoke the checkstyle, rewriteRun, and rewriteDryRun tasks.
 // The tasks still need to be manually called if nothing else invokes them.
 tasks.named('rewriteDryRun') {
     task ->
-        if (!project.hasProperty("enableCops")) {
-            task.enabled = false
-        }
-    if (project.hasProperty("enableDryRunFail")) {
-        rewrite.failOnDryRunResults = true
-    }
+        task.enabled = project.hasProperty("enableCops")
+    rewrite.failOnDryRunResults = project.hasProperty("failOnDryRunResults")
+    
 }
 
 tasks.named('rewriteRun') {
     task ->
-        if (!project.hasProperty("enableCops")) {
-            task.enabled = false
-        }
+        task.enabled = project.hasProperty("enableCops")
 }
