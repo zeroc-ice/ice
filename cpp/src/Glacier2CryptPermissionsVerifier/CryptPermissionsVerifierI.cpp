@@ -31,6 +31,8 @@ using namespace Glacier2;
 
 namespace
 {
+    const char* const cryptPluginName = "Glacier2CryptPermissionsVerifier";
+
 #if defined(__APPLE__)
     template<typename T> struct CFTypeRefDeleter
     {
@@ -488,6 +490,16 @@ extern "C"
     CRYPT_PERMISSIONS_VERIFIER_API Ice::Plugin*
     createCryptPermissionsVerifier(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
     {
+        string pluginName{cryptPluginName};
+
+        if (name != pluginName)
+        {
+            throw PluginInitializationException{
+                __FILE__,
+                __LINE__,
+                "the Glacier2 Crypt Permissions Verifier plug-in must be named '" + pluginName + "'"};
+        }
+
         if (args.size() > 0)
         {
             Error out(communicator->getLogger());

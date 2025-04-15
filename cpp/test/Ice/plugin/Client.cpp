@@ -225,6 +225,21 @@ Client::run(int argc, char** argv)
         test(string{ex.what()}.find("CustomPluginException") > 0);
     }
     cout << "ok" << endl;
+
+    cout << "testing that IceDiscovery can't be loaded under a different name... " << flush;
+    try
+    {
+        Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+        properties->setProperty("Ice.Plugin.Discovery", "IceDiscovery:createIceDiscovery");
+        Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+        test(false);
+    }
+    catch (const Ice::PluginInitializationException& ex)
+    {
+        test(string{ex.what()} == "the Discovery plug-in must be named 'IceDiscovery'");
+    }
+
+    cout << "ok" << endl;
 }
 
 DEFINE_TEST(Client)

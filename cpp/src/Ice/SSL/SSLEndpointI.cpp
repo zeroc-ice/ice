@@ -12,10 +12,25 @@ using namespace std;
 using namespace Ice;
 using namespace Ice::SSL;
 
+namespace
+{
+    const char* const sslPluginName = "IceSSL";
+}
+
 extern "C"
 {
-    Plugin* createIceSSL(const CommunicatorPtr& communicator, const string&, const StringSeq&)
+    Plugin* createIceSSL(const CommunicatorPtr& communicator, const string& name, const StringSeq&)
     {
+        string pluginName{sslPluginName};
+
+        if (name != pluginName)
+        {
+            throw Ice::PluginInitializationException{
+                __FILE__,
+                __LINE__,
+                "the SSL plug-in must be named '" + pluginName + "'"};
+        }
+
         IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
         Ice::SSL::SSLEnginePtr engine = instance->sslEngine();
         IceInternal::EndpointFactoryManagerPtr endpointFactoryManager = instance->endpointFactoryManager();

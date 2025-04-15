@@ -8,7 +8,15 @@ public sealed class PluginFactory : Ice.PluginFactory
 {
     public string pluginName => "IceDiscovery";
 
-    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args) => new PluginI(communicator);
+    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args)
+    {
+        if (name != pluginName)
+        {
+            throw new Ice.PluginInitializationException(
+                $"The Discovery plug-in must be named '{pluginName}'.");
+        }
+        return new PluginI(communicator);
+    }
 }
 
 public sealed class PluginI : Ice.Plugin

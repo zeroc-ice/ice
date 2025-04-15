@@ -15,6 +15,8 @@ using namespace IceLocatorDiscovery;
 
 namespace
 {
+    const char* const locatorDiscoveryPluginName = "IceLocatorDiscovery";
+
     class LocatorI; // Forward declaration
     class Request : public std::enable_shared_from_this<Request>
     {
@@ -166,15 +168,25 @@ namespace
 // Plugin factory function.
 //
 extern "C" ICE_LOCATOR_DISCOVERY_API Ice::Plugin*
-createIceLocatorDiscovery(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
+createIceLocatorDiscovery(const Ice::CommunicatorPtr& communicator, const string& name, const Ice::StringSeq&)
 {
+    string pluginName{locatorDiscoveryPluginName};
+
+    if (name != pluginName)
+    {
+        throw Ice::PluginInitializationException{
+            __FILE__,
+            __LINE__,
+            "the Locator Discovery plug-in must be named '" + pluginName + "'"};
+    }
+
     return new PluginI(communicator);
 }
 
 Ice::PluginFactory
 IceLocatorDiscovery::locatorDiscoveryPluginFactory()
 {
-    return {"IceLocatorDiscovery", createIceLocatorDiscovery};
+    return {locatorDiscoveryPluginName, createIceLocatorDiscovery};
 }
 
 Plugin::~Plugin() = default;

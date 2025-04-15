@@ -19,6 +19,8 @@ using namespace IceInternal;
 
 namespace
 {
+    const char* const wsPluginName = "IceWS";
+
     class WSEndpointFactoryPlugin : public Plugin
     {
     public:
@@ -43,8 +45,18 @@ namespace
 
 extern "C"
 {
-    Plugin* createIceWS(const CommunicatorPtr& c, const string&, const StringSeq&)
+    Plugin* createIceWS(const CommunicatorPtr& c, const string& name, const StringSeq&)
     {
+        string pluginName{wsPluginName};
+
+        if (name != pluginName)
+        {
+            throw PluginInitializationException{
+                __FILE__,
+                __LINE__,
+                "the WebSocket plug-in must be named '" + pluginName + "'"};
+        }
+
         return new WSEndpointFactoryPlugin(c);
     }
 }

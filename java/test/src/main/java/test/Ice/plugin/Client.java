@@ -125,6 +125,22 @@ public class Client extends TestHelper {
             }
             printWriter.println("ok");
         }
+
+        {
+            printWriter.print("testing that IceLocatorDiscovery can't be loaded under a different name... ");
+            printWriter.flush();
+            try {
+                Properties properties = new Properties();
+                properties.setProperty(
+                    "Ice.Plugin.Loco",
+                    "IceLocatorDiscovery:com.zeroc.IceLocatorDiscovery.PluginFactory");
+                initialize(properties);
+                test(false);
+            } catch (PluginInitializationException ex) {
+                test("The Locator Discovery plug-in must be named 'IceLocatorDiscovery'.".equals(ex.getMessage()));
+            }
+            printWriter.println("ok");
+        }
     }
 
     static class MyPlugin implements Plugin {

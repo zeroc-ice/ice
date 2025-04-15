@@ -893,7 +893,7 @@ public class SessionKeeper {
                                             (Plugin)
                                                 f.create(
                                                     communicator,
-                                                    "IceGridAdmin.Discovery",
+                                                    "IceDiscovery",
                                                     null);
                                         _discoveryPlugin.initialize();
                                     }

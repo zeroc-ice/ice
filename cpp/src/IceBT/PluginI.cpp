@@ -13,14 +13,29 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
+namespace
+{
+    const char* const btPluginName = "IceBT";
+}
+
 //
 // Plug-in factory function.
 //
 extern "C"
 {
     ICEBT_API Ice::Plugin*
-    createIceBT(const CommunicatorPtr& communicator, const string& /*name*/, const StringSeq& /*args*/)
+    createIceBT(const CommunicatorPtr& communicator, const string& name, const StringSeq& /*args*/)
     {
+        string pluginName{btPluginName};
+
+        if (name != pluginName)
+        {
+            throw PluginInitializationException{
+                __FILE__,
+                __LINE__,
+                "the Bluetooth plug-in must be named '" + pluginName + "'"};
+        }
+
         return new PluginI(communicator);
     }
 }

@@ -9,19 +9,34 @@
 using namespace std;
 using namespace IceDiscovery;
 
+namespace
+{
+    const char* const discoveryPluginName = "IceDiscovery";
+}
+
 //
 // Plugin factory function.
 //
 extern "C" ICE_DISCOVERY_API Ice::Plugin*
-createIceDiscovery(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
+createIceDiscovery(const Ice::CommunicatorPtr& communicator, const string& name, const Ice::StringSeq&)
 {
+    string pluginName{discoveryPluginName};
+
+    if (name != pluginName)
+    {
+        throw Ice::PluginInitializationException{
+            __FILE__,
+            __LINE__,
+            "the Discovery plug-in must be named '" + pluginName + "'"};
+    }
+
     return new PluginI(communicator);
 }
 
 Ice::PluginFactory
 IceDiscovery::discoveryPluginFactory()
 {
-    return {"IceDiscovery", createIceDiscovery};
+    return {discoveryPluginName, createIceDiscovery};
 }
 
 PluginI::PluginI(Ice::CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
