@@ -52,7 +52,7 @@ subprojects {
     tasks.withType(Checkstyle) {
         task ->
             if (!project.hasProperty("enableCops")) {
-                task.enabled = false 
+                task.enabled = false
             }
         dependsOn(rewriteDryRun)
         exclude(
