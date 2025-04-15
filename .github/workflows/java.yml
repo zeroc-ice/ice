@@ -18,4 +18,4 @@ jobs:
         uses: ./.github/actions/setup-java
 
       - name: Run rewriteDryRun with build failure enabled
-        uses: ./java/gradlew rewriteDryRun -PenableDryRunFail
+        run: ./java/gradlew rewriteDryRun -PenableDryRunFail
