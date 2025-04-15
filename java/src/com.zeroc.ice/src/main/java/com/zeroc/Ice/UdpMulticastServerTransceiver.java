@@ -2,9 +2,13 @@
 
 package com.zeroc.Ice;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.nio.channels.SelectableChannel;
+import java.util.LinkedList;
+import java.util.List;
 
 //
 // This class is only used on Android, where the java.nio.channels.MulticastChannel interface is not
@@ -14,7 +18,7 @@ import java.net.MulticastSocket;
 //
 final class UdpMulticastServerTransceiver implements Transceiver {
     @Override
-    public java.nio.channels.SelectableChannel fd() {
+    public SelectableChannel fd() {
         //
         // Android doesn't provide non-blocking APIs for UDP multicast.
         //
@@ -147,9 +151,9 @@ final class UdpMulticastServerTransceiver implements Transceiver {
     @Override
     public String toDetailedString() {
         StringBuilder s = new StringBuilder(toString());
-        java.util.List<String> intfs =
-                Network.getInterfacesForMulticast(
-                        _mcastInterface, Network.getProtocolSupport(_addr));
+        List<String> intfs =
+            Network.getInterfacesForMulticast(
+                _mcastInterface, Network.getProtocolSupport(_addr));
         if (!intfs.isEmpty()) {
             s.append("\nlocal interfaces = ");
             s.append(String.join(", ", intfs));
@@ -161,17 +165,17 @@ final class UdpMulticastServerTransceiver implements Transceiver {
     public synchronized ConnectionInfo getInfo(
             boolean incoming, String adapterName, String connectionId) {
         return new UDPConnectionInfo(
-                incoming,
-                adapterName,
-                connectionId,
-                _socket != null ? _socket.getLocalAddress().getHostAddress() : "",
-                _socket != null ? _socket.getLocalPort() : -1,
-                "",
-                -1,
-                _socket != null ? _addr.getAddress().getHostAddress() : "",
-                _socket != null ? _addr.getPort() : -1,
-                _size,
-                0);
+            incoming,
+            adapterName,
+            connectionId,
+            _socket != null ? _socket.getLocalAddress().getHostAddress() : "",
+            _socket != null ? _socket.getLocalPort() : -1,
+            "",
+            -1,
+            _socket != null ? _addr.getAddress().getHostAddress() : "",
+            _socket != null ? _addr.getPort() : -1,
+            _size,
+            0);
     }
 
     @Override
@@ -230,12 +234,12 @@ final class UdpMulticastServerTransceiver implements Transceiver {
             }
 
             _thread =
-                    new Thread() {
-                        public void run() {
-                            setName("IceUDPMulticast.ReadThread");
-                            runReadThread();
-                        }
-                    };
+                new Thread() {
+                    public void run() {
+                        setName("IceUDPMulticast.ReadThread");
+                        runReadThread();
+                    }
+                };
         } catch (Exception ex) {
             if (_socket != null) {
                 _socket.close();
@@ -270,8 +274,8 @@ final class UdpMulticastServerTransceiver implements Transceiver {
         //
         if (sz < (_udpOverhead + Protocol.headerSize)) {
             _instance
-                    .logger()
-                    .warning("Invalid Ice.UDP.RcvSize value of " + sz + " adjusted to " + _size);
+                .logger()
+                .warning("Invalid Ice.UDP.RcvSize value of " + sz + " adjusted to " + _size);
         } else if (sz != _size) {
             _newSize = sz;
         }
@@ -302,16 +306,16 @@ final class UdpMulticastServerTransceiver implements Transceiver {
                 BufSizeWarnInfo winfo = _instance.getBufSizeWarn(UDPEndpointType.value);
                 if (!winfo.rcvWarn || winfo.rcvSize != _newSize) {
                     _instance
-                            .logger()
-                            .warning(
-                                    "UDP receive buffer size: requested size of "
-                                            + _newSize
-                                            + " adjusted to "
-                                            + _size);
+                        .logger()
+                        .warning(
+                            "UDP receive buffer size: requested size of "
+                                + _newSize
+                                + " adjusted to "
+                                + _size);
                     _instance.setRcvBufSizeWarn(UDPEndpointType.value, _newSize);
                 }
             }
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             if (_socket != null) {
                 _socket.close();
             }
@@ -320,13 +324,12 @@ final class UdpMulticastServerTransceiver implements Transceiver {
         }
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"nofinalizer", "deprecation"})
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
             Assert.FinalizerAssert(_socket == null);
-        } catch (Exception ex) {
-        } finally {
+        } catch (Exception ex) {} finally {
             super.finalize();
         }
     }
@@ -394,7 +397,7 @@ final class UdpMulticastServerTransceiver implements Transceiver {
                     }
                 }
             }
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             exception(new SocketException(ex));
             //
             // Mark as ready for reading so that the Ice run time will invoke read() and we can
@@ -411,14 +414,14 @@ final class UdpMulticastServerTransceiver implements Transceiver {
         }
     }
 
-    private UdpEndpointI _endpoint = null;
+    private UdpEndpointI _endpoint;
     private final ProtocolInstance _instance;
 
     private int _size;
     private int _newSize;
     private MulticastSocket _socket;
     private InetSocketAddress _addr;
-    private String _mcastInterface;
+    private final String _mcastInterface;
 
     //
     // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for
@@ -436,8 +439,8 @@ final class UdpMulticastServerTransceiver implements Transceiver {
 
     private Thread _thread;
 
-    private java.util.LinkedList<Buffer> _buffers = new java.util.LinkedList<>();
-    private java.util.LinkedList<Buffer> _recycle = new java.util.LinkedList<>();
+    private final LinkedList<Buffer> _buffers = new LinkedList<>();
+    private final LinkedList<Buffer> _recycle = new LinkedList<>();
 
     private LocalException _exception;
     private ReadyCallback _readyCallback;

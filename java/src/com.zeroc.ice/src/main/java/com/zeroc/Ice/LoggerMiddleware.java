@@ -2,10 +2,12 @@
 
 package com.zeroc.Ice;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.concurrent.CompletionStage;
 
-final class LoggerMiddleware implements com.zeroc.Ice.Object {
-    private final com.zeroc.Ice.Object _next;
+final class LoggerMiddleware implements Object {
+    private final Object _next;
     private final Logger _logger;
     private final int _traceLevel;
     private final String _traceCat;
@@ -13,7 +15,7 @@ final class LoggerMiddleware implements com.zeroc.Ice.Object {
     private final ToStringMode _toStringMode;
 
     public LoggerMiddleware(
-            com.zeroc.Ice.Object next,
+            Object next,
             Logger logger,
             int traceLevel,
             String traceCat,
@@ -31,50 +33,50 @@ final class LoggerMiddleware implements com.zeroc.Ice.Object {
 
     @Override
     public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
-            throws UserException {
+        throws UserException {
         try {
             return _next.dispatch(request)
-                    .handle(
-                            (response, exception) -> {
-                                if (exception != null) {
-                                    // Convert to response for further processing
-                                    response = request.current.createOutgoingResponse(exception);
-                                }
+                .handle(
+                    (response, exception) -> {
+                        if (exception != null) {
+                            // Convert to response for further processing
+                            response = request.current.createOutgoingResponse(exception);
+                        }
 
-                                var replyStatus = ReplyStatus.valueOf(response.replyStatus);
-                                if (replyStatus != null) {
-                                    switch (replyStatus) {
-                                        case Ok:
-                                        case UserException:
-                                            if (_traceLevel > 0) {
-                                                logDispatch(replyStatus, request.current);
-                                            }
-                                            break;
-
-                                        case UnknownException:
-                                        case UnknownUserException:
-                                        case UnknownLocalException:
-                                            // always log when middleware installed
-                                            logDispatchFailed(
-                                                    response.exceptionDetails, request.current);
-                                            break;
-
-                                        default:
-                                            if (_traceLevel > 0 || _warningLevel > 1) {
-                                                logDispatchFailed(
-                                                        response.exceptionDetails, request.current);
-                                            }
-                                            break;
+                        var replyStatus = ReplyStatus.valueOf(response.replyStatus);
+                        if (replyStatus != null) {
+                            switch (replyStatus) {
+                                case Ok:
+                                case UserException:
+                                    if (_traceLevel > 0) {
+                                        logDispatch(replyStatus, request.current);
                                     }
-                                } else {
-                                    // Unknown reply status, like default case above.
+                                    break;
+
+                                case UnknownException:
+                                case UnknownUserException:
+                                case UnknownLocalException:
+                                    // always log when middleware installed
+                                    logDispatchFailed(
+                                        response.exceptionDetails, request.current);
+                                    break;
+
+                                default:
                                     if (_traceLevel > 0 || _warningLevel > 1) {
                                         logDispatchFailed(
-                                                response.exceptionDetails, request.current);
+                                            response.exceptionDetails, request.current);
                                     }
-                                }
-                                return response;
-                            });
+                                    break;
+                            }
+                        } else {
+                            // Unknown reply status, like default case above.
+                            if (_traceLevel > 0 || _warningLevel > 1) {
+                                logDispatchFailed(
+                                    response.exceptionDetails, request.current);
+                            }
+                        }
+                        return response;
+                    });
         } catch (UserException ex) {
             if (_traceLevel > 0) {
                 logDispatch(ReplyStatus.UserException, request.current);
@@ -82,7 +84,7 @@ final class LoggerMiddleware implements com.zeroc.Ice.Object {
             throw ex;
         } catch (UnknownException ex) {
             logDispatchFailed(
-                    ex.toString(), request.current); // always log when middleware installed
+                ex.toString(), request.current); // always log when middleware installed
             throw ex;
         } catch (DispatchException ex) {
             if (_traceLevel > 0 || _warningLevel > 1) {
@@ -96,8 +98,8 @@ final class LoggerMiddleware implements com.zeroc.Ice.Object {
     }
 
     private void logDispatch(ReplyStatus replyStatus, Current current) {
-        var sw = new java.io.StringWriter();
-        var pw = new java.io.PrintWriter(sw);
+        var sw = new StringWriter();
+        var pw = new PrintWriter(sw);
         var out = new OutputBase(pw);
         out.setUseTab(false);
         out.print("dispatch of ");
@@ -111,8 +113,8 @@ final class LoggerMiddleware implements com.zeroc.Ice.Object {
     }
 
     private void logDispatchFailed(String exceptionDetails, Current current) {
-        var sw = new java.io.StringWriter();
-        var pw = new java.io.PrintWriter(sw);
+        var sw = new StringWriter();
+        var pw = new PrintWriter(sw);
         var out = new OutputBase(pw);
         out.setUseTab(false);
         out.print("failed to dispatch ");

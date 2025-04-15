@@ -7,11 +7,19 @@ import com.zeroc.IceGridGUI.LiveDeployment.Editor;
 import com.zeroc.IceGridGUI.LiveDeployment.Root;
 import com.zeroc.IceGridGUI.LiveDeployment.TreeNode;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.LinkedList;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTree;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.ToolTipManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -91,7 +99,7 @@ public class LiveDeploymentPane extends JSplitPane implements Tab {
         do {
             previousNode = _previousNodes.removeLast();
         } while (!_previousNodes.isEmpty()
-                && (previousNode == _currentNode || !_root.hasNode(previousNode)));
+            && (previousNode == _currentNode || !_root.hasNode(previousNode)));
 
         if (_previousNodes.isEmpty()) {
             _root.getCoordinator().getBackAction().setEnabled(false);
@@ -184,10 +192,10 @@ public class LiveDeploymentPane extends JSplitPane implements Tab {
         tree.setRootVisible(false);
 
         JScrollPane leftScroll =
-                new JScrollPane(
-                        tree,
-                        ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            new JScrollPane(
+                tree,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         leftScroll.setBorder(Borders.EMPTY);
 
         _leftPane = new SimpleInternalFrame("Runtime Components");
@@ -275,13 +283,13 @@ public class LiveDeploymentPane extends JSplitPane implements Tab {
         }
     }
 
-    private Root _root;
-    private SimpleInternalFrame _leftPane;
-    private SimpleInternalFrame _propertiesFrame;
+    private final Root _root;
+    private final SimpleInternalFrame _leftPane;
+    private final SimpleInternalFrame _propertiesFrame;
 
     // back/forward navigation
-    private java.util.LinkedList<TreeNode> _previousNodes = new java.util.LinkedList<>();
-    private java.util.LinkedList<TreeNode> _nextNodes = new java.util.LinkedList<>();
+    private final LinkedList<TreeNode> _previousNodes = new LinkedList<>();
+    private final LinkedList<TreeNode> _nextNodes = new LinkedList<>();
     private TreeNode _currentNode;
 
     private boolean _selectionListenerEnabled = true;

@@ -22,13 +22,13 @@ public interface ServantLocator {
          * @param returnValue The located servant, or null if no suitable servant has been found.
          * @param cookie A "cookie" that will be passed to <code>finished</code>.
          */
-        public LocateResult(com.zeroc.Ice.Object returnValue, java.lang.Object cookie) {
+        public LocateResult(Object returnValue, java.lang.Object cookie) {
             this.returnValue = returnValue;
             this.cookie = cookie;
         }
 
         /** The located servant, or null if no suitable servant has been found. */
-        public com.zeroc.Ice.Object returnValue;
+        public Object returnValue;
 
         /** A "cookie" that will be passed to <code>finished</code>. */
         public java.lang.Object cookie;
@@ -79,8 +79,8 @@ public interface ServantLocator {
      * @see Current
      * @see #locate
      */
-    void finished(Current curr, com.zeroc.Ice.Object servant, java.lang.Object cookie)
-            throws UserException;
+    void finished(Current curr, Object servant, java.lang.Object cookie)
+        throws UserException;
 
     /**
      * Called when the object adapter in which this servant locator is installed is destroyed.

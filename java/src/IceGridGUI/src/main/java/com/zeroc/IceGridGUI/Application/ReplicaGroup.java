@@ -2,10 +2,19 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.AdaptiveLoadBalancingPolicy;
+import com.zeroc.IceGrid.OrderedLoadBalancingPolicy;
+import com.zeroc.IceGrid.RandomLoadBalancingPolicy;
+import com.zeroc.IceGrid.ReplicaGroupDescriptor;
+import com.zeroc.IceGrid.RoundRobinLoadBalancingPolicy;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -30,7 +39,7 @@ class ReplicaGroup extends TreeNode {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     // Actions
@@ -134,17 +143,17 @@ class ReplicaGroup extends TreeNode {
     }
 
     @Override
-    void write(XMLWriter writer) throws java.io.IOException {
+    void write(XMLWriter writer) throws IOException {
         if (!_ephemeral) {
-            java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
+            List<String[]> attributes = new LinkedList<String[]>();
             attributes.add(createAttribute("id", _descriptor.id));
             if (_descriptor.proxyOptions.length() > 0) {
                 attributes.add(createAttribute("proxy-options", _descriptor.proxyOptions));
             }
 
             if (_descriptor.loadBalancing == null
-                    && _descriptor.description.isEmpty()
-                    && _descriptor.objects.isEmpty()) {
+                && _descriptor.description.isEmpty()
+                && _descriptor.objects.isEmpty()) {
                 writer.writeElement("replica-group", attributes);
             } else {
                 writer.writeStartTag("replica-group", attributes);
@@ -164,7 +173,7 @@ class ReplicaGroup extends TreeNode {
                 } else if (_descriptor.loadBalancing instanceof AdaptiveLoadBalancingPolicy) {
                     attributes.add(createAttribute("type", "adaptive"));
                     AdaptiveLoadBalancingPolicy policy =
-                            (AdaptiveLoadBalancingPolicy) _descriptor.loadBalancing;
+                        (AdaptiveLoadBalancingPolicy) _descriptor.loadBalancing;
                     attributes.add(createAttribute("load-sample", policy.loadSample));
                 }
                 attributes.add(createAttribute("n-replicas", _descriptor.loadBalancing.nReplicas));

@@ -2,6 +2,10 @@
 
 package com.zeroc.Ice.Instrumentation;
 
+import com.zeroc.Ice.ConnectionInfo;
+import com.zeroc.Ice.Endpoint;
+import com.zeroc.Ice.ObjectAdapter;
+
 /**
  * The invocation observer to instrument invocations on proxies. A proxy invocation can either
  * result in a collocated or remote invocation. If it results in a remote invocation, a sub-observer
@@ -24,8 +28,8 @@ public interface InvocationObserver extends Observer {
      * @return The observer to instrument the remote invocation.
      */
     RemoteObserver getRemoteObserver(
-            com.zeroc.Ice.ConnectionInfo con,
-            com.zeroc.Ice.Endpoint endpoint,
+            ConnectionInfo con,
+            Endpoint endpoint,
             int requestId,
             int size);
 
@@ -38,5 +42,5 @@ public interface InvocationObserver extends Observer {
      * @return The observer to instrument the collocated invocation.
      */
     CollocatedObserver getCollocatedObserver(
-            com.zeroc.Ice.ObjectAdapter adapter, int requestId, int size);
+            ObjectAdapter adapter, int requestId, int size);
 }

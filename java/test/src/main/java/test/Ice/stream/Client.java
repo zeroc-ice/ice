@@ -2,22 +2,56 @@
 
 package test.Ice.stream;
 
+import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.InputStream;
+import com.zeroc.Ice.MarshalException;
 import com.zeroc.Ice.OutputStream;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.UserException;
+import com.zeroc.Ice.Util;
+import com.zeroc.Ice.Value;
+import com.zeroc.Ice.ValueFactory;
 
-import test.Ice.stream.Test.*;
+import test.Ice.stream.Serialize.Small;
+import test.Ice.stream.Test.BoolSSHelper;
+import test.Ice.stream.Test.ByteBoolDHelper;
+import test.Ice.stream.Test.ByteSSHelper;
+import test.Ice.stream.Test.DoubleSSHelper;
+import test.Ice.stream.Test.FloatSSHelper;
+import test.Ice.stream.Test.IntSSHelper;
+import test.Ice.stream.Test.LargeStruct;
+import test.Ice.stream.Test.LongFloatDHelper;
+import test.Ice.stream.Test.LongSSHelper;
+import test.Ice.stream.Test.MyClass;
+import test.Ice.stream.Test.MyClassSHelper;
+import test.Ice.stream.Test.MyClassSSHelper;
+import test.Ice.stream.Test.MyEnum;
+import test.Ice.stream.Test.MyEnumSHelper;
+import test.Ice.stream.Test.MyEnumSSHelper;
+import test.Ice.stream.Test.MyException;
+import test.Ice.stream.Test.MyInterfacePrx;
+import test.Ice.stream.Test.OptionalClass;
+import test.Ice.stream.Test.ShortIntDHelper;
+import test.Ice.stream.Test.ShortSSHelper;
+import test.Ice.stream.Test.StringMyClassDHelper;
+import test.Ice.stream.Test.StringSSHelper;
+import test.Ice.stream.Test.StringStringDHelper;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
-public class Client extends test.TestHelper {
-    private static class TestObjectWriter extends com.zeroc.Ice.Value {
+public class Client extends TestHelper {
+    private static class TestObjectWriter extends Value {
         TestObjectWriter(MyClass obj) {
             this.obj = obj;
         }
 
         @Override
         public void _iceRead(InputStream in) {
-            assert (false);
+            assert false;
         }
 
         @Override
@@ -27,10 +61,10 @@ public class Client extends test.TestHelper {
         }
 
         MyClass obj;
-        boolean called = false;
+        boolean called;
     }
 
-    private static class TestObjectReader extends com.zeroc.Ice.Value {
+    private static class TestObjectReader extends Value {
         @Override
         public void _iceRead(InputStream in) {
             obj = new MyClass();
@@ -40,54 +74,54 @@ public class Client extends test.TestHelper {
 
         @Override
         public void _iceWrite(OutputStream out) {
-            assert (false);
+            assert false;
         }
 
         MyClass obj;
-        boolean called = false;
+        boolean called;
     }
 
-    private static class TestValueFactory implements com.zeroc.Ice.ValueFactory {
+    private static class TestValueFactory implements ValueFactory {
         @Override
-        public com.zeroc.Ice.Value create(String type) {
+        public Value create(String type) {
             assert (type.equals(MyClass.ice_staticId()));
             return new TestObjectReader();
         }
     }
 
-    private static class Wrapper<T extends com.zeroc.Ice.Value> {
+    private static class Wrapper<T extends Value> {
         T obj;
     }
 
-    private static class MyClassFactoryWrapper implements com.zeroc.Ice.ValueFactory {
+    private static class MyClassFactoryWrapper implements ValueFactory {
         MyClassFactoryWrapper() {
             setFactory(null);
         }
 
         @Override
-        public com.zeroc.Ice.Value create(String type) {
+        public Value create(String type) {
             return _factory.create(type);
         }
 
-        void setFactory(com.zeroc.Ice.ValueFactory factory) {
+        void setFactory(ValueFactory factory) {
             if (factory == null) {
                 _factory =
-                        id -> {
-                            return new MyClass();
-                        };
+                    id -> {
+                        return new MyClass();
+                    };
             } else {
                 _factory = factory;
             }
         }
 
-        private com.zeroc.Ice.ValueFactory _factory;
+        private ValueFactory _factory;
     }
 
     public void run(String[] args) {
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.stream");
 
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(properties)) {
             MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
             communicator.getValueFactoryManager().add(factoryWrapper, MyClass.ice_staticId());
 
@@ -122,8 +156,7 @@ public class Client extends test.TestHelper {
                 try {
                     in.readBool();
                     test(false);
-                } catch (com.zeroc.Ice.MarshalException ex) {
-                }
+                } catch (MarshalException ex) {}
             }
 
             {
@@ -187,7 +220,7 @@ public class Client extends test.TestHelper {
                 out.writeString("hello world");
                 byte[] data = out.finished();
                 in = new InputStream(communicator, data);
-                test(in.readString().equals("hello world"));
+                test("hello world".equals(in.readString()));
             }
 
             printWriter.println("ok");
@@ -240,10 +273,10 @@ public class Client extends test.TestHelper {
                 OptionalClass o2 = cb.obj;
                 test(o2.bo == o.bo);
                 test(o2.by == o.by);
-                if (communicator
+                if ("1.0"
+                    .equals(communicator
                         .getProperties()
-                        .getIceProperty("Ice.Default.EncodingVersion")
-                        .equals("1.0")) {
+                        .getIceProperty("Ice.Default.EncodingVersion"))) {
                     test(!o2.hasSh());
                     test(!o2.hasI());
                 } else {
@@ -253,7 +286,7 @@ public class Client extends test.TestHelper {
             }
 
             {
-                out = new OutputStream(com.zeroc.Ice.Util.Encoding_1_0, false);
+                out = new OutputStream(Util.Encoding_1_0, false);
                 OptionalClass o = new OptionalClass();
                 o.bo = true;
                 o.by = (byte) 5;
@@ -262,7 +295,7 @@ public class Client extends test.TestHelper {
                 out.writeValue(o);
                 out.writePendingValues();
                 byte[] data = out.finished();
-                in = new InputStream(communicator, com.zeroc.Ice.Util.Encoding_1_0, data);
+                in = new InputStream(communicator, Util.Encoding_1_0, data);
                 final Wrapper<OptionalClass> cb = new Wrapper<>();
                 in.readValue(value -> cb.obj = value, OptionalClass.class);
                 in.readPendingValues();
@@ -280,7 +313,7 @@ public class Client extends test.TestHelper {
                 byte[] data = out.finished();
                 in = new InputStream(communicator, data);
                 boolean[] arr2 = in.readBoolSeq();
-                test(java.util.Arrays.equals(arr2, arr));
+                test(Arrays.equals(arr2, arr));
 
                 final boolean[][] arrS = {arr, new boolean[0], arr};
                 out = new OutputStream(communicator);
@@ -288,7 +321,7 @@ public class Client extends test.TestHelper {
                 data = out.finished();
                 in = new InputStream(communicator, data);
                 boolean[][] arr2S = BoolSSHelper.read(in);
-                test(java.util.Arrays.deepEquals(arr2S, arrS));
+                test(Arrays.deepEquals(arr2S, arrS));
             }
 
             {
@@ -298,7 +331,7 @@ public class Client extends test.TestHelper {
                 byte[] data = out.finished();
                 in = new InputStream(communicator, data);
                 byte[] arr2 = in.readByteSeq();
-                test(java.util.Arrays.equals(arr2, arr));
+                test(Arrays.equals(arr2, arr));
 
                 final byte[][] arrS = {arr, new byte[0], arr};
                 out = new OutputStream(communicator);
@@ -306,18 +339,18 @@ public class Client extends test.TestHelper {
                 data = out.finished();
                 in = new InputStream(communicator, data);
                 byte[][] arr2S = ByteSSHelper.read(in);
-                test(java.util.Arrays.deepEquals(arr2S, arrS));
+                test(Arrays.deepEquals(arr2S, arrS));
             }
 
             {
-                test.Ice.stream.Serialize.Small small = new test.Ice.stream.Serialize.Small();
+                Small small = new Small();
                 small.i = 99;
                 out = new OutputStream(communicator);
                 out.writeSerializable(small);
                 byte[] data = out.finished();
                 in = new InputStream(communicator, data);
-                test.Ice.stream.Serialize.Small small2 =
-                        in.readSerializable(test.Ice.stream.Serialize.Small.class);
+                Small small2 =
+                    in.readSerializable(Small.class);
                 test(small2.i == 99);
             }
 
@@ -328,7 +361,7 @@ public class Client extends test.TestHelper {
                 byte[] data = out.finished();
                 in = new InputStream(communicator, data);
                 short[] arr2 = in.readShortSeq();
-                test(java.util.Arrays.equals(arr2, arr));
+                test(Arrays.equals(arr2, arr));
 
                 final short[][] arrS = {arr, new short[0], arr};
                 out = new OutputStream(communicator);
@@ -336,7 +369,7 @@ public class Client extends test.TestHelper {
                 data = out.finished();
                 in = new InputStream(communicator, data);
                 short[][] arr2S = ShortSSHelper.read(in);
-                test(java.util.Arrays.deepEquals(arr2S, arrS));
+                test(Arrays.deepEquals(arr2S, arrS));
             }
 
             {
@@ -346,7 +379,7 @@ public class Client extends test.TestHelper {
                 byte[] data = out.finished();
                 in = new InputStream(communicator, data);
                 int[] arr2 = in.readIntSeq();
-                test(java.util.Arrays.equals(arr2, arr));
+                test(Arrays.equals(arr2, arr));
 
                 final int[][] arrS = {arr, new int[0], arr};
                 out = new OutputStream(communicator);
@@ -354,7 +387,7 @@ public class Client extends test.TestHelper {
                 data = out.finished();
                 in = new InputStream(communicator, data);
                 int[][] arr2S = IntSSHelper.read(in);
-                test(java.util.Arrays.deepEquals(arr2S, arrS));
+                test(Arrays.deepEquals(arr2S, arrS));
             }
 
             {
@@ -364,7 +397,7 @@ public class Client extends test.TestHelper {
                 byte[] data = out.finished();
                 in = new InputStream(communicator, data);
                 long[] arr2 = in.readLongSeq();
-                test(java.util.Arrays.equals(arr2, arr));
+                test(Arrays.equals(arr2, arr));
 
                 final long[][] arrS = {arr, new long[0], arr};
                 out = new OutputStream(communicator);
@@ -372,7 +405,7 @@ public class Client extends test.TestHelper {
                 data = out.finished();
                 in = new InputStream(communicator, data);
                 long[][] arr2S = LongSSHelper.read(in);
-                test(java.util.Arrays.deepEquals(arr2S, arrS));
+                test(Arrays.deepEquals(arr2S, arrS));
             }
 
             {
@@ -382,7 +415,7 @@ public class Client extends test.TestHelper {
                 byte[] data = out.finished();
                 in = new InputStream(communicator, data);
                 float[] arr2 = in.readFloatSeq();
-                test(java.util.Arrays.equals(arr2, arr));
+                test(Arrays.equals(arr2, arr));
 
                 final float[][] arrS = {arr, new float[0], arr};
                 out = new OutputStream(communicator);
@@ -390,7 +423,7 @@ public class Client extends test.TestHelper {
                 data = out.finished();
                 in = new InputStream(communicator, data);
                 float[][] arr2S = FloatSSHelper.read(in);
-                test(java.util.Arrays.deepEquals(arr2S, arrS));
+                test(Arrays.deepEquals(arr2S, arrS));
             }
 
             {
@@ -400,7 +433,7 @@ public class Client extends test.TestHelper {
                 byte[] data = out.finished();
                 in = new InputStream(communicator, data);
                 double[] arr2 = in.readDoubleSeq();
-                test(java.util.Arrays.equals(arr2, arr));
+                test(Arrays.equals(arr2, arr));
 
                 final double[][] arrS = {arr, new double[0], arr};
                 out = new OutputStream(communicator);
@@ -408,7 +441,7 @@ public class Client extends test.TestHelper {
                 data = out.finished();
                 in = new InputStream(communicator, data);
                 double[][] arr2S = DoubleSSHelper.read(in);
-                test(java.util.Arrays.deepEquals(arr2S, arrS));
+                test(Arrays.deepEquals(arr2S, arrS));
             }
 
             {
@@ -418,7 +451,7 @@ public class Client extends test.TestHelper {
                 byte[] data = out.finished();
                 in = new InputStream(communicator, data);
                 String[] arr2 = in.readStringSeq();
-                test(java.util.Arrays.equals(arr2, arr));
+                test(Arrays.equals(arr2, arr));
 
                 final String[][] arrS = {arr, new String[0], arr};
                 out = new OutputStream(communicator);
@@ -426,7 +459,7 @@ public class Client extends test.TestHelper {
                 data = out.finished();
                 in = new InputStream(communicator, data);
                 String[][] arr2S = StringSSHelper.read(in);
-                test(java.util.Arrays.deepEquals(arr2S, arrS));
+                test(Arrays.deepEquals(arr2S, arrS));
             }
 
             {
@@ -436,7 +469,7 @@ public class Client extends test.TestHelper {
                 byte[] data = out.finished();
                 in = new InputStream(communicator, data);
                 MyEnum[] arr2 = MyEnumSHelper.read(in);
-                test(java.util.Arrays.equals(arr2, arr));
+                test(Arrays.equals(arr2, arr));
 
                 final MyEnum[][] arrS = {arr, new MyEnum[0], arr};
                 out = new OutputStream(communicator);
@@ -444,28 +477,28 @@ public class Client extends test.TestHelper {
                 data = out.finished();
                 in = new InputStream(communicator, data);
                 MyEnum[][] arr2S = MyEnumSSHelper.read(in);
-                test(java.util.Arrays.deepEquals(arr2S, arrS));
+                test(Arrays.deepEquals(arr2S, arrS));
             }
 
             {
                 MyClass[] arr = new MyClass[4];
-                for (int i = 0; i < arr.length; ++i) {
+                for (int i = 0; i < arr.length; i++) {
                     arr[i] = new MyClass();
                     arr[i].c = arr[i];
                     arr[i].o = arr[i];
                     arr[i].s = new LargeStruct();
                     arr[i].s.e = MyEnum.enum2;
-                    arr[i].seq1 = new boolean[] {true, false, true, false};
-                    arr[i].seq2 = new byte[] {(byte) 1, (byte) 2, (byte) 3, (byte) 4};
-                    arr[i].seq3 = new short[] {(short) 1, (short) 2, (short) 3, (short) 4};
-                    arr[i].seq4 = new int[] {1, 2, 3, 4};
-                    arr[i].seq5 = new long[] {1, 2, 3, 4};
-                    arr[i].seq6 = new float[] {1, 2, 3, 4};
-                    arr[i].seq7 = new double[] {1, 2, 3, 4};
-                    arr[i].seq8 = new String[] {"string1", "string2", "string3", "string4"};
-                    arr[i].seq9 = new MyEnum[] {MyEnum.enum3, MyEnum.enum2, MyEnum.enum1};
+                    arr[i].seq1 = new boolean[]{true, false, true, false};
+                    arr[i].seq2 = new byte[]{(byte) 1, (byte) 2, (byte) 3, (byte) 4};
+                    arr[i].seq3 = new short[]{(short) 1, (short) 2, (short) 3, (short) 4};
+                    arr[i].seq4 = new int[]{1, 2, 3, 4};
+                    arr[i].seq5 = new long[]{1, 2, 3, 4};
+                    arr[i].seq6 = new float[]{1, 2, 3, 4};
+                    arr[i].seq7 = new double[]{1, 2, 3, 4};
+                    arr[i].seq8 = new String[]{"string1", "string2", "string3", "string4"};
+                    arr[i].seq9 = new MyEnum[]{MyEnum.enum3, MyEnum.enum2, MyEnum.enum1};
                     arr[i].seq10 = new MyClass[4]; // null elements.
-                    arr[i].d = new java.util.HashMap<>();
+                    arr[i].d = new HashMap<>();
                     arr[i].d.put("hi", arr[i]);
                 }
                 out = new OutputStream(communicator);
@@ -476,20 +509,20 @@ public class Client extends test.TestHelper {
                 MyClass[] arr2 = MyClassSHelper.read(in);
                 in.readPendingValues();
                 test(arr2.length == arr.length);
-                for (int i = 0; i < arr2.length; ++i) {
+                for (int i = 0; i < arr2.length; i++) {
                     test(arr2[i] != null);
                     test(arr2[i].c == arr2[i]);
                     test(arr2[i].o == arr2[i]);
                     test(arr2[i].s.e == MyEnum.enum2);
-                    test(java.util.Arrays.equals(arr2[i].seq1, arr[i].seq1));
-                    test(java.util.Arrays.equals(arr2[i].seq2, arr[i].seq2));
-                    test(java.util.Arrays.equals(arr2[i].seq3, arr[i].seq3));
-                    test(java.util.Arrays.equals(arr2[i].seq4, arr[i].seq4));
-                    test(java.util.Arrays.equals(arr2[i].seq5, arr[i].seq5));
-                    test(java.util.Arrays.equals(arr2[i].seq6, arr[i].seq6));
-                    test(java.util.Arrays.equals(arr2[i].seq7, arr[i].seq7));
-                    test(java.util.Arrays.equals(arr2[i].seq8, arr[i].seq8));
-                    test(java.util.Arrays.equals(arr2[i].seq9, arr[i].seq9));
+                    test(Arrays.equals(arr2[i].seq1, arr[i].seq1));
+                    test(Arrays.equals(arr2[i].seq2, arr[i].seq2));
+                    test(Arrays.equals(arr2[i].seq3, arr[i].seq3));
+                    test(Arrays.equals(arr2[i].seq4, arr[i].seq4));
+                    test(Arrays.equals(arr2[i].seq5, arr[i].seq5));
+                    test(Arrays.equals(arr2[i].seq6, arr[i].seq6));
+                    test(Arrays.equals(arr2[i].seq7, arr[i].seq7));
+                    test(Arrays.equals(arr2[i].seq8, arr[i].seq8));
+                    test(Arrays.equals(arr2[i].seq9, arr[i].seq9));
                     test(arr2[i].d.get("hi") == arr2[i]);
                 }
 
@@ -506,20 +539,20 @@ public class Client extends test.TestHelper {
                 test(arr2S[1].length == arrS[1].length);
                 test(arr2S[2].length == arrS[2].length);
 
-                for (int j = 0; j < arr2S.length; ++j) {
-                    for (int k = 0; k < arr2S[j].length; ++k) {
+                for (int j = 0; j < arr2S.length; j++) {
+                    for (int k = 0; k < arr2S[j].length; k++) {
                         test(arr2S[j][k].c == arr2S[j][k]);
                         test(arr2S[j][k].o == arr2S[j][k]);
                         test(arr2S[j][k].s.e == MyEnum.enum2);
-                        test(java.util.Arrays.equals(arr2S[j][k].seq1, arr[k].seq1));
-                        test(java.util.Arrays.equals(arr2S[j][k].seq2, arr[k].seq2));
-                        test(java.util.Arrays.equals(arr2S[j][k].seq3, arr[k].seq3));
-                        test(java.util.Arrays.equals(arr2S[j][k].seq4, arr[k].seq4));
-                        test(java.util.Arrays.equals(arr2S[j][k].seq5, arr[k].seq5));
-                        test(java.util.Arrays.equals(arr2S[j][k].seq6, arr[k].seq6));
-                        test(java.util.Arrays.equals(arr2S[j][k].seq7, arr[k].seq7));
-                        test(java.util.Arrays.equals(arr2S[j][k].seq8, arr[k].seq8));
-                        test(java.util.Arrays.equals(arr2S[j][k].seq9, arr[k].seq9));
+                        test(Arrays.equals(arr2S[j][k].seq1, arr[k].seq1));
+                        test(Arrays.equals(arr2S[j][k].seq2, arr[k].seq2));
+                        test(Arrays.equals(arr2S[j][k].seq3, arr[k].seq3));
+                        test(Arrays.equals(arr2S[j][k].seq4, arr[k].seq4));
+                        test(Arrays.equals(arr2S[j][k].seq5, arr[k].seq5));
+                        test(Arrays.equals(arr2S[j][k].seq6, arr[k].seq6));
+                        test(Arrays.equals(arr2S[j][k].seq7, arr[k].seq7));
+                        test(Arrays.equals(arr2S[j][k].seq8, arr[k].seq8));
+                        test(Arrays.equals(arr2S[j][k].seq9, arr[k].seq9));
                         test(arr2S[j][k].d.get("hi") == arr2S[j][k]);
                     }
                 }
@@ -569,17 +602,17 @@ public class Client extends test.TestHelper {
                 c.o = c;
                 c.s = new LargeStruct();
                 c.s.e = MyEnum.enum2;
-                c.seq1 = new boolean[] {true, false, true, false};
-                c.seq2 = new byte[] {(byte) 1, (byte) 2, (byte) 3, (byte) 4};
-                c.seq3 = new short[] {(short) 1, (short) 2, (short) 3, (short) 4};
-                c.seq4 = new int[] {1, 2, 3, 4};
-                c.seq5 = new long[] {1, 2, 3, 4};
-                c.seq6 = new float[] {1, 2, 3, 4};
-                c.seq7 = new double[] {1, 2, 3, 4};
-                c.seq8 = new String[] {"string1", "string2", "string3", "string4"};
-                c.seq9 = new MyEnum[] {MyEnum.enum3, MyEnum.enum2, MyEnum.enum1};
+                c.seq1 = new boolean[]{true, false, true, false};
+                c.seq2 = new byte[]{(byte) 1, (byte) 2, (byte) 3, (byte) 4};
+                c.seq3 = new short[]{(short) 1, (short) 2, (short) 3, (short) 4};
+                c.seq4 = new int[]{1, 2, 3, 4};
+                c.seq5 = new long[]{1, 2, 3, 4};
+                c.seq6 = new float[]{1, 2, 3, 4};
+                c.seq7 = new double[]{1, 2, 3, 4};
+                c.seq8 = new String[]{"string1", "string2", "string3", "string4"};
+                c.seq9 = new MyEnum[]{MyEnum.enum3, MyEnum.enum2, MyEnum.enum1};
                 c.seq10 = new MyClass[4]; // null elements.
-                c.d = new java.util.HashMap<>();
+                c.d = new HashMap<>();
                 c.d.put("hi", c);
 
                 ex.c = c;
@@ -593,70 +626,70 @@ public class Client extends test.TestHelper {
                     test(false);
                 } catch (MyException ex1) {
                     test(ex1.c.s.e == c.s.e);
-                    test(java.util.Arrays.equals(ex1.c.seq1, c.seq1));
-                    test(java.util.Arrays.equals(ex1.c.seq2, c.seq2));
-                    test(java.util.Arrays.equals(ex1.c.seq3, c.seq3));
-                    test(java.util.Arrays.equals(ex1.c.seq4, c.seq4));
-                    test(java.util.Arrays.equals(ex1.c.seq5, c.seq5));
-                    test(java.util.Arrays.equals(ex1.c.seq6, c.seq6));
-                    test(java.util.Arrays.equals(ex1.c.seq7, c.seq7));
-                    test(java.util.Arrays.equals(ex1.c.seq8, c.seq8));
-                    test(java.util.Arrays.equals(ex1.c.seq9, c.seq9));
-                } catch (com.zeroc.Ice.UserException ex1) {
+                    test(Arrays.equals(ex1.c.seq1, c.seq1));
+                    test(Arrays.equals(ex1.c.seq2, c.seq2));
+                    test(Arrays.equals(ex1.c.seq3, c.seq3));
+                    test(Arrays.equals(ex1.c.seq4, c.seq4));
+                    test(Arrays.equals(ex1.c.seq5, c.seq5));
+                    test(Arrays.equals(ex1.c.seq6, c.seq6));
+                    test(Arrays.equals(ex1.c.seq7, c.seq7));
+                    test(Arrays.equals(ex1.c.seq8, c.seq8));
+                    test(Arrays.equals(ex1.c.seq9, c.seq9));
+                } catch (UserException ex1) {
                     test(false);
                 }
             }
 
             {
-                java.util.Map<Byte, Boolean> dict = new java.util.HashMap<>();
+                Map<Byte, Boolean> dict = new HashMap<>();
                 dict.put((byte) 4, true);
                 dict.put((byte) 1, false);
                 out = new OutputStream(communicator);
                 ByteBoolDHelper.write(out, dict);
                 byte data[] = out.finished();
                 in = new InputStream(communicator, data);
-                java.util.Map<Byte, Boolean> dict2 = ByteBoolDHelper.read(in);
+                Map<Byte, Boolean> dict2 = ByteBoolDHelper.read(in);
                 test(dict2.equals(dict));
             }
 
             {
-                java.util.Map<Short, Integer> dict = new java.util.HashMap<>();
+                Map<Short, Integer> dict = new HashMap<>();
                 dict.put((short) 1, 9);
                 dict.put((short) 4, 8);
                 out = new OutputStream(communicator);
                 ShortIntDHelper.write(out, dict);
                 byte data[] = out.finished();
                 in = new InputStream(communicator, data);
-                java.util.Map<Short, Integer> dict2 = ShortIntDHelper.read(in);
+                Map<Short, Integer> dict2 = ShortIntDHelper.read(in);
                 test(dict2.equals(dict));
             }
 
             {
-                java.util.Map<Long, Float> dict = new java.util.HashMap<>();
+                Map<Long, Float> dict = new HashMap<>();
                 dict.put((long) 123809828, 0.51f);
                 dict.put((long) 123809829, 0.56f);
                 out = new OutputStream(communicator);
                 LongFloatDHelper.write(out, dict);
                 byte data[] = out.finished();
                 in = new InputStream(communicator, data);
-                java.util.Map<Long, Float> dict2 = LongFloatDHelper.read(in);
+                Map<Long, Float> dict2 = LongFloatDHelper.read(in);
                 test(dict2.equals(dict));
             }
 
             {
-                java.util.Map<String, String> dict = new java.util.HashMap<>();
+                Map<String, String> dict = new HashMap<>();
                 dict.put("key1", "value1");
                 dict.put("key2", "value2");
                 out = new OutputStream(communicator);
                 StringStringDHelper.write(out, dict);
                 byte data[] = out.finished();
                 in = new InputStream(communicator, data);
-                java.util.Map<String, String> dict2 = StringStringDHelper.read(in);
+                Map<String, String> dict2 = StringStringDHelper.read(in);
                 test(dict2.equals(dict));
             }
 
             {
-                java.util.Map<String, MyClass> dict = new java.util.HashMap<>();
+                Map<String, MyClass> dict = new HashMap<>();
                 MyClass c;
                 c = new MyClass();
                 c.s = new LargeStruct();
@@ -671,7 +704,7 @@ public class Client extends test.TestHelper {
                 out.writePendingValues();
                 byte[] data = out.finished();
                 in = new InputStream(communicator, data);
-                java.util.Map<String, MyClass> dict2 = StringMyClassDHelper.read(in);
+                Map<String, MyClass> dict2 = StringMyClassDHelper.read(in);
                 in.readPendingValues();
                 test(dict2.size() == dict.size());
                 test(dict2.get("key1").s.e == MyEnum.enum2);

@@ -2,8 +2,12 @@
 
 package test.Ice.proxy;
 
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.ObjectPrx;
+
 import test.Ice.proxy.AMD.Test.MyDerivedClass;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -11,28 +15,28 @@ public final class AMDMyDerivedClassI implements MyDerivedClass {
     public AMDMyDerivedClassI() {}
 
     @Override
-    public CompletionStage<com.zeroc.Ice.ObjectPrx> echoAsync(
-            com.zeroc.Ice.ObjectPrx obj, com.zeroc.Ice.Current current) {
+    public CompletionStage<ObjectPrx> echoAsync(
+            ObjectPrx obj, Current current) {
         return CompletableFuture.completedFuture(obj);
     }
 
     @Override
-    public CompletionStage<Void> shutdownAsync(com.zeroc.Ice.Current c) {
+    public CompletionStage<Void> shutdownAsync(Current c) {
         c.adapter.getCommunicator().shutdown();
         return CompletableFuture.completedFuture((Void) null);
     }
 
     @Override
-    public CompletionStage<java.util.Map<String, String>> getContextAsync(
-            com.zeroc.Ice.Current current) {
+    public CompletionStage<Map<String, String>> getContextAsync(
+            Current current) {
         return CompletableFuture.completedFuture(_ctx);
     }
 
     @Override
-    public boolean ice_isA(String s, com.zeroc.Ice.Current current) {
+    public boolean ice_isA(String s, Current current) {
         _ctx = current.ctx;
         return MyDerivedClass.super.ice_isA(s, current);
     }
 
-    private java.util.Map<String, String> _ctx;
+    private Map<String, String> _ctx;
 }

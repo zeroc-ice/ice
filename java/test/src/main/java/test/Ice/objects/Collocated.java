@@ -2,43 +2,51 @@
 
 package test.Ice.objects;
 
-import test.Ice.objects.Test.Initial;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+import com.zeroc.Ice.Value;
+import com.zeroc.Ice.ValueFactory;
 
-public class Collocated extends test.TestHelper {
-    private static class MyValueFactory implements com.zeroc.Ice.ValueFactory {
+import test.Ice.objects.Test.Initial;
+import test.TestHelper;
+
+public class Collocated extends TestHelper {
+    private static class MyValueFactory implements ValueFactory {
         @Override
-        public com.zeroc.Ice.Value create(String type) {
-            if (type.equals("::Test::B")) {
+        public Value create(String type) {
+            if ("::Test::B".equals(type)) {
                 return new BI();
-            } else if (type.equals("::Test::C")) {
+            } else if ("::Test::C".equals(type)) {
                 return new CI();
-            } else if (type.equals("::Test::D")) {
+            } else if ("::Test::D".equals(type)) {
                 return new DI();
             }
 
-            assert (false); // Should never be reached
+            assert false; // Should never be reached
             return null;
         }
     }
 
     public void run(String[] args) {
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.objects");
         properties.setProperty("Ice.Warn.Dispatch", "0");
 
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
-            com.zeroc.Ice.ValueFactory factory = new MyValueFactory();
+        try (Communicator communicator = initialize(properties)) {
+            ValueFactory factory = new MyValueFactory();
             communicator.getValueFactoryManager().add(factory, "::Test::B");
             communicator.getValueFactoryManager().add(factory, "::Test::C");
             communicator.getValueFactoryManager().add(factory, "::Test::D");
 
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             Initial initial = new InitialI(adapter);
-            adapter.add(initial, com.zeroc.Ice.Util.stringToIdentity("initial"));
-            adapter.add(new F2I(), com.zeroc.Ice.Util.stringToIdentity("F21"));
+            adapter.add(initial, Util.stringToIdentity("initial"));
+            adapter.add(new F2I(), Util.stringToIdentity("F21"));
             UnexpectedObjectExceptionTestI object = new UnexpectedObjectExceptionTestI();
-            adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("uoet"));
+            adapter.add(object, Util.stringToIdentity("uoet"));
             AllTests.allTests(this);
             //
             // We must call shutdown even in the collocated case for cyclic dependency cleanup.

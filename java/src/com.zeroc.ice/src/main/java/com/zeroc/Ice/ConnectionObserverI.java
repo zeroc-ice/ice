@@ -10,7 +10,7 @@ import com.zeroc.Ice.Instrumentation.ConnectionObserver;
  * @hidden Public because it's used by IceMX (via reflection).
  */
 public class ConnectionObserverI extends ObserverWithDelegate<ConnectionMetrics, ConnectionObserver>
-        implements ConnectionObserver {
+    implements ConnectionObserver {
     @Override
     public void sentBytes(final int num) {
         _sentBytes = num;
@@ -29,21 +29,21 @@ public class ConnectionObserverI extends ObserverWithDelegate<ConnectionMetrics,
         }
     }
 
-    private MetricsUpdate<ConnectionMetrics> _sentBytesUpdate =
-            new MetricsUpdate<ConnectionMetrics>() {
-                @Override
-                public void update(ConnectionMetrics v) {
-                    v.sentBytes += _sentBytes;
-                }
-            };
+    private final MetricsUpdate<ConnectionMetrics> _sentBytesUpdate =
+        new MetricsUpdate<ConnectionMetrics>() {
+            @Override
+            public void update(ConnectionMetrics v) {
+                v.sentBytes += _sentBytes;
+            }
+        };
 
-    private MetricsUpdate<ConnectionMetrics> _receivedBytesUpdate =
-            new MetricsUpdate<ConnectionMetrics>() {
-                @Override
-                public void update(ConnectionMetrics v) {
-                    v.receivedBytes += _receivedBytes;
-                }
-            };
+    private final MetricsUpdate<ConnectionMetrics> _receivedBytesUpdate =
+        new MetricsUpdate<ConnectionMetrics>() {
+            @Override
+            public void update(ConnectionMetrics v) {
+                v.receivedBytes += _receivedBytes;
+            }
+        };
 
     private int _sentBytes;
     private int _receivedBytes;

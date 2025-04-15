@@ -2,17 +2,21 @@
 
 package test.Ice.seqMapping;
 
-import test.Ice.seqMapping.Test.*;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectPrx;
+
+import test.Ice.seqMapping.Test.MyClassPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 
 public class AllTests {
-    public static MyClassPrx allTests(test.TestHelper helper, boolean collocated) {
+    public static MyClassPrx allTests(TestHelper helper, boolean collocated) {
         PrintWriter out = helper.getWriter();
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        Communicator communicator = helper.communicator();
 
         String ref = "test:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx baseProxy = communicator.stringToProxy(ref);
+        ObjectPrx baseProxy = communicator.stringToProxy(ref);
         MyClassPrx cl = MyClassPrx.checkedCast(baseProxy);
 
         out.print("testing twoway operations... ");
@@ -29,4 +33,6 @@ public class AllTests {
 
         return cl;
     }
+
+    private AllTests() {}
 }

@@ -2,9 +2,19 @@
 
 package com.zeroc.Ice;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
+import java.net.PortUnreachableException;
+import java.net.SocketAddress;
+import java.nio.channels.AsynchronousCloseException;
+import java.nio.channels.DatagramChannel;
+import java.nio.channels.SelectableChannel;
+
 final class UdpTransceiver implements Transceiver {
     @Override
-    public java.nio.channels.SelectableChannel fd() {
+    public SelectableChannel fd() {
         assert (_fd != null);
         return _fd;
     }
@@ -34,8 +44,7 @@ final class UdpTransceiver implements Transceiver {
 
         try {
             _fd.close();
-        } catch (java.io.IOException ex) {
-        }
+        } catch (IOException ex) {}
         _fd = null;
     }
 
@@ -53,13 +62,13 @@ final class UdpTransceiver implements Transceiver {
                 //
                 int protocolSupport = Network.getProtocolSupport(_mcastAddr);
                 _addr =
-                        Network.getAddressForServer(
-                                "", _port, protocolSupport, _instance.preferIPv6());
+                    Network.getAddressForServer(
+                        "", _port, protocolSupport, _instance.preferIPv6());
             }
             _addr = Network.doBind(_fd, _addr);
             if (_port == 0) {
                 _mcastAddr =
-                        new java.net.InetSocketAddress(_mcastAddr.getAddress(), _addr.getPort());
+                    new InetSocketAddress(_mcastAddr.getAddress(), _addr.getPort());
             }
             Network.setMcastGroup(_fd, _mcastAddr, _mcastInterface);
         } else {
@@ -108,13 +117,13 @@ final class UdpTransceiver implements Transceiver {
                     ret = _fd.send(buf.b, _peerAddr);
                 }
                 break;
-            } catch (java.nio.channels.AsynchronousCloseException ex) {
+            } catch (AsynchronousCloseException ex) {
                 throw new ConnectionLostException(ex);
-            } catch (java.net.PortUnreachableException ex) {
+            } catch (PortUnreachableException ex) {
                 throw new ConnectionLostException(ex);
-            } catch (java.io.InterruptedIOException ex) {
+            } catch (InterruptedIOException ex) {
                 continue;
-            } catch (java.io.IOException ex) {
+            } catch (IOException ex) {
                 throw new SocketException(ex);
             }
         }
@@ -143,21 +152,21 @@ final class UdpTransceiver implements Transceiver {
         int ret = 0;
         while (true) {
             try {
-                java.net.SocketAddress peerAddr = _fd.receive(buf.b);
+                SocketAddress peerAddr = _fd.receive(buf.b);
                 if (peerAddr == null || buf.b.position() == 0) {
                     return SocketOperation.Read;
                 }
 
-                _peerAddr = (java.net.InetSocketAddress) peerAddr;
+                _peerAddr = (InetSocketAddress) peerAddr;
                 ret = buf.b.position();
                 break;
-            } catch (java.nio.channels.AsynchronousCloseException ex) {
+            } catch (AsynchronousCloseException ex) {
                 throw new ConnectionLostException(ex);
-            } catch (java.net.PortUnreachableException ex) {
+            } catch (PortUnreachableException ex) {
                 throw new ConnectionLostException(ex);
-            } catch (java.io.InterruptedIOException ex) {
+            } catch (InterruptedIOException ex) {
                 continue;
-            } catch (java.io.IOException ex) {
+            } catch (IOException ex) {
                 throw new ConnectionLostException(ex);
             }
         }
@@ -187,11 +196,11 @@ final class UdpTransceiver implements Transceiver {
         if (_incoming && !_bound) {
             s = "local address = " + Network.addrToString(_addr);
         } else if (_state == StateNotConnected) {
-            java.net.DatagramSocket socket = _fd.socket();
+            DatagramSocket socket = _fd.socket();
             s =
-                    "local address = "
-                            + Network.addrToString(
-                                    (java.net.InetSocketAddress) socket.getLocalSocketAddress());
+                "local address = "
+                    + Network.addrToString(
+                    (InetSocketAddress) socket.getLocalSocketAddress());
         } else {
             s = Network.fdToString(_fd);
         }
@@ -207,8 +216,8 @@ final class UdpTransceiver implements Transceiver {
         StringBuilder s = new StringBuilder(toString());
         if (_mcastAddr != null) {
             var intfs =
-                    Network.getInterfacesForMulticast(
-                            _mcastInterface, Network.getProtocolSupport(_mcastAddr));
+                Network.getInterfacesForMulticast(
+                    _mcastInterface, Network.getProtocolSupport(_mcastAddr));
             if (!intfs.isEmpty()) {
                 s.append("\nlocal interfaces = ");
                 s.append(String.join(", ", intfs));
@@ -222,7 +231,7 @@ final class UdpTransceiver implements Transceiver {
         if (_fd == null) {
             return new UDPConnectionInfo(incoming, adapterName, connectionId);
         } else {
-            java.net.DatagramSocket socket = _fd.socket();
+            DatagramSocket socket = _fd.socket();
 
             int rcvSize = 0;
             int sndSize = 0;
@@ -237,17 +246,17 @@ final class UdpTransceiver implements Transceiver {
                 // Since this info is cached in the Connection object shared by all the clients,
                 // we don't store the remote address/port of the latest client in this info.
                 return new UDPConnectionInfo(
-                        incoming,
-                        adapterName,
-                        connectionId,
-                        socket.getLocalAddress().getHostAddress(),
-                        socket.getLocalPort(),
-                        "", // remoteAddress
-                        -1, // remotePort
-                        _mcastAddr != null ? _mcastAddr.getAddress().getHostAddress() : "",
-                        _mcastAddr != null ? _mcastAddr.getPort() : -1,
-                        rcvSize,
-                        sndSize);
+                    incoming,
+                    adapterName,
+                    connectionId,
+                    socket.getLocalAddress().getHostAddress(),
+                    socket.getLocalPort(),
+                    "", // remoteAddress
+                    -1, // remotePort
+                    _mcastAddr != null ? _mcastAddr.getAddress().getHostAddress() : "",
+                    _mcastAddr != null ? _mcastAddr.getPort() : -1,
+                    rcvSize,
+                    sndSize);
             } else {
                 assert !_incoming;
 
@@ -259,17 +268,17 @@ final class UdpTransceiver implements Transceiver {
                 }
 
                 return new UDPConnectionInfo(
-                        incoming,
-                        adapterName,
-                        connectionId,
-                        socket.getLocalAddress().getHostAddress(),
-                        socket.getLocalPort(),
-                        remoteAddress,
-                        remotePort,
-                        _mcastAddr != null ? _mcastAddr.getAddress().getHostAddress() : "",
-                        _mcastAddr != null ? _mcastAddr.getPort() : -1,
-                        rcvSize,
-                        sndSize);
+                    incoming,
+                    adapterName,
+                    connectionId,
+                    socket.getLocalAddress().getHostAddress(),
+                    socket.getLocalPort(),
+                    remoteAddress,
+                    remotePort,
+                    _mcastAddr != null ? _mcastAddr.getAddress().getHostAddress() : "",
+                    _mcastAddr != null ? _mcastAddr.getPort() : -1,
+                    rcvSize,
+                    sndSize);
             }
         }
     }
@@ -283,10 +292,10 @@ final class UdpTransceiver implements Transceiver {
         final int packetSize = java.lang.Math.min(_maxPacketSize, _sndSize - _udpOverhead);
         if (packetSize < buf.size()) {
             throw new DatagramLimitException(
-                    "message size of "
-                            + buf.size()
-                            + " exceeds the maximum packet size of "
-                            + packetSize);
+                "message size of "
+                    + buf.size()
+                    + " exceeds the maximum packet size of "
+                    + packetSize);
         }
     }
 
@@ -304,8 +313,8 @@ final class UdpTransceiver implements Transceiver {
     //
     UdpTransceiver(
             ProtocolInstance instance,
-            java.net.InetSocketAddress addr,
-            java.net.InetSocketAddress sourceAddr,
+            InetSocketAddress addr,
+            InetSocketAddress sourceAddr,
             String mcastInterface,
             int mcastTtl) {
         _instance = instance;
@@ -342,7 +351,7 @@ final class UdpTransceiver implements Transceiver {
     UdpTransceiver(
             UdpEndpointI endpoint,
             ProtocolInstance instance,
-            java.net.InetSocketAddress addr,
+            InetSocketAddress addr,
             String mcastInterface) {
         _endpoint = endpoint;
         _instance = instance;
@@ -365,7 +374,7 @@ final class UdpTransceiver implements Transceiver {
     private void setBufSize(int rcvSize, int sndSize) {
         assert (_fd != null);
 
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 2; i++) {
             boolean isSnd;
             String direction;
             String prop;
@@ -398,14 +407,14 @@ final class UdpTransceiver implements Transceiver {
             //
             if (sizeRequested < (_udpOverhead + Protocol.headerSize)) {
                 _instance
-                        .logger()
-                        .warning(
-                                "Invalid "
-                                        + prop
-                                        + " value of "
-                                        + sizeRequested
-                                        + " adjusted to "
-                                        + dfltSize);
+                    .logger()
+                    .warning(
+                        "Invalid "
+                            + prop
+                            + " value of "
+                            + sizeRequested
+                            + " adjusted to "
+                            + dfltSize);
                 sizeRequested = dfltSize;
             }
 
@@ -432,16 +441,16 @@ final class UdpTransceiver implements Transceiver {
                 if (sizeSet < sizeRequested) {
                     BufSizeWarnInfo winfo = _instance.getBufSizeWarn(UDPEndpointType.value);
                     if ((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested))
-                            || (!isSnd && (!winfo.rcvWarn || winfo.rcvSize != sizeRequested))) {
+                        || (!isSnd && (!winfo.rcvWarn || winfo.rcvSize != sizeRequested))) {
                         _instance
-                                .logger()
-                                .warning(
-                                        "UDP "
-                                                + direction
-                                                + " buffer size: requested size of "
-                                                + sizeRequested
-                                                + " adjusted to "
-                                                + sizeSet);
+                            .logger()
+                            .warning(
+                                "UDP "
+                                    + direction
+                                    + " buffer size: requested size of "
+                                    + sizeRequested
+                                    + " adjusted to "
+                                    + sizeSet);
 
                         if (isSnd) {
                             _instance.setSndBufSizeWarn(UDPEndpointType.value, sizeRequested);
@@ -454,32 +463,31 @@ final class UdpTransceiver implements Transceiver {
         }
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"nofinalizer", "deprecation"})
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
             Assert.FinalizerAssert(_fd == null);
-        } catch (Exception ex) {
-        } finally {
+        } catch (Exception ex) {} finally {
             super.finalize();
         }
     }
 
-    private UdpEndpointI _endpoint = null;
+    private UdpEndpointI _endpoint;
     private final ProtocolInstance _instance;
 
     private int _state;
     private int _rcvSize;
     private int _sndSize;
-    private java.nio.channels.DatagramChannel _fd;
-    private java.net.InetSocketAddress _addr;
-    private java.net.InetSocketAddress _mcastAddr = null;
+    private DatagramChannel _fd;
+    private InetSocketAddress _addr;
+    private InetSocketAddress _mcastAddr;
     private String _mcastInterface;
-    private java.net.InetSocketAddress _peerAddr = null;
+    private InetSocketAddress _peerAddr;
 
-    private boolean _incoming = false;
-    private int _port = 0;
-    private boolean _bound = false;
+    private boolean _incoming;
+    private int _port;
+    private boolean _bound;
 
     //
     // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for

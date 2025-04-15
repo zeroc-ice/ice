@@ -2,17 +2,34 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.IceBoxDescriptor;
+import com.zeroc.IceGrid.NodeDescriptor;
+import com.zeroc.IceGrid.NodeUpdateDescriptor;
+import com.zeroc.IceGrid.PropertySetDescriptor;
+import com.zeroc.IceGrid.ServerDescriptor;
+import com.zeroc.IceGrid.ServerInstanceDescriptor;
+import com.zeroc.IceGrid.TemplateDescriptor;
+import com.zeroc.IceGridGUI.ApplicationActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
+
 import javax.swing.JPopupMenu;
 
 class Nodes extends ListTreeNode {
-    public static java.util.Map<String, NodeDescriptor> copyDescriptors(
-            java.util.Map<String, NodeDescriptor> descriptors) {
-        java.util.Map<String, NodeDescriptor> copy = new java.util.HashMap<>();
-        for (java.util.Map.Entry<String, NodeDescriptor> p : descriptors.entrySet()) {
+    public static Map<String, NodeDescriptor> copyDescriptors(
+            Map<String, NodeDescriptor> descriptors) {
+        Map<String, NodeDescriptor> copy = new HashMap<>();
+        for (Map.Entry<String, NodeDescriptor> p : descriptors.entrySet()) {
             copy.put(p.getKey(), Node.copyDescriptor(p.getValue()));
         }
         return copy;
@@ -51,10 +68,10 @@ class Nodes extends ListTreeNode {
             TemplateDescriptor td = getRoot().findServerTemplateDescriptor(p.template);
             if (td == null) {
                 JOptionPane.showMessageDialog(
-                        getCoordinator().getMainFrame(),
-                        "Descriptor refers to undefined server template '" + p.template + "'",
-                        "Cannot paste",
-                        JOptionPane.ERROR_MESSAGE);
+                    getCoordinator().getMainFrame(),
+                    "Descriptor refers to undefined server template '" + p.template + "'",
+                    "Cannot paste",
+                    JOptionPane.ERROR_MESSAGE);
                 return;
             } else {
                 p.parameterValues.keySet().retainAll(td.parameters);
@@ -75,21 +92,21 @@ class Nodes extends ListTreeNode {
     @Override
     public void newNode() {
         newNode(
-                new NodeDescriptor(
-                        new java.util.TreeMap<String, String>(),
-                        new java.util.LinkedList<ServerInstanceDescriptor>(),
-                        new java.util.LinkedList<ServerDescriptor>(),
-                        "",
-                        "",
-                        new java.util.HashMap<String, PropertySetDescriptor>()));
+            new NodeDescriptor(
+                new TreeMap<String, String>(),
+                new LinkedList<ServerInstanceDescriptor>(),
+                new LinkedList<ServerDescriptor>(),
+                "",
+                "",
+                new HashMap<String, PropertySetDescriptor>()));
     }
 
-    Nodes(TreeNode parent, java.util.Map<String, NodeDescriptor> descriptors)
-            throws UpdateFailedException {
+    Nodes(TreeNode parent, Map<String, NodeDescriptor> descriptors)
+        throws UpdateFailedException {
         super(false, parent, "Nodes");
         _descriptors = descriptors;
 
-        for (java.util.Map.Entry<String, NodeDescriptor> p : _descriptors.entrySet()) {
+        for (Map.Entry<String, NodeDescriptor> p : _descriptors.entrySet()) {
             String nodeName = p.getKey();
             NodeDescriptor nodeDescriptor = p.getValue();
             insertChild(new Node(false, this, nodeName, nodeDescriptor), false);
@@ -98,15 +115,15 @@ class Nodes extends ListTreeNode {
 
     // Try to rebuild all my children. No-op if it fails
     void rebuild() throws UpdateFailedException {
-        java.util.List<Node.Backup> backupList = new java.util.ArrayList<>();
-        java.util.List<Editable> editables = new java.util.LinkedList<>();
+        List<Node.Backup> backupList = new ArrayList<>();
+        List<Editable> editables = new LinkedList<>();
 
         for (TreeNodeBase p : _children) {
             Node node = (Node) p;
             try {
                 backupList.add(node.rebuild(editables));
             } catch (UpdateFailedException e) {
-                for (int i = backupList.size() - 1; i >= 0; --i) {
+                for (int i = backupList.size() - 1; i >= 0; i--) {
                     ((Node) _children.get(i)).restore(backupList.get(i));
                 }
                 throw e;
@@ -127,8 +144,8 @@ class Nodes extends ListTreeNode {
         }
     }
 
-    java.util.LinkedList<NodeUpdateDescriptor> getUpdates() {
-        java.util.LinkedList<NodeUpdateDescriptor> updates = new java.util.LinkedList<>();
+    LinkedList<NodeUpdateDescriptor> getUpdates() {
+        LinkedList<NodeUpdateDescriptor> updates = new LinkedList<>();
         for (TreeNodeBase p : _children) {
             Node node = (Node) p;
             NodeUpdateDescriptor d = node.getUpdate();
@@ -146,8 +163,8 @@ class Nodes extends ListTreeNode {
         }
     }
 
-    java.util.List<ServiceInstance> findServiceInstances(String template) {
-        java.util.List<ServiceInstance> result = new java.util.LinkedList<>();
+    List<ServiceInstance> findServiceInstances(String template) {
+        List<ServiceInstance> result = new LinkedList<>();
         for (TreeNodeBase p : _children) {
             Node node = (Node) p;
             result.addAll(node.findServiceInstances(template));
@@ -163,11 +180,11 @@ class Nodes extends ListTreeNode {
     }
 
     void update(
-            java.util.List<NodeUpdateDescriptor> updates,
+            List<NodeUpdateDescriptor> updates,
             String[] removeNodes,
-            java.util.Set<String> serverTemplates,
-            java.util.Set<String> serviceTemplates)
-            throws UpdateFailedException {
+            Set<String> serverTemplates,
+            Set<String> serviceTemplates)
+        throws UpdateFailedException {
         //
         // Note: _descriptors has already the nodes removed but
         // needs to get the updated and new NodeDescriptors
@@ -177,21 +194,21 @@ class Nodes extends ListTreeNode {
         removeChildren(removeNodes);
 
         // One big set of updates, followed by inserts
-        java.util.List<TreeNodeBase> newChildren = new java.util.ArrayList<>();
-        java.util.Set<Node> updatedNodes = new java.util.HashSet<>();
+        List<TreeNodeBase> newChildren = new ArrayList<>();
+        Set<Node> updatedNodes = new HashSet<>();
 
         for (NodeUpdateDescriptor update : updates) {
             Node node = findNode(update.name);
 
             if (node == null) {
                 NodeDescriptor nodeDescriptor =
-                        new NodeDescriptor(
-                                update.variables,
-                                update.serverInstances,
-                                update.servers,
-                                update.loadFactor == null ? "" : update.loadFactor.value,
-                                update.description == null ? "" : update.description.value,
-                                new java.util.HashMap<String, PropertySetDescriptor>());
+                    new NodeDescriptor(
+                        update.variables,
+                        update.serverInstances,
+                        update.servers,
+                        update.loadFactor == null ? "" : update.loadFactor.value,
+                        update.description == null ? "" : update.description.value,
+                        new HashMap<String, PropertySetDescriptor>());
                 _descriptors.put(update.name, nodeDescriptor);
                 node = new Node(false, this, update.name, nodeDescriptor);
                 newChildren.add(node);
@@ -216,8 +233,8 @@ class Nodes extends ListTreeNode {
         return (Node) findChild(nodeName);
     }
 
-    java.util.List<ServerInstance> findServerInstances(String template) {
-        java.util.List<ServerInstance> result = new java.util.LinkedList<>();
+    List<ServerInstance> findServerInstances(String template) {
+        List<ServerInstance> result = new LinkedList<>();
         for (TreeNodeBase p : _children) {
             Node node = (Node) p;
             result.addAll(node.findServerInstances(template));
@@ -256,6 +273,6 @@ class Nodes extends ListTreeNode {
         getRoot().setSelectedNode(node);
     }
 
-    private java.util.Map<String, NodeDescriptor> _descriptors;
+    private final Map<String, NodeDescriptor> _descriptors;
     private static JPopupMenu _popup;
 }

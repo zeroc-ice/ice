@@ -2,6 +2,11 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.ChildInvocationObserver;
+import com.zeroc.Ice.Instrumentation.InvocationObserver;
+
+import java.util.concurrent.ExecutionException;
+
 //
 // Base class for handling asynchronous invocations. This class is
 // responsible for the handling of the output stream and the child invocation observer.
@@ -12,7 +17,7 @@ abstract class OutgoingAsyncBase<T> extends InvocationFuture<T> {
     }
 
     public boolean completed(InputStream is) {
-        assert (false); // Must be implemented by classes that handle responses
+        assert false; // Must be implemented by classes that handle responses
         return false;
     }
 
@@ -21,7 +26,7 @@ abstract class OutgoingAsyncBase<T> extends InvocationFuture<T> {
     }
 
     public final void attachRemoteObserver(ConnectionInfo info, Endpoint endpt, int requestId) {
-        com.zeroc.Ice.Instrumentation.InvocationObserver observer = getObserver();
+        InvocationObserver observer = getObserver();
         if (observer != null) {
             final int size = _os.size() - Protocol.headerSize - 4;
             _childObserver = observer.getRemoteObserver(info, endpt, requestId, size);
@@ -32,7 +37,7 @@ abstract class OutgoingAsyncBase<T> extends InvocationFuture<T> {
     }
 
     public final void attachCollocatedObserver(ObjectAdapter adapter, int requestId) {
-        com.zeroc.Ice.Instrumentation.InvocationObserver observer = getObserver();
+        InvocationObserver observer = getObserver();
         if (observer != null) {
             final int size = _os.size() - Protocol.headerSize - 4;
             _childObserver = observer.getCollocatedObserver(adapter, requestId, size);
@@ -51,13 +56,13 @@ abstract class OutgoingAsyncBase<T> extends InvocationFuture<T> {
             return get();
         } catch (InterruptedException ex) {
             throw new OperationInterruptedException(ex);
-        } catch (java.util.concurrent.ExecutionException ee) {
+        } catch (ExecutionException ee) {
             try {
                 throw ee.getCause().fillInStackTrace();
             } catch (RuntimeException ex) // Includes LocalException
-            {
-                throw ex;
-            } catch (Throwable ex) {
+                {
+                    throw ex;
+                } catch (Throwable ex) {
                 throw new UnknownException(ex);
             }
         }
@@ -66,10 +71,10 @@ abstract class OutgoingAsyncBase<T> extends InvocationFuture<T> {
     protected OutgoingAsyncBase(Communicator com, Instance instance, String op) {
         super(com, instance, op);
         _os =
-                new OutputStream(
-                        Protocol.currentProtocolEncoding,
-                        instance.defaultsAndOverrides().defaultFormat,
-                        instance.cacheMessageBuffers() > 1);
+            new OutputStream(
+                Protocol.currentProtocolEncoding,
+                instance.defaultsAndOverrides().defaultFormat,
+                instance.cacheMessageBuffers() > 1);
     }
 
     protected OutgoingAsyncBase(Communicator com, Instance instance, String op, OutputStream os) {
@@ -99,5 +104,5 @@ abstract class OutgoingAsyncBase<T> extends InvocationFuture<T> {
     }
 
     protected OutputStream _os;
-    protected com.zeroc.Ice.Instrumentation.ChildInvocationObserver _childObserver;
+    protected ChildInvocationObserver _childObserver;
 }

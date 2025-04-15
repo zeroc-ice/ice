@@ -11,9 +11,9 @@ package com.zeroc.Ice;
 public final class TwowayOnlyException extends LocalException {
     public TwowayOnlyException(String operation) {
         super(
-                "Cannot invoke operation '"
-                        + operation
-                        + "' with a oneway, batchOneway, datagram, of batchDatagram proxy.");
+            "Cannot invoke operation '"
+                + operation
+                + "' with a oneway, batchOneway, datagram, of batchDatagram proxy.");
         this.operation = operation;
     }
 

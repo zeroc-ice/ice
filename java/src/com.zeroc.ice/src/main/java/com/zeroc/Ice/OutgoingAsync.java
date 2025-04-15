@@ -3,6 +3,8 @@
 package com.zeroc.Ice;
 
 import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @hidden Public because it's used by the generated code.
@@ -34,16 +36,16 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
         }
         if (_os == null) {
             _os =
-                    new OutputStream(
-                            Protocol.currentProtocolEncoding,
-                            _instance.defaultsAndOverrides().defaultFormat,
-                            _instance.cacheMessageBuffers() > 1);
+                new OutputStream(
+                    Protocol.currentProtocolEncoding,
+                    _instance.defaultsAndOverrides().defaultFormat,
+                    _instance.cacheMessageBuffers() > 1);
         }
     }
 
     public void invoke(
             boolean twowayOnly,
-            java.util.Map<String, String> ctx,
+            Map<String, String> ctx,
             FormatType format,
             OutputStream.Marshaler marshal,
             Unmarshaler<T> unmarshal) {
@@ -67,8 +69,8 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
                 // NOTE: we don't call sent/completed callbacks for batch AMI requests
                 _sentSynchronously = true;
                 _proxy._getReference()
-                        .getBatchRequestQueue()
-                        .finishBatchRequest(_os, _proxy, _operation);
+                    .getBatchRequestQueue()
+                    .finishBatchRequest(_os, _proxy, _operation);
                 finished(true, false);
             } else {
                 // invokeImpl can throw; we handle this exception by calling abort
@@ -97,10 +99,10 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
             return get();
         } catch (InterruptedException ex) {
             throw new OperationInterruptedException(ex);
-        } catch (java.util.concurrent.ExecutionException ee) {
+        } catch (ExecutionException ee) {
             try {
                 throw ee.getCause().fillInStackTrace();
-            } catch (RuntimeException ex) // Includes LocalException
+            } catch (RuntimeException ex /* Includes LocalException */)
             {
                 throw ex;
             } catch (UserException ex) {
@@ -119,7 +121,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
 
     @Override
     public int invokeRemote(ConnectionI connection, boolean compress, boolean response)
-            throws RetryException {
+        throws RetryException {
         _cachedConnection = connection;
         return connection.sendAsyncRequest(this, compress, response, 0);
     }
@@ -129,7 +131,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
         // The stream cannot be cached if the proxy is not a twoway or there is an invocation
         // timeout set.
         if (!_proxy.ice_isTwoway()
-                || _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
+            || _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
         }
@@ -183,7 +185,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
                     throwUserException();
                 } catch (UserException ex) {
                     if (_userExceptions != null) {
-                        for (int i = 0; i < _userExceptions.length; ++i) {
+                        for (int i = 0; i < _userExceptions.length; i++) {
                             if (_userExceptions[i].isInstance(ex)) {
                                 completeExceptionally(ex);
                                 return;
@@ -210,10 +212,10 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
         // _is can already be initialized if the invocation is retried
         if (_is == null) {
             _is =
-                    new InputStream(
-                            _instance,
-                            Protocol.currentProtocolEncoding,
-                            _instance.cacheMessageBuffers() > 1);
+                new InputStream(
+                    _instance,
+                    Protocol.currentProtocolEncoding,
+                    _instance.cacheMessageBuffers() > 1);
         }
         _is.swap(is);
 
@@ -281,6 +283,6 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
     private final EncodingVersion _encoding;
     private InputStream _is;
 
-    private Class<?>[] _userExceptions; // Valid user exceptions.
+    private final Class<?>[] _userExceptions; // Valid user exceptions.
     private Unmarshaler<T> _unmarshal;
 }

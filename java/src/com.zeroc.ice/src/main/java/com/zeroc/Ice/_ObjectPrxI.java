@@ -2,14 +2,20 @@
 
 package com.zeroc.Ice;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /** Concrete proxy implementation. */
-class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
+class _ObjectPrxI implements ObjectPrx, Serializable {
     public _ObjectPrxI(Reference ref) {
         _reference = ref;
         _requestHandlerCache = new RequestHandlerCache(ref);
@@ -44,7 +50,7 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     private OutgoingAsync<Boolean> _iceI_ice_isAAsync(
             String id, Map<String, String> context, boolean sync) {
         OutgoingAsync<Boolean> f =
-                new OutgoingAsync<>(this, "ice_isA", OperationMode.Idempotent, sync, null);
+            new OutgoingAsync<>(this, "ice_isA", OperationMode.Idempotent, sync, null);
         f.invoke(true, context, null, ostr -> ostr.writeString(id), istr -> istr.readBool());
         return f;
     }
@@ -67,7 +73,7 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
     private OutgoingAsync<Void> _iceI_ice_pingAsync(Map<String, String> context, boolean sync) {
         OutgoingAsync<Void> f =
-                new OutgoingAsync<>(this, "ice_ping", OperationMode.Idempotent, sync, null);
+            new OutgoingAsync<>(this, "ice_ping", OperationMode.Idempotent, sync, null);
         f.invoke(false, context, null, null, null);
         return f;
     }
@@ -90,7 +96,7 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
     private OutgoingAsync<String[]> _iceI_ice_idsAsync(Map<String, String> context, boolean sync) {
         OutgoingAsync<String[]> f =
-                new OutgoingAsync<>(this, "ice_ids", OperationMode.Idempotent, sync, null);
+            new OutgoingAsync<>(this, "ice_ids", OperationMode.Idempotent, sync, null);
         f.invoke(true, context, null, null, istr -> istr.readStringSeq());
         return f;
     }
@@ -113,7 +119,7 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
     private OutgoingAsync<String> _iceI_ice_idAsync(Map<String, String> context, boolean sync) {
         OutgoingAsync<String> f =
-                new OutgoingAsync<>(this, "ice_id", OperationMode.Idempotent, sync, null);
+            new OutgoingAsync<>(this, "ice_id", OperationMode.Idempotent, sync, null);
         f.invoke(true, context, null, null, istr -> istr.readString());
         return f;
     }
@@ -156,7 +162,7 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     public ObjectPrx ice_identity(Identity newIdentity) {
         if (newIdentity.name == null || newIdentity.name.isEmpty()) {
             throw new IllegalArgumentException(
-                    "The name of an Ice object identity cannot be empty.");
+                "The name of an Ice object identity cannot be empty.");
         }
         if (newIdentity.equals(_reference.getIdentity())) {
             return this;
@@ -166,7 +172,7 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     }
 
     public Map<String, String> ice_getContext() {
-        return new java.util.HashMap<>(_reference.getContext());
+        return new HashMap<>(_reference.getContext());
     }
 
     public String ice_getFacet() {
@@ -263,7 +269,7 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
         return _reference.getMode() == Reference.ModeBatchDatagram;
     }
 
-    public java.util.Optional<Boolean> ice_getCompress() {
+    public Optional<Boolean> ice_getCompress() {
         return _reference.getCompress();
     }
 
@@ -338,7 +344,7 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     }
 
     @Override
-    public ObjectPrx ice_context(java.util.Map<String, String> newContext) {
+    public ObjectPrx ice_context(Map<String, String> newContext) {
         return _newInstance(_reference.changeContext(newContext));
     }
 
@@ -357,28 +363,28 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
 
     @Override
     public ObjectPrx ice_endpoints(Endpoint[] newEndpoints) {
-        if (java.util.Arrays.equals(newEndpoints, _reference.getEndpoints())) {
+        if (Arrays.equals(newEndpoints, _reference.getEndpoints())) {
             return this;
         } else {
             EndpointI[] edpts = new EndpointI[newEndpoints.length];
-            edpts = java.util.Arrays.asList(newEndpoints).toArray(edpts);
+            edpts = Arrays.asList(newEndpoints).toArray(edpts);
             return _newInstance(_reference.changeEndpoints(edpts));
         }
     }
 
     @Override
-    public ObjectPrx ice_fixed(com.zeroc.Ice.Connection connection) {
+    public ObjectPrx ice_fixed(Connection connection) {
         if (connection == null) {
             throw new IllegalArgumentException("invalid null connection passed to ice_fixed");
         }
-        if (!(connection instanceof com.zeroc.Ice.ConnectionI)) {
+        if (!(connection instanceof ConnectionI)) {
             throw new IllegalArgumentException("invalid connection passed to ice_fixed");
         }
         if (connection == _reference.getConnection()) {
             return this;
         } else {
             return _newInstance(
-                    _reference.changeConnection((com.zeroc.Ice.ConnectionI) connection));
+                _reference.changeConnection((ConnectionI) connection));
         }
     }
 
@@ -499,22 +505,22 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
     @Override
     public ObjectPrx ice_batchOneway() {
         return ice_isBatchOneway()
-                ? this
-                : _newInstance(_reference.changeMode(Reference.ModeBatchOneway));
+            ? this
+            : _newInstance(_reference.changeMode(Reference.ModeBatchOneway));
     }
 
     @Override
     public ObjectPrx ice_datagram() {
         return ice_isDatagram()
-                ? this
-                : _newInstance(_reference.changeMode(Reference.ModeDatagram));
+            ? this
+            : _newInstance(_reference.changeMode(Reference.ModeDatagram));
     }
 
     @Override
     public ObjectPrx ice_batchDatagram() {
         return ice_isBatchDatagram()
-                ? this
-                : _newInstance(_reference.changeMode(Reference.ModeBatchDatagram));
+            ? this
+            : _newInstance(_reference.changeMode(Reference.ModeBatchDatagram));
     }
 
     @Override
@@ -558,31 +564,31 @@ class _ObjectPrxI implements ObjectPrx, java.io.Serializable {
         return _requestHandlerCache;
     }
 
-    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+    private void writeObject(ObjectOutputStream out) throws IOException {
         out.writeUTF(toString());
     }
 
     private void readObject(java.io.ObjectInputStream in)
-            throws java.io.IOException, ClassNotFoundException {
+        throws IOException, ClassNotFoundException {
         String s = in.readUTF();
         try {
             Communicator communicator = ((ObjectInputStream) in).getCommunicator();
             if (communicator == null) {
-                throw new java.io.IOException("Cannot deserialize proxy: no communicator provided");
+                throw new IOException("Cannot deserialize proxy: no communicator provided");
             }
             var ref = communicator.getInstance().referenceFactory().create(s, null);
             var proxy = new _ObjectPrxI(ref);
             _reference = proxy._reference;
             _requestHandlerCache = proxy._requestHandlerCache;
         } catch (ClassCastException ex) {
-            java.io.IOException e =
-                    new java.io.IOException(
-                            "Cannot deserialize proxy: ObjectInputStream not found");
+            IOException e =
+                new IOException(
+                    "Cannot deserialize proxy: ObjectInputStream not found");
             e.initCause(ex);
             throw e;
         } catch (LocalException ex) {
-            java.io.IOException e =
-                    new java.io.IOException("Failure occurred while deserializing proxy");
+            IOException e =
+                new IOException("Failure occurred while deserializing proxy");
             e.initCause(ex);
             throw e;
         }

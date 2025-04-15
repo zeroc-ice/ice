@@ -4,8 +4,11 @@ package com.zeroc.Ice.IceMX;
 
 import com.zeroc.Ice.MetricsMap;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Observer<T extends Metrics> extends StopWatch
-        implements com.zeroc.Ice.Instrumentation.Observer {
+    implements com.zeroc.Ice.Instrumentation.Observer {
     public interface MetricsUpdate<T> {
         void update(T m);
     }
@@ -40,7 +43,7 @@ public class Observer<T extends Metrics> extends StopWatch
 
     public void init(
             MetricsHelper<T> helper,
-            java.util.List<MetricsMap<T>.Entry> objects,
+            List<MetricsMap<T>.Entry> objects,
             Observer<T> previous) {
         _objects = objects;
 
@@ -63,12 +66,12 @@ public class Observer<T extends Metrics> extends StopWatch
 
     public <S extends Metrics, ObserverImpl extends Observer<S>> ObserverImpl getObserver(
             String mapName, MetricsHelper<S> helper, Class<S> mcl, Class<ObserverImpl> ocl) {
-        java.util.List<MetricsMap<S>.Entry> metricsObjects = null;
+        List<MetricsMap<S>.Entry> metricsObjects = null;
         for (MetricsMap<T>.Entry entry : _objects) {
             MetricsMap<S>.Entry e = entry.getMatching(mapName, helper, mcl);
             if (e != null) {
                 if (metricsObjects == null) {
-                    metricsObjects = new java.util.ArrayList<>(_objects.size());
+                    metricsObjects = new ArrayList<>(_objects.size());
                 }
                 metricsObjects.add(e);
             }
@@ -83,7 +86,7 @@ public class Observer<T extends Metrics> extends StopWatch
             obsv.init(helper, metricsObjects, null);
             return obsv;
         } catch (Exception ex) {
-            assert (false);
+            assert false;
             return null;
         }
     }
@@ -97,6 +100,6 @@ public class Observer<T extends Metrics> extends StopWatch
         return null;
     }
 
-    private java.util.List<MetricsMap<T>.Entry> _objects;
-    private long _previousDelay = 0;
+    private List<MetricsMap<T>.Entry> _objects;
+    private long _previousDelay;
 }

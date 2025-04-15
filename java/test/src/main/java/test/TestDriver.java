@@ -10,18 +10,18 @@ public class TestDriver {
         try {
             String testClass = System.getProperty("test.class");
             Class<?> c = Class.forName(testClass);
-            test.TestHelper helper = (test.TestHelper) c.getDeclaredConstructor().newInstance();
+            TestHelper helper = (TestHelper) c.getDeclaredConstructor().newInstance();
 
             // Make the test fail if a thread dies with an unhandled exception.
             Thread.setDefaultUncaughtExceptionHandler(
-                    (Thread t, Throwable e) -> {
-                        PrintWriter out = helper.getWriter();
-                        out.println(
-                                "!!!!!!! unhandled exception in thread " + t.getName() + ": " + e);
-                        e.printStackTrace(out);
-                        out.flush();
-                        System.exit(1);
-                    });
+                (Thread t, Throwable e) -> {
+                    PrintWriter out = helper.getWriter();
+                    out.println(
+                        "!!!!!!! unhandled exception in thread " + t.getName() + ": " + e);
+                    e.printStackTrace(out);
+                    out.flush();
+                    System.exit(1);
+                });
 
             helper.run(args);
             helper.getWriter().flush();

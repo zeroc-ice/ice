@@ -2,27 +2,34 @@
 
 package test.Ice.location;
 
+import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.LocatorRegistryPrx;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
 
-public class Server extends test.TestHelper {
+import test.TestHelper;
+
+public class Server extends TestHelper {
     public void run(String[] args) {
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.location");
         properties.setProperty("Ice.ThreadPool.Server.Size", "2");
         properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
 
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(properties)) {
             communicator
-                    .getProperties()
-                    .setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
+                .getProperties()
+                .setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
 
             //
             // Register the server manager. The server manager creates a new
             // 'server' (a server isn't a different process, it's just a new
             // communicator and object adapter).
             //
-            com.zeroc.Ice.ObjectAdapter adapter =
-                    communicator.createObjectAdapter("ServerManagerAdapter");
+            ObjectAdapter adapter =
+                communicator.createObjectAdapter("ServerManagerAdapter");
 
             //
             // We also register a sample server locator which implements the
@@ -31,18 +38,18 @@ public class Server extends test.TestHelper {
             //
             ServerLocatorRegistry registry = new ServerLocatorRegistry();
             registry.addObject(
-                    adapter.createProxy(com.zeroc.Ice.Util.stringToIdentity("ServerManager")),
-                    null);
-            com.zeroc.Ice.Object object = new ServerManagerI(registry, this);
-            adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("ServerManager"));
+                adapter.createProxy(Util.stringToIdentity("ServerManager")),
+                null);
+            Object object = new ServerManagerI(registry, this);
+            adapter.add(object, Util.stringToIdentity("ServerManager"));
 
             LocatorRegistryPrx registryPrx =
-                    LocatorRegistryPrx.uncheckedCast(
-                            adapter.add(registry, com.zeroc.Ice.Util.stringToIdentity("registry")));
+                LocatorRegistryPrx.uncheckedCast(
+                    adapter.add(registry, Util.stringToIdentity("registry")));
 
             adapter.add(
-                    new ServerLocator(registry, registryPrx),
-                    com.zeroc.Ice.Util.stringToIdentity("locator"));
+                new ServerLocator(registry, registryPrx),
+                Util.stringToIdentity("locator"));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

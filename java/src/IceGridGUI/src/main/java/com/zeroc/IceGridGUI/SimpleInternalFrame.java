@@ -32,9 +32,25 @@ package com.zeroc.IceGridGUI;
 
 import com.jgoodies.common.base.SystemUtils;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.LayoutManager;
+import java.awt.Paint;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
 
 /**
@@ -304,15 +320,15 @@ public class SimpleInternalFrame extends JPanel {
      */
     protected Color getTextForeground(boolean isSelected) {
         Color c =
-                UIManager.getColor(
-                        isSelected
-                                ? "SimpleInternalFrame.activeTitleForeground"
-                                : "SimpleInternalFrame.inactiveTitleForeground");
+            UIManager.getColor(
+                isSelected
+                    ? "SimpleInternalFrame.activeTitleForeground"
+                    : "SimpleInternalFrame.inactiveTitleForeground");
         if (c != null) {
             return c;
         }
         return UIManager.getColor(
-                isSelected ? "InternalFrame.activeTitleForeground" : "Label.foreground");
+            isSelected ? "InternalFrame.activeTitleForeground" : "Label.foreground");
     }
 
     /**
@@ -323,9 +339,12 @@ public class SimpleInternalFrame extends JPanel {
      */
     protected Color getHeaderBackground() {
         Color c = UIManager.getColor("SimpleInternalFrame.activeTitleBackground");
-        if (c != null) return c;
-        if (SystemUtils.IS_LAF_WINDOWS_XP_ENABLED)
+        if (c != null) {
+            return c;
+        }
+        if (SystemUtils.IS_LAF_WINDOWS_XP_ENABLED) {
             c = UIManager.getColor("InternalFrame.activeTitleGradient");
+        }
         return c != null ? c : UIManager.getColor("InternalFrame.activeTitleBackground");
     }
 
@@ -372,9 +391,9 @@ public class SimpleInternalFrame extends JPanel {
                 shadow = Color.GRAY;
             }
             Color lightShadow =
-                    new Color(shadow.getRed(), shadow.getGreen(), shadow.getBlue(), 170);
+                new Color(shadow.getRed(), shadow.getGreen(), shadow.getBlue(), 170);
             Color lighterShadow =
-                    new Color(shadow.getRed(), shadow.getGreen(), shadow.getBlue(), 70);
+                new Color(shadow.getRed(), shadow.getGreen(), shadow.getBlue(), 70);
             g.translate(x, y);
 
             g.setColor(shadow);

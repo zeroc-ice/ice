@@ -10,7 +10,7 @@ import java.util.concurrent.CompletionStage;
  * BlobjectAsync#ice_invokeAsync} method, which is called by the Ice run time to deliver every
  * request on this object.
  */
-public interface BlobjectAsync extends com.zeroc.Ice.Object {
+public interface BlobjectAsync extends Object {
     /**
      * Dispatch an incoming request.
      *
@@ -29,13 +29,13 @@ public interface BlobjectAsync extends com.zeroc.Ice.Object {
      *     of the invocation.
      */
     CompletionStage<Object.Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current)
-            throws UserException;
+        throws UserException;
 
     @Override
     default CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
-            throws UserException {
+        throws UserException {
         byte[] inEncaps = request.inputStream.readEncapsulation(null);
         return ice_invokeAsync(inEncaps, request.current)
-                .thenApply(r -> request.current.createOutgoingResponse(r.returnValue, r.outParams));
+            .thenApply(r -> request.current.createOutgoingResponse(r.returnValue, r.outParams));
     }
 }

@@ -105,8 +105,7 @@ public class ControllerActivity extends ListActivity
 
                 @Override
                 public void onNothingSelected(AdapterView<?> arg0)
-                {
-                }
+                {}
             });
         s.setSelection(0);
 
@@ -124,8 +123,7 @@ public class ControllerActivity extends ListActivity
 
                 @Override
                 public void onNothingSelected(AdapterView<?> arg0)
-                {
-                }
+                {}
             });
         s.setSelection(0);
 

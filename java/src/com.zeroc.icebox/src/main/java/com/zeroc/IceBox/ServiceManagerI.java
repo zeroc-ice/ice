@@ -2,15 +2,41 @@
 
 package com.zeroc.IceBox;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.CommunicatorDestroyedException;
 import com.zeroc.Ice.Current;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.Logger;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectAdapterDeactivatedException;
+import com.zeroc.Ice.ObjectAdapterDestroyedException;
+import com.zeroc.Ice.Options;
+import com.zeroc.Ice.ParseException;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
 
 // NOTE: the class isn't final on purpose to allow users to eventually extend it.
 public class ServiceManagerI implements ServiceManager {
-    public ServiceManagerI(com.zeroc.Ice.Communicator communicator, String[] args) {
+    public ServiceManagerI(Communicator communicator, String[] args) {
         _communicator = communicator;
         _logger = _communicator.getLogger();
 
@@ -25,9 +51,9 @@ public class ServiceManagerI implements ServiceManager {
         if (_adminEnabled) {
             String[] facetFilter = props.getIcePropertyAsList("Ice.Admin.Facets");
             if (facetFilter.length > 0) {
-                _adminFacetFilter = new java.util.HashSet<>(java.util.Arrays.asList(facetFilter));
+                _adminFacetFilter = new HashSet<>(Arrays.asList(facetFilter));
             } else {
-                _adminFacetFilter = new java.util.HashSet<>();
+                _adminFacetFilter = new HashSet<>();
             }
         }
 
@@ -37,7 +63,7 @@ public class ServiceManagerI implements ServiceManager {
 
     @Override
     public void startService(String name, Current current)
-            throws AlreadyStartedException, NoSuchServiceException {
+        throws AlreadyStartedException, NoSuchServiceException {
         ServiceInfo info = null;
         synchronized (this) {
             // Search would be more efficient if services were contained in a map, but order is
@@ -61,20 +87,20 @@ public class ServiceManagerI implements ServiceManager {
         boolean started = false;
         try {
             info.service.start(
-                    name,
-                    info.communicator == null ? _sharedCommunicator : info.communicator,
-                    info.args);
+                name,
+                info.communicator == null ? _sharedCommunicator : info.communicator,
+                info.args);
             started = true;
         } catch (Exception e) {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             pw.flush();
             _logger.warning(
-                    "ServiceManager: exception while starting service "
-                            + info.name
-                            + ":\n"
-                            + sw.toString());
+                "ServiceManager: exception while starting service "
+                    + info.name
+                    + ":\n"
+                    + sw.toString());
         }
 
         synchronized (this) {
@@ -83,7 +109,7 @@ public class ServiceManagerI implements ServiceManager {
                     if (started) {
                         p.status = StatusStarted;
 
-                        java.util.List<String> services = new java.util.ArrayList<>();
+                        List<String> services = new ArrayList<>();
                         services.add(name);
                         servicesStarted(services, _observers);
                     } else {
@@ -99,7 +125,7 @@ public class ServiceManagerI implements ServiceManager {
 
     @Override
     public void stopService(String name, Current current)
-            throws AlreadyStoppedException, NoSuchServiceException {
+        throws AlreadyStoppedException, NoSuchServiceException {
         ServiceInfo info = null;
         synchronized (this) {
             // Search would be more efficient if services were contained in a map, but order is
@@ -125,15 +151,15 @@ public class ServiceManagerI implements ServiceManager {
             info.service.stop();
             stopped = true;
         } catch (Exception e) {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             pw.flush();
             _logger.warning(
-                    "ServiceManager: exception while stopping service "
-                            + info.name
-                            + ":\n"
-                            + sw.toString());
+                "ServiceManager: exception while stopping service "
+                    + info.name
+                    + ":\n"
+                    + sw.toString());
         }
 
         synchronized (this) {
@@ -142,7 +168,7 @@ public class ServiceManagerI implements ServiceManager {
                     if (stopped) {
                         p.status = StatusStopped;
 
-                        java.util.List<String> services = new java.util.ArrayList<>();
+                        List<String> services = new ArrayList<>();
                         services.add(name);
                         servicesStopped(services, _observers);
                     } else {
@@ -158,7 +184,7 @@ public class ServiceManagerI implements ServiceManager {
 
     @Override
     public void addObserver(final ServiceObserverPrx observer, Current current) {
-        java.util.List<String> activeServices = new java.util.LinkedList<>();
+        List<String> activeServices = new LinkedList<>();
 
         // Null observers and duplicate registrations are ignored
 
@@ -166,8 +192,8 @@ public class ServiceManagerI implements ServiceManager {
             if (observer != null && _observers.add(observer)) {
                 if (_traceServiceObserver >= 1) {
                     _logger.trace(
-                            "IceBox.ServiceObserver",
-                            "Added service observer " + _communicator.proxyToString(observer));
+                        "IceBox.ServiceObserver",
+                        "Added service observer " + _communicator.proxyToString(observer));
                 }
 
                 for (ServiceInfo info : _services) {
@@ -180,11 +206,11 @@ public class ServiceManagerI implements ServiceManager {
 
         if (!activeServices.isEmpty()) {
             observer.servicesStartedAsync(activeServices.toArray(new String[0]))
-                    .exceptionally(
-                            ex -> {
-                                observerFailed(observer, ex);
-                                return null;
-                            });
+                .exceptionally(
+                    ex -> {
+                        observerFailed(observer, ex);
+                        return null;
+                    });
         }
     }
 
@@ -205,28 +231,28 @@ public class ServiceManagerI implements ServiceManager {
             // We parse the service properties specified in IceBox.LoadOrder first, then the ones
             // from remaining services.
             final String prefix = "IceBox.Service.";
-            java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
+            Map<String, String> services = properties.getPropertiesForPrefix(prefix);
 
             if (services.isEmpty()) {
                 throw new FailureException(
-                        "ServiceManager: configuration must include at least one IceBox service");
+                    "ServiceManager: configuration must include at least one IceBox service");
             }
 
             String[] loadOrder = properties.getIcePropertyAsList("IceBox.LoadOrder");
-            java.util.List<StartServiceInfo> servicesInfo = new java.util.ArrayList<>();
+            List<StartServiceInfo> servicesInfo = new ArrayList<>();
             for (String name : loadOrder) {
                 if (!name.isEmpty()) {
                     String key = prefix + name;
                     String value = services.get(key);
                     if (value == null) {
                         throw new FailureException(
-                                "ServiceManager: no service definition for `" + name + "'");
+                            "ServiceManager: no service definition for `" + name + "'");
                     }
                     servicesInfo.add(new StartServiceInfo(name, value, _argv));
                     services.remove(key);
                 }
             }
-            for (java.util.Map.Entry<String, String> p : services.entrySet()) {
+            for (Map.Entry<String, String> p : services.entrySet()) {
                 String name = p.getKey().substring(prefix.length());
                 String value = p.getValue();
                 servicesInfo.add(new StartServiceInfo(name, value, _argv));
@@ -236,26 +262,26 @@ public class ServiceManagerI implements ServiceManager {
             // shared communicator now with a property set that is the union of all the service
             // properties (from services that use the shared communicator).
             if (properties.getPropertiesForPrefix("IceBox.UseSharedCommunicator.").size() > 0) {
-                com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+                InitializationData initData = new InitializationData();
                 initData.properties = createServiceProperties("SharedCommunicator");
                 for (StartServiceInfo service : servicesInfo) {
                     if (properties.getIcePropertyAsInt(
-                                    "IceBox.UseSharedCommunicator." + service.name)
-                            <= 0) {
+                        "IceBox.UseSharedCommunicator." + service.name)
+                        <= 0) {
                         continue;
                     }
 
                     // Load the service properties using the shared communicator properties as the
                     // default properties.
-                    java.util.List<String> remainingArgs = new java.util.ArrayList<>();
+                    List<String> remainingArgs = new ArrayList<>();
                     Properties serviceProps =
-                            new Properties(service.args, initData.properties, remainingArgs);
+                        new Properties(service.args, initData.properties, remainingArgs);
                     service.args = remainingArgs.toArray(new String[remainingArgs.size()]);
 
                     // Remove properties from the shared property set that a service explicitly
                     // clears.
-                    java.util.Map<String, String> allProps =
-                            initData.properties.getPropertiesForPrefix("");
+                    Map<String, String> allProps =
+                        initData.properties.getPropertiesForPrefix("");
                     for (String key : allProps.keySet()) {
                         if (serviceProps.getProperty(key).isEmpty()) {
                             initData.properties.setProperty(key, "");
@@ -263,7 +289,7 @@ public class ServiceManagerI implements ServiceManager {
                     }
 
                     // Add the service properties to the shared communicator properties.
-                    for (java.util.Map.Entry<String, String> p :
+                    for (Map.Entry<String, String> p :
                             serviceProps.getPropertiesForPrefix("").entrySet()) {
                         initData.properties.setProperty(p.getKey(), p.getValue());
                     }
@@ -271,7 +297,7 @@ public class ServiceManagerI implements ServiceManager {
                     // Parse <service>.* command line options (the Ice command line options
                     // were parsed by the call to createProperties above).
                     service.args =
-                            initData.properties.parseCommandLineOptions(service.name, service.args);
+                        initData.properties.parseCommandLineOptions(service.name, service.args);
                 }
 
                 String facetNamePrefix = "IceBox.SharedCommunicator.";
@@ -283,9 +309,9 @@ public class ServiceManagerI implements ServiceManager {
                     // Add all facets created on shared communicator to the IceBox communicator but
                     // renamed <prefix>.<facet-name>, except for the Process facet which is never
                     // added.
-                    for (java.util.Map.Entry<String, com.zeroc.Ice.Object> p :
+                    for (Map.Entry<String, Object> p :
                             _sharedCommunicator.findAllAdminFacets().entrySet()) {
-                        if (!p.getKey().equals("Process")) {
+                        if (!"Process".equals(p.getKey())) {
                             _communicator.addAdminFacet(p.getValue(), facetNamePrefix + p.getKey());
                         }
                     }
@@ -315,22 +341,22 @@ public class ServiceManagerI implements ServiceManager {
 
             _communicator.waitForShutdown();
         } catch (FailureException ex) {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
             pw.println(ex.toString());
             ex.printStackTrace(pw);
             pw.flush();
             _logger.error(sw.toString());
             return 1;
-        } catch (com.zeroc.Ice.CommunicatorDestroyedException ex) {
+        } catch (CommunicatorDestroyedException ex) {
             // Expected if the communicator is shutdown by the shutdown hook
-        } catch (com.zeroc.Ice.ObjectAdapterDeactivatedException ex) {
+        } catch (ObjectAdapterDeactivatedException ex) {
             // Expected if the communicator is shutdown by the shutdown hook
-        } catch (com.zeroc.Ice.ObjectAdapterDestroyedException ex) {
+        } catch (ObjectAdapterDestroyedException ex) {
             // Expected
         } catch (Throwable ex) {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
             ex.printStackTrace(pw);
             pw.flush();
             _logger.error("ServiceManager: caught exception:\n" + sw.toString());
@@ -345,7 +371,7 @@ public class ServiceManagerI implements ServiceManager {
 
     private synchronized void start(
             String service, String className, String classDir, boolean absolutePath, String[] args)
-            throws FailureException {
+        throws FailureException {
         // Load the class.
 
         // Use a class loader if the user specified a JAR file or class directory.
@@ -354,15 +380,15 @@ public class ServiceManagerI implements ServiceManager {
             try {
                 if (!absolutePath) {
                     classDir =
-                            new java.io.File(
-                                            System.getProperty("user.dir")
-                                                    + java.io.File.separator
-                                                    + classDir)
-                                    .getCanonicalPath();
+                        new File(
+                            System.getProperty("user.dir")
+                                + File.separator
+                                + classDir)
+                            .getCanonicalPath();
                 }
 
-                if (!classDir.endsWith(java.io.File.separator) && !classDir.endsWith(".jar")) {
-                    classDir += java.io.File.separator;
+                if (!classDir.endsWith(File.separator) && !classDir.endsWith(".jar")) {
+                    classDir += File.separator;
                 }
                 classDir = URLEncoder.encode(classDir, "UTF-8");
 
@@ -371,33 +397,33 @@ public class ServiceManagerI implements ServiceManager {
                 ClassLoader cl = null;
 
                 if (_classLoaders == null) {
-                    _classLoaders = new java.util.HashMap<>();
+                    _classLoaders = new HashMap<>();
                 } else {
                     cl = _classLoaders.get(classDir);
                 }
 
                 if (cl == null) {
-                    final java.net.URL[] url =
-                            new java.net.URL[] {new java.net.URL("file:///" + classDir)};
+                    final URL[] url =
+                        new URL[]{new URL("file:///" + classDir)};
 
-                    cl = new java.net.URLClassLoader(url);
+                    cl = new URLClassLoader(url);
 
                     _classLoaders.put(classDir, cl);
                 }
 
                 c = cl.loadClass(className);
-            } catch (java.net.MalformedURLException ex) {
+            } catch (MalformedURLException ex) {
                 throw new FailureException(
-                        "ServiceManager: invalid entry point format `" + classDir + "'", ex);
-            } catch (java.io.IOException ex) {
+                    "ServiceManager: invalid entry point format `" + classDir + "'", ex);
+            } catch (IOException ex) {
                 throw new FailureException(
-                        "ServiceManager: invalid path in plug-in entry point `" + classDir + "'",
-                        ex);
+                    "ServiceManager: invalid path in plug-in entry point `" + classDir + "'",
+                    ex);
             } catch (ClassNotFoundException ex) {
                 // Ignored
             }
         } else {
-            c = com.zeroc.Ice.Util.findClass(className, null);
+            c = Util.findClass(className, null);
         }
 
         if (c == null) {
@@ -413,26 +439,26 @@ public class ServiceManagerI implements ServiceManager {
         // communicator for the service. The communicator inherits from the shared communicator
         // properties. If it's not defined, add the service properties to the shared communicator
         // property set.
-        com.zeroc.Ice.Communicator communicator;
+        Communicator communicator;
         if (_communicator
-                        .getProperties()
-                        .getIcePropertyAsInt("IceBox.UseSharedCommunicator." + service)
-                > 0) {
+            .getProperties()
+            .getIcePropertyAsInt("IceBox.UseSharedCommunicator." + service)
+            > 0) {
             assert (_sharedCommunicator != null);
             communicator = _sharedCommunicator;
         } else {
             try {
                 // Create the service properties. We use the communicator properties as the default
                 // properties if IceBox.InheritProperties is set.
-                com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+                InitializationData initData = new InitializationData();
                 initData.properties = createServiceProperties(service);
                 String[] serviceArgs = info.args;
                 if (serviceArgs.length > 0) {
                     // Create the service properties with the given service arguments. This should
                     // read the service config file if it's specified with --Ice.Config.
-                    java.util.List<String> remainingArgs = new java.util.ArrayList<>();
+                    List<String> remainingArgs = new ArrayList<>();
                     initData.properties =
-                            new Properties(serviceArgs, initData.properties, remainingArgs);
+                        new Properties(serviceArgs, initData.properties, remainingArgs);
                     serviceArgs = remainingArgs.toArray(new String[remainingArgs.size()]);
 
                     // Next, parse the service "<service>.*" command line options (the Ice command
@@ -443,11 +469,11 @@ public class ServiceManagerI implements ServiceManager {
                 // Clone the logger to assign a new prefix. If one of the built-in loggers is
                 // configured don't set any logger.
                 if (initData.properties.getIceProperty("Ice.LogFile").isEmpty()
-                        && (initData.properties.getIcePropertyAsInt("Ice.UseSyslog") <= 0
-                                || System.getProperty("os.name").startsWith("Windows"))) {
+                    && (initData.properties.getIcePropertyAsInt("Ice.UseSyslog") <= 0
+                    || System.getProperty("os.name").startsWith("Windows"))) {
                     initData.logger =
-                            _logger.cloneWithPrefix(
-                                    initData.properties.getIceProperty("Ice.ProgramName"));
+                        _logger.cloneWithPrefix(
+                            initData.properties.getIceProperty("Ice.ProgramName"));
                 }
 
                 // If Admin is enabled on the IceBox communicator, for each service that does not
@@ -461,7 +487,7 @@ public class ServiceManagerI implements ServiceManager {
 
                 // Remaining command line options are passed to the communicator. This is necessary
                 // for Ice plug-in properties (e.g.: Ice.SSL).
-                java.util.List<String> remainingArgs = new java.util.ArrayList<>();
+                List<String> remainingArgs = new ArrayList<>();
                 info.communicator = Util.initialize(serviceArgs, initData, remainingArgs);
                 info.args = remainingArgs.toArray(new String[remainingArgs.size()]);
                 communicator = info.communicator;
@@ -470,17 +496,17 @@ public class ServiceManagerI implements ServiceManager {
                     // Add all facets created on the service communicator to the IceBox communicator
                     // but renamed IceBox.Service.<service>.<facet-name>, except for the Process
                     // facet which is never added
-                    for (java.util.Map.Entry<String, com.zeroc.Ice.Object> p :
+                    for (Map.Entry<String, Object> p :
                             communicator.findAllAdminFacets().entrySet()) {
-                        if (!p.getKey().equals("Process")) {
+                        if (!"Process".equals(p.getKey())) {
                             _communicator.addAdminFacet(
-                                    p.getValue(), serviceFacetNamePrefix + p.getKey());
+                                p.getValue(), serviceFacetNamePrefix + p.getKey());
                         }
                     }
                 }
             } catch (Throwable ex) {
                 throw new FailureException(
-                        "ServiceManager: exception while starting service " + service, ex);
+                    "ServiceManager: exception while starting service " + service, ex);
             }
         }
 
@@ -493,14 +519,14 @@ public class ServiceManagerI implements ServiceManager {
                 java.lang.Object obj = null;
                 try {
                     java.lang.reflect.Constructor<?> con =
-                            c.getDeclaredConstructor(com.zeroc.Ice.Communicator.class);
+                        c.getDeclaredConstructor(Communicator.class);
                     obj = con.newInstance(_communicator);
                 } catch (IllegalAccessException ex) {
                     throw new FailureException(
-                            "ServiceManager: unable to access service constructor "
-                                    + className
-                                    + "(com.zeroc.Ice.Communicator)",
-                            ex);
+                        "ServiceManager: unable to access service constructor "
+                            + className
+                            + "(com.zeroc.Ice.Communicator)",
+                        ex);
                 } catch (NoSuchMethodException ex) {
                     // Ignore.
                 } catch (java.lang.reflect.InvocationTargetException ex) {
@@ -508,8 +534,8 @@ public class ServiceManagerI implements ServiceManager {
                         throw ex.getCause();
                     } else {
                         throw new FailureException(
-                                "ServiceManager: exception in service constructor for " + className,
-                                ex);
+                            "ServiceManager: exception in service constructor for " + className,
+                            ex);
                     }
                 }
 
@@ -519,10 +545,10 @@ public class ServiceManagerI implements ServiceManager {
                         obj = c.getDeclaredConstructor().newInstance();
                     } catch (IllegalAccessException ex) {
                         throw new FailureException(
-                                "ServiceManager: unable to access default service constructor in"
-                                        + " class "
-                                        + className,
-                                ex);
+                            "ServiceManager: unable to access default service constructor in"
+                                + " class "
+                                + className,
+                            ex);
                     }
                 }
 
@@ -530,18 +556,18 @@ public class ServiceManagerI implements ServiceManager {
                     info.service = (Service) obj;
                 } catch (ClassCastException ex) {
                     throw new FailureException(
-                            "ServiceManager: class "
-                                    + className
-                                    + " does not implement com.zeroc.IceBox.Service");
+                        "ServiceManager: class "
+                            + className
+                            + " does not implement com.zeroc.IceBox.Service");
                 }
             } catch (InstantiationException ex) {
                 throw new FailureException(
-                        "ServiceManager: unable to instantiate class " + className, ex);
+                    "ServiceManager: unable to instantiate class " + className, ex);
             } catch (FailureException ex) {
                 throw ex;
             } catch (Throwable ex) {
                 throw new FailureException(
-                        "ServiceManager: exception in service constructor for " + className, ex);
+                    "ServiceManager: exception in service constructor for " + className, ex);
             }
 
             try {
@@ -555,7 +581,7 @@ public class ServiceManagerI implements ServiceManager {
                 throw ex;
             } catch (Throwable ex) {
                 throw new FailureException(
-                        "ServiceManager: exception while starting service " + service, ex);
+                    "ServiceManager: exception while starting service " + service, ex);
             }
 
             info.status = StatusStarted;
@@ -574,14 +600,13 @@ public class ServiceManagerI implements ServiceManager {
         while (_pendingStatusChanges) {
             try {
                 wait();
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
         }
 
         // For each service, we call stop on the service and flush its database environment to
         // the disk. Services are stopped in the reverse order of the order they were started.
-        java.util.List<String> stoppedServices = new java.util.ArrayList<>();
-        java.util.ListIterator<ServiceInfo> p = _services.listIterator(_services.size());
+        List<String> stoppedServices = new ArrayList<>();
+        ListIterator<ServiceInfo> p = _services.listIterator(_services.size());
         while (p.hasPrevious()) {
             ServiceInfo info = p.previous();
             if (info.status == StatusStarted) {
@@ -590,15 +615,15 @@ public class ServiceManagerI implements ServiceManager {
                     info.status = StatusStopped;
                     stoppedServices.add(info.name);
                 } catch (Throwable e) {
-                    java.io.StringWriter sw = new java.io.StringWriter();
-                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
                     e.printStackTrace(pw);
                     pw.flush();
                     _logger.warning(
-                            "ServiceManager: exception while stopping service "
-                                    + info.name
-                                    + ":\n"
-                                    + sw.toString());
+                        "ServiceManager: exception while stopping service "
+                            + info.name
+                            + ":\n"
+                            + sw.toString());
                 }
             }
 
@@ -613,13 +638,13 @@ public class ServiceManagerI implements ServiceManager {
             try {
                 _sharedCommunicator.destroy();
             } catch (Exception e) {
-                java.io.StringWriter sw = new java.io.StringWriter();
-                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
                 e.printStackTrace(pw);
                 pw.flush();
                 _logger.warning(
-                        "ServiceManager: exception while destroying shared communicator:\n"
-                                + sw.toString());
+                    "ServiceManager: exception while destroying shared communicator:\n"
+                        + sw.toString());
             }
             _sharedCommunicator = null;
         }
@@ -629,41 +654,41 @@ public class ServiceManagerI implements ServiceManager {
     }
 
     private void servicesStarted(
-            java.util.List<String> services, java.util.Set<ServiceObserverPrx> observers) {
+            List<String> services, Set<ServiceObserverPrx> observers) {
         if (!services.isEmpty()) {
             String[] servicesArray = services.toArray(new String[0]);
 
             for (final ServiceObserverPrx observer : observers) {
                 observer.servicesStartedAsync(servicesArray)
-                        .exceptionally(
-                                ex -> {
-                                    observerFailed(observer, ex);
-                                    return null;
-                                });
+                    .exceptionally(
+                        ex -> {
+                            observerFailed(observer, ex);
+                            return null;
+                        });
             }
         }
     }
 
     private void servicesStopped(
-            java.util.List<String> services, java.util.Set<ServiceObserverPrx> observers) {
+            List<String> services, Set<ServiceObserverPrx> observers) {
         if (!services.isEmpty()) {
             String[] servicesArray = services.toArray(new String[0]);
 
             for (final ServiceObserverPrx observer : observers) {
                 observer.servicesStoppedAsync(servicesArray)
-                        .exceptionally(
-                                ex -> {
-                                    observerFailed(observer, ex);
-                                    return null;
-                                });
+                    .exceptionally(
+                        ex -> {
+                            observerFailed(observer, ex);
+                            return null;
+                        });
             }
         }
     }
 
     private synchronized void observerFailed(ServiceObserverPrx observer, Throwable ex) {
-        if (ex instanceof com.zeroc.Ice.LocalException) {
+        if (ex instanceof LocalException) {
             if (_observers.remove(observer)) {
-                observerRemoved(observer, (com.zeroc.Ice.LocalException) ex);
+                observerRemoved(observer, (LocalException) ex);
             }
         }
     }
@@ -673,13 +698,13 @@ public class ServiceManagerI implements ServiceManager {
             // CommunicatorDestroyedException may occur during shutdown. The observer notification
             // has been sent, but the communicator was destroyed before the reply was received. We
             // do not log a message for this exception.
-            if (!(ex instanceof com.zeroc.Ice.CommunicatorDestroyedException)) {
+            if (!(ex instanceof CommunicatorDestroyedException)) {
                 _logger.trace(
-                        "IceBox.ServiceObserver",
-                        "Removed service observer "
-                                + _communicator.proxyToString(observer)
-                                + "\nafter catching "
-                                + ex.toString());
+                    "IceBox.ServiceObserver",
+                    "Removed service observer "
+                        + _communicator.proxyToString(observer)
+                        + "\nafter catching "
+                        + ex.toString());
             }
         }
     }
@@ -695,14 +720,13 @@ public class ServiceManagerI implements ServiceManager {
             ServiceInfo c = null;
             try {
                 c = (ServiceInfo) super.clone();
-            } catch (CloneNotSupportedException ex) {
-            }
+            } catch (CloneNotSupportedException ex) {}
             return c;
         }
 
         public String name;
         public Service service;
-        public com.zeroc.Ice.Communicator communicator;
+        public Communicator communicator;
         public int status;
         public String[] args;
     }
@@ -720,10 +744,10 @@ public class ServiceManagerI implements ServiceManager {
             // "<path with spaces>:<class-name>" [args]
 
             try {
-                args = com.zeroc.Ice.Options.split(value);
-            } catch (com.zeroc.Ice.ParseException ex) {
+                args = Options.split(value);
+            } catch (ParseException ex) {
                 throw new FailureException(
-                        "ServiceManager: invalid arguments for service `" + name + "'", ex);
+                    "ServiceManager: invalid arguments for service `" + name + "'", ex);
             }
 
             assert (args.length > 0);
@@ -738,9 +762,9 @@ public class ServiceManagerI implements ServiceManager {
             if (isWindows) {
                 final String driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 if (pos == 1
-                        && entryPoint.length() > 2
-                        && driveLetters.indexOf(entryPoint.charAt(0)) != -1
-                        && (entryPoint.charAt(2) == '\\' || entryPoint.charAt(2) == '/')) {
+                    && entryPoint.length() > 2
+                    && driveLetters.indexOf(entryPoint.charAt(0)) != -1
+                    && (entryPoint.charAt(2) == '\\' || entryPoint.charAt(2) == '/')) {
                     absolutePath = true;
                     pos = entryPoint.indexOf(':', pos + 1);
                 }
@@ -754,10 +778,10 @@ public class ServiceManagerI implements ServiceManager {
             if ((pos == -1 && absolutePath) || (pos != -1 && entryPoint.length() <= pos + 1)) {
                 // Class name is missing.
                 throw new FailureException(
-                        "ServiceManager: invalid entry point for service `"
-                                + name
-                                + "':\n"
-                                + entryPoint);
+                    "ServiceManager: invalid entry point for service `"
+                        + name
+                        + "':\n"
+                        + entryPoint);
             }
 
             // Extract the JAR file or subdirectory, if any.
@@ -776,7 +800,7 @@ public class ServiceManagerI implements ServiceManager {
             args = tmp;
 
             if (serverArgs.length > 0) {
-                java.util.List<String> l = new java.util.ArrayList<>(java.util.Arrays.asList(args));
+                List<String> l = new ArrayList<>(Arrays.asList(args));
                 for (String arg : serverArgs) {
                     if (arg.startsWith("--" + service + ".")) {
                         l.add(arg);
@@ -799,7 +823,7 @@ public class ServiceManagerI implements ServiceManager {
         if (communicatorProperties.getIcePropertyAsInt("IceBox.InheritProperties") > 0) {
 
             // Inherit all except IceBox. and Ice.Admin. properties
-            for (java.util.Map.Entry<String, String> p :
+            for (Map.Entry<String, String> p :
                     communicatorProperties.getPropertiesForPrefix("").entrySet()) {
                 String key = p.getKey();
                 if (!key.startsWith("IceBox.") && !key.startsWith("Ice.Admin.")) {
@@ -818,23 +842,23 @@ public class ServiceManagerI implements ServiceManager {
     }
 
     private void destroyServiceCommunicator(
-            String service, com.zeroc.Ice.Communicator communicator) {
+            String service, Communicator communicator) {
         try {
             communicator.shutdown();
             communicator.waitForShutdown();
-        } catch (com.zeroc.Ice.CommunicatorDestroyedException e) {
+        } catch (CommunicatorDestroyedException e) {
             // Ignore, the service might have already destroyed the communicator for its own
             // reasons.
         } catch (Exception e) {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             pw.flush();
             _logger.warning(
-                    "ServiceManager: exception in shutting down communicator for service "
-                            + service
-                            + "\n"
-                            + sw.toString());
+                "ServiceManager: exception in shutting down communicator for service "
+                    + service
+                    + "\n"
+                    + sw.toString());
         }
 
         removeAdminFacets("IceBox.Service." + service + ".");
@@ -843,7 +867,7 @@ public class ServiceManagerI implements ServiceManager {
 
     private boolean configureAdmin(Properties properties, String prefix) {
         if (_adminEnabled && properties.getIceProperty("Ice.Admin.Enabled").isEmpty()) {
-            java.util.List<String> facetNames = new java.util.LinkedList<>();
+            List<String> facetNames = new LinkedList<>();
             for (String p : _adminFacetFilter) {
                 if (p.startsWith(prefix)) {
                     facetNames.add(p.substring(prefix.length()));
@@ -870,24 +894,24 @@ public class ServiceManagerI implements ServiceManager {
                     _communicator.removeAdminFacet(p);
                 }
             }
-        } catch (com.zeroc.Ice.CommunicatorDestroyedException ex) {
+        } catch (CommunicatorDestroyedException ex) {
             // Ignored
-        } catch (com.zeroc.Ice.ObjectAdapterDeactivatedException ex) {
+        } catch (ObjectAdapterDeactivatedException ex) {
             // Ignored
-        } catch (com.zeroc.Ice.ObjectAdapterDestroyedException ex) {
+        } catch (ObjectAdapterDestroyedException ex) {
             // Ignored
         }
     }
 
-    private com.zeroc.Ice.Communicator _communicator;
-    private boolean _adminEnabled = false;
-    private java.util.Set<String> _adminFacetFilter;
-    private com.zeroc.Ice.Communicator _sharedCommunicator;
-    private com.zeroc.Ice.Logger _logger;
-    private String[] _argv; // Filtered server argument vector
-    private java.util.List<ServiceInfo> _services = new java.util.LinkedList<>();
-    private boolean _pendingStatusChanges = false;
-    private java.util.HashSet<ServiceObserverPrx> _observers = new java.util.HashSet<>();
-    private int _traceServiceObserver = 0;
-    private java.util.Map<String, ClassLoader> _classLoaders;
+    private final Communicator _communicator;
+    private boolean _adminEnabled;
+    private Set<String> _adminFacetFilter;
+    private Communicator _sharedCommunicator;
+    private final Logger _logger;
+    private final String[] _argv; // Filtered server argument vector
+    private final List<ServiceInfo> _services = new LinkedList<>();
+    private boolean _pendingStatusChanges;
+    private final HashSet<ServiceObserverPrx> _observers = new HashSet<>();
+    private final int _traceServiceObserver;
+    private Map<String, ClassLoader> _classLoaders;
 }

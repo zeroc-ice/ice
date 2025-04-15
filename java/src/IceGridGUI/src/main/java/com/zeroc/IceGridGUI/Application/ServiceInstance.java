@@ -2,10 +2,20 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.ServiceInstanceDescriptor;
+import com.zeroc.IceGrid.TemplateDescriptor;
+import com.zeroc.IceGridGUI.ApplicationActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
@@ -24,9 +34,9 @@ class ServiceInstance extends TreeNode implements Service, Cloneable {
         return copy;
     }
 
-    public static java.util.List<ServiceInstanceDescriptor> copyDescriptors(
-            java.util.List<ServiceInstanceDescriptor> descriptors) {
-        java.util.List<ServiceInstanceDescriptor> copy = new java.util.LinkedList<>();
+    public static List<ServiceInstanceDescriptor> copyDescriptors(
+            List<ServiceInstanceDescriptor> descriptors) {
+        List<ServiceInstanceDescriptor> copy = new LinkedList<>();
         for (ServiceInstanceDescriptor p : descriptors) {
             copy.add(copyDescriptor(p));
         }
@@ -48,7 +58,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     // Actions
@@ -136,7 +146,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable {
     public Editor getEditor() {
         if (_editor == null) {
             _editor =
-                    (ServiceInstanceEditor) getRoot().getEditor(ServiceInstanceEditor.class, this);
+                (ServiceInstanceEditor) getRoot().getEditor(ServiceInstanceEditor.class, this);
         }
         _editor.show(this);
         return _editor;
@@ -174,26 +184,26 @@ class ServiceInstance extends TreeNode implements Service, Cloneable {
     }
 
     private static class Backup {
-        java.util.Map<String, String> parameterValues;
+        Map<String, String> parameterValues;
         ServiceInstance clone;
     }
 
     @Override
-    public Object rebuild(java.util.List<Editable> editables) throws UpdateFailedException {
+    public Object rebuild(List<Editable> editables) throws UpdateFailedException {
         Backup backup = new Backup();
 
         // Fix-up _descriptor if necessary
         if (_descriptor.template.length() > 0) {
             TemplateDescriptor templateDescriptor =
-                    getRoot().findServiceTemplateDescriptor(_descriptor.template);
+                getRoot().findServiceTemplateDescriptor(_descriptor.template);
 
-            java.util.Set<String> parameters =
-                    new java.util.HashSet<>(templateDescriptor.parameters);
+            Set<String> parameters =
+                new HashSet<>(templateDescriptor.parameters);
             if (!parameters.equals(_descriptor.parameterValues.keySet())) {
                 backup.parameterValues = _descriptor.parameterValues;
                 _descriptor.parameterValues =
-                        Editor.makeParameterValues(
-                                _descriptor.parameterValues, templateDescriptor.parameters);
+                    Editor.makeParameterValues(
+                        _descriptor.parameterValues, templateDescriptor.parameters);
                 editables.add(getEnclosingEditable());
             }
         }
@@ -250,7 +260,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable {
             String displayString,
             ServiceInstanceDescriptor instanceDescriptor,
             Utils.Resolver resolver)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         super(parent, name);
         _displayString = displayString;
         _descriptor = instanceDescriptor;
@@ -267,18 +277,18 @@ class ServiceInstance extends TreeNode implements Service, Cloneable {
     }
 
     @Override
-    void write(XMLWriter writer) throws java.io.IOException {
+    void write(XMLWriter writer) throws IOException {
         if (!_ephemeral) {
             TemplateDescriptor templateDescriptor =
-                    getRoot().findServiceTemplateDescriptor(_descriptor.template);
+                getRoot().findServiceTemplateDescriptor(_descriptor.template);
 
-            java.util.LinkedList<String[]> attributes =
-                    parameterValuesToAttributes(
-                            _descriptor.parameterValues, templateDescriptor.parameters);
+            LinkedList<String[]> attributes =
+                parameterValuesToAttributes(
+                    _descriptor.parameterValues, templateDescriptor.parameters);
             attributes.addFirst(createAttribute("template", _descriptor.template));
 
             if (_descriptor.propertySet.references.length == 0
-                    && _descriptor.propertySet.properties.isEmpty()) {
+                && _descriptor.propertySet.properties.isEmpty()) {
                 writer.writeElement("service-instance", attributes);
             } else {
                 writer.writeStartTag("service-instance", attributes);

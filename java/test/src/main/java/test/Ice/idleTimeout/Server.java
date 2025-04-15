@@ -4,7 +4,9 @@ package test.Ice.idleTimeout;
 
 import com.zeroc.Ice.Identity;
 
-public class Server extends test.TestHelper {
+import test.TestHelper;
+
+public class Server extends TestHelper {
     public void run(String[] args) {
         var properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.idleTimeout");
@@ -19,11 +21,11 @@ public class Server extends test.TestHelper {
             adapter.activate();
 
             communicator
-                    .getProperties()
-                    .setProperty("TestAdapterDefaultMax.Endpoints", getTestEndpoint(1));
+                .getProperties()
+                .setProperty("TestAdapterDefaultMax.Endpoints", getTestEndpoint(1));
             communicator
-                    .getProperties()
-                    .setProperty("TestAdapterDefaultMax.Connection.IdleTimeout", "1");
+                .getProperties()
+                .setProperty("TestAdapterDefaultMax.Connection.IdleTimeout", "1");
             var adapterDefaultMax = communicator.createObjectAdapter("TestAdapterDefaultMax");
             adapterDefaultMax.add(new TestIntfI(), new Identity("test", ""));
             adapterDefaultMax.activate();
@@ -35,11 +37,11 @@ public class Server extends test.TestHelper {
             adapter3s.activate();
 
             communicator
-                    .getProperties()
-                    .setProperty("TestAdapterNoIdleTimeout.Endpoints", getTestEndpoint(3));
+                .getProperties()
+                .setProperty("TestAdapterNoIdleTimeout.Endpoints", getTestEndpoint(3));
             communicator
-                    .getProperties()
-                    .setProperty("TestAdapterNoIdleTimeout.Connection.IdleTimeout", "0");
+                .getProperties()
+                .setProperty("TestAdapterNoIdleTimeout.Connection.IdleTimeout", "0");
             var adapterNoIdleTimeout = communicator.createObjectAdapter("TestAdapterNoIdleTimeout");
             adapterNoIdleTimeout.add(new TestIntfI(), new Identity("test", ""));
             adapterNoIdleTimeout.activate();

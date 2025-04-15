@@ -2,6 +2,14 @@
 
 plugins {
     id 'com.zeroc.ice.slice-tools' apply false
+    id 'checkstyle'
+    id 'org.openrewrite.rewrite' version '7.3.0'
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
 }
 
 subprojects {
@@ -10,6 +18,7 @@ subprojects {
     project.version = iceVersion
     project.group = "com.zeroc"
 
+    apply plugin: 'checkstyle'
     apply plugin: 'java'
     apply plugin: 'com.zeroc.ice.slice-tools'
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
@@ -36,6 +45,15 @@ subprojects {
         options.encoding = "UTF-8"
         options.deprecation = true
     }
+
+    // We want Checkstyle to generally run after Rewrite and to exclude files generated from Slice.
+    tasks.withType(Checkstyle) {
+        dependsOn(rewriteDryRun)
+        exclude(
+            '**/generated/**'
+        )
+    }
+
 }
 
 task clean(type: Delete) {
@@ -77,3 +95,59 @@ task alljavadoc(type: Javadoc) {
     options.docTitle = "Ice ${iceVersion} API Reference"
 }
 alljavadoc.dependsOn = exportedProjects.collect { project(it).assemble.dependsOn }
+
+checkstyle {
+    toolVersion = '10.21.4'
+    ignoreFailures = false
+    showViolations = true
+}
+
+rewrite {
+    activeRecipe(
+        'org.openrewrite.staticanalysis.RemoveCallsToObjectFinalize',
+        'org.openrewrite.staticanalysis.DefaultComesLast',
+        'org.openrewrite.java.RemoveUnusedImports',
+        'org.openrewrite.java.format.NormalizeFormat',
+        'org.openrewrite.java.format.BlankLines',
+        'org.openrewrite.java.format.Spaces',
+        'org.openrewrite.java.format.NormalizeTabsOrSpaces',
+        'org.openrewrite.java.format.TabsAndIndents',
+        'org.openrewrite.java.format.NormalizeLineBreaks',
+        'org.openrewrite.java.format.RemoveTrailingWhitespace',
+        'org.openrewrite.staticanalysis.CodeCleanup'
+    )
+    checkstyleConfigFile = file("config/checkstyle/checkstyle.xml")
+    activeStyle('com.zeroc.IceRewriteRules')
+    setExportDatatables(true)
+    exclusion(
+        // OpenRewrite is technically capable of modifying Groovy and Kotlin files, but we are avoiding this for now.
+        '**/*.gradle',
+        '**/*.kts',
+        // I have been explicitly instructed not to modify the below file.
+        'com/zeroc/Ice/PropertyNames.java',
+        // These are all generated files, and thus should not be subject to modification from OpenRewrite.
+        '**/generated/**/*',
+        // The following four files all have issues regarding the import shortener because of Ice object names.
+        'java/src/com.zeroc.ice/src/main/java/com/zeroc/Ice/Properties.java',
+        'java/src/com.zeroc.ice/src/main/java/com/zeroc/Ice/InputStream.java',
+        'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowIceLogDialog.java',
+        'java/src/IceGridGUI/src/main/java/com/zeroc/IceGridGUI/LiveDeployment/ShowLogFileDialog.java',
+        // This file is never effectively fixed by OpenRewrite, yet OpenRewrite continually attempts to reformat it.
+        'java/test/src/main/java/test/Ice/operations/Twoways.java',
+    )
+}
+
+dependencies {
+    rewrite(
+        "org.openrewrite.recipe:rewrite-static-analysis:2.5.1",
+        "org.openrewrite.recipe:rewrite-java-dependencies:1.31.0"
+    )
+}
+
+// Use -PdryRunFailSkip in the command line to avoid failing the project during an OpenRewrite dryRun.
+task rewriteDryRunFailable {
+    if (!project.hasProperty("dryRunFailSkip")) {
+        rewrite.failOnDryRunResults = true
+    }
+    finalizedBy rewriteDryRun
+}

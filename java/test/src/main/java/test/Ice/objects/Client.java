@@ -2,30 +2,36 @@
 
 package test.Ice.objects;
 
-import test.Ice.objects.Test.InitialPrx;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Value;
+import com.zeroc.Ice.ValueFactory;
 
-public class Client extends test.TestHelper {
-    private static class MyValueFactory implements com.zeroc.Ice.ValueFactory {
+import test.Ice.objects.Test.InitialPrx;
+import test.TestHelper;
+
+public class Client extends TestHelper {
+    private static class MyValueFactory implements ValueFactory {
         @Override
-        public com.zeroc.Ice.Value create(String type) {
-            if (type.equals("::Test::B")) {
+        public Value create(String type) {
+            if ("::Test::B".equals(type)) {
                 return new BI();
-            } else if (type.equals("::Test::C")) {
+            } else if ("::Test::C".equals(type)) {
                 return new CI();
-            } else if (type.equals("::Test::D")) {
+            } else if ("::Test::D".equals(type)) {
                 return new DI();
             }
-            assert (false); // Should never be reached
+            assert false; // Should never be reached
             return null;
         }
     }
 
     public void run(String[] args) {
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.objects");
         properties.setProperty("Ice.MessageSizeMax", "2048"); // Needed on some Android versions
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
-            com.zeroc.Ice.ValueFactory factory = new MyValueFactory();
+        try (Communicator communicator = initialize(properties)) {
+            ValueFactory factory = new MyValueFactory();
             communicator.getValueFactoryManager().add(factory, "::Test::B");
             communicator.getValueFactoryManager().add(factory, "::Test::C");
             communicator.getValueFactoryManager().add(factory, "::Test::D");

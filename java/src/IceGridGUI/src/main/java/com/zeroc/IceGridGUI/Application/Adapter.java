@@ -2,10 +2,18 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.AdapterDescriptor;
+import com.zeroc.IceGrid.ObjectDescriptor;
+import com.zeroc.IceGrid.PropertyDescriptor;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -13,16 +21,16 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 class Adapter extends TreeNode implements DescriptorHolder {
     static class AdapterCopy {
         AdapterDescriptor descriptor;
-        java.util.Map<String, String> parentProperties;
+        Map<String, String> parentProperties;
     }
 
     public static AdapterDescriptor copyDescriptor(AdapterDescriptor d) {
         return d.clone();
     }
 
-    public static java.util.List<AdapterDescriptor> copyDescriptors(
-            java.util.List<AdapterDescriptor> descriptors) {
-        java.util.List<AdapterDescriptor> copy = new java.util.LinkedList<>();
+    public static List<AdapterDescriptor> copyDescriptors(
+            List<AdapterDescriptor> descriptors) {
+        List<AdapterDescriptor> copy = new LinkedList<>();
         for (AdapterDescriptor p : descriptors) {
             copy.add(copyDescriptor(p));
         }
@@ -78,7 +86,7 @@ class Adapter extends TreeNode implements DescriptorHolder {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     @Override
@@ -131,7 +139,7 @@ class Adapter extends TreeNode implements DescriptorHolder {
             Communicator parent,
             String adapterName,
             AdapterDescriptor descriptor,
-            java.util.Map<String, String> parentProperties,
+            Map<String, String> parentProperties,
             boolean ephemeral) {
         super(parent, adapterName);
         _descriptor = descriptor;
@@ -140,14 +148,14 @@ class Adapter extends TreeNode implements DescriptorHolder {
     }
 
     @Override
-    void write(XMLWriter writer) throws java.io.IOException {
+    void write(XMLWriter writer) throws IOException {
         assert false;
     }
 
-    void write(XMLWriter writer, java.util.List<PropertyDescriptor> properties)
-            throws java.io.IOException {
+    void write(XMLWriter writer, List<PropertyDescriptor> properties)
+        throws IOException {
         if (!_ephemeral) {
-            java.util.List<String[]> attributes = new java.util.LinkedList<>();
+            List<String[]> attributes = new LinkedList<>();
             attributes.add(createAttribute("name", _descriptor.name));
             String oaPrefix = _descriptor.name + ".";
 
@@ -176,8 +184,8 @@ class Adapter extends TreeNode implements DescriptorHolder {
             }
 
             if (_descriptor.description.isEmpty()
-                    && _descriptor.objects.isEmpty()
-                    && _descriptor.allocatables.isEmpty()) {
+                && _descriptor.objects.isEmpty()
+                && _descriptor.allocatables.isEmpty()) {
                 writer.writeElement("adapter", attributes);
             } else {
                 writer.writeStartTag("adapter", attributes);
@@ -202,7 +210,7 @@ class Adapter extends TreeNode implements DescriptorHolder {
 
     String lookupPropertyValue(String val) {
         if (_parentProperties != null) {
-            for (java.util.Map.Entry<String, String> p : _parentProperties.entrySet()) {
+            for (Map.Entry<String, String> p : _parentProperties.entrySet()) {
                 if (p.getValue().equals(val)) {
                     return p.getKey();
                 }
@@ -226,9 +234,9 @@ class Adapter extends TreeNode implements DescriptorHolder {
     }
 
     String getDefaultAdapterId(String name) {
-        return (_parent instanceof Service || _parent instanceof ServiceTemplate)
-                ? "${server}.${service}." + name
-                : "${server}." + name;
+        return _parent instanceof Service || _parent instanceof ServiceTemplate
+            ? "${server}.${service}." + name
+            : "${server}." + name;
     }
 
     @Override
@@ -237,9 +245,9 @@ class Adapter extends TreeNode implements DescriptorHolder {
     }
 
     private final boolean _ephemeral;
-    private final java.util.Map<String, String>
-            _parentProperties; // set only when ephemeral == true;
-    private AdapterDescriptor _descriptor;
+    private final Map<String, String>
+        _parentProperties; // set only when ephemeral == true;
+    private final AdapterDescriptor _descriptor;
     private AdapterEditor _editor;
 
     private static DefaultTreeCellRenderer _cellRenderer;

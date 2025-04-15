@@ -2,6 +2,9 @@
 
 package com.zeroc.Ice;
 
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+
 final class HTTPNetworkProxy implements NetworkProxy {
     public HTTPNetworkProxy(String host, int port) {
         _host = host;
@@ -9,13 +12,13 @@ final class HTTPNetworkProxy implements NetworkProxy {
         _protocolSupport = Network.EnableBoth;
     }
 
-    private HTTPNetworkProxy(java.net.InetSocketAddress address, int protocolSupport) {
+    private HTTPNetworkProxy(InetSocketAddress address, int protocolSupport) {
         _address = address;
         _protocolSupport = protocolSupport;
     }
 
     @Override
-    public void beginWrite(java.net.InetSocketAddress endpoint, Buffer buf) {
+    public void beginWrite(InetSocketAddress endpoint, Buffer buf) {
         String addr = Network.addrToString(endpoint);
         StringBuilder str = new StringBuilder();
         str.append("CONNECT ");
@@ -24,7 +27,7 @@ final class HTTPNetworkProxy implements NetworkProxy {
         str.append(addr);
         str.append("\r\n\r\n");
 
-        byte[] b = str.toString().getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+        byte[] b = str.toString().getBytes(StandardCharsets.US_ASCII);
 
         //
         // HTTP connect request
@@ -83,11 +86,11 @@ final class HTTPNetworkProxy implements NetworkProxy {
     public NetworkProxy resolveHost(int protocol) {
         assert (_host != null);
         return new HTTPNetworkProxy(
-                Network.getAddresses(_host, _port, protocol, false, true).get(0), protocol);
+            Network.getAddresses(_host, _port, protocol, false, true).get(0), protocol);
     }
 
     @Override
-    public java.net.InetSocketAddress getAddress() {
+    public InetSocketAddress getAddress() {
         assert (_address != null); // Host must be resolved.
         return _address;
     }
@@ -104,6 +107,6 @@ final class HTTPNetworkProxy implements NetworkProxy {
 
     private String _host;
     private int _port;
-    private java.net.InetSocketAddress _address;
+    private InetSocketAddress _address;
     private int _protocolSupport;
 }

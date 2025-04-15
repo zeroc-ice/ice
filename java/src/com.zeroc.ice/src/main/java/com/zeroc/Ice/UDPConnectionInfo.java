@@ -29,13 +29,13 @@ public final class UDPConnectionInfo extends IPConnectionInfo {
             int rcvSize,
             int sndSize) {
         super(
-                incoming,
-                adapterName,
-                connectionId,
-                localAddress,
-                localPort,
-                remoteAddress,
-                remotePort);
+            incoming,
+            adapterName,
+            connectionId,
+            localAddress,
+            localPort,
+            remoteAddress,
+            remotePort);
         this.mcastAddress = mcastAddress;
         this.mcastPort = mcastPort;
         this.rcvSize = rcvSize;

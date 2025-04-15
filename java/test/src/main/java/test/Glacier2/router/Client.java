@@ -2,22 +2,43 @@
 
 package test.Glacier2.router;
 
+import com.zeroc.Glacier2.CannotCreateSessionException;
+import com.zeroc.Glacier2.PermissionDeniedException;
+import com.zeroc.Glacier2.RouterPrx;
+import com.zeroc.Glacier2.SessionNotExistException;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ConnectionLostException;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectNotExistException;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.ProcessPrx;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.RouterFinderPrx;
+import com.zeroc.Ice.SocketException;
+import com.zeroc.Ice.Util;
+
 import test.Glacier2.router.Test.CallbackException;
 import test.Glacier2.router.Test.CallbackPrx;
 import test.Glacier2.router.Test.CallbackReceiverPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
-public class Client extends test.TestHelper {
+public class Client extends TestHelper {
     public void run(String[] args) {
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Warn.Dispatch", "0");
         properties.setProperty("Ice.Warn.Connections", "0");
         properties.setProperty("Ice.Package.Test", "test.Glacier2.router");
 
-        try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
-            com.zeroc.Ice.ObjectPrx routerBase;
+        try (Communicator communicator = initialize(properties)) {
+            ObjectPrx routerBase;
 
             PrintWriter out = getWriter();
             {
@@ -27,12 +48,12 @@ public class Client extends test.TestHelper {
                 out.println("ok");
             }
 
-            com.zeroc.Glacier2.RouterPrx router;
+            RouterPrx router;
 
             {
                 out.print("testing checked cast for router... ");
                 out.flush();
-                router = com.zeroc.Glacier2.RouterPrx.checkedCast(routerBase);
+                router = RouterPrx.checkedCast(routerBase);
                 test(router != null);
                 out.println("ok");
             }
@@ -41,8 +62,8 @@ public class Client extends test.TestHelper {
                 out.print("testing router finder... ");
                 out.flush();
                 var finder =
-                        com.zeroc.Ice.RouterFinderPrx.createProxy(
-                                communicator, "Ice/RouterFinder:" + getTestEndpoint(50));
+                    RouterFinderPrx.createProxy(
+                        communicator, "Ice/RouterFinder:" + getTestEndpoint(50));
                 test(finder.getRouter().ice_getIdentity().equals(router.ice_getIdentity()));
                 out.println("ok");
             }
@@ -62,7 +83,7 @@ public class Client extends test.TestHelper {
                 out.println("ok");
             }
 
-            com.zeroc.Ice.ObjectPrx base;
+            ObjectPrx base;
 
             {
                 out.print("testing stringToProxy for server object... ");
@@ -77,9 +98,9 @@ public class Client extends test.TestHelper {
                 try {
                     base.ice_ping();
                     test(false);
-                } catch (com.zeroc.Ice.ConnectionLostException ex) {
+                } catch (ConnectionLostException ex) {
                     out.println("ok");
-                } catch (com.zeroc.Ice.SocketException ex) {
+                } catch (SocketException ex) {
                     System.err.println(ex);
                     test(false);
                 }
@@ -91,9 +112,9 @@ public class Client extends test.TestHelper {
                 try {
                     router.createSession("userid", "xxx");
                     test(false);
-                } catch (com.zeroc.Glacier2.PermissionDeniedException ex) {
+                } catch (PermissionDeniedException ex) {
                     out.println("ok");
-                } catch (com.zeroc.Glacier2.CannotCreateSessionException ex) {
+                } catch (CannotCreateSessionException ex) {
                     test(false);
                 }
             }
@@ -104,7 +125,7 @@ public class Client extends test.TestHelper {
                 try {
                     router.destroySession();
                     test(false);
-                } catch (com.zeroc.Glacier2.SessionNotExistException ex) {
+                } catch (SessionNotExistException ex) {
                     out.println("ok");
                 }
             }
@@ -114,9 +135,9 @@ public class Client extends test.TestHelper {
                 out.flush();
                 try {
                     router.createSession("userid", "abc123");
-                } catch (com.zeroc.Glacier2.PermissionDeniedException ex) {
+                } catch (PermissionDeniedException ex) {
                     test(false);
-                } catch (com.zeroc.Glacier2.CannotCreateSessionException ex) {
+                } catch (CannotCreateSessionException ex) {
                     test(false);
                 }
                 out.println("ok");
@@ -128,9 +149,9 @@ public class Client extends test.TestHelper {
                 try {
                     router.createSession("userid", "abc123");
                     test(false);
-                } catch (com.zeroc.Glacier2.PermissionDeniedException ex) {
+                } catch (PermissionDeniedException ex) {
                     test(false);
-                } catch (com.zeroc.Glacier2.CannotCreateSessionException ex) {
+                } catch (CannotCreateSessionException ex) {
                     out.println("ok");
                 }
             }
@@ -145,12 +166,11 @@ public class Client extends test.TestHelper {
             {
                 out.print("pinging object with client endpoint... ");
                 out.flush();
-                com.zeroc.Ice.ObjectPrx baseC =
-                        communicator.stringToProxy("collocated:" + getTestEndpoint(50));
+                ObjectPrx baseC =
+                    communicator.stringToProxy("collocated:" + getTestEndpoint(50));
                 try {
                     baseC.ice_ping();
-                } catch (com.zeroc.Ice.ObjectNotExistException ex) {
-                }
+                } catch (ObjectNotExistException ex) {}
                 out.println("ok");
             }
 
@@ -164,15 +184,15 @@ public class Client extends test.TestHelper {
                 out.println("ok");
             }
 
-            com.zeroc.Ice.ObjectAdapter adapter;
+            ObjectAdapter adapter;
 
             {
                 out.print("creating and activating callback receiver adapter... ");
                 out.flush();
                 communicator.getProperties().setProperty("Ice.PrintAdapterReady", "0");
                 adapter =
-                        communicator.createObjectAdapterWithRouter(
-                                "CallbackReceiverAdapter", router);
+                    communicator.createObjectAdapterWithRouter(
+                        "CallbackReceiverAdapter", router);
                 adapter.activate();
                 out.println("ok");
             }
@@ -187,7 +207,7 @@ public class Client extends test.TestHelper {
             }
 
             CallbackReceiverI callbackReceiverImpl;
-            com.zeroc.Ice.Object callbackReceiver;
+            Object callbackReceiver;
             CallbackReceiverPrx twowayR;
             CallbackReceiverPrx fakeTwowayR;
 
@@ -196,18 +216,18 @@ public class Client extends test.TestHelper {
                 out.flush();
                 callbackReceiverImpl = new CallbackReceiverI();
                 callbackReceiver = callbackReceiverImpl;
-                com.zeroc.Ice.Identity callbackReceiverIdent = new com.zeroc.Ice.Identity();
+                Identity callbackReceiverIdent = new Identity();
                 callbackReceiverIdent.name = "callbackReceiver";
                 callbackReceiverIdent.category = category;
                 twowayR =
-                        CallbackReceiverPrx.uncheckedCast(
-                                adapter.add(callbackReceiver, callbackReceiverIdent));
-                com.zeroc.Ice.Identity fakeCallbackReceiverIdent = new com.zeroc.Ice.Identity();
+                    CallbackReceiverPrx.uncheckedCast(
+                        adapter.add(callbackReceiver, callbackReceiverIdent));
+                Identity fakeCallbackReceiverIdent = new Identity();
                 fakeCallbackReceiverIdent.name = "callbackReceiver";
                 fakeCallbackReceiverIdent.category = "dummy";
                 fakeTwowayR =
-                        CallbackReceiverPrx.uncheckedCast(
-                                adapter.add(callbackReceiver, fakeCallbackReceiverIdent));
+                    CallbackReceiverPrx.uncheckedCast(
+                        adapter.add(callbackReceiver, fakeCallbackReceiverIdent));
                 out.println("ok");
             }
 
@@ -216,7 +236,7 @@ public class Client extends test.TestHelper {
                 out.flush();
                 CallbackPrx oneway = twoway.ice_oneway();
                 CallbackReceiverPrx onewayR = twowayR.ice_oneway();
-                java.util.Map<String, String> context = new java.util.HashMap<>();
+                Map<String, String> context = new HashMap<>();
                 context.put("_fwd", "o");
                 oneway.initiateCallback(onewayR, context);
                 callbackReceiverImpl.callbackOK();
@@ -226,7 +246,7 @@ public class Client extends test.TestHelper {
             {
                 out.print("testing twoway callback... ");
                 out.flush();
-                java.util.Map<String, String> context = new java.util.HashMap<>();
+                Map<String, String> context = new HashMap<>();
                 context.put("_fwd", "t");
                 twoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
@@ -236,14 +256,14 @@ public class Client extends test.TestHelper {
             {
                 out.print("ditto, but with user exception... ");
                 out.flush();
-                java.util.Map<String, String> context = new java.util.HashMap<>();
+                Map<String, String> context = new HashMap<>();
                 context.put("_fwd", "t");
                 try {
                     twoway.initiateCallbackEx(twowayR, context);
                     test(false);
                 } catch (CallbackException ex) {
                     test(ex.someValue == 3.14);
-                    test(ex.someString.equals("3.14"));
+                    test("3.14".equals(ex.someString));
                 }
                 callbackReceiverImpl.callbackOK();
                 out.println("ok");
@@ -252,12 +272,12 @@ public class Client extends test.TestHelper {
             {
                 out.print("trying twoway callback with fake category... ");
                 out.flush();
-                java.util.Map<String, String> context = new java.util.HashMap<>();
+                Map<String, String> context = new HashMap<>();
                 context.put("_fwd", "t");
                 try {
                     twoway.initiateCallback(fakeTwowayR, context);
                     test(false);
-                } catch (com.zeroc.Ice.ObjectNotExistException ex) {
+                } catch (ObjectNotExistException ex) {
                     out.println("ok");
                 }
             }
@@ -265,12 +285,12 @@ public class Client extends test.TestHelper {
             {
                 out.print("testing whether other allowed category is accepted... ");
                 out.flush();
-                java.util.Map<String, String> context = new java.util.HashMap<>();
+                Map<String, String> context = new HashMap<>();
                 context.put("_fwd", "t");
                 CallbackPrx otherCategoryTwoway =
-                        CallbackPrx.uncheckedCast(
-                                twoway.ice_identity(
-                                        com.zeroc.Ice.Util.stringToIdentity("c2/callback")));
+                    CallbackPrx.uncheckedCast(
+                        twoway.ice_identity(
+                            Util.stringToIdentity("c2/callback")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
                 out.println("ok");
@@ -279,16 +299,16 @@ public class Client extends test.TestHelper {
             {
                 out.print("testing whether disallowed category gets rejected... ");
                 out.flush();
-                java.util.Map<String, String> context = new java.util.HashMap<>();
+                Map<String, String> context = new HashMap<>();
                 context.put("_fwd", "t");
                 try {
                     CallbackPrx otherCategoryTwoway =
-                            CallbackPrx.uncheckedCast(
-                                    twoway.ice_identity(
-                                            com.zeroc.Ice.Util.stringToIdentity("c3/callback")));
+                        CallbackPrx.uncheckedCast(
+                            twoway.ice_identity(
+                                Util.stringToIdentity("c3/callback")));
                     otherCategoryTwoway.initiateCallback(twowayR, context);
                     test(false);
-                } catch (com.zeroc.Ice.ObjectNotExistException ex) {
+                } catch (ObjectNotExistException ex) {
                     out.println("ok");
                 }
             }
@@ -296,18 +316,18 @@ public class Client extends test.TestHelper {
             {
                 out.print("testing whether user-id as category is accepted... ");
                 out.flush();
-                java.util.Map<String, String> context = new java.util.HashMap<>();
+                Map<String, String> context = new HashMap<>();
                 context.put("_fwd", "t");
                 CallbackPrx otherCategoryTwoway =
-                        CallbackPrx.uncheckedCast(
-                                twoway.ice_identity(
-                                        com.zeroc.Ice.Util.stringToIdentity("_userid/callback")));
+                    CallbackPrx.uncheckedCast(
+                        twoway.ice_identity(
+                            Util.stringToIdentity("_userid/callback")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
                 out.println("ok");
             }
 
-            boolean shutdown = Stream.of(args).anyMatch(v -> v.equals("--shutdown"));
+            boolean shutdown = Stream.of(args).anyMatch(v -> "--shutdown".equals(v));
             if (shutdown) {
                 out.print("testing server shutdown... ");
                 out.flush();
@@ -334,9 +354,9 @@ public class Client extends test.TestHelper {
                 out.flush();
                 try {
                     router.destroySession();
-                } catch (com.zeroc.Glacier2.SessionNotExistException ex) {
+                } catch (SessionNotExistException ex) {
                     test(false);
-                } catch (com.zeroc.Ice.LocalException ex) {
+                } catch (LocalException ex) {
                     test(false);
                 }
                 out.println("ok");
@@ -348,9 +368,9 @@ public class Client extends test.TestHelper {
                 try {
                     base.ice_ping();
                     test(false);
-                } catch (com.zeroc.Ice.ConnectionLostException ex) {
+                } catch (ConnectionLostException ex) {
                     out.println("ok");
-                } catch (com.zeroc.Ice.SocketException ex) {
+                } catch (SocketException ex) {
                     test(false);
                 }
             }
@@ -363,13 +383,13 @@ public class Client extends test.TestHelper {
                     out.println("ok");
                 }
 
-                com.zeroc.Ice.ObjectPrx processBase;
+                ObjectPrx processBase;
 
                 {
                     out.print("testing stringToProxy for process object... ");
                     processBase =
-                            communicator.stringToProxy(
-                                    "Glacier2/admin -f Process:" + getTestEndpoint(51));
+                        communicator.stringToProxy(
+                            "Glacier2/admin -f Process:" + getTestEndpoint(51));
                     out.println("ok");
                 }
 
@@ -381,11 +401,11 @@ public class Client extends test.TestHelper {
                   }
                 */
 
-                com.zeroc.Ice.ProcessPrx process;
+                ProcessPrx process;
 
                 {
                     out.print("testing checked cast for admin object... ");
-                    process = com.zeroc.Ice.ProcessPrx.checkedCast(processBase);
+                    process = ProcessPrx.checkedCast(processBase);
                     test(process != null);
                     out.println("ok");
                 }
@@ -395,7 +415,7 @@ public class Client extends test.TestHelper {
                 try {
                     process.ice_ping();
                     test(false);
-                } catch (com.zeroc.Ice.LocalException ex) {
+                } catch (LocalException ex) {
                     out.println("ok");
                 }
             }

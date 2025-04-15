@@ -29,25 +29,25 @@ class Logger implements com.zeroc.Ice.Logger {
     public void warning(final String message) {
         // Ignore spurious selector wake up warnings in solaris.
         SwingUtilities.invokeLater(
-                () -> {
-                    JOptionPane.showMessageDialog(
-                            _mainFrame,
-                            message,
-                            "Warning - IceGrid GUI Logger",
-                            JOptionPane.WARNING_MESSAGE);
-                });
+            () -> {
+                JOptionPane.showMessageDialog(
+                    _mainFrame,
+                    message,
+                    "Warning - IceGrid GUI Logger",
+                    JOptionPane.WARNING_MESSAGE);
+            });
     }
 
     @Override
     public void error(final String message) {
         SwingUtilities.invokeLater(
-                () -> {
-                    JOptionPane.showMessageDialog(
-                            _mainFrame,
-                            message,
-                            "Error - IceGrid GUI Logger",
-                            JOptionPane.ERROR_MESSAGE);
-                });
+            () -> {
+                JOptionPane.showMessageDialog(
+                    _mainFrame,
+                    message,
+                    "Error - IceGrid GUI Logger",
+                    JOptionPane.ERROR_MESSAGE);
+            });
     }
 
     @Override
@@ -59,6 +59,6 @@ class Logger implements com.zeroc.Ice.Logger {
     @Override
     public Logger cloneWithPrefix(String prefix) {
         throw new UnsupportedOperationException(
-                "cloneWithPrefix is not supported on IceGridGUI.Logger");
+            "cloneWithPrefix is not supported on IceGridGUI.Logger");
     }
 }

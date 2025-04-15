@@ -2,6 +2,7 @@
 
 package com.zeroc.Ice;
 
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -55,7 +56,7 @@ public interface Object {
      *     derives from the interface specified by <code>s</code>.
      */
     default boolean ice_isA(String s, Current current) {
-        return java.util.Arrays.binarySearch(ice_ids(current), s) >= 0;
+        return Arrays.binarySearch(ice_ids(current), s) >= 0;
     }
 
     /**
@@ -103,7 +104,7 @@ public interface Object {
      * @return The outgoing response.
      */
     default CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
-            throws UserException {
+        throws UserException {
         return switch (request.current.operation) {
             case "ice_id" -> _iceD_ice_id(this, request);
             case "ice_ids" -> _iceD_ice_ids(this, request);
@@ -123,8 +124,8 @@ public interface Object {
         istr.endEncapsulation();
         boolean ret = obj.ice_isA(iceP_id, request.current);
         return CompletableFuture.completedFuture(
-                request.current.createOutgoingResponse(
-                        ret, (ostr, value) -> ostr.writeBool(value), FormatType.CompactFormat));
+            request.current.createOutgoingResponse(
+                ret, (ostr, value) -> ostr.writeBool(value), FormatType.CompactFormat));
     }
 
     /**
@@ -143,10 +144,10 @@ public interface Object {
         request.inputStream.skipEmptyEncapsulation();
         String[] ret = obj.ice_ids(request.current);
         return CompletableFuture.completedFuture(
-                request.current.createOutgoingResponse(
-                        ret,
-                        (ostr, value) -> ostr.writeStringSeq(value),
-                        FormatType.CompactFormat));
+            request.current.createOutgoingResponse(
+                ret,
+                (ostr, value) -> ostr.writeStringSeq(value),
+                FormatType.CompactFormat));
     }
 
     /**
@@ -156,7 +157,7 @@ public interface Object {
         request.inputStream.skipEmptyEncapsulation();
         String ret = obj.ice_id(request.current);
         return CompletableFuture.completedFuture(
-                request.current.createOutgoingResponse(
-                        ret, (ostr, value) -> ostr.writeString(value), FormatType.CompactFormat));
+            request.current.createOutgoingResponse(
+                ret, (ostr, value) -> ostr.writeString(value), FormatType.CompactFormat));
     }
 }

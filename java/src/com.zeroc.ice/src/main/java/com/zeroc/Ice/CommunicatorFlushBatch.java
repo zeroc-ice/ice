@@ -2,6 +2,10 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.InvocationObserver;
+
+import java.util.concurrent.ExecutionException;
+
 class CommunicatorFlushBatch extends InvocationFuture<Void> {
     public CommunicatorFlushBatch(Communicator communicator, Instance instance) {
         super(communicator, instance, "flushBatchRequests");
@@ -23,14 +27,14 @@ class CommunicatorFlushBatch extends InvocationFuture<Void> {
         class FlushBatch extends OutgoingAsyncBase<Void> {
             public FlushBatch() {
                 super(
-                        CommunicatorFlushBatch.this.getCommunicator(),
-                        CommunicatorFlushBatch.this._instance,
-                        CommunicatorFlushBatch.this.getOperation());
+                    CommunicatorFlushBatch.this.getCommunicator(),
+                    CommunicatorFlushBatch.this._instance,
+                    CommunicatorFlushBatch.this.getOperation());
             }
 
             @Override
             protected void markCompleted() {
-                assert (false);
+                assert false;
             }
 
             @Override
@@ -55,7 +59,7 @@ class CommunicatorFlushBatch extends InvocationFuture<Void> {
             }
 
             @Override
-            protected com.zeroc.Ice.Instrumentation.InvocationObserver getObserver() {
+            protected InvocationObserver getObserver() {
                 return CommunicatorFlushBatch.this._observer;
             }
         }
@@ -67,7 +71,7 @@ class CommunicatorFlushBatch extends InvocationFuture<Void> {
         try {
             final FlushBatch flushBatch = new FlushBatch();
             final BatchRequestQueue.SwapResult r =
-                    con.getBatchRequestQueue().swap(flushBatch.getOs());
+                con.getBatchRequestQueue().swap(flushBatch.getOs());
             if (r == null) {
                 flushBatch.sent();
             } else {
@@ -102,13 +106,13 @@ class CommunicatorFlushBatch extends InvocationFuture<Void> {
             get();
         } catch (InterruptedException ex) {
             throw new OperationInterruptedException(ex);
-        } catch (java.util.concurrent.ExecutionException ee) {
+        } catch (ExecutionException ee) {
             try {
                 throw ee.getCause().fillInStackTrace();
             } catch (RuntimeException ex) // Includes LocalException
-            {
-                throw ex;
-            } catch (Throwable ex) {
+                {
+                    throw ex;
+                } catch (Throwable ex) {
                 throw new UnknownException(ex);
             }
         }

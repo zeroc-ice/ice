@@ -2,11 +2,19 @@
 
 package test.Ice.timeout;
 
+import com.zeroc.Ice.CloseTimeoutException;
+import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ConnectTimeoutException;
+import com.zeroc.Ice.Connection;
 import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.InvocationTimeoutException;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectPrx;
 
 import test.Ice.timeout.Test.ControllerPrx;
 import test.Ice.timeout.Test.TimeoutPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 import java.util.concurrent.CompletionException;
@@ -18,23 +26,23 @@ public class AllTests {
         }
     }
 
-    private static com.zeroc.Ice.Connection connect(com.zeroc.Ice.ObjectPrx prx) {
+    private static Connection connect(ObjectPrx prx) {
         int nRetry = 10;
         while (--nRetry > 0) {
             try {
                 prx.ice_getConnection();
                 break;
-            } catch (com.zeroc.Ice.ConnectTimeoutException ex) {
+            } catch (ConnectTimeoutException ex) {
                 // Can sporadically occur with slow machines
             }
         }
         return prx.ice_getConnection(); // Establish connection
     }
 
-    public static void allTests(test.TestHelper helper) {
+    public static void allTests(TestHelper helper) {
         var controller =
-                ControllerPrx.createProxy(
-                        helper.communicator(), "controller:" + helper.getTestEndpoint(1));
+            ControllerPrx.createProxy(
+                helper.communicator(), "controller:" + helper.getTestEndpoint(1));
 
         // Make sure the controller is connected before we proceed.
         connect(controller);
@@ -50,8 +58,8 @@ public class AllTests {
         }
     }
 
-    public static void allTestsWithController(test.TestHelper helper, ControllerPrx controller) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static void allTestsWithController(TestHelper helper, ControllerPrx controller) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
 
         String sref = "timeout:" + helper.getTestEndpoint(0);
@@ -67,14 +75,14 @@ public class AllTests {
             try {
                 TimeoutPrx.uncheckedCast(timeout.ice_connectionId("connection-1")).op();
                 test(false);
-            } catch (com.zeroc.Ice.ConnectTimeoutException ex) {
+            } catch (ConnectTimeoutException ex) {
                 // Expected.
             }
 
             try {
                 TimeoutPrx.uncheckedCast(timeout.ice_connectionId("connection-2")).op();
                 test(false);
-            } catch (com.zeroc.Ice.ConnectTimeoutException ex) {
+            } catch (ConnectTimeoutException ex) {
                 // Expected.
             }
             controller.resumeAdapter();
@@ -104,20 +112,19 @@ public class AllTests {
         out.print("testing invocation timeout... ");
         out.flush();
         {
-            com.zeroc.Ice.Connection connection = timeout.ice_getConnection();
+            Connection connection = timeout.ice_getConnection();
             TimeoutPrx to = timeout.ice_invocationTimeout(100);
             test(connection == to.ice_getConnection());
             try {
                 to.sleep(1000);
                 test(false);
-            } catch (com.zeroc.Ice.InvocationTimeoutException ex) {
-            }
+            } catch (InvocationTimeoutException ex) {}
             timeout.ice_ping();
             to = timeout.ice_invocationTimeout(1000);
             test(connection == to.ice_getConnection());
             try {
                 to.sleep(100);
-            } catch (com.zeroc.Ice.InvocationTimeoutException ex) {
+            } catch (InvocationTimeoutException ex) {
                 test(false);
             }
             test(connection == to.ice_getConnection());
@@ -131,7 +138,7 @@ public class AllTests {
                 to.sleepAsync(1000).join();
                 test(false);
             } catch (CompletionException ex) {
-                test(ex.getCause() instanceof com.zeroc.Ice.InvocationTimeoutException);
+                test(ex.getCause() instanceof InvocationTimeoutException);
             }
             timeout.ice_ping();
         }
@@ -166,44 +173,41 @@ public class AllTests {
 
             // Initiate the connection closure.
             var closureThread =
-                    new Thread(
-                            () -> {
-                                try {
-                                    connection.close();
-                                    test(false);
-                                } catch (com.zeroc.Ice.CloseTimeoutException ex) {
-                                    // Expected.
-                                }
-                            });
+                new Thread(
+                    () -> {
+                        try {
+                            connection.close();
+                            test(false);
+                        } catch (CloseTimeoutException ex) {
+                            // Expected.
+                        }
+                    });
 
             closureThread.start();
             try {
                 Thread.sleep(50);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
 
             // We set a connect timeout of '1s', so the connection should still be useable here.
             try {
                 connection.getInfo(); // getInfo() doesn't throw in the closing state.
-            } catch (com.zeroc.Ice.LocalException ex) {
+            } catch (LocalException ex) {
                 test(false);
             }
 
             try {
                 closureThread.join(); // Ensure the connection closure completed.
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
 
             try {
                 connection.getInfo();
-            } catch (com.zeroc.Ice.CloseTimeoutException ex) {
+            } catch (CloseTimeoutException ex) {
                 // Expected.
             }
 
             try {
                 closureThread.join(); // Ensure the connection closure thread completed.
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
 
             controller.resumeAdapter();
             timeout.op(); // Ensure adapter is active.
@@ -214,11 +218,11 @@ public class AllTests {
         out.flush();
         {
             communicator
-                    .getProperties()
-                    .setProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
+                .getProperties()
+                .setProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
 
-            com.zeroc.Ice.ObjectAdapter adapter =
-                    communicator.createObjectAdapter("TimeoutCollocated");
+            ObjectAdapter adapter =
+                communicator.createObjectAdapter("TimeoutCollocated");
             adapter.activate();
 
             TimeoutPrx proxy = TimeoutPrx.uncheckedCast(adapter.addWithUUID(new TimeoutI()));
@@ -226,14 +230,13 @@ public class AllTests {
             try {
                 proxy.sleep(500);
                 test(false);
-            } catch (com.zeroc.Ice.InvocationTimeoutException ex) {
-            }
+            } catch (InvocationTimeoutException ex) {}
 
             try {
                 proxy.sleepAsync(500).join();
                 test(false);
             } catch (CompletionException ex) {
-                test(ex.getCause() instanceof com.zeroc.Ice.InvocationTimeoutException);
+                test(ex.getCause() instanceof InvocationTimeoutException);
             }
 
             ((TimeoutPrx) proxy.ice_invocationTimeout(-1)).ice_ping();
@@ -247,7 +250,7 @@ public class AllTests {
                 batchTimeout.ice_flushBatchRequestsAsync().join();
                 test(false);
             } catch (CompletionException ex) {
-                test(ex.getCause() instanceof com.zeroc.Ice.InvocationTimeoutException);
+                test(ex.getCause() instanceof InvocationTimeoutException);
             }
 
             adapter.destroy();
@@ -256,4 +259,6 @@ public class AllTests {
 
         controller.shutdown();
     }
+
+    private AllTests() {}
 }

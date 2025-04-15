@@ -8,11 +8,12 @@ import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.Properties;
 
 import test.Ice.inactivityTimeout.Test.TestIntfPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 
 public class AllTests {
-    static void allTests(test.TestHelper helper) {
+    static void allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
         String proxyString = "test: " + helper.getTestEndpoint();
         TestIntfPrx p = TestIntfPrx.uncheckedCast(communicator.stringToProxy(proxyString));
@@ -21,7 +22,7 @@ public class AllTests {
 
         testClientInactivityTimeout(p, helper.getWriter());
         testServerInactivityTimeout(
-                helper, proxyString3s, communicator.getProperties(), helper.getWriter());
+            helper, proxyString3s, communicator.getProperties(), helper.getWriter());
         testWithOutstandingRequest(p, false, helper.getWriter());
         testWithOutstandingRequest(p, true, helper.getWriter());
 
@@ -30,7 +31,7 @@ public class AllTests {
 
     private static void testClientInactivityTimeout(TestIntfPrx p, PrintWriter output) {
         output.write(
-                "testing that the client side inactivity timeout shuts down the connection... ");
+            "testing that the client side inactivity timeout shuts down the connection... ");
         output.flush();
 
         p.ice_ping();
@@ -41,8 +42,7 @@ public class AllTests {
         // tests the client side.
         try {
             Thread.sleep(4000);
-        } catch (InterruptedException ex) {
-        }
+        } catch (InterruptedException ex) {}
 
         p.ice_ping();
         Connection connection2 = p.ice_getConnection();
@@ -51,9 +51,9 @@ public class AllTests {
     }
 
     private static void testServerInactivityTimeout(
-            test.TestHelper helper, String proxyString, Properties properties, PrintWriter output) {
+            TestHelper helper, String proxyString, Properties properties, PrintWriter output) {
         output.write(
-                "testing that the server side inactivity timeout shuts down the connection... ");
+            "testing that the server side inactivity timeout shuts down the connection... ");
         output.flush();
 
         // Create a new communicator with the desired properties.
@@ -72,8 +72,7 @@ public class AllTests {
             // tests the server side.
             try {
                 Thread.sleep(4000);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
             p.ice_ping();
             Connection connection2 = p.ice_getConnection();
             test(connection2 != connection);
@@ -85,9 +84,9 @@ public class AllTests {
             TestIntfPrx p, boolean oneway, PrintWriter output) {
         String onewayString = oneway ? "one-way" : "two-way";
         output.write(
-                "testing the inactivity timeout with an outstanding "
-                        + onewayString
-                        + " request... ");
+            "testing the inactivity timeout with an outstanding "
+                + onewayString
+                + " request... ");
         output.flush();
 
         if (oneway) {
@@ -104,8 +103,7 @@ public class AllTests {
         if (oneway) {
             try {
                 Thread.sleep(4000);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
         }
         p.ice_ping();
         Connection connection2 = p.ice_getConnection();
@@ -126,4 +124,6 @@ public class AllTests {
             throw new RuntimeException();
         }
     }
+
+    private AllTests() {}
 }

@@ -2,6 +2,15 @@
 
 package com.zeroc.Ice;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.nio.channels.CancelledKeyException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.SelectionKey;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 final class Selector {
     static final class TimeoutException extends java.lang.Exception {
         private static final long serialVersionUID = 7885765825975312023L;
@@ -14,7 +23,7 @@ final class Selector {
 
         try {
             _selector = java.nio.channels.Selector.open();
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             throw new SyscallException(ex);
         }
 
@@ -28,8 +37,7 @@ final class Selector {
     void destroy() {
         try {
             _selector.close();
-        } catch (java.io.IOException ex) {
-        }
+        } catch (IOException ex) {}
         _selector = null;
     }
 
@@ -115,36 +123,36 @@ final class Selector {
         _selectNow = !_readyHandlers.isEmpty();
     }
 
-    void finishSelect(java.util.List<EventHandlerOpPair> handlers) {
+    void finishSelect(List<EventHandlerOpPair> handlers) {
         assert (handlers.isEmpty());
 
         if (_keys.isEmpty()
-                && _readyHandlers.isEmpty()
-                && !_interrupted) // If key set is empty and we weren't woken up.
-        {
-            //
-            // This is necessary to prevent a busy loop in case of a spurious wake-up which
-            // sometime occurs in the client thread pool when the communicator is destroyed.
-            // If there are too many successive spurious wake-ups, we log an error.
-            //
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException ex) {
+            && _readyHandlers.isEmpty()
+            && !_interrupted) // If key set is empty and we weren't woken up.
+            {
                 //
-                // Eat the InterruptedException (as we do in ThreadPool.promoteFollower).
+                // This is necessary to prevent a busy loop in case of a spurious wake-up which
+                // sometime occurs in the client thread pool when the communicator is destroyed.
+                // If there are too many successive spurious wake-ups, we log an error.
                 //
-            }
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException ex) {
+                    //
+                    // Eat the InterruptedException (as we do in ThreadPool.promoteFollower).
+                    //
+                }
 
-            if (++_spuriousWakeUp > 100) {
-                _spuriousWakeUp = 0;
-                _instance.initializationData().logger.warning("spurious selector wake up");
+                if (++_spuriousWakeUp > 100) {
+                    _spuriousWakeUp = 0;
+                    _instance.initializationData().logger.warning("spurious selector wake up");
+                }
+                return;
             }
-            return;
-        }
         _interrupted = false;
         _spuriousWakeUp = 0;
 
-        for (java.nio.channels.SelectionKey key : _keys) {
+        for (SelectionKey key : _keys) {
             EventHandler handler = (EventHandler) key.attachment();
             try {
                 //
@@ -153,10 +161,10 @@ final class Selector {
                 //
                 final int op = fromJavaOps(key.readyOps() & key.interestOps());
                 if (!_readyHandlers.contains(handler)) // Handler will be added by the loop below
-                {
-                    handlers.add(new EventHandlerOpPair(handler, op));
-                }
-            } catch (java.nio.channels.CancelledKeyException ex) {
+                    {
+                        handlers.add(new EventHandlerOpPair(handler, op));
+                    }
+            } catch (CancelledKeyException ex) {
                 assert (handler._registered == 0);
             }
         }
@@ -196,17 +204,17 @@ final class Selector {
                 } else {
                     _selector.select();
                 }
-            } catch (java.nio.channels.CancelledKeyException ex) {
+            } catch (CancelledKeyException ex) {
                 // This sometime occurs on macOS, ignore.
                 continue;
-            } catch (java.io.IOException ex) {
+            } catch (IOException ex) {
                 //
                 // Pressing Ctrl-C causes select() to raise an
                 // IOException, which seems like a JDK bug. We trap
                 // for that special case here and ignore it.
                 // Hopefully we're not masking something important!
                 //
-                if (ex instanceof java.io.InterruptedIOException) {
+                if (ex instanceof InterruptedIOException) {
                     continue;
                 }
 
@@ -223,8 +231,7 @@ final class Selector {
 
                 try {
                     Thread.sleep(1);
-                } catch (InterruptedException ex2) {
-                }
+                } catch (InterruptedException ex2) {}
             }
 
             break;
@@ -244,8 +251,8 @@ final class Selector {
                 if (handler._registered != 0) {
                     try {
                         handler._key = handler.fd().register(_selector, ops, handler);
-                    } catch (java.nio.channels.ClosedChannelException ex) {
-                        assert (false);
+                    } catch (ClosedChannelException ex) {
+                        assert false;
                     }
                 }
             } else {
@@ -276,17 +283,17 @@ final class Selector {
     private int toJavaOps(EventHandler handler, int o) {
         int op = 0;
         if ((o & SocketOperation.Read) != 0) {
-            if ((handler.fd().validOps() & java.nio.channels.SelectionKey.OP_READ) != 0) {
-                op |= java.nio.channels.SelectionKey.OP_READ;
+            if ((handler.fd().validOps() & SelectionKey.OP_READ) != 0) {
+                op |= SelectionKey.OP_READ;
             } else {
-                op |= java.nio.channels.SelectionKey.OP_ACCEPT;
+                op |= SelectionKey.OP_ACCEPT;
             }
         }
         if ((o & SocketOperation.Write) != 0) {
-            op |= java.nio.channels.SelectionKey.OP_WRITE;
+            op |= SelectionKey.OP_WRITE;
         }
         if ((o & SocketOperation.Connect) != 0) {
-            op |= java.nio.channels.SelectionKey.OP_CONNECT;
+            op |= SelectionKey.OP_CONNECT;
         }
         return op;
     }
@@ -294,15 +301,15 @@ final class Selector {
     private int fromJavaOps(int o) {
         int op = 0;
         if ((o
-                        & (java.nio.channels.SelectionKey.OP_READ
-                                | java.nio.channels.SelectionKey.OP_ACCEPT))
-                != 0) {
+            & (SelectionKey.OP_READ
+            | SelectionKey.OP_ACCEPT))
+            != 0) {
             op |= SocketOperation.Read;
         }
-        if ((o & java.nio.channels.SelectionKey.OP_WRITE) != 0) {
+        if ((o & SelectionKey.OP_WRITE) != 0) {
             op |= SocketOperation.Write;
         }
-        if ((o & java.nio.channels.SelectionKey.OP_CONNECT) != 0) {
+        if ((o & SelectionKey.OP_CONNECT) != 0) {
             op |= SocketOperation.Connect;
         }
         return op;
@@ -311,9 +318,9 @@ final class Selector {
     private final Instance _instance;
 
     private java.nio.channels.Selector _selector;
-    private java.util.Set<java.nio.channels.SelectionKey> _keys;
-    private java.util.HashSet<EventHandler> _changes = new java.util.HashSet<>();
-    private java.util.HashSet<EventHandler> _readyHandlers = new java.util.HashSet<>();
+    private final Set<SelectionKey> _keys;
+    private final HashSet<EventHandler> _changes = new HashSet<>();
+    private final HashSet<EventHandler> _readyHandlers = new HashSet<>();
     private boolean _selecting;
     private boolean _selectNow;
     private boolean _interrupted;

@@ -4,10 +4,11 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.CommunicatorDescriptor;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.event.ActionEvent;
+import java.util.SortedMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -24,21 +25,21 @@ class CommunicatorEditor extends Editor {
         _buildId.setEditable(false);
 
         Action refresh =
-                new AbstractAction("Refresh") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        _buildId.setText("");
-                        _runtimeProperties.clear();
-                        _target.showRuntimeProperties();
-                    }
-                };
+            new AbstractAction("Refresh") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    _buildId.setText("");
+                    _runtimeProperties.clear();
+                    _target.showRuntimeProperties();
+                }
+            };
         refresh.putValue(Action.SHORT_DESCRIPTION, "Retrieve again the properties");
         _refreshButton = new JButton(refresh);
     }
 
     protected void show(
             CommunicatorDescriptor descriptor,
-            java.util.SortedMap<String, String> properties,
+            SortedMap<String, String> properties,
             Utils.Resolver resolver) {
         _description.setText(resolver.substitute(descriptor.description));
         _descriptorProperties.setSortedMap(properties);
@@ -64,7 +65,7 @@ class CommunicatorEditor extends Editor {
         _refreshButton.setEnabled(true);
     }
 
-    void setRuntimeProperties(java.util.SortedMap<String, String> map, Communicator communicator) {
+    void setRuntimeProperties(SortedMap<String, String> map, Communicator communicator) {
         if (communicator == _target) {
             _runtimeProperties.setSortedMap(map);
             _runtimePropertiesRetrieved = true;
@@ -130,11 +131,11 @@ class CommunicatorEditor extends Editor {
 
     protected Communicator _target;
 
-    private JTextField _buildId = new JTextField(20);
-    private JButton _refreshButton;
-    private TableField _runtimeProperties = new TableField("Name", "Value");
-    private boolean _runtimePropertiesRetrieved = false;
+    private final JTextField _buildId = new JTextField(20);
+    private final JButton _refreshButton;
+    private final TableField _runtimeProperties = new TableField("Name", "Value");
+    private boolean _runtimePropertiesRetrieved;
 
-    private JTextArea _description = new JTextArea(3, 20);
-    private TableField _descriptorProperties = new TableField("Name", "Value");
+    private final JTextArea _description = new JTextArea(3, 20);
+    private final TableField _descriptorProperties = new TableField("Name", "Value");
 }

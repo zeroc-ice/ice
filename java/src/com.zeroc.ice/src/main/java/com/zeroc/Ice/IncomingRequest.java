@@ -2,6 +2,9 @@
 
 package com.zeroc.Ice;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Represents a request received by a connection. It's the argument of {@link
  * Object#dispatch(IncomingRequest)}.
@@ -43,13 +46,13 @@ public final class IncomingRequest {
         if (facetPath.length > 0) {
             if (facetPath.length > 1) {
                 throw new MarshalException(
-                        "Received invalid facet path with " + facetPath.length + " elements.");
+                    "Received invalid facet path with " + facetPath.length + " elements.");
             }
             facet = facetPath[0];
         }
         String operation = inputStream.readString();
         OperationMode mode = OperationMode.valueOf(inputStream.readByte());
-        java.util.Map<String, String> ctx = new java.util.HashMap<>();
+        Map<String, String> ctx = new HashMap<>();
         int sz = inputStream.readSize();
         while (sz-- > 0) {
             String first = inputStream.readString();
@@ -61,16 +64,16 @@ public final class IncomingRequest {
         var encoding = EncodingVersion.ice_read(inputStream);
 
         current =
-                new Current(
-                        adapter,
-                        connection,
-                        identity,
-                        facet,
-                        operation,
-                        mode,
-                        ctx,
-                        requestId,
-                        encoding);
+            new Current(
+                adapter,
+                connection,
+                identity,
+                facet,
+                operation,
+                mode,
+                ctx,
+                requestId,
+                encoding);
 
         // Rewind to the start of the encapsulation
         inputStream.pos(inputStream.pos() - 6);

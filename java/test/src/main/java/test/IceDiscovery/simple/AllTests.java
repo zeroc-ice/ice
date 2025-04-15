@@ -2,7 +2,16 @@
 
 package test.IceDiscovery.simple;
 
-import test.IceDiscovery.simple.Test.*;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.NoEndpointException;
+import com.zeroc.Ice.ObjectNotExistException;
+import com.zeroc.Ice.Util;
+
+import test.IceDiscovery.simple.Test.ControllerPrx;
+import test.IceDiscovery.simple.Test.TestIntfPrx;
+import test.TestHelper;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,12 +25,12 @@ public class AllTests {
         }
     }
 
-    public static void allTests(test.TestHelper helper, int num) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static void allTests(TestHelper helper, int num) {
+        Communicator communicator = helper.communicator();
 
         List<ControllerPrx> proxies = new ArrayList<>();
         List<ControllerPrx> indirectProxies = new ArrayList<>();
-        for (int i = 0; i < num; ++i) {
+        for (int i = 0; i < num; i++) {
             String id = "controller" + i;
             proxies.add(ControllerPrx.createProxy(communicator, id));
             indirectProxies.add(ControllerPrx.createProxy(communicator, id + "@control" + i));
@@ -51,24 +60,21 @@ public class AllTests {
             try {
                 communicator.stringToProxy("object @ oa1").ice_ping();
                 test(false);
-            } catch (com.zeroc.Ice.NoEndpointException ex) {
-            }
+            } catch (NoEndpointException ex) {}
 
             proxies.get(0).activateObjectAdapter("oa", "oa1", "");
 
             try {
                 communicator.stringToProxy("object @ oa1").ice_ping();
                 test(false);
-            } catch (com.zeroc.Ice.ObjectNotExistException ex) {
-            }
+            } catch (ObjectNotExistException ex) {}
 
             proxies.get(0).deactivateObjectAdapter("oa");
 
             try {
                 communicator.stringToProxy("object @ oa1").ice_ping();
                 test(false);
-            } catch (com.zeroc.Ice.NoEndpointException ex) {
-            }
+            } catch (NoEndpointException ex) {}
         }
         System.out.println("ok");
 
@@ -107,12 +113,10 @@ public class AllTests {
 
             try {
                 communicator.stringToProxy("object @ oa1").ice_ping();
-            } catch (com.zeroc.Ice.ObjectNotExistException ex) {
-            }
+            } catch (ObjectNotExistException ex) {}
             try {
                 communicator.stringToProxy("object @ oa2").ice_ping();
-            } catch (com.zeroc.Ice.ObjectNotExistException ex) {
-            }
+            } catch (ObjectNotExistException ex) {}
 
             proxies.get(0).deactivateObjectAdapter("oa");
             proxies.get(1).deactivateObjectAdapter("oa");
@@ -151,8 +155,8 @@ public class AllTests {
                 adapterIds.add("oa2");
                 adapterIds.add("oa3");
                 intf =
-                        TestIntfPrx.createProxy(communicator, "object @ rg")
-                                .ice_connectionCached(false);
+                    TestIntfPrx.createProxy(communicator, "object @ rg")
+                        .ice_connectionCached(false);
                 int nRetry = 100;
                 while (!adapterIds.isEmpty() && --nRetry > 0) {
                     adapterIds.remove(intf.getAdapterId());
@@ -167,12 +171,12 @@ public class AllTests {
 
             proxies.get(0).deactivateObjectAdapter("oa");
             proxies.get(1).deactivateObjectAdapter("oa");
-            test(TestIntfPrx.createProxy(communicator, "object @ rg").getAdapterId().equals("oa3"));
+            test("oa3".equals(TestIntfPrx.createProxy(communicator, "object @ rg").getAdapterId()));
             proxies.get(2).deactivateObjectAdapter("oa");
 
             proxies.get(0).activateObjectAdapter("oa", "oa1", "rg");
             proxies.get(0).addObject("oa", "object");
-            test(TestIntfPrx.createProxy(communicator, "object @ rg").getAdapterId().equals("oa1"));
+            test("oa1".equals(TestIntfPrx.createProxy(communicator, "object @ rg").getAdapterId()));
             proxies.get(0).deactivateObjectAdapter("oa");
         }
         System.out.println("ok");
@@ -181,28 +185,27 @@ public class AllTests {
         System.out.flush();
         {
             String multicast;
-            if (communicator.getProperties().getIceProperty("Ice.IPv6").equals("1")) {
+            if ("1".equals(communicator.getProperties().getIceProperty("Ice.IPv6"))) {
                 multicast = "\"ff15::1\"";
             } else {
                 multicast = "239.255.0.1";
             }
 
             {
-                com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+                InitializationData initData = new InitializationData();
                 initData.properties = communicator.getProperties()._clone();
                 initData.properties.setProperty(
-                        "IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
-                com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(initData);
+                    "IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
+                Communicator comm = Util.initialize(initData);
                 test(comm.getDefaultLocator() != null);
                 try {
                     comm.stringToProxy("controller0@control0").ice_ping();
                     test(false);
-                } catch (com.zeroc.Ice.LocalException ex) {
-                }
+                } catch (LocalException ex) {}
                 comm.destroy();
             }
             {
-                com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+                InitializationData initData = new InitializationData();
                 initData.properties = communicator.getProperties()._clone();
                 String intf = initData.properties.getIceProperty("IceDiscovery.Interface");
                 if (!intf.isEmpty()) {
@@ -210,16 +213,16 @@ public class AllTests {
                 }
                 String port = initData.properties.getIceProperty("IceDiscovery.Port");
                 initData.properties.setProperty(
-                        "IceDiscovery.Lookup",
-                        "udp -h "
-                                + multicast
-                                + " --interface unknown:"
-                                + "udp -h "
-                                + multicast
-                                + " -p "
-                                + port
-                                + intf);
-                com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(initData);
+                    "IceDiscovery.Lookup",
+                    "udp -h "
+                        + multicast
+                        + " --interface unknown:"
+                        + "udp -h "
+                        + multicast
+                        + " -p "
+                        + port
+                        + intf);
+                Communicator comm = Util.initialize(initData);
                 test(comm.getDefaultLocator() != null);
                 comm.stringToProxy("controller0@control0").ice_ping();
                 comm.destroy();
@@ -234,4 +237,6 @@ public class AllTests {
         }
         System.out.println("ok");
     }
+
+    private AllTests() {}
 }

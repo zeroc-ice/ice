@@ -2,28 +2,32 @@
 
 package test.Ice.defaultServant;
 
-import test.Ice.defaultServant.Test.*;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.FacetNotExistException;
+import com.zeroc.Ice.ObjectNotExistException;
+
+import test.Ice.defaultServant.Test.MyObject;
 
 public final class MyObjectI implements MyObject {
     @Override
-    public void ice_ping(com.zeroc.Ice.Current current) {
+    public void ice_ping(Current current) {
         String name = current.id.name;
 
-        if (name.equals("ObjectNotExist")) {
-            throw new com.zeroc.Ice.ObjectNotExistException();
-        } else if (name.equals("FacetNotExist")) {
-            throw new com.zeroc.Ice.FacetNotExistException();
+        if ("ObjectNotExist".equals(name)) {
+            throw new ObjectNotExistException();
+        } else if ("FacetNotExist".equals(name)) {
+            throw new FacetNotExistException();
         }
     }
 
     @Override
-    public String getName(com.zeroc.Ice.Current current) {
+    public String getName(Current current) {
         String name = current.id.name;
 
-        if (name.equals("ObjectNotExist")) {
-            throw new com.zeroc.Ice.ObjectNotExistException();
-        } else if (name.equals("FacetNotExist")) {
-            throw new com.zeroc.Ice.FacetNotExistException();
+        if ("ObjectNotExist".equals(name)) {
+            throw new ObjectNotExistException();
+        } else if ("FacetNotExist".equals(name)) {
+            throw new FacetNotExistException();
         }
 
         return name;

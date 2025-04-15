@@ -2,10 +2,18 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.CommunicatorDescriptor;
+import com.zeroc.IceGrid.ServiceDescriptor;
+import com.zeroc.IceGrid.ServiceInstanceDescriptor;
+import com.zeroc.IceGridGUI.ApplicationActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceGridGUI.XMLWriter;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
@@ -36,7 +44,7 @@ class PlainService extends Communicator implements Service, Cloneable {
         }
 
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     // Actions
@@ -47,8 +55,8 @@ class PlainService extends Communicator implements Service, Cloneable {
 
         Object clipboard = getCoordinator().getClipboard();
         if (clipboard != null
-                && (clipboard instanceof ServiceInstanceDescriptor
-                        || clipboard instanceof Adapter.AdapterCopy)) {
+            && (clipboard instanceof ServiceInstanceDescriptor
+            || clipboard instanceof Adapter.AdapterCopy)) {
             actions[PASTE] = true;
         }
 
@@ -153,7 +161,7 @@ class PlainService extends Communicator implements Service, Cloneable {
     }
 
     @Override
-    public Object rebuild(java.util.List<Editable> editables) throws UpdateFailedException {
+    public Object rebuild(List<Editable> editables) throws UpdateFailedException {
         Communicator communicator = (Communicator) _parent;
         Services services = communicator.getServices();
         PlainService newService = null;
@@ -196,7 +204,7 @@ class PlainService extends Communicator implements Service, Cloneable {
             String name,
             ServiceInstanceDescriptor descriptor,
             Utils.Resolver resolver)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         super(parent, name);
         _descriptor = descriptor;
         _ephemeral = false;
@@ -212,15 +220,15 @@ class PlainService extends Communicator implements Service, Cloneable {
         _ephemeral = true;
     }
 
-    static java.util.List<String[]> createAttributes(ServiceDescriptor descriptor) {
-        java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
+    static List<String[]> createAttributes(ServiceDescriptor descriptor) {
+        List<String[]> attributes = new LinkedList<String[]>();
         attributes.add(createAttribute("name", descriptor.name));
         attributes.add(createAttribute("entry", descriptor.entry));
         return attributes;
     }
 
     @Override
-    void write(XMLWriter writer) throws java.io.IOException {
+    void write(XMLWriter writer) throws IOException {
         if (!_ephemeral) {
             writer.writeStartTag("service", createAttributes(_descriptor.descriptor));
 
@@ -229,14 +237,14 @@ class PlainService extends Communicator implements Service, Cloneable {
             }
 
             writePropertySet(
-                    writer,
-                    _descriptor.descriptor.propertySet,
-                    _descriptor.descriptor.adapters,
-                    _descriptor.descriptor.logs);
+                writer,
+                _descriptor.descriptor.propertySet,
+                _descriptor.descriptor.adapters,
+                _descriptor.descriptor.logs);
             writeLogs(
-                    writer,
-                    _descriptor.descriptor.logs,
-                    _descriptor.descriptor.propertySet.properties);
+                writer,
+                _descriptor.descriptor.logs,
+                _descriptor.descriptor.propertySet.properties);
 
             _adapters.write(writer, _descriptor.descriptor.propertySet.properties);
             writer.writeEndTag("service");

@@ -2,8 +2,12 @@
 
 package test.Ice.classLoader;
 
-public class PluginFactoryI implements com.zeroc.Ice.PluginFactory {
-    static class PluginI implements com.zeroc.Ice.Plugin {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Plugin;
+import com.zeroc.Ice.PluginFactory;
+
+public class PluginFactoryI implements PluginFactory {
+    static class PluginI implements Plugin {
         @Override
         public void initialize() {}
 
@@ -12,8 +16,8 @@ public class PluginFactoryI implements com.zeroc.Ice.PluginFactory {
     }
 
     @Override
-    public com.zeroc.Ice.Plugin create(
-            com.zeroc.Ice.Communicator communicator, String name, String[] args) {
+    public Plugin create(
+            Communicator communicator, String name, String[] args) {
         return new PluginI();
     }
 }

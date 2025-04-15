@@ -2,6 +2,9 @@
 
 package com.zeroc.Ice;
 
+import java.nio.channels.SelectableChannel;
+import java.util.LinkedList;
+
 final class ThreadPoolWorkQueue extends EventHandler {
     ThreadPoolWorkQueue(Instance instance, ThreadPool threadPool, Selector selector) {
         _threadPool = threadPool;
@@ -10,13 +13,12 @@ final class ThreadPoolWorkQueue extends EventHandler {
         _registered = SocketOperation.Read;
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"nofinalizer", "deprecation"})
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
             Assert.FinalizerAssert(_destroyed);
-        } catch (Exception ex) {
-        } finally {
+        } catch (Exception ex) {} finally {
             super.finalize();
         }
     }
@@ -53,7 +55,7 @@ final class ThreadPoolWorkQueue extends EventHandler {
         if (workItem != null) {
             workItem.execute(current);
         } else {
-            assert (_destroyed);
+            assert _destroyed;
             _threadPool.ioCompleted(current);
             throw new ThreadPool.DestroyedException();
         }
@@ -61,7 +63,7 @@ final class ThreadPoolWorkQueue extends EventHandler {
 
     @Override
     public void finished(ThreadPoolCurrent current, boolean close) {
-        assert (false);
+        assert false;
     }
 
     @Override
@@ -70,7 +72,7 @@ final class ThreadPoolWorkQueue extends EventHandler {
     }
 
     @Override
-    public java.nio.channels.SelectableChannel fd() {
+    public SelectableChannel fd() {
         return null;
     }
 
@@ -81,6 +83,6 @@ final class ThreadPoolWorkQueue extends EventHandler {
 
     private final ThreadPool _threadPool;
     private boolean _destroyed;
-    private Selector _selector;
-    private java.util.LinkedList<ThreadPoolWorkItem> _workItems = new java.util.LinkedList<>();
+    private final Selector _selector;
+    private final LinkedList<ThreadPoolWorkItem> _workItems = new LinkedList<>();
 }

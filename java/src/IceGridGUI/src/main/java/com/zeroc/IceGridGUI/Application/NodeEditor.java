@@ -4,10 +4,13 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.NodeDescriptor;
+import com.zeroc.IceGridGUI.Utils;
 
 import javax.swing.JOptionPane;
+
+import java.util.LinkedList;
+import java.util.List;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -42,10 +45,10 @@ class NodeEditor extends Editor {
                     root.setSelectedNode(_target);
 
                     JOptionPane.showMessageDialog(
-                            root.getCoordinator().getMainFrame(),
-                            e.toString(),
-                            "Apply failed",
-                            JOptionPane.ERROR_MESSAGE);
+                        root.getCoordinator().getMainFrame(),
+                        e.toString(),
+                        "Apply failed",
+                        JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
@@ -65,17 +68,17 @@ class NodeEditor extends Editor {
                 writeDescriptor();
 
                 // Rebuild node; don't need the backup since it's just one node
-                java.util.List<Editable> editables = new java.util.LinkedList<>();
+                List<Editable> editables = new LinkedList<>();
 
                 try {
                     ((Node) _target).rebuild(editables);
                 } catch (UpdateFailedException e) {
                     ((Node) _target).restoreDescriptor(savedDescriptor);
                     JOptionPane.showMessageDialog(
-                            root.getCoordinator().getMainFrame(),
-                            e.toString(),
-                            "Apply failed",
-                            JOptionPane.ERROR_MESSAGE);
+                        root.getCoordinator().getMainFrame(),
+                        e.toString(),
+                        "Apply failed",
+                        JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
@@ -110,7 +113,7 @@ class NodeEditor extends Editor {
     NodeEditor() {
         _name.getDocument().addDocumentListener(_updateListener);
         _name.setToolTipText(
-                "Must match the IceGrid.Node.Name property of the desired icegridnode process");
+            "Must match the IceGrid.Node.Name property of the desired icegridnode process");
         _description.getDocument().addDocumentListener(_updateListener);
         _description.setToolTipText("An optional description for this node");
 
@@ -119,10 +122,10 @@ class NodeEditor extends Editor {
 
         _loadFactor.getDocument().addDocumentListener(_updateListener);
         _loadFactor.setToolTipText(
-                "<html>A floating point value.<br>"
-                        + "When not specified, IceGrid uses 1.0 divided by the<br>"
-                        + "<i>number of threads</i> on all platforms except Windows;<br>"
-                        + "on Windows, IceGrid uses 1.0.<html>");
+            "<html>A floating point value.<br>"
+                + "When not specified, IceGrid uses 1.0 divided by the<br>"
+                + "<i>number of threads</i> on all platforms except Windows;<br>"
+                + "on Windows, IceGrid uses 1.0.<html>");
     }
 
     @Override
@@ -161,7 +164,7 @@ class NodeEditor extends Editor {
 
     boolean isSimpleUpdate() {
         NodeDescriptor descriptor = (NodeDescriptor) _target.getDescriptor();
-        return (_variables.get().equals(descriptor.variables));
+        return _variables.get().equals(descriptor.variables);
     }
 
     void writeDescriptor() {
@@ -173,7 +176,7 @@ class NodeEditor extends Editor {
 
     @Override
     protected boolean validate() {
-        return check(new String[] {"Name", _name.getText().trim()});
+        return check(new String[]{"Name", _name.getText().trim()});
     }
 
     void show(Node node) {
@@ -181,7 +184,7 @@ class NodeEditor extends Editor {
         _target = node;
 
         Utils.Resolver resolver = getDetailResolver();
-        boolean isEditable = (resolver == null);
+        boolean isEditable = resolver == null;
 
         _name.setText(_target.getId());
         _name.setEditable(_target.isEphemeral());
@@ -205,8 +208,8 @@ class NodeEditor extends Editor {
         }
     }
 
-    private JTextField _name = new JTextField(20);
-    private JTextArea _description = new JTextArea(3, 20);
-    private SimpleMapField _variables;
-    private JTextField _loadFactor = new JTextField(20);
+    private final JTextField _name = new JTextField(20);
+    private final JTextArea _description = new JTextArea(3, 20);
+    private final SimpleMapField _variables;
+    private final JTextField _loadFactor = new JTextField(20);
 }

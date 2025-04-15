@@ -5,6 +5,13 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
 /**
  * The central object in Ice. One or more communicators can be instantiated for an Ice application.
  * Communicator instantiation is language-specific, and not specified in Slice code.
@@ -16,7 +23,7 @@ import com.zeroc.Ice.SSL.SSLEngineFactory;
  */
 public final class Communicator implements AutoCloseable {
 
-    private Instance _instance;
+    private final Instance _instance;
 
     /**
      * Destroy the communicator. This Java-only method overrides close in java.lang.AutoCloseable
@@ -26,7 +33,7 @@ public final class Communicator implements AutoCloseable {
      */
     public void close() {
         _instance.destroy(
-                false); // Don't allow destroy to be interrupted if called from try with statement.
+            false); // Don't allow destroy to be interrupted if called from try with statement.
     }
 
     /**
@@ -53,7 +60,7 @@ public final class Communicator implements AutoCloseable {
     public void shutdown() {
         try {
             _instance.objectAdapterFactory().shutdown();
-        } catch (com.zeroc.Ice.CommunicatorDestroyedException ex) {
+        } catch (CommunicatorDestroyedException ex) {
             // Ignore
         }
     }
@@ -74,7 +81,7 @@ public final class Communicator implements AutoCloseable {
     public void waitForShutdown() {
         try {
             _instance.objectAdapterFactory().waitForShutdown();
-        } catch (com.zeroc.Ice.CommunicatorDestroyedException ex) {
+        } catch (CommunicatorDestroyedException ex) {
             // Ignore
         }
     }
@@ -88,7 +95,7 @@ public final class Communicator implements AutoCloseable {
     public boolean isShutdown() {
         try {
             return _instance.objectAdapterFactory().isShutdown();
-        } catch (com.zeroc.Ice.CommunicatorDestroyedException ex) {
+        } catch (CommunicatorDestroyedException ex) {
             return true;
         }
     }
@@ -107,7 +114,7 @@ public final class Communicator implements AutoCloseable {
      */
     public ObjectPrx stringToProxy(String str) {
         var ref = _instance.referenceFactory().create(str, null);
-        return (ref == null) ? null : new com.zeroc.Ice._ObjectPrxI(ref);
+        return ref == null ? null : new _ObjectPrxI(ref);
     }
 
     /**
@@ -118,7 +125,7 @@ public final class Communicator implements AutoCloseable {
      * @see #stringToProxy
      */
     public String proxyToString(ObjectPrx proxy) {
-        return (proxy == null) ? "" : proxy._getReference().toString();
+        return proxy == null ? "" : proxy._getReference().toString();
     }
 
     /**
@@ -135,7 +142,7 @@ public final class Communicator implements AutoCloseable {
     public ObjectPrx propertyToProxy(String prefix) {
         String proxy = _instance.initializationData().properties.getProperty(prefix);
         var ref = _instance.referenceFactory().create(proxy, prefix);
-        return (ref == null) ? null : new com.zeroc.Ice._ObjectPrxI(ref);
+        return ref == null ? null : new _ObjectPrxI(ref);
     }
 
     /**
@@ -145,10 +152,10 @@ public final class Communicator implements AutoCloseable {
      * @param prefix The base property name.
      * @return The property set.
      */
-    public java.util.Map<String, String> proxyToProperty(ObjectPrx proxy, String prefix) {
-        return (proxy == null)
-                ? new java.util.HashMap<>()
-                : proxy._getReference().toProperty(prefix);
+    public Map<String, String> proxyToProperty(ObjectPrx proxy, String prefix) {
+        return proxy == null
+            ? new HashMap<>()
+            : proxy._getReference().toProperty(prefix);
     }
 
     /**
@@ -205,7 +212,7 @@ public final class Communicator implements AutoCloseable {
     public ObjectAdapter createObjectAdapter(String name, SSLEngineFactory sslEngineFactory) {
         if (name.isEmpty() && sslEngineFactory != null) {
             throw new IllegalArgumentException(
-                    "name cannot be empty when using an SSLEngineFactory");
+                "name cannot be empty when using an SSLEngineFactory");
         }
         return _instance.objectAdapterFactory().createObjectAdapter(name, null, sslEngineFactory);
     }
@@ -227,6 +234,7 @@ public final class Communicator implements AutoCloseable {
         return createObjectAdapterWithEndpoints(name, endpoints, null);
     }
 
+    @SuppressWarnings("javadocparagraph")
     /**
      * Create a new object adapter with endpoints. This operation sets the property <code>
      * <em>name</em>.Endpoints</code>, and then calls {@link #createObjectAdapter}. It is provided
@@ -249,7 +257,7 @@ public final class Communicator implements AutoCloseable {
     public ObjectAdapter createObjectAdapterWithEndpoints(
             String name, String endpoints, SSLEngineFactory sslEngineFactory) {
         if (name.isEmpty()) {
-            name = java.util.UUID.randomUUID().toString();
+            name = UUID.randomUUID().toString();
         }
 
         getProperties().setProperty(name + ".Endpoints", endpoints);
@@ -269,14 +277,14 @@ public final class Communicator implements AutoCloseable {
      */
     public ObjectAdapter createObjectAdapterWithRouter(String name, RouterPrx router) {
         if (name.isEmpty()) {
-            name = java.util.UUID.randomUUID().toString();
+            name = UUID.randomUUID().toString();
         }
 
         //
         // We set the proxy properties here, although we still use the proxy supplied.
         //
-        java.util.Map<String, String> properties = proxyToProperty(router, name + ".Router");
-        for (java.util.Map.Entry<String, String> p : properties.entrySet()) {
+        Map<String, String> properties = proxyToProperty(router, name + ".Router");
+        for (Map.Entry<String, String> p : properties.entrySet()) {
             getProperties().setProperty(p.getKey(), p.getValue());
         }
 
@@ -441,7 +449,7 @@ public final class Communicator implements AutoCloseable {
      *     before being sent over the wire.
      * @return A future that will be completed when the invocation completes.
      */
-    public java.util.concurrent.CompletableFuture<Void> flushBatchRequestsAsync(
+    public CompletableFuture<Void> flushBatchRequestsAsync(
             CompressBatch compressBatch) {
         return _iceI_flushBatchRequestsAsync(compressBatch);
     }
@@ -528,7 +536,7 @@ public final class Communicator implements AutoCloseable {
      * @return A collection containing all the facet names and servants of the Admin object.
      * @see #findAdminFacet
      */
-    public java.util.Map<String, Object> findAllAdminFacets() {
+    public Map<String, Object> findAllAdminFacets() {
         return _instance.findAllAdminFacets();
     }
 
@@ -549,13 +557,13 @@ public final class Communicator implements AutoCloseable {
     //
     // Certain initialization tasks need to be completed after the constructor.
     //
-    void finishSetup(String[] args, java.util.List<String> rArgs) {
+    void finishSetup(String[] args, List<String> rArgs) {
         try {
             args = _instance.finishSetup(args, this);
             if (rArgs != null) {
                 rArgs.clear();
                 if (args.length > 0) {
-                    rArgs.addAll(java.util.Arrays.asList(args));
+                    rArgs.addAll(Arrays.asList(args));
                 }
             }
         } catch (RuntimeException ex) {

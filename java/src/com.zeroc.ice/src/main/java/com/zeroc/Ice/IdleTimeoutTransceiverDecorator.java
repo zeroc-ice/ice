@@ -2,6 +2,7 @@
 
 package com.zeroc.Ice;
 
+import java.nio.channels.SelectableChannel;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -14,7 +15,7 @@ final class IdleTimeoutTransceiverDecorator implements Transceiver {
     private final ScheduledExecutorService _scheduledExecutorService;
 
     // Protected by ConnectionI's mutex.
-    private boolean _idleCheckEnabled = false;
+    private boolean _idleCheckEnabled;
 
     private final Runnable _idleCheck;
     private final Runnable _sendHeartbeat;
@@ -24,7 +25,7 @@ final class IdleTimeoutTransceiverDecorator implements Transceiver {
     private ScheduledFuture<?> _writeTimerFuture;
 
     @Override
-    public java.nio.channels.SelectableChannel fd() {
+    public SelectableChannel fd() {
         return _decoratee.fd();
     }
 
@@ -161,14 +162,14 @@ final class IdleTimeoutTransceiverDecorator implements Transceiver {
         if (_idleCheck != null) {
             cancelReadTimer();
             _readTimerFuture =
-                    _scheduledExecutorService.schedule(_idleCheck, _idleTimeout, TimeUnit.SECONDS);
+                _scheduledExecutorService.schedule(_idleCheck, _idleTimeout, TimeUnit.SECONDS);
         }
     }
 
     private void rescheduleWriteTimer() {
         cancelWriteTimer();
         _writeTimerFuture =
-                _scheduledExecutorService.schedule(
-                        _sendHeartbeat, _idleTimeout * 1000 / 2, TimeUnit.MILLISECONDS);
+            _scheduledExecutorService.schedule(
+                _sendHeartbeat, _idleTimeout * 1000 / 2, TimeUnit.MILLISECONDS);
     }
 }

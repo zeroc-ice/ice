@@ -2,18 +2,21 @@
 
 package com.zeroc.Ice.SSL;
 
-final class ConnectorI implements com.zeroc.Ice.Connector {
+import com.zeroc.Ice.Connector;
+import com.zeroc.Ice.Transceiver;
+
+final class ConnectorI implements Connector {
     @Override
-    public com.zeroc.Ice.Transceiver connect() {
+    public Transceiver connect() {
         SSLEngineFactory clientSSLEngineFactory =
-                _instance.initializationData().clientSSLEngineFactory;
+            _instance.initializationData().clientSSLEngineFactory;
         if (clientSSLEngineFactory == null) {
             clientSSLEngineFactory =
-                    (peerHost, peerPort) ->
-                            _instance.engine().createSSLEngine(false, peerHost, peerPort);
+                (peerHost, peerPort) ->
+                    _instance.engine().createSSLEngine(false, peerHost, peerPort);
         }
         return new TransceiverI(
-                _instance, _delegate.connect(), _host, false, clientSSLEngineFactory);
+            _instance, _delegate.connect(), _host, false, clientSSLEngineFactory);
     }
 
     @Override
@@ -34,7 +37,7 @@ final class ConnectorI implements com.zeroc.Ice.Connector {
     //
     // Only for use by EndpointI.
     //
-    ConnectorI(Instance instance, com.zeroc.Ice.Connector delegate, String host) {
+    ConnectorI(Instance instance, Connector delegate, String host) {
         _instance = instance;
         _delegate = delegate;
         _host = host;
@@ -55,6 +58,6 @@ final class ConnectorI implements com.zeroc.Ice.Connector {
     }
 
     private final Instance _instance;
-    private com.zeroc.Ice.Connector _delegate;
-    private String _host;
+    private final Connector _delegate;
+    private final String _host;
 }

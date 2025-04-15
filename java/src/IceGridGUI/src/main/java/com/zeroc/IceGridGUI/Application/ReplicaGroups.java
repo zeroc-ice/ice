@@ -2,15 +2,22 @@
 
 package com.zeroc.IceGridGUI.Application;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.ObjectDescriptor;
+import com.zeroc.IceGrid.ReplicaGroupDescriptor;
+import com.zeroc.IceGridGUI.ApplicationActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
 
 import javax.swing.JPopupMenu;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 class ReplicaGroups extends ListTreeNode {
-    public static java.util.List<ReplicaGroupDescriptor> copyDescriptors(
-            java.util.List<ReplicaGroupDescriptor> descriptors) {
-        java.util.List<ReplicaGroupDescriptor> copy = new java.util.LinkedList<>();
+    public static List<ReplicaGroupDescriptor> copyDescriptors(
+            List<ReplicaGroupDescriptor> descriptors) {
+        List<ReplicaGroupDescriptor> copy = new LinkedList<>();
         for (ReplicaGroupDescriptor p : descriptors) {
             copy.add(ReplicaGroup.copyDescriptor(p));
         }
@@ -45,13 +52,13 @@ class ReplicaGroups extends ListTreeNode {
     @Override
     public void newReplicaGroup() {
         ReplicaGroupDescriptor descriptor =
-                new ReplicaGroupDescriptor(
-                        makeNewChildId("NewReplicaGroup"),
-                        null,
-                        "",
-                        new java.util.LinkedList<ObjectDescriptor>(),
-                        "",
-                        "");
+            new ReplicaGroupDescriptor(
+                makeNewChildId("NewReplicaGroup"),
+                null,
+                "",
+                new LinkedList<ObjectDescriptor>(),
+                "",
+                "");
 
         newReplicaGroup(descriptor);
     }
@@ -65,8 +72,8 @@ class ReplicaGroups extends ListTreeNode {
         newReplicaGroup(d);
     }
 
-    ReplicaGroups(TreeNode parent, java.util.List<ReplicaGroupDescriptor> desc)
-            throws UpdateFailedException {
+    ReplicaGroups(TreeNode parent, List<ReplicaGroupDescriptor> desc)
+        throws UpdateFailedException {
         super(false, parent, "Replica Groups");
         _descriptors = desc;
 
@@ -75,8 +82,8 @@ class ReplicaGroups extends ListTreeNode {
         }
     }
 
-    java.util.LinkedList<ReplicaGroupDescriptor> getUpdates() {
-        java.util.LinkedList<ReplicaGroupDescriptor> updates = new java.util.LinkedList<>();
+    LinkedList<ReplicaGroupDescriptor> getUpdates() {
+        LinkedList<ReplicaGroupDescriptor> updates = new LinkedList<>();
         for (TreeNodeBase p : _children) {
             ReplicaGroup ra = (ReplicaGroup) p;
             if (ra.getEditable().isNew() || ra.getEditable().isModified()) {
@@ -94,14 +101,14 @@ class ReplicaGroups extends ListTreeNode {
         }
     }
 
-    void update(java.util.List<ReplicaGroupDescriptor> descriptors, String[] removeReplicaGroups) {
+    void update(List<ReplicaGroupDescriptor> descriptors, String[] removeReplicaGroups) {
         _descriptors = descriptors;
 
         // One big set of removes
         removeChildren(removeReplicaGroups);
 
         // Updates and inserts
-        java.util.List<TreeNodeBase> updatedChildren = new java.util.ArrayList<>();
+        List<TreeNodeBase> updatedChildren = new ArrayList<>();
         for (ReplicaGroupDescriptor p : descriptors) {
             ReplicaGroup child = (ReplicaGroup) findChild(p.id);
 
@@ -138,7 +145,7 @@ class ReplicaGroups extends ListTreeNode {
 
     void removeDescriptor(Object descriptor) {
         // A straight remove uses equals(), which is not the desired behavior
-        java.util.Iterator<ReplicaGroupDescriptor> p = _descriptors.iterator();
+        Iterator<ReplicaGroupDescriptor> p = _descriptors.iterator();
         while (p.hasNext()) {
             if (descriptor == p.next()) {
                 p.remove();
@@ -148,7 +155,7 @@ class ReplicaGroups extends ListTreeNode {
     }
 
     void tryAdd(ReplicaGroupDescriptor descriptor, boolean addDescriptor)
-            throws UpdateFailedException {
+        throws UpdateFailedException {
         insertChild(new ReplicaGroup(true, this, descriptor), true);
 
         if (addDescriptor) {
@@ -167,6 +174,6 @@ class ReplicaGroups extends ListTreeNode {
         getRoot().setSelectedNode(replicaGroup);
     }
 
-    private java.util.List<ReplicaGroupDescriptor> _descriptors;
+    private List<ReplicaGroupDescriptor> _descriptors;
     private static JPopupMenu _popup;
 }

@@ -62,45 +62,45 @@ public final class SysLoggerI implements Logger {
     }
 
     private static int parseFacility(String facility) {
-        if (facility.equals("LOG_KERN")) {
+        if ("LOG_KERN".equals(facility)) {
             return LOG_KERN;
-        } else if (facility.equals("LOG_USER")) {
+        } else if ("LOG_USER".equals(facility)) {
             return LOG_USER;
-        } else if (facility.equals("LOG_MAIL")) {
+        } else if ("LOG_MAIL".equals(facility)) {
             return LOG_MAIL;
-        } else if (facility.equals("LOG_DAEMON")) {
+        } else if ("LOG_DAEMON".equals(facility)) {
             return LOG_DAEMON;
-        } else if (facility.equals("LOG_AUTH")) {
+        } else if ("LOG_AUTH".equals(facility)) {
             return LOG_AUTH;
-        } else if (facility.equals("LOG_SYSLOG")) {
+        } else if ("LOG_SYSLOG".equals(facility)) {
             return LOG_SYSLOG;
-        } else if (facility.equals("LOG_LPR")) {
+        } else if ("LOG_LPR".equals(facility)) {
             return LOG_LPR;
-        } else if (facility.equals("LOG_NEWS")) {
+        } else if ("LOG_NEWS".equals(facility)) {
             return LOG_NEWS;
-        } else if (facility.equals("LOG_UUCP")) {
+        } else if ("LOG_UUCP".equals(facility)) {
             return LOG_UUCP;
-        } else if (facility.equals("LOG_CRON")) {
+        } else if ("LOG_CRON".equals(facility)) {
             return LOG_CRON;
-        } else if (facility.equals("LOG_AUTHPRIV")) {
+        } else if ("LOG_AUTHPRIV".equals(facility)) {
             return LOG_AUTHPRIV;
-        } else if (facility.equals("LOG_FTP")) {
+        } else if ("LOG_FTP".equals(facility)) {
             return LOG_FTP;
-        } else if (facility.equals("LOG_LOCAL0")) {
+        } else if ("LOG_LOCAL0".equals(facility)) {
             return LOG_LOCAL0;
-        } else if (facility.equals("LOG_LOCAL1")) {
+        } else if ("LOG_LOCAL1".equals(facility)) {
             return LOG_LOCAL1;
-        } else if (facility.equals("LOG_LOCAL2")) {
+        } else if ("LOG_LOCAL2".equals(facility)) {
             return LOG_LOCAL2;
-        } else if (facility.equals("LOG_LOCAL3")) {
+        } else if ("LOG_LOCAL3".equals(facility)) {
             return LOG_LOCAL3;
-        } else if (facility.equals("LOG_LOCAL4")) {
+        } else if ("LOG_LOCAL4".equals(facility)) {
             return LOG_LOCAL4;
-        } else if (facility.equals("LOG_LOCAL5")) {
+        } else if ("LOG_LOCAL5".equals(facility)) {
             return LOG_LOCAL5;
-        } else if (facility.equals("LOG_LOCAL6")) {
+        } else if ("LOG_LOCAL6".equals(facility)) {
             return LOG_LOCAL6;
-        } else if (facility.equals("LOG_LOCAL7")) {
+        } else if ("LOG_LOCAL7".equals(facility)) {
             return LOG_LOCAL7;
         } else {
             throw new InitializationException("Invalid value for Ice.SyslogFacility: " + facility);

@@ -38,10 +38,10 @@ abstract class CommunicatorChildEditor extends Editor {
                     }
 
                     JOptionPane.showMessageDialog(
-                            root.getCoordinator().getMainFrame(),
-                            e.toString(),
-                            "Apply failed",
-                            JOptionPane.ERROR_MESSAGE);
+                        root.getCoordinator().getMainFrame(),
+                        e.toString(),
+                        "Apply failed",
+                        JOptionPane.ERROR_MESSAGE);
 
                     root.setSelectedNode(_target);
                     return false;
@@ -68,10 +68,10 @@ abstract class CommunicatorChildEditor extends Editor {
                 } catch (UpdateFailedException e) {
                     ((DescriptorHolder) _target).restoreDescriptor(savedDescriptor);
                     JOptionPane.showMessageDialog(
-                            root.getCoordinator().getMainFrame(),
-                            e.toString(),
-                            "Apply failed",
-                            JOptionPane.ERROR_MESSAGE);
+                        root.getCoordinator().getMainFrame(),
+                        e.toString(),
+                        "Apply failed",
+                        JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 

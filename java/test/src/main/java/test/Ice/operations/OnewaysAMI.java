@@ -2,9 +2,11 @@
 
 package test.Ice.operations;
 
+import com.zeroc.Ice.TwowayOnlyException;
 import com.zeroc.Ice.Util;
 
 import test.Ice.operations.Test.MyClassPrx;
+import test.TestHelper;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -24,8 +26,7 @@ class OnewaysAMI {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
 
             _called = false;
@@ -40,7 +41,7 @@ class OnewaysAMI {
         private boolean _called;
     }
 
-    static void onewaysAMI(test.TestHelper helper, MyClassPrx proxy) {
+    static void onewaysAMI(TestHelper helper, MyClassPrx proxy) {
         MyClassPrx p = proxy.ice_oneway();
 
         {
@@ -48,11 +49,11 @@ class OnewaysAMI {
             CompletableFuture<Void> f = p.ice_pingAsync();
             f.whenComplete((result, ex) -> test(ex == null));
             Util.getInvocationFuture(f)
-                    .whenSent(
-                            (sentSynchronously, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenSent(
+                    (sentSynchronously, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -60,24 +61,21 @@ class OnewaysAMI {
             try {
                 p.ice_isAAsync("::Test::MyClass").join();
                 test(false);
-            } catch (com.zeroc.Ice.TwowayOnlyException ex) {
-            }
+            } catch (TwowayOnlyException ex) {}
         }
 
         {
             try {
                 p.ice_idAsync();
                 test(false);
-            } catch (com.zeroc.Ice.TwowayOnlyException ex) {
-            }
+            } catch (TwowayOnlyException ex) {}
         }
 
         {
             try {
                 p.ice_idsAsync();
                 test(false);
-            } catch (com.zeroc.Ice.TwowayOnlyException ex) {
-            }
+            } catch (TwowayOnlyException ex) {}
         }
 
         {
@@ -85,11 +83,11 @@ class OnewaysAMI {
             CompletableFuture<Void> f = p.opVoidAsync();
             f.whenComplete((result, ex) -> test(ex == null));
             Util.getInvocationFuture(f)
-                    .whenSent(
-                            (sentSynchronously, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenSent(
+                    (sentSynchronously, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -98,11 +96,11 @@ class OnewaysAMI {
             CompletableFuture<Void> f = p.opIdempotentAsync();
             f.whenComplete((result, ex) -> test(ex == null));
             Util.getInvocationFuture(f)
-                    .whenSent(
-                            (sentSynchronously, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenSent(
+                    (sentSynchronously, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -110,8 +108,9 @@ class OnewaysAMI {
             try {
                 p.opByteAsync((byte) 0xff, (byte) 0x0f);
                 test(false);
-            } catch (com.zeroc.Ice.TwowayOnlyException ex) {
-            }
+            } catch (TwowayOnlyException ex) {}
         }
     }
+
+    private OnewaysAMI() {}
 }

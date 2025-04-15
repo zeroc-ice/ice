@@ -2,7 +2,11 @@
 
 package com.zeroc.IceGridGUI;
 
-import com.zeroc.IceGrid.*;
+import com.zeroc.Ice.Current;
+import com.zeroc.IceGrid.AdapterDynamicInfo;
+import com.zeroc.IceGrid.NodeDynamicInfo;
+import com.zeroc.IceGrid.NodeObserver;
+import com.zeroc.IceGrid.ServerDynamicInfo;
 
 import javax.swing.SwingUtilities;
 
@@ -13,7 +17,7 @@ class NodeObserverI implements NodeObserver {
     }
 
     @Override
-    public void nodeInit(final NodeDynamicInfo[] nodes, com.zeroc.Ice.Current current) {
+    public void nodeInit(final NodeDynamicInfo[] nodes, Current current) {
         if (_trace) {
             if (nodes.length == 0) {
                 _coordinator.traceObserver("nodeInit (no node)");
@@ -23,20 +27,20 @@ class NodeObserverI implements NodeObserver {
                     names += " " + node.info.name;
                 }
                 _coordinator.traceObserver(
-                        "nodeInit for node" + (nodes.length == 1 ? "" : "s") + names);
+                    "nodeInit for node" + (nodes.length == 1 ? "" : "s") + names);
             }
         }
 
         SwingUtilities.invokeLater(
-                () -> {
-                    for (NodeDynamicInfo node : nodes) {
-                        _coordinator.nodeUp(node);
-                    }
-                });
+            () -> {
+                for (NodeDynamicInfo node : nodes) {
+                    _coordinator.nodeUp(node);
+                }
+            });
     }
 
     @Override
-    public void nodeUp(final NodeDynamicInfo nodeInfo, com.zeroc.Ice.Current current) {
+    public void nodeUp(final NodeDynamicInfo nodeInfo, Current current) {
         if (_trace) {
             _coordinator.traceObserver("nodeUp for node " + nodeInfo.info.name);
         }
@@ -45,7 +49,7 @@ class NodeObserverI implements NodeObserver {
     }
 
     @Override
-    public void nodeDown(final String nodeName, com.zeroc.Ice.Current current) {
+    public void nodeDown(final String nodeName, Current current) {
         if (_trace) {
             _coordinator.traceObserver("nodeUp for node " + nodeName);
         }
@@ -55,15 +59,15 @@ class NodeObserverI implements NodeObserver {
 
     @Override
     public void updateServer(
-            final String node, final ServerDynamicInfo updatedInfo, com.zeroc.Ice.Current current) {
+            final String node, final ServerDynamicInfo updatedInfo, Current current) {
         if (_trace) {
             _coordinator.traceObserver(
-                    "updateServer for server "
-                            + updatedInfo.id
-                            + " on node "
-                            + node
-                            + "; new state is "
-                            + updatedInfo.state.toString());
+                "updateServer for server "
+                    + updatedInfo.id
+                    + " on node "
+                    + node
+                    + "; new state is "
+                    + updatedInfo.state.toString());
         }
 
         SwingUtilities.invokeLater(() -> _coordinator.updateServer(node, updatedInfo));
@@ -73,15 +77,15 @@ class NodeObserverI implements NodeObserver {
     public void updateAdapter(
             final String node,
             final AdapterDynamicInfo updatedInfo,
-            com.zeroc.Ice.Current current) {
+            Current current) {
         if (_trace) {
             _coordinator.traceObserver(
-                    "updateAdapter for adapter "
-                            + updatedInfo.id
-                            + " on node "
-                            + node
-                            + "; new proxy is "
-                            + (updatedInfo.proxy == null ? "null" : updatedInfo.proxy.toString()));
+                "updateAdapter for adapter "
+                    + updatedInfo.id
+                    + " on node "
+                    + node
+                    + "; new proxy is "
+                    + (updatedInfo.proxy == null ? "null" : updatedInfo.proxy.toString()));
         }
 
         SwingUtilities.invokeLater(() -> _coordinator.updateAdapter(node, updatedInfo));

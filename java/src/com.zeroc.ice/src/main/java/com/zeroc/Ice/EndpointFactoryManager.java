@@ -2,6 +2,10 @@
 
 package com.zeroc.Ice;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 final class EndpointFactoryManager {
     EndpointFactoryManager(Instance instance) {
         _instance = instance;
@@ -16,7 +20,7 @@ final class EndpointFactoryManager {
     public synchronized void add(EndpointFactory factory) {
         for (EndpointFactory f : _factories) {
             if (f.type() == factory.type()) {
-                assert (false);
+                assert false;
             }
         }
         _factories.add(factory);
@@ -39,16 +43,16 @@ final class EndpointFactoryManager {
 
         if (arr.length == 0) {
             throw new ParseException(
-                    "Failed to parse endpoint '"
-                            + str
-                            + "': value has no non-whitespace characters");
+                "Failed to parse endpoint '"
+                    + str
+                    + "': value has no non-whitespace characters");
         }
 
-        java.util.ArrayList<String> v = new java.util.ArrayList<>(java.util.Arrays.asList(arr));
+        ArrayList<String> v = new ArrayList<>(Arrays.asList(arr));
         String protocol = v.get(0);
         v.remove(0);
 
-        if (protocol.equals("default")) {
+        if ("default".equals(protocol)) {
             protocol = _instance.defaultsAndOverrides().defaultProtocol;
         }
 
@@ -64,11 +68,11 @@ final class EndpointFactoryManager {
             EndpointI e = factory.create(v, oaEndpoint);
             if (!v.isEmpty()) {
                 throw new ParseException(
-                        "Failed to parse endpoint '"
-                                + str
-                                + "': unrecognized argument '"
-                                + v.get(0)
-                                + "'");
+                    "Failed to parse endpoint '"
+                        + str
+                        + "': unrecognized argument '"
+                        + v.get(0)
+                        + "'");
             }
             return e;
 
@@ -92,15 +96,15 @@ final class EndpointFactoryManager {
         // If the stringified endpoint is opaque, create an unknown endpoint,
         // then see whether the type matches one of the known endpoints.
         //
-        if (protocol.equals("opaque")) {
+        if ("opaque".equals(protocol)) {
             EndpointI ue = new OpaqueEndpointI(v);
             if (!v.isEmpty()) {
                 throw new ParseException(
-                        "Failed to parse endpoint '"
-                                + str
-                                + "': unrecognized argument '"
-                                + v.get(0)
-                                + "'");
+                    "Failed to parse endpoint '"
+                        + str
+                        + "': unrecognized argument '"
+                        + v.get(0)
+                        + "'");
             }
             factory = get(ue.type());
             if (factory != null) {
@@ -110,14 +114,14 @@ final class EndpointFactoryManager {
                 // the actual endpoint.
                 //
                 var os =
-                        new OutputStream(
-                                Protocol.currentProtocolEncoding,
-                                _instance.cacheMessageBuffers() > 1);
+                    new OutputStream(
+                        Protocol.currentProtocolEncoding,
+                        _instance.cacheMessageBuffers() > 1);
                 os.writeShort(ue.type());
                 ue.streamWrite(os);
                 var is =
-                        new InputStream(
-                                _instance, Protocol.currentProtocolEncoding, os.getBuffer(), true);
+                    new InputStream(
+                        _instance, Protocol.currentProtocolEncoding, os.getBuffer(), true);
                 is.pos(0);
                 is.readShort(); // type
                 is.startEncapsulation();
@@ -158,5 +162,5 @@ final class EndpointFactoryManager {
     }
 
     private final Instance _instance;
-    private java.util.List<EndpointFactory> _factories = new java.util.ArrayList<>();
+    private final List<EndpointFactory> _factories = new ArrayList<>();
 }

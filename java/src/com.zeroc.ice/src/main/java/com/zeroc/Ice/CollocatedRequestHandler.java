@@ -2,7 +2,11 @@
 
 package com.zeroc.Ice;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
 final class CollocatedRequestHandler implements RequestHandler {
@@ -35,10 +39,10 @@ final class CollocatedRequestHandler implements RequestHandler {
         _response = _reference.isTwoway();
 
         _logger =
-                _reference
-                        .getInstance()
-                        .initializationData()
-                        .logger; // Cached for better performance.
+            _reference
+                .getInstance()
+                .initializationData()
+                .logger; // Cached for better performance.
         _traceLevels = _reference.getInstance().traceLevels(); // Cached for better performance.
         _requestId = 0;
     }
@@ -63,7 +67,7 @@ final class CollocatedRequestHandler implements RequestHandler {
         }
 
         if (outAsync instanceof OutgoingAsync) {
-            for (java.util.Map.Entry<Integer, OutgoingAsyncBase> e : _asyncRequests.entrySet()) {
+            for (Map.Entry<Integer, OutgoingAsyncBase> e : _asyncRequests.entrySet()) {
                 if (e.getValue() == outAsync) {
                     _asyncRequests.remove(e.getKey());
                     if (outAsync.completed(ex)) {
@@ -103,17 +107,17 @@ final class CollocatedRequestHandler implements RequestHandler {
             outAsync.attachCollocatedObserver(_adapter, requestId);
 
             if (!sync
-                    || !_response
-                    || _reference.getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
+                || !_response
+                || _reference.getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
                 _adapter.getThreadPool()
-                        .dispatch(
-                                new InvokeAllAsync(
-                                        outAsync, outAsync.getOs(), requestId, batchRequestNum));
+                    .dispatch(
+                        new InvokeAllAsync(
+                            outAsync, outAsync.getOs(), requestId, batchRequestNum));
             } else if (_executor) {
                 _adapter.getThreadPool()
-                        .executeFromThisThread(
-                                new InvokeAllAsync(
-                                        outAsync, outAsync.getOs(), requestId, batchRequestNum));
+                    .executeFromThisThread(
+                        new InvokeAllAsync(
+                            outAsync, outAsync.getOs(), requestId, batchRequestNum));
             } else {
                 // Optimization: directly call dispatchAll if there's no executor.
                 if (sentAsync(outAsync)) {
@@ -169,7 +173,7 @@ final class CollocatedRequestHandler implements RequestHandler {
         int dispatchCount = requestCount > 0 ? requestCount : 1;
         assert !_response || dispatchCount == 1;
 
-        com.zeroc.Ice.Object dispatcher = _adapter.dispatchPipeline();
+        Object dispatcher = _adapter.dispatchPipeline();
         assert dispatcher != null;
 
         try {
@@ -196,17 +200,17 @@ final class CollocatedRequestHandler implements RequestHandler {
 
                 if (response != null) {
                     response.whenComplete(
-                            (result, exception) -> {
-                                if (exception != null) {
-                                    sendResponse(
-                                            request.current.createOutgoingResponse(exception),
-                                            requestId,
-                                            true);
-                                } else {
-                                    sendResponse(result, requestId, true);
-                                }
-                                // Any exception thrown by this closure is effectively ignored.
-                            });
+                        (result, exception) -> {
+                            if (exception != null) {
+                                sendResponse(
+                                    request.current.createOutgoingResponse(exception),
+                                    requestId,
+                                    true);
+                            } else {
+                                sendResponse(result, requestId, true);
+                            }
+                            // Any exception thrown by this closure is effectively ignored.
+                        });
                 }
 
                 --dispatchCount;
@@ -218,8 +222,8 @@ final class CollocatedRequestHandler implements RequestHandler {
             // A runtime exception or an error was thrown outside of servant code (i.e., by Ice
             // code). Note that this code does NOT send a response to the client.
             var uex = new UnknownException(ex);
-            var sw = new java.io.StringWriter();
-            var pw = new java.io.PrintWriter(sw);
+            var sw = new StringWriter();
+            var pw = new PrintWriter(sw);
             ex.printStackTrace(pw);
             pw.flush();
 
@@ -242,11 +246,11 @@ final class CollocatedRequestHandler implements RequestHandler {
 
                 // Adopt the OutputStream's buffer.
                 var inputStream =
-                        new InputStream(
-                                _reference.getInstance(),
-                                outputStream.getEncoding(),
-                                outputStream.getBuffer(),
-                                true); // adopt: true
+                    new InputStream(
+                        _reference.getInstance(),
+                        outputStream.getEncoding(),
+                        outputStream.getBuffer(),
+                        true); // adopt: true
 
                 inputStream.pos(Protocol.replyHdr.length + 4);
 
@@ -322,9 +326,9 @@ final class CollocatedRequestHandler implements RequestHandler {
     // A map of outstanding requests that can be canceled. A request can be canceled if it has an
     // invocation timeout, or we support
     // interrupts.
-    private final java.util.Map<OutgoingAsyncBase, Integer> _sendAsyncRequests =
-            new java.util.HashMap<>();
+    private final Map<OutgoingAsyncBase, Integer> _sendAsyncRequests =
+        new HashMap<>();
 
-    private final java.util.Map<Integer, OutgoingAsyncBase> _asyncRequests =
-            new java.util.HashMap<>();
+    private final Map<Integer, OutgoingAsyncBase> _asyncRequests =
+        new HashMap<>();
 }

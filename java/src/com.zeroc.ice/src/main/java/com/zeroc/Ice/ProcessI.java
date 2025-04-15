@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-class ProcessI implements com.zeroc.Ice.Process {
+class ProcessI implements Process {
     public ProcessI(Communicator communicator) {
         _communicator = communicator;
     }
@@ -16,17 +16,17 @@ class ProcessI implements com.zeroc.Ice.Process {
     public void writeMessage(String message, int fd, Current current) {
         switch (fd) {
             case 1:
-                {
-                    System.out.println(message);
-                    break;
-                }
+            {
+                System.out.println(message);
+                break;
+            }
             case 2:
-                {
-                    System.err.println(message);
-                    break;
-                }
+            {
+                System.err.println(message);
+                break;
+            }
         }
     }
 
-    private Communicator _communicator;
+    private final Communicator _communicator;
 }

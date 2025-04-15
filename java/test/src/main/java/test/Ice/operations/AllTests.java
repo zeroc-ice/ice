@@ -2,17 +2,21 @@
 
 package test.Ice.operations;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectPrx;
+
 import test.Ice.operations.Test.MyClassPrx;
 import test.Ice.operations.Test.MyDerivedClassPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 
 public class AllTests {
-    public static MyClassPrx allTests(test.TestHelper helper) {
+    public static MyClassPrx allTests(TestHelper helper) {
         PrintWriter out = helper.getWriter();
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        Communicator communicator = helper.communicator();
         String ref = "test:" + helper.getTestEndpoint(0);
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        ObjectPrx base = communicator.stringToProxy(ref);
         MyClassPrx cl = MyClassPrx.checkedCast(base);
         MyDerivedClassPrx derived = MyDerivedClassPrx.checkedCast(cl);
 
@@ -52,4 +56,6 @@ public class AllTests {
         out.println("ok");
         return cl;
     }
+
+    private AllTests() {}
 }

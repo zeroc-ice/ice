@@ -2,7 +2,10 @@
 
 package test.Ice.operations;
 
+import com.zeroc.Ice.TwowayOnlyException;
+
 import test.Ice.operations.Test.MyClassPrx;
+import test.TestHelper;
 
 class Oneways {
     private static void test(boolean b) {
@@ -11,7 +14,7 @@ class Oneways {
         }
     }
 
-    static void oneways(test.TestHelper helper, MyClassPrx p) {
+    static void oneways(TestHelper helper, MyClassPrx p) {
         p = p.ice_oneway();
 
         p.ice_ping();
@@ -21,7 +24,8 @@ class Oneways {
         try {
             p.opByte((byte) 0xff, (byte) 0x0f);
             test(false);
-        } catch (com.zeroc.Ice.TwowayOnlyException ex) {
-        }
+        } catch (TwowayOnlyException ex) {}
     }
+
+    private Oneways() {}
 }

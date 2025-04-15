@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.util.Optional;
+
 class BatchRequestQueue {
     class BatchRequestI implements BatchRequest {
         public void reset(ObjectPrx proxy, String operation, int size) {
@@ -41,10 +43,10 @@ class BatchRequestQueue {
         _batchStreamInUse = false;
         _batchRequestNum = 0;
         _batchStream =
-                new OutputStream(
-                        Protocol.currentProtocolEncoding,
-                        instance.defaultsAndOverrides().defaultFormat,
-                        instance.cacheMessageBuffers() > 1);
+            new OutputStream(
+                Protocol.currentProtocolEncoding,
+                instance.defaultsAndOverrides().defaultFormat,
+                instance.cacheMessageBuffers() > 1);
         _batchStream.writeBlob(Protocol.requestBatchHdr);
         _batchMarker = _batchStream.size();
         _batchCompress = false;
@@ -53,8 +55,8 @@ class BatchRequestQueue {
         _maxSize = instance.batchAutoFlushSize();
         if (_maxSize > 0 && datagram) {
             int udpSndSize =
-                    initData.properties.getPropertyAsIntWithDefault(
-                            "Ice.UDP.SndSize", 65535 - _udpOverhead);
+                initData.properties.getPropertyAsIntWithDefault(
+                    "Ice.UDP.SndSize", 65535 - _udpOverhead);
             if (udpSndSize < _maxSize) {
                 _maxSize = udpSndSize;
             }
@@ -76,12 +78,12 @@ class BatchRequestQueue {
         // No need for synchronization, no other threads are supposed to modify the queue since we
         // set _batchStreamInUse to true.
         //
-        assert (_batchStreamInUse);
+        assert _batchStreamInUse;
         _batchStream.swap(os);
 
         try {
             _batchStreamCanFlush =
-                    true; // Allow flush to proceed even if the stream is marked in use.
+                true; // Allow flush to proceed even if the stream is marked in use.
 
             if (_maxSize > 0 && _batchStream.size() >= _maxSize) {
                 proxy.ice_flushBatchRequestsAsync(); // Auto flush
@@ -92,7 +94,7 @@ class BatchRequestQueue {
                 _request.reset(proxy, operation, _batchStream.size() - _batchMarker);
                 _interceptor.enqueue(_request, _batchRequestNum, _batchMarker);
             } else {
-                java.util.Optional<Boolean> compress = proxy._getReference().getCompressOverride();
+                Optional<Boolean> compress = proxy._getReference().getCompressOverride();
                 if (compress.isPresent()) {
                     _batchCompress |= compress.get();
                 }
@@ -122,7 +124,6 @@ class BatchRequestQueue {
         public int batchRequestNum;
         public boolean compress;
     }
-    ;
 
     public synchronized SwapResult swap(OutputStream os) {
         if (_batchRequestNum == 0) {
@@ -187,7 +188,7 @@ class BatchRequestQueue {
 
     private void enqueueBatchRequest(ObjectPrx proxy) {
         assert (_batchMarker < _batchStream.size());
-        java.util.Optional<Boolean> compress = proxy._getReference().getCompressOverride();
+        Optional<Boolean> compress = proxy._getReference().getCompressOverride();
         if (compress.isPresent()) {
             _batchCompress |= compress.get();
         }
@@ -195,14 +196,14 @@ class BatchRequestQueue {
         ++_batchRequestNum;
     }
 
-    private BatchRequestInterceptor _interceptor;
-    private OutputStream _batchStream;
+    private final BatchRequestInterceptor _interceptor;
+    private final OutputStream _batchStream;
     private boolean _batchStreamInUse;
     private boolean _batchStreamCanFlush;
     private int _batchRequestNum;
     private int _batchMarker;
     private boolean _batchCompress;
-    private BatchRequestI _request;
+    private final BatchRequestI _request;
     private LocalException _exception;
     private int _maxSize;
 

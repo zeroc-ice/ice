@@ -2,8 +2,13 @@
 
 package test.Ice.seqMapping;
 
-import test.Ice.seqMapping.Serialize.*;
-import test.Ice.seqMapping.Test.*;
+import com.zeroc.Ice.OperationNotExistException;
+
+import test.Ice.seqMapping.Serialize.Large;
+import test.Ice.seqMapping.Serialize.Small;
+import test.Ice.seqMapping.Serialize.Struct;
+import test.Ice.seqMapping.Test.MyClass;
+import test.Ice.seqMapping.Test.MyClassPrx;
 
 class Twoways {
     private static void test(boolean b) {
@@ -31,7 +36,7 @@ class Twoways {
 
                 test(r.o.i == 99);
                 test(r.returnValue.i == 99);
-            } catch (com.zeroc.Ice.OperationNotExistException ex) {
+            } catch (OperationNotExistException ex) {
                 // OK, talking to non-Java server.
             }
         }
@@ -72,7 +77,7 @@ class Twoways {
                 test(r.returnValue.d8 == 8.0);
                 test(r.returnValue.d9 == 9.0);
                 test(r.returnValue.d10 == 10.0);
-            } catch (com.zeroc.Ice.OperationNotExistException ex) {
+            } catch (OperationNotExistException ex) {
                 // OK, talking to non-Java server.
             }
         }
@@ -92,16 +97,18 @@ class Twoways {
                 test(((Struct) (r.o.o2)).o == null);
                 test(((Struct) (r.o.o2)).o2 == r.o.o2);
                 test(r.o.s == null);
-                test(r.o.s2.equals("Hello"));
+                test("Hello".equals(r.o.s2));
                 test(r.returnValue.o == null);
                 test(r.returnValue.o2 != null);
                 test(((Struct) (r.returnValue.o2)).o == null);
                 test(((Struct) (r.returnValue.o2)).o2 == r.returnValue.o2);
                 test(r.returnValue.s == null);
-                test(r.returnValue.s2.equals("Hello"));
-            } catch (com.zeroc.Ice.OperationNotExistException ex) {
+                test("Hello".equals(r.returnValue.s2));
+            } catch (OperationNotExistException ex) {
                 // OK, talking to non-Java server.
             }
         }
     }
+
+    private Twoways() {}
 }

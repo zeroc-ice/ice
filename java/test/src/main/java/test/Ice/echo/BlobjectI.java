@@ -2,13 +2,16 @@
 
 package test.Ice.echo;
 
+import com.zeroc.Ice.BlobjectAsync;
 import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Util;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public class BlobjectI implements com.zeroc.Ice.BlobjectAsync {
+public class BlobjectI implements BlobjectAsync {
     public void startBatch() {
         assert (_batchProxy == null);
         _startBatch = true;
@@ -21,7 +24,7 @@ public class BlobjectI implements com.zeroc.Ice.BlobjectAsync {
     }
 
     @Override
-    public CompletionStage<com.zeroc.Ice.Object.Ice_invokeResult> ice_invokeAsync(
+    public CompletionStage<Object.Ice_invokeResult> ice_invokeAsync(
             byte[] inEncaps, Current current) {
         boolean twoway = current.requestId > 0;
         ObjectPrx obj = current.con.createProxy(current.id);
@@ -38,28 +41,28 @@ public class BlobjectI implements com.zeroc.Ice.BlobjectAsync {
                 obj = obj.ice_facet(current.facet);
             }
 
-            final com.zeroc.Ice.Object.Ice_invokeResult success =
-                    new com.zeroc.Ice.Object.Ice_invokeResult(true, new byte[0]);
+            final Object.Ice_invokeResult success =
+                new Object.Ice_invokeResult(true, new byte[0]);
 
             if (_batchProxy != null) {
                 obj.ice_invoke(current.operation, current.mode, inEncaps, current.ctx);
                 return CompletableFuture.completedFuture(success);
             } else {
-                final CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> future =
-                        new CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult>();
-                CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> r =
-                        obj.ice_oneway()
-                                .ice_invokeAsync(
-                                        current.operation, current.mode, inEncaps, current.ctx);
-                com.zeroc.Ice.Util.getInvocationFuture(r)
-                        .whenSent(
-                                (sentSynchronously, ex) -> {
-                                    if (ex != null) {
-                                        future.completeExceptionally(ex);
-                                    } else {
-                                        future.complete(success);
-                                    }
-                                });
+                final CompletableFuture<Object.Ice_invokeResult> future =
+                    new CompletableFuture<Object.Ice_invokeResult>();
+                CompletableFuture<Object.Ice_invokeResult> r =
+                    obj.ice_oneway()
+                        .ice_invokeAsync(
+                            current.operation, current.mode, inEncaps, current.ctx);
+                Util.getInvocationFuture(r)
+                    .whenSent(
+                        (sentSynchronously, ex) -> {
+                            if (ex != null) {
+                                future.completeExceptionally(ex);
+                            } else {
+                                future.complete(success);
+                            }
+                        });
                 return future;
             }
         } else {
@@ -67,17 +70,17 @@ public class BlobjectI implements com.zeroc.Ice.BlobjectAsync {
                 obj = obj.ice_facet(current.facet);
             }
 
-            final CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> future =
-                    new CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult>();
+            final CompletableFuture<Object.Ice_invokeResult> future =
+                new CompletableFuture<Object.Ice_invokeResult>();
             obj.ice_invokeAsync(current.operation, current.mode, inEncaps, current.ctx)
-                    .whenComplete(
-                            (result, ex) -> {
-                                if (ex != null) {
-                                    future.completeExceptionally(ex);
-                                } else {
-                                    future.complete(result);
-                                }
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        if (ex != null) {
+                            future.completeExceptionally(ex);
+                        } else {
+                            future.complete(result);
+                        }
+                    });
             return future;
         }
     }

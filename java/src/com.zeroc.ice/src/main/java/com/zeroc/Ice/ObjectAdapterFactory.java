@@ -2,11 +2,17 @@
 
 package com.zeroc.Ice;
 
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 
 final class ObjectAdapterFactory {
     public void shutdown() {
-        java.util.List<ObjectAdapter> adapters;
+        List<ObjectAdapter> adapters;
         synchronized (this) {
             // Ignore shutdown requests if the object adapter factory has already been shut down.
             if (_instance == null) {
@@ -17,7 +23,7 @@ final class ObjectAdapterFactory {
             _communicator = null;
             notifyAll();
 
-            adapters = new java.util.LinkedList<>(_adapters);
+            adapters = new LinkedList<>(_adapters);
         }
 
         // Deactivate outside the thread synchronization, to avoid deadlocks.
@@ -27,7 +33,7 @@ final class ObjectAdapterFactory {
     }
 
     public void waitForShutdown() {
-        java.util.List<ObjectAdapter> adapters;
+        List<ObjectAdapter> adapters;
         synchronized (this) {
             //
             // First we wait for the shutdown of the factory itself.
@@ -40,7 +46,7 @@ final class ObjectAdapterFactory {
                 }
             }
 
-            adapters = new java.util.LinkedList<>(_adapters);
+            adapters = new LinkedList<>(_adapters);
         }
 
         //
@@ -61,9 +67,9 @@ final class ObjectAdapterFactory {
         //
         waitForShutdown();
 
-        java.util.List<ObjectAdapter> adapters;
+        List<ObjectAdapter> adapters;
         synchronized (this) {
-            adapters = new java.util.LinkedList<>(_adapters);
+            adapters = new LinkedList<>(_adapters);
         }
 
         for (ObjectAdapter adapter : adapters) {
@@ -76,9 +82,9 @@ final class ObjectAdapterFactory {
     }
 
     public void updateConnectionObservers() {
-        java.util.List<ObjectAdapter> adapters;
+        List<ObjectAdapter> adapters;
         synchronized (this) {
-            adapters = new java.util.LinkedList<>(_adapters);
+            adapters = new LinkedList<>(_adapters);
         }
 
         for (ObjectAdapter adapter : adapters) {
@@ -87,9 +93,9 @@ final class ObjectAdapterFactory {
     }
 
     public void updateThreadObservers() {
-        java.util.List<ObjectAdapter> adapters;
+        List<ObjectAdapter> adapters;
         synchronized (this) {
-            adapters = new java.util.LinkedList<>(_adapters);
+            adapters = new LinkedList<>(_adapters);
         }
 
         for (ObjectAdapter adapter : adapters) {
@@ -119,20 +125,20 @@ final class ObjectAdapterFactory {
         ObjectAdapter adapter = null;
         try {
             if (name.isEmpty()) {
-                String uuid = java.util.UUID.randomUUID().toString();
+                String uuid = UUID.randomUUID().toString();
                 adapter =
-                        new ObjectAdapter(
-                                _instance, _communicator, this, uuid, null, true, sslEngineFactory);
+                    new ObjectAdapter(
+                        _instance, _communicator, this, uuid, null, true, sslEngineFactory);
             } else {
                 adapter =
-                        new ObjectAdapter(
-                                _instance,
-                                _communicator,
-                                this,
-                                name,
-                                router,
-                                false,
-                                sslEngineFactory);
+                    new ObjectAdapter(
+                        _instance,
+                        _communicator,
+                        this,
+                        name,
+                        router,
+                        false,
+                        sslEngineFactory);
             }
 
             synchronized (this) {
@@ -159,13 +165,13 @@ final class ObjectAdapterFactory {
     }
 
     public ObjectAdapter findObjectAdapter(Reference ref) {
-        java.util.List<ObjectAdapter> adapters;
+        List<ObjectAdapter> adapters;
         synchronized (this) {
             if (_instance == null) {
                 return null;
             }
 
-            adapters = new java.util.LinkedList<>(_adapters);
+            adapters = new LinkedList<>(_adapters);
         }
 
         for (ObjectAdapter adapter : adapters) {
@@ -192,9 +198,9 @@ final class ObjectAdapterFactory {
 
     public void flushAsyncBatchRequests(
             CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
-        java.util.List<ObjectAdapter> adapters;
+        List<ObjectAdapter> adapters;
         synchronized (this) {
-            adapters = new java.util.LinkedList<>(_adapters);
+            adapters = new LinkedList<>(_adapters);
         }
 
         for (ObjectAdapter adapter : adapters) {
@@ -210,21 +216,20 @@ final class ObjectAdapterFactory {
         _communicator = communicator;
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"nofinalizer", "deprecation"})
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
             Assert.FinalizerAssert(_instance == null);
             Assert.FinalizerAssert(_communicator == null);
             Assert.FinalizerAssert(_adapters.isEmpty());
-        } catch (Exception ex) {
-        } finally {
+        } catch (Exception ex) {} finally {
             super.finalize();
         }
     }
 
     private Instance _instance;
     private Communicator _communicator;
-    private java.util.Set<String> _adapterNamesInUse = new java.util.HashSet<>();
-    private java.util.List<ObjectAdapter> _adapters = new java.util.LinkedList<>();
+    private final Set<String> _adapterNamesInUse = new HashSet<>();
+    private final List<ObjectAdapter> _adapters = new LinkedList<>();
 }

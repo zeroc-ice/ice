@@ -2,6 +2,10 @@
 
 package test.Ice.operations;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 
 import test.Ice.operations.Test.MyClassPrx;
@@ -18,8 +22,7 @@ class BatchOnewaysAMI {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
 
             _called = false;
@@ -41,8 +44,8 @@ class BatchOnewaysAMI {
     }
 
     static void batchOneways(MyClassPrx p, PrintWriter out) {
-        final com.zeroc.Ice.Communicator communicator = p.ice_getCommunicator();
-        final com.zeroc.Ice.Properties properties = communicator.getProperties();
+        final Communicator communicator = p.ice_getCommunicator();
+        final Properties properties = communicator.getProperties();
         final byte[] bs1 = new byte[10 * 1024];
 
         MyClassPrx batch = p.ice_batchOneway();
@@ -51,33 +54,32 @@ class BatchOnewaysAMI {
         {
             test(batch.ice_flushBatchRequestsAsync().isDone()); // Empty flush
             test(
-                    Util.getInvocationFuture(batch.ice_flushBatchRequestsAsync())
-                            .isSent()); // Empty flush
+                Util.getInvocationFuture(batch.ice_flushBatchRequestsAsync())
+                    .isSent()); // Empty flush
             test(
-                    Util.getInvocationFuture(batch.ice_flushBatchRequestsAsync())
-                            .sentSynchronously()); // Empty flush
+                Util.getInvocationFuture(batch.ice_flushBatchRequestsAsync())
+                    .sentSynchronously()); // Empty flush
         }
 
-        for (int i = 0; i < 30; ++i) {
+        for (int i = 0; i < 30; i++) {
             batch.opByteSOnewayAsync(bs1)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                    });
         }
 
         int count = 0;
         while (count < 27) // 3 * 9 requests auto-flushed.
-        {
-            count += p.opByteSOnewayCallCount();
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ex) {
+            {
+                count += p.opByteSOnewayCallCount();
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ex) {}
             }
-        }
 
         final boolean bluetooth =
-                properties.getIceProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+            properties.getIceProperty("Ice.Default.Protocol").indexOf("bt") == 0;
         if (batch.ice_getConnection() != null && !bluetooth) {
             MyClassPrx batch2 = p.ice_batchOneway();
 
@@ -97,9 +99,9 @@ class BatchOnewaysAMI {
             test(!batch2.ice_pingAsync().isCompletedExceptionally());
         }
 
-        com.zeroc.Ice.Identity identity = new com.zeroc.Ice.Identity();
+        Identity identity = new Identity();
         identity.name = "invalid";
-        com.zeroc.Ice.ObjectPrx batch3 = batch.ice_identity(identity);
+        ObjectPrx batch3 = batch.ice_identity(identity);
         batch3.ice_pingAsync();
         batch3.ice_flushBatchRequestsAsync().join();
 
@@ -109,4 +111,6 @@ class BatchOnewaysAMI {
         batch.ice_flushBatchRequestsAsync().join();
         batch.ice_pingAsync();
     }
+
+    private BatchOnewaysAMI() {}
 }

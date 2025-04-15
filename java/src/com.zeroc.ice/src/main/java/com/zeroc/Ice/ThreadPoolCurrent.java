@@ -7,10 +7,10 @@ final class ThreadPoolCurrent {
             Instance instance, ThreadPool threadPool, ThreadPool.EventHandlerThread thread) {
         operation = SocketOperation.None;
         stream =
-                new InputStream(
-                        instance,
-                        Protocol.currentProtocolEncoding,
-                        instance.cacheMessageBuffers() > 1);
+            new InputStream(
+                instance,
+                Protocol.currentProtocolEncoding,
+                instance.cacheMessageBuffers() > 1);
 
         _threadPool = threadPool;
         _thread = thread;

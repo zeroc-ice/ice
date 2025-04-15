@@ -2,7 +2,10 @@
 
 package test.Ice.metrics;
 
-class ThreadObserverI extends ObserverI implements com.zeroc.Ice.Instrumentation.ThreadObserver {
+import com.zeroc.Ice.Instrumentation.ThreadObserver;
+import com.zeroc.Ice.Instrumentation.ThreadState;
+
+class ThreadObserverI extends ObserverI implements ThreadObserver {
     @Override
     public synchronized void reset() {
         super.reset();
@@ -11,8 +14,8 @@ class ThreadObserverI extends ObserverI implements com.zeroc.Ice.Instrumentation
 
     @Override
     public synchronized void stateChanged(
-            com.zeroc.Ice.Instrumentation.ThreadState o,
-            com.zeroc.Ice.Instrumentation.ThreadState n) {
+            ThreadState o,
+            ThreadState n) {
         ++states;
     }
 

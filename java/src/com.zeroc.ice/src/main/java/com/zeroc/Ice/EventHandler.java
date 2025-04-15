@@ -2,6 +2,9 @@
 
 package com.zeroc.Ice;
 
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.SelectionKey;
+
 abstract class EventHandler {
     //
     // Called when there's a message ready to be processed.
@@ -22,15 +25,15 @@ abstract class EventHandler {
     //
     // Get the native information of the handler, this is used by the selector.
     //
-    public abstract java.nio.channels.SelectableChannel fd();
+    public abstract SelectableChannel fd();
 
     //
     // Set the ready callback
     //
     public abstract void setReadyCallback(ReadyCallback callback);
 
-    public int _disabled = 0;
-    public int _registered = 0;
-    public int _ready = 0;
-    public java.nio.channels.SelectionKey _key = null;
+    public int _disabled;
+    public int _registered;
+    public int _ready;
+    public SelectionKey _key;
 }

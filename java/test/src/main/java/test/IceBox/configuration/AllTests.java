@@ -2,9 +2,13 @@
 
 package test.IceBox.configuration;
 
+import com.zeroc.Ice.Communicator;
+
 import test.IceBox.configuration.Test.TestIntfPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 public class AllTests {
     private static void test(boolean b) {
@@ -13,8 +17,8 @@ public class AllTests {
         }
     }
 
-    public static void allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static void allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         var service1 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(0));
         var service2 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(1));
@@ -25,61 +29,63 @@ public class AllTests {
             out.print("testing service properties... ");
             out.flush();
 
-            test(service1.getProperty("Ice.ProgramName").equals("IceBox-Service1"));
-            test(service1.getProperty("Service").equals("1"));
-            test(service1.getProperty("Service1.Ovrd").equals("2"));
+            test("IceBox-Service1".equals(service1.getProperty("Ice.ProgramName")));
+            test("1".equals(service1.getProperty("Service")));
+            test("2".equals(service1.getProperty("Service1.Ovrd")));
             test(service1.getProperty("Service1.Unset").isEmpty());
-            test(service1.getProperty("Arg").equals("1"));
+            test("1".equals(service1.getProperty("Arg")));
 
             String[] args1 = {"-a", "--Arg=2"};
-            test(java.util.Arrays.equals(service1.getArgs(), args1));
+            test(Arrays.equals(service1.getArgs(), args1));
 
-            test(service2.getProperty("Ice.ProgramName").equals("Test"));
-            test(service2.getProperty("Service").equals("2"));
+            test("Test".equals(service2.getProperty("Ice.ProgramName")));
+            test("2".equals(service2.getProperty("Service")));
             test(service2.getProperty("Service1.ArgProp").isEmpty());
 
             String[] args2 = {"--Service1.ArgProp=1"};
-            test(java.util.Arrays.equals(service2.getArgs(), args2));
+            test(Arrays.equals(service2.getArgs(), args2));
 
             out.println("ok");
 
             out.print("testing with shared communicator... ");
             out.flush();
 
-            test(service3.getProperty("Ice.ProgramName").equals("IceBox-SharedCommunicator"));
-            test(service3.getProperty("Service").equals("4"));
+            test("IceBox-SharedCommunicator".equals(service3.getProperty("Ice.ProgramName")));
+            test("4".equals(service3.getProperty("Service")));
             test(service3.getProperty("Prop").isEmpty());
-            test(service3.getProperty("Service3.Prop").equals("1"));
-            test(service3.getProperty("Ice.Trace.Slicing").equals("3"));
+            test("1".equals(service3.getProperty("Service3.Prop")));
+            test("3".equals(service3.getProperty("Ice.Trace.Slicing")));
 
-            test(service4.getProperty("Ice.ProgramName").equals("IceBox-SharedCommunicator"));
-            test(service4.getProperty("Service").equals("4"));
+            test("IceBox-SharedCommunicator".equals(service4.getProperty("Ice.ProgramName")));
+            test("4".equals(service4.getProperty("Service")));
             test(service4.getProperty("Prop").isEmpty());
-            test(service4.getProperty("Service3.Prop").equals("1"));
-            test(service4.getProperty("Ice.Trace.Slicing").equals("3"));
+            test("1".equals(service4.getProperty("Service3.Prop")));
+            test("3".equals(service4.getProperty("Ice.Trace.Slicing")));
 
             String[] args4 = {"--Service3.Prop=2"};
-            test(java.util.Arrays.equals(service4.getArgs(), args4));
+            test(Arrays.equals(service4.getArgs(), args4));
 
             out.println("ok");
         } else {
             out.print("testing property inheritance... ");
             out.flush();
 
-            test(service1.getProperty("Ice.ProgramName").equals("IceBox2-Service1"));
-            test(service1.getProperty("ServerProp").equals("1"));
-            test(service1.getProperty("OverrideMe").equals("2"));
+            test("IceBox2-Service1".equals(service1.getProperty("Ice.ProgramName")));
+            test("1".equals(service1.getProperty("ServerProp")));
+            test("2".equals(service1.getProperty("OverrideMe")));
             test(service1.getProperty("UnsetMe").isEmpty());
-            test(service1.getProperty("Service1.Prop").equals("1"));
-            test(service1.getProperty("Service1.ArgProp").equals("2"));
+            test("1".equals(service1.getProperty("Service1.Prop")));
+            test("2".equals(service1.getProperty("Service1.ArgProp")));
 
-            test(service2.getProperty("Ice.ProgramName").equals("IceBox2-SharedCommunicator"));
-            test(service2.getProperty("ServerProp").equals("1"));
-            test(service2.getProperty("OverrideMe").equals("3"));
+            test("IceBox2-SharedCommunicator".equals(service2.getProperty("Ice.ProgramName")));
+            test("1".equals(service2.getProperty("ServerProp")));
+            test("3".equals(service2.getProperty("OverrideMe")));
             test(service2.getProperty("UnsetMe").isEmpty());
-            test(service2.getProperty("Service2.Prop").equals("1"));
+            test("1".equals(service2.getProperty("Service2.Prop")));
 
             out.println("ok");
         }
     }
+
+    private AllTests() {}
 }

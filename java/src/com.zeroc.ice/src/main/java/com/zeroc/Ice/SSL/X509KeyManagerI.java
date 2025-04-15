@@ -2,10 +2,16 @@
 
 package com.zeroc.Ice.SSL;
 
+import java.net.Socket;
+import java.security.Principal;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.X509ExtendedKeyManager;
 
 final class X509KeyManagerI extends X509ExtendedKeyManager {
-    X509KeyManagerI(javax.net.ssl.X509ExtendedKeyManager del, String alias, boolean override) {
+    X509KeyManagerI(X509ExtendedKeyManager del, String alias, boolean override) {
         _delegate = del;
         _alias = alias;
         _override = override; // Always use the configured alias, don't check for acceptable issuers
@@ -13,7 +19,7 @@ final class X509KeyManagerI extends X509ExtendedKeyManager {
 
     @Override
     public String chooseClientAlias(
-            String[] keyType, java.security.Principal[] issuers, java.net.Socket socket) {
+            String[] keyType, Principal[] issuers, Socket socket) {
         // Don't bother checking for acceptable issuers if the user configured Ice.SSL.Alias
         if (!_override) {
             String alias = _delegate.chooseClientAlias(keyType, issuers, socket);
@@ -26,7 +32,7 @@ final class X509KeyManagerI extends X509ExtendedKeyManager {
 
     @Override
     public String chooseEngineClientAlias(
-            String[] keyType, java.security.Principal[] issuers, javax.net.ssl.SSLEngine engine) {
+            String[] keyType, Principal[] issuers, SSLEngine engine) {
         // Don't bother checking for acceptable issuers if the user configured Ice.SSL.Alias
         if (!_override) {
             String alias = _delegate.chooseEngineClientAlias(keyType, issuers, engine);
@@ -39,7 +45,7 @@ final class X509KeyManagerI extends X509ExtendedKeyManager {
 
     @Override
     public String chooseServerAlias(
-            String keyType, java.security.Principal[] issuers, java.net.Socket socket) {
+            String keyType, Principal[] issuers, Socket socket) {
         if (!_override) {
             // Don't bother checking for acceptable issuers if the user configured Ice.SSL.Alias.
             String alias = _delegate.chooseServerAlias(keyType, issuers, socket);
@@ -52,7 +58,7 @@ final class X509KeyManagerI extends X509ExtendedKeyManager {
 
     @Override
     public String chooseEngineServerAlias(
-            String keyType, java.security.Principal[] issuers, javax.net.ssl.SSLEngine engine) {
+            String keyType, Principal[] issuers, SSLEngine engine) {
         // Don't bother checking for acceptable issuers if the user configured Ice.SSL.Alias
         if (!_override) {
             String alias = _delegate.chooseEngineServerAlias(keyType, issuers, engine);
@@ -64,26 +70,26 @@ final class X509KeyManagerI extends X509ExtendedKeyManager {
     }
 
     @Override
-    public java.security.cert.X509Certificate[] getCertificateChain(String alias) {
+    public X509Certificate[] getCertificateChain(String alias) {
         return _delegate.getCertificateChain(alias);
     }
 
     @Override
-    public String[] getClientAliases(String keyType, java.security.Principal[] issuers) {
+    public String[] getClientAliases(String keyType, Principal[] issuers) {
         return _delegate.getClientAliases(keyType, issuers);
     }
 
     @Override
-    public String[] getServerAliases(String keyType, java.security.Principal[] issuers) {
+    public String[] getServerAliases(String keyType, Principal[] issuers) {
         return _delegate.getServerAliases(keyType, issuers);
     }
 
     @Override
-    public java.security.PrivateKey getPrivateKey(String alias) {
+    public PrivateKey getPrivateKey(String alias) {
         return _delegate.getPrivateKey(alias);
     }
 
-    private javax.net.ssl.X509ExtendedKeyManager _delegate;
-    private String _alias;
-    private boolean _override;
+    private final X509ExtendedKeyManager _delegate;
+    private final String _alias;
+    private final boolean _override;
 }

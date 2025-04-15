@@ -2,12 +2,16 @@
 
 package com.zeroc.Ice;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 class LoggerI implements Logger {
     private final String _prefix;
     private final String _formattedPrefix;
     private final String _lineSeparator;
-    private final java.text.DateFormat _date;
-    private final java.text.SimpleDateFormat _time;
+    private final DateFormat _date;
+    private final SimpleDateFormat _time;
 
     LoggerI(String prefix) {
         _prefix = prefix;
@@ -19,8 +23,8 @@ class LoggerI implements Logger {
         }
 
         _lineSeparator = System.getProperty("line.separator");
-        _date = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
-        _time = new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
+        _date = DateFormat.getDateInstance(DateFormat.SHORT);
+        _time = new SimpleDateFormat(" HH:mm:ss:SSS");
     }
 
     @Override
@@ -35,7 +39,7 @@ class LoggerI implements Logger {
         StringBuilder s = new StringBuilder(256);
         s.append("-- ");
         synchronized (this) {
-            java.util.Date date = new java.util.Date();
+            Date date = new Date();
             s.append(_date.format(date));
             s.append(_time.format(date));
         }
@@ -52,8 +56,8 @@ class LoggerI implements Logger {
         StringBuilder s = new StringBuilder(256);
         s.append("-! ");
         synchronized (this) {
-            s.append(_date.format(new java.util.Date()));
-            s.append(_time.format(new java.util.Date()));
+            s.append(_date.format(new Date()));
+            s.append(_time.format(new Date()));
         }
         s.append(' ');
         s.append(_formattedPrefix);
@@ -69,8 +73,8 @@ class LoggerI implements Logger {
         StringBuilder s = new StringBuilder(256);
         s.append("!! ");
         synchronized (this) {
-            s.append(_date.format(new java.util.Date()));
-            s.append(_time.format(new java.util.Date()));
+            s.append(_date.format(new Date()));
+            s.append(_time.format(new Date()));
         }
         s.append(' ');
         s.append(_formattedPrefix);

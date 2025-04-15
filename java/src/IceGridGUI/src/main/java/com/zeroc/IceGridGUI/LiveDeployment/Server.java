@@ -2,10 +2,49 @@
 
 package com.zeroc.IceGridGUI.LiveDeployment;
 
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.UserException;
+import com.zeroc.IceBox.ServiceManagerPrx;
+import com.zeroc.IceBox.ServiceObserver;
+import com.zeroc.IceBox.ServiceObserverPrx;
+import com.zeroc.IceGrid.AdapterDescriptor;
+import com.zeroc.IceGrid.AdapterDynamicInfo;
+import com.zeroc.IceGrid.AdminPrx;
+import com.zeroc.IceGrid.AdminSessionPrx;
+import com.zeroc.IceGrid.ApplicationDescriptor;
+import com.zeroc.IceGrid.DeploymentException;
+import com.zeroc.IceGrid.FileIteratorPrx;
+import com.zeroc.IceGrid.FileNotAvailableException;
+import com.zeroc.IceGrid.IceBoxDescriptor;
+import com.zeroc.IceGrid.NodeUnreachableException;
+import com.zeroc.IceGrid.PropertySetDescriptor;
+import com.zeroc.IceGrid.ServerDescriptor;
+import com.zeroc.IceGrid.ServerInstanceDescriptor;
+import com.zeroc.IceGrid.ServerNotExistException;
+import com.zeroc.IceGrid.ServerState;
+import com.zeroc.IceGrid.ServiceDescriptor;
+import com.zeroc.IceGrid.ServiceInstanceDescriptor;
+import com.zeroc.IceGrid.TemplateDescriptor;
+import com.zeroc.IceGridGUI.ApplicationPane;
+import com.zeroc.IceGridGUI.LiveActions;
+import com.zeroc.IceGridGUI.TreeNodeBase;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.Component;
+import java.io.File;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.concurrent.CompletableFuture;
 
 import javax.swing.Icon;
 import javax.swing.JMenu;
@@ -19,15 +58,15 @@ public class Server extends Communicator {
     // Actions
     @Override
     public boolean[] getAvailableActions() {
-        boolean[] actions = new boolean[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
+        boolean[] actions = new boolean[TreeNode.ACTION_COUNT];
 
         if (_state != null) {
             actions[START] =
-                    _state == ServerState.Inactive
-                            && _enabled
-                            && !_resolver
-                                    .substitute(_serverDescriptor.activation)
-                                    .equals("session");
+                _state == ServerState.Inactive
+                    && _enabled
+                    && !"session"
+                    .equals(_resolver
+                        .substitute(_serverDescriptor.activation));
 
             actions[STOP] = _state != ServerState.Inactive;
             actions[ENABLE] = !_enabled;
@@ -41,7 +80,7 @@ public class Server extends Communicator {
             if (_state != ServerState.Inactive) {
                 Node node = (Node) _parent;
                 if (!node.isRunningWindows()) {
-                    for (int i = SIGHUP; i <= SIGTERM; ++i) {
+                    for (int i = SIGHUP; i <= SIGTERM; i++) {
                         actions[i] = true;
                     }
                 }
@@ -62,11 +101,11 @@ public class Server extends Communicator {
         try {
             final AdminPrx admin = getCoordinator().getAdmin();
             admin.startServerAsync(_id)
-                    .whenComplete(
-                            (result, ex) -> {
-                                amiComplete(prefix, errorTitle, ex);
-                            });
-        } catch (com.zeroc.Ice.LocalException ex) {
+                .whenComplete(
+                    (result, ex) -> {
+                        amiComplete(prefix, errorTitle, ex);
+                    });
+        } catch (LocalException ex) {
             failure(prefix, errorTitle, ex.toString());
         }
     }
@@ -79,19 +118,19 @@ public class Server extends Communicator {
         try {
             final AdminPrx admin = getCoordinator().getAdmin();
             admin.stopServerAsync(_id)
-                    .whenComplete(
-                            (result, ex) -> {
-                                if (ex == null) {
-                                    amiSuccess(prefix);
-                                    SwingUtilities.invokeLater(() -> rebuild(Server.this));
-                                } else if (ex instanceof com.zeroc.Ice.UserException) {
-                                    amiFailure(
-                                            prefix, errorTitle, (com.zeroc.Ice.UserException) ex);
-                                } else {
-                                    amiFailure(prefix, errorTitle, ex.toString());
-                                }
-                            });
-        } catch (com.zeroc.Ice.LocalException ex) {
+                .whenComplete(
+                    (result, ex) -> {
+                        if (ex == null) {
+                            amiSuccess(prefix);
+                            SwingUtilities.invokeLater(() -> rebuild(Server.this));
+                        } else if (ex instanceof UserException) {
+                            amiFailure(
+                                prefix, errorTitle, (UserException) ex);
+                        } else {
+                            amiFailure(prefix, errorTitle, ex.toString());
+                        }
+                    });
+        } catch (LocalException ex) {
             failure(prefix, errorTitle, ex.toString());
         }
     }
@@ -117,34 +156,34 @@ public class Server extends Communicator {
     @Override
     public void retrieveOutput(final boolean stdout) {
         getRoot()
-                .openShowLogFileDialog(
-                        new ShowLogFileDialog.FileIteratorFactory() {
-                            @Override
-                            public FileIteratorPrx open(int count)
-                                    throws FileNotAvailableException,
-                                            ServerNotExistException,
-                                            NodeUnreachableException,
-                                            DeploymentException {
-                                AdminSessionPrx session = getRoot().getCoordinator().getSession();
-                                FileIteratorPrx result;
-                                if (stdout) {
-                                    result = session.openServerStdOut(_id, count);
-                                } else {
-                                    result = session.openServerStdErr(_id, count);
-                                }
-                                return result;
-                            }
+            .openShowLogFileDialog(
+                new ShowLogFileDialog.FileIteratorFactory() {
+                    @Override
+                    public FileIteratorPrx open(int count)
+                        throws FileNotAvailableException,
+                        ServerNotExistException,
+                        NodeUnreachableException,
+                        DeploymentException {
+                        AdminSessionPrx session = getRoot().getCoordinator().getSession();
+                        FileIteratorPrx result;
+                        if (stdout) {
+                            result = session.openServerStdOut(_id, count);
+                        } else {
+                            result = session.openServerStdErr(_id, count);
+                        }
+                        return result;
+                    }
 
-                            @Override
-                            public String getTitle() {
-                                return "Server " + _id + " " + (stdout ? "stdout" : "stderr");
-                            }
+                    @Override
+                    public String getTitle() {
+                        return "Server " + _id + " " + (stdout ? "stdout" : "stderr");
+                    }
 
-                            @Override
-                            public String getDefaultFilename() {
-                                return _id + (stdout ? ".out" : ".err");
-                            }
-                        });
+                    @Override
+                    public String getDefaultFilename() {
+                        return _id + (stdout ? ".out" : ".err");
+                    }
+                });
     }
 
     @Override
@@ -163,47 +202,47 @@ public class Server extends Communicator {
             }
 
             path =
-                    (String)
-                            JOptionPane.showInputDialog(
-                                    getCoordinator().getMainFrame(),
-                                    "Which log file do you want to retrieve?",
-                                    "Retrieve Log File",
-                                    JOptionPane.QUESTION_MESSAGE,
-                                    null,
-                                    pathArray,
-                                    pathArray[0]);
+                (String)
+                    JOptionPane.showInputDialog(
+                        getCoordinator().getMainFrame(),
+                        "Which log file do you want to retrieve?",
+                        "Retrieve Log File",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        pathArray,
+                        pathArray[0]);
         }
 
         if (path != null) {
             final String fPath = path;
 
             getRoot()
-                    .openShowLogFileDialog(
-                            new ShowLogFileDialog.FileIteratorFactory() {
-                                @Override
-                                public FileIteratorPrx open(int count)
-                                        throws FileNotAvailableException,
-                                                ServerNotExistException,
-                                                NodeUnreachableException,
-                                                DeploymentException {
-                                    AdminSessionPrx session =
-                                            getRoot().getCoordinator().getSession();
-                                    return session.openServerLog(_id, fPath, count);
-                                }
+                .openShowLogFileDialog(
+                    new ShowLogFileDialog.FileIteratorFactory() {
+                        @Override
+                        public FileIteratorPrx open(int count)
+                            throws FileNotAvailableException,
+                            ServerNotExistException,
+                            NodeUnreachableException,
+                            DeploymentException {
+                            AdminSessionPrx session =
+                                getRoot().getCoordinator().getSession();
+                            return session.openServerLog(_id, fPath, count);
+                        }
 
-                                @Override
-                                public String getTitle() {
-                                    return "Server "
-                                            + _id
-                                            + " "
-                                            + new java.io.File(fPath).getName();
-                                }
+                        @Override
+                        public String getTitle() {
+                            return "Server "
+                                + _id
+                                + " "
+                                + new File(fPath).getName();
+                        }
 
-                                @Override
-                                public String getDefaultFilename() {
-                                    return new java.io.File(fPath).getName();
-                                }
-                            });
+                        @Override
+                        public String getDefaultFilename() {
+                            return new File(fPath).getName();
+                        }
+                    });
         }
     }
 
@@ -215,11 +254,11 @@ public class Server extends Communicator {
         try {
             final AdminPrx admin = getCoordinator().getAdmin();
             admin.sendSignalAsync(_id, s)
-                    .whenComplete(
-                            (result, ex) -> {
-                                amiComplete(prefix, errorTitle, ex);
-                            });
-        } catch (com.zeroc.Ice.LocalException ex) {
+                .whenComplete(
+                    (result, ex) -> {
+                        amiComplete(prefix, errorTitle, ex);
+                    });
+        } catch (LocalException ex) {
             failure(prefix, errorTitle, ex.toString());
         }
     }
@@ -231,11 +270,11 @@ public class Server extends Communicator {
         try {
             final AdminPrx admin = getCoordinator().getAdmin();
             admin.enableServerAsync(_id, enable)
-                    .whenComplete(
-                            (result, ex) -> {
-                                amiComplete(prefix, errorTitle, ex);
-                            });
-        } catch (com.zeroc.Ice.LocalException ex) {
+                .whenComplete(
+                    (result, ex) -> {
+                        amiComplete(prefix, errorTitle, ex);
+                    });
+        } catch (LocalException ex) {
             failure(prefix, errorTitle, ex.toString());
         }
     }
@@ -313,70 +352,70 @@ public class Server extends Communicator {
             _icons = new Icon[8][2][2];
             _icons[0][0][0] = Utils.getIcon("/icons/16x16/server_unknown.png");
             _icons[ServerState.Inactive.value() + 1][0][0] =
-                    Utils.getIcon("/icons/16x16/server_inactive.png");
+                Utils.getIcon("/icons/16x16/server_inactive.png");
             _icons[ServerState.Activating.value() + 1][0][0] =
-                    Utils.getIcon("/icons/16x16/server_activating.png");
+                Utils.getIcon("/icons/16x16/server_activating.png");
             _icons[ServerState.ActivationTimedOut.value() + 1][0][0] =
-                    Utils.getIcon("/icons/16x16/server_activating.png");
+                Utils.getIcon("/icons/16x16/server_activating.png");
             _icons[ServerState.Active.value() + 1][0][0] =
-                    Utils.getIcon("/icons/16x16/server_active.png");
+                Utils.getIcon("/icons/16x16/server_active.png");
             _icons[ServerState.Deactivating.value() + 1][0][0] =
-                    Utils.getIcon("/icons/16x16/server_deactivating.png");
+                Utils.getIcon("/icons/16x16/server_deactivating.png");
             _icons[ServerState.Destroying.value() + 1][0][0] =
-                    Utils.getIcon("/icons/16x16/server_destroying.png");
+                Utils.getIcon("/icons/16x16/server_destroying.png");
             _icons[ServerState.Destroyed.value() + 1][0][0] =
-                    Utils.getIcon("/icons/16x16/server_destroyed.png");
+                Utils.getIcon("/icons/16x16/server_destroyed.png");
 
             // IceBox servers
             _icons[0][1][0] = Utils.getIcon("/icons/16x16/icebox_server_unknown.png");
             _icons[ServerState.Inactive.value() + 1][1][0] =
-                    Utils.getIcon("/icons/16x16/icebox_server_inactive.png");
+                Utils.getIcon("/icons/16x16/icebox_server_inactive.png");
             _icons[ServerState.Activating.value() + 1][1][0] =
-                    Utils.getIcon("/icons/16x16/icebox_server_activating.png");
+                Utils.getIcon("/icons/16x16/icebox_server_activating.png");
             _icons[ServerState.ActivationTimedOut.value() + 1][1][0] =
-                    Utils.getIcon("/icons/16x16/icebox_server_activating.png");
+                Utils.getIcon("/icons/16x16/icebox_server_activating.png");
             _icons[ServerState.Active.value() + 1][1][0] =
-                    Utils.getIcon("/icons/16x16/icebox_server_active.png");
+                Utils.getIcon("/icons/16x16/icebox_server_active.png");
             _icons[ServerState.Deactivating.value() + 1][1][0] =
-                    Utils.getIcon("/icons/16x16/icebox_server_deactivating.png");
+                Utils.getIcon("/icons/16x16/icebox_server_deactivating.png");
             _icons[ServerState.Destroying.value() + 1][1][0] =
-                    Utils.getIcon("/icons/16x16/icebox_server_destroying.png");
+                Utils.getIcon("/icons/16x16/icebox_server_destroying.png");
             _icons[ServerState.Destroyed.value() + 1][1][0] =
-                    Utils.getIcon("/icons/16x16/icebox_server_destroyed.png");
+                Utils.getIcon("/icons/16x16/icebox_server_destroyed.png");
 
             // Regular servers (disabled)
             _icons[0][0][1] = Utils.getIcon("/icons/16x16/server_unknown.png");
             _icons[ServerState.Inactive.value() + 1][0][1] =
-                    Utils.getIcon("/icons/16x16/server_disabled_inactive.png");
+                Utils.getIcon("/icons/16x16/server_disabled_inactive.png");
             _icons[ServerState.Activating.value() + 1][0][1] =
-                    Utils.getIcon("/icons/16x16/server_disabled_activating.png");
+                Utils.getIcon("/icons/16x16/server_disabled_activating.png");
             _icons[ServerState.ActivationTimedOut.value() + 1][0][1] =
-                    Utils.getIcon("/icons/16x16/server_disabled_activating.png");
+                Utils.getIcon("/icons/16x16/server_disabled_activating.png");
             _icons[ServerState.Active.value() + 1][0][1] =
-                    Utils.getIcon("/icons/16x16/server_disabled_active.png");
+                Utils.getIcon("/icons/16x16/server_disabled_active.png");
             _icons[ServerState.Deactivating.value() + 1][0][1] =
-                    Utils.getIcon("/icons/16x16/server_disabled_deactivating.png");
+                Utils.getIcon("/icons/16x16/server_disabled_deactivating.png");
             _icons[ServerState.Destroying.value() + 1][0][1] =
-                    Utils.getIcon("/icons/16x16/server_disabled_destroying.png");
+                Utils.getIcon("/icons/16x16/server_disabled_destroying.png");
             _icons[ServerState.Destroyed.value() + 1][0][1] =
-                    Utils.getIcon("/icons/16x16/server_disabled_destroyed.png");
+                Utils.getIcon("/icons/16x16/server_disabled_destroyed.png");
 
             // IceBox servers (disabled)
             _icons[0][1][1] = Utils.getIcon("/icons/16x16/icebox_server_unknown.png");
             _icons[ServerState.Inactive.value() + 1][1][1] =
-                    Utils.getIcon("/icons/16x16/icebox_server_disabled_inactive.png");
+                Utils.getIcon("/icons/16x16/icebox_server_disabled_inactive.png");
             _icons[ServerState.Activating.value() + 1][1][1] =
-                    Utils.getIcon("/icons/16x16/icebox_server_disabled_activating.png");
+                Utils.getIcon("/icons/16x16/icebox_server_disabled_activating.png");
             _icons[ServerState.ActivationTimedOut.value() + 1][1][1] =
-                    Utils.getIcon("/icons/16x16/icebox_server_disabled_activating.png");
+                Utils.getIcon("/icons/16x16/icebox_server_disabled_activating.png");
             _icons[ServerState.Active.value() + 1][1][1] =
-                    Utils.getIcon("/icons/16x16/icebox_server_disabled_active.png");
+                Utils.getIcon("/icons/16x16/icebox_server_disabled_active.png");
             _icons[ServerState.Deactivating.value() + 1][1][1] =
-                    Utils.getIcon("/icons/16x16/icebox_server_disabled_deactivating.png");
+                Utils.getIcon("/icons/16x16/icebox_server_disabled_deactivating.png");
             _icons[ServerState.Destroying.value() + 1][1][1] =
-                    Utils.getIcon("/icons/16x16/icebox_server_disabled_destroying.png");
+                Utils.getIcon("/icons/16x16/icebox_server_disabled_destroying.png");
             _icons[ServerState.Destroyed.value() + 1][1][1] =
-                    Utils.getIcon("/icons/16x16/icebox_server_disabled_destroyed.png");
+                Utils.getIcon("/icons/16x16/icebox_server_disabled_destroyed.png");
         }
 
         int icebox = _serverDescriptor instanceof IceBoxDescriptor ? 1 : 0;
@@ -390,7 +429,7 @@ public class Server extends Communicator {
 
         _cellRenderer.setToolTipText(_toolTip);
         return _cellRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     Server(
@@ -455,9 +494,9 @@ public class Server extends Communicator {
     void removeCallbacks() {
         if (_serviceObserver != null) {
             getCoordinator()
-                    .removeCallback(
-                            _serviceObserver.ice_getIdentity().name,
-                            _serviceObserver.ice_getFacet());
+                .removeCallback(
+                    _serviceObserver.ice_getIdentity().name,
+                    _serviceObserver.ice_getFacet());
             _serviceObserver = null;
         }
     }
@@ -507,21 +546,21 @@ public class Server extends Communicator {
     void rebuild(
             Utils.Resolver resolver,
             boolean variablesChanged,
-            java.util.Set<String> serviceTemplates,
-            java.util.Set<String> serverTemplates) {
+            Set<String> serviceTemplates,
+            Set<String> serverTemplates) {
         if (variablesChanged
-                || (_instanceDescriptor != null
-                        && serverTemplates != null
-                        && serverTemplates.contains(_instanceDescriptor.template))) {
+            || (_instanceDescriptor != null
+            && serverTemplates != null
+            && serverTemplates.contains(_instanceDescriptor.template))) {
             if (_instanceDescriptor != null) {
                 TemplateDescriptor templateDescriptor =
-                        _application.serverTemplates.get(_instanceDescriptor.template);
+                    _application.serverTemplates.get(_instanceDescriptor.template);
                 assert templateDescriptor != null;
 
                 _resolver.reset(
-                        resolver,
-                        _instanceDescriptor.parameterValues,
-                        templateDescriptor.parameterDefaults);
+                    resolver,
+                    _instanceDescriptor.parameterValues,
+                    templateDescriptor.parameterDefaults);
                 _resolver.put("server", _id);
                 _serverDescriptor = (ServerDescriptor) templateDescriptor.descriptor;
             } else {
@@ -541,8 +580,8 @@ public class Server extends Communicator {
             getRoot().getTreeModel().nodeStructureChanged(this);
             updateMetrics();
         } else if (serviceTemplates != null
-                && !serviceTemplates.isEmpty()
-                && _serverDescriptor instanceof IceBoxDescriptor) {
+            && !serviceTemplates.isEmpty()
+            && _serverDescriptor instanceof IceBoxDescriptor) {
             _metrics.clear();
             _services.clear();
             _servicePropertySets.clear();
@@ -587,72 +626,72 @@ public class Server extends Communicator {
                 if (_state == ServerState.Active) {
                     if (_serviceObserver == null) {
                         _serviceObserver =
-                                com.zeroc.IceBox.ServiceObserverPrx.uncheckedCast(
-                                        getCoordinator()
-                                                .retrieveCallback(_id, "IceBox.ServiceManager"));
+                            ServiceObserverPrx.uncheckedCast(
+                                getCoordinator()
+                                    .retrieveCallback(_id, "IceBox.ServiceManager"));
 
                         if (_serviceObserver == null) {
-                            com.zeroc.IceBox.ServiceObserver servant =
-                                    new com.zeroc.IceBox.ServiceObserver() {
-                                        @Override
-                                        public void servicesStarted(
+                            ServiceObserver servant =
+                                new ServiceObserver() {
+                                    @Override
+                                    public void servicesStarted(
                                                 final String[] services,
-                                                com.zeroc.Ice.Current current) {
-                                            final java.util.Set<String> serviceSet =
-                                                    new java.util.HashSet<>(
-                                                            java.util.Arrays.asList(services));
+                                                Current current) {
+                                        final Set<String> serviceSet =
+                                            new HashSet<>(
+                                                Arrays.asList(services));
 
-                                            SwingUtilities.invokeLater(
-                                                    () -> {
-                                                        for (Service service : _services) {
-                                                            if (serviceSet.contains(
-                                                                    service.getId())) {
-                                                                service.started();
-                                                            }
-                                                        }
-                                                        _startedServices.addAll(serviceSet);
-                                                        getCoordinator()
-                                                                .getLiveDeploymentPane()
-                                                                .refresh();
-                                                    });
-                                        }
+                                        SwingUtilities.invokeLater(
+                                            () -> {
+                                                for (Service service : _services) {
+                                                    if (serviceSet.contains(
+                                                        service.getId())) {
+                                                        service.started();
+                                                    }
+                                                }
+                                                _startedServices.addAll(serviceSet);
+                                                getCoordinator()
+                                                    .getLiveDeploymentPane()
+                                                    .refresh();
+                                            });
+                                    }
 
-                                        @Override
-                                        public void servicesStopped(
+                                    @Override
+                                    public void servicesStopped(
                                                 final String[] services,
-                                                com.zeroc.Ice.Current current) {
-                                            final java.util.Set<String> serviceSet =
-                                                    new java.util.HashSet<>(
-                                                            java.util.Arrays.asList(services));
+                                                Current current) {
+                                        final Set<String> serviceSet =
+                                            new HashSet<>(
+                                                Arrays.asList(services));
 
-                                            SwingUtilities.invokeLater(
-                                                    () -> {
-                                                        for (Service service : _services) {
-                                                            if (serviceSet.contains(
-                                                                    service.getId())) {
-                                                                service.stopped();
-                                                            }
-                                                        }
-                                                        _startedServices.removeAll(serviceSet);
-                                                        getCoordinator()
-                                                                .getLiveDeploymentPane()
-                                                                .refresh();
-                                                    });
-                                        }
-                                    };
+                                        SwingUtilities.invokeLater(
+                                            () -> {
+                                                for (Service service : _services) {
+                                                    if (serviceSet.contains(
+                                                        service.getId())) {
+                                                        service.stopped();
+                                                    }
+                                                }
+                                                _startedServices.removeAll(serviceSet);
+                                                getCoordinator()
+                                                    .getLiveDeploymentPane()
+                                                    .refresh();
+                                            });
+                                    }
+                                };
 
                             _serviceObserver =
-                                    com.zeroc.IceBox.ServiceObserverPrx.uncheckedCast(
-                                            getCoordinator()
-                                                    .addCallback(
-                                                            servant, _id, "IceBox.ServiceManager"));
+                                ServiceObserverPrx.uncheckedCast(
+                                    getCoordinator()
+                                        .addCallback(
+                                            servant, _id, "IceBox.ServiceManager"));
 
                             if (_serviceObserver == null) {
                                 JOptionPane.showMessageDialog(
-                                        getCoordinator().getMainFrame(),
-                                        "Could not create servant for service-manager observer",
-                                        "Observer creation error",
-                                        JOptionPane.ERROR_MESSAGE);
+                                    getCoordinator().getMainFrame(),
+                                    "Could not create servant for service-manager observer",
+                                    "Observer creation error",
+                                    JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
@@ -661,7 +700,7 @@ public class Server extends Communicator {
                         // Add observer to service manager using AMI call Note that duplicate
                         // registrations are ignored
 
-                        com.zeroc.IceBox.ServiceManagerPrx serviceManager = getServiceManager();
+                        ServiceManagerPrx serviceManager = getServiceManager();
 
                         if (serviceManager != null) {
                             try {
@@ -669,7 +708,7 @@ public class Server extends Communicator {
                                 // occur if there's an incompatibility between IceGrid nodes &
                                 // registries (it's the case for instance between 3.5 and 3.7).
                                 serviceManager.addObserverAsync(_serviceObserver);
-                            } catch (com.zeroc.Ice.LocalException ex) {
+                            } catch (LocalException ex) {
                                 // Ignore
                             }
                         }
@@ -705,10 +744,10 @@ public class Server extends Communicator {
         return false;
     }
 
-    int updateAdapters(java.util.List<AdapterDynamicInfo> infoList) {
+    int updateAdapters(List<AdapterDynamicInfo> infoList) {
         int result = 0;
         {
-            java.util.Iterator<Adapter> p = _adapters.iterator();
+            Iterator<Adapter> p = _adapters.iterator();
             while (p.hasNext() && result < infoList.size()) {
                 Adapter adapter = p.next();
                 if (adapter.update(infoList)) {
@@ -719,7 +758,7 @@ public class Server extends Communicator {
 
         // Could be in one of the services as well
         {
-            java.util.Iterator<Service> p = _services.iterator();
+            Iterator<Service> p = _services.iterator();
             while (p.hasNext() && result < infoList.size()) {
                 Service service = p.next();
                 result += service.updateAdapters(infoList);
@@ -741,8 +780,8 @@ public class Server extends Communicator {
         }
     }
 
-    java.util.SortedMap<String, String> getProperties() {
-        java.util.List<Utils.ExpandedPropertySet> psList = new java.util.LinkedList<>();
+    SortedMap<String, String> getProperties() {
+        List<Utils.ExpandedPropertySet> psList = new LinkedList<>();
         Node node = (Node) _parent;
 
         psList.add(node.expand(_serverDescriptor.propertySet, _application.name, _resolver));
@@ -762,22 +801,22 @@ public class Server extends Communicator {
         for (AdapterDescriptor p : _serverDescriptor.adapters) {
             String adapterName = Utils.substitute(p.name, _resolver);
             String adapterId = Utils.substitute(p.id, _resolver);
-            com.zeroc.Ice.ObjectPrx proxy = null;
+            ObjectPrx proxy = null;
             if (!adapterId.isEmpty()) {
                 proxy = ((Node) _parent).getProxy(adapterId);
             }
 
             insertSortedChild(
-                    new Adapter(this, adapterName, _resolver, adapterId, p, proxy),
-                    _adapters,
-                    null);
+                new Adapter(this, adapterName, _resolver, adapterId, p, proxy),
+                _adapters,
+                null);
         }
     }
 
     private void createServices() {
         if (_serverDescriptor instanceof IceBoxDescriptor) {
             if (_instanceDescriptor != null) {
-                for (java.util.Map.Entry<String, PropertySetDescriptor> p :
+                for (Map.Entry<String, PropertySetDescriptor> p :
                         _instanceDescriptor.servicePropertySets.entrySet()) {
                     _servicePropertySets.put(_resolver.substitute(p.getKey()), p.getValue());
                 }
@@ -798,7 +837,7 @@ public class Server extends Communicator {
 
         if (descriptor.template.length() > 0) {
             TemplateDescriptor templateDescriptor =
-                    _application.serviceTemplates.get(descriptor.template);
+                _application.serviceTemplates.get(descriptor.template);
 
             assert templateDescriptor != null;
 
@@ -806,10 +845,10 @@ public class Server extends Communicator {
             assert serviceDescriptor != null;
 
             serviceResolver =
-                    new Utils.Resolver(
-                            _resolver,
-                            descriptor.parameterValues,
-                            templateDescriptor.parameterDefaults);
+                new Utils.Resolver(
+                    _resolver,
+                    descriptor.parameterValues,
+                    templateDescriptor.parameterDefaults);
             serviceName = serviceResolver.substitute(serviceDescriptor.name);
             serviceResolver.put("service", serviceName);
         } else {
@@ -824,13 +863,13 @@ public class Server extends Communicator {
         PropertySetDescriptor serverInstancePSDescriptor = _servicePropertySets.get(serviceName);
 
         _services.add(
-                new Service(
-                        this,
-                        serviceName,
-                        serviceResolver,
-                        descriptor,
-                        serviceDescriptor,
-                        serverInstancePSDescriptor));
+            new Service(
+                this,
+                serviceName,
+                serviceResolver,
+                descriptor,
+                serviceDescriptor,
+                serverInstancePSDescriptor));
     }
 
     //
@@ -838,8 +877,8 @@ public class Server extends Communicator {
     //
 
     @Override
-    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync() {
-        return java.util.concurrent.CompletableFuture.completedFuture(getAdmin());
+    protected CompletableFuture<ObjectPrx> getAdminAsync() {
+        return CompletableFuture.completedFuture(getAdmin());
     }
 
     @Override
@@ -852,24 +891,24 @@ public class Server extends Communicator {
         return _id;
     }
 
-    com.zeroc.Ice.ObjectPrx getAdmin() {
+    ObjectPrx getAdmin() {
         if (_state == ServerState.Active) {
             AdminPrx gridAdmin = getCoordinator().getAdmin();
             if (gridAdmin != null) {
                 return gridAdmin.ice_identity(
-                        new com.zeroc.Ice.Identity(_id, getCoordinator().getServerAdminCategory()));
+                    new Identity(_id, getCoordinator().getServerAdminCategory()));
             }
         }
         return null;
     }
 
-    com.zeroc.IceBox.ServiceManagerPrx getServiceManager() {
-        return com.zeroc.IceBox.ServiceManagerPrx.uncheckedCast(
-                getAdminFacet(getAdmin(), "IceBox.ServiceManager"));
+    ServiceManagerPrx getServiceManager() {
+        return ServiceManagerPrx.uncheckedCast(
+            getAdminFacet(getAdmin(), "IceBox.ServiceManager"));
     }
 
     private static String toolTip(ServerState state, int pid, boolean enabled) {
-        String result = (state == null ? "Unknown" : state.toString());
+        String result = state == null ? "Unknown" : state.toString();
 
         if (!enabled) {
             result += ", disabled";
@@ -882,17 +921,17 @@ public class Server extends Communicator {
     }
 
     private ServerInstanceDescriptor _instanceDescriptor;
-    private java.util.Map<String, PropertySetDescriptor> _servicePropertySets =
-            new java.util.HashMap<>(); // with substituted names!
+    private final Map<String, PropertySetDescriptor> _servicePropertySets =
+        new HashMap<>(); // with substituted names!
 
     private ServerDescriptor _serverDescriptor;
     private ApplicationDescriptor _application;
 
     private Utils.Resolver _resolver;
-    private java.util.List<Adapter> _adapters = new java.util.LinkedList<>();
-    private java.util.List<Service> _services = new java.util.LinkedList<>();
+    private List<Adapter> _adapters = new LinkedList<>();
+    private List<Service> _services = new LinkedList<>();
 
-    private java.util.Set<String> _startedServices = new java.util.HashSet<>();
+    private final Set<String> _startedServices = new HashSet<>();
 
     private ServerState _state;
     private boolean _enabled;
@@ -900,7 +939,7 @@ public class Server extends Communicator {
     private int _pid;
     private String _toolTip;
 
-    private com.zeroc.IceBox.ServiceObserverPrx _serviceObserver;
+    private ServiceObserverPrx _serviceObserver;
 
     private static DefaultTreeCellRenderer _cellRenderer;
     private static Icon[][][] _icons;

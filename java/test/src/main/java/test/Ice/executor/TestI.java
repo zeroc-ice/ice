@@ -2,6 +2,8 @@
 
 package test.Ice.executor;
 
+import com.zeroc.Ice.Current;
+
 import test.Ice.executor.Test.TestIntf;
 
 public class TestI implements TestIntf {
@@ -16,12 +18,12 @@ public class TestI implements TestIntf {
     }
 
     @Override
-    public void op(com.zeroc.Ice.Current current) {
+    public void op(Current current) {
         test(_executor.isCustomExecutorThread());
     }
 
     @Override
-    public void sleep(int to, com.zeroc.Ice.Current current) {
+    public void sleep(int to, Current current) {
         try {
             Thread.sleep(to);
         } catch (InterruptedException ex) {
@@ -30,14 +32,14 @@ public class TestI implements TestIntf {
     }
 
     @Override
-    public void opWithPayload(byte[] seq, com.zeroc.Ice.Current current) {
+    public void opWithPayload(byte[] seq, Current current) {
         test(_executor.isCustomExecutorThread());
     }
 
     @Override
-    public void shutdown(com.zeroc.Ice.Current current) {
+    public void shutdown(Current current) {
         current.adapter.getCommunicator().shutdown();
     }
 
-    private CustomExecutor _executor;
+    private final CustomExecutor _executor;
 }

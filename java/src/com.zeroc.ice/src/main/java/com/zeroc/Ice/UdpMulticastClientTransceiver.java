@@ -2,9 +2,13 @@
 
 package com.zeroc.Ice;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.nio.channels.SelectableChannel;
+import java.util.LinkedList;
+import java.util.List;
 
 //
 // This class is only used on Android, where the java.nio.channels.MulticastChannel interface is not
@@ -14,7 +18,7 @@ import java.net.MulticastSocket;
 //
 final class UdpMulticastClientTransceiver implements Transceiver {
     @Override
-    public java.nio.channels.SelectableChannel fd() {
+    public SelectableChannel fd() {
         //
         // Android doesn't provide non-blocking APIs for UDP multicast.
         //
@@ -135,9 +139,9 @@ final class UdpMulticastClientTransceiver implements Transceiver {
     @Override
     public String toDetailedString() {
         StringBuilder s = new StringBuilder(toString());
-        java.util.List<String> intfs =
-                Network.getInterfacesForMulticast(
-                        _mcastInterface, Network.getProtocolSupport(_addr));
+        List<String> intfs =
+            Network.getInterfacesForMulticast(
+                _mcastInterface, Network.getProtocolSupport(_addr));
         if (!intfs.isEmpty()) {
             s.append("\nlocal interfaces = ");
             s.append(String.join(", ", intfs));
@@ -149,17 +153,17 @@ final class UdpMulticastClientTransceiver implements Transceiver {
     public synchronized ConnectionInfo getInfo(
             boolean incoming, String adapterName, String connectionId) {
         return new UDPConnectionInfo(
-                incoming,
-                adapterName,
-                connectionId,
-                _socket != null ? _socket.getLocalAddress().getHostAddress() : "",
-                _socket != null ? _socket.getLocalPort() : -1,
-                "",
-                -1,
-                _socket != null ? _addr.getAddress().getHostAddress() : "",
-                _socket != null ? _addr.getPort() : -1,
-                0,
-                _size);
+            incoming,
+            adapterName,
+            connectionId,
+            _socket != null ? _socket.getLocalAddress().getHostAddress() : "",
+            _socket != null ? _socket.getLocalPort() : -1,
+            "",
+            -1,
+            _socket != null ? _addr.getAddress().getHostAddress() : "",
+            _socket != null ? _addr.getPort() : -1,
+            0,
+            _size);
     }
 
     @Override
@@ -220,12 +224,12 @@ final class UdpMulticastClientTransceiver implements Transceiver {
             _socket.connect(addr); // Does not block
 
             _thread =
-                    new Thread() {
-                        public void run() {
-                            setName("IceUDPMulticast.WriteThread");
-                            runWriteThread();
-                        }
-                    };
+                new Thread() {
+                    public void run() {
+                        setName("IceUDPMulticast.WriteThread");
+                        runWriteThread();
+                    }
+                };
         } catch (Exception ex) {
             if (_socket != null) {
                 _socket.close();
@@ -260,8 +264,8 @@ final class UdpMulticastClientTransceiver implements Transceiver {
         //
         if (sz < (_udpOverhead + Protocol.headerSize)) {
             _instance
-                    .logger()
-                    .warning("Invalid Ice.UDP.SndSize value of " + sz + " adjusted to " + _size);
+                .logger()
+                .warning("Invalid Ice.UDP.SndSize value of " + sz + " adjusted to " + _size);
         } else if (sz != _size) {
             _newSize = sz;
         }
@@ -292,16 +296,16 @@ final class UdpMulticastClientTransceiver implements Transceiver {
                 BufSizeWarnInfo winfo = _instance.getBufSizeWarn(UDPEndpointType.value);
                 if (!winfo.sndWarn || winfo.sndSize != _newSize) {
                     _instance
-                            .logger()
-                            .warning(
-                                    "UDP send buffer size: requested size of "
-                                            + _newSize
-                                            + " adjusted to "
-                                            + _size);
+                        .logger()
+                        .warning(
+                            "UDP send buffer size: requested size of "
+                                + _newSize
+                                + " adjusted to "
+                                + _size);
                     _instance.setSndBufSizeWarn(UDPEndpointType.value, _newSize);
                 }
             }
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             if (_socket != null) {
                 _socket.close();
             }
@@ -310,13 +314,12 @@ final class UdpMulticastClientTransceiver implements Transceiver {
         }
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"nofinalizer", "deprecation"})
     @Override
     protected synchronized void finalize() throws Throwable {
         try {
             Assert.FinalizerAssert(_socket == null);
-        } catch (Exception ex) {
-        } finally {
+        } catch (Exception ex) {} finally {
             super.finalize();
         }
     }
@@ -387,14 +390,14 @@ final class UdpMulticastClientTransceiver implements Transceiver {
                     _readyCallback.ready(SocketOperation.Write, !_buffers.isEmpty());
                 }
             }
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             exception(new SocketException(ex));
         }
     }
 
     private final ProtocolInstance _instance;
-    private InetSocketAddress _addr;
-    private String _mcastInterface;
+    private final InetSocketAddress _addr;
+    private final String _mcastInterface;
 
     private MulticastSocket _socket;
     private int _size;
@@ -409,7 +412,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
 
     private Thread _thread;
 
-    private java.util.LinkedList<Buffer> _buffers = new java.util.LinkedList<>();
+    private final LinkedList<Buffer> _buffers = new LinkedList<>();
 
     private LocalException _exception;
     private ReadyCallback _readyCallback;

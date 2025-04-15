@@ -7,11 +7,23 @@ import com.zeroc.IceGridGUI.Application.Editor;
 import com.zeroc.IceGridGUI.Application.Root;
 import com.zeroc.IceGridGUI.Application.TreeNode;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.LinkedList;
 
-import javax.swing.*;
+import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.InputMap;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTree;
+import javax.swing.KeyStroke;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.ToolTipManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -36,16 +48,16 @@ public class ApplicationPane extends JSplitPane implements Tab {
         c.getCloseApplicationAction().setEnabled(true);
 
         c.getSaveAction()
-                .setEnabled(
-                        _root.needsSaving()
-                                && (_root.isLive() && c.connectedToMaster() || _root.hasFile()));
+            .setEnabled(
+                _root.needsSaving()
+                    && (_root.isLive() && c.connectedToMaster() || _root.hasFile()));
         c.getDiscardUpdatesAction()
-                .setEnabled(_root.needsSaving() && (_root.isLive() || _root.hasFile()));
+            .setEnabled(_root.needsSaving() && (_root.isLive() || _root.hasFile()));
 
         if (_root.isLive()) {
             c.getSaveToRegistryAction().setEnabled(_root.needsSaving() && c.connectedToMaster());
             c.getSaveToRegistryWithoutRestartAction()
-                    .setEnabled(_root.needsSaving() && c.connectedToMaster());
+                .setEnabled(_root.needsSaving() && c.connectedToMaster());
         } else {
             c.getSaveToRegistryAction().setEnabled(c.connectedToMaster());
             c.getSaveToRegistryWithoutRestartAction().setEnabled(c.connectedToMaster());
@@ -114,7 +126,7 @@ public class ApplicationPane extends JSplitPane implements Tab {
         do {
             previousNode = _previousNodes.removeLast();
         } while (!_previousNodes.isEmpty()
-                && (previousNode == _currentNode || !_root.hasNode(previousNode)));
+            && (previousNode == _currentNode || !_root.hasNode(previousNode)));
 
         if (_previousNodes.isEmpty()) {
             _root.getCoordinator().getBackAction().setEnabled(false);
@@ -169,7 +181,7 @@ public class ApplicationPane extends JSplitPane implements Tab {
 
     // E.g. to replace an ephemeral root
     public void setRoot(Root newRoot) {
-        boolean reset = (_root != null);
+        boolean reset = _root != null;
 
         if (reset) {
             ToolTipManager.sharedInstance().unregisterComponent(_root.getTree());
@@ -199,10 +211,10 @@ public class ApplicationPane extends JSplitPane implements Tab {
         tree.setRootVisible(true);
 
         JScrollPane leftScroll =
-                new JScrollPane(
-                        tree,
-                        ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            new JScrollPane(
+                tree,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         leftScroll.setBorder(Borders.EMPTY);
 
         _leftPane.setContent(leftScroll);
@@ -257,12 +269,12 @@ public class ApplicationPane extends JSplitPane implements Tab {
     private void registerAction(Coordinator c, int index) {
         Action action = c.getActionsForMenu().get(index);
 
-        javax.swing.ActionMap am = _leftPane.getActionMap();
-        javax.swing.InputMap im = _leftPane.getInputMap();
+        ActionMap am = _leftPane.getActionMap();
+        InputMap im = _leftPane.getInputMap();
 
         im.put(
-                (KeyStroke) action.getValue(Action.ACCELERATOR_KEY),
-                (String) action.getValue(Action.NAME));
+            (KeyStroke) action.getValue(Action.ACCELERATOR_KEY),
+            (String) action.getValue(Action.NAME));
         am.put(action.getValue(Action.NAME), action);
     }
 
@@ -382,12 +394,12 @@ public class ApplicationPane extends JSplitPane implements Tab {
     }
 
     private Root _root;
-    private SimpleInternalFrame _leftPane;
-    private SimpleInternalFrame _propertiesFrame;
+    private final SimpleInternalFrame _leftPane;
+    private final SimpleInternalFrame _propertiesFrame;
 
     // back/forward navigation
-    private java.util.LinkedList<TreeNode> _previousNodes = new java.util.LinkedList<>();
-    private java.util.LinkedList<TreeNode> _nextNodes = new java.util.LinkedList<>();
+    private final LinkedList<TreeNode> _previousNodes = new LinkedList<>();
+    private final LinkedList<TreeNode> _nextNodes = new LinkedList<>();
 
     private TreeNode _currentNode;
     private Editor _currentEditor;

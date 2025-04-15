@@ -9,9 +9,14 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
 import com.zeroc.Ice.LogMessageType;
+import com.zeroc.Ice.StringUtil;
 
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -28,32 +33,32 @@ class LogFilterDialog extends JDialog {
         super(dialog, "Ice log filter - IceGrid GUI", true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-        java.util.Set<com.zeroc.Ice.LogMessageType> messageTypeFilterSet = null;
+        Set<LogMessageType> messageTypeFilterSet = null;
         if (dialog.getMessageTypeFilter() != null) {
             messageTypeFilterSet =
-                    new java.util.HashSet<>(java.util.Arrays.asList(dialog.getMessageTypeFilter()));
+                new HashSet<>(Arrays.asList(dialog.getMessageTypeFilter()));
         }
 
         final JCheckBox error =
-                new JCheckBox(
-                        "Error",
-                        messageTypeFilterSet == null
-                                || messageTypeFilterSet.contains(LogMessageType.ErrorMessage));
+            new JCheckBox(
+                "Error",
+                messageTypeFilterSet == null
+                    || messageTypeFilterSet.contains(LogMessageType.ErrorMessage));
         final JCheckBox warning =
-                new JCheckBox(
-                        "Warning",
-                        messageTypeFilterSet == null
-                                || messageTypeFilterSet.contains(LogMessageType.WarningMessage));
+            new JCheckBox(
+                "Warning",
+                messageTypeFilterSet == null
+                    || messageTypeFilterSet.contains(LogMessageType.WarningMessage));
         final JCheckBox print =
-                new JCheckBox(
-                        "Print",
-                        messageTypeFilterSet == null
-                                || messageTypeFilterSet.contains(LogMessageType.PrintMessage));
+            new JCheckBox(
+                "Print",
+                messageTypeFilterSet == null
+                    || messageTypeFilterSet.contains(LogMessageType.PrintMessage));
         final JCheckBox trace =
-                new JCheckBox(
-                        "Trace",
-                        messageTypeFilterSet == null
-                                || messageTypeFilterSet.contains(LogMessageType.TraceMessage));
+            new JCheckBox(
+                "Trace",
+                messageTypeFilterSet == null
+                    || messageTypeFilterSet.contains(LogMessageType.TraceMessage));
 
         final JTextArea traceCategories = new JTextArea(3, 40);
         traceCategories.setLineWrap(true);
@@ -61,80 +66,80 @@ class LogFilterDialog extends JDialog {
         String[] traceCategoryFilter = dialog.getTraceCategoryFilter();
         if (traceCategoryFilter != null) {
             // TODO: join with escapes!
-            String s = String.join(", ", java.util.Arrays.asList(traceCategoryFilter));
+            String s = String.join(", ", Arrays.asList(traceCategoryFilter));
             traceCategories.setText(s);
         } else {
             traceCategories.setText(null);
         }
 
         traceCategories.setToolTipText(
-                "Trace categories separated by commas; leave blank to get all categories");
+            "Trace categories separated by commas; leave blank to get all categories");
 
         JButton okButton = new JButton("OK");
         ActionListener okListener =
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        String[] traceCategoryFilter = null;
+            new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String[] traceCategoryFilter = null;
 
-                        String txt = traceCategories.getText();
-                        if (txt != null && !txt.isEmpty()) {
-                            traceCategoryFilter =
-                                    com.zeroc.Ice.StringUtil.splitString(txt, ", \t\r\n");
-                            if (traceCategoryFilter == null) {
-                                // unmatched quote
-                                JOptionPane.showMessageDialog(
-                                        LogFilterDialog.this,
-                                        "Unmatched quote in Trace categories field",
-                                        "Invalid entry",
-                                        JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
+                    String txt = traceCategories.getText();
+                    if (txt != null && !txt.isEmpty()) {
+                        traceCategoryFilter =
+                            StringUtil.splitString(txt, ", \t\r\n");
+                        if (traceCategoryFilter == null) {
+                            // unmatched quote
+                            JOptionPane.showMessageDialog(
+                                LogFilterDialog.this,
+                                "Unmatched quote in Trace categories field",
+                                "Invalid entry",
+                                JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
 
-                            if (traceCategoryFilter.length == 0) // only separators
+                        if (traceCategoryFilter.length == 0) // only separators
                             {
                                 traceCategoryFilter = null;
                             }
-                        }
-
-                        java.util.Set<LogMessageType> messageTypeFilterSet =
-                                new java.util.HashSet<>();
-                        if (error.isSelected()) {
-                            messageTypeFilterSet.add(LogMessageType.ErrorMessage);
-                        }
-                        if (warning.isSelected()) {
-                            messageTypeFilterSet.add(LogMessageType.WarningMessage);
-                        }
-                        if (print.isSelected()) {
-                            messageTypeFilterSet.add(LogMessageType.PrintMessage);
-                        }
-                        if (trace.isSelected()) {
-                            messageTypeFilterSet.add(LogMessageType.TraceMessage);
-                        }
-                        if (messageTypeFilterSet.size() == 0 || messageTypeFilterSet.size() == 4) {
-                            // All or nothing checked equivalent of getting everything!
-                            messageTypeFilterSet = null;
-                        }
-                        LogMessageType[] messageTypeFilter = null;
-                        if (messageTypeFilterSet != null) {
-                            messageTypeFilter = messageTypeFilterSet.toArray(new LogMessageType[0]);
-                        }
-
-                        dispose();
-                        dialog.setFilters(messageTypeFilter, traceCategoryFilter);
                     }
-                };
+
+                    Set<LogMessageType> messageTypeFilterSet =
+                        new HashSet<>();
+                    if (error.isSelected()) {
+                        messageTypeFilterSet.add(LogMessageType.ErrorMessage);
+                    }
+                    if (warning.isSelected()) {
+                        messageTypeFilterSet.add(LogMessageType.WarningMessage);
+                    }
+                    if (print.isSelected()) {
+                        messageTypeFilterSet.add(LogMessageType.PrintMessage);
+                    }
+                    if (trace.isSelected()) {
+                        messageTypeFilterSet.add(LogMessageType.TraceMessage);
+                    }
+                    if (messageTypeFilterSet.size() == 0 || messageTypeFilterSet.size() == 4) {
+                        // All or nothing checked equivalent of getting everything!
+                        messageTypeFilterSet = null;
+                    }
+                    LogMessageType[] messageTypeFilter = null;
+                    if (messageTypeFilterSet != null) {
+                        messageTypeFilter = messageTypeFilterSet.toArray(new LogMessageType[0]);
+                    }
+
+                    dispose();
+                    dialog.setFilters(messageTypeFilter, traceCategoryFilter);
+                }
+            };
         okButton.addActionListener(okListener);
         getRootPane().setDefaultButton(okButton);
 
         JButton cancelButton = new JButton("Cancel");
         ActionListener cancelListener =
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        dispose();
-                    }
-                };
+            new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                }
+            };
         cancelButton.addActionListener(cancelListener);
 
         FormLayout layout = new FormLayout("left:pref, 3dlu, fill:pref:grow", "");
@@ -144,7 +149,7 @@ class LogFilterDialog extends JDialog {
         builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
 
         builder.appendSeparator(
-                "Retrieve only the following types of log messages (server-side filtering)");
+            "Retrieve only the following types of log messages (server-side filtering)");
         builder.nextLine();
         builder.append(error);
         builder.nextLine();
@@ -165,10 +170,10 @@ class LogFilterDialog extends JDialog {
         builder.nextLine();
 
         JComponent buttonBar =
-                new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
+            new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
         buttonBar.setBorder(Borders.DIALOG);
 
-        java.awt.Container contentPane = getContentPane();
+        Container contentPane = getContentPane();
         contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
         contentPane.add(builder.getPanel());
         contentPane.add(buttonBar);

@@ -2,15 +2,19 @@
 
 package test.Ice.plugin.plugins;
 
-public class PluginThreeFailFactory implements com.zeroc.Ice.PluginFactory {
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Plugin;
+import com.zeroc.Ice.PluginFactory;
+
+public class PluginThreeFailFactory implements PluginFactory {
     @Override
-    public com.zeroc.Ice.Plugin create(
-            com.zeroc.Ice.Communicator communicator, String name, String[] args) {
+    public Plugin create(
+            Communicator communicator, String name, String[] args) {
         return new PluginThreeFail(communicator);
     }
 
     public class PluginThreeFail extends BasePluginFail {
-        public PluginThreeFail(com.zeroc.Ice.Communicator communicator) {
+        public PluginThreeFail(Communicator communicator) {
             super(communicator);
         }
 
@@ -24,7 +28,7 @@ public class PluginThreeFailFactory implements com.zeroc.Ice.PluginFactory {
             test(false);
         }
 
-        @SuppressWarnings("deprecation")
+        @SuppressWarnings({"nofinalizer", "deprecation"})
         @Override
         protected void finalize() throws Throwable {
             try {

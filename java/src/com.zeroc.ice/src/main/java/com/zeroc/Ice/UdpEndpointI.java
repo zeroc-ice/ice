@@ -4,12 +4,15 @@ package com.zeroc.Ice;
 
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+
 final class UdpEndpointI extends IPEndpointI {
     public UdpEndpointI(
             ProtocolInstance instance,
             String host,
             int port,
-            java.net.InetSocketAddress sourceAddr,
+            InetSocketAddress sourceAddr,
             String mcastInterface,
             int mttl,
             String connectionId,
@@ -42,12 +45,12 @@ final class UdpEndpointI extends IPEndpointI {
     @Override
     public EndpointInfo getInfo() {
         return new UDPEndpointInfo(
-                _compress,
-                _host,
-                _port,
-                _sourceAddr == null ? "" : _sourceAddr.getAddress().getHostAddress(),
-                _mcastInterface,
-                _mcastTtl);
+            _compress,
+            _host,
+            _port,
+            _sourceAddr == null ? "" : _sourceAddr.getAddress().getHostAddress(),
+            _mcastInterface,
+            _mcastTtl);
     }
 
     //
@@ -89,14 +92,14 @@ final class UdpEndpointI extends IPEndpointI {
             return this;
         } else {
             return new UdpEndpointI(
-                    _instance,
-                    _host,
-                    _port,
-                    _sourceAddr,
-                    _mcastInterface,
-                    _mcastTtl,
-                    _connectionId,
-                    compress);
+                _instance,
+                _host,
+                _port,
+                _sourceAddr,
+                _mcastInterface,
+                _mcastTtl,
+                _connectionId,
+                compress);
         }
     }
 
@@ -114,9 +117,9 @@ final class UdpEndpointI extends IPEndpointI {
     //
     @Override
     public Transceiver transceiver() {
-        java.net.InetSocketAddress addr =
-                Network.getAddressForServer(
-                        _host, _port, _instance.protocolSupport(), _instance.preferIPv6());
+        InetSocketAddress addr =
+            Network.getAddressForServer(
+                _host, _port, _instance.protocolSupport(), _instance.preferIPv6());
         if (Util.isAndroid() && addr.getAddress().isMulticastAddress()) {
             return new UdpMulticastServerTransceiver(this, _instance, addr, _mcastInterface);
         } else {
@@ -139,14 +142,14 @@ final class UdpEndpointI extends IPEndpointI {
             return this;
         } else {
             return new UdpEndpointI(
-                    _instance,
-                    _host,
-                    port,
-                    _sourceAddr,
-                    _mcastInterface,
-                    _mcastTtl,
-                    _connectionId,
-                    _compress);
+                _instance,
+                _host,
+                port,
+                _sourceAddr,
+                _mcastInterface,
+                _mcastTtl,
+                _connectionId,
+                _compress);
         }
     }
 
@@ -156,27 +159,27 @@ final class UdpEndpointI extends IPEndpointI {
             return this;
         } else {
             return new UdpEndpointI(
-                    _instance,
-                    _host,
-                    port,
-                    _sourceAddr,
-                    _mcastInterface,
-                    _mcastTtl,
-                    _connectionId,
-                    _compress);
+                _instance,
+                _host,
+                port,
+                _sourceAddr,
+                _mcastInterface,
+                _mcastTtl,
+                _connectionId,
+                _compress);
         }
     }
 
     @Override
-    public void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint) {
+    public void initWithOptions(ArrayList<String> args, boolean oaEndpoint) {
         super.initWithOptions(args, oaEndpoint);
 
-        if (_mcastInterface.equals("*")) {
+        if ("*".equals(_mcastInterface)) {
             if (oaEndpoint) {
                 _mcastInterface = "";
             } else {
                 throw new ParseException(
-                        "'--interface *' not valid for proxy endpoint '" + toString() + "'");
+                    "'--interface *' not valid for proxy endpoint '" + toString() + "'");
             }
         }
     }
@@ -274,14 +277,14 @@ final class UdpEndpointI extends IPEndpointI {
     @Override
     public EndpointI toPublishedEndpoint(String publishedHost) {
         return new UdpEndpointI(
-                _instance,
-                publishedHost.isEmpty() ? _host : publishedHost,
-                _port,
-                null,
-                "",
-                -1,
-                "",
-                _compress);
+            _instance,
+            publishedHost.isEmpty() ? _host : publishedHost,
+            _port,
+            null,
+            "",
+            -1,
+            "",
+            _compress);
     }
 
     @Override
@@ -290,25 +293,25 @@ final class UdpEndpointI extends IPEndpointI {
             return true;
         }
 
-        if (option.equals("-z")) {
+        if ("-z".equals(option)) {
             if (argument != null) {
                 throw new ParseException(
-                        "unexpected argument '"
-                                + argument
-                                + "' provided for -z option in '"
-                                + endpoint
-                                + "'");
+                    "unexpected argument '"
+                        + argument
+                        + "' provided for -z option in '"
+                        + endpoint
+                        + "'");
             }
 
             _compress = true;
-        } else if (option.equals("-v") || option.equals("-e")) {
+        } else if ("-v".equals(option) || "-e".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for "
-                                + option
-                                + " option in endpoint '"
-                                + endpoint
-                                + "'");
+                    "no argument provided for "
+                        + option
+                        + " option in endpoint '"
+                        + endpoint
+                        + "'");
             }
 
             try {
@@ -318,31 +321,31 @@ final class UdpEndpointI extends IPEndpointI {
                 }
             } catch (ParseException ex) {
                 throw new ParseException(
-                        "invalid version '" + argument + "' in endpoint '" + endpoint + "'", ex);
+                    "invalid version '" + argument + "' in endpoint '" + endpoint + "'", ex);
             }
-        } else if (option.equals("--ttl")) {
+        } else if ("--ttl".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for --ttl option in endpoint '" + endpoint + "'");
+                    "no argument provided for --ttl option in endpoint '" + endpoint + "'");
             }
 
             try {
                 _mcastTtl = Integer.parseInt(argument);
             } catch (NumberFormatException ex) {
                 throw new ParseException(
-                        "invalid TTL value '" + argument + "' in endpoint '" + endpoint + "'", ex);
+                    "invalid TTL value '" + argument + "' in endpoint '" + endpoint + "'", ex);
             }
 
             if (_mcastTtl < 0) {
                 throw new ParseException(
-                        "TTL value '" + argument + "' out of range in endpoint '" + endpoint + "'");
+                    "TTL value '" + argument + "' out of range in endpoint '" + endpoint + "'");
             }
-        } else if (option.equals("--interface")) {
+        } else if ("--interface".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                        "no argument provided for --interface option in endpoint '"
-                                + endpoint
-                                + "'");
+                    "no argument provided for --interface option in endpoint '"
+                        + endpoint
+                        + "'");
             }
             _mcastInterface = argument;
         } else {
@@ -352,22 +355,22 @@ final class UdpEndpointI extends IPEndpointI {
     }
 
     @Override
-    protected Connector createConnector(java.net.InetSocketAddress addr, NetworkProxy proxy) {
+    protected Connector createConnector(InetSocketAddress addr, NetworkProxy proxy) {
         return new UdpConnector(
-                _instance, addr, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId);
+            _instance, addr, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId);
     }
 
     @Override
     protected IPEndpointI createEndpoint(String host, int port, String connectionId) {
         return new UdpEndpointI(
-                _instance,
-                host,
-                port,
-                _sourceAddr,
-                _mcastInterface,
-                _mcastTtl,
-                connectionId,
-                _compress);
+            _instance,
+            host,
+            port,
+            _sourceAddr,
+            _mcastInterface,
+            _mcastTtl,
+            connectionId,
+            _compress);
     }
 
     private String _mcastInterface = "";

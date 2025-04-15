@@ -2,6 +2,13 @@
 
 package com.zeroc.Ice.Instrumentation;
 
+import com.zeroc.Ice.ConnectionInfo;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Endpoint;
+import com.zeroc.Ice.ObjectPrx;
+
+import java.util.Map;
+
 /**
  * The communicator observer interface used by the Ice run-time to obtain and update observers for
  * its observable objects. This interface should be implemented by add-ins that wish to observe Ice
@@ -18,7 +25,7 @@ public interface CommunicatorObserver {
      *     IP address to connect to.
      * @return The observer to instrument the connection establishment.
      */
-    Observer getConnectionEstablishmentObserver(com.zeroc.Ice.Endpoint endpoint, String connector);
+    Observer getConnectionEstablishmentObserver(Endpoint endpoint, String connector);
 
     /**
      * This method should return an observer for the given endpoint information. The Ice run-time
@@ -29,7 +36,7 @@ public interface CommunicatorObserver {
      * @param endpoint The endpoint.
      * @return The observer to instrument the endpoint lookup.
      */
-    Observer getEndpointLookupObserver(com.zeroc.Ice.Endpoint endpoint);
+    Observer getEndpointLookupObserver(Endpoint endpoint);
 
     /**
      * This method should return a connection observer for the given connection. The Ice run-time
@@ -43,8 +50,8 @@ public interface CommunicatorObserver {
      * @return The connection observer to instrument the connection.
      */
     ConnectionObserver getConnectionObserver(
-            com.zeroc.Ice.ConnectionInfo c,
-            com.zeroc.Ice.Endpoint e,
+            ConnectionInfo c,
+            Endpoint e,
             ConnectionState s,
             ConnectionObserver o);
 
@@ -71,7 +78,7 @@ public interface CommunicatorObserver {
      * @return The invocation observer to instrument the invocation.
      */
     InvocationObserver getInvocationObserver(
-            com.zeroc.Ice.ObjectPrx prx, String operation, java.util.Map<String, String> ctx);
+            ObjectPrx prx, String operation, Map<String, String> ctx);
 
     /**
      * This method should return a dispatch observer for the given dispatch. The Ice run-time calls
@@ -81,7 +88,7 @@ public interface CommunicatorObserver {
      * @param size The size of the dispatch.
      * @return The dispatch observer to instrument the dispatch.
      */
-    DispatchObserver getDispatchObserver(com.zeroc.Ice.Current c, int size);
+    DispatchObserver getDispatchObserver(Current c, int size);
 
     /**
      * The Ice run-time calls this method when the communicator is initialized. The add-in

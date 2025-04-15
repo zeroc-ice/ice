@@ -2,6 +2,11 @@
 
 package com.zeroc.Ice;
 
+import java.util.ArrayDeque;
+import java.util.Calendar;
+import java.util.Deque;
+import java.util.List;
+
 final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     @Override
     public void print(String message) {
@@ -13,7 +18,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     @Override
     public void trace(String category, String message) {
         LogMessage logMessage =
-                new LogMessage(LogMessageType.TraceMessage, now(), category, message);
+            new LogMessage(LogMessageType.TraceMessage, now(), category, message);
         _localLogger.trace(category, message);
         log(logMessage);
     }
@@ -43,7 +48,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     }
 
     @Override
-    public com.zeroc.Ice.Object getFacet() {
+    public Object getFacet() {
         return _loggerAdmin;
     }
 
@@ -101,7 +106,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
             for (RemoteLoggerPrx p : job.remoteLoggers) {
                 if (_loggerAdmin.getTraceLevel() > 1) {
                     _localLogger.trace(
-                            _traceCategory, "sending log message to `" + p.toString() + "'");
+                        _traceCategory, "sending log message to `" + p.toString() + "'");
                 }
 
                 try {
@@ -109,35 +114,35 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
                     // p is a proxy associated with the _sendLogCommunicator
                     //
                     p.logAsync(job.logMessage)
-                            .whenComplete(
-                                    (Void v, Throwable ex) -> {
-                                        if (ex != null) {
-                                            if (ex instanceof CommunicatorDestroyedException) {
-                                                // Expected if there are outstanding calls during
-                                                // communicator destruction.
-                                            } else if (ex instanceof LocalException) {
-                                                _loggerAdmin.deadRemoteLogger(
-                                                        p,
-                                                        _localLogger,
-                                                        (LocalException) ex,
-                                                        "log");
-                                            } else {
-                                                _loggerAdmin.deadRemoteLogger(
-                                                        p,
-                                                        _localLogger,
-                                                        new UnknownException(ex),
-                                                        "log");
-                                            }
-                                        } else {
-                                            if (_loggerAdmin.getTraceLevel() > 1) {
-                                                _localLogger.trace(
-                                                        _traceCategory,
-                                                        "log on `"
-                                                                + p.toString()
-                                                                + "' completed successfully");
-                                            }
-                                        }
-                                    });
+                        .whenComplete(
+                            (Void v, Throwable ex) -> {
+                                if (ex != null) {
+                                    if (ex instanceof CommunicatorDestroyedException) {
+                                        // Expected if there are outstanding calls during
+                                        // communicator destruction.
+                                    } else if (ex instanceof LocalException) {
+                                        _loggerAdmin.deadRemoteLogger(
+                                            p,
+                                            _localLogger,
+                                            (LocalException) ex,
+                                            "log");
+                                    } else {
+                                        _loggerAdmin.deadRemoteLogger(
+                                            p,
+                                            _localLogger,
+                                            new UnknownException(ex),
+                                            "log");
+                                    }
+                                } else {
+                                    if (_loggerAdmin.getTraceLevel() > 1) {
+                                        _localLogger.trace(
+                                            _traceCategory,
+                                            "log on `"
+                                                + p.toString()
+                                                + "' completed successfully");
+                                    }
+                                }
+                            });
                 } catch (LocalException ex) {
                     _loggerAdmin.deadRemoteLogger(p, _localLogger, ex, "log");
                 }
@@ -164,7 +169,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     }
 
     void log(LogMessage logMessage) {
-        java.util.List<RemoteLoggerPrx> remoteLoggers = _loggerAdmin.log(logMessage);
+        List<RemoteLoggerPrx> remoteLoggers = _loggerAdmin.log(logMessage);
 
         if (remoteLoggers != null) {
             assert (!remoteLoggers.isEmpty());
@@ -182,24 +187,24 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
     }
 
     private static long now() {
-        return java.util.Calendar.getInstance().getTimeInMillis() * 1000;
+        return Calendar.getInstance().getTimeInMillis() * 1000;
     }
 
     private static class Job {
-        Job(java.util.List<RemoteLoggerPrx> r, LogMessage l) {
+        Job(List<RemoteLoggerPrx> r, LogMessage l) {
             remoteLoggers = r;
             logMessage = l;
         }
 
-        final java.util.List<RemoteLoggerPrx> remoteLoggers;
+        final List<RemoteLoggerPrx> remoteLoggers;
         final LogMessage logMessage;
     }
 
     private final Logger _localLogger;
     private final LoggerAdminI _loggerAdmin;
-    private boolean _destroyed = false;
+    private boolean _destroyed;
     private Thread _sendLogThread;
-    private final java.util.Deque<Job> _jobQueue = new java.util.ArrayDeque<>();
+    private final Deque<Job> _jobQueue = new ArrayDeque<>();
 
     private static final String _traceCategory = "Admin.Logger";
 }

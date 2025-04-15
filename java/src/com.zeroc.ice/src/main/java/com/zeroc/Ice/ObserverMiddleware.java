@@ -19,29 +19,29 @@ final class ObserverMiddleware implements Object {
 
     @Override
     public CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
-            throws UserException {
+        throws UserException {
         DispatchObserver observer =
-                _communicatorObserver.getDispatchObserver(request.current, request.size);
+            _communicatorObserver.getDispatchObserver(request.current, request.size);
 
         if (observer != null) {
             observer.attach();
             try {
                 return _next.dispatch(request)
-                        .handle(
-                                (response, exception) -> {
-                                    if (exception != null) {
-                                        // We need to marshal the exception into the response
-                                        // immediately to observe the response size. TODO: should we
-                                        // really marshal/handle errors here?
-                                        response =
-                                                request.current.createOutgoingResponse(exception);
-                                    }
+                    .handle(
+                        (response, exception) -> {
+                            if (exception != null) {
+                                // We need to marshal the exception into the response
+                                // immediately to observe the response size. TODO: should we
+                                // really marshal/handle errors here?
+                                response =
+                                    request.current.createOutgoingResponse(exception);
+                            }
 
-                                    observeResponse(
-                                            response, observer, request.current.requestId != 0);
-                                    observer.detach();
-                                    return response;
-                                });
+                            observeResponse(
+                                response, observer, request.current.requestId != 0);
+                            observer.detach();
+                            return response;
+                        });
             } catch (UserException | RuntimeException | Error ex) {
                 // Synchronous exception
                 OutgoingResponse response = request.current.createOutgoingResponse(ex);

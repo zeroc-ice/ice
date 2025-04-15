@@ -2,11 +2,14 @@
 
 package test.Slice.macros;
 
+import com.zeroc.Ice.Util;
+
 import test.Slice.macros.Test.Default;
 import test.Slice.macros.Test.JavaOnly;
 import test.Slice.macros.Test.NoDefault;
+import test.TestHelper;
 
-public class Client extends test.TestHelper {
+public class Client extends TestHelper {
     public void run(String[] args) {
         System.out.print("testing Slice predefined macros... ");
         Default d = new Default();
@@ -18,8 +21,8 @@ public class Client extends test.TestHelper {
         test(nd.y != 10);
 
         JavaOnly c = new JavaOnly();
-        test(c.lang.equals("java"));
-        test(c.version == com.zeroc.Ice.Util.intVersion());
+        test("java".equals(c.lang));
+        test(c.version == Util.intVersion());
         System.out.println("ok");
     }
 }

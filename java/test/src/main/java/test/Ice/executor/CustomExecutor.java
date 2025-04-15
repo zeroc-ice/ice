@@ -2,10 +2,17 @@
 
 package test.Ice.executor;
 
+import com.zeroc.Ice.Connection;
+
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.Executor;
+import java.util.function.BiConsumer;
+
 public class CustomExecutor
-        implements Runnable,
-                java.util.function.BiConsumer<Runnable, com.zeroc.Ice.Connection>,
-                java.util.concurrent.Executor {
+    implements Runnable,
+    BiConsumer<Runnable, Connection>,
+    Executor {
     private static void test(boolean b) {
         if (!b) {
             throw new RuntimeException();
@@ -25,8 +32,7 @@ public class CustomExecutor
                 if (!_terminated && _calls.isEmpty()) {
                     try {
                         wait();
-                    } catch (InterruptedException ex) {
-                    }
+                    } catch (InterruptedException ex) {}
                 }
 
                 if (!_calls.isEmpty()) {
@@ -50,9 +56,9 @@ public class CustomExecutor
     }
 
     @Override
-    public synchronized void accept(Runnable call, com.zeroc.Ice.Connection con) {
+    public synchronized void accept(Runnable call, Connection con) {
         boolean added = _calls.offer(call);
-        assert (added);
+        assert added;
         if (_calls.size() == 1) {
             notify();
         }
@@ -72,8 +78,7 @@ public class CustomExecutor
             try {
                 _thread.join();
                 break;
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
         }
     }
 
@@ -81,7 +86,7 @@ public class CustomExecutor
         return Thread.currentThread() == _thread;
     }
 
-    private java.util.Queue<Runnable> _calls = new java.util.LinkedList<>();
-    private Thread _thread;
-    private boolean _terminated = false;
+    private final Queue<Runnable> _calls = new LinkedList<>();
+    private final Thread _thread;
+    private boolean _terminated;
 }

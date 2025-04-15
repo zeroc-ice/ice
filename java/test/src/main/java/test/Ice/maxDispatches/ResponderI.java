@@ -6,17 +6,20 @@ import com.zeroc.Ice.Current;
 
 import test.Ice.maxDispatches.Test.Responder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 class ResponderI implements Responder {
-    private final java.util.List<Runnable> _responses = new java.util.ArrayList<>();
-    private boolean _started = false;
+    private final List<Runnable> _responses = new ArrayList<>();
+    private boolean _started;
 
     @Override
     public void start(Current current) {
-        java.util.ArrayList<Runnable> responses;
+        ArrayList<Runnable> responses;
 
         synchronized (this) {
             _started = true;
-            responses = new java.util.ArrayList<>(_responses);
+            responses = new ArrayList<>(_responses);
             _responses.clear();
         }
 

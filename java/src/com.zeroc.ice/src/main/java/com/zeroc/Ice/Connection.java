@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.util.concurrent.CompletableFuture;
+
 /** The user-level interface to a connection. */
 public interface Connection {
     /** Aborts this connection. */
@@ -74,7 +76,7 @@ public interface Connection {
      *     before being sent over the wire.
      * @return A future that will be completed when the invocation completes.
      */
-    java.util.concurrent.CompletableFuture<Void> flushBatchRequestsAsync(CompressBatch compress);
+    CompletableFuture<Void> flushBatchRequestsAsync(CompressBatch compress);
 
     /**
      * Set a close callback on the connection. The callback is called by the connection when it's

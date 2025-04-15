@@ -2,7 +2,17 @@
 
 package test.IceBox.admin;
 
-import test.IceBox.admin.Test.*;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.IceMX.MetricsAdmin;
+import com.zeroc.Ice.IceMX.MetricsAdminPrx;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.PropertiesAdminPrx;
+
+import test.IceBox.admin.Test.TestFacetPrx;
+import test.TestHelper;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class AllTests {
     private static void test(boolean b) {
@@ -11,11 +21,11 @@ public class AllTests {
         }
     }
 
-    public static void allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static void allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
 
         String ref = "DemoIceBox/admin:default -p 9996 -t 10000";
-        com.zeroc.Ice.ObjectPrx admin = communicator.stringToProxy(ref);
+        ObjectPrx admin = communicator.stringToProxy(ref);
 
         TestFacetPrx facet = null;
 
@@ -31,46 +41,46 @@ public class AllTests {
         System.out.print("testing properties facet... ");
         System.out.flush();
         {
-            com.zeroc.Ice.PropertiesAdminPrx pa =
-                    com.zeroc.Ice.PropertiesAdminPrx.checkedCast(
-                            admin, "IceBox.Service.TestService.Properties");
+            PropertiesAdminPrx pa =
+                PropertiesAdminPrx.checkedCast(
+                    admin, "IceBox.Service.TestService.Properties");
 
             // Test: PropertiesAdmin::getProperty()
-            test(pa.getProperty("Prop1").equals("1"));
+            test("1".equals(pa.getProperty("Prop1")));
             test(pa.getProperty("Bogus").isEmpty());
 
             // Test: PropertiesAdmin::getProperties()
-            java.util.Map<String, String> pd = pa.getPropertiesForPrefix("");
+            Map<String, String> pd = pa.getPropertiesForPrefix("");
             test(pd.size() == 6);
-            test(pd.get("Prop1").equals("1"));
-            test(pd.get("Prop2").equals("2"));
-            test(pd.get("Prop3").equals("3"));
-            test(pd.get("Ice.Config").equals("config.service"));
-            test(pd.get("Ice.ProgramName").equals("IceBox-TestService"));
-            test(pd.get("Ice.Admin.Enabled").equals("1"));
+            test("1".equals(pd.get("Prop1")));
+            test("2".equals(pd.get("Prop2")));
+            test("3".equals(pd.get("Prop3")));
+            test("config.service".equals(pd.get("Ice.Config")));
+            test("IceBox-TestService".equals(pd.get("Ice.ProgramName")));
+            test("1".equals(pd.get("Ice.Admin.Enabled")));
 
-            java.util.Map<String, String> changes;
+            Map<String, String> changes;
 
             // Test: PropertiesAdmin::setProperties()
-            java.util.Map<String, String> setProps = new java.util.HashMap<>();
+            Map<String, String> setProps = new HashMap<>();
             setProps.put("Prop1", "10"); // Changed
             setProps.put("Prop2", "20"); // Changed
             setProps.put("Prop3", ""); // Removed
             setProps.put("Prop4", "4"); // Added
             setProps.put("Prop5", "5"); // Added
             pa.setProperties(setProps);
-            test(pa.getProperty("Prop1").equals("10"));
-            test(pa.getProperty("Prop2").equals("20"));
+            test("10".equals(pa.getProperty("Prop1")));
+            test("20".equals(pa.getProperty("Prop2")));
             test(pa.getProperty("Prop3").isEmpty());
-            test(pa.getProperty("Prop4").equals("4"));
-            test(pa.getProperty("Prop5").equals("5"));
+            test("4".equals(pa.getProperty("Prop4")));
+            test("5".equals(pa.getProperty("Prop5")));
             changes = facet.getChanges();
             test(changes.size() == 5);
-            test(changes.get("Prop1").equals("10"));
-            test(changes.get("Prop2").equals("20"));
+            test("10".equals(changes.get("Prop1")));
+            test("20".equals(changes.get("Prop2")));
             test(changes.get("Prop3").isEmpty());
-            test(changes.get("Prop4").equals("4"));
-            test(changes.get("Prop5").equals("5"));
+            test("4".equals(changes.get("Prop4")));
+            test("5".equals(changes.get("Prop5")));
             pa.setProperties(setProps);
             changes = facet.getChanges();
             test(changes.isEmpty());
@@ -80,35 +90,37 @@ public class AllTests {
         System.out.print("testing metrics admin facet... ");
         System.out.flush();
         {
-            com.zeroc.Ice.IceMX.MetricsAdminPrx ma =
-                    com.zeroc.Ice.IceMX.MetricsAdminPrx.checkedCast(
-                            admin, "IceBox.Service.TestService.Metrics");
+            MetricsAdminPrx ma =
+                MetricsAdminPrx.checkedCast(
+                    admin, "IceBox.Service.TestService.Metrics");
 
-            com.zeroc.Ice.PropertiesAdminPrx pa =
-                    com.zeroc.Ice.PropertiesAdminPrx.checkedCast(
-                            admin, "IceBox.Service.TestService.Properties");
+            PropertiesAdminPrx pa =
+                PropertiesAdminPrx.checkedCast(
+                    admin, "IceBox.Service.TestService.Properties");
 
-            com.zeroc.Ice.IceMX.MetricsAdmin.GetMetricsViewNamesResult r = ma.getMetricsViewNames();
+            MetricsAdmin.GetMetricsViewNamesResult r = ma.getMetricsViewNames();
             test(r.returnValue.length == 0);
 
-            java.util.Map<String, String> setProps = new java.util.HashMap<>();
+            Map<String, String> setProps = new HashMap<>();
             setProps.put("IceMX.Metrics.Debug.GroupBy", "id");
             setProps.put("IceMX.Metrics.All.GroupBy", "none");
             setProps.put("IceMX.Metrics.Parent.GroupBy", "parent");
             pa.setProperties(setProps);
-            pa.setProperties(new java.util.HashMap<>());
+            pa.setProperties(new HashMap<>());
 
             r = ma.getMetricsViewNames();
             test(r.returnValue.length == 3);
 
             // Make sure that the IceBox communicator metrics admin is a separate instance.
             test(
-                    com.zeroc.Ice.IceMX.MetricsAdminPrx.checkedCast(admin, "Metrics")
-                                    .getMetricsViewNames()
-                                    .returnValue
-                                    .length
-                            == 0);
+                MetricsAdminPrx.checkedCast(admin, "Metrics")
+                    .getMetricsViewNames()
+                    .returnValue
+                    .length
+                    == 0);
         }
         System.out.println("ok");
     }
+
+    private AllTests() {}
 }

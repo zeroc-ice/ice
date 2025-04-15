@@ -2,7 +2,20 @@
 
 package test.Ice.operations;
 
-import test.Ice.operations.Test.*;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.ObjectNotExistException;
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+
+import test.TestHelper;
+import test.Ice.operations.Test.AnotherStruct;
+import test.Ice.operations.Test.MyClass;
+import test.Ice.operations.Test.MyClassPrx;
+import test.Ice.operations.Test.MyDerivedClass;
+import test.Ice.operations.Test.MyDerivedClassPrx;
+import test.Ice.operations.Test.MyEnum;
+import test.Ice.operations.Test.MyStruct;
+import test.Ice.operations.Test.Structure;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,8 +42,7 @@ class TwowaysAMI {
             while (!_called) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
 
             _called = false;
@@ -45,56 +57,56 @@ class TwowaysAMI {
         private boolean _called;
     }
 
-    static void twowaysAMI(test.TestHelper helper, MyClassPrx p) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    static void twowaysAMI(TestHelper helper, MyClassPrx p) {
+        Communicator communicator = helper.communicator();
         final boolean bluetooth =
-                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
-                        == 0;
+            communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
+                == 0;
 
         {
             Callback cb = new Callback();
             p.ice_pingAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.ice_isAAsync(MyClass.ice_staticId())
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.ice_idAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.equals(MyDerivedClass.ice_staticId()));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.equals(MyDerivedClass.ice_staticId()));
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.ice_idsAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.length == 3);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.length == 3);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -105,135 +117,134 @@ class TwowaysAMI {
         {
             Callback cb = new Callback();
             p.opVoidAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opByteAsync((byte) 0xff, (byte) 0x0f)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3 == (byte) 0xf0);
-                                test(result.returnValue == (byte) 0xff);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3 == (byte) 0xf0);
+                        test(result.returnValue == (byte) 0xff);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opBoolAsync(true, false)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3);
-                                test(!result.returnValue);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3);
+                        test(!result.returnValue);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opShortIntLongAsync((short) 10, 11, 12L)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p4 == 10);
-                                test(result.p5 == 11);
-                                test(result.p6 == 12);
-                                test(result.returnValue == 12);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p4 == 10);
+                        test(result.p5 == 11);
+                        test(result.p6 == 12);
+                        test(result.returnValue == 12);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opFloatDoubleAsync(3.14f, 1.1E10)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3 == 3.14f);
-                                test(result.p4 == 1.1E10);
-                                test(result.returnValue == 1.1E10);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3 == 3.14f);
+                        test(result.p4 == 1.1E10);
+                        test(result.returnValue == 1.1E10);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opStringAsync("hello", "world")
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.equals("world hello"));
-                                test(result.returnValue.equals("hello world"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test("world hello".equals(result.p3));
+                        test("hello world".equals(result.returnValue));
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opMyEnumAsync(MyEnum.enum2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p2 == MyEnum.enum2);
-                                test(result.returnValue == MyEnum.enum3);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p2 == MyEnum.enum2);
+                        test(result.returnValue == MyEnum.enum3);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opMyClassAsync(p)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(
-                                        result.p2
-                                                .ice_getIdentity()
-                                                .equals(
-                                                        com.zeroc.Ice.Util.stringToIdentity(
-                                                                "test")));
-                                test(
-                                        result.p3
-                                                .ice_getIdentity()
-                                                .equals(
-                                                        com.zeroc.Ice.Util.stringToIdentity(
-                                                                "noSuchIdentity")));
-                                test(
-                                        result.returnValue
-                                                .ice_getIdentity()
-                                                .equals(
-                                                        com.zeroc.Ice.Util.stringToIdentity(
-                                                                "test")));
-                                // We can't do the callbacks below in connection serialization mode.
-                                if (communicator
-                                                .getProperties()
-                                                .getIcePropertyAsInt(
-                                                        "Ice.ThreadPool.Client.Serialize")
-                                        == 0) {
-                                    result.returnValue.opVoid();
-                                    result.p2.opVoid();
-                                    try {
-                                        result.p3.opVoid();
-                                        test(false);
-                                    } catch (com.zeroc.Ice.ObjectNotExistException e) {
-                                    }
-                                }
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(
+                            result.p2
+                                .ice_getIdentity()
+                                .equals(
+                                    Util.stringToIdentity(
+                                        "test")));
+                        test(
+                            result.p3
+                                .ice_getIdentity()
+                                .equals(
+                                    Util.stringToIdentity(
+                                        "noSuchIdentity")));
+                        test(
+                            result.returnValue
+                                .ice_getIdentity()
+                                .equals(
+                                    Util.stringToIdentity(
+                                        "test")));
+                        // We can't do the callbacks below in connection serialization mode.
+                        if (communicator
+                            .getProperties()
+                            .getIcePropertyAsInt(
+                                "Ice.ThreadPool.Client.Serialize")
+                            == 0) {
+                            result.returnValue.opVoid();
+                            result.p2.opVoid();
+                            try {
+                                result.p3.opVoid();
+                                test(false);
+                            } catch (ObjectNotExistException e) {}
+                        }
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -251,24 +262,24 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opStructAsync(si1, si2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.returnValue.p == null);
-                                test(result.returnValue.e == MyEnum.enum2);
-                                test(result.returnValue.s.s.equals("def"));
-                                test(result.p3.e == MyEnum.enum3);
-                                test(result.p3.s.s.equals("a new string"));
-                                // We can't do the callbacks below in connection serialization mode.
-                                if (communicator
-                                                .getProperties()
-                                                .getIcePropertyAsInt(
-                                                        "Ice.ThreadPool.Client.Serialize")
-                                        == 0) {
-                                    result.p3.p.opVoid();
-                                }
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.returnValue.p == null);
+                        test(result.returnValue.e == MyEnum.enum2);
+                        test("def".equals(result.returnValue.s.s));
+                        test(result.p3.e == MyEnum.enum3);
+                        test("a new string".equals(result.p3.s.s));
+                        // We can't do the callbacks below in connection serialization mode.
+                        if (communicator
+                            .getProperties()
+                            .getIcePropertyAsInt(
+                                "Ice.ThreadPool.Client.Serialize")
+                            == 0) {
+                            result.p3.p.opVoid();
+                        }
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -278,25 +289,25 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opByteSAsync(bsi1, bsi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.length == 4);
-                                test(result.p3[0] == (byte) 0x22);
-                                test(result.p3[1] == (byte) 0x12);
-                                test(result.p3[2] == (byte) 0x11);
-                                test(result.p3[3] == (byte) 0x01);
-                                test(result.returnValue.length == 8);
-                                test(result.returnValue[0] == (byte) 0x01);
-                                test(result.returnValue[1] == (byte) 0x11);
-                                test(result.returnValue[2] == (byte) 0x12);
-                                test(result.returnValue[3] == (byte) 0x22);
-                                test(result.returnValue[4] == (byte) 0xf1);
-                                test(result.returnValue[5] == (byte) 0xf2);
-                                test(result.returnValue[6] == (byte) 0xf3);
-                                test(result.returnValue[7] == (byte) 0xf4);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.length == 4);
+                        test(result.p3[0] == (byte) 0x22);
+                        test(result.p3[1] == (byte) 0x12);
+                        test(result.p3[2] == (byte) 0x11);
+                        test(result.p3[3] == (byte) 0x01);
+                        test(result.returnValue.length == 8);
+                        test(result.returnValue[0] == (byte) 0x01);
+                        test(result.returnValue[1] == (byte) 0x11);
+                        test(result.returnValue[2] == (byte) 0x12);
+                        test(result.returnValue[3] == (byte) 0x22);
+                        test(result.returnValue[4] == (byte) 0xf1);
+                        test(result.returnValue[5] == (byte) 0xf2);
+                        test(result.returnValue[6] == (byte) 0xf3);
+                        test(result.returnValue[7] == (byte) 0xf4);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -306,20 +317,20 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opBoolSAsync(bsi1, bsi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.length == 4);
-                                test(result.p3[0]);
-                                test(result.p3[1]);
-                                test(!result.p3[2]);
-                                test(!result.p3[3]);
-                                test(result.returnValue.length == 3);
-                                test(!result.returnValue[0]);
-                                test(result.returnValue[1]);
-                                test(result.returnValue[2]);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.length == 4);
+                        test(result.p3[0]);
+                        test(result.p3[1]);
+                        test(!result.p3[2]);
+                        test(!result.p3[3]);
+                        test(result.returnValue.length == 3);
+                        test(!result.returnValue[0]);
+                        test(result.returnValue[1]);
+                        test(result.returnValue[2]);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -330,31 +341,31 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opShortIntLongSAsync(ssi, isi, lsi)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p4.length == 3);
-                                test(result.p4[0] == 1);
-                                test(result.p4[1] == 2);
-                                test(result.p4[2] == 3);
-                                test(result.p5.length == 4);
-                                test(result.p5[0] == 8);
-                                test(result.p5[1] == 7);
-                                test(result.p5[2] == 6);
-                                test(result.p5[3] == 5);
-                                test(result.p6.length == 6);
-                                test(result.p6[0] == 10);
-                                test(result.p6[1] == 30);
-                                test(result.p6[2] == 20);
-                                test(result.p6[3] == 10);
-                                test(result.p6[4] == 30);
-                                test(result.p6[5] == 20);
-                                test(result.returnValue.length == 3);
-                                test(result.returnValue[0] == 10);
-                                test(result.returnValue[1] == 30);
-                                test(result.returnValue[2] == 20);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p4.length == 3);
+                        test(result.p4[0] == 1);
+                        test(result.p4[1] == 2);
+                        test(result.p4[2] == 3);
+                        test(result.p5.length == 4);
+                        test(result.p5[0] == 8);
+                        test(result.p5[1] == 7);
+                        test(result.p5[2] == 6);
+                        test(result.p5[3] == 5);
+                        test(result.p6.length == 6);
+                        test(result.p6[0] == 10);
+                        test(result.p6[1] == 30);
+                        test(result.p6[2] == 20);
+                        test(result.p6[3] == 10);
+                        test(result.p6[4] == 30);
+                        test(result.p6[5] == 20);
+                        test(result.returnValue.length == 3);
+                        test(result.returnValue[0] == 10);
+                        test(result.returnValue[1] == 30);
+                        test(result.returnValue[2] == 20);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -364,24 +375,24 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opFloatDoubleSAsync(fsi, dsi)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.length == 2);
-                                test(result.p3[0] == 3.14f);
-                                test(result.p3[1] == 1.11f);
-                                test(result.p4.length == 3);
-                                test(result.p4[0] == 1.3E10);
-                                test(result.p4[1] == 1.2E10);
-                                test(result.p4[2] == 1.1E10);
-                                test(result.returnValue.length == 5);
-                                test(result.returnValue[0] == 1.1E10);
-                                test(result.returnValue[1] == 1.2E10);
-                                test(result.returnValue[2] == 1.3E10);
-                                test((float) result.returnValue[3] == 3.14f);
-                                test((float) result.returnValue[4] == 1.11f);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.length == 2);
+                        test(result.p3[0] == 3.14f);
+                        test(result.p3[1] == 1.11f);
+                        test(result.p4.length == 3);
+                        test(result.p4[0] == 1.3E10);
+                        test(result.p4[1] == 1.2E10);
+                        test(result.p4[2] == 1.1E10);
+                        test(result.returnValue.length == 5);
+                        test(result.returnValue[0] == 1.1E10);
+                        test(result.returnValue[1] == 1.2E10);
+                        test(result.returnValue[2] == 1.3E10);
+                        test((float) result.returnValue[3] == 3.14f);
+                        test((float) result.returnValue[4] == 1.11f);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -391,20 +402,20 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opStringSAsync(ssi1, ssi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.length == 4);
-                                test(result.p3[0].equals("abc"));
-                                test(result.p3[1].equals("de"));
-                                test(result.p3[2].equals("fghi"));
-                                test(result.p3[3].equals("xyz"));
-                                test(result.returnValue.length == 3);
-                                test(result.returnValue[0].equals("fghi"));
-                                test(result.returnValue[1].equals("de"));
-                                test(result.returnValue[2].equals("abc"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.length == 4);
+                        test("abc".equals(result.p3[0]));
+                        test("de".equals(result.p3[1]));
+                        test("fghi".equals(result.p3[2]));
+                        test("xyz".equals(result.p3[3]));
+                        test(result.returnValue.length == 3);
+                        test("fghi".equals(result.returnValue[0]));
+                        test("de".equals(result.returnValue[1]));
+                        test("abc".equals(result.returnValue[2]));
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -417,30 +428,30 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opByteSSAsync(bsi1, bsi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.length == 2);
-                                test(result.p3[0].length == 1);
-                                test(result.p3[0][0] == (byte) 0xff);
-                                test(result.p3[1].length == 3);
-                                test(result.p3[1][0] == (byte) 0x01);
-                                test(result.p3[1][1] == (byte) 0x11);
-                                test(result.p3[1][2] == (byte) 0x12);
-                                test(result.returnValue.length == 4);
-                                test(result.returnValue[0].length == 3);
-                                test(result.returnValue[0][0] == (byte) 0x01);
-                                test(result.returnValue[0][1] == (byte) 0x11);
-                                test(result.returnValue[0][2] == (byte) 0x12);
-                                test(result.returnValue[1].length == 1);
-                                test(result.returnValue[1][0] == (byte) 0xff);
-                                test(result.returnValue[2].length == 1);
-                                test(result.returnValue[2][0] == (byte) 0x0e);
-                                test(result.returnValue[3].length == 2);
-                                test(result.returnValue[3][0] == (byte) 0xf2);
-                                test(result.returnValue[3][1] == (byte) 0xf1);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.length == 2);
+                        test(result.p3[0].length == 1);
+                        test(result.p3[0][0] == (byte) 0xff);
+                        test(result.p3[1].length == 3);
+                        test(result.p3[1][0] == (byte) 0x01);
+                        test(result.p3[1][1] == (byte) 0x11);
+                        test(result.p3[1][2] == (byte) 0x12);
+                        test(result.returnValue.length == 4);
+                        test(result.returnValue[0].length == 3);
+                        test(result.returnValue[0][0] == (byte) 0x01);
+                        test(result.returnValue[0][1] == (byte) 0x11);
+                        test(result.returnValue[0][2] == (byte) 0x12);
+                        test(result.returnValue[1].length == 1);
+                        test(result.returnValue[1][0] == (byte) 0xff);
+                        test(result.returnValue[2].length == 1);
+                        test(result.returnValue[2][0] == (byte) 0x0e);
+                        test(result.returnValue[3].length == 2);
+                        test(result.returnValue[3][0] == (byte) 0xf2);
+                        test(result.returnValue[3][1] == (byte) 0xf1);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -451,31 +462,31 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opBoolSSAsync(bsi1, bsi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.length == 4);
-                                test(result.p3[0].length == 1);
-                                test(result.p3[0][0]);
-                                test(result.p3[1].length == 1);
-                                test(!result.p3[1][0]);
-                                test(result.p3[2].length == 2);
-                                test(result.p3[2][0]);
-                                test(result.p3[2][1]);
-                                test(result.p3[3].length == 3);
-                                test(!result.p3[3][0]);
-                                test(!result.p3[3][1]);
-                                test(result.p3[3][2]);
-                                test(result.returnValue.length == 3);
-                                test(result.returnValue[0].length == 2);
-                                test(result.returnValue[0][0]);
-                                test(result.returnValue[0][1]);
-                                test(result.returnValue[1].length == 1);
-                                test(!result.returnValue[1][0]);
-                                test(result.returnValue[2].length == 1);
-                                test(result.returnValue[2][0]);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.length == 4);
+                        test(result.p3[0].length == 1);
+                        test(result.p3[0][0]);
+                        test(result.p3[1].length == 1);
+                        test(!result.p3[1][0]);
+                        test(result.p3[2].length == 2);
+                        test(result.p3[2][0]);
+                        test(result.p3[2][1]);
+                        test(result.p3[3].length == 3);
+                        test(!result.p3[3][0]);
+                        test(!result.p3[3][1]);
+                        test(result.p3[3][2]);
+                        test(result.returnValue.length == 3);
+                        test(result.returnValue[0].length == 2);
+                        test(result.returnValue[0][0]);
+                        test(result.returnValue[0][1]);
+                        test(result.returnValue[1].length == 1);
+                        test(!result.returnValue[1][0]);
+                        test(result.returnValue[2].length == 1);
+                        test(result.returnValue[2][0]);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -495,36 +506,36 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opShortIntLongSSAsync(ssi, isi, lsi)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.returnValue.length == 1);
-                                test(result.returnValue[0].length == 2);
-                                test(result.returnValue[0][0] == 496);
-                                test(result.returnValue[0][1] == 1729);
-                                test(result.p4.length == 3);
-                                test(result.p4[0].length == 3);
-                                test(result.p4[0][0] == 1);
-                                test(result.p4[0][1] == 2);
-                                test(result.p4[0][2] == 5);
-                                test(result.p4[1].length == 1);
-                                test(result.p4[1][0] == 13);
-                                test(result.p4[2].length == 0);
-                                test(result.p5.length == 2);
-                                test(result.p5[0].length == 1);
-                                test(result.p5[0][0] == 42);
-                                test(result.p5[1].length == 2);
-                                test(result.p5[1][0] == 24);
-                                test(result.p5[1][1] == 98);
-                                test(result.p6.length == 2);
-                                test(result.p6[0].length == 2);
-                                test(result.p6[0][0] == 496);
-                                test(result.p6[0][1] == 1729);
-                                test(result.p6[1].length == 2);
-                                test(result.p6[1][0] == 496);
-                                test(result.p6[1][1] == 1729);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.returnValue.length == 1);
+                        test(result.returnValue[0].length == 2);
+                        test(result.returnValue[0][0] == 496);
+                        test(result.returnValue[0][1] == 1729);
+                        test(result.p4.length == 3);
+                        test(result.p4[0].length == 3);
+                        test(result.p4[0][0] == 1);
+                        test(result.p4[0][1] == 2);
+                        test(result.p4[0][2] == 5);
+                        test(result.p4[1].length == 1);
+                        test(result.p4[1][0] == 13);
+                        test(result.p4[2].length == 0);
+                        test(result.p5.length == 2);
+                        test(result.p5[0].length == 1);
+                        test(result.p5[0][0] == 42);
+                        test(result.p5[1].length == 2);
+                        test(result.p5[1][0] == 24);
+                        test(result.p5[1][1] == 98);
+                        test(result.p6.length == 2);
+                        test(result.p6[0].length == 2);
+                        test(result.p6[0][0] == 496);
+                        test(result.p6[0][1] == 1729);
+                        test(result.p6[1].length == 2);
+                        test(result.p6[1][0] == 496);
+                        test(result.p6[1][1] == 1729);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -536,31 +547,31 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opFloatDoubleSSAsync(fsi, dsi)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.length == 3);
-                                test(result.p3[0].length == 1);
-                                test(result.p3[0][0] == 3.14f);
-                                test(result.p3[1].length == 1);
-                                test(result.p3[1][0] == 1.11f);
-                                test(result.p3[2].length == 0);
-                                test(result.p4.length == 1);
-                                test(result.p4[0].length == 3);
-                                test(result.p4[0][0] == 1.1E10);
-                                test(result.p4[0][1] == 1.2E10);
-                                test(result.p4[0][2] == 1.3E10);
-                                test(result.returnValue.length == 2);
-                                test(result.returnValue[0].length == 3);
-                                test(result.returnValue[0][0] == 1.1E10);
-                                test(result.returnValue[0][1] == 1.2E10);
-                                test(result.returnValue[0][2] == 1.3E10);
-                                test(result.returnValue[1].length == 3);
-                                test(result.returnValue[1][0] == 1.1E10);
-                                test(result.returnValue[1][1] == 1.2E10);
-                                test(result.returnValue[1][2] == 1.3E10);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.length == 3);
+                        test(result.p3[0].length == 1);
+                        test(result.p3[0][0] == 3.14f);
+                        test(result.p3[1].length == 1);
+                        test(result.p3[1][0] == 1.11f);
+                        test(result.p3[2].length == 0);
+                        test(result.p4.length == 1);
+                        test(result.p4[0].length == 3);
+                        test(result.p4[0][0] == 1.1E10);
+                        test(result.p4[0][1] == 1.2E10);
+                        test(result.p4[0][2] == 1.3E10);
+                        test(result.returnValue.length == 2);
+                        test(result.returnValue[0].length == 3);
+                        test(result.returnValue[0][0] == 1.1E10);
+                        test(result.returnValue[0][1] == 1.2E10);
+                        test(result.returnValue[0][2] == 1.3E10);
+                        test(result.returnValue[1].length == 3);
+                        test(result.returnValue[1][0] == 1.1E10);
+                        test(result.returnValue[1][1] == 1.2E10);
+                        test(result.returnValue[1][2] == 1.3E10);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -570,26 +581,26 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opStringSSAsync(ssi1, ssi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.length == 5);
-                                test(result.p3[0].length == 1);
-                                test(result.p3[0][0].equals("abc"));
-                                test(result.p3[1].length == 2);
-                                test(result.p3[1][0].equals("de"));
-                                test(result.p3[1][1].equals("fghi"));
-                                test(result.p3[2].length == 0);
-                                test(result.p3[3].length == 0);
-                                test(result.p3[4].length == 1);
-                                test(result.p3[4][0].equals("xyz"));
-                                test(result.returnValue.length == 3);
-                                test(result.returnValue[0].length == 1);
-                                test(result.returnValue[0][0].equals("xyz"));
-                                test(result.returnValue[1].length == 0);
-                                test(result.returnValue[2].length == 0);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.length == 5);
+                        test(result.p3[0].length == 1);
+                        test("abc".equals(result.p3[0][0]));
+                        test(result.p3[1].length == 2);
+                        test("de".equals(result.p3[1][0]));
+                        test("fghi".equals(result.p3[1][1]));
+                        test(result.p3[2].length == 0);
+                        test(result.p3[3].length == 0);
+                        test(result.p3[4].length == 1);
+                        test("xyz".equals(result.p3[4][0]));
+                        test(result.returnValue.length == 3);
+                        test(result.returnValue[0].length == 1);
+                        test("xyz".equals(result.returnValue[0][0]));
+                        test(result.returnValue[1].length == 0);
+                        test(result.returnValue[2].length == 0);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -613,219 +624,219 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opStringSSSAsync(sssi1, sssi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.length == 5);
-                                test(result.p3[0].length == 2);
-                                test(result.p3[0][0].length == 2);
-                                test(result.p3[0][1].length == 1);
-                                test(result.p3[1].length == 1);
-                                test(result.p3[1][0].length == 1);
-                                test(result.p3[2].length == 2);
-                                test(result.p3[2][0].length == 2);
-                                test(result.p3[2][1].length == 1);
-                                test(result.p3[3].length == 1);
-                                test(result.p3[3][0].length == 1);
-                                test(result.p3[4].length == 0);
-                                test(result.p3[0][0][0].equals("abc"));
-                                test(result.p3[0][0][1].equals("de"));
-                                test(result.p3[0][1][0].equals("xyz"));
-                                test(result.p3[1][0][0].equals("hello"));
-                                test(result.p3[2][0][0].isEmpty());
-                                test(result.p3[2][0][1].isEmpty());
-                                test(result.p3[2][1][0].equals("abcd"));
-                                test(result.p3[3][0][0].isEmpty());
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.length == 5);
+                        test(result.p3[0].length == 2);
+                        test(result.p3[0][0].length == 2);
+                        test(result.p3[0][1].length == 1);
+                        test(result.p3[1].length == 1);
+                        test(result.p3[1][0].length == 1);
+                        test(result.p3[2].length == 2);
+                        test(result.p3[2][0].length == 2);
+                        test(result.p3[2][1].length == 1);
+                        test(result.p3[3].length == 1);
+                        test(result.p3[3][0].length == 1);
+                        test(result.p3[4].length == 0);
+                        test("abc".equals(result.p3[0][0][0]));
+                        test("de".equals(result.p3[0][0][1]));
+                        test("xyz".equals(result.p3[0][1][0]));
+                        test("hello".equals(result.p3[1][0][0]));
+                        test(result.p3[2][0][0].isEmpty());
+                        test(result.p3[2][0][1].isEmpty());
+                        test("abcd".equals(result.p3[2][1][0]));
+                        test(result.p3[3][0][0].isEmpty());
 
-                                test(result.returnValue.length == 3);
-                                test(result.returnValue[0].length == 0);
-                                test(result.returnValue[1].length == 1);
-                                test(result.returnValue[1][0].length == 1);
-                                test(result.returnValue[2].length == 2);
-                                test(result.returnValue[2][0].length == 2);
-                                test(result.returnValue[2][1].length == 1);
-                                test(result.returnValue[1][0][0].isEmpty());
-                                test(result.returnValue[2][0][0].isEmpty());
-                                test(result.returnValue[2][0][1].isEmpty());
-                                test(result.returnValue[2][1][0].equals("abcd"));
-                                cb.called();
-                            });
+                        test(result.returnValue.length == 3);
+                        test(result.returnValue[0].length == 0);
+                        test(result.returnValue[1].length == 1);
+                        test(result.returnValue[1][0].length == 1);
+                        test(result.returnValue[2].length == 2);
+                        test(result.returnValue[2][0].length == 2);
+                        test(result.returnValue[2][1].length == 1);
+                        test(result.returnValue[1][0][0].isEmpty());
+                        test(result.returnValue[2][0][0].isEmpty());
+                        test(result.returnValue[2][0][1].isEmpty());
+                        test("abcd".equals(result.returnValue[2][1][0]));
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
-            java.util.Map<Byte, Boolean> di1 = new java.util.HashMap<>();
+            Map<Byte, Boolean> di1 = new HashMap<>();
             di1.put((byte) 10, Boolean.TRUE);
             di1.put((byte) 100, Boolean.FALSE);
-            java.util.Map<Byte, Boolean> di2 = new java.util.HashMap<>();
+            Map<Byte, Boolean> di2 = new HashMap<>();
             di2.put((byte) 10, Boolean.TRUE);
             di2.put((byte) 11, Boolean.FALSE);
             di2.put((byte) 101, Boolean.TRUE);
 
             Callback cb = new Callback();
             p.opByteBoolDAsync(di1, di2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.equals(di1));
-                                test(result.returnValue.size() == 4);
-                                test(result.returnValue.get((byte) 10));
-                                test(!result.returnValue.get((byte) 11));
-                                test(!result.returnValue.get((byte) 100));
-                                test(result.returnValue.get((byte) 101));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.equals(di1));
+                        test(result.returnValue.size() == 4);
+                        test(result.returnValue.get((byte) 10));
+                        test(!result.returnValue.get((byte) 11));
+                        test(!result.returnValue.get((byte) 100));
+                        test(result.returnValue.get((byte) 101));
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
-            java.util.Map<Short, Integer> di1 = new java.util.HashMap<>();
+            Map<Short, Integer> di1 = new HashMap<>();
             di1.put((short) 110, -1);
             di1.put((short) 1100, 123123);
-            java.util.Map<Short, Integer> di2 = new java.util.HashMap<>();
+            Map<Short, Integer> di2 = new HashMap<>();
             di2.put((short) 110, -1);
             di2.put((short) 111, -100);
             di2.put((short) 1101, 0);
 
             Callback cb = new Callback();
             p.opShortIntDAsync(di1, di2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.equals(di1));
-                                test(result.returnValue.size() == 4);
-                                test(result.returnValue.get((short) 110) == -1);
-                                test(result.returnValue.get((short) 111) == -100);
-                                test(result.returnValue.get((short) 1100) == 123123);
-                                test(result.returnValue.get((short) 1101) == 0);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.equals(di1));
+                        test(result.returnValue.size() == 4);
+                        test(result.returnValue.get((short) 110) == -1);
+                        test(result.returnValue.get((short) 111) == -100);
+                        test(result.returnValue.get((short) 1100) == 123123);
+                        test(result.returnValue.get((short) 1101) == 0);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
-            java.util.Map<Long, Float> di1 = new java.util.HashMap<>();
+            Map<Long, Float> di1 = new HashMap<>();
             di1.put(999999110L, -1.1f);
             di1.put(999999111L, 123123.2f);
-            java.util.Map<Long, Float> di2 = new java.util.HashMap<>();
+            Map<Long, Float> di2 = new HashMap<>();
             di2.put(999999110L, -1.1f);
             di2.put(999999120L, -100.4f);
             di2.put(999999130L, 0.5f);
 
             Callback cb = new Callback();
             p.opLongFloatDAsync(di1, di2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.equals(di1));
-                                test(result.returnValue.size() == 4);
-                                test(result.returnValue.get(999999110L) == -1.1f);
-                                test(result.returnValue.get(999999120L) == -100.4f);
-                                test(result.returnValue.get(999999111L) == 123123.2f);
-                                test(result.returnValue.get(999999130L) == 0.5f);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.equals(di1));
+                        test(result.returnValue.size() == 4);
+                        test(result.returnValue.get(999999110L) == -1.1f);
+                        test(result.returnValue.get(999999120L) == -100.4f);
+                        test(result.returnValue.get(999999111L) == 123123.2f);
+                        test(result.returnValue.get(999999130L) == 0.5f);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
-            java.util.Map<String, String> di1 = new java.util.HashMap<>();
+            Map<String, String> di1 = new HashMap<>();
             di1.put("foo", "abc -1.1");
             di1.put("bar", "abc 123123.2");
-            java.util.Map<String, String> di2 = new java.util.HashMap<>();
+            Map<String, String> di2 = new HashMap<>();
             di2.put("foo", "abc -1.1");
             di2.put("FOO", "abc -100.4");
             di2.put("BAR", "abc 0.5");
 
             Callback cb = new Callback();
             p.opStringStringDAsync(di1, di2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.equals(di1));
-                                test(result.returnValue.size() == 4);
-                                test(result.returnValue.get("foo").equals("abc -1.1"));
-                                test(result.returnValue.get("FOO").equals("abc -100.4"));
-                                test(result.returnValue.get("bar").equals("abc 123123.2"));
-                                test(result.returnValue.get("BAR").equals("abc 0.5"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.equals(di1));
+                        test(result.returnValue.size() == 4);
+                        test("abc -1.1".equals(result.returnValue.get("foo")));
+                        test("abc -100.4".equals(result.returnValue.get("FOO")));
+                        test("abc 123123.2".equals(result.returnValue.get("bar")));
+                        test("abc 0.5".equals(result.returnValue.get("BAR")));
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
-            java.util.Map<String, MyEnum> di1 = new java.util.HashMap<>();
+            Map<String, MyEnum> di1 = new HashMap<>();
             di1.put("abc", MyEnum.enum1);
             di1.put("", MyEnum.enum2);
-            java.util.Map<String, MyEnum> di2 = new java.util.HashMap<>();
+            Map<String, MyEnum> di2 = new HashMap<>();
             di2.put("abc", MyEnum.enum1);
             di2.put("qwerty", MyEnum.enum3);
             di2.put("Hello!!", MyEnum.enum2);
 
             Callback cb = new Callback();
             p.opStringMyEnumDAsync(di1, di2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.equals(di1));
-                                test(result.returnValue.size() == 4);
-                                test(result.returnValue.get("abc") == MyEnum.enum1);
-                                test(result.returnValue.get("qwerty") == MyEnum.enum3);
-                                test(result.returnValue.get("") == MyEnum.enum2);
-                                test(result.returnValue.get("Hello!!") == MyEnum.enum2);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.equals(di1));
+                        test(result.returnValue.size() == 4);
+                        test(result.returnValue.get("abc") == MyEnum.enum1);
+                        test(result.returnValue.get("qwerty") == MyEnum.enum3);
+                        test(result.returnValue.get("") == MyEnum.enum2);
+                        test(result.returnValue.get("Hello!!") == MyEnum.enum2);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
-            java.util.Map<MyEnum, String> di1 = new java.util.HashMap<>();
+            Map<MyEnum, String> di1 = new HashMap<>();
             di1.put(MyEnum.enum1, "abc");
-            java.util.Map<MyEnum, String> di2 = new java.util.HashMap<>();
+            Map<MyEnum, String> di2 = new HashMap<>();
             di2.put(MyEnum.enum2, "Hello!!");
             di2.put(MyEnum.enum3, "qwerty");
 
             Callback cb = new Callback();
             p.opMyEnumStringDAsync(di1, di2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.equals(di1));
-                                test(result.returnValue.size() == 3);
-                                test(result.returnValue.get(MyEnum.enum1).equals("abc"));
-                                test(result.returnValue.get(MyEnum.enum2).equals("Hello!!"));
-                                test(result.returnValue.get(MyEnum.enum3).equals("qwerty"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.equals(di1));
+                        test(result.returnValue.size() == 3);
+                        test("abc".equals(result.returnValue.get(MyEnum.enum1)));
+                        test("Hello!!".equals(result.returnValue.get(MyEnum.enum2)));
+                        test("qwerty".equals(result.returnValue.get(MyEnum.enum3)));
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             MyStruct s11 = new MyStruct(1, 1);
             MyStruct s12 = new MyStruct(1, 2);
-            java.util.Map<MyStruct, MyEnum> di1 = new java.util.HashMap<>();
+            Map<MyStruct, MyEnum> di1 = new HashMap<>();
             di1.put(s11, MyEnum.enum1);
             di1.put(s12, MyEnum.enum2);
             MyStruct s22 = new MyStruct(2, 2);
             MyStruct s23 = new MyStruct(2, 3);
-            java.util.Map<MyStruct, MyEnum> di2 = new java.util.HashMap<>();
+            Map<MyStruct, MyEnum> di2 = new HashMap<>();
             di2.put(s11, MyEnum.enum1);
             di2.put(s22, MyEnum.enum3);
             di2.put(s23, MyEnum.enum2);
 
             Callback cb = new Callback();
             p.opMyStructMyEnumDAsync(di1, di2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.equals(di1));
-                                test(result.returnValue.size() == 4);
-                                test(result.returnValue.get(s11) == MyEnum.enum1);
-                                test(result.returnValue.get(s12) == MyEnum.enum2);
-                                test(result.returnValue.get(s22) == MyEnum.enum3);
-                                test(result.returnValue.get(s23) == MyEnum.enum2);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.equals(di1));
+                        test(result.returnValue.size() == 4);
+                        test(result.returnValue.get(s11) == MyEnum.enum1);
+                        test(result.returnValue.get(s12) == MyEnum.enum2);
+                        test(result.returnValue.get(s22) == MyEnum.enum3);
+                        test(result.returnValue.get(s23) == MyEnum.enum2);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -850,31 +861,31 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opByteBoolDSAsync(dsi1, dsi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.returnValue.size() == 2);
-                                test(result.returnValue.get(0).size() == 3);
-                                test(result.returnValue.get(0).get((byte) 10));
-                                test(!result.returnValue.get(0).get((byte) 11));
-                                test(result.returnValue.get(0).get((byte) 101));
-                                test(result.returnValue.get(1).size() == 2);
-                                test(result.returnValue.get(1).get((byte) 10));
-                                test(!result.returnValue.get(1).get((byte) 100));
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.returnValue.size() == 2);
+                        test(result.returnValue.get(0).size() == 3);
+                        test(result.returnValue.get(0).get((byte) 10));
+                        test(!result.returnValue.get(0).get((byte) 11));
+                        test(result.returnValue.get(0).get((byte) 101));
+                        test(result.returnValue.get(1).size() == 2);
+                        test(result.returnValue.get(1).get((byte) 10));
+                        test(!result.returnValue.get(1).get((byte) 100));
 
-                                test(result.p3.size() == 3);
-                                test(result.p3.get(0).size() == 2);
-                                test(!result.p3.get(0).get((byte) 100));
-                                test(!result.p3.get(0).get((byte) 101));
-                                test(result.p3.get(1).size() == 2);
-                                test(result.p3.get(1).get((byte) 10));
-                                test(!result.p3.get(1).get((byte) 100));
-                                test(result.p3.get(2).size() == 3);
-                                test(result.p3.get(2).get((byte) 10));
-                                test(!result.p3.get(2).get((byte) 11));
-                                test(result.p3.get(2).get((byte) 101));
-                                cb.called();
-                            });
+                        test(result.p3.size() == 3);
+                        test(result.p3.get(0).size() == 2);
+                        test(!result.p3.get(0).get((byte) 100));
+                        test(!result.p3.get(0).get((byte) 101));
+                        test(result.p3.get(1).size() == 2);
+                        test(result.p3.get(1).get((byte) 10));
+                        test(!result.p3.get(1).get((byte) 100));
+                        test(result.p3.get(2).size() == 3);
+                        test(result.p3.get(2).get((byte) 10));
+                        test(!result.p3.get(2).get((byte) 11));
+                        test(result.p3.get(2).get((byte) 101));
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -898,30 +909,30 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opShortIntDSAsync(dsi1, dsi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.returnValue.size() == 2);
-                                test(result.returnValue.get(0).size() == 3);
-                                test(result.returnValue.get(0).get((short) 110) == -1);
-                                test(result.returnValue.get(0).get((short) 111) == -100);
-                                test(result.returnValue.get(0).get((short) 1101) == 0);
-                                test(result.returnValue.get(1).size() == 2);
-                                test(result.returnValue.get(1).get((short) 110) == -1);
-                                test(result.returnValue.get(1).get((short) 1100) == 123123);
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.returnValue.size() == 2);
+                        test(result.returnValue.get(0).size() == 3);
+                        test(result.returnValue.get(0).get((short) 110) == -1);
+                        test(result.returnValue.get(0).get((short) 111) == -100);
+                        test(result.returnValue.get(0).get((short) 1101) == 0);
+                        test(result.returnValue.get(1).size() == 2);
+                        test(result.returnValue.get(1).get((short) 110) == -1);
+                        test(result.returnValue.get(1).get((short) 1100) == 123123);
 
-                                test(result.p3.size() == 3);
-                                test(result.p3.get(0).size() == 1);
-                                test(result.p3.get(0).get((short) 100) == -1001);
-                                test(result.p3.get(1).size() == 2);
-                                test(result.p3.get(1).get((short) 110) == -1);
-                                test(result.p3.get(1).get((short) 1100) == 123123);
-                                test(result.p3.get(2).size() == 3);
-                                test(result.p3.get(2).get((short) 110) == -1);
-                                test(result.p3.get(2).get((short) 111) == -100);
-                                test(result.p3.get(2).get((short) 1101) == 0);
-                                cb.called();
-                            });
+                        test(result.p3.size() == 3);
+                        test(result.p3.get(0).size() == 1);
+                        test(result.p3.get(0).get((short) 100) == -1001);
+                        test(result.p3.get(1).size() == 2);
+                        test(result.p3.get(1).get((short) 110) == -1);
+                        test(result.p3.get(1).get((short) 1100) == 123123);
+                        test(result.p3.get(2).size() == 3);
+                        test(result.p3.get(2).get((short) 110) == -1);
+                        test(result.p3.get(2).get((short) 111) == -100);
+                        test(result.p3.get(2).get((short) 1101) == 0);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -945,30 +956,30 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opLongFloatDSAsync(dsi1, dsi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.returnValue.size() == 2);
-                                test(result.returnValue.get(0).size() == 3);
-                                test(result.returnValue.get(0).get(999999110L) == -1.1f);
-                                test(result.returnValue.get(0).get(999999120L) == -100.4f);
-                                test(result.returnValue.get(0).get(999999130L) == 0.5f);
-                                test(result.returnValue.get(1).size() == 2);
-                                test(result.returnValue.get(1).get(999999110L) == -1.1f);
-                                test(result.returnValue.get(1).get(999999111L) == 123123.2f);
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.returnValue.size() == 2);
+                        test(result.returnValue.get(0).size() == 3);
+                        test(result.returnValue.get(0).get(999999110L) == -1.1f);
+                        test(result.returnValue.get(0).get(999999120L) == -100.4f);
+                        test(result.returnValue.get(0).get(999999130L) == 0.5f);
+                        test(result.returnValue.get(1).size() == 2);
+                        test(result.returnValue.get(1).get(999999110L) == -1.1f);
+                        test(result.returnValue.get(1).get(999999111L) == 123123.2f);
 
-                                test(result.p3.size() == 3);
-                                test(result.p3.get(0).size() == 1);
-                                test(result.p3.get(0).get(999999140L) == 3.14f);
-                                test(result.p3.get(1).size() == 2);
-                                test(result.p3.get(1).get(999999110L) == -1.1f);
-                                test(result.p3.get(1).get(999999111L) == 123123.2f);
-                                test(result.p3.get(2).size() == 3);
-                                test(result.p3.get(2).get(999999110L) == -1.1f);
-                                test(result.p3.get(2).get(999999120L) == -100.4f);
-                                test(result.p3.get(2).get(999999130L) == 0.5f);
-                                cb.called();
-                            });
+                        test(result.p3.size() == 3);
+                        test(result.p3.get(0).size() == 1);
+                        test(result.p3.get(0).get(999999140L) == 3.14f);
+                        test(result.p3.get(1).size() == 2);
+                        test(result.p3.get(1).get(999999110L) == -1.1f);
+                        test(result.p3.get(1).get(999999111L) == 123123.2f);
+                        test(result.p3.get(2).size() == 3);
+                        test(result.p3.get(2).get(999999110L) == -1.1f);
+                        test(result.p3.get(2).get(999999120L) == -100.4f);
+                        test(result.p3.get(2).get(999999130L) == 0.5f);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -976,14 +987,14 @@ class TwowaysAMI {
             List<Map<String, String>> dsi1 = new ArrayList<>();
             List<Map<String, String>> dsi2 = new ArrayList<>();
 
-            java.util.Map<String, String> di1 = new HashMap<>();
+            Map<String, String> di1 = new HashMap<>();
             di1.put("foo", "abc -1.1");
             di1.put("bar", "abc 123123.2");
-            java.util.Map<String, String> di2 = new HashMap<>();
+            Map<String, String> di2 = new HashMap<>();
             di2.put("foo", "abc -1.1");
             di2.put("FOO", "abc -100.4");
             di2.put("BAR", "abc 0.5");
-            java.util.Map<String, String> di3 = new HashMap<>();
+            Map<String, String> di3 = new HashMap<>();
             di3.put("f00", "ABC -3.14");
 
             dsi1.add(di1);
@@ -992,30 +1003,30 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opStringStringDSAsync(dsi1, dsi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.returnValue.size() == 2);
-                                test(result.returnValue.get(0).size() == 3);
-                                test(result.returnValue.get(0).get("foo").equals("abc -1.1"));
-                                test(result.returnValue.get(0).get("FOO").equals("abc -100.4"));
-                                test(result.returnValue.get(0).get("BAR").equals("abc 0.5"));
-                                test(result.returnValue.get(1).size() == 2);
-                                test(result.returnValue.get(1).get("foo").equals("abc -1.1"));
-                                test(result.returnValue.get(1).get("bar").equals("abc 123123.2"));
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.returnValue.size() == 2);
+                        test(result.returnValue.get(0).size() == 3);
+                        test("abc -1.1".equals(result.returnValue.get(0).get("foo")));
+                        test("abc -100.4".equals(result.returnValue.get(0).get("FOO")));
+                        test("abc 0.5".equals(result.returnValue.get(0).get("BAR")));
+                        test(result.returnValue.get(1).size() == 2);
+                        test("abc -1.1".equals(result.returnValue.get(1).get("foo")));
+                        test("abc 123123.2".equals(result.returnValue.get(1).get("bar")));
 
-                                test(result.p3.size() == 3);
-                                test(result.p3.get(0).size() == 1);
-                                test(result.p3.get(0).get("f00").equals("ABC -3.14"));
-                                test(result.p3.get(1).size() == 2);
-                                test(result.p3.get(1).get("foo").equals("abc -1.1"));
-                                test(result.p3.get(1).get("bar").equals("abc 123123.2"));
-                                test(result.p3.get(2).size() == 3);
-                                test(result.p3.get(2).get("foo").equals("abc -1.1"));
-                                test(result.p3.get(2).get("FOO").equals("abc -100.4"));
-                                test(result.p3.get(2).get("BAR").equals("abc 0.5"));
-                                cb.called();
-                            });
+                        test(result.p3.size() == 3);
+                        test(result.p3.get(0).size() == 1);
+                        test("ABC -3.14".equals(result.p3.get(0).get("f00")));
+                        test(result.p3.get(1).size() == 2);
+                        test("abc -1.1".equals(result.p3.get(1).get("foo")));
+                        test("abc 123123.2".equals(result.p3.get(1).get("bar")));
+                        test(result.p3.get(2).size() == 3);
+                        test("abc -1.1".equals(result.p3.get(2).get("foo")));
+                        test("abc -100.4".equals(result.p3.get(2).get("FOO")));
+                        test("abc 0.5".equals(result.p3.get(2).get("BAR")));
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -1023,14 +1034,14 @@ class TwowaysAMI {
             List<Map<String, MyEnum>> dsi1 = new ArrayList<>();
             List<Map<String, MyEnum>> dsi2 = new ArrayList<>();
 
-            java.util.Map<String, MyEnum> di1 = new HashMap<>();
+            Map<String, MyEnum> di1 = new HashMap<>();
             di1.put("abc", MyEnum.enum1);
             di1.put("", MyEnum.enum2);
-            java.util.Map<String, MyEnum> di2 = new HashMap<>();
+            Map<String, MyEnum> di2 = new HashMap<>();
             di2.put("abc", MyEnum.enum1);
             di2.put("qwerty", MyEnum.enum3);
             di2.put("Hello!!", MyEnum.enum2);
-            java.util.Map<String, MyEnum> di3 = new HashMap<>();
+            Map<String, MyEnum> di3 = new HashMap<>();
             di3.put("Goodbye", MyEnum.enum1);
 
             dsi1.add(di1);
@@ -1039,30 +1050,30 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opStringMyEnumDSAsync(dsi1, dsi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.returnValue.size() == 2);
-                                test(result.returnValue.get(0).size() == 3);
-                                test(result.returnValue.get(0).get("abc") == MyEnum.enum1);
-                                test(result.returnValue.get(0).get("qwerty") == MyEnum.enum3);
-                                test(result.returnValue.get(0).get("Hello!!") == MyEnum.enum2);
-                                test(result.returnValue.get(1).size() == 2);
-                                test(result.returnValue.get(1).get("abc") == MyEnum.enum1);
-                                test(result.returnValue.get(1).get("") == MyEnum.enum2);
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.returnValue.size() == 2);
+                        test(result.returnValue.get(0).size() == 3);
+                        test(result.returnValue.get(0).get("abc") == MyEnum.enum1);
+                        test(result.returnValue.get(0).get("qwerty") == MyEnum.enum3);
+                        test(result.returnValue.get(0).get("Hello!!") == MyEnum.enum2);
+                        test(result.returnValue.get(1).size() == 2);
+                        test(result.returnValue.get(1).get("abc") == MyEnum.enum1);
+                        test(result.returnValue.get(1).get("") == MyEnum.enum2);
 
-                                test(result.p3.size() == 3);
-                                test(result.p3.get(0).size() == 1);
-                                test(result.p3.get(0).get("Goodbye") == MyEnum.enum1);
-                                test(result.p3.get(1).size() == 2);
-                                test(result.p3.get(1).get("abc") == MyEnum.enum1);
-                                test(result.p3.get(1).get("") == MyEnum.enum2);
-                                test(result.p3.get(2).size() == 3);
-                                test(result.p3.get(2).get("abc") == MyEnum.enum1);
-                                test(result.p3.get(2).get("qwerty") == MyEnum.enum3);
-                                test(result.p3.get(2).get("Hello!!") == MyEnum.enum2);
-                                cb.called();
-                            });
+                        test(result.p3.size() == 3);
+                        test(result.p3.get(0).size() == 1);
+                        test(result.p3.get(0).get("Goodbye") == MyEnum.enum1);
+                        test(result.p3.get(1).size() == 2);
+                        test(result.p3.get(1).get("abc") == MyEnum.enum1);
+                        test(result.p3.get(1).get("") == MyEnum.enum2);
+                        test(result.p3.get(2).size() == 3);
+                        test(result.p3.get(2).get("abc") == MyEnum.enum1);
+                        test(result.p3.get(2).get("qwerty") == MyEnum.enum3);
+                        test(result.p3.get(2).get("Hello!!") == MyEnum.enum2);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -1070,12 +1081,12 @@ class TwowaysAMI {
             List<Map<MyEnum, String>> dsi1 = new ArrayList<>();
             List<Map<MyEnum, String>> dsi2 = new ArrayList<>();
 
-            java.util.Map<MyEnum, String> di1 = new HashMap<>();
+            Map<MyEnum, String> di1 = new HashMap<>();
             di1.put(MyEnum.enum1, "abc");
-            java.util.Map<MyEnum, String> di2 = new HashMap<>();
+            Map<MyEnum, String> di2 = new HashMap<>();
             di2.put(MyEnum.enum2, "Hello!!");
             di2.put(MyEnum.enum3, "qwerty");
-            java.util.Map<MyEnum, String> di3 = new HashMap<>();
+            Map<MyEnum, String> di3 = new HashMap<>();
             di3.put(MyEnum.enum1, "Goodbye");
 
             dsi1.add(di1);
@@ -1084,26 +1095,26 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opMyEnumStringDSAsync(dsi1, dsi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.returnValue.size() == 2);
-                                test(result.returnValue.get(0).size() == 2);
-                                test(result.returnValue.get(0).get(MyEnum.enum2).equals("Hello!!"));
-                                test(result.returnValue.get(0).get(MyEnum.enum3).equals("qwerty"));
-                                test(result.returnValue.get(1).size() == 1);
-                                test(result.returnValue.get(1).get(MyEnum.enum1).equals("abc"));
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.returnValue.size() == 2);
+                        test(result.returnValue.get(0).size() == 2);
+                        test("Hello!!".equals(result.returnValue.get(0).get(MyEnum.enum2)));
+                        test("qwerty".equals(result.returnValue.get(0).get(MyEnum.enum3)));
+                        test(result.returnValue.get(1).size() == 1);
+                        test("abc".equals(result.returnValue.get(1).get(MyEnum.enum1)));
 
-                                test(result.p3.size() == 3);
-                                test(result.p3.get(0).size() == 1);
-                                test(result.p3.get(0).get(MyEnum.enum1).equals("Goodbye"));
-                                test(result.p3.get(1).size() == 1);
-                                test(result.p3.get(1).get(MyEnum.enum1).equals("abc"));
-                                test(result.p3.get(2).size() == 2);
-                                test(result.p3.get(2).get(MyEnum.enum2).equals("Hello!!"));
-                                test(result.p3.get(2).get(MyEnum.enum3).equals("qwerty"));
-                                cb.called();
-                            });
+                        test(result.p3.size() == 3);
+                        test(result.p3.get(0).size() == 1);
+                        test("Goodbye".equals(result.p3.get(0).get(MyEnum.enum1)));
+                        test(result.p3.get(1).size() == 1);
+                        test("abc".equals(result.p3.get(1).get(MyEnum.enum1)));
+                        test(result.p3.get(2).size() == 2);
+                        test("Hello!!".equals(result.p3.get(2).get(MyEnum.enum2)));
+                        test("qwerty".equals(result.p3.get(2).get(MyEnum.enum3)));
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -1113,18 +1124,18 @@ class TwowaysAMI {
 
             MyStruct s11 = new MyStruct(1, 1);
             MyStruct s12 = new MyStruct(1, 2);
-            java.util.Map<MyStruct, MyEnum> di1 = new HashMap<>();
+            Map<MyStruct, MyEnum> di1 = new HashMap<>();
             di1.put(s11, MyEnum.enum1);
             di1.put(s12, MyEnum.enum2);
 
             MyStruct s22 = new MyStruct(2, 2);
             MyStruct s23 = new MyStruct(2, 3);
-            java.util.Map<MyStruct, MyEnum> di2 = new HashMap<>();
+            Map<MyStruct, MyEnum> di2 = new HashMap<>();
             di2.put(s11, MyEnum.enum1);
             di2.put(s22, MyEnum.enum3);
             di2.put(s23, MyEnum.enum2);
 
-            java.util.Map<MyStruct, MyEnum> di3 = new HashMap<>();
+            Map<MyStruct, MyEnum> di3 = new HashMap<>();
             di3.put(s23, MyEnum.enum3);
 
             dsi1.add(di1);
@@ -1133,36 +1144,36 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opMyStructMyEnumDSAsync(dsi1, dsi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.returnValue.size() == 2);
-                                test(result.returnValue.get(0).size() == 3);
-                                test(result.returnValue.get(0).get(s11) == MyEnum.enum1);
-                                test(result.returnValue.get(0).get(s22) == MyEnum.enum3);
-                                test(result.returnValue.get(0).get(s23) == MyEnum.enum2);
-                                test(result.returnValue.get(1).size() == 2);
-                                test(result.returnValue.get(1).get(s11) == MyEnum.enum1);
-                                test(result.returnValue.get(1).get(s12) == MyEnum.enum2);
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.returnValue.size() == 2);
+                        test(result.returnValue.get(0).size() == 3);
+                        test(result.returnValue.get(0).get(s11) == MyEnum.enum1);
+                        test(result.returnValue.get(0).get(s22) == MyEnum.enum3);
+                        test(result.returnValue.get(0).get(s23) == MyEnum.enum2);
+                        test(result.returnValue.get(1).size() == 2);
+                        test(result.returnValue.get(1).get(s11) == MyEnum.enum1);
+                        test(result.returnValue.get(1).get(s12) == MyEnum.enum2);
 
-                                test(result.p3.size() == 3);
-                                test(result.p3.get(0).size() == 1);
-                                test(result.p3.get(0).get(s23) == MyEnum.enum3);
-                                test(result.p3.get(1).size() == 2);
-                                test(result.p3.get(1).get(s11) == MyEnum.enum1);
-                                test(result.p3.get(1).get(s12) == MyEnum.enum2);
-                                test(result.p3.get(2).size() == 3);
-                                test(result.p3.get(2).get(s11) == MyEnum.enum1);
-                                test(result.p3.get(2).get(s22) == MyEnum.enum3);
-                                test(result.p3.get(2).get(s23) == MyEnum.enum2);
-                                cb.called();
-                            });
+                        test(result.p3.size() == 3);
+                        test(result.p3.get(0).size() == 1);
+                        test(result.p3.get(0).get(s23) == MyEnum.enum3);
+                        test(result.p3.get(1).size() == 2);
+                        test(result.p3.get(1).get(s11) == MyEnum.enum1);
+                        test(result.p3.get(1).get(s12) == MyEnum.enum2);
+                        test(result.p3.get(2).size() == 3);
+                        test(result.p3.get(2).get(s11) == MyEnum.enum1);
+                        test(result.p3.get(2).get(s22) == MyEnum.enum3);
+                        test(result.p3.get(2).get(s23) == MyEnum.enum2);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
-            java.util.Map<Byte, byte[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<Byte, byte[]> sdi2 = new java.util.HashMap<>();
+            Map<Byte, byte[]> sdi1 = new HashMap<>();
+            Map<Byte, byte[]> sdi2 = new HashMap<>();
 
             final byte[] si1 = {(byte) 0x01, (byte) 0x11};
             final byte[] si2 = {(byte) 0x12};
@@ -1174,30 +1185,30 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opByteByteSDAsync(sdi1, sdi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.size() == 1);
-                                test(result.p3.get((byte) 0xf1).length == 2);
-                                test(result.p3.get((byte) 0xf1)[0] == (byte) 0xf2);
-                                test(result.p3.get((byte) 0xf1)[1] == (byte) 0xf3);
-                                test(result.returnValue.size() == 3);
-                                test(result.returnValue.get((byte) 0x01).length == 2);
-                                test(result.returnValue.get((byte) 0x01)[0] == (byte) 0x01);
-                                test(result.returnValue.get((byte) 0x01)[1] == (byte) 0x11);
-                                test(result.returnValue.get((byte) 0x22).length == 1);
-                                test(result.returnValue.get((byte) 0x22)[0] == (byte) 0x12);
-                                test(result.returnValue.get((byte) 0xf1).length == 2);
-                                test(result.returnValue.get((byte) 0xf1)[0] == (byte) 0xf2);
-                                test(result.returnValue.get((byte) 0xf1)[1] == (byte) 0xf3);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.size() == 1);
+                        test(result.p3.get((byte) 0xf1).length == 2);
+                        test(result.p3.get((byte) 0xf1)[0] == (byte) 0xf2);
+                        test(result.p3.get((byte) 0xf1)[1] == (byte) 0xf3);
+                        test(result.returnValue.size() == 3);
+                        test(result.returnValue.get((byte) 0x01).length == 2);
+                        test(result.returnValue.get((byte) 0x01)[0] == (byte) 0x01);
+                        test(result.returnValue.get((byte) 0x01)[1] == (byte) 0x11);
+                        test(result.returnValue.get((byte) 0x22).length == 1);
+                        test(result.returnValue.get((byte) 0x22)[0] == (byte) 0x12);
+                        test(result.returnValue.get((byte) 0xf1).length == 2);
+                        test(result.returnValue.get((byte) 0xf1)[0] == (byte) 0xf2);
+                        test(result.returnValue.get((byte) 0xf1)[1] == (byte) 0xf3);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
-            java.util.Map<Boolean, boolean[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<Boolean, boolean[]> sdi2 = new java.util.HashMap<>();
+            Map<Boolean, boolean[]> sdi1 = new HashMap<>();
+            Map<Boolean, boolean[]> sdi2 = new HashMap<>();
 
             final boolean[] si1 = {true, false};
             final boolean[] si2 = {false, true, true};
@@ -1208,29 +1219,29 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opBoolBoolSDAsync(sdi1, sdi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.size() == 1);
-                                test(result.p3.get(false).length == 2);
-                                test(result.p3.get(false)[0]);
-                                test(!result.p3.get(false)[1]);
-                                test(result.returnValue.size() == 2);
-                                test(result.returnValue.get(false).length == 2);
-                                test(result.returnValue.get(false)[0]);
-                                test(!result.returnValue.get(false)[1]);
-                                test(result.returnValue.get(true).length == 3);
-                                test(!result.returnValue.get(true)[0]);
-                                test(result.returnValue.get(true)[1]);
-                                test(result.returnValue.get(true)[2]);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.size() == 1);
+                        test(result.p3.get(false).length == 2);
+                        test(result.p3.get(false)[0]);
+                        test(!result.p3.get(false)[1]);
+                        test(result.returnValue.size() == 2);
+                        test(result.returnValue.get(false).length == 2);
+                        test(result.returnValue.get(false)[0]);
+                        test(!result.returnValue.get(false)[1]);
+                        test(result.returnValue.get(true).length == 3);
+                        test(!result.returnValue.get(true)[0]);
+                        test(result.returnValue.get(true)[1]);
+                        test(result.returnValue.get(true)[2]);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
-            java.util.Map<Short, short[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<Short, short[]> sdi2 = new java.util.HashMap<>();
+            Map<Short, short[]> sdi1 = new HashMap<>();
+            Map<Short, short[]> sdi2 = new HashMap<>();
 
             final short[] si1 = {1, 2, 3};
             final short[] si2 = {4, 5};
@@ -1242,32 +1253,32 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opShortShortSDAsync(sdi1, sdi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.size() == 1);
-                                test(result.p3.get((short) 4).length == 2);
-                                test(result.p3.get((short) 4)[0] == 6);
-                                test(result.p3.get((short) 4)[1] == 7);
-                                test(result.returnValue.size() == 3);
-                                test(result.returnValue.get((short) 1).length == 3);
-                                test(result.returnValue.get((short) 1)[0] == 1);
-                                test(result.returnValue.get((short) 1)[1] == 2);
-                                test(result.returnValue.get((short) 1)[2] == 3);
-                                test(result.returnValue.get((short) 2).length == 2);
-                                test(result.returnValue.get((short) 2)[0] == 4);
-                                test(result.returnValue.get((short) 2)[1] == 5);
-                                test(result.returnValue.get((short) 4).length == 2);
-                                test(result.returnValue.get((short) 4)[0] == 6);
-                                test(result.returnValue.get((short) 4)[1] == 7);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.size() == 1);
+                        test(result.p3.get((short) 4).length == 2);
+                        test(result.p3.get((short) 4)[0] == 6);
+                        test(result.p3.get((short) 4)[1] == 7);
+                        test(result.returnValue.size() == 3);
+                        test(result.returnValue.get((short) 1).length == 3);
+                        test(result.returnValue.get((short) 1)[0] == 1);
+                        test(result.returnValue.get((short) 1)[1] == 2);
+                        test(result.returnValue.get((short) 1)[2] == 3);
+                        test(result.returnValue.get((short) 2).length == 2);
+                        test(result.returnValue.get((short) 2)[0] == 4);
+                        test(result.returnValue.get((short) 2)[1] == 5);
+                        test(result.returnValue.get((short) 4).length == 2);
+                        test(result.returnValue.get((short) 4)[0] == 6);
+                        test(result.returnValue.get((short) 4)[1] == 7);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
-            java.util.Map<Integer, int[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<Integer, int[]> sdi2 = new java.util.HashMap<>();
+            Map<Integer, int[]> sdi1 = new HashMap<>();
+            Map<Integer, int[]> sdi2 = new HashMap<>();
 
             final int[] si1 = {100, 200, 300};
             final int[] si2 = {400, 500};
@@ -1279,32 +1290,32 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opIntIntSDAsync(sdi1, sdi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.size() == 1);
-                                test(result.p3.get(400).length == 2);
-                                test(result.p3.get(400)[0] == 600);
-                                test(result.p3.get(400)[1] == 700);
-                                test(result.returnValue.size() == 3);
-                                test(result.returnValue.get(100).length == 3);
-                                test(result.returnValue.get(100)[0] == 100);
-                                test(result.returnValue.get(100)[1] == 200);
-                                test(result.returnValue.get(100)[2] == 300);
-                                test(result.returnValue.get(200).length == 2);
-                                test(result.returnValue.get(200)[0] == 400);
-                                test(result.returnValue.get(200)[1] == 500);
-                                test(result.returnValue.get(400).length == 2);
-                                test(result.returnValue.get(400)[0] == 600);
-                                test(result.returnValue.get(400)[1] == 700);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.size() == 1);
+                        test(result.p3.get(400).length == 2);
+                        test(result.p3.get(400)[0] == 600);
+                        test(result.p3.get(400)[1] == 700);
+                        test(result.returnValue.size() == 3);
+                        test(result.returnValue.get(100).length == 3);
+                        test(result.returnValue.get(100)[0] == 100);
+                        test(result.returnValue.get(100)[1] == 200);
+                        test(result.returnValue.get(100)[2] == 300);
+                        test(result.returnValue.get(200).length == 2);
+                        test(result.returnValue.get(200)[0] == 400);
+                        test(result.returnValue.get(200)[1] == 500);
+                        test(result.returnValue.get(400).length == 2);
+                        test(result.returnValue.get(400)[0] == 600);
+                        test(result.returnValue.get(400)[1] == 700);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
-            java.util.Map<Long, long[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<Long, long[]> sdi2 = new java.util.HashMap<>();
+            Map<Long, long[]> sdi1 = new HashMap<>();
+            Map<Long, long[]> sdi2 = new HashMap<>();
 
             final long[] si1 = {999999110L, 999999111L, 999999110L};
             final long[] si2 = {999999120L, 999999130L};
@@ -1316,32 +1327,32 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opLongLongSDAsync(sdi1, sdi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.size() == 1);
-                                test(result.p3.get(999999992L).length == 2);
-                                test(result.p3.get(999999992L)[0] == 999999110L);
-                                test(result.p3.get(999999992L)[1] == 999999120);
-                                test(result.returnValue.size() == 3);
-                                test(result.returnValue.get(999999990L).length == 3);
-                                test(result.returnValue.get(999999990L)[0] == 999999110);
-                                test(result.returnValue.get(999999990L)[1] == 999999111);
-                                test(result.returnValue.get(999999990L)[2] == 999999110);
-                                test(result.returnValue.get(999999991L).length == 2);
-                                test(result.returnValue.get(999999991L)[0] == 999999120);
-                                test(result.returnValue.get(999999991L)[1] == 999999130);
-                                test(result.returnValue.get(999999992L).length == 2);
-                                test(result.returnValue.get(999999992L)[0] == 999999110);
-                                test(result.returnValue.get(999999992L)[1] == 999999120);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.size() == 1);
+                        test(result.p3.get(999999992L).length == 2);
+                        test(result.p3.get(999999992L)[0] == 999999110L);
+                        test(result.p3.get(999999992L)[1] == 999999120);
+                        test(result.returnValue.size() == 3);
+                        test(result.returnValue.get(999999990L).length == 3);
+                        test(result.returnValue.get(999999990L)[0] == 999999110);
+                        test(result.returnValue.get(999999990L)[1] == 999999111);
+                        test(result.returnValue.get(999999990L)[2] == 999999110);
+                        test(result.returnValue.get(999999991L).length == 2);
+                        test(result.returnValue.get(999999991L)[0] == 999999120);
+                        test(result.returnValue.get(999999991L)[1] == 999999130);
+                        test(result.returnValue.get(999999992L).length == 2);
+                        test(result.returnValue.get(999999992L)[0] == 999999110);
+                        test(result.returnValue.get(999999992L)[1] == 999999120);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
-            java.util.Map<String, float[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<String, float[]> sdi2 = new java.util.HashMap<>();
+            Map<String, float[]> sdi1 = new HashMap<>();
+            Map<String, float[]> sdi2 = new HashMap<>();
 
             final float[] si1 = {-1.1f, 123123.2f, 100.0f};
             final float[] si2 = {42.24f, -1.61f};
@@ -1353,36 +1364,36 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opStringFloatSDAsync(sdi1, sdi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.size() == 1);
-                                test(result.p3.get("aBc").length == 2);
-                                test(result.p3.get("aBc")[0] == -3.14f);
-                                test(result.p3.get("aBc")[1] == 3.14f);
-                                test(result.returnValue.size() == 3);
-                                test(result.returnValue.get("abc").length == 3);
-                                test(result.returnValue.get("abc")[0] == -1.1f);
-                                test(result.returnValue.get("abc")[1] == 123123.2f);
-                                test(result.returnValue.get("abc")[2] == 100.0f);
-                                test(result.returnValue.get("ABC").length == 2);
-                                test(result.returnValue.get("ABC")[0] == 42.24f);
-                                test(result.returnValue.get("ABC")[1] == -1.61f);
-                                test(result.returnValue.get("aBc").length == 2);
-                                test(result.returnValue.get("aBc")[0] == -3.14f);
-                                test(result.returnValue.get("aBc")[1] == 3.14f);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.size() == 1);
+                        test(result.p3.get("aBc").length == 2);
+                        test(result.p3.get("aBc")[0] == -3.14f);
+                        test(result.p3.get("aBc")[1] == 3.14f);
+                        test(result.returnValue.size() == 3);
+                        test(result.returnValue.get("abc").length == 3);
+                        test(result.returnValue.get("abc")[0] == -1.1f);
+                        test(result.returnValue.get("abc")[1] == 123123.2f);
+                        test(result.returnValue.get("abc")[2] == 100.0f);
+                        test(result.returnValue.get("ABC").length == 2);
+                        test(result.returnValue.get("ABC")[0] == 42.24f);
+                        test(result.returnValue.get("ABC")[1] == -1.61f);
+                        test(result.returnValue.get("aBc").length == 2);
+                        test(result.returnValue.get("aBc")[0] == -3.14f);
+                        test(result.returnValue.get("aBc")[1] == 3.14f);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
-            java.util.Map<String, double[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<String, double[]> sdi2 = new java.util.HashMap<>();
+            Map<String, double[]> sdi1 = new HashMap<>();
+            Map<String, double[]> sdi2 = new HashMap<>();
 
-            double[] si1 = new double[] {1.1E10, 1.2E10, 1.3E10};
-            double[] si2 = new double[] {1.4E10, 1.5E10};
-            double[] si3 = new double[] {1.6E10, 1.7E10};
+            double[] si1 = new double[]{1.1E10, 1.2E10, 1.3E10};
+            double[] si2 = new double[]{1.4E10, 1.5E10};
+            double[] si3 = new double[]{1.6E10, 1.7E10};
 
             sdi1.put("Hello!!", si1);
             sdi1.put("Goodbye", si2);
@@ -1390,36 +1401,36 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opStringDoubleSDAsync(sdi1, sdi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.size() == 1);
-                                test(result.p3.get("").length == 2);
-                                test(result.p3.get("")[0] == 1.6E10);
-                                test(result.p3.get("")[1] == 1.7E10);
-                                test(result.returnValue.size() == 3);
-                                test(result.returnValue.get("Hello!!").length == 3);
-                                test(result.returnValue.get("Hello!!")[0] == 1.1E10);
-                                test(result.returnValue.get("Hello!!")[1] == 1.2E10);
-                                test(result.returnValue.get("Hello!!")[2] == 1.3E10);
-                                test(result.returnValue.get("Goodbye").length == 2);
-                                test(result.returnValue.get("Goodbye")[0] == 1.4E10);
-                                test(result.returnValue.get("Goodbye")[1] == 1.5E10);
-                                test(result.returnValue.get("").length == 2);
-                                test(result.returnValue.get("")[0] == 1.6E10);
-                                test(result.returnValue.get("")[1] == 1.7E10);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.size() == 1);
+                        test(result.p3.get("").length == 2);
+                        test(result.p3.get("")[0] == 1.6E10);
+                        test(result.p3.get("")[1] == 1.7E10);
+                        test(result.returnValue.size() == 3);
+                        test(result.returnValue.get("Hello!!").length == 3);
+                        test(result.returnValue.get("Hello!!")[0] == 1.1E10);
+                        test(result.returnValue.get("Hello!!")[1] == 1.2E10);
+                        test(result.returnValue.get("Hello!!")[2] == 1.3E10);
+                        test(result.returnValue.get("Goodbye").length == 2);
+                        test(result.returnValue.get("Goodbye")[0] == 1.4E10);
+                        test(result.returnValue.get("Goodbye")[1] == 1.5E10);
+                        test(result.returnValue.get("").length == 2);
+                        test(result.returnValue.get("")[0] == 1.6E10);
+                        test(result.returnValue.get("")[1] == 1.7E10);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
-            java.util.Map<String, String[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<String, String[]> sdi2 = new java.util.HashMap<>();
+            Map<String, String[]> sdi1 = new HashMap<>();
+            Map<String, String[]> sdi2 = new HashMap<>();
 
-            String[] si1 = new String[] {"abc", "de", "fghi"};
-            String[] si2 = new String[] {"xyz", "or"};
-            String[] si3 = new String[] {"and", "xor"};
+            String[] si1 = new String[]{"abc", "de", "fghi"};
+            String[] si2 = new String[]{"xyz", "or"};
+            String[] si3 = new String[]{"and", "xor"};
 
             sdi1.put("abc", si1);
             sdi1.put("def", si2);
@@ -1427,36 +1438,36 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opStringStringSDAsync(sdi1, sdi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.size() == 1);
-                                test(result.p3.get("ghi").length == 2);
-                                test(result.p3.get("ghi")[0].equals("and"));
-                                test(result.p3.get("ghi")[1].equals("xor"));
-                                test(result.returnValue.size() == 3);
-                                test(result.returnValue.get("abc").length == 3);
-                                test(result.returnValue.get("abc")[0].equals("abc"));
-                                test(result.returnValue.get("abc")[1].equals("de"));
-                                test(result.returnValue.get("abc")[2].equals("fghi"));
-                                test(result.returnValue.get("def").length == 2);
-                                test(result.returnValue.get("def")[0].equals("xyz"));
-                                test(result.returnValue.get("def")[1].equals("or"));
-                                test(result.returnValue.get("ghi").length == 2);
-                                test(result.returnValue.get("ghi")[0].equals("and"));
-                                test(result.returnValue.get("ghi")[1].equals("xor"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.size() == 1);
+                        test(result.p3.get("ghi").length == 2);
+                        test("and".equals(result.p3.get("ghi")[0]));
+                        test("xor".equals(result.p3.get("ghi")[1]));
+                        test(result.returnValue.size() == 3);
+                        test(result.returnValue.get("abc").length == 3);
+                        test("abc".equals(result.returnValue.get("abc")[0]));
+                        test("de".equals(result.returnValue.get("abc")[1]));
+                        test("fghi".equals(result.returnValue.get("abc")[2]));
+                        test(result.returnValue.get("def").length == 2);
+                        test("xyz".equals(result.returnValue.get("def")[0]));
+                        test("or".equals(result.returnValue.get("def")[1]));
+                        test(result.returnValue.get("ghi").length == 2);
+                        test("and".equals(result.returnValue.get("ghi")[0]));
+                        test("xor".equals(result.returnValue.get("ghi")[1]));
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
-            java.util.Map<MyEnum, MyEnum[]> sdi1 = new java.util.HashMap<>();
-            java.util.Map<MyEnum, MyEnum[]> sdi2 = new java.util.HashMap<>();
+            Map<MyEnum, MyEnum[]> sdi1 = new HashMap<>();
+            Map<MyEnum, MyEnum[]> sdi2 = new HashMap<>();
 
-            final MyEnum[] si1 = new MyEnum[] {MyEnum.enum1, MyEnum.enum1, MyEnum.enum2};
-            final MyEnum[] si2 = new MyEnum[] {MyEnum.enum1, MyEnum.enum2};
-            final MyEnum[] si3 = new MyEnum[] {MyEnum.enum3, MyEnum.enum3};
+            final MyEnum[] si1 = new MyEnum[]{MyEnum.enum1, MyEnum.enum1, MyEnum.enum2};
+            final MyEnum[] si2 = new MyEnum[]{MyEnum.enum1, MyEnum.enum2};
+            final MyEnum[] si3 = new MyEnum[]{MyEnum.enum3, MyEnum.enum3};
 
             sdi1.put(MyEnum.enum3, si1);
             sdi1.put(MyEnum.enum2, si2);
@@ -1464,26 +1475,26 @@ class TwowaysAMI {
 
             Callback cb = new Callback();
             p.opMyEnumMyEnumSDAsync(sdi1, sdi2)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.p3.size() == 1);
-                                test(result.p3.get(MyEnum.enum1).length == 2);
-                                test(result.p3.get(MyEnum.enum1)[0] == MyEnum.enum3);
-                                test(result.p3.get(MyEnum.enum1)[1] == MyEnum.enum3);
-                                test(result.returnValue.size() == 3);
-                                test(result.returnValue.get(MyEnum.enum3).length == 3);
-                                test(result.returnValue.get(MyEnum.enum3)[0] == MyEnum.enum1);
-                                test(result.returnValue.get(MyEnum.enum3)[1] == MyEnum.enum1);
-                                test(result.returnValue.get(MyEnum.enum3)[2] == MyEnum.enum2);
-                                test(result.returnValue.get(MyEnum.enum2).length == 2);
-                                test(result.returnValue.get(MyEnum.enum2)[0] == MyEnum.enum1);
-                                test(result.returnValue.get(MyEnum.enum2)[1] == MyEnum.enum2);
-                                test(result.returnValue.get(MyEnum.enum1).length == 2);
-                                test(result.returnValue.get(MyEnum.enum1)[0] == MyEnum.enum3);
-                                test(result.returnValue.get(MyEnum.enum1)[1] == MyEnum.enum3);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.p3.size() == 1);
+                        test(result.p3.get(MyEnum.enum1).length == 2);
+                        test(result.p3.get(MyEnum.enum1)[0] == MyEnum.enum3);
+                        test(result.p3.get(MyEnum.enum1)[1] == MyEnum.enum3);
+                        test(result.returnValue.size() == 3);
+                        test(result.returnValue.get(MyEnum.enum3).length == 3);
+                        test(result.returnValue.get(MyEnum.enum3)[0] == MyEnum.enum1);
+                        test(result.returnValue.get(MyEnum.enum3)[1] == MyEnum.enum1);
+                        test(result.returnValue.get(MyEnum.enum3)[2] == MyEnum.enum2);
+                        test(result.returnValue.get(MyEnum.enum2).length == 2);
+                        test(result.returnValue.get(MyEnum.enum2)[0] == MyEnum.enum1);
+                        test(result.returnValue.get(MyEnum.enum2)[1] == MyEnum.enum2);
+                        test(result.returnValue.get(MyEnum.enum1).length == 2);
+                        test(result.returnValue.get(MyEnum.enum1)[0] == MyEnum.enum3);
+                        test(result.returnValue.get(MyEnum.enum1)[1] == MyEnum.enum3);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -1492,47 +1503,47 @@ class TwowaysAMI {
 
             for (int l : lengths) {
                 int[] s = new int[l];
-                for (int i = 0; i < s.length; ++i) {
+                for (int i = 0; i < s.length; i++) {
                     s[i] = i;
                 }
                 Callback cb = new Callback();
                 p.opIntSAsync(s)
-                        .whenComplete(
-                                (result, ex) -> {
-                                    test(ex == null);
-                                    test(result.length == l);
-                                    for (int j = 0; j < result.length; ++j) {
-                                        test(result[j] == -j);
-                                    }
-                                    cb.called();
-                                });
+                    .whenComplete(
+                        (result, ex) -> {
+                            test(ex == null);
+                            test(result.length == l);
+                            for (int j = 0; j < result.length; j++) {
+                                test(result[j] == -j);
+                            }
+                            cb.called();
+                        });
                 cb.check();
             }
         }
 
         {
-            java.util.Map<String, String> ctx = new java.util.HashMap<>();
+            Map<String, String> ctx = new HashMap<>();
             ctx.put("one", "ONE");
             ctx.put("two", "TWO");
             ctx.put("three", "THREE");
             {
                 test(p.ice_getContext().isEmpty());
-                java.util.Map<String, String> c = p.opContextAsync().join();
+                Map<String, String> c = p.opContextAsync().join();
                 test(!c.equals(ctx));
             }
             {
                 test(p.ice_getContext().isEmpty());
-                java.util.Map<String, String> c = p.opContextAsync(ctx).join();
+                Map<String, String> c = p.opContextAsync(ctx).join();
                 test(c.equals(ctx));
             }
             MyClassPrx p2 = MyClassPrx.checkedCast(p.ice_context(ctx));
             test(p2.ice_getContext().equals(ctx));
             {
-                java.util.Map<String, String> c = p2.opContextAsync().join();
+                Map<String, String> c = p2.opContextAsync().join();
                 test(c.equals(ctx));
             }
             {
-                java.util.Map<String, String> c = p2.opContextAsync(ctx).join();
+                Map<String, String> c = p2.opContextAsync(ctx).join();
                 test(c.equals(ctx));
             }
         }
@@ -1544,23 +1555,23 @@ class TwowaysAMI {
 
             String[] impls = {"Shared", "PerThread"};
             for (int i = 0; i < 2; i++) {
-                com.zeroc.Ice.Properties properties = communicator.getProperties()._clone();
+                Properties properties = communicator.getProperties()._clone();
                 properties.setProperty("Ice.ImplicitContext", impls[i]);
 
-                try (com.zeroc.Ice.Communicator ic = helper.initialize(properties)) {
-                    java.util.Map<String, String> ctx = new java.util.HashMap<>();
+                try (Communicator ic = helper.initialize(properties)) {
+                    Map<String, String> ctx = new HashMap<>();
                     ctx.put("one", "ONE");
                     ctx.put("two", "TWO");
                     ctx.put("three", "THREE");
 
                     var p3 =
-                            MyClassPrx.createProxy(
-                                    ic, "test:" + helper.getTestEndpoint(properties, 0));
+                        MyClassPrx.createProxy(
+                            ic, "test:" + helper.getTestEndpoint(properties, 0));
 
                     ic.getImplicitContext().setContext(ctx);
                     test(ic.getImplicitContext().getContext().equals(ctx));
                     {
-                        java.util.Map<String, String> c = p3.opContextAsync().join();
+                        Map<String, String> c = p3.opContextAsync().join();
                         test(c.equals(ctx));
                     }
 
@@ -1568,29 +1579,29 @@ class TwowaysAMI {
 
                     ctx = ic.getImplicitContext().getContext();
                     {
-                        java.util.Map<String, String> c = p3.opContextAsync().join();
+                        Map<String, String> c = p3.opContextAsync().join();
                         test(c.equals(ctx));
                     }
 
-                    java.util.Map<String, String> prxContext = new java.util.HashMap<>();
+                    Map<String, String> prxContext = new HashMap<>();
                     prxContext.put("one", "UN");
                     prxContext.put("four", "QUATRE");
 
-                    java.util.Map<String, String> combined = new java.util.HashMap<>(ctx);
+                    Map<String, String> combined = new HashMap<>(ctx);
                     combined.putAll(prxContext);
-                    test(combined.get("one").equals("UN"));
+                    test("UN".equals(combined.get("one")));
 
                     p3 = p3.ice_context(prxContext);
 
                     ic.getImplicitContext().setContext(null);
                     {
-                        java.util.Map<String, String> c = p3.opContextAsync().join();
+                        Map<String, String> c = p3.opContextAsync().join();
                         test(c.equals(prxContext));
                     }
 
                     ic.getImplicitContext().setContext(ctx);
                     {
-                        java.util.Map<String, String> c = p3.opContextAsync().join();
+                        Map<String, String> c = p3.opContextAsync().join();
                         test(c.equals(combined));
                     }
                 }
@@ -1605,22 +1616,22 @@ class TwowaysAMI {
             }
             Callback cb = new Callback();
             p.opDoubleMarshalingAsync(d, ds)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opIdempotentAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             cb.check();
         }
 
@@ -1629,120 +1640,122 @@ class TwowaysAMI {
             test(derived != null);
             Callback cb = new Callback();
             derived.opDerivedAsync()
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opByte1Async((byte) 0xFF)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result == (byte) 0xFF);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result == (byte) 0xFF);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opShort1Async((short) 0x7FFF)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result == 0x7FFF);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result == 0x7FFF);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opInt1Async(0x7FFFFFFF)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result == 0x7FFFFFFF);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result == 0x7FFFFFFF);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opLong1Async(0x7FFFFFFF)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result == 0x7FFFFFFF);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result == 0x7FFFFFFF);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opFloat1Async(1.0f)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result == 1.0f);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result == 1.0f);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opDouble1Async(1.0)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result == 1.0);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result == 1.0);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opString1Async("opString1")
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.equals("opString1"));
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test("opString1".equals(result));
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opStringS1Async(null)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.length == 0);
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.length == 0);
+                        cb.called();
+                    });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
             p.opByteBoolD1Async(null)
-                    .whenComplete(
-                            (result, ex) -> {
-                                test(ex == null);
-                                test(result.isEmpty());
-                                cb.called();
-                            });
+                .whenComplete(
+                    (result, ex) -> {
+                        test(ex == null);
+                        test(result.isEmpty());
+                        cb.called();
+                    });
             cb.check();
         }
     }
+
+    private TwowaysAMI() {}
 }

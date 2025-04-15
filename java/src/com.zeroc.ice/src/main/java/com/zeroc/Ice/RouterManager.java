@@ -2,6 +2,8 @@
 
 package com.zeroc.Ice;
 
+import java.util.HashMap;
+
 final class RouterManager {
     RouterManager() {}
 
@@ -42,5 +44,5 @@ final class RouterManager {
         _table.remove(router);
     }
 
-    private java.util.HashMap<RouterPrx, RouterInfo> _table = new java.util.HashMap<>();
+    private final HashMap<RouterPrx, RouterInfo> _table = new HashMap<>();
 }

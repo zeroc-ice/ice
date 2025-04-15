@@ -2,6 +2,8 @@
 
 package test.IceBox.configuration;
 
+import com.zeroc.Ice.Current;
+
 import test.IceBox.configuration.Test.TestIntf;
 
 public class TestI implements TestIntf {
@@ -10,12 +12,12 @@ public class TestI implements TestIntf {
     }
 
     @Override
-    public String getProperty(String name, com.zeroc.Ice.Current current) {
+    public String getProperty(String name, Current current) {
         return current.adapter.getCommunicator().getProperties().getProperty(name);
     }
 
     @Override
-    public String[] getArgs(com.zeroc.Ice.Current current) {
+    public String[] getArgs(Current current) {
         return _args;
     }
 

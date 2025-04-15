@@ -2,6 +2,25 @@
 
 package test.Ice.retry;
 
+import com.zeroc.Ice.ConnectionInfo;
+import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Endpoint;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Instrumentation.CollocatedObserver;
+import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
+import com.zeroc.Ice.Instrumentation.ConnectionObserver;
+import com.zeroc.Ice.Instrumentation.ConnectionState;
+import com.zeroc.Ice.Instrumentation.DispatchObserver;
+import com.zeroc.Ice.Instrumentation.InvocationObserver;
+import com.zeroc.Ice.Instrumentation.Observer;
+import com.zeroc.Ice.Instrumentation.ObserverUpdater;
+import com.zeroc.Ice.Instrumentation.RemoteObserver;
+import com.zeroc.Ice.Instrumentation.ThreadObserver;
+import com.zeroc.Ice.Instrumentation.ThreadState;
+
+import java.util.Map;
+
 public class Instrumentation {
     private static void test(boolean b) {
         if (!b) {
@@ -9,7 +28,7 @@ public class Instrumentation {
         }
     }
 
-    class InvocationObserverI implements com.zeroc.Ice.Instrumentation.InvocationObserver {
+    class InvocationObserverI implements InvocationObserver {
         @Override
         public void attach() {}
 
@@ -38,72 +57,72 @@ public class Instrumentation {
         public void userException() {}
 
         @Override
-        public com.zeroc.Ice.Instrumentation.RemoteObserver getRemoteObserver(
-                com.zeroc.Ice.ConnectionInfo ci, com.zeroc.Ice.Endpoint ei, int i, int j) {
+        public RemoteObserver getRemoteObserver(
+                ConnectionInfo ci, Endpoint ei, int i, int j) {
             return null;
         }
 
         @Override
-        public com.zeroc.Ice.Instrumentation.CollocatedObserver getCollocatedObserver(
-                com.zeroc.Ice.ObjectAdapter adapter, int i, int j) {
+        public CollocatedObserver getCollocatedObserver(
+                ObjectAdapter adapter, int i, int j) {
             return null;
         }
     }
 
-    private com.zeroc.Ice.Instrumentation.InvocationObserver invocationObserver =
-            new InvocationObserverI();
+    private final InvocationObserver invocationObserver =
+        new InvocationObserverI();
 
-    class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.CommunicatorObserver {
+    class CommunicatorObserverI implements CommunicatorObserver {
         @Override
-        public com.zeroc.Ice.Instrumentation.Observer getConnectionEstablishmentObserver(
-                com.zeroc.Ice.Endpoint e, String s) {
+        public Observer getConnectionEstablishmentObserver(
+                Endpoint e, String s) {
             return null;
         }
 
         @Override
-        public com.zeroc.Ice.Instrumentation.Observer getEndpointLookupObserver(
-                com.zeroc.Ice.Endpoint e) {
+        public Observer getEndpointLookupObserver(
+                Endpoint e) {
             return null;
         }
 
         @Override
-        public com.zeroc.Ice.Instrumentation.ConnectionObserver getConnectionObserver(
-                com.zeroc.Ice.ConnectionInfo ci,
-                com.zeroc.Ice.Endpoint ei,
-                com.zeroc.Ice.Instrumentation.ConnectionState s,
-                com.zeroc.Ice.Instrumentation.ConnectionObserver o) {
+        public ConnectionObserver getConnectionObserver(
+                ConnectionInfo ci,
+                Endpoint ei,
+                ConnectionState s,
+                ConnectionObserver o) {
             return null;
         }
 
         @Override
-        public com.zeroc.Ice.Instrumentation.ThreadObserver getThreadObserver(
+        public ThreadObserver getThreadObserver(
                 String p,
                 String n,
-                com.zeroc.Ice.Instrumentation.ThreadState s,
-                com.zeroc.Ice.Instrumentation.ThreadObserver o) {
+                ThreadState s,
+                ThreadObserver o) {
             return null;
         }
 
         @Override
-        public com.zeroc.Ice.Instrumentation.InvocationObserver getInvocationObserver(
-                com.zeroc.Ice.ObjectPrx p, String o, java.util.Map<String, String> c) {
+        public InvocationObserver getInvocationObserver(
+                ObjectPrx p, String o, Map<String, String> c) {
             return invocationObserver;
         }
 
         @Override
-        public com.zeroc.Ice.Instrumentation.DispatchObserver getDispatchObserver(
-                com.zeroc.Ice.Current c, int i) {
+        public DispatchObserver getDispatchObserver(
+                Current c, int i) {
             return null;
         }
 
         @Override
-        public void setObserverUpdater(com.zeroc.Ice.Instrumentation.ObserverUpdater u) {}
+        public void setObserverUpdater(ObserverUpdater u) {}
     }
 
-    private com.zeroc.Ice.Instrumentation.CommunicatorObserver communicatorObserver =
-            new CommunicatorObserverI();
+    private final CommunicatorObserver communicatorObserver =
+        new CommunicatorObserverI();
 
-    public com.zeroc.Ice.Instrumentation.CommunicatorObserver getObserver() {
+    public CommunicatorObserver getObserver() {
         return communicatorObserver;
     }
 
@@ -122,8 +141,7 @@ public class Instrumentation {
             }
             try {
                 Thread.sleep(10);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
         }
         if (value.value != expected) {
             System.err.println("value = " + value.value + ", expected = " + expected);
@@ -152,7 +170,7 @@ public class Instrumentation {
         int value;
     }
 
-    private IntValue nRetry = new IntValue(0);
-    private IntValue nFailure = new IntValue(0);
-    private IntValue nInvocation = new IntValue(0);
+    private final IntValue nRetry = new IntValue(0);
+    private final IntValue nFailure = new IntValue(0);
+    private final IntValue nInvocation = new IntValue(0);
 }

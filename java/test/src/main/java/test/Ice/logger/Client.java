@@ -3,13 +3,16 @@
 package test.Ice.logger;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Properties;
 
 import java.io.File;
+
+import test.TestHelper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class Client extends test.TestHelper {
+public class Client extends TestHelper {
     public static void test(boolean b) {
         if (!b) {
             throw new RuntimeException();
@@ -23,7 +26,7 @@ public class Client extends test.TestHelper {
             new File("log.txt").delete();
         }
 
-        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
         properties.setProperty("Ice.LogFile", "log.txt");
         try (Communicator communicator = initialize(properties)) {
             communicator.getLogger().trace("info", "my logger");

@@ -4,10 +4,13 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+import com.zeroc.IceGrid.PropertyDescriptor;
+import com.zeroc.IceGrid.PropertySetDescriptor;
+import com.zeroc.IceGridGUI.Utils;
 
 import javax.swing.JComponent;
+
+import java.util.Arrays;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -39,10 +42,10 @@ class PropertySetEditor extends Editor {
                     root.setSelectedNode(_target);
 
                     JOptionPane.showMessageDialog(
-                            root.getCoordinator().getMainFrame(),
-                            e.toString(),
-                            "Apply failed",
-                            JOptionPane.ERROR_MESSAGE);
+                        root.getCoordinator().getMainFrame(),
+                        e.toString(),
+                        "Apply failed",
+                        JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
@@ -59,10 +62,10 @@ class PropertySetEditor extends Editor {
                     parent.tryRename(_target.getId(), _oldId, getIdText());
                 } catch (UpdateFailedException e) {
                     JOptionPane.showMessageDialog(
-                            root.getCoordinator().getMainFrame(),
-                            e.toString(),
-                            "Apply failed",
-                            JOptionPane.ERROR_MESSAGE);
+                        root.getCoordinator().getMainFrame(),
+                        e.toString(),
+                        "Apply failed",
+                        JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
@@ -160,7 +163,7 @@ class PropertySetEditor extends Editor {
 
     @Override
     protected boolean validate() {
-        return check(new String[] {_idLabel.getText(), getIdText()});
+        return check(new String[]{_idLabel.getText(), getIdText()});
     }
 
     void show(String unsubstitutedId, PropertySet nps) {
@@ -168,18 +171,18 @@ class PropertySetEditor extends Editor {
         _target = nps;
 
         Utils.Resolver resolver = getDetailResolver();
-        boolean isEditable = (resolver == null);
+        boolean isEditable = resolver == null;
 
         PropertySetDescriptor descriptor = (PropertySetDescriptor) nps.getDescriptor();
 
         showId(unsubstitutedId, resolver);
         _oldId = unsubstitutedId;
 
-        _propertySets.setList(java.util.Arrays.asList(descriptor.references), resolver);
+        _propertySets.setList(Arrays.asList(descriptor.references), resolver);
         _propertySets.setEditable(isEditable);
 
         _properties.setProperties(
-                descriptor.properties, null, null, getDetailResolver(), isEditable);
+            descriptor.properties, null, null, getDetailResolver(), isEditable);
 
         _applyButton.setEnabled(nps.isEphemeral());
         _discardButton.setEnabled(nps.isEphemeral());

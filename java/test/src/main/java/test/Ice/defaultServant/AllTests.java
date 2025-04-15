@@ -2,7 +2,15 @@
 
 package test.Ice.defaultServant;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.FacetNotExistException;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.Object;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectNotExistException;
+
 import test.Ice.defaultServant.Test.MyObjectPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 
@@ -13,15 +21,15 @@ public class AllTests {
         }
     }
 
-    public static void allTests(test.TestHelper helper) {
-        com.zeroc.Ice.Communicator communicator = helper.communicator();
+    public static void allTests(TestHelper helper) {
+        Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
 
-        com.zeroc.Ice.ObjectAdapter oa =
-                communicator.createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
+        ObjectAdapter oa =
+            communicator.createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
         oa.activate();
 
-        com.zeroc.Ice.Object servant = new MyObjectI();
+        Object servant = new MyObjectI();
 
         //
         // Register default servant with category "foo"
@@ -34,18 +42,18 @@ public class AllTests {
         out.print("testing single category... ");
         out.flush();
 
-        com.zeroc.Ice.Object r = oa.findDefaultServant("foo");
+        Object r = oa.findDefaultServant("foo");
         test(r == servant);
 
         r = oa.findDefaultServant("bar");
         test(r == null);
 
-        com.zeroc.Ice.Identity identity = new com.zeroc.Ice.Identity();
+        Identity identity = new Identity();
         identity.category = "foo";
 
         String names[] = {"foo", "bar", "x", "y", "abcdefg"};
 
-        for (int idx = 0; idx < 5; ++idx) {
+        for (int idx = 0; idx < 5; idx++) {
             identity.name = names[idx];
             MyObjectPrx prx = MyObjectPrx.uncheckedCast(oa.createProxy(identity));
             prx.ice_ping();
@@ -57,14 +65,14 @@ public class AllTests {
         try {
             prx.ice_ping();
             test(false);
-        } catch (com.zeroc.Ice.ObjectNotExistException ex) {
+        } catch (ObjectNotExistException ex) {
             // Expected
         }
 
         try {
             prx.getName();
             test(false);
-        } catch (com.zeroc.Ice.ObjectNotExistException ex) {
+        } catch (ObjectNotExistException ex) {
             // Expected
         }
 
@@ -73,14 +81,14 @@ public class AllTests {
         try {
             prx.ice_ping();
             test(false);
-        } catch (com.zeroc.Ice.FacetNotExistException ex) {
+        } catch (FacetNotExistException ex) {
             // Expected
         }
 
         try {
             prx.getName();
             test(false);
-        } catch (com.zeroc.Ice.FacetNotExistException ex) {
+        } catch (FacetNotExistException ex) {
             // Expected
         }
 
@@ -92,14 +100,14 @@ public class AllTests {
             try {
                 prx.ice_ping();
                 test(false);
-            } catch (com.zeroc.Ice.ObjectNotExistException ex) {
+            } catch (ObjectNotExistException ex) {
                 // Expected
             }
 
             try {
                 prx.getName();
                 test(false);
-            } catch (com.zeroc.Ice.ObjectNotExistException ex) {
+            } catch (ObjectNotExistException ex) {
                 // Expected
             }
         }
@@ -109,7 +117,7 @@ public class AllTests {
         prx = MyObjectPrx.uncheckedCast(oa.createProxy(identity));
         try {
             prx.ice_ping();
-        } catch (com.zeroc.Ice.ObjectNotExistException ex) {
+        } catch (ObjectNotExistException ex) {
             // Expected
         }
 
@@ -126,7 +134,7 @@ public class AllTests {
         r = oa.findDefaultServant("");
         test(r == servant);
 
-        for (int idx = 0; idx < 5; ++idx) {
+        for (int idx = 0; idx < 5; idx++) {
             identity.name = names[idx];
             prx = MyObjectPrx.uncheckedCast(oa.createProxy(identity));
             prx.ice_ping();
@@ -135,4 +143,6 @@ public class AllTests {
 
         out.println("ok");
     }
+
+    private AllTests() {}
 }

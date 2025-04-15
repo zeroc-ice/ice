@@ -4,12 +4,21 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
-import com.zeroc.IceGrid.*;
-import com.zeroc.IceGridGUI.*;
+
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.ParseException;
+import com.zeroc.Ice.Util;
+import com.zeroc.IceGrid.AdapterDescriptor;
+import com.zeroc.IceGrid.ObjectDescriptor;
+import com.zeroc.IceGridGUI.Utils;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -29,7 +38,7 @@ class AdapterEditor extends CommunicatorChildEditor {
     AdapterEditor() {
         _objects = new ArrayMapField(this, true, "Identity", "Type", "Property", "Proxy Options");
         _allocatables =
-                new ArrayMapField(this, true, "Identity", "Type", "Property", "Proxy Options");
+            new ArrayMapField(this, true, "Identity", "Type", "Property", "Proxy Options");
 
         //
         // Create buttons
@@ -37,105 +46,105 @@ class AdapterEditor extends CommunicatorChildEditor {
 
         // _replicaGroupButton
         Action gotoReplicaGroup =
-                new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png")) {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Object obj = _replicaGroupId.getSelectedItem();
-                        Adapter adapter = getAdapter();
+            new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png")) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Object obj = _replicaGroupId.getSelectedItem();
+                    Adapter adapter = getAdapter();
 
-                        ReplicaGroup rg = null;
-                        if (obj instanceof ReplicaGroup) {
-                            rg = (ReplicaGroup) obj;
-                        } else {
-                            String replicaGroupId =
-                                    Utils.substitute(obj.toString(), adapter.getResolver());
+                    ReplicaGroup rg = null;
+                    if (obj instanceof ReplicaGroup) {
+                        rg = (ReplicaGroup) obj;
+                    } else {
+                        String replicaGroupId =
+                            Utils.substitute(obj.toString(), adapter.getResolver());
 
-                            rg = adapter.getRoot().findReplicaGroup(replicaGroupId);
-                        }
-
-                        // The button is enabled therefore rg should be != null
-                        if (rg != null) {
-                            adapter.getRoot().setSelectedNode(rg);
-                        }
+                        rg = adapter.getRoot().findReplicaGroup(replicaGroupId);
                     }
-                };
+
+                    // The button is enabled therefore rg should be != null
+                    if (rg != null) {
+                        adapter.getRoot().setSelectedNode(rg);
+                    }
+                }
+            };
         gotoReplicaGroup.putValue(
-                Action.SHORT_DESCRIPTION, "Goto the definition of this replica group");
+            Action.SHORT_DESCRIPTION, "Goto the definition of this replica group");
         _replicaGroupButton = new JButton(gotoReplicaGroup);
 
         Action checkRegisterProcess =
-                new AbstractAction("Register Process") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        updated();
-                    }
-                };
+            new AbstractAction("Register Process") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    updated();
+                }
+            };
         _registerProcess = new JCheckBox(checkRegisterProcess);
         _registerProcess.setToolTipText(
-                "<html>This setting is ignored for servers running Ice<br>"
-                        + "version 3.3 or greater.<br>"
-                        + "During activation, create a Process object<br>"
-                        + "in this adapter and register it with IceGrid<br>"
-                        + "to enable clean shutdown; you should register<br>"
-                        + "exactly one Process object per server.</html>");
+            "<html>This setting is ignored for servers running Ice<br>"
+                + "version 3.3 or greater.<br>"
+                + "During activation, create a Process object<br>"
+                + "in this adapter and register it with IceGrid<br>"
+                + "to enable clean shutdown; you should register<br>"
+                + "exactly one Process object per server.</html>");
 
         Action checkServerLifetime =
-                new AbstractAction("Server Lifetime") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        updated();
-                    }
-                };
+            new AbstractAction("Server Lifetime") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    updated();
+                }
+            };
         _serverLifetime = new JCheckBox(checkServerLifetime);
         _serverLifetime.setToolTipText(
-                "<html>Is the adapter lifetime the same as the server<br>"
-                        + "lifetime? The server is considered to be active<br>"
-                        + "only if all the adapters with this attribute set<br>"
-                        + "to true are active.</html>");
+            "<html>Is the adapter lifetime the same as the server<br>"
+                + "lifetime? The server is considered to be active<br>"
+                + "only if all the adapters with this attribute set<br>"
+                + "to true are active.</html>");
 
         // Associate updateListener with various fields
         _name.getDocument()
-                .addDocumentListener(
-                        new DocumentListener() {
-                            @Override
-                            public void changedUpdate(DocumentEvent e) {
-                                update();
-                            }
+            .addDocumentListener(
+                new DocumentListener() {
+                    @Override
+                    public void changedUpdate(DocumentEvent e) {
+                        update();
+                    }
 
-                            @Override
-                            public void insertUpdate(DocumentEvent e) {
-                                update();
-                            }
+                    @Override
+                    public void insertUpdate(DocumentEvent e) {
+                        update();
+                    }
 
-                            @Override
-                            public void removeUpdate(DocumentEvent e) {
-                                update();
-                            }
+                    @Override
+                    public void removeUpdate(DocumentEvent e) {
+                        update();
+                    }
 
-                            private void update() {
-                                updated();
-                                // Recompute default id
-                                _defaultAdapterId =
-                                        getAdapter().getDefaultAdapterId(_name.getText().trim());
-                                refreshId();
-                            }
-                        });
+                    private void update() {
+                        updated();
+                        // Recompute default id
+                        _defaultAdapterId =
+                            getAdapter().getDefaultAdapterId(_name.getText().trim());
+                        refreshId();
+                    }
+                });
 
         _name.setToolTipText("Identifies this object adapter within an Ice communicator");
 
         _endpoints.getDocument().addDocumentListener(_updateListener);
         _endpoints.setToolTipText(
-                "<html>The network interface(s) on which this object adapter receives requests;<br>"
-                        + "for example:<br>"
-                        + " tcp (listen on all local interfaces using a random port)<br>"
-                        + " tcp -h venus.foo.com (listen on just one interface)<br>"
-                        + " tcp -t 10000 (sets a timeout of 10,000 milliseconds)<br>"
-                        + " ssl -h venus.foo.com (accepts SSL connections instead of plain TCP)"
-                        + "</html>");
+            "<html>The network interface(s) on which this object adapter receives requests;<br>"
+                + "for example:<br>"
+                + " tcp (listen on all local interfaces using a random port)<br>"
+                + " tcp -h venus.foo.com (listen on just one interface)<br>"
+                + " tcp -t 10000 (sets a timeout of 10,000 milliseconds)<br>"
+                + " ssl -h venus.foo.com (accepts SSL connections instead of plain TCP)"
+                + "</html>");
 
         _proxyOptions.getDocument().addDocumentListener(_updateListener);
         _proxyOptions.setToolTipText(
-                "<html>The proxy options used for proxies created by the object adapter.</html>");
+            "<html>The proxy options used for proxies created by the object adapter.</html>");
 
         _description.getDocument().addDocumentListener(_updateListener);
         _description.setToolTipText("An optional description for this object adapter");
@@ -145,20 +154,20 @@ class AdapterEditor extends CommunicatorChildEditor {
         _id.setToolTipText("Identifies this object adapter within an IceGrid deployment");
 
         JTextField replicaGroupIdTextField =
-                (JTextField) _replicaGroupId.getEditor().getEditorComponent();
+            (JTextField) _replicaGroupId.getEditor().getEditorComponent();
         replicaGroupIdTextField.getDocument().addDocumentListener(_updateListener);
         _replicaGroupId.setToolTipText("Select a replica group");
 
         _priority.getDocument().addDocumentListener(_updateListener);
         _priority.setToolTipText(
-                "The priority of this adapter; see the Ordered load-balancing "
-                        + "policy in Replica Groups");
+            "The priority of this adapter; see the Ordered load-balancing "
+                + "policy in Replica Groups");
 
         JTextField publishedEndpointsTextField =
-                (JTextField) _publishedEndpoints.getEditor().getEditorComponent();
+            (JTextField) _publishedEndpoints.getEditor().getEditorComponent();
         publishedEndpointsTextField.getDocument().addDocumentListener(_updateListener);
         _publishedEndpoints.setToolTipText(
-                "Endpoints registered with the IceGrid Registry during the activation of this adapter.");
+            "Endpoints registered with the IceGrid Registry during the activation of this adapter.");
     }
 
     //
@@ -295,8 +304,8 @@ class AdapterEditor extends CommunicatorChildEditor {
         }
 
         // Set all objects and allocatables properties
-        java.util.Map<String, String[]> map = _objects.get();
-        for (java.util.Map.Entry<String, String[]> p : map.entrySet()) {
+        Map<String, String[]> map = _objects.get();
+        for (Map.Entry<String, String[]> p : map.entrySet()) {
             String key = p.getKey();
             String[] value = p.getValue();
             if (!value[1].isEmpty()) {
@@ -305,7 +314,7 @@ class AdapterEditor extends CommunicatorChildEditor {
         }
 
         map = _allocatables.get();
-        for (java.util.Map.Entry<String, String[]> p : map.entrySet()) {
+        for (Map.Entry<String, String[]> p : map.entrySet()) {
             String key = p.getKey();
             String[] value = p.getValue();
             if (!value[1].isEmpty()) {
@@ -324,7 +333,7 @@ class AdapterEditor extends CommunicatorChildEditor {
 
     private void refreshId() {
         Object id = _id.getSelectedItem();
-        _id.setModel(new DefaultComboBoxModel(new Object[] {DEFAULT_ADAPTER_ID}));
+        _id.setModel(new DefaultComboBoxModel(new Object[]{DEFAULT_ADAPTER_ID}));
         _id.setSelectedItem(id);
     }
 
@@ -374,11 +383,11 @@ class AdapterEditor extends CommunicatorChildEditor {
         }
 
         return check(
-                new String[] {
-                    "Adapter Name", _name.getText().trim(),
-                    "Adapter ID", getIdAsString(),
-                    "Endpoints", _endpoints.getText().trim()
-                });
+            new String[]{
+                "Adapter Name", _name.getText().trim(),
+                "Adapter ID", getIdAsString(),
+                "Endpoints", _endpoints.getText().trim()
+            });
     }
 
     void show(Adapter adapter) {
@@ -388,7 +397,7 @@ class AdapterEditor extends CommunicatorChildEditor {
         AdapterDescriptor descriptor = (AdapterDescriptor) adapter.getDescriptor();
 
         final Utils.Resolver resolver =
-                adapter.getCoordinator().substitute() ? adapter.getResolver() : null;
+            adapter.getCoordinator().substitute() ? adapter.getResolver() : null;
 
         boolean isEditable = resolver == null;
 
@@ -423,23 +432,23 @@ class AdapterEditor extends CommunicatorChildEditor {
         _replicaGroupId.setModel(replicaGroups.createComboBoxModel(NOT_REPLICATED));
 
         _replicaGroupId.addItemListener(
-                new ItemListener() {
-                    @Override
-                    public void itemStateChanged(ItemEvent e) {
-                        if (e.getStateChange() == ItemEvent.SELECTED) {
-                            Object item = e.getItem();
-                            boolean enabled = (item instanceof ReplicaGroup);
-                            if (!enabled && item != NOT_REPLICATED) {
-                                if (resolver != null) {
-                                    String replicaGroupId =
-                                            resolver.substitute(item.toString().trim());
-                                    enabled = (replicaGroups.findChild(replicaGroupId) != null);
-                                }
+            new ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    if (e.getStateChange() == ItemEvent.SELECTED) {
+                        Object item = e.getItem();
+                        boolean enabled = item instanceof ReplicaGroup;
+                        if (!enabled && item != NOT_REPLICATED) {
+                            if (resolver != null) {
+                                String replicaGroupId =
+                                    resolver.substitute(item.toString().trim());
+                                enabled = replicaGroups.findChild(replicaGroupId) != null;
                             }
-                            _replicaGroupButton.setEnabled(enabled);
                         }
+                        _replicaGroupButton.setEnabled(enabled);
                     }
-                });
+                }
+            });
 
         setReplicaGroupId(Utils.substitute(descriptor.replicaGroupId, resolver));
 
@@ -461,7 +470,7 @@ class AdapterEditor extends CommunicatorChildEditor {
         _publishedEndpoints.setEnabled(true);
         _publishedEndpoints.setEditable(true);
         String published =
-                Utils.substitute(adapter.getProperty(oaPrefix + "PublishedEndpoints"), resolver);
+            Utils.substitute(adapter.getProperty(oaPrefix + "PublishedEndpoints"), resolver);
         if (published == null || published.isEmpty()) {
             _publishedEndpoints.setSelectedItem(PUBLISH_ACTUAL);
         } else {
@@ -473,7 +482,7 @@ class AdapterEditor extends CommunicatorChildEditor {
         _proxyOptions.setEnabled(true);
         _proxyOptions.setEditable(true);
         _proxyOptions.setText(
-                Utils.substitute(adapter.getProperty(oaPrefix + "ProxyOptions"), resolver));
+            Utils.substitute(adapter.getProperty(oaPrefix + "ProxyOptions"), resolver));
 
         // Objects
         _objects.set(objectDescriptorSeqToMap(descriptor.objects), resolver, isEditable);
@@ -498,40 +507,40 @@ class AdapterEditor extends CommunicatorChildEditor {
         return (Adapter) _target;
     }
 
-    private java.util.Map<String, String[]> objectDescriptorSeqToMap(
-            java.util.List<ObjectDescriptor> objects) {
-        java.util.Map<String, String[]> result = new java.util.TreeMap<>();
+    private Map<String, String[]> objectDescriptorSeqToMap(
+            List<ObjectDescriptor> objects) {
+        Map<String, String[]> result = new TreeMap<>();
         com.zeroc.Ice.Communicator communicator =
-                getAdapter().getRoot().getCoordinator().getCommunicator();
+            getAdapter().getRoot().getCoordinator().getCommunicator();
 
         for (ObjectDescriptor p : objects) {
             String k = communicator.identityToString(p.id);
             result.put(
-                    k, new String[] {p.type, getAdapter().lookupPropertyValue(k), p.proxyOptions});
+                k, new String[]{p.type, getAdapter().lookupPropertyValue(k), p.proxyOptions});
         }
         return result;
     }
 
-    private java.util.LinkedList<ObjectDescriptor> mapToObjectDescriptorSeq(
-            java.util.Map<String, String[]> map) {
+    private LinkedList<ObjectDescriptor> mapToObjectDescriptorSeq(
+            Map<String, String[]> map) {
         String badIdentities = "";
-        java.util.LinkedList<ObjectDescriptor> result = new java.util.LinkedList<>();
-        for (java.util.Map.Entry<String, String[]> p : map.entrySet()) {
+        LinkedList<ObjectDescriptor> result = new LinkedList<>();
+        for (Map.Entry<String, String[]> p : map.entrySet()) {
             try {
-                com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity(p.getKey());
+                Identity id = Util.stringToIdentity(p.getKey());
                 String[] val = p.getValue();
                 result.add(new ObjectDescriptor(id, val[0], val[2]));
-            } catch (com.zeroc.Ice.ParseException ex) {
+            } catch (ParseException ex) {
                 badIdentities += "- " + p.getKey() + "\n";
             }
         }
 
         if (!badIdentities.isEmpty()) {
             JOptionPane.showMessageDialog(
-                    _target.getCoordinator().getMainFrame(),
-                    "The following identities could not be parsed properly:\n" + badIdentities,
-                    "Validation failed",
-                    JOptionPane.ERROR_MESSAGE);
+                _target.getCoordinator().getMainFrame(),
+                "The following identities could not be parsed properly:\n" + badIdentities,
+                "Validation failed",
+                JOptionPane.ERROR_MESSAGE);
 
             return null;
         } else {
@@ -542,26 +551,26 @@ class AdapterEditor extends CommunicatorChildEditor {
     private String _defaultAdapterId = "";
 
     private final Object DEFAULT_ADAPTER_ID =
-            new Object() {
-                @Override
-                public String toString() {
-                    return _defaultAdapterId;
-                }
-            };
+        new Object() {
+            @Override
+            public String toString() {
+                return _defaultAdapterId;
+            }
+        };
 
     private String _oldName;
 
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
 
-    private JComboBox _id = new JComboBox(new Object[] {DEFAULT_ADAPTER_ID});
+    private JComboBox _id = new JComboBox(new Object[]{DEFAULT_ADAPTER_ID});
     private JComboBox _replicaGroupId = new JComboBox();
     private JButton _replicaGroupButton;
 
     private JTextField _priority = new JTextField(20);
 
     private JTextField _endpoints = new JTextField(20);
-    private JComboBox _publishedEndpoints = new JComboBox(new Object[] {PUBLISH_ACTUAL});
+    private JComboBox _publishedEndpoints = new JComboBox(new Object[]{PUBLISH_ACTUAL});
     private JTextField _proxyOptions = new JTextField(20);
 
     private JTextField _currentStatus = new JTextField(20);
@@ -571,23 +580,23 @@ class AdapterEditor extends CommunicatorChildEditor {
     private JCheckBox _serverLifetime;
 
     private ArrayMapField _objects;
-    private java.util.LinkedList<ObjectDescriptor> _objectList;
+    private LinkedList<ObjectDescriptor> _objectList;
     private ArrayMapField _allocatables;
-    private java.util.LinkedList<ObjectDescriptor> _allocatableList;
+    private LinkedList<ObjectDescriptor> _allocatableList;
 
     private static final Object PUBLISH_ACTUAL =
-            new Object() {
-                @Override
-                public String toString() {
-                    return "Actual endpoints";
-                }
-            };
+        new Object() {
+            @Override
+            public String toString() {
+                return "Actual endpoints";
+            }
+        };
 
     private static final Object NOT_REPLICATED =
-            new Object() {
-                @Override
-                public String toString() {
-                    return "Does not belong to a replica group";
-                }
-            };
+        new Object() {
+            @Override
+            public String toString() {
+                return "Does not belong to a replica group";
+            }
+        };
 }

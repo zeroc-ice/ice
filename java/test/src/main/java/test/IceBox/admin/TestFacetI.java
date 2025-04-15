@@ -2,21 +2,26 @@
 
 package test.IceBox.admin;
 
-import test.IceBox.admin.Test.*;
+import com.zeroc.Ice.Current;
+
+import test.IceBox.admin.Test.TestFacet;
+
+import java.util.Map;
+import java.util.function.Consumer;
 
 public class TestFacetI
-        implements TestFacet, java.util.function.Consumer<java.util.Map<String, String>> {
+    implements TestFacet, Consumer<Map<String, String>> {
     public TestFacetI() {}
 
     @Override
-    public synchronized java.util.Map<String, String> getChanges(com.zeroc.Ice.Current current) {
+    public synchronized Map<String, String> getChanges(Current current) {
         return _changes;
     }
 
     @Override
-    public synchronized void accept(java.util.Map<String, String> changes) {
+    public synchronized void accept(Map<String, String> changes) {
         _changes = changes;
     }
 
-    private java.util.Map<String, String> _changes;
+    private Map<String, String> _changes;
 }

@@ -11,11 +11,14 @@ import com.zeroc.Ice.SocketException;
 import com.zeroc.Ice.SocketOperation;
 import com.zeroc.Ice.Transceiver;
 
+import java.io.IOException;
+import java.nio.channels.ServerSocketChannel;
+import java.util.Stack;
 import java.util.UUID;
 
 final class AcceptorI implements Acceptor {
     @Override
-    public java.nio.channels.ServerSocketChannel fd() {
+    public ServerSocketChannel fd() {
         return null;
     }
 
@@ -59,17 +62,17 @@ final class AcceptorI implements Acceptor {
         try {
             // We always listen using the "secure" method.
             _socket = _instance.bluetoothAdapter().listenUsingRfcommWithServiceRecord(_name, uuid);
-        } catch (java.io.IOException ex) {
+        } catch (IOException ex) {
             throw new SocketException(ex);
         }
 
         // Use a helper thread to perform the blocking accept() calls.
         _thread =
-                new Thread() {
-                    public void run() {
-                        runAccept();
-                    }
-                };
+            new Thread() {
+                public void run() {
+                    runAccept();
+                }
+            };
         _thread.start();
 
         return _endpoint;
@@ -126,7 +129,7 @@ final class AcceptorI implements Acceptor {
         _name = name;
         _uuid = uuid;
 
-        _pending = new java.util.Stack<BluetoothSocket>();
+        _pending = new Stack<BluetoothSocket>();
         _closed = false;
     }
 
@@ -136,8 +139,7 @@ final class AcceptorI implements Acceptor {
             while (_readyCallback == null) {
                 try {
                     wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
         }
 
@@ -174,14 +176,14 @@ final class AcceptorI implements Acceptor {
         _pending.clear();
     }
 
-    private EndpointI _endpoint;
+    private final EndpointI _endpoint;
     private final Instance _instance;
-    private String _adapterName;
-    private String _name;
-    private String _uuid;
+    private final String _adapterName;
+    private final String _name;
+    private final String _uuid;
     private ReadyCallback _readyCallback;
     private BluetoothServerSocket _socket;
-    private java.util.Stack<BluetoothSocket> _pending;
+    private final Stack<BluetoothSocket> _pending;
     private Thread _thread;
     private Exception _exception;
     private boolean _closed;

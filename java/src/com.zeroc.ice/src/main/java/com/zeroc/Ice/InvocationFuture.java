@@ -2,7 +2,10 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.InvocationObserver;
+
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 
@@ -77,13 +80,12 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
     public final void waitForCompleted() {
         try {
             join();
-        } catch (java.util.concurrent.CompletionException completionException) {
+        } catch (CompletionException completionException) {
             var cause = completionException.getCause();
             if (cause instanceof InterruptedException) {
                 throw new OperationInterruptedException(cause);
             }
-        } catch (Exception ex) {
-        }
+        } catch (Exception ex) {}
     }
 
     /**
@@ -265,14 +267,14 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         // this method.
         //
         _instance
-                .clientThreadPool()
-                .dispatch(
-                        new RunnableThreadPoolWorkItem(_cachedConnection) {
-                            @Override
-                            public void run() {
-                                invokeCompleted();
-                            }
-                        });
+            .clientThreadPool()
+            .dispatch(
+                new RunnableThreadPoolWorkItem(_cachedConnection) {
+                    @Override
+                    public void run() {
+                        invokeCompleted();
+                    }
+                });
     }
 
     public synchronized void cancelable(final CancellationHandler handler) {
@@ -413,28 +415,27 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         handler.asyncRequestCanceled((OutgoingAsyncBase) this, ex);
     }
 
-    protected com.zeroc.Ice.Instrumentation.InvocationObserver getObserver() {
+    protected InvocationObserver getObserver() {
         return _observer;
     }
 
     protected void dispatch(final Runnable runnable) {
         try {
             _instance
-                    .clientThreadPool()
-                    .dispatch(
-                            new RunnableThreadPoolWorkItem(_cachedConnection) {
-                                @Override
-                                public void run() {
-                                    runnable.run();
-                                }
-                            });
-        } catch (CommunicatorDestroyedException ex) {
-        }
+                .clientThreadPool()
+                .dispatch(
+                    new RunnableThreadPoolWorkItem(_cachedConnection) {
+                        @Override
+                        public void run() {
+                            runnable.run();
+                        }
+                    });
+        } catch (CommunicatorDestroyedException ex) {}
     }
 
     private void warning(RuntimeException ex) {
         if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.AMICallback")
-                > 0) {
+            > 0) {
             String s = "exception raised by AMI callback:\n" + Ex.toString(ex);
             _instance.initializationData().logger.warning(s);
         }
@@ -446,7 +447,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
     }
 
     protected final Instance _instance;
-    protected com.zeroc.Ice.Instrumentation.InvocationObserver _observer;
+    protected InvocationObserver _observer;
     protected Connection _cachedConnection;
     protected boolean _sentSynchronously;
     protected boolean _doneInSent;

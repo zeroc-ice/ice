@@ -3,8 +3,8 @@
 package com.zeroc.Ice.IceMX;
 
 public class ObserverWithDelegate<
-                T extends Metrics, O extends com.zeroc.Ice.Instrumentation.Observer>
-        extends Observer<T> {
+    T extends Metrics, O extends com.zeroc.Ice.Instrumentation.Observer>
+    extends Observer<T> {
     @Override
     public void attach() {
         super.attach();
@@ -39,10 +39,10 @@ public class ObserverWithDelegate<
 
     @SuppressWarnings("unchecked")
     public <
-                    S extends Metrics,
-                    ObserverImpl extends ObserverWithDelegate<S, Obs>,
-                    Obs extends com.zeroc.Ice.Instrumentation.Observer>
-            Obs getObserver(
+        S extends Metrics,
+        ObserverImpl extends ObserverWithDelegate<S, Obs>,
+        Obs extends com.zeroc.Ice.Instrumentation.Observer>
+        Obs getObserver(
                     String mapName,
                     MetricsHelper<S> helper,
                     Class<S> mcl,
