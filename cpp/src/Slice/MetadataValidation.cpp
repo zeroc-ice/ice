@@ -415,7 +415,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
     {
         auto appliedToPtr = appliedTo.get();
         auto comparator = [&](reference_wrapper<const type_info> t) { return t.get() == typeid(*appliedToPtr); };
-        if (std::find_if(validOn.begin(), validOn.end(), comparator) == validOn.end())
+        if (std::none_of(validOn.begin(), validOn.end(), comparator))
         {
             string message = misappliedMetadataMessage(metadata, appliedTo);
             p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, message);

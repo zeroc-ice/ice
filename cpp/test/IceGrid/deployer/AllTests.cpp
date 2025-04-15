@@ -388,15 +388,15 @@ allTests(Test::TestHelper* helper)
     cout << "testing object registration... " << flush;
 
     auto objs = query->findAllObjectsByType("::Test");
-    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("Server1")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("Server2")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("SimpleServer")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("IceBox1-Service1")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("IceBox1-Service2")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("IceBox2-Service1")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("IceBox2-Service2")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("SimpleIceBox-SimpleService")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("ReplicatedObject")) != objs.end());
+    test(any_of(objs.begin(), objs.end(), proxyIdentityEqual("Server1")));
+    test(any_of(objs.begin(), objs.end(), proxyIdentityEqual("Server2")));
+    test(any_of(objs.begin(), objs.end(), proxyIdentityEqual("SimpleServer")));
+    test(any_of(objs.begin(), objs.end(), proxyIdentityEqual("IceBox1-Service1")));
+    test(any_of(objs.begin(), objs.end(), proxyIdentityEqual("IceBox1-Service2")));
+    test(any_of(objs.begin(), objs.end(), proxyIdentityEqual("IceBox2-Service1")));
+    test(any_of(objs.begin(), objs.end(), proxyIdentityEqual("IceBox2-Service2")));
+    test(any_of(objs.begin(), objs.end(), proxyIdentityEqual("SimpleIceBox-SimpleService")));
+    test(any_of(objs.begin(), objs.end(), proxyIdentityEqual("ReplicatedObject")));
 
     {
         test(comm->identityToString(query->findObjectByType("::TestId1")->ice_getIdentity()) == "cat/name1");
