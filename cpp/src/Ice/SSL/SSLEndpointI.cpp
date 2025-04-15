@@ -25,10 +25,17 @@ extern "C"
 
         if (name != pluginName)
         {
+#ifdef _MSC_VER
+#    pragma warning(push)
+#    pragma warning(disable : 4297) // function assumed not to throw an exception but does
+#endif
             throw Ice::PluginInitializationException{
                 __FILE__,
                 __LINE__,
                 "the SSL plug-in must be named '" + pluginName + "'"};
+#ifdef _MSC_VER
+#    pragma warning(pop)
+#endif
         }
 
         IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
