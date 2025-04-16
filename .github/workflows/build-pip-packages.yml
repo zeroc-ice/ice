@@ -82,17 +82,17 @@ jobs:
     needs: build-python-packages
 
     steps:
-      - name: Download All PIP Package Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-          pattern: pip-packages-*
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup Python
         uses: ./.github/actions/setup-python
+
+      - name: Download All PIP Package Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: pip-packages-*
 
       - name: Publish PIP Package
         run: |
