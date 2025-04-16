@@ -424,7 +424,6 @@ cp -p packaging/rpm/icegridgui %{buildroot}%{_bindir}/icegridgui
 %else
 
 # These directories and files aren't needed in the x86 build.
-rm -f %{buildroot}%{_libdir}/libGlacier2CryptPermissionsVerifier.so*
 rm -f %{buildroot}%{_bindir}/slice2*
 rm -f %{buildroot}%{_bindir}/ice2slice*
 rm -rf %{buildroot}%{_includedir}
@@ -494,9 +493,6 @@ rm -rf %{buildroot}%{_datadir}/ice
 %{_libdir}/libIceLocatorDiscovery.so.*
 %{_libdir}/libIceStorm.so.*
 %{_libdir}/libIceDB.so.*
-%ifarch %{_host_cpu}
-%{_libdir}/libGlacier2CryptPermissionsVerifier.so.*
-%endif
 %{_libdir}/cmake/*/*.cmake
 %post -n lib%{?nameprefix}ice3.8-c++ -p /sbin/ldconfig
 %postun -n lib%{?nameprefix}ice3.8-c++
