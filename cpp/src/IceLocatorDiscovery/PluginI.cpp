@@ -4,7 +4,7 @@
 #include "../Ice/Timer.h"
 #include "Ice/LoggerUtil.h"
 #include "IceLocatorDiscovery/IceLocatorDiscovery.h"
-#include "Lookup.h"
+#include "IceLocatorDiscovery/Lookup.h"
 #include "Plugin.h"
 
 #include <algorithm>

@@ -52,14 +52,16 @@ task :generate_sources do
         "../cpp/src/Ice/generated",
         "../cpp/src/Ice/SSL",
         "../cpp/src/IceDiscovery",
-        "../cpp/src/IceDiscovery/generated",
+        "../cpp/src/IceDiscovery/generated/IceDiscovery",
         "../cpp/src/IceLocatorDiscovery",
-        "../cpp/src/IceLocatorDiscovery/generated",
+        "../cpp/src/IceLocatorDiscovery/generated/IceLocatorDiscovery",
         "../cpp/src/slice2rb",
         "../cpp/src/Slice",
         "../cpp/include/Ice",
         "../cpp/include/Ice/SSL",
-        "../cpp/include/generated/Ice"]
+        "../cpp/include/generated/Ice",
+        "../cpp/include/IceDiscovery",
+        "../cpp/include/IceLocatorDiscovery",]
 
     for source_dir in ice_cpp_sources do
         Dir.foreach(source_dir) do |entry|

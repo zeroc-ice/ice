@@ -93,31 +93,33 @@
     <ResourceCompile Include="..\..\IceDiscovery.rc" />
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\IceDiscovery\Lookup.ice" />
+    <SliceCompile Include="..\..\..\..\..\slice\IceDiscovery\Lookup.ice">
+      <OutputDir>$(IntDir)IceDiscovery</OutputDir>
+    </SliceCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\LocatorI.cpp" />
     <ClCompile Include="..\..\LookupI.cpp" />
     <ClCompile Include="..\..\PluginI.cpp" />
-    <ClCompile Include="Win32\Debug\Lookup.cpp">
+    <ClCompile Include="Win32\Debug\IceDiscovery\Lookup.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceDiscovery\Lookup.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="Win32\Release\Lookup.cpp">
+    <ClCompile Include="Win32\Release\IceDiscovery\Lookup.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceDiscovery\Lookup.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="x64\Debug\Lookup.cpp">
+    <ClCompile Include="x64\Debug\IceDiscovery\Lookup.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceDiscovery\Lookup.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="x64\Release\Lookup.cpp">
+    <ClCompile Include="x64\Release\IceDiscovery\Lookup.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -128,25 +130,25 @@
     <ClInclude Include="..\..\LocatorI.h" />
     <ClInclude Include="..\..\LookupI.h" />
     <ClInclude Include="..\..\PluginI.h" />
-    <ClInclude Include="Win32\Debug\Lookup.h">
+    <ClInclude Include="Win32\Debug\IceDiscovery\Lookup.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceDiscovery\Lookup.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="Win32\Release\Lookup.h">
+    <ClInclude Include="Win32\Release\IceDiscovery\Lookup.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceDiscovery\Lookup.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="x64\Debug\Lookup.h">
+    <ClInclude Include="x64\Debug\IceDiscovery\Lookup.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceDiscovery\Lookup.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="x64\Release\Lookup.h">
+    <ClInclude Include="x64\Release\IceDiscovery\Lookup.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
