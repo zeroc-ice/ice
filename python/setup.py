@@ -34,7 +34,9 @@ ice_cpp_sources = [
     "../cpp/src/IceLocatorDiscovery",
     "../cpp/src/slice2py",
     "../cpp/src/Slice",
-    "../cpp/include/Ice"]
+    "../cpp/include/Ice",
+    "../cpp/include/IceDiscovery",
+    "../cpp/include/IceLocatorDiscovery",]
 
 # Include directories for the build process
 include_dirs = [
@@ -48,15 +50,10 @@ if sys.platform == 'win32':
     ice_cpp_sources.append(f"../cpp/include/generated/{platform}/{configuration}/Ice")
     include_dirs.extend([
         f"dist/ice/cpp/include/generated/{platform}/{configuration}",
-        f"dist/ice/cpp/src/IceDiscovery/msbuild/icediscovery/{platform}/{configuration}",
-        f"dist/ice/cpp/src/IceLocatorDiscovery/msbuild/icelocatordiscovery/{platform}/{configuration}",
         f"dist/bzip2-{bzip2_version}"])
 else:
     ice_cpp_sources.append("../cpp/include/generated/Ice")
-    include_dirs.extend([
-        "dist/ice/cpp/include/generated",
-        "dist/ice/cpp/src/IceDiscovery/generated",
-        "dist/ice/cpp/src/IceLocatorDiscovery/generated"])
+    include_dirs.extend(["dist/ice/cpp/include/generated"])
 
 # Define macros used during the build process
 # All the /**/ macros are necessary only on Windows
