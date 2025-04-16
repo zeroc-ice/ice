@@ -19,7 +19,7 @@
 #include "InternalRegistryI.h"
 #include "LocatorI.h"
 #include "LocatorRegistryI.h"
-#include "Lookup.h"
+#include "LocatorDiscoveryLookup.h"
 #include "QueryI.h"
 #include "ReapThread.h"
 #include "RegistryAdminRouter.h"
