@@ -397,6 +397,7 @@ $2_configs      := $$(filter $(configs) $$($2_always_enable_configs),$$(call uni
 
 # Install files necessary for development.
 $2_devinstall   := $$(call var-with-default,$2_devinstall,yes)
+$2_install_generated_headers := $$(call var-with-default,$2_install_generated_headers,yes)
 
 # Set default target directory if we're not building the component, this is used
 # when building against the component binary distribution.
@@ -678,7 +679,7 @@ $2_distclean::
 ifeq ($$($2_devinstall),yes)
 ifneq ($$(and $$($2_components),$(filter library,$3),$$(filter $(includedir)/%,$$($2_includedir))),)
 $$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h) $$(wildcard $$($2_includedir)/**/*.h),$(includedir),$(install_includedir),$2_install))
-ifneq ($$($2_do_not_install_generated_headers),yes)
+ifeq ($$($2_install_generated_headers),yes)
 ifneq ($$($2_generated_headers),)
 $$(eval $$(call install-data-files,$$($2_generated_headers),$(includedir)/generated,$(install_includedir),$2_install))
 endif
