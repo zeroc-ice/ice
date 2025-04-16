@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "../Ice/FileUtil.h"
+#include "CryptPluginFactory.h"
 #include "Glacier2/PermissionsVerifier.h"
 #include "Ice/Ice.h"
 #include "Ice/StringUtil.h"
@@ -472,39 +473,18 @@ namespace
     }
 
     void CryptPermissionsVerifierPlugin::destroy() {}
-}
 
-#ifndef CRYPT_PERMISSIONS_VERIFIER_API
-#    ifdef CRYPT_PERMISSIONS_VERIFIER_API_EXPORTS
-#        define CRYPT_PERMISSIONS_VERIFIER_API ICE_DECLSPEC_EXPORT
-#    else
-#        define CRYPT_PERMISSIONS_VERIFIER_API /**/
-#    endif
-#endif
-
-//
-// Plug-in factory function.
-//
-extern "C"
-{
-    CRYPT_PERMISSIONS_VERIFIER_API Ice::Plugin*
+    Ice::Plugin*
     createCryptPermissionsVerifier(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
     {
         string pluginName{cryptPluginName};
 
         if (name != pluginName)
         {
-#ifdef _MSC_VER
-#    pragma warning(push)
-#    pragma warning(disable : 4297) // function assumed not to throw an exception but does
-#endif
             throw PluginInitializationException{
                 __FILE__,
                 __LINE__,
                 "the Glacier2 Crypt Permissions Verifier plug-in must be named '" + pluginName + "'"};
-#ifdef _MSC_VER
-#    pragma warning(pop)
-#endif
         }
 
         if (args.size() > 0)
@@ -516,4 +496,10 @@ extern "C"
 
         return new CryptPermissionsVerifierPlugin(communicator);
     }
+}
+
+Ice::PluginFactory
+Glacier2CryptPermissionsVerifier::cryptPluginFactory()
+{
+    return Ice::PluginFactory{cryptPluginName, createCryptPermissionsVerifier};
 }

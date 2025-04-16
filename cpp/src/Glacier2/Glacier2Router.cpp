@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+#include "../Glacier2CryptPermissionsVerifier/CryptPluginFactory.h"
 #include "../Glacier2Lib/NullPermissionsVerifier.h"
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/Options.h"
@@ -434,9 +435,7 @@ RouterService::initializeCommunicator(int& argc, char* argv[], InitializationDat
 
         if (!cryptPasswords.empty())
         {
-            initData.properties->setProperty(
-                "Ice.Plugin.Glacier2CryptPermissionsVerifier",
-                "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
+            initData.pluginFactories.push_back(Glacier2CryptPermissionsVerifier::cryptPluginFactory());
 
             initData.properties->setProperty(
                 "Glacier2CryptPermissionsVerifier.Glacier2.PermissionsVerifier",

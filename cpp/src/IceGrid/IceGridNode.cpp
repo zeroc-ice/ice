@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+#include "../Glacier2CryptPermissionsVerifier/CryptPluginFactory.h"
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/FileUtil.h"
 #include "../Ice/Timer.h"
@@ -738,9 +739,7 @@ NodeService::initializeCommunicator(int& argc, char* argv[], InitializationData 
 
             if (!cryptPasswords.empty())
             {
-                initData.properties->setProperty(
-                    "Ice.Plugin.Glacier2CryptPermissionsVerifier",
-                    "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
+                initData.pluginFactories.push_back(Glacier2CryptPermissionsVerifier::cryptPluginFactory());
 
                 initData.properties->setProperty(
                     "Glacier2CryptPermissionsVerifier.IceGrid.Registry." + type + "PermissionsVerifier",

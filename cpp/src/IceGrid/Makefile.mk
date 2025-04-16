@@ -70,12 +70,12 @@ $(project)_cppflags             := $(if $(lmdb_includedir),-I$(lmdb_includedir))
 
 icegridnode_sources             := $(addprefix $(currentdir)/,$(local_node_srcs) $(local_registry_srcs) IceGridNode.cpp) \
                                    $(slicedir)/IceLocatorDiscovery/Lookup.ice
-icegridnode_dependencies        := IceBox IceStormService IceStorm IceDB
+icegridnode_dependencies        := IceBox IceStormService IceStorm IceDB Glacier2CryptPermissionsVerifier
 icegridnode_libs                := expat
 
 icegridregistry_sources         := $(addprefix $(currentdir)/,$(local_registry_srcs) IceGridRegistry.cpp) \
                                    $(slicedir)/IceLocatorDiscovery/Lookup.ice
-icegridregistry_dependencies    := IceBox IceStormService IceStorm IceDB $(local_dependencies)
+icegridregistry_dependencies    := IceBox IceStormService IceStorm IceDB Glacier2CryptPermissionsVerifier $(local_dependencies)
 icegridregistry_libs            := expat
 
 icegridadmin_sources            := $(addprefix $(currentdir)/,$(local_admin_srcs))
