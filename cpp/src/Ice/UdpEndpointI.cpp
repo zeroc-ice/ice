@@ -15,20 +15,32 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-extern "C"
+namespace
 {
-    Plugin* createIceUDP(const CommunicatorPtr& c, const string&, const StringSeq&)
+    const char* const udpPluginName = "IceUDP";
+
+    Plugin* createIceUDP(const CommunicatorPtr& c, const string& name, const StringSeq&)
     {
+        string pluginName{udpPluginName};
+
+        if (name != pluginName)
+        {
+            throw PluginInitializationException{
+                __FILE__,
+                __LINE__,
+                "the UDP plug-in must be named '" + pluginName + "'"};
+        }
+
         return new EndpointFactoryPlugin(
             c,
             make_shared<UdpEndpointFactory>(make_shared<ProtocolInstance>(c, UDPEndpointType, "udp", false)));
     }
 }
 
-PluginFactory
+Ice::PluginFactory
 Ice::udpPluginFactory()
 {
-    return {"IceUDP", createIceUDP};
+    return {udpPluginName, createIceUDP};
 }
 
 IceInternal::UdpEndpointI::UdpEndpointI(

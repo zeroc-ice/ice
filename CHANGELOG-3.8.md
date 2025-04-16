@@ -206,6 +206,9 @@ classDiagram
   New local exceptions:\
   ConnectionAbortedException, ConnectionClosedException, ParseException
 
+- The plug-ins provided by Ice now have fixed names: IceIAP, IceBT, IceUDP, IceWS, IceDiscovery, IceLocatorDiscovery.
+This fixed name is the only name you can use when loading/configuring such a plug-in with the Ice.Plugin.name property.
+
 ## Slice Language Changes
 
 - Removed local Slice. `local` is no longer a Slice keyword.

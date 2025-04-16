@@ -109,6 +109,23 @@ public class Client : Test.TestHelper
             }
             Console.WriteLine("ok");
         }
+
+        {
+            Console.Write("testing that IceDiscovery can't be loaded under a different name... ");
+            Console.Out.Flush();
+            try
+            {
+                var properties = new Ice.Properties();
+                properties.setProperty("Ice.Plugin.Discovery", "IceDiscovery:IceDiscovery.PluginFactory");
+                initialize(properties);
+                test(false);
+            }
+            catch (Ice.PluginInitializationException ex)
+            {
+                test(ex.Message == "The Discovery plug-in must be named 'IceDiscovery'.");
+            }
+            Console.WriteLine("ok");
+        }
     }
 
     internal class MyPlugin : Ice.Plugin

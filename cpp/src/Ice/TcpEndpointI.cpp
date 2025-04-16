@@ -21,14 +21,32 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-extern "C"
+namespace
 {
-    Plugin* createIceTCP(const CommunicatorPtr& c, const string&, const StringSeq&)
+    const char* const tcpPluginName = "IceTCP";
+
+    Plugin* createIceTCP(const CommunicatorPtr& c, const string& name, const StringSeq&)
     {
+        string pluginName{tcpPluginName};
+
+        if (name != pluginName)
+        {
+            throw PluginInitializationException{
+                __FILE__,
+                __LINE__,
+                "the TCP plug-in must be named '" + pluginName + "'"};
+        }
+
         return new EndpointFactoryPlugin(
             c,
             make_shared<TcpEndpointFactory>(make_shared<ProtocolInstance>(c, TCPEndpointType, "tcp", false)));
     }
+}
+
+Ice::PluginFactory
+Ice::tcpPluginFactory()
+{
+    return {tcpPluginName, createIceTCP};
 }
 
 namespace

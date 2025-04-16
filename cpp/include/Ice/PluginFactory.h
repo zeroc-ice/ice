@@ -14,7 +14,8 @@ namespace Ice
 {
     class Plugin;
 
-    /// A plug-in factory function is a C function responsible for creating an Ice plug-in.
+    /// A plug-in factory function responsible for creating an Ice plug-in.
+    /// For plug-ins that may be loaded dynamically, these functions are extern "C" to avoid name mangling.
     /// @param communicator The communicator in which the plug-in will be installed.
     /// @param name The name assigned to the plug-in.
     /// @param args Additional arguments included in the plug-in's configuration.
@@ -56,6 +57,12 @@ namespace Ice
     /// @see InitializationData::pluginFactories
     ICE_API PluginFactory iapPluginFactory();
 #endif
+
+    /// @cond INTERNAL
+    // Not exported because they are always registered by the Ice library.
+    PluginFactory tcpPluginFactory();
+    PluginFactory sslPluginFactory();
+    /// @endcond
 }
 
 namespace IceInternal
