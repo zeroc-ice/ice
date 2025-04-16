@@ -93,6 +93,9 @@
     <ClCompile Include="..\SessionRouterI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\CryptPermissionsVerifier.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Blobject.h">

@@ -105,6 +105,7 @@
     <ResourceCompile Include="..\..\IceGridRegistry.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Glacier2\CryptPermissionsVerifier.cpp" />
     <ClCompile Include="..\..\AdapterCache.cpp" />
     <ClCompile Include="..\..\AdminCallbackRouter.cpp" />
     <ClCompile Include="..\..\AdminI.cpp" />

@@ -97,6 +97,7 @@
   <ItemGroup>
     <ClCompile Include="..\Blobject.cpp" />
     <ClCompile Include="..\ClientBlobject.cpp" />
+    <ClCompile Include="..\CryptPermissionsVerifier.cpp" />
     <ClCompile Include="..\FilterManager.cpp" />
     <ClCompile Include="..\Glacier2Router.cpp" />
     <ClCompile Include="..\Instance.cpp" />
