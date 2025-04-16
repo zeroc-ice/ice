@@ -114,9 +114,9 @@ IceIAP[iphonesimulator]_system_libs := $(IceIAP[iphoneos]_system_libs)
 icegridadmin[macosx]_system_libs := -ledit -lncurses
 icestormadmin[macosx]_system_libs := -ledit -lncurses
 
-Glacier2CryptPermissionsVerifier[macosx]_system_libs := $(Ice[macosx]_system_libs)
-Glacier2CryptPermissionsVerifier[iphoneos]_system_libs := $(Ice[iphoneos]_system_libs)
-Glacier2CryptPermissionsVerifier[iphonesimulator]_system_libs := $(Ice[iphonesimulator]_system_libs)
+glacier2router[macosx]_system_libs := $(Ice[macosx]_system_libs)
+icegridregistry[macosx]_system_libs := $(Ice[macosx]_system_libs)
+icegridnode[macosx]_system_libs := $(Ice[macosx]_system_libs)
 
 is-iostest-program             = $(and $(filter-out macosx,$2),$(filter test/%,$1))
 iostest_targetrule             = $(if $(is-iostest-program),iostest,)

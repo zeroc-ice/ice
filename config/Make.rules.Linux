@@ -181,7 +181,9 @@ ifeq ($(shell pkg-config --exists libsystemd 2> /dev/null && echo yes),yes)
 Ice_system_libs                                 += $(shell pkg-config --libs libsystemd)
 endif
 
-Glacier2CryptPermissionsVerifier_system_libs    = -lcrypt
+glacier2router_system_libs    = -lcrypt
+icegridregistry_system_libs   = -lcrypt
+icegridnode_system_libs       = -lcrypt
 
 icegridadmin_system_libs                        = -ledit
 icestormadmin_system_libs                       = -ledit

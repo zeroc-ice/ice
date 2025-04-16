@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+#include "CryptPermissionsVerifier.h"
 #include "../Ice/FileUtil.h"
-#include "CryptPluginFactory.h"
 #include "Glacier2/PermissionsVerifier.h"
 #include "Ice/Ice.h"
 #include "Ice/StringUtil.h"
@@ -499,7 +499,7 @@ namespace
 }
 
 Ice::PluginFactory
-Glacier2CryptPermissionsVerifier::cryptPluginFactory()
+Glacier2::cryptPermissionsVerifierPluginFactory()
 {
     return Ice::PluginFactory{cryptPluginName, createCryptPermissionsVerifier};
 }
