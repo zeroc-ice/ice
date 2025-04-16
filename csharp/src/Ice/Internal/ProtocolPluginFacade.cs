@@ -2,49 +2,16 @@
 
 namespace Ice.Internal;
 
-public interface ProtocolPluginFacade
+/// <summary>Provides limited access to the internal endpoint factory manager. Used by transport plug-ins.</summary>
+public sealed class ProtocolPluginFacade
 {
-    //
-    // Get the Communicator instance with which this facade is
-    // associated.
-    //
-    Ice.Communicator getCommunicator();
+    private readonly Instance _instance;
 
-    //
-    // Register an EndpointFactory.
-    //
-    void addEndpointFactory(EndpointFactory factory);
+    public ProtocolPluginFacade(Communicator communicator) => _instance = communicator.instance;
 
-    //
-    // Get an EndpointFactory.
-    //
-    EndpointFactory getEndpointFactory(short type);
-}
-
-public sealed class ProtocolPluginFacadeI : ProtocolPluginFacade
-{
-    public ProtocolPluginFacadeI(Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-        _instance = communicator.instance;
-    }
-
-    //
-    // Get the Communicator instance with which this facade is
-    // associated.
-    //
-    public Ice.Communicator getCommunicator() => _communicator;
-
-    //
-    // Register an EndpointFactory.
-    //
+    // Registers an EndpointFactory.
     public void addEndpointFactory(EndpointFactory factory) => _instance.endpointFactoryManager().add(factory);
 
-    //
-    // Get an EndpointFactory.
-    //
+    // Gets an EndpointFactory.
     public EndpointFactory getEndpointFactory(short type) => _instance.endpointFactoryManager().get(type);
-
-    private readonly Instance _instance;
-    private readonly Ice.Communicator _communicator;
 }

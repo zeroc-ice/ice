@@ -35,15 +35,15 @@ namespace
     public:
         iAPEndpointFactoryPlugin(const Ice::CommunicatorPtr& com)
         {
-            ProtocolPluginFacadePtr f = getProtocolPluginFacade(com);
+            ProtocolPluginFacade facade{com};
 
             // iAP transport
             ProtocolInstancePtr iap = make_shared<ProtocolInstance>(com, iAPEndpointType, "iap", false);
-            f->addEndpointFactory(make_shared<IceObjC::iAPEndpointFactory>(iap));
+            facade.addEndpointFactory(make_shared<IceObjC::iAPEndpointFactory>(iap));
 
             // SSL based on iAP transport
             ProtocolInstancePtr iaps = make_shared<ProtocolInstance>(com, iAPSEndpointType, "iaps", true);
-            f->addEndpointFactory(make_shared<UnderlyingEndpointFactory>(iaps, SSLEndpointType, iAPEndpointType));
+            facade.addEndpointFactory(make_shared<UnderlyingEndpointFactory>(iaps, SSLEndpointType, iAPEndpointType));
         }
 
         virtual void initialize() {}

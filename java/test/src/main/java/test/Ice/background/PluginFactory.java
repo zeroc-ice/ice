@@ -4,7 +4,7 @@ package test.Ice.background;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Plugin;
-import com.zeroc.Ice.Util;
+import com.zeroc.Ice.ProtocolPluginFacade;
 
 public class PluginFactory implements com.zeroc.Ice.PluginFactory {
     public static class PluginI implements Plugin {
@@ -14,7 +14,7 @@ public class PluginFactory implements com.zeroc.Ice.PluginFactory {
 
         @Override
         public void initialize() {
-            var facade = Util.getProtocolPluginFacade(_communicator);
+            var facade = new ProtocolPluginFacade(_communicator);
             for (short s = 0; s < 100; s++) {
                 com.zeroc.Ice.EndpointFactory factory = facade.getEndpointFactory(s);
                 if (factory != null) {

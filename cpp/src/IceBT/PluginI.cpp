@@ -51,7 +51,7 @@ IceBT::btPluginFactory()
 //
 IceBT::PluginI::PluginI(const Ice::CommunicatorPtr& com) : _engine(new Engine(com))
 {
-    IceInternal::ProtocolPluginFacadePtr f = IceInternal::getProtocolPluginFacade(com);
+    IceInternal::ProtocolPluginFacade facade{com};
 
     //
     // Register the endpoint factory. We have to do this now, rather
@@ -59,10 +59,10 @@ IceBT::PluginI::PluginI(const Ice::CommunicatorPtr& com) : _engine(new Engine(co
     // interpret proxies before the plug-in is fully initialized.
     //
     InstancePtr bt = make_shared<Instance>(_engine, BTEndpointType, "bt");
-    f->addEndpointFactory(make_shared<EndpointFactoryI>(bt));
+    facade.addEndpointFactory(make_shared<EndpointFactoryI>(bt));
 
     InstancePtr bts = make_shared<Instance>(_engine, BTSEndpointType, "bts");
-    f->addEndpointFactory(make_shared<IceInternal::UnderlyingEndpointFactory>(bts, SSLEndpointType, BTEndpointType));
+    facade.addEndpointFactory(make_shared<IceInternal::UnderlyingEndpointFactory>(bts, SSLEndpointType, BTEndpointType));
 }
 
 void

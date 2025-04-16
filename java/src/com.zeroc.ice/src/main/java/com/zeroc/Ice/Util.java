@@ -567,13 +567,6 @@ public final class Util {
     }
 
     /**
-     * @hidden Public because it's used by IceBT and the 'Ice/background' test.
-     */
-    public static ProtocolPluginFacade getProtocolPluginFacade(Communicator communicator) {
-        return new ProtocolPluginFacadeI(communicator);
-    }
-
-    /**
      * Given a path name, first try to open it as a class path resource (the path is treated as
      * absolute). If that fails, fall back to the file system. Returns null if the file does not
      * exist and raises IOException if an error occurs.

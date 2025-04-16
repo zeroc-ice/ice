@@ -9,49 +9,26 @@
 #include "Ice/Config.h"
 #include "Ice/InstanceF.h"
 #include "NetworkF.h"
-#include "ProtocolPluginFacadeF.h"
 
 #include <cstdint>
 
 namespace IceInternal
 {
-    //
-    // Global function to obtain a ProtocolPluginFacade given a Communicator
-    // instance.
-    //
-    ICE_API ProtocolPluginFacadePtr getProtocolPluginFacade(const Ice::CommunicatorPtr&);
-
-    //
-    // ProtocolPluginFacade wraps the internal operations that protocol
-    // plug-ins may need.
-    //
-    class ICE_API ProtocolPluginFacade
+    /// Provides limited access to the internal endpoint factory manager. Used by transport plug-ins.
+    class ICE_API ProtocolPluginFacade final
     {
     public:
+        /// Constructs a plug-in facade.
         ProtocolPluginFacade(const Ice::CommunicatorPtr&);
-        virtual ~ProtocolPluginFacade();
 
-        //
-        // Get the Communicator instance with which this facade is
-        // associated.
-        //
-        [[nodiscard]] Ice::CommunicatorPtr getCommunicator() const;
-
-        //
-        // Register an EndpointFactory.
-        //
+        /// Registers an EndpointFactory.
         void addEndpointFactory(const EndpointFactoryPtr&) const;
 
-        //
-        // Get an EndpointFactory.
-        //
+        /// Gets the EndpointFactory for a given Endpoint type.
         [[nodiscard]] EndpointFactoryPtr getEndpointFactory(std::int16_t) const;
 
     private:
-        friend ICE_API_FRIEND ProtocolPluginFacadePtr getProtocolPluginFacade(const Ice::CommunicatorPtr&);
-
         InstancePtr _instance;
-        Ice::CommunicatorPtr _communicator;
     };
 }
 

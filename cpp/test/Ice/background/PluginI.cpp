@@ -47,30 +47,30 @@ TestPluginI::TestPluginI(Ice::CommunicatorPtr communicator)
 void
 TestPluginI::initialize()
 {
-    IceInternal::ProtocolPluginFacadePtr facade = IceInternal::getProtocolPluginFacade(_communicator);
+    IceInternal::ProtocolPluginFacade facade{_communicator};
 
     for (int16_t s = 0; s < 100; ++s)
     {
-        IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
+        IceInternal::EndpointFactoryPtr factory = facade.getEndpointFactory(s);
         if (factory)
         {
-            facade->addEndpointFactory(make_shared<EndpointFactory>(factory));
+            facade.addEndpointFactory(make_shared<EndpointFactory>(factory));
         }
     }
     for (int16_t s = 1000; s < 1010; ++s)
     {
-        IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
+        IceInternal::EndpointFactoryPtr factory = facade.getEndpointFactory(s);
         if (factory)
         {
-            facade->addEndpointFactory(make_shared<EndpointFactory>(factory));
+            facade.addEndpointFactory(make_shared<EndpointFactory>(factory));
         }
     }
     for (int16_t s = 10000; s < 10010; ++s)
     {
-        IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
+        IceInternal::EndpointFactoryPtr factory = facade.getEndpointFactory(s);
         if (factory)
         {
-            facade->addEndpointFactory(make_shared<EndpointFactory>(factory));
+            facade.addEndpointFactory(make_shared<EndpointFactory>(factory));
         }
     }
 }
