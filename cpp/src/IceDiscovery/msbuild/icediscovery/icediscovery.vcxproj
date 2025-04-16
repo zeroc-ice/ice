@@ -93,7 +93,10 @@
     <ResourceCompile Include="..\..\IceDiscovery.rc" />
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\IceDiscovery\Lookup.ice" />
+    <SliceCompile Include="..\..\..\..\..\slice\IceDiscovery\Lookup.ice">
+      <HeaderOutputDir>$(IntDir)IceDiscovery</HeaderOutputDir>
+      <BaseDirectoryForGeneratedInclude>IceDiscovery</BaseDirectoryForGeneratedInclude>
+    </SliceCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\LocatorI.cpp" />
