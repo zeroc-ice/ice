@@ -287,7 +287,7 @@ public final class Instance implements Function<String, Class<?>> {
         return _timer;
     }
 
-    public synchronized EndpointFactoryManager endpointFactoryManager() {
+    synchronized EndpointFactoryManager endpointFactoryManager() {
         if (_state == StateDestroyed) {
             throw new CommunicatorDestroyedException();
         }

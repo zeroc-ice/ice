@@ -11,13 +11,13 @@ final class EndpointFactoryManager {
         _instance = instance;
     }
 
-    public void initialize() {
+    void initialize() {
         for (EndpointFactory f : _factories) {
             f.initialize();
         }
     }
 
-    public synchronized void add(EndpointFactory factory) {
+    synchronized void add(EndpointFactory factory) {
         for (EndpointFactory f : _factories) {
             if (f.type() == factory.type()) {
                 assert false;
@@ -26,7 +26,7 @@ final class EndpointFactoryManager {
         _factories.add(factory);
     }
 
-    public synchronized EndpointFactory get(short type) {
+    synchronized EndpointFactory get(short type) {
         for (EndpointFactory f : _factories) {
             if (f.type() == type) {
                 return f;
@@ -35,7 +35,7 @@ final class EndpointFactoryManager {
         return null;
     }
 
-    public synchronized EndpointI create(String str, boolean oaEndpoint) {
+    synchronized EndpointI create(String str, boolean oaEndpoint) {
         String[] arr = StringUtil.splitString(str, " \t\r\n");
         if (arr == null) {
             throw new ParseException("Failed to parse endpoint '" + str + "': mismatched quote");
@@ -135,7 +135,7 @@ final class EndpointFactoryManager {
         return null;
     }
 
-    public synchronized EndpointI read(InputStream s) {
+    synchronized EndpointI read(InputStream s) {
         short type = s.readShort();
 
         EndpointFactory factory = get(type);
