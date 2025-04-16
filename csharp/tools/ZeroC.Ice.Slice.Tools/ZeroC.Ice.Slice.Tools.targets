@@ -75,11 +75,19 @@
             <_IceToolsPathNormalized>$([MSBuild]::NormalizePath('$(IceToolsPath)'))</_IceToolsPathNormalized>
         </PropertyGroup>
 
+        <!-- Normalize the paths in SliceCompile item metadata -->
+        <ItemGroup>
+            <_SliceCompileNormalized Include="@(SliceCompile)">
+                <OutputDir>$([MSBuild]::NormalizePath('%(SliceCompile.OutputDir)'))</OutputDir>
+                <IncludeDirectories>$([MSBuild]::NormalizePath('%(SliceCompile.IncludeDirectories)'))</IncludeDirectories>
+            </_SliceCompileNormalized>
+        </ItemGroup>
+
         <!-- First we check dependencies and compute which Slice files need to be recompiled -->
         <Slice2CSharpDependTask
             WorkingDirectory      = "$(MSBuildProjectDirectory)"
             IceToolsPath          = "$(_IceToolsPathNormalized)"
-            Sources               = "@(SliceCompile)">
+            Sources               = "@(_SliceCompileNormalized)">
 
             <Output
                 ItemName          = "_SliceCompile"
@@ -90,23 +98,15 @@
                 TaskParameter     = "GeneratedCompiledPaths"/>
         </Slice2CSharpDependTask>
 
-        <!-- Normalize the paths in SliceCompile item metadata -->
-        <ItemGroup>
-            <_SliceCompileNormalized Include="@(_SliceCompile)">
-                <OutputDir>$([MSBuild]::NormalizePath('%(_SliceCompile.OutputDir)'))</OutputDir>
-                <IncludeDirectories>$([MSBuild]::NormalizePath('%(_SliceCompile.IncludeDirectories)'))</IncludeDirectories>
-            </_SliceCompileNormalized>
-        </ItemGroup>
-
         <!-- Compile the Slice files -->
         <Slice2CSharpTask
             WorkingDirectory      = "$(MSBuildProjectDirectory)"
             IceToolsPath          = "$(_IceToolsPathNormalized)"
-            OutputDir             = "%(_SliceCompileNormalized.OutputDir)"
-            IncludeDirectories    = "%(_SliceCompileNormalized.IncludeDirectories)"
-            AdditionalOptions     = "%(_SliceCompileNormalized.AdditionalOptions)"
-            Sources               = "@(_SliceCompileNormalized)"
-            Condition             = "'%(_SliceCompileNormalized.BuildRequired)' == 'True'"/>
+            OutputDir             = "%(_SliceCompile.OutputDir)"
+            IncludeDirectories    = "%(_SliceCompile.IncludeDirectories)"
+            AdditionalOptions     = "%(_SliceCompile.AdditionalOptions)"
+            Sources               = "@(_SliceCompile)"
+            Condition             = "'%(_SliceCompile.BuildRequired)' == 'True'"/>
 
         <!--
             Include all C# generated source items that have not been manually included. We want to delay this until we are
