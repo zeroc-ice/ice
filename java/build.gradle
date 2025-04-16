@@ -156,8 +156,6 @@ dependencies {
 tasks.named('rewriteDryRun') {
     task ->
         task.enabled = enableCodeAnalysis
-    project.logger.lifecycle(enableCodeAnalysis.toString())
-    project.logger.lifecycle(task.enabled.toString())
     rewrite.failOnDryRunResults = true
 }
 
