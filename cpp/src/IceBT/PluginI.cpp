@@ -62,7 +62,8 @@ IceBT::PluginI::PluginI(const Ice::CommunicatorPtr& com) : _engine(new Engine(co
     facade.addEndpointFactory(make_shared<EndpointFactoryI>(bt));
 
     InstancePtr bts = make_shared<Instance>(_engine, BTSEndpointType, "bts");
-    facade.addEndpointFactory(make_shared<IceInternal::UnderlyingEndpointFactory>(bts, SSLEndpointType, BTEndpointType));
+    facade.addEndpointFactory(
+        make_shared<IceInternal::UnderlyingEndpointFactory>(bts, SSLEndpointType, BTEndpointType));
 }
 
 void
