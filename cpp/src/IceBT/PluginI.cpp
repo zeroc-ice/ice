@@ -43,7 +43,7 @@ extern "C"
 PluginFactory
 IceBT::btPluginFactory()
 {
-    return {"IceBT", createIceBT};
+    return {btPluginName, createIceBT};
 }
 
 //

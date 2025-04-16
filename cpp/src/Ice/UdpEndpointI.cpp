@@ -18,27 +18,17 @@ using namespace IceInternal;
 namespace
 {
     const char* const udpPluginName = "IceUDP";
-}
 
-extern "C"
-{
     Plugin* createIceUDP(const CommunicatorPtr& c, const string& name, const StringSeq&)
     {
         string pluginName{udpPluginName};
 
         if (name != pluginName)
         {
-#ifdef _MSC_VER
-#    pragma warning(push)
-#    pragma warning(disable : 4297) // function assumed not to throw an exception but does
-#endif
             throw PluginInitializationException{
                 __FILE__,
                 __LINE__,
                 "the UDP plug-in must be named '" + pluginName + "'"};
-#ifdef _MSC_VER
-#    pragma warning(pop)
-#endif
         }
 
         return new EndpointFactoryPlugin(
@@ -47,7 +37,7 @@ extern "C"
     }
 }
 
-PluginFactory
+Ice::PluginFactory
 Ice::udpPluginFactory()
 {
     return {udpPluginName, createIceUDP};

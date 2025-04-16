@@ -28,6 +28,8 @@ using namespace IceInternal;
 
 namespace
 {
+    const char* const iapPluginName = "IceIAP";
+
     class iAPEndpointFactoryPlugin : public Ice::Plugin
     {
     public:
@@ -47,18 +49,27 @@ namespace
         virtual void initialize() {}
         virtual void destroy() {}
     };
-}
 
-extern "C" ICE_API Plugin*
-createIceIAP(const CommunicatorPtr& com, const string&, const StringSeq&)
-{
-    return new iAPEndpointFactoryPlugin(com);
+    Plugin* createIceIAP(const CommunicatorPtr& com, const string& name, const StringSeq&)
+    {
+        string pluginName{iapPluginName};
+
+        if (name != pluginName)
+        {
+            throw PluginInitializationException{
+                __FILE__,
+                __LINE__,
+                "the iAP plug-in must be named '" + pluginName + "'"};
+        }
+
+        return new iAPEndpointFactoryPlugin(com);
+    }
 }
 
 PluginFactory
 Ice::iapPluginFactory()
 {
-    return {"IceIAP", createIceIAP};
+    return {iapPluginName, createIceIAP};
 }
 
 IceObjC::iAPEndpointI::iAPEndpointI(

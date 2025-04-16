@@ -15,31 +15,21 @@ using namespace Ice::SSL;
 namespace
 {
     const char* const sslPluginName = "IceSSL";
-}
 
-extern "C"
-{
     Plugin* createIceSSL(const CommunicatorPtr& communicator, const string& name, const StringSeq&)
     {
         string pluginName{sslPluginName};
 
         if (name != pluginName)
         {
-#ifdef _MSC_VER
-#    pragma warning(push)
-#    pragma warning(disable : 4297) // function assumed not to throw an exception but does
-#endif
-            throw Ice::PluginInitializationException{
+            throw PluginInitializationException{
                 __FILE__,
                 __LINE__,
                 "the SSL plug-in must be named '" + pluginName + "'"};
-#ifdef _MSC_VER
-#    pragma warning(pop)
-#endif
         }
 
         IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
-        Ice::SSL::SSLEnginePtr engine = instance->sslEngine();
+        SSLEnginePtr engine = instance->sslEngine();
         IceInternal::EndpointFactoryManagerPtr endpointFactoryManager = instance->endpointFactoryManager();
         Ice::SSL::InstancePtr sslInstance = make_shared<Ice::SSL::Instance>(engine, SSLEndpointType, "ssl");
 
@@ -47,6 +37,12 @@ extern "C"
             communicator,
             make_shared<Ice::SSL::EndpointFactoryI>(sslInstance, TCPEndpointType));
     }
+}
+
+Ice::PluginFactory
+Ice::sslPluginFactory()
+{
+    return {sslPluginName, createIceSSL};
 }
 
 namespace

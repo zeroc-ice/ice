@@ -24,33 +24,29 @@ using namespace IceInternal;
 namespace
 {
     const char* const tcpPluginName = "IceTCP";
-}
 
-extern "C"
-{
     Plugin* createIceTCP(const CommunicatorPtr& c, const string& name, const StringSeq&)
     {
         string pluginName{tcpPluginName};
 
         if (name != pluginName)
         {
-#    ifdef _MSC_VER
-#        pragma warning(push)
-#        pragma warning(disable : 4297) // function assumed not to throw an exception but does
-#    endif
-            throw Ice::PluginInitializationException{
+            throw PluginInitializationException{
                 __FILE__,
                 __LINE__,
                 "the TCP plug-in must be named '" + pluginName + "'"};
-#    ifdef _MSC_VER
-#        pragma warning(pop)
-#    endif
         }
 
         return new EndpointFactoryPlugin(
             c,
             make_shared<TcpEndpointFactory>(make_shared<ProtocolInstance>(c, TCPEndpointType, "tcp", false)));
     }
+}
+
+Ice::PluginFactory
+Ice::tcpPluginFactory()
+{
+    return {tcpPluginName, createIceTCP};
 }
 
 namespace
