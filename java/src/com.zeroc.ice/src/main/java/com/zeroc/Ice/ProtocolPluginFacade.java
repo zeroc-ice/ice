@@ -21,9 +21,4 @@ public final class ProtocolPluginFacade {
     public EndpointFactory getEndpointFactory(short type) {
         return _instance.endpointFactoryManager().get(type);
     }
-
-    // Looks up a Java class by name.
-    public Class<?> findClass(String className) {
-        return _instance.findClass(className);
-    }
 }
