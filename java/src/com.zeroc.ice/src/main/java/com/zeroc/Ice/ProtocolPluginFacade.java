@@ -5,25 +5,20 @@ package com.zeroc.Ice;
 /**
  * @hidden Public because it's used by IceBT and the 'Ice/background' test.
  */
-public interface ProtocolPluginFacade {
-    //
-    // Get the Communicator instance with which this facade is
-    // associated.
-    //
-    Communicator getCommunicator();
+public final class ProtocolPluginFacade {
+    private final Instance _instance;
 
-    //
-    // Register an EndpointFactory.
-    //
-    void addEndpointFactory(EndpointFactory factory);
+    public ProtocolPluginFacade(Communicator communicator) {
+        _instance = communicator.getInstance();
+    }
 
-    //
-    // Get an EndpointFactory.
-    //
-    EndpointFactory getEndpointFactory(short type);
+    // Registers an EndpointFactory.
+    public void addEndpointFactory(EndpointFactory factory) {
+        _instance.endpointFactoryManager().add(factory);
+    }
 
-    //
-    // Look up a Java class by name.
-    //
-    Class<?> findClass(String className);
+    // Gets an EndpointFactory.
+    public EndpointFactory getEndpointFactory(short type) {
+        return _instance.endpointFactoryManager().get(type);
+    }
 }
