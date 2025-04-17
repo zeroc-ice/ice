@@ -2,34 +2,34 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\..\PluginI.cpp" />
-    <ClCompile Include="Win32\Debug\Lookup.cpp">
+    <ClCompile Include="Win32\Debug\LocatorDiscoveryLookup.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Debug\Lookup.cpp">
+    <ClCompile Include="x64\Debug\LocatorDiscoveryLookup.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\Lookup.cpp">
+    <ClCompile Include="Win32\Release\LocatorDiscoveryLookup.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\Lookup.cpp">
+    <ClCompile Include="x64\Release\LocatorDiscoveryLookup.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\IceLocatorDiscovery\Lookup.ice" />
+    <SliceCompile Include="..\..\..\..\..\slice\IceLocatorDiscovery\LocatorDiscoveryLookup.ice" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Plugin.h" />
-    <ClInclude Include="Win32\Debug\Lookup.h">
+    <ClInclude Include="Win32\Debug\LocatorDiscoveryLookup.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Debug\Lookup.h">
+    <ClInclude Include="x64\Debug\LocatorDiscoveryLookup.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Release\Lookup.h">
+    <ClInclude Include="Win32\Release\LocatorDiscoveryLookup.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Release\Lookup.h">
+    <ClInclude Include="x64\Release\LocatorDiscoveryLookup.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
   </ItemGroup>

@@ -34,7 +34,9 @@ ice_cpp_sources = [
     "../cpp/src/IceLocatorDiscovery",
     "../cpp/src/slice2py",
     "../cpp/src/Slice",
-    "../cpp/include/Ice"]
+    "../cpp/include/Ice",
+    "../cpp/include/IceDiscovery",
+    "../cpp/include/IceLocatorDiscovery",]
 
 # Include directories for the build process
 include_dirs = [

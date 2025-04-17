@@ -4,9 +4,9 @@
 #define LOOKUPI_H
 
 #include "../Ice/Timer.h"
+#include "DiscoveryLookup.h"
 #include "Ice/Properties.h"
 #include "LocatorI.h"
-#include "Lookup.h"
 
 #include <chrono>
 #include <set>
