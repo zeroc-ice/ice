@@ -5,8 +5,8 @@
 
 #include "../Ice/Timer.h"
 #include "Ice/Properties.h"
-#include "LocatorI.h"
 #include "IceDiscovery/Lookup.h"
+#include "LocatorI.h"
 
 #include <chrono>
 #include <set>
