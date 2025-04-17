@@ -1780,6 +1780,11 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "@Deprecated";
     }
 
+    out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
+    if (p->compactId() >= 0)
+    {
+        out << nl << "@com.zeroc.Ice.CompactSliceTypeId(value = " << p->compactId() << ")";
+    }
     out << nl << "public class " << name;
     out.useCurrentPosAsIndent();
 
@@ -2057,6 +2062,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << nl << "@Deprecated";
     }
 
+    out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     out << nl << "public class " << name << " extends ";
 
     if (!base)
@@ -3298,6 +3304,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         out << nl << "@Deprecated";
     }
+    out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     out << nl << "public interface " << p->mappedName() << "Prx extends ";
     out.useCurrentPosAsIndent();
     if (bases.empty())
@@ -3605,6 +3612,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
     writeDocComment(out, p->unit(), dc);
 
+    out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     out << nl << "public interface " << p->mappedName() << " extends ";
     auto q = bases.begin();
     out.useCurrentPosAsIndent();
@@ -3666,33 +3674,6 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             out << ';';
         }
     }
-
-    StringList ids = p->ids();
-
-    out << sp;
-    writeHiddenDocComment(out);
-    out << nl << "static final String[] _iceIds =";
-    out << sb;
-
-    for (auto q = ids.begin(); q != ids.end();)
-    {
-        out << nl << '"' << *q << '"';
-        if (++q != ids.end())
-        {
-            out << ',';
-        }
-    }
-    out << eb << ';';
-
-    out << sp << nl << "@Override" << nl << "default String[] ice_ids(com.zeroc.Ice.Current current)";
-    out << sb;
-    out << nl << "return _iceIds;";
-    out << eb;
-
-    out << sp << nl << "@Override" << nl << "default String ice_id(com.zeroc.Ice.Current current)";
-    out << sb;
-    out << nl << "return ice_staticId();";
-    out << eb;
 
     out << sp << nl;
     out << "static String ice_staticId()";

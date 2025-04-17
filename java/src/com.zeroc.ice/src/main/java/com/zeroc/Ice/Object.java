@@ -5,14 +5,12 @@ package com.zeroc.Ice;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /** The base interface for servants. */
+@SliceTypeId(value = "::Ice::Object")
 public interface Object {
-    /**
-     * @hidden
-     */
-    static final String[] _iceIds = {"::Ice::Object"};
-
     /** Holds the results of a call to <code>ice_invoke</code>. */
     public class Ice_invokeResult {
         /** Default initializes the members. */
@@ -56,7 +54,8 @@ public interface Object {
      *     derives from the interface specified by <code>s</code>.
      */
     default boolean ice_isA(String s, Current current) {
-        return Arrays.binarySearch(ice_ids(current), s) >= 0;
+
+        return isA(this.getClass(), s);
     }
 
     /**
@@ -75,7 +74,9 @@ public interface Object {
      * @return The Slice type IDs of the interfaces supported by this object, in alphabetical order.
      */
     default String[] ice_ids(Current current) {
-        return _iceIds;
+        var typeIds = new TreeSet<String>();
+        addTypeIds(this.getClass(), typeIds);
+        return typeIds.toArray(new String[0]);
     }
 
     /**
@@ -85,6 +86,13 @@ public interface Object {
      * @return The Slice type ID of the most-derived interface.
      */
     default String ice_id(Current current) {
+        // The first direct interface with a type ID is necessarily the most derived interface.
+        for (var directInterface : this.getClass().getInterfaces()) {
+            var sliceTypeIdAnnotation = directInterface.getAnnotation(SliceTypeId.class);
+            if (sliceTypeIdAnnotation != null) {
+                return sliceTypeIdAnnotation.value();
+            }
+        }
         return ice_staticId();
     }
 
@@ -94,7 +102,7 @@ public interface Object {
      * @return The return value is always ::Ice::Object.
      */
     public static String ice_staticId() {
-        return _iceIds[0];
+        return "::Ice::Object";
     }
 
     /**
@@ -159,5 +167,34 @@ public interface Object {
         return CompletableFuture.completedFuture(
             request.current.createOutgoingResponse(
                 ret, (ostr, value) -> ostr.writeString(value), FormatType.CompactFormat));
+    }
+
+    // Implements ice_isA by checking all interfaces recursively.
+    private static boolean isA(Class<?> type, String typeId) {
+         for (var directInterface : type.getInterfaces()) {
+            var sliceTypeIdAnnotation = directInterface.getAnnotation(SliceTypeId.class);
+            if (sliceTypeIdAnnotation != null) {
+                if (sliceTypeIdAnnotation.value().equals(typeId)) {
+                    return true;
+                }
+            }
+            // Check the interfaces of this interface, if any.
+            if (isA(directInterface, typeId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Helper for ice_ids.
+    private static void addTypeIds(Class<?> type, SortedSet<String> typeIds) {
+         for (var directInterface : type.getInterfaces()) {
+            var sliceTypeIdAnnotation = directInterface.getAnnotation(SliceTypeId.class);
+            if (sliceTypeIdAnnotation != null) {
+                typeIds.add(sliceTypeIdAnnotation.value());
+            }
+            // Recursively add the type IDs of the interfaces of this interface, if any.
+            addTypeIds(directInterface, typeIds);
+        }
     }
 }
