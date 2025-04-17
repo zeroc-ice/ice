@@ -6,7 +6,8 @@ local_node_srcs         = Activator.cpp \
                           NodeSessionManager.cpp \
                           ServerAdapterI.cpp \
                           ServerI.cpp \
-                          XMLParser.cpp
+                          XMLParser.cpp \
+                          ../Glacier2/CryptPermissionsVerifier.cpp
 
 local_registry_srcs     = Internal.ice \
                           AdminRouter.cpp \
@@ -46,7 +47,8 @@ local_registry_srcs     = Internal.ice \
                           Topics.cpp \
                           Util.cpp \
                           WellKnownObjectsManager.cpp \
-                          XMLParser.cpp
+                          XMLParser.cpp \
+                          ../Glacier2/CryptPermissionsVerifier.cpp
 
 local_admin_srcs        = Internal.ice \
                           Client.cpp \

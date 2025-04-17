@@ -3,6 +3,7 @@
 #include "../Glacier2Lib/NullPermissionsVerifier.h"
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/Options.h"
+#include "CryptPermissionsVerifier.h"
 #include "Glacier2/Session.h"
 #include "Ice/Ice.h"
 #include "Instance.h"
@@ -434,9 +435,7 @@ RouterService::initializeCommunicator(int& argc, char* argv[], InitializationDat
 
         if (!cryptPasswords.empty())
         {
-            initData.properties->setProperty(
-                "Ice.Plugin.Glacier2CryptPermissionsVerifier",
-                "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
+            initData.pluginFactories.push_back(Glacier2::cryptPermissionsVerifierPluginFactory());
 
             initData.properties->setProperty(
                 "Glacier2CryptPermissionsVerifier.Glacier2.PermissionsVerifier",

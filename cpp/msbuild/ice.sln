@@ -195,11 +195,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "slice2rb", "..\src\slice2rb
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ice2slice", "..\src\ice2slice\msbuild\ice2slice.vcxproj", "{773EA63E-40AE-45B8-82B4-82B54CF309F8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glacier2cryptpermissionsverifier", "..\src\Glacier2CryptPermissionsVerifier\msbuild\glacier2cryptpermissionsverifier\glacier2cryptpermissionsverifier.vcxproj", "{BF2077E4-D837-486B-9356-24FA5F659808}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2940A3C2-A9BA-44AA-AF65-00479C783407} = {2940A3C2-A9BA-44AA-AF65-00479C783407}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "datastorm", "..\src\DataStorm\msbuild\datastorm\datastorm.vcxproj", "{BD2AC148-422F-49E0-9185-ACCBA7AECF26}"
 	ProjectSection(ProjectDependencies) = postProject
 		{3AB9772C-6113-4F1C-90FB-5368E7486C11} = {3AB9772C-6113-4F1C-90FB-5368E7486C11}
@@ -475,14 +470,6 @@ Global
 		{773EA63E-40AE-45B8-82B4-82B54CF309F8}.Release|Win32.Build.0 = Release|Win32
 		{773EA63E-40AE-45B8-82B4-82B54CF309F8}.Release|x64.ActiveCfg = Release|x64
 		{773EA63E-40AE-45B8-82B4-82B54CF309F8}.Release|x64.Build.0 = Release|x64
-		{BF2077E4-D837-486B-9356-24FA5F659808}.Debug|Win32.ActiveCfg = Debug|Win32
-		{BF2077E4-D837-486B-9356-24FA5F659808}.Debug|Win32.Build.0 = Debug|Win32
-		{BF2077E4-D837-486B-9356-24FA5F659808}.Debug|x64.ActiveCfg = Debug|x64
-		{BF2077E4-D837-486B-9356-24FA5F659808}.Debug|x64.Build.0 = Debug|x64
-		{BF2077E4-D837-486B-9356-24FA5F659808}.Release|Win32.ActiveCfg = Release|Win32
-		{BF2077E4-D837-486B-9356-24FA5F659808}.Release|Win32.Build.0 = Release|Win32
-		{BF2077E4-D837-486B-9356-24FA5F659808}.Release|x64.ActiveCfg = Release|x64
-		{BF2077E4-D837-486B-9356-24FA5F659808}.Release|x64.Build.0 = Release|x64
 		{BD2AC148-422F-49E0-9185-ACCBA7AECF26}.Debug|Win32.ActiveCfg = Debug|Win32
 		{BD2AC148-422F-49E0-9185-ACCBA7AECF26}.Debug|Win32.Build.0 = Debug|Win32
 		{BD2AC148-422F-49E0-9185-ACCBA7AECF26}.Debug|x64.ActiveCfg = Debug|x64
