@@ -4,11 +4,11 @@
 
 namespace Ice;
 
-/// <summary>Assigns a Slice type ID to a class, interface, or struct.</summary>
-/// <remarks>The Slice compiler assigns Slice type IDs to classes, interfaces and structs it generates from Slice
-/// classes, interfaces, structs, and exceptions.</remarks>
+/// <summary>Assigns a Slice type ID to a class or interface.</summary>
+/// <remarks>The Slice compiler assigns Slice type IDs to classes and interfaces it generates from Slice classes,
+/// interfaces, and exceptions.</remarks>
 // Corresponds to IceRPC's ZeroC.Slice.SliceTypeIdAttribute.
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct, Inherited = false)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, Inherited = false)]
 public sealed class SliceTypeIdAttribute : Attribute
 {
     /// <summary>Gets the Slice type ID.</summary>
