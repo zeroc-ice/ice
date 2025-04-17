@@ -2,11 +2,11 @@
 
 $(project)_libraries := IceLocatorDiscovery
 
-# Tell the slice2cpp rule to ignore the top-level IceLocatorDiscovery include directory.
-IceLocatorDiscovery_includedir                  := $(project)/generated/IceLocatorDiscovery
-
+IceLocatorDiscovery_sliceflags                  := --include-dir IceLocatorDiscovery
 IceLocatorDiscovery_targetdir                   := $(libdir)
 IceLocatorDiscovery_dependencies                := Ice
 IceLocatorDiscovery_cppflags                    := -DICE_LOCATOR_DISCOVERY_API_EXPORTS $(api_exports_cppflags)
+
+IceLocatorDiscovery_install_generated_headers   := no
 
 projects += $(project)

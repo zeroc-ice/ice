@@ -147,7 +147,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\IceLocatorDiscovery\Lookup.ice" />
+    <SliceCompile Include="..\..\..\..\..\slice\IceLocatorDiscovery\Lookup.ice">
+      <HeaderOutputDir>$(IntDir)IceLocatorDiscovery</HeaderOutputDir>
+      <BaseDirectoryForGeneratedInclude>IceLocatorDiscovery</BaseDirectoryForGeneratedInclude>
+    </SliceCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
