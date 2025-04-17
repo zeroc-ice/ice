@@ -2,7 +2,6 @@
 
 package com.zeroc.Ice;
 
-import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.SortedSet;
@@ -171,7 +170,7 @@ public interface Object {
 
     // Implements ice_isA by checking all interfaces recursively.
     private static boolean isA(Class<?> type, String typeId) {
-         for (var directInterface : type.getInterfaces()) {
+        for (var directInterface : type.getInterfaces()) {
             var sliceTypeIdAnnotation = directInterface.getAnnotation(SliceTypeId.class);
             if (sliceTypeIdAnnotation != null) {
                 if (sliceTypeIdAnnotation.value().equals(typeId)) {
@@ -188,7 +187,7 @@ public interface Object {
 
     // Helper for ice_ids.
     private static void addTypeIds(Class<?> type, SortedSet<String> typeIds) {
-         for (var directInterface : type.getInterfaces()) {
+        for (var directInterface : type.getInterfaces()) {
             var sliceTypeIdAnnotation = directInterface.getAnnotation(SliceTypeId.class);
             if (sliceTypeIdAnnotation != null) {
                 typeIds.add(sliceTypeIdAnnotation.value());

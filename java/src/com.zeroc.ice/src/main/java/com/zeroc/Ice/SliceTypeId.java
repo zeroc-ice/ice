@@ -1,4 +1,3 @@
-
 // Copyright (c) ZeroC, Inc.
 
 package com.zeroc.Ice;
