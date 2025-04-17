@@ -538,6 +538,8 @@ exit 0
 %{_includedir}/DataStorm
 %{_includedir}/Glacier2
 %{_includedir}/Ice
+%{_includedir}/IceDiscovery
+%{_includedir}/IceLocatorDiscovery
 %{_includedir}/IceBox
 %{_includedir}/IceGrid
 %{_includedir}/IceStorm
