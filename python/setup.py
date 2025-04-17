@@ -47,9 +47,7 @@ include_dirs = [
 
 # Platform-specific adjustments
 if sys.platform == 'win32':
-    ice_cpp_sources.extend([f"../cpp/include/generated/{platform}/{configuration}/Ice",
-                            f"../cpp/include/generated/{platform}/{configuration}/IceDiscovery",
-                            f"../cpp/include/generated/{platform}/{configuration}/IceLocatorDiscovery"])
+    ice_cpp_sources.append(f"../cpp/include/generated/{platform}/{configuration}/Ice")
     include_dirs.extend([
         f"dist/ice/cpp/include/generated/{platform}/{configuration}",
         f"dist/ice/cpp/src/IceDiscovery/msbuild/icediscovery/{platform}/{configuration}",
