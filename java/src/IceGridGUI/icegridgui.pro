@@ -40,11 +40,10 @@
     public **[] values();
 }
 
--dontnote com.zeroc.IceSSL.SSLEngine
 -dontnote com.zeroc.Ice.CommunicatorObserverI*
--dontnote com.zeroc.Ice.InputStream
--dontnote com.zeroc.Ice.InputStream$EncapsDecoder
--dontnote com.zeroc.Ice.InputStream$EncapsDecoder11
+-dontnote com.zeroc.Ice.ClassSliceLoader
+-dontnote com.zeroc.Ice.DefaultPackageSliceLoader
+-dontnote com.zeroc.Ice.ModuleToPackageSliceLoader
 -dontnote com.zeroc.Ice.InvocationObserverI*
 -dontnote com.zeroc.Ice.MetricsMap
 -dontnote com.zeroc.Ice.ObjectPrx

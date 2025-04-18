@@ -12,7 +12,6 @@ import com.zeroc.Ice.SSL.SSLEngine;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,12 +25,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 /**
  * @hidden Public because it's used by SSL.
  */
-public final class Instance implements Function<String, Class<?>> {
+public final class Instance {
     private static class ThreadObserverHelper {
         ThreadObserverHelper(String threadName) {
             _threadName = threadName;
@@ -546,139 +544,8 @@ public final class Instance implements Function<String, Class<?>> {
         _initData.threadStop = threadStop;
     }
 
-    public Class<?> findClass(String className) {
+    Class<?> findClass(String className) {
         return Util.findClass(className, _initData.classLoader);
-    }
-
-    public ClassLoader getClassLoader() {
-        return _initData.classLoader;
-    }
-
-    //
-    // For the "class resolver".
-    //
-    @Override
-    public Class<?> apply(String typeId) {
-        Class<?> c = null;
-
-        //
-        // To convert a Slice type ID into a Java class, the following steps are taken:
-        //
-        // 1. Convert the Slice type ID into a classname (e.g., ::M::X becomes M.X).
-        // 2. Check if the application has defined any package prefixes for the top-level module
-        // (e.g.: "M").    Attempt to resolve the <package-prefix>+<class-name> in order trying each
-        // defined package    prefix.
-        // 3. If the above step fails, it checks the value of Default.Package property. If found,
-        //    prepend its value to the classname. Otherwise, attempt to use the    classname
-        // directly.
-        //
-        String fullyQualifiedClassName;
-
-        //
-        // See if we've already translated this type ID before.
-        //
-        synchronized (this) {
-            fullyQualifiedClassName = _sliceTypeIdToClassMap.get(typeId);
-        }
-
-        //
-        // The fully qualified class name was already resolved, keep using it.
-        //
-        if (fullyQualifiedClassName != null) {
-            return getConcreteClass(fullyQualifiedClassName);
-        }
-
-        //
-        // It's a new type ID, so first convert it into a Java class name.
-        //
-        fullyQualifiedClassName = Util.typeIdToClass(typeId);
-
-        //
-        // See if the application defined any package prefixes with Ice.Package.MODULE property.
-        //
-        int pos = typeId.indexOf(':', 2);
-        if (pos != -1) {
-            String topLevelModule = typeId.substring(2, pos);
-            String[] packagePrefixes = _builtInModulePackagePrefixes.get(topLevelModule);
-            if (packagePrefixes == null) {
-                packagePrefixes =
-                    _initData.properties.getIcePropertyAsList("Ice.Package." + topLevelModule);
-            }
-
-            if (packagePrefixes != null) {
-                for (String packagePrefix : packagePrefixes) {
-                    c = getConcreteClass(packagePrefix + "." + fullyQualifiedClassName);
-                    if (c != null) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        // If we didn't find the class yet, try the default package prefix or without prefix.
-        if (c == null) {
-            String packagePrefix = _initData.properties.getIceProperty("Ice.Default.Package");
-            c =
-                getConcreteClass(
-                    packagePrefix.isEmpty()
-                        ? fullyQualifiedClassName
-                        : packagePrefix + "." + fullyQualifiedClassName);
-        }
-
-        //
-        // If we found the class, update our map so we don't have to translate this type ID again.
-        //
-        if (c != null) {
-            synchronized (this) {
-                fullyQualifiedClassName = c.getName();
-                if (_sliceTypeIdToClassMap.containsKey(typeId)) {
-                    assert (_sliceTypeIdToClassMap.get(typeId).equals(fullyQualifiedClassName));
-                } else {
-                    _sliceTypeIdToClassMap.put(typeId, fullyQualifiedClassName);
-                }
-            }
-        }
-
-        return c;
-    }
-
-    public String resolveCompactId(int compactId) {
-        String className = "com.zeroc.IceCompactId.TypeId_" + Integer.toString(compactId);
-        Class<?> c = getConcreteClass(className);
-        if (c == null) {
-            for (String pkg : _packages) {
-                c = getConcreteClass(pkg + "." + className);
-                if (c != null) {
-                    break;
-                }
-            }
-        }
-        if (c != null) {
-            try {
-                return (String) c.getField("typeId").get(null);
-            } catch (Exception ex) {
-                assert false;
-            }
-        }
-        return "";
-    }
-
-    public Class<?> getConcreteClass(String className) throws LinkageError {
-        Class<?> c = findClass(className);
-
-        if (c != null) {
-            //
-            // Ensure the class is instantiable. The constants are
-            // defined in the JVM specification (0x200 = interface,
-            // 0x400 = abstract).
-            //
-            final int modifiers = c.getModifiers();
-            if ((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0) {
-                return c;
-            }
-        }
-
-        return null;
     }
 
     //
@@ -767,7 +634,7 @@ public final class Instance implements Function<String, Class<?>> {
                 }
             }
 
-            _packages = validatePackages();
+            validatePackages();
 
             _traceLevels = new TraceLevels(properties);
 
@@ -813,6 +680,46 @@ public final class Instance implements Function<String, Class<?>> {
                     _classGraphDepthMax = num;
                 }
             }
+
+            var sliceLoader = new CompositeSliceLoader();
+            _sliceLoader = sliceLoader;
+
+            if (_initData.sliceLoader != null) {
+                sliceLoader.add(_initData.sliceLoader);
+            }
+
+            // Ice.Package.module loader.
+            String packagePrefix = "Ice.Package";
+            Map<String, String> moduleDict = properties.getPropertiesForPrefix(packagePrefix);
+            if (!moduleDict.isEmpty()) {
+                Map<String, String> moduleToPackageMap = new HashMap<>();
+                for (Map.Entry<String, String> entry : moduleDict.entrySet()) {
+                    String moduleName = entry.getKey().substring(packagePrefix.length() + 1); // top-level module
+                    moduleToPackageMap.put("::" + moduleName, entry.getValue() + "." + moduleName);
+                }
+                sliceLoader.add(new ModuleToPackageSliceLoader(moduleToPackageMap, _initData.classLoader));
+            }
+
+            // Default package loader.
+            String defaultPackage = properties.getIceProperty("Ice.Default.Package");
+            if (!defaultPackage.isEmpty()) {
+                sliceLoader.add(new DefaultPackageSliceLoader(defaultPackage, _initData.classLoader));
+            }
+
+            // Built-in modules loader.
+            sliceLoader.add(
+                new ModuleToPackageSliceLoader(
+                    Map.of(
+                        "::Glacier2", "com.zeroc.Glacier2",
+                        "::Ice", "com.zeroc.Ice",
+                        "::IceMX", "com.zeroc.Ice.IceMX",
+                        "::IceBox", "com.zeroc.IceBox",
+                        "::IceGrid", "com.zeroc.IceGrid",
+                        "::IceStorm", "com.zeroc.IceStorm"),
+                    _initData.classLoader));
+
+            // Empty package prefix: module ::VisitorCenter maps to package VisitorCenter.
+            sliceLoader.add(new DefaultPackageSliceLoader("", _initData.classLoader));
 
             String toStringModeStr = properties.getIceProperty("Ice.ToStringMode");
             if ("Unicode".equals(toStringModeStr)) {
@@ -1316,6 +1223,10 @@ public final class Instance implements Function<String, Class<?>> {
         }
     }
 
+    SliceLoader sliceLoader() {
+        return _sliceLoader;
+    }
+
     ConnectionOptions clientConnectionOptions() {
         return _clientConnectionOptions;
     }
@@ -1373,10 +1284,10 @@ public final class Instance implements Function<String, Class<?>> {
         } catch (CommunicatorDestroyedException ex) {}
     }
 
-    private String[] validatePackages() {
+    // TODO: should we drop this method together with the _Marker classes?
+    private void validatePackages() {
         final String prefix = "Ice.Package.";
         Map<String, String> map = _initData.properties.getPropertiesForPrefix(prefix);
-        List<String> packages = new ArrayList<>();
         for (Map.Entry<String, String> p : map.entrySet()) {
             String key = p.getKey();
             String pkg = p.getValue();
@@ -1391,16 +1302,8 @@ public final class Instance implements Function<String, Class<?>> {
             } catch (Exception ex) {}
             if (cls == null) {
                 _initData.logger.warning("unable to validate package: " + key + "=" + pkg);
-            } else {
-                packages.add(pkg);
             }
         }
-
-        String pkg = _initData.properties.getIceProperty("Ice.Default.Package");
-        if (!pkg.isEmpty()) {
-            packages.add(pkg);
-        }
-        return packages.toArray(new String[packages.size()]);
     }
 
     private synchronized void addAllAdminFacets() {
@@ -1505,6 +1408,7 @@ public final class Instance implements Function<String, Class<?>> {
     private int _messageSizeMax; // Immutable, not reset by destroy().
     private int _batchAutoFlushSize; // Immutable, not reset by destroy().
     private int _classGraphDepthMax; // Immutable, not reset by destroy().
+    private SliceLoader _sliceLoader; // Immutable, not reset by destroy().
     private ToStringMode _toStringMode; // Immutable, not reset by destroy().
     private int _cacheMessageBuffers; // Immutable, not reset by destroy().
     private ImplicitContextI _implicitContext;
@@ -1533,7 +1437,6 @@ public final class Instance implements Function<String, Class<?>> {
     private final Map<Short, BufSizeWarnInfo> _setBufSizeWarn = new HashMap<>();
 
     private final Map<String, String> _sliceTypeIdToClassMap = new HashMap<>();
-    private String[] _packages;
 
     private static boolean _oneOffDone;
     private SSLEngine _sslEngine;

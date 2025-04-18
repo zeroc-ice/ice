@@ -1760,8 +1760,6 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    emitCompactIdHelper(p);
-
     string name = p->mappedName();
     ClassDefPtr baseClass = p->base();
     string package = getPackage(p);
@@ -3567,32 +3565,6 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
             out << nl << getUnqualified(*t, package) << ".class";
         }
         out << eb << ';';
-    }
-}
-
-void
-Slice::Gen::TypesVisitor::emitCompactIdHelper(const ClassDefPtr& p)
-{
-    if (p->compactId() >= 0)
-    {
-        string prefix = getPackagePrefix(p);
-        if (!prefix.empty())
-        {
-            prefix = prefix + ".";
-        }
-
-        ostringstream os;
-        os << prefix << "com.zeroc.IceCompactId.TypeId_" << p->compactId();
-        open(os.str(), p->file());
-        Output& out = output();
-
-        out << sp;
-        writeHiddenDocComment(out);
-        out << nl << "public class TypeId_" << p->compactId();
-        out << sb;
-        out << nl << "public final static String typeId = \"" << p->scoped() << "\";";
-        out << eb;
-        close();
     }
 }
 
