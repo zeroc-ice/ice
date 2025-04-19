@@ -14,17 +14,20 @@ public final class ClassSliceLoader implements SliceLoader {
     /**
      * Creates a ClassSliceLoader.
      *
-     * @param classes An array of classes with the {@link SliceTypeId} and/or {@link CompactSliceTypeId} annotation.
+     * @param classes An array of classes with the {@link SliceTypeId} annotation. Each class may also have the
+     * {@link CompactSliceTypeId} annotation.
      */
     public ClassSliceLoader(Class<?>... classes) {
         for (Class<?> c : classes) {
             SliceTypeId typeId = c.getAnnotation(SliceTypeId.class);
             if (typeId != null) {
                 _typeIdToClass.put(typeId.value(), c);
-            }
-            CompactSliceTypeId compactTypeId = c.getAnnotation(CompactSliceTypeId.class);
-            if (compactTypeId != null) {
-                _typeIdToClass.put(String.valueOf(compactTypeId.value()), c);
+
+                // CompactSliceTypeId is always in addition to SliceTypeId.
+                CompactSliceTypeId compactTypeId = c.getAnnotation(CompactSliceTypeId.class);
+                if (compactTypeId != null) {
+                    _typeIdToClass.put(String.valueOf(compactTypeId.value()), c);
+                }
             }
         }
     }

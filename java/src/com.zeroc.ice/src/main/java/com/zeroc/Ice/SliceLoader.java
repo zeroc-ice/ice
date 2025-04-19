@@ -5,6 +5,7 @@ package com.zeroc.Ice;
 /**
  * Creates class and exception instances from Slice type IDs.
  */
+@FunctionalInterface
 public interface SliceLoader {
     /**
      * Creates an instance of a class mapped from a Slice class or exception based on a Slice type ID.

@@ -23,11 +23,11 @@ final public class CompositeSliceLoader implements SliceLoader {
     }
 
     /**
-     * Adds a SliceLoader to the list of loaders.
+     * Adds a SliceLoader to this CompositeSliceLoader.
      *
-     * @param loader the SliceLoader to add
+     * @param loader The SliceLoader to add.
      */
-    void add(SliceLoader loader) {
+    public void add(SliceLoader loader) {
         _loaders.add(loader);
     }
 }
