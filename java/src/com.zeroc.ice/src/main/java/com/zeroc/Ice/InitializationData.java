@@ -85,4 +85,9 @@ public final class InitializationData implements Cloneable {
      * in order, before all other plug-ins.
      */
     public List<PluginFactory> pluginFactories = Collections.emptyList();
+
+    /**
+     * The Slice loader, used to unmarshal Slice classes and exceptions.
+     */
+    public SliceLoader sliceLoader;
 }

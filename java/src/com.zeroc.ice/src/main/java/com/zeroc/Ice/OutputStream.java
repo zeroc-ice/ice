@@ -1828,7 +1828,12 @@ public final class OutputStream {
             }
 
             for (SliceInfo info : slicedData.slices) {
-                startSlice(info.typeId, info.compactId, info.isLastSlice);
+                if (info.typeId.startsWith("::")) {
+                    startSlice(info.typeId, -1, info.isLastSlice);
+                }
+                else {
+                    startSlice("", Integer.parseInt(info.typeId), info.isLastSlice);
+                }
 
                 //
                 // Write the bytes associated with this slice.

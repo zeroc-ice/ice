@@ -3,6 +3,8 @@
 package test.Ice.operations;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
@@ -18,8 +20,12 @@ public class Server extends TestHelper {
         // scheduling so we suppress this warning.
         //
         properties.setProperty("Ice.Warn.Dispatch", "0");
-        properties.setProperty("Ice.Package.Test", "test.Ice.operations");
-        try (Communicator communicator = initialize(properties)) {
+
+        var initData = new InitializationData();
+        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.operations.Test");
+        initData.properties = properties;
+
+        try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(new MyDerivedClassI(), Util.stringToIdentity("test"));

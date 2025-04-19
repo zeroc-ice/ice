@@ -25,7 +25,6 @@ public class RemoteCommunicatorFactoryI implements RemoteCommunicatorFactory {
         // Prepare the property set using the given properties.
         //
         InitializationData initData = new InitializationData();
-        initData.classLoader = current.adapter.getCommunicator().getInstance().getClassLoader();
         initData.properties = new Properties();
         for (Map.Entry<String, String> e : props.entrySet()) {
             initData.properties.setProperty(e.getKey(), e.getValue());

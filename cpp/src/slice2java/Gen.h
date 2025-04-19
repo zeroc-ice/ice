@@ -163,9 +163,6 @@ namespace Slice
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
             void visitOperation(const OperationPtr&) final;
-
-        private:
-            void emitCompactIdHelper(const ClassDefPtr&);
         };
 
         class ServantVisitor final : public JavaVisitor

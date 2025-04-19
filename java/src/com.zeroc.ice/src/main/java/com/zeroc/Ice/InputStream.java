@@ -103,7 +103,6 @@ public final class InputStream {
         // Everything below is cached from instance.
         _classGraphDepthMax = _instance.classGraphDepthMax();
         _valueFactoryManager = _instance.initializationData().valueFactoryManager;
-        _classResolver = _instance;
 
         assert (_valueFactoryManager != null);
     }
@@ -1529,19 +1528,11 @@ public final class InputStream {
     }
 
     private UserException createUserException(String id) {
-        UserException userEx = null;
-
-        try {
-            Class<?> c = _classResolver.apply(id);
-            if (c != null) {
-                userEx = (UserException) c.getDeclaredConstructor().newInstance();
-            }
-        } catch (Exception ex) {
-            throw new MarshalException(
-                "Failed to create user exception with type ID '" + id + "'.", ex);
+        java.lang.Object obj = _instance.sliceLoader().newInstance(id);
+        if (obj instanceof UserException userEx) {
+            return userEx;
         }
-
-        return userEx;
+        return null;
     }
 
     private final Instance _instance;
@@ -1571,12 +1562,12 @@ public final class InputStream {
                 InputStream stream,
                 int classGraphDepthMax,
                 ValueFactoryManager f,
-                Function<String, Class<?>> cr) {
+                SliceLoader sliceLoader) {
             _stream = stream;
             _classGraphDepthMax = classGraphDepthMax;
             _classGraphDepth = 0;
             _valueFactoryManager = f;
-            _classResolver = cr;
+            _sliceLoader = sliceLoader;
             _typeIdIndex = 0;
             _unmarshaledMap = new TreeMap<>();
         }
@@ -1620,29 +1611,6 @@ public final class InputStream {
             }
         }
 
-        protected Class<?> resolveClass(String typeId) {
-            Class<?> cls = null;
-            if (_typeIdCache == null) {
-                _typeIdCache = new HashMap<>(); // Lazy initialization.
-            } else {
-                cls = _typeIdCache.get(typeId);
-            }
-
-            if (cls == EncapsDecoder.class) {// Marker for non-existent class.
-                cls = null;
-            } else if (cls == null) {
-                try {
-                    cls = _classResolver.apply(typeId);
-                    _typeIdCache.put(typeId, cls != null ? cls : EncapsDecoder.class);
-                } catch (Exception ex) {
-                    throw new MarshalException(
-                        "Failed to create a class with type ID '" + typeId + "'.", ex);
-                }
-            }
-
-            return cls;
-        }
-
         protected Value newInstance(String typeId) {
             //
             // Try to find a factory registered for the specific type.
@@ -1663,19 +1631,11 @@ public final class InputStream {
                 }
             }
 
-            //
-            // Last chance: try to instantiate the class dynamically.
-            //
-            if (v == null) {
-                Class<?> cls = resolveClass(typeId);
-
-                if (cls != null) {
-                    try {
-                        v = (Value) cls.getDeclaredConstructor().newInstance();
-                    } catch (Exception ex) {
-                        throw new MarshalException(
-                            "Failed to create a class with type ID '" + typeId + "'.", ex);
-                    }
+            // Last chance: try to instantiate with the Slice loader.
+            if (v == null && typeId != Value.ice_staticId()) {
+                java.lang.Object obj = _sliceLoader.newInstance(typeId);
+                if (obj instanceof Value value) {
+                    v = value;
                 }
             }
 
@@ -1778,7 +1738,7 @@ public final class InputStream {
         protected final int _classGraphDepthMax;
         protected int _classGraphDepth;
         protected ValueFactoryManager _valueFactoryManager;
-        protected Function<String, Class<?>> _classResolver;
+        protected SliceLoader _sliceLoader;
 
         //
         // Encapsulation attributes for value unmarshaling.
@@ -1788,7 +1748,6 @@ public final class InputStream {
         private TreeMap<Integer, String> _typeIdMap;
         private int _typeIdIndex;
         private List<Value> _valueList;
-        private HashMap<String, Class<?>> _typeIdCache;
     }
 
     private static final class EncapsDecoder10 extends EncapsDecoder {
@@ -1796,8 +1755,8 @@ public final class InputStream {
                 InputStream stream,
                 int classGraphDepthMax,
                 ValueFactoryManager f,
-                Function<String, Class<?>> cr) {
-            super(stream, classGraphDepthMax, f, cr);
+                SliceLoader sliceLoader) {
+            super(stream, classGraphDepthMax, f, sliceLoader);
             _sliceType = SliceType.NoSlice;
         }
 
@@ -2054,8 +2013,8 @@ public final class InputStream {
                 InputStream stream,
                 int classGraphDepthMax,
                 ValueFactoryManager f,
-                Function<String, Class<?>> cr) {
-            super(stream, classGraphDepthMax, f, cr);
+                SliceLoader sliceLoader) {
+            super(stream, classGraphDepthMax, f, sliceLoader);
             _current = null;
             _valueIdIndex = 1;
         }
@@ -2185,8 +2144,7 @@ public final class InputStream {
                 if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT)
                     == Protocol.FLAG_HAS_TYPE_ID_COMPACT) // Must be checked 1st!
                     {
-                        _current.typeId = "";
-                        _current.compactId = _stream.readSize();
+                        _current.typeId = String.valueOf(_stream.readSize());
                     } else if ((_current.sliceFlags
                     & (Protocol.FLAG_HAS_TYPE_ID_INDEX
                     | Protocol.FLAG_HAS_TYPE_ID_STRING))
@@ -2194,17 +2152,14 @@ public final class InputStream {
                     _current.typeId =
                         readTypeId(
                             (_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
-                    _current.compactId = -1;
                 } else {
                     //
                     // Only the most derived slice encodes the type ID for the compact format.
                     //
                     _current.typeId = "";
-                    _current.compactId = -1;
                 }
             } else {
                 _current.typeId = _stream.readString();
-                _current.compactId = -1;
             }
 
             //
@@ -2316,7 +2271,6 @@ public final class InputStream {
                 var info =
                     new SliceInfo(
                         _current.typeId,
-                        _current.compactId,
                         bytes,
                         hasOptionalMembers,
                         (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0);
@@ -2381,64 +2335,14 @@ public final class InputStream {
             final String mostDerivedId = _current.typeId;
             Value v = null;
             while (true) {
-                boolean updateCache = false;
-
-                if (_current.compactId >= 0) {
-                    updateCache = true;
-
-                    //
-                    // Translate a compact (numeric) type ID into a class.
-                    //
-                    if (_compactIdCache == null) {
-                        _compactIdCache = new TreeMap<>(); // Lazy initialization.
-                    } else {
-                        //
-                        // Check the cache to see if we've already translated the compact type ID
-                        // into a class.
-                        //
-                        Class<?> cls = _compactIdCache.get(_current.compactId);
-                        if (cls != null) {
-                            try {
-                                v = (Value) cls.getDeclaredConstructor().newInstance();
-                                updateCache = false;
-                            } catch (Exception ex) {
-                                throw new MarshalException(
-                                    "Cannot find value factory for type ID '"
-                                        + _current.compactId
-                                        + "' and compact format prevents slicing.");
-                            }
-                        }
-                    }
-
-                    //
-                    // If we haven't already cached a class for the compact ID, then try to
-                    // translate the
-                    // compact ID into a type ID.
-                    //
-                    if (v == null) {
-                        _current.typeId = _stream.instance().resolveCompactId(_current.compactId);
-                    }
-                }
-
-                if (v == null && !_current.typeId.isEmpty()) {
+                if (!_current.typeId.isEmpty()) { // we can read an empty typeId with the compact format
                     v = newInstance(_current.typeId);
-                }
-
-                if (v != null) {
-                    if (updateCache) {
-                        assert (_current.compactId >= 0);
-                        _compactIdCache.put(_current.compactId, v.getClass());
+                    if (v != null) {
+                        break;
                     }
-
-                    //
-                    // We have an instance, get out of this loop.
-                    //
-                    break;
                 }
 
-                //
                 // Slice off what we don't understand.
-                //
                 skipSlice();
 
                 //
@@ -2551,7 +2455,6 @@ public final class InputStream {
             byte sliceFlags;
             int sliceSize;
             String typeId;
-            int compactId;
             Deque<IndirectPatchEntry> indirectPatchList;
 
             final InstanceData previous;
@@ -2560,7 +2463,6 @@ public final class InputStream {
 
         private InstanceData _current;
         private int _valueIdIndex; // The ID of the next instance to unmarshal.
-        private TreeMap<Integer, Class<?>> _compactIdCache; // Cache of compact type IDs.
     }
 
     private static final class Encaps {
@@ -2615,11 +2517,11 @@ public final class InputStream {
             if (_encapsStack.encoding_1_0) {
                 _encapsStack.decoder =
                     new EncapsDecoder10(
-                        this, _classGraphDepthMax, _valueFactoryManager, _classResolver);
+                        this, _classGraphDepthMax, _valueFactoryManager, _instance.sliceLoader());
             } else {
                 _encapsStack.decoder =
                     new EncapsDecoder11(
-                        this, _classGraphDepthMax, _valueFactoryManager, _classResolver);
+                        this, _classGraphDepthMax, _valueFactoryManager, _instance.sliceLoader());
             }
         }
     }
@@ -2669,7 +2571,6 @@ public final class InputStream {
     private int _minSeqSize;
 
     private final ValueFactoryManager _valueFactoryManager;
-    private final Function<String, Class<?>> _classResolver;
 
     private static final String END_OF_BUFFER_MESSAGE =
         "Attempting to unmarshal past the end of the buffer.";
