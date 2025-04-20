@@ -1439,25 +1439,6 @@ public final class Instance {
     private static boolean _oneOffDone;
     private SSLEngine _sslEngine;
 
-    private final Map<String, String[]> _builtInModulePackagePrefixes =
-        Collections.unmodifiableMap(
-            new HashMap<String, String[]>() {
-                {
-                    put("Glacier2", new String[]{"com.zeroc"});
-                    put("Ice", new String[]{"com.zeroc"});
-                    put("IceBox", new String[]{"com.zeroc"});
-                    put("IceDiscovery", new String[]{"com.zeroc"});
-                    put("IceGrid", new String[]{"com.zeroc"});
-                    put("IceLocatorDiscovery", new String[]{"com.zeroc"});
-                    put(
-                        "IceMX",
-                        new String[]{
-                            "com.zeroc.Ice", "com.zeroc.Glacier2", "com.zeroc.IceStorm"
-                        });
-                    put("IceStorm", new String[]{"com.zeroc"});
-                }
-            });
-
     private ConnectionOptions _clientConnectionOptions;
     private ConnectionOptions _serverConnectionOptions;
 }
