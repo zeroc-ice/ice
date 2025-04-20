@@ -548,10 +548,9 @@ public final class Instance {
         return Util.findClass(className, _initData.classLoader);
     }
 
-    //
-    // Only for use by com.zeroc.Ice.Communicator
-    //
-    public void initialize(Communicator communicator, InitializationData initData) {
+    // Only for use by com.zeroc.Ice.Communicator. If the application provides an initData, the initData argument is a
+    // clone.
+    void initialize(Communicator communicator, InitializationData initData) {
         _state = StateActive;
         _initData = initData;
 
@@ -681,12 +680,15 @@ public final class Instance {
                 }
             }
 
+            // Update _initData.sliceLoader.
+
             var sliceLoader = new CompositeSliceLoader();
-            _sliceLoader = sliceLoader;
 
             if (_initData.sliceLoader != null) {
                 sliceLoader.add(_initData.sliceLoader);
             }
+
+            _initData.sliceLoader = sliceLoader;
 
             // Ice.Package.module loader.
             String packagePrefix = "Ice.Package";
@@ -1172,8 +1174,6 @@ public final class Instance {
                 _adminAdapter = null;
                 _adminFacets.clear();
 
-                _sliceTypeIdToClassMap.clear();
-
                 _state = StateDestroyed;
                 notifyAll();
             }
@@ -1224,7 +1224,7 @@ public final class Instance {
     }
 
     SliceLoader sliceLoader() {
-        return _sliceLoader;
+        return _initData.sliceLoader;
     }
 
     ConnectionOptions clientConnectionOptions() {
@@ -1435,8 +1435,6 @@ public final class Instance {
     private final Set<String> _adminFacetFilter = new HashSet<>();
     private Identity _adminIdentity;
     private final Map<Short, BufSizeWarnInfo> _setBufSizeWarn = new HashMap<>();
-
-    private final Map<String, String> _sliceTypeIdToClassMap = new HashMap<>();
 
     private static boolean _oneOffDone;
     private SSLEngine _sslEngine;
