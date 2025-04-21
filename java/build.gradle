@@ -12,9 +12,6 @@ allprojects {
     }
 }
 
-// Defines and initializes enableCodeAnalysis to the corresponding property in gradle.properties.
-def enableCodeAnalysis = project.property('enableCodeAnalysis').toBoolean()
-
 subprojects {
     project.ext.topSrcDir = "$rootProject.projectDir/.."
 
@@ -50,11 +47,7 @@ subprojects {
     }
 
     // We want Checkstyle to generally run after Rewrite and to exclude files generated from Slice.
-    // You need to use -PenableCodeAnalysis to be able to invoke the checkstyle, rewriteRun, and rewriteDryRun tasks
-    // The tasks still need to be manually called if nothing else invokes them.
     tasks.withType(Checkstyle) {
-        task ->
-            task.enabled = enableCodeAnalysis
         dependsOn(rewriteDryRun)
         exclude(
             '**/generated/**'
@@ -151,15 +144,7 @@ dependencies {
     )
 }
 
-// You need to use -PenableCodeAnalysis to be able to invoke the checkstyle, rewriteRun, and rewriteDryRun tasks.
-// The tasks still need to be manually called if nothing else invokes them.
+// Causes build failure when rewriteRun would make changes.
 tasks.named('rewriteDryRun') {
-    task ->
-        task.enabled = enableCodeAnalysis
     rewrite.failOnDryRunResults = true
-}
-
-tasks.named('rewriteRun') {
-    task ->
-        task.enabled = enableCodeAnalysis
 }
