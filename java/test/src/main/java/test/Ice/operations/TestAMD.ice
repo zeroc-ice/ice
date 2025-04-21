@@ -320,9 +320,9 @@ module Test
     const string ss1 = "\u0027\u0022\u003f\u005c\u0007\u0008\u000c\u000a\u000d\u0009\u000b\u0006";
     const string ss2 = "\U00000027\U00000022\U0000003f\U0000005c\U00000007\U00000008\U0000000c\U0000000a\U0000000d\U00000009\U0000000b\U00000006";
 
-    const string ss3 = "\\\\U\\u\\";
-    const string ss4 = "\\\u0041\\";
-    const string ss5 = "\\u0041\\";
+    const string ss3 = "\\\\U\\u\\"; /* \\U\u\  */
+    const string ss4 = "\\\u0041\\"; /* \A\     */
+    const string ss5 = "\\u0041\\";  /* \u0041\ */
 
     //
     // Ĩ - Unicode Character 'LATIN CAPITAL LETTER I WITH TILDE' (U+0128)
