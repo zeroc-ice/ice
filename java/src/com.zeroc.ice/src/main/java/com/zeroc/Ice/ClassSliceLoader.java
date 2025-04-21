@@ -16,6 +16,7 @@ public final class ClassSliceLoader implements SliceLoader {
      *
      * @param classes An array of classes with the {@link SliceTypeId} annotation. Each class may also have the
      * {@link CompactSliceTypeId} annotation.
+     * @throws IllegalArgumentException If any class is not annotated with {@link SliceTypeId}.
      */
     public ClassSliceLoader(Class<?>... classes) {
         for (Class<?> c : classes) {
@@ -28,6 +29,11 @@ public final class ClassSliceLoader implements SliceLoader {
                 if (compactTypeId != null) {
                     _typeIdToClass.put(String.valueOf(compactTypeId.value()), c);
                 }
+            } else {
+                throw new IllegalArgumentException(
+                    String.format(
+                        "Class '%s' is not annotated with @SliceTypeId.",
+                        c.getName()));
             }
         }
     }
