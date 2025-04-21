@@ -10,8 +10,11 @@ public class Client : TestHelper
     {
         var initData = new InitializationData();
         initData.properties = createTestProperties(ref args);
+        var customSliceLoader = new AllTests.CustomSliceLoader();
+        initData.sliceLoader = customSliceLoader;
+
         await using var communicator = initialize(initData);
-        var initial = await AllTests.allTests(this);
+        var initial = await AllTests.allTests(this, customSliceLoader);
         initial.shutdown();
     }
 

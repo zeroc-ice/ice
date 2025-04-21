@@ -797,8 +797,6 @@ public sealed class Instance
 
             _pluginManager = new Ice.PluginManagerI(communicator);
 
-            _initData.valueFactoryManager ??= new ValueFactoryManagerI();
-
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
             _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);

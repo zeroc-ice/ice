@@ -39,31 +39,9 @@ namespace Ice.objects
 
         public class AllTests : global::Test.AllTests
         {
-            public static Value MyValueFactory(string type)
-            {
-                if (type == "::Test::B")
-                {
-                    return new BI();
-                }
-                else if (type == "::Test::C")
-                {
-                    return new CI();
-                }
-                else if (type == "::Test::D")
-                {
-                    return new DI();
-                }
-                Debug.Assert(false); // Should never be reached
-                return null;
-            }
-
             public static InitialPrx allTests(global::Test.TestHelper helper)
             {
                 Communicator communicator = helper.communicator();
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::B");
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::C");
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D");
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::H");
 
                 var output = helper.getWriter();
 

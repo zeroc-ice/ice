@@ -147,20 +147,6 @@ public class AllTests : global::Test.AllTests
             output.WriteLine("ok");
         }
 
-        {
-            output.Write("testing object factory registration exception... ");
-            communicator.getValueFactoryManager().add(_ => null, "::x");
-            try
-            {
-                communicator.getValueFactoryManager().add(_ => null, "::x");
-                test(false);
-            }
-            catch (AlreadyRegisteredException)
-            {
-            }
-            output.WriteLine("ok");
-        }
-
         output.Write("testing stringToProxy... ");
         output.Flush();
         string @ref = "thrower:" + helper.getTestEndpoint(0);

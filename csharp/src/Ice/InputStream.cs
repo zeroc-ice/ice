@@ -76,8 +76,6 @@ public sealed class InputStream
         _instance = instance;
         _buf = buf;
         _classGraphDepthMax = _instance.classGraphDepthMax();
-        // The communicator initialization always sets a non-null ValueFactoryManager in its initialization data.
-        _valueFactoryManager = _instance.initializationData().valueFactoryManager!;
     }
 
     /// <summary>
@@ -2010,13 +2008,12 @@ public sealed class InputStream
             public int classGraphDepth;
         }
 
-        internal EncapsDecoder(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager f)
+        internal EncapsDecoder(InputStream stream, Encaps encaps, int classGraphDepthMax)
         {
             _stream = stream;
             _encaps = encaps;
             _classGraphDepthMax = classGraphDepthMax;
             _classGraphDepth = 0;
-            _valueFactoryManager = f;
             _typeIdIndex = 0;
             _unmarshaledMap = new Dictionary<int, Value>();
         }
@@ -2062,48 +2059,8 @@ public sealed class InputStream
             }
         }
 
-        protected Value? newInstance(string typeId)
-        {
-            //
-            // Try to find a factory registered for the specific type.
-            //
-            ValueFactory userFactory = _valueFactoryManager.find(typeId);
-            Value? v = null;
-            if (userFactory != null)
-            {
-                v = userFactory(typeId);
-            }
-
-            //
-            // If that fails, invoke the default factory if one has been
-            // registered.
-            //
-            if (v is null)
-            {
-                userFactory = _valueFactoryManager.find("");
-                if (userFactory != null)
-                {
-                    v = userFactory(typeId);
-                }
-            }
-
-            //
-            // Last chance: try to instantiate the class dynamically.
-            //
-            if (v is null)
-            {
-                try
-                {
-                    v = (Value?)_stream._instance.sliceLoader.createInstance(typeId);
-                }
-                catch (System.Exception ex)
-                {
-                    throw new MarshalException($"Failed to create a class with type ID '{typeId}'.", ex);
-                }
-            }
-
-            return v;
-        }
+        protected Value? newInstance(string typeId) =>
+            (Value?)_stream._instance.sliceLoader.createInstance(typeId);
 
         protected void addPatchEntry(int index, System.Action<Value> cb)
         {
@@ -2211,8 +2168,6 @@ public sealed class InputStream
         protected readonly int _classGraphDepthMax;
         protected int _classGraphDepth;
 
-        protected ValueFactoryManager _valueFactoryManager;
-
         //
         // Encapsulation attributes for object unmarshaling.
         //
@@ -2225,8 +2180,8 @@ public sealed class InputStream
 
     private sealed class EncapsDecoder10 : EncapsDecoder
     {
-        internal EncapsDecoder10(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager f)
-            : base(stream, encaps, classGraphDepthMax, f) => _sliceType = SliceType.NoSlice;
+        internal EncapsDecoder10(InputStream stream, Encaps encaps, int classGraphDepthMax)
+            : base(stream, encaps, classGraphDepthMax) => _sliceType = SliceType.NoSlice;
 
         internal override void readValue(System.Action<Value?> cb)
         {
@@ -2524,8 +2479,8 @@ public sealed class InputStream
 
     private sealed class EncapsDecoder11 : EncapsDecoder
     {
-        internal EncapsDecoder11(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager f)
-            : base(stream, encaps, classGraphDepthMax, f)
+        internal EncapsDecoder11(InputStream stream, Encaps encaps, int classGraphDepthMax)
+            : base(stream, encaps, classGraphDepthMax)
         {
             _current = null;
             _valueIdIndex = 1;
@@ -3097,12 +3052,12 @@ public sealed class InputStream
             if (_encapsStack.encoding_1_0)
             {
                 _encapsStack.decoder =
-                    new EncapsDecoder10(this, _encapsStack, _classGraphDepthMax, _valueFactoryManager);
+                    new EncapsDecoder10(this, _encapsStack, _classGraphDepthMax);
             }
             else
             {
                 _encapsStack.decoder =
-                    new EncapsDecoder11(this, _encapsStack, _classGraphDepthMax, _valueFactoryManager);
+                    new EncapsDecoder11(this, _encapsStack, _classGraphDepthMax);
             }
         }
     }
@@ -3111,8 +3066,6 @@ public sealed class InputStream
 
     private int _startSeq = -1;
     private int _minSeqSize;
-
-    private readonly ValueFactoryManager _valueFactoryManager;
 
     private const string endOfBufferMessage = "Attempting to unmarshal past the end of the buffer.";
 }

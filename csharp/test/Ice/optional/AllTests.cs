@@ -6,12 +6,11 @@ namespace Ice.optional;
 
 public class AllTests : global::Test.AllTests
 {
-    public static async Task<Test.InitialPrx> allTests(global::Test.TestHelper helper)
+    public static async Task<Test.InitialPrx> allTests(
+        global::Test.TestHelper helper,
+        CustomSliceLoader customSliceLoader)
     {
         var communicator = helper.communicator();
-        var factory = new FactoryI();
-        communicator.getValueFactoryManager().add(factory.create, "");
-
         var output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
@@ -287,9 +286,9 @@ public class AllTests : global::Test.AllTests
         test(mo9.ivsd[5].Equals(new Test.VarStruct("hello")));
         test(mo9.imipd[5].Equals(communicator.stringToProxy("test")));
 
-        // Send a request using blobjects. Upon receival, we don't read any of the optional members. This ensures
+        // Send a request using blobjects. Upon receipt, we don't read any of the optional members. This ensures
         // the optional members are skipped even if the receiver knows nothing about them.
-        factory.setEnabled(true);
+        customSliceLoader.setEnabled(true);
         var os = new OutputStream(communicator);
         os.startEncapsulation();
         os.writeValue(oo1);
@@ -314,7 +313,7 @@ public class AllTests : global::Test.AllTests
         @in.readValue(cb.invoke);
         @in.endEncapsulation();
         test(cb.obj is not null && cb.obj is TestValueReader);
-        factory.setEnabled(false);
+        customSliceLoader.setEnabled(false);
 
         var g = new Test.G();
         g.gg1Opt = new Test.G1("gg1Opt");
@@ -367,7 +366,7 @@ public class AllTests : global::Test.AllTests
         test(mc.fss.Length == 300);
         test(mc.ifsd.Count == 300);
 
-        factory.setEnabled(true);
+        customSliceLoader.setEnabled(true);
         os = new OutputStream(communicator);
         os.startEncapsulation();
         os.writeValue(mc);
@@ -379,7 +378,7 @@ public class AllTests : global::Test.AllTests
         @in.readValue(cb.invoke);
         @in.endEncapsulation();
         test(cb.obj is not null && cb.obj is TestValueReader);
-        factory.setEnabled(false);
+        customSliceLoader.setEnabled(false);
 
         output.WriteLine("ok");
 
@@ -403,7 +402,7 @@ public class AllTests : global::Test.AllTests
             test(b2.mc.Value == 12);
             test(b2.md.Value == 13);
 
-            factory.setEnabled(true);
+            customSliceLoader.setEnabled(true);
             os = new OutputStream(communicator);
             os.startEncapsulation();
             os.writeValue(b);
@@ -415,7 +414,7 @@ public class AllTests : global::Test.AllTests
             @in.readValue(cb.invoke);
             @in.endEncapsulation();
             test(cb.obj is not null);
-            factory.setEnabled(false);
+            customSliceLoader.setEnabled(false);
         }
         output.WriteLine("ok");
 
@@ -430,7 +429,7 @@ public class AllTests : global::Test.AllTests
             var rf = (Test.F)initial.pingPong(f);
             test(rf.fse == rf.fsf.Value);
 
-            factory.setEnabled(true);
+            customSliceLoader.setEnabled(true);
             os = new OutputStream(communicator);
             os.startEncapsulation();
             os.writeValue(f);
@@ -441,7 +440,7 @@ public class AllTests : global::Test.AllTests
             var rocb = new ReadValueCallbackI();
             @in.readValue(rocb.invoke);
             @in.endEncapsulation();
-            factory.setEnabled(false);
+            customSliceLoader.setEnabled(false);
             rf = ((FValueReader)rocb.obj).getF();
             test(rf.fsf is null);
         }
@@ -474,16 +473,16 @@ public class AllTests : global::Test.AllTests
                 os.writeValue(c);
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                factory.setEnabled(true);
+                customSliceLoader.setEnabled(true);
                 test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, out outEncaps));
                 @in = new Ice.InputStream(communicator, outEncaps);
                 @in.startEncapsulation();
                 @in.readValue(cb.invoke);
                 @in.endEncapsulation();
                 test(cb.obj is CValueReader);
-                factory.setEnabled(false);
+                customSliceLoader.setEnabled(false);
 
-                factory.setEnabled(true);
+                customSliceLoader.setEnabled(true);
                 os = new Ice.OutputStream(communicator);
                 os.startEncapsulation();
                 Ice.Value d = new DValueWriter();
@@ -497,7 +496,7 @@ public class AllTests : global::Test.AllTests
                 @in.endEncapsulation();
                 test(cb.obj is not null && cb.obj is DValueReader);
                 ((DValueReader)cb.obj).check();
-                factory.setEnabled(false);
+                customSliceLoader.setEnabled(false);
             }
             output.WriteLine("ok");
 
@@ -1922,6 +1921,32 @@ public class AllTests : global::Test.AllTests
         }
     }
 
+    public class CustomSliceLoader : SliceLoader
+    {
+        private bool _enabled;
+
+        public object createInstance(string typeId)
+        {
+            if (!_enabled)
+            {
+                return null;
+            }
+
+            return typeId switch
+            {
+                "::Test::OneOptional" => new TestValueReader(),
+                "::Test::MultiOptional" => new TestValueReader(),
+                "::Test::B" => new BValueReader(),
+                "::Test::C" => new CValueReader(),
+                "::Test::D" => new DValueReader(),
+                "::Test::F" => new FValueReader(),
+                _ => null
+            };
+        }
+
+        internal void setEnabled(bool enabled) => _enabled = enabled;
+    }
+
     private class TestValueReader : Value
     {
         public override void iceRead(InputStream @in)
@@ -2064,48 +2089,6 @@ public class AllTests : global::Test.AllTests
         public Test.F getF() => _f;
 
         private Test.F _f;
-    }
-
-    private class FactoryI
-    {
-        public Ice.Value create(string typeId)
-        {
-            if (!_enabled)
-            {
-                return null;
-            }
-
-            if (typeId.Equals(Test.OneOptional.ice_staticId()))
-            {
-                return new TestValueReader();
-            }
-            else if (typeId.Equals(Test.MultiOptional.ice_staticId()))
-            {
-                return new TestValueReader();
-            }
-            else if (typeId.Equals(Test.B.ice_staticId()))
-            {
-                return new BValueReader();
-            }
-            else if (typeId.Equals(Test.C.ice_staticId()))
-            {
-                return new CValueReader();
-            }
-            else if (typeId == "::Test::D")
-            {
-                return new DValueReader();
-            }
-            else if (typeId == "::Test::F")
-            {
-                return new FValueReader();
-            }
-
-            return null;
-        }
-
-        internal void setEnabled(bool enabled) => _enabled = enabled;
-
-        private bool _enabled;
     }
 
     private class ReadValueCallbackI
