@@ -17,6 +17,8 @@ public class Client extends TestHelper {
         var initData = new InitializationData();
         initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.slicing.objects.client");
+        initData.properties.setProperty("Ice.SliceLoader.NotFoundCacheSize", "5");
+        initData.properties.setProperty("Ice.Warn.SliceLoader", "0"); // comment out to see the warning
         initData.sliceLoader = new ClassSliceLoader(CompactPDerived.class, CompactPCDerived.class);
 
         try (Communicator communicator = initialize(initData)) {
