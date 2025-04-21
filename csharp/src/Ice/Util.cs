@@ -70,6 +70,11 @@ public sealed record class InitializationData
     /// in order, before all other plug-ins.
     /// </summary>
     public IList<PluginFactory> pluginFactories { get; set; } = ImmutableList<PluginFactory>.Empty;
+
+    /// <summary>
+    /// Gets or sets the Slice loader. The Slice loader is used to unmarshal Slice classes and exceptions.
+    /// </summary>
+    public SliceLoader? sliceLoader { get; set; }
 }
 
 /// <summary>

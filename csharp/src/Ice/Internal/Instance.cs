@@ -706,6 +706,25 @@ public sealed class Instance
                 _classGraphDepthMax = classGraphDepthMax;
             }
 
+            // Update _initData.sliceLoader
+
+            // We create a lazy Slice loader that search assemblies the first time we unmarshal a class or
+            // exception; at that time, all the assemblies should have been loaded.
+            var lazySliceLoader = new LazySliceLoader(
+                () => new AssemblySliceLoader(AppDomain.CurrentDomain.GetAssemblies()));
+
+            if (_initData.sliceLoader is null)
+            {
+                _initData.sliceLoader = lazySliceLoader;
+            }
+            else
+            {
+                var compositeSliceLoader = new CompositeSliceLoader();
+                compositeSliceLoader.add(_initData.sliceLoader);
+                compositeSliceLoader.add(lazySliceLoader);
+                _initData.sliceLoader = compositeSliceLoader;
+            }
+
             string toStringModeStr = _initData.properties.getIceProperty("Ice.ToStringMode");
             if (toStringModeStr == "Unicode")
             {
@@ -1312,9 +1331,9 @@ public sealed class Instance
                 _serverConnectionOptions.maxDispatches));
     }
 
-    internal ConnectionOptions clientConnectionOptions { get; private set; } = null!; // set in initialize
+    internal SliceLoader sliceLoader => _initData.sliceLoader; // set in initialize
 
-    internal IActivator getActivator() => _activator.Value;
+    internal ConnectionOptions clientConnectionOptions { get; private set; } = null!; // set in initialize
 
     internal int[] retryIntervals { get; private set; }
 
@@ -1364,11 +1383,6 @@ public sealed class Instance
     private const int StateActive = 0;
     private const int StateDestroyInProgress = 1;
     private const int StateDestroyed = 2;
-
-    // The lazy initialization ensures GetAssemblies is only called the first time we decode a Slice class or exception,
-    // which should only occur once all the assemblies have been loaded.
-    private readonly Lazy<IActivator> _activator =
-        new(() => IActivator.FromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
 
     private int _state;
     private Ice.InitializationData _initData; // Immutable, not reset by destroy().

@@ -1977,7 +1977,7 @@ public sealed class InputStream
     {
         try
         {
-            return (UserException?)_instance.getActivator().CreateInstance(id);
+            return (UserException?)_instance.sliceLoader.createInstance(id);
         }
         catch (System.Exception ex)
         {
@@ -2094,7 +2094,7 @@ public sealed class InputStream
             {
                 try
                 {
-                    v = (Value?)_stream._instance.getActivator().CreateInstance(typeId);
+                    v = (Value?)_stream._instance.sliceLoader.createInstance(typeId);
                 }
                 catch (System.Exception ex)
                 {

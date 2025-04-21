@@ -9,15 +9,12 @@ using System.Reflection;
 
 namespace Ice.Internal;
 
-/// <summary>The default implementation of <see cref="IActivator" />, which uses a dictionary.</summary>
-internal class Activator : IActivator
+/// <summary>Represents the actual implementation of <see cref="AssemblySliceLoader"/>.</summary>
+internal class Activator
 {
     internal static Activator Empty { get; } = new Activator(ImmutableDictionary<string, Type>.Empty);
 
     private readonly IReadOnlyDictionary<string, Type> _dict;
-
-    public object? CreateInstance(string typeId) =>
-        _dict.TryGetValue(typeId, out Type? type) ? System.Activator.CreateInstance(type) : null;
 
     /// <summary>Merge activators into a single activator; duplicate entries are ignored.</summary>
     internal static Activator Merge(IEnumerable<Activator> activators)
@@ -42,6 +39,9 @@ internal class Activator : IActivator
     }
 
     internal Activator(IReadOnlyDictionary<string, Type> dict) => _dict = dict;
+
+    internal object? CreateInstance(string typeId) =>
+        _dict.TryGetValue(typeId, out Type? type) ? System.Activator.CreateInstance(type) : null;
 }
 
 /// <summary>Creates activators from assemblies by processing types in those assemblies.</summary>
@@ -79,7 +79,7 @@ internal class ActivatorFactory
                         }
                     }
 
-                    // Merge with the activators of the referenced assemblies (recursive call)
+                    // Merge with the activators of the referenced assemblies (recursive call).
                     return Activator.Merge(
                         assembly.GetReferencedAssemblies().Select(
                             assemblyName => Get(AppDomain.CurrentDomain.Load(assemblyName))).Append(
