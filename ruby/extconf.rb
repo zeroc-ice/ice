@@ -27,9 +27,6 @@ end
 $INCFLAGS << ' -Idist/ice/cpp/include'
 $INCFLAGS << ' -Idist/ice/cpp/include/generated'
 $INCFLAGS << ' -Idist/ice/cpp/src'
-$INCFLAGS << ' -Idist/ice/cpp/src/Ice/generated'
-$INCFLAGS << ' -Idist/ice/cpp/src/IceDiscovery/generated'
-$INCFLAGS << ' -Idist/ice/cpp/src/IceLocatorDiscovery/generated'
 
 $CPPFLAGS << ' -w'
 
