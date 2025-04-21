@@ -118,9 +118,6 @@ export class ConnectRequestHandler {
             } catch (ex) {
                 if (ex instanceof RetryException) {
                     exception = ex.inner;
-
-                    // Remove the request handler before retrying.
-                    this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
                     request.retryException();
                 } else {
                     DEV: console.assert(ex instanceof LocalException, ex);

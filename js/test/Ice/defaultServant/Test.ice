@@ -1,0 +1,27 @@
+// Copyright (c) ZeroC, Inc.
+
+#pragma once
+
+module Test
+{
+    interface MyObject
+    {
+        string getName();
+    }
+
+    interface RemoteObjectAdapter
+    {
+        void addDefaultServant(string category);
+        void removeDefaultServant(string category);
+        void shutdown();
+    }
+
+    interface Echo
+    {
+        void setConnection();
+        void startBatch();
+        void flushBatch();
+        void shutdown();
+        bool supportsCompress();
+    }
+}
