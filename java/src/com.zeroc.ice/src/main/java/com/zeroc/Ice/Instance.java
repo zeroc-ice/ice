@@ -691,7 +691,7 @@ public final class Instance {
                 properties.getIcePropertyAsInt("Ice.SliceLoader.NotFoundCacheSize");
 
             if (notFoundCacheSize <= 0) {
-               _initData.sliceLoader = sliceLoader;
+                _initData.sliceLoader = sliceLoader;
             } else {
                 final Logger cacheFullLogger =
                     properties.getIcePropertyAsInt("Ice.Warn.SliceLoader") > 0 ? _initData.logger : null;

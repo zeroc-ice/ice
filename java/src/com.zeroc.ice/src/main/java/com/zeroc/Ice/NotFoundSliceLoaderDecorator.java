@@ -4,6 +4,7 @@ package com.zeroc.Ice;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Decorates SliceLoader to cache null results.
@@ -11,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 final class NotFoundSliceLoaderDecorator implements SliceLoader {
     private final SliceLoader _decoratee;
     private final int _cacheSize;
-    private Logger _logger;
+    private final AtomicReference<Logger> _logger;
     private final Set<String> _notFoundSet = ConcurrentHashMap.newKeySet();
 
     /**
@@ -24,7 +25,7 @@ final class NotFoundSliceLoaderDecorator implements SliceLoader {
     NotFoundSliceLoaderDecorator(SliceLoader decoratee, int cacheSize, Logger logger) {
         _decoratee = decoratee;
         _cacheSize = cacheSize;
-        _logger = logger;
+        _logger = new AtomicReference<>(logger);
     }
 
     @Override
@@ -37,13 +38,16 @@ final class NotFoundSliceLoaderDecorator implements SliceLoader {
         if (instance == null) {
             if (_notFoundSet.size() < _cacheSize) {
                 _notFoundSet.add(typeId);
-            } else if (_logger != null) {
-                _logger.warning(String.format(
-                    "SliceLoader: Type ID '%s' not found and the not found cache is full. " +
-                        "The cache size is set to %d. " +
-                        "You can increase the cache size by setting property Ice.SliceLoader.NotFoundCacheSize.",
-                    typeId, _cacheSize));
-                _logger = null; // we only warn once, or possibly a few times from different threads.
+            } else {
+                Logger logger = _logger.getAndSet(null); // we warn at most once.
+                if (logger != null) {
+                    logger.warning(
+                        String.format(
+                            "SliceLoader: Type ID '%s' not found and the not found cache is full. "
+                                + "The cache size is set to %d. You can increase the cache size by setting property "
+                                + "Ice.SliceLoader.NotFoundCacheSize.",
+                            typeId, _cacheSize));
+                }
             }
         }
         return instance;
