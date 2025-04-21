@@ -7,9 +7,6 @@ public final class SliceInfo {
     /** The Slice type ID for this slice. */
     public final String typeId;
 
-    /** The Slice compact type ID for this slice. */
-    public final int compactId;
-
     /** The encoded bytes for this slice, including the leading size integer. */
     public final byte[] bytes;
 
@@ -25,12 +22,10 @@ public final class SliceInfo {
     /** The SliceInfo constructor. */
     public SliceInfo(
             String typeId,
-            int compactId,
             byte[] bytes,
             boolean hasOptionalMembers,
             boolean isLastSlice) {
         this.typeId = typeId;
-        this.compactId = compactId;
         this.bytes = bytes;
         this.hasOptionalMembers = hasOptionalMembers;
         this.isLastSlice = isLastSlice;
