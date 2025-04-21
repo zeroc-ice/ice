@@ -979,22 +979,20 @@ Slice::Gen::ExportsVisitor::visitModuleStart(const ModulePtr& p)
     const string scoped = p->mappedScoped(".").substr(1);
     if (_exportedModules.insert(scoped).second)
     {
-        _out << sp;
-        _out << nl;
         if (p->isTopLevel())
         {
             if (_importedModules.find(scoped) == _importedModules.end())
             {
-                _out << "export const " << scoped << " = {};";
+                _out << nl << "export const " << scoped << " = {};";
             }
             else
             {
-                _out << "export { " << scoped << " };";
+                _out << nl << "export { " << scoped << " };";
             }
         }
         else
         {
-            _out << scoped << " = " << scoped << " || {};";
+            _out << nl << scoped << " = " << scoped << " || {};";
         }
     }
     return true;
@@ -1127,6 +1125,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << ", " << p->compactId();
     }
     _out << ");";
+
+    _out << sp;
     _out << nl << "Ice.TypeRegistry.declareValueType(\"" << scopedName << "\", " << scopedName << ");";
 
     return false;
@@ -1221,6 +1221,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     _out << eb << ";";
+    _out << sp;
     _out << nl << "Ice.TypeRegistry.declareProxyType(\"" << proxyType << "\", " << proxyType << ");";
 
     _out << sp;
@@ -1572,6 +1573,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     _out << eb << ";";
+    _out << sp;
     _out << nl << "Ice.TypeRegistry.declareUserExceptionType(";
     _out.inc();
     _out << nl << "\"" << scopedName << "\",";
@@ -2029,6 +2031,7 @@ Slice::Gen::TypeScriptImportVisitor::visitDictionary(const DictionaryPtr& dict)
 std::map<std::string, std::string>
 Slice::Gen::TypeScriptImportVisitor::writeImports()
 {
+    _out << sp;
     for (const auto& moduleName : _importedModules)
     {
         _out << nl << "import * as __module_" << pathToModule(moduleName) << " from \"" << moduleName << "\";";
