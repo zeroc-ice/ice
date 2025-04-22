@@ -708,7 +708,7 @@ public sealed class Instance
 
             // Update _initData.sliceLoader
 
-            // We create a lazy Slice loader that search assemblies the first time we unmarshal a class or
+            // We create a lazy Slice loader that searches assemblies the first time we unmarshal a class or
             // exception. At that time, all the assemblies should have been loaded.
             var lazySliceLoader = new LazySliceLoader(
                 () => SliceLoader.fromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
