@@ -619,23 +619,26 @@ SessionI::disconnected(const ConnectionPtr& connection, exception_ptr ex)
 
     if (_traceLevels->session > 0)
     {
-        try
+        if (ex)
         {
-            if (ex)
+            try
             {
                 rethrow_exception(ex);
             }
-            else
+            catch (const std::exception& e)
             {
-                throw CloseConnectionException{__FILE__, __LINE__};
+                Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                out << _id << ": session '" << _session->ice_getIdentity() << "' disconnected:\n";
+                out << (_connection ? _connection->toString() : "<no connection>") << "\n";
+                out << e.what();
             }
         }
-        catch (const std::exception& e)
+        else
         {
             Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-            out << _id << ": session '" << _session->ice_getIdentity() << "' disconnected:\n";
+            out << _id << ": session '" << _session->ice_getIdentity()
+                << "' disconnected, after receiving disconnected notification from the peer:\n";
             out << (_connection ? _connection->toString() : "<no connection>") << "\n";
-            out << e.what();
         }
     }
 
@@ -741,7 +744,7 @@ SessionI::retry(NodePrx node, exception_ptr exception)
         }
 
         _retryTask = make_shared<IceInternal::InlineTimerTask>([node = std::move(node), self = shared_from_this()]
-                                                               { self->reconnect(node, nullptr); });
+                                                               { self->reconnect(node); });
         _instance->scheduleTimerTask(_retryTask, delay);
     }
     return true;
@@ -936,40 +939,6 @@ SessionI::disconnect(int64_t topicId, TopicI* topic)
     {
         _topics.erase(topicId);
     }
-}
-
-void
-SessionI::disconnect()
-{
-    lock_guard<mutex> lock(_mutex);
-    if (_destroyed)
-    {
-        // Ignore already destroyed.
-        return;
-    }
-    else if (!_session)
-    {
-        // Ignore if the session is already disconnected.
-        return;
-    }
-
-    if (_traceLevels->session > 0)
-    {
-        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-        out << _id << ": session '" << _session->ice_getIdentity() << "' disconnected:\n";
-        out << (_connection ? _connection->toString() : "<no connection>") << "\n";
-    }
-
-    // Detach all topics from the session.
-    auto self = shared_from_this();
-    for (const auto& [topicId, _] : _topics)
-    {
-        runWithTopics(topicId, [id = topicId, self](TopicI* topic, TopicSubscriber&) { topic->detach(id, self); });
-    }
-
-    _session = nullopt;
-    _connection = nullptr;
-    _retryCount = 0;
 }
 
 void
@@ -1384,14 +1353,14 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
 }
 
 void
-SubscriberSessionI::reconnect(NodePrx node, const Ice::ConnectionPtr& connection)
+SubscriberSessionI::reconnect(NodePrx node)
 {
     if (_traceLevels->session > 0)
     {
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         out << _id << ": trying to reconnect session with '" << node->ice_toString() << "'";
     }
-    _parent->createPublisherSession(node, connection, dynamic_pointer_cast<SubscriberSessionI>(shared_from_this()));
+    _parent->createPublisherSession(node, nullptr, dynamic_pointer_cast<SubscriberSessionI>(shared_from_this()));
 }
 
 void
@@ -1416,14 +1385,14 @@ PublisherSessionI::getTopics(const string& name) const
 }
 
 void
-PublisherSessionI::reconnect(NodePrx node, const ConnectionPtr& connection)
+PublisherSessionI::reconnect(NodePrx node)
 {
     if (_traceLevels->session > 0)
     {
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         out << _id << ": trying to reconnect session with '" << node->ice_toString() << "'";
     }
-    _parent->createSubscriberSession(node, connection, dynamic_pointer_cast<PublisherSessionI>(shared_from_this()));
+    _parent->createSubscriberSession(node, nullptr, dynamic_pointer_cast<PublisherSessionI>(shared_from_this()));
 }
 
 void
