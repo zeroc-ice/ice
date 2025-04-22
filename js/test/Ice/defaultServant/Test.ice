@@ -9,13 +9,6 @@ module Test
         string getName();
     }
 
-    interface RemoteObjectAdapter
-    {
-        void addDefaultServant(string category);
-        void removeDefaultServant(string category);
-        void shutdown();
-    }
-
     interface Echo
     {
         void setConnection();
