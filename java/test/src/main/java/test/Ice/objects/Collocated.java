@@ -9,7 +9,6 @@ import com.zeroc.Ice.CompositeSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
-import com.zeroc.Ice.Value;
 
 import test.Ice.objects.Test.Compact;
 import test.Ice.objects.Test.CompactExt;

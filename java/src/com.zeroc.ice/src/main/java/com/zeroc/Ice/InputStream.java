@@ -1347,19 +1347,8 @@ public final class InputStream {
      * @throws UserException The user exception that was unmarshaled.
      */
     public void throwException() throws UserException {
-        throwException(null);
-    }
-
-    /**
-     * Extracts a user exception from the stream and throws it. The caller can supply a factory to
-     * instantiate exception instances.
-     *
-     * @param factory The user exception factory, or null to use the stream's default behavior.
-     * @throws UserException The user exception that was unmarshaled.
-     */
-    public void throwException(UserExceptionFactory factory) throws UserException {
         initEncaps();
-        _encapsStack.decoder.throwException(factory);
+        _encapsStack.decoder.throwException();
     }
 
     private boolean readOptImpl(int readTag, OptionalFormat expectedFormat) {
@@ -1566,7 +1555,7 @@ public final class InputStream {
 
         abstract void readValue(Consumer<Value> cb);
 
-        abstract void throwException(UserExceptionFactory factory) throws UserException;
+        abstract void throwException() throws UserException;
 
         abstract void startInstance(SliceType type);
 
@@ -1749,7 +1738,7 @@ public final class InputStream {
         }
 
         @Override
-        void throwException(UserExceptionFactory factory) throws UserException {
+        void throwException() throws UserException {
             assert (_sliceType == SliceType.NoSlice);
 
             //
@@ -1770,22 +1759,7 @@ public final class InputStream {
             startSlice();
             final String mostDerivedId = _typeId;
             while (true) {
-                UserException userEx = null;
-
-                //
-                // Use a factory if one was provided.
-                //
-                if (factory != null) {
-                    try {
-                        factory.createAndThrow(_typeId);
-                    } catch (UserException ex) {
-                        userEx = ex;
-                    }
-                }
-
-                if (userEx == null) {
-                    userEx = _stream.createUserException(_typeId);
-                }
+                UserException userEx = _stream.createUserException(_typeId);
 
                 //
                 // We found the exception.
@@ -2021,7 +1995,7 @@ public final class InputStream {
         }
 
         @Override
-        void throwException(UserExceptionFactory factory) throws UserException {
+        void throwException() throws UserException {
             assert (_current == null);
 
             push(SliceType.ExceptionSlice);
@@ -2032,22 +2006,7 @@ public final class InputStream {
             startSlice();
             final String mostDerivedId = _current.typeId;
             while (true) {
-                UserException userEx = null;
-
-                //
-                // Use a factory if one was provided.
-                //
-                if (factory != null) {
-                    try {
-                        factory.createAndThrow(_current.typeId);
-                    } catch (UserException ex) {
-                        userEx = ex;
-                    }
-                }
-
-                if (userEx == null) {
-                    userEx = _stream.createUserException(_current.typeId);
-                }
+                UserException userEx = _stream.createUserException(_current.typeId);
 
                 //
                 // We found the exception.
