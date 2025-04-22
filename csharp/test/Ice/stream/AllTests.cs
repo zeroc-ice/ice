@@ -53,6 +53,27 @@ public class AllTests : global::Test.AllTests
         return true;
     }
 
+    public class CustomSliceLoader : Ice.SliceLoader
+    {
+        internal bool useReader { get; set; }
+
+        public object createInstance(string typeId)
+        {
+            if (typeId == Test.MyClass.ice_staticId())
+            {
+                if (useReader)
+                {
+                    return new TestValueReader();
+                }
+                else
+                {
+                    return new Test.MyClass();
+                }
+            }
+            return null;
+        }
+    }
+
     private class TestValueWriter : Ice.Value
     {
         public TestValueWriter(Test.MyClass obj) => this.obj = obj;
@@ -84,12 +105,6 @@ public class AllTests : global::Test.AllTests
         internal bool called = false;
     }
 
-    private static Ice.Value TestValueFactory(string type)
-    {
-        Debug.Assert(type.Equals(Test.MyClass.ice_staticId()));
-        return new TestValueReader();
-    }
-
     private class TestReadValueCallback
     {
         public void invoke(Ice.Value obj) => this.obj = obj;
@@ -97,30 +112,10 @@ public class AllTests : global::Test.AllTests
         internal Ice.Value obj;
     }
 
-    public class MyClassFactoryWrapper
-    {
-        public MyClassFactoryWrapper() => _factory = null;
-
-        public Ice.Value create(string type)
-        {
-            if (_factory != null)
-            {
-                return _factory(type);
-            }
-            return new Test.MyClass();
-        }
-
-        public void setFactory(Ice.ValueFactory factory) => _factory = factory;
-
-        private Ice.ValueFactory _factory;
-    }
-
-    public static int allTests(global::Test.TestHelper helper)
+    public static int allTests(global::Test.TestHelper helper, CustomSliceLoader customSliceLoader)
     {
         var communicator = helper.communicator();
-        var factoryWrapper = new MyClassFactoryWrapper();
 
-        communicator.getValueFactoryManager().add(factoryWrapper.create, Test.MyClass.ice_staticId());
         Ice.InputStream inS;
         Ice.OutputStream outS;
 
@@ -596,7 +591,7 @@ public class AllTests : global::Test.AllTests
             outS.writePendingValues();
             var data = outS.finished();
             test(writer.called);
-            factoryWrapper.setFactory(TestValueFactory);
+            customSliceLoader.useReader = true;
             inS = new Ice.InputStream(communicator, data);
             var cb = new TestReadValueCallback();
             inS.readValue(cb.invoke);
@@ -607,7 +602,7 @@ public class AllTests : global::Test.AllTests
             test(reader.called);
             test(reader.obj != null);
             test(reader.obj.s.e == Test.MyEnum.enum2);
-            factoryWrapper.setFactory(null);
+            customSliceLoader.useReader = false;
         }
 
         {

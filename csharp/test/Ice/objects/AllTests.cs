@@ -37,6 +37,18 @@ namespace Ice.objects
             partial void ice_initialize() => id = "My id";
         }
 
+        internal class CustomSliceLoader : SliceLoader
+        {
+            public object createInstance(string typeId) =>
+                typeId switch
+                {
+                    "::Test::B" => new BI(),
+                    "::Test::C" => new CI(),
+                    "::Test::D" => new DI(),
+                    _ => null
+                };
+        }
+
         public class AllTests : global::Test.AllTests
         {
             public static InitialPrx allTests(global::Test.TestHelper helper)

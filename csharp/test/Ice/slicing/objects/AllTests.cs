@@ -35,6 +35,22 @@ public class AllTests : Test.AllTests
         private bool _called;
     }
 
+    internal class CustomSliceLoader : Ice.SliceLoader
+    {
+        public object createInstance(string typeId)
+        {
+            if (typeId == Preserved.ice_staticId())
+            {
+                return new PreservedI();
+            }
+            else if (typeId == PNode.ice_staticId())
+            {
+                return new PNodeI();
+            }
+            return null;
+        }
+    }
+
     private class PNodeI : PNode
     {
         public PNodeI() => ++counter;
@@ -47,15 +63,6 @@ public class AllTests : Test.AllTests
         public PreservedI() => ++counter;
 
         internal static int counter = 0;
-    }
-
-    private static Ice.Value PreservedFactoryI(string id)
-    {
-        if (id.Equals(Preserved.ice_staticId()))
-        {
-            return new PreservedI();
-        }
-        return null;
     }
 
     public static TestIntfPrx allTests(Test.TestHelper helper, bool collocated)
@@ -1717,16 +1724,6 @@ public class AllTests : Test.AllTests
         output.Write("preserved classes... ");
         output.Flush();
 
-        //
-        // Register a factory in order to substitute our own subclass of Preserved. This provides
-        // an easy way to determine how many unmarshaled instances currently exist.
-        //
-        // TODO: We have to install this now (even though it's not necessary yet), because otherwise
-        // the Ice run time will install its own internal factory for Preserved upon receiving the
-        // first instance.
-        //
-        communicator.getValueFactoryManager().add(PreservedFactoryI, Preserved.ice_staticId());
-
         try
         {
             //
@@ -2070,19 +2067,6 @@ public class AllTests : Test.AllTests
         output.Flush();
         try
         {
-            //
-            // Register a factory in order to substitute our own subclass of PNode. This provides
-            // an easy way to determine how many unmarshaled instances currently exist.
-            //
-            communicator.getValueFactoryManager().add((string id) =>
-            {
-                if (id.Equals(PNode.ice_staticId()))
-                {
-                    return new PNodeI();
-                }
-                return null;
-            }, PNode.ice_staticId());
-
             //
             // Relay a graph through the server.
             //
