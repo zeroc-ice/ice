@@ -19,11 +19,11 @@ public interface SliceLoader
     /// </exception>
     object? newInstance(string typeId);
 
-    /// <summary>Retrieves the <see cref="SliceLoader"/> for the generated classes in the specified assemblies.
+    /// <summary>Retrieves a <see cref="SliceLoader"/> for the generated classes in the specified assemblies.
     /// </summary>
     /// <param name="assemblies">The assemblies to search.</param>
     /// <returns>A Slice loader for the specified assemblies.</returns>
-    /// <remarks>The Slice classes defined in assemblies referenced by <paramref name="assemblies" /> are included,
+    /// <remarks>The classes defined in assemblies referenced by <paramref name="assemblies" /> are included,
     /// recursively, provided they contain generated code (as determined by the presence of the
     /// <see cref="SliceAttribute" /> attribute).</remarks>
     public static SliceLoader fromAssemblies(params Assembly[] assemblies) =>
@@ -33,8 +33,8 @@ public interface SliceLoader
     /// </summary>
     /// <param name="assembly">The assembly to search.</param>
     /// <returns>A Slice loader for the specified assembly.</returns>
-    /// <remarks>The Slice classes defined in assemblies referenced by <paramref name="assembly" /> are included,
-    /// recursively, provided they contain generated code (as determined by the presence of the
-    /// <see cref="SliceAttribute" /> attribute).</remarks>
+    /// <remarks>The classes defined in assemblies referenced by <paramref name="assembly" /> are included, recursively,
+    /// provided they contain generated code (as determined by the presence of the <see cref="SliceAttribute" />
+    /// attribute).</remarks>
     public static SliceLoader fromAssembly(Assembly assembly) => fromAssemblies(assembly);
 }

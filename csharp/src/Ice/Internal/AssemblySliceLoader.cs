@@ -19,8 +19,25 @@ internal sealed class AssemblySliceLoader : SliceLoader
     private readonly IReadOnlyDictionary<string, Type> _dict;
 
     /// <inheritdoc />
-    public object? newInstance(string typeId) =>
-        _dict.TryGetValue(typeId, out Type? type) ? Activator.CreateInstance(type) : null;
+    public object? newInstance(string typeId)
+    {
+        if (_dict.TryGetValue(typeId, out Type? type))
+        {
+            try
+            {
+                return Activator.CreateInstance(type);
+            }
+            catch (System.Exception exception)
+            {
+                throw new MarshalException(
+                    $"Failed to create an instance of class '{type.FullName}' for type ID '{typeId}'.", exception);
+            }
+        }
+        else
+        {
+            return null;
+        }
+    }
 
     /// <summary>Merge loaders into a single loader; duplicate entries are ignored.</summary>
     internal static AssemblySliceLoader Merge(IEnumerable<AssemblySliceLoader> loaders)
@@ -47,8 +64,8 @@ internal sealed class AssemblySliceLoader : SliceLoader
     internal AssemblySliceLoader(IReadOnlyDictionary<string, Type> dict) => _dict = dict;
 }
 
-/// <summary>Creates Slice loaders from assemblies by processing types in those assemblies.</summary>
-internal class AssemblySliceLoaderFactory
+/// <summary>Creates Slice loaders from assemblies by mapping types in these assemblies.</summary>
+internal sealed class AssemblySliceLoaderFactory
 {
     internal static AssemblySliceLoaderFactory Instance { get; } = new AssemblySliceLoaderFactory();
 

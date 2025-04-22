@@ -10,14 +10,6 @@ using Protocol = Ice.Internal.Protocol;
 namespace Ice;
 
 /// <summary>
-/// Throws a UserException corresponding to the given Slice type Id, such as "::Module::MyException".
-/// If the implementation does not throw an exception, the Ice run time will fall back
-/// to using its default behavior for instantiating the user exception.
-/// </summary>
-/// <param name="id">A Slice type Id corresponding to a Slice user exception.</param>
-public delegate void UserExceptionFactory(string id);
-
-/// <summary>
 /// Interface for input streams used to extract Slice types from a sequence of bytes.
 /// </summary>
 public sealed class InputStream
@@ -1788,16 +1780,10 @@ public sealed class InputStream
     /// <summary>
     /// Extracts a user exception from the stream and throws it.
     /// </summary>
-    public void throwException() => throwException(null);
-
-    /// <summary>
-    /// Extracts a user exception from the stream and throws it.
-    /// </summary>
-    /// <param name="factory">The user exception factory, or null to use the stream's default behavior.</param>
-    public void throwException(UserExceptionFactory? factory)
+    public void throwException()
     {
         initEncaps();
-        _encapsStack!.decoder!.throwException(factory);
+        _encapsStack!.decoder!.throwException();
     }
 
     /// <summary>
@@ -1971,17 +1957,7 @@ public sealed class InputStream
         }
     }
 
-    private UserException? createUserException(string id)
-    {
-        try
-        {
-            return (UserException?)_instance.sliceLoader.newInstance(id);
-        }
-        catch (System.Exception ex)
-        {
-            throw new MarshalException($"Failed to create user exception with type ID '{id}'.", ex);
-        }
-    }
+    private UserException? createUserException(string id) => (UserException?)_instance.sliceLoader.newInstance(id);
 
     private readonly Instance _instance;
     private Internal.Buffer _buf;
@@ -2020,7 +1996,7 @@ public sealed class InputStream
 
         internal abstract void readValue(System.Action<Value?> cb);
 
-        internal abstract void throwException(UserExceptionFactory? factory);
+        internal abstract void throwException();
 
         internal abstract void startInstance(SliceType type);
 
@@ -2059,8 +2035,7 @@ public sealed class InputStream
             }
         }
 
-        protected Value? newInstance(string typeId) =>
-            (Value?)_stream._instance.sliceLoader.newInstance(typeId);
+        protected Value? newInstance(string typeId) => (Value?)_stream._instance.sliceLoader.newInstance(typeId);
 
         protected void addPatchEntry(int index, System.Action<Value> cb)
         {
@@ -2205,7 +2180,7 @@ public sealed class InputStream
             }
         }
 
-        internal override void throwException(UserExceptionFactory? factory)
+        internal override void throwException()
         {
             Debug.Assert(_sliceType == SliceType.NoSlice);
 
@@ -2229,24 +2204,7 @@ public sealed class InputStream
             string mostDerivedId = _typeId;
             while (true)
             {
-                UserException? userEx = null;
-
-                //
-                // Use a factory if one was provided.
-                //
-                if (factory != null)
-                {
-                    try
-                    {
-                        factory(_typeId);
-                    }
-                    catch (UserException ex)
-                    {
-                        userEx = ex;
-                    }
-                }
-
-                userEx ??= _stream.createUserException(_typeId);
+                UserException? userEx = _stream.createUserException(_typeId);
 
                 //
                 // We found the exception.
@@ -2520,7 +2478,7 @@ public sealed class InputStream
             }
         }
 
-        internal override void throwException(UserExceptionFactory? factory)
+        internal override void throwException()
         {
             Debug.Assert(_current == null);
 
@@ -2533,24 +2491,7 @@ public sealed class InputStream
             string mostDerivedId = _current!.typeId!;
             while (true)
             {
-                UserException? userEx = null;
-
-                //
-                // Use a factory if one was provided.
-                //
-                if (factory != null)
-                {
-                    try
-                    {
-                        factory(_current!.typeId!);
-                    }
-                    catch (UserException ex)
-                    {
-                        userEx = ex;
-                    }
-                }
-
-                userEx ??= _stream.createUserException(_current!.typeId!);
+                UserException? userEx = _stream.createUserException(_current!.typeId!);
 
                 //
                 // We found the exception.
