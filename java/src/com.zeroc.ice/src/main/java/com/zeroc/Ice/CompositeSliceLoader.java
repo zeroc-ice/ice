@@ -15,7 +15,7 @@ final public class CompositeSliceLoader implements SliceLoader {
     /**
      * Creates a CompositeSliceLoader that combines the given SliceLoaders.
      *
-     * @param loaders The SliceLoaders to combine.
+     * @param loaders The initial Slice loaders.
      */
     public CompositeSliceLoader(SliceLoader... loaders) {
         _loaders = new ArrayList<>(Arrays.asList(loaders));
