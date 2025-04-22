@@ -259,7 +259,7 @@ namespace Ice.objects
 
                 // Adding one more level would exceed the max class graph depth
                 bottom.v = new Test.Recursive();
-                bottom = bottom.v;
+                _ = bottom.v;
                 try
                 {
                     initial.setRecursive(top);
