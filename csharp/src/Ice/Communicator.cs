@@ -322,12 +322,6 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     public PluginManager getPluginManager() => instance.pluginManager();
 
     /// <summary>
-    /// Gets the value factory manager for this communicator.
-    /// </summary>
-    /// <returns>This communicator's value factory manager.</returns>
-    public ValueFactoryManager getValueFactoryManager() => instance.initializationData().valueFactoryManager!;
-
-    /// <summary>
     /// Flushes any pending batch requests for this communicator.
     /// This means all batch requests invoked on fixed proxies for all connections associated with the communicator.
     /// Any errors that occur while flushing a connection are ignored.

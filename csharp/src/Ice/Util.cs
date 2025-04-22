@@ -56,11 +56,6 @@ public sealed record class InitializationData
     public Action<BatchRequest, int, int>? batchRequestInterceptor { get; set; }
 
     /// <summary>
-    /// Gets or sets the value factory manager.
-    /// </summary>
-    public ValueFactoryManager? valueFactoryManager { get; set; }
-
-    /// <summary>
     /// Gets or sets the <see cref="SslClientAuthenticationOptions"/> used by the client-side ssl transport.
     /// </summary>
     public SslClientAuthenticationOptions? clientAuthenticationOptions { get; set; }
@@ -70,6 +65,11 @@ public sealed record class InitializationData
     /// in order, before all other plug-ins.
     /// </summary>
     public IList<PluginFactory> pluginFactories { get; set; } = ImmutableList<PluginFactory>.Empty;
+
+    /// <summary>
+    /// Gets or sets the Slice loader. The Slice loader is used to unmarshal Slice classes and exceptions.
+    /// </summary>
+    public SliceLoader? sliceLoader { get; set; }
 }
 
 /// <summary>
