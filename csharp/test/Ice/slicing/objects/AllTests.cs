@@ -37,7 +37,7 @@ public class AllTests : Test.AllTests
 
     internal class CustomSliceLoader : Ice.SliceLoader
     {
-        public object createInstance(string typeId)
+        public object newInstance(string typeId)
         {
             if (typeId == Preserved.ice_staticId())
             {

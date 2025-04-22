@@ -57,7 +57,7 @@ public class AllTests : global::Test.AllTests
     {
         internal bool useReader { get; set; }
 
-        public object createInstance(string typeId)
+        public object newInstance(string typeId)
         {
             if (typeId == Test.MyClass.ice_staticId())
             {

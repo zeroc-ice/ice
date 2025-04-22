@@ -1975,7 +1975,7 @@ public sealed class InputStream
     {
         try
         {
-            return (UserException?)_instance.sliceLoader.createInstance(id);
+            return (UserException?)_instance.sliceLoader.newInstance(id);
         }
         catch (System.Exception ex)
         {
@@ -2060,7 +2060,7 @@ public sealed class InputStream
         }
 
         protected Value? newInstance(string typeId) =>
-            (Value?)_stream._instance.sliceLoader.createInstance(typeId);
+            (Value?)_stream._instance.sliceLoader.newInstance(typeId);
 
         protected void addPatchEntry(int index, System.Action<Value> cb)
         {

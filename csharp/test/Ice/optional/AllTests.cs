@@ -1925,7 +1925,7 @@ public class AllTests : global::Test.AllTests
     {
         private bool _enabled;
 
-        public object createInstance(string typeId)
+        public object newInstance(string typeId)
         {
             if (!_enabled)
             {

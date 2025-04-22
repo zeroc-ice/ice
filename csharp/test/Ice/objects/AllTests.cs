@@ -39,7 +39,7 @@ namespace Ice.objects
 
         internal class CustomSliceLoader : SliceLoader
         {
-            public object createInstance(string typeId) =>
+            public object newInstance(string typeId) =>
                 typeId switch
                 {
                     "::Test::B" => new BI(),

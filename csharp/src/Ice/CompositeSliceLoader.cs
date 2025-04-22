@@ -14,11 +14,11 @@ public sealed class CompositeSliceLoader : SliceLoader
     public void add(SliceLoader loader) => _loaders.Add(loader);
 
     /// <inheritdoc />
-    public object? createInstance(string typeId)
+    public object? newInstance(string typeId)
     {
         foreach (var loader in _loaders)
         {
-            object? instance = loader.createInstance(typeId);
+            object? instance = loader.newInstance(typeId);
             if (instance is not null)
             {
                 return instance;

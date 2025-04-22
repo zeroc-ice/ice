@@ -614,7 +614,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                         //
                         try
                         {
-                            info.service = (Service)Ice.Internal.AssemblyUtil.createInstance(c);
+                            info.service = (Service)Ice.Internal.AssemblyUtil.newInstance(c);
                             if (info.service == null)
                             {
                                 throw new FailureException($"{err}no default constructor for '{className}'.");

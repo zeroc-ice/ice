@@ -10,7 +10,7 @@ internal sealed class LazySliceLoader : SliceLoader
     private readonly Lazy<SliceLoader> _lazy;
 
     /// <inheritdoc />
-    public object? createInstance(string typeId) => _lazy.Value.createInstance(typeId);
+    public object? newInstance(string typeId) => _lazy.Value.newInstance(typeId);
 
     internal LazySliceLoader(Func<SliceLoader> factory) => _lazy = new(factory);
 }
