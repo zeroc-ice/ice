@@ -3,14 +3,15 @@
 package test.Ice.stream;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice.MarshalException;
 import com.zeroc.Ice.OutputStream;
 import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.SliceLoader;
 import com.zeroc.Ice.UserException;
 import com.zeroc.Ice.Util;
 import com.zeroc.Ice.Value;
-import com.zeroc.Ice.ValueFactory;
 
 import test.Ice.stream.Serialize.Small;
 import test.Ice.stream.Test.BoolSSHelper;
@@ -81,11 +82,23 @@ public class Client extends TestHelper {
         boolean called;
     }
 
-    private static class TestValueFactory implements ValueFactory {
+    private static class CustomSliceLoader implements SliceLoader {
+        private boolean _useReader;
+
+        public void setUseReader(boolean value) {
+            _useReader = value;
+        }
+
         @Override
-        public Value create(String type) {
-            assert (type.equals(MyClass.ice_staticId()));
-            return new TestObjectReader();
+        public Object newInstance(String typeId) {
+            if (typeId.equals(MyClass.ice_staticId())) {
+                if (_useReader) {
+                    return new TestObjectReader();
+                } else {
+                    return new MyClass();
+                }
+            }
+            return null;
         }
     }
 
@@ -93,38 +106,14 @@ public class Client extends TestHelper {
         T obj;
     }
 
-    private static class MyClassFactoryWrapper implements ValueFactory {
-        MyClassFactoryWrapper() {
-            setFactory(null);
-        }
-
-        @Override
-        public Value create(String type) {
-            return _factory.create(type);
-        }
-
-        void setFactory(ValueFactory factory) {
-            if (factory == null) {
-                _factory =
-                    id -> {
-                        return new MyClass();
-                    };
-            } else {
-                _factory = factory;
-            }
-        }
-
-        private ValueFactory _factory;
-    }
-
     public void run(String[] args) {
-        Properties properties = createTestProperties(args);
-        properties.setProperty("Ice.Package.Test", "test.Ice.stream");
+        var initData = new InitializationData();
+        initData.properties = createTestProperties(args);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.stream");
+        var customSliceLoader = new CustomSliceLoader();
+        initData.sliceLoader = customSliceLoader;
 
-        try (Communicator communicator = initialize(properties)) {
-            MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
-            communicator.getValueFactoryManager().add(factoryWrapper, MyClass.ice_staticId());
-
+        try (Communicator communicator = initialize(initData)) {
             InputStream in;
             OutputStream out;
 
@@ -580,7 +569,7 @@ public class Client extends TestHelper {
                 out.writePendingValues();
                 byte[] data = out.finished();
                 test(writer.called);
-                factoryWrapper.setFactory(new TestValueFactory());
+                customSliceLoader.setUseReader(true);
                 in = new InputStream(communicator, data);
                 final Wrapper<TestObjectReader> cb = new Wrapper<>();
                 in.readValue(value -> cb.obj = value, TestObjectReader.class);
@@ -590,7 +579,7 @@ public class Client extends TestHelper {
                 test(reader.called);
                 test(reader.obj != null);
                 test(reader.obj.s.e == MyEnum.enum2);
-                factoryWrapper.setFactory(null);
+                customSliceLoader.setUseReader(false);
             }
 
             {

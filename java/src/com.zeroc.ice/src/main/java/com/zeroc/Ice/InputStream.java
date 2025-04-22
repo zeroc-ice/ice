@@ -102,9 +102,6 @@ public final class InputStream {
 
         // Everything below is cached from instance.
         _classGraphDepthMax = _instance.classGraphDepthMax();
-        _valueFactoryManager = _instance.initializationData().valueFactoryManager;
-
-        assert (_valueFactoryManager != null);
     }
 
     /**
@@ -1558,15 +1555,10 @@ public final class InputStream {
             public int classGraphDepth;
         }
 
-        EncapsDecoder(
-                InputStream stream,
-                int classGraphDepthMax,
-                ValueFactoryManager f,
-                SliceLoader sliceLoader) {
+        EncapsDecoder(InputStream stream, int classGraphDepthMax, SliceLoader sliceLoader) {
             _stream = stream;
             _classGraphDepthMax = classGraphDepthMax;
             _classGraphDepth = 0;
-            _valueFactoryManager = f;
             _sliceLoader = sliceLoader;
             _typeIdIndex = 0;
             _unmarshaledMap = new TreeMap<>();
@@ -1612,34 +1604,14 @@ public final class InputStream {
         }
 
         protected Value newInstance(String typeId) {
-            //
-            // Try to find a factory registered for the specific type.
-            //
-            ValueFactory userFactory = _valueFactoryManager.find(typeId);
-            Value v = null;
-            if (userFactory != null) {
-                v = userFactory.create(typeId);
-            }
-
-            //
-            // If that fails, invoke the default factory if one has been registered.
-            //
-            if (v == null) {
-                userFactory = _valueFactoryManager.find("");
-                if (userFactory != null) {
-                    v = userFactory.create(typeId);
-                }
-            }
-
-            // Last chance: try to instantiate with the Slice loader.
-            if (v == null && typeId != Value.ice_staticId()) {
+            if (typeId != Value.ice_staticId()) {
                 java.lang.Object obj = _sliceLoader.newInstance(typeId);
                 if (obj instanceof Value value) {
-                    v = value;
+                    return value;
                 }
             }
 
-            return v;
+            return null;
         }
 
         protected void addPatchEntry(int index, Consumer<Value> cb) {
@@ -1737,8 +1709,7 @@ public final class InputStream {
         protected final InputStream _stream;
         protected final int _classGraphDepthMax;
         protected int _classGraphDepth;
-        protected ValueFactoryManager _valueFactoryManager;
-        protected SliceLoader _sliceLoader;
+        protected final SliceLoader _sliceLoader;
 
         //
         // Encapsulation attributes for value unmarshaling.
@@ -1754,9 +1725,8 @@ public final class InputStream {
         EncapsDecoder10(
                 InputStream stream,
                 int classGraphDepthMax,
-                ValueFactoryManager f,
                 SliceLoader sliceLoader) {
-            super(stream, classGraphDepthMax, f, sliceLoader);
+            super(stream, classGraphDepthMax, sliceLoader);
             _sliceType = SliceType.NoSlice;
         }
 
@@ -2012,9 +1982,8 @@ public final class InputStream {
         EncapsDecoder11(
                 InputStream stream,
                 int classGraphDepthMax,
-                ValueFactoryManager f,
                 SliceLoader sliceLoader) {
-            super(stream, classGraphDepthMax, f, sliceLoader);
+            super(stream, classGraphDepthMax, sliceLoader);
             _current = null;
             _valueIdIndex = 1;
         }
@@ -2517,11 +2486,11 @@ public final class InputStream {
             if (_encapsStack.encoding_1_0) {
                 _encapsStack.decoder =
                     new EncapsDecoder10(
-                        this, _classGraphDepthMax, _valueFactoryManager, _instance.sliceLoader());
+                        this, _classGraphDepthMax, _instance.sliceLoader());
             } else {
                 _encapsStack.decoder =
                     new EncapsDecoder11(
-                        this, _classGraphDepthMax, _valueFactoryManager, _instance.sliceLoader());
+                        this, _classGraphDepthMax, _instance.sliceLoader());
             }
         }
     }
@@ -2569,8 +2538,6 @@ public final class InputStream {
 
     private int _startSeq = -1;
     private int _minSeqSize;
-
-    private final ValueFactoryManager _valueFactoryManager;
 
     private static final String END_OF_BUFFER_MESSAGE =
         "Attempting to unmarshal past the end of the buffer.";

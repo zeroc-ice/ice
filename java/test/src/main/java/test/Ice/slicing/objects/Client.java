@@ -5,6 +5,7 @@ package test.Ice.slicing.objects;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ClassSliceLoader;
+import com.zeroc.Ice.CompositeSliceLoader;
 import com.zeroc.Ice.Properties;
 
 import test.Ice.slicing.objects.client.Test.CompactPCDerived;
@@ -19,7 +20,9 @@ public class Client extends TestHelper {
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.slicing.objects.client");
         initData.properties.setProperty("Ice.SliceLoader.NotFoundCacheSize", "5");
         initData.properties.setProperty("Ice.Warn.SliceLoader", "0"); // comment out to see the warning
-        initData.sliceLoader = new ClassSliceLoader(CompactPDerived.class, CompactPCDerived.class);
+        initData.sliceLoader = new CompositeSliceLoader(
+            new AllTests.CustomSliceLoader(),
+            new ClassSliceLoader(CompactPDerived.class, CompactPCDerived.class));
 
         try (Communicator communicator = initialize(initData)) {
             TestIntfPrx test = AllTests.allTests(this, false);

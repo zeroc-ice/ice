@@ -19,7 +19,6 @@ import java.util.concurrent.CompletableFuture;
  * @see Logger
  * @see ObjectAdapter
  * @see Properties
- * @see ValueFactory
  */
 public final class Communicator implements AutoCloseable {
 
@@ -416,16 +415,6 @@ public final class Communicator implements AutoCloseable {
      */
     public PluginManager getPluginManager() {
         return _instance.pluginManager();
-    }
-
-    /**
-     * Get the value factory manager for this communicator.
-     *
-     * @return This communicator's value factory manager.
-     * @see ValueFactoryManager
-     */
-    public ValueFactoryManager getValueFactoryManager() {
-        return _instance.initializationData().valueFactoryManager;
     }
 
     /**
