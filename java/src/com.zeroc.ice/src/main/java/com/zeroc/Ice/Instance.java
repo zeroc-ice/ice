@@ -687,7 +687,20 @@ public final class Instance {
                 sliceLoader.add(_initData.sliceLoader);
             }
 
-            _initData.sliceLoader = sliceLoader;
+            final int notFoundCacheSize =
+                properties.getIcePropertyAsInt("Ice.SliceLoader.NotFoundCacheSize");
+
+            if (notFoundCacheSize <= 0) {
+                _initData.sliceLoader = sliceLoader;
+            } else {
+                final Logger cacheFullLogger =
+                    properties.getIcePropertyAsInt("Ice.Warn.SliceLoader") > 0 ? _initData.logger : null;
+
+                _initData.sliceLoader = new NotFoundSliceLoaderDecorator(
+                    sliceLoader,
+                    notFoundCacheSize,
+                    cacheFullLogger);
+            }
 
             // Ice.Package.module loader.
             String packagePrefix = "Ice.Package";

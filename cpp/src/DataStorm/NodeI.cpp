@@ -150,8 +150,6 @@ NodeI::createSession(
     checkNotNull(subscriber, __FILE__, __LINE__, current);
     checkNotNull(subscriberSession, __FILE__, __LINE__, current);
 
-    bool isWellKnown = subscriber->ice_getEndpoints().empty() && subscriber->ice_getAdapterId().empty();
-
     // The instance class owns this object, so it is guaranteed to be available.
     auto instance = _instance.lock();
     assert(instance);
@@ -199,32 +197,12 @@ NodeI::createSession(
             {
                 if (session->checkSession())
                 {
-                    if (isWellKnown && current.con && session->getConnection() != current.con)
+                    // The session is already connected.
+                    if (traceLevels->session > 2)
                     {
-                        // If the peer is using a well-known proxy and requests a session using a different connection,
-                        // assume the current session connection is being closed and reconnect using the new connection.
-                        //
-                        // Otherwise, once the current connection is actually closed, we won't be able to reconnect.
-                        if (traceLevels->session > 2)
-                        {
-                            Trace out(traceLevels->logger, traceLevels->sessionCat);
-                            out << "node '" << current.id << "' is discarding current session '" << session->getId()
-                                << "' because subscriber '" << subscriber
-                                << "' (using a well-known proxy) requested creating a session over a new connection";
-                        }
-                        session->disconnect();
-                        session->reconnect(*subscriber, current.con);
-                    }
-                    else
-                    {
-                        // The session is already connected.
-                        if (traceLevels->session > 2)
-                        {
-                            Trace out(traceLevels->logger, traceLevels->sessionCat);
-                            out << "node '" << current.id << "' is ignoring '" << current.operation
-                                << "' request from '" << subscriber << "' because session '" << session->getId()
-                                << "' is already connected";
-                        }
+                        Trace out(traceLevels->logger, traceLevels->sessionCat);
+                        out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from '"
+                            << subscriber << "' because session '" << session->getId() << "' is already connected";
                     }
                     return;
                 }
@@ -357,8 +335,6 @@ NodeI::createPublisherSession(
 
     auto traceLevels = instance->getTraceLevels();
 
-    bool isWellKnown = publisher->ice_getEndpoints().empty() && publisher->ice_getAdapterId().empty();
-
     try
     {
         auto p = getNodeWithExistingConnection(instance, publisher, publisherConnection);
@@ -379,37 +355,13 @@ NodeI::createPublisherSession(
             }
             else if (session->checkSession())
             {
-                if (isWellKnown && publisherConnection && session->getConnection() != publisherConnection)
+                // The session is already connected.
+                if (traceLevels->session > 2)
                 {
-                    // If the peer is using a well-known proxy and requests a session using a different connection,
-                    // assume the current session connection is being closed and reconnect using the new connection.
-                    //
-                    // Otherwise, once the current connection is actually closed, we won't be able to reconnect.
-
-                    if (traceLevels->session > 2)
-                    {
-                        Trace out(traceLevels->logger, traceLevels->sessionCat);
-                        out << "node '" << _proxy->ice_getIdentity() << "' is discarding current session '"
-                            << session->getId() << "' because publisher '" << publisher
-                            << "' (using a well-known proxy) requested creating a session over a new connection";
-                    }
-
-                    // Unlock the mutex to prevent a deadlock, as reconnect() may call createPublisherSession() again.
-                    lock.unlock();
-
-                    session->disconnect();
-                    session->reconnect(publisher, publisherConnection);
-                }
-                else
-                {
-                    // The session is already connected.
-                    if (traceLevels->session > 2)
-                    {
-                        Trace out(traceLevels->logger, traceLevels->sessionCat);
-                        out << "node '" << _proxy->ice_getIdentity()
-                            << "' is ignoring 'createPublisherSession' request from '" << publisher
-                            << "' because session '" << session->getId() << "' is already connected";
-                    }
+                    Trace out(traceLevels->logger, traceLevels->sessionCat);
+                    out << "node '" << _proxy->ice_getIdentity()
+                        << "' is ignoring 'createPublisherSession' request from '" << publisher << "' because session '"
+                        << session->getId() << "' is already connected";
                 }
                 return;
             }
@@ -640,6 +592,7 @@ NodeI::getNodeWithExistingConnection(
         }
     }
 
+    // If the proxy is well-known and there isn't an existing connection, use the new connection.
     if (!connection && node->ice_getEndpoints().empty() && node->ice_getAdapterId().empty())
     {
         connection = newConnection;
