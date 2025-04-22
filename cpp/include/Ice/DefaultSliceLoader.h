@@ -139,9 +139,7 @@ namespace IceInternal
     template<class T> class ClassInit
     {
     public:
-        explicit ClassInit(int compactId = -1) noexcept
-            : _typeId(T::ice_staticId()),
-              _compactId(compactId)
+        explicit ClassInit(int compactId = -1) noexcept : _typeId(T::ice_staticId()), _compactId(compactId)
         {
             DefaultSliceLoader::instance()->addClass<T>(compactId);
         }
