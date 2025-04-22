@@ -115,6 +115,7 @@ const tests = [
     "test/Ice/ami",
     "test/Ice/binding",
     "test/Ice/defaultValue",
+    "test/Ice/defaultServant",
     "test/Ice/enums",
     "test/Ice/exceptions",
     "test/Ice/facets",
