@@ -6,6 +6,12 @@ using namespace std;
 
 Ice::SliceLoader::~SliceLoader() = default; // avoids weak vtable
 
+Ice::ValuePtr
+Ice::SliceLoader::newClassInstance(string_view) const
+{
+    return nullptr;
+}
+
 std::exception_ptr
 Ice::SliceLoader::newExceptionInstance(string_view) const
 {

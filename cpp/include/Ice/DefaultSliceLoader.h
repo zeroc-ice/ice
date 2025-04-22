@@ -1,9 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
-#ifndef ICE_GLOBAL_SLICE_LOADER_H
-#define ICE_GLOBAL_SLICE_LOADER_H
+#ifndef ICE_DEFAULT_SLICE_LOADER_H
+#define ICE_DEFAULT_SLICE_LOADER_H
 
 #include "SliceLoader.h"
+#include <functional>
 #include <map>
 #include <mutex>
 

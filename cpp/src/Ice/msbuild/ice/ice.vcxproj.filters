@@ -624,6 +624,12 @@
     <ClCompile Include="x64\Release\ReplyStatus.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\DefaultSliceLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SliceLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\EventLoggerMsg.mc">
@@ -1038,6 +1044,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\ReplyStatus.h">
       <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\DefaultSliceLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\SliceLoader.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

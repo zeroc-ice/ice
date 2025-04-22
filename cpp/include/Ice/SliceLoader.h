@@ -14,6 +14,8 @@
 namespace Ice
 {
     /// Creates class and exception instances from Slice type IDs.
+    /// @remark The implementation of newClassInstance and newExceptionInstance in the base class always returns
+    /// nullptr.
     /// @headerfile Ice/Ice.h
     class ICE_API SliceLoader
     {
@@ -25,7 +27,7 @@ namespace Ice
         /// @return A new instance of the class identified by @p typeId, or nullptr if the implementation cannot find
         /// the corresponding class.
         /// @throws MarshalException Thrown when the corresponding class was found but its instantiation failed.
-        virtual ValuePtr newClassInstance(std::string_view typeId) const = 0;
+        virtual ValuePtr newClassInstance(std::string_view typeId) const;
 
         /// Creates an instance of a class mapped from a Slice exception based on a Slice type ID.
         /// @param typeId The Slice type ID.
@@ -33,6 +35,9 @@ namespace Ice
         /// cannot find the corresponding class.
         /// @throws MarshalException Thrown when the corresponding class was found but its instantiation failed.
         virtual std::exception_ptr newExceptionInstance(std::string_view typeId) const;
+
+    protected:
+        SliceLoader() = default;
     };
 
     using SliceLoaderPtr = std::shared_ptr<SliceLoader>;
