@@ -18,8 +18,7 @@ public sealed class CompositeSliceLoader : SliceLoader
     {
         foreach (var loader in _loaders)
         {
-            object? instance = loader.newInstance(typeId);
-            if (instance is not null)
+            if (loader.newInstance(typeId) is object instance)
             {
                 return instance;
             }
