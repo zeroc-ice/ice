@@ -107,10 +107,7 @@ NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& newConnection
     auto instance = _instance.lock();
     assert(instance);
 
-    if (!newConnection->getAdapter())
-    {
-        newConnection->setAdapter(instance->getObjectAdapter());
-    }
+    assert(newConnection->getAdapter() == instance->getObjectAdapter());
 
     auto session = make_shared<NodeSessionI>(instance, node, newConnection, forwardAnnouncements);
     session->init();
