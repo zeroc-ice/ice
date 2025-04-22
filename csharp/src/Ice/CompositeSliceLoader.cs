@@ -4,7 +4,7 @@
 
 namespace Ice;
 
-/// <summary>Implements <see cref="SliceLoader" /> by combining multiple Slice loaders. </summary>
+/// <summary>Implements <see cref="SliceLoader" /> by combining multiple Slice loaders.</summary>
 public sealed class CompositeSliceLoader : SliceLoader
 {
     private readonly List<SliceLoader> _loaders = new();

@@ -371,7 +371,7 @@ internal sealed class PluginManagerI : PluginManager
 
             try
             {
-                pluginFactory = (PluginFactory)Ice.Internal.AssemblyUtil.newInstance(c);
+                pluginFactory = (PluginFactory)Ice.Internal.AssemblyUtil.createInstance(c);
                 if (pluginFactory is null)
                 {
                     throw new PluginInitializationException($"{err}can't find constructor for '{className}'.");

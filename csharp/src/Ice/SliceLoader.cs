@@ -36,5 +36,5 @@ public interface SliceLoader
     /// <remarks>The classes defined in assemblies referenced by <paramref name="assembly" /> are included, recursively,
     /// provided they contain generated code (as determined by the presence of the <see cref="SliceAttribute" />
     /// attribute).</remarks>
-    public static SliceLoader fromAssembly(Assembly assembly) => fromAssemblies(assembly);
+    public static SliceLoader fromAssembly(Assembly assembly) => AssemblySliceLoaderFactory.Instance.Get(assembly);
 }
