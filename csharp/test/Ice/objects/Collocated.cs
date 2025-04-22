@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+using Ice.objects.Test;
 using Test;
 
 namespace Ice.objects;
@@ -11,6 +12,8 @@ public class Collocated : TestHelper
         var initData = new InitializationData();
         initData.properties = createTestProperties(ref args);
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.sliceLoader = new CustomSliceLoader();
+
         using var communicator = initialize(initData);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

@@ -11,6 +11,15 @@ import java.util.List;
 final public class CompositeSliceLoader implements SliceLoader {
     private final List<SliceLoader> _loaders = new ArrayList<>();
 
+    /**
+     * Adds a SliceLoader to this CompositeSliceLoader.
+     *
+     * @param loader The SliceLoader to add.
+     */
+    public void add(SliceLoader loader) {
+        _loaders.add(loader);
+    }
+
     @Override
     public java.lang.Object newInstance(String typeId) {
         for (SliceLoader loader : _loaders) {
@@ -20,14 +29,5 @@ final public class CompositeSliceLoader implements SliceLoader {
             }
         }
         return null;
-    }
-
-    /**
-     * Adds a SliceLoader to this CompositeSliceLoader.
-     *
-     * @param loader The SliceLoader to add.
-     */
-    public void add(SliceLoader loader) {
-        _loaders.add(loader);
     }
 }

@@ -37,33 +37,23 @@ namespace Ice.objects
             partial void ice_initialize() => id = "My id";
         }
 
+        internal class CustomSliceLoader : SliceLoader
+        {
+            public object newInstance(string typeId) =>
+                typeId switch
+                {
+                    "::Test::B" => new BI(),
+                    "::Test::C" => new CI(),
+                    "::Test::D" => new DI(),
+                    _ => null
+                };
+        }
+
         public class AllTests : global::Test.AllTests
         {
-            public static Value MyValueFactory(string type)
-            {
-                if (type == "::Test::B")
-                {
-                    return new BI();
-                }
-                else if (type == "::Test::C")
-                {
-                    return new CI();
-                }
-                else if (type == "::Test::D")
-                {
-                    return new DI();
-                }
-                Debug.Assert(false); // Should never be reached
-                return null;
-            }
-
             public static InitialPrx allTests(global::Test.TestHelper helper)
             {
                 Communicator communicator = helper.communicator();
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::B");
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::C");
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D");
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::H");
 
                 var output = helper.getWriter();
 
@@ -269,7 +259,7 @@ namespace Ice.objects
 
                 // Adding one more level would exceed the max class graph depth
                 bottom.v = new Test.Recursive();
-                bottom = bottom.v;
+                _ = bottom.v;
                 try
                 {
                     initial.setRecursive(top);
