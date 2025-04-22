@@ -40,6 +40,7 @@ namespace Ice
         SliceLoader() = default;
     };
 
+    /// A shared pointer to a SliceLoader.
     using SliceLoaderPtr = std::shared_ptr<SliceLoader>;
 
     /// Implements SliceLoader by combining multiple SliceLoader instances.
@@ -59,6 +60,7 @@ namespace Ice
         std::vector<SliceLoaderPtr> _loaders;
     };
 
+    /// A shared pointer to a CompositeSliceLoaderPtr.
     using CompositeSliceLoaderPtr = std::shared_ptr<CompositeSliceLoader>;
 }
 
