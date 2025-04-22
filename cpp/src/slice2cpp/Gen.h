@@ -84,12 +84,12 @@ namespace Slice
             bool _firstElement{true};
         };
 
-        /// Generates the code that registers the default class and exception factories.
-        class DefaultFactoryVisitor final : public ParserVisitor
+        /// Generates the code that registers classes and exceptions with the DefaultSliceLoader instance.
+        class SliceLoaderVisitor final : public ParserVisitor
         {
         public:
-            DefaultFactoryVisitor(IceInternal::Output&);
-            DefaultFactoryVisitor(const DefaultFactoryVisitor&) = delete;
+            SliceLoaderVisitor(IceInternal::Output&);
+            SliceLoaderVisitor(const SliceLoaderVisitor&) = delete;
 
             bool visitUnitStart(const UnitPtr&) final;
             void visitUnitEnd(const UnitPtr&) final;
@@ -98,8 +98,6 @@ namespace Slice
 
         private:
             IceInternal::Output& C;
-            /// when false, we need to generate a factory table init.
-            bool _factoryTableInitDone{false};
         };
 
         /// Generates code for proxies. It needs to be generated before the code for structs, classes, and exceptions

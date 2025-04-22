@@ -1,0 +1,166 @@
+// Copyright (c) ZeroC, Inc.
+
+#ifndef ICE_GLOBAL_SLICE_LOADER_H
+#define ICE_GLOBAL_SLICE_LOADER_H
+
+#include "SliceLoader.h"
+#include <map>
+#include <mutex>
+
+namespace IceInternal
+{
+    class DefaultSliceLoader;
+    using DefaultSliceLoaderPtr = std::shared_ptr<DefaultSliceLoader>;
+
+    /// A singleton SliceLoader that the generated code uses to register factories for classes and exceptions.
+    class ICE_API DefaultSliceLoader final : public Ice::SliceLoader
+    {
+    public:
+        /// Returns the singleton instance of DefaultSliceLoader.
+        /// @return The single instance of DefaultSliceLoader.
+        static DefaultSliceLoaderPtr instance();
+
+        virtual ~DefaultSliceLoader();
+
+        Ice::ValuePtr newClassInstance(std::string_view typeId) const final;
+        std::exception_ptr newExceptionInstance(std::string_view typeId) const final;
+
+        template<class T> void addClass(int compactId)
+        {
+            std::lock_guard lock{_mutex};
+            auto p = _classFactories.find(T::ice_staticId());
+            if (p == _classFactories.end())
+            {
+                _classFactories[T::ice_staticId()] = {[] { return std::make_shared<T>(); }, 1};
+            }
+            else
+            {
+                p->second.second++;
+            }
+
+            if (compactId >= 0)
+            {
+                _compactIdTable[compactId] = T::ice_staticId();
+
+                std::string compactIdStr{std::to_string(compactId)};
+                p = _classFactories.find(compactIdStr);
+                if (p == _classFactories.end())
+                {
+                    _classFactories[compactIdStr] = {[] { return std::make_shared<T>(); }, 1};
+                }
+                else
+                {
+                    p->second.second++;
+                }
+            }
+        }
+
+        void removeClass(std::string_view typeId, int compactId)
+        {
+            std::lock_guard lock{_mutex};
+            auto p = _classFactories.find(typeId);
+            if (p != _classFactories.end())
+            {
+                if (--p->second.second == 0)
+                {
+                    _classFactories.erase(p);
+                }
+            }
+
+            if (compactId >= 0)
+            {
+                std::string compactIdStr{std::to_string(compactId)};
+                p = _classFactories.find(compactIdStr);
+                if (p != _classFactories.end())
+                {
+                    if (--p->second.second == 0)
+                    {
+                        _classFactories.erase(p);
+                    }
+                }
+            }
+        }
+
+        template<class T> void addException()
+        {
+            std::lock_guard lock{_mutex};
+            auto p = _exceptionFactories.find(T::ice_staticId());
+            if (p == _exceptionFactories.end())
+            {
+                _exceptionFactories[T::ice_staticId()] = {[] { return std::make_exception_ptr(T{}); }, 1};
+            }
+            else
+            {
+                p->second.second++;
+            }
+        }
+
+        void removeException(std::string_view typeId)
+        {
+            std::lock_guard lock{_mutex};
+            auto p = _exceptionFactories.find(typeId);
+            if (p != _exceptionFactories.end())
+            {
+                if (--p->second.second == 0)
+                {
+                    _exceptionFactories.erase(p);
+                }
+            }
+        }
+
+        // temporary
+        std::string resolveCompactId(int compactId) const
+        {
+            std::lock_guard lock{_mutex};
+            auto p = _compactIdTable.find(compactId);
+            if (p != _compactIdTable.end())
+            {
+                return p->second;
+            }
+            return {};
+        }
+
+    private:
+        using ClassFactory = std::function<Ice::ValuePtr()>;
+        using ExceptionFactory = std::function<std::exception_ptr()>;
+
+        DefaultSliceLoader() = default;
+
+        mutable std::mutex _mutex;
+
+        std::map<std::string, std::pair<ClassFactory, int>, std::less<>> _classFactories;
+        std::map<std::string, std::pair<ExceptionFactory, int>, std::less<>> _exceptionFactories;
+
+        // temporary
+        std::map<int, std::string> _compactIdTable;
+    };
+
+    template<class T> class ClassInit
+    {
+    public:
+        explicit ClassInit(int compactId = -1) noexcept
+            : _typeId(T::ice_staticId()),
+              _compactId(compactId)
+        {
+            DefaultSliceLoader::instance()->addClass<T>(compactId);
+        }
+
+        ~ClassInit() { DefaultSliceLoader::instance()->removeClass(_typeId, _compactId); }
+
+    private:
+        const char* _typeId;
+        int _compactId;
+    };
+
+    template<class T> class ExceptionInit
+    {
+    public:
+        ExceptionInit() noexcept : _typeId(T::ice_staticId()) { DefaultSliceLoader::instance()->addException<T>(); }
+        ~ExceptionInit() { DefaultSliceLoader::instance()->removeException(_typeId); }
+
+    private:
+        const char* _typeId;
+    };
+}
+
+#endif

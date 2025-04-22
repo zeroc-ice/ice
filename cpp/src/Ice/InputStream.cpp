@@ -3,7 +3,7 @@
 #include "Ice/InputStream.h"
 #include "DefaultsAndOverrides.h"
 #include "Endian.h"
-#include "Ice/FactoryTable.h"
+#include "Ice/DefaultSliceLoader.h" // temporary
 #include "Ice/LocalExceptions.h"
 #include "Ice/SlicedData.h"
 #include "Ice/StringConverter.h"
@@ -22,9 +22,6 @@ using namespace IceInternal;
 
 namespace
 {
-    // Make sure the global factory table is initialized before we use it.
-    const FactoryTableInit factoryTableInit;
-
     const char* endOfBufferMessage = "attempting to unmarshal past the end of the buffer";
 }
 
@@ -1282,7 +1279,7 @@ Ice::InputStream::resolveCompactId(int id) const
 
     if (typeId.empty())
     {
-        typeId = IceInternal::factoryTable->getTypeId(id);
+        typeId = IceInternal::DefaultSliceLoader::instance()->resolveCompactId(id);
     }
 
     return typeId;
@@ -1374,19 +1371,11 @@ Ice::InputStream::EncapsDecoder::newInstance(string_view typeId)
         }
     }
 
-    //
-    // Last chance: check the table of static factories (i.e.,
-    // automatically generated factories for concrete classes).
-    //
     if (!v)
     {
-        function<shared_ptr<Value>(string_view)> of = IceInternal::factoryTable->getValueFactory(typeId);
-        if (of)
-        {
-            v = of(typeId);
-            assert(v);
-        }
+        v = _stream->instance()->sliceLoader()->newClassInstance(typeId);
     }
+
     return v;
 }
 
@@ -1568,7 +1557,12 @@ Ice::InputStream::EncapsDecoder10::throwException(UserExceptionFactory exception
         //
         if (!exceptionFactory)
         {
-            exceptionFactory = factoryTable->getExceptionFactory(_typeId);
+            std::exception_ptr exceptionPtr = _stream->instance()->sliceLoader()->newExceptionInstance(_typeId);
+
+            if (exceptionPtr)
+            {
+                exceptionFactory = [exceptionPtr](string_view) { std::rethrow_exception(exceptionPtr); };
+            }
         }
 
         //
@@ -1858,7 +1852,13 @@ Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory exception
         //
         if (!exceptionFactory)
         {
-            exceptionFactory = factoryTable->getExceptionFactory(_current->typeId);
+            std::exception_ptr exceptionPtr =
+                _stream->instance()->sliceLoader()->newExceptionInstance(_current->typeId);
+
+            if (exceptionPtr)
+            {
+                exceptionFactory = [exceptionPtr](string_view) { std::rethrow_exception(exceptionPtr); };
+            }
         }
 
         //

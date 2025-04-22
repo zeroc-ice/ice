@@ -17,13 +17,6 @@
 using namespace std;
 using namespace Test;
 
-template<typename T>
-function<shared_ptr<T>(string_view)>
-makeFactory()
-{
-    return [](string_view) { return make_shared<T>(); };
-}
-
 class Client : public Test::TestHelper
 {
 public:
@@ -33,14 +26,12 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-    properties->setProperty("Ice.AcceptClassCycles", "1");
+    Ice::InitializationData initData;
+    initData.properties = createTestProperties(argc, argv);
+    initData.properties->setProperty("Ice.AcceptClassCycles", "1");
+    initData.sliceLoader = make_shared<CustomSliceLoader>();
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-    communicator->getValueFactoryManager()->add(makeFactory<BI>(), "::Test::B");
-    communicator->getValueFactoryManager()->add(makeFactory<CI>(), "::Test::C");
-    communicator->getValueFactoryManager()->add(makeFactory<DI>(), "::Test::D");
-
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
     InitialPrx allTests(Test::TestHelper*);
     InitialPrx initial = allTests(this);
     initial->shutdown();

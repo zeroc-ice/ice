@@ -555,7 +555,6 @@
     <ClCompile Include="..\..\EndpointFactoryManager.cpp" />
     <ClCompile Include="..\..\EndpointI.cpp" />
     <ClCompile Include="..\..\EventHandler.cpp" />
-    <ClCompile Include="..\..\FactoryTable.cpp" />
     <ClCompile Include="..\..\HttpParser.cpp" />
     <ClCompile Include="..\..\IncomingRequest.cpp" />
     <ClCompile Include="..\..\OutgoingResponse.cpp" />
@@ -976,7 +975,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\EndpointSelectionType.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Exception.h" />
     <ClInclude Include="..\..\..\..\include\Ice\FacetMap.h" />
-    <ClInclude Include="..\..\..\..\include\Ice\FactoryTable.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Format.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Ice.h" />
     <ClInclude Include="..\..\..\..\include\Ice\IconvStringConverter.h" />

@@ -14,6 +14,7 @@
 #include "PluginFactory.h"
 #include "PropertiesF.h"
 #include "SSL/ClientAuthenticationOptions.h"
+#include "SliceLoader.h"
 #include "StringUtil.h"
 #include "TimerTask.h"
 #include "ValueFactory.h"
@@ -114,6 +115,9 @@ namespace Ice
         /// A list of plug-in factories. The corresponding plug-ins are created during communicator initialization,
         /// in order, before all other plug-ins.
         std::vector<PluginFactory> pluginFactories{};
+
+        /// The Slice loader, used to unmarshal Slice classes and exceptions.
+        SliceLoaderPtr sliceLoader{};
     };
 
     /// Creates a new communicator.
