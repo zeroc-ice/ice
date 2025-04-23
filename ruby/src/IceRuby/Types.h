@@ -12,8 +12,6 @@
 
 namespace IceRuby
 {
-    std::string resolveCompactId(int id);
-
     class ExceptionInfo;
     using ExceptionInfoPtr = std::shared_ptr<ExceptionInfo>;
     using ExceptionInfoList = std::vector<ExceptionInfoPtr>;
