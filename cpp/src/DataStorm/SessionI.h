@@ -286,7 +286,7 @@ namespace DataStormI
         void
         connected(DataStormContract::SessionPrx, const Ice::ConnectionPtr&, const DataStormContract::TopicInfoSeq&);
         [[nodiscard]] bool disconnected(const Ice::ConnectionPtr&, std::exception_ptr);
-        [[nodiscard]] bool retry(DataStormContract::NodePrx, std::exception_ptr);
+        [[nodiscard]] bool retry(DataStormContract::NodePrx node, std::exception_ptr exception, bool timedOut = false);
         void destroyImpl(const std::exception_ptr&);
 
         [[nodiscard]] const std::string& getId() const { return _id; }
@@ -422,6 +422,10 @@ namespace DataStormI
 
         // A retry task, scheduled if an attempt to reconnect the session is underway; nullptr if no retry is scheduled.
         IceInternal::TimerTaskPtr _retryTask;
+
+        // A timer task that will schedule the next retry attempt if the current attempt doesn't succeed after this task
+        // fires.
+        IceInternal::TimerTaskPtr _nextRetryAttemptTask;
 
         // Tracks the topics this session is subscribed to.
         // - Key: The topic ID on the remote node.

@@ -571,6 +571,12 @@ SessionI::connected(SessionPrx session, const ConnectionPtr& newConnection, cons
         _retryTask = nullptr;
     }
 
+    if (_nextRetryAttemptTask)
+    {
+        _instance->cancelTimerTask(_nextRetryAttemptTask);
+        _nextRetryAttemptTask = nullptr;
+    }
+
     ++_sessionInstanceId;
 
     if (_traceLevels->session > 0)
@@ -656,7 +662,7 @@ SessionI::disconnected(const ConnectionPtr& connection, exception_ptr ex)
 }
 
 bool
-SessionI::retry(NodePrx node, exception_ptr exception)
+SessionI::retry(NodePrx node, exception_ptr exception, bool timedOut)
 {
     lock_guard<mutex> lock(_mutex);
 
@@ -685,6 +691,12 @@ SessionI::retry(NodePrx node, exception_ptr exception)
     {
         _instance->cancelTimerTask(_retryTask);
         _retryTask = nullptr;
+    }
+
+    if (_nextRetryAttemptTask)
+    {
+        _instance->cancelTimerTask(_nextRetryAttemptTask);
+        _nextRetryAttemptTask = nullptr;
     }
 
     if (node->ice_getEndpoints().empty() && node->ice_getAdapterId().empty())
@@ -743,8 +755,32 @@ SessionI::retry(NodePrx node, exception_ptr exception)
             return false;
         }
 
-        _retryTask = make_shared<IceInternal::InlineTimerTask>([node = std::move(node), self = shared_from_this()]
-                                                               { self->reconnect(node); });
+        _retryTask = make_shared<IceInternal::InlineTimerTask>(
+            [node = std::move(node), self = shared_from_this()]
+            {
+                {
+                    lock_guard<mutex> lock(self->_mutex);
+                    self->_nextRetryAttemptTask = make_shared<IceInternal::InlineTimerTask>(
+                        [self, node]
+                        {
+                            if (!self->retry(node, nullptr, true))
+                            {
+                                // No more retries discard the session.
+                                self->remove();
+                            }
+                        });
+                    // Schedule the next retry attempt if the current attempt doesn't succeed before retry timeout
+                    // expires.
+                    self->_instance->scheduleTimerTask(self->_nextRetryAttemptTask, self->_instance->getRetryTimeout());
+                }
+                self->reconnect(node);
+            });
+
+        if (timedOut)
+        {
+            // If retry is called because previous attempt timed out, we discount the retry timeout from the delay.
+            delay = std::max(delay - _instance->getRetryTimeout(), 0ms);
+        }
         _instance->scheduleTimerTask(_retryTask, delay);
     }
     return true;

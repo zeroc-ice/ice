@@ -572,6 +572,7 @@ const Property DataStormPropsData[] =
     Property{"Node.RetryCount", "6", false, false, nullptr},
     Property{"Node.RetryDelay", "500", false, false, nullptr},
     Property{"Node.RetryMultiplier", "2", false, false, nullptr},
+    Property{"Node.RetryTimeout", "10000", false, false, nullptr},
     Property{"Node.Server", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Node.Server.Enabled", "1", false, false, nullptr},
     Property{"Node.Server.ForwardDiscoveryToMulticast", "0", false, false, nullptr},
@@ -591,7 +592,7 @@ const PropertyArray PropertyNames::DataStormProps
     .prefixOnly=false,
     .isOptIn=true,
     .properties=DataStormPropsData,
-    .length=19
+    .length=20
 };
 
 const std::array<PropertyArray, 15> PropertyNames::validProps =

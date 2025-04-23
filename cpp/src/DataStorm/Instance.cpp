@@ -80,6 +80,7 @@ Instance::Instance(CommunicatorPtr communicator, function<void(function<void()> 
     _retryDelay = chrono::milliseconds(properties->getIcePropertyAsInt("DataStorm.Node.RetryDelay"));
     _retryMultiplier = properties->getIcePropertyAsInt("DataStorm.Node.RetryMultiplier");
     _retryCount = properties->getIcePropertyAsInt("DataStorm.Node.RetryCount");
+    _retryTimeout = chrono::milliseconds(properties->getIcePropertyAsInt("DataStorm.Node.RetryTimeout"));
 
     // A collocated adapter is used with a unique AdapterId to enable collocation with default servants. Proxies created
     // by this adapter will be indirect, and ObjectAdapter::isLocal will compare the adapter's AdapterId with the

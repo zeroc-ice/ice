@@ -91,6 +91,8 @@ namespace DataStormI
 
         [[nodiscard]] int getRetryCount() const { return _retryCount; }
 
+        [[nodiscard]] std::chrono::milliseconds getRetryTimeout() const { return _retryTimeout; }
+
         void shutdown();
         [[nodiscard]] bool isShutdown() const;
         void checkShutdown() const;
@@ -144,6 +146,7 @@ namespace DataStormI
         std::shared_ptr<CallbackExecutor> _executor;
         IceInternal::TimerPtr _timer;
         std::chrono::milliseconds _retryDelay;
+        std::chrono::milliseconds _retryTimeout;
         int _retryMultiplier;
         int _retryCount;
 

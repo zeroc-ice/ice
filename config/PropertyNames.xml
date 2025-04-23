@@ -411,6 +411,7 @@
         <property name="Node.RetryCount" default="6" languages="cpp" />
         <property name="Node.RetryDelay" default="500" languages="cpp" />
         <property name="Node.RetryMultiplier" default="2" languages="cpp" />
+        <property name="Node.RetryTimeout" default="10000" languages="cpp" />
         <property name="Node.Server" class="ObjectAdapter" languages="cpp" />
         <property name="Node.Server.Enabled" default="1" languages="cpp" />
         <property name="Node.Server.ForwardDiscoveryToMulticast" default="0" languages="cpp" />
