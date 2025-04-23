@@ -1593,13 +1593,9 @@ public final class InputStream {
         }
 
         protected Value newInstance(String typeId) {
-            if (typeId != Value.ice_staticId()) {
-                java.lang.Object obj = _sliceLoader.newInstance(typeId);
-                if (obj instanceof Value value) {
-                    return value;
-                }
+            if (_sliceLoader.newInstance(typeId) instanceof Value value) {
+                return value;
             }
-
             return null;
         }
 
