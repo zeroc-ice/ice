@@ -777,9 +777,9 @@ SessionI::scheduleRetryTimeout(NodePrx node)
 {
     lock_guard<mutex> lock(_mutex);
     _nextRetryAttemptTask = make_shared<IceInternal::InlineTimerTask>(
-        [self = shared_from_this(), node]
+        [self = shared_from_this(), node = std::move(node)]
         {
-            if (!self->retry(node, nullptr, true))
+            if (!self->retry(std::move(node), nullptr, true))
             {
                 // No more retries discard the session.
                 self->remove();
