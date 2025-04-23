@@ -121,7 +121,8 @@ Ice::InputStream::InputStream(
 }
 
 Ice::InputStream::InputStream(InputStream&& other) noexcept
-    : InputStream{other._instance, other._encoding, std::move(other), nullptr} // only moves (and resets) the base class
+    // only moves (and resets) the base class
+    : InputStream{other._instance, other._encoding, std::move(other), other._sliceLoader}
 {
     _closure = other._closure;
     _startSeq = other._startSeq;
