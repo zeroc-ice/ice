@@ -185,8 +185,6 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         volatile VALUE progName = callRuby(rb_gv_get, "$0");
         seq.insert(seq.begin(), getString(progName));
 
-        data.compactIdResolver = [](int id) { return IceRuby::resolveCompactId(id); };
-
         ValueFactoryManagerPtr valueFactoryManager = ValueFactoryManager::create();
         // Prevent the Ruby GC from prematurely releasing the Ruby object held by ValueFactoryManager before the
         // communicator is created.
