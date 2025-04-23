@@ -35,7 +35,7 @@ IcePy::DefaultSliceLoader::newClassInstance(string_view typeId) const
     auto* type = reinterpret_cast<PyTypeObject*>(info->pythonType);
     PyObjectHandle emptyArgs{PyTuple_New(0)};
     PyObjectHandle obj{type->tp_new(type, emptyArgs.get(), nullptr)};
-    if (!obj.get())
+    if (!obj)
     {
         assert(PyErr_Occurred());
         throw AbortMarshaling();
