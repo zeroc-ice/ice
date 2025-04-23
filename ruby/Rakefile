@@ -84,7 +84,11 @@ task :generate_sources do
 
     # Define source Slice directories included in the gem.
     ice_slice_sources = [
+        "../slice/Glacier2",
         "../slice/Ice",
+        "../slice/IceBox",
+        "../slice/IceGrid",
+        "../slice/IceStorm",
     ]
 
     for source_dir in ice_slice_sources do
