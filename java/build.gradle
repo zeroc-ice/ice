@@ -48,7 +48,9 @@ subprojects {
 
     // We want Checkstyle to generally run after Rewrite and to exclude files generated from Slice.
     tasks.withType(Checkstyle) {
-        dependsOn(rewriteDryRun)
+        task ->
+            rewriteDryRun.dependsOn(task)
+            rewriteRun.dependsOn(task)
         exclude(
             '**/generated/**'
         )

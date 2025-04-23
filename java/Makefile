@@ -21,7 +21,7 @@ ifneq ($(install_bindir),)
 endif
 
 all:
-	$(GRADLE) $(GRADLEARGS) build -x rewriteDryRun -x checkstyle
+	$(GRADLE) $(GRADLEARGS) build
 
 tests:
 	$(GRADLE) $(GRADLEARGS) :test:assemble
