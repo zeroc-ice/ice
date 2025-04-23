@@ -161,6 +161,14 @@ include(CMakeFindDependencyMacro)
 find_package(Threads REQUIRED QUIET)
 
 add_ice_library(Ice Threads::Threads)
+if(WIN32)
+  # Bzip2 is included in the Ice NuGet package and is a runtime dependency of Ice.
+  # This property can be used to copy the correct DLLs to the target directory at build time.
+  set_property(TARGET Ice::Ice PROPERTY ICE_RUNTIME_DLLS
+    "$<$<CONFIG:Debug>:${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Debug/bzip2d.dll>"
+    "$<$<CONFIG:Release>:${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Release/bzip2.dll>"
+  )
+endif()
 add_ice_library(DataStorm Ice::Ice)
 add_ice_library(Glacier2 Ice::Ice)
 add_ice_library(IceBox Ice::Ice)
