@@ -721,16 +721,24 @@ public final class Instance {
             }
 
             // Built-in modules loader.
-            sliceLoader.add(
-                new ModuleToPackageSliceLoader(
-                    Map.of(
-                        "::Glacier2", "com.zeroc.Glacier2",
-                        "::Ice", "com.zeroc.Ice",
-                        "::IceMX", "com.zeroc.Ice.IceMX",
-                        "::IceBox", "com.zeroc.IceBox",
-                        "::IceGrid", "com.zeroc.IceGrid",
-                        "::IceStorm", "com.zeroc.IceStorm"),
-                    _initData.classLoader));
+            var builtInModulesLoader = new ModuleToPackageSliceLoader(
+                Map.of(
+                    "::Glacier2", "com.zeroc.Glacier2",
+                    "::Ice", "com.zeroc.Ice",
+                    "::IceMX", "com.zeroc.Ice.IceMX",
+                    "::IceBox", "com.zeroc.IceBox",
+                    "::IceGrid", "com.zeroc.IceGrid",
+                    "::IceStorm", "com.zeroc.IceStorm"),
+                _initData.classLoader);
+
+            // We decorate builtInModulesLoader because we don't want to map ::Ice::Object to com.zeroc.Ice.Object.
+            sliceLoader.add(typeId -> {
+                if ("::Ice::Object".equals(typeId)) {
+                    return null;
+                } else {
+                    return builtInModulesLoader.newInstance(typeId);
+                }
+            });
 
             // Empty package prefix: module ::VisitorCenter maps to package VisitorCenter.
             sliceLoader.add(new DefaultPackageSliceLoader("", _initData.classLoader));
@@ -798,10 +806,6 @@ public final class Instance {
             _endpointFactoryManager.add(new WSEndpointFactory(wssProtocol, SSLEndpointType.value));
 
             _pluginManager = new PluginManagerI(communicator, this);
-
-            if (_initData.valueFactoryManager == null) {
-                _initData.valueFactoryManager = new ValueFactoryManagerI();
-            }
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
 

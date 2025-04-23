@@ -70,9 +70,6 @@ public final class InitializationData implements Cloneable {
     /** The batch request interceptor. */
     public BatchRequestInterceptor batchRequestInterceptor;
 
-    /** The value factory manager. */
-    public ValueFactoryManager valueFactoryManager;
-
     /**
      * The SSL engine factory used to configure the client-side ssl transport. If non-null all the
      * Ice.SSL configuration properties are ignored, and any SSL configuration must be done through

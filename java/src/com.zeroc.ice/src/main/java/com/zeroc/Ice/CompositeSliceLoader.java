@@ -3,13 +3,23 @@
 package com.zeroc.Ice;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Implements SliceLoader by combining multiple SliceLoaders.
  */
 final public class CompositeSliceLoader implements SliceLoader {
-    private final List<SliceLoader> _loaders = new ArrayList<>();
+    private final List<SliceLoader> _loaders;
+
+    /**
+     * Creates a CompositeSliceLoader that combines the given SliceLoaders.
+     *
+     * @param loaders The initial Slice loaders.
+     */
+    public CompositeSliceLoader(SliceLoader... loaders) {
+        _loaders = new ArrayList<>(Arrays.asList(loaders));
+    }
 
     /**
      * Adds a SliceLoader to this CompositeSliceLoader.

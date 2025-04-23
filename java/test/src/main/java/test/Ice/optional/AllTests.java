@@ -9,9 +9,9 @@ import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.OperationMode;
 import com.zeroc.Ice.OptionalFormat;
 import com.zeroc.Ice.OutputStream;
+import com.zeroc.Ice.SliceLoader;
 import com.zeroc.Ice.Util;
 import com.zeroc.Ice.Value;
-import com.zeroc.Ice.ValueFactory;
 
 import test.TestHelper;
 import test.Ice.optional.Test.A;
@@ -64,12 +64,9 @@ public class AllTests {
         T value;
     }
 
-    public static InitialPrx allTests(TestHelper helper, boolean collocated) {
+    public static InitialPrx allTests(TestHelper helper, CustomSliceLoader customSliceLoader) {
         PrintWriter out = helper.getWriter();
         Communicator communicator = helper.communicator();
-
-        FactoryI factory = new FactoryI();
-        communicator.getValueFactoryManager().add(factory, "");
 
         out.print("testing stringToProxy... ");
         out.flush();
@@ -356,7 +353,7 @@ public class AllTests {
         // any of the optional members. This ensures the optional members
         // are skipped even if the receiver knows nothing about them.
         //
-        factory.setEnabled(true);
+        customSliceLoader.setEnabled(true);
         OutputStream os = new OutputStream(communicator);
         os.startEncapsulation();
         os.writeValue(oo1);
@@ -384,7 +381,7 @@ public class AllTests {
         in.readValue(v -> cb.value = v, TestObjectReader.class);
         in.endEncapsulation();
         test(cb.value != null);
-        factory.setEnabled(false);
+        customSliceLoader.setEnabled(false);
 
         G g = new G();
         g.setGg1Opt(new G1("gg1Opt"));
@@ -435,7 +432,7 @@ public class AllTests {
         test(mc.getFss().length == 300);
         test(mc.getIfsd().size() == 300);
 
-        factory.setEnabled(true);
+        customSliceLoader.setEnabled(true);
         os = new OutputStream(communicator);
         os.startEncapsulation();
         os.writeValue(mc);
@@ -448,7 +445,7 @@ public class AllTests {
         in.readValue(v -> cb.value = v, TestObjectReader.class);
         in.endEncapsulation();
         test(cb.value != null);
-        factory.setEnabled(false);
+        customSliceLoader.setEnabled(false);
 
         out.println("ok");
 
@@ -472,7 +469,7 @@ public class AllTests {
             test(b2.getMc() == 12);
             test(b2.getMd() == 13);
 
-            factory.setEnabled(true);
+            customSliceLoader.setEnabled(true);
             os = new OutputStream(communicator);
             os.startEncapsulation();
             os.writeValue(b);
@@ -486,7 +483,7 @@ public class AllTests {
             in.readValue(v -> cbv.value = v);
             in.endEncapsulation();
             test(cbv.value != null);
-            factory.setEnabled(false);
+            customSliceLoader.setEnabled(false);
         }
         out.println("ok");
 
@@ -501,7 +498,7 @@ public class AllTests {
             F rf = (F) initial.pingPong(f);
             test(rf.fse.equals(rf.getFsf()));
 
-            factory.setEnabled(true);
+            customSliceLoader.setEnabled(true);
             os = new OutputStream(communicator);
             os.startEncapsulation();
             os.writeValue(f);
@@ -512,7 +509,7 @@ public class AllTests {
             final Wrapper<F> w = new Wrapper<>();
             in.readValue(v -> w.value = v.getF(), FObjectReader.class);
             in.endEncapsulation();
-            factory.setEnabled(false);
+            customSliceLoader.setEnabled(false);
             test(w.value.fse != null && !w.value.hasFsf());
         }
         out.println("ok");
@@ -544,7 +541,7 @@ public class AllTests {
                     os.writeValue(c);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    factory.setEnabled(true);
+                    customSliceLoader.setEnabled(true);
                     inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
                     test(inv.returnValue);
                     in = new InputStream(communicator, inv.outParams);
@@ -553,11 +550,11 @@ public class AllTests {
                     in.readValue(v -> ccb.value = v, CObjectReader.class);
                     in.endEncapsulation();
                     test(ccb.value != null);
-                    factory.setEnabled(false);
+                    customSliceLoader.setEnabled(false);
                 }
 
                 {
-                    factory.setEnabled(true);
+                    customSliceLoader.setEnabled(true);
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     Value d = new DObjectWriter();
@@ -573,7 +570,7 @@ public class AllTests {
                     in.endEncapsulation();
                     test(dcb.value != null);
                     dcb.value.check();
-                    factory.setEnabled(false);
+                    customSliceLoader.setEnabled(false);
                 }
             }
             out.println("ok");
@@ -1978,28 +1975,22 @@ public class AllTests {
         private F _f;
     }
 
-    private static class FactoryI implements ValueFactory {
+    public static class CustomSliceLoader implements SliceLoader {
         @Override
-        public Value create(String typeId) {
+        public java.lang.Object newInstance(String typeId) {
             if (!_enabled) {
                 return null;
             }
 
-            if (typeId.equals(OneOptional.ice_staticId())) {
-                return new TestObjectReader();
-            } else if (typeId.equals(MultiOptional.ice_staticId())) {
-                return new TestObjectReader();
-            } else if (typeId.equals(B.ice_staticId())) {
-                return new BObjectReader();
-            } else if (typeId.equals(C.ice_staticId())) {
-                return new CObjectReader();
-            } else if ("::Test::D".equals(typeId)) {
-                return new DObjectReader();
-            } else if ("::Test::F".equals(typeId)) {
-                return new FObjectReader();
-            }
-
-            return null;
+            return switch (typeId) {
+                case "::Test::OneOptional" -> new TestObjectReader();
+                case "::Test::MultiOptional" -> new TestObjectReader();
+                case "::Test::B" -> new BObjectReader();
+                case "::Test::C" -> new CObjectReader();
+                case "::Test::D" -> new DObjectReader();
+                case "::Test::F" -> new FObjectReader();
+                default -> null;
+            };
         }
 
         void setEnabled(boolean enabled) {

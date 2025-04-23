@@ -102,9 +102,6 @@ public final class InputStream {
 
         // Everything below is cached from instance.
         _classGraphDepthMax = _instance.classGraphDepthMax();
-        _valueFactoryManager = _instance.initializationData().valueFactoryManager;
-
-        assert (_valueFactoryManager != null);
     }
 
     /**
@@ -1350,19 +1347,8 @@ public final class InputStream {
      * @throws UserException The user exception that was unmarshaled.
      */
     public void throwException() throws UserException {
-        throwException(null);
-    }
-
-    /**
-     * Extracts a user exception from the stream and throws it. The caller can supply a factory to
-     * instantiate exception instances.
-     *
-     * @param factory The user exception factory, or null to use the stream's default behavior.
-     * @throws UserException The user exception that was unmarshaled.
-     */
-    public void throwException(UserExceptionFactory factory) throws UserException {
         initEncaps();
-        _encapsStack.decoder.throwException(factory);
+        _encapsStack.decoder.throwException();
     }
 
     private boolean readOptImpl(int readTag, OptionalFormat expectedFormat) {
@@ -1528,11 +1514,7 @@ public final class InputStream {
     }
 
     private UserException createUserException(String id) {
-        java.lang.Object obj = _instance.sliceLoader().newInstance(id);
-        if (obj instanceof UserException userEx) {
-            return userEx;
-        }
-        return null;
+        return (UserException)_instance.sliceLoader().newInstance(id);
     }
 
     private final Instance _instance;
@@ -1558,15 +1540,10 @@ public final class InputStream {
             public int classGraphDepth;
         }
 
-        EncapsDecoder(
-                InputStream stream,
-                int classGraphDepthMax,
-                ValueFactoryManager f,
-                SliceLoader sliceLoader) {
+        EncapsDecoder(InputStream stream, int classGraphDepthMax, SliceLoader sliceLoader) {
             _stream = stream;
             _classGraphDepthMax = classGraphDepthMax;
             _classGraphDepth = 0;
-            _valueFactoryManager = f;
             _sliceLoader = sliceLoader;
             _typeIdIndex = 0;
             _unmarshaledMap = new TreeMap<>();
@@ -1574,7 +1551,7 @@ public final class InputStream {
 
         abstract void readValue(Consumer<Value> cb);
 
-        abstract void throwException(UserExceptionFactory factory) throws UserException;
+        abstract void throwException() throws UserException;
 
         abstract void startInstance(SliceType type);
 
@@ -1612,34 +1589,7 @@ public final class InputStream {
         }
 
         protected Value newInstance(String typeId) {
-            //
-            // Try to find a factory registered for the specific type.
-            //
-            ValueFactory userFactory = _valueFactoryManager.find(typeId);
-            Value v = null;
-            if (userFactory != null) {
-                v = userFactory.create(typeId);
-            }
-
-            //
-            // If that fails, invoke the default factory if one has been registered.
-            //
-            if (v == null) {
-                userFactory = _valueFactoryManager.find("");
-                if (userFactory != null) {
-                    v = userFactory.create(typeId);
-                }
-            }
-
-            // Last chance: try to instantiate with the Slice loader.
-            if (v == null && typeId != Value.ice_staticId()) {
-                java.lang.Object obj = _sliceLoader.newInstance(typeId);
-                if (obj instanceof Value value) {
-                    v = value;
-                }
-            }
-
-            return v;
+            return (Value)_sliceLoader.newInstance(typeId);
         }
 
         protected void addPatchEntry(int index, Consumer<Value> cb) {
@@ -1737,8 +1687,7 @@ public final class InputStream {
         protected final InputStream _stream;
         protected final int _classGraphDepthMax;
         protected int _classGraphDepth;
-        protected ValueFactoryManager _valueFactoryManager;
-        protected SliceLoader _sliceLoader;
+        protected final SliceLoader _sliceLoader;
 
         //
         // Encapsulation attributes for value unmarshaling.
@@ -1754,9 +1703,8 @@ public final class InputStream {
         EncapsDecoder10(
                 InputStream stream,
                 int classGraphDepthMax,
-                ValueFactoryManager f,
                 SliceLoader sliceLoader) {
-            super(stream, classGraphDepthMax, f, sliceLoader);
+            super(stream, classGraphDepthMax, sliceLoader);
             _sliceType = SliceType.NoSlice;
         }
 
@@ -1779,7 +1727,7 @@ public final class InputStream {
         }
 
         @Override
-        void throwException(UserExceptionFactory factory) throws UserException {
+        void throwException() throws UserException {
             assert (_sliceType == SliceType.NoSlice);
 
             //
@@ -1800,22 +1748,7 @@ public final class InputStream {
             startSlice();
             final String mostDerivedId = _typeId;
             while (true) {
-                UserException userEx = null;
-
-                //
-                // Use a factory if one was provided.
-                //
-                if (factory != null) {
-                    try {
-                        factory.createAndThrow(_typeId);
-                    } catch (UserException ex) {
-                        userEx = ex;
-                    }
-                }
-
-                if (userEx == null) {
-                    userEx = _stream.createUserException(_typeId);
-                }
+                UserException userEx = _stream.createUserException(_typeId);
 
                 //
                 // We found the exception.
@@ -2012,9 +1945,8 @@ public final class InputStream {
         EncapsDecoder11(
                 InputStream stream,
                 int classGraphDepthMax,
-                ValueFactoryManager f,
                 SliceLoader sliceLoader) {
-            super(stream, classGraphDepthMax, f, sliceLoader);
+            super(stream, classGraphDepthMax, sliceLoader);
             _current = null;
             _valueIdIndex = 1;
         }
@@ -2052,7 +1984,7 @@ public final class InputStream {
         }
 
         @Override
-        void throwException(UserExceptionFactory factory) throws UserException {
+        void throwException() throws UserException {
             assert (_current == null);
 
             push(SliceType.ExceptionSlice);
@@ -2063,22 +1995,7 @@ public final class InputStream {
             startSlice();
             final String mostDerivedId = _current.typeId;
             while (true) {
-                UserException userEx = null;
-
-                //
-                // Use a factory if one was provided.
-                //
-                if (factory != null) {
-                    try {
-                        factory.createAndThrow(_current.typeId);
-                    } catch (UserException ex) {
-                        userEx = ex;
-                    }
-                }
-
-                if (userEx == null) {
-                    userEx = _stream.createUserException(_current.typeId);
-                }
+                UserException userEx = _stream.createUserException(_current.typeId);
 
                 //
                 // We found the exception.
@@ -2517,11 +2434,11 @@ public final class InputStream {
             if (_encapsStack.encoding_1_0) {
                 _encapsStack.decoder =
                     new EncapsDecoder10(
-                        this, _classGraphDepthMax, _valueFactoryManager, _instance.sliceLoader());
+                        this, _classGraphDepthMax, _instance.sliceLoader());
             } else {
                 _encapsStack.decoder =
                     new EncapsDecoder11(
-                        this, _classGraphDepthMax, _valueFactoryManager, _instance.sliceLoader());
+                        this, _classGraphDepthMax, _instance.sliceLoader());
             }
         }
     }
@@ -2569,8 +2486,6 @@ public final class InputStream {
 
     private int _startSeq = -1;
     private int _minSeqSize;
-
-    private final ValueFactoryManager _valueFactoryManager;
 
     private static final String END_OF_BUFFER_MESSAGE =
         "Attempting to unmarshal past the end of the buffer.";
