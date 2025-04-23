@@ -2,6 +2,7 @@
 
 #include "Communicator.h"
 #include "BatchRequestInterceptor.h"
+#include "DefaultSliceLoader.h"
 #include "Executor.h"
 #include "Future.h"
 #include "Ice/DisableWarnings.h"
@@ -151,6 +152,8 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
         // We always supply our own implementation of ValueFactoryManager.
         data.valueFactoryManager = ValueFactoryManager::create();
+
+        data.sliceLoader = make_shared<DefaultSliceLoader>();
 
         if (!data.properties)
         {

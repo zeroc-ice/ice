@@ -45,7 +45,7 @@ IcePy::ValueFactoryManager::create()
     return vfm;
 }
 
-IcePy::ValueFactoryManager::ValueFactoryManager() : _defaultFactory{make_shared<DefaultValueFactory>()} {}
+IcePy::ValueFactoryManager::ValueFactoryManager() = default;
 
 void
 IcePy::ValueFactoryManager::add(Ice::ValueFactory, string_view)
@@ -65,10 +65,6 @@ IcePy::ValueFactoryManager::find(string_view typeId) const noexcept
         if (p != _customFactories.end())
         {
             factory = p->second;
-        }
-        else if (typeId.empty())
-        {
-            factory = _defaultFactory;
         }
     }
 
@@ -174,36 +170,6 @@ PyObject*
 IcePy::CustomValueFactory::getValueFactory() const
 {
     return Py_NewRef(_valueFactory);
-}
-
-shared_ptr<Ice::Value>
-IcePy::DefaultValueFactory::create(std::string_view id)
-{
-    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-
-    //
-    // Get the type information.
-    //
-    ValueInfoPtr info = getValueInfo(id);
-
-    if (!info)
-    {
-        return nullptr;
-    }
-
-    //
-    // Instantiate the object.
-    //
-    auto* type = reinterpret_cast<PyTypeObject*>(info->pythonType);
-    PyObjectHandle emptyArgs{PyTuple_New(0)};
-    PyObjectHandle obj{type->tp_new(type, emptyArgs.get(), nullptr)};
-    if (!obj.get())
-    {
-        assert(PyErr_Occurred());
-        throw AbortMarshaling();
-    }
-
-    return make_shared<ValueReader>(obj.get(), info);
 }
 
 extern "C" ValueFactoryManagerObject*
