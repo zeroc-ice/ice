@@ -1514,11 +1514,7 @@ public final class InputStream {
     }
 
     private UserException createUserException(String id) {
-        java.lang.Object obj = _instance.sliceLoader().newInstance(id);
-        if (obj instanceof UserException userEx) {
-            return userEx;
-        }
-        return null;
+        return (UserException)_instance.sliceLoader().newInstance(id);
     }
 
     private final Instance _instance;
@@ -1593,10 +1589,7 @@ public final class InputStream {
         }
 
         protected Value newInstance(String typeId) {
-            if (_sliceLoader.newInstance(typeId) instanceof Value value) {
-                return value;
-            }
-            return null;
+            return (Value)_sliceLoader.newInstance(typeId);
         }
 
         protected void addPatchEntry(int index, Consumer<Value> cb) {
