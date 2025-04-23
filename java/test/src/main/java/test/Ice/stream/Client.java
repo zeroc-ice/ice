@@ -85,7 +85,7 @@ public class Client extends TestHelper {
     private static class CustomSliceLoader implements SliceLoader {
         private boolean _useReader;
 
-        public void setUseReader(boolean value) {
+        public void useReader(boolean value) {
             _useReader = value;
         }
 
@@ -569,7 +569,7 @@ public class Client extends TestHelper {
                 out.writePendingValues();
                 byte[] data = out.finished();
                 test(writer.called);
-                customSliceLoader.setUseReader(true);
+                customSliceLoader.useReader(true);
                 in = new InputStream(communicator, data);
                 final Wrapper<TestObjectReader> cb = new Wrapper<>();
                 in.readValue(value -> cb.obj = value, TestObjectReader.class);
@@ -579,7 +579,7 @@ public class Client extends TestHelper {
                 test(reader.called);
                 test(reader.obj != null);
                 test(reader.obj.s.e == MyEnum.enum2);
-                customSliceLoader.setUseReader(false);
+                customSliceLoader.useReader(false);
             }
 
             {
