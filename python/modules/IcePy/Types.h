@@ -659,8 +659,6 @@ namespace IcePy
         PyObjectHandle _ex;
     };
 
-    std::string resolveCompactId(std::int32_t id);
-
     ValueInfoPtr lookupValueInfo(std::string_view);
     ExceptionInfoPtr lookupExceptionInfo(std::string_view);
 

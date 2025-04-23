@@ -176,8 +176,6 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         return -1;
     }
 
-    data.compactIdResolver = resolveCompactId;
-
     // Always accept cycles in Python
     data.properties->setProperty("Ice.AcceptClassCycles", "1");
 
