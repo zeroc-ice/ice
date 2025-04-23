@@ -27,9 +27,6 @@ using namespace IceInternal;
 using ValueInfoMap = map<string, ValueInfoPtr, std::less<>>;
 static ValueInfoMap valueInfoMap;
 
-using CompactIdMap = map<int32_t, ValueInfoPtr>;
-static CompactIdMap compactIdMap;
-
 using ProxyInfoMap = map<string, ProxyInfoPtr, std::less<>>;
 static ProxyInfoMap proxyInfoMap;
 
@@ -3721,20 +3718,6 @@ IcePy::ExceptionReader::getException() const
 }
 
 //
-// IdResolver
-//
-string
-IcePy::resolveCompactId(int32_t id)
-{
-    auto p = compactIdMap.find(id);
-    if (p != compactIdMap.end())
-    {
-        return p->second->id;
-    }
-    return {};
-}
-
-//
 // lookupValueInfo()
 //
 IcePy::ValueInfoPtr
@@ -4112,12 +4095,12 @@ IcePy_defineValue(PyObject*, PyObject* args)
 
     if (info->compactId != -1)
     {
-        auto q = compactIdMap.find(info->compactId);
-        if (q != compactIdMap.end())
+        // Insert a second entry for the compact ID.
+        string compactIdStr = to_string(info->compactId);
+        if (!lookupValueInfo(compactIdStr))
         {
-            compactIdMap.erase(q);
+            addValueInfo(compactIdStr, info);
         }
-        compactIdMap.insert(CompactIdMap::value_type(info->compactId, info));
     }
 
     return r;

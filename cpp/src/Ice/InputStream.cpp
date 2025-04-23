@@ -66,46 +66,63 @@ IceInternal::Ex::throwMarshalException(const char* file, int line, string reason
     throw Ice::MarshalException{file, line, std::move(reason)};
 }
 
-Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding) : InputStream{instance, encoding, Buffer{}}
+Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, SliceLoaderPtr sliceLoader)
+    : InputStream{instance, encoding, Buffer{}, std::move(sliceLoader)}
 {
 }
 
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const vector<byte>& v)
+Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const vector<byte>& v, SliceLoaderPtr sliceLoader)
     : InputStream{
           getInstance(communicator).get(),
           getInstance(communicator)->defaultsAndOverrides()->defaultEncoding,
-          Buffer{v}}
+          Buffer{v},
+          std::move(sliceLoader)}
 {
 }
 
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator, pair<const byte*, const byte*> p)
+Ice::InputStream::InputStream(
+    const CommunicatorPtr& communicator,
+    pair<const byte*, const byte*> p,
+    SliceLoaderPtr sliceLoader)
     : InputStream{
           getInstance(communicator).get(),
           getInstance(communicator)->defaultsAndOverrides()->defaultEncoding,
-          Buffer{p.first, p.second}}
-{
-}
-
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator, EncodingVersion encoding, const vector<byte>& v)
-    : InputStream{getInstance(communicator).get(), encoding, Buffer{v}}
+          Buffer{p.first, p.second},
+          std::move(sliceLoader)}
 {
 }
 
 Ice::InputStream::InputStream(
     const CommunicatorPtr& communicator,
     EncodingVersion encoding,
-    pair<const byte*, const byte*> p)
-    : InputStream{getInstance(communicator).get(), encoding, Buffer{p.first, p.second}}
+    const vector<byte>& v,
+    SliceLoaderPtr sliceLoader)
+    : InputStream{getInstance(communicator).get(), encoding, Buffer{v}, std::move(sliceLoader)}
 {
 }
 
-Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, Buffer& buf, bool adopt)
-    : InputStream{instance, encoding, Buffer{buf, adopt}}
+Ice::InputStream::InputStream(
+    const CommunicatorPtr& communicator,
+    EncodingVersion encoding,
+    pair<const byte*, const byte*> p,
+    SliceLoaderPtr sliceLoader)
+    : InputStream{getInstance(communicator).get(), encoding, Buffer{p.first, p.second}, std::move(sliceLoader)}
+{
+}
+
+Ice::InputStream::InputStream(
+    Instance* instance,
+    EncodingVersion encoding,
+    Buffer& buf,
+    bool adopt,
+    SliceLoaderPtr sliceLoader)
+    : InputStream{instance, encoding, Buffer{buf, adopt}, std::move(sliceLoader)}
 {
 }
 
 Ice::InputStream::InputStream(InputStream&& other) noexcept
-    : InputStream{other._instance, other._encoding, std::move(other)} // only moves (and resets) the base class
+    // only moves (and resets) the base class
+    : InputStream{other._instance, other._encoding, std::move(other), other._sliceLoader}
 {
     _closure = other._closure;
     _startSeq = other._startSeq;
@@ -1034,18 +1051,16 @@ Ice::InputStream::read(vector<wstring>& v)
     }
 }
 
-Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, Buffer&& buf)
+Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, Buffer&& buf, SliceLoaderPtr sliceLoader)
     : Buffer(std::move(buf)),
       _instance(instance),
       _encoding(encoding),
-      _currentEncaps(nullptr),
       _classGraphDepthMax(instance->classGraphDepthMax()),
-      _closure(nullptr),
-      _startSeq(-1),
-      _minSeqSize(0),
-      _valueFactoryManager(instance->initializationData().valueFactoryManager)
+      _valueFactoryManager(instance->initializationData().valueFactoryManager),
+      _sliceLoader{sliceLoader ? std::move(sliceLoader) : instance->sliceLoader()}
 {
     assert(_valueFactoryManager);
+    assert(_sliceLoader);
 }
 
 ReferencePtr
@@ -1373,7 +1388,7 @@ Ice::InputStream::EncapsDecoder::newInstance(string_view typeId)
 
     if (!v)
     {
-        v = _stream->instance()->sliceLoader()->newClassInstance(typeId);
+        v = _stream->_sliceLoader->newClassInstance(typeId);
     }
 
     return v;
@@ -1557,7 +1572,7 @@ Ice::InputStream::EncapsDecoder10::throwException(UserExceptionFactory exception
         //
         if (!exceptionFactory)
         {
-            std::exception_ptr exceptionPtr = _stream->instance()->sliceLoader()->newExceptionInstance(_typeId);
+            std::exception_ptr exceptionPtr = _stream->_sliceLoader->newExceptionInstance(_typeId);
 
             if (exceptionPtr)
             {
@@ -1852,8 +1867,7 @@ Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory exception
         //
         if (!exceptionFactory)
         {
-            std::exception_ptr exceptionPtr =
-                _stream->instance()->sliceLoader()->newExceptionInstance(_current->typeId);
+            std::exception_ptr exceptionPtr = _stream->_sliceLoader->newExceptionInstance(_current->typeId);
 
             if (exceptionPtr)
             {
