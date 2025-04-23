@@ -758,21 +758,7 @@ SessionI::retry(NodePrx node, exception_ptr exception, bool timedOut)
         _retryTask = make_shared<IceInternal::InlineTimerTask>(
             [node = std::move(node), self = shared_from_this()]
             {
-                {
-                    lock_guard<mutex> lock(self->_mutex);
-                    self->_nextRetryAttemptTask = make_shared<IceInternal::InlineTimerTask>(
-                        [self, node]
-                        {
-                            if (!self->retry(node, nullptr, true))
-                            {
-                                // No more retries discard the session.
-                                self->remove();
-                            }
-                        });
-                    // Schedule the next retry attempt if the current attempt doesn't succeed before retry timeout
-                    // expires.
-                    self->_instance->scheduleTimerTask(self->_nextRetryAttemptTask, self->_instance->getRetryTimeout());
-                }
+                self->scheduleRetryTimeout(node);
                 self->reconnect(node);
             });
 
@@ -784,6 +770,24 @@ SessionI::retry(NodePrx node, exception_ptr exception, bool timedOut)
         _instance->scheduleTimerTask(_retryTask, delay);
     }
     return true;
+}
+
+void
+SessionI::scheduleRetryTimeout(NodePrx node)
+{
+    lock_guard<mutex> lock(_mutex);
+    _nextRetryAttemptTask = make_shared<IceInternal::InlineTimerTask>(
+        [self = shared_from_this(), node]
+        {
+            if (!self->retry(node, nullptr, true))
+            {
+                // No more retries discard the session.
+                self->remove();
+            }
+        });
+    // Schedule the next retry attempt if the current attempt doesn't succeed before retry timeout
+    // expires.
+    _instance->scheduleTimerTask(_nextRetryAttemptTask, _instance->getRetryTimeout());
 }
 
 void

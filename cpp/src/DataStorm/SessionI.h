@@ -393,6 +393,10 @@ namespace DataStormI
         /// @return A vector containing the topics that match the specified name.
         virtual std::vector<std::shared_ptr<TopicI>> getTopics(const std::string& name) const = 0;
 
+        /// Schedules a retry task to attempt reconnection if a connection attempt doesn't succeed within the retry
+        /// timeout.
+        void scheduleRetryTimeout(DataStormContract::NodePrx node);
+
         virtual void remove() = 0;
 
         const std::shared_ptr<Instance> _instance;
