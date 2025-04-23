@@ -29,8 +29,7 @@ namespace IceInternal
         [[nodiscard]] Ice::ValuePtr newClassInstance(std::string_view typeId) const final;
         [[nodiscard]] std::exception_ptr newExceptionInstance(std::string_view typeId) const final;
 
-        template<class T, std::enable_if_t<std::is_base_of_v<Ice::Value, T>, bool> = true>
-        void addClass(int compactId)
+        template<class T, std::enable_if_t<std::is_base_of_v<Ice::Value, T>, bool> = true> void addClass(int compactId)
         {
             std::lock_guard lock{_mutex};
             auto p = _classFactories.find(T::ice_staticId());
@@ -86,8 +85,7 @@ namespace IceInternal
             }
         }
 
-        template<class T, std::enable_if_t<std::is_base_of_v<Ice::UserException, T>, bool> = true>
-        void addException()
+        template<class T, std::enable_if_t<std::is_base_of_v<Ice::UserException, T>, bool> = true> void addException()
         {
             std::lock_guard lock{_mutex};
             auto p = _exceptionFactories.find(T::ice_staticId());
