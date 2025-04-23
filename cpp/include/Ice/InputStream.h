@@ -11,6 +11,7 @@
 #include "Logger.h"
 #include "ReferenceF.h"
 #include "SlicedDataF.h"
+#include "SliceLoader.h"
 #include "StreamableTraits.h"
 #include "UserExceptionFactory.h"
 #include "ValueF.h"
@@ -58,30 +59,34 @@ namespace Ice
         /// Constructs an InputStream using a communicator and this communicator's default encoding version.
         /// @param communicator The communicator to use for unmarshaling tasks.
         /// @param bytes The encoded data.
-        InputStream(const CommunicatorPtr& communicator, const std::vector<std::byte>& bytes);
+        /// @param sliceLoader The Slice loader. When nullptr, use the communicator's Slice loader.
+        InputStream(const CommunicatorPtr& communicator, const std::vector<std::byte>& bytes,
+                    SliceLoaderPtr sliceLoader = nullptr);
 
-        /// @copydoc InputStream(const CommunicatorPtr&, const std::vector<std::byte>&)
-        InputStream(const CommunicatorPtr& communicator, std::pair<const std::byte*, const std::byte*> bytes);
+        /// @copydoc InputStream(const CommunicatorPtr&, const std::vector<std::byte>&, SliceLoaderPtr)
+        InputStream(const CommunicatorPtr& communicator, std::pair<const std::byte*, const std::byte*> bytes, SliceLoaderPtr sliceLoader = nullptr);
 
         /// Constructs an InputStream using a communicator and encoding version.
         /// @param communicator The communicator to use for unmarshaling tasks.
         /// @param encoding The encoding version used to encode the data to be unmarshaled.
         /// @param bytes The encoded data.
-        InputStream(const CommunicatorPtr& communicator, EncodingVersion encoding, const std::vector<std::byte>& bytes);
+        /// @param sliceLoader The Slice loader. When nullptr, use the communicator's Slice loader.
+        InputStream(const CommunicatorPtr& communicator, EncodingVersion encoding, const std::vector<std::byte>& bytes, SliceLoaderPtr sliceLoader = nullptr);
 
-        /// @copydoc InputStream(const CommunicatorPtr&, EncodingVersion, const std::vector<std::byte>&)
+        /// @copydoc InputStream(const CommunicatorPtr&, EncodingVersion, const std::vector<std::byte>&, SliceLoaderPtr)
         InputStream(
             const CommunicatorPtr& communicator,
             EncodingVersion encoding,
-            std::pair<const std::byte*, const std::byte*> bytes);
+            std::pair<const std::byte*, const std::byte*> bytes,
+            SliceLoaderPtr sliceLoader = nullptr);
 
         /// @private
         /// Constructs a stream with an empty buffer.
-        InputStream(IceInternal::Instance* instance, EncodingVersion encoding);
+        InputStream(IceInternal::Instance* instance, EncodingVersion encoding, SliceLoaderPtr sliceLoader = nullptr);
 
         /// @private
         /// Constructs a stream with the specified encoding and buffer.
-        InputStream(IceInternal::Instance* instance, EncodingVersion encoding, IceInternal::Buffer& buf, bool adopt);
+        InputStream(IceInternal::Instance* instance, EncodingVersion encoding, IceInternal::Buffer& buf, bool adopt, SliceLoaderPtr sliceLoader = nullptr);
 
         /// Move constructor.
         /// @param other The input stream to move into this input stream.
@@ -657,7 +662,7 @@ namespace Ice
 #endif
 
         // The primary constructor, called by all other constructors. It requires a non-null instance.
-        InputStream(IceInternal::Instance* instance, EncodingVersion encoding, IceInternal::Buffer&& buf);
+        InputStream(IceInternal::Instance* instance, EncodingVersion encoding, IceInternal::Buffer&& buf, SliceLoaderPtr sliceLoader);
 
         // Reads a reference from the stream; the return value can be null.
         IceInternal::ReferencePtr readReference();
@@ -909,7 +914,7 @@ namespace Ice
         //
         EncodingVersion _encoding;
 
-        Encaps* _currentEncaps;
+        Encaps* _currentEncaps{nullptr};
 
         void initEncaps();
 
@@ -918,13 +923,15 @@ namespace Ice
         // Retrieved during construction and cached.
         const size_t _classGraphDepthMax;
 
-        void* _closure;
+        void* _closure{nullptr};
 
-        int _startSeq;
-        int _minSeqSize;
+        int _startSeq{-1};
+        int _minSeqSize{0};
 
         // Retrieved from instance during construction and cached. Never null.
         const ValueFactoryManagerPtr _valueFactoryManager;
+
+        const SliceLoaderPtr _sliceLoader; // never null
 
         std::vector<std::function<void()>> _deleters;
     };

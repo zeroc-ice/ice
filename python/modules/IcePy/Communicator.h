@@ -5,6 +5,7 @@
 
 #include "Config.h"
 #include "Ice/CommunicatorF.h"
+#include "Ice/SliceLoader.h"
 
 namespace IcePy
 {
@@ -13,6 +14,7 @@ namespace IcePy
     bool initCommunicator(PyObject*);
 
     Ice::CommunicatorPtr getCommunicator(PyObject*);
+    Ice::SliceLoaderPtr getSliceLoader(const Ice::CommunicatorPtr&);
 
     PyObject* createCommunicator(const Ice::CommunicatorPtr&);
     PyObject* getCommunicatorWrapper(const Ice::CommunicatorPtr&);

@@ -153,7 +153,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         // We always supply our own implementation of ValueFactoryManager.
         data.valueFactoryManager = ValueFactoryManager::create();
 
-        data.sliceLoader = make_shared<DefaultSliceLoader>();
+        // data.sliceLoader remains null as we don't want to change the Slice loader for the Ice C++ runtime.
 
         if (!data.properties)
         {
@@ -1558,6 +1558,14 @@ IcePy::getCommunicator(PyObject* obj)
     assert(PyObject_IsInstance(obj, reinterpret_cast<PyObject*>(&CommunicatorType)));
     auto* cobj = reinterpret_cast<CommunicatorObject*>(obj);
     return *cobj->communicator;
+}
+
+Ice::SliceLoaderPtr
+IcePy::getSliceLoader(const Ice::CommunicatorPtr&)
+{
+    // For now, we just return the default Slice loader singleton. In the future, we need to return a composite loader
+    // when the user install a Slice loader written in Python in initData.
+    return DefaultSliceLoader::instance();
 }
 
 PyObject*

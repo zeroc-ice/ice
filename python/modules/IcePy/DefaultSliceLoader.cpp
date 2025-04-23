@@ -4,13 +4,23 @@
 #include "Thread.h"
 #include "Types.h"
 
+#include <cassert>
+
 using namespace std;
 using namespace IcePy;
+
+Ice::SliceLoaderPtr
+IcePy::DefaultSliceLoader::instance()
+{
+    static Ice::SliceLoaderPtr instance{new DefaultSliceLoader()};
+    return instance;
+}
 
 Ice::ValuePtr
 IcePy::DefaultSliceLoader::newClassInstance(string_view typeId) const
 {
-    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+    // The unmarshaling always runs with the GIL locked.
+    assert(PyGILState_Check());
 
     // Get the type information.
     ValueInfoPtr info =
@@ -32,4 +42,15 @@ IcePy::DefaultSliceLoader::newClassInstance(string_view typeId) const
     }
 
     return make_shared<ValueReader>(obj.get(), info);
+}
+
+std::exception_ptr
+IcePy::DefaultSliceLoader::newExceptionInstance(string_view typeId) const
+{
+    ExceptionInfoPtr info = lookupExceptionInfo(typeId);
+    if (info)
+    {
+        return make_exception_ptr<ExceptionReader>(info);
+    }
+    return nullptr;
 }

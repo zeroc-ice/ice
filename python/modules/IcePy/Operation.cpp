@@ -1221,7 +1221,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, pair<const byte*, co
     PyObjectHandle results{PyTuple_New(numResults)};
     if (results.get() && numResults > 0)
     {
-        Ice::InputStream is(_communicator, bytes);
+        Ice::InputStream is{_communicator, bytes, getSliceLoader(_communicator)};
 
         //
         // Store a pointer to a local StreamUtil object as the stream's closure.
@@ -1287,7 +1287,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, pair<const byte*, co
 PyObject*
 IcePy::Invocation::unmarshalException(const OperationPtr& op, pair<const byte*, const byte*> bytes)
 {
-    Ice::InputStream is(_communicator, bytes);
+    Ice::InputStream is{_communicator, bytes, getSliceLoader(_communicator)};
 
     //
     // Store a pointer to a local StreamUtil object as the stream's closure.
@@ -1301,15 +1301,7 @@ IcePy::Invocation::unmarshalException(const OperationPtr& op, pair<const byte*, 
 
     try
     {
-        is.throwException(
-            [](string_view id)
-            {
-                ExceptionInfoPtr info = lookupExceptionInfo(id);
-                if (info)
-                {
-                    throw ExceptionReader(info);
-                }
-            });
+        is.throwException();
     }
     catch (const ExceptionReader& r)
     {
@@ -1499,7 +1491,6 @@ IcePy::AsyncInvocation::AsyncInvocation(const Ice::ObjectPrx& prx, PyObject* pyP
       _pyProxy(Py_NewRef(pyProxy)),
       _operation(std::move(operation)),
       _twoway(prx->ice_isTwoway())
-
 {
 }
 
@@ -2139,7 +2130,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*> i
 
     if (!_op->inParams.empty())
     {
-        Ice::InputStream is(_communicator, inBytes);
+        Ice::InputStream is{_communicator, inBytes, getSliceLoader(_communicator)};
 
         //
         // Store a pointer to a local StreamUtil object as the stream's closure.
