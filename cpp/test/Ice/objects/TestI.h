@@ -30,7 +30,7 @@ public:
 class CustomSliceLoader final : public Ice::SliceLoader
 {
 public:
-    Ice::ValuePtr newClassInstance(std::string_view typeId) const final
+    [[nodiscard]] Ice::ValuePtr newClassInstance(std::string_view typeId) const final
     {
         if (typeId == "::Test::B")
         {

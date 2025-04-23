@@ -27,14 +27,14 @@ namespace Ice
         /// @return A new instance of the class identified by @p typeId, or nullptr if the implementation cannot find
         /// the corresponding class.
         /// @throws MarshalException Thrown when the corresponding class was found but its instantiation failed.
-        virtual ValuePtr newClassInstance(std::string_view typeId) const;
+        [[nodiscard]] virtual ValuePtr newClassInstance(std::string_view typeId) const;
 
         /// Creates an instance of a class mapped from a Slice exception based on a Slice type ID.
         /// @param typeId The Slice type ID.
         /// @return A new instance of the exception class identified by @p typeId, or nullptr if the implementation
         /// cannot find the corresponding class.
         /// @throws MarshalException Thrown when the corresponding class was found but its instantiation failed.
-        virtual std::exception_ptr newExceptionInstance(std::string_view typeId) const;
+        [[nodiscard]] virtual std::exception_ptr newExceptionInstance(std::string_view typeId) const;
 
     protected:
         SliceLoader() = default;
@@ -47,14 +47,14 @@ namespace Ice
     class ICE_API CompositeSliceLoader final : public SliceLoader
     {
     public:
-        virtual ~CompositeSliceLoader();
+        ~CompositeSliceLoader() final;
 
         /// Adds a SliceLoader instance to this CompositeSliceLoader.
         /// @param loader The SliceLoader to add.
         void add(SliceLoaderPtr loader) noexcept;
 
-        ValuePtr newClassInstance(std::string_view typeId) const final;
-        std::exception_ptr newExceptionInstance(std::string_view typeId) const final;
+        [[nodiscard]] ValuePtr newClassInstance(std::string_view typeId) const final;
+        [[nodiscard]] std::exception_ptr newExceptionInstance(std::string_view typeId) const final;
 
     private:
         std::vector<SliceLoaderPtr> _loaders;

@@ -4,10 +4,12 @@
 #define ICE_DEFAULT_SLICE_LOADER_H
 
 #include "SliceLoader.h"
+#include "UserException.h"
 #include <functional>
 #include <map>
 #include <mutex>
 #include <string>
+#include <type_traits>
 
 namespace IceInternal
 {
@@ -22,12 +24,13 @@ namespace IceInternal
         /// @return The single instance of DefaultSliceLoader.
         static DefaultSliceLoaderPtr instance();
 
-        virtual ~DefaultSliceLoader();
+        ~DefaultSliceLoader() final;
 
-        Ice::ValuePtr newClassInstance(std::string_view typeId) const final;
-        std::exception_ptr newExceptionInstance(std::string_view typeId) const final;
+        [[nodiscard]] Ice::ValuePtr newClassInstance(std::string_view typeId) const final;
+        [[nodiscard]] std::exception_ptr newExceptionInstance(std::string_view typeId) const final;
 
-        template<class T> void addClass(int compactId)
+        template<class T, std::enable_if_t<std::is_base_of_v<Ice::Value, T>, bool> = true>
+        void addClass(int compactId)
         {
             std::lock_guard lock{_mutex};
             auto p = _classFactories.find(T::ice_staticId());
@@ -83,7 +86,8 @@ namespace IceInternal
             }
         }
 
-        template<class T> void addException()
+        template<class T, std::enable_if_t<std::is_base_of_v<Ice::UserException, T>, bool> = true>
+        void addException()
         {
             std::lock_guard lock{_mutex};
             auto p = _exceptionFactories.find(T::ice_staticId());
