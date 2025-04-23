@@ -27,6 +27,27 @@ public:
     void ice_postUnmarshal() final;
 };
 
+class CustomSliceLoader final : public Ice::SliceLoader
+{
+public:
+    [[nodiscard]] Ice::ValuePtr newClassInstance(std::string_view typeId) const final
+    {
+        if (typeId == "::Test::B")
+        {
+            return std::make_shared<BI>();
+        }
+        else if (typeId == "::Test::C")
+        {
+            return std::make_shared<CI>();
+        }
+        else if (typeId == "::Test::D")
+        {
+            return std::make_shared<DI>();
+        }
+        return nullptr;
+    }
+};
+
 class InitialI final : public Test::Initial
 {
 public:

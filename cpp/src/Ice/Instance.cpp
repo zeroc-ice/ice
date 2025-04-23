@@ -10,6 +10,7 @@
 #include "FileUtil.h"
 #include "IPEndpointI.h" // For EndpointHostResolver
 #include "Ice/Communicator.h"
+#include "Ice/DefaultSliceLoader.h"
 #include "Ice/Initialize.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/Locator.h"
@@ -1119,6 +1120,19 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
             {
                 const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(num);
             }
+        }
+
+        // Update _initData.sliceLoader.
+        if (_initData.sliceLoader)
+        {
+            auto compositeSliceLoader = make_shared<CompositeSliceLoader>();
+            compositeSliceLoader->add(_initData.sliceLoader);
+            compositeSliceLoader->add(DefaultSliceLoader::instance());
+            _initData.sliceLoader = std::move(compositeSliceLoader);
+        }
+        else
+        {
+            _initData.sliceLoader = DefaultSliceLoader::instance();
         }
 
         string toStringModeStr = _initData.properties->getIceProperty("Ice.ToStringMode");

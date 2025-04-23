@@ -167,6 +167,7 @@
     <ClCompile Include="..\..\Communicator.cpp" />
     <ClCompile Include="..\..\CommunicatorFlushBatchAsync.cpp" />
     <ClCompile Include="..\..\Connection.cpp" />
+    <ClCompile Include="..\..\DefaultSliceLoader.cpp" />
     <ClCompile Include="..\..\Demangle.cpp" />
     <ClCompile Include="..\..\IdleTimeoutTransceiverDecorator.cpp" />
     <ClCompile Include="..\..\ImplicitContext.cpp" />
@@ -177,6 +178,7 @@
     <ClCompile Include="..\..\ProxyAsync.cpp" />
     <ClCompile Include="..\..\ProxyFunctions.cpp" />
     <ClCompile Include="..\..\RequestHandlerCache.cpp" />
+    <ClCompile Include="..\..\SliceLoader.cpp" />
     <ClCompile Include="..\..\SSL\DistinguishedName.cpp" />
     <ClCompile Include="..\..\SSL\RFC2253.cpp" />
     <ClCompile Include="..\..\SSL\SchannelEngine.cpp" />
@@ -555,7 +557,6 @@
     <ClCompile Include="..\..\EndpointFactoryManager.cpp" />
     <ClCompile Include="..\..\EndpointI.cpp" />
     <ClCompile Include="..\..\EventHandler.cpp" />
-    <ClCompile Include="..\..\FactoryTable.cpp" />
     <ClCompile Include="..\..\HttpParser.cpp" />
     <ClCompile Include="..\..\IncomingRequest.cpp" />
     <ClCompile Include="..\..\OutgoingResponse.cpp" />
@@ -971,12 +972,12 @@
     <ClInclude Include="..\..\..\..\include\Ice\ConnectionIF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\CtrlCHandler.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Current.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\DefaultSliceLoader.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Endpoint.h" />
     <ClInclude Include="..\..\..\..\include\Ice\EndpointF.h" />
     <ClInclude Include="..\..\..\..\include\Ice\EndpointSelectionType.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Exception.h" />
     <ClInclude Include="..\..\..\..\include\Ice\FacetMap.h" />
-    <ClInclude Include="..\..\..\..\include\Ice\FactoryTable.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Format.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Ice.h" />
     <ClInclude Include="..\..\..\..\include\Ice\IconvStringConverter.h" />
@@ -1013,6 +1014,7 @@
     <ClInclude Include="..\..\..\..\include\Ice\Service.h" />
     <ClInclude Include="..\..\..\..\include\Ice\SlicedData.h" />
     <ClInclude Include="..\..\..\..\include\Ice\SlicedDataF.h" />
+    <ClInclude Include="..\..\..\..\include\Ice\SliceLoader.h" />
     <ClInclude Include="..\..\..\..\include\Ice\StreamHelpers.h" />
     <ClInclude Include="..\..\..\..\include\Ice\StringConverter.h" />
     <ClInclude Include="..\..\..\..\include\Ice\TupleCompare.h" />

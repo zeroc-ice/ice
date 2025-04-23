@@ -23,14 +23,13 @@ public:
 void
 Collocated::run(int argc, char** argv)
 {
-    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-    properties->setProperty("Ice.AcceptClassCycles", "1");
-    properties->setProperty("Ice.Warn.Dispatch", "0");
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    Ice::InitializationData initData;
+    initData.properties = createTestProperties(argc, argv);
+    initData.properties->setProperty("Ice.AcceptClassCycles", "1");
+    initData.properties->setProperty("Ice.Warn.Dispatch", "0");
+    initData.sliceLoader = make_shared<CustomSliceLoader>();
 
-    communicator->getValueFactoryManager()->add(makeFactory<BI>(), "::Test::B");
-    communicator->getValueFactoryManager()->add(makeFactory<CI>(), "::Test::C");
-    communicator->getValueFactoryManager()->add(makeFactory<DI>(), "::Test::D");
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");

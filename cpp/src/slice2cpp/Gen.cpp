@@ -821,7 +821,7 @@ Slice::Gen::generate(const UnitPtr& p)
 
     // For simplicity, we include these extra headers all the time.
     C << "\n#include <Ice/AsyncResponseHandler.h>"; // for async dispatches
-    C << "\n#include <Ice/FactoryTable.h>";         // for class and exception factories
+    C << "\n#include <Ice/DefaultSliceLoader.h>";   // for class and exception unmarshaling
     C << "\n#include <Ice/OutgoingAsync.h>";        // for proxies
     C << "\n#include <algorithm>";                  // for the dispatch implementation
     C << "\n#include <array>";                      // for the dispatch implementation
@@ -856,8 +856,8 @@ Slice::Gen::generate(const UnitPtr& p)
         ForwardDeclVisitor forwardDeclVisitor(H, C, _dllExport);
         p->visit(&forwardDeclVisitor);
 
-        DefaultFactoryVisitor defaultFactoryVisitor(C);
-        p->visit(&defaultFactoryVisitor);
+        SliceLoaderVisitor sliceLoaderVisitor(C);
+        p->visit(&sliceLoaderVisitor);
 
         ProxyVisitor proxyVisitor(H, C, _dllExport);
         p->visit(&proxyVisitor);
@@ -1411,10 +1411,10 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
     }
 }
 
-Slice::Gen::DefaultFactoryVisitor::DefaultFactoryVisitor(Output& c) : C(c) {}
+Slice::Gen::SliceLoaderVisitor::SliceLoaderVisitor(Output& c) : C(c) {}
 
 bool
-Slice::Gen::DefaultFactoryVisitor::visitUnitStart(const UnitPtr& unit)
+Slice::Gen::SliceLoaderVisitor::visitUnitStart(const UnitPtr& unit)
 {
     if (unit->contains<ClassDef>() || unit->contains<Exception>())
     {
@@ -1429,50 +1429,35 @@ Slice::Gen::DefaultFactoryVisitor::visitUnitStart(const UnitPtr& unit)
 }
 
 void
-Slice::Gen::DefaultFactoryVisitor::visitUnitEnd(const UnitPtr&)
+Slice::Gen::SliceLoaderVisitor::visitUnitEnd(const UnitPtr&)
 {
     C.dec();
     C << nl << "}";
 }
 
 bool
-Slice::Gen::DefaultFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::Gen::SliceLoaderVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const string scopedName = p->mappedScoped();
     const string flatScopedName = p->mappedScoped("_");
 
-    if (!_factoryTableInitDone)
-    {
-        // Make sure the global factory table is initialized before we use it.
-        C << nl << "const IceInternal::FactoryTableInit iceC_factoryTableInit;";
-        _factoryTableInitDone = true;
-    }
-
-    C << nl << "const IceInternal::DefaultValueFactoryInit<" << scopedName << "> ";
-    C << "iceC" + flatScopedName + "_init" << "(\"" << scopedName << "\");";
-
+    C << nl << "const IceInternal::ClassInit<" << scopedName << "> iceC" << flatScopedName << "_init";
     if (p->compactId() >= 0)
     {
-        string n = "iceC" + flatScopedName + "_compactIdInit ";
-        C << nl << "const IceInternal::CompactIdInit " << n << "(\"" << scopedName << "\", " << p->compactId() << ");";
+        C << '{' << p->compactId() << '}';
     }
+    C << ';';
+
     return false;
 }
 
 bool
-Slice::Gen::DefaultFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
+Slice::Gen::SliceLoaderVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     const string scopedName = p->mappedScoped();
     const string flatScopedName = p->mappedScoped("_");
 
-    if (!_factoryTableInitDone)
-    {
-        // Make sure the global factory table is initialized before we use it.
-        C << nl << "const IceInternal::FactoryTableInit iceC_factoryTableInit;";
-        _factoryTableInitDone = true;
-    }
-    C << nl << "const IceInternal::DefaultUserExceptionFactoryInit<" << scopedName << "> ";
-    C << "iceC" + flatScopedName + "_init" << "(\"" << scopedName << "\");";
+    C << nl << "const IceInternal::ExceptionInit<" << scopedName << "> iceC" << flatScopedName << "_init;";
     return false;
 }
 

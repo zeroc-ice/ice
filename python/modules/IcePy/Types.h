@@ -4,7 +4,6 @@
 #define ICEPY_TYPES_H
 
 #include "Config.h"
-#include "Ice/FactoryTable.h"
 #include "Ice/InputStream.h"
 #include "Ice/OutputStream.h"
 #include "Ice/OutputUtil.h"
