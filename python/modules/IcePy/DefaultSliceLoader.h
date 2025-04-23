@@ -4,8 +4,8 @@
 #define ICEPY_DEFAULT_SLICE_LOADER_H
 
 #include "Config.h"
-#include "Util.h"
 #include "Ice/Ice.h"
+#include "Util.h"
 
 #include <map>
 #include <mutex>

@@ -80,7 +80,10 @@ Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const vector<
 {
 }
 
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator, pair<const byte*, const byte*> p, SliceLoaderPtr sliceLoader)
+Ice::InputStream::InputStream(
+    const CommunicatorPtr& communicator,
+    pair<const byte*, const byte*> p,
+    SliceLoaderPtr sliceLoader)
     : InputStream{
           getInstance(communicator).get(),
           getInstance(communicator)->defaultsAndOverrides()->defaultEncoding,
@@ -89,7 +92,11 @@ Ice::InputStream::InputStream(const CommunicatorPtr& communicator, pair<const by
 {
 }
 
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator, EncodingVersion encoding, const vector<byte>& v, SliceLoaderPtr sliceLoader)
+Ice::InputStream::InputStream(
+    const CommunicatorPtr& communicator,
+    EncodingVersion encoding,
+    const vector<byte>& v,
+    SliceLoaderPtr sliceLoader)
     : InputStream{getInstance(communicator).get(), encoding, Buffer{v}, std::move(sliceLoader)}
 {
 }
@@ -103,7 +110,12 @@ Ice::InputStream::InputStream(
 {
 }
 
-Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, Buffer& buf, bool adopt, SliceLoaderPtr sliceLoader)
+Ice::InputStream::InputStream(
+    Instance* instance,
+    EncodingVersion encoding,
+    Buffer& buf,
+    bool adopt,
+    SliceLoaderPtr sliceLoader)
     : InputStream{instance, encoding, Buffer{buf, adopt}, std::move(sliceLoader)}
 {
 }
@@ -1854,8 +1866,7 @@ Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory exception
         //
         if (!exceptionFactory)
         {
-            std::exception_ptr exceptionPtr =
-                _stream->_sliceLoader->newExceptionInstance(_current->typeId);
+            std::exception_ptr exceptionPtr = _stream->_sliceLoader->newExceptionInstance(_current->typeId);
 
             if (exceptionPtr)
             {

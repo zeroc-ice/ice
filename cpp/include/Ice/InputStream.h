@@ -10,8 +10,8 @@
 #include "LocalException.h"
 #include "Logger.h"
 #include "ReferenceF.h"
-#include "SlicedDataF.h"
 #include "SliceLoader.h"
+#include "SlicedDataF.h"
 #include "StreamableTraits.h"
 #include "UserExceptionFactory.h"
 #include "ValueF.h"
@@ -60,18 +60,27 @@ namespace Ice
         /// @param communicator The communicator to use for unmarshaling tasks.
         /// @param bytes The encoded data.
         /// @param sliceLoader The Slice loader. When nullptr, use the communicator's Slice loader.
-        InputStream(const CommunicatorPtr& communicator, const std::vector<std::byte>& bytes,
-                    SliceLoaderPtr sliceLoader = nullptr);
+        InputStream(
+            const CommunicatorPtr& communicator,
+            const std::vector<std::byte>& bytes,
+            SliceLoaderPtr sliceLoader = nullptr);
 
         /// @copydoc InputStream(const CommunicatorPtr&, const std::vector<std::byte>&, SliceLoaderPtr)
-        InputStream(const CommunicatorPtr& communicator, std::pair<const std::byte*, const std::byte*> bytes, SliceLoaderPtr sliceLoader = nullptr);
+        InputStream(
+            const CommunicatorPtr& communicator,
+            std::pair<const std::byte*, const std::byte*> bytes,
+            SliceLoaderPtr sliceLoader = nullptr);
 
         /// Constructs an InputStream using a communicator and encoding version.
         /// @param communicator The communicator to use for unmarshaling tasks.
         /// @param encoding The encoding version used to encode the data to be unmarshaled.
         /// @param bytes The encoded data.
         /// @param sliceLoader The Slice loader. When nullptr, use the communicator's Slice loader.
-        InputStream(const CommunicatorPtr& communicator, EncodingVersion encoding, const std::vector<std::byte>& bytes, SliceLoaderPtr sliceLoader = nullptr);
+        InputStream(
+            const CommunicatorPtr& communicator,
+            EncodingVersion encoding,
+            const std::vector<std::byte>& bytes,
+            SliceLoaderPtr sliceLoader = nullptr);
 
         /// @copydoc InputStream(const CommunicatorPtr&, EncodingVersion, const std::vector<std::byte>&, SliceLoaderPtr)
         InputStream(
@@ -86,7 +95,12 @@ namespace Ice
 
         /// @private
         /// Constructs a stream with the specified encoding and buffer.
-        InputStream(IceInternal::Instance* instance, EncodingVersion encoding, IceInternal::Buffer& buf, bool adopt, SliceLoaderPtr sliceLoader = nullptr);
+        InputStream(
+            IceInternal::Instance* instance,
+            EncodingVersion encoding,
+            IceInternal::Buffer& buf,
+            bool adopt,
+            SliceLoaderPtr sliceLoader = nullptr);
 
         /// Move constructor.
         /// @param other The input stream to move into this input stream.
@@ -662,7 +676,11 @@ namespace Ice
 #endif
 
         // The primary constructor, called by all other constructors. It requires a non-null instance.
-        InputStream(IceInternal::Instance* instance, EncodingVersion encoding, IceInternal::Buffer&& buf, SliceLoaderPtr sliceLoader);
+        InputStream(
+            IceInternal::Instance* instance,
+            EncodingVersion encoding,
+            IceInternal::Buffer&& buf,
+            SliceLoaderPtr sliceLoader);
 
         // Reads a reference from the stream; the return value can be null.
         IceInternal::ReferencePtr readReference();
