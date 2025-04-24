@@ -1,4 +1,4 @@
 # Copyright (c) ZeroC, Inc.
 
-require 'IceStorm/IceStorm'
-require 'IceStorm/Metrics'
+require 'IceStorm/IceStorm.rb'
+require 'IceStorm/Metrics.rb'

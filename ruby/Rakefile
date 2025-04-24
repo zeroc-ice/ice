@@ -125,7 +125,7 @@ task :generate_sources do
 
     # Ruby sources
     system('make generate-srcs OPTIMIZE=yes')
-    ice_ruby_sources = ["ruby", "ruby/Ice"]
+    ice_ruby_sources = ["ruby", "ruby/Glacier2", "ruby/Ice", "ruby/IceBox", "ruby/IceGrid", "ruby/IceStorm"]
     for source_dir in ice_ruby_sources do
         Dir.foreach(source_dir) do |entry|
             source_file = "#{source_dir}/#{entry}"
