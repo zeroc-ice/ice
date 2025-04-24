@@ -7,6 +7,7 @@
 #include "SlicedDataF.h"
 #include "Value.h"
 
+#include <cassert>
 #include <string>
 
 #if defined(__clang__)
@@ -23,7 +24,7 @@ namespace Ice
     /// @headerfile Ice/Ice.h
     struct SliceInfo
     {
-        /// The Slice type ID for this slice.
+        /// The Slice type ID for this slice. It's empty when the compact ID is set (not `-1`).
         const std::string typeId;
 
         /// The Slice compact type ID for this slice. No compact ID is encoded as `-1`.
@@ -59,6 +60,14 @@ namespace Ice
               hasOptionalMembers(hasOptionalMembers),
               isLastSlice(isLastSlice)
         {
+            if (compactId == -1)
+            {
+                assert(typeId.empty());
+            }
+            else
+            {
+                assert(!typeId.empty());
+            }
         }
     };
 

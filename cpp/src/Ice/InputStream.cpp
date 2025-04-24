@@ -1260,50 +1260,6 @@ Ice::InputStream::throwUnmarshalOutOfBoundsException(const char* file, int line)
     throw MarshalException{file, line, endOfBufferMessage};
 }
 
-string
-Ice::InputStream::resolveCompactId(int id) const
-{
-    string typeId;
-    const std::function<std::string(int)>& compactIdResolver = _instance->initializationData().compactIdResolver;
-
-    if (compactIdResolver)
-    {
-        try
-        {
-            typeId = compactIdResolver(id);
-        }
-        catch (const LocalException&)
-        {
-            throw;
-        }
-        catch (const std::exception& ex)
-        {
-            ostringstream ostr;
-            ostr << "exception in CompactIdResolver for ID " << id;
-            string msg = ostr.str();
-            string what = ex.what();
-            if (!what.empty())
-            {
-                msg += ":\n" + what;
-            }
-            throw MarshalException(__FILE__, __LINE__, msg);
-        }
-        catch (...)
-        {
-            ostringstream ostr;
-            ostr << "unknown exception in CompactIdResolver for ID " << id;
-            throw MarshalException(__FILE__, __LINE__, ostr.str());
-        }
-    }
-
-    if (typeId.empty())
-    {
-        typeId = IceInternal::DefaultSliceLoader::instance()->resolveCompactId(id);
-    }
-
-    return typeId;
-}
-
 void
 Ice::InputStream::traceSkipSlice(string_view typeId, SliceType sliceType) const
 {
@@ -2102,7 +2058,7 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
         }
 
         SliceInfoPtr info = make_shared<SliceInfo>(
-            _current->typeId,
+            _current->compactId == -1 ? _current->typeId : "",
             _current->compactId,
             std::move(bytes),
             hasOptionalMembers,
@@ -2174,10 +2130,10 @@ Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, const PatchFunc& 
     shared_ptr<Value> v;
     while (true)
     {
-        if (_current->compactId >= 0)
+        if (_current->compactId != -1)
         {
             // Translate a compact (numeric) type ID into a string type ID.
-            _current->typeId = _stream->resolveCompactId(_current->compactId);
+            _current->typeId = std::to_string(_current->compactId);
         }
 
         if (!_current->typeId.empty())

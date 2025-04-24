@@ -689,8 +689,6 @@ namespace Ice
 
         void throwUnmarshalOutOfBoundsException(const char*, int);
 
-        [[nodiscard]] std::string resolveCompactId(int) const;
-
         class Encaps;
         enum SliceType
         {
@@ -871,7 +869,7 @@ namespace Ice
                 std::uint8_t sliceFlags{0};
                 std::int32_t sliceSize{0};
                 std::string typeId;
-                int compactId{0};
+                int compactId{-1};
                 IndirectPatchList indirectPatchList;
 
                 InstanceData* previous{nullptr};

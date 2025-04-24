@@ -616,7 +616,7 @@ bool
 Slice::Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     _seenClass = true;
-    if (p->compactId() >= 0)
+    if (p->compactId() != -1)
     {
         _seenCompactId = true;
     }
@@ -1120,7 +1120,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp;
 
     _out << nl << "Ice.defineValue(" << scopedName << ", \"" << p->scoped() << "\"";
-    if (p->compactId() >= 0)
+    if (p->compactId() != -1)
     {
         _out << ", " << p->compactId();
     }

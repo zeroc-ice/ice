@@ -1350,7 +1350,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out.close();
 
-    if (p->compactId() >= 0)
+    if (p->compactId() != -1)
     {
         ostringstream ostr;
         ostr << "IceCompactId.TypeId_" << p->compactId();

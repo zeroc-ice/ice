@@ -44,8 +44,6 @@ namespace IceInternal
 
             if (compactId >= 0)
             {
-                _compactIdTable[compactId] = T::ice_staticId();
-
                 std::string compactIdStr{std::to_string(compactId)};
                 p = _classFactories.find(compactIdStr);
                 if (p == _classFactories.end())
@@ -112,18 +110,6 @@ namespace IceInternal
             }
         }
 
-        // temporary
-        std::string resolveCompactId(int compactId) const
-        {
-            std::lock_guard lock{_mutex};
-            auto p = _compactIdTable.find(compactId);
-            if (p != _compactIdTable.end())
-            {
-                return p->second;
-            }
-            return std::to_string(compactId);
-        }
-
     private:
         using ClassFactory = std::function<Ice::ValuePtr()>;
         using ExceptionFactory = std::function<std::exception_ptr()>;
@@ -134,9 +120,6 @@ namespace IceInternal
 
         std::map<std::string, std::pair<ClassFactory, int>, std::less<>> _classFactories;
         std::map<std::string, std::pair<ExceptionFactory, int>, std::less<>> _exceptionFactories;
-
-        // temporary
-        std::map<int, std::string> _compactIdTable;
     };
 
     template<class T> class ClassInit

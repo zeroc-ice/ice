@@ -1007,7 +1007,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp;
     writeDocComment(p, "class");
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
-    if (p->compactId() >= 0)
+    if (p->compactId() != -1)
     {
         _out << nl << "[Ice.CompactSliceTypeId(" << p->compactId() << ")]";
     }
