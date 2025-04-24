@@ -1057,10 +1057,14 @@ Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, Buff
       _encoding(encoding),
       _classGraphDepthMax(instance->classGraphDepthMax()),
       _valueFactoryManager(instance->initializationData().valueFactoryManager),
-      _sliceLoader{sliceLoader ? std::move(sliceLoader) : instance->sliceLoader()}
+      _sliceLoader{std::move(sliceLoader)}
 {
+    if (!_sliceLoader)
+    {
+        const_cast<SliceLoaderPtr&>(_sliceLoader) = _instance->sliceLoader();
+    }
+
     assert(_valueFactoryManager);
-    assert(_sliceLoader);
 }
 
 ReferencePtr

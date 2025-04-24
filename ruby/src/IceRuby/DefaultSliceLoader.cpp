@@ -27,7 +27,7 @@ IceRuby::DefaultSliceLoader::newClassInstance(string_view typeId) const
         return nullptr;
     }
 
-    VALUE obj = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(nullptr), info->rubyClass);
+    VALUE obj = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), info->rubyClass);
     assert(!NIL_P(obj));
 
     return make_shared<ValueReader>(obj, info);
