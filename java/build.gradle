@@ -46,7 +46,7 @@ subprojects {
         options.deprecation = true
     }
 
-    // We want Checkstyle to generally run after Rewrite and to exclude files generated from Slice.
+    // We want Checkstyle to generally run before Rewrite and to exclude files generated from Slice.
     tasks.withType(Checkstyle) {
         task ->
             rewriteDryRun.dependsOn(task)
