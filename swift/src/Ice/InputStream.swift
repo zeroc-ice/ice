@@ -1658,7 +1658,7 @@ private class EncapsDecoder11: EncapsDecoder {
         while true {
             var updateCache = false
 
-            if current.compactId >= 0 {
+            if current.compactId != -1 {
                 updateCache = true
 
                 //
@@ -1689,7 +1689,7 @@ private class EncapsDecoder11: EncapsDecoder {
 
             if let v = v {
                 if updateCache {
-                    precondition(current.compactId >= 0)
+                    precondition(current.compactId != -1)
                     compactIdCache[current.compactId] = type(of: v)
                 }
 

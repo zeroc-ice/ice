@@ -723,7 +723,7 @@ class EncapsDecoder11 extends EncapsDecoder {
         this.startSlice();
         const mostDerivedId = this._current.typeId;
         while (true) {
-            if (this._current.compactId >= 0) {
+            if (this._current.compactId != -1) {
                 //
                 // Translate a compact (numeric) type ID into a string type ID.
                 //

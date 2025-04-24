@@ -329,7 +329,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             v = [];
             while true
                 compactId = current.compactId;
-                if compactId >= 0
+                if compactId != -1
                     if compactId <= length(obj.compactIdCache)
                         constructor = obj.compactIdCache{compactId};
                     else

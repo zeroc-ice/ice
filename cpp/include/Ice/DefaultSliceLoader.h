@@ -42,7 +42,7 @@ namespace IceInternal
                 p->second.second++;
             }
 
-            if (compactId >= 0)
+            if (compactId != -1)
             {
                 std::string compactIdStr{std::to_string(compactId)};
                 p = _classFactories.find(compactIdStr);
@@ -69,7 +69,7 @@ namespace IceInternal
                 }
             }
 
-            if (compactId >= 0)
+            if (compactId != -1)
             {
                 std::string compactIdStr{std::to_string(compactId)};
                 p = _classFactories.find(compactIdStr);

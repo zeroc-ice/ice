@@ -2021,7 +2021,7 @@ public sealed class OutputStream
                 //
                 if (_encaps.format == FormatType.SlicedFormat || _current.firstSlice)
                 {
-                    if (compactId >= 0)
+                    if (compactId != -1)
                     {
                         _current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_COMPACT;
                         _stream.writeSize(compactId);
