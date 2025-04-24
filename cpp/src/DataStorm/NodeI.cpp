@@ -133,18 +133,32 @@ NodeI::destroy(bool ownsCommunicator)
 }
 
 void
-NodeI::initiateCreateSession(optional<NodePrx> publisher, const Current& current)
+NodeI::initiateCreateSessionAsync(
+    optional<NodePrx> publisher,
+    function<void()> response,
+    function<void(std::exception_ptr)> exception,
+    const Current& current)
 {
-    checkNotNull(publisher, __FILE__, __LINE__, current);
-    // Create a session with the given publisher.
-    createPublisherSession(*publisher, current.con, nullptr);
+    try
+    {
+        checkNotNull(publisher, __FILE__, __LINE__, current);
+        // Create a session with the given publisher.
+        createPublisherSession(*publisher, current.con, nullptr);
+        response();
+    }
+    catch (const std::exception&)
+    {
+        exception(current_exception());
+    }
 }
 
 void
-NodeI::createSession(
+NodeI::createSessionAsync(
     optional<NodePrx> subscriber,
     optional<SubscriberSessionPrx> subscriberSession,
     bool fromRelay,
+    function<void()> response,
+    function<void(exception_ptr)> exception,
     const Current& current)
 {
     checkNotNull(subscriber, __FILE__, __LINE__, current);
@@ -189,6 +203,7 @@ NodeI::createSession(
                 out << "node '" << current.id << "' is shutting down, ignoring '" << current.operation
                     << "' request from '" << subscriber << "'";
             }
+            exception(std::make_exception_ptr(SessionCreationException{SessionError::NodeShutdown}));
             return; // Shutting down.
         }
 
@@ -204,8 +219,10 @@ NodeI::createSession(
                         out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from '"
                             << subscriber << "' because session '" << session->getId() << "' is already connected";
                     }
+                    exception(std::make_exception_ptr(SessionCreationException{SessionError::AlreadyConnected}));
                     return;
                 }
+                response();
 
                 if (connection)
                 {
@@ -233,19 +250,25 @@ NodeI::createSession(
                     self->removePublisherSession(*subscriber, session, current_exception());
                 }
             },
-            [self = shared_from_this(), session, subscriber](exception_ptr ex)
-            { self->removePublisherSession(*subscriber, session, ex); });
+            [self = shared_from_this(), session, subscriber, exception](exception_ptr ex)
+            {
+                self->removePublisherSession(*subscriber, session, ex);
+                exception(make_exception_ptr(SessionCreationException{SessionError::ConnectionFailure}));
+            });
     }
     catch (const LocalException&)
     {
+        exception(make_exception_ptr(SessionCreationException{SessionError::UnknownError}));
         removePublisherSession(*subscriber, session, current_exception());
     }
 }
 
 void
-NodeI::confirmCreateSession(
+NodeI::confirmCreateSessionAsync(
     optional<NodePrx> publisher,
     optional<PublisherSessionPrx> publisherSession,
+    function<void()> response,
+    function<void(exception_ptr)> exception,
     const Current& current)
 {
     checkNotNull(publisher, __FILE__, __LINE__, current);
@@ -268,6 +291,7 @@ NodeI::confirmCreateSession(
             out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from publisher '"
                 << publisher->ice_getIdentity() << "' because no corresponding subscriber session was found";
         }
+        exception(make_exception_ptr(SessionCreationException{SessionError::SessionNotFound}));
         return;
     }
 
@@ -281,8 +305,10 @@ NodeI::confirmCreateSession(
             out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from '" << publisher
                 << "' because session '" << session->getId() << "' is already connected";
         }
+        exception(make_exception_ptr(SessionCreationException{SessionError::AlreadyConnected}));
         return;
     }
+    response();
 
     // If the publisher session is hosted on a relay, current.con represents the connection to the relay.
     // Otherwise, it represents the connection to the publisher node. In both cases, a fixed proxy is used
@@ -351,7 +377,7 @@ NodeI::createPublisherSession(
                     out << "node '" << _proxy->ice_getIdentity()
                         << "' is shutting down, ignoring 'createPublisherSession' request from '" << publisher << "'";
                 }
-                return; // Shutting down.
+                throw SessionCreationException{SessionError::NodeShutdown};
             }
             else if (session->checkSession())
             {
@@ -363,7 +389,7 @@ NodeI::createPublisherSession(
                         << "' is ignoring 'createPublisherSession' request from '" << publisher << "' because session '"
                         << session->getId() << "' is already connected";
                 }
-                return;
+                throw SessionCreationException{SessionError::AlreadyConnected};
             }
         }
 
@@ -378,6 +404,7 @@ NodeI::createPublisherSession(
     catch (const LocalException&)
     {
         removeSubscriberSession(publisher, session, current_exception());
+        throw SessionCreationException{SessionError::UnknownError};
     }
 }
 

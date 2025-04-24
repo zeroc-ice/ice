@@ -667,6 +667,13 @@ SessionI::retry(NodePrx node, exception_ptr exception)
         {
             rethrow_exception(exception);
         }
+        catch (const DataStormContract::SessionCreationException& ex)
+        {
+            if (ex.error == SessionError::NodeShutdown)
+            {
+                return false;
+            }
+        }
         catch (const ObjectAdapterDestroyedException&)
         {
             return false;
@@ -769,15 +776,15 @@ SessionI::destroyImpl(const exception_ptr& ex)
             }
             catch (const LocalException& e)
             {
-                out << "\n:" << e.what() << "\n" << e.ice_stackTrace();
+                out << ":\n" << e.what() << "\n" << e.ice_stackTrace();
             }
             catch (const exception& e)
             {
-                out << "\n:" << e.what();
+                out << ":\n" << e.what();
             }
             catch (...)
             {
-                out << "\n: unexpected exception";
+                out << ":\n unexpected exception";
             }
         }
     }
