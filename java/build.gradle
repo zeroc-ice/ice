@@ -52,7 +52,7 @@ subprojects {
             rewriteDryRun.dependsOn(task)
             rewriteRun.dependsOn(task)
         exclude(
-            '**/generated/**'
+            '**/generated/**/*'
         )
     }
 
