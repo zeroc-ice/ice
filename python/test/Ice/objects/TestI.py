@@ -39,6 +39,16 @@ class DI(Test.D):
     def ice_postUnmarshal(self):
         self.postUnmarshalInvoked = True
 
+def customSliceLoader(typeId):
+    if typeId == "::Test::B":
+        return BI()
+    elif typeId == "::Test::C":
+        return CI()
+    elif typeId == "::Test::D":
+        return DI()
+    else:
+        return None
+
 class InitialI(Test.Initial):
     def __init__(self, adapter):
         self._adapter = adapter

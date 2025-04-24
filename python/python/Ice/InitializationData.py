@@ -27,6 +27,10 @@ class InitializationData(object):
         An event loop adapter used to run coroutines and wrap futures. If provided. This adapter is responsible for
         executing coroutines returned by Ice asynchronous dispatch methods and for wrapping Ice futures (from Ice
         Async APIs) into futures that can be awaited in the application's event loop.
+    sliceLoader : callable
+        A callable that creates class and exception instances from Slice type IDs. The callable receives a type ID
+        or compact type ID as a string argument and returns a new instance of the class or exception identified by this
+        ID. The implementation returns None when it cannot find the corresponding class.
     """
 
     def __init__(self):
@@ -37,5 +41,6 @@ class InitializationData(object):
         self.executor = None
         self.batchRequestInterceptor = None
         self.eventLoopAdapter = None
+        self.sliceLoader = None
 
     __module__ = "Ice"

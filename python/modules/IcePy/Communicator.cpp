@@ -6,13 +6,7 @@
 #include "Executor.h"
 #include "Future.h"
 #include "Ice/DisableWarnings.h"
-#include "Ice/Initialize.h"
-#include "Ice/LocalExceptions.h"
-#include "Ice/Locator.h"
-#include "Ice/ObjectAdapter.h"
-#include "Ice/Properties.h"
-#include "Ice/Router.h"
-#include "Ice/ValueFactory.h"
+#include "Ice/Ice.h"
 #include "IceDiscovery/IceDiscovery.h"
 #include "IceLocatorDiscovery/IceLocatorDiscovery.h"
 #include "ImplicitContext.h"
@@ -22,14 +16,15 @@
 #include "Properties.h"
 #include "PropertiesAdmin.h"
 #include "Proxy.h"
+#include "PySliceLoader.h"
 #include "Thread.h"
 #include "Types.h"
 #include "Util.h"
-#include "ValueFactoryManager.h"
 
 #include <pythread.h>
 
 #include <future>
+#include <valarray>
 
 using namespace std;
 using namespace IcePy;
@@ -46,7 +41,7 @@ using namespace IcePy;
 
 static unsigned long mainThreadId;
 
-using CommunicatorMap = map<Ice::CommunicatorPtr, PyObject*>;
+using CommunicatorMap = map<Ice::CommunicatorPtr, std::pair<PyObject*, Ice::SliceLoaderPtr>>;
 static CommunicatorMap communicatorMap;
 
 namespace IcePy
@@ -106,6 +101,8 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     Ice::InitializationData data;
     ExecutorPtr executorWrapper;
 
+    Ice::SliceLoaderPtr sliceLoader = DefaultSliceLoader::instance();
+
     try
     {
         if (initData != Py_None)
@@ -116,6 +113,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
             PyObjectHandle threadStop{getAttr(initData, "threadStop", false)};
             PyObjectHandle batchRequestInterceptor{getAttr(initData, "batchRequestInterceptor", false)};
             PyObjectHandle executor{getAttr(initData, "executor", false)};
+            PyObjectHandle initDataSliceLoader{getAttr(initData, "sliceLoader", false)};
 
             if (properties.get())
             {
@@ -154,10 +152,15 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
                     [batchRequestInterceptorWrapper](const Ice::BatchRequest& req, int count, int size)
                 { batchRequestInterceptorWrapper->enqueue(req, count, size); };
             }
-        }
 
-        // We always supply our own implementation of ValueFactoryManager.
-        data.valueFactoryManager = ValueFactoryManager::create();
+            if (initDataSliceLoader.get())
+            {
+                auto compositeSliceLoader = make_shared<Ice::CompositeSliceLoader>();
+                compositeSliceLoader->add(make_shared<PySliceLoader>(initDataSliceLoader.get()));
+                compositeSliceLoader->add(sliceLoader);
+                sliceLoader = compositeSliceLoader;
+            }
+        }
 
         // data.sliceLoader remains null as we don't want to change the Slice loader for the Ice C++ runtime.
 
@@ -236,7 +239,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     }
 
     self->communicator = new Ice::CommunicatorPtr(communicator);
-    communicatorMap.insert(CommunicatorMap::value_type(communicator, reinterpret_cast<PyObject*>(self)));
+    communicatorMap.insert(CommunicatorMap::value_type{communicator, {reinterpret_cast<PyObject*>(self), sliceLoader}});
 
     if (executorWrapper)
     {
@@ -281,15 +284,10 @@ communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
 
-    auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*self->communicator)->getValueFactoryManager());
-    assert(vfm);
-
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
         (*self->communicator)->destroy();
     }
-
-    vfm->destroy();
 
     if (self->executor)
     {
@@ -314,8 +312,6 @@ extern "C" PyObject*
 communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
 {
     assert(self->communicator);
-    auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*self->communicator)->getValueFactoryManager());
-    assert(vfm);
 
     PyObject* completed;
     if (!PyArg_ParseTuple(args, "O", &completed))
@@ -333,14 +329,12 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
     // This is necessary in case the user abandons the future, for example by cancelling it.
     (*self->communicator)
         ->destroyAsync(
-            [self, completed = Py_NewRef(completed), vfm]()
+            [self, completed = Py_NewRef(completed)]()
             {
                 // Ensure the current thread can call into Python. We avoid using AdoptThread because it unconditionally
                 // releases the GIL when it goes out of scope. Here, we want to avoid releasing the GIL if interpreter
                 // finalization starts before the call to PyObject_Call(completed) returns.
                 PyGILState_STATE gilState = PyGILState_Ensure();
-
-                vfm->destroy();
 
                 if (self->executor)
                 {
@@ -1085,13 +1079,6 @@ communicatorGetLogger(CommunicatorObject* self, PyObject* /*args*/)
 }
 
 extern "C" PyObject*
-communicatorGetValueFactoryManager(CommunicatorObject* self, PyObject* /*args*/)
-{
-    auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*self->communicator)->getValueFactoryManager());
-    return vfm->getObject();
-}
-
-extern "C" PyObject*
 communicatorGetImplicitContext(CommunicatorObject* self, PyObject* /*args*/)
 {
     Ice::ImplicitContextPtr implicitContext = (*self->communicator)->getImplicitContext();
@@ -1451,10 +1438,6 @@ static PyMethodDef CommunicatorMethods[] = {
      reinterpret_cast<PyCFunction>(communicatorSetDefaultObjectAdapter),
      METH_VARARGS,
      PyDoc_STR("setDefaultObjectAdapter(adapter) -> None")},
-    {"getValueFactoryManager",
-     reinterpret_cast<PyCFunction>(communicatorGetValueFactoryManager),
-     METH_NOARGS,
-     PyDoc_STR("getValueFactoryManager() -> Ice.ValueFactoryManager")},
     {"getImplicitContext",
      reinterpret_cast<PyCFunction>(communicatorGetImplicitContext),
      METH_NOARGS,
@@ -1564,21 +1547,13 @@ IcePy::getCommunicator(PyObject* obj)
     return *cobj->communicator;
 }
 
-Ice::SliceLoaderPtr
-IcePy::getSliceLoader(const Ice::CommunicatorPtr&)
-{
-    // For now, we just return the default Slice loader singleton. In the future, we need to return a composite loader
-    // when the user install a Slice loader written in Python in initData.
-    return DefaultSliceLoader::instance();
-}
-
 PyObject*
 IcePy::createCommunicator(const Ice::CommunicatorPtr& communicator)
 {
     auto p = communicatorMap.find(communicator);
     if (p != communicatorMap.end())
     {
-        return Py_NewRef(p->second);
+        return Py_NewRef(p->second.first);
     }
 
     CommunicatorObject* obj = communicatorNew(&CommunicatorType, nullptr, nullptr);
@@ -1594,7 +1569,7 @@ IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
 {
     auto p = communicatorMap.find(communicator);
     assert(p != communicatorMap.end());
-    auto* obj = reinterpret_cast<CommunicatorObject*>(p->second);
+    auto* obj = reinterpret_cast<CommunicatorObject*>(p->second.first);
     if (obj->wrapper)
     {
         return Py_NewRef(obj->wrapper);
@@ -1604,6 +1579,14 @@ IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
         // Communicator must have been destroyed already.
         return Py_None;
     }
+}
+
+Ice::SliceLoaderPtr
+IcePy::getSliceLoader(const Ice::CommunicatorPtr& communicator)
+{
+    auto p = communicatorMap.find(communicator);
+    assert(p != communicatorMap.end());
+    return p->second.second;
 }
 
 extern "C" PyObject*

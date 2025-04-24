@@ -12,9 +12,11 @@ import AllTests
 
 class Collocated(TestHelper):
     def run(self, args):
-        properties = self.createTestProperties(args)
-        properties.setProperty("Ice.Warn.Dispatch", "0")
-        with self.initialize(properties=properties) as communicator:
+        initData = Ice.InitializationData()
+        initData.properties = self.createTestProperties(args)
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0")
+        initData.sliceLoader = TestI.customSliceLoader
+        with self.initialize(initData=initData) as communicator:
             communicator.getProperties().setProperty(
                 "TestAdapter.Endpoints", self.getTestEndpoint()
             )

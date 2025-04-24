@@ -2,36 +2,13 @@
 
 import Ice
 import Test
-import TestI
 import sys
-
-
-def MyValueFactory(type):
-    if type == "::Test::B":
-        return TestI.BI()
-    elif type == "::Test::C":
-        return TestI.CI()
-    elif type == "::Test::D":
-        return TestI.DI()
-    elif type == "::Test::E":
-        return TestI.EI()
-    elif type == "::Test::F":
-        return TestI.FI()
-    assert False  # Should never be reached
-
 
 def test(b):
     if not b:
         raise RuntimeError("test assertion failed")
 
-
 def allTests(helper, communicator):
-    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::B")
-    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::C")
-    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D")
-    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::E")
-    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::F")
-
     initial = Test.InitialPrx(communicator, f"initial:{helper.getTestEndpoint()}")
 
     sys.stdout.write("getting B1... ")
