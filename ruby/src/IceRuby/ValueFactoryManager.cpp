@@ -72,7 +72,7 @@ IceRuby::ValueFactoryManager::ValueFactoryManager::create()
     return vfm;
 }
 
-IceRuby::ValueFactoryManager::ValueFactoryManager() : _defaultFactory{make_shared<DefaultValueFactory>()} {}
+IceRuby::ValueFactoryManager::ValueFactoryManager() = default;
 
 void
 IceRuby::ValueFactoryManager::add(Ice::ValueFactory, string_view)
@@ -91,10 +91,6 @@ IceRuby::ValueFactoryManager::find(string_view typeId) const noexcept
     if (p != _customFactories.end())
     {
         factory = p->second;
-    }
-    else if (typeId.empty())
-    {
-        factory = _defaultFactory;
     }
 
     if (factory)
@@ -210,39 +206,6 @@ void
 IceRuby::CustomValueFactory::mark()
 {
     rb_gc_mark(_factory);
-}
-
-shared_ptr<Ice::Value>
-IceRuby::DefaultValueFactory::create(string_view id)
-{
-    //
-    // Get the type information.
-    //
-    ClassInfoPtr info = getClassInfo(id);
-
-    if (!info)
-    {
-        return 0;
-    }
-
-    //
-    // NOTE: We don't do this in Ruby because a generated class can be re-opened to define operations.
-    //
-    ////
-    //// If the requested type is an abstract class, then we give up.
-    ////
-    // if(info->isAbstract)
-    //{
-    //     return 0;
-    // }
-
-    //
-    // Instantiate the object.
-    //
-    volatile VALUE obj = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), info->rubyClass);
-    assert(!NIL_P(obj));
-
-    return make_shared<ValueReader>(obj, info);
 }
 
 extern "C" VALUE

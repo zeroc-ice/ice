@@ -50,7 +50,7 @@ IcePy::DefaultSliceLoader::newExceptionInstance(string_view typeId) const
     ExceptionInfoPtr info = lookupExceptionInfo(typeId);
     if (info)
     {
-        return make_exception_ptr<ExceptionReader>(info);
+        return make_exception_ptr(ExceptionReader{info});
     }
     return nullptr;
 }

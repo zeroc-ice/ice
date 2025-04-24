@@ -234,7 +234,6 @@ initIceGlobals(zend_ice_globals* g)
 {
     g->communicatorMap = 0;
     g->idToClassInfoMap = 0;
-    g->compactIdToClassInfoMap = 0;
     g->nameToClassInfoMap = 0;
     g->proxyInfoMap = 0;
     g->exceptionInfoMap = 0;

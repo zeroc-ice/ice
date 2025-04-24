@@ -34,13 +34,6 @@ namespace IceRuby
     };
     using CustomValueFactoryPtr = std::shared_ptr<CustomValueFactory>;
 
-    class DefaultValueFactory final : public ValueFactory
-    {
-    public:
-        std::shared_ptr<Ice::Value> create(std::string_view) final;
-    };
-    using DefaultValueFactoryPtr = std::shared_ptr<DefaultValueFactory>;
-
     class ValueFactoryManager final : public Ice::ValueFactoryManager
     {
     public:
@@ -65,7 +58,6 @@ namespace IceRuby
 
         VALUE _self;
         CustomFactoryMap _customFactories;
-        const DefaultValueFactoryPtr _defaultFactory;
     };
     using ValueFactoryManagerPtr = std::shared_ptr<ValueFactoryManager>;
 }

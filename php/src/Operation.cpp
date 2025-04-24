@@ -450,7 +450,7 @@ IcePHP::TypedInvocation::prepareRequest(
 void
 IcePHP::TypedInvocation::unmarshalResults(int argc, zval* args, zval* ret, pair<const byte*, const byte*> bytes)
 {
-    Ice::InputStream is(_communicator->getCommunicator(), bytes);
+    Ice::InputStream is{_communicator->getCommunicator(), bytes, _communicator->getSliceLoader()};
 
     // Store a pointer to a local StreamUtil object as the stream's closure. This is necessary to support object
     // unmarshaling (see ValueReader).
@@ -534,7 +534,7 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval* args, zval* ret, pair<
 void
 IcePHP::TypedInvocation::unmarshalException(zval* zex, pair<const byte*, const byte*> bytes)
 {
-    Ice::InputStream is(_communicator->getCommunicator(), bytes);
+    Ice::InputStream is{_communicator->getCommunicator(), bytes, _communicator->getSliceLoader()};
 
     // Store a pointer to a local StreamUtil object as the stream's closure. This is necessary to support object
     // unmarshaling (see ValueReader).
@@ -546,17 +546,7 @@ IcePHP::TypedInvocation::unmarshalException(zval* zex, pair<const byte*, const b
 
     try
     {
-        is.throwException(
-            [this](string_view id)
-            {
-                ExceptionInfoPtr info = getExceptionInfo(id);
-                if (info)
-                {
-                    throw ExceptionReader(_communicator, info);
-                }
-                // It's ok for a user exception factory to not throw - it's equivalent to a null factory.
-            });
-
+        is.throwException();
         assert(false); // throwException always throws an exception
     }
     catch (const ExceptionReader& r)

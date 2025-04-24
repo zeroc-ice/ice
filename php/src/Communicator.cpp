@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Communicator.h"
+#include "DefaultSliceLoader.h"
 #include "Ice/Options.h"
 #include "Ice/StringUtil.h"
 #include "IceDiscovery/IceDiscovery.h"
@@ -61,9 +62,6 @@ namespace IcePHP
     class CustomValueFactory;
     using CustomValueFactoryPtr = shared_ptr<CustomValueFactory>;
 
-    class DefaultValueFactory;
-    using DefaultValueFactoryPtr = shared_ptr<DefaultValueFactory>;
-
     // CommunicatorInfoI encapsulates communicator-related information that
     // is specific to a PHP "request". In other words, multiple PHP requests
     // might share the same communicator instance but still need separate
@@ -79,11 +77,10 @@ namespace IcePHP
         void decRef(void) final;
 
         Ice::CommunicatorPtr getCommunicator() const final;
+        Ice::SliceLoaderPtr getSliceLoader() const final;
 
         bool addFactory(zval*, string_view);
         CustomValueFactoryPtr findFactory(string_view) const;
-        void setDefaultFactory(DefaultValueFactoryPtr defaultFactory);
-        DefaultValueFactoryPtr defaultFactory() const { return _defaultFactory; }
         void destroyFactories();
 
         const ActiveCommunicatorPtr ac;
@@ -93,7 +90,7 @@ namespace IcePHP
         typedef map<string, CustomValueFactoryPtr, std::less<>> CustomFactoryMap;
 
         CustomFactoryMap _customFactories;
-        DefaultValueFactoryPtr _defaultFactory;
+        mutable Ice::SliceLoaderPtr _sliceLoader;
     };
     using CommunicatorInfoIPtr = std::shared_ptr<CommunicatorInfoI>;
 
@@ -114,19 +111,6 @@ namespace IcePHP
         CommunicatorInfoIPtr _info;
     };
 
-    // Implements the default value factory behavior.
-    class DefaultValueFactory final : public ValueFactory
-    {
-    public:
-        DefaultValueFactory(const CommunicatorInfoIPtr&);
-        shared_ptr<Ice::Value> create(string_view) final;
-
-        void destroy();
-
-    private:
-        CommunicatorInfoIPtr _info;
-    };
-
     // Each PHP request has its own set of value factories. More precisely, there is
     // a value factory map for each communicator that is created by a PHP request.
     // (see CommunicatorInfoI).
@@ -140,10 +124,6 @@ namespace IcePHP
     //
     //  * Using its communicator reference as the key, look up the corresponding
     //    CommunicatorInfoI object in the request-specific communicator map.
-    //
-    //  * If the type-id is empty, return the default factory. This factory will
-    //    either delegate to an application-supplied default factory (if present) or
-    //    default-construct an instance of a concrete Slice class type.
     //
     //  * For non-empty type-ids, return a wrapper around the application-supplied
     //    factory, if any.
@@ -977,7 +957,6 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac)
         assert(!obj->ptr);
         obj->ptr = new shared_ptr<CommunicatorInfoI>(make_shared<CommunicatorInfoI>(ac, zv));
         shared_ptr<CommunicatorInfoI> info = *obj->ptr;
-        info->setDefaultFactory(make_shared<DefaultValueFactory>(info));
 
         CommunicatorMap* m;
         if (ICE_G(communicatorMap))
@@ -1178,19 +1157,6 @@ ZEND_FUNCTION(Ice_initialize)
         }
     }
 
-    initData.compactIdResolver = [](int id)
-    {
-        CompactIdMap* m = reinterpret_cast<CompactIdMap*>(ICE_G(compactIdToClassInfoMap));
-        if (m)
-        {
-            CompactIdMap::iterator p = m->find(id);
-            if (p != m->end())
-            {
-                return p->second->id;
-            }
-        }
-        return string();
-    };
     initData.valueFactoryManager = make_shared<ValueFactoryManager>();
 
     if (!initData.properties)
@@ -1938,65 +1904,9 @@ IcePHP::CustomValueFactory::destroy(void)
     _info = nullptr;
 }
 
-IcePHP::DefaultValueFactory::DefaultValueFactory(const CommunicatorInfoIPtr& info) : _info(info) {}
-
-shared_ptr<Ice::Value>
-IcePHP::DefaultValueFactory::create(string_view id)
-{
-    // Get the type information.
-    ClassInfoPtr cls;
-    if (id == Ice::Object::ice_staticId())
-    {
-        // When the ID is that of Ice::Object, it indicates that the stream has not found a factory and is providing us
-        // an opportunity to preserve the object.
-        cls = getClassInfoById("::Ice::UnknownSlicedValue");
-    }
-    else
-    {
-        cls = getClassInfoById(id);
-    }
-
-    if (!cls)
-    {
-        return 0;
-    }
-
-    // Instantiate the object.
-    zval obj;
-
-    if (object_init_ex(&obj, const_cast<zend_class_entry*>(cls->zce)) != SUCCESS)
-    {
-        throw AbortMarshaling();
-    }
-
-#ifdef NDEBUG
-    // BUGFIX: releasing this object triggers an assert in PHP objects_store
-    // https://github.com/php/php-src/issues/10593
-    AutoDestroy release(&obj);
-#endif
-    if (!invokeMethod(&obj, ZEND_CONSTRUCTOR_FUNC_NAME))
-    {
-        throw AbortMarshaling();
-    }
-
-    return make_shared<ValueReader>(&obj, cls, _info);
-}
-
-void
-IcePHP::DefaultValueFactory::destroy(void)
-{
-    _info = nullptr;
-}
-
-IcePHP::CommunicatorInfoI::CommunicatorInfoI(const ActiveCommunicatorPtr& c, zval* z) : ac(c), _defaultFactory(nullptr)
+IcePHP::CommunicatorInfoI::CommunicatorInfoI(const ActiveCommunicatorPtr& c, zval* z) : ac(c)
 {
     ZVAL_COPY_VALUE(&zv, z);
-}
-
-void
-IcePHP::CommunicatorInfoI::setDefaultFactory(DefaultValueFactoryPtr defaultFactory)
-{
-    _defaultFactory = std::move(defaultFactory);
 }
 
 void
@@ -2022,6 +1932,20 @@ Ice::CommunicatorPtr
 IcePHP::CommunicatorInfoI::getCommunicator() const
 {
     return ac->communicator;
+}
+
+Ice::SliceLoaderPtr
+IcePHP::CommunicatorInfoI::getSliceLoader() const
+{
+    // TODO: a setSliceLoader could be more appropriate.
+    if (!_sliceLoader)
+    {
+        // Lazy initialization of the SliceLoader.
+        auto self = const_cast<CommunicatorInfoI*>(this)->shared_from_this();
+
+        _sliceLoader = make_shared<DefaultSliceLoader>(self);
+    }
+    return _sliceLoader;
 }
 
 bool
@@ -2059,7 +1983,6 @@ IcePHP::CommunicatorInfoI::destroyFactories(void)
         factory->destroy();
     }
     _customFactories.clear();
-    _defaultFactory->destroy();
 }
 
 void
@@ -2081,10 +2004,6 @@ IcePHP::ValueFactoryManager::find(string_view id) const noexcept
     CommunicatorInfoIPtr info = p->second;
 
     ValueFactoryPtr factory = info->findFactory(id);
-    if (!factory && id.empty())
-    {
-        factory = info->defaultFactory();
-    }
 
     if (factory)
     {
