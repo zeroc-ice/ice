@@ -34,9 +34,13 @@
 using namespace std;
 using namespace IcePy;
 
-#if defined(__clang__) && defined(__has_warning) && __has_warning("-Wcast-function-type-mismatch")
-#    pragma clang diagnostic ignored "-Wcast-function-type-mismatch"
-#elif defined(__GNUC__) && ((__GNUC__ >= 8))
+#if defined(__clang__) && defined(__has_warning)
+#    if __has_warning("-Wcast-function-type-mismatch")
+#        pragma clang diagnostic ignored "-Wcast-function-type-mismatch"
+#    endif
+#endif
+
+#if defined(__GNUC__) && ((__GNUC__ >= 8))
 #    pragma GCC diagnostic ignored "-Wcast-function-type"
 #endif
 
