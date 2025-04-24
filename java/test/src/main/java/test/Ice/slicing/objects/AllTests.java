@@ -7,10 +7,10 @@ import com.zeroc.Ice.MarshalException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.OperationNotExistException;
 import com.zeroc.Ice.SlicedData;
+import com.zeroc.Ice.SliceLoader;
 import com.zeroc.Ice.UnknownSlicedValue;
 import com.zeroc.Ice.Util;
 import com.zeroc.Ice.Value;
-import com.zeroc.Ice.ValueFactory;
 
 import test.TestHelper;
 import test.Ice.slicing.objects.client.Test.B;
@@ -73,6 +73,18 @@ public class AllTests {
         private boolean _called;
     }
 
+    public static class CustomSliceLoader implements SliceLoader {
+        @Override
+        public java.lang.Object newInstance(String typeId) {
+            if (typeId.equals(PNode.ice_staticId())) {
+                return new PNodeI();
+            } else if (typeId.equals(Preserved.ice_staticId())) {
+                return new PreservedI();
+            }
+            return null;
+        }
+    }
+
     private static class PNodeI extends PNode {
         public PNodeI() {
             ++counter;
@@ -81,32 +93,12 @@ public class AllTests {
         static int counter;
     }
 
-    private static class NodeFactoryI implements ValueFactory {
-        @Override
-        public Value create(String id) {
-            if (id.equals(PNode.ice_staticId())) {
-                return new PNodeI();
-            }
-            return null;
-        }
-    }
-
     private static class PreservedI extends Preserved {
         public PreservedI() {
             ++counter;
         }
 
         static int counter;
-    }
-
-    private static class PreservedFactoryI implements ValueFactory {
-        @Override
-        public Value create(String id) {
-            if (id.equals(Preserved.ice_staticId())) {
-                return new PreservedI();
-            }
-            return null;
-        }
     }
 
     private static class Wrapper<T> {
@@ -1754,18 +1746,6 @@ public class AllTests {
         out.print("preserved classes... ");
         out.flush();
 
-        //
-        // Register a factory in order to substitute our own subclass of Preserved. This provides
-        // an easy way to determine how many unmarshaled instances currently exist.
-        //
-        // TODO: We have to install this now (even though it's not necessary yet), because otherwise
-        // the Ice run time will install its own internal factory for Preserved upon receiving the
-        // first instance.
-        //
-        communicator
-            .getValueFactoryManager()
-            .add(new PreservedFactoryI(), Preserved.ice_staticId());
-
         try {
             //
             // Server knows the most-derived class PDerived.
@@ -2130,12 +2110,6 @@ public class AllTests {
         out.print("garbage collection for preserved classes... ");
         out.flush();
         try {
-            //
-            // Register a factory in order to substitute our own subclass of PNode. This provides
-            // an easy way to determine how many unmarshaled instances currently exist.
-            //
-            communicator.getValueFactoryManager().add(new NodeFactoryI(), PNode.ice_staticId());
-
             //
             // Relay a graph through the server.
             //

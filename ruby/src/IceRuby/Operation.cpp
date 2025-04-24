@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Operation.h"
+#include "Communicator.h"
 #include "Ice/Communicator.h"
 #include "Ice/Initialize.h"
 #include "Ice/LocalExceptions.h"
@@ -461,7 +462,7 @@ IceRuby::OperationI::unmarshalResults(const vector<byte>& bytes, const Ice::Comm
     // Unmarshal the results. If there is more than one value to be returned, then return them
     // in a tuple of the form (result, outParam1, ...). Otherwise just return the value.
     //
-    Ice::InputStream is(communicator, bytes);
+    Ice::InputStream is{communicator, bytes, lookupSliceLoader(communicator)};
 
     //
     // Store a pointer to a local StreamUtil object as the stream's closure.
@@ -530,7 +531,7 @@ IceRuby::OperationI::unmarshalResults(const vector<byte>& bytes, const Ice::Comm
 VALUE
 IceRuby::OperationI::unmarshalException(const vector<byte>& bytes, const Ice::CommunicatorPtr& communicator)
 {
-    Ice::InputStream is(communicator, bytes);
+    Ice::InputStream is{communicator, bytes, lookupSliceLoader(communicator)};
 
     //
     // Store a pointer to a local StreamUtil object as the stream's closure.
@@ -544,15 +545,7 @@ IceRuby::OperationI::unmarshalException(const vector<byte>& bytes, const Ice::Co
 
     try
     {
-        is.throwException(
-            [](const auto& id)
-            {
-                ExceptionInfoPtr info = lookupExceptionInfo(id);
-                if (info)
-                {
-                    throw ExceptionReader(info);
-                }
-            });
+        is.throwException();
         assert(false); // throwException always throws an exception
     }
     catch (const ExceptionReader& r)

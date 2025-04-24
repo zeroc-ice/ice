@@ -59,7 +59,6 @@ ZEND_MINFO_FUNCTION(ice);
 ZEND_BEGIN_MODULE_GLOBALS(ice)
 void* communicatorMap;
 void* idToClassInfoMap;
-void* compactIdToClassInfoMap;
 void* nameToClassInfoMap;
 void* proxyInfoMap;
 void* exceptionInfoMap;

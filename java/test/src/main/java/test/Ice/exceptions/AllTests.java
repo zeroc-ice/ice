@@ -25,7 +25,6 @@ import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.UnknownUserException;
 import com.zeroc.Ice.Util;
-import com.zeroc.Ice.ValueFactory;
 
 import test.Ice.exceptions.Test.A;
 import test.Ice.exceptions.Test.B;
@@ -122,17 +121,6 @@ public class AllTests {
             } catch (AlreadyRegisteredException ex) {}
 
             adapter.deactivate();
-            out.println("ok");
-        }
-
-        {
-            out.print("testing value factory registration exception... ");
-            ValueFactory of = new ValueFactoryI();
-            communicator.getValueFactoryManager().add(of, "::x");
-            try {
-                communicator.getValueFactoryManager().add(of, "::x");
-                test(false);
-            } catch (AlreadyRegisteredException ex) {}
             out.println("ok");
         }
 

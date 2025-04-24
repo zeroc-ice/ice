@@ -40,14 +40,6 @@ namespace IcePy
 
     using CustomValueFactoryPtr = std::shared_ptr<CustomValueFactory>;
 
-    // The default Python value factory as a C++ value factory.
-    class DefaultValueFactory final : public ValueFactory
-    {
-    public:
-        std::shared_ptr<Ice::Value> create(std::string_view) final;
-    };
-    using DefaultValueFactoryPtr = std::shared_ptr<DefaultValueFactory>;
-
     class ValueFactoryManager final : public Ice::ValueFactoryManager
     {
     public:
@@ -70,7 +62,6 @@ namespace IcePy
 
         PyObjectHandle _self;
         CustomFactoryMap _customFactories;
-        const DefaultValueFactoryPtr _defaultFactory;
     };
 
     using ValueFactoryManagerPtr = std::shared_ptr<ValueFactoryManager>;

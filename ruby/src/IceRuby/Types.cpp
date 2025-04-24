@@ -34,21 +34,11 @@ static VALUE _typeInfoClass, _exceptionInfoClass;
 typedef map<string, ClassInfoPtr, std::less<>> ClassInfoMap;
 static ClassInfoMap _classInfoMap;
 
-typedef map<int32_t, ClassInfoPtr> CompactIdMap;
-static CompactIdMap _compactIdMap;
-
 typedef map<string, ProxyInfoPtr, std::less<>> ProxyInfoMap;
 static ProxyInfoMap _proxyInfoMap;
 
 typedef map<string, ExceptionInfoPtr, std::less<>> ExceptionInfoMap;
 static ExceptionInfoMap _exceptionInfoMap;
-
-string
-IceRuby::resolveCompactId(int id)
-{
-    CompactIdMap::iterator p = _compactIdMap.find(id);
-    return p == _compactIdMap.end() ? string() : p->second->id;
-}
 
 namespace IceRuby
 {
@@ -2601,7 +2591,6 @@ IceRuby::InfoMapDestroyer::~InfoMapDestroyer()
             p->second->destroy();
         }
     }
-    _compactIdMap.clear();
     _exceptionInfoMap.clear();
 }
 
@@ -2962,12 +2951,7 @@ IceRuby_TypeInfo_defineClass(VALUE self, VALUE type, VALUE compactId, VALUE inte
 
         if (info->compactId != -1)
         {
-            CompactIdMap::iterator q = _compactIdMap.find(info->compactId);
-            if (q != _compactIdMap.end())
-            {
-                _compactIdMap.erase(q);
-            }
-            _compactIdMap.insert(CompactIdMap::value_type(info->compactId, info));
+            addClassInfo(std::to_string(info->compactId), info);
         }
 
         if (type != Qnil && !info->interface)

@@ -251,7 +251,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
     private final void throwUserException() throws UserException {
         try {
             _is.startEncapsulation();
-            _is.throwException(null);
+            _is.throwException();
         } catch (UserException ex) {
             _is.endEncapsulation();
             throw ex;

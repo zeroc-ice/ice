@@ -37,8 +37,6 @@ namespace IcePHP
     using ClassInfoList = std::vector<ClassInfoPtr>;
     using ObjectMap = std::map<unsigned int, std::shared_ptr<Ice::Value>>;
 
-    using CompactIdMap = std::map<int, ClassInfoPtr>;
-
     class ValueReader;
 
     struct PrintObjectHistory

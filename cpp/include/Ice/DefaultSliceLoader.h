@@ -121,7 +121,7 @@ namespace IceInternal
             {
                 return p->second;
             }
-            return {};
+            return std::to_string(compactId);
         }
 
     private:

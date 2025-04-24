@@ -1,11 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Communicator.h"
-#include "Ice/Communicator.h"
-#include "Ice/Initialize.h"
-#include "Ice/Locator.h"
-#include "Ice/Properties.h"
-#include "Ice/Router.h"
+#include "DefaultSliceLoader.h"
 #include "IceDiscovery/IceDiscovery.h"
 #include "IceLocatorDiscovery/IceLocatorDiscovery.h"
 #include "ImplicitContext.h"
@@ -188,8 +184,6 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         //
         volatile VALUE progName = callRuby(rb_gv_get, "$0");
         seq.insert(seq.begin(), getString(progName));
-
-        data.compactIdResolver = [](int id) { return IceRuby::resolveCompactId(id); };
 
         ValueFactoryManagerPtr valueFactoryManager = ValueFactoryManager::create();
         // Prevent the Ruby GC from prematurely releasing the Ruby object held by ValueFactoryManager before the
@@ -728,4 +722,10 @@ IceRuby::lookupCommunicator(const Ice::CommunicatorPtr& p)
         return q->second;
     }
     return Qnil;
+}
+
+Ice::SliceLoaderPtr
+IceRuby::lookupSliceLoader(const Ice::CommunicatorPtr&)
+{
+    return DefaultSliceLoader::instance();
 }

@@ -158,14 +158,8 @@ class CustomSdistCommand(_sdist):
 
     def include_file(self, filename):
         filename = os.path.normpath(filename)
-        # For Windows, ensure we only include generated files for the current platform
         if pathlib.Path(filename).suffix.lower() not in ['.c', '.cpp', '.h', '.ice', '.py']:
             return False
-        if sys.platform == 'win32':
-            if "generated" in filename and os.path.join(platform, configuration) not in filename:
-                return False
-            elif "msbuild" in filename and os.path.join(platform, configuration) not in filename:
-                return False
         return True
 
     def pre_build(self):
@@ -208,6 +202,15 @@ class CustomSdistCommand(_sdist):
             for root, dirs, files in os.walk(os.path.normpath(source_dir)):
                 for file in files:
                     if self.include_file(os.path.join(root, file)):
+
+                        if sys.platform == 'win32':
+                            # On Windows Skip generated files that doesn't correspond to the current platform
+                            # and configuration.
+                            if "generated" in root and os.path.join(platform, configuration) not in root:
+                                continue
+                            elif "msbuild" in root and os.path.join(platform, configuration) not in root:
+                                continue
+
                         source_file = os.path.join(root, file)
                         relative_path = os.path.relpath(source_file, '..')
 
