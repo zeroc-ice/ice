@@ -25,7 +25,6 @@ IceRuby::DefaultSliceLoader::newClassInstance(string_view typeId) const
     if (!info)
     {
         return nullptr;
-        ;
     }
 
     volatile VALUE obj = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), info->rubyClass);
@@ -40,7 +39,7 @@ IceRuby::DefaultSliceLoader::newExceptionInstance(string_view typeId) const
     ExceptionInfoPtr info = lookupExceptionInfo(typeId);
     if (info)
     {
-        return make_exception_ptr<ExceptionReader>(info);
+        return make_exception_ptr(ExceptionReader{info});
     }
     return nullptr;
 }

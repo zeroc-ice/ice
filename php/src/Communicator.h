@@ -39,6 +39,7 @@ namespace IcePHP
         virtual void decRef(void) = 0;
 
         virtual Ice::CommunicatorPtr getCommunicator() const = 0;
+        virtual Ice::SliceLoaderPtr getSliceLoader() const = 0;
     };
     using CommunicatorInfoPtr = std::shared_ptr<CommunicatorInfo>;
 
