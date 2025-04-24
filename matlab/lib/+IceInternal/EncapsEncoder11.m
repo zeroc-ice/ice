@@ -86,7 +86,7 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
                 % Encode the type ID (only in the first slice for the compact encoding).
                 %
                 if obj.encaps.format == Ice.FormatType.SlicedFormat || obj.current.firstSlice
-                    if compactId != -1
+                    if compactId ~= -1
                         obj.current.sliceFlags = bitor(obj.current.sliceFlags, Protocol.FLAG_HAS_TYPE_ID_COMPACT);
                         obj.os.writeSize(compactId);
                     else
