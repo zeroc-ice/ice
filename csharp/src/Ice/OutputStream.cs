@@ -3,7 +3,6 @@
 #nullable enable
 
 using System.Diagnostics;
-using System.Globalization;
 
 using Protocol = Ice.Internal.Protocol;
 
@@ -2141,14 +2140,7 @@ public sealed class OutputStream
 
             foreach (SliceInfo info in slicedData.slices)
             {
-                if (info.typeId.StartsWith("::", StringComparison.Ordinal))
-                {
-                    startSlice(info.typeId, -1, info.isLastSlice);
-                }
-                else
-                {
-                    startSlice("", int.Parse(info.typeId, CultureInfo.InvariantCulture), info.isLastSlice);
-                }
+                startSlice(info.typeId, info.compactId, info.isLastSlice);
 
                 //
                 // Write the bytes associated with this slice.

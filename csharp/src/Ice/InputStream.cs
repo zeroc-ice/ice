@@ -380,11 +380,10 @@ public sealed class InputStream
     /// <summary>
     /// Reads the start of a class instance or exception slice.
     /// </summary>
-    /// <returns>The Slice type ID for this slice.</returns>
-    public string startSlice() // Returns type ID of next slice
+    public void startSlice()
     {
         Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
-        return _encapsStack.decoder.startSlice();
+        _encapsStack.decoder.startSlice();
     }
 
     /// <summary>
@@ -2002,7 +2001,7 @@ public sealed class InputStream
 
         internal abstract SlicedData? endInstance();
 
-        internal abstract string startSlice();
+        internal abstract void startSlice();
 
         internal abstract void endSlice();
 
@@ -2265,7 +2264,7 @@ public sealed class InputStream
             return null;
         }
 
-        internal override string startSlice()
+        internal override void startSlice()
         {
             //
             // If first slice, don't read the header, it was already read in
@@ -2274,8 +2273,7 @@ public sealed class InputStream
             if (_skipFirstSlice)
             {
                 _skipFirstSlice = false;
-                Debug.Assert(_typeId is not null);
-                return _typeId;
+                return;
             }
 
             //
@@ -2299,8 +2297,6 @@ public sealed class InputStream
             {
                 throw new MarshalException(endOfBufferMessage);
             }
-
-            return _typeId;
         }
 
         internal override void endSlice()
@@ -2536,7 +2532,7 @@ public sealed class InputStream
             return slicedData;
         }
 
-        internal override string startSlice()
+        internal override void startSlice()
         {
             //
             // If first slice, don't read the header, it was already read in
@@ -2545,7 +2541,7 @@ public sealed class InputStream
             if (_current!.skipFirstSlice)
             {
                 _current.skipFirstSlice = false;
-                return _current.typeId!;
+                return;
             }
 
             _current.sliceFlags = _stream.readByte();
@@ -2562,22 +2558,26 @@ public sealed class InputStream
                 //
                 if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT)
                 {
-                    _current.typeId = _stream.readSize().ToString(CultureInfo.InvariantCulture);
+                    _current.compactId = _stream.readSize();
+                    _current.typeId = _current.compactId.ToString(CultureInfo.InvariantCulture);
                 }
                 else if ((_current.sliceFlags &
                         (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
                 {
                     _current.typeId = readTypeId((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
+                    _current.compactId = -1;
                 }
                 else
                 {
                     // Only the most derived slice encodes the type ID for the compact format.
                     _current.typeId = "";
+                    _current.compactId = -1;
                 }
             }
             else
             {
                 _current.typeId = _stream.readString();
+                _current.compactId = -1;
             }
 
             //
@@ -2595,8 +2595,6 @@ public sealed class InputStream
             {
                 _current.sliceSize = 0;
             }
-
-            return _current.typeId;
         }
 
         internal override void endSlice()
@@ -2716,6 +2714,7 @@ public sealed class InputStream
 
                 var info = new SliceInfo(
                     typeId: _current.typeId!,
+                    compactId: _current.compactId,
                     bytes: bytes,
                     hasOptionalMembers: hasOptionalMembers,
                     isLastSlice: (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0);
@@ -2922,6 +2921,7 @@ public sealed class InputStream
             internal byte sliceFlags;
             internal int sliceSize;
             internal string? typeId;
+            internal int compactId;
             internal Stack<IndirectPatchEntry>? indirectPatchList;
 
             internal InstanceData? previous;

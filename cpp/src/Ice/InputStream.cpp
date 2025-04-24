@@ -1613,7 +1613,7 @@ Ice::InputStream::EncapsDecoder10::endInstance()
     return nullptr;
 }
 
-const string&
+void
 Ice::InputStream::EncapsDecoder10::startSlice()
 {
     //
@@ -1623,7 +1623,7 @@ Ice::InputStream::EncapsDecoder10::startSlice()
     if (_skipFirstSlice)
     {
         _skipFirstSlice = false;
-        return _typeId;
+        return;
     }
 
     //
@@ -1648,7 +1648,6 @@ Ice::InputStream::EncapsDecoder10::startSlice()
     {
         throw MarshalException{__FILE__, __LINE__, endOfBufferMessage};
     }
-    return _typeId;
 }
 
 void
@@ -1894,7 +1893,7 @@ Ice::InputStream::EncapsDecoder11::endInstance()
     return slicedData;
 }
 
-const string&
+void
 Ice::InputStream::EncapsDecoder11::startSlice()
 {
     //
@@ -1904,7 +1903,7 @@ Ice::InputStream::EncapsDecoder11::startSlice()
     if (_current->skipFirstSlice)
     {
         _current->skipFirstSlice = false;
-        return _current->typeId;
+        return;
     }
 
     _stream->read(_current->sliceFlags);
@@ -1918,8 +1917,8 @@ Ice::InputStream::EncapsDecoder11::startSlice()
     {
         if ((_current->sliceFlags & FLAG_HAS_TYPE_ID_COMPACT) == FLAG_HAS_TYPE_ID_COMPACT) // Must be checked first!
         {
-            _current->typeId.clear();
             _current->compactId = _stream->readSize();
+            _current->typeId = std::to_string(_current->compactId);
         }
         else if (_current->sliceFlags & (FLAG_HAS_TYPE_ID_STRING | FLAG_HAS_TYPE_ID_INDEX))
         {
@@ -1936,6 +1935,7 @@ Ice::InputStream::EncapsDecoder11::startSlice()
     else
     {
         _stream->read(_current->typeId, false);
+        _current->compactId = -1;
     }
 
     //
@@ -1953,8 +1953,6 @@ Ice::InputStream::EncapsDecoder11::startSlice()
     {
         _current->sliceSize = 0;
     }
-
-    return _current->typeId;
 }
 
 void
@@ -2130,12 +2128,6 @@ Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, const PatchFunc& 
     shared_ptr<Value> v;
     while (true)
     {
-        if (_current->compactId != -1)
-        {
-            // Translate a compact (numeric) type ID into a string type ID.
-            _current->typeId = std::to_string(_current->compactId);
-        }
-
         if (!_current->typeId.empty())
         {
             v = newInstance(_current->typeId);
