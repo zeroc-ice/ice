@@ -95,6 +95,17 @@ addClassInfoById(const ClassInfoPtr& p)
 }
 
 static void
+addClassInfoByCompactId(const ClassInfoPtr& p)
+{
+    assert(p->compactId != -1);
+    ClassInfoMap* m = reinterpret_cast<ClassInfoMap*>(ICE_G(idToClassInfoMap));
+    assert(m);
+
+    // No-op if it's already in the map.
+    m->insert(ClassInfoMap::value_type(std::to_string(p->compactId), p));
+}
+
+static void
 addClassInfoByName(const ClassInfoPtr& p)
 {
     assert(!getClassInfoByName(p->name));
@@ -3532,7 +3543,7 @@ ZEND_FUNCTION(IcePHP_defineClass)
     char* name;
     size_t nameLen;
     zend_long compactId;
-    zend_bool interface;
+    zend_bool interface; // TODO: explain what this means
     zval* base;
     zval* members;
 
@@ -3567,13 +3578,7 @@ ZEND_FUNCTION(IcePHP_defineClass)
 
     if (type->compactId != -1)
     {
-        CompactIdMap* m = reinterpret_cast<CompactIdMap*>(ICE_G(compactIdToClassInfoMap));
-        if (!m)
-        {
-            m = new CompactIdMap;
-            ICE_G(compactIdToClassInfoMap) = m;
-        }
-        m->insert(CompactIdMap::value_type(type->compactId, type));
+        addClassInfoByCompactId(type);
     }
 
     if (!createTypeInfo(return_value, std::move(type)))

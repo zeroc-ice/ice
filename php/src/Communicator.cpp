@@ -1157,19 +1157,6 @@ ZEND_FUNCTION(Ice_initialize)
         }
     }
 
-    initData.compactIdResolver = [](int id)
-    {
-        CompactIdMap* m = reinterpret_cast<CompactIdMap*>(ICE_G(compactIdToClassInfoMap));
-        if (m)
-        {
-            CompactIdMap::iterator p = m->find(id);
-            if (p != m->end())
-            {
-                return p->second->id;
-            }
-        }
-        return string();
-    };
     initData.valueFactoryManager = make_shared<ValueFactoryManager>();
 
     if (!initData.properties)
