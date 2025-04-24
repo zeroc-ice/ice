@@ -60,14 +60,7 @@ namespace Ice
               hasOptionalMembers(hasOptionalMembers),
               isLastSlice(isLastSlice)
         {
-            if (compactId == -1)
-            {
-                assert(typeId.empty());
-            }
-            else
-            {
-                assert(!typeId.empty());
-            }
+            assert((compactId == -1) == typeId.empty());
         }
     };
 
