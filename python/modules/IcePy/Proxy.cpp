@@ -19,7 +19,9 @@
 using namespace std;
 using namespace IcePy;
 
-#if defined(__GNUC__) && ((__GNUC__ >= 8))
+#if defined(__clang__)
+#    pragma clang diagnostic ignored "-Wcast-function-type-mismatch"
+#elif defined(__GNUC__) && ((__GNUC__ >= 8))
 #    pragma GCC diagnostic ignored "-Wcast-function-type"
 #endif
 
