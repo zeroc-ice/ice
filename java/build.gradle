@@ -57,7 +57,7 @@ subprojects {
             task.enabled = enableCodeAnalysis
         dependsOn(rewriteDryRun)
         exclude(
-            '**/generated/**'
+            '**/generated/**/*'
         )
     }
 
