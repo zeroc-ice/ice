@@ -3543,7 +3543,7 @@ ZEND_FUNCTION(IcePHP_defineClass)
     char* name;
     size_t nameLen;
     zend_long compactId;
-    zend_bool interface; // TODO: explain what this means
+    zend_bool interface;
     zval* base;
     zval* members;
 
