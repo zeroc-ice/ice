@@ -1,4 +1,4 @@
-# Copyright (c) ZeroC, Inc. All rights reserved.
+# Copyright (c) ZeroC, Inc.
 
 require 'Glacier2/Router'
 require 'Glacier2/PermissionsVerifier'
