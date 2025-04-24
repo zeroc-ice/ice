@@ -33,5 +33,9 @@ install:: | $(DESTDIR)$(install_rubydir)
 	$(Q)$(INSTALL) -m 644 $(lang_srcdir)/ruby/*.rb $(DESTDIR)$(install_rubydir)
 
 $(eval $(call make-ruby-package,$(slicedir),$(lang_srcdir)/ruby,Ice))
+$(eval $(call make-ruby-package,$(slicedir),$(lang_srcdir)/ruby,Glacier2))
+$(eval $(call make-ruby-package,$(slicedir),$(lang_srcdir)/ruby,IceBox))
+$(eval $(call make-ruby-package,$(slicedir),$(lang_srcdir)/ruby,IceGrid))
+$(eval $(call make-ruby-package,$(slicedir),$(lang_srcdir)/ruby,IceStorm))
 
 all:: srcs
