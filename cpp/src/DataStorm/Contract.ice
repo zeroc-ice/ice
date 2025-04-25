@@ -428,7 +428,7 @@ module DataStormContract
         /// reader for which this node has a corresponding topic writer.
         ///
         /// @param publisher The publisher node initiating the session. The proxy is never null.
-        /// @throws SessionCreationException if the session cannot be created.
+        /// @throws SessionCreationException Thrown when the session cannot be created.
         /// @see Lookup::announceTopicReader
         ["amd"] void initiateCreateSession(Node* publisher) throws SessionCreationException;
 
@@ -446,7 +446,7 @@ module DataStormContract
         /// @param subscriber The subscriber node initiating the session. This proxy is never null.
         /// @param session The subscriber session being created. This proxy is never null.
         /// @param fromRelay Indicates whether the session is being created from a relay node.
-        /// @throws SessionCreationException if the session cannot be created.
+        /// @throws SessionCreationException Thrown when the session cannot be created.
         ["amd"] void createSession(Node* subscriber, SubscriberSession* session, bool fromRelay)
             throws SessionCreationException;
 
@@ -454,7 +454,7 @@ module DataStormContract
         ///
         /// @param publisher The publisher node confirming the session. The proxy is never null.
         /// @param session The publisher session being confirmed. The proxy is never null.
-        /// @throws SessionCreationException if the session cannot be created.
+        /// @throws SessionCreationException Thrown when the session cannot be created.
         ["amd"] void confirmCreateSession(Node* publisher, PublisherSession* session) throws SessionCreationException;
     }
 
