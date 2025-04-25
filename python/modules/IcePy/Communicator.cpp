@@ -1606,8 +1606,17 @@ IcePy::getSliceLoader(const Ice::CommunicatorPtr& communicator)
 void
 IcePy::removeSliceLoader(const Ice::CommunicatorPtr& communicator)
 {
+    // Access to sliceLoaderMap is protected by the GIL.
+
     // Called by destroy[Async], which can be called multiple times.
-    sliceLoaderMap.erase(communicator);
+    auto p = sliceLoaderMap.find(communicator);
+    if (p != sliceLoaderMap.end())
+    {
+        // Make sure we don't release the last refcount of a Python object in erase, since this releasing may release
+        // the GIL temporarily and let another thread access the map.
+        Ice::SliceLoaderPtr sliceLoader = p->second;
+        sliceLoaderMap.erase(p);
+    }
 }
 
 extern "C" PyObject*
