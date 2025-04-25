@@ -667,12 +667,14 @@ SessionI::retry(NodePrx node, exception_ptr exception)
         {
             rethrow_exception(exception);
         }
-        catch (const DataStormContract::SessionCreationException& ex)
+        catch (const SessionCreationException& ex)
         {
             if (ex.error == SessionError::NodeShutdown)
             {
+                // Don't need to retry if the target node is being shut down.
                 return false;
             }
+            // Else, for other error codes we can retry.
         }
         catch (const ObjectAdapterDestroyedException&)
         {
@@ -684,6 +686,7 @@ SessionI::retry(NodePrx node, exception_ptr exception)
         }
         catch (const std::exception&)
         {
+            // Ignore other exceptions and retry.
         }
     }
 

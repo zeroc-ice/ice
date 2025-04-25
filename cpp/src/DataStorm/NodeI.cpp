@@ -240,26 +240,30 @@ NodeI::createSessionAsync(
                         uncheckedCast<PublisherSessionPrx>(session->getProxy()),
                         nullptr,
                         [self, subscriber, session](auto ex)
-                        { self->removePublisherSession(*subscriber, session, ex); });
+                        { self->retryPublisherSessionCreation(*subscriber, session, ex); });
 
                     // Session::connected informs the subscriber session of all the topic writers in the current node.
                     session->connected(*subscriberSession, connection, instance->getTopicFactory()->getTopicWriters());
                 }
                 catch (const LocalException&)
                 {
-                    self->removePublisherSession(*subscriber, session, current_exception());
+                    self->retryPublisherSessionCreation(*subscriber, session, current_exception());
                 }
             },
             [self = shared_from_this(), session, subscriber, exception](exception_ptr ex)
             {
-                self->removePublisherSession(*subscriber, session, ex);
-                exception(make_exception_ptr(SessionCreationException{SessionError::ConnectionFailure}));
+                self->retryPublisherSessionCreation(*subscriber, session, ex);
+                exception(make_exception_ptr(SessionCreationException{SessionError::Internal}));
             });
     }
     catch (const LocalException&)
     {
-        exception(make_exception_ptr(SessionCreationException{SessionError::UnknownError}));
-        removePublisherSession(*subscriber, session, current_exception());
+        exception(make_exception_ptr(SessionCreationException{SessionError::Internal}));
+        if (session)
+        {
+            retryPublisherSessionCreation(*subscriber, session, current_exception());
+        }
+        // Else node is shutting down.
     }
 }
 
@@ -341,11 +345,11 @@ NodeI::createSubscriberSession(
             _proxy,
             nullptr,
             [self = shared_from_this(), session, subscriber](exception_ptr ex)
-            { self->removePublisherSession(subscriber, session, ex); });
+            { self->retryPublisherSessionCreation(subscriber, session, ex); });
     }
     catch (const LocalException&)
     {
-        removePublisherSession(subscriber, session, current_exception());
+        retryPublisherSessionCreation(subscriber, session, current_exception());
     }
 }
 
@@ -399,51 +403,73 @@ NodeI::createPublisherSession(
             false,
             nullptr,
             [self = shared_from_this(), publisher, session](exception_ptr ex)
-            { self->removeSubscriberSession(publisher, session, ex); });
+            { self->retrySubscriberSessionCreation(publisher, session, ex); });
     }
     catch (const LocalException&)
     {
-        removeSubscriberSession(publisher, session, current_exception());
-        throw SessionCreationException{SessionError::UnknownError};
+        if (session)
+        {
+            retrySubscriberSessionCreation(publisher, session, current_exception());
+        }
+        // Else node is shutting down.
+        throw SessionCreationException{SessionError::Internal};
+    }
+}
+
+void
+NodeI::retrySubscriberSessionCreation(
+    const NodePrx& node,
+    const shared_ptr<SubscriberSessionI>& session,
+    exception_ptr ex)
+{
+    if (session && !session->retry(node, ex))
+    {
+        removeSubscriberSession(node, session, ex);
     }
 }
 
 void
 NodeI::removeSubscriberSession(const NodePrx& node, const shared_ptr<SubscriberSessionI>& session, exception_ptr ex)
 {
+    unique_lock<mutex> lock(_mutex);
+    auto sessionNode = session->getNode();
+    if (!session->checkSession() && node->ice_getIdentity() == sessionNode->ice_getIdentity())
+    {
+        auto p = _subscribers.find(sessionNode->ice_getIdentity());
+        if (p != _subscribers.end() && p->second == session)
+        {
+            _subscribers.erase(p);
+            _subscriberSessions.erase(session->getProxy()->ice_getIdentity());
+            session->destroyImpl(ex);
+        }
+    }
+}
+
+void
+NodeI::retryPublisherSessionCreation(
+    const NodePrx& node,
+    const shared_ptr<PublisherSessionI>& session,
+    exception_ptr ex)
+{
     if (session && !session->retry(node, ex))
     {
-        unique_lock<mutex> lock(_mutex);
-        auto sessionNode = session->getNode();
-        if (!session->checkSession() && node->ice_getIdentity() == sessionNode->ice_getIdentity())
-        {
-            auto p = _subscribers.find(sessionNode->ice_getIdentity());
-            if (p != _subscribers.end() && p->second == session)
-            {
-                _subscribers.erase(p);
-                _subscriberSessions.erase(session->getProxy()->ice_getIdentity());
-                session->destroyImpl(ex);
-            }
-        }
+        removePublisherSession(node, session, ex);
     }
 }
 
 void
 NodeI::removePublisherSession(const NodePrx& node, const shared_ptr<PublisherSessionI>& session, exception_ptr ex)
 {
-    if (session && !session->retry(node, ex))
+    unique_lock<mutex> lock(_mutex);
+    auto sessionNode = session->getNode();
+    if (!session->checkSession() && node->ice_getIdentity() == sessionNode->ice_getIdentity())
     {
-        unique_lock<mutex> lock(_mutex);
-        auto sessionNode = session->getNode();
-        if (!session->checkSession() && node->ice_getIdentity() == sessionNode->ice_getIdentity())
+        auto p = _publishers.find(sessionNode->ice_getIdentity());
+        if (p != _publishers.end() && p->second == session)
         {
-            auto p = _publishers.find(sessionNode->ice_getIdentity());
-            if (p != _publishers.end() && p->second == session)
-            {
-                _publishers.erase(p);
-                _publisherSessions.erase(session->getProxy()->ice_getIdentity());
-                session->destroyImpl(ex);
-            }
+            _publishers.erase(p);
+            _publisherSessions.erase(session->getProxy()->ice_getIdentity());
+            session->destroyImpl(ex);
         }
     }
 }

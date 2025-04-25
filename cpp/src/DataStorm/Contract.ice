@@ -394,20 +394,17 @@ module DataStormContract
     /// The reason for the session creation failure.
     enum SessionError
     {
-        // The session is already connected.
+        /// The session is already connected.
         AlreadyConnected,
 
-        // Node is shutting down.
+        /// Node is shutting down.
         NodeShutdown,
 
-        // The connection failed
-        ConnectionFailure,
-
-        // A confirmation was received for a session that doesn't exist.
+        /// A confirmation was received for a session that doesn't exist.
         SessionNotFound,
 
-        // The session failed for an unknown reason.
-        UnknownError,
+        /// The session creation failed due to an internal error.
+        Internal,
     }
 
     /// Throws when the session cannot be created.

@@ -57,6 +57,16 @@ namespace DataStormI
             const Ice::ConnectionPtr&,
             std::shared_ptr<SubscriberSessionI>);
 
+        void retrySubscriberSessionCreation(
+            const DataStormContract::NodePrx&,
+            const std::shared_ptr<SubscriberSessionI>&,
+            std::exception_ptr);
+
+        void retryPublisherSessionCreation(
+            const DataStormContract::NodePrx&,
+            const std::shared_ptr<PublisherSessionI>&,
+            std::exception_ptr);
+
         void removeSubscriberSession(
             const DataStormContract::NodePrx&,
             const std::shared_ptr<SubscriberSessionI>&,
