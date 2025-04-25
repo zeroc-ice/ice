@@ -1282,7 +1282,7 @@ Ice::OutputStream::EncapsEncoder11::startSlice(string_view typeId, int compactId
         //
         if (_encaps->format == FormatType::SlicedFormat || _current->firstSlice)
         {
-            if (compactId >= 0)
+            if (compactId != -1)
             {
                 _current->sliceFlags |= FLAG_HAS_TYPE_ID_COMPACT;
                 _stream->writeSize(compactId);

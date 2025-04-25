@@ -222,11 +222,10 @@ namespace Ice
         EncodingVersion skipEncapsulation();
 
         /// Reads the start of a value or exception slice.
-        /// @return The Slice type ID for this slice.
-        std::string startSlice()
+        void startSlice()
         {
             assert(_currentEncaps && _currentEncaps->decoder);
-            return _currentEncaps->decoder->startSlice();
+            _currentEncaps->decoder->startSlice();
         }
 
         /// Indicates that the end of a value or exception slice has been reached.
@@ -689,8 +688,6 @@ namespace Ice
 
         void throwUnmarshalOutOfBoundsException(const char*, int);
 
-        [[nodiscard]] std::string resolveCompactId(int) const;
-
         class Encaps;
         enum SliceType
         {
@@ -716,7 +713,7 @@ namespace Ice
 
             virtual void startInstance(SliceType) = 0;
             virtual SlicedDataPtr endInstance() = 0;
-            virtual const std::string& startSlice() = 0;
+            virtual void startSlice() = 0;
             virtual void endSlice() = 0;
             virtual void skipSlice() = 0;
 
@@ -786,7 +783,7 @@ namespace Ice
 
             void startInstance(SliceType) override;
             SlicedDataPtr endInstance() override;
-            const std::string& startSlice() override;
+            void startSlice() override;
             void endSlice() override;
             void skipSlice() override;
 
@@ -822,7 +819,7 @@ namespace Ice
 
             void startInstance(SliceType) override;
             SlicedDataPtr endInstance() override;
-            const std::string& startSlice() override;
+            void startSlice() override;
             void endSlice() override;
             void skipSlice() override;
 
@@ -871,7 +868,7 @@ namespace Ice
                 std::uint8_t sliceFlags{0};
                 std::int32_t sliceSize{0};
                 std::string typeId;
-                int compactId{0};
+                int compactId{-1};
                 IndirectPatchList indirectPatchList;
 
                 InstanceData* previous{nullptr};

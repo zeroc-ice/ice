@@ -1442,7 +1442,7 @@ Slice::Gen::SliceLoaderVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string flatScopedName = p->mappedScoped("_");
 
     C << nl << "const IceInternal::ClassInit<" << scopedName << "> iceC" << flatScopedName << "_init";
-    if (p->compactId() >= 0)
+    if (p->compactId() != -1)
     {
         C << '{' << p->compactId() << '}';
     }

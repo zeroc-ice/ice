@@ -2684,7 +2684,7 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
       _base(std::move(base)),
       _compactId(id)
 {
-    if (_compactId >= 0)
+    if (_compactId != -1)
     {
         unit()->addTypeId(_compactId, scoped());
     }

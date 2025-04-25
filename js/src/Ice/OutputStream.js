@@ -306,7 +306,7 @@ class EncapsEncoder11 extends EncapsEncoder {
             // encoding).
             //
             if (this._encaps.format === FormatType.SlicedFormat || this._current.firstSlice) {
-                if (compactId >= 0) {
+                if (compactId != -1) {
                     this._current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_COMPACT;
                     this._stream.writeSize(compactId);
                 } else {
