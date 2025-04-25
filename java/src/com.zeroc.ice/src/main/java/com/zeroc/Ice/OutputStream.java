@@ -1731,7 +1731,7 @@ public final class OutputStream {
                 // Encode the type ID (only in the first slice for the compact encoding).
                 //
                 if (_encaps.format == FormatType.SlicedFormat || _current.firstSlice) {
-                    if (compactId >= 0) {
+                    if (compactId != -1) {
                         _current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_COMPACT;
                         _stream.writeSize(compactId);
                     } else {
@@ -1828,12 +1828,7 @@ public final class OutputStream {
             }
 
             for (SliceInfo info : slicedData.slices) {
-                if (info.typeId.startsWith("::")) {
-                    startSlice(info.typeId, -1, info.isLastSlice);
-                }
-                else {
-                    startSlice("", Integer.parseInt(info.typeId), info.isLastSlice);
-                }
+                startSlice(info.typeId, info.compactId, info.isLastSlice);
 
                 //
                 // Write the bytes associated with this slice.

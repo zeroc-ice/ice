@@ -89,9 +89,6 @@ namespace Ice
         /// @param con The connection associated with this call. May be null.
         std::function<void(std::function<void()> call, const Ice::ConnectionPtr& con)> executor{};
 
-        /// @private
-        std::function<std::string(int id)> compactIdResolver{};
-
         /// The batch request interceptor, which is called by the Ice runtime to enqueue a batch request.
         /// @param req An object representing the batch request.
         /// @param count The number of requests currently in the queue.

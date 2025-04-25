@@ -914,7 +914,7 @@ private final class EncapsEncoder11: EncapsEncoder {
             // encoding).
             //
             if encaps.format == FormatType.slicedFormat || current.firstSlice {
-                if compactId >= 0 {
+                if compactId != -1 {
                     current.sliceFlags.insert(.FLAG_HAS_TYPE_ID_COMPACT)
                     os.write(size: compactId)
                 } else {

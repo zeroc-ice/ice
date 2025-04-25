@@ -392,13 +392,11 @@ public final class InputStream {
 
     /**
      * Reads the start of a value or exception slice.
-     *
-     * @return The Slice type ID for this slice.
      */
-    public String startSlice() // Returns type ID of next slice
+    public void startSlice()
         {
             assert (_encapsStack != null && _encapsStack.decoder != null);
-            return _encapsStack.decoder.startSlice();
+            _encapsStack.decoder.startSlice();
         }
 
     /** Indicates that the end of a value or exception slice has been reached. */
@@ -1557,7 +1555,7 @@ public final class InputStream {
 
         abstract SlicedData endInstance();
 
-        abstract String startSlice();
+        abstract void startSlice();
 
         abstract void endSlice();
 
@@ -1804,14 +1802,14 @@ public final class InputStream {
         }
 
         @Override
-        String startSlice() {
+        void startSlice() {
             //
             // If first slice, don't read the header, it was already read in
             // readInstance or throwException to find the factory.
             //
             if (_skipFirstSlice) {
                 _skipFirstSlice = false;
-                return _typeId;
+                return;
             }
 
             //
@@ -1833,8 +1831,6 @@ public final class InputStream {
             if (_sliceSize < 4) {
                 throw new MarshalException(END_OF_BUFFER_MESSAGE);
             }
-
-            return _typeId;
         }
 
         @Override
@@ -2041,14 +2037,14 @@ public final class InputStream {
         }
 
         @Override
-        String startSlice() {
+        void startSlice() {
             //
             // If first slice, don't read the header, it was already read in
             // readInstance or throwException to find the factory.
             //
             if (_current.skipFirstSlice) {
                 _current.skipFirstSlice = false;
-                return _current.typeId;
+                return;
             }
 
             _current.sliceFlags = _stream.readByte();
@@ -2061,7 +2057,8 @@ public final class InputStream {
                 if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT)
                     == Protocol.FLAG_HAS_TYPE_ID_COMPACT) // Must be checked 1st!
                     {
-                        _current.typeId = String.valueOf(_stream.readSize());
+                        _current.compactId = _stream.readSize();
+                        _current.typeId = String.valueOf(_current.compactId);
                     } else if ((_current.sliceFlags
                     & (Protocol.FLAG_HAS_TYPE_ID_INDEX
                     | Protocol.FLAG_HAS_TYPE_ID_STRING))
@@ -2069,14 +2066,17 @@ public final class InputStream {
                     _current.typeId =
                         readTypeId(
                             (_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
+                    _current.compactId = -1;
                 } else {
                     //
                     // Only the most derived slice encodes the type ID for the compact format.
                     //
                     _current.typeId = "";
+                    _current.compactId = -1;
                 }
             } else {
                 _current.typeId = _stream.readString();
+                _current.compactId = -1;
             }
 
             //
@@ -2090,8 +2090,6 @@ public final class InputStream {
             } else {
                 _current.sliceSize = 0;
             }
-
-            return _current.typeId;
         }
 
         @Override
@@ -2187,7 +2185,8 @@ public final class InputStream {
 
                 var info =
                     new SliceInfo(
-                        _current.typeId,
+                        _current.compactId == -1 ? _current.typeId : "",
+                        _current.compactId,
                         bytes,
                         hasOptionalMembers,
                         (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0);
@@ -2372,6 +2371,7 @@ public final class InputStream {
             byte sliceFlags;
             int sliceSize;
             String typeId;
+            int compactId;
             Deque<IndirectPatchEntry> indirectPatchList;
 
             final InstanceData previous;

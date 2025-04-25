@@ -1779,7 +1779,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
-    if (p->compactId() >= 0)
+    if (p->compactId() != -1)
     {
         out << nl << "@com.zeroc.Ice.CompactSliceTypeId(value = " << p->compactId() << ")";
     }

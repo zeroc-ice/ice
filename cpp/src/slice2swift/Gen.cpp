@@ -252,7 +252,7 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
     out << eb;
 
-    if (p->compactId() >= 0)
+    if (p->compactId() != -1)
     {
         // For each Value class using a compact id we generate an extension method in TypeIdResolver.
         out << sp;
