@@ -160,7 +160,7 @@ NodeI::initiateCreateSessionAsync(
         // The node is shutting down, don't retry.
         exception(make_exception_ptr(SessionCreationException{SessionCreationError::NodeShutdown}));
     }
-    catch (const std::exception&)
+    catch (const LocalException&)
     {
         exception(make_exception_ptr(SessionCreationException{SessionCreationError::Internal}));
     }
@@ -212,7 +212,6 @@ NodeI::createSessionAsync(
         s->ice_getConnectionAsync(
             [=, self = shared_from_this()](const auto& connection) mutable
             {
-                assert(session);
                 if (session->checkSession())
                 {
                     // The session is already connected.
@@ -382,8 +381,10 @@ NodeI::createSubscriberSession(
     }
     catch (const LocalException&)
     {
-        assert(session);
-        retryPublisherSessionCreation(subscriber, session, current_exception());
+        if (session)
+        {
+            retryPublisherSessionCreation(subscriber, session, current_exception());
+        }
     }
 }
 

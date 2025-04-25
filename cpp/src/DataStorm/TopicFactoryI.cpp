@@ -228,6 +228,14 @@ TopicFactoryI::createPublisherSession(
             //
             // In all cases, no further action is required, and the exception can safely be ignored.
         }
+        catch (const CommunicatorDestroyedException&)
+        {
+            // The node is shutting down.
+        }
+        catch (const ObjectAdapterDestroyedException&)
+        {
+            // The node is shutting down.
+        }
     }
 }
 
