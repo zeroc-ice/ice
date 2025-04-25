@@ -17,22 +17,18 @@ IcePy::PySliceLoader::PySliceLoader(PyObject* sliceLoader) : _sliceLoader(Py_New
     }
 }
 
-IcePy::PySliceLoader::~PySliceLoader() { Py_DECREF(_sliceLoader); }
+IcePy::PySliceLoader::~PySliceLoader()
+{
+    // Called by communicatorDealloc that executes with the GIL locked.
+    assert(PyGILState_Check());
+    Py_DECREF(_sliceLoader);
+}
 
 Ice::ValuePtr
 IcePy::PySliceLoader::newClassInstance(string_view typeId) const
 {
     // The unmarshaling always runs with the GIL locked.
     assert(PyGILState_Check());
-
-    // Get the type information.
-    ValueInfoPtr info =
-        typeId == Ice::Value::ice_staticId() ? lookupValueInfo("::Ice::UnknownSlicedValue") : lookupValueInfo(typeId);
-
-    if (!info)
-    {
-        return nullptr;
-    }
 
     PyObjectHandle obj{
         PyObject_CallFunction(_sliceLoader, "s#", typeId.data(), static_cast<Py_ssize_t>(typeId.size()))};
@@ -44,6 +40,15 @@ IcePy::PySliceLoader::newClassInstance(string_view typeId) const
     }
 
     if (obj.get() == Py_None)
+    {
+        return nullptr;
+    }
+
+    // Get the type information.
+    ValueInfoPtr info =
+        typeId == Ice::Value::ice_staticId() ? lookupValueInfo("::Ice::UnknownSlicedValue") : lookupValueInfo(typeId);
+
+    if (!info)
     {
         return nullptr;
     }
