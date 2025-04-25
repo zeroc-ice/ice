@@ -3,7 +3,7 @@
 package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.zeroc.Ice.FacetNotExistException;
-import com.zeroc.Ice.IceMX.MetricsAdminPrx;
+import com.zeroc.IceMX.MetricsAdminPrx;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.LoggerAdminPrx;
 import com.zeroc.Ice.ObjectNotExistException;

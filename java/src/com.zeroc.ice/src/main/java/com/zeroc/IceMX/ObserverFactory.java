@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-package com.zeroc.Ice.IceMX;
+package com.zeroc.IceMX;
 
 import com.zeroc.Ice.MetricsAdminI;
 import com.zeroc.Ice.MetricsMap;

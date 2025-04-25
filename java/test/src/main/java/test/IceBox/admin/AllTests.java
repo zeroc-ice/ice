@@ -3,8 +3,8 @@
 package test.IceBox.admin;
 
 import com.zeroc.Ice.Communicator;
-import com.zeroc.Ice.IceMX.MetricsAdmin;
-import com.zeroc.Ice.IceMX.MetricsAdminPrx;
+import com.zeroc.IceMX.MetricsAdmin;
+import com.zeroc.IceMX.MetricsAdminPrx;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.PropertiesAdminPrx;
 
