@@ -146,9 +146,23 @@ NodeI::initiateCreateSessionAsync(
         createPublisherSession(*publisher, current.con, nullptr);
         response();
     }
-    catch (const std::exception&)
+    catch (const SessionCreationException&)
     {
         exception(current_exception());
+    }
+    catch (const CommunicatorDestroyedException&)
+    {
+        // The node is shutting down, don't retry.
+        exception(make_exception_ptr(SessionCreationException{SessionCreationError::NodeShutdown}));
+    }
+    catch (const ObjectAdapterDestroyedException&)
+    {
+        // The node is shutting down, don't retry.
+        exception(make_exception_ptr(SessionCreationException{SessionCreationError::NodeShutdown}));
+    }
+    catch (const std::exception&)
+    {
+        exception(make_exception_ptr(SessionCreationException{SessionCreationError::Internal}));
     }
 }
 
