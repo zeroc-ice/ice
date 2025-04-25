@@ -3,14 +3,6 @@
 
 require_once('Test.php');
 
-class MyValueFactory implements Ice\ValueFactory
-{
-    function create($id)
-    {
-        return null;
-    }
-}
-
 function allTests($helper)
 {
     $communicator = $helper->communicator();

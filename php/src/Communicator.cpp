@@ -35,7 +35,6 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 namespace IcePHP
 {
     zend_class_entry* communicatorClassEntry = 0;
-    zend_class_entry* valueFactoryManagerClassEntry = 0;
 
     // An active communicator is in use by at least one request and may have
     // registered so that it remains active after a request completes. The
@@ -54,21 +53,10 @@ namespace IcePHP
     };
     using ActiveCommunicatorPtr = shared_ptr<ActiveCommunicator>;
 
-    // The IcePHP C++ value factory abstract base class.
-    struct ValueFactory
-    {
-        virtual shared_ptr<Ice::Value> create(string_view) = 0;
-    };
-    using ValueFactoryPtr = shared_ptr<ValueFactory>;
-
-    class CustomValueFactory;
-    using CustomValueFactoryPtr = shared_ptr<CustomValueFactory>;
-
     // CommunicatorInfoI encapsulates communicator-related information that
     // is specific to a PHP "request". In other words, multiple PHP requests
     // might share the same communicator instance but still need separate
-    // workspaces. For example, we don't want the value factories installed
-    // by one request to influence the behavior of another request.
+    // workspaces.
     class CommunicatorInfoI final : public CommunicatorInfo, public enable_shared_from_this<CommunicatorInfoI>
     {
     public:
@@ -83,80 +71,19 @@ namespace IcePHP
 
         void setSliceLoader(Ice::SliceLoaderPtr);
 
-        bool addFactory(zval*, string_view);
-        CustomValueFactoryPtr findFactory(string_view) const;
-        void destroyFactories();
-
         const ActiveCommunicatorPtr ac;
         zval zv;
 
     private:
-        typedef map<string, CustomValueFactoryPtr, std::less<>> CustomFactoryMap;
-
-        CustomFactoryMap _customFactories;
         Ice::SliceLoaderPtr _sliceLoader;
     };
     using CommunicatorInfoIPtr = std::shared_ptr<CommunicatorInfoI>;
-
-    // Wraps a PHP object/value factory.
-    class CustomValueFactory final : public ValueFactory
-    {
-    public:
-        CustomValueFactory(zval*, const CommunicatorInfoIPtr&);
-
-        shared_ptr<Ice::Value> create(string_view) final;
-
-        void getZval(zval*);
-
-        void destroy();
-
-    private:
-        zval _factory;
-        CommunicatorInfoIPtr _info;
-    };
-
-    // Each PHP request has its own set of value factories. More precisely, there is
-    // a value factory map for each communicator that is created by a PHP request.
-    // (see CommunicatorInfoI).
-    //
-    // We define a custom value factory manager implementation that delegates to
-    // to PHP objects supplied by the application.
-    //
-    // An instance of this class is installed as the communicator's value factory
-    // manager, and the class holds a reference to its communicator. When find() is
-    // invoked, the class resolves the appropriate factory as follows:
-    //
-    //  * Using its communicator reference as the key, look up the corresponding
-    //    CommunicatorInfoI object in the request-specific communicator map.
-    //
-    //  * For non-empty type-ids, return a wrapper around the application-supplied
-    //    factory, if any.
-    class ValueFactoryManager final : public Ice::ValueFactoryManager
-    {
-    public:
-        void add(Ice::ValueFactory, string_view) final;
-        Ice::ValueFactory find(string_view) const noexcept final;
-
-        void setCommunicator(const Ice::CommunicatorPtr& c) { _communicator = c; }
-        Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
-
-        void getZval(zval*);
-
-        void destroy();
-
-    private:
-        Ice::CommunicatorPtr _communicator;
-    };
-    using ValueFactoryManagerPtr = shared_ptr<ValueFactoryManager>;
 }
 
 namespace
 {
     // Communicator support.
     zend_object_handlers _handlers;
-
-    // ValueFactoryManager support.
-    zend_object_handlers _vfmHandlers;
 
     // The profile map holds Properties objects corresponding to the "default" profile
     // (defined via the ice.config & ice.options settings in php.ini) as well as named
@@ -209,9 +136,6 @@ extern "C"
     static zend_object* handleAlloc(zend_class_entry*);
     static void handleFreeStorage(zend_object*);
     static zend_object* handleClone(zend_object*);
-    static zend_object* handleVfmAlloc(zend_class_entry*);
-    static void handleVfmFreeStorage(zend_object*);
-    static zend_object* handleVfmClone(zend_object*);
 }
 
 ZEND_METHOD(Ice_Communicator, __construct) { runtimeError("communicators cannot be instantiated directly"); }
@@ -284,14 +208,6 @@ ZEND_METHOD(Ice_Communicator, destroy)
             }
             _this->ac->ids.clear();
         }
-
-        // We need to destroy any value factories installed by this request.
-        _this->destroyFactories();
-
-        auto vfm = dynamic_pointer_cast<ValueFactoryManager>(c->getValueFactoryManager());
-        assert(vfm);
-        vfm->destroy();
-
         c->destroy();
     }
 }
@@ -518,37 +434,6 @@ ZEND_METHOD(Ice_Communicator, identityToString)
     {
         string str = _this->getCommunicator()->identityToString(id);
         RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
-    }
-    catch (...)
-    {
-        throwException(current_exception());
-        RETURN_NULL();
-    }
-}
-
-ZEND_METHOD(Ice_Communicator, getValueFactoryManager)
-{
-    if (ZEND_NUM_ARGS() > 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
-    assert(_this);
-
-    try
-    {
-        auto vfm = dynamic_pointer_cast<ValueFactoryManager>(_this->getCommunicator()->getValueFactoryManager());
-        assert(vfm);
-        if (object_init_ex(return_value, valueFactoryManagerClassEntry) != SUCCESS)
-        {
-            runtimeError("unable to initialize properties object");
-            RETURN_NULL();
-        }
-
-        Wrapper<ValueFactoryManagerPtr>* obj = Wrapper<ValueFactoryManagerPtr>::extract(return_value);
-        assert(!obj->ptr);
-        obj->ptr = new ValueFactoryManagerPtr(vfm);
     }
     catch (...)
     {
@@ -804,92 +689,6 @@ ZEND_METHOD(Ice_Communicator, flushBatchRequests)
     }
 }
 
-ZEND_METHOD(Ice_ValueFactoryManager, __construct)
-{
-    runtimeError("value factory managers cannot be instantiated directly");
-}
-
-ZEND_BEGIN_ARG_INFO_EX(Ice_ValueFactoryManager_add_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
-ZEND_ARG_INFO(0, factory)
-ZEND_ARG_INFO(0, id)
-ZEND_END_ARG_INFO()
-
-ZEND_METHOD(Ice_ValueFactoryManager, add)
-{
-    ValueFactoryManagerPtr _this = Wrapper<ValueFactoryManagerPtr>::value(getThis());
-    assert(_this);
-
-    zend_class_entry* factoryClass = nameToClass("\\Ice\\ValueFactory");
-    assert(factoryClass);
-
-    zval* factory;
-    char* id;
-    size_t idLen;
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("Os!"), &factory, factoryClass, &id, &idLen) !=
-        SUCCESS)
-    {
-        RETURN_NULL();
-    }
-
-    string type;
-    if (id)
-    {
-        type = string(id, idLen);
-    }
-
-    CommunicatorMap* m = static_cast<CommunicatorMap*>(ICE_G(communicatorMap));
-    assert(m);
-    CommunicatorMap::iterator p = m->find(_this->getCommunicator());
-    assert(p != m->end());
-
-    CommunicatorInfoIPtr info = p->second;
-
-    if (!info->addFactory(factory, type))
-    {
-        RETURN_NULL();
-    }
-}
-
-ZEND_BEGIN_ARG_INFO_EX(Ice_ValueFactoryManager_find_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-ZEND_ARG_INFO(0, id)
-ZEND_END_ARG_INFO()
-
-ZEND_METHOD(Ice_ValueFactoryManager, find)
-{
-    ValueFactoryManagerPtr _this = Wrapper<ValueFactoryManagerPtr>::value(getThis());
-    assert(_this);
-
-    char* id;
-    size_t idLen;
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s!"), &id, &idLen) != SUCCESS)
-    {
-        RETURN_NULL();
-    }
-
-    string type;
-    if (id)
-    {
-        type = string(id, idLen);
-    }
-
-    CommunicatorMap* m = static_cast<CommunicatorMap*>(ICE_G(communicatorMap));
-    assert(m);
-    CommunicatorMap::iterator p = m->find(_this->getCommunicator());
-    assert(p != m->end());
-
-    CommunicatorInfoIPtr info = p->second;
-
-    CustomValueFactoryPtr w = info->findFactory(type);
-    if (w)
-    {
-        w->getZval(return_value);
-    }
-    else
-    {
-        RETURN_NULL();
-    }
-}
-
 static zend_object*
 handleAlloc(zend_class_entry* ce)
 {
@@ -915,34 +714,6 @@ static zend_object*
 handleClone(zend_object* zobj)
 {
     php_error_docref(0, E_ERROR, "communicators cannot be cloned");
-    return 0;
-}
-
-static zend_object*
-handleVfmAlloc(zend_class_entry* ce)
-{
-    Wrapper<ValueFactoryManagerPtr>* obj = Wrapper<ValueFactoryManagerPtr>::create(ce);
-    assert(obj);
-
-    obj->zobj.handlers = &_vfmHandlers;
-
-    return &obj->zobj;
-}
-
-static void
-handleVfmFreeStorage(zend_object* object)
-{
-    Wrapper<ValueFactoryManagerPtr>* obj = Wrapper<ValueFactoryManagerPtr>::fetch(object);
-    assert(obj);
-
-    delete obj->ptr;
-    zend_object_std_dtor(object);
-}
-
-static zend_object*
-handleVfmClone(zend_object* zobj)
-{
-    php_error_docref(0, E_ERROR, "value factory managers cannot be cloned");
     return 0;
 }
 
@@ -1004,10 +775,6 @@ initializeCommunicator(
         }
         ActiveCommunicatorPtr ac = make_shared<ActiveCommunicator>(c);
 
-        auto vfm = dynamic_pointer_cast<ValueFactoryManager>(c->getValueFactoryManager());
-        assert(vfm);
-        vfm->setCommunicator(c);
-
         CommunicatorInfoIPtr info = createCommunicator(zv, ac);
         if (!info)
         {
@@ -1018,8 +785,6 @@ initializeCommunicator(
             catch (...)
             {
             }
-
-            vfm->destroy();
         }
 
         // Create and register Slice loader.
@@ -1190,15 +955,13 @@ ZEND_FUNCTION(Ice_initialize)
                 {
                     if (Z_TYPE_P(initDataSliceLoader) != IS_OBJECT)
                     {
-                        invalidArgument("initData.SliceLoader is not an object");
+                        invalidArgument("initData.SliceLoader is not an Ice\\SliceLoader object");
                         RETURN_NULL();
                     }
                 }
             }
         }
     }
-
-    initData.valueFactoryManager = make_shared<ValueFactoryManager>();
 
     if (!initData.properties)
     {
@@ -1507,8 +1270,6 @@ static zend_function_entry _classMethods[] = {
     ZEND_ME(Ice_Communicator, proxyToProperty, Ice_Communicator_proxyToProperty_arginfo, ZEND_ACC_PUBLIC)
     // identityToString
     ZEND_ME(Ice_Communicator, identityToString, Ice_Communicator_identityToString_arginfo, ZEND_ACC_PUBLIC)
-    // getValueFactoryManager
-    ZEND_ME(Ice_Communicator, getValueFactoryManager, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // getImplicitContext
     ZEND_ME(Ice_Communicator, getImplicitContext, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // getProperties
@@ -1528,17 +1289,6 @@ static zend_function_entry _classMethods[] = {
         0,
         0,
         0}};
-
-// Predefined methods for ValueFactoryManager.
-static zend_function_entry _vfmInterfaceMethods[] = {{0, 0, 0}};
-
-static zend_function_entry _vfmClassMethods[] = {
-    // __construct
-    ZEND_ME(Ice_ValueFactoryManager, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
-    // add
-    ZEND_ME(Ice_ValueFactoryManager, add, Ice_ValueFactoryManager_add_arginfo, ZEND_ACC_PUBLIC)
-    // find
-    ZEND_ME(Ice_ValueFactoryManager, find, Ice_ValueFactoryManager_find_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
 
 static bool
 createProfile(const string& name, const string& config, const string& options)
@@ -1741,20 +1491,6 @@ IcePHP::communicatorInit(void)
     _handlers.offset = XtOffsetOf(Wrapper<CommunicatorInfoIPtr>, zobj);
     zend_class_implements(communicatorClassEntry, 1, interface);
 
-    // Register the ValueFactoryManager interface.
-    INIT_NS_CLASS_ENTRY(ce, "Ice", "ValueFactoryManager", _vfmInterfaceMethods);
-    zend_class_entry* vfmInterface = zend_register_internal_interface(&ce);
-
-    // Register the ValueFactoryManager class.
-    INIT_CLASS_ENTRY(ce, "IcePHP_ValueFactoryManager", _vfmClassMethods);
-    ce.create_object = handleVfmAlloc;
-    valueFactoryManagerClassEntry = zend_register_internal_class(&ce);
-    memcpy(&_vfmHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    _vfmHandlers.clone_obj = handleVfmClone;
-    _vfmHandlers.free_obj = handleVfmFreeStorage;
-    _vfmHandlers.offset = XtOffsetOf(Wrapper<ValueFactoryManagerPtr>, zobj);
-    zend_class_implements(valueFactoryManagerClassEntry, 1, vfmInterface);
-
     // Create the profiles from configuration settings.
     const char* empty = "";
     const char* config = INI_STR("ice.config"); // Needs to be a string literal!
@@ -1842,13 +1578,6 @@ IcePHP::communicatorRequestShutdown(void)
     if (ICE_G(communicatorMap))
     {
         CommunicatorMap* m = static_cast<CommunicatorMap*>(ICE_G(communicatorMap));
-        for (CommunicatorMap::iterator p = m->begin(); p != m->end(); ++p)
-        {
-            CommunicatorInfoIPtr info = p->second;
-
-            // We need to destroy any value factories installed during this request.
-            info->destroyFactories();
-        }
 
         // Deleting the map decrements the reference count of its ActiveCommunicator values. If there are no other
         // references to an ActiveCommunicator, its destructor destroys the communicator.
@@ -1870,80 +1599,6 @@ IcePHP::ActiveCommunicator::~ActiveCommunicator()
     catch (...)
     {
     }
-}
-
-IcePHP::CustomValueFactory::CustomValueFactory(zval* factory, const CommunicatorInfoIPtr& info) : _info(info)
-{
-    ZVAL_COPY(&_factory, factory);
-}
-
-shared_ptr<Ice::Value>
-IcePHP::CustomValueFactory::create(string_view id)
-{
-    // Get the TSRM id for the current request.
-
-    // Get the type information.
-    ClassInfoPtr cls;
-    if (id == Ice::Object::ice_staticId())
-    {
-        // When the ID is that of Ice::Object, it indicates that the stream has not found a factory and is providing us
-        // an opportunity to preserve the object.
-        cls = getClassInfoById("::Ice::UnknownSlicedValue");
-    }
-    else
-    {
-        cls = getClassInfoById(id);
-    }
-
-    if (!cls)
-    {
-        return nullptr;
-    }
-
-    zval arg;
-    AutoDestroy destroyArg(&arg);
-    ZVAL_STRINGL(&arg, id.data(), static_cast<int>(id.length()));
-
-    zval obj;
-    ZVAL_UNDEF(&obj);
-
-    zend_try
-    {
-        assert(Z_TYPE(_factory) == IS_OBJECT);
-        zend_call_method(Z_OBJ_P(&_factory), 0, 0, const_cast<char*>("create"), sizeof("create") - 1, &obj, 1, &arg, 0);
-    }
-    zend_catch
-    {
-        // obj;
-    }
-    zend_end_try();
-
-    // Bail out if an exception has already been thrown.
-    if (Z_ISUNDEF(obj) || EG(exception))
-    {
-        throw AbortMarshaling();
-    }
-
-    AutoDestroy destroyObj(&obj);
-
-    if (Z_TYPE(obj) == IS_NULL)
-    {
-        return 0;
-    }
-    return make_shared<ValueReader>(&obj, cls, _info);
-}
-
-void
-IcePHP::CustomValueFactory::getZval(zval* factory)
-{
-    ZVAL_COPY(factory, &_factory);
-}
-
-void
-IcePHP::CustomValueFactory::destroy(void)
-{
-    zval_ptr_dtor(&_factory);
-    _info = nullptr;
 }
 
 IcePHP::CommunicatorInfoI::CommunicatorInfoI(const ActiveCommunicatorPtr& c, zval* z) : ac(c)
@@ -1986,77 +1641,4 @@ void
 IcePHP::CommunicatorInfoI::setSliceLoader(Ice::SliceLoaderPtr sliceLoader)
 {
     _sliceLoader = std::move(sliceLoader);
-}
-
-bool
-IcePHP::CommunicatorInfoI::addFactory(zval* factory, string_view id)
-{
-    auto [_, inserted] =
-        _customFactories.try_emplace(string{id}, make_shared<CustomValueFactory>(factory, shared_from_this()));
-
-    if (!inserted)
-    {
-        throwException(
-            make_exception_ptr(Ice::AlreadyRegisteredException{__FILE__, __LINE__, "value factory", string{id}}));
-        return false;
-    }
-    return true;
-}
-
-CustomValueFactoryPtr
-IcePHP::CommunicatorInfoI::findFactory(string_view id) const
-{
-    CustomFactoryMap::const_iterator p = _customFactories.find(id);
-    if (p != _customFactories.end())
-    {
-        return p->second;
-    }
-
-    return nullptr;
-}
-
-void
-IcePHP::CommunicatorInfoI::destroyFactories(void)
-{
-    for (const auto& [_, factory] : _customFactories)
-    {
-        factory->destroy();
-    }
-    _customFactories.clear();
-}
-
-void
-IcePHP::ValueFactoryManager::add(Ice::ValueFactory, string_view)
-{
-    // We don't support factories registered in C++.
-    throw Ice::FeatureNotSupportedException(__FILE__, __LINE__, "C++ value factory");
-}
-
-Ice::ValueFactory
-IcePHP::ValueFactoryManager::find(string_view id) const noexcept
-{
-    // Get the TSRM id for the current request.
-    CommunicatorMap* m = static_cast<CommunicatorMap*>(ICE_G(communicatorMap));
-    assert(m);
-    CommunicatorMap::iterator p = m->find(_communicator);
-    assert(p != m->end());
-
-    CommunicatorInfoIPtr info = p->second;
-
-    ValueFactoryPtr factory = info->findFactory(id);
-
-    if (factory)
-    {
-        return [factory = std::move(factory)](string_view id) { return factory->create(id); };
-    }
-    else
-    {
-        return nullptr;
-    }
-}
-
-void
-IcePHP::ValueFactoryManager::destroy()
-{
-    _communicator = nullptr;
 }

@@ -44,11 +44,6 @@ global $Ice__t_UnknownSlicedValue;
 $Ice__t_UnknownSlicedValue = IcePHP_defineClass('::Ice::UnknownSlicedValue', "\\Ice\\UnknownSlicedValue", -1, false,
                                                 $Ice__t_Value, null);
 
-interface ValueFactory
-{
-    public function create($id);
-}
-
 class SlicedData
 {
     public $slices;

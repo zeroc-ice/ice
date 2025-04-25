@@ -43,7 +43,7 @@ class DI extends Test\D
     }
 }
 
-class CustomSliceLoader
+class CustomSliceLoader implements Ice\SliceLoader
 {
     function newInstance($typeId)
     {
@@ -417,21 +417,13 @@ class Client extends TestHelper
 {
     function run($args)
     {
-        try
-        {
-            $initData = new Ice\InitializationData();
-            $initData->properties = $this->createTestProperties($args);
-            $initData->sliceLoader = new CustomSliceLoader();
-            $communicator = $this->initialize($initData);
-            $initial = allTests($this);
-            $initial->shutdown();
-            $communicator->destroy();
-        }
-        catch(Exception $ex)
-        {
-            $communicator->destroy();
-            throw $ex;
-        }
+        $initData = new Ice\InitializationData();
+        $initData->properties = $this->createTestProperties($args);
+        $initData->sliceLoader = new CustomSliceLoader();
+        $communicator = $this->initialize($initData);
+        $initial = allTests($this);
+        $initial->shutdown();
+        $communicator->destroy();
     }
 }
 ?>

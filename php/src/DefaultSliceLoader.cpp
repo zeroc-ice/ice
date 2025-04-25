@@ -15,8 +15,6 @@ IcePHP::DefaultSliceLoader::DefaultSliceLoader(const CommunicatorInfoPtr& commun
 Ice::ValuePtr
 IcePHP::DefaultSliceLoader::newClassInstance(string_view typeId) const
 {
-    // When the type ID is ::Ice::Object, it indicates that the stream has not found a factory and is providing us an
-    // opportunity to preserve the object.
     ClassInfoPtr cls =
         typeId == Ice::Value::ice_staticId() ? getClassInfoById("::Ice::UnknownSlicedValue") : getClassInfoById(typeId);
 
