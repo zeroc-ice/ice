@@ -40,14 +40,15 @@ class DI(Test.D):
         self.postUnmarshalInvoked = True
 
 def customSliceLoader(typeId):
-    if typeId == "::Test::B":
-        return BI()
-    elif typeId == "::Test::C":
-        return CI()
-    elif typeId == "::Test::D":
-        return DI()
-    else:
-        return None
+    match typeId:
+        case "::Test::B":
+            return BI()
+        case "::Test::C":
+            return CI()
+        case "::Test::D":
+            return DI()
+        case _:
+            return None
 
 class InitialI(Test.Initial):
     def __init__(self, adapter):
