@@ -1606,9 +1606,8 @@ IcePy::getSliceLoader(const Ice::CommunicatorPtr& communicator)
 void
 IcePy::removeSliceLoader(const Ice::CommunicatorPtr& communicator)
 {
-    auto p = sliceLoaderMap.find(communicator);
-    assert(p != sliceLoaderMap.end());
-    sliceLoaderMap.erase(p);
+    // Called by destroy[Async], which can be called multiple times.
+    sliceLoaderMap.erase(communicator);
 }
 
 extern "C" PyObject*
