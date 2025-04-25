@@ -382,13 +382,6 @@ class PNodeI(Test.PNode):
     def __del__(self):
         PNodeI.counter = PNodeI.counter - 1
 
-
-def NodeFactoryI(id):
-    if id == Test.PNode.ice_staticId():
-        return PNodeI()
-    return None
-
-
 class PreservedI(Test.Preserved):
     counter = 0
 
@@ -398,12 +391,13 @@ class PreservedI(Test.Preserved):
     def __del__(self):
         PreservedI.counter = PreservedI.counter - 1
 
-
-def PreservedFactoryI(id):
-    if id == Test.Preserved.ice_staticId():
+def customSliceLoader(typeId):
+    if typeId == Test.Preserved.ice_staticId():
         return PreservedI()
-    return None
-
+    elif typeId == Test.PNode.ice_staticId():
+        return PNodeI()
+    else:
+        return None
 
 def allTests(helper, communicator):
     t = Test.TestIntfPrx(communicator, f"Test:{helper.getTestEndpoint()}")
@@ -1790,15 +1784,6 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     try:
         #
-        # Register a factory in order to substitute our own subclass of
-        # UCNode. This provides an easy way to determine how many
-        # unmarshaled instances currently exist.
-        #
-        communicator.getValueFactoryManager().add(
-            NodeFactoryI, Test.PNode.ice_staticId()
-        )
-
-        #
         # Relay a graph through the server. This test uses a preserved class
         # with a class member.
         #
@@ -1831,15 +1816,6 @@ def allTests(helper, communicator):
         p = None  # Release reference.
         gc.collect()
         test(PNodeI.counter == 0)
-
-        #
-        # Register a factory in order to substitute our own subclass of
-        # Preserved. This provides an easy way to determine how many
-        # unmarshaled instances currently exist.
-        #
-        communicator.getValueFactoryManager().add(
-            PreservedFactoryI, Test.Preserved.ice_staticId()
-        )
 
         #
         # Obtain a preserved object from the server where the most-derived

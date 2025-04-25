@@ -4,10 +4,14 @@
 
 from TestHelper import TestHelper
 import AllTests
+import Ice
 
 
 class Client(TestHelper):
     def run(self, args):
-        with self.initialize(args=args) as communicator:
+        initData = Ice.InitializationData()
+        initData.properties = self.createTestProperties(args)
+        initData.sliceLoader = AllTests.customSliceLoader
+        with self.initialize(initData=initData) as communicator:
             initial = AllTests.allTests(self, communicator)
             initial.shutdown()

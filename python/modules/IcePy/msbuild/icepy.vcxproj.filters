@@ -69,7 +69,7 @@
     <ClCompile Include="..\Util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\ValueFactoryManager.cpp">
+    <ClCompile Include="..\PySliceLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\cpp\src\Slice\FileTracker.cpp">
@@ -165,7 +165,7 @@
     <ClInclude Include="..\Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ValueFactoryManager.h">
+    <ClInclude Include="..\PySliceLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\PropertiesAdmin.h">

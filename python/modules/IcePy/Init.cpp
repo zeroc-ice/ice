@@ -17,7 +17,6 @@
 #include "Proxy.h"
 #include "Slice.h"
 #include "Types.h"
-#include "ValueFactoryManager.h"
 
 using namespace std;
 using namespace IcePy;
@@ -133,8 +132,7 @@ PyInit_IcePy(void)
     if (!initProxy(module) || !initTypes(module) || !initProperties(module) || !initPropertiesAdmin(module) ||
         !initExecutor(module) || !initBatchRequest(module) || !initCommunicator(module) || !initObjectAdapter(module) ||
         !initOperation(module) || !initLogger(module) || !initConnection(module) || !initConnectionInfo(module) ||
-        !initImplicitContext(module) || !initEndpoint(module) || !initEndpointInfo(module) ||
-        !initValueFactoryManager(module))
+        !initImplicitContext(module) || !initEndpoint(module) || !initEndpointInfo(module))
     {
         return nullptr;
     }

@@ -421,17 +421,6 @@ class Communicator:
         """
         self._impl.setDefaultLocator(locator)
 
-    def getValueFactoryManager(self):
-        """
-        Get the value factory manager for this communicator.
-
-        Returns
-        -------
-        Ice.ValueFactoryManager
-            The value factory manager associated with this communicator.
-        """
-        return self._impl.getValueFactoryManager()
-
     def flushBatchRequests(self, compress):
         """
         Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies

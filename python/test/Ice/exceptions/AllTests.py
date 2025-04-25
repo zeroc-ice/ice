@@ -26,11 +26,6 @@ class ServantLocatorI(Ice.ServantLocator):
     def deactivate(self, category):
         pass
 
-
-def ValueFactory(type):
-    return None
-
-
 class CallbackBase:
     def __init__(self):
         self._called = False
@@ -264,24 +259,6 @@ def allTests(helper, communicator):
         pass
 
     adapter.deactivate()
-    print("ok")
-
-    sys.stdout.write("testing value factory registration exception... ")
-    sys.stdout.flush()
-
-    communicator.getValueFactoryManager().add(ValueFactory, "x")
-    try:
-        communicator.getValueFactoryManager().add(ValueFactory, "x")
-        test(False)
-    except Ice.AlreadyRegisteredException:
-        pass
-
-    communicator.getValueFactoryManager().add(ValueFactory, "")
-    try:
-        communicator.getValueFactoryManager().add(ValueFactory, "")
-        test(False)
-    except Ice.AlreadyRegisteredException:
-        pass
     print("ok")
 
     thrower = Test.ThrowerPrx(communicator, f"thrower:{helper.getTestEndpoint()}")

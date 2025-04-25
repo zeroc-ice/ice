@@ -51,7 +51,7 @@
     <ClCompile Include="..\Thread.cpp" />
     <ClCompile Include="..\Types.cpp" />
     <ClCompile Include="..\Util.cpp" />
-    <ClCompile Include="..\ValueFactoryManager.cpp" />
+    <ClCompile Include="..\PySliceLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\cpp\src\slice2py\PythonUtil.h" />
@@ -77,7 +77,7 @@
     <ClInclude Include="..\Thread.h" />
     <ClInclude Include="..\Types.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\ValueFactoryManager.h" />
+    <ClInclude Include="..\PySliceLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\IcePy.rc" />
