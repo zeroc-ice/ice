@@ -10,9 +10,9 @@ sourceSets {
         slice {
             srcDir "$project.ext.topSrcDir/slice/"
 
-            includes = ["**/Ice/*.ice",
-                        "**/Glacier2/Metrics.ice",
-                        "**/IceStorm/Metrics.ice"]
+            includes = ["Ice/*.ice",
+                        "Glacier2/Metrics.ice",
+                        "IceStorm/Metrics.ice"]
         }
     }
 }
