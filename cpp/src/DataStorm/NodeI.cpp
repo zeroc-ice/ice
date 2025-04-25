@@ -208,7 +208,8 @@ NodeI::createSessionAsync(
                         out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from '"
                             << subscriber << "' because session '" << session->getId() << "' is already connected";
                     }
-                    exception(std::make_exception_ptr(SessionCreationException{SessionCreationError::AlreadyConnected}));
+                    exception(
+                        std::make_exception_ptr(SessionCreationException{SessionCreationError::AlreadyConnected}));
                     return;
                 }
                 response();
