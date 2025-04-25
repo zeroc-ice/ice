@@ -355,6 +355,9 @@ NodeI::createSubscriberSession(
     auto instance = _instance.lock();
     assert(instance);
 
+    // The publisher session is null when we are creating a new session, in response to a topic reader announcement. It
+    // is not null when we are attempting to reconnect an existing session.
+
     try
     {
         subscriber = getNodeWithExistingConnection(instance, subscriber, subscriberConnection);
@@ -368,7 +371,7 @@ NodeI::createSubscriberSession(
                 {
                     self->retryPublisherSessionCreation(subscriber, session, ex);
                 }
-                // Else node is shutting down.
+                // Else node is shutting down, or the session was established by a concurrent call.
             });
     }
     catch (const CommunicatorDestroyedException&)
@@ -385,6 +388,7 @@ NodeI::createSubscriberSession(
         {
             retryPublisherSessionCreation(subscriber, session, current_exception());
         }
+        // Else node is shutting down, or the session was established by a concurrent call.
     }
 }
 
