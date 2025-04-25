@@ -667,6 +667,15 @@ SessionI::retry(NodePrx node, exception_ptr exception)
         {
             rethrow_exception(exception);
         }
+        catch (const SessionCreationException& ex)
+        {
+            if (ex.error == SessionCreationError::NodeShutdown)
+            {
+                // Don't need to retry if the target node is being shut down.
+                return false;
+            }
+            // Else, for other error codes we can retry.
+        }
         catch (const ObjectAdapterDestroyedException&)
         {
             return false;
@@ -677,6 +686,7 @@ SessionI::retry(NodePrx node, exception_ptr exception)
         }
         catch (const std::exception&)
         {
+            // Ignore other exceptions and retry.
         }
     }
 
@@ -769,15 +779,15 @@ SessionI::destroyImpl(const exception_ptr& ex)
             }
             catch (const LocalException& e)
             {
-                out << "\n:" << e.what() << "\n" << e.ice_stackTrace();
+                out << ":\n" << e.what() << "\n" << e.ice_stackTrace();
             }
             catch (const exception& e)
             {
-                out << "\n:" << e.what();
+                out << ":\n" << e.what();
             }
             catch (...)
             {
-                out << "\n: unexpected exception";
+                out << ":\n unexpected exception";
             }
         }
     }

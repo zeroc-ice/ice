@@ -33,7 +33,11 @@ namespace
         {
         }
 
-        void initiateCreateSession(optional<NodePrx> publisher, const Current& current) final
+        void initiateCreateSessionAsync(
+            optional<NodePrx> publisher,
+            function<void()> response,
+            function<void(exception_ptr)> exception,
+            const Current& current) final
         {
             checkNotNull(publisher, __FILE__, __LINE__, current);
             if (auto nodeSession = _nodeSession.lock())
@@ -42,19 +46,22 @@ namespace
                 {
                     optional<SessionPrx> sessionPrx;
                     updateNodeAndSessionProxy(*publisher, sessionPrx, current);
-                    // Forward the call to the target Node object, don't need to wait for the result.
-                    _node->initiateCreateSessionAsync(publisher, nullptr);
+                    // Forward the call to the target Node.
+                    _node->initiateCreateSessionAsync(publisher, response, exception);
                 }
                 catch (const CommunicatorDestroyedException&)
                 {
+                    exception(make_exception_ptr(SessionCreationException{SessionCreationError::NodeShutdown}));
                 }
             }
         }
 
-        void createSession(
+        void createSessionAsync(
             optional<NodePrx> subscriber,
             optional<SubscriberSessionPrx> subscriberSession,
             bool /* fromRelay */,
+            function<void()> response,
+            function<void(exception_ptr)> exception,
             const Current& current) final
         {
             checkNotNull(subscriber, __FILE__, __LINE__, current);
@@ -75,18 +82,21 @@ namespace
                     nodeSession->addSession(
                         subscriberIsHostedOnRelay ? subscriberSession->ice_fixed(current.con) : *subscriberSession);
 
-                    // Forward the call to the target Node object, don't need to wait for the result.
-                    _node->createSessionAsync(subscriber, subscriberSessionForwarder, true, nullptr);
+                    // Forward the call to the target Node.
+                    _node->createSessionAsync(subscriber, subscriberSessionForwarder, true, response, exception);
                 }
                 catch (const CommunicatorDestroyedException&)
                 {
+                    exception(make_exception_ptr(SessionCreationException{SessionCreationError::NodeShutdown}));
                 }
             }
         }
 
-        void confirmCreateSession(
+        void confirmCreateSessionAsync(
             optional<NodePrx> publisher,
             optional<PublisherSessionPrx> publisherSession,
+            function<void()> response,
+            function<void(exception_ptr)> exception,
             const Current& current) final
         {
             checkNotNull(publisher, __FILE__, __LINE__, current);
@@ -106,10 +116,11 @@ namespace
                     nodeSession->addSession(
                         publisherIsHostedOnRelay ? publisherSession->ice_fixed(current.con) : *publisherSession);
                     // Forward the request to the target subscriber.
-                    _node->confirmCreateSessionAsync(publisher, publisherSessionForwarder, nullptr);
+                    _node->confirmCreateSessionAsync(publisher, publisherSessionForwarder, response, exception);
                 }
                 catch (const CommunicatorDestroyedException&)
                 {
+                    exception(make_exception_ptr(SessionCreationException{SessionCreationError::NodeShutdown}));
                 }
             }
         }
