@@ -392,7 +392,7 @@ module DataStormContract
     }
 
     /// The reason for the session creation failure.
-    enum SessionError
+    enum SessionCreationError
     {
         /// The session is already connected.
         AlreadyConnected,
@@ -410,7 +410,7 @@ module DataStormContract
     /// Throws when the session cannot be created.
     exception SessionCreationException
     {
-        SessionError error;
+        SessionCreationError error;
     }
 
     /// The Node interface allows DataStorm nodes to create publisher and subscriber sessions with each other.

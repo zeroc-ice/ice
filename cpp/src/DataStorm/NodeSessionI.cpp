@@ -51,7 +51,7 @@ namespace
                 }
                 catch (const CommunicatorDestroyedException&)
                 {
-                    exception(make_exception_ptr(SessionCreationException{SessionError::NodeShutdown}));
+                    exception(make_exception_ptr(SessionCreationException{SessionCreationError::NodeShutdown}));
                 }
             }
         }
@@ -87,7 +87,7 @@ namespace
                 }
                 catch (const CommunicatorDestroyedException&)
                 {
-                    exception(make_exception_ptr(SessionCreationException{SessionError::NodeShutdown}));
+                    exception(make_exception_ptr(SessionCreationException{SessionCreationError::NodeShutdown}));
                 }
             }
         }
@@ -120,7 +120,7 @@ namespace
                 }
                 catch (const CommunicatorDestroyedException&)
                 {
-                    exception(make_exception_ptr(SessionCreationException{SessionError::NodeShutdown}));
+                    exception(make_exception_ptr(SessionCreationException{SessionCreationError::NodeShutdown}));
                 }
             }
         }

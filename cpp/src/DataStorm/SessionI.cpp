@@ -669,7 +669,7 @@ SessionI::retry(NodePrx node, exception_ptr exception)
         }
         catch (const SessionCreationException& ex)
         {
-            if (ex.error == SessionError::NodeShutdown)
+            if (ex.error == SessionCreationError::NodeShutdown)
             {
                 // Don't need to retry if the target node is being shut down.
                 return false;
