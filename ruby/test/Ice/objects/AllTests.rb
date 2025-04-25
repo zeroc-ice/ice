@@ -1,34 +1,5 @@
 # Copyright (c) ZeroC, Inc.
 
-require './TestI.rb'
-
-#
-# Ice for Ruby behaves differently than Ice for C++, because
-# collocated invocations are still sent "over the wire". Therefore
-# we always need to install the factories, even for the collocated
-# case.
-#
-class MyValueFactory
-    def create(type)
-        if type == '::Test::B'
-            return BI.new
-        elsif type == '::Test::C'
-            return CI.new
-        #
-        # We do not specialize D, instead we just re-open it to define
-        # its methods.
-        #
-        #elsif type == '::Test::D'
-        #      return DI.new
-        elsif type == '::Test::E'
-            return EI.new
-        elsif type == '::Test::F'
-            return FI.new
-        end
-        fail "unknown type"
-    end
-end
-
 def test(b)
     if !b
         raise RuntimeError, 'test assertion failed'
@@ -36,16 +7,6 @@ def test(b)
 end
 
 def allTests(helper, communicator)
-
-    factory = MyValueFactory.new
-    communicator.getValueFactoryManager().add(factory, '::Test::B')
-    communicator.getValueFactoryManager().add(factory, '::Test::C')
-    #communicator.getValueFactoryManager().add(factory, '::Test::D')
-    communicator.getValueFactoryManager().add(factory, '::Test::E')
-    communicator.getValueFactoryManager().add(factory, '::Test::F')
-    communicator.getValueFactoryManager().add(factory, '::Test::I')
-    communicator.getValueFactoryManager().add(factory, '::Test::J')
-
     initial = Test::InitialPrx.new(communicator, "initial:#{helper.getTestEndpoint()}")
 
     print "getting B1... "
