@@ -165,8 +165,8 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
             {
                 auto compositeSliceLoader = make_shared<Ice::CompositeSliceLoader>();
                 compositeSliceLoader->add(make_shared<PySliceLoader>(initDataSliceLoader.get()));
-                compositeSliceLoader->add(sliceLoader);
-                sliceLoader = compositeSliceLoader;
+                compositeSliceLoader->add(std::move(sliceLoader));
+                sliceLoader = std::move(compositeSliceLoader);
             }
         }
 
