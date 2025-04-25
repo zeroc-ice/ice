@@ -19,12 +19,8 @@
         <!-- The Slice to C++ compiler is included as a Tool -->
         <Tools Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2cpp.exe" />
 
-        <!-- The executables to exclude from the package bin directory -->
-        <ExecutablesExclude Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe" />
-        <ExecutablesExclude Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\ice2slice.exe" />
-
-        <!-- The included executables (all .exe not in the excludes) -->
-        <Executables Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.exe" Exclude="@(ExecutablesExclude)"/>
+        <!-- The included executables -->
+        <Executables Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icebox*.exe" />
     </ItemGroup>
 
     <!-- public C++ header and Slice files -->
