@@ -7,7 +7,7 @@
 
 using namespace std;
 
-IcePy::PySliceLoader::PySliceLoader(PyObject* sliceLoader) : _sliceLoader(sliceLoader)
+IcePy::PySliceLoader::PySliceLoader(PyObject* sliceLoader) : _sliceLoader{Py_NewRef(sliceLoader)}
 {
     assert(_sliceLoader);
     assert(_sliceLoader != Py_None);
@@ -20,15 +20,9 @@ IcePy::PySliceLoader::PySliceLoader(PyObject* sliceLoader) : _sliceLoader(sliceL
 
 IcePy::PySliceLoader::~PySliceLoader()
 {
-    // Often called when the Python interpreter is finalizing.
-#if PY_VERSION_HEX >= 0x030D0000 // Python 3.13 and later
-    if (!Py_IsFinalizing())
-    {
-        Py_DECREF(_sliceLoader);
-    }
-#else
+    // Called by destroy/destroyAsync with the GIL locked.
+    assert(PyGILState_Check());
     Py_DECREF(_sliceLoader);
-#endif
 }
 
 Ice::ValuePtr

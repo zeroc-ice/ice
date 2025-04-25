@@ -39,10 +39,16 @@ using namespace IcePy;
 #    pragma GCC diagnostic ignored "-Wcast-function-type"
 #endif
 
-static unsigned long mainThreadId;
+namespace
+{
+    unsigned long mainThreadId;
 
-using CommunicatorMap = map<Ice::CommunicatorPtr, std::pair<PyObject*, Ice::SliceLoaderPtr>>;
-static CommunicatorMap communicatorMap;
+    using CommunicatorMap = map<Ice::CommunicatorPtr, PyObject*>;
+    CommunicatorMap communicatorMap;
+
+    using SliceLoaderMap = map<Ice::CommunicatorPtr, Ice::SliceLoaderPtr>;
+    SliceLoaderMap sliceLoaderMap;
+}
 
 namespace IcePy
 {
@@ -55,6 +61,8 @@ namespace IcePy
         bool shutdown;
         ExecutorPtr* executor;
     };
+
+    void removeSliceLoader(const Ice::CommunicatorPtr& communicator);
 }
 
 extern "C" CommunicatorObject*
@@ -239,7 +247,8 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     }
 
     self->communicator = new Ice::CommunicatorPtr(communicator);
-    communicatorMap.insert(CommunicatorMap::value_type{communicator, {reinterpret_cast<PyObject*>(self), sliceLoader}});
+    communicatorMap.insert(CommunicatorMap::value_type{communicator, reinterpret_cast<PyObject*>(self)});
+    sliceLoaderMap[communicator] = sliceLoader;
 
     if (executorWrapper)
     {
@@ -289,6 +298,8 @@ communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
         (*self->communicator)->destroy();
     }
 
+    removeSliceLoader(*self->communicator);
+
     if (self->executor)
     {
         (*self->executor)->setCommunicator(nullptr); // Break cyclic reference.
@@ -335,6 +346,8 @@ communicatorDestroyAsync(CommunicatorObject* self, PyObject* args)
                 // releases the GIL when it goes out of scope. Here, we want to avoid releasing the GIL if interpreter
                 // finalization starts before the call to PyObject_Call(completed) returns.
                 PyGILState_STATE gilState = PyGILState_Ensure();
+
+                removeSliceLoader(*self->communicator);
 
                 if (self->executor)
                 {
@@ -1553,7 +1566,7 @@ IcePy::createCommunicator(const Ice::CommunicatorPtr& communicator)
     auto p = communicatorMap.find(communicator);
     if (p != communicatorMap.end())
     {
-        return Py_NewRef(p->second.first);
+        return Py_NewRef(p->second);
     }
 
     CommunicatorObject* obj = communicatorNew(&CommunicatorType, nullptr, nullptr);
@@ -1569,7 +1582,7 @@ IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
 {
     auto p = communicatorMap.find(communicator);
     assert(p != communicatorMap.end());
-    auto* obj = reinterpret_cast<CommunicatorObject*>(p->second.first);
+    auto* obj = reinterpret_cast<CommunicatorObject*>(p->second);
     if (obj->wrapper)
     {
         return Py_NewRef(obj->wrapper);
@@ -1584,9 +1597,18 @@ IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
 Ice::SliceLoaderPtr
 IcePy::getSliceLoader(const Ice::CommunicatorPtr& communicator)
 {
-    auto p = communicatorMap.find(communicator);
-    assert(p != communicatorMap.end());
-    return p->second.second;
+    // It's in the map until the communicator is destroyed.
+    auto p = sliceLoaderMap.find(communicator);
+    assert(p != sliceLoaderMap.end());
+    return p->second;
+}
+
+void
+IcePy::removeSliceLoader(const Ice::CommunicatorPtr& communicator)
+{
+    auto p = sliceLoaderMap.find(communicator);
+    assert(p != sliceLoaderMap.end());
+    sliceLoaderMap.erase(p);
 }
 
 extern "C" PyObject*
