@@ -3,7 +3,7 @@
 package test.Ice.metrics;
 
 import com.zeroc.Ice.Communicator;
-import com.zeroc.Ice.IceMX.UnknownMetricsView;
+import com.zeroc.IceMX.UnknownMetricsView;
 import com.zeroc.Ice.InitializationData;
 
 import test.Ice.metrics.Test.MetricsPrx;

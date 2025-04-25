@@ -2,8 +2,8 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.IceMX.Metrics;
-import com.zeroc.Ice.IceMX.MetricsFailures;
+import com.zeroc.IceMX.Metrics;
+import com.zeroc.IceMX.MetricsFailures;
 
 import java.util.Collection;
 import java.util.HashMap;

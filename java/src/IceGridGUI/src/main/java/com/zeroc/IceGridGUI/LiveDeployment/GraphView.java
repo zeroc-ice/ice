@@ -10,7 +10,7 @@ import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 
-import com.zeroc.Ice.IceMX.Metrics;
+import com.zeroc.IceMX.Metrics;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.IceGridGUI.Coordinator;
 import com.zeroc.IceGridGUI.Utils;

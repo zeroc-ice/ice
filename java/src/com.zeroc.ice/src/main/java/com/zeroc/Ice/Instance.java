@@ -725,7 +725,7 @@ public final class Instance {
                 Map.of(
                     "::Glacier2", "com.zeroc.Glacier2",
                     "::Ice", "com.zeroc.Ice",
-                    "::IceMX", "com.zeroc.Ice.IceMX",
+                    "::IceMX", "com.zeroc.IceMX",
                     "::IceBox", "com.zeroc.IceBox",
                     "::IceGrid", "com.zeroc.IceGrid",
                     "::IceStorm", "com.zeroc.IceStorm"),

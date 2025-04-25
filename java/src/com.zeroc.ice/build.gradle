@@ -8,7 +8,11 @@ project.ext.description = "Ice is a comprehensive RPC framework that helps you b
 sourceSets {
     main {
         slice {
-            srcDir "$project.ext.topSrcDir/slice/Ice"
+            srcDir "$project.ext.topSrcDir/slice/"
+
+            includes = ["**/Ice/*.ice",
+                        "**/Glacier2/Metrics.ice",
+                        "**/IceStorm/Metrics.ice"]
         }
     }
 }

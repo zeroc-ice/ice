@@ -8,6 +8,7 @@ sourceSets {
     main {
         slice {
             srcDir "$project.ext.topSrcDir/slice/IceStorm"
+            exclude '**/Metrics.ice'
         }
     }
 }
