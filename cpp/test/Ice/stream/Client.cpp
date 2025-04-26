@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-#include <complex.h>
+#include <complex>
 #ifdef _MSC_VER
 #    pragma warning(disable : 4244) // '=': conversion from 'int' to 'int16_t', possible loss of data
 #endif
