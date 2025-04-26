@@ -3,44 +3,9 @@
 
 require_once('Test.php');
 
-class MyValueFactory implements Ice\ValueFactory
-{
-    function create($id)
-    {
-        return null;
-    }
-}
-
 function allTests($helper)
 {
-    echo "testing value factory registration exceptions...";
-    flush();
     $communicator = $helper->communicator();
-    $vf = new MyValueFactory;
-    $communicator->getValueFactoryManager()->add($vf, "x");
-    try
-    {
-        $communicator->getValueFactoryManager()->add($vf, "x");
-        test(false);
-    }
-    catch(Ice\AlreadyRegisteredException $ex)
-    {
-        test($ex->kindOfObject == "value factory");
-        test($ex->id == "x");
-    }
-    $communicator->getValueFactoryManager()->add($vf, "");
-    try
-    {
-        $communicator->getValueFactoryManager()->add($vf, "");
-        test(false);
-    }
-    catch(Ice\AlreadyRegisteredException $ex)
-    {
-        test($ex->kindOfObject == "value factory");
-        test($ex->id == "");
-    }
-    echo "ok\n";
-
     $ref = sprintf("thrower:%s", $helper->getTestEndpoint());
     $communicator = $helper->communicator();
     $thrower = Test\ThrowerPrxHelper::createProxy($communicator, $ref);

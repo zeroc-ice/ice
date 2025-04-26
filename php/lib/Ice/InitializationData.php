@@ -3,16 +3,26 @@
 
 namespace Ice;
 
+interface SliceLoader
+{
+    public function newInstance(string $typeId) : ?object;
+}
+
 class InitializationData
 {
-    public function __construct($properties=null, $logger=null)
+    public function __construct(
+        ?\IcePHP_Properties $properties=null,
+        ?\IcePHP_Logger $logger=null,
+        ?SliceLoader $sliceLoader=null)
     {
         $this->properties = $properties;
         $this->logger = $logger;
+        $this->sliceLoader = $sliceLoader;
     }
 
-    public $properties;
-    public $logger;
+    public ?\IcePHP_Properties $properties;
+    public ?\IcePHP_Logger $logger;
+    public ?SliceLoader $sliceLoader;
 }
 
 ?>
