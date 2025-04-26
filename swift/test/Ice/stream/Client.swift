@@ -13,7 +13,7 @@ public class Client: TestHelperI {
         properties.setProperty(key: "Ice.AcceptClassCycles", value: "1")
         var initData = Ice.InitializationData()
         initData.properties = properties
-        initData.classResolverPrefix = ["IceStrem"]
+        initData.classResolverPrefix = ["IceStream"]
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()

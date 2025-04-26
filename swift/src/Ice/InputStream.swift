@@ -867,8 +867,6 @@ private protocol EncapsDecoder: AnyObject {
     var typeIdIndex: Int32 { get set }
     var valueList: [Value] { get set }
 
-    var typeIdCache: [String: Value.Type?] { get set }
-
     var classGraphDepthMax: Int32 { get }
     var classGraphDepth: Int32 { get set }
 
@@ -1008,7 +1006,6 @@ private class EncapsDecoder10: EncapsDecoder {
     lazy var typeIdMap = [Int32: String]()
     var typeIdIndex: Int32 = 0
     lazy var valueList = [Value]()
-    lazy var typeIdCache = [String: Value.Type?]()
 
     // Value/exception attributes
     var sliceType: SliceType
@@ -1240,7 +1237,6 @@ private class EncapsDecoder11: EncapsDecoder {
     lazy var typeIdMap = [Int32: String]()
     var typeIdIndex: Int32 = 0
     lazy var valueList = [Value]()
-    lazy var typeIdCache = [String: Value.Type?]()
 
     let classGraphDepthMax: Int32
     var classGraphDepth: Int32
