@@ -1292,13 +1292,11 @@ Ice::InputStream::initEncaps()
     {
         if (_currentEncaps->encoding == Encoding_1_0)
         {
-            _currentEncaps->decoder =
-                new EncapsDecoder10(this, _currentEncaps, _classGraphDepthMax);
+            _currentEncaps->decoder = new EncapsDecoder10(this, _currentEncaps, _classGraphDepthMax);
         }
         else
         {
-            _currentEncaps->decoder =
-                new EncapsDecoder11(this, _currentEncaps, _classGraphDepthMax);
+            _currentEncaps->decoder = new EncapsDecoder11(this, _currentEncaps, _classGraphDepthMax);
         }
     }
 }
