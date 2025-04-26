@@ -6,7 +6,6 @@ import IceImpl
 /// Stream class to read (unmarshal) Slice types from a sequence of bytes.
 public class InputStream {
     let data: Data
-    let classResolverPrefix: [String]?
     let communicator: Communicator
 
     let sliceLoader: SliceLoader
@@ -42,7 +41,6 @@ public class InputStream {
         bytes: Data
     ) {
         data = bytes
-        classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
         self.communicator = communicator
         sliceLoader = (communicator as! CommunicatorI).initData.sliceLoader!
         self.encoding = encoding

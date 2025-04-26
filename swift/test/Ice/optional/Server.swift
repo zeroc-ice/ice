@@ -9,7 +9,7 @@ class Server: TestHelperI {
         properties.setProperty(key: "Ice.AcceptClassCycles", value: "1")
         var initData = Ice.InitializationData()
         initData.properties = properties
-        initData.classResolverPrefix = ["IceOptional"]
+        initData.sliceLoader = DefaultSliceLoader("IceOptional")
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()

@@ -19,7 +19,7 @@ class Server: TestHelperI {
 
         var initData = Ice.InitializationData()
         initData.properties = properties
-        initData.classResolverPrefix = ["IceOperations"]
+        initData.sliceLoader = DefaultSliceLoader("IceOperations")
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()

@@ -9,7 +9,7 @@ class Server: TestHelperI {
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
         var initData = Ice.InitializationData()
         initData.properties = properties
-        initData.classResolverPrefix = ["IceObjects"]
+        initData.sliceLoader = DefaultSliceLoader("IceObjects")
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()

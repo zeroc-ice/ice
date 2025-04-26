@@ -11,7 +11,7 @@ public class Client: TestHelperI {
         properties.setProperty(key: "Ice.ThreadPool.Client.SizeWarn", value: "0")
         properties.setProperty(key: "Ice.BatchAutoFlushSize", value: "100")
         initData.properties = properties
-        initData.classResolverPrefix = ["IceOperations"]
+        initData.sliceLoader = DefaultSliceLoader("IceOperations")
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()

@@ -129,9 +129,6 @@ private func initializeImpl(
     if let sliceLoader = initData.sliceLoader {
         compositeSliceLoader.add(sliceLoader)
     }
-    if let classResolverPrefix = initData.classResolverPrefix {
-        compositeSliceLoader.add(DefaultSliceLoader(classResolverPrefix: classResolverPrefix))
-    }
     compositeSliceLoader.add(DefaultSliceLoader())
     initData.sliceLoader = compositeSliceLoader
 

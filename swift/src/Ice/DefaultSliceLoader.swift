@@ -13,11 +13,6 @@ public class DefaultSliceLoader: SliceLoader {
         self.classResolverPrefix = classResolverPrefix
     }
 
-    // Temporary
-    init (classResolverPrefix: [String]) {
-        self.classResolverPrefix = classResolverPrefix
-    }
-
     public func newInstance(_ typeId: String) -> AnyObject? {
         var cls: AnyObject.Type?
         mutex.sync {

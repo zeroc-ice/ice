@@ -12,7 +12,7 @@ class Collocated: TestHelperI {
 
         var initData = Ice.InitializationData()
         initData.properties = properties
-        initData.classResolverPrefix = ["IceExceptions"]
+        initData.sliceLoader = DefaultSliceLoader("IceExceptions")
 
         let communicator = try initialize(initData)
         defer {
