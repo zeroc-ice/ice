@@ -2,14 +2,8 @@
 
 import Foundation
 
-open class ValueTypeResolver: NSObject {
-    open func type() -> Value.Type {
-        fatalError("Abstract method")
-    }
-}
-
-open class UserExceptionTypeResolver: NSObject {
-    open func type() -> UserException.Type {
+open class SliceTypeResolver: NSObject {
+    open func type() -> AnyObject.Type {
         fatalError("Abstract method")
     }
 }
@@ -32,15 +26,8 @@ public class ClassResolver: NSObject {
         }
     }
 
-    static func resolve(typeId: String, prefix: String? = nil) -> Value.Type? {
-        guard let t = resolveImpl(typeId: typeId, prefix: prefix) as? ValueTypeResolver else {
-            return nil
-        }
-        return t.type()
-    }
-
-    static func resolve(typeId: String, prefix: String? = nil) -> UserException.Type? {
-        guard let t = resolveImpl(typeId: typeId, prefix: prefix) as? UserExceptionTypeResolver else {
+    static func resolve(typeId: String, prefix: String? = nil) -> AnyObject.Type? {
+        guard let t = resolveImpl(typeId: typeId, prefix: prefix) as? SliceTypeResolver else {
             return nil
         }
         return t.type()

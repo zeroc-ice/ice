@@ -918,13 +918,13 @@ extension EncapsDecoder {
         } else {
             var cls: Value.Type?
             for prefix in stream.classResolverPrefix ?? [] {
-                cls = ClassResolver.resolve(typeId: typeId, prefix: prefix)
+                cls = ClassResolver.resolve(typeId: typeId, prefix: prefix) as? Value.Type
                 if cls != nil {
                     break
                 }
             }
             if cls == nil {
-                cls = ClassResolver.resolve(typeId: typeId)
+                cls = ClassResolver.resolve(typeId: typeId) as? Value.Type
             }
             typeIdCache[typeId] = cls
             return cls
@@ -1125,13 +1125,13 @@ private class EncapsDecoder10: EncapsDecoder {
             //
             var userExceptionType: UserException.Type?
             for prefix in stream.classResolverPrefix ?? [] {
-                userExceptionType = ClassResolver.resolve(typeId: typeId, prefix: prefix)
+                userExceptionType = ClassResolver.resolve(typeId: typeId, prefix: prefix) as? UserException.Type
                 if userExceptionType != nil {
                     break
                 }
             }
             if userExceptionType == nil {
-                userExceptionType = ClassResolver.resolve(typeId: typeId)
+                userExceptionType = ClassResolver.resolve(typeId: typeId) as? UserException.Type
             }
 
             //
@@ -1405,13 +1405,13 @@ private class EncapsDecoder11: EncapsDecoder {
             //
             var userExceptionType: UserException.Type?
             for prefix in stream.classResolverPrefix ?? [] {
-                userExceptionType = ClassResolver.resolve(typeId: current.typeId, prefix: prefix)
+                userExceptionType = ClassResolver.resolve(typeId: current.typeId, prefix: prefix) as? UserException.Type
                 if userExceptionType != nil {
                     break
                 }
             }
             if userExceptionType == nil {
-                userExceptionType = ClassResolver.resolve(typeId: current.typeId)
+                userExceptionType = ClassResolver.resolve(typeId: current.typeId) as? UserException.Type
             }
 
             //

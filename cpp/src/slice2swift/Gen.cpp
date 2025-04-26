@@ -244,9 +244,9 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp;
     out << nl << "@_documentation(visibility: internal)";
     out << nl << "public class " << removeEscaping(name)
-        << "_TypeResolver: " << getUnqualified("Ice.ValueTypeResolver", swiftModule);
+        << "_TypeResolver: " << getUnqualified("Ice.SliceTypeResolver", swiftModule);
     out << sb;
-    out << nl << "public override func type() -> " << getUnqualified("Ice.Value.Type", swiftModule);
+    out << nl << "public override func type() -> AnyObject.Type";
     out << sb;
     out << nl << "return " << name << ".self";
     out << eb;
@@ -283,7 +283,7 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "public extension " << getUnqualified("Ice.ClassResolver", swiftModule);
     out << sb;
     out << nl << "@objc static func " << factory.str() << "() -> "
-        << getUnqualified("Ice.ValueTypeResolver", swiftModule);
+        << getUnqualified("Ice.SliceTypeResolver", swiftModule);
     out << sb;
     out << nl << "return " << removeEscaping(name) << "_TypeResolver()";
     out << eb;
@@ -408,9 +408,9 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << sp;
     out << nl << "@_documentation(visibility: internal)";
     out << nl << "public class " << removeEscaping(name)
-        << "_TypeResolver: " << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
+        << "_TypeResolver: " << getUnqualified("Ice.SliceTypeResolver", swiftModule);
     out << sb;
-    out << nl << "public override func type() -> " << getUnqualified("Ice.UserException.Type", swiftModule);
+    out << nl << "public override func type() -> AnyObject.Type";
     out << sb;
     out << nl << "return " << name << ".self";
     out << eb;
@@ -420,7 +420,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "public extension " << getUnqualified("Ice.ClassResolver", swiftModule);
     out << sb;
     out << nl << "@objc static func " << factory.str() << "() -> "
-        << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
+        << getUnqualified("Ice.SliceTypeResolver", swiftModule);
     out << sb;
     out << nl << "return " << removeEscaping(name) << "_TypeResolver()";
     out << eb;

@@ -10,5 +10,7 @@ public struct InitializationData {
 
     public var classResolverPrefix: [String]?
 
+    public var sliceLoader: SliceLoader?
+
     public init() {}
 }
