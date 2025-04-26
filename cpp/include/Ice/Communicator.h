@@ -243,11 +243,6 @@ namespace Ice
         /// @see PluginManager
         [[nodiscard]] PluginManagerPtr getPluginManager() const;
 
-        /// Gets the value factory manager of this communicator.
-        /// @return This communicator's value factory manager.
-        /// @see ValueFactoryManager
-        [[nodiscard]] ValueFactoryManagerPtr getValueFactoryManager() const noexcept;
-
         /// Flushes any pending batch requests of this communicator. This means all batch requests invoked on fixed
         /// proxies for all connections associated with the communicator. Errors that occur while flushing a connection
         /// are ignored.

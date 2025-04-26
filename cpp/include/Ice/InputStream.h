@@ -15,7 +15,6 @@
 #include "StreamableTraits.h"
 #include "UserExceptionFactory.h"
 #include "ValueF.h"
-#include "ValueFactory.h"
 
 #include <cassert>
 #include <cstdint>
@@ -722,11 +721,10 @@ namespace Ice
             virtual void readPendingValues() {}
 
         protected:
-            EncapsDecoder(InputStream* stream, Encaps* encaps, size_t classGraphDepthMax, Ice::ValueFactoryManagerPtr f)
+            EncapsDecoder(InputStream* stream, Encaps* encaps, size_t classGraphDepthMax)
                 : _stream(stream),
                   _encaps(encaps),
-                  _classGraphDepthMax(classGraphDepthMax),
-                  _valueFactoryManager(std::move(f))
+                  _classGraphDepthMax(classGraphDepthMax)
             {
             }
 
@@ -753,7 +751,6 @@ namespace Ice
             Encaps* _encaps;
             const size_t _classGraphDepthMax;
             size_t _classGraphDepth{0};
-            Ice::ValueFactoryManagerPtr _valueFactoryManager;
 
             // Encapsulation attributes for object un-marshaling
             PatchMap _patchMap;
@@ -769,12 +766,8 @@ namespace Ice
         class ICE_API EncapsDecoder10 : public EncapsDecoder
         {
         public:
-            EncapsDecoder10(
-                InputStream* stream,
-                Encaps* encaps,
-                size_t classGraphDepthMax,
-                const Ice::ValueFactoryManagerPtr& f)
-                : EncapsDecoder(stream, encaps, classGraphDepthMax, f)
+            EncapsDecoder10(InputStream* stream, Encaps* encaps, size_t classGraphDepthMax)
+                : EncapsDecoder(stream, encaps, classGraphDepthMax)
             {
             }
 
@@ -804,12 +797,8 @@ namespace Ice
         class ICE_API EncapsDecoder11 : public EncapsDecoder
         {
         public:
-            EncapsDecoder11(
-                InputStream* stream,
-                Encaps* encaps,
-                size_t classGraphDepthMax,
-                const Ice::ValueFactoryManagerPtr& f)
-                : EncapsDecoder(stream, encaps, classGraphDepthMax, f),
+            EncapsDecoder11(InputStream* stream, Encaps* encaps, size_t classGraphDepthMax)
+                : EncapsDecoder(stream, encaps, classGraphDepthMax),
                   _preAllocatedInstanceData(nullptr)
             {
             }
@@ -942,9 +931,6 @@ namespace Ice
 
         int _startSeq{-1};
         int _minSeqSize{0};
-
-        // Retrieved from instance during construction and cached. Never null.
-        const ValueFactoryManagerPtr _valueFactoryManager;
 
         const SliceLoaderPtr _sliceLoader; // never null
 

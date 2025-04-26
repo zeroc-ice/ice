@@ -193,7 +193,6 @@
     <ClCompile Include="..\..\SSL\TrustManager.cpp" />
     <ClCompile Include="..\..\TimeUtil.cpp" />
     <ClCompile Include="..\..\UserException.cpp" />
-    <ClCompile Include="..\..\ValueFactory.cpp" />
     <ClCompile Include="Win32\Debug\BuiltinSequences.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -617,7 +616,6 @@
     <ClCompile Include="..\..\UdpEndpointI.cpp" />
     <ClCompile Include="..\..\UdpTransceiver.cpp" />
     <ClCompile Include="..\..\Value.cpp" />
-    <ClCompile Include="..\..\ValueFactoryManagerI.cpp" />
     <ClCompile Include="..\..\VersionFunctions.cpp" />
     <ClCompile Include="..\..\WSAcceptor.cpp" />
     <ClCompile Include="..\..\WSConnector.cpp" />
@@ -1023,7 +1021,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\UUID.h" />
     <ClInclude Include="..\..\..\..\include\Ice\Value.h" />
     <ClInclude Include="..\..\..\..\include\Ice\ValueF.h" />
-    <ClInclude Include="..\..\..\..\include\Ice\ValueFactory.h" />
     <ClInclude Include="..\..\ConsoleUtil.h" />
     <ClInclude Include="..\..\EndpointI.h" />
     <ClInclude Include="..\..\RequestFailedMessage.h" />

@@ -8,7 +8,6 @@
 #include "Ice/SlicedData.h"
 #include "Ice/StringConverter.h"
 #include "Ice/UserExceptionFactory.h"
-#include "Ice/ValueFactory.h"
 #include "Instance.h"
 #include "ReferenceFactory.h"
 #include "TraceLevels.h"
@@ -1051,20 +1050,25 @@ Ice::InputStream::read(vector<wstring>& v)
     }
 }
 
+namespace
+{
+    inline Ice::SliceLoaderPtr getSliceLoader(SliceLoaderPtr sliceLoader, Instance* instance)
+    {
+        if (!sliceLoader)
+        {
+            sliceLoader = instance->sliceLoader();
+        }
+        return sliceLoader;
+    }
+}
+
 Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, Buffer&& buf, SliceLoaderPtr sliceLoader)
     : Buffer(std::move(buf)),
       _instance(instance),
       _encoding(encoding),
       _classGraphDepthMax(instance->classGraphDepthMax()),
-      _valueFactoryManager(instance->initializationData().valueFactoryManager),
-      _sliceLoader{std::move(sliceLoader)}
+      _sliceLoader{getSliceLoader(std::move(sliceLoader), instance)}
 {
-    if (!_sliceLoader)
-    {
-        const_cast<SliceLoaderPtr&>(_sliceLoader) = _instance->sliceLoader();
-    }
-
-    assert(_valueFactoryManager);
 }
 
 ReferencePtr
@@ -1289,12 +1293,12 @@ Ice::InputStream::initEncaps()
         if (_currentEncaps->encoding == Encoding_1_0)
         {
             _currentEncaps->decoder =
-                new EncapsDecoder10(this, _currentEncaps, _classGraphDepthMax, _valueFactoryManager);
+                new EncapsDecoder10(this, _currentEncaps, _classGraphDepthMax);
         }
         else
         {
             _currentEncaps->decoder =
-                new EncapsDecoder11(this, _currentEncaps, _classGraphDepthMax, _valueFactoryManager);
+                new EncapsDecoder11(this, _currentEncaps, _classGraphDepthMax);
         }
     }
 }
@@ -1327,31 +1331,7 @@ Ice::InputStream::EncapsDecoder::readTypeId(bool isIndex)
 ValuePtr
 Ice::InputStream::EncapsDecoder::newInstance(string_view typeId)
 {
-    shared_ptr<Value> v;
-
-    // Try to find a factory registered for the specific type.
-    function<shared_ptr<Value>(string_view)> userFactory = _valueFactoryManager->find(typeId);
-    if (userFactory)
-    {
-        v = userFactory(typeId);
-    }
-
-    // If that fails, invoke the default factory if one has been registered.
-    if (!v)
-    {
-        userFactory = _valueFactoryManager->find("");
-        if (userFactory)
-        {
-            v = userFactory(typeId);
-        }
-    }
-
-    if (!v)
-    {
-        v = _stream->_sliceLoader->newClassInstance(typeId);
-    }
-
-    return v;
+    return _stream->_sliceLoader->newClassInstance(typeId);
 }
 
 void
