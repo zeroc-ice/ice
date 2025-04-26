@@ -22,8 +22,7 @@ namespace
     using CommunicatorMap = map<Ice::CommunicatorPtr, VALUE>;
     CommunicatorMap _communicatorMap;
 
-    using SliceLoaderMap = map<Ice::CommunicatorPtr, Ice::SliceLoaderPtr>;
-    SliceLoaderMap _sliceLoaderMap;
+    map<Ice::CommunicatorPtr, Ice::SliceLoaderPtr> _sliceLoaderMap;
 }
 
 extern "C" void
@@ -174,8 +173,8 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
             {
                 auto compositeSliceLoader = make_shared<Ice::CompositeSliceLoader>();
                 compositeSliceLoader->add(make_shared<RubySliceLoader>(initDataSliceLoader));
-                compositeSliceLoader->add(sliceLoader);
-                sliceLoader = compositeSliceLoader;
+                compositeSliceLoader->add(std::move(sliceLoader));
+                sliceLoader = std::move(compositeSliceLoader);
             }
         }
 

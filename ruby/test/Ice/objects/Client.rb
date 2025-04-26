@@ -13,7 +13,7 @@ class Client < ::TestHelper
         initData = Ice::InitializationData.new
         initData.properties = self.createTestProperties(args:args)
         initData.sliceLoader = CustomSliceLoader.new
-        self.init(initData:initData, args:args) do |communicator|
+        self.init(initData:initData) do |communicator|
             initial = allTests(self, communicator)
             initial.shutdown()
         end

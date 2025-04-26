@@ -50,9 +50,10 @@ end
 
 class CustomSliceLoader
     def newInstance(typeId)
-        if typeId == '::Test::B'
+        case typeId
+        when '::Test::B'
             return BI.new
-        elsif typeId == '::Test::C'
+        when '::Test::C'
             return CI.new
         else
             return nil
