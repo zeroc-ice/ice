@@ -1,15 +1,19 @@
 // Copyright (c) ZeroC, Inc.
 
-/// TBD
-public class CompositeSliceLoader: SliceLoader {
+/// Implements SliceLoader by combining multiple SliceLoaders.
+public final class CompositeSliceLoader: SliceLoader {
     private var sliceLoaders: [SliceLoader] = []
 
+    /// Creates a CompositeSliceLoader.
+    /// - Parameter sliceLoaders: The initial Slice loaders.
     public init(_ sliceLoaders: SliceLoader...) {
         self.sliceLoaders = sliceLoaders
     }
 
-    public func add(_ sliceLoader: SliceLoader) {
-        sliceLoaders.append(sliceLoader)
+    /// Adds a SliceLoader to the CompositeSliceLoader.
+    /// Parameter loader: The SliceLoader to add.
+    public func add(_ loader: SliceLoader) {
+        sliceLoaders.append(loader)
     }
 
     public func newInstance(_ typeId: String) -> AnyObject? {

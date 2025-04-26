@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 /// Implements SliceLoader using the generated code.
-public class DefaultSliceLoader: SliceLoader {
+public final class DefaultSliceLoader: SliceLoader {
     private let classResolverPrefix: [String]
 
     // We cache successful resolutions. The size of this cache is bounded by the number of Slice classes and exceptions
@@ -9,6 +9,9 @@ public class DefaultSliceLoader: SliceLoader {
     private var typeIdToClassMap: [String: AnyObject.Type] = [:]
     private var mutex = Mutex()
 
+    /// Creates a DefaultSliceLoader.
+    /// - Parameter classResolverPrefix: The prefix(es) to use when resolving Slice classes and exceptions. This prefix
+    /// corresponds to the Slice metadata directive swift:class-resolver-prefix.
     public init(_ classResolverPrefix: String...) {
         self.classResolverPrefix = classResolverPrefix
     }

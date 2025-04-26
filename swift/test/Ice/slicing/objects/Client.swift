@@ -46,6 +46,9 @@ public class Client: TestHelperI {
     override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.AcceptClassCycles", value: "1")
+        properties.setProperty(key: "Ice.SliceLoader.NotFoundCacheSize", value: "5");
+        properties.setProperty(key: "Ice.Warn.SliceLoader", value: "0"); // comment out to see the warning
+
         var initData = InitializationData()
         initData.properties = properties
         initData.sliceLoader = CompositeSliceLoader(
