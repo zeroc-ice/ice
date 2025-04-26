@@ -31,7 +31,6 @@
     <Slices Include="$(PackageDir)slice\**\*.ice" />
 
     <Tools Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\ice2slice.exe" />
-    <Tools Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\slice2java.exe" />
 
     <Libraries Include="$(PackageDir)build\native\bin\x64\Release\*.dll" />
     <Executables Include="$(PackageDir)build\native\bin\x64\Release\*.exe" />

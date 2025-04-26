@@ -8,7 +8,7 @@
 
 [["cpp:include:Glacier2/Config.h"]]
 
-[["java:package:com.zeroc.Glacier2"]]
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Glacier2"]]
 

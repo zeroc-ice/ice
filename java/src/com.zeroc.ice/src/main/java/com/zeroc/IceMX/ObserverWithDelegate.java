@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-package com.zeroc.Ice.IceMX;
+package com.zeroc.IceMX;
 
 public class ObserverWithDelegate<
     T extends Metrics, O extends com.zeroc.Ice.Instrumentation.Observer>

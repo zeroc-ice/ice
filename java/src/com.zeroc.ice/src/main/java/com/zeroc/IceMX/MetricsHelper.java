@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-package com.zeroc.Ice.IceMX;
+package com.zeroc.IceMX;
 
 import com.zeroc.Ice.ConnectionInfo;
 import com.zeroc.Ice.EndpointInfo;

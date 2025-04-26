@@ -391,6 +391,28 @@ module DataStormContract
         void s(long topicId, long elementId, DataSample sample);
     }
 
+    /// The reason for the session creation failure.
+    enum SessionCreationError
+    {
+        /// The session is already connected.
+        AlreadyConnected,
+
+        /// Node is shutting down.
+        NodeShutdown,
+
+        /// A confirmation was received for a session that doesn't exist.
+        SessionNotFound,
+
+        /// The session creation failed due to an internal error.
+        Internal,
+    }
+
+    /// Throws when the session cannot be created.
+    exception SessionCreationException
+    {
+        SessionCreationError error;
+    }
+
     /// The Node interface allows DataStorm nodes to create publisher and subscriber sessions with each other.
     ///
     /// When a node has a writer for a topic that another node is reading, the node initiates the creation of a
@@ -406,8 +428,9 @@ module DataStormContract
         /// reader for which this node has a corresponding topic writer.
         ///
         /// @param publisher The publisher node initiating the session. The proxy is never null.
+        /// @throws SessionCreationException Thrown when the session cannot be created.
         /// @see Lookup::announceTopicReader
-        void initiateCreateSession(Node* publisher);
+        ["amd"] void initiateCreateSession(Node* publisher) throws SessionCreationException;
 
         /// Initiates the creation of a subscriber session with a node. The subscriber node sends this request to a
         /// publisher node in one of the following scenarios:
@@ -423,13 +446,16 @@ module DataStormContract
         /// @param subscriber The subscriber node initiating the session. This proxy is never null.
         /// @param session The subscriber session being created. This proxy is never null.
         /// @param fromRelay Indicates whether the session is being created from a relay node.
-        void createSession(Node* subscriber, SubscriberSession* session, bool fromRelay);
+        /// @throws SessionCreationException Thrown when the session cannot be created.
+        ["amd"] void createSession(Node* subscriber, SubscriberSession* session, bool fromRelay)
+            throws SessionCreationException;
 
         /// Confirm the creation of a publisher session with a node.
         ///
         /// @param publisher The publisher node confirming the session. The proxy is never null.
         /// @param session The publisher session being confirmed. The proxy is never null.
-        void confirmCreateSession(Node* publisher, PublisherSession* session);
+        /// @throws SessionCreationException Thrown when the session cannot be created.
+        ["amd"] void confirmCreateSession(Node* publisher, PublisherSession* session) throws SessionCreationException;
     }
 
     /// The lookup interface is used by DataStorm nodes to announce their topic readers and writers to other connected

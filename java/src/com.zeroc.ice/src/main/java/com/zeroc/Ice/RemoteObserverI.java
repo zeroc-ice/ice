@@ -2,8 +2,8 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.IceMX.ObserverWithDelegate;
-import com.zeroc.Ice.IceMX.RemoteMetrics;
+import com.zeroc.IceMX.ObserverWithDelegate;
+import com.zeroc.IceMX.RemoteMetrics;
 import com.zeroc.Ice.Instrumentation.RemoteObserver;
 
 /**

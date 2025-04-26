@@ -8,7 +8,7 @@
 
 [["cpp:include:IceStorm/Config.h"]]
 
-[["java:package:com.zeroc.IceStorm"]]
+[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:IceStorm"]]
 
