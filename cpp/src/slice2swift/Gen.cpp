@@ -241,7 +241,7 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     ClassDefPtr base = p->base();
 
-    // For each Value class we generate an extension method in ClassResolver.
+    // For each Value class we generate an extension method in DefaultSliceLoader.
     // This function name is based off of the Slice type ID, not the mapped name.
     ostringstream factory;
     factory << "resolveTypeId" << prefix << "_";
@@ -256,7 +256,7 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     out << sp;
-    out << nl << "public extension " << getUnqualified("Ice.ClassResolver", swiftModule);
+    out << nl << "public extension " << getUnqualified("Ice.DefaultSliceLoader", swiftModule);
     out << sb;
     out << nl << "@objc static func " << factory.str() << "() -> AnyObject.Type";
     out << sb;
@@ -376,7 +376,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     const string prefix = getClassResolverPrefix(p->unit());
 
-    // For each UserException class we generate an extension in ClassResolver.
+    // For each UserException class we generate an extension in DefaultSliceLoader.
     // This function name is based off of the Slice type ID, not the mapped name.
     ostringstream factory;
     factory << "resolveTypeId" << prefix << "_";
@@ -391,7 +391,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     out << sp;
-    out << nl << "public extension " << getUnqualified("Ice.ClassResolver", swiftModule);
+    out << nl << "public extension " << getUnqualified("Ice.DefaultSliceLoader", swiftModule);
     out << sb;
     out << nl << "@objc static func " << factory.str() << "() -> AnyObject.Type";
     out << sb;

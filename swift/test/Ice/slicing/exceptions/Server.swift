@@ -9,7 +9,9 @@ class Server: TestHelperI {
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
         var initData = InitializationData()
         initData.properties = properties
-        initData.sliceLoader = DefaultSliceLoader("IceSlicingExceptions", "IceSlicingExceptionsServer")
+        initData.sliceLoader = CompositeSliceLoader(
+            DefaultSliceLoader("IceSlicingExceptions"),
+            DefaultSliceLoader("IceSlicingExceptionsServer"))
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()

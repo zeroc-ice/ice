@@ -7,7 +7,9 @@ public class Client: TestHelperI {
     override public func run(args: [String]) async throws {
         var initData = Ice.InitializationData()
         initData.properties = try createTestProperties(args)
-        initData.sliceLoader = DefaultSliceLoader("IceSlicingExceptions", "IceSlicingExceptionsClient")
+        initData.sliceLoader = CompositeSliceLoader(
+            DefaultSliceLoader("IceSlicingExceptions"),
+            DefaultSliceLoader("IceSlicingExceptionsClient"))
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()

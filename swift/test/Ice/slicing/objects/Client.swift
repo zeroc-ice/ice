@@ -52,7 +52,10 @@ public class Client: TestHelperI {
         var initData = InitializationData()
         initData.properties = properties
         initData.sliceLoader = CompositeSliceLoader(
-            CustomSliceLoader(), DefaultSliceLoader("IceSlicingObjects", "IceSlicingObjectsClient"))
+            CustomSliceLoader(),
+            DefaultSliceLoader("IceSlicingObjects"),
+            DefaultSliceLoader("IceSlicingObjectsClient")
+        )
 
         let communicator = try initialize(initData)
         defer {
