@@ -141,16 +141,20 @@ class FValueReader: Ice.Value {
     var _f: F
 }
 
-class FactoryI {
+class CustomSliceLoader : SliceLoader {
+    var useReader: Bool = false
+    // unowned to avoid cyclic dependency
+    private unowned let _helper: TestHelper
+
     init(helper: TestHelper) {
-        _enabled = false
         _helper = helper
     }
 
-    func create(_ typeId: String) -> Ice.Value? {
-        guard _enabled else {
+    func newInstance(_ typeId: String) -> AnyObject? {
+        if !useReader {
             return nil
         }
+
         switch typeId {
         case OneOptional.ice_staticId():
             return TestValueReader()
@@ -161,35 +165,21 @@ class FactoryI {
         case C.ice_staticId():
             return CValueReader()
         case "::Test::D":
-            return DValueReader(helper: _helper!)
+            return DValueReader(helper: _helper)
         case "::Test::F":
             return FValueReader()
         default:
             return nil
         }
     }
-
-    func setEnabled(enabled: Bool) {
-        _enabled = enabled
-    }
-
-    func destroy() {
-        _helper = nil
-    }
-
-    var _enabled: Bool
-    var _helper: TestHelper?
 }
 
-func allTests(_ helper: TestHelper) async throws -> InitialPrx {
+func allTests(_ helper: TestHelper, customSliceLoader: CustomSliceLoader) async throws -> InitialPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
 
     let communicator = helper.communicator()
-    let factory = FactoryI(helper: helper)
-    try communicator.getValueFactoryManager().add(factory: { id in factory.create(id) }, id: "")
-
     let output = helper.getWriter()
     output.write("testing stringToProxy... ")
     let ref = "initial:\(helper.getTestEndpoint(num: 0))"
@@ -471,11 +461,11 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     }
 
     //
-    // Send a request using ice_invoke. Upon receival, we don't read
+    // Send a request using ice_invoke. Upon receipt, we don't read
     // any of the optional members. This ensures the optional members
     // are skipped even if the receiver knows nothing about them.
     //
-    factory.setEnabled(enabled: true)
+    customSliceLoader.useReader = true
     do {
         let ostr = Ice.OutputStream(communicator: communicator)
         ostr.startEncapsulation()
@@ -515,7 +505,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         try istr.endEncapsulation()
         try test(v != nil && v is TestValueReader)
     }
-    factory.setEnabled(enabled: false)
+    customSliceLoader.useReader = false
 
     do {
         var g: G! = G()
@@ -564,7 +554,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         try test(mc.fss?.count == 300)
         try test(mc.ifsd?.count == 300)
 
-        factory.setEnabled(enabled: true)
+        customSliceLoader.useReader = true
         let ostr = Ice.OutputStream(communicator: communicator)
         ostr.startEncapsulation()
         ostr.write(mc)
@@ -579,7 +569,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         try istr.read { v = $0 }
         try istr.endEncapsulation()
         try test(v != nil && v is TestValueReader)
-        factory.setEnabled(enabled: false)
+        customSliceLoader.useReader = false
     }
     output.writeLine("ok")
 
@@ -602,7 +592,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         try test(b2.mc! == 12)
         try test(b2.md! == 13)
 
-        factory.setEnabled(enabled: true)
+        customSliceLoader.useReader = true
         let ostr = Ice.OutputStream(communicator: communicator)
         ostr.startEncapsulation()
         ostr.write(b)
@@ -617,7 +607,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         try istr.read { v = $0 }
         try istr.endEncapsulation()
         try test(v != nil)
-        factory.setEnabled(enabled: false)
+        customSliceLoader.useReader = false
     }
     output.writeLine("ok")
 
@@ -631,7 +621,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var rf = try await initial.pingPong(f) as! F
         try test(rf.fse == rf.fsf)
 
-        factory.setEnabled(enabled: true)
+        customSliceLoader.useReader = true
         let ostr = Ice.OutputStream(communicator: communicator)
         ostr.startEncapsulation()
         ostr.write(f)
@@ -642,7 +632,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         var v: Value?
         try istr.read { v = $0 }
         try istr.endEncapsulation()
-        factory.setEnabled(enabled: false)
+        customSliceLoader.useReader = false
         rf = (v as! FValueReader).getF()!
         try test(rf.fse.m == 0 && rf.fsf == nil)
     }
@@ -672,7 +662,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
             ostr.write(c)
             ostr.endEncapsulation()
             var inEncaps = ostr.finished()
-            factory.setEnabled(enabled: true)
+            customSliceLoader.useReader = true
             var result = try await initial.ice_invoke(
                 operation: "pingPong", mode: .normal, inEncaps: inEncaps)
             try test(result.ok)
@@ -682,9 +672,9 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
             try istr.read { v = $0 }
             try istr.endEncapsulation()
             try test(v != nil && v is CValueReader)
-            factory.setEnabled(enabled: false)
+            customSliceLoader.useReader = false
 
-            factory.setEnabled(enabled: true)
+            customSliceLoader.useReader = true
             ostr = Ice.OutputStream(communicator: communicator)
             ostr.startEncapsulation()
             let d = DValueWriter()
@@ -701,7 +691,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
             try istr.endEncapsulation()
             try test(v != nil && v is DValueReader)
             try (v as! DValueReader).check()
-            factory.setEnabled(enabled: false)
+            customSliceLoader.useReader = false
         }
         output.writeLine("ok")
 
@@ -868,8 +858,6 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         try test(ex.ss == "test2")
     }
     output.writeLine("ok")
-
-    factory.destroy()  // Break cycle with helper
 
     return initial
 }

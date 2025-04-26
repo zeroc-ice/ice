@@ -9,6 +9,8 @@ public class InputStream {
     let classResolverPrefix: [String]?
     let communicator: Communicator
 
+    let sliceLoader: SliceLoader
+
     private(set) var pos: Int = 0
     private let encoding: EncodingVersion
     fileprivate let acceptClassCycles: Bool
@@ -42,6 +44,7 @@ public class InputStream {
         data = bytes
         classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
         self.communicator = communicator
+        sliceLoader = (communicator as! CommunicatorI).initData.sliceLoader!
         self.encoding = encoding
         classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
         acceptClassCycles = (communicator as! CommunicatorI).acceptClassCycles
@@ -336,16 +339,13 @@ public class InputStream {
             encaps = Encaps(start: 0, size: data.count, encoding: encoding)
         }
         if encaps.decoder == nil {  // Lazy initialization
-            let valueFactoryManager = communicator.getValueFactoryManager()
             if encaps.encoding_1_0 {
                 encaps.decoder = EncapsDecoder10(
                     stream: self,
-                    valueFactoryManager: valueFactoryManager,
                     classGraphDepthMax: classGraphDepthMax)
             } else {
                 encaps.decoder = EncapsDecoder11(
                     stream: self,
-                    valueFactoryManager: valueFactoryManager,
                     classGraphDepthMax: classGraphDepthMax)
             }
         }
@@ -364,14 +364,13 @@ public class InputStream {
     }
 
     static func throwUOE(expectedType: Value.Type, v: Value) throws {
-        // If the object is an unknown sliced object, we didn't find a value factory.
         if let usv = v as? UnknownSlicedValue {
             throw MarshalException(
-                "cannot find value factory to unmarshal class with type ID '\(usv.ice_id())'")
+                "The Slice loader did not find a class for type ID '\(usv.ice_id())'.")
         }
 
         throw MarshalException(
-            "failed to unmarshal class with type ID '\(expectedType.ice_staticId())': value factory returned a class with type ID '\(v.ice_id())'"
+            "Failed to unmarshal class with type ID '\(expectedType.ice_staticId())': the Slice loader returned a class with type ID '\(v.ice_id())'."
         )
     }
 }
@@ -858,7 +857,6 @@ private struct PatchEntry {
 
 private protocol EncapsDecoder: AnyObject {
     var stream: InputStream { get }
-    var valueFactoryManager: ValueFactoryManager { get }
 
     //
     // Encapsulation attributes for value unmarshaling.
@@ -909,53 +907,8 @@ extension EncapsDecoder {
         }
     }
 
-    func resolveClass(typeId: String) throws -> Value.Type? {
-        if let cls = typeIdCache[typeId] {
-            return cls
-        } else {
-            var cls: Value.Type?
-            for prefix in stream.classResolverPrefix ?? [] {
-                cls = ClassResolver.resolve(typeId: typeId, prefix: prefix) as? Value.Type
-                if cls != nil {
-                    break
-                }
-            }
-            if cls == nil {
-                cls = ClassResolver.resolve(typeId: typeId) as? Value.Type
-            }
-            typeIdCache[typeId] = cls
-            return cls
-        }
-    }
-
     func newInstance(typeId: String) throws -> Value? {
-        //
-        // Try to find a factory registered for the specific type.
-        //
-        if let factory = valueFactoryManager.find(typeId) {
-            if let v = factory(typeId) {
-                return v
-            }
-        }
-
-        //
-        // If that fails, invoke the default factory if one has been
-        // registered.
-        //
-        if let factory = valueFactoryManager.find("") {
-            if let v = factory(typeId) {
-                return v
-            }
-        }
-
-        //
-        // Last chance: try to instantiate the class dynamically.
-        //
-        if let cls = try resolveClass(typeId: typeId) {
-            return cls.init()
-        }
-
-        return nil
+        stream.sliceLoader.newInstance(typeId) as? Value
     }
 
     func addPatchEntry(index: Int32, cb: @escaping Callback) throws {
@@ -1050,7 +1003,6 @@ extension EncapsDecoder {
 private class EncapsDecoder10: EncapsDecoder {
     // EncapsDecoder members
     unowned let stream: InputStream
-    let valueFactoryManager: ValueFactoryManager
     lazy var patchMap = [Int32: [PatchEntry]]()
     lazy var unmarshaledMap = [Int32: Value?]()
     lazy var typeIdMap = [Int32: String]()
@@ -1069,9 +1021,8 @@ private class EncapsDecoder10: EncapsDecoder {
     let classGraphDepthMax: Int32
     var classGraphDepth: Int32
 
-    init(stream: InputStream, valueFactoryManager: ValueFactoryManager, classGraphDepthMax: Int32) {
+    init(stream: InputStream, classGraphDepthMax: Int32) {
         self.stream = stream
-        self.valueFactoryManager = valueFactoryManager
         sliceType = SliceType.NoSlice
         self.classGraphDepthMax = classGraphDepthMax
         classGraphDepth = 0
@@ -1117,25 +1068,8 @@ private class EncapsDecoder10: EncapsDecoder {
         let mostDerivedId = typeId!
 
         while true {
-            //
-            // Look for user exception
-            //
-            var userExceptionType: UserException.Type?
-            for prefix in stream.classResolverPrefix ?? [] {
-                userExceptionType = ClassResolver.resolve(typeId: typeId, prefix: prefix) as? UserException.Type
-                if userExceptionType != nil {
-                    break
-                }
-            }
-            if userExceptionType == nil {
-                userExceptionType = ClassResolver.resolve(typeId: typeId) as? UserException.Type
-            }
-
-            //
-            // We found the exception.
-            //
-            if let type = userExceptionType {
-                let ex = type.init()
+            if let obj = stream.sliceLoader.newInstance(typeId) {
+                let ex = obj as! UserException
                 try ex._iceRead(from: stream)
                 if usesClasses {
                     try readPendingValues()
@@ -1255,12 +1189,9 @@ private class EncapsDecoder10: EncapsDecoder {
         var v: Value!
 
         while true {
-            //
-            // For the 1.0 encoding, the type ID for the base Object class
-            // marks the last slice.
-            //
+            // For the 1.0 encoding, the type ID for the base Object class marks the last slice.
             if typeId == "::Ice::Object" {
-                throw MarshalException("cannot find value factory for type ID '\(mostDerivedId)'")
+                throw MarshalException("The Slice loader fid not find a class for type ID '\(mostDerivedId)'")
             }
 
             v = try newInstance(typeId: typeId)
@@ -1304,7 +1235,6 @@ private class EncapsDecoder10: EncapsDecoder {
 private class EncapsDecoder11: EncapsDecoder {
     // EncapsDecoder members
     unowned let stream: InputStream
-    let valueFactoryManager: ValueFactoryManager
     lazy var patchMap = [Int32: [PatchEntry]]()
     lazy var unmarshaledMap = [Int32: Value?]()
     lazy var typeIdMap = [Int32: String]()
@@ -1353,9 +1283,8 @@ private class EncapsDecoder11: EncapsDecoder {
         }
     }
 
-    init(stream: InputStream, valueFactoryManager: ValueFactoryManager, classGraphDepthMax: Int32) {
+    init(stream: InputStream, classGraphDepthMax: Int32) {
         self.stream = stream
-        self.valueFactoryManager = valueFactoryManager
         self.classGraphDepthMax = classGraphDepthMax
         classGraphDepth = 0
     }
@@ -1394,25 +1323,8 @@ private class EncapsDecoder11: EncapsDecoder {
         try startSlice()
         let mostDerivedId = current.typeId!
         while true {
-            //
-            // Look for user exception
-            //
-            var userExceptionType: UserException.Type?
-            for prefix in stream.classResolverPrefix ?? [] {
-                userExceptionType = ClassResolver.resolve(typeId: current.typeId, prefix: prefix) as? UserException.Type
-                if userExceptionType != nil {
-                    break
-                }
-            }
-            if userExceptionType == nil {
-                userExceptionType = ClassResolver.resolve(typeId: current.typeId) as? UserException.Type
-            }
-
-            //
-            // We found the exception.
-            //
-            if let userEx = userExceptionType {
-                let ex = userEx.init()
+            if let obj = stream.sliceLoader.newInstance(current.typeId) {
+                let ex = obj as! UserException
                 try ex._iceRead(from: stream)
                 throw ex
             }
@@ -1552,11 +1464,11 @@ private class EncapsDecoder11: EncapsDecoder {
         } else {
             if current.sliceType == .ValueSlice {
                 throw MarshalException(
-                    "cannot find value factory for type ID '\(current.typeId!)' and compact format prevents slicing"
+                    "The Slice loader did not find a class for type ID '\(current.typeId!)' and compact format prevents slicing."
                 )
             } else {
                 throw MarshalException(
-                    "cannot find user exception for type ID '\(current.typeId!)'")
+                    "The Slice loader did not find a user exception class  for type ID '\(current.typeId!)' and compact format prevents slicing.")
             }
         }
 

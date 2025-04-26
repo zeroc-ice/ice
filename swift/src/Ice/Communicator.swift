@@ -172,11 +172,6 @@ public protocol Communicator: AnyObject {
     /// - parameter _: `LocatorPrx?` The default locator to use for this communicator.
     func setDefaultLocator(_ loc: LocatorPrx?)
 
-    /// Get the value factory manager for this communicator.
-    ///
-    /// - returns: `ValueFactoryManager` - This communicator's value factory manager.
-    func getValueFactoryManager() -> ValueFactoryManager
-
     /// Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
     /// for all connections associated with the communicator. Any errors that occur while flushing a connection are
     /// ignored.

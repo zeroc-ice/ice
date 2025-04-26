@@ -3,7 +3,6 @@
 import IceImpl
 
 class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
-    private let valueFactoryManager: ValueFactoryManager = ValueFactoryManagerI()
     let defaultsAndOverrides: DefaultsAndOverrides
     let initData: InitializationData
     let classGraphDepthMax: Int32
@@ -172,10 +171,6 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         } catch {
             fatalError("\(error)")
         }
-    }
-
-    func getValueFactoryManager() -> ValueFactoryManager {
-        return valueFactoryManager
     }
 
     func flushBatchRequests(

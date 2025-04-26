@@ -125,6 +125,16 @@ private func initializeImpl(
         initData.properties = createProperties()
     }
 
+    let compositeSliceLoader = CompositeSliceLoader()
+    if let sliceLoader = initData.sliceLoader {
+        compositeSliceLoader.add(sliceLoader)
+    }
+    if let classResolverPrefix = initData.classResolverPrefix {
+        compositeSliceLoader.add(DefaultSliceLoader(classResolverPrefix: classResolverPrefix))
+    }
+    compositeSliceLoader.add(DefaultSliceLoader())
+    initData.sliceLoader = compositeSliceLoader
+
     var loggerP: ICELoggerProtocol?
     if let l = initData.logger {
         loggerP = LoggerWrapper(handle: l)

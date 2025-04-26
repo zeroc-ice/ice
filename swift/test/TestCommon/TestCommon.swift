@@ -38,7 +38,7 @@ public enum TestFailed: Error {
     case testFailed
 }
 
-public protocol TestHelper {
+public protocol TestHelper : AnyObject {
     init()
     func run(args: [String]) async throws
     func getTestEndpoint(num: Int32, prot: String) -> String
