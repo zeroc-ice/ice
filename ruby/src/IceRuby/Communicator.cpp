@@ -8,32 +8,21 @@
 #include "Logger.h"
 #include "Properties.h"
 #include "Proxy.h"
+#include "RubySliceLoader.h"
 #include "Types.h"
 #include "Util.h"
-#include "ValueFactoryManager.h"
 
 using namespace std;
 using namespace IceRuby;
 
-static VALUE _communicatorClass;
-
-using CommunicatorMap = map<Ice::CommunicatorPtr, VALUE>;
-static CommunicatorMap _communicatorMap;
-
-extern "C" void
-IceRuby_Communicator_mark(void* p)
+namespace
 {
-    auto communicator = static_cast<Ice::CommunicatorPtr*>(p);
-    try
-    {
-        auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*communicator)->getValueFactoryManager());
-        assert(vfm);
-        vfm->markSelf();
-    }
-    catch (const Ice::CommunicatorDestroyedException&)
-    {
-        // Ignore. This is expected.
-    }
+    VALUE _communicatorClass;
+
+    using CommunicatorMap = map<Ice::CommunicatorPtr, VALUE>;
+    CommunicatorMap _communicatorMap;
+
+    map<Ice::CommunicatorPtr, Ice::SliceLoaderPtr> _sliceLoaderMap;
 }
 
 extern "C" void
@@ -46,7 +35,6 @@ static const rb_data_type_t IceRuby_CommunicatorType = {
     .wrap_struct_name = "Ice::Communicator",
     .function =
         {
-            .dmark = IceRuby_Communicator_mark,
             .dfree = IceRuby_Communicator_free,
         },
     .flags = RUBY_TYPED_FREE_IMMEDIATELY,
@@ -162,10 +150,14 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         }
 
         Ice::InitializationData data;
+
+        Ice::SliceLoaderPtr sliceLoader = DefaultSliceLoader::instance();
+
         if (!NIL_P(initData))
         {
             volatile VALUE properties = callRuby(rb_iv_get, initData, "@properties");
             volatile VALUE logger = callRuby(rb_iv_get, initData, "@logger");
+            volatile VALUE initDataSliceLoader = callRuby(rb_iv_get, initData, "@sliceLoader");
 
             if (!NIL_P(properties))
             {
@@ -176,6 +168,14 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
             {
                 throw RubyException(rb_eArgError, "custom logger is not supported");
             }
+
+            if (!NIL_P(initDataSliceLoader))
+            {
+                auto compositeSliceLoader = make_shared<Ice::CompositeSliceLoader>();
+                compositeSliceLoader->add(make_shared<RubySliceLoader>(initDataSliceLoader));
+                compositeSliceLoader->add(std::move(sliceLoader));
+                sliceLoader = std::move(compositeSliceLoader);
+            }
         }
 
         //
@@ -184,12 +184,6 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         //
         volatile VALUE progName = callRuby(rb_gv_get, "$0");
         seq.insert(seq.begin(), getString(progName));
-
-        ValueFactoryManagerPtr valueFactoryManager = ValueFactoryManager::create();
-        // Prevent the Ruby GC from prematurely releasing the Ruby object held by ValueFactoryManager before the
-        // communicator is created.
-        [[maybe_unused]] volatile VALUE _ = valueFactoryManager->getObject();
-        data.valueFactoryManager = valueFactoryManager;
 
         if (!data.properties)
         {
@@ -291,6 +285,8 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         }
         _communicatorMap.insert(CommunicatorMap::value_type(communicator, reinterpret_cast<const VALUE&>(result)));
 
+        _sliceLoaderMap[communicator] = sliceLoader;
+
         //
         // If an implicit block was provided, yield to the block and pass it the communicator instance.
         // We destroy the communicator after the block is finished, and return the result of the block.
@@ -375,13 +371,10 @@ IceRuby_Communicator_destroy(VALUE self)
 {
     Ice::CommunicatorPtr p = getCommunicator(self);
 
-    auto vfm = dynamic_pointer_cast<ValueFactoryManager>(p->getValueFactoryManager());
-    assert(vfm);
-
     ICE_RUBY_TRY { p->destroy(); }
     ICE_RUBY_CATCH
 
-    vfm->destroy();
+    _sliceLoaderMap.erase(p);
 
     return Qnil;
 }
@@ -513,20 +506,6 @@ IceRuby_Communicator_identityToString(VALUE self, VALUE id)
         Ice::Identity ident = getIdentity(id);
         string str = p->identityToString(ident);
         return createString(str);
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C" VALUE
-IceRuby_Communicator_getValueFactoryManager(VALUE self)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::CommunicatorPtr p = getCommunicator(self);
-        auto vfm = dynamic_pointer_cast<ValueFactoryManager>(p->getValueFactoryManager());
-        assert(vfm);
-        return vfm->getObject();
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -690,11 +669,6 @@ IceRuby::initCommunicator(VALUE iceModule)
     rb_define_method(_communicatorClass, "propertyToProxy", CAST_METHOD(IceRuby_Communicator_propertyToProxy), 1);
     rb_define_method(_communicatorClass, "proxyToProperty", CAST_METHOD(IceRuby_Communicator_proxyToProperty), 2);
     rb_define_method(_communicatorClass, "identityToString", CAST_METHOD(IceRuby_Communicator_identityToString), 1);
-    rb_define_method(
-        _communicatorClass,
-        "getValueFactoryManager",
-        CAST_METHOD(IceRuby_Communicator_getValueFactoryManager),
-        0);
     rb_define_method(_communicatorClass, "getImplicitContext", CAST_METHOD(IceRuby_Communicator_getImplicitContext), 0);
     rb_define_method(_communicatorClass, "getProperties", CAST_METHOD(IceRuby_Communicator_getProperties), 0);
     rb_define_method(_communicatorClass, "getLogger", CAST_METHOD(IceRuby_Communicator_getLogger), 0);
@@ -725,7 +699,9 @@ IceRuby::lookupCommunicator(const Ice::CommunicatorPtr& p)
 }
 
 Ice::SliceLoaderPtr
-IceRuby::lookupSliceLoader(const Ice::CommunicatorPtr&)
+IceRuby::lookupSliceLoader(const Ice::CommunicatorPtr& communicator)
 {
-    return DefaultSliceLoader::instance();
+    auto p = _sliceLoaderMap.find(communicator);
+    assert(p != _sliceLoaderMap.end());
+    return p->second;
 }

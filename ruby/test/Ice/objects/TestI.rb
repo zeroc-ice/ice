@@ -47,3 +47,16 @@ class Test::D
         @postUnmarshalInvoked = true
     end
 end
+
+class CustomSliceLoader
+    def newInstance(typeId)
+        case typeId
+        when '::Test::B'
+            return BI.new
+        when '::Test::C'
+            return CI.new
+        else
+            return nil
+        end
+    end
+end

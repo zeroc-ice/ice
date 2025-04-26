@@ -6,30 +6,7 @@ def test(b)
     end
 end
 
-class ValueFactoryI
-    def create(id)
-        return nil
-    end
-end
-
 def allTests(helper, communicator)
-    print "testing value factory registration exception... "
-    STDOUT.flush
-    vf = ValueFactoryI.new
-    communicator.getValueFactoryManager().add(vf, "x")
-    begin
-        communicator.getValueFactoryManager().add(vf, "x")
-        test(false)
-    rescue Ice::AlreadyRegisteredException
-    end
-    communicator.getValueFactoryManager().add(vf, "")
-    begin
-        communicator.getValueFactoryManager().add(vf, "")
-        test(false)
-    rescue Ice::AlreadyRegisteredException
-    end
-    puts "ok"
-
     print "testing stringToProxy... "
     STDOUT.flush
     ref = "thrower:#{helper.getTestEndpoint()}"

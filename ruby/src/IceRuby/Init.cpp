@@ -10,7 +10,6 @@
 #include "Proxy.h"
 #include "Slice.h"
 #include "Types.h"
-#include "ValueFactoryManager.h"
 
 using namespace std;
 using namespace IceRuby;
@@ -33,6 +32,5 @@ extern "C"
         initUtil(iceModule);
         initConnection(iceModule);
         initEndpoint(iceModule);
-        initValueFactoryManager(iceModule);
     }
 }
