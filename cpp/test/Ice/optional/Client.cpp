@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Ice/Ice.h"
+#include "Test.h"
 #include "TestHelper.h"
-#include "TestI.h"
 
 using namespace std;
 using namespace Test;
@@ -13,14 +13,20 @@ public:
     void run(int, char**) override;
 };
 
+Ice::SliceLoaderPtr createCustomSliceLoader();
+InitialPrx allTests(Test::TestHelper*, const Ice::SliceLoaderPtr&);
+
 void
 Client::run(int argc, char** argv)
 {
-    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-    properties->setProperty("Ice.AcceptClassCycles", "1");
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-    InitialPrx allTests(Test::TestHelper*, bool);
-    InitialPrx initial = allTests(this, false);
+    Ice::InitializationData initData;
+    initData.properties = createTestProperties(argc, argv);
+    initData.properties->setProperty("Ice.AcceptClassCycles", "1");
+    initData.sliceLoader = createCustomSliceLoader();
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+
+    InitialPrx initial = allTests(this, initData.sliceLoader);
     initial->shutdown();
 }
 
