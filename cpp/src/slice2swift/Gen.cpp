@@ -244,7 +244,7 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     // For each Value class we generate an extension method in ClassResolver.
     // This function name is based off of the Slice type ID, not the mapped name.
     ostringstream factory;
-    factory << prefix;
+    factory << "resolveTypeId" << prefix << "_";
     vector<string> parts = splitScopedName(p->scoped());
     for (auto it = parts.begin(); it != parts.end();)
     {
@@ -266,7 +266,8 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         // Same for compact ID.
         out << sp;
-        out << nl << "@objc static func " << prefix << "TypeId_" << to_string(p->compactId()) << "() -> AnyObject.Type";
+        out << nl << "@objc static func resolveTypeId" << prefix << "_" << to_string(p->compactId())
+            << "() -> AnyObject.Type";
         out << sb;
         out << nl << name << ".self";
         out << eb;
@@ -378,7 +379,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     // For each UserException class we generate an extension in ClassResolver.
     // This function name is based off of the Slice type ID, not the mapped name.
     ostringstream factory;
-    factory << prefix;
+    factory << "resolveTypeId" << prefix << "_";
     vector<string> parts = splitScopedName(p->scoped());
     for (auto it = parts.begin(); it != parts.end();)
     {

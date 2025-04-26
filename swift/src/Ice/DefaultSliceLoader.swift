@@ -23,7 +23,7 @@ public final class DefaultSliceLoader: SliceLoader {
         }
         if cls == nil {
             if classResolverPrefix.isEmpty {
-                cls = ClassResolver.resolve(typeId: typeId)
+                cls = ClassResolver.resolve(typeId: typeId, prefix: "")
             } else {
                 for prefix in classResolverPrefix {
                     cls = ClassResolver.resolve(typeId: typeId, prefix: prefix)
