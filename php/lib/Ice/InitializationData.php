@@ -5,7 +5,7 @@ namespace Ice;
 
 interface SliceLoader
 {
-    public function newInstance($typeId);
+    public function newInstance(string $typeId) : ?object;
 }
 
 class InitializationData

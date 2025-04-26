@@ -45,21 +45,15 @@ class DI extends Test\D
 
 class CustomSliceLoader implements Ice\SliceLoader
 {
-    function newInstance($typeId)
+    function newInstance(string $typeId) : ?object
     {
-        if($typeId == "::Test::B")
+        return match($typeId)
         {
-            return new BI();
-        }
-        else if($typeId == "::Test::C")
-        {
-            return new CI();
-        }
-        else if($typeId == "::Test::D")
-        {
-            return new DI();
-        }
-        return null;
+            "::Test::B" => new BI(),
+            "::Test::C" => new CI(),
+            "::Test::D" => new DI(),
+            default => null,
+        };
     }
 }
 
