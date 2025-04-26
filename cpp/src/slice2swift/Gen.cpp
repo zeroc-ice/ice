@@ -241,17 +241,6 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     ClassDefPtr base = p->base();
 
-    out << sp;
-    out << nl << "@_documentation(visibility: internal)";
-    out << nl << "public class " << removeEscaping(name)
-        << "_TypeResolver: " << getUnqualified("Ice.SliceTypeResolver", swiftModule);
-    out << sb;
-    out << nl << "public override func type() -> AnyObject.Type";
-    out << sb;
-    out << nl << "return " << name << ".self";
-    out << eb;
-    out << eb;
-
     // For each Value class we generate an extension method in ClassResolver.
     // This function name is based off of the Slice type ID, not the mapped name.
     ostringstream factory;
@@ -269,19 +258,17 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp;
     out << nl << "public extension " << getUnqualified("Ice.ClassResolver", swiftModule);
     out << sb;
-    out << nl << "@objc static func " << factory.str() << "() -> "
-        << getUnqualified("Ice.SliceTypeResolver", swiftModule);
+    out << nl << "@objc static func " << factory.str() << "() -> AnyObject.Type";
     out << sb;
-    out << nl << "return " << removeEscaping(name) << "_TypeResolver()";
+    out << nl << name << ".self";
     out << eb;
     if (p->compactId() != -1)
     {
         // Same for compact ID.
         out << sp;
-        out << nl << "@objc static func " << prefix << "TypeId_" << to_string(p->compactId()) << "() -> "
-            << getUnqualified("Ice.SliceTypeResolver", swiftModule);
+        out << nl << "@objc static func " << prefix << "TypeId_" << to_string(p->compactId()) << "() -> AnyObject.Type";
         out << sb;
-        out << nl << "return " << removeEscaping(name) << "_TypeResolver()";
+        out << nl << name << ".self";
         out << eb;
     }
     out << eb;
@@ -403,23 +390,11 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     out << sp;
-    out << nl << "@_documentation(visibility: internal)";
-    out << nl << "public class " << removeEscaping(name)
-        << "_TypeResolver: " << getUnqualified("Ice.SliceTypeResolver", swiftModule);
-    out << sb;
-    out << nl << "public override func type() -> AnyObject.Type";
-    out << sb;
-    out << nl << "return " << name << ".self";
-    out << eb;
-    out << eb;
-
-    out << sp;
     out << nl << "public extension " << getUnqualified("Ice.ClassResolver", swiftModule);
     out << sb;
-    out << nl << "@objc static func " << factory.str() << "() -> "
-        << getUnqualified("Ice.SliceTypeResolver", swiftModule);
+    out << nl << "@objc static func " << factory.str() << "() -> AnyObject.Type";
     out << sb;
-    out << nl << "return " << removeEscaping(name) << "_TypeResolver()";
+    out << nl << name << ".self";
     out << eb;
     out << eb;
 

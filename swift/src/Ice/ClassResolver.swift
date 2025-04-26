@@ -2,16 +2,10 @@
 
 import Foundation
 
-open class SliceTypeResolver: NSObject {
-    open func type() -> AnyObject.Type {
-        fatalError("Abstract method")
-    }
-}
-
 // The generated code for Slice classes and exceptions provides an extension for Ice.ClassResolver with a static
 // function that returns a SliceTypeResolver.
 public class ClassResolver: NSObject {
-    private static func resolveImpl(typeId: String, prefix: String?) -> AnyObject? {
+    private static func resolveImpl(typeId: String, prefix: String?) -> AnyObject.Type? {
         return autoreleasepool {
             var selector: Selector?
             if typeId.hasPrefix("::") {
@@ -26,14 +20,11 @@ public class ClassResolver: NSObject {
             guard ClassResolver.responds(to: selector) else {
                 return nil
             }
-            return ClassResolver.perform(selector).takeUnretainedValue()
+            return ClassResolver.perform(selector).takeUnretainedValue() as? AnyObject.Type
         }
     }
 
     static func resolve(typeId: String, prefix: String? = nil) -> AnyObject.Type? {
-        guard let t = resolveImpl(typeId: typeId, prefix: prefix) as? SliceTypeResolver else {
-            return nil
-        }
-        return t.type()
+       resolveImpl(typeId: typeId, prefix: prefix)
     }
 }
