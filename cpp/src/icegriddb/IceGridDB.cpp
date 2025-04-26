@@ -46,7 +46,7 @@ namespace
     class CustomSliceLoader final : public Ice::SliceLoader
     {
     public:
-        Ice::ValuePtr newClassInstance(string_view typeId) const final
+        [[nodiscard]] Ice::ValuePtr newClassInstance(string_view typeId) const final
         {
             if (!_serverVersion.empty())
             {

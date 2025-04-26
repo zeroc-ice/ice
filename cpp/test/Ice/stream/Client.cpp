@@ -64,7 +64,7 @@ patchObject(void* addr, const Ice::ValuePtr& v)
 class CustomSliceLoader final : public Ice::SliceLoader
 {
 public:
-    Ice::ValuePtr newClassInstance(string_view typeId) const final
+    [[nodiscard]] Ice::ValuePtr newClassInstance(string_view typeId) const final
     {
         if (typeId == MyClass::ice_staticId() && _useReader)
         {
