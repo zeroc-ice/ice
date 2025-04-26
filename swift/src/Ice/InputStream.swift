@@ -1462,7 +1462,8 @@ private class EncapsDecoder11: EncapsDecoder {
                 )
             } else {
                 throw MarshalException(
-                    "The Slice loader did not find a user exception class  for type ID '\(current.typeId!)' and compact format prevents slicing.")
+                    "The Slice loader did not find a user exception class for type ID '\(current.typeId!)' and compact format prevents slicing."
+                )
             }
         }
 

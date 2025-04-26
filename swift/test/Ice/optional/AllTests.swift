@@ -141,7 +141,7 @@ class FValueReader: Ice.Value {
     var _f: F
 }
 
-class CustomSliceLoader : SliceLoader {
+class CustomSliceLoader: SliceLoader {
     var useReader: Bool = false
     // unowned to avoid cyclic dependency
     private unowned let _helper: TestHelper

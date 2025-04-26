@@ -170,8 +170,8 @@ private func initializeImpl(
 
         let notFoundCacheSize = try initData.properties!.getIcePropertyAsInt("Ice.SliceLoader.NotFoundCacheSize")
         if notFoundCacheSize > 0 {
-            let cacheFullLogger = try initData.properties!.getIcePropertyAsInt("Ice.Warn.SliceLoader") > 0 ?
-                initData.logger : nil
+            let cacheFullLogger =
+                try initData.properties!.getIcePropertyAsInt("Ice.Warn.SliceLoader") > 0 ? initData.logger : nil
             initData.sliceLoader = NotFoundSliceLoaderDecorator(
                 initData.sliceLoader!,
                 cacheSize: notFoundCacheSize,

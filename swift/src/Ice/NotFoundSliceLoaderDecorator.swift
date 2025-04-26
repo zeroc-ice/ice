@@ -32,7 +32,7 @@ final class NotFoundSliceLoaderDecorator: SliceLoader {
                     notFoundSet.insert(typeId)
                 } else {
                     if let logger = logger {
-                        self.logger = nil // we log once
+                        self.logger = nil  // we log once
                         logger.warning(
                             """
                             SliceLoader: Type ID '\(typeId)' not found and the not found cache is full. \

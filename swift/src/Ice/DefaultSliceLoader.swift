@@ -32,7 +32,7 @@ public final class DefaultSliceLoader: SliceLoader {
                     }
                 }
             }
-            if (cls != nil) {
+            if cls != nil {
                 mutex.sync {
                     typeIdToClassMap[typeId] = cls
                 }

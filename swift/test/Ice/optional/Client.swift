@@ -10,7 +10,7 @@ public class Client: TestHelperI {
         initData.properties = properties
         let customSliceLoader = CustomSliceLoader(helper: self)
         initData.sliceLoader = CompositeSliceLoader(customSliceLoader, DefaultSliceLoader("IceOptional"))
-        let communicator = try initialize(initData,)
+        let communicator = try initialize(initData)
         defer {
             communicator.destroy()
         }
