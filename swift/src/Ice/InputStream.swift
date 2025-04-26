@@ -171,12 +171,9 @@ public class InputStream {
     }
 
     /// Reads the start of a class instance or exception slice.
-    ///
-    /// - returns: The Slice type ID for this slice.
-    @discardableResult
-    public func startSlice() throws -> String {
+    public func startSlice() throws {
         precondition(encaps.decoder != nil)
-        return try encaps.decoder.startSlice()
+        try encaps.decoder.startSlice()
     }
 
     /// Indicates that the end of a class instance or exception slice has been reached.
@@ -882,7 +879,7 @@ private protocol EncapsDecoder: AnyObject {
 
     func startInstance(type: SliceType)
     func endInstance() throws -> SlicedData?
-    func startSlice() throws -> String
+    func startSlice() throws
     func endSlice() throws
     func skipSlice() throws
 
@@ -1186,15 +1183,14 @@ private class EncapsDecoder10: EncapsDecoder {
         return nil
     }
 
-    @discardableResult
-    func startSlice() throws -> String {
+    func startSlice() throws {
         //
         // If first slice, don't read the header, it was already read in
         // readInstance or throwException to find the factory.
         //
         if skipFirstSlice {
             skipFirstSlice = false
-            return typeId
+            return
         }
 
         //
@@ -1214,7 +1210,6 @@ private class EncapsDecoder10: EncapsDecoder {
         if sliceSize < 4 {
             throw MarshalException("unexpected slice size")
         }
-        return typeId
     }
 
     func endSlice() throws {}
@@ -1322,7 +1317,6 @@ private class EncapsDecoder11: EncapsDecoder {
 
     private var current: InstanceData!
     var valueIdIndex: Int32 = 1  // The ID of the next instance to unmarshal.
-    lazy var compactIdCache = [Int32: Value.Type]()  // Cache of compact type IDs.
 
     private struct IndirectPatchEntry {
         var index: Int32
@@ -1451,15 +1445,14 @@ private class EncapsDecoder11: EncapsDecoder {
         return slicedData
     }
 
-    @discardableResult
-    func startSlice() throws -> String {
+    func startSlice() throws {
         //
         // If first slice, don't read the header, it was already read in
         // readInstance or throwException to find the factory.
         //
         if current.skipFirstSlice {
             current.skipFirstSlice = false
-            return current.typeId
+            return
         }
 
         current.sliceFlags = try SliceFlags(rawValue: stream.read())
@@ -1472,8 +1465,8 @@ private class EncapsDecoder11: EncapsDecoder {
         if current.sliceType == .ValueSlice {
             // Must be checked 1st!
             if current.sliceFlags.contains(.FLAG_HAS_TYPE_ID_COMPACT) {
-                current.typeId = ""
                 current.compactId = try stream.readSize()
+                current.typeId = "\(current.compactId!)"
             } else if current.sliceFlags.contains(.FLAG_HAS_TYPE_ID_INDEX)
                 || current.sliceFlags.contains(.FLAG_HAS_TYPE_ID_STRING)
             {
@@ -1481,11 +1474,8 @@ private class EncapsDecoder11: EncapsDecoder {
                     isIndex: current.sliceFlags.contains(.FLAG_HAS_TYPE_ID_INDEX))
                 current.compactId = -1
             } else {
-                //
                 // Only the most derived slice encodes the type ID for the compact format.
-                //
                 current.typeId = ""
-
                 current.compactId = -1
             }
         } else {
@@ -1504,8 +1494,6 @@ private class EncapsDecoder11: EncapsDecoder {
         } else {
             current.sliceSize = 0
         }
-
-        return current.typeId
     }
 
     func endSlice() throws {
@@ -1654,66 +1642,22 @@ private class EncapsDecoder11: EncapsDecoder {
         try startSlice()
         let mostDerivedId = current.typeId!
 
-        var v: Value?
+        var v: Value? = nil
         while true {
-            var updateCache = false
-
-            if current.compactId != -1 {
-                updateCache = true
-
-                //
-                // Translate a compact (numeric) type ID into a class.
-                //
-                if !compactIdCache.isEmpty {
-                    //
-                    // Check the cache to see if we've already translated the compact type ID into a class.
-                    //
-                    if let cls: Value.Type = compactIdCache[current.compactId] {
-                        v = cls.init()
-                        updateCache = false
-                    }
-                }
-
-                //
-                // If we haven't already cached a class for the compact ID, then try to translate the
-                // compact ID into a type ID.
-                //
-                if v == nil {
-                    current.typeId = TypeIdResolver.resolve(compactId: current.compactId) ?? ""
-                }
-            }
-
-            if v == nil, !current.typeId.isEmpty {
+            if !current.typeId.isEmpty {
                 v = try newInstance(typeId: current.typeId)
-            }
-
-            if let v = v {
-                if updateCache {
-                    precondition(current.compactId != -1)
-                    compactIdCache[current.compactId] = type(of: v)
+                if v != nil {
+                    break
                 }
-
-                //
-                // We have an instance, get out of this loop.
-                //
-                break
             }
 
-            //
             // Slice off what we don't understand.
-            //
             try skipSlice()
 
-            //
-            // If this is the last slice, keep the instance as an opaque
-            // UnknownSlicedValue object.
-            //
+            // If this is the last slice, keep the instance as an opaque UnknownSlicedValue object.
             if current.sliceFlags.contains(.FLAG_IS_LAST_SLICE) {
-                //
-                // Provide a factory with an opportunity to supply the instance.
-                // We pass the "::Ice::Object" ID to indicate that this is the
-                // last chance to preserve the instance.
-                //
+                // Provide the Slice loader with an opportunity to supply the instance.
+                // We pass the "::Ice::Object" ID to indicate that this is the last chance to preserve the instance.
                 v = try newInstance(typeId: "::Ice::Object")
                 if v == nil {
                     v = UnknownSlicedValue(unknownTypeId: mostDerivedId)

@@ -252,19 +252,6 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
     out << eb;
 
-    if (p->compactId() != -1)
-    {
-        // For each Value class using a compact id we generate an extension method in TypeIdResolver.
-        out << sp;
-        out << nl << "public extension " << getUnqualified("Ice.TypeIdResolver", swiftModule);
-        out << sb;
-        out << nl << "@objc static func TypeId_" << p->compactId() << "() -> Swift.String";
-        out << sb;
-        out << nl << "return \"" << p->scoped() << "\"";
-        out << eb;
-        out << eb;
-    }
-
     // For each Value class we generate an extension method in ClassResolver.
     // This function name is based off of the Slice type ID, not the mapped name.
     ostringstream factory;
@@ -287,6 +274,16 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
     out << nl << "return " << removeEscaping(name) << "_TypeResolver()";
     out << eb;
+    if (p->compactId() != -1)
+    {
+        // Same for compact ID.
+        out << sp;
+        out << nl << "@objc static func " << prefix << "TypeId_" << to_string(p->compactId()) << "() -> "
+            << getUnqualified("Ice.SliceTypeResolver", swiftModule);
+        out << sb;
+        out << nl << "return " << removeEscaping(name) << "_TypeResolver()";
+        out << eb;
+    }
     out << eb;
 
     out << sp;
