@@ -530,14 +530,12 @@ namespace Ice
         /// @param file The file where this exception is constructed. This C string is not copied.
         /// @param line The line where this exception is constructed.
         /// @param kindOfObject The kind of object that could not be removed: "servant", "facet", "object", "default
-        /// servant", "servant locator", "value factory", "plugin", "object adapter", "object adapter with router",
-        /// "replica group".
+        /// servant", "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
         /// @param id The ID (or name) of the object that is registered already.
         AlreadyRegisteredException(const char* file, int line, std::string kindOfObject, std::string id);
 
         /// Gets the kind of object that could not be removed: "servant", "facet", "object", "default servant",
-        /// "servant locator", "value factory", "plugin", "object adapter", "object adapter with router", "replica
-        /// group".
+        /// "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
         [[nodiscard]] const std::string& kindOfObject() const noexcept { return *_kindOfObject; }
 
         /// Gets the ID (or name) of the object that is registered already.
@@ -695,14 +693,12 @@ namespace Ice
         /// @param file The file where this exception is constructed. This C string is not copied.
         /// @param line The line where this exception is constructed.
         /// @param kindOfObject The kind of object that could not be removed: "servant", "facet", "object", "default
-        /// servant", "servant locator", "value factory", "plugin", "object adapter", "object adapter with router",
-        /// "replica group".
+        /// servant", "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
         /// @param id The ID (or name) of the object that could not be removed.
         NotRegisteredException(const char* file, int line, std::string kindOfObject, std::string id);
 
         /// Gets the kind of object that could not be removed: "servant", "facet", "object", "default servant",
-        /// "servant locator", "value factory", "plugin", "object adapter", "object adapter with router", "replica
-        /// group".
+        /// "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
         [[nodiscard]] const std::string& kindOfObject() const noexcept { return *_kindOfObject; }
 
         /// Gets the ID (or name) of the object that could not be removed.

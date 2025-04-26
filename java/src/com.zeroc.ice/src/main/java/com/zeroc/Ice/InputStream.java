@@ -1879,12 +1879,10 @@ public final class InputStream {
             final String mostDerivedId = _typeId;
             Value v = null;
             while (true) {
-                //
                 // For the 1.0 encoding, the type ID for the base Object class marks the last slice.
-                //
                 if (_typeId.equals(Value.ice_staticId())) {
                     throw new MarshalException(
-                        "Cannot find value factory for type ID '" + mostDerivedId + "'.");
+                        "The Slice loader did not find a class for type ID '" + mostDerivedId + "'.");
                 }
 
                 v = newInstance(_typeId);
@@ -2151,12 +2149,14 @@ public final class InputStream {
             } else {
                 if (_current.sliceType == SliceType.ValueSlice) {
                     throw new MarshalException(
-                        "Cannot find value factory for type ID '"
+                        "The Slice loader did not find a class for type ID '"
                             + _current.typeId
                             + "' and compact format prevents slicing.");
                 } else {
                     throw new MarshalException(
-                        "cannot find user exception for type ID '" + _current.typeId + "'");
+                        "The Slice loader did not find a user exception class for type ID '"
+                            + _current.typeId
+                            + "' and compact format prevents slicing.");
                 }
             }
 

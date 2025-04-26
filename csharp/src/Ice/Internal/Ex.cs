@@ -8,10 +8,10 @@ public static class Ex
 {
     public static void throwUOE(Type expectedType, Ice.Value v)
     {
-        // If the object is an unknown sliced object, we didn't find a value factory.
+
         if (v is UnknownSlicedValue usv)
         {
-            throw new MarshalException($"Cannot find value factory to unmarshal class with type ID '{usv.ice_id()}'.");
+            throw new MarshalException($"The Slice loader did not find a class for type ID '{usv.ice_id()}'.");
         }
 
         string type = v.ice_id();
@@ -27,7 +27,7 @@ public static class Ex
         }
 
         throw new MarshalException(
-            $"Failed to unmarshal class with type ID '{expected}': value factory returned class with type ID '{type}'.");
+            $"Failed to unmarshal class with type ID '{expected}': the Slice loader returned class with type ID '{type}'.");
     }
 
     public static void throwMemoryLimitException(int requested, int maximum)

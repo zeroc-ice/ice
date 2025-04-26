@@ -27,17 +27,13 @@ namespace
 void
 IceInternal::Ex::throwUOE(const char* file, int line, const string& expectedType, const ValuePtr& v)
 {
-    //
-    // If the object is an unknown sliced object, we didn't find a
-    // value factory, in this case raise a MarshalException instead.
-    //
     UnknownSlicedValuePtr usv = dynamic_pointer_cast<UnknownSlicedValue>(v);
     if (usv)
     {
         throw MarshalException{
             file,
             line,
-            "cannot find value factory to unmarshal class with type ID '" + string{usv->ice_id()} + "'"};
+            "the Slice loader did not find a class for type ID '" + string{usv->ice_id()} + "'"};
     }
 
     string type = v->ice_id();
@@ -45,8 +41,8 @@ IceInternal::Ex::throwUOE(const char* file, int line, const string& expectedType
     throw MarshalException{
         file,
         line,
-        "failed to unmarshal class with type ID '" + expectedType + "': value factory returned a class with type ID '" +
-            type + "'"};
+        "failed to unmarshal class with type ID '" + expectedType +
+            "': the Slice loader returned a class with type ID '" + type + "'"};
 }
 
 void
@@ -1686,13 +1682,13 @@ Ice::InputStream::EncapsDecoder10::readInstance()
     shared_ptr<Value> v;
     while (true)
     {
-        //
-        // For the 1.0 encoding, the type ID for the base Object class
-        // marks the last slice.
-        //
+        // For the 1.0 encoding, the type ID for the base Object class marks the last slice.
         if (_typeId == Value::ice_staticId())
         {
-            throw MarshalException{__FILE__, __LINE__, "cannot find value factory for type ID '" + mostDerivedId + "'"};
+            throw MarshalException{
+                __FILE__,
+                __LINE__,
+                "the Slice loader did not find a class for type ID '" + mostDerivedId + "'"};
         }
 
         v = newInstance(_typeId);
@@ -2002,14 +1998,16 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
             throw MarshalException{
                 __FILE__,
                 __LINE__,
-                "cannot find value factory for type ID '" + _current->typeId + "' and compact format prevents slicing"};
+                "the Slice loader did not find a class for type ID '" + _current->typeId +
+                    "' and compact format prevents slicing"};
         }
         else
         {
             throw MarshalException{
                 __FILE__,
                 __LINE__,
-                "cannot find user exception for type ID '" + _current->typeId + "'"};
+                "the Slice loader did not find a user exception class for type ID '" + _current->typeId +
+                    "' and compact format prevents slicing"};
         }
     }
 

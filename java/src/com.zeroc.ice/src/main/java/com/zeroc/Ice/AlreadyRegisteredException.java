@@ -4,8 +4,8 @@ package com.zeroc.Ice;
 
 /**
  * An attempt was made to register something more than once with the Ice run time. This exception is
- * raised if an attempt is made to register a servant, servant locator, facet, value factory,
- * plug-in, object adapter, object, or user exception factory more than once for the same ID.
+ * raised if an attempt is made to register a servant, servant locator, facet,
+ * plug-in, or object adapter more than once for the same ID.
  */
 public final class AlreadyRegisteredException extends LocalException {
     public AlreadyRegisteredException(String kindOfObject, String id) {
@@ -20,7 +20,7 @@ public final class AlreadyRegisteredException extends LocalException {
 
     /**
      * The kind of object that could not be removed: "servant", "facet", "object", "default
-     * servant", "servant locator", "value factory", "plugin", "object adapter", "object adapter
+     * servant", "servant locator", "plugin", "object adapter", "object adapter
      * with router", "replica group".
      */
     public final String kindOfObject;
