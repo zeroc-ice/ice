@@ -133,18 +133,46 @@ NodeI::destroy(bool ownsCommunicator)
 }
 
 void
-NodeI::initiateCreateSession(optional<NodePrx> publisher, const Current& current)
+NodeI::initiateCreateSessionAsync(
+    optional<NodePrx> publisher,
+    function<void()> response,
+    function<void(std::exception_ptr)> exception,
+    const Current& current)
 {
-    checkNotNull(publisher, __FILE__, __LINE__, current);
-    // Create a session with the given publisher.
-    createPublisherSession(*publisher, current.con, nullptr);
+    try
+    {
+        checkNotNull(publisher, __FILE__, __LINE__, current);
+        // Create a session with the given publisher.
+        createPublisherSession(*publisher, current.con, nullptr);
+        response();
+    }
+    catch (const SessionCreationException&)
+    {
+        exception(current_exception());
+    }
+    catch (const CommunicatorDestroyedException&)
+    {
+        // The node is shutting down, don't retry.
+        exception(make_exception_ptr(SessionCreationException{SessionCreationError::NodeShutdown}));
+    }
+    catch (const ObjectAdapterDestroyedException&)
+    {
+        // The node is shutting down, don't retry.
+        exception(make_exception_ptr(SessionCreationException{SessionCreationError::NodeShutdown}));
+    }
+    catch (const LocalException&)
+    {
+        exception(make_exception_ptr(SessionCreationException{SessionCreationError::Internal}));
+    }
 }
 
 void
-NodeI::createSession(
+NodeI::createSessionAsync(
     optional<NodePrx> subscriber,
     optional<SubscriberSessionPrx> subscriberSession,
     bool fromRelay,
+    function<void()> response,
+    function<void(exception_ptr)> exception,
     const Current& current)
 {
     checkNotNull(subscriber, __FILE__, __LINE__, current);
@@ -181,17 +209,6 @@ NodeI::createSession(
 
         unique_lock<mutex> lock(_mutex);
         session = createPublisherSessionServant(*subscriber);
-        if (!session)
-        {
-            if (traceLevels->session > 2)
-            {
-                Trace out(traceLevels->logger, traceLevels->sessionCat);
-                out << "node '" << current.id << "' is shutting down, ignoring '" << current.operation
-                    << "' request from '" << subscriber << "'";
-            }
-            return; // Shutting down.
-        }
-
         s->ice_getConnectionAsync(
             [=, self = shared_from_this()](const auto& connection) mutable
             {
@@ -204,8 +221,11 @@ NodeI::createSession(
                         out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from '"
                             << subscriber << "' because session '" << session->getId() << "' is already connected";
                     }
+                    exception(
+                        std::make_exception_ptr(SessionCreationException{SessionCreationError::AlreadyConnected}));
                     return;
                 }
+                response();
 
                 if (connection)
                 {
@@ -223,29 +243,54 @@ NodeI::createSession(
                         uncheckedCast<PublisherSessionPrx>(session->getProxy()),
                         nullptr,
                         [self, subscriber, session](auto ex)
-                        { self->removePublisherSession(*subscriber, session, ex); });
+                        { self->retryPublisherSessionCreation(*subscriber, session, ex); });
 
                     // Session::connected informs the subscriber session of all the topic writers in the current node.
                     session->connected(*subscriberSession, connection, instance->getTopicFactory()->getTopicWriters());
                 }
+                catch (const CommunicatorDestroyedException&)
+                {
+                    // The node is shutting down, don't retry.
+                }
+                catch (const ObjectAdapterDestroyedException&)
+                {
+                    // The node is shutting down, don't retry.
+                }
                 catch (const LocalException&)
                 {
-                    self->removePublisherSession(*subscriber, session, current_exception());
+                    self->retryPublisherSessionCreation(*subscriber, session, current_exception());
                 }
             },
-            [self = shared_from_this(), session, subscriber](exception_ptr ex)
-            { self->removePublisherSession(*subscriber, session, ex); });
+            [self = shared_from_this(), session, subscriber, exception](exception_ptr ex)
+            {
+                self->retryPublisherSessionCreation(*subscriber, session, ex);
+                exception(make_exception_ptr(SessionCreationException{SessionCreationError::Internal}));
+            });
+    }
+    catch (const CommunicatorDestroyedException&)
+    {
+        // The node is shutting down, don't retry.
+        exception(make_exception_ptr(SessionCreationException{SessionCreationError::NodeShutdown}));
+    }
+    catch (const ObjectAdapterDestroyedException&)
+    {
+        // The node is shutting down, don't retry.
+        exception(make_exception_ptr(SessionCreationException{SessionCreationError::NodeShutdown}));
     }
     catch (const LocalException&)
     {
-        removePublisherSession(*subscriber, session, current_exception());
+        assert(session);
+        exception(make_exception_ptr(SessionCreationException{SessionCreationError::Internal}));
+        retryPublisherSessionCreation(*subscriber, session, current_exception());
     }
 }
 
 void
-NodeI::confirmCreateSession(
+NodeI::confirmCreateSessionAsync(
     optional<NodePrx> publisher,
     optional<PublisherSessionPrx> publisherSession,
+    function<void()> response,
+    function<void(exception_ptr)> exception,
     const Current& current)
 {
     checkNotNull(publisher, __FILE__, __LINE__, current);
@@ -268,6 +313,7 @@ NodeI::confirmCreateSession(
             out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from publisher '"
                 << publisher->ice_getIdentity() << "' because no corresponding subscriber session was found";
         }
+        exception(make_exception_ptr(SessionCreationException{SessionCreationError::SessionNotFound}));
         return;
     }
 
@@ -281,8 +327,10 @@ NodeI::confirmCreateSession(
             out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from '" << publisher
                 << "' because session '" << session->getId() << "' is already connected";
         }
+        exception(make_exception_ptr(SessionCreationException{SessionCreationError::AlreadyConnected}));
         return;
     }
+    response();
 
     // If the publisher session is hosted on a relay, current.con represents the connection to the relay.
     // Otherwise, it represents the connection to the publisher node. In both cases, a fixed proxy is used
@@ -307,6 +355,9 @@ NodeI::createSubscriberSession(
     auto instance = _instance.lock();
     assert(instance);
 
+    // The publisher session is null when we are creating a new session, in response to a topic reader announcement. It
+    // is not null when we are attempting to reconnect an existing session.
+
     try
     {
         subscriber = getNodeWithExistingConnection(instance, subscriber, subscriberConnection);
@@ -315,11 +366,29 @@ NodeI::createSubscriberSession(
             _proxy,
             nullptr,
             [self = shared_from_this(), session, subscriber](exception_ptr ex)
-            { self->removePublisherSession(subscriber, session, ex); });
+            {
+                if (session)
+                {
+                    self->retryPublisherSessionCreation(subscriber, session, ex);
+                }
+                // Else node is shutting down, or the session was established by a concurrent call.
+            });
+    }
+    catch (const CommunicatorDestroyedException&)
+    {
+        // The node is shutting down, don't retry.
+    }
+    catch (const ObjectAdapterDestroyedException&)
+    {
+        // The node is shutting down, don't retry.
     }
     catch (const LocalException&)
     {
-        removePublisherSession(subscriber, session, current_exception());
+        if (session)
+        {
+            retryPublisherSessionCreation(subscriber, session, current_exception());
+        }
+        // Else node is shutting down, or the session was established by a concurrent call.
     }
 }
 
@@ -343,17 +412,7 @@ NodeI::createPublisherSession(
         if (!session)
         {
             session = createSubscriberSessionServant(publisher);
-            if (!session)
-            {
-                if (traceLevels->session > 2)
-                {
-                    Trace out(traceLevels->logger, traceLevels->sessionCat);
-                    out << "node '" << _proxy->ice_getIdentity()
-                        << "' is shutting down, ignoring 'createPublisherSession' request from '" << publisher << "'";
-                }
-                return; // Shutting down.
-            }
-            else if (session->checkSession())
+            if (session->checkSession())
             {
                 // The session is already connected.
                 if (traceLevels->session > 2)
@@ -363,60 +422,90 @@ NodeI::createPublisherSession(
                         << "' is ignoring 'createPublisherSession' request from '" << publisher << "' because session '"
                         << session->getId() << "' is already connected";
                 }
-                return;
+                throw SessionCreationException{SessionCreationError::AlreadyConnected};
             }
         }
 
+        assert(session);
         p->createSessionAsync(
             _proxy,
             uncheckedCast<SubscriberSessionPrx>(session->getProxy()),
             false,
             nullptr,
             [self = shared_from_this(), publisher, session](exception_ptr ex)
-            { self->removeSubscriberSession(publisher, session, ex); });
+            { self->retrySubscriberSessionCreation(publisher, session, ex); });
+    }
+    catch (const CommunicatorDestroyedException&)
+    {
+        // The node is shutting down, don't retry.
+        throw SessionCreationException{SessionCreationError::NodeShutdown};
+    }
+    catch (const ObjectAdapterDestroyedException&)
+    {
+        // The node is shutting down, don't retry.
+        throw SessionCreationException{SessionCreationError::NodeShutdown};
     }
     catch (const LocalException&)
     {
-        removeSubscriberSession(publisher, session, current_exception());
+        retrySubscriberSessionCreation(publisher, session, current_exception());
+        throw SessionCreationException{SessionCreationError::Internal};
+    }
+}
+
+void
+NodeI::retrySubscriberSessionCreation(
+    const NodePrx& node,
+    const shared_ptr<SubscriberSessionI>& session,
+    exception_ptr ex)
+{
+    if (!session->retry(node, ex))
+    {
+        removeSubscriberSession(node, session, ex);
     }
 }
 
 void
 NodeI::removeSubscriberSession(const NodePrx& node, const shared_ptr<SubscriberSessionI>& session, exception_ptr ex)
 {
-    if (session && !session->retry(node, ex))
+    unique_lock<mutex> lock(_mutex);
+    auto sessionNode = session->getNode();
+    if (!session->checkSession() && node->ice_getIdentity() == sessionNode->ice_getIdentity())
     {
-        unique_lock<mutex> lock(_mutex);
-        auto sessionNode = session->getNode();
-        if (!session->checkSession() && node->ice_getIdentity() == sessionNode->ice_getIdentity())
+        auto p = _subscribers.find(sessionNode->ice_getIdentity());
+        if (p != _subscribers.end() && p->second == session)
         {
-            auto p = _subscribers.find(sessionNode->ice_getIdentity());
-            if (p != _subscribers.end() && p->second == session)
-            {
-                _subscribers.erase(p);
-                _subscriberSessions.erase(session->getProxy()->ice_getIdentity());
-                session->destroyImpl(ex);
-            }
+            _subscribers.erase(p);
+            _subscriberSessions.erase(session->getProxy()->ice_getIdentity());
+            session->destroyImpl(ex);
         }
+    }
+}
+
+void
+NodeI::retryPublisherSessionCreation(
+    const NodePrx& node,
+    const shared_ptr<PublisherSessionI>& session,
+    exception_ptr ex)
+{
+    if (!session->retry(node, ex))
+    {
+        removePublisherSession(node, session, ex);
     }
 }
 
 void
 NodeI::removePublisherSession(const NodePrx& node, const shared_ptr<PublisherSessionI>& session, exception_ptr ex)
 {
-    if (session && !session->retry(node, ex))
+    unique_lock<mutex> lock(_mutex);
+    auto sessionNode = session->getNode();
+    if (!session->checkSession() && node->ice_getIdentity() == sessionNode->ice_getIdentity())
     {
-        unique_lock<mutex> lock(_mutex);
-        auto sessionNode = session->getNode();
-        if (!session->checkSession() && node->ice_getIdentity() == sessionNode->ice_getIdentity())
+        auto p = _publishers.find(sessionNode->ice_getIdentity());
+        if (p != _publishers.end() && p->second == session)
         {
-            auto p = _publishers.find(sessionNode->ice_getIdentity());
-            if (p != _publishers.end() && p->second == session)
-            {
-                _publishers.erase(p);
-                _publisherSessions.erase(session->getProxy()->ice_getIdentity());
-                session->destroyImpl(ex);
-            }
+            _publishers.erase(p);
+            _publisherSessions.erase(session->getProxy()->ice_getIdentity());
+            session->destroyImpl(ex);
         }
     }
 }
@@ -475,25 +564,18 @@ NodeI::createSubscriberSessionServant(const NodePrx& node)
     }
     else
     {
-        try
-        {
-            int64_t id = ++_nextSubscriberSessionId;
-            auto session = make_shared<SubscriberSessionI>(
-                instance,
-                shared_from_this(),
-                node,
-                instance->getObjectAdapter()
-                    ->createProxy<SessionPrx>(Identity{.name = to_string(id), .category = "s"})
-                    ->ice_oneway());
-            session->init();
-            _subscribers.emplace(node->ice_getIdentity(), session);
-            _subscriberSessions.emplace(session->getProxy()->ice_getIdentity(), session);
-            return session;
-        }
-        catch (const ObjectAdapterDestroyedException&)
-        {
-            return nullptr;
-        }
+        int64_t id = ++_nextSubscriberSessionId;
+        auto session = make_shared<SubscriberSessionI>(
+            instance,
+            shared_from_this(),
+            node,
+            instance->getObjectAdapter()
+                ->createProxy<SessionPrx>(Identity{.name = to_string(id), .category = "s"})
+                ->ice_oneway());
+        session->init();
+        _subscribers.emplace(node->ice_getIdentity(), session);
+        _subscriberSessions.emplace(session->getProxy()->ice_getIdentity(), session);
+        return session;
     }
 }
 
@@ -514,25 +596,18 @@ NodeI::createPublisherSessionServant(const NodePrx& node)
     }
     else
     {
-        try
-        {
-            int64_t id = ++_nextPublisherSessionId;
-            auto session = make_shared<PublisherSessionI>(
-                instance,
-                shared_from_this(),
-                node,
-                instance->getObjectAdapter()
-                    ->createProxy<SessionPrx>(Identity{.name = to_string(id), .category = "p"})
-                    ->ice_oneway());
-            session->init();
-            _publishers.emplace(node->ice_getIdentity(), session);
-            _publisherSessions.emplace(session->getProxy()->ice_getIdentity(), session);
-            return session;
-        }
-        catch (const ObjectAdapterDestroyedException&)
-        {
-            return nullptr;
-        }
+        int64_t id = ++_nextPublisherSessionId;
+        auto session = make_shared<PublisherSessionI>(
+            instance,
+            shared_from_this(),
+            node,
+            instance->getObjectAdapter()
+                ->createProxy<SessionPrx>(Identity{.name = to_string(id), .category = "p"})
+                ->ice_oneway());
+        session->init();
+        _publishers.emplace(node->ice_getIdentity(), session);
+        _publisherSessions.emplace(session->getProxy()->ice_getIdentity(), session);
+        return session;
     }
 }
 

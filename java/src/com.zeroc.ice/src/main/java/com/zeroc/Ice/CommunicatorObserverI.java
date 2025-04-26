@@ -2,16 +2,16 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.IceMX.CollocatedMetrics;
-import com.zeroc.Ice.IceMX.ConnectionMetrics;
-import com.zeroc.Ice.IceMX.DispatchMetrics;
-import com.zeroc.Ice.IceMX.InvocationMetrics;
-import com.zeroc.Ice.IceMX.Metrics;
-import com.zeroc.Ice.IceMX.MetricsHelper;
-import com.zeroc.Ice.IceMX.ObserverFactoryWithDelegate;
-import com.zeroc.Ice.IceMX.ObserverWithDelegateI;
-import com.zeroc.Ice.IceMX.RemoteMetrics;
-import com.zeroc.Ice.IceMX.ThreadMetrics;
+import com.zeroc.IceMX.CollocatedMetrics;
+import com.zeroc.IceMX.ConnectionMetrics;
+import com.zeroc.IceMX.DispatchMetrics;
+import com.zeroc.IceMX.InvocationMetrics;
+import com.zeroc.IceMX.Metrics;
+import com.zeroc.IceMX.MetricsHelper;
+import com.zeroc.IceMX.ObserverFactoryWithDelegate;
+import com.zeroc.IceMX.ObserverWithDelegateI;
+import com.zeroc.IceMX.RemoteMetrics;
+import com.zeroc.IceMX.ThreadMetrics;
 import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.Instrumentation.ConnectionObserver;
 import com.zeroc.Ice.Instrumentation.ConnectionState;

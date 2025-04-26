@@ -26,17 +26,25 @@ namespace DataStormI
         void init();
         void destroy(bool);
 
-        void initiateCreateSession(std::optional<DataStormContract::NodePrx>, const Ice::Current&) final;
+        void initiateCreateSessionAsync(
+            std::optional<DataStormContract::NodePrx>,
+            std::function<void()>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) final;
 
-        void createSession(
+        void createSessionAsync(
             std::optional<DataStormContract::NodePrx>,
             std::optional<DataStormContract::SubscriberSessionPrx>,
             bool,
+            std::function<void()>,
+            std::function<void(std::exception_ptr)>,
             const Ice::Current&) final;
 
-        void confirmCreateSession(
+        void confirmCreateSessionAsync(
             std::optional<DataStormContract::NodePrx>,
             std::optional<DataStormContract::PublisherSessionPrx>,
+            std::function<void()>,
+            std::function<void(std::exception_ptr)>,
             const Ice::Current&) final;
 
         void createSubscriberSession(
@@ -48,6 +56,16 @@ namespace DataStormI
             const DataStormContract::NodePrx&,
             const Ice::ConnectionPtr&,
             std::shared_ptr<SubscriberSessionI>);
+
+        void retrySubscriberSessionCreation(
+            const DataStormContract::NodePrx&,
+            const std::shared_ptr<SubscriberSessionI>&,
+            std::exception_ptr);
+
+        void retryPublisherSessionCreation(
+            const DataStormContract::NodePrx&,
+            const std::shared_ptr<PublisherSessionI>&,
+            std::exception_ptr);
 
         void removeSubscriberSession(
             const DataStormContract::NodePrx&,

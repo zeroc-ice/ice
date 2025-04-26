@@ -2,10 +2,10 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.IceMX.Metrics;
-import com.zeroc.Ice.IceMX.MetricsAdmin;
-import com.zeroc.Ice.IceMX.MetricsFailures;
-import com.zeroc.Ice.IceMX.UnknownMetricsView;
+import com.zeroc.IceMX.Metrics;
+import com.zeroc.IceMX.MetricsAdmin;
+import com.zeroc.IceMX.MetricsFailures;
+import com.zeroc.IceMX.UnknownMetricsView;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -113,7 +113,20 @@ TopicFactoryI::createTopicWriter(
         auto nodePrx = node->getProxy();
         if (hasReaders)
         {
-            node->createPublisherSession(nodePrx, nullptr, nullptr);
+            try
+            {
+                node->createPublisherSession(nodePrx, nullptr, nullptr);
+            }
+            catch (const SessionCreationException&)
+            {
+                // Session creation failed upon receiving a writer announcement. This can happen if:
+                //
+                // - The session is already connected.
+                // - The node that sent the announcement is shutting down.
+                // - This node is shutting down.
+                //
+                // In all cases, no further action is required, and the exception can safely be ignored.
+            }
         }
         node->getPublisherForwarder()->announceTopics({TopicInfo{.name = name, .ids = {writer->getId()}}}, false);
         instance->getNodeSessionManager()->announceTopicWriter(name, nodePrx);
@@ -201,7 +214,28 @@ TopicFactoryI::createPublisherSession(
     {
         auto instance = _instance.lock();
         assert(instance);
-        instance->getNode()->createPublisherSession(publisher, connection, nullptr);
+        try
+        {
+            instance->getNode()->createPublisherSession(publisher, connection, nullptr);
+        }
+        catch (const SessionCreationException&)
+        {
+            // Session creation failed upon receiving a writer announcement. This can happen if:
+            //
+            // - The session is already connected.
+            // - The node that sent the announcement is shutting down.
+            // - This node is shutting down.
+            //
+            // In all cases, no further action is required, and the exception can safely be ignored.
+        }
+        catch (const CommunicatorDestroyedException&)
+        {
+            // The node is shutting down.
+        }
+        catch (const ObjectAdapterDestroyedException&)
+        {
+            // The node is shutting down.
+        }
     }
 }
 

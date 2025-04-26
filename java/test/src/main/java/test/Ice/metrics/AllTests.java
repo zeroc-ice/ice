@@ -28,15 +28,15 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-import com.zeroc.Ice.IceMX.ChildInvocationMetrics;
-import com.zeroc.Ice.IceMX.ConnectionMetrics;
-import com.zeroc.Ice.IceMX.DispatchMetrics;
-import com.zeroc.Ice.IceMX.InvocationMetrics;
-import com.zeroc.Ice.IceMX.Metrics;
-import com.zeroc.Ice.IceMX.MetricsAdmin;
-import com.zeroc.Ice.IceMX.MetricsAdminPrx;
-import com.zeroc.Ice.IceMX.MetricsFailures;
-import com.zeroc.Ice.IceMX.UnknownMetricsView;
+import com.zeroc.IceMX.ChildInvocationMetrics;
+import com.zeroc.IceMX.ConnectionMetrics;
+import com.zeroc.IceMX.DispatchMetrics;
+import com.zeroc.IceMX.InvocationMetrics;
+import com.zeroc.IceMX.Metrics;
+import com.zeroc.IceMX.MetricsAdmin;
+import com.zeroc.IceMX.MetricsAdminPrx;
+import com.zeroc.IceMX.MetricsFailures;
+import com.zeroc.IceMX.UnknownMetricsView;
 
 public class AllTests {
     private static void test(boolean b) {

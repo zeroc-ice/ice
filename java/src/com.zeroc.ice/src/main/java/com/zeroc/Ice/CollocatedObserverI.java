@@ -2,8 +2,8 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.IceMX.CollocatedMetrics;
-import com.zeroc.Ice.IceMX.ObserverWithDelegate;
+import com.zeroc.IceMX.CollocatedMetrics;
+import com.zeroc.IceMX.ObserverWithDelegate;
 import com.zeroc.Ice.Instrumentation.CollocatedObserver;
 
 /**
