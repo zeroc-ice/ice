@@ -1280,7 +1280,7 @@ public class AllTests : Test.AllTests
         output.Write("sequence slicing (AMI)... ");
         output.Flush();
         {
-            SS3 ss = null;
+            SS3 ss;
             {
                 var ss1b = new B();
                 ss1b.sb = "B.sb";
@@ -1428,8 +1428,6 @@ public class AllTests : Test.AllTests
         output.Flush();
         {
             var bin = new Dictionary<int, B>();
-            Dictionary<int, B> bout = null;
-            Dictionary<int, B> rv = null;
             int i;
             for (i = 0; i < 10; ++i)
             {
@@ -1442,8 +1440,8 @@ public class AllTests : Test.AllTests
             }
 
             var result = testPrx.dictionaryTestAsync(bin).Result;
-            rv = result.returnValue;
-            bout = result.bout;
+            Dictionary<int, B> rv = result.returnValue;
+            Dictionary<int, B> bout = result.bout;
 
             test(bout.Count == 10);
             for (i = 0; i < 10; ++i)

@@ -2371,7 +2371,7 @@ public sealed class InputStream
                 if (_typeId == Value.ice_staticId())
                 {
                     throw new MarshalException(
-                        $"The Slice loader did not a find a class for type ID '{mostDerivedId}'.");
+                        $"The Slice loader did not find a class for type ID '{mostDerivedId}'.");
                 }
 
                 v = newInstance(_typeId);

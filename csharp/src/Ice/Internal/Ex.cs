@@ -8,7 +8,6 @@ public static class Ex
 {
     public static void throwUOE(Type expectedType, Ice.Value v)
     {
-
         if (v is UnknownSlicedValue usv)
         {
             throw new MarshalException($"The Slice loader did not find a class for type ID '{usv.ice_id()}'.");
