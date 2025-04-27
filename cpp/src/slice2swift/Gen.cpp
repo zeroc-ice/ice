@@ -242,23 +242,23 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassDefPtr base = p->base();
 
     // For each Value class we generate an extension method in DefaultSliceLoader.
-    // This function name is based off of the Slice type ID, not the mapped name.
-    ostringstream factory;
-    factory << "resolveTypeId" << prefix << "_";
+    // This method name is based off of the Slice type ID, not the mapped name.
+    ostringstream methodName;
+    methodName << "resolveTypeId" << prefix << "_";
     vector<string> parts = splitScopedName(p->scoped());
     for (auto it = parts.begin(); it != parts.end();)
     {
-        factory << (*it);
+        methodName << (*it);
         if (++it != parts.end())
         {
-            factory << "_";
+            methodName << "_";
         }
     }
 
     out << sp;
     out << nl << "public extension " << getUnqualified("Ice.DefaultSliceLoader", swiftModule);
     out << sb;
-    out << nl << "@objc static func " << factory.str() << "() -> AnyObject.Type";
+    out << nl << "@objc static func " << methodName.str() << "() -> AnyObject.Type";
     out << sb;
     out << nl << name << ".self";
     out << eb;
@@ -377,23 +377,23 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string prefix = getClassResolverPrefix(p->unit());
 
     // For each UserException class we generate an extension in DefaultSliceLoader.
-    // This function name is based off of the Slice type ID, not the mapped name.
-    ostringstream factory;
-    factory << "resolveTypeId" << prefix << "_";
+    // This method name is based off of the Slice type ID, not the mapped name.
+    ostringstream methodName;
+    methodName << "resolveTypeId" << prefix << "_";
     vector<string> parts = splitScopedName(p->scoped());
     for (auto it = parts.begin(); it != parts.end();)
     {
-        factory << (*it);
+        methodName << (*it);
         if (++it != parts.end())
         {
-            factory << "_";
+            methodName << "_";
         }
     }
 
     out << sp;
     out << nl << "public extension " << getUnqualified("Ice.DefaultSliceLoader", swiftModule);
     out << sb;
-    out << nl << "@objc static func " << factory.str() << "() -> AnyObject.Type";
+    out << nl << "@objc static func " << methodName.str() << "() -> AnyObject.Type";
     out << sb;
     out << nl << name << ".self";
     out << eb;

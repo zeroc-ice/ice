@@ -46,7 +46,7 @@ public final class DefaultSliceLoader: NSObject, SliceLoader {
     /// Finds a generated class or exception dynamically, using a resolveTypeId<prefix>_xxx extension method.
     private static func resolve(typeId: String, prefix: String) -> AnyObject.Type? {
         return autoreleasepool {
-            // A compact ID does not start with "::".
+            // Regular type IDs start with "::", while compact IDs don't.
             let flatName =
                 typeId.hasPrefix("::") ? typeId.dropFirst(2).replacingOccurrences(of: "::", with: "_") : typeId
 
