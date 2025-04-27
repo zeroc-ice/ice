@@ -1186,7 +1186,7 @@ private class EncapsDecoder10: EncapsDecoder {
         while true {
             // For the 1.0 encoding, the type ID for the base Object class marks the last slice.
             if typeId == "::Ice::Object" {
-                throw MarshalException("The Slice loader fid not find a class for type ID '\(mostDerivedId)'")
+                throw MarshalException("The Slice loader did not find a class for type ID '\(mostDerivedId)'")
             }
 
             v = try newInstance(typeId: typeId)
