@@ -950,15 +950,6 @@ ZEND_FUNCTION(Ice_initialize)
             {
                 assert(Z_TYPE_P(data) == IS_INDIRECT);
                 initDataSliceLoader = Z_INDIRECT_P(data);
-
-                if (!ZVAL_IS_NULL(initDataSliceLoader))
-                {
-                    if (Z_TYPE_P(initDataSliceLoader) != IS_OBJECT)
-                    {
-                        invalidArgument("initData.SliceLoader is not an Ice\\SliceLoader object");
-                        RETURN_NULL();
-                    }
-                }
             }
         }
     }

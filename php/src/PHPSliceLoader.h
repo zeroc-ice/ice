@@ -18,7 +18,7 @@ namespace IcePHP
 
         [[nodiscard]] Ice::ValuePtr newClassInstance(std::string_view typeId) const final;
 
-        // TODO: we currently don't support loading of custom Slice exceptions from Python.
+        // TODO: we currently don't support loading of custom Slice exceptions from PHP.
 
     private:
         zval _sliceLoader;

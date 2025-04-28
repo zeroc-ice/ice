@@ -48,6 +48,8 @@ namespace
     public:
         [[nodiscard]] Ice::ValuePtr newClassInstance(string_view typeId) const final
         {
+            // When server version is set, we blindly overwrite the "iceVersion" field in all server descriptors and
+            // IceBox descriptors using the "post unmarshal" hook.
             if (!_serverVersion.empty())
             {
                 if (typeId == IceGrid::ServerDescriptor::ice_staticId())
