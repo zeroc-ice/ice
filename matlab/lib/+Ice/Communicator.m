@@ -44,6 +44,19 @@ classdef Communicator < IceInternal.WrapperObject
                     Ice.DefaultSliceLoader.Instance);
             end
 
+            notFoundCacheSize = obj.getProperties().getIcePropertyAsInt('Ice.SliceLoader.NotFoundCacheSize');
+            if notFoundCacheSize > 0
+                % Install the NotFoundSliceLoaderDecorator.
+                if obj.getProperties().getIcePropertyAsInt('Ice.Warn.SliceLoader') > 0
+                    cacheFullLogger = obj.getLogger();
+                else
+                    cacheFullLogger = [];
+                end
+
+                obj.initData.sliceLoader = Ice.NotFoundSliceLoaderDecorator(...
+                    obj.initData.sliceLoader, notFoundCacheSize, cacheFullLogger);
+            end
+
             enc = obj.getProperties().getProperty('Ice.Default.EncodingVersion');
             if isempty(enc)
                 obj.encoding = Ice.currentEncoding();

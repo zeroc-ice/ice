@@ -9,6 +9,9 @@ function client(args)
     helper = TestHelper();
     initData = Ice.InitializationData();
     initData.properties_ = helper.createTestProperties(args);
+    initData.properties_.setProperty('Ice.SliceLoader.NotFoundCacheSize', '5');
+    initData.properties_.setProperty('Ice.Warn.SliceLoader', '0'); % comment out to see the warning
+
     customSliceLoader = CustomSliceLoader();
     initData.sliceLoader = customSliceLoader;
 
