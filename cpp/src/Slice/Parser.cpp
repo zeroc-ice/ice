@@ -516,11 +516,11 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
     string name;
 
     // Parse the comment's text.
-    for (const auto& l : lines)
+    for (const auto& line : lines)
     {
         lineText.clear();
 
-        if (parseNamedCommentLine(l, paramTag, name, lineText))
+        if (parseNamedCommentLine(line, paramTag, name, lineText))
         {
             if (!operationTarget)
             {
@@ -534,7 +534,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 // Check that the '@param <name>' corresponds to an actual parameter in the operation.
                 const ParameterList params = operationTarget->parameters();
                 const auto paramNameCheck = [&name](const ParameterPtr& param) { return param->name() == name; };
-                if (std::find_if(params.begin(), params.end(), paramNameCheck) == params.end())
+                if (std::none_of(params.begin(), params.end(), paramNameCheck))
                 {
                     const string msg = "'" + paramTag + " " + name +
                                        "' does not correspond to any parameter in operation '" + p->name() + "'";
@@ -556,11 +556,11 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
             }
         }
         else if (
-            parseNamedCommentLine(l, throwsTag, name, lineText) ||
-            parseNamedCommentLine(l, exceptionTag, name, lineText))
+            parseNamedCommentLine(line, throwsTag, name, lineText) ||
+            parseNamedCommentLine(line, exceptionTag, name, lineText))
         {
             // '@throws' and '@exception' are equivalent. But we want to use the correct one in our warning messages.
-            const string actualTag = (l.find(throwsTag) == 0) ? throwsTag : exceptionTag;
+            const string actualTag = (line.find(throwsTag) == 0) ? throwsTag : exceptionTag;
             if (!operationTarget)
             {
                 // If '@throws'/'@exception' was put on anything other than an operation, ignore it and issue a warning.
@@ -584,10 +584,10 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                     const ExceptionList exceptionSpec = operationTarget->throws();
                     const auto exceptionCheck = [&exceptionTarget](const ExceptionPtr& ex)
                     { return ex->isBaseOf(exceptionTarget) || ex->scoped() == exceptionTarget->scoped(); };
-                    if (std::find_if(exceptionSpec.begin(), exceptionSpec.end(), exceptionCheck) == exceptionSpec.end())
+                    if (std::none_of(exceptionSpec.begin(), exceptionSpec.end(), exceptionCheck))
                     {
-                        const string msg = "'" + actualTag + " " + name + "': this exception is not listed in " +
-                                           "(or a sub-exception of) this operation's exception specification";
+                        const string msg = "'" + actualTag + " " + name + "': this exception is not listed in nor" +
+                                           "derived from any exception in this operation's specification";
                         p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                     }
 
@@ -606,7 +606,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 }
             }
         }
-        else if (parseCommentLine(l, seeTag, lineText))
+        else if (parseCommentLine(line, seeTag, lineText))
         {
             currentSection = &(comment._seeAlso);
 
@@ -627,7 +627,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 lineText.pop_back();
             }
         }
-        else if (parseCommentLine(l, returnTag, lineText))
+        else if (parseCommentLine(line, returnTag, lineText))
         {
             if (!operationTarget)
             {
@@ -658,7 +658,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 }
             }
         }
-        else if (parseCommentLine(l, deprecatedTag, lineText))
+        else if (parseCommentLine(line, deprecatedTag, lineText))
         {
             // Check if this is a duplicate tag (ie. multiple '@deprecated'). If it is, ignore it and issue a warning.
             if (comment._isDeprecated)
@@ -675,12 +675,12 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
         }
         else // This line didn't introduce a new tag. Either we're in the overview or a tag whose content is multi-line.
         {
-            if (!l.empty())
+            if (!line.empty())
             {
                 // We've encountered an unknown doc tag.
-                if (l[0] == '@')
+                if (line[0] == '@')
                 {
-                    auto unknownTag = l.substr(0, l.find_first_of(" \t:"));
+                    auto unknownTag = line.substr(0, line.find_first_of(" \t:"));
                     const string msg = "ignoring unknown doc tag '" + unknownTag + "' in comment";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                     currentSection = nullptr;
@@ -698,7 +698,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
             // Here we allow empty lines, since they could be used for formatting to separate lines.
             if (currentSection)
             {
-                currentSection->push_back(l);
+                currentSection->push_back(line);
             }
             continue;
         }
