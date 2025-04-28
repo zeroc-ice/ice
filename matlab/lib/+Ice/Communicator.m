@@ -23,8 +23,6 @@ classdef Communicator < IceInternal.WrapperObject
     %   setDefaultLocator - Set a default locator for this communicator.
     %   getEncoding - Get the encoding version for this communicator.
     %   getFormat - Get the class format for this communicator.
-    %   getValueFactoryManager - Get the value factory manager for this
-    %     communicator.
     %   flushBatchRequests - Flush any pending batch requests for this
     %     communicator.
     %   flushBatchRequestsAsync - Flush any pending batch requests for this
@@ -45,8 +43,6 @@ classdef Communicator < IceInternal.WrapperObject
                 obj.initData.sliceLoader = Ice.CompositeSliceLoader(obj.initData.sliceLoader, ...
                     Ice.DefaultSliceLoader.Instance);
             end
-
-            obj.valueFactoryManager = IceInternal.ValueFactoryManagerI();
 
             enc = obj.getProperties().getProperty('Ice.Default.EncodingVersion');
             if isempty(enc)
@@ -292,15 +288,6 @@ classdef Communicator < IceInternal.WrapperObject
             end
             obj.iceCall('setDefaultLocator', impl);
         end
-        function r = getValueFactoryManager(obj)
-            % getValueFactoryManager   Get the value factory manager for this
-            %   communicator.
-            %
-            % Returns (Ice.ValueFactoryManager) - This communicator's value
-            %   factory manager.
-
-            r = obj.valueFactoryManager;
-        end
         function flushBatchRequests(obj, mode)
             % flushBatchRequests   Flush any pending batch requests for this
             %   communicator. This means all batch requests invoked on fixed
@@ -350,6 +337,5 @@ classdef Communicator < IceInternal.WrapperObject
         implicitContext
         properties_
         logger
-        valueFactoryManager
     end
 end

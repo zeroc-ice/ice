@@ -2,10 +2,9 @@
 
 classdef (Abstract) EncapsDecoder < handle
     methods
-        function obj = EncapsDecoder(is, encaps, valueFactoryManager, classGraphDepthMax)
+        function obj = EncapsDecoder(is, encaps, classGraphDepthMax)
             obj.is = is;
             obj.encaps = encaps;
-            obj.valueFactoryManager = valueFactoryManager;
             obj.classGraphDepthMax = classGraphDepthMax;
             obj.classGraphDepth = 0;
             obj.patchMap = {};
@@ -67,18 +66,7 @@ classdef (Abstract) EncapsDecoder < handle
             typeIdIndex = length(obj.typeIdMap);
         end
         function r = newInstance(obj, typeId)
-            %
-            % Try to find a factory registered for the specific type.
-            %
-            userFactory = obj.valueFactoryManager.find(typeId);
-            if ~isempty(userFactory)
-                r = userFactory(typeId);
-            else
-                %
-                % Last chance: ask the class resolver to find it.
-                %
-                r = obj.is.getCommunicator().getSliceLoader().newInstance(typeId);
-            end
+            r = obj.is.getCommunicator().getSliceLoader().newInstance(typeId);
         end
 
         function addPatchEntry(obj, index, cb)
@@ -187,7 +175,6 @@ classdef (Abstract) EncapsDecoder < handle
     properties(Access=protected)
         is
         encaps
-        valueFactoryManager
         classGraphDepth
         classGraphDepthMax
         patchMap

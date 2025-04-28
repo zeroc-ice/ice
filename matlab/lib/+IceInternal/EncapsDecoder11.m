@@ -2,8 +2,8 @@
 
 classdef EncapsDecoder11 < IceInternal.EncapsDecoder
     methods
-        function obj = EncapsDecoder11(is, encaps, valueFactoryManager, classGraphDepthMax)
-            obj@IceInternal.EncapsDecoder(is, encaps, valueFactoryManager, classGraphDepthMax);
+        function obj = EncapsDecoder11(is, encaps, classGraphDepthMax)
+            obj@IceInternal.EncapsDecoder(is, encaps, classGraphDepthMax);
             obj.current = [];
             obj.valueIdIndex = 1;
         end
@@ -222,10 +222,10 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 is.skip(current.sliceSize - 4);
             else
                 if current.sliceType == IceInternal.SliceType.ValueSlice
-                    reason = sprintf('cannot find value factory for type ID ''%s''', current.typeId);
+                    reason = sprintf('The Slice loader did not find a class for type ID ''%s''.', current.typeId);
                     throw(Ice.MarshalException(reason));
                 else
-                    reason = sprintf('cannot find user exception for type ID ''%s''', current.typeId);
+                    reason = sprintf('The Slice loader did not find a user exception class for type ID ''%s''.', current.typeId);
                     throw(Ice.MarshalException(reason));
                 end
             end

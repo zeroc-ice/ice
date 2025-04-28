@@ -2,8 +2,8 @@
 
 classdef EncapsDecoder10 < IceInternal.EncapsDecoder
     methods
-        function obj = EncapsDecoder10(is, encaps, valueFactoryManager, classGraphDepthMax)
-            obj@IceInternal.EncapsDecoder(is, encaps, valueFactoryManager, classGraphDepthMax);
+        function obj = EncapsDecoder10(is, encaps, classGraphDepthMax)
+            obj@IceInternal.EncapsDecoder(is, encaps, classGraphDepthMax);
             obj.sliceType = IceInternal.SliceType.NoSlice;
         end
 
@@ -184,7 +184,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 % marks the last slice.
                 %
                 if strcmp(obj.typeId, Ice.Value.ice_staticId())
-                    throw(Ice.MarshalException(sprintf('cannot find value factory for type ID ''%s''', mostDerivedId)));
+                    throw(Ice.MarshalException(sprintf('The Slice loader did not find a class for type ID ''%s''.', mostDerivedId)));
                 end
 
                 v = obj.newInstance(obj.typeId);
