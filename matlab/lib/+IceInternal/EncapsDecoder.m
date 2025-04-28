@@ -2,11 +2,10 @@
 
 classdef (Abstract) EncapsDecoder < handle
     methods
-        function obj = EncapsDecoder(is, encaps, valueFactoryManager, classResolver, classGraphDepthMax)
+        function obj = EncapsDecoder(is, encaps, valueFactoryManager, classGraphDepthMax)
             obj.is = is;
             obj.encaps = encaps;
             obj.valueFactoryManager = valueFactoryManager;
-            obj.classResolver = classResolver;
             obj.classGraphDepthMax = classGraphDepthMax;
             obj.classGraphDepth = 0;
             obj.patchMap = {};
@@ -67,7 +66,7 @@ classdef (Abstract) EncapsDecoder < handle
             obj.typeIdMap{end + 1} = typeId;
             typeIdIndex = length(obj.typeIdMap);
         end
-        function r = newInstance(obj, ~, typeId)
+        function r = newInstance(obj, typeId)
             %
             % Try to find a factory registered for the specific type.
             %
@@ -82,25 +81,6 @@ classdef (Abstract) EncapsDecoder < handle
             end
         end
 
-        % Temporary: for compact IDs
-        function r = getConstructor(obj, typeId)
-            %
-            % Try to find a factory registered for the specific type.
-            %
-            r = [];
-            userFactory = obj.valueFactoryManager.find(typeId);
-            if ~isempty(userFactory)
-                r = @() userFactory(typeId);
-            else
-                %
-                % Last chance: ask the class resolver to find it.
-                %
-                constructor = obj.classResolver.resolve(typeId);
-                if ~isempty(constructor)
-                    r = @() constructor(IceInternal.NoInit.Instance);
-                end
-            end
-        end
         function addPatchEntry(obj, index, cb)
             %assert(index > 0);
             %
@@ -208,7 +188,6 @@ classdef (Abstract) EncapsDecoder < handle
         is
         encaps
         valueFactoryManager
-        classResolver
         classGraphDepth
         classGraphDepthMax
         patchMap

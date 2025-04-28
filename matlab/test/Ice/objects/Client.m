@@ -7,9 +7,15 @@ function client(args)
     end
 
     helper = TestHelper();
-    properties = helper.createTestProperties(args);
-    properties.setProperty('Ice.Warn.Connections', '0');
-    communicator = helper.initialize(properties);
+    initData = Ice.InitializationData();
+    initData.properties_ = helper.createTestProperties(args);
+    initData.properties_.setProperty('Ice.Warn.Connections', '0');
+
+    % We need to use the ClassSliceLoader for the classes with compact IDs. Naturally, it also works for classes
+    % without a compact ID.
+    initData.sliceLoader = Ice.ClassSliceLoader([?Test.Compact, ?Test.CompactExt]);
+    communicator = helper.initialize(initData);
+
     cleanup = onCleanup(@() communicator.destroy());
 
     %

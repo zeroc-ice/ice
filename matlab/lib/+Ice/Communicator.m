@@ -333,12 +333,6 @@ classdef Communicator < IceInternal.WrapperObject
             assert(~isNull(future));
             r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
-        function r = getClassResolver(obj)
-            if isempty(obj.classResolver) % Lazy initialization.
-                obj.classResolver = IceInternal.ClassResolver();
-            end
-            r = obj.classResolver;
-        end
         function r = getEncoding(obj)
             r = obj.encoding;
         end
@@ -351,7 +345,6 @@ classdef Communicator < IceInternal.WrapperObject
     end
     properties(Access=private)
         initData
-        classResolver
         encoding
         format
         implicitContext

@@ -803,12 +803,10 @@ classdef InputStream < handle
                 valueFactoryManager = obj.communicator.getValueFactoryManager();
                 if obj.encapsStack.encoding_1_0
                     obj.encapsStack.decoder = ...
-                        IceInternal.EncapsDecoder10(obj, obj.encapsStack, valueFactoryManager, ...
-                            obj.communicator.getClassResolver(), obj.classGraphDepthMax);
+                        IceInternal.EncapsDecoder10(obj, obj.encapsStack, valueFactoryManager, obj.classGraphDepthMax);
                 else
                     obj.encapsStack.decoder = ...
-                        IceInternal.EncapsDecoder11(obj, obj.encapsStack, valueFactoryManager, ...
-                            obj.communicator.getClassResolver(), obj.classGraphDepthMax);
+                        IceInternal.EncapsDecoder11(obj, obj.encapsStack, valueFactoryManager, obj.classGraphDepthMax);
                 end
                 obj.encapsStackDecoder = obj.encapsStack.decoder;
             end

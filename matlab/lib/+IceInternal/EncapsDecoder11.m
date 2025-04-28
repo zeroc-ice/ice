@@ -2,11 +2,10 @@
 
 classdef EncapsDecoder11 < IceInternal.EncapsDecoder
     methods
-        function obj = EncapsDecoder11(is, encaps, valueFactoryManager, classResolver, classGraphDepthMax)
-            obj@IceInternal.EncapsDecoder(is, encaps, valueFactoryManager, classResolver, classGraphDepthMax);
+        function obj = EncapsDecoder11(is, encaps, valueFactoryManager, classGraphDepthMax)
+            obj@IceInternal.EncapsDecoder(is, encaps, valueFactoryManager, classGraphDepthMax);
             obj.current = [];
             obj.valueIdIndex = 1;
-            obj.compactIdCache = {};
         end
 
         function readValue(obj, cb)
@@ -144,6 +143,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 end
             else
                 current.typeId = is.readString();
+                current.compactId = -1;
             end
 
             %
@@ -310,27 +310,9 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             while true
                 compactId = current.compactId;
                 if compactId ~= -1
-                    if compactId <= length(obj.compactIdCache)
-                        constructor = obj.compactIdCache{compactId};
-                    else
-                        constructor = obj.getConstructor(eval(sprintf('IceCompactId.TypeId_%d.typeId', compactId)));
-                        if ~isempty(constructor)
-                            obj.compactIdCache{compactId} = constructor;
-                        end
-                    end
-
-                    if ~isempty(constructor)
-                        try
-                            v = constructor(); % Invoke the constructor.
-                        catch e
-                            ex = Ice.MarshalException(sprintf('constructor failed for type with compact id %d', compactId));
-                            ex.addCause(e);
-                            throw(ex);
-                        end
-                    end
-                else
-                    v = obj.newInstance(current.typeIdIndex, current.typeId);
+                    current.typeId = int2str(current.compactId);
                 end
+                v = obj.newInstance(current.typeId);
 
                 if isobject(v)
                     %
@@ -354,7 +336,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     % We pass the "::Ice::Object" ID to indicate that this is the
                     % last chance to preserve the instance.
                     %
-                    v = obj.newInstance(-1, Ice.Value.ice_staticId());
+                    v = obj.newInstance(Ice.Value.ice_staticId());
                     if ~isobject(v)
                         v = Ice.UnknownSlicedValue(mostDerivedId);
                     end
@@ -429,6 +411,5 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
     end
     properties(Access=private)
         valueIdIndex
-        compactIdCache
     end
 end

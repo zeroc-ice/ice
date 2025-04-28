@@ -2,8 +2,8 @@
 
 classdef EncapsDecoder10 < IceInternal.EncapsDecoder
     methods
-        function obj = EncapsDecoder10(is, encaps, valueFactoryManager, classResolver, classGraphDepthMax)
-            obj@IceInternal.EncapsDecoder(is, encaps, valueFactoryManager, classResolver, classGraphDepthMax);
+        function obj = EncapsDecoder10(is, encaps, valueFactoryManager, classGraphDepthMax)
+            obj@IceInternal.EncapsDecoder(is, encaps, valueFactoryManager, classGraphDepthMax);
             obj.sliceType = IceInternal.SliceType.NoSlice;
         end
 
@@ -190,7 +190,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                     throw(Ice.MarshalException(sprintf('cannot find value factory for type ID ''%s''', mostDerivedId)));
                 end
 
-                v = obj.newInstance(obj.typeIdIndex, obj.typeId);
+                v = obj.newInstance(obj.typeId);
 
                 %
                 % We found a factory, we get out of this loop.
