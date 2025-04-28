@@ -100,7 +100,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             r = slicedData;
         end
 
-        function r = startSlice(obj)
+        function startSlice(obj)
             import IceInternal.Protocol;
             %
             % If first slice, don't read the header, it was already read in
@@ -109,7 +109,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             current = obj.current;
             if current.skipFirstSlice
                 current.skipFirstSlice = false;
-                r = current.typeId;
                 return;
             end
 
@@ -124,9 +123,9 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             if current.sliceType == IceInternal.SliceType.ValueSlice
                 % Must be checked first!
                 if bitand(current.sliceFlags, Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT
-                    current.typeId = '';
                     current.typeIdIndex = -1;
                     current.compactId = is.readSize();
+                    current.typeId = int2str(current.compactId);
                 elseif bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_TYPE_ID_INDEX)
                     typeIdIndex = is.readSize();
                     current.typeIdIndex = typeIdIndex;
@@ -157,7 +156,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             else
                 current.sliceSize = 0;
             end
-            r = current.typeId;
         end
 
         function endSlice(obj)
@@ -308,17 +306,14 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             mostDerivedId = current.typeId;
             v = [];
             while true
-                compactId = current.compactId;
-                if compactId ~= -1
-                    current.typeId = int2str(current.compactId);
-                end
-                v = obj.newInstance(current.typeId);
-
-                if isobject(v)
-                    %
-                    % We have an instance, get out of this loop.
-                    %
-                    break;
+                if ~isempty(current.typeId)
+                    v = obj.newInstance(current.typeId);
+                    if isobject(v)
+                        %
+                        % We have an instance, get out of this loop.
+                        %
+                        break;
+                    end
                 end
 
                 %

@@ -497,9 +497,9 @@ classdef InputStream < handle
                 r = obj.encapsStack.encoding;
             end
         end
-        function r = startSlice(obj)
+        function startSlice(obj)
             %assert(isobject(obj.encapsStackDecoder));
-            r = obj.encapsStackDecoder.startSlice();
+            obj.encapsStackDecoder.startSlice();
         end
         function endSlice(obj)
             %assert(isobject(obj.encapsStackDecoder));

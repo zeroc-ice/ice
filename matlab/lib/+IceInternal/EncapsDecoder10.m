@@ -118,14 +118,13 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             r = [];
         end
 
-        function r = startSlice(obj)
+        function startSlice(obj)
             %
             % If first slice, don't read the header, it was already read in
             % readInstance or throwException to find the type.
             %
             if obj.skipFirstSlice
                 obj.skipFirstSlice = false;
-                r = obj.typeId;
                 return;
             end
 
@@ -151,8 +150,6 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             if obj.sliceSize < 4
                 throw(Ice.MarshalException('invalid slice size'));
             end
-
-            r = obj.typeId;
         end
 
         function endSlice(~)
