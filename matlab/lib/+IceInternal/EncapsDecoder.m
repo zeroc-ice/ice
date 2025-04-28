@@ -13,7 +13,6 @@ classdef (Abstract) EncapsDecoder < handle
             obj.patchMapLength = 0;
             obj.unmarshaledMap = {};
             obj.typeIdMap = {};
-            obj.typeIdConstructorMap = {};
             obj.valueList = {};
             obj.delayedPostUnmarshal = {};
         end
@@ -68,29 +67,22 @@ classdef (Abstract) EncapsDecoder < handle
             obj.typeIdMap{end + 1} = typeId;
             typeIdIndex = length(obj.typeIdMap);
         end
-        function r = newInstance(obj, typeIdIndex, typeId)
-            if typeIdIndex >= 0 && typeIdIndex <= length(obj.typeIdConstructorMap)
-                constructor = obj.typeIdConstructorMap{typeIdIndex};
+        function r = newInstance(obj, ~, typeId)
+            %
+            % Try to find a factory registered for the specific type.
+            %
+            userFactory = obj.valueFactoryManager.find(typeId);
+            if ~isempty(userFactory)
+                r = userFactory(typeId);
             else
-                constructor = obj.getConstructor(typeId);
-                if ~isempty(constructor)
-                    obj.typeIdConstructorMap{typeIdIndex} = constructor;
-                end
-            end
-
-            if ~isempty(constructor)
-                try
-                    r = constructor(); % Invoke the constructor.
-                catch e
-                    ex = Ice.MarshalException(sprintf('constructor failed for %s', typeId));
-                    ex.addCause(e);
-                    throw(ex);
-                end
-            else
-                r = [];
+                %
+                % Last chance: ask the class resolver to find it.
+                %
+                r = obj.is.getCommunicator().getSliceLoader().newInstance(typeId);
             end
         end
 
+        % Temporary: for compact IDs
         function r = getConstructor(obj, typeId)
             %
             % Try to find a factory registered for the specific type.
@@ -109,7 +101,6 @@ classdef (Abstract) EncapsDecoder < handle
                 end
             end
         end
-
         function addPatchEntry(obj, index, cb)
             %assert(index > 0);
             %
@@ -225,7 +216,6 @@ classdef (Abstract) EncapsDecoder < handle
     end
     properties(Access=private)
         unmarshaledMap
-        typeIdConstructorMap
         typeIdMap
         valueList
         delayedPostUnmarshal

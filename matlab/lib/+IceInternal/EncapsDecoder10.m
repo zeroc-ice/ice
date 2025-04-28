@@ -63,27 +63,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             obj.startSlice();
             mostDerivedId = obj.typeId;
             while true
-                %
-                % Use the class resolver to convert the type ID into a constructor.
-                %
-                constructor = obj.classResolver.resolve(obj.typeId);
-
-                %
-                % Try to instantiate the class.
-                %
-                ex = [];
-                if ~isempty(constructor)
-                    try
-                        ex = constructor(); % Invoke the constructor.
-                    catch e
-                        %
-                        % Instantiation failed.
-                        %
-                        me = Ice.MarshalException(sprintf('exception in constructor for %s', obj.typeId));
-                        me.addCause(e);
-                        throw(me);
-                    end
-                end
+                ex = obj.is.getCommunicator().getSliceLoader().newInstance(obj.typeId);
 
                 if ~isempty(ex)
                     %

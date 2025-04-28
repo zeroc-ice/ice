@@ -6,9 +6,10 @@ classdef (Sealed, Hidden) DefaultSliceLoader < Ice.SliceLoader
     methods
         function r = newInstance(obj, typeId)
             if startsWith(typeId, '::')
-                % check cache first
-                constructor = lookup(obj.typeIdToConstructorMap, typeId, FallbackValue=[]);
-                if isempty(constructor)
+                % First check the cache.
+                constructor = lookup(obj.typeIdToConstructorMap, typeId, FallbackValue=obj.CreateEmptyArray);
+                if isequal(constructor, obj.CreateEmptyArray)
+                    % Not found
                     typeIdElements = strsplit(typeId, '::');
                     typeIdElements = typeIdElements(2:end); % Skip empty leading element.
                     className = strjoin(typeIdElements, '.');
@@ -17,11 +18,7 @@ classdef (Sealed, Hidden) DefaultSliceLoader < Ice.SliceLoader
                         obj.typeIdToConstructorMap(typeId) = constructor;
                     end
                 end
-                if isempty(constructor)
-                    r = [];
-                else
-                    r = constructor();
-                end
+                r = constructor();
             else
                 r = []; % This implementation does not resolve compact IDs.
             end
@@ -29,12 +26,13 @@ classdef (Sealed, Hidden) DefaultSliceLoader < Ice.SliceLoader
     end
     methods(Access = private)
         function obj = DefaultSliceLoader()
-            obj.typeIdToConstructorMap = dictionary('string', 'function_handle');
+            obj.typeIdToConstructorMap = configureDictionary('string', 'function_handle');
         end
     end
     properties(Constant)
         % DefaultSliceLoader singleton instance.
         Instance = Ice.DefaultSliceLoader()
+        CreateEmptyArray = @() []
     end
     properties(Access = private)
         typeIdToConstructorMap
