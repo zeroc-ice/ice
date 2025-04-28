@@ -6,7 +6,7 @@ require_once('Forward.php');
 
 class BI extends Test\B
 {
-    function ice_pretUnmarshal()
+    function ice_preUnmarshal()
     {
         $this->preUnmarshalInvoked = true;
     }
@@ -43,23 +43,17 @@ class DI extends Test\D
     }
 }
 
-class MyValueFactory implements Ice\ValueFactory
+class CustomSliceLoader implements Ice\SliceLoader
 {
-    function create($id)
+    function newInstance(string $typeId) : ?object
     {
-        if($id == "::Test::B")
+        return match($typeId)
         {
-            return new BI();
-        }
-        else if($id == "::Test::C")
-        {
-            return new CI();
-        }
-        else if($id == "::Test::D")
-        {
-            return new DI();
-        }
-        return null;
+            "::Test::B" => new BI(),
+            "::Test::C" => new CI(),
+            "::Test::D" => new DI(),
+            default => null,
+        };
     }
 }
 
@@ -417,26 +411,13 @@ class Client extends TestHelper
 {
     function run($args)
     {
-        try
-        {
-            $communicator = $this->initialize($args);
-            $factory = new MyValueFactory();
-            $communicator->getValueFactoryManager()->add($factory, "::Test::B");
-            $communicator->getValueFactoryManager()->add($factory, "::Test::C");
-            $communicator->getValueFactoryManager()->add($factory, "::Test::D");
-            $communicator->getValueFactoryManager()->add($factory, "::Test::E");
-            $communicator->getValueFactoryManager()->add($factory, "::Test::F");
-            $communicator->getValueFactoryManager()->add($factory, "::Test::I");
-            $communicator->getValueFactoryManager()->add($factory, "::Test::J");
-            $initial = allTests($this);
-            $initial->shutdown();
-            $communicator->destroy();
-        }
-        catch(Exception $ex)
-        {
-            $communicator->destroy();
-            throw $ex;
-        }
+        $initData = new Ice\InitializationData();
+        $initData->properties = $this->createTestProperties($args);
+        $initData->sliceLoader = new CustomSliceLoader();
+        $communicator = $this->initialize($initData);
+        $initial = allTests($this);
+        $initial->shutdown();
+        $communicator->destroy();
     }
 }
 ?>

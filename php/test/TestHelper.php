@@ -155,7 +155,7 @@ class TestHelper
             $args = func_get_args();
             if($args[0] instanceof $initDataCLS)
             {
-                $initData = $arguments[0];
+                $initData = $args[0];
             }
             else
             {

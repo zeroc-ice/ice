@@ -35,7 +35,6 @@
 #include "ThreadPool.h"
 #include "TimeUtil.h"
 #include "TraceLevels.h"
-#include "ValueFactoryManagerI.h"
 
 #include "DisableWarnings.h"
 
@@ -1208,11 +1207,6 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         _endpointFactoryManager = make_shared<EndpointFactoryManager>(shared_from_this());
 
         _pluginManager = make_shared<PluginManagerI>(communicator);
-
-        if (!_initData.valueFactoryManager)
-        {
-            _initData.valueFactoryManager = make_shared<ValueFactoryManagerI>();
-        }
 
         _outgoingConnectionFactory = make_shared<OutgoingConnectionFactory>(communicator, shared_from_this());
 

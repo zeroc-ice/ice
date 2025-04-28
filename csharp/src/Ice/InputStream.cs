@@ -2367,13 +2367,11 @@ public sealed class InputStream
             Value? v;
             while (true)
             {
-                //
-                // For the 1.0 encoding, the type ID for the base Object class
-                // marks the last slice.
-                //
+                // For the 1.0 encoding, the type ID for the base Object class marks the last slice.
                 if (_typeId == Value.ice_staticId())
                 {
-                    throw new MarshalException($"Cannot find value factory for type ID '{mostDerivedId}'.");
+                    throw new MarshalException(
+                        $"The Slice loader did not find a class for type ID '{mostDerivedId}'.");
                 }
 
                 v = newInstance(_typeId);
@@ -2681,11 +2679,12 @@ public sealed class InputStream
                 if (_current.sliceType == SliceType.ValueSlice)
                 {
                     throw new MarshalException(
-                        $"Cannot find value factory for type ID '{_current.typeId}' and compact format prevents slicing.");
+                        $"The Slice loader did not find a class for type ID '{_current.typeId}' and compact format prevents slicing.");
                 }
                 else
                 {
-                    throw new MarshalException($"Cannot find user exception for type ID '{_current.typeId}'");
+                    throw new MarshalException(
+                        $"The Slice loader did not find a user exception class for type ID '{_current.typeId}' and compact format prevents slicing.");
                 }
             }
 

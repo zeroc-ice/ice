@@ -42,9 +42,39 @@ namespace
     private:
         string _serverVersion;
     };
+
+    class CustomSliceLoader final : public Ice::SliceLoader
+    {
+    public:
+        [[nodiscard]] Ice::ValuePtr newClassInstance(string_view typeId) const final
+        {
+            // When server version is set, we blindly overwrite the "iceVersion" field in all server descriptors and
+            // IceBox descriptors using the "post unmarshal" hook.
+            if (!_serverVersion.empty())
+            {
+                if (typeId == IceGrid::ServerDescriptor::ice_staticId())
+                {
+                    return std::make_shared<ServerDescriptorI>(_serverVersion);
+                }
+                else if (typeId == IceGrid::IceBoxDescriptor::ice_staticId())
+                {
+                    return std::make_shared<IceBoxDescriptorI>(_serverVersion);
+                }
+            }
+
+            return nullptr;
+        }
+
+        void setServerVersion(string serverVersion) { _serverVersion = std::move(serverVersion); }
+
+    private:
+        string _serverVersion;
+    };
+
+    using CustomSliceLoaderPtr = shared_ptr<CustomSliceLoader>;
 }
 
-int run(const Ice::StringSeq&);
+int run(const Ice::StringSeq&, const CustomSliceLoaderPtr&);
 
 shared_ptr<Ice::Communicator> communicator;
 
@@ -66,12 +96,17 @@ main(int argc, char* argv[])
     try
     {
         Ice::CtrlCHandler ctrlCHandler;
-        Ice::CommunicatorHolder ich(argc, argv);
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties(argc, argv);
+        auto customSliceLoader = make_shared<CustomSliceLoader>();
+        initData.sliceLoader = customSliceLoader;
+
+        Ice::CommunicatorHolder ich(argc, argv, initData);
         communicator = ich.communicator();
 
         ctrlCHandler.setCallback(&destroyCommunicator);
 
-        status = run(Ice::argsToStringSeq(argc, argv));
+        status = run(Ice::argsToStringSeq(argc, argv), customSliceLoader);
     }
     catch (const std::exception& ex)
     {
@@ -99,7 +134,7 @@ usage(const string& name)
 }
 
 int
-run(const Ice::StringSeq& args)
+run(const Ice::StringSeq& args, const CustomSliceLoaderPtr& customSliceLoader)
 {
     IceInternal::Options opts;
     opts.addOpt("h", "help");
@@ -169,7 +204,7 @@ run(const Ice::StringSeq& args)
 
     string mapSizeStr = opts.optArg("mapsize");
     size_t mapSize = IceDB::getMapSize(stoi(mapSizeStr));
-    string serverVersion = opts.optArg("server-version");
+    customSliceLoader->setServerVersion(opts.optArg("server-version"));
 
     try
     {
@@ -217,17 +252,6 @@ run(const Ice::StringSeq& args)
             buf.reserve(static_cast<size_t>(fileSize));
             fs.read(reinterpret_cast<char*>(buf.data()), fileSize);
             fs.close();
-
-            if (!serverVersion.empty())
-            {
-                communicator->getValueFactoryManager()->add(
-                    [serverVersion](string_view) { return make_shared<ServerDescriptorI>(serverVersion); },
-                    IceGrid::ServerDescriptor::ice_staticId());
-
-                communicator->getValueFactoryManager()->add(
-                    [serverVersion](string_view) { return make_shared<IceBoxDescriptorI>(serverVersion); },
-                    IceGrid::IceBoxDescriptor::ice_staticId());
-            }
 
             Ice::InputStream stream(communicator, Ice::currentEncoding, buf);
 

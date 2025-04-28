@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+#include <complex>
 #ifdef _MSC_VER
 #    pragma warning(disable : 4244) // '=': conversion from 'int' to 'int16_t', possible loss of data
 #endif
@@ -60,32 +61,30 @@ patchObject(void* addr, const Ice::ValuePtr& v)
     *p = v;
 }
 
-class MyClassFactoryWrapper
+class CustomSliceLoader final : public Ice::SliceLoader
 {
 public:
-    MyClassFactoryWrapper() { clear(); }
-
-    Ice::ValuePtr create(string_view type) { return _factory(type); }
-
-    void setFactory(function<Ice::ValuePtr(string_view)> f) { _factory = std::move(f); }
-
-    void clear()
+    [[nodiscard]] Ice::ValuePtr newClassInstance(string_view typeId) const final
     {
-        _factory = [](string_view) { return make_shared<MyClass>(); };
+        if (typeId == MyClass::ice_staticId() && _useReader)
+        {
+            return make_shared<TestObjectReader>();
+        }
+        return nullptr;
     }
 
-    function<Ice::ValuePtr(string_view)> _factory;
+    void useReader(bool b) { _useReader = b; }
+
+private:
+    bool _useReader{false};
 };
 
+using CustomSliceLoaderPtr = shared_ptr<CustomSliceLoader>;
+
 void
-allTests(Test::TestHelper* helper)
+allTests(Test::TestHelper* helper, const CustomSliceLoaderPtr& customSliceLoader)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    MyClassFactoryWrapper factoryWrapper;
-
-    communicator->getValueFactoryManager()->add(
-        [&factoryWrapper](string_view type) { return factoryWrapper.create(type); },
-        MyClass::ice_staticId());
 
     vector<byte> data;
 
@@ -777,7 +776,7 @@ allTests(Test::TestHelper* helper)
         out.writePendingValues();
         out.finished(data);
         test(writer->called);
-        factoryWrapper.setFactory([](string_view) { return make_shared<TestObjectReader>(); });
+        customSliceLoader->useReader(true);
         Ice::InputStream in(communicator, data);
         Ice::ValuePtr p;
         in.read(&patchObject, &p);
@@ -788,7 +787,7 @@ allTests(Test::TestHelper* helper)
         test(reader->called);
         test(reader->obj);
         test(reader->obj->s.e == MyEnum::enum2);
-        factoryWrapper.clear();
+        customSliceLoader->useReader(false);
     }
 
     {
@@ -1091,11 +1090,13 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-    properties->setProperty("Ice.AcceptClassCycles", "1");
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-    void allTests(Test::TestHelper*);
-    allTests(this);
+    Ice::InitializationData initData;
+    initData.properties = createTestProperties(argc, argv);
+    initData.properties->setProperty("Ice.AcceptClassCycles", "1");
+    auto customSliceLoader = make_shared<CustomSliceLoader>();
+    initData.sliceLoader = customSliceLoader;
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+    allTests(this, customSliceLoader);
 }
 
 DEFINE_TEST(Client)

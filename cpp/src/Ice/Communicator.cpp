@@ -258,12 +258,6 @@ Ice::Communicator::getPluginManager() const
     return _instance->pluginManager();
 }
 
-ValueFactoryManagerPtr
-Ice::Communicator::getValueFactoryManager() const noexcept
-{
-    return _instance->initializationData().valueFactoryManager;
-}
-
 void
 Ice::Communicator::postToClientThreadPool(function<void()> call)
 {

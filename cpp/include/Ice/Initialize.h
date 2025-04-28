@@ -17,7 +17,6 @@
 #include "SliceLoader.h"
 #include "StringUtil.h"
 #include "TimerTask.h"
-#include "ValueFactory.h"
 
 namespace Ice
 {
@@ -98,9 +97,6 @@ namespace Ice
 #if defined(__clang__)
 #    pragma clang diagnostic pop
 #endif
-
-        /// The value factory manager.
-        ValueFactoryManagerPtr valueFactoryManager{};
 
         /// The authentication options for SSL client connections. When set, the SSL transport ignores all IceSSL
         /// configuration properties and uses these options.

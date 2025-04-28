@@ -235,7 +235,7 @@ function allTests($helper)
         test($d1->pd1 === $b2); // Object identity comparison
 
         test($b2 != null);
-        test(get_class($b2) == "Test\B"); // No factory, must be sliced
+        test(get_class($b2) == "Test\B"); // No custom Slice loader, must be sliced
         test($b2->sb == "D2.sb");
         test($b2->pb === $b1); // Object identity comparison
 
@@ -261,7 +261,7 @@ function allTests($helper)
         test($d1->pd1 === $b2); // Object identity comparison
 
         test($b2 != null);
-        test(get_class($b2) == "Test\B"); // No factory, must be sliced
+        test(get_class($b2) == "Test\B"); // No custom Slice loader, must be sliced
         test($b2->sb == "D2.sb");
         test($b2->pb === $b1); // Object identity comparison
 

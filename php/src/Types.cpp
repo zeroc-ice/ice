@@ -3135,7 +3135,7 @@ IcePHP::ReadObjectCallback::invoke(const shared_ptr<Ice::Value>& p)
                 __FILE__,
                 __LINE__,
                 "failed to unmarshal class with type ID '" + _info->id +
-                    "': value factory returned a class with type ID '" + reader->getInfo()->id + "'"};
+                    "': the Slice loader returned a class with type ID '" + reader->getInfo()->id + "'"};
         }
         zval* obj = reader->getObject();
         _cb->unmarshaled(obj, &_target, _closure);
