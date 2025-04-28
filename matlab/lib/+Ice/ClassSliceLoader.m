@@ -1,10 +1,16 @@
 classdef (Sealed) ClassSliceLoader < Ice.SliceLoader
-    % ClassSliceLoader   Summary of ClassSliceLoader
+    % ClassSliceLoader   Implements SliceLoader using an array of meta classes.
     %
-    % Implements SliceLoader by ...
-
+    % ClassSliceLoader methods:
+    %   ClassSliceLoader - Constructs a ClassSliceLoader from an array of meta classes.
+    %   newInstance - Creates a class or exception instance from a Slice type ID.
     methods
         function obj = ClassSliceLoader(metaclassArray)
+            % ClassSliceLoader - Constructs a ClassSliceLoader from an array of meta classes.
+            %
+            % Parameters:
+            %   metaclassArray (matlab.metadata.Class) - An array of matlab.metadata.Class objects.
+
             obj.typeIdToConstructorMap = configureDictionary('string', 'function_handle');
 
             for i = 1:length(metaclassArray)

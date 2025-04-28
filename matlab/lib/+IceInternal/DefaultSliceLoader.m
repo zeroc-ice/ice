@@ -1,7 +1,11 @@
-classdef (Sealed, Hidden) DefaultSliceLoader < Ice.SliceLoader
-    % DefaultSliceLoader   Summary of DefaultSliceLoader
+classdef (Sealed) DefaultSliceLoader < Ice.SliceLoader
+    % DefaultSliceLoader   Implements SliceLoader by converting type IDs into MATLAB class names.
     %
-    % Implements SliceLoader by converting the type ID into a MATLAB class name.
+    % DefaultSliceLoader methods:
+    %   newInstance - Creates a class or exception instance from a Slice type ID.
+    %
+    % DefaultSliceLoader properties:
+    %   Instance - The singleton instance of DefaultSliceLoader.
 
     methods
         function r = newInstance(obj, typeId)
@@ -30,8 +34,10 @@ classdef (Sealed, Hidden) DefaultSliceLoader < Ice.SliceLoader
         end
     end
     properties(Constant)
-        % DefaultSliceLoader singleton instance.
+        % The singleton instance of DefaultSliceLoader.
         Instance = IceInternal.DefaultSliceLoader()
+    end
+    properties(Constant, Access = private)
         CreateEmptyArray = @() []
     end
     properties(Access = private)
