@@ -1345,10 +1345,10 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "end";
     out << nl << "properties(Constant, Access=private)";
     out.inc();
-    out << nl << "TypeId string = '" << scoped << "';";
+    out << nl << "TypeId char = '" << scoped << "'";
     if (p->compactId() != -1)
     {
-        out << nl << "CompactId string = '" << to_string(p->compactId()) << "';";
+        out << nl << "CompactId char = '" << to_string(p->compactId()) << "'";
     }
     out.dec();
     out << nl << "end";

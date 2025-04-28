@@ -27,7 +27,7 @@ classdef CustomSliceLoader < Ice.SliceLoader
                 case '::LocalTest::CB8'
                     r = CB8I();
                 otherwise
-                    r = []; % placeholder for null
+                    r = []; % not found
             end
         end
     end
