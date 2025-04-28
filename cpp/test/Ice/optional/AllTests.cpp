@@ -224,16 +224,12 @@ private:
     FPtr _f;
 };
 
-class FactoryI
+class CustomSliceLoader final : public Ice::SliceLoader
 {
-    bool _enabled{false};
-
 public:
-    FactoryI() = default;
-
-    Ice::ValuePtr create(string_view typeId)
+    [[nodiscard]] Ice::ValuePtr newClassInstance(string_view typeId) const final
     {
-        if (!_enabled)
+        if (!_useReader)
         {
             return nullptr;
         }
@@ -266,16 +262,25 @@ public:
         return nullptr;
     }
 
-    void setEnabled(bool enabled) { _enabled = enabled; }
+    void useReader(bool b) { _useReader = b; }
+
+private:
+    bool _useReader{false};
 };
 
+using CustomSliceLoaderPtr = shared_ptr<CustomSliceLoader>;
+
+Ice::SliceLoaderPtr
+createCustomSliceLoader()
+{
+    return make_shared<CustomSliceLoader>();
+}
+
 InitialPrx
-allTests(Test::TestHelper* helper, bool)
+allTests(Test::TestHelper* helper, const Ice::SliceLoaderPtr& sliceLoader)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    auto factory = make_shared<FactoryI>();
-
-    communicator->getValueFactoryManager()->add([factory](string_view typeId) { return factory->create(typeId); }, "");
+    auto customSliceLoader = dynamic_pointer_cast<CustomSliceLoader>(sliceLoader);
 
     InitialPrx initial(communicator, "initial:" + helper->getTestEndpoint());
 
@@ -589,12 +594,12 @@ allTests(Test::TestHelper* helper, bool)
     Ice::ByteSeq outEncaps;
 
     //
-    // Send a request using blobjects. Upon receival, we don't read
+    // Send a request using blobjects. Upon receipt, we don't read
     // any of the optional members. This ensures the optional members
     // are skipped even if the receiver knows nothing about them.
     //
     {
-        factory->setEnabled(true);
+        customSliceLoader->useReader(true);
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
         out.write(oo1);
@@ -622,7 +627,7 @@ allTests(Test::TestHelper* helper, bool)
         in.read(obj);
         in.endEncapsulation();
         test(obj && dynamic_pointer_cast<TestObjectReader>(obj));
-        factory->setEnabled(false);
+        customSliceLoader->useReader(false);
     }
 
     GPtr g = make_shared<G>();
@@ -679,7 +684,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mc->ifsd->size() == 300);
 
     {
-        factory->setEnabled(true);
+        customSliceLoader->useReader(true);
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
         out.write(mc);
@@ -692,7 +697,7 @@ allTests(Test::TestHelper* helper, bool)
         in.read(obj);
         in.endEncapsulation();
         test(obj && dynamic_pointer_cast<TestObjectReader>(obj));
-        factory->setEnabled(false);
+        customSliceLoader->useReader(false);
     }
 
     cout << "ok" << endl;
@@ -716,7 +721,7 @@ allTests(Test::TestHelper* helper, bool)
         test(b2->mc == 12);
         test(b2->md == 13);
 
-        factory->setEnabled(true);
+        customSliceLoader->useReader(true);
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
         out.write(b);
@@ -729,7 +734,7 @@ allTests(Test::TestHelper* helper, bool)
         in.read(obj);
         in.endEncapsulation();
         test(obj);
-        factory->setEnabled(false);
+        customSliceLoader->useReader(false);
     }
 
     cout << "ok" << endl;
@@ -744,7 +749,7 @@ allTests(Test::TestHelper* helper, bool)
         FPtr rf = dynamic_pointer_cast<F>(initial->pingPong(f));
         test(rf->fse == *rf->fsf);
 
-        factory->setEnabled(true);
+        customSliceLoader->useReader(true);
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
         out.write(f);
@@ -755,7 +760,7 @@ allTests(Test::TestHelper* helper, bool)
         Ice::ValuePtr obj;
         in.read(obj);
         in.endEncapsulation();
-        factory->setEnabled(false);
+        customSliceLoader->useReader(false);
 
         rf = dynamic_pointer_cast<FObjectReader>(obj)->getF();
         test(rf->fse.m == 56 && !rf->fsf);
@@ -786,7 +791,7 @@ allTests(Test::TestHelper* helper, bool)
                 out.write(c);
                 out.endEncapsulation();
                 out.finished(inEncaps);
-                factory->setEnabled(true);
+                customSliceLoader->useReader(true);
                 test(initial->ice_invoke("pingPong", Ice::OperationMode::Normal, inEncaps, outEncaps));
                 Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
                 in.startEncapsulation();
@@ -794,11 +799,11 @@ allTests(Test::TestHelper* helper, bool)
                 in.read(obj);
                 in.endEncapsulation();
                 test(dynamic_pointer_cast<CObjectReader>(obj));
-                factory->setEnabled(false);
+                customSliceLoader->useReader(false);
             }
 
             {
-                factory->setEnabled(true);
+                customSliceLoader->useReader(true);
                 Ice::OutputStream out(communicator);
                 out.startEncapsulation();
                 Ice::ValuePtr d = make_shared<DObjectWriter>();
@@ -813,7 +818,7 @@ allTests(Test::TestHelper* helper, bool)
                 in.endEncapsulation();
                 test(obj && dynamic_pointer_cast<DObjectReader>(obj));
                 dynamic_pointer_cast<DObjectReader>(obj)->check();
-                factory->setEnabled(false);
+                customSliceLoader->useReader(false);
             }
         }
         cout << "ok" << endl;

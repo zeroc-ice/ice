@@ -8,7 +8,6 @@
 #include "Ice/SlicedData.h"
 #include "Ice/StringConverter.h"
 #include "Ice/UserExceptionFactory.h"
-#include "Ice/ValueFactory.h"
 #include "Instance.h"
 #include "ReferenceFactory.h"
 #include "TraceLevels.h"
@@ -28,17 +27,13 @@ namespace
 void
 IceInternal::Ex::throwUOE(const char* file, int line, const string& expectedType, const ValuePtr& v)
 {
-    //
-    // If the object is an unknown sliced object, we didn't find a
-    // value factory, in this case raise a MarshalException instead.
-    //
     UnknownSlicedValuePtr usv = dynamic_pointer_cast<UnknownSlicedValue>(v);
     if (usv)
     {
         throw MarshalException{
             file,
             line,
-            "cannot find value factory to unmarshal class with type ID '" + string{usv->ice_id()} + "'"};
+            "the Slice loader did not find a class for type ID '" + string{usv->ice_id()} + "'"};
     }
 
     string type = v->ice_id();
@@ -46,8 +41,8 @@ IceInternal::Ex::throwUOE(const char* file, int line, const string& expectedType
     throw MarshalException{
         file,
         line,
-        "failed to unmarshal class with type ID '" + expectedType + "': value factory returned a class with type ID '" +
-            type + "'"};
+        "failed to unmarshal class with type ID '" + expectedType +
+            "': the Slice loader returned a class with type ID '" + type + "'"};
 }
 
 void
@@ -1051,20 +1046,25 @@ Ice::InputStream::read(vector<wstring>& v)
     }
 }
 
+namespace
+{
+    inline Ice::SliceLoaderPtr getSliceLoader(SliceLoaderPtr sliceLoader, Instance* instance)
+    {
+        if (!sliceLoader)
+        {
+            sliceLoader = instance->sliceLoader();
+        }
+        return sliceLoader;
+    }
+}
+
 Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, Buffer&& buf, SliceLoaderPtr sliceLoader)
     : Buffer(std::move(buf)),
       _instance(instance),
       _encoding(encoding),
       _classGraphDepthMax(instance->classGraphDepthMax()),
-      _valueFactoryManager(instance->initializationData().valueFactoryManager),
-      _sliceLoader{std::move(sliceLoader)}
+      _sliceLoader{getSliceLoader(std::move(sliceLoader), instance)}
 {
-    if (!_sliceLoader)
-    {
-        const_cast<SliceLoaderPtr&>(_sliceLoader) = _instance->sliceLoader();
-    }
-
-    assert(_valueFactoryManager);
 }
 
 ReferencePtr
@@ -1288,13 +1288,11 @@ Ice::InputStream::initEncaps()
     {
         if (_currentEncaps->encoding == Encoding_1_0)
         {
-            _currentEncaps->decoder =
-                new EncapsDecoder10(this, _currentEncaps, _classGraphDepthMax, _valueFactoryManager);
+            _currentEncaps->decoder = new EncapsDecoder10(this, _currentEncaps, _classGraphDepthMax);
         }
         else
         {
-            _currentEncaps->decoder =
-                new EncapsDecoder11(this, _currentEncaps, _classGraphDepthMax, _valueFactoryManager);
+            _currentEncaps->decoder = new EncapsDecoder11(this, _currentEncaps, _classGraphDepthMax);
         }
     }
 }
@@ -1327,31 +1325,7 @@ Ice::InputStream::EncapsDecoder::readTypeId(bool isIndex)
 ValuePtr
 Ice::InputStream::EncapsDecoder::newInstance(string_view typeId)
 {
-    shared_ptr<Value> v;
-
-    // Try to find a factory registered for the specific type.
-    function<shared_ptr<Value>(string_view)> userFactory = _valueFactoryManager->find(typeId);
-    if (userFactory)
-    {
-        v = userFactory(typeId);
-    }
-
-    // If that fails, invoke the default factory if one has been registered.
-    if (!v)
-    {
-        userFactory = _valueFactoryManager->find("");
-        if (userFactory)
-        {
-            v = userFactory(typeId);
-        }
-    }
-
-    if (!v)
-    {
-        v = _stream->_sliceLoader->newClassInstance(typeId);
-    }
-
-    return v;
+    return _stream->_sliceLoader->newClassInstance(typeId);
 }
 
 void
@@ -1708,13 +1682,13 @@ Ice::InputStream::EncapsDecoder10::readInstance()
     shared_ptr<Value> v;
     while (true)
     {
-        //
-        // For the 1.0 encoding, the type ID for the base Object class
-        // marks the last slice.
-        //
+        // For the 1.0 encoding, the type ID for the base Object class marks the last slice.
         if (_typeId == Value::ice_staticId())
         {
-            throw MarshalException{__FILE__, __LINE__, "cannot find value factory for type ID '" + mostDerivedId + "'"};
+            throw MarshalException{
+                __FILE__,
+                __LINE__,
+                "the Slice loader did not find a class for type ID '" + mostDerivedId + "'"};
         }
 
         v = newInstance(_typeId);
@@ -2024,14 +1998,16 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
             throw MarshalException{
                 __FILE__,
                 __LINE__,
-                "cannot find value factory for type ID '" + _current->typeId + "' and compact format prevents slicing"};
+                "the Slice loader did not find a class for type ID '" + _current->typeId +
+                    "' and compact format prevents slicing"};
         }
         else
         {
             throw MarshalException{
                 __FILE__,
                 __LINE__,
-                "cannot find user exception for type ID '" + _current->typeId + "'"};
+                "the Slice loader did not find a user exception class for type ID '" + _current->typeId +
+                    "' and compact format prevents slicing"};
         }
     }
 

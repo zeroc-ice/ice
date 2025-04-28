@@ -6,8 +6,9 @@ import IceImpl
 /// Stream class to read (unmarshal) Slice types from a sequence of bytes.
 public class InputStream {
     let data: Data
-    let classResolverPrefix: [String]?
     let communicator: Communicator
+
+    let sliceLoader: SliceLoader
 
     private(set) var pos: Int = 0
     private let encoding: EncodingVersion
@@ -40,8 +41,8 @@ public class InputStream {
         bytes: Data
     ) {
         data = bytes
-        classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
         self.communicator = communicator
+        sliceLoader = (communicator as! CommunicatorI).initData.sliceLoader!
         self.encoding = encoding
         classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
         acceptClassCycles = (communicator as! CommunicatorI).acceptClassCycles
@@ -171,12 +172,9 @@ public class InputStream {
     }
 
     /// Reads the start of a class instance or exception slice.
-    ///
-    /// - returns: The Slice type ID for this slice.
-    @discardableResult
-    public func startSlice() throws -> String {
+    public func startSlice() throws {
         precondition(encaps.decoder != nil)
-        return try encaps.decoder.startSlice()
+        try encaps.decoder.startSlice()
     }
 
     /// Indicates that the end of a class instance or exception slice has been reached.
@@ -339,16 +337,13 @@ public class InputStream {
             encaps = Encaps(start: 0, size: data.count, encoding: encoding)
         }
         if encaps.decoder == nil {  // Lazy initialization
-            let valueFactoryManager = communicator.getValueFactoryManager()
             if encaps.encoding_1_0 {
                 encaps.decoder = EncapsDecoder10(
                     stream: self,
-                    valueFactoryManager: valueFactoryManager,
                     classGraphDepthMax: classGraphDepthMax)
             } else {
                 encaps.decoder = EncapsDecoder11(
                     stream: self,
-                    valueFactoryManager: valueFactoryManager,
                     classGraphDepthMax: classGraphDepthMax)
             }
         }
@@ -367,14 +362,13 @@ public class InputStream {
     }
 
     static func throwUOE(expectedType: Value.Type, v: Value) throws {
-        // If the object is an unknown sliced object, we didn't find a value factory.
         if let usv = v as? UnknownSlicedValue {
             throw MarshalException(
-                "cannot find value factory to unmarshal class with type ID '\(usv.ice_id())'")
+                "The Slice loader did not find a class for type ID '\(usv.ice_id())'.")
         }
 
         throw MarshalException(
-            "failed to unmarshal class with type ID '\(expectedType.ice_staticId())': value factory returned a class with type ID '\(v.ice_id())'"
+            "Failed to unmarshal class with type ID '\(expectedType.ice_staticId())': the Slice loader returned a class with type ID '\(v.ice_id())'."
         )
     }
 }
@@ -861,7 +855,6 @@ private struct PatchEntry {
 
 private protocol EncapsDecoder: AnyObject {
     var stream: InputStream { get }
-    var valueFactoryManager: ValueFactoryManager { get }
 
     //
     // Encapsulation attributes for value unmarshaling.
@@ -872,8 +865,6 @@ private protocol EncapsDecoder: AnyObject {
     var typeIdIndex: Int32 { get set }
     var valueList: [Value] { get set }
 
-    var typeIdCache: [String: Value.Type?] { get set }
-
     var classGraphDepthMax: Int32 { get }
     var classGraphDepth: Int32 { get set }
 
@@ -882,7 +873,7 @@ private protocol EncapsDecoder: AnyObject {
 
     func startInstance(type: SliceType)
     func endInstance() throws -> SlicedData?
-    func startSlice() throws -> String
+    func startSlice() throws
     func endSlice() throws
     func skipSlice() throws
 
@@ -912,53 +903,8 @@ extension EncapsDecoder {
         }
     }
 
-    func resolveClass(typeId: String) throws -> Value.Type? {
-        if let cls = typeIdCache[typeId] {
-            return cls
-        } else {
-            var cls: Value.Type?
-            for prefix in stream.classResolverPrefix ?? [] {
-                cls = ClassResolver.resolve(typeId: typeId, prefix: prefix)
-                if cls != nil {
-                    break
-                }
-            }
-            if cls == nil {
-                cls = ClassResolver.resolve(typeId: typeId)
-            }
-            typeIdCache[typeId] = cls
-            return cls
-        }
-    }
-
     func newInstance(typeId: String) throws -> Value? {
-        //
-        // Try to find a factory registered for the specific type.
-        //
-        if let factory = valueFactoryManager.find(typeId) {
-            if let v = factory(typeId) {
-                return v
-            }
-        }
-
-        //
-        // If that fails, invoke the default factory if one has been
-        // registered.
-        //
-        if let factory = valueFactoryManager.find("") {
-            if let v = factory(typeId) {
-                return v
-            }
-        }
-
-        //
-        // Last chance: try to instantiate the class dynamically.
-        //
-        if let cls = try resolveClass(typeId: typeId) {
-            return cls.init()
-        }
-
-        return nil
+        stream.sliceLoader.newInstance(typeId) as? Value
     }
 
     func addPatchEntry(index: Int32, cb: @escaping Callback) throws {
@@ -1053,13 +999,11 @@ extension EncapsDecoder {
 private class EncapsDecoder10: EncapsDecoder {
     // EncapsDecoder members
     unowned let stream: InputStream
-    let valueFactoryManager: ValueFactoryManager
     lazy var patchMap = [Int32: [PatchEntry]]()
     lazy var unmarshaledMap = [Int32: Value?]()
     lazy var typeIdMap = [Int32: String]()
     var typeIdIndex: Int32 = 0
     lazy var valueList = [Value]()
-    lazy var typeIdCache = [String: Value.Type?]()
 
     // Value/exception attributes
     var sliceType: SliceType
@@ -1072,9 +1016,8 @@ private class EncapsDecoder10: EncapsDecoder {
     let classGraphDepthMax: Int32
     var classGraphDepth: Int32
 
-    init(stream: InputStream, valueFactoryManager: ValueFactoryManager, classGraphDepthMax: Int32) {
+    init(stream: InputStream, classGraphDepthMax: Int32) {
         self.stream = stream
-        self.valueFactoryManager = valueFactoryManager
         sliceType = SliceType.NoSlice
         self.classGraphDepthMax = classGraphDepthMax
         classGraphDepth = 0
@@ -1120,25 +1063,8 @@ private class EncapsDecoder10: EncapsDecoder {
         let mostDerivedId = typeId!
 
         while true {
-            //
-            // Look for user exception
-            //
-            var userExceptionType: UserException.Type?
-            for prefix in stream.classResolverPrefix ?? [] {
-                userExceptionType = ClassResolver.resolve(typeId: typeId, prefix: prefix)
-                if userExceptionType != nil {
-                    break
-                }
-            }
-            if userExceptionType == nil {
-                userExceptionType = ClassResolver.resolve(typeId: typeId)
-            }
-
-            //
-            // We found the exception.
-            //
-            if let type = userExceptionType {
-                let ex = type.init()
+            if let obj = stream.sliceLoader.newInstance(typeId) {
+                let ex = obj as! UserException
                 try ex._iceRead(from: stream)
                 if usesClasses {
                     try readPendingValues()
@@ -1186,15 +1112,14 @@ private class EncapsDecoder10: EncapsDecoder {
         return nil
     }
 
-    @discardableResult
-    func startSlice() throws -> String {
+    func startSlice() throws {
         //
         // If first slice, don't read the header, it was already read in
         // readInstance or throwException to find the factory.
         //
         if skipFirstSlice {
             skipFirstSlice = false
-            return typeId
+            return
         }
 
         //
@@ -1214,7 +1139,6 @@ private class EncapsDecoder10: EncapsDecoder {
         if sliceSize < 4 {
             throw MarshalException("unexpected slice size")
         }
-        return typeId
     }
 
     func endSlice() throws {}
@@ -1260,12 +1184,9 @@ private class EncapsDecoder10: EncapsDecoder {
         var v: Value!
 
         while true {
-            //
-            // For the 1.0 encoding, the type ID for the base Object class
-            // marks the last slice.
-            //
+            // For the 1.0 encoding, the type ID for the base Object class marks the last slice.
             if typeId == "::Ice::Object" {
-                throw MarshalException("cannot find value factory for type ID '\(mostDerivedId)'")
+                throw MarshalException("The Slice loader did not find a class for type ID '\(mostDerivedId)'")
             }
 
             v = try newInstance(typeId: typeId)
@@ -1309,20 +1230,17 @@ private class EncapsDecoder10: EncapsDecoder {
 private class EncapsDecoder11: EncapsDecoder {
     // EncapsDecoder members
     unowned let stream: InputStream
-    let valueFactoryManager: ValueFactoryManager
     lazy var patchMap = [Int32: [PatchEntry]]()
     lazy var unmarshaledMap = [Int32: Value?]()
     lazy var typeIdMap = [Int32: String]()
     var typeIdIndex: Int32 = 0
     lazy var valueList = [Value]()
-    lazy var typeIdCache = [String: Value.Type?]()
 
     let classGraphDepthMax: Int32
     var classGraphDepth: Int32
 
     private var current: InstanceData!
     var valueIdIndex: Int32 = 1  // The ID of the next instance to unmarshal.
-    lazy var compactIdCache = [Int32: Value.Type]()  // Cache of compact type IDs.
 
     private struct IndirectPatchEntry {
         var index: Int32
@@ -1359,9 +1277,8 @@ private class EncapsDecoder11: EncapsDecoder {
         }
     }
 
-    init(stream: InputStream, valueFactoryManager: ValueFactoryManager, classGraphDepthMax: Int32) {
+    init(stream: InputStream, classGraphDepthMax: Int32) {
         self.stream = stream
-        self.valueFactoryManager = valueFactoryManager
         self.classGraphDepthMax = classGraphDepthMax
         classGraphDepth = 0
     }
@@ -1400,25 +1317,8 @@ private class EncapsDecoder11: EncapsDecoder {
         try startSlice()
         let mostDerivedId = current.typeId!
         while true {
-            //
-            // Look for user exception
-            //
-            var userExceptionType: UserException.Type?
-            for prefix in stream.classResolverPrefix ?? [] {
-                userExceptionType = ClassResolver.resolve(typeId: current.typeId, prefix: prefix)
-                if userExceptionType != nil {
-                    break
-                }
-            }
-            if userExceptionType == nil {
-                userExceptionType = ClassResolver.resolve(typeId: current.typeId)
-            }
-
-            //
-            // We found the exception.
-            //
-            if let userEx = userExceptionType {
-                let ex = userEx.init()
+            if let obj = stream.sliceLoader.newInstance(current.typeId) {
+                let ex = obj as! UserException
                 try ex._iceRead(from: stream)
                 throw ex
             }
@@ -1451,15 +1351,14 @@ private class EncapsDecoder11: EncapsDecoder {
         return slicedData
     }
 
-    @discardableResult
-    func startSlice() throws -> String {
+    func startSlice() throws {
         //
         // If first slice, don't read the header, it was already read in
         // readInstance or throwException to find the factory.
         //
         if current.skipFirstSlice {
             current.skipFirstSlice = false
-            return current.typeId
+            return
         }
 
         current.sliceFlags = try SliceFlags(rawValue: stream.read())
@@ -1472,8 +1371,8 @@ private class EncapsDecoder11: EncapsDecoder {
         if current.sliceType == .ValueSlice {
             // Must be checked 1st!
             if current.sliceFlags.contains(.FLAG_HAS_TYPE_ID_COMPACT) {
-                current.typeId = ""
                 current.compactId = try stream.readSize()
+                current.typeId = "\(current.compactId!)"
             } else if current.sliceFlags.contains(.FLAG_HAS_TYPE_ID_INDEX)
                 || current.sliceFlags.contains(.FLAG_HAS_TYPE_ID_STRING)
             {
@@ -1481,11 +1380,8 @@ private class EncapsDecoder11: EncapsDecoder {
                     isIndex: current.sliceFlags.contains(.FLAG_HAS_TYPE_ID_INDEX))
                 current.compactId = -1
             } else {
-                //
                 // Only the most derived slice encodes the type ID for the compact format.
-                //
                 current.typeId = ""
-
                 current.compactId = -1
             }
         } else {
@@ -1504,8 +1400,6 @@ private class EncapsDecoder11: EncapsDecoder {
         } else {
             current.sliceSize = 0
         }
-
-        return current.typeId
     }
 
     func endSlice() throws {
@@ -1564,11 +1458,12 @@ private class EncapsDecoder11: EncapsDecoder {
         } else {
             if current.sliceType == .ValueSlice {
                 throw MarshalException(
-                    "cannot find value factory for type ID '\(current.typeId!)' and compact format prevents slicing"
+                    "The Slice loader did not find a class for type ID '\(current.typeId!)' and compact format prevents slicing."
                 )
             } else {
                 throw MarshalException(
-                    "cannot find user exception for type ID '\(current.typeId!)'")
+                    "The Slice loader did not find a user exception class for type ID '\(current.typeId!)' and compact format prevents slicing."
+                )
             }
         }
 
@@ -1654,66 +1549,22 @@ private class EncapsDecoder11: EncapsDecoder {
         try startSlice()
         let mostDerivedId = current.typeId!
 
-        var v: Value?
+        var v: Value? = nil
         while true {
-            var updateCache = false
-
-            if current.compactId != -1 {
-                updateCache = true
-
-                //
-                // Translate a compact (numeric) type ID into a class.
-                //
-                if !compactIdCache.isEmpty {
-                    //
-                    // Check the cache to see if we've already translated the compact type ID into a class.
-                    //
-                    if let cls: Value.Type = compactIdCache[current.compactId] {
-                        v = cls.init()
-                        updateCache = false
-                    }
-                }
-
-                //
-                // If we haven't already cached a class for the compact ID, then try to translate the
-                // compact ID into a type ID.
-                //
-                if v == nil {
-                    current.typeId = TypeIdResolver.resolve(compactId: current.compactId) ?? ""
-                }
-            }
-
-            if v == nil, !current.typeId.isEmpty {
+            if !current.typeId.isEmpty {
                 v = try newInstance(typeId: current.typeId)
-            }
-
-            if let v = v {
-                if updateCache {
-                    precondition(current.compactId != -1)
-                    compactIdCache[current.compactId] = type(of: v)
+                if v != nil {
+                    break
                 }
-
-                //
-                // We have an instance, get out of this loop.
-                //
-                break
             }
 
-            //
             // Slice off what we don't understand.
-            //
             try skipSlice()
 
-            //
-            // If this is the last slice, keep the instance as an opaque
-            // UnknownSlicedValue object.
-            //
+            // If this is the last slice, keep the instance as an opaque UnknownSlicedValue object.
             if current.sliceFlags.contains(.FLAG_IS_LAST_SLICE) {
-                //
-                // Provide a factory with an opportunity to supply the instance.
-                // We pass the "::Ice::Object" ID to indicate that this is the
-                // last chance to preserve the instance.
-                //
+                // Provide the Slice loader with an opportunity to supply the instance.
+                // We pass the "::Ice::Object" ID to indicate that this is the last chance to preserve the instance.
                 v = try newInstance(typeId: "::Ice::Object")
                 if v == nil {
                     v = UnknownSlicedValue(unknownTypeId: mostDerivedId)

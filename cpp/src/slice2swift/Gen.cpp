@@ -241,52 +241,37 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     ClassDefPtr base = p->base();
 
-    out << sp;
-    out << nl << "@_documentation(visibility: internal)";
-    out << nl << "public class " << removeEscaping(name)
-        << "_TypeResolver: " << getUnqualified("Ice.ValueTypeResolver", swiftModule);
-    out << sb;
-    out << nl << "public override func type() -> " << getUnqualified("Ice.Value.Type", swiftModule);
-    out << sb;
-    out << nl << "return " << name << ".self";
-    out << eb;
-    out << eb;
-
-    if (p->compactId() != -1)
-    {
-        // For each Value class using a compact id we generate an extension method in TypeIdResolver.
-        out << sp;
-        out << nl << "public extension " << getUnqualified("Ice.TypeIdResolver", swiftModule);
-        out << sb;
-        out << nl << "@objc static func TypeId_" << p->compactId() << "() -> Swift.String";
-        out << sb;
-        out << nl << "return \"" << p->scoped() << "\"";
-        out << eb;
-        out << eb;
-    }
-
-    // For each Value class we generate an extension method in ClassResolver.
-    // This function name is based off of the Slice type ID, not the mapped name.
-    ostringstream factory;
-    factory << prefix;
+    // For each Value class we generate an extension method in DefaultSliceLoader.
+    // This method name is based off of the Slice type ID, not the mapped name.
+    ostringstream methodName;
+    methodName << "resolveTypeId" << prefix << "_";
     vector<string> parts = splitScopedName(p->scoped());
     for (auto it = parts.begin(); it != parts.end();)
     {
-        factory << (*it);
+        methodName << (*it);
         if (++it != parts.end())
         {
-            factory << "_";
+            methodName << "_";
         }
     }
 
     out << sp;
-    out << nl << "public extension " << getUnqualified("Ice.ClassResolver", swiftModule);
+    out << nl << "public extension " << getUnqualified("Ice.DefaultSliceLoader", swiftModule);
     out << sb;
-    out << nl << "@objc static func " << factory.str() << "() -> "
-        << getUnqualified("Ice.ValueTypeResolver", swiftModule);
+    out << nl << "@objc static func " << methodName.str() << "() -> AnyObject.Type";
     out << sb;
-    out << nl << "return " << removeEscaping(name) << "_TypeResolver()";
+    out << nl << name << ".self";
     out << eb;
+    if (p->compactId() != -1)
+    {
+        // Same for compact ID.
+        out << sp;
+        out << nl << "@objc static func resolveTypeId" << prefix << "_" << to_string(p->compactId())
+            << "() -> AnyObject.Type";
+        out << sb;
+        out << nl << name << ".self";
+        out << eb;
+    }
     out << eb;
 
     out << sp;
@@ -391,38 +376,26 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     const string prefix = getClassResolverPrefix(p->unit());
 
-    // For each UserException class we generate an extension in ClassResolver.
-    // This function name is based off of the Slice type ID, not the mapped name.
-    ostringstream factory;
-    factory << prefix;
+    // For each UserException class we generate an extension in DefaultSliceLoader.
+    // This method name is based off of the Slice type ID, not the mapped name.
+    ostringstream methodName;
+    methodName << "resolveTypeId" << prefix << "_";
     vector<string> parts = splitScopedName(p->scoped());
     for (auto it = parts.begin(); it != parts.end();)
     {
-        factory << (*it);
+        methodName << (*it);
         if (++it != parts.end())
         {
-            factory << "_";
+            methodName << "_";
         }
     }
 
     out << sp;
-    out << nl << "@_documentation(visibility: internal)";
-    out << nl << "public class " << removeEscaping(name)
-        << "_TypeResolver: " << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
+    out << nl << "public extension " << getUnqualified("Ice.DefaultSliceLoader", swiftModule);
     out << sb;
-    out << nl << "public override func type() -> " << getUnqualified("Ice.UserException.Type", swiftModule);
+    out << nl << "@objc static func " << methodName.str() << "() -> AnyObject.Type";
     out << sb;
-    out << nl << "return " << name << ".self";
-    out << eb;
-    out << eb;
-
-    out << sp;
-    out << nl << "public extension " << getUnqualified("Ice.ClassResolver", swiftModule);
-    out << sb;
-    out << nl << "@objc static func " << factory.str() << "() -> "
-        << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
-    out << sb;
-    out << nl << "return " << removeEscaping(name) << "_TypeResolver()";
+    out << nl << name << ".self";
     out << eb;
     out << eb;
 

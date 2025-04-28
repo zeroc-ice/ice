@@ -7,11 +7,10 @@ import java.io.StringWriter;
 
 class Ex {
     public static <T extends Value> void throwUOE(Class<T> expectedType, Value v) {
-        // If the object is an unknown sliced object, we didn't find a value factory.
         if (v instanceof UnknownSlicedValue) {
             var usv = (UnknownSlicedValue) v;
             throw new MarshalException(
-                "Cannot find value factory to unmarshal class with type ID '"
+                "The Slice loader did not find a class for type ID '"
                     + usv.ice_id()
                     + "'.");
         }
@@ -27,17 +26,16 @@ class Ex {
         throw new MarshalException(
             "Failed to unmarshal class with type ID '"
                 + expected
-                + "': value factory returned class with type ID '"
+                + "': the Slice loader returned class with type ID '"
                 + type
                 + "'.");
     }
 
     public static void throwUOE(String expectedType, Value v) {
-        // If the object is an unknown sliced object, we didn't find a value factory.
         if (v instanceof UnknownSlicedValue) {
             var usv = (UnknownSlicedValue) v;
             throw new MarshalException(
-                "Cannot find value factory to unmarshal class with type ID '"
+                "The Slice loader did not find a class for type ID '"
                     + usv.ice_id()
                     + "'.");
         }
@@ -46,7 +44,7 @@ class Ex {
         throw new MarshalException(
             "Failed to unmarshal class with type ID '"
                 + expectedType
-                + "': value factory returned class with type ID '"
+                + "': the Slice loader returned class with type ID '"
                 + type
                 + "'.");
     }

@@ -123,7 +123,8 @@
         <property name="ProgramName" languages="cpp,csharp,java" />
         <property name="RetryIntervals" languages="all" default="0" />
         <property name="ServerIdleTime" languages="cpp,csharp,java" default="0" />
-        <property name="SliceLoader.NotFoundCacheSize" languages="java" default="100" />
+        <!-- SliceLoader.NotFoundCacheSize: cpp is a stand-in for swift and matlab -->
+        <property name="SliceLoader.NotFoundCacheSize" languages="cpp,java" default="100" />
         <property name="SOCKSProxyHost" languages="cpp,csharp,java" />
         <property name="SOCKSProxyPort" languages="cpp,csharp,java" default="1080" />
         <property name="StdErr" languages="cpp,csharp,java" />
@@ -158,7 +159,8 @@
         <property name="Warn.Dispatch" languages="all" default="1" />
         <property name="Warn.Endpoints" languages="all" default="1" />
         <property name="Warn.Executor" languages="cpp,csharp,java" default="1" />
-        <property name="Warn.SliceLoader" languages="java" default="1" />
+        <!-- Warn.SliceLoader: cpp is a stand-in for swift and matlab -->
+        <property name="Warn.SliceLoader" languages="cpp,java" default="1" />
         <property name="Warn.UnusedProperties" languages="all" default="0" />
         <property name="CacheMessageBuffers" languages="csharp,java" default="2" />
     </section>

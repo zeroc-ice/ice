@@ -9,7 +9,6 @@
 #include "Ice/Proxy.h"
 #include "Ice/SlicedData.h"
 #include "Ice/StringConverter.h"
-#include "Ice/ValueFactory.h"
 #include "Instance.h"
 #include "TraceUtil.h"
 

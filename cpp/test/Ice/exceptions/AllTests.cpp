@@ -229,20 +229,6 @@ allTests(Test::TestHelper* helper)
         cout << "ok" << endl;
     }
 
-    cout << "testing value factory registration exception... " << flush;
-    {
-        communicator->getValueFactoryManager()->add([](string_view) { return nullptr; }, "x");
-        try
-        {
-            communicator->getValueFactoryManager()->add([](string_view) { return nullptr; }, "x");
-            test(false);
-        }
-        catch (const Ice::AlreadyRegisteredException&)
-        {
-        }
-    }
-    cout << "ok" << endl;
-
     ThrowerPrx thrower(communicator, "thrower:" + helper->getTestEndpoint());
 
     cout << "catching exact types... " << flush;

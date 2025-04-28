@@ -283,8 +283,8 @@ class ConnectionRefusedException(ConnectFailedException):
 class AlreadyRegisteredException(LocalException):
     """
     An attempt was made to register something more than once with the Ice run time. This exception is raised if an
-    attempt is made to register a servant, servant locator, facet, value factory, plug-in, object adapter, object, or
-    user exception factory more than once for the same ID.
+    attempt is made to register a servant, servant locator, facet, plug-in, or object adapter more than once for the
+    same ID.
     """
 
     def __init__(self, kindOfObject, id, msg):
@@ -304,7 +304,6 @@ class AlreadyRegisteredException(LocalException):
         - "object"
         - "default servant"
         - "servant locator"
-        - "value factory"
         - "plugin"
         - "object adapter"
         - "object adapter with router"
@@ -410,10 +409,9 @@ class NoEndpointException(LocalException):
 class NotRegisteredException(LocalException):
     """
     An attempt was made to find or deregister something that is not registered with the Ice run time or Ice locator.
-    This exception is raised if an attempt is made to remove a servant, servant locator, facet, value factory, plug-in,
-    object adapter, object, or user exception factory that is not currently registered. It's also raised if the Ice
-    locator can't find an object or object adapter when resolving an indirect proxy or when an object adapter is
-    activated.
+    This exception is raised if an attempt is made to remove a servant, servant locator, facet, plug-in, or object
+    adapter that is not currently registered. It's also raised if the Ice locator can't find an object or object adapter
+    when resolving an indirect proxy or when an object adapter is activated.
     """
 
     def __init__(self, kindOfObject, id, msg):
@@ -433,7 +431,6 @@ class NotRegisteredException(LocalException):
         - "object"
         - "default servant"
         - "servant locator"
-        - "value factory"
         - "plugin"
         - "object adapter"
         - "object adapter with router"

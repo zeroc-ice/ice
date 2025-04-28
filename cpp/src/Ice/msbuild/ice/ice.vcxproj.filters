@@ -474,9 +474,6 @@
     <ClCompile Include="..\..\Value.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ValueFactoryManagerI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\VersionFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -513,9 +510,7 @@
     <ClCompile Include="..\..\UserException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ValueFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+
     <ClCompile Include="Win32\Debug\Context.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
@@ -976,9 +971,7 @@
     <ClInclude Include="..\..\..\..\include\Ice\ValueF.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Ice\ValueFactory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+
     <ClInclude Include="..\..\SSL\RFC2253.h">
       <Filter>Source Files\SSL</Filter>
     </ClInclude>

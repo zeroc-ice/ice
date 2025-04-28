@@ -4,7 +4,7 @@
 
 #include "Ice/BuiltinSequences.ice"
 
-[["swift:class-resolver-prefix:IceStrem"]]
+[["swift:class-resolver-prefix:IceStream"]]
 module Test
 {
     enum MyEnum

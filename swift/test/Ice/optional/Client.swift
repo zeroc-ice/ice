@@ -8,12 +8,13 @@ public class Client: TestHelperI {
         let properties = try createTestProperties(args)
         var initData = Ice.InitializationData()
         initData.properties = properties
-        initData.classResolverPrefix = ["IceOptional"]
+        let customSliceLoader = CustomSliceLoader(helper: self)
+        initData.sliceLoader = CompositeSliceLoader(customSliceLoader, DefaultSliceLoader("IceOptional"))
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()
         }
-        let initial = try await allTests(self)
+        let initial = try await allTests(self, customSliceLoader: customSliceLoader)
         try await initial.shutdown()
     }
 }

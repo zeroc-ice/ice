@@ -71,7 +71,7 @@ class Callback(CallbackBase):
 
     def exception_SUnknownAsObject10(self, f):
         test(f.exception() is not None)
-        test("cannot find value factory for type ID '::Test::SUnknown'" in str(f.exception()))
+        test("the Slice loader did not find a class for type ID '::Test::SUnknown'" in str(f.exception()))
         self.called()
 
     def response_SUnknownAsObject11(self, f):
