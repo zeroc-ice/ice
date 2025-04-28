@@ -162,6 +162,22 @@ private func initializeImpl(
 
         precondition(initData.logger != nil && initData.properties != nil)
 
+        if let sliceLoader = initData.sliceLoader {
+            initData.sliceLoader = CompositeSliceLoader(sliceLoader, DefaultSliceLoader())
+        } else {
+            initData.sliceLoader = DefaultSliceLoader()
+        }
+
+        let notFoundCacheSize = try initData.properties!.getIcePropertyAsInt("Ice.SliceLoader.NotFoundCacheSize")
+        if notFoundCacheSize > 0 {
+            let cacheFullLogger =
+                try initData.properties!.getIcePropertyAsInt("Ice.Warn.SliceLoader") > 0 ? initData.logger : nil
+            initData.sliceLoader = NotFoundSliceLoaderDecorator(
+                initData.sliceLoader!,
+                cacheSize: notFoundCacheSize,
+                logger: cacheFullLogger)
+        }
+
         let communicator = CommunicatorI(handle: handle, initData: initData)
         if remArgs == nil {
             return (communicator, [])

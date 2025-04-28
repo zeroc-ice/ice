@@ -163,6 +163,7 @@ const Property IcePropsData[] =
     Property{"ProgramName", "", false, false, nullptr},
     Property{"RetryIntervals", "0", false, false, nullptr},
     Property{"ServerIdleTime", "0", false, false, nullptr},
+    Property{"SliceLoader.NotFoundCacheSize", "100", false, false, nullptr},
     Property{"SOCKSProxyHost", "", false, false, nullptr},
     Property{"SOCKSProxyPort", "1080", false, false, nullptr},
     Property{"StdErr", "", false, false, nullptr},
@@ -194,6 +195,7 @@ const Property IcePropsData[] =
     Property{"Warn.Dispatch", "1", false, false, nullptr},
     Property{"Warn.Endpoints", "1", false, false, nullptr},
     Property{"Warn.Executor", "1", false, false, nullptr},
+    Property{"Warn.SliceLoader", "1", false, false, nullptr},
     Property{"Warn.UnusedProperties", "0", false, false, nullptr}
 };
 
@@ -203,7 +205,7 @@ const PropertyArray PropertyNames::IceProps
     .prefixOnly=false,
     .isOptIn=false,
     .properties=IcePropsData,
-    .length=85
+    .length=87
 };
 
 const Property IceMXPropsData[] =

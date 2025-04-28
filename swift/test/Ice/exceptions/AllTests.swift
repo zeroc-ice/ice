@@ -71,14 +71,6 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     // adapter.deactivate()
     output.writeLine("ok")
 
-    output.write("testing object factory registration exception... ")
-    try communicator.getValueFactoryManager().add(factory: { _ in nil }, id: "::x")
-    do {
-        try communicator.getValueFactoryManager().add(factory: { _ in nil }, id: "::x")
-        try test(false)
-    } catch is Ice.AlreadyRegisteredException {}
-    output.writeLine("ok")
-
     output.write("testing stringToProxy... ")
     let ref = "thrower:\(helper.getTestEndpoint(num: 0))"
     let base = try communicator.stringToProxy(ref)!

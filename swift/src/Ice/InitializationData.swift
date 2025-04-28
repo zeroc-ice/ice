@@ -8,7 +8,7 @@ public struct InitializationData {
     /// The logger for the communicator.
     public var logger: Logger?
 
-    public var classResolverPrefix: [String]?
+    public var sliceLoader: SliceLoader?
 
     public init() {}
 }

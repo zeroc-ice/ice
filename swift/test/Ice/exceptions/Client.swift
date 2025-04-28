@@ -10,7 +10,7 @@ public class Client: TestHelperI {
         properties.setProperty(key: "Ice.MessageSizeMax", value: "10")  // 10KB max
         var initData = Ice.InitializationData()
         initData.properties = properties
-        initData.classResolverPrefix = ["IceExceptions"]
+        initData.sliceLoader = DefaultSliceLoader("IceExceptions")
         let communicator = try initialize(initData)
         communicator.getProperties().setProperty(
             key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))

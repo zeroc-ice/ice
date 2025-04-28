@@ -7,7 +7,7 @@ class Server: TestHelperI {
     override public func run(args: [String]) async throws {
         var initData = Ice.InitializationData()
         initData.properties = try createTestProperties(args)
-        initData.classResolverPrefix = ["IceServantLocator"]
+        initData.sliceLoader = DefaultSliceLoader("IceServantLocator")
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()

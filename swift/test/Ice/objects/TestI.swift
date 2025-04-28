@@ -33,6 +33,21 @@ public class DI: D {
     }
 }
 
+public class CustomSliceLoader: SliceLoader {
+    public func newInstance(_ typeId: String) -> AnyObject? {
+        switch typeId {
+        case "::Test::B":
+            return BI()
+        case "::Test::C":
+            return CI()
+        case "::Test::D":
+            return DI()
+        default:
+            return nil
+        }
+    }
+}
+
 class InitialI: Initial {
     var _adapter: Ice.ObjectAdapter
     var _b1: B

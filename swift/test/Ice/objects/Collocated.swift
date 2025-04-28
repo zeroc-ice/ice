@@ -10,15 +10,11 @@ class Collocated: TestHelperI {
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
         var initData = Ice.InitializationData()
         initData.properties = properties
-        initData.classResolverPrefix = ["IceObjects"]
+        initData.sliceLoader = CompositeSliceLoader(CustomSliceLoader(), DefaultSliceLoader("IceObjects"))
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()
         }
-
-        try communicator.getValueFactoryManager().add(factory: { _ in BI() }, id: "::Test::B")
-        try communicator.getValueFactoryManager().add(factory: { _ in CI() }, id: "::Test::C")
-        try communicator.getValueFactoryManager().add(factory: { _ in DI() }, id: "::Test::D")
 
         communicator.getProperties().setProperty(
             key: "TestAdapter.Endpoints",
