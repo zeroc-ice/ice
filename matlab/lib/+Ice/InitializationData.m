@@ -4,6 +4,7 @@ classdef (Sealed) InitializationData
     % InitializationData Properties:
     %   properties_ - The properties of the communicator.
     %   sliceLoader - The Slice loader, used to unmarshal Slice classes and exceptions.
+
     properties
         % properties_ (Ice.Properties) - The properties for the communicator.
         properties_ Ice.Properties
