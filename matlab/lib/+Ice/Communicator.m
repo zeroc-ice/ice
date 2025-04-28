@@ -37,11 +37,12 @@ classdef Communicator < IceInternal.WrapperObject
             end
             obj@IceInternal.WrapperObject(impl);
 
-            % The caller (initialize) consumed initData.properties_ and we don't use them at all in this class.
+            % The caller (initialize) consumes initData.properties_ and we don't use them at all in this class.
             obj.initData = initData;
-            if obj.initData.sliceLoader ~= Ice.DefaultSliceLoader.Instance
+
+            if obj.initData.sliceLoader ~= IceInternal.DefaultSliceLoader.Instance
                 obj.initData.sliceLoader = Ice.CompositeSliceLoader(obj.initData.sliceLoader, ...
-                    Ice.DefaultSliceLoader.Instance);
+                    IceInternal.DefaultSliceLoader.Instance);
             end
 
             notFoundCacheSize = obj.getProperties().getIcePropertyAsInt('Ice.SliceLoader.NotFoundCacheSize');
@@ -53,7 +54,7 @@ classdef Communicator < IceInternal.WrapperObject
                     cacheFullLogger = [];
                 end
 
-                obj.initData.sliceLoader = Ice.NotFoundSliceLoaderDecorator(...
+                obj.initData.sliceLoader = IceInternal.NotFoundSliceLoaderDecorator(...
                     obj.initData.sliceLoader, notFoundCacheSize, cacheFullLogger);
             end
 

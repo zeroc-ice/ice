@@ -21,6 +21,6 @@ classdef (Sealed) InitializationData
         properties_ Ice.Properties
 
         % sliceLoader - The Slice loader, used to unmarshal Slice classes and exceptions.
-        sliceLoader Ice.SliceLoader = Ice.DefaultSliceLoader.Instance
+        sliceLoader Ice.SliceLoader = IceInternal.DefaultSliceLoader.Instance
     end
 end

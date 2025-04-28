@@ -31,7 +31,7 @@ classdef (Sealed, Hidden) DefaultSliceLoader < Ice.SliceLoader
     end
     properties(Constant)
         % DefaultSliceLoader singleton instance.
-        Instance = Ice.DefaultSliceLoader()
+        Instance = IceInternal.DefaultSliceLoader()
         CreateEmptyArray = @() []
     end
     properties(Access = private)
