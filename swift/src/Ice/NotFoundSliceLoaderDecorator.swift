@@ -27,21 +27,23 @@ final class NotFoundSliceLoaderDecorator: SliceLoader {
 
         let instance = decoratee.newInstance(typeId)
         if instance == nil {
+            var cacheFullLogger: Logger? = nil
             mutex.sync {
                 if notFoundSet.count < cacheSize {
                     notFoundSet.insert(typeId)
                 } else {
-                    if let logger = logger {
-                        self.logger = nil  // we log once
-                        logger.warning(
-                            """
-                            SliceLoader: Type ID '\(typeId)' not found and the not found cache is full. \
-                            The cache size is set to \(cacheSize). You can increase the cache size by setting property \
-                            Ice.SliceLoader.NotFoundCacheSize.
-                            """
-                        )
-                    }
+                    cacheFullLogger = logger
+                    logger = nil  // we log only once outside the synchronization block
                 }
+            }
+            if let cacheFullLogger = cacheFullLogger {
+                cacheFullLogger.warning(
+                    """
+                    SliceLoader: Type ID '\(typeId)' not found and the not found cache is full. \
+                    The cache size is set to \(cacheSize). You can increase the cache size by setting property \
+                    Ice.SliceLoader.NotFoundCacheSize.
+                    """
+                )
             }
         }
         return instance
