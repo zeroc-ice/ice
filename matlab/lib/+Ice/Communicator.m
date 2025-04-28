@@ -38,7 +38,13 @@ classdef Communicator < IceInternal.WrapperObject
                 throw(LocalException('Ice:ArgumentException', 'invalid argument'));
             end
             obj@IceInternal.WrapperObject(impl);
+
+            % The caller (initialize) consumed initData.properties_ and we don't use them at all in this class.
             obj.initData = initData;
+            if obj.initData.sliceLoader ~= Ice.DefaultSliceLoader.Instance
+                obj.initData.sliceLoader = Ice.CompositeSliceLoader(obj.initData.sliceLoader, ...
+                    Ice.DefaultSliceLoader.Instance);
+            end
 
             obj.valueFactoryManager = IceInternal.ValueFactoryManagerI();
 
@@ -338,6 +344,9 @@ classdef Communicator < IceInternal.WrapperObject
         end
         function r = getFormat(obj)
             r = obj.format;
+        end
+        function r = getSliceLoader(obj)
+            r = obj.initData.sliceLoader;
         end
     end
     properties(Access=private)

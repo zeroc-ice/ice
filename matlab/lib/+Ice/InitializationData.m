@@ -5,6 +5,7 @@ classdef (Sealed) InitializationData
     %
     % InitializationData Properties:
     %   properties_ - The properties for the communicator.
+    %   sliceLoader - The Slice loader, used to unmarshal Slice classes and exceptions.
 
     % Copyright (c) ZeroC, Inc.
 
@@ -12,10 +13,14 @@ classdef (Sealed) InitializationData
         function r = clone(obj)
             r = Ice.InitializationData();
             r.properties_ = obj.properties_;
+            r.sliceLoader = obj.sliceLoader;
         end
     end
     properties
         % properties_ - The properties for the communicator.
-        properties_
+        properties_ Ice.Properties
+
+        % sliceLoader - The Slice loader, used to unmarshal Slice classes and exceptions.
+        sliceLoader Ice.SliceLoader = Ice.DefaultSliceLoader.Instance
     end
 end
