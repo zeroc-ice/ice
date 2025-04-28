@@ -126,7 +126,7 @@ rewrite {
         '**/*.gradle',
         '**/*.kts',
         // I have been explicitly instructed not to modify the below file.
-        'com/zeroc/Ice/PropertyNames.java',
+        'java/src/com.zeroc.ice/src/main/java/com/zeroc/Ice/PropertyNames.java',
         // These are all generated files, and thus should not be subject to modification from OpenRewrite.
         '**/generated/**/*',
         // The following four files all have issues regarding the import shortener because of Ice object names.
