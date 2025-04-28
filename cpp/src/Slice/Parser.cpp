@@ -586,7 +586,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                     { return ex->isBaseOf(exceptionTarget) || ex->scoped() == exceptionTarget->scoped(); };
                     if (std::none_of(exceptionSpec.begin(), exceptionSpec.end(), exceptionCheck))
                     {
-                        const string msg = "'" + actualTag + " " + name + "': this exception is not listed in nor" +
+                        const string msg = "'" + actualTag + " " + name + "': this exception is not listed in nor " +
                                            "derived from any exception in this operation's specification";
                         p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                     }
