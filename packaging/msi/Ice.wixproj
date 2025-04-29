@@ -26,21 +26,17 @@
     <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
   </ItemGroup>
 
-  <!-- Files from the NuGet build -->
+  <!-- Files from the source build -->
   <ItemGroup>
     <Slices Include="$(PackageDir)slice\**\*.ice" />
 
-    <Tools Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\ice2slice.exe" />
-
-    <Libraries Include="$(PackageDir)build\native\bin\x64\Release\*.dll" />
-    <Executables Include="$(PackageDir)build\native\bin\x64\Release\*.exe" />
+    <Libraries Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\*.dll" />
+    <Executables Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\*.exe"
+                 Exclude="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\slice2*.exe" />
   </ItemGroup>
 
-  <!-- Copy required files from the NuGet package before MSI build -->
+  <!-- Copy required files to staging before MSI build -->
   <Target Name="CopyToStaging" BeforeTargets="CoreCompile">
-
-    <Error Condition="!Exists('$(PackageDir)ZeroC.Ice.Cpp.nupkg')"
-      Text="PackageDir must be set to the location of ZeroC.Ice.Cpp NuGet package." />
 
     <Error Condition="!Exists('$(MSBuildThisFileDirectory)..\..\java\lib\icegridgui.jar')"
       Text="The IceGridGUI must be build before creating the MSI package." />
