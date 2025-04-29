@@ -51,6 +51,9 @@ namespace
 
     void initScanner();
     void preAction();
+    void pushState(int newState);
+    void popState();
+
     void yynoreturn fatalError(const char* msg);
 }
 
@@ -124,7 +127,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* ========== Literals ========== */
   /* Matches the start of a double-quoted string literal. */
 "\"" {
-    yy_push_state(STRING_LITERAL);
+    pushState(STRING_LITERAL);
     startLocation(yylloc);
 
     StringTokPtr str = make_shared<StringTok>();
@@ -226,7 +229,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches an unescaped newline in a string literal, and issues an error. */
 <STRING_LITERAL>\n {
-    yy_pop_state();
+    popState();
     endLocation(yylloc);
     nextLine();
 
@@ -255,7 +258,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches the end of a double-quoted string literal, but only while scanning a string literal. Flex always prefers
    * to match the longest string it can, so quotes preceeded with a literal '\' will match the rules above this one. */
 <STRING_LITERAL>"\"" {
-    yy_pop_state();
+    popState();
     endLocation(yylloc);
 
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
@@ -265,7 +268,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches EOF, but only while scanning a string literal. */
 <STRING_LITERAL><<EOF>> {
-    yy_pop_state();
+    popState();
     endLocation(yylloc);
 
     currentUnit->error("encountered EOF while scanning a string literal");
@@ -333,12 +336,12 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches the start of a C style doc-comment, and switches the scanner to the C_DOC_COMMENT state.
    * Specifically we match a forward slash and 2 stars when they are _not_ followed by either a '/' or '*' character. */
 <*>"/**"/[^/*] {
-    yy_push_state(C_DOC_COMMENT);
+    pushState(C_DOC_COMMENT);
 }
 
   /* Matches the start of a C style comment, and switches the scanner to the C_COMMENT state. */
 <*>"/*" {
-    yy_push_state(C_COMMENT);
+    pushState(C_COMMENT);
 }
 
   /* Matches any character except for newlines and adds them to the comments. '*' are matched one at a time to ensure
@@ -356,7 +359,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches the end of a C style comment, and reverts the scanner state to what it previously was. */
 <C_COMMENT,C_DOC_COMMENT>"*/" {
-    yy_pop_state();
+    popState();
 
     string comment(yytext);
     // The last 2 characters are the '*/' matched by this rule.
@@ -368,7 +371,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Handles reaching EOF while scanning a C style comment by issuing a warning but continuing normally. */
 <C_COMMENT,C_DOC_COMMENT><<EOF>> {
-    yy_pop_state();
+    popState();
 
     currentUnit->error("encountered EOF while scanning a comment");
     if (YY_START == C_DOC_COMMENT)
@@ -381,12 +384,12 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches the empty preprocessor directive. */
 <*>^{preprocessor_prefix} {
-    yy_push_state(PREPROCESS);
+    pushState(PREPROCESS);
 }
 
   /* Matches a line preprocessor directive, but missing a line number. */
 <*>^{preprocessor_prefix}line {
-    yy_push_state(PREPROCESS);
+    pushState(PREPROCESS);
     currentUnit->error("missing line number in line preprocessor directive");
 }
 
@@ -396,13 +399,13 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     int includeAction = scanPosition(yytext);
     if (yylineno == 0 || includeAction == 1) // Push: Indicated the scanner has started scanning a new file.
     {
-        yy_push_state(INITIAL);
+        pushState(INITIAL);
     }
     else if (includeAction == 2) // Pop: Indicates the scanner has completed scanning a file.
     {
-        yy_pop_state();
+        popState();
     }
-    yy_push_state(PREPROCESS);
+    pushState(PREPROCESS);
 }
 
   /* Matches any non white-space character. This is a catch-all to report any invalid characters
@@ -414,25 +417,25 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches a new-line character or EOF. This signals the end of the preprocessor statement. */
 <PREPROCESS>\n      |
 <PREPROCESS><<EOF>> {
-    yy_pop_state();
+    popState();
     nextLine();
 }
 
   /* ========== Metadata ========== */
 
 "[" {
-    yy_push_state(METADATA);
+    pushState(METADATA);
     return ICE_METADATA_OPEN;
 }
 
 "[[" {
-    yy_push_state(METADATA);
+    pushState(METADATA);
     return ICE_FILE_METADATA_OPEN;
 }
 
   /* Matches the start of a metadata string, then switches the scanner into STRING_LITERAL mode. */
 <METADATA>"\"" {
-    yy_push_state(STRING_LITERAL);
+    pushState(STRING_LITERAL);
     startLocation(yylloc);
 
     StringTokPtr str = make_shared<StringTok>();
@@ -451,12 +454,12 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 }
 
 <METADATA>"]" {
-    yy_pop_state();
+    popState();
     return ICE_METADATA_CLOSE;
 }
 
 <METADATA>"]]" {
-    yy_pop_state();
+    popState();
     return ICE_FILE_METADATA_CLOSE;
 }
 
@@ -690,6 +693,36 @@ namespace
         if (YY_START == INITIAL)
         {
             BEGIN(SLICE);
+        }
+    }
+
+    void printStateStack()
+    {
+        fprintf(stderr, "current state stack [ " );
+        for (int i = 0; i < yy_start_stack_ptr; i++)
+        {
+            fprintf(stderr, "%d ", yy_start_stack[i]);
+        }
+        fprintf(stderr, "(%d) ]\n", YY_START);
+    }
+
+    void pushState(int newState)
+    {
+        yy_push_state(newState);
+        if (yy_flex_debug)
+        {
+            fprintf(stderr, "--pushed: ");
+            printStateStack();
+        }
+    }
+
+    void popState()
+    {
+        yy_pop_state();
+        if (yy_flex_debug)
+        {
+            fprintf(stderr, "--popped: ");
+            printStateStack();
         }
     }
 
