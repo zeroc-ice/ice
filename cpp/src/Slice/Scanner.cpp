@@ -3332,12 +3332,12 @@ namespace
 
     void printStateStack()
     {
-        fprintf(stderr, "current state stack [ " );
+        (void)fprintf(stderr, "current state stack [ " );
         for (int i = 0; i < yy_start_stack_ptr; i++)
         {
-            fprintf(stderr, "%d ", yy_start_stack[i]);
+            (void)fprintf(stderr, "%d ", yy_start_stack[i]);
         }
-        fprintf(stderr, "(%d) ]\n", YY_START);
+        (void)fprintf(stderr, "(%d) ]\n", YY_START);
     }
 
     void pushState(int newState)
@@ -3345,7 +3345,7 @@ namespace
         yy_push_state(newState);
         if (yy_flex_debug)
         {
-            fprintf(stderr, "--pushed: ");
+            (void)fprintf(stderr, "--pushed: ");
             printStateStack();
         }
     }
@@ -3355,7 +3355,7 @@ namespace
         yy_pop_state();
         if (yy_flex_debug)
         {
-            fprintf(stderr, "--popped: ");
+            (void)fprintf(stderr, "--popped: ");
             printStateStack();
         }
     }
