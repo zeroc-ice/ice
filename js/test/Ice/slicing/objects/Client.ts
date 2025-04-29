@@ -5,22 +5,8 @@ import { Test } from "./Test.js";
 import { TestHelper } from "../../../Common/TestHelper.js";
 
 const test = TestHelper.test;
-
 export class Client extends TestHelper {
     async allTests() {
-        class PreservedI extends Test.Preserved {
-            static counter: number = 0;
-
-            constructor() {
-                super();
-                ++PreservedI.counter;
-            }
-        }
-
-        function PreservedFactoryI(id: string) {
-            return id === Test.Preserved.ice_staticId() ? new PreservedI() : null;
-        }
-
         const out = this.getWriter();
         const communicator = this.communicator();
 
@@ -592,15 +578,6 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("preserved classes... ");
-        //
-        // Register a factory in order to substitute our own subclass of Preserved. This provides
-        // an easy way to determine how many unmarshaled instances currently exist.
-        //
-        // TODO: We have to install this now (even though it's not necessary yet), because otherwise
-        // the Ice run time will install its own internal factory for Preserved upon receiving the
-        // first instance.
-        //
-        communicator.getValueFactoryManager().add(PreservedFactoryI, Test.Preserved.ice_staticId());
         {
             //
             // Server knows the most-derived class PDerived.

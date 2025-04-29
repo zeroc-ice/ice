@@ -18,7 +18,7 @@ declare module "@zeroc/ice" {
             /**
              * Constructs an input stream that uses the given encoding version, the given communicator, and the given buffer.
              *
-             * @param communicator The communicator that provides the logger, and the value factory manager.
+             * @param communicator The communicator that provides the logger.
              * @param encoding The encoding version.
              * @param buffer The buffer containing the encoded data.
              */

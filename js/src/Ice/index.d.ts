@@ -24,7 +24,6 @@
 /// <reference path="./EndpointSelectionType.d.ts" />
 /// <reference path="./ToStringMode.d.ts" />
 /// <reference path="./Object.d.ts" />
-/// <reference path="./ValueFactoryManager.d.ts" />
 /// <reference path="./Identity.d.ts" />
 /// <reference path="./RemoteLogger.d.ts" />
 /// <reference path="./Context.d.ts" />

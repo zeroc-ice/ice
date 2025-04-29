@@ -170,7 +170,7 @@ declare module "@zeroc/ice" {
 
         /**
          * An attempt was made to register something more than once with the Ice run time.
-         * This exception is raised if an attempt is made to register a servant, servant locator, facet, value factory,
+         * This exception is raised if an attempt is made to register a servant, servant locator, facet,
          * plug-in, object adapter (etc.) more than once for the same ID.
          */
         class AlreadyRegisteredException extends LocalException {
@@ -233,7 +233,7 @@ declare module "@zeroc/ice" {
 
         /**
          * An attempt was made to find or deregister something that is not registered with the Ice run time or Ice locator.
-         * This exception is raised if an attempt is made to remove a servant, servant locator, facet, value factory, plug-in,
+         * This exception is raised if an attempt is made to remove a servant, servant locator, facet, plug-in,
          * object adapter (etc.) that is not currently registered. It's also raised if the Ice locator can't find an object or
          * object adapter when resolving an indirect proxy or when an object adapter is activated.
          */

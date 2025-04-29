@@ -5,13 +5,13 @@ import { Protocol } from "./Protocol.js";
 import { InitializationException } from "./LocalExceptions.js";
 import { Properties } from "./Properties.js";
 import { defaultSliceLoaderInstance } from "./DefaultSliceLoader.js";
+import { CompositeSliceLoader } from "./CompositeSliceLoader.js";
 
 export class InitializationData {
     constructor() {
         this.properties = null;
         this.logger = null;
         this.sliceLoader = null;
-        this.valueFactoryManager = null;
     }
 
     clone() {
@@ -19,7 +19,6 @@ export class InitializationData {
         r.properties = this.properties;
         r.logger = this.logger;
         r.sliceLoader = this.sliceLoader;
-        r.valueFactoryManager = this.valueFactoryManager;
         return r;
     }
 }
@@ -53,6 +52,8 @@ export function initialize(arg1, arg2) {
 
     if (initData.sliceLoader === null || initData.sliceLoader === undefined) {
         initData.sliceLoader = defaultSliceLoaderInstance;
+    } else {
+        initData.sliceLoader = new CompositeSliceLoader([initData.sliceLoader, defaultSliceLoaderInstance]);
     }
 
     return new Communicator(initData);

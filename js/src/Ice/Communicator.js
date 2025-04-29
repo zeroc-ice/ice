@@ -95,10 +95,6 @@ export class Communicator {
         this._instance.outgoingConnectionFactory().setDefaultObjectAdapter(adapter);
     }
 
-    getValueFactoryManager() {
-        return this._instance.initializationData().valueFactoryManager;
-    }
-
     getImplicitContext() {
         return this._instance.getImplicitContext();
     }

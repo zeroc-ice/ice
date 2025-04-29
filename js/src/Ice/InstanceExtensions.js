@@ -13,7 +13,6 @@ import { RetryQueue } from "./RetryQueue.js";
 import { RouterManager } from "./RouterManager.js";
 import { Timer } from "./Timer.js";
 import { TraceLevels } from "./TraceLevels.js";
-import { ValueFactoryManager } from "./ValueFactoryManager.js";
 import { LocalException } from "./LocalException.js";
 import { CommunicatorDestroyedException, InitializationException } from "./LocalExceptions.js";
 import { getProcessLogger } from "./ProcessLogger.js";
@@ -260,10 +259,6 @@ Instance.prototype.finishSetup = function (communicator) {
         this._endpointFactoryManager.add(wssEndpointFactory);
 
         this._outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
-
-        if (this._initData.valueFactoryManager === null) {
-            this._initData.valueFactoryManager = new ValueFactoryManager();
-        }
 
         this._objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 

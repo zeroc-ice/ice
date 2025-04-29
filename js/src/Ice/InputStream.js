@@ -35,12 +35,11 @@ class IndirectPatchEntry {
 }
 
 class EncapsDecoder {
-    constructor(stream, encaps, classGraphDepth, f) {
+    constructor(stream, encaps, classGraphDepth) {
         this._stream = stream;
         this._encaps = encaps;
         this._classGraphDepthMax = classGraphDepth;
         this._classGraphDepth = 0;
-        this._valueFactoryManager = f;
         this._patchMap = null; // Lazy initialized, Map<int, Patcher[] >()
         this._unmarshaledMap = new Map(); // Map<int, Value>()
         this._typeIdMap = null; // Lazy initialized, Map<int, String>
@@ -74,28 +73,7 @@ class EncapsDecoder {
     }
 
     newInstance(typeId) {
-        // Try to find a factory registered for the specific type.
-        let userFactory = this._valueFactoryManager.find(typeId);
-        let v = null;
-
-        if (userFactory !== undefined) {
-            v = userFactory(typeId);
-        }
-
-        // If that fails, invoke the default factory if one has been registered.
-        if (v === null || v === undefined) {
-            userFactory = this._valueFactoryManager.find("");
-            if (userFactory !== undefined) {
-                v = userFactory(typeId);
-            }
-        }
-
-        // Last chance: try to instantiate the class dynamically.
-        if (v === null || v === undefined) {
-            v = this._stream.createInstance(typeId);
-        }
-
-        return v;
+        return this._stream.createInstance(typeId);
     }
 
     addPatchEntry(index, cb) {
@@ -375,7 +353,7 @@ class EncapsDecoder10 extends EncapsDecoder {
             // marks the last slice.
             //
             if (this._typeId == Value.ice_staticId()) {
-                throw new MarshalException(`Cannot find value factory for type ID '${mostDerivedId}'.`);
+                throw new MarshalException(`The Slice loader cannot find a class for type ID '${mostDerivedId}'.`);
             }
 
             v = this.newInstance(this._typeId);
@@ -624,10 +602,10 @@ class EncapsDecoder11 extends EncapsDecoder {
         } else {
             if (this._current.sliceType == SliceType.ValueSlice) {
                 throw new MarshalException(
-                    `Cannot find value factory for type ID '${this._current.typeId}' and compact format prevents slicing.`,
+                    `The Slice loader cannot find a class for type ID '${this._current.typeId}' and compact format prevents slicing.`,
                 );
             } else {
-                throw new MarshalException(`Cannot find user exception for type ID '${this._current.typeId}'`);
+                throw new MarshalException(`The Slice loader cannot find a user exception class for type ID '${this._current.typeId}' and compact format prevents slicing.`);
             }
         }
 
@@ -947,7 +925,6 @@ export class InputStream {
         this._startSeq = -1;
         this._sizePos = -1;
 
-        this._valueFactoryManager = this._instance.initializationData().valueFactoryManager;
         this._classGraphDepthMax = this._instance.classGraphDepthMax();
     }
 
@@ -968,7 +945,6 @@ export class InputStream {
 
         // These are cached values derived from instance.
         DEV: console.assert(this._classGraphDepthMax === other._classGraphDepthMax);
-        DEV: console.assert(this._valueFactoryManager === other._valueFactoryManager);
 
         [other._buf, this._buf] = [this._buf, other._buf];
         [other._encoding, this._encoding] = [this._encoding, other._encoding];
@@ -1564,14 +1540,12 @@ export class InputStream {
                     this,
                     this._encapsStack,
                     this._classGraphDepthMax,
-                    this._valueFactoryManager,
                 );
             } else {
                 this._encapsStack.decoder = new EncapsDecoder11(
                     this,
                     this._encapsStack,
                     this._classGraphDepthMax,
-                    this._valueFactoryManager,
                 );
             }
         }
