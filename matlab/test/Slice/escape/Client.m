@@ -7,7 +7,11 @@ function client(args)
     end
 
     helper = TestHelper();
-    communicator = helper.initialize(args);
+    initData = Ice.InitializationData();
+    initData.properties_ = helper.createTestProperties(args);
+    initData.sliceLoader = Ice.ClassSliceLoader([?classdef_.logical, ?classdef_.xor, ?classdef_.Derived]);
+
+    communicator = helper.initialize(initData);
     cleanup = onCleanup(@() communicator.destroy());
     AllTests.allTests(helper);
 

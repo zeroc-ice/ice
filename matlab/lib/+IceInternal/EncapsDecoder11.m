@@ -304,7 +304,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             %
             obj.startSlice();
             mostDerivedId = current.typeId;
-            v = [];
             while true
                 if ~isempty(current.typeId)
                     v = obj.newInstance(current.typeId);
@@ -340,6 +339,8 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
 
                 obj.startSlice(); % Read next Slice header for next iteration.
             end
+
+            assert(isobject(v));
 
             obj.classGraphDepth = obj.classGraphDepth + 1;
             if obj.classGraphDepth > obj.classGraphDepthMax
