@@ -2,11 +2,10 @@
 
 classdef EncapsDecoder11 < IceInternal.EncapsDecoder
     methods
-        function obj = EncapsDecoder11(is, encaps, valueFactoryManager, classResolver, classGraphDepthMax)
-            obj@IceInternal.EncapsDecoder(is, encaps, valueFactoryManager, classResolver, classGraphDepthMax);
+        function obj = EncapsDecoder11(is, encaps, classGraphDepthMax)
+            obj@IceInternal.EncapsDecoder(is, encaps, classGraphDepthMax);
             obj.current = [];
             obj.valueIdIndex = 1;
-            obj.compactIdCache = {};
         end
 
         function readValue(obj, cb)
@@ -59,27 +58,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             obj.startSlice();
             mostDerivedId = obj.current.typeId;
             while true
-                %
-                % Use the class resolver to convert the type ID into a class constructor.
-                %
-                constructor = obj.classResolver.resolve(obj.current.typeId);
-
-                %
-                % Try to instantiate the class.
-                %
-                ex = [];
-                if ~isempty(constructor)
-                    try
-                        ex = constructor(); % Invoke the constructor.
-                    catch e
-                        %
-                        % Instantiation failed.
-                        %
-                        me = Ice.MarshalException(sprintf('exception in constructor for %s', obj.current.typeId));
-                        me.addCause(e);
-                        throw(me);
-                    end
-                end
+                ex = obj.is.getCommunicator().getSliceLoader().newInstance(obj.current.typeId);
 
                 if ~isempty(ex)
                     %
@@ -121,7 +100,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             r = slicedData;
         end
 
-        function r = startSlice(obj)
+        function startSlice(obj)
             import IceInternal.Protocol;
             %
             % If first slice, don't read the header, it was already read in
@@ -130,7 +109,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             current = obj.current;
             if current.skipFirstSlice
                 current.skipFirstSlice = false;
-                r = current.typeId;
                 return;
             end
 
@@ -145,9 +123,9 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             if current.sliceType == IceInternal.SliceType.ValueSlice
                 % Must be checked first!
                 if bitand(current.sliceFlags, Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT
-                    current.typeId = '';
                     current.typeIdIndex = -1;
                     current.compactId = is.readSize();
+                    current.typeId = int2str(current.compactId);
                 elseif bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_TYPE_ID_INDEX)
                     typeIdIndex = is.readSize();
                     current.typeIdIndex = typeIdIndex;
@@ -164,6 +142,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 end
             else
                 current.typeId = is.readString();
+                current.compactId = -1;
             end
 
             %
@@ -177,7 +156,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             else
                 current.sliceSize = 0;
             end
-            r = current.typeId;
         end
 
         function endSlice(obj)
@@ -244,10 +222,10 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 is.skip(current.sliceSize - 4);
             else
                 if current.sliceType == IceInternal.SliceType.ValueSlice
-                    reason = sprintf('cannot find value factory for type ID ''%s''', current.typeId);
+                    reason = sprintf('The Slice loader did not find a class for type ID ''%s''.', current.typeId);
                     throw(Ice.MarshalException(reason));
                 else
-                    reason = sprintf('cannot find user exception for type ID ''%s''', current.typeId);
+                    reason = sprintf('The Slice loader did not find a user exception class for type ID ''%s''.', current.typeId);
                     throw(Ice.MarshalException(reason));
                 end
             end
@@ -326,37 +304,15 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             %
             obj.startSlice();
             mostDerivedId = current.typeId;
-            v = [];
             while true
-                compactId = current.compactId;
-                if compactId ~= -1
-                    if compactId <= length(obj.compactIdCache)
-                        constructor = obj.compactIdCache{compactId};
-                    else
-                        constructor = obj.getConstructor(eval(sprintf('IceCompactId.TypeId_%d.typeId', compactId)));
-                        if ~isempty(constructor)
-                            obj.compactIdCache{compactId} = constructor;
-                        end
+                if ~isempty(current.typeId)
+                    v = obj.newInstance(current.typeId);
+                    if isobject(v)
+                        %
+                        % We have an instance, get out of this loop.
+                        %
+                        break;
                     end
-
-                    if ~isempty(constructor)
-                        try
-                            v = constructor(); % Invoke the constructor.
-                        catch e
-                            ex = Ice.MarshalException(sprintf('constructor failed for type with compact id %d', compactId));
-                            ex.addCause(e);
-                            throw(ex);
-                        end
-                    end
-                else
-                    v = obj.newInstance(current.typeIdIndex, current.typeId);
-                end
-
-                if isobject(v)
-                    %
-                    % We have an instance, get out of this loop.
-                    %
-                    break;
                 end
 
                 %
@@ -374,7 +330,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     % We pass the "::Ice::Object" ID to indicate that this is the
                     % last chance to preserve the instance.
                     %
-                    v = obj.newInstance(-1, Ice.Value.ice_staticId());
+                    v = obj.newInstance(Ice.Value.ice_staticId());
                     if ~isobject(v)
                         v = Ice.UnknownSlicedValue(mostDerivedId);
                     end
@@ -383,6 +339,8 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
 
                 obj.startSlice(); % Read next Slice header for next iteration.
             end
+
+            assert(isobject(v));
 
             obj.classGraphDepth = obj.classGraphDepth + 1;
             if obj.classGraphDepth > obj.classGraphDepthMax
@@ -449,6 +407,5 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
     end
     properties(Access=private)
         valueIdIndex
-        compactIdCache
     end
 end

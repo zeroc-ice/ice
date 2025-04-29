@@ -7,17 +7,6 @@ classdef AllTests
 
             communicator = helper.communicator();
 
-            fprintf('testing value factory registration exception... ');
-            of = @(id) [];
-            communicator.getValueFactoryManager().add(of, '::x');
-            try
-                communicator.getValueFactoryManager().add(of, '::x');
-                assert(false);
-            catch ex
-                assert(isa(ex, 'Ice.AlreadyRegisteredException'));
-            end
-            fprintf('ok\n');
-
             fprintf('testing stringToProxy... ');
             ref = ['thrower:', helper.getTestEndpoint()];
             base = communicator.stringToProxy(ref);

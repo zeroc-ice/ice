@@ -2,18 +2,15 @@
 
 classdef (Abstract) EncapsDecoder < handle
     methods
-        function obj = EncapsDecoder(is, encaps, valueFactoryManager, classResolver, classGraphDepthMax)
+        function obj = EncapsDecoder(is, encaps, classGraphDepthMax)
             obj.is = is;
             obj.encaps = encaps;
-            obj.valueFactoryManager = valueFactoryManager;
-            obj.classResolver = classResolver;
             obj.classGraphDepthMax = classGraphDepthMax;
             obj.classGraphDepth = 0;
             obj.patchMap = {};
             obj.patchMapLength = 0;
             obj.unmarshaledMap = {};
             obj.typeIdMap = {};
-            obj.typeIdConstructorMap = {};
             obj.valueList = {};
             obj.delayedPostUnmarshal = {};
         end
@@ -68,46 +65,8 @@ classdef (Abstract) EncapsDecoder < handle
             obj.typeIdMap{end + 1} = typeId;
             typeIdIndex = length(obj.typeIdMap);
         end
-        function r = newInstance(obj, typeIdIndex, typeId)
-            if typeIdIndex >= 0 && typeIdIndex <= length(obj.typeIdConstructorMap)
-                constructor = obj.typeIdConstructorMap{typeIdIndex};
-            else
-                constructor = obj.getConstructor(typeId);
-                if ~isempty(constructor)
-                    obj.typeIdConstructorMap{typeIdIndex} = constructor;
-                end
-            end
-
-            if ~isempty(constructor)
-                try
-                    r = constructor(); % Invoke the constructor.
-                catch e
-                    ex = Ice.MarshalException(sprintf('constructor failed for %s', typeId));
-                    ex.addCause(e);
-                    throw(ex);
-                end
-            else
-                r = [];
-            end
-        end
-
-        function r = getConstructor(obj, typeId)
-            %
-            % Try to find a factory registered for the specific type.
-            %
-            r = [];
-            userFactory = obj.valueFactoryManager.find(typeId);
-            if ~isempty(userFactory)
-                r = @() userFactory(typeId);
-            else
-                %
-                % Last chance: ask the class resolver to find it.
-                %
-                constructor = obj.classResolver.resolve(typeId);
-                if ~isempty(constructor)
-                    r = @() constructor(IceInternal.NoInit.Instance);
-                end
-            end
+        function r = newInstance(obj, typeId)
+            r = obj.is.getCommunicator().getSliceLoader().newInstance(typeId);
         end
 
         function addPatchEntry(obj, index, cb)
@@ -216,8 +175,6 @@ classdef (Abstract) EncapsDecoder < handle
     properties(Access=protected)
         is
         encaps
-        valueFactoryManager
-        classResolver
         classGraphDepth
         classGraphDepthMax
         patchMap
@@ -225,7 +182,6 @@ classdef (Abstract) EncapsDecoder < handle
     end
     properties(Access=private)
         unmarshaledMap
-        typeIdConstructorMap
         typeIdMap
         valueList
         delayedPostUnmarshal
