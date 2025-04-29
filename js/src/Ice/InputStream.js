@@ -3,7 +3,6 @@
 import { throwUOE } from "./ExUtil.js";
 import { ArrayUtil } from "./ArrayUtil.js";
 import { Buffer } from "./Buffer.js";
-import { CompactIdRegistry } from "./CompactIdRegistry.js";
 import { OptionalFormat } from "./OptionalFormat.js";
 import { Encoding_1_0, Protocol } from "./Protocol.js";
 import { SlicedData, SliceInfo, UnknownSlicedValue } from "./UnknownSlicedValue.js";
@@ -529,8 +528,8 @@ class EncapsDecoder11 extends EncapsDecoder {
         if (this._current.sliceType === SliceType.ValueSlice) {
             if ((this._current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) === Protocol.FLAG_HAS_TYPE_ID_COMPACT) {
                 // Must be checked 1st!
-                this._current.typeId = "";
                 this._current.compactId = this._stream.readSize();
+                this._current.typeId = this._current.compactId.toString();
             } else if (
                 (this._current.sliceFlags & (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) !==
                 0
@@ -718,13 +717,6 @@ class EncapsDecoder11 extends EncapsDecoder {
         this.startSlice();
         const mostDerivedId = this._current.typeId;
         while (true) {
-            if (this._current.compactId != -1) {
-                //
-                // Translate a compact (numeric) type ID into a string type ID.
-                //
-                this._current.typeId = this._stream.resolveCompactId(this._current.compactId);
-            }
-
             if (this._current.typeId.length > 0) {
                 v = this.newInstance(this._current.typeId);
             }
@@ -838,7 +830,7 @@ EncapsDecoder11.InstanceData = class {
         this.sliceFlags = 0;
         this.sliceSize = 0;
         this.typeId = null;
-        this.compactId = 0;
+        this.compactId = -1;
         this.indirectPatchList = null; // Lazy initialized, IndirectPatchEntry[]
     }
 };
@@ -1546,11 +1538,6 @@ export class InputStream {
 
     createUserException(typeId) {
         return this.instance._initData.sliceLoader.newInstance(typeId);
-    }
-
-    resolveCompactId(compactId) {
-        const typeId = CompactIdRegistry.get(compactId);
-        return typeId === undefined ? "" : typeId;
     }
 
     isEncoding_1_0() {

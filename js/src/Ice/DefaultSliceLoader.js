@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-import { CompactIdRegistry } from "./CompactIdRegistry.js";
-
 class DefaultSliceLoader {
     constructor() {
         this._typeIdToTypeMap = new Map(); // Map<String, Type>
@@ -37,12 +35,8 @@ export function defineClass(classType, typeId, compactId = -1) {
     };
 
     defaultSliceLoaderInstance.add(typeId, classType);
-    if (compactId != -1) {
-        defaultSliceLoaderInstance.add(typeId.toString(), classType);
-    }
 
-    // temporary
     if (compactId !== -1) {
-        CompactIdRegistry.set(compactId, typeId);
+        defaultSliceLoaderInstance.add(compactId.toString(), classType);
     }
 }

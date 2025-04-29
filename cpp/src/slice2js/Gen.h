@@ -74,7 +74,6 @@ namespace Slice
         private:
             bool _seenClass{false};
             bool _seenInterface{false};
-            bool _seenCompactId{false};
             bool _seenOperation{false};
             bool _seenStruct{false};
             bool _seenUserException{false};

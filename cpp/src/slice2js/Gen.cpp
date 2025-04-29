@@ -613,13 +613,9 @@ Slice::Gen::ImportVisitor::ImportVisitor(IceInternal::Output& out, vector<string
 }
 
 bool
-Slice::Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr&)
 {
     _seenClass = true;
-    if (p->compactId() != -1)
-    {
-        _seenCompactId = true;
-    }
     return true;
 }
 
@@ -757,11 +753,6 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
         if (_seenEnum)
         {
             jsIceImports.insert("EnumBase");
-        }
-
-        if (_seenCompactId)
-        {
-            jsIceImports.insert("CompactIdRegistry");
         }
 
         if (_seenDict || _seenObjectDict || _seenObjectProxyDict)
