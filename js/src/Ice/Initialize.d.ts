@@ -29,6 +29,11 @@ declare module "@zeroc/ice" {
             logger: Logger;
 
             /**
+             * The Slice loader, used to unmarshaled Slice classes and exceptions.
+             */
+            sliceLoader: SliceLoader;
+
+            /**
              * The value factory manager for the communicator.
              */
             valueFactoryManager: ValueFactoryManager;

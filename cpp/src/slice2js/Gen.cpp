@@ -718,6 +718,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
         bool needStreamHelpers = false;
         if (_seenClass || _seenInterface || _seenObjectSeq || _seenObjectDict)
         {
+            jsIceImports.insert("DefaultSliceLoader");
             jsIceImports.insert("Object");
             jsIceImports.insert("Value");
             jsIceImports.insert("TypeRegistry");
@@ -726,6 +727,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
 
         if (_seenInterface)
         {
+            jsIceImports.insert("DefaultSliceLoader");
             jsIceImports.insert("ObjectPrx");
             jsIceImports.insert("TypeRegistry");
         }
@@ -747,6 +749,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
 
         if (_seenUserException)
         {
+            jsIceImports.insert("DefaultSliceLoader");
             jsIceImports.insert("UserException");
             jsIceImports.insert("TypeRegistry");
         }
@@ -1119,7 +1122,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out << sp;
 
-    _out << nl << "Ice.defineValue(" << scopedName << ", \"" << p->scoped() << "\"";
+    _out << nl << "Ice.defineClass(" << scopedName << ", \"" << p->scoped() << "\"";
     if (p->compactId() != -1)
     {
         _out << ", " << p->compactId();
@@ -1536,6 +1539,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "return " << baseRef << ";";
     _out << eb;
 
+    // TODO: use methods added by Ice.defineClass instead.
     _out << sp;
     _out << nl << "static get _ice_id()";
     _out << sb;
@@ -1574,6 +1578,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     _out << eb << ";";
     _out << sp;
+
+    _out << nl << "Ice.defineClass(" << scopedName << ", \"" << p->scoped() << "\");";
+
     _out << nl << "Ice.TypeRegistry.declareUserExceptionType(";
     _out.inc();
     _out << nl << "\"" << scopedName << "\",";

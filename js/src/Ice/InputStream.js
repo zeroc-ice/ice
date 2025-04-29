@@ -4,6 +4,7 @@ import { throwUOE } from "./ExUtil.js";
 import { ArrayUtil } from "./ArrayUtil.js";
 import { Buffer } from "./Buffer.js";
 import { CompactIdRegistry } from "./CompactIdRegistry.js";
+import { defaultSliceLoaderInstance } from "./DefaultSliceLoader.js";
 import { OptionalFormat } from "./OptionalFormat.js";
 import { Encoding_1_0, Protocol } from "./Protocol.js";
 import { SlicedData, SliceInfo, UnknownSlicedValue } from "./UnknownSlicedValue.js";
@@ -1546,33 +1547,12 @@ export class InputStream {
         return this._buf.empty();
     }
 
-    createInstance(id) {
-        let obj = null;
-        const typeId = id.length > 2 ? id.substr(2).replace(/::/g, ".") : "";
-        try {
-            const Class = TypeRegistry.getValueType(typeId);
-            if (Class !== undefined) {
-                obj = new Class();
-            }
-        } catch (ex) {
-            throw new MarshalException(`Failed to create a class with type ID '${typeId}'.`, { cause: ex });
-        }
-
-        return obj;
+    createInstance(typeId) {
+        return this.instance._initData.sliceLoader.newInstance(typeId);
     }
 
-    createUserException(id) {
-        let userEx = null;
-        try {
-            const typeId = id.length > 2 ? id.substr(2).replace(/::/g, ".") : "";
-            const Class = TypeRegistry.getUserExceptionType(typeId);
-            if (Class !== undefined) {
-                userEx = new Class();
-            }
-        } catch (ex) {
-            throw new MarshalException(`Failed to create user exception with type ID '${id}'.`, { cause: ex });
-        }
-        return userEx;
+    createUserException(typeId) {
+        return this.instance._initData.sliceLoader.newInstance(typeId);
     }
 
     resolveCompactId(compactId) {

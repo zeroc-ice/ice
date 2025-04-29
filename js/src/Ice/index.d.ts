@@ -55,3 +55,4 @@
 /// <reference path="./ServantLocator.d.ts" />
 /// <reference path="./UnknownSlicedValue.d.ts" />
 /// <reference path="./UserException.d.ts" />
+/// <reference path="./SliceLoader.d.ts" />

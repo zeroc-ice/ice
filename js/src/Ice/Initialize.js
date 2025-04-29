@@ -4,11 +4,13 @@ import { Communicator } from "./Communicator.js";
 import { Protocol } from "./Protocol.js";
 import { InitializationException } from "./LocalExceptions.js";
 import { Properties } from "./Properties.js";
+import { defaultSliceLoaderInstance } from "./DefaultSliceLoader.js";
 
 export class InitializationData {
     constructor() {
         this.properties = null;
         this.logger = null;
+        this.sliceLoader = null;
         this.valueFactoryManager = null;
     }
 
@@ -16,6 +18,7 @@ export class InitializationData {
         const r = new InitializationData();
         r.properties = this.properties;
         r.logger = this.logger;
+        r.sliceLoader = this.sliceLoader;
         r.valueFactoryManager = this.valueFactoryManager;
         return r;
     }
@@ -47,6 +50,10 @@ export function initialize(arg1, arg2) {
         initData = initData.clone();
     }
     initData.properties = new Properties(args, initData.properties);
+
+    if (initData.sliceLoader === null || initData.sliceLoader === undefined) {
+        initData.sliceLoader = defaultSliceLoaderInstance;
+    }
 
     return new Communicator(initData);
 }

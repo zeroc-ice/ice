@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-import { CompactIdRegistry } from "./CompactIdRegistry.js";
+import { defineClass } from "./DefaultSliceLoader.js";
 import { TypeRegistry } from "./TypeRegistry.js";
 
 //
@@ -47,24 +47,7 @@ export class Value {
     }
 }
 
-export function defineValue(valueType, id, compactId = 0) {
-    valueType.prototype.ice_id = function () {
-        return id;
-    };
-
-    valueType.prototype._iceMostDerivedType = function () {
-        return valueType;
-    };
-
-    valueType.ice_staticId = function () {
-        return id;
-    };
-
-    if (compactId > 0) {
-        CompactIdRegistry.set(compactId, id);
-    }
-}
-defineValue(Value, "::Ice::Object");
+defineClass(Value, "::Ice::Object");
 TypeRegistry.declareValueType("Ice.Value", Value);
 
 //
