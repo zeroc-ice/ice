@@ -7,6 +7,7 @@
     <PackageId>ZeroC.IceBox</PackageId>
     <PackageTags>Ice</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
     <PackageIcon>logo-128x128.png</PackageIcon>
   </PropertyGroup>
   <ItemGroup>
