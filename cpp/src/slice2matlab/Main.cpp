@@ -1343,36 +1343,21 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "end";
     out.dec();
     out << nl << "end";
+    out << nl << "properties(Constant, Access=private)";
+    out.inc();
+    out << nl << "TypeId char = '" << scoped << "'";
+    if (p->compactId() != -1)
+    {
+        out << nl << "CompactId char = '" << to_string(p->compactId()) << "'";
+    }
+    out.dec();
+    out << nl << "end";
 
     out.dec();
     out << nl << "end";
     out << nl;
 
     out.close();
-
-    if (p->compactId() != -1)
-    {
-        ostringstream ostr;
-        ostr << "IceCompactId.TypeId_" << p->compactId();
-
-        openClass(ostr.str(), _dir, out);
-
-        out << nl << "classdef TypeId_" << p->compactId();
-        out.inc();
-
-        out << nl << "properties(Constant)";
-        out.inc();
-        out << nl << "typeId = '" << scoped << "'";
-        out.dec();
-        out << nl << "end";
-
-        out.dec();
-        out << nl << "end";
-        out << nl;
-
-        out.close();
-    }
-
     return false;
 }
 

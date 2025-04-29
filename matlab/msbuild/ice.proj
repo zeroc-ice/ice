@@ -20,7 +20,7 @@
         </When>
         <Otherwise>
             <PropertyGroup>
-                <MatlabCommand>&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize</MatlabCommand>
+                <MatlabCommand>&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r</MatlabCommand>
             </PropertyGroup>
         </Otherwise>
     </Choose>

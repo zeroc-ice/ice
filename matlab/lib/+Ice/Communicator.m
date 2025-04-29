@@ -23,8 +23,6 @@ classdef Communicator < IceInternal.WrapperObject
     %   setDefaultLocator - Set a default locator for this communicator.
     %   getEncoding - Get the encoding version for this communicator.
     %   getFormat - Get the class format for this communicator.
-    %   getValueFactoryManager - Get the value factory manager for this
-    %     communicator.
     %   flushBatchRequests - Flush any pending batch requests for this
     %     communicator.
     %   flushBatchRequestsAsync - Flush any pending batch requests for this
@@ -38,9 +36,27 @@ classdef Communicator < IceInternal.WrapperObject
                 throw(LocalException('Ice:ArgumentException', 'invalid argument'));
             end
             obj@IceInternal.WrapperObject(impl);
+
+            % The caller (initialize) consumes initData.properties_ and we don't use them at all in this class.
             obj.initData = initData;
 
-            obj.valueFactoryManager = IceInternal.ValueFactoryManagerI();
+            if obj.initData.sliceLoader ~= IceInternal.DefaultSliceLoader.Instance
+                obj.initData.sliceLoader = Ice.CompositeSliceLoader(obj.initData.sliceLoader, ...
+                    IceInternal.DefaultSliceLoader.Instance);
+            end
+
+            notFoundCacheSize = obj.getProperties().getIcePropertyAsInt('Ice.SliceLoader.NotFoundCacheSize');
+            if notFoundCacheSize > 0
+                % Install the NotFoundSliceLoaderDecorator.
+                if obj.getProperties().getIcePropertyAsInt('Ice.Warn.SliceLoader') > 0
+                    cacheFullLogger = obj.getLogger();
+                else
+                    cacheFullLogger = [];
+                end
+
+                obj.initData.sliceLoader = IceInternal.NotFoundSliceLoaderDecorator(...
+                    obj.initData.sliceLoader, notFoundCacheSize, cacheFullLogger);
+            end
 
             enc = obj.getProperties().getProperty('Ice.Default.EncodingVersion');
             if isempty(enc)
@@ -286,15 +302,6 @@ classdef Communicator < IceInternal.WrapperObject
             end
             obj.iceCall('setDefaultLocator', impl);
         end
-        function r = getValueFactoryManager(obj)
-            % getValueFactoryManager   Get the value factory manager for this
-            %   communicator.
-            %
-            % Returns (Ice.ValueFactoryManager) - This communicator's value
-            %   factory manager.
-
-            r = obj.valueFactoryManager;
-        end
         function flushBatchRequests(obj, mode)
             % flushBatchRequests   Flush any pending batch requests for this
             %   communicator. This means all batch requests invoked on fixed
@@ -327,27 +334,22 @@ classdef Communicator < IceInternal.WrapperObject
             assert(~isNull(future));
             r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
-        function r = getClassResolver(obj)
-            if isempty(obj.classResolver) % Lazy initialization.
-                obj.classResolver = IceInternal.ClassResolver();
-            end
-            r = obj.classResolver;
-        end
         function r = getEncoding(obj)
             r = obj.encoding;
         end
         function r = getFormat(obj)
             r = obj.format;
         end
+        function r = getSliceLoader(obj)
+            r = obj.initData.sliceLoader;
+        end
     end
     properties(Access=private)
         initData
-        classResolver
         encoding
         format
         implicitContext
         properties_
         logger
-        valueFactoryManager
     end
 end

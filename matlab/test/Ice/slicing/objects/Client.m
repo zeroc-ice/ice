@@ -7,9 +7,17 @@ function client(args)
     end
 
     helper = TestHelper();
-    communicator = helper.initialize(args);
+    initData = Ice.InitializationData();
+    initData.properties_ = helper.createTestProperties(args);
+    initData.properties_.setProperty('Ice.SliceLoader.NotFoundCacheSize', '5');
+    initData.properties_.setProperty('Ice.Warn.SliceLoader', '0'); % comment out to see the warning
+
+    customSliceLoader = CustomSliceLoader();
+    initData.sliceLoader = customSliceLoader;
+
+    communicator = helper.initialize(initData);
     cleanup = onCleanup(@() communicator.destroy());
-    test = AllTests.allTests(helper);
+    test = AllTests.allTests(helper, customSliceLoader);
     test.shutdown();
 
     clear('classes'); % Avoids conflicts with tests that define the same symbols.
