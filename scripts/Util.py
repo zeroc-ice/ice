@@ -1640,9 +1640,9 @@ class ProcessIsReleaseOnly:
 
 
 class SliceTranslator(ProcessFromBinDir, ProcessIsReleaseOnly, SimpleClient):
-    def __init__(self, translator):
+    def __init__(self, translator, quiet=False):
         SimpleClient.__init__(
-            self, exe=translator, quiet=True, mapping=Mapping.getByName("cpp")
+            self, exe=translator, quiet=quiet, mapping=Mapping.getByName("cpp")
         )
 
     def getCommandLine(self, current, args=""):
