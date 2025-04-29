@@ -14,7 +14,7 @@ function client(args)
     % We need to use the ClassSliceLoader for the classes with compact IDs. Naturally, it also works for classes
     % without a compact ID.
     initData.sliceLoader = Ice.CompositeSliceLoader(CustomSliceLoader(), ...
-        Ice.ClassSliceLoader([?Test.Compact, ?Test.CompactExt]));
+        Ice.ClassSliceLoader([?DI, ?Test.Compact, ?Test.CompactExt]));
 
     communicator = helper.initialize(initData);
 

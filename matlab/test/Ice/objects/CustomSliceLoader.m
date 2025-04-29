@@ -8,8 +8,7 @@ classdef CustomSliceLoader < Ice.SliceLoader
                     r = BI();
                 case '::Test::C'
                     r = CI();
-                case '::Test::D'
-                    r = DI();
+                % case '::Test::D' handled by ClassSliceLoader
                 case '::LocalTest::CB1'
                     r = CB1I();
                 case '::LocalTest::CB2'
