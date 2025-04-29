@@ -28,9 +28,9 @@ on:
         required: false
         type: string
       repository_url:
-          description: "The URL of the repository to upload MSI to"
-          required: false
-          type: string
+        description: "The URL of the repository to upload MSI to"
+        required: false
+        type: string
       repository_username:
         description: "The username to authenticate with the repository"
         required: false
@@ -48,6 +48,26 @@ jobs:
 
       - name: Setup Java
         uses: ./ice/.github/actions/setup-java
+
+      - name: Build C++ Binaries
+        run: msbuild /m ice.proj /t:BuildDist /p:BuildAllConfigurations=yes
+        working-directory: cpp/msbuild
+
+      - name: Sign C++ Binaries with Trusted Signing
+        uses: azure/trusted-signing-action@v0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          trusted-signing-account-name: vscx-codesigning
+          certificate-profile-name: vscx-certificate-profile
+          files-folder: ./ice/cpp/bin
+          files-folder-recurse: true
+          files-folder-filter: exe,dll
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
 
       - name: Build C++ NuGet Packages
         run: msbuild /m ice.proj /t:Pack /p:BuildAllConfigurations=yes /p:IcePackageVersion="${{ inputs.ice_version }}"
@@ -67,6 +87,21 @@ jobs:
           StagingDir: "${{ github.workspace }}\\staging"
           # TODO compute this variable see issue #3558
           VCInstallDir: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC"
+
+      - name: Sign MSI installer with Trusted Signing
+        uses: azure/trusted-signing-action@v0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          trusted-signing-account-name: vscx-codesigning
+          certificate-profile-name: vscx-certificate-profile
+          files-folder: ./ice/packaging/msi/bin/x64/Release/
+          files-folder-filter: msi
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
 
       # Upload artifacts
       - name: Upload MSI
