@@ -29,7 +29,7 @@ declare module "@zeroc/ice" {
             logger: Logger;
 
             /**
-             * The Slice loader, used to unmarshaled Slice classes and exceptions.
+             * The Slice loader, used to unmarshal Slice classes and exceptions.
              */
             sliceLoader: SliceLoader;
         }

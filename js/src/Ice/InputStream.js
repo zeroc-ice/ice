@@ -73,7 +73,7 @@ class EncapsDecoder {
     }
 
     newInstance(typeId) {
-        return this._stream.createInstance(typeId);
+        return this._stream.instance._initData.sliceLoader.newInstance(typeId);
     }
 
     addPatchEntry(index, cb) {
@@ -219,7 +219,7 @@ class EncapsDecoder10 extends EncapsDecoder {
         this.startSlice();
         const mostDerivedId = this._typeId;
         while (true) {
-            const userEx = this._stream.createUserException(this._typeId);
+            const userEx = this._stream.instance._initData.sliceLoader.newInstance(this._typeId);
 
             //
             // We found the exception.
@@ -445,7 +445,7 @@ class EncapsDecoder11 extends EncapsDecoder {
         this.startSlice();
         const mostDerivedId = this._current.typeId;
         while (true) {
-            const userEx = this._stream.createUserException(this._current.typeId);
+            const userEx = this._stream.instance._initData.sliceLoader.newInstance(this._current.typeId);
 
             //
             // We found the exception.
@@ -605,7 +605,9 @@ class EncapsDecoder11 extends EncapsDecoder {
                     `The Slice loader cannot find a class for type ID '${this._current.typeId}' and compact format prevents slicing.`,
                 );
             } else {
-                throw new MarshalException(`The Slice loader cannot find a user exception class for type ID '${this._current.typeId}' and compact format prevents slicing.`);
+                throw new MarshalException(
+                    `The Slice loader cannot find a user exception class for type ID '${this._current.typeId}' and compact format prevents slicing.`,
+                );
             }
         }
 
@@ -1508,14 +1510,6 @@ export class InputStream {
         return this._buf.empty();
     }
 
-    createInstance(typeId) {
-        return this.instance._initData.sliceLoader.newInstance(typeId);
-    }
-
-    createUserException(typeId) {
-        return this.instance._initData.sliceLoader.newInstance(typeId);
-    }
-
     isEncoding_1_0() {
         return this._encapsStack !== null ? this._encapsStack.encoding_1_0 : this._encoding.equals(Encoding_1_0);
     }
@@ -1536,17 +1530,9 @@ export class InputStream {
         if (this._encapsStack.decoder === null) {
             // Lazy initialization.
             if (this._encapsStack.encoding_1_0) {
-                this._encapsStack.decoder = new EncapsDecoder10(
-                    this,
-                    this._encapsStack,
-                    this._classGraphDepthMax,
-                );
+                this._encapsStack.decoder = new EncapsDecoder10(this, this._encapsStack, this._classGraphDepthMax);
             } else {
-                this._encapsStack.decoder = new EncapsDecoder11(
-                    this,
-                    this._encapsStack,
-                    this._classGraphDepthMax,
-                );
+                this._encapsStack.decoder = new EncapsDecoder11(this, this._encapsStack, this._classGraphDepthMax);
             }
         }
     }
