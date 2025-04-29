@@ -11,7 +11,7 @@ from Util import ClientTestCase, SliceTranslator, TestSuite
 class SliceErrorDetectionTestCase(ClientTestCase):
     def runClientSide(self, current):
         testdir = current.testsuite.getPath()
-        slice2cpp = SliceTranslator("slice2cpp")
+        slice2cpp = SliceTranslator("slice2cpp", quiet=True)
 
         outdir = "{0}/tmp".format(testdir)
         if os.path.exists(outdir):
