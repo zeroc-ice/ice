@@ -8,6 +8,7 @@
     <PackageId>ZeroC.IceGrid</PackageId>
     <PackageTags>Ice</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>logo-128x128.png</PackageIcon>
   </PropertyGroup>
   <ItemGroup>
     <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />
@@ -29,6 +30,7 @@
     <!-- Packaging files -->
     <Content Include="../../../LICENSE" Pack="true" PackagePath="/" />
     <Content Include="../../../ICE_LICENSE" Pack="true" PackagePath="/" />
+    <Content Include="../../../config/logo-128x128.png" Pack="true" PackagePath="/" />
     <Content Include="README.md" Pack="true" PackagePath="/" />
     <Content Include="@(SliceCompile)" Pack="true" PackagePath="/slice/IceGrid"/>
     <Content Include="ZeroC.IceGrid.props" Pack="true" PackagePath="buildTransitive/" />
