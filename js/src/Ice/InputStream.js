@@ -4,7 +4,6 @@ import { throwUOE } from "./ExUtil.js";
 import { ArrayUtil } from "./ArrayUtil.js";
 import { Buffer } from "./Buffer.js";
 import { CompactIdRegistry } from "./CompactIdRegistry.js";
-import { defaultSliceLoaderInstance } from "./DefaultSliceLoader.js";
 import { OptionalFormat } from "./OptionalFormat.js";
 import { Encoding_1_0, Protocol } from "./Protocol.js";
 import { SlicedData, SliceInfo, UnknownSlicedValue } from "./UnknownSlicedValue.js";
@@ -16,7 +15,6 @@ import { Ice as Ice_Version } from "./Version.js";
 const { EncodingVersion } = Ice_Version;
 import { Instance } from "./Instance.js";
 import { Communicator } from "./Communicator.js";
-import { TypeRegistry } from "./TypeRegistry.js";
 import { ObjectPrx } from "./ObjectPrx.js";
 import { SliceType } from "./SliceType.js";
 
@@ -307,7 +305,7 @@ class EncapsDecoder10 extends EncapsDecoder {
         //
         if (this._skipFirstSlice) {
             this._skipFirstSlice = false;
-            return this._typeId;
+            return;
         }
 
         //
@@ -328,8 +326,6 @@ class EncapsDecoder10 extends EncapsDecoder {
         if (this._sliceSize < 4) {
             throw new MarshalException(endOfBufferMessage);
         }
-
-        return this._typeId;
     }
 
     endSlice() {}
@@ -520,7 +516,7 @@ class EncapsDecoder11 extends EncapsDecoder {
         //
         if (this._current.skipFirstSlice) {
             this._current.skipFirstSlice = false;
-            return this._current.typeId;
+            return;
         }
 
         this._current.sliceFlags = this._stream.readByte();
@@ -566,8 +562,6 @@ class EncapsDecoder11 extends EncapsDecoder {
         } else {
             this._current.sliceSize = 0;
         }
-
-        return this._current.typeId;
     }
 
     endSlice() {
@@ -1167,9 +1161,8 @@ export class InputStream {
     }
 
     startSlice() {
-        // Returns type ID of next slice
         DEV: console.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
-        return this._encapsStack.decoder.startSlice();
+        this._encapsStack.decoder.startSlice();
     }
 
     endSlice() {
