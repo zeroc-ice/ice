@@ -539,7 +539,7 @@ SwiftGenerator::validateMetadata(const UnitPtr& u)
             if (auto cont = dynamic_pointer_cast<Contained>(p); cont && cont->hasMetadata("swift:identifier"))
             {
                 return "the 'swift:module' metadata cannot be used alongside 'swift:identifier' - both change the name "
-                        "of the mapped module";
+                       "of the mapped module";
             }
             return nullopt;
         }};
