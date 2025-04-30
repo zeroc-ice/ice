@@ -345,7 +345,7 @@ namespace IcePHP
     public:
         ClassInfo(std::string);
 
-        void define(const std::string&, std::int32_t, bool, zval*, zval*);
+        void define(const std::string&, std::int32_t, zval*, zval*);
 
         std::string getId() const final;
 
@@ -369,7 +369,6 @@ namespace IcePHP
         const std::string id;
         const std::string name; // PHP class name
         const std::int32_t compactId;
-        const bool interface;
         ClassInfoPtr base;
         const DataMemberList members;
         const DataMemberList optionalMembers;

@@ -270,7 +270,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     // Emit the type information.
     const string abs = p->mappedScoped(R"(\\)");
     _out << nl << type << " = IcePHP_defineClass('" << scoped << "', '" << abs << "', " << p->compactId()
-         << ", false, ";
+         << ", ";
     if (!base)
     {
         _out << "$Ice__t_Value";
