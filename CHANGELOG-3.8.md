@@ -263,7 +263,7 @@ classDiagram
   example, you can use the `ClassSliceLoader` implementation to create a Slice loader for one or more generated classes
   (typically classes with remapped names or compact IDs).
 
-  Limitation: in Python, Ruby and PHP, a custom Slice loader can only create class instances. The creation of custom
+  Limitation: in Python, Ruby, and PHP, a custom Slice loader can only create class instances. The creation of custom
   user exceptions is currently ignored.
 
 - The plug-ins provided by Ice now have fixed names: IceIAP, IceBT, IceUDP, IceWS, IceDiscovery, IceLocatorDiscovery.
