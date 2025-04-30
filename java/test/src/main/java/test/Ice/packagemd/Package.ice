@@ -2,6 +2,8 @@
 
 #pragma once
 
+[["suppress-warning:deprecated"]] // for 'java:package' metadata
+
 [["java:package:test.Ice.packagemd.testpkg"]]
 
 module Test2

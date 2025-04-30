@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.IceSSL.configuration"]]
+["java:identifier:test.IceSSL.configuration.Test"]
 module Test
 {
     interface Server

@@ -4,7 +4,7 @@
 
 #include "Ice/BuiltinSequences.ice"
 
-[["java:package:test.Ice.exceptions"]]
+["java:identifier:test.Ice.exceptions.Test"]
 module Test
 {
     interface Empty

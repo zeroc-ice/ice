@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.adapterDeactivation"]]
+["java:identifier:test.Ice.adapterDeactivation.Test"]
 module Test
 {
     interface TestIntf

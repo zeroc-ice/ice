@@ -4,7 +4,7 @@
 
 #include "Ice/BuiltinSequences.ice"
 
-[["java:package:test.Ice.background"]]
+["java:identifier:test.Ice.background.Test"]
 module Test
 {
     interface Background

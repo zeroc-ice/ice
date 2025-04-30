@@ -5,7 +5,7 @@
 #include "Ice/Locator.ice"
 #include "Ice/LocatorRegistry.ice"
 
-[["java:package:test.Ice.location"]]
+["java:identifier:test.Ice.location.Test"]
 module Test
 {
     interface TestLocatorRegistry extends Ice::LocatorRegistry

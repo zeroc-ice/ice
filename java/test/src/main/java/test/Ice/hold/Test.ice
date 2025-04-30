@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.hold"]]
+["java:identifier:test.Ice.hold.Test"]
 module Test
 {
     interface Hold

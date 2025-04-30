@@ -10,10 +10,10 @@
 [["cpp:include:Ice/Config.h"]]
 [["cpp:include:Ice/StreamHelpers.h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Ice"]]
 
+["java:identifier:com.zeroc.Ice"]
 module Ice
 {
     /// Represents the status of a reply.

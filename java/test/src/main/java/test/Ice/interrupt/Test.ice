@@ -4,7 +4,7 @@
 
 #include "Ice/BuiltinSequences.ice"
 
-[["java:package:test.Ice.interrupt"]]
+["java:identifier:test.Ice.interrupt.Test"]
 module Test
 {
     exception InterruptedException

@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Glacier2.router"]]
+["java:identifier:test.Glacier2.router.Test"]
 module Test
 {
     exception CallbackException

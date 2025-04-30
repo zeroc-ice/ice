@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.invoke"]]
+["java:identifier:test.Ice.invoke.Test"]
 module Test
 {
     exception MyException

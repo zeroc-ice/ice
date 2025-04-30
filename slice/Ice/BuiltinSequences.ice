@@ -16,10 +16,10 @@
 [["cpp:include:string"]]
 [["cpp:include:vector"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Ice"]]
 
+["java:identifier:com.zeroc.Ice"]
 module Ice
 {
     /// A sequence of bools.

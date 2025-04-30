@@ -13,11 +13,11 @@
 [["cpp:include:string"]]
 [["cpp:include:vector"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Ice"]]
 
 /// Full-featured RPC framework.
+["java:identifier:com.zeroc.Ice"]
 module Ice
 {
     /// Represents the identity of an Ice object. It is comparable to the path of a URI. Its string representation is

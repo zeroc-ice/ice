@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Slice.generation"]]
+["java:identifier:test.Slice.generation.Test"]
 module Test
 {
     interface Interface2

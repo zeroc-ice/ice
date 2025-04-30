@@ -4,7 +4,7 @@
 
 #include "Ice/BuiltinSequences.ice"
 
-[["java:package:test.Ice.executor"]]
+["java:identifier:test.Ice.executor.Test"]
 module Test
 {
     interface TestIntf

@@ -5,7 +5,10 @@
 #include "Package.ice"
 #include "NoPackage.ice"
 
+[["suppress-warning:deprecated"]] // for 'java:package' metadata
+
 [["java:package:test.Ice.packagemd"]]
+
 module Test
 {
     interface Initial

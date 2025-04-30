@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.threadPoolPriority"]]
+["java:identifier:test.Ice.threadPoolPriority.Test"]
 module Test
 {
     interface Priority

@@ -4,7 +4,6 @@
 
 [["cpp:header-ext:h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:IceLocatorDiscovery"]]
 
@@ -12,6 +11,7 @@
 
 /// IceLocatorDiscovery is an Ice plug-in that enables the discovery of Ice locators (such as IceGrid) via UDP
 /// multicast.
+["java:identifier:com.zeroc.IceLocatorDiscovery"]
 module IceLocatorDiscovery
 {
     /// Represents a callback object implemented by IceLocatorDiscovery clients. It allows IceLocatorDiscovery clients

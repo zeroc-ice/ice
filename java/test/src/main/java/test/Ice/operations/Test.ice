@@ -4,7 +4,7 @@
 
 #include "Ice/Context.ice"
 
-[["java:package:test.Ice.operations"]]
+["java:identifier:test.Ice.operations.Test"]
 module Test
 {
     enum MyEnum

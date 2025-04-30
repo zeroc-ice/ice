@@ -6,12 +6,12 @@
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Ice"]]
 
 #include "BuiltinSequences.ice"
 
+["java:identifier:com.zeroc.Ice"]
 module Ice
 {
     /// Represents an intermediary object that routes requests and replies between clients and Ice objects that are not

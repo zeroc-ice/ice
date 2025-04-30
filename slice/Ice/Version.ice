@@ -13,10 +13,10 @@
 [["cpp:include:cstdint"]]
 [["cpp:include:ostream"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Ice"]]
 
+["java:identifier:com.zeroc.Ice"]
 module Ice
 {
     /// Represents a version of the Ice protocol. The only version implemented and supported by Ice is version 1.0.

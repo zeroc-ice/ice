@@ -2,9 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Slice.escape"]]
-
-["java:identifier:escaped_abstract"]
+["java:identifier:test.escaped_abstract"]
 module abstract
 {
     ["java:identifier:_assert"]
@@ -36,17 +34,20 @@ module abstract
         void do();
     }
 
+    ["java:identifier:_notify"]
     class notify
     {
         ["java:identifier:foo"] int if;
         ["java:identifier:_equals"] default* equals;
     }
 
+    ["java:identifier:_hashCode"]
     exception hashCode
     {
         ["java:identifier:bar"] int if;
     }
 
+    ["java:identifier:CloneException"]
     exception clone extends hashCode
     {
         ["java:identifier:escaped_native"] string native;

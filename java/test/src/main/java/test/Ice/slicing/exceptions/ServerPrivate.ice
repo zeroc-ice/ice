@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.slicing.exceptions.server"]]
+["java:identifier:test.Ice.slicing.exceptions.server.Test"]
 module Test
 {
     //

@@ -4,7 +4,7 @@
 
 #include "Ice/BuiltinSequences.ice"
 
-[["java:package:test.Ice.stream"]]
+["java:identifier:test.Ice.stream.Test"]
 module Test
 {
     enum MyEnum
