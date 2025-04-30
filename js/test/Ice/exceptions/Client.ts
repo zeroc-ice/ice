@@ -87,15 +87,6 @@ export class Client extends TestHelper {
             }
             adapter.destroy();
             out.writeLine("ok");
-
-            out.write("testing value factory registration exception... ");
-            communicator.getValueFactoryManager().add(() => null!, "::x");
-            try {
-                communicator.getValueFactoryManager().add(() => null!, "::x");
-                test(false);
-            } catch (ex) {
-                test(ex instanceof Ice.AlreadyRegisteredException, ex);
-            }
         }
         out.writeLine("ok");
 

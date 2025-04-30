@@ -8,7 +8,6 @@ declare module "@zeroc/ice" {
          * @see {@link Logger}
          * @see {@link ObjectAdapter}
          * @see {@link Properties}
-         * @see {@link ValueFactory}
          */
         interface Communicator {
             /**
@@ -227,15 +226,6 @@ declare module "@zeroc/ice" {
              * @see {@link getDefaultLocator}
              */
             setDefaultLocator(locator: LocatorPrx | null): void;
-
-            /**
-             * Retrieves the communicator's value factory manager.
-             *
-             * @returns The value factory manager of the communicator.
-             *
-             * @see {@link ValueFactoryManager}
-             */
-            getValueFactoryManager(): Ice.ValueFactoryManager;
 
             /**
              * Flushes any pending batch requests for this communicator.

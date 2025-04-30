@@ -3,7 +3,6 @@
 import { throwUOE } from "./ExUtil.js";
 import { ArrayUtil } from "./ArrayUtil.js";
 import { Buffer } from "./Buffer.js";
-import { CompactIdRegistry } from "./CompactIdRegistry.js";
 import { OptionalFormat } from "./OptionalFormat.js";
 import { Encoding_1_0, Protocol } from "./Protocol.js";
 import { SlicedData, SliceInfo, UnknownSlicedValue } from "./UnknownSlicedValue.js";
@@ -15,7 +14,6 @@ import { Ice as Ice_Version } from "./Version.js";
 const { EncodingVersion } = Ice_Version;
 import { Instance } from "./Instance.js";
 import { Communicator } from "./Communicator.js";
-import { TypeRegistry } from "./TypeRegistry.js";
 import { ObjectPrx } from "./ObjectPrx.js";
 import { SliceType } from "./SliceType.js";
 
@@ -37,12 +35,11 @@ class IndirectPatchEntry {
 }
 
 class EncapsDecoder {
-    constructor(stream, encaps, classGraphDepth, f) {
+    constructor(stream, encaps, classGraphDepth) {
         this._stream = stream;
         this._encaps = encaps;
         this._classGraphDepthMax = classGraphDepth;
         this._classGraphDepth = 0;
-        this._valueFactoryManager = f;
         this._patchMap = null; // Lazy initialized, Map<int, Patcher[] >()
         this._unmarshaledMap = new Map(); // Map<int, Value>()
         this._typeIdMap = null; // Lazy initialized, Map<int, String>
@@ -76,28 +73,7 @@ class EncapsDecoder {
     }
 
     newInstance(typeId) {
-        // Try to find a factory registered for the specific type.
-        let userFactory = this._valueFactoryManager.find(typeId);
-        let v = null;
-
-        if (userFactory !== undefined) {
-            v = userFactory(typeId);
-        }
-
-        // If that fails, invoke the default factory if one has been registered.
-        if (v === null || v === undefined) {
-            userFactory = this._valueFactoryManager.find("");
-            if (userFactory !== undefined) {
-                v = userFactory(typeId);
-            }
-        }
-
-        // Last chance: try to instantiate the class dynamically.
-        if (v === null || v === undefined) {
-            v = this._stream.createInstance(typeId);
-        }
-
-        return v;
+        return this._stream.instance._initData.sliceLoader.newInstance(typeId);
     }
 
     addPatchEntry(index, cb) {
@@ -243,7 +219,7 @@ class EncapsDecoder10 extends EncapsDecoder {
         this.startSlice();
         const mostDerivedId = this._typeId;
         while (true) {
-            const userEx = this._stream.createUserException(this._typeId);
+            const userEx = this._stream.instance._initData.sliceLoader.newInstance(this._typeId);
 
             //
             // We found the exception.
@@ -306,7 +282,7 @@ class EncapsDecoder10 extends EncapsDecoder {
         //
         if (this._skipFirstSlice) {
             this._skipFirstSlice = false;
-            return this._typeId;
+            return;
         }
 
         //
@@ -327,8 +303,6 @@ class EncapsDecoder10 extends EncapsDecoder {
         if (this._sliceSize < 4) {
             throw new MarshalException(endOfBufferMessage);
         }
-
-        return this._typeId;
     }
 
     endSlice() {}
@@ -379,7 +353,7 @@ class EncapsDecoder10 extends EncapsDecoder {
             // marks the last slice.
             //
             if (this._typeId == Value.ice_staticId()) {
-                throw new MarshalException(`Cannot find value factory for type ID '${mostDerivedId}'.`);
+                throw new MarshalException(`The Slice loader cannot find a class for type ID '${mostDerivedId}'.`);
             }
 
             v = this.newInstance(this._typeId);
@@ -471,7 +445,7 @@ class EncapsDecoder11 extends EncapsDecoder {
         this.startSlice();
         const mostDerivedId = this._current.typeId;
         while (true) {
-            const userEx = this._stream.createUserException(this._current.typeId);
+            const userEx = this._stream.instance._initData.sliceLoader.newInstance(this._current.typeId);
 
             //
             // We found the exception.
@@ -519,7 +493,7 @@ class EncapsDecoder11 extends EncapsDecoder {
         //
         if (this._current.skipFirstSlice) {
             this._current.skipFirstSlice = false;
-            return this._current.typeId;
+            return;
         }
 
         this._current.sliceFlags = this._stream.readByte();
@@ -532,8 +506,8 @@ class EncapsDecoder11 extends EncapsDecoder {
         if (this._current.sliceType === SliceType.ValueSlice) {
             if ((this._current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) === Protocol.FLAG_HAS_TYPE_ID_COMPACT) {
                 // Must be checked 1st!
-                this._current.typeId = "";
                 this._current.compactId = this._stream.readSize();
+                this._current.typeId = this._current.compactId.toString();
             } else if (
                 (this._current.sliceFlags & (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) !==
                 0
@@ -565,8 +539,6 @@ class EncapsDecoder11 extends EncapsDecoder {
         } else {
             this._current.sliceSize = 0;
         }
-
-        return this._current.typeId;
     }
 
     endSlice() {
@@ -630,10 +602,12 @@ class EncapsDecoder11 extends EncapsDecoder {
         } else {
             if (this._current.sliceType == SliceType.ValueSlice) {
                 throw new MarshalException(
-                    `Cannot find value factory for type ID '${this._current.typeId}' and compact format prevents slicing.`,
+                    `The Slice loader cannot find a class for type ID '${this._current.typeId}' and compact format prevents slicing.`,
                 );
             } else {
-                throw new MarshalException(`Cannot find user exception for type ID '${this._current.typeId}'`);
+                throw new MarshalException(
+                    `The Slice loader cannot find a user exception class for type ID '${this._current.typeId}' and compact format prevents slicing.`,
+                );
             }
         }
 
@@ -723,13 +697,6 @@ class EncapsDecoder11 extends EncapsDecoder {
         this.startSlice();
         const mostDerivedId = this._current.typeId;
         while (true) {
-            if (this._current.compactId != -1) {
-                //
-                // Translate a compact (numeric) type ID into a string type ID.
-                //
-                this._current.typeId = this._stream.resolveCompactId(this._current.compactId);
-            }
-
             if (this._current.typeId.length > 0) {
                 v = this.newInstance(this._current.typeId);
             }
@@ -843,7 +810,7 @@ EncapsDecoder11.InstanceData = class {
         this.sliceFlags = 0;
         this.sliceSize = 0;
         this.typeId = null;
-        this.compactId = 0;
+        this.compactId = -1;
         this.indirectPatchList = null; // Lazy initialized, IndirectPatchEntry[]
     }
 };
@@ -960,7 +927,6 @@ export class InputStream {
         this._startSeq = -1;
         this._sizePos = -1;
 
-        this._valueFactoryManager = this._instance.initializationData().valueFactoryManager;
         this._classGraphDepthMax = this._instance.classGraphDepthMax();
     }
 
@@ -981,7 +947,6 @@ export class InputStream {
 
         // These are cached values derived from instance.
         DEV: console.assert(this._classGraphDepthMax === other._classGraphDepthMax);
-        DEV: console.assert(this._valueFactoryManager === other._valueFactoryManager);
 
         [other._buf, this._buf] = [this._buf, other._buf];
         [other._encoding, this._encoding] = [this._encoding, other._encoding];
@@ -1166,9 +1131,8 @@ export class InputStream {
     }
 
     startSlice() {
-        // Returns type ID of next slice
         DEV: console.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
-        return this._encapsStack.decoder.startSlice();
+        this._encapsStack.decoder.startSlice();
     }
 
     endSlice() {
@@ -1546,40 +1510,6 @@ export class InputStream {
         return this._buf.empty();
     }
 
-    createInstance(id) {
-        let obj = null;
-        const typeId = id.length > 2 ? id.substr(2).replace(/::/g, ".") : "";
-        try {
-            const Class = TypeRegistry.getValueType(typeId);
-            if (Class !== undefined) {
-                obj = new Class();
-            }
-        } catch (ex) {
-            throw new MarshalException(`Failed to create a class with type ID '${typeId}'.`, { cause: ex });
-        }
-
-        return obj;
-    }
-
-    createUserException(id) {
-        let userEx = null;
-        try {
-            const typeId = id.length > 2 ? id.substr(2).replace(/::/g, ".") : "";
-            const Class = TypeRegistry.getUserExceptionType(typeId);
-            if (Class !== undefined) {
-                userEx = new Class();
-            }
-        } catch (ex) {
-            throw new MarshalException(`Failed to create user exception with type ID '${id}'.`, { cause: ex });
-        }
-        return userEx;
-    }
-
-    resolveCompactId(compactId) {
-        const typeId = CompactIdRegistry.get(compactId);
-        return typeId === undefined ? "" : typeId;
-    }
-
     isEncoding_1_0() {
         return this._encapsStack !== null ? this._encapsStack.encoding_1_0 : this._encoding.equals(Encoding_1_0);
     }
@@ -1600,19 +1530,9 @@ export class InputStream {
         if (this._encapsStack.decoder === null) {
             // Lazy initialization.
             if (this._encapsStack.encoding_1_0) {
-                this._encapsStack.decoder = new EncapsDecoder10(
-                    this,
-                    this._encapsStack,
-                    this._classGraphDepthMax,
-                    this._valueFactoryManager,
-                );
+                this._encapsStack.decoder = new EncapsDecoder10(this, this._encapsStack, this._classGraphDepthMax);
             } else {
-                this._encapsStack.decoder = new EncapsDecoder11(
-                    this,
-                    this._encapsStack,
-                    this._classGraphDepthMax,
-                    this._valueFactoryManager,
-                );
+                this._encapsStack.decoder = new EncapsDecoder11(this, this._encapsStack, this._classGraphDepthMax);
             }
         }
     }

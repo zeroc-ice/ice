@@ -55,26 +55,27 @@ class FI extends Test.F {
     }
 }
 
-function MyValueFactory(type: string): Ice.Value | null {
-    switch (type) {
-        case "::Test::B":
-            return new BI();
-        case "::Test::C":
-            return new CI();
-        case "::Test::D":
-            return new DI();
-        case "::Test::E":
-            return new EI();
-        case "::Test::F":
-            return new FI();
-        case "::Test::Inner::A":
-            return new Test.Inner.A();
-        case "::Test::Inner::Sub::A":
-            return new Test.Inner.Sub.A();
-        default:
-            break;
+export class CustomSliceLoader implements Ice.SliceLoader {
+    newInstance(typeId: string): Ice.Value | Ice.UserException | null {
+        switch (typeId) {
+            case "::Test::B":
+                return new BI();
+            case "::Test::C":
+                return new CI();
+            case "::Test::D":
+                return new DI();
+            case "::Test::E":
+                return new EI();
+            case "::Test::F":
+                return new FI();
+            case "::Test::Inner::A":
+                return new Test.Inner.A();
+            case "::Test::Inner::Sub::A":
+                return new Test.Inner.Sub.A();
+            default:
+                return null;
+        }
     }
-    return null;
 }
 
 export class InitialI extends Test.Initial {
@@ -87,16 +88,6 @@ export class InitialI extends Test.Initial {
 
     constructor(communicator: Ice.Communicator) {
         super();
-        if (communicator !== undefined) {
-            communicator.getValueFactoryManager().add(MyValueFactory, "::Test::B");
-            communicator.getValueFactoryManager().add(MyValueFactory, "::Test::C");
-            communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D");
-            communicator.getValueFactoryManager().add(MyValueFactory, "::Test::E");
-            communicator.getValueFactoryManager().add(MyValueFactory, "::Test::F");
-            communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::A");
-            communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::Sub::A");
-        }
-
         this._b1 = new BI();
         this._b2 = new BI();
         this._c = new CI();

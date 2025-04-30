@@ -11,7 +11,7 @@ const Test = {
 Test.Inner = Test_Test.Inner;
 
 import { TestHelper } from "../../Common/TestHelper.js";
-import { InitialI } from "./InitialI.js";
+import { InitialI, CustomSliceLoader } from "./InitialI.js";
 
 class UnexpectedObjectExceptionTestI extends Test.UnexpectedObjectExceptionTest {
     op(current: Ice.Current) {
@@ -28,10 +28,13 @@ export class Server extends TestHelper {
         let communicator: Ice.Communicator | null = null;
         let echo: Test_Test.EchoPrx | null = null;
         try {
-            const [properties] = this.createTestProperties(args);
-            properties.setProperty("Ice.Warn.Dispatch", "0");
-            properties.setProperty("Ice.Warn.Connections", "0");
-            [communicator] = this.initialize(properties);
+            let initData = new Ice.InitializationData();
+            [initData.properties] = this.createTestProperties(args);
+            initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+            initData.properties.setProperty("Ice.Warn.Connections", "0");
+            initData.sliceLoader = new CustomSliceLoader();
+
+            [communicator] = this.initialize(initData);
             echo = new Test.EchoPrx(communicator, `__echo:${this.getTestEndpoint()}`);
             const adapter = await communicator.createObjectAdapter("");
             adapter.add(new InitialI(communicator), Ice.stringToIdentity("initial"));
