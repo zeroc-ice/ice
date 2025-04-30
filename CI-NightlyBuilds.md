@@ -11,6 +11,20 @@ Artifacts from the nightly builds are attached to the GitHub workflow:
 
 Additionally, packages are published to ZeroC's Nightly Nexus repositories.
 
+## Index
+
+- [Debian 12](#debian-12-x86_64-aarch64)
+- [Ubuntu 24.04](#ubuntu-2404-x86_64-aarch64)
+- [RHEL 9](#rhel-9-x86_64-i686-aarch64)
+- [Windows C++ NuGet](#windows-c-nuget)
+- [Windows MSI Installer](#windows-msi-installer)
+- [.NET 8.0](#net-80)
+- [MATLAB 2024a](#matlab-2024a)
+- [Ruby GEM](#ruby-gem)
+- [Python PIP](#python-pip)
+- [JavaScript NPM](#javascript-npm)
+- [Java](#java)
+
 ---
 
 ## Debian 12 (x86_64, aarch64)
