@@ -14,7 +14,7 @@ public class Client extends TestHelper {
         var initData = new InitializationData();
         initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.inheritance.Test");
         initData.properties = createTestProperties(args);
-    
+
         try (Communicator communicator = initialize(initData)) {
             InitialPrx initial = AllTests.allTests(this);
             initial.shutdown();
