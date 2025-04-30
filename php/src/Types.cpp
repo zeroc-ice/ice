@@ -2314,13 +2314,7 @@ IcePHP::DictionaryInfo::destroy()
 }
 
 // ClassInfo implementation.
-IcePHP::ClassInfo::ClassInfo(string ident)
-    : id(std::move(ident)),
-      compactId(-1),
-      zce(0),
-      defined(false)
-{
-}
+IcePHP::ClassInfo::ClassInfo(string ident) : id(std::move(ident)), compactId(-1), zce(0), defined(false) {}
 
 void
 IcePHP::ClassInfo::define(const string& n, int32_t compact, zval* b, zval* m)
