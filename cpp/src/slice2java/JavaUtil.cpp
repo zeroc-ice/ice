@@ -1722,8 +1722,9 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
         .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
         .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
         {
-            const string msg = "'java:package' is deprecated; use 'java:identifier' to remap modules instead";
-            p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
+            // TODO uncomment after replacing 'java:package' with 'java:identifier'.
+            // const string msg = "'java:package' is deprecated; use 'java:identifier' to remap modules instead";
+            // p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
 
             if (auto cont = dynamic_pointer_cast<Contained>(p); cont && cont->hasMetadata("java:identifier"))
             {
