@@ -55,3 +55,4 @@
 /// <reference path="./UnknownSlicedValue.d.ts" />
 /// <reference path="./UserException.d.ts" />
 /// <reference path="./SliceLoader.d.ts" />
+/// <reference path="./CompositeSliceLoader.d.ts" />

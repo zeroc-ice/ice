@@ -7,6 +7,7 @@ import * as Ice_BuiltinSequences from "./BuiltinSequences.js";
 import * as Ice_Communicator from "./Communicator.js";
 // Must be imported after Communicator.js for the prototype extensions.
 import "./CommunicatorExtensions.js";
+import * as Ice_CompositeSliceLoader from "./CompositeSliceLoader.js";
 import * as Ice_Connection from "./Connection.js";
 import * as Ice_Context from "./Context.js";
 import * as Ice_Current from "./Current.js";
@@ -92,6 +93,7 @@ export const Ice = {
     ...Ice_AsyncStatus,
     ...Ice_Buffer,
     ...Ice_Communicator,
+    ...Ice_CompositeSliceLoader,
     ...Ice_Connection,
     ...Ice_Current,
     ...Ice_DefaultsAndOverrides,
