@@ -1,2 +1,6 @@
 dist
 *.gem
+ruby/Glacier2/*
+ruby/IceBox/*
+ruby/IceGrid/*
+ruby/IceStorm/*

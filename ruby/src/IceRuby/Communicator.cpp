@@ -155,20 +155,13 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
 
         if (!NIL_P(initData))
         {
-            volatile VALUE properties = callRuby(rb_iv_get, initData, "@properties");
-            volatile VALUE logger = callRuby(rb_iv_get, initData, "@logger");
-            volatile VALUE initDataSliceLoader = callRuby(rb_iv_get, initData, "@sliceLoader");
-
+            VALUE properties = callRuby(rb_iv_get, initData, "@properties");
             if (!NIL_P(properties))
             {
                 data.properties = getProperties(properties);
             }
 
-            if (!NIL_P(logger))
-            {
-                throw RubyException(rb_eArgError, "custom logger is not supported");
-            }
-
+            VALUE initDataSliceLoader = callRuby(rb_iv_get, initData, "@sliceLoader");
             if (!NIL_P(initDataSliceLoader))
             {
                 auto compositeSliceLoader = make_shared<Ice::CompositeSliceLoader>();
