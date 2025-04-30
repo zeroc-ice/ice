@@ -143,7 +143,7 @@
               DestinationFiles="ZeroC.Ice.Cpp\ICE_LICENSE.txt" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
               DestinationFiles="ZeroC.Ice.Cpp\LICENSE.txt" />
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\config\logo-128x128.png"
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\assets\logo-128x128.png"
               DestinationFiles="ZeroC.Ice.Cpp\logo-128x128.png" />
         <Copy SourceFiles="ZeroC.Ice.Cpp.nuspec"
               DestinationFolder="ZeroC.Ice.Cpp" />

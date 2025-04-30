@@ -45,7 +45,7 @@
       <Content Include="ZeroC.Ice.Slice.Tools.targets" Pack="true" PackagePath="build/" />
       <None Include="$(OutputPath)/$(AssemblyName).dll" Pack="true" PackagePath="tasks/" Visible="false" />
       <Content Include="README.md" Pack="true" PackagePath="/" />
-      <Content Include="$(MSBuildThisFileDirectory)../../../config/logo-128x128.png" Pack="true" PackagePath="/" />
+      <Content Include="$(MSBuildThisFileDirectory)../../../assets/logo-128x128.png" Pack="true" PackagePath="/" />
     </ItemGroup>
 
     <ItemGroup>
