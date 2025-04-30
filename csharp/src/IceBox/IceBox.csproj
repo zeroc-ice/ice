@@ -7,6 +7,8 @@
     <PackageId>ZeroC.IceBox</PackageId>
     <PackageTags>Ice</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
+    <PackageIcon>logo-128x128.png</PackageIcon>
   </PropertyGroup>
   <ItemGroup>
     <SliceCompile Include="../../../slice/IceBox/*.ice" />
@@ -27,6 +29,7 @@
     <!-- Packaging files -->
     <Content Include="../../../LICENSE" Pack="true" PackagePath="/" />
     <Content Include="../../../ICE_LICENSE" Pack="true" PackagePath="/" />
+    <Content Include="../../../assets/logo-128x128.png" Pack="true" PackagePath="/" />
     <Content Include="README.md" Pack="true" PackagePath="/" />
     <Content Include="@(SliceCompile)" Pack="true" PackagePath="/slice/IceBox"/>
     <Content Include="ZeroC.IceBox.props" Pack="true" PackagePath="buildTransitive/" />

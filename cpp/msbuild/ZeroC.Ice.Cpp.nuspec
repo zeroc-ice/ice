@@ -8,7 +8,7 @@
     <copyright>Copyright (c) ZeroC, Inc. All rights reserved</copyright>
     <license type="expression">GPL-2.0-only</license>
     <projectUrl>https://github.com/zeroc-ice/ice</projectUrl>
-    <icon>logo.png</icon>
+    <icon>logo-128x128.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Ice C++ SDK for Visual Studio 2022 (v143). The Ice framework provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.</description>
     <releaseNotes>https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes</releaseNotes>
