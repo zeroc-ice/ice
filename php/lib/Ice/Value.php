@@ -24,7 +24,7 @@ class Value
 }
 
 global $Ice__t_Value;
-$Ice__t_Value = IcePHP_defineClass('::Ice::Object', "\\Ice\\Value", -1, false, null, null);
+$Ice__t_Value = IcePHP_defineClass('::Ice::Object', "\\Ice\\Value", -1, null, null);
 
 class UnknownSlicedValue extends Value
 {
@@ -41,7 +41,7 @@ class UnknownSlicedValue extends Value
 }
 
 global $Ice__t_UnknownSlicedValue;
-$Ice__t_UnknownSlicedValue = IcePHP_defineClass('::Ice::UnknownSlicedValue', "\\Ice\\UnknownSlicedValue", -1, false,
+$Ice__t_UnknownSlicedValue = IcePHP_defineClass('::Ice::UnknownSlicedValue', "\\Ice\\UnknownSlicedValue", -1,
                                                 $Ice__t_Value, null);
 
 class SlicedData

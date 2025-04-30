@@ -2314,21 +2314,13 @@ IcePHP::DictionaryInfo::destroy()
 }
 
 // ClassInfo implementation.
-IcePHP::ClassInfo::ClassInfo(string ident)
-    : id(std::move(ident)),
-      compactId(-1),
-      interface(false),
-      zce(0),
-      defined(false)
-{
-}
+IcePHP::ClassInfo::ClassInfo(string ident) : id(std::move(ident)), compactId(-1), zce(0), defined(false) {}
 
 void
-IcePHP::ClassInfo::define(const string& n, int32_t compact, bool intf, zval* b, zval* m)
+IcePHP::ClassInfo::define(const string& n, int32_t compact, zval* b, zval* m)
 {
     const_cast<string&>(name) = n;
     const_cast<int32_t&>(compactId) = static_cast<int32_t>(compact);
-    const_cast<bool&>(interface) = intf;
 
     if (b)
     {
@@ -2426,6 +2418,7 @@ IcePHP::ClassInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMap
     }
 
     // Give the writer to the stream. The stream will eventually call write() on it.
+    assert(writer);
     os->write(writer);
 }
 
@@ -2837,18 +2830,14 @@ IcePHP::ValueWriter::ValueWriter(zval* object, ObjectMap* objectMap, ClassInfoPt
 {
     // Copy zval and increase ref count
     ZVAL_COPY(&_object, object);
-    if (!_formal || !_formal->interface)
-    {
-        //
-        // For non interface types we need to determine the most-derived Slice type supported by
-        // this object. This is typically a Slice class, but it can also be an interface.
-        //
-        // The caller may have provided a ClassInfo representing the formal type, in
-        // which case we ensure that the actual type is compatible with the formal type.
-        //
-        _info = getClassInfoByClass(Z_OBJCE_P(object), formal ? const_cast<zend_class_entry*>(formal->zce) : 0);
-        assert(_info);
-    }
+
+    // We need to determine the most-derived Slice type supported by this object. This is typically a Slice class,
+    // but it can also be an interface.
+    //
+    // The caller may have provided a ClassInfo representing the formal type, in which case we ensure that the
+    // actual type is compatible with the formal type.
+    _info = getClassInfoByClass(Z_OBJCE_P(object), formal ? const_cast<zend_class_entry*>(formal->zce) : 0);
+    assert(_info);
 }
 
 IcePHP::ValueWriter::~ValueWriter() { zval_ptr_dtor(&_object); }
@@ -2874,59 +2863,21 @@ IcePHP::ValueWriter::_iceWrite(Ice::OutputStream* os) const
         StreamUtil::getSlicedDataMember(const_cast<zval*>(&_object), const_cast<ObjectMap*>(_map));
 
     os->startValue(slicedData);
-
-    if (_formal && _formal->interface)
+    if (_info->id != "::Ice::UnknownSlicedValue")
     {
-        // For an interface by value we just marshal the Ice type id of the object in its own slice.
-        zval ret;
-        ZVAL_UNDEF(&ret);
-
-        zend_try
+        ClassInfoPtr info = _info;
+        while (info && info->id != Ice::Value::ice_staticId())
         {
-            assert(Z_TYPE(_object) == IS_OBJECT);
-            zend_call_method(Z_OBJ_P(&_object), 0, 0, const_cast<char*>("ice_id"), sizeof("ice_id") - 1, &ret, 0, 0, 0);
-        }
-        zend_catch
-        {
-            // ret;
-        }
-        zend_end_try();
+            assert(info->base); // All classes have the Ice::Value base type.
+            const bool lastSlice = info->base->id == Ice::Value::ice_staticId();
+            os->startSlice(info->id, info->compactId, lastSlice);
 
-        // Bail out if an exception has already been thrown.
-        if (Z_ISUNDEF(ret) || EG(exception))
-        {
-            throw AbortMarshaling();
-        }
+            writeMembers(os, info->members);
+            writeMembers(os, info->optionalMembers); // The optional members have already been sorted by tag.
 
-        AutoDestroy destroy(&ret);
+            os->endSlice();
 
-        if (Z_TYPE(ret) != IS_STRING)
-        {
-            throw AbortMarshaling();
-        }
-
-        string id(Z_STRVAL(ret), Z_STRLEN(ret));
-        os->startSlice(id, -1, true);
-        os->endSlice();
-    }
-    else
-    {
-        if (_info->id != "::Ice::UnknownSlicedValue")
-        {
-            ClassInfoPtr info = _info;
-            while (info && info->id != Ice::Value::ice_staticId())
-            {
-                assert(info->base); // All classes have the Ice::Value base type.
-                const bool lastSlice = info->base->id == Ice::Value::ice_staticId();
-                os->startSlice(info->id, info->compactId, lastSlice);
-
-                writeMembers(os, info->members);
-                writeMembers(os, info->optionalMembers); // The optional members have already been sorted by tag.
-
-                os->endSlice();
-
-                info = info->base;
-            }
+            info = info->base;
         }
     }
     os->endValue();
@@ -3129,7 +3080,7 @@ IcePHP::ReadObjectCallback::invoke(const shared_ptr<Ice::Value>& p)
         assert(reader);
 
         // Verify that the unmarshaled object is compatible with the formal type.
-        if (!_info->interface && !reader->getInfo()->isA(_info->id))
+        if (!reader->getInfo()->isA(_info->id))
         {
             throw MarshalException{
                 __FILE__,
@@ -3543,19 +3494,17 @@ ZEND_FUNCTION(IcePHP_defineClass)
     char* name;
     size_t nameLen;
     zend_long compactId;
-    zend_bool interface;
     zval* base;
     zval* members;
 
     if (zend_parse_parameters(
             ZEND_NUM_ARGS(),
-            const_cast<char*>("sslbo!a!"),
+            const_cast<char*>("sslo!a!"),
             &id,
             &idLen,
             &name,
             &nameLen,
             &compactId,
-            &interface,
             &base,
             &members) == FAILURE)
     {
@@ -3569,13 +3518,9 @@ ZEND_FUNCTION(IcePHP_defineClass)
         addClassInfoById(type);
     }
 
-    type->define(name, static_cast<int32_t>(compactId), interface ? true : false, base, members);
+    type->define(name, static_cast<int32_t>(compactId), base, members);
 
-    if (!interface)
-    {
-        addClassInfoByName(type);
-    }
-
+    addClassInfoByName(type);
     if (type->compactId != -1)
     {
         addClassInfoByCompactId(type);
