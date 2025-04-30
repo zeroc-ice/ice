@@ -18,6 +18,8 @@ on:
     secrets:
       NUGET_API_KEY:
         required: false
+      REPOSITORY_PASSWORD:
+        required: false
   workflow_dispatch:
     inputs:
       ice_version:
