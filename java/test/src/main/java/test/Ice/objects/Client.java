@@ -6,7 +6,7 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ClassSliceLoader;
 import com.zeroc.Ice.CompositeSliceLoader;
-import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.ModuleToPackageSliceLoader;
 
 import test.Ice.objects.Test.Compact;
 import test.Ice.objects.Test.CompactExt;
@@ -17,7 +17,6 @@ public class Client extends TestHelper {
     public void run(String[] args) {
         var initData = new InitializationData();
         initData.properties = createTestProperties(args);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
         initData.properties.setProperty("Ice.MessageSizeMax", "2048"); // Needed on some Android versions
         initData.sliceLoader =
             new CompositeSliceLoader(
@@ -29,7 +28,8 @@ public class Client extends TestHelper {
                         default -> null;
                     };
                 },
-                new ClassSliceLoader(Compact.class, CompactExt.class));
+                new ClassSliceLoader(Compact.class, CompactExt.class),
+                new ModuleToPackageSliceLoader("::Test", "test.Ice.objects.Test"));
 
         try (Communicator communicator = initialize(initData)) {
             InitialPrx initial = AllTests.allTests(this);

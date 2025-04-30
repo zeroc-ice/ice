@@ -3,27 +3,24 @@
 package test.Ice.interrupt;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
 public class Collocated extends TestHelper {
     public void run(String[] args) {
-        Properties properties = createTestProperties(args);
-        properties.setProperty("Ice.Package.Test", "test.Ice.interrupt");
-        //
+        var initData = new InitializationData();
+        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.interrupt.Test");
+        initData.properties = createTestProperties(args);
         // We need to send messages large enough to cause the transport buffers to fill up.
-        //
-        properties.setProperty("Ice.MessageSizeMax", "20000");
-        //
-        // opIdempotent raises UnknownException, we disable dispatch
-        // warnings to prevent warnings.
-        //
-        properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("Ice.MessageSizeMax", "20000");
+        // opIdempotent raises UnknownException, we disable dispatch warnings to prevent warnings.
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
 
-        try (Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator
                 .getProperties()

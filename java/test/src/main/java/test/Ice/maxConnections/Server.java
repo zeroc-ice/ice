@@ -3,15 +3,18 @@
 package test.Ice.maxConnections;
 
 import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.ModuleToPackageSliceLoader;
 
 import test.TestHelper;
 
 public class Server extends TestHelper {
     public void run(String[] args) {
-        var properties = createTestProperties(args);
-        properties.setProperty("Ice.Package.Test", "test.Ice.maxConnections");
+        var initData = new InitializationData();
+        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.maxConnections.Test");
+        initData.properties = createTestProperties(args);
 
-        try (var communicator = initialize(properties)) {
+        try (var communicator = initialize(initData)) {
             // Plain adapter with no limit.
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
             var adapter = communicator.createObjectAdapter("TestAdapter");

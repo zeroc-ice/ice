@@ -6,8 +6,8 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ClassSliceLoader;
 import com.zeroc.Ice.CompositeSliceLoader;
+import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 
 import test.Ice.objects.Test.Compact;
@@ -19,7 +19,6 @@ public class Collocated extends TestHelper {
     public void run(String[] args) {
         var initData = new InitializationData();
         initData.properties = createTestProperties(args);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         initData.sliceLoader =
             new CompositeSliceLoader(
@@ -31,7 +30,8 @@ public class Collocated extends TestHelper {
                         default -> null;
                     };
                 },
-                new ClassSliceLoader(Compact.class, CompactExt.class));
+                new ClassSliceLoader(Compact.class, CompactExt.class),
+                new ModuleToPackageSliceLoader("::Test", "test.Ice.objects.Test"));
 
         try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));

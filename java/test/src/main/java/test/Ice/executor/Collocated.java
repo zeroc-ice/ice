@@ -4,6 +4,7 @@ package test.Ice.executor;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Util;
 
@@ -12,10 +13,12 @@ import test.TestHelper;
 public class Collocated extends TestHelper {
     public void run(String[] args) {
         InitializationData initData = new InitializationData();
-        CustomExecutor executor = new CustomExecutor();
+        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.executor.Test");
         initData.properties = createTestProperties(args);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.executor");
+
+        CustomExecutor executor = new CustomExecutor();
         initData.executor = executor;
+
         try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator

@@ -8,7 +8,7 @@ class SliceGenerationTestCase(ClientTestCase):
     def runClientSide(self, current):
         current.write("testing list-generated... ")
 
-        slice2java = SliceTranslator("slice2java")
+        slice2java = SliceTranslator("slice2java", quiet=True)
         current.mkdirs("classes")
 
         slice2java.run(

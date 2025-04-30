@@ -3,9 +3,10 @@
 package test.Ice.faultTolerance;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 
 import test.TestHelper;
@@ -20,9 +21,11 @@ public class Server extends TestHelper {
 
     public void run(String[] args) {
         List<String> remainingArgs = new ArrayList<String>();
-        Properties properties = createTestProperties(args, remainingArgs);
-        properties.setProperty("Ice.Package.Test", "test.Ice.faultTolerance");
-        try (Communicator communicator = initialize(properties)) {
+        var initData = new InitializationData();
+        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.faultTolerance.Test");
+        initData.properties = createTestProperties(args, remainingArgs);
+
+        try (Communicator communicator = initialize(initData)) {
             int port = 0;
             for (String arg : remainingArgs) {
                 if (arg.charAt(0) == '-') {

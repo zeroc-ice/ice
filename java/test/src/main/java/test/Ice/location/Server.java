@@ -3,22 +3,24 @@
 package test.Ice.location;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.LocatorRegistryPrx;
+import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
 public class Server extends TestHelper {
     public void run(String[] args) {
-        Properties properties = createTestProperties(args);
-        properties.setProperty("Ice.Package.Test", "test.Ice.location");
-        properties.setProperty("Ice.ThreadPool.Server.Size", "2");
-        properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
+        var initData = new InitializationData();
+        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.location.Test");
+        initData.properties = createTestProperties(args);
+        initData.properties.setProperty("Ice.ThreadPool.Server.Size", "2");
+        initData.properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
 
-        try (Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(initData)) {
             communicator
                 .getProperties()
                 .setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));

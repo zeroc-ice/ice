@@ -9,13 +9,14 @@ import com.zeroc.Glacier2.SessionNotExistException;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.LocalException;
+import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.ProcessPrx;
-import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.RouterFinderPrx;
 import com.zeroc.Ice.SocketException;
 import com.zeroc.Ice.Util;
@@ -32,12 +33,13 @@ import java.util.stream.Stream;
 
 public class Client extends TestHelper {
     public void run(String[] args) {
-        Properties properties = createTestProperties(args);
-        properties.setProperty("Ice.Warn.Dispatch", "0");
-        properties.setProperty("Ice.Warn.Connections", "0");
-        properties.setProperty("Ice.Package.Test", "test.Glacier2.router");
+        var initData = new InitializationData();
+        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Glacier2.router.Test");
+        initData.properties =  createTestProperties(args);
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-        try (Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(initData)) {
             ObjectPrx routerBase;
 
             PrintWriter out = getWriter();

@@ -3,17 +3,19 @@
 package test.Ice.adapterDeactivation;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Properties;
 
 import test.TestHelper;
 
 public class Collocated extends TestHelper {
     public void run(String[] args) {
-        Properties properties = createTestProperties(args);
-        properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
+        var initData = new InitializationData();
+        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.adapterDeactivation.Test");
+        initData.properties = createTestProperties(args);
 
-        try (Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(initData)) {
             //
             // 2 threads are necessary to dispatch the collocated transient() call with AMI
             //

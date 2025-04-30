@@ -4,6 +4,7 @@ package test.Ice.retry;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.ModuleToPackageSliceLoader;
 
 import test.Ice.retry.Test.RetryPrx;
 import test.TestHelper;
@@ -13,13 +14,11 @@ public class Client extends TestHelper {
 
     public void run(String[] args) {
         InitializationData initData = new InitializationData();
+        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.retry.Test");
         initData.observer = instrumentation.getObserver();
         initData.properties = createTestProperties(args);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
         initData.properties.setProperty("Ice.RetryIntervals", "0 1 400 1");
-        //
         // We don't want connection warnings because of the timeout
-        //
         initData.properties.setProperty("Ice.Warn.Connections", "0");
 
         try (Communicator communicator = initialize(initData)) {
