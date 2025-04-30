@@ -7,7 +7,9 @@ xcframeworks                    = Ice IceDiscovery IceLocatorDiscovery
 macosx_ar                       = libtool
 macosx_cppflags                 = -mmacosx-version-min=14.00
 macosx_ldflags                  = $(macosx_cppflags) \
+                                  -Wl,-max_default_common_align,0x4000 \
                                   $(if $(filter yes, $(allow-undefined-symbols)),-undefined dynamic_lookup,)
+
 macosx_targetdir                = $(if $(filter %/build,$5),/macosx)
 macosx_cmakedir                 = /cmake
 
