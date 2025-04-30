@@ -64,7 +64,7 @@ jobs:
           endpoint: https://eus.codesigning.azure.net/
           trusted-signing-account-name: vscx-codesigning
           certificate-profile-name: vscx-certificate-profile
-          files-folder: ./ice/cpp/bin
+          files-folder: ./cpp/bin
           files-folder-recurse: true
           files-folder-filter: exe,dll
           file-digest: SHA256
