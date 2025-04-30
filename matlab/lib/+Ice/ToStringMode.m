@@ -8,7 +8,7 @@
 %   ASCII - Characters with ordinal values greater than 127 are encoded as universal character names in the resulting string: \\unnnn for BMP characters and \\Unnnnnnnn for non-BMP characters.
 %   Compat - Characters with ordinal values greater than 127 are encoded as a sequence of UTF-8 bytes using octal escapes.
 %
-% See also Ice.Logger, Ice.ObjectAdapter, Ice.Properties, Ice.ValueFactory, The output mode for xxxToString method such as identityToString and proxyToString. The actual encoding format for, the string is the same for all modes: you don't need to specify an encoding format or mode when reading such a, string.
+% See also Ice.Logger, Ice.ObjectAdapter, Ice.Properties, The output mode for xxxToString method such as identityToString and proxyToString. The actual encoding format for, the string is the same for all modes: you don't need to specify an encoding format or mode when reading such a, string.
 
 % Copyright (c) ZeroC, Inc.
 

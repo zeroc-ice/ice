@@ -497,9 +497,9 @@ classdef InputStream < handle
                 r = obj.encapsStack.encoding;
             end
         end
-        function r = startSlice(obj)
+        function startSlice(obj)
             %assert(isobject(obj.encapsStackDecoder));
-            r = obj.encapsStackDecoder.startSlice();
+            obj.encapsStackDecoder.startSlice();
         end
         function endSlice(obj)
             %assert(isobject(obj.encapsStackDecoder));
@@ -800,15 +800,12 @@ classdef InputStream < handle
             end
 
             if ~isobject(obj.encapsStack.decoder) % Lazy initialization
-                valueFactoryManager = obj.communicator.getValueFactoryManager();
                 if obj.encapsStack.encoding_1_0
                     obj.encapsStack.decoder = ...
-                        IceInternal.EncapsDecoder10(obj, obj.encapsStack, valueFactoryManager, ...
-                            obj.communicator.getClassResolver(), obj.classGraphDepthMax);
+                        IceInternal.EncapsDecoder10(obj, obj.encapsStack, obj.classGraphDepthMax);
                 else
                     obj.encapsStack.decoder = ...
-                        IceInternal.EncapsDecoder11(obj, obj.encapsStack, valueFactoryManager, ...
-                            obj.communicator.getClassResolver(), obj.classGraphDepthMax);
+                        IceInternal.EncapsDecoder11(obj, obj.encapsStack, obj.classGraphDepthMax);
                 end
                 obj.encapsStackDecoder = obj.encapsStack.decoder;
             end
@@ -817,19 +814,14 @@ classdef InputStream < handle
     methods (Static, Access = private)
 
         function throwUOE(expectedType, v)
-            %
-            % If the object is an unknown sliced object, we didn't find a
-            % value factory, in this case raise a MarshalException
-            % instead.
-            %
             if isa(v, 'Ice.UnknownSlicedValue')
                 throw(Ice.MarshalException(...
-                    sprintf('cannot find value factory to unmarshal class with type ID ''%s''', v.ice_id())));
+                    sprintf('The Slice loader did not find a class for type ID ''%s''.', v.ice_id())));
             end
 
             type = class(v);
             throw(Ice.MarshalException(...
-                sprintf('failed to unmarshal class with type ID ''%s'': value factory returned a class with type ID ''%s''', expectedType, type)));
+                sprintf('Failed to unmarshal class with type ID ''%s'': the Slice loader returned a class with type ID ''%s''.', expectedType, type)));
         end
 
     end

@@ -2,7 +2,7 @@
 
 classdef AllTests
     methods(Static)
-        function r = allTests(helper)
+        function r = allTests(helper, customSliceLoader)
             import Test.*;
 
             communicator = helper.communicator();
@@ -1460,29 +1460,6 @@ classdef AllTests
             fprintf('ok\n');
 
             fprintf('garbage collection for preserved classes... ');
-
-            %
-            % Register a factory in order to substitute our own subclass of Preserved. This provides
-            % an easy way to determine how many unmarshaled instances currently exist.
-            %
-            preservedCounter = Counter();
-            function r = preservedFactory(id)
-                preservedCounter.count = preservedCounter.count + 1;
-                r = Test.Preserved();
-            end
-            communicator.getValueFactoryManager().add(@preservedFactory, Preserved.ice_staticId());
-
-            %
-            % Register a factory in order to substitute our own subclass of Preserved. This provides
-            % an easy way to determine how many unmarshaled instances currently exist.
-            %
-            nodeCounter = Counter();
-            function r = nodeFactory(id)
-                nodeCounter.count = nodeCounter.count + 1;
-                r = Test.PNode();
-            end
-            communicator.getValueFactoryManager().add(@nodeFactory, PNode.ice_staticId());
-
             try
                 %
                 % Relay a graph through the server.
@@ -1492,22 +1469,22 @@ classdef AllTests
                 c.next.next = PNode();
                 c.next.next.next = c;
 
-                assert(nodeCounter.count == 0);
+                assert(customSliceLoader.nodeCounter == 0);
                 proxy.exchangePNode(c);
 
-                assert(nodeCounter.count == 3);
-                nodeCounter.count = 0;
+                assert(customSliceLoader.nodeCounter == 3);
+                customSliceLoader.nodeCounter = 0;
 
                 %
                 % Obtain a preserved object from the server where the most-derived
                 % type is unknown. The preserved slice refers to a graph of PNode
                 % objects.
                 %
-                assert(nodeCounter.count == 0);
+                assert(customSliceLoader.nodeCounter == 0);
                 p = proxy.PBSUnknownAsPreservedWithGraph();
                 proxy.checkPBSUnknownWithGraph(p);
-                assert(nodeCounter.count == 3);
-                nodeCounter.count = 0;
+                assert(customSliceLoader.nodeCounter == 3);
+                customSliceLoader.nodeCounter = 0;
 
                 %
                 % Obtain a preserved object from the server where the most-derived
@@ -1516,11 +1493,11 @@ classdef AllTests
                 %
                 % outer.slicedData.outer
                 %
-                preservedCounter.count = 0;
+                customSliceLoader.preservedCounter = 0;
                 p = proxy.PBSUnknown2AsPreservedWithGraph();
                 proxy.checkPBSUnknown2WithGraph(p);
-                assert(preservedCounter.count == 1);
-                preservedCounter.count = 0;
+                assert(customSliceLoader.preservedCounter == 1);
+                customSliceLoader.preservedCounter = 0;
 
                 %
                 % Throw a preserved exception where the most-derived type is unknown.
@@ -1533,19 +1510,19 @@ classdef AllTests
                 %
                 % ex.slicedData.obj.slicedData.obj
                 %
-                assert(preservedCounter.count == 0);
+                assert(customSliceLoader.preservedCounter == 0);
 
                 try
                     proxy.throwPreservedException();
                 catch ex
                     if isa(ex, 'Test.PreservedException')
-                        assert(preservedCounter.count == 1);
+                        assert(customSliceLoader.preservedCounter == 1);
                     else
                         rethrow(ex);
                     end
                 end
 
-                preservedCounter.count = 0;
+                customSliceLoader.preservedCounter = 0;
             catch ex
                 if isa(ex, 'Ice.OperationNotExistException')
                     % Ignore

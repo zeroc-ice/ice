@@ -28,21 +28,6 @@ classdef Util
             end
         end
 
-        function r = idToClass(id)
-            %assert(length(id) > 2 && strcmp(id(1:2), '::'));
-            ids = strsplit(id, '::');
-            ids = ids(2:end); % Skip empty leading element.
-            %
-            % Escape any elements that match a keyword.
-            %
-            for i = 1:length(ids)
-                if ismember(ids{i}, IceInternal.Util.keywords)
-                    ids{i} = strcat(ids{i}, '_');
-                end
-            end
-            r = strjoin(ids, '.');
-        end
-
         function r = strcmp(s1, s2)
             n = min(length(s1), length(s2));
             for i = 1:n
@@ -62,13 +47,5 @@ classdef Util
                 r = 0;
             end
         end
-    end
-    properties(Constant, Access=private)
-        %
-        % Keyword list. *Must* be kept in alphabetical order and synchronized with the list in slice2matlab.
-        %
-        keywords = { 'break', 'case', 'catch', 'classdef', 'continue', 'else', 'elseif', 'end', 'enumeration', ...
-                     'events', 'for', 'function', 'global', 'if', 'methods', 'otherwise', 'parfor', 'persistent', ...
-                     'properties', 'return', 'spmd', 'switch', 'try', 'while' };
     end
 end

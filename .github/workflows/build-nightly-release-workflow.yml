@@ -147,6 +147,11 @@ jobs:
   build-matlab-packages:
     name: Build MATLAB Packages
     uses: ./.github/workflows/build-matlab-packages.yml
+    with:
+      repository_url: "${{ inputs.repository_url }}/nightly/"
+      repository_username: ${{ inputs.repository_username }}
+    secrets:
+      REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-maven-packages:
     name: Build Maven Packages
