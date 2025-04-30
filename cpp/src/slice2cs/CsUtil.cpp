@@ -1798,6 +1798,12 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
             const string msg = "'cs:namespace' is deprecated; use 'cs:identifier' to remap modules instead";
             p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
 
+            if (auto cont = dynamic_pointer_cast<Contained>(p); cont && cont->hasMetadata("cs:identifier"))
+            {
+                return "the 'cs:namespace' metadata cannot be used alongside 'cs:identifier' - both change the name of "
+                       "the mapped module";
+            }
+
             // 'cs:namespace' can only be applied to top-level modules
             // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
             if (auto mod = dynamic_pointer_cast<Module>(p); mod && !mod->isTopLevel())

@@ -1702,6 +1702,8 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
             {typeid(Module),
              typeid(InterfaceDecl),
              typeid(Operation),
+             typeid(ClassDecl),
+             typeid(Slice::Exception),
              typeid(Struct),
              typeid(Sequence),
              typeid(Dictionary),
@@ -1718,8 +1720,17 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
     MetadataInfo packageInfo = {
         .validOn = {typeid(Unit), typeid(Module)},
         .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
-        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
+        .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
         {
+            const string msg = "'java:package' is deprecated; use 'java:identifier' to remap modules instead";
+            p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
+
+            if (auto cont = dynamic_pointer_cast<Contained>(p); cont && cont->hasMetadata("java:identifier"))
+            {
+                return "the 'java:package' metadata cannot be used alongside 'java:identifier' - both change the name "
+                       "of the mapped module";
+            }
+
             // If 'java:package' is applied to a module, it must be a top-level module.
             // // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
             if (auto mod = dynamic_pointer_cast<Module>(p); mod && !mod->isTopLevel())

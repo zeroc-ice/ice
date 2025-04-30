@@ -2439,6 +2439,12 @@ Slice::Python::validateMetadata(const UnitPtr& unit)
             const string msg = "'python:package' is deprecated; use 'python:identifier' to remap modules instead";
             p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
 
+            if (auto cont = dynamic_pointer_cast<Contained>(p); cont && cont->hasMetadata("python:identifier"))
+            {
+                return "the 'python:package' metadata cannot be used alongside 'python:identifier' - both change the "
+                       "name of the mapped module";
+            }
+
             // If 'python:package' is applied to a module, it must be a top-level module.
             // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
             if (auto mod = dynamic_pointer_cast<Module>(p); mod && !mod->isTopLevel())

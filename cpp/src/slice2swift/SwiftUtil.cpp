@@ -536,13 +536,10 @@ SwiftGenerator::validateMetadata(const UnitPtr& u)
             const string msg = "'swift:module' is deprecated; use 'swift:identifier' to remap modules instead";
             p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
 
-            if (auto contained = dynamic_pointer_cast<Contained>(p))
+            if (auto cont = dynamic_pointer_cast<Contained>(p); cont && cont->hasMetadata("swift:identifier"))
             {
-                if (contained->hasMetadata("swift:identifier"))
-                {
-                    return "the 'swift:module' metadata cannot be used alongside 'swift:identifier' - both change the "
-                           "name of the mapped module";
-                }
+                return "the 'swift:module' metadata cannot be used alongside 'swift:identifier' - both change the name "
+                        "of the mapped module";
             }
             return nullopt;
         }};
