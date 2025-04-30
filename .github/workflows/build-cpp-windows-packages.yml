@@ -62,8 +62,8 @@ jobs:
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           endpoint: https://eus.codesigning.azure.net/
-          trusted-signing-account-name: vscx-codesigning
-          certificate-profile-name: vscx-certificate-profile
+          trusted-signing-account-name: zeroc
+          certificate-profile-name: zeroc-ice
           files-folder: ./cpp/bin
           files-folder-recurse: true
           files-folder-filter: exe,dll
@@ -102,8 +102,8 @@ jobs:
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           endpoint: https://eus.codesigning.azure.net/
-          trusted-signing-account-name: vscx-codesigning
-          certificate-profile-name: vscx-certificate-profile
+          trusted-signing-account-name: zeroc
+          certificate-profile-name: zeroc-ice
           files-folder: ./ice/packaging/msi/bin/x64/Release/
           files-folder-filter: msi
           file-digest: SHA256
