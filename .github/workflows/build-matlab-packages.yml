@@ -9,6 +9,9 @@ on:
       repository_username:
         required: false
         type: string
+    secrets:
+      REPOSITORY_PASSWORD:
+        required: false
   workflow_dispatch:
     inputs:
       repository_url:
