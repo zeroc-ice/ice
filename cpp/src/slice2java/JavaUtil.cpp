@@ -1720,7 +1720,7 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
     MetadataInfo packageInfo = {
         .validOn = {typeid(Unit), typeid(Module)},
         .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
-        .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
+        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
         {
             // TODO uncomment after replacing 'java:package' with 'java:identifier'.
             // const string msg = "'java:package' is deprecated; use 'java:identifier' to remap modules instead";
