@@ -49,7 +49,7 @@ jobs:
         uses: ./.github/actions/setup-cpp
 
       - name: Setup Java
-        uses: ./ice/.github/actions/setup-java
+        uses: ./.github/actions/setup-java
 
       - name: Build C++ Binaries
         run: msbuild /m ice.proj /t:BuildDist /p:BuildAllConfigurations=yes
