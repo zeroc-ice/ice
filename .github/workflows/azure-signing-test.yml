@@ -18,6 +18,11 @@ jobs:
       - name: Setup .NET
         uses: ./.github/actions/setup-dotnet
 
+      - name: Build Slice Compilers
+        run: |
+          nuget restore cpp\msbuild\ice.sln
+          msbuild msbuild cpp\msbuild\ice.sln /t:slice2cs /p:Configuration=Release
+
       - name: Pack .NET Packages
         run: dotnet msbuild csharp\msbuild\ice.proj /t:BuildDist /p:Configuration=Release
 
