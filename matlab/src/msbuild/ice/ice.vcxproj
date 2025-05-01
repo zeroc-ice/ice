@@ -81,7 +81,6 @@
     <ResourceCompile Include="..\..\ice.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\cpp\msbuild\ice.sign.targets" />
   <PropertyGroup>
     <DebugExtension Condition="'$(Configuration)' == 'Debug'">d</DebugExtension>
     <IceBinPath>..\..\..\..\cpp\bin\$(Platform)\$(Configuration)</IceBinPath>

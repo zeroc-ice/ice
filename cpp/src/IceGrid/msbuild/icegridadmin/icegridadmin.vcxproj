@@ -164,7 +164,6 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\..\..\msbuild\packages\expat.v143.2.4.1.1\build\native\expat.v143.targets" Condition="Exists('..\..\..\..\msbuild\packages\expat.v143.2.4.1.1\build\native\expat.v143.targets')" />
   </ImportGroup>
-  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\ice.sign.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
