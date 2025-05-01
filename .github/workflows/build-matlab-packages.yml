@@ -68,7 +68,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           Get-ChildItem -Path matlab\lib\x64\Release -Include *.dll, *.mexw64 -Recurse -File | ForEach-Object {
-            $_.FullName.
+            $_.FullName
           } | Set-Content -Path "${{ github.workspace }}\catalog.txt" -Encoding UTF8
           Add-Content -Path "${{ github.workspace }}\catalog.txt" -Value "cpp\bin\x64\Release\slice2matlab.exe"
 
