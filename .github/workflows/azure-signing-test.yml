@@ -28,9 +28,9 @@ jobs:
 
       - name: Collect Files to Sign
         run: |
-          Get-ChildItem -Path src -Directory | ForEach-Object {
+          Get-ChildItem -Path csharp\src -Directory | ForEach-Object {
               $name = $_.Name
-              "src\$name\bin\Release\net8.0\$name.dll"
+              "csharp\src\$name\bin\Release\net8.0\$name.dll"
           } | Set-Content -Path ${{ github.workspace }}\catalog.txt -Encoding UTF8
 
       - name: Sign .NET Assemblies with Trusted Signing
