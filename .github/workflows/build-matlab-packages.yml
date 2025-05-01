@@ -12,6 +12,12 @@ on:
     secrets:
       REPOSITORY_PASSWORD:
         required: false
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_CLIENT_SECRET:
+        required: true
   workflow_dispatch:
     inputs:
       repository_url:
@@ -55,6 +61,33 @@ jobs:
         if: runner.os == 'Linux'
 
       - name: Build Windows MATLAB ToolBox
+        run: MSBuild /p:Configuration=Release /p:Platform=x64 /t:BuildDist matlab\msbuild\ice.proj
+        if: runner.os == 'Windows'
+
+      - name: Collect Files To Sign
+        if: runner.os == 'Windows'
+        run: |
+          Get-ChildItem -Path matlab\lib\x64\Release -Include *.dll, *.mexw64 -Recurse -File | ForEach-Object {
+            $_.FullName
+          } | Set-Content -Path "${{ github.workspace }}\catalog.txt" -Encoding UTF8
+          Add-Content -Path "${{ github.workspace }}\catalog.txt" -Value "cpp\bin\x64\Release\slice2matlab.exe"
+
+      - name: Sign C++ Binaries
+        uses: azure/trusted-signing-action@v0
+        if: runner.os == 'Windows'
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          trusted-signing-account-name: zeroc
+          certificate-profile-name: zeroc-ice
+          files-catalog: ${{ github.workspace }}\catalog.txt
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Package Windows MATLAB ToolBox
         run: MSBuild /p:Configuration=Release /p:Platform=x64 /t:Package matlab\msbuild\ice.proj
         if: runner.os == 'Windows'
 

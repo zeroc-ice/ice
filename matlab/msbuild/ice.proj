@@ -103,7 +103,7 @@
         </Task>
     </UsingTask>
 
-    <Target Name="Package" DependsOnTargets="BuildDist">
+    <Target Name="Package">
         <RemoveDir Directories="$(ToolboxDir)" />
         <MakeDir Directories="$(ToolboxDir);$(ToolboxDir)\doc" />
 

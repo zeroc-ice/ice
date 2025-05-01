@@ -158,6 +158,9 @@ jobs:
       repository_username: ${{ inputs.repository_username }}
     secrets:
       REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
   build-maven-packages:
     name: Build Maven Packages
