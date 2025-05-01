@@ -183,12 +183,6 @@ You can also skip the build of the test suite with the `BuildDist` target:
 msbuild /m msbuild\ice.proj /t:BuildDist /p:Platform=x64
 ```
 
-You can also sign the Ice binaries with Authenticode, by setting the following environment variables:
-
-- `SIGN_CERTIFICATE` to your Authenticode certificate
-- `SIGN_PASSWORD` to the certificate password
-- `SIGN_SHA1` the SHA1 hash of the signing certificate
-
 ### Build Using Visual Studio
 
 Open the [msbuild/ice.sln](./msbuild/ice.sln) Visual Studio solution.
