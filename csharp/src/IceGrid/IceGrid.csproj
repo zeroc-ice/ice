@@ -25,8 +25,6 @@
     <ProjectReference Include="../Ice/Ice.csproj" />
     <ProjectReference Include="../Glacier2/Glacier2.csproj" />
   </ItemGroup>
-  <Import Project="../../msbuild/ice.sign.targets" />
-
   <ItemGroup>
     <!-- Packaging files -->
     <Content Include="../../../LICENSE" Pack="true" PackagePath="/" />

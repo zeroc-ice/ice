@@ -31,5 +31,4 @@
     <Content Include="@(SliceCompile)" Pack="true" PackagePath="/slice/Ice"/>
     <Content Include="ZeroC.Ice.props" Pack="true" PackagePath="buildTransitive/" />
   </ItemGroup>
-  <Import Project="../../msbuild/ice.sign.targets" />
 </Project>

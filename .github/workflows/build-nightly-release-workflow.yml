@@ -109,6 +109,9 @@ jobs:
     secrets:
       REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
       NUGET_API_KEY: ${{ secrets.NEXUS_NIGHTLY_NUGET_API_KEY }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
   build-deb-packages:
     name: Build DEB Packages

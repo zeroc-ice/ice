@@ -6,9 +6,8 @@ can download and install the [zeroc.ice.net][1] NuGet package.
 - [Building](#building)
   - [Prerequisites](#prerequisites)
   - [Compiling Ice for \.NET](#compiling-ice-for-net)
-  - [Authenticode Signatures](#authenticode-signatures)
 - [Running the Tests](#running-the-tests)
-- [NuGet Package](#nuget-package)
+- [NuGet Package](#nuget-packages)
 
 ## Building
 
@@ -30,15 +29,6 @@ test suite, run:
 ```shell
 dotnet msbuild msbuild/ice.proj
 ```
-
-### Authenticode Signatures
-
-On Windows you can sign the Ice binaries with Authenticode by setting the following environment variables before
-building these assemblies:
-
-- `SIGN_CERTIFICATE` to your Authenticode certificate
-- `SIGN_PASSWORD` to the certificate password
-- `SIGN_SHA1` the SHA1 has of the signing certificate
 
 ## Running the Tests
 
