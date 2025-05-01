@@ -21,7 +21,7 @@ jobs:
       - name: Build Slice Compilers
         run: |
           nuget restore cpp\msbuild\ice.sln
-          msbuild cpp\msbuild\ice.sln /t:slice2cs /p:Configuration=Release
+          msbuild cpp\msbuild\ice.sln /t:slice2cs /p:Configuration=Release /p:Platform=x64
 
       - name: Pack .NET Packages
         run: dotnet msbuild csharp\msbuild\ice.proj /t:BuildDist /p:Configuration=Release
