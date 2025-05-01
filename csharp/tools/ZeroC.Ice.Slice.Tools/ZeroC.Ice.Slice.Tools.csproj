@@ -25,11 +25,6 @@
       <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
       <PackageIcon>logo-128x128.png</PackageIcon>
 
-      <!-- Signing properties -->
-      <TimeStampServer Condition="'$(SIGN_TIMESTAMPSERVER)' == ''">http://timestamp.digicert.com</TimeStampServer>
-      <SignCommandSHA1 Condition="Exists('$(SIGN_CERTIFICATE)')">signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(TimeStampServer)</SignCommandSHA1>
-      <SignCommandSHA256 Condition="Exists('$(SIGN_CERTIFICATE)')">signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /tr $(TimeStampServer) /td sha256 /fd sha256 /as</SignCommandSHA256>
-
       <!-- Internal properties used to compute the slice2cs compiler location for the current platform. -->
       <IceOSName Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</IceOSName>
       <IceOSName Condition="$([MSBuild]::IsOSPlatform('Windows'))">windows</IceOSName>
@@ -52,11 +47,6 @@
       <PackageReference Include="Microsoft.Build.Framework" Version="15.5.180" />
       <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.5.180" />
     </ItemGroup>
-
-    <Target Name="Sign" AfterTargets="CopyFilesToOutputDirectory" Condition="Exists('$(SIGN_CERTIFICATE)')">
-        <Exec Command="$(SignCommandSHA1) $(OutputPath)$(AssemblyName).dll" />
-        <Exec Command="$(SignCommandSHA256) $(OutputPath)$(AssemblyName).dll" />
-    </Target>
 
     <!-- Slice for C# compilers -->
     <Choose>

@@ -20,6 +20,12 @@ on:
         required: false
       REPOSITORY_PASSWORD:
         required: false
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_CLIENT_SECRET:
+        required: true
   workflow_dispatch:
     inputs:
       ice_version:
@@ -55,6 +61,22 @@ jobs:
         run: msbuild /m ice.proj /t:BuildDist /p:BuildAllConfigurations=yes
         working-directory: cpp/msbuild
 
+      - name: Sign C++ Binaries with Trusted Signing
+        uses: azure/trusted-signing-action@v0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          trusted-signing-account-name: zeroc
+          certificate-profile-name: zeroc-ice
+          files-folder: ./cpp/bin
+          files-folder-recurse: true
+          files-folder-filter: exe,dll
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
       - name: Build C++ NuGet Packages
         run: msbuild /m ice.proj /t:Pack /p:BuildAllConfigurations=yes /p:IcePackageVersion="${{ inputs.ice_version }}"
         working-directory: cpp/msbuild
@@ -78,6 +100,21 @@ jobs:
         working-directory: ice/packaging/msi
         env:
           StagingDir: "${{ github.workspace }}\\staging"
+
+      - name: Sign MSI installer with Trusted Signing
+        uses: azure/trusted-signing-action@v0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          trusted-signing-account-name: zeroc
+          certificate-profile-name: zeroc-ice
+          files-folder: ./ice/packaging/msi/bin/x64/Release/
+          files-folder-filter: msi
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
 
       # Upload artifacts
       - name: Upload MSI

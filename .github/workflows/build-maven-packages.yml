@@ -15,6 +15,12 @@ on:
     secrets:
       MAVEN_PASSWORD:
         required: false
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_CLIENT_SECRET:
+        required: true
   workflow_dispatch:
     inputs:
       ice_version:
@@ -63,6 +69,10 @@ jobs:
         uses: ./.github/actions/build-slice-compiler
         with:
           compiler-name: slice2java
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: Upload Compiler Artifact
         uses: actions/upload-artifact@v4
