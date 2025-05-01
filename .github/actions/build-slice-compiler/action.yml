@@ -32,7 +32,7 @@ runs:
         endpoint: https://eus.codesigning.azure.net/
         trusted-signing-account-name: zeroc
         certificate-profile-name: zeroc-ice
-        files: cpp/bin/x64/Release/${{ inputs.compiler-name }}.exe
+        files: ${{ github.workspace }}\cpp\bin\x64\Release\${{ inputs.compiler-name }}.exe
         file-digest: SHA256
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
         timestamp-digest: SHA256
