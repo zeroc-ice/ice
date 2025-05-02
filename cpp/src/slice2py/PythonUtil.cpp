@@ -9,6 +9,7 @@
 #include <cassert>
 #include <climits>
 #include <iterator>
+#include <sstream>
 
 using namespace std;
 using namespace Slice;
@@ -123,6 +124,65 @@ namespace
         }
 
         return "???";
+    }
+
+    enum DocstringMode
+    {
+        DocSync,
+        DocAsync,
+        DocDispatch
+    };
+
+    string docReturnType(const OperationPtr& op, DocstringMode mode)
+    {
+        ostringstream os;
+
+        if (!op->returnsAnyValues())
+        {
+            if (mode == DocDispatch)
+            {
+                os << "None or awaitable";
+            }
+            else if (mode == DocAsync)
+            {
+                os << "awaitable";
+            }
+        }
+        else if (mode == DocDispatch)
+        {
+            os << docReturnType(op, DocSync) << " or " << docReturnType(op, DocAsync);
+        }
+        else if (mode == DocAsync)
+        {
+            os << "awaitable of " << docReturnType(op, DocSync);
+        }
+        else
+        {
+            if (op->returnsMultipleValues())
+            {
+                os << "tuple of (";
+                if (op->returnType())
+                {
+                    os << typeToDocstring(op->returnType(), op->returnIsOptional());
+                    os << ", ";
+                }
+                for (const auto& param : op->outParameters())
+                {
+                    os << typeToDocstring(param->type(), param->optional());
+                    if (param != op->outParameters().back())
+                    {
+                        os << ", ";
+                    }
+                }
+                os << ")";
+            }
+            else if (op->returnType())
+            {
+                os << typeToDocstring(op->returnType(), op->returnIsOptional());
+            }
+        }
+
+        return os.str();
     }
 
     /// Returns a DocString formatted link to the provided Slice identifier.
@@ -250,14 +310,6 @@ namespace Slice::Python
         void writeDocstring(const optional<DocComment>&, const string& = "");
         void writeDocstring(const optional<DocComment>&, const DataMemberList&);
         void writeDocstring(const optional<DocComment>&, const EnumeratorList&);
-
-        enum DocstringMode
-        {
-            DocSync,
-            DocAsync,
-            DocDispatch,
-            DocAsyncDispatch
-        };
 
         void writeDocstring(const OperationPtr&, DocstringMode);
 
@@ -481,7 +533,7 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
         _out << "):";
         _out.inc();
 
-        writeDocstring(operation, DocAsyncDispatch);
+        writeDocstring(operation, DocDispatch);
 
         _out << nl << "raise NotImplementedError(\"servant method '" << mappedName << "' not implemented\")";
         _out.dec();
@@ -2029,7 +2081,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         {
             return;
         }
-        else if (mode == DocAsyncDispatch && inParams.empty() && exceptionsDoc.empty())
+        else if (mode == DocDispatch && inParams.empty() && exceptionsDoc.empty())
         {
             return;
         }
@@ -2053,9 +2105,6 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         case DocSync:
         case DocAsync:
         case DocDispatch:
-            needArgs = true;
-            break;
-        case DocAsyncDispatch:
             needArgs = true;
             break;
     }
@@ -2089,7 +2138,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
             _out << nl << "    The request context for the invocation.";
         }
 
-        if (mode == DocDispatch || mode == DocAsyncDispatch)
+        if (mode == DocDispatch)
         {
             const string currentParamName = getEscapedParamName(op, "current");
             _out << nl << currentParamName << " : Ice.Current";
@@ -2101,7 +2150,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     // Emit return value(s).
     //
     bool hasReturnValue = false;
-    if (mode == DocAsync || mode == DocAsyncDispatch)
+    if (!op->returnsAnyValues() && (mode == DocAsync || mode == DocDispatch))
     {
         hasReturnValue = true;
         if (!overview.empty() || needArgs)
@@ -2110,12 +2159,17 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         }
         _out << nl << "Returns";
         _out << nl << "-------";
-        _out << nl << "Ice.Future";
-        _out << nl << "    A future object that is completed with the result of "
-             << (mode == DocAsync ? "the invocation." : "the dispatch.");
+        _out << nl << docReturnType(op, mode);
+        if (mode == DocAsync)
+        {
+            _out << nl << "    An awaitable that is completed when the invocation completes.";
+        }
+        else if (mode == DocDispatch)
+        {
+            _out << nl << "    None or an awaitable that completes when the dispatch completes.";
+        }
     }
-
-    if ((mode == DocSync || mode == DocDispatch) && op->returnsAnyValues())
+    else if (op->returnsAnyValues())
     {
         hasReturnValue = true;
         if (!overview.empty() || needArgs)
@@ -2124,25 +2178,10 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         }
         _out << nl << "Returns";
         _out << nl << "-------";
+        _out << nl << docReturnType(op, mode);
+
         if (op->returnsMultipleValues())
         {
-            _out << nl << "Returns a tuple of (";
-            if (returnType)
-            {
-                _out << typeToDocstring(returnType, op->returnIsOptional());
-                _out << ", ";
-            }
-
-            for (const auto& param : outParams)
-            {
-                _out << typeToDocstring(param->type(), param->optional());
-                if (param != outParams.back())
-                {
-                    _out << ", ";
-                }
-            }
-            _out << ")";
-
             _out << nl << "    A tuple containing:";
             if (returnType)
             {
@@ -2168,7 +2207,6 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         }
         else if (returnType)
         {
-            _out << nl << typeToDocstring(returnType, op->returnIsOptional());
             for (const string& line : returnsDoc)
             {
                 _out << nl << "    " << line;
@@ -2193,7 +2231,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     //
     // Emit exceptions.
     //
-    if ((mode == DocSync || mode == DocDispatch || mode == DocAsyncDispatch) && !exceptionsDoc.empty())
+    if ((mode == DocSync || mode == DocDispatch) && !exceptionsDoc.empty())
     {
         if (!overview.empty() || needArgs || hasReturnValue)
         {
