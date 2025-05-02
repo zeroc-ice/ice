@@ -96,7 +96,7 @@ if (typeof fs.open === "function") {
         cloneWithPrefix(prefix) {
             return new FileLogger(prefix, this._filename);
         }
-    }
+    };
 }
 
 export { FileLogger };

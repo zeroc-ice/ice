@@ -23,8 +23,7 @@ import { WSEndpointFactory } from "./WSEndpointFactory.js";
 import { Promise } from "./Promise.js";
 import { ConnectionOptions } from "./ConnectionOptions.js";
 import { StringUtil } from "./StringUtil.js";
-import { FileLogger  } from "./Logger.js";
-
+import { FileLogger } from "./Logger.js";
 
 import { Ice as Ice_Router } from "./Router.js";
 const { RouterPrx } = Ice_Router;
@@ -182,7 +181,6 @@ Instance.prototype.finishSetup = function (communicator) {
             this._initData.properties.getIcePropertyAsInt("Ice.Connection.Client.EnableIdleCheck") > 0,
             this._initData.properties.getIcePropertyAsInt("Ice.Connection.Client.InactivityTimeout"),
         );
-
 
         if (FileLogger !== null && this._initData.logger === null) {
             const logfile = this._initData.properties.getIceProperty("Ice.LogFile");
