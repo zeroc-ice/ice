@@ -2434,18 +2434,10 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     const ClassDefPtr base = p->base();
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList allDataMembers = p->allDataMembers();
+    const string baseClass = base ? getUnqualified(base->mappedScoped(), scope) : "Ice::Value";
 
     writeDocSummary(H, p, {.includeHeaderFile = true});
-    H << nl << "class " << _dllExport << getDeprecatedAttribute(p) << name << " : public ";
-
-    if (!base)
-    {
-        H << "Ice::Value";
-    }
-    else
-    {
-        H << getUnqualified(base->mappedScoped(), scope);
-    }
+    H << nl << "class " << _dllExport << getDeprecatedAttribute(p) << name << " : public " << baseClass;
     H << sb;
     H.dec();
     H << nl << "public:";
@@ -2497,33 +2489,12 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << "[[nodiscard]] " << name << "Ptr ice_clone() const { return std::static_pointer_cast<" << name
       << ">(_iceCloneImpl()); }";
 
-    return true;
-}
-
-void
-Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
-{
-    const string name = p->mappedName();
-    const string scoped = p->mappedScoped();
-    const string scope = p->mappedScope();
-    const ClassDefPtr base = p->base();
-
-    const DataMemberList dataMembers = p->dataMembers();
-
-    H << sp;
-    for (const auto& dataMember : dataMembers)
-    {
-        emitDataMember(dataMember);
-    }
-
     if (p->hasMetadata("cpp:custom-print"))
     {
         H << sp;
         H << nl << "/// Custom ice_print implemented by the application.";
         H << nl << "void ice_print(std::ostream& os) const override;";
     }
-
-    const string baseClass = base ? getUnqualified(base->mappedScoped(), scope) : "Ice::Value";
 
     if (!dataMembers.empty())
     {
@@ -2540,7 +2511,34 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << eb;
     }
 
+    return true;
+}
+
+void
+Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
+{
+    const string name = p->mappedName();
+    const string scoped = p->mappedScoped();
+    const string scope = p->mappedScope();
+    const ClassDefPtr base = p->base();
+
+    const DataMemberList dataMembers = p->dataMembers();
+    const string baseClass = base ? getUnqualified(base->mappedScoped(), scope) : "Ice::Value";
+
     H << sp;
+    for (const auto& dataMember : dataMembers)
+    {
+        emitDataMember(dataMember);
+    }
+
+    if (!dataMembers.empty())
+    {
+        H << sp;
+    }
+
+    H.dec();
+    H << nl << "protected:";
+    H.inc();
     H << nl << "/// Copy constructor.";
     H << nl << name << "(const " << name << "&) = default;";
 
