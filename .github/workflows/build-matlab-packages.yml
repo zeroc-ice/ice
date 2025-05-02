@@ -67,9 +67,8 @@ jobs:
       - name: Collect Files To Sign
         if: runner.os == 'Windows'
         run: |
-          Get-ChildItem -Path matlab\lib\x64\Release -Include *.dll, *.mexw64 -Recurse -File | ForEach-Object {
-            $_.FullName
-          } | Set-Content -Path "${{ github.workspace }}\catalog.txt" -Encoding UTF8
+          Resolve-Path -Path ".\matlab\lib\x64\Release\*.dll" -Relative | Set-Content -Path "${{ github.workspace }}\catalog.txt" -Encoding UTF8
+          Resolve-Path -Path ".\matlab\lib\x64\Release\*.mexw64" -Relative | Add-Content -Path "${{ github.workspace }}\catalog.txt" -Encoding UTF8
           Add-Content -Path "${{ github.workspace }}\catalog.txt" -Value "cpp\bin\x64\Release\slice2matlab.exe"
 
       - name: Sign C++ Binaries
