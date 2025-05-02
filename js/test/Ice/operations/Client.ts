@@ -38,6 +38,8 @@ export class Client extends TestHelper {
         try {
             const [properties] = this.createTestProperties(args);
             properties.setProperty("Ice.BatchAutoFlushSize", "100");
+            properties.setProperty("Ice.Trace.Protocol", "1");
+            properties.setProperty("Ice.Trace.Network", "3");
             [communicator] = this.initialize(properties);
             await this.allTests(false);
         } finally {

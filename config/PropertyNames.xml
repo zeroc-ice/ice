@@ -105,7 +105,7 @@
         <property name="InitPlugins" languages="cpp,csharp,java" default="1" />
         <property name="IPv4" languages="cpp,csharp,java" default="1" />
         <property name="IPv6" languages="cpp,csharp,java" default="1" />
-        <property name="LogFile" languages="cpp,csharp,java" />
+        <property name="LogFile" languages="cpp,csharp,java,js" />
         <property name="LogFile.SizeMax" languages="cpp" default="0" />
         <property name="LogStdErr.Convert" languages="cpp" default="1" />
         <property name="MessageSizeMax" languages="all" default="1024" />

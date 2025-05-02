@@ -64,6 +64,7 @@ PropertyNames.IceProps.properties = [
     new Property("Default.SlicedFormat", false, "0", false, null),
     new Property("Default.SourceAddress", false, "", false, null),
     new Property("ImplicitContext", false, "None", false, null),
+    new Property("LogFile", false, "", false, null),
     new Property("MessageSizeMax", false, "1024", false, null),
     new Property("Override.Secure", false, "", false, null),
     new Property("RetryIntervals", false, "0", false, null),

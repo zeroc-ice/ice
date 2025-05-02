@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+import fs from "fs";
+
 export class Logger {
     constructor(prefix) {
         if (prefix !== undefined && prefix.length > 0) {
@@ -74,3 +76,27 @@ export class Logger {
         return d.toLocaleString("en-US", this._dateformat) + "." + d.getMilliseconds();
     }
 }
+
+let FileLogger = null;
+
+if (typeof fs.open === "function") {
+    FileLogger = class extends Logger {
+        constructor(prefix, filename) {
+            super(prefix);
+            this._filename = filename;
+        }
+
+        write(message, indent) {
+            if (indent) {
+                message = message.replace(/\n/g, "\n   ");
+            }
+            fs.appendFileSync(this._filename, message + "\n");
+        }
+
+        cloneWithPrefix(prefix) {
+            return new Logger(prefix, this._filename);
+        }
+    }
+}
+
+export { FileLogger };

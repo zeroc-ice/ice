@@ -2326,7 +2326,10 @@ class LocalProcessController(ProcessController):
         def teardown(self, current, success):
             if self.traceFile:
                 if success or current.driver.isInterrupted():
-                    os.remove(self.traceFile)
+                    try:
+                        os.remove(self.traceFile)
+                    except FileNotFoundError:
+                        pass
                 else:
                     current.writeln("saved {0}".format(self.traceFile))
 
@@ -2346,21 +2349,20 @@ class LocalProcessController(ProcessController):
         }
 
         traceFile = ""
-        if not isinstance(process.getMapping(current), JavaScriptMixin):
-            traceProps = process.getEffectiveTraceProps(current)
-            if traceProps:
-                if "Ice.ProgramName" in props:
-                    programName = props["Ice.ProgramName"]
-                else:
-                    programName = process.exe or current.testcase.getProcessType(
-                        process
-                    )
-                traceFile = os.path.join(
-                    current.testsuite.getPath(),
-                    "{0}-{1}.log".format(programName, time.strftime("%m%d%y-%H%M")),
+        traceProps = process.getEffectiveTraceProps(current)
+        if traceProps:
+            if "Ice.ProgramName" in props:
+                programName = props["Ice.ProgramName"]
+            else:
+                programName = process.exe or current.testcase.getProcessType(
+                    process
                 )
-                traceProps["Ice.LogFile"] = traceFile
-            props.update(traceProps)
+            traceFile = os.path.join(
+                current.testsuite.getPath(),
+                "{0}-{1}.log".format(programName, time.strftime("%m%d%y-%H%M")),
+            )
+            traceProps["Ice.LogFile"] = traceFile
+        props.update(traceProps)
 
         args = ["--{0}={1}".format(k, val(v)) for k, v in props.items()] + [
             val(a) for a in args
