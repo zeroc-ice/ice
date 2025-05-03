@@ -1506,91 +1506,65 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
-    const string name = p->mappedName();
     const string scope = p->mappedScope();
+    const string scopedName = p->mappedScoped();
+    const string prx = p->mappedName() + "Prx";
+    const string scopedPrx = scopedName + "Prx";
     const InterfaceList bases = p->bases();
 
     writeDocSummary(H, p, {.includeHeaderFile = true});
-    H << nl << "class " << _dllExport << getDeprecatedAttribute(p) << name << "Prx : public Ice::Proxy<"
-      << name + "Prx, ";
+    H << nl << "class " << _dllExport << getDeprecatedAttribute(p) << prx << " : public Ice::Proxy";
+    H.spar("<");
+    H << prx;
     if (bases.empty())
     {
         H << "Ice::ObjectPrx";
     }
     else
     {
-        auto q = bases.begin();
-        while (q != bases.end())
+        for (const auto& base : bases)
         {
-            H << getUnqualified((*q)->mappedScoped() + "Prx", scope);
-            if (++q != bases.end())
-            {
-                H << ", ";
-            }
+            H << getUnqualified(base->mappedScoped() + "Prx", scope);
         }
     }
-    H << ">";
+    H.epar(">");
 
     H << sb;
     H.dec();
     H << nl << "public:";
     H.inc();
 
-    return true;
-}
-
-void
-Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
-{
-    const string scopedName = p->mappedScoped();
-    const string prx = p->mappedName() + "Prx";
-    const string scopedPrx = scopedName + "Prx";
-    const InterfaceList bases = p->allBases();
-
-    H << sp;
-    H << nl << "/// Gets the type ID of the associated Slice interface.";
-    H << nl << "/// @return The string `\"" << p->scoped() << "\"`.";
-    H << nl << "static const char* ice_staticId() noexcept;";
-
-    C << sp;
-    C << nl << "const char*" << nl << scopedPrx.substr(2) << "::ice_staticId() noexcept";
-    C << sb;
-    C << nl << "return \"" << p->scoped() << "\";";
-    C << eb;
-
     if (!bases.empty())
     {
         // -Wextra wants to initialize all the virtual base classes _in the right order_, which is not practical, and
         // is useless here.
-        H << sp;
         H.zeroIndent();
-        H << nl << "#if defined(__GNUC__)";
+        H << nl << "#if defined(__GNUC__) && !defined(__clang__)";
         H << nl << "#   pragma GCC diagnostic push";
         H << nl << "#   pragma GCC diagnostic ignored \"-Wextra\" // initialize all virtual bases in correct order";
         H << nl << "#endif";
         H.restoreIndent();
+        H << sp;
     }
 
     // We can't use "= default" for the copy/move ctor/assignment operator as it's not correct with virtual inheritance.
+    H << nl << "/// Constructs a proxy from a Communicator and a proxy string.";
+    H << nl << "/// @param communicator The communicator of the new proxy.";
+    H << nl << "/// @param proxyString The proxy string to parse.";
+    H << nl << prx << "(const Ice::CommunicatorPtr& communicator, std::string_view proxyString)"
+      << " : Ice::ObjectPrx{communicator, proxyString} {} // NOLINT(modernize-use-equals-default)";
 
     H << sp;
     H << nl << "/// Copy constructor. Constructs with a copy of the contents of @p other.";
     H << nl << "/// @param other The proxy to copy from.";
-    H << nl << prx << "(const " << prx << "& other) noexcept : Ice::ObjectPrx(other)";
+    H << nl << prx << "(const " << prx << "& other) noexcept : Ice::ObjectPrx{other}";
     H << " {} // NOLINT(modernize-use-equals-default)";
 
     H << sp;
     H << nl << "/// Move constructor. Constructs a proxy with the contents of @p other using move semantics.";
     H << nl << "/// @param other The proxy to move from.";
-    H << nl << prx << "(" << prx << "&& other) noexcept : Ice::ObjectPrx(std::move(other))"
+    H << nl << prx << "(" << prx << "&& other) noexcept : Ice::ObjectPrx{std::move(other)}"
       << " {} // NOLINT(modernize-use-equals-default)";
-
-    H << sp;
-    H << nl << "/// Constructs a proxy from a Communicator and a proxy string.";
-    H << nl << "/// @param communicator The communicator of the new proxy.";
-    H << nl << "/// @param proxyString The proxy string to parse.";
-    H << nl << prx << "(const Ice::CommunicatorPtr& communicator, std::string_view proxyString)"
-      << " : Ice::ObjectPrx(communicator, proxyString) {} // NOLINT(modernize-use-equals-default)";
 
     H << sp;
     H << nl << "~" << prx << "() override;";
@@ -1626,10 +1600,33 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << eb;
     H << nl << "return *this;";
     H << eb;
+
+    return true;
+}
+
+void
+Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
+{
+    const string scopedName = p->mappedScoped();
+    const string prx = p->mappedName() + "Prx";
+    const string scopedPrx = scopedName + "Prx";
+    const InterfaceList bases = p->allBases();
+
+    H << sp;
+    H << nl << "/// Gets the type ID of the associated Slice interface.";
+    H << nl << "/// @return The string `\"" << p->scoped() << "\"`.";
+    H << nl << "static const char* ice_staticId() noexcept;";
+
+    C << sp;
+    C << nl << "const char*" << nl << scopedPrx.substr(2) << "::ice_staticId() noexcept";
+    C << sb;
+    C << nl << "return \"" << p->scoped() << "\";";
+    C << eb;
+
     H << sp;
     H << nl << "/// @private";
     H << nl << "static " << prx << " _fromReference(IceInternal::ReferencePtr ref) { return " << prx
-      << "(std::move(ref)); }";
+      << "{std::move(ref)}; }";
     H.dec();
 
     H << sp << nl << "protected:";
@@ -1638,7 +1635,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << prx << "() = default;";
     H << sp;
     H << nl << "/// @private";
-    H << nl << "explicit " << prx << "(IceInternal::ReferencePtr&& ref) : Ice::ObjectPrx(std::move(ref))";
+    H << nl << "explicit " << prx << "(IceInternal::ReferencePtr&& ref) : Ice::ObjectPrx{std::move(ref)}";
     H << sb << eb;
 
     if (!bases.empty())
@@ -1647,7 +1644,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         // is useless here.
         H << sp;
         H.zeroIndent();
-        H << nl << "#if defined(__GNUC__)";
+        H << nl << "#if defined(__GNUC__) && !defined(__clang__)";
         H << nl << "#   pragma GCC diagnostic pop";
         H << nl << "#endif";
         H.restoreIndent();
@@ -1736,10 +1733,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     optional<DocComment> comment = DocComment::parseFrom(p, cppLinkFormatter);
     const string contextDoc = "@param " + contextParam + " The request context.";
 
-    if (!isFirstElement(p))
-    {
-        H << sp;
-    }
+    H << sp;
 
     //
     // Synchronous operation
@@ -1977,11 +1971,13 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     {
         C << nl << "_checkTwowayOnly(operationName);";
     }
-    C << nl << "outAsync->invoke(operationName, " << operationModeToString(p->mode()) << ", " << opFormatTypeToString(p)
-      << ", context,";
+    C << nl << "outAsync->invoke(";
     C.inc();
+    C << nl << "operationName,";
+    C << nl << operationModeToString(p->mode()) << ",";
+    C << nl << opFormatTypeToString(p) << ",";
+    C << nl << "context,";
     C << nl;
-
     writeInParamsLambda(C, p, inParams, interfaceScope);
     C << "," << nl;
     throwUserExceptionLambda(C, p->throws(), interfaceScope);
@@ -2801,85 +2797,28 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     writeDocSummary(H, p, {.generateDeprecated = false, .includeHeaderFile = true});
     H << nl << "class " << _dllExport << name << " : ";
-    H.useCurrentPosAsIndent();
+    H.spar("");
     if (bases.empty())
     {
         H << "public virtual Ice::Object";
     }
     else
     {
-        auto q = bases.begin();
-        while (q != bases.end())
+        for (const auto& base : bases)
         {
-            H << "public virtual " << getUnqualified((*q)->mappedScoped(), scope);
-            if (++q != bases.end())
-            {
-                H << ',' << nl;
-            }
+            H << ("public virtual " + getUnqualified(base->mappedScoped(), scope));
         }
     }
-
-    H.restoreIndent();
+    H.epar("");
     H << sb;
     H.dec();
     H << nl << "public:";
     H.inc();
 
-    // In C++, a nested type cannot have the same name as the enclosing type
-    if (name != "ProxyType")
-    {
-        H << nl << "/// The associated proxy type.";
-        H << nl << "using ProxyType = " << p->mappedName() << "Prx;";
-    }
+    H << nl << "/// The associated proxy type.";
+    H << nl << "using ProxyType = " << p->mappedName() << "Prx;";
 
-    StringList ids = p->ids();
-
-    H << sp;
-    H << nl << "[[nodiscard]] std::vector<std::string> ice_ids(const Ice::Current& current) const override;";
-    H << sp;
-    H << nl << "[[nodiscard]] std::string ice_id(const Ice::Current& current) const override;";
-    H << sp;
-    H << nl << "/// Gets the type ID of the associated Slice interface.";
-    H << nl << "/// @return The string `\"" << p->scoped() << "\"`.";
-    H << nl << "static const char* ice_staticId() noexcept;";
-
-    C << sp;
-    C << nl << "std::vector<std::string>" << nl << scoped.substr(2) << "::ice_ids(const Ice::Current&) const";
-    C << sb;
-
-    // These type IDs are sorted alphabetically.
-    C << nl << "static const std::vector<std::string> allTypeIds = ";
-    C.spar("{");
-    for (const auto& typeId : p->ids())
-    {
-        C << '"' + typeId + '"';
-    }
-    C.epar("}");
-    C << ";";
-
-    C << nl << "return allTypeIds;";
-    C << eb;
-
-    C << sp;
-    C << nl << "std::string" << nl << scoped.substr(2) << "::ice_id(const Ice::Current&) const";
-    C << sb;
-    C << nl << "return std::string{ice_staticId()};";
-    C << eb;
-
-    C << sp;
-    C << nl << "const char*" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
-    C << sb;
-    C << nl << "return \"" << p->scoped() << "\";";
-    C << eb;
-    return true;
-}
-
-void
-Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
-{
-    const string scoped = p->mappedScoped();
-    const string name = p->mappedName();
-
+    // The dispatch function.
     OperationList allOps = p->allOperations();
     if (!allOps.empty())
     {
@@ -2961,8 +2900,53 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         C << eb;
     }
 
-    H << eb << ';';
+    H << sp;
+    H << nl << "[[nodiscard]] std::vector<std::string> ice_ids(const Ice::Current& current) const override;";
+    H << sp;
+    H << nl << "[[nodiscard]] std::string ice_id(const Ice::Current& current) const override;";
 
+    C << sp;
+    C << nl << "std::vector<std::string>" << nl << scoped.substr(2) << "::ice_ids(const Ice::Current&) const";
+    C << sb;
+    // These type IDs are sorted alphabetically.
+    C << nl << "static const std::vector<std::string> allTypeIds = ";
+    C.spar("{");
+    for (const auto& typeId : p->ids())
+    {
+        C << '"' + typeId + '"';
+    }
+    C.epar("}");
+    C << ";";
+    C << nl << "return allTypeIds;";
+    C << eb;
+
+    C << sp;
+    C << nl << "std::string" << nl << scoped.substr(2) << "::ice_id(const Ice::Current&) const";
+    C << sb;
+    C << nl << "return std::string{ice_staticId()};";
+    C << eb;
+
+    return true;
+}
+
+void
+Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
+{
+    const string name = p->mappedName();
+    const string scoped = p->mappedScoped();
+
+    H << sp;
+    H << nl << "/// Gets the type ID of the associated Slice interface.";
+    H << nl << "/// @return The string `\"" << p->scoped() << "\"`.";
+    H << nl << "static const char* ice_staticId() noexcept;";
+
+    C << sp;
+    C << nl << "const char*" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
+    C << sb;
+    C << nl << "return \"" << p->scoped() << "\";";
+    C << eb;
+
+    H << eb << ';';
     H << sp;
     H << nl << "/// A shared pointer to " << getArticleFor(name) << ' ' << name << ".";
     H << nl << "using " << name << "Ptr = std::shared_ptr<" << name << ">;";
