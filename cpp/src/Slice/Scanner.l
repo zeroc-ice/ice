@@ -465,7 +465,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches any characters not matched by another metadata rule (except whitespace), and reports an error. */
 <METADATA>[^[:space:]\"\],\n]+ {
-    ostringstream msg;                                      
+    ostringstream msg;
     msg << "invalid tokens in metadata: '" << yytext << "' (maybe you forgot to wrap it in quotes?)";
     currentUnit->error(msg.str());
 

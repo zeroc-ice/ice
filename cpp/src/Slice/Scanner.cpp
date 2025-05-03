@@ -2115,7 +2115,7 @@ case 42:
 YY_RULE_SETUP
 #line 468 "src/Slice/Scanner.l"
 {
-    ostringstream msg;                                      
+    ostringstream msg;
     msg << "invalid tokens in metadata: '" << yytext << "' (maybe you forgot to wrap it in quotes?)";
     currentUnit->error(msg.str());
 
