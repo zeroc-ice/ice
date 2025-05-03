@@ -464,8 +464,15 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 }
 
   /* Matches any characters not matched by another metadata rule (except whitespace), and reports an error. */
-<METADATA>[^[:space:]] {
-    currentUnit->error("invalid character between metadata");
+<METADATA>[^[:space:]\"\],\n]+ {
+    ostringstream msg;                                      
+    msg << "invalid tokens in metadata: '" << yytext << "' (maybe you forgot to wrap it in quotes?)";
+    currentUnit->error(msg.str());
+
+    StringTokPtr str = make_shared<StringTok>();
+    str->literal = yytext;
+    *yylval = str;
+    return BAD_TOKEN;
 }
 
   /* ========== Identifiers and Keywords ========== */
@@ -536,7 +543,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     s << "'";
 
     currentUnit->error(s.str());
-    return BAD_CHAR;
+    return BAD_TOKEN;
 }
 
   /* Matches any valid character (except newlines) not matched by another rule and fowards it to the parser.
