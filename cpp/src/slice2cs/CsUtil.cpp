@@ -1800,8 +1800,7 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
 
             if (auto cont = dynamic_pointer_cast<Contained>(p); cont && cont->hasMetadata("cs:identifier"))
             {
-                return "the 'cs:namespace' metadata cannot be used alongside 'cs:identifier' - both change the name of "
-                       "the mapped module";
+                return "A Slice element can only have one of 'cs:namespace' and 'cs:identifier' applied to it";
             }
 
             // 'cs:namespace' can only be applied to top-level modules

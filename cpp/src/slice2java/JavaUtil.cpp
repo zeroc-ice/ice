@@ -1726,10 +1726,9 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
             // const string msg = "'java:package' is deprecated; use 'java:identifier' to remap modules instead";
             // p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
 
-            if (auto cont = dynamic_pointer_cast<Contained>(p); cont && cont->hasMetadata("java:identifier"))
+            if (auto element = dynamic_pointer_cast<Contained>(p); element && element->hasMetadata("java:identifier"))
             {
-                return "the 'java:package' metadata cannot be used alongside 'java:identifier' - both change the name "
-                       "of the mapped module";
+                return "A Slice element can only have one of 'java:package' and 'java:identifier' applied to it";
             }
 
             // If 'java:package' is applied to a module, it must be a top-level module.
