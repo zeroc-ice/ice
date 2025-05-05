@@ -1017,17 +1017,19 @@ namespace
         // "matlab:identifier"
         MetadataInfo identifierInfo = {
             .validOn =
-                {typeid(Module),
-                 typeid(InterfaceDecl),
-                 typeid(Operation),
-                 typeid(Struct),
-                 typeid(Sequence),
-                 typeid(Dictionary),
-                 typeid(Enum),
-                 typeid(Enumerator),
-                 typeid(Const),
-                 typeid(Parameter),
-                 typeid(DataMember)},
+            {typeid(Module),
+                typeid(InterfaceDecl),
+                typeid(Operation),
+                typeid(ClassDecl),
+                typeid(Slice::Exception),
+                typeid(Struct),
+                typeid(Sequence),
+                typeid(Dictionary),
+                typeid(Enum),
+                typeid(Enumerator),
+                typeid(Const),
+                typeid(Parameter),
+                typeid(DataMember)},
             .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
         };
         knownMetadata.emplace("matlab:identifier", std::move(identifierInfo));
