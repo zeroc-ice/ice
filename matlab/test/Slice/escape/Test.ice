@@ -60,7 +60,7 @@ module classdef
         ["matlab:identifier:end_"] logical end;
     }
 
-    ["matlab:identifier:bitand_"]
+    ["matlab:identifier:escaped_bitor"]
     exception bitor extends bitand
     {
         ["matlab:identifier:enumeration_"]

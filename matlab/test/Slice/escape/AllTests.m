@@ -102,7 +102,7 @@ classdef AllTests
             assert(isempty(e.message_));
             assert(isempty(e.end_));
 
-            g = classdef_.bitor_();
+            g = classdef_.escaped_bitor();
             assert(isempty(g.identifier_));
             assert(isempty(g.message_));
             assert(isempty(g.end_));
