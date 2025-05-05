@@ -113,7 +113,7 @@ extern int slice_debug;
     ICE_IDENT_OPEN = 294,          /* ICE_IDENT_OPEN  */
     ICE_KEYWORD_OPEN = 295,        /* ICE_KEYWORD_OPEN  */
     ICE_OPTIONAL_OPEN = 296,       /* ICE_OPTIONAL_OPEN  */
-    BAD_CHAR = 297                 /* BAD_CHAR  */
+    BAD_TOKEN = 297                /* BAD_TOKEN  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif

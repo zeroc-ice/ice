@@ -1,0 +1,6 @@
+IllegalMetadataSyntax.ice:4: syntax error
+IllegalMetadataSyntax.ice:7: warning: No directives were provided in metadata list
+IllegalMetadataSyntax.ice:12: invalid tokens in metadata: 'cpp:type:string' (maybe you forgot to wrap it in quotes?)
+IllegalMetadataSyntax.ice:12: invalid tokens in metadata: 'deprecated' (maybe you forgot to wrap it in quotes?)
+IllegalMetadataSyntax.ice:16: syntax error
+IllegalMetadataSyntax.ice:20: warning: No directives were provided in metadata list

@@ -174,7 +174,7 @@ slice_error(const char* s)
 %token ICE_KEYWORD_OPEN
 %token ICE_OPTIONAL_OPEN
 
-%token BAD_CHAR
+%token BAD_TOKEN
 
 %%
 
@@ -204,6 +204,15 @@ file_metadata
 {
     $$ = $2;
 }
+| ICE_FILE_METADATA_OPEN error ICE_FILE_METADATA_CLOSE
+{
+    $$ = make_shared<MetadataListTok>();
+}
+| ICE_FILE_METADATA_OPEN ICE_FILE_METADATA_CLOSE
+{
+    currentUnit->warning(WarningCategory::All, "No directives were provided in metadata list");
+    $$ = make_shared<MetadataListTok>();
+}
 ;
 
 // ----------------------------------------------------------------------
@@ -213,6 +222,16 @@ local_metadata
 {
     $$ = $2;
 }
+| ICE_METADATA_OPEN error ICE_METADATA_CLOSE
+{
+    $$ = make_shared<MetadataListTok>();
+}
+| ICE_METADATA_OPEN ICE_METADATA_CLOSE
+{
+    currentUnit->warning(WarningCategory::All, "No directives were provided in metadata list");
+    $$ = make_shared<MetadataListTok>();
+}
+;
 
 // ----------------------------------------------------------------------
 metadata
@@ -1997,6 +2016,14 @@ metadata_list
     metadataList->v.push_back(metadata);
 
     $$ = metadataList;
+}
+| metadata_list ',' BAD_TOKEN
+{
+    $$ = $1;
+}
+| BAD_TOKEN
+{
+    $$ = make_shared<MetadataListTok>();
 }
 ;
 
