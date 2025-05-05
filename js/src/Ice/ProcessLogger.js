@@ -2,7 +2,7 @@
 
 let processLogger = null;
 
-export function getProcessLogger(prefix) {
+export function getProcessLogger() {
     DEV: console.assert(processLogger !== null);
     return processLogger;
 }

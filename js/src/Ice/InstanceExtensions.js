@@ -15,7 +15,7 @@ import { Timer } from "./Timer.js";
 import { TraceLevels } from "./TraceLevels.js";
 import { LocalException } from "./LocalException.js";
 import { CommunicatorDestroyedException, InitializationException } from "./LocalExceptions.js";
-import { getProcessLogger, setProcessLogger } from "./ProcessLogger.js";
+import { setProcessLogger } from "./ProcessLogger.js";
 import { ToStringMode } from "./ToStringMode.js";
 import { ProtocolInstance } from "./ProtocolInstance.js";
 import { TcpEndpointFactory } from "./TcpEndpointFactory.js";
