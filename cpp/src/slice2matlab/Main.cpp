@@ -1957,9 +1957,15 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     out.dec();
     out << nl << "end";
-
     out.dec();
     out << nl << "end";
+
+    out << nl << "properties(Constant, Access=private)";
+    out.inc();
+    out << nl << "TypeId char = '" << p->scoped() << "'";
+    out.dec();
+    out << nl << "end";
+
     out.dec();
     out << nl << "end";
     out << nl;
