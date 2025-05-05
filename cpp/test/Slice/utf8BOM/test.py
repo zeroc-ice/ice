@@ -35,7 +35,7 @@ class SliceUtf8BomTestCase(ClientTestCase):
 
             # There is a known issue with MCPP on certain Linux platforms which causes the Slice compiler to erroneously
             # report valid UTF-8 BOMS. See https://github.com/zeroc-ice/ice/issues/3940
-            if len(lines) == 2 and isinstance(Util.platform, Util.Linux):
+            if len(lines) == 2 and isinstance(platform, Linux):
                 if lines[0].endswith("Test.ice:2: encountered unexpected UTF-8 BOM in input; BOMs can only appear at the beginning of files"):
                     lines.pop(0)
 
