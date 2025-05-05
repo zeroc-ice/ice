@@ -536,7 +536,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
    * depending on what token it sees.
    *
    * Since BOMs are only allowed at the beginning of files, we only allow them in this 'INITIAL' state.
-   * If we see a BOM in other state, we emit an error and throw it away. */
+   * If we see a BOM in any other state, we emit an error and throw it away. */
 <INITIAL>{bom} { /* do nothing */ }
 <SLICE,PREPROCESS,METADATA>{bom} {
     currentUnit->error("encountered unexpected UTF-8 BOM in input; BOMs can only appear at the beginning of files");

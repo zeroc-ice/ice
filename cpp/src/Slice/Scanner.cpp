@@ -2202,7 +2202,7 @@ YY_RULE_SETUP
    * depending on what token it sees.
    *
    * Since BOMs are only allowed at the beginning of files, we only allow them in this 'INITIAL' state.
-   * If we see a BOM in other state, we emit an error and throw it away. */
+   * If we see a BOM in any other state, we emit an error and throw it away. */
 case 47:
 YY_RULE_SETUP
 #line 541 "src/Slice/Scanner.l"
