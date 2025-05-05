@@ -21,6 +21,7 @@ module classdef
         ["matlab:identifier:eq_"] int eq = 2;
     }
 
+    ["matlab:identifier:logical_"]
     class logical
     {
         ["matlab:identifier:else_"] persistent else = break;
@@ -28,6 +29,7 @@ module classdef
         bool int64 = true;
     }
 
+    ["matlab:identifier:escaped_xor"]
     class xor extends logical
     {
         ["matlab:identifier:return_"] int return = 1;
@@ -48,6 +50,7 @@ module classdef
         ["matlab:identifier:otherwise_"] switch otherwise;
     }
 
+    ["matlab:identifier:bitand_"]
     exception bitand
     {
         // These data members clash with members of MException.
@@ -57,6 +60,7 @@ module classdef
         ["matlab:identifier:end_"] logical end;
     }
 
+    ["matlab:identifier:bitand_"]
     exception bitor extends bitand
     {
         ["matlab:identifier:enumeration_"]

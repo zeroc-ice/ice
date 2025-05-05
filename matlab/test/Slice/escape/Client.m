@@ -9,7 +9,7 @@ function client(args)
     helper = TestHelper();
     initData = Ice.InitializationData();
     initData.properties_ = helper.createTestProperties(args);
-    initData.sliceLoader = Ice.ClassSliceLoader([?classdef_.logical, ?classdef_.xor, ?classdef_.Derived]);
+    initData.sliceLoader = Ice.ClassSliceLoader([?classdef_.logical_, ?classdef_.escaped_xor, ?classdef_.Base, ?classdef_.Derived, ?classdef_.bitand_, ?classdef_.escaped_bitor]);
 
     communicator = helper.initialize(initData);
     cleanup = onCleanup(@() communicator.destroy());
