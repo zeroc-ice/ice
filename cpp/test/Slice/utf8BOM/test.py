@@ -9,7 +9,7 @@ from Util import ClientTestCase, SliceTranslator, TestSuite, platform, Linux
 class SliceUtf8BomTestCase(ClientTestCase):
     def runClientSide(self, current):
         test_file_name = "Test.ice"
-        slice2cpp = SliceTranslator("slice2cpp")
+        slice2cpp = SliceTranslator("slice2cpp", quiet=True)
 
         # Temporary output directory for 'slice2cpp to use.
         outdir = "{0}/tmp".format(os.getcwd())
