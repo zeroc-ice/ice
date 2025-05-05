@@ -15,7 +15,7 @@ import { Timer } from "./Timer.js";
 import { TraceLevels } from "./TraceLevels.js";
 import { LocalException } from "./LocalException.js";
 import { CommunicatorDestroyedException, InitializationException } from "./LocalExceptions.js";
-import { setProcessLogger } from "./ProcessLogger.js";
+import { getProcessLogger } from "./ProcessLogger.js";
 import { ToStringMode } from "./ToStringMode.js";
 import { ProtocolInstance } from "./ProtocolInstance.js";
 import { TcpEndpointFactory } from "./TcpEndpointFactory.js";
@@ -31,7 +31,6 @@ import { Ice as Ice_Locator } from "./Locator.js";
 const { LocatorPrx } = Ice_Locator;
 
 import { Ice as Ice_EndpointTypes } from "./EndpointTypes.js";
-import { Logger } from "./Logger.js";
 const { TCPEndpointType, WSEndpointType, SSLEndpointType, WSSEndpointType } = Ice_EndpointTypes;
 
 Instance.prototype.initializationData = function () {
@@ -185,17 +184,16 @@ Instance.prototype.finishSetup = function (communicator) {
 
         const programName = this._initData.properties.getIceProperty("Ice.ProgramName");
         const logFile = this._initData.properties.getIceProperty("Ice.LogFile");
-        if (this._initData.logger === null) {
-            if (logFile.length > 0) {
-                if (FileLogger === null) {
-                    throw new InitializationException("Ice.LogFile property is not supported in Web Browsers");
-                }
-                this._initData.logger = new FileLogger(programName, logFile);
-            } else {
-                this._initData.logger = new Logger(programName);
+        if (logFile.length > 0) {
+            if (FileLogger === null) {
+                throw new InitializationException("Ice.LogFile property is not supported in Web Browsers");
             }
+            this._initData.logger = new FileLogger(programName, logFile);
         }
-        setProcessLogger(this._initData.logger);
+
+        if (this._initData.logger === null) {
+            this._initData.logger = getProcessLogger(programName);
+        }
 
         this._traceLevels = new TraceLevels(this._initData.properties);
 
