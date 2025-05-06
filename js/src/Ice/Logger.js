@@ -1,9 +1,13 @@
 // Copyright (c) ZeroC, Inc.
 
+import fs from "fs";
+
+const formatMessage = message => message.join("").replace(/\n/g, "\n   ");
+
 export class Logger {
     constructor(prefix) {
         if (prefix !== undefined && prefix.length > 0) {
-            this._prefix = prefix + ": ";
+            this._prefix = `${prefix}: `;
         } else {
             this._prefix = "";
         }
@@ -20,7 +24,7 @@ export class Logger {
     }
 
     print(message) {
-        this.write(message, false);
+        this.write(message);
     }
 
     trace(category, message) {
@@ -32,7 +36,7 @@ export class Logger {
         s.push(category);
         s.push(": ");
         s.push(message);
-        this.write(s.join(""), true);
+        this.write(formatMessage(s));
     }
 
     warning(message) {
@@ -43,7 +47,7 @@ export class Logger {
         s.push(this._prefix);
         s.push("warning: ");
         s.push(message);
-        this.write(s.join(""), true);
+        this.write(formatMessage(s));
     }
 
     error(message) {
@@ -54,18 +58,14 @@ export class Logger {
         s.push(this._prefix);
         s.push("error: ");
         s.push(message);
-        this.write(s.join(""), true);
+        this.write(formatMessage(s));
     }
 
     cloneWithPrefix(prefix) {
         return new Logger(prefix);
     }
 
-    write(message, indent) {
-        if (indent) {
-            message = message.replace(/\n/g, "\n   ");
-        }
-
+    write(message) {
         console.log(message);
     }
 
@@ -74,3 +74,24 @@ export class Logger {
         return d.toLocaleString("en-US", this._dateformat) + "." + d.getMilliseconds();
     }
 }
+
+let FileLogger = null;
+
+if (typeof fs.open === "function") {
+    FileLogger = class extends Logger {
+        constructor(prefix, filename) {
+            super(prefix);
+            this._filename = filename;
+        }
+
+        write(message) {
+            fs.appendFileSync(this._filename, message + "\n");
+        }
+
+        cloneWithPrefix(prefix) {
+            return new FileLogger(prefix, this._filename);
+        }
+    };
+}
+
+export { FileLogger };

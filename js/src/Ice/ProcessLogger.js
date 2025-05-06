@@ -4,14 +4,10 @@ import { Logger } from "./Logger.js";
 
 let processLogger = null;
 
-export function getProcessLogger() {
+export function getProcessLogger(prefix = "") {
     if (processLogger === null) {
-        //
-        // TODO: Would be nice to be able to use process name as prefix by default.
-        //
-        processLogger = new Logger("", "");
+        processLogger = new Logger(prefix);
     }
-
     return processLogger;
 }
 

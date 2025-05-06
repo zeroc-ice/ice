@@ -421,7 +421,7 @@ final class PropertyNames
         "{name}",
         {prefixOnly},
         {isOptIn},
-        new Property[]{{{properties}
+        new Property[] {{{properties}
         }});
 
 """

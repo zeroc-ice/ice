@@ -1510,9 +1510,11 @@ class Process(Runnable):
     def getMapping(self, current):
         return self.mapping or current.testcase.getMapping()
 
+    def getProcessType(self, current):
+        return self.processType or current.testcase.getProcessType(self)
+
     def getExe(self, current):
-        processType = self.processType or current.testcase.getProcessType(self)
-        return self.exe or self.getMapping(current).getDefaultExe(processType)
+        return self.exe or self.getMapping(current).getDefaultExe(self.getProcessType(current))
 
     def getCommandLine(self, current, args=""):
         return (
@@ -1679,6 +1681,9 @@ class EchoServer(Server):
         props["Ice.MessageSizeMax"] = (
             8192  # Don't limit the amount of data to transmit between client/server
         )
+        # Set the program name to avoid conflicts with the log files. Without this both the JavaScript
+        # and the echo server would try to use the same log file.
+        props["Ice.ProgramName"] = "EchoServer"
         return props
 
     def getCommandLine(self, current, args=""):
@@ -2326,7 +2331,10 @@ class LocalProcessController(ProcessController):
         def teardown(self, current, success):
             if self.traceFile:
                 if success or current.driver.isInterrupted():
-                    os.remove(self.traceFile)
+                    try:
+                        os.remove(self.traceFile)
+                    except FileNotFoundError:
+                        pass
                 else:
                     current.writeln("saved {0}".format(self.traceFile))
 
@@ -2346,7 +2354,7 @@ class LocalProcessController(ProcessController):
         }
 
         traceFile = ""
-        if not isinstance(process.getMapping(current), JavaScriptMixin):
+        if not current.config.browser:
             traceProps = process.getEffectiveTraceProps(current)
             if traceProps:
                 if "Ice.ProgramName" in props:
@@ -4194,10 +4202,6 @@ class MatlabMapping(CppBasedClientMapping):
 
 class JavaScriptMixin:
     def loadTestSuites(self, tests, config, filters, rfilters):
-        # Exclude typescript directory when the mapping is not typescript otherwise we endup with duplicate entries
-        if self.name != "typescript":
-            rfilters += [re.compile("typescript/*")]
-
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)
         self.getServerMapping().loadTestSuites(
             list(self.testsuites.keys()) + ["Ice/echo"], config
@@ -4246,6 +4250,13 @@ class JavaScriptMixin:
         )
 
         return f"{coverage} {node_command}".strip()
+
+    def getProps(self, process, current):
+        props = Mapping.getProps(self, process, current)
+        if isinstance(process, IceProcess) and not current.config.browser:
+            if "Ice.ProgramName" not in props:
+                props["Ice.ProgramName"] = f"{process.getProcessType(current)}"
+        return props
 
     def getSSLProps(self, process, current):
         return {}
