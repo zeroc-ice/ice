@@ -3,8 +3,6 @@
 package test.Ice.udp;
 
 import com.zeroc.Ice.Communicator;
-import com.zeroc.Ice.InitializationData;
-import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
@@ -21,11 +19,6 @@ public class Server extends TestHelper {
         properties.setProperty("Ice.Warn.Connections", "0");
         properties.setProperty("Ice.UDP.RcvSize", "16384");
         properties.setProperty("Ice.UDP.SndSize", "16384");
-
-        var initData = new InitializationData();
-        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "FAIL_IF_NONE");
-        initData.properties = properties;
-
         {
             String endpoint;
             if ("1".equals(properties.getIceProperty("Ice.IPv6"))) {
@@ -40,7 +33,7 @@ public class Server extends TestHelper {
             properties.setProperty("McastTestAdapter.Endpoints", endpoint);
         }
 
-        try (Communicator communicator = initialize(initData)) {
+        try (Communicator communicator = initialize(properties)) {
             int num = remainingArgs.size() == 1 ? Integer.parseInt(remainingArgs.get(0)) : 0;
 
             communicator

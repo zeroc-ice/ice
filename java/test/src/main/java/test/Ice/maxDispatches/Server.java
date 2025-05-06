@@ -3,20 +3,17 @@
 package test.Ice.maxDispatches;
 
 import com.zeroc.Ice.Identity;
-import com.zeroc.Ice.InitializationData;
-import com.zeroc.Ice.ModuleToPackageSliceLoader;
+import com.zeroc.Ice.Properties;
 
 import test.TestHelper;
 
 public class Server extends TestHelper {
     public void run(String[] args) {
-        var initData = new InitializationData();
-        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.maxDispatches.Test");
-        initData.properties = createTestProperties(args);
+        Properties properties = createTestProperties(args);
          // plenty of threads to handle the requests
-        initData.properties.setProperty("Ice.ThreadPool.Server.Size", "10");
+        properties.setProperty("Ice.ThreadPool.Server.Size", "10");
 
-        try (var communicator = initialize(initData)) {
+        try (var communicator = initialize(properties)) {
 
             var responder = new ResponderI();
             var testIntf = new TestIntfI(responder);
