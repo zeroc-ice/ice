@@ -3,21 +3,17 @@
 package test.Ice.idleTimeout;
 
 import com.zeroc.Ice.Identity;
-import com.zeroc.Ice.InitializationData;
-import com.zeroc.Ice.ModuleToPackageSliceLoader;
 
 import test.TestHelper;
 
 public class Server extends TestHelper {
     public void run(String[] args) {
-        var initData = new InitializationData();
-        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.idleTimeout.Test");
-        initData.properties = createTestProperties(args);
-        initData.properties.setProperty("TestAdapter.Connection.IdleTimeout", "1"); // 1 second
-        initData.properties.setProperty("TestAdapter.Connection.MaxDispatches", "1");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        var properties = createTestProperties(args);
+        properties.setProperty("TestAdapter.Connection.IdleTimeout", "1"); // 1 second
+        properties.setProperty("TestAdapter.Connection.MaxDispatches", "1");
+        properties.setProperty("Ice.Warn.Connections", "0");
 
-        try (var communicator = initialize(initData)) {
+        try (var communicator = initialize(properties)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
             var adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(new TestIntfI(), new Identity("test", ""));

@@ -3,8 +3,6 @@
 package test.Ice.hold;
 
 import com.zeroc.Ice.Communicator;
-import com.zeroc.Ice.InitializationData;
-import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Util;
 
@@ -14,11 +12,7 @@ import java.util.Timer;
 
 public class Server extends TestHelper {
     public void run(String[] args) {
-        var initData = new InitializationData();
-        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.hold.Test");
-        initData.properties = createTestProperties(args);
-
-        try (Communicator communicator = initialize(initData)) {
+        try (Communicator communicator = initialize(args)) {
             communicator.getProperties().setProperty("TestAdapter1.Endpoints", getTestEndpoint(0));
             communicator.getProperties().setProperty("TestAdapter1.ThreadPool.Size", "5");
             communicator.getProperties().setProperty("TestAdapter1.ThreadPool.SizeMax", "5");

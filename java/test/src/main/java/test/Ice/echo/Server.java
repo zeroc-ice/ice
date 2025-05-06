@@ -4,8 +4,6 @@ package test.Ice.echo;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Current;
-import com.zeroc.Ice.InitializationData;
-import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Util;
 
@@ -37,11 +35,7 @@ public class Server extends TestHelper {
     }
 
     public void run(String[] args) {
-        var initData = new InitializationData();
-        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.echo.Test");
-        initData.properties = createTestProperties(args);
-
-        try (Communicator communicator = initialize(initData)) {
+        try (Communicator communicator = initialize(args)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             BlobjectI blob = new BlobjectI();
