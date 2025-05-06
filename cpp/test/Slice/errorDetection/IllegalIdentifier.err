@@ -1,9 +1,6 @@
-IllegalIdentifier.ice:10: illegal input character: '\357'
+IllegalIdentifier.ice:6: illegal input character: '\305'
+IllegalIdentifier.ice:6: syntax error
+IllegalIdentifier.ice:6: illegal input character: '\222'
+IllegalIdentifier.ice:8: illegal input character: '\305'
+IllegalIdentifier.ice:8: illegal input character: '\223'
 IllegalIdentifier.ice:10: syntax error
-IllegalIdentifier.ice:10: illegal input character: '\273'
-IllegalIdentifier.ice:10: illegal input character: '\277'
-IllegalIdentifier.ice:18: illegal input character: '\305'
-IllegalIdentifier.ice:18: illegal input character: '\222'
-IllegalIdentifier.ice:20: illegal input character: '\305'
-IllegalIdentifier.ice:20: illegal input character: '\223'
-IllegalIdentifier.ice:21: syntax error
