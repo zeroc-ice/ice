@@ -35,7 +35,7 @@ classdef AllTests
 
             fprintf('testing class... ');
 
-            c = classdef_.logical();
+            c = classdef_.logical_();
             assert(c.else_ == classdef_.persistent_.break_);
             assert(c.for_.case_ == classdef_.persistent_.catch_);
             assert(c.for_.continue_ == 1);
@@ -47,7 +47,7 @@ classdef AllTests
             os.writePendingValues();
             is = Ice.InputStream(communicator, os.getEncoding(), os.finished());
             v = IceInternal.ValueHolder();
-            is.readValue(@v.set, 'classdef_.logical');
+            is.readValue(@v.set, 'classdef_.logical_');
             is.readPendingValues();
             assert(v.value.else_ == c.else_);
             assert(v.value.for_.case_ == c.for_.case_);
@@ -55,7 +55,7 @@ classdef AllTests
             assert(v.value.for_.eq_ == c.for_.eq_);
             assert(v.value.int64 == c.int64);
 
-            d = classdef_.xor();
+            d = classdef_.escaped_xor();
             assert(d.else_ == classdef_.persistent_.break_);
             assert(d.for_.case_ == classdef_.persistent_.catch_);
             assert(d.for_.continue_ == 1);
@@ -68,7 +68,7 @@ classdef AllTests
             os.writePendingValues();
             is = Ice.InputStream(communicator, os.getEncoding(), os.finished());
             v = IceInternal.ValueHolder();
-            is.readValue(@v.set, 'classdef_.xor');
+            is.readValue(@v.set, 'classdef_.escaped_xor');
             is.readPendingValues();
             assert(v.value.else_ == d.else_);
             assert(v.value.for_.case_ == d.for_.case_);
@@ -97,12 +97,12 @@ classdef AllTests
 
             fprintf('testing exception... ');
 
-            e = classdef_.bitand();
+            e = classdef_.bitand_();
             assert(isempty(e.identifier_));
             assert(isempty(e.message_));
             assert(isempty(e.end_));
 
-            g = classdef_.bitor();
+            g = classdef_.escaped_bitor();
             assert(isempty(g.identifier_));
             assert(isempty(g.message_));
             assert(isempty(g.end_));

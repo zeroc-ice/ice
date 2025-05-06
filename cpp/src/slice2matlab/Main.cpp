@@ -1020,6 +1020,8 @@ namespace
                 {typeid(Module),
                  typeid(InterfaceDecl),
                  typeid(Operation),
+                 typeid(ClassDecl),
+                 typeid(Slice::Exception),
                  typeid(Struct),
                  typeid(Sequence),
                  typeid(Dictionary),
