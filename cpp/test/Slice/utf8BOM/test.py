@@ -11,7 +11,7 @@ class SliceUtf8BomTestCase(ClientTestCase):
         test_file_name = "Test.ice"
         slice2cpp = SliceTranslator("slice2cpp", quiet=True)
 
-        # Temporary output directory for 'slice2cpp to use.
+        # Temporary output directory for 'slice2cpp' to use.
         outdir = "{0}/tmp".format(os.getcwd())
         if os.path.exists(outdir):
             shutil.rmtree(outdir)
