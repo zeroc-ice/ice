@@ -2,14 +2,12 @@
 
 package test.Ice.maxConnections;
 
-import com.zeroc.Ice.Properties;
-
 import test.TestHelper;
 
 public class Client extends TestHelper {
     @Override
     public void run(String[] args) {
-        Properties properties = createTestProperties(args);
+        var properties = createTestProperties(args);
         // We disable retries to make the logs clearer and avoid hiding potential issues.
         properties.setProperty("Ice.RetryIntervals", "-1");
 

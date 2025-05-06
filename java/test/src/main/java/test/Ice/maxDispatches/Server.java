@@ -3,13 +3,12 @@
 package test.Ice.maxDispatches;
 
 import com.zeroc.Ice.Identity;
-import com.zeroc.Ice.Properties;
 
 import test.TestHelper;
 
 public class Server extends TestHelper {
     public void run(String[] args) {
-        Properties properties = createTestProperties(args);
+        var properties = createTestProperties(args);
          // plenty of threads to handle the requests
         properties.setProperty("Ice.ThreadPool.Server.Size", "10");
 
