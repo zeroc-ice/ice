@@ -35,7 +35,7 @@ public class Client extends TestHelper {
     public void run(String[] args) {
         var initData = new InitializationData();
         initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Glacier2.router.Test");
-        initData.properties =  createTestProperties(args);
+        initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
 
