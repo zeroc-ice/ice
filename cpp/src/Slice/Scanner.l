@@ -531,7 +531,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Handles UTF-8 BOMs.
    * The scanner has a special 'INITIAL' state, which it enters whenever it hits the start of a file.
-   * This occurrs when parsing initially begins, but also when we see the start of an '#include'd file.
+   * This occurs when parsing initially begins, but also when we see the start of an '#include'd file.
    * As soon as the scanner sees a token, it will transition into a more specific state: SLICE, METADATA, etc.
    * depending on what token it sees.
    *
