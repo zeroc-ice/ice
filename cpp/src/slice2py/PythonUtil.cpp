@@ -1565,17 +1565,17 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
 
     _out << sp << nl << "def __repr__(self):";
     _out.inc();
-    
+
     _out << nl << "if self._value in _M_" << _moduleStack.front() << '.' << name << "._enumerators:";
     _out.inc();
     _out << nl << "return f\"" << getAbsolute(p) << ".{self._name}\"";
     _out.dec();
-    
+
     _out << nl << "else:";
     _out.inc();
     _out << nl << "return f\"" << getAbsolute(p) << "({self._name!r}, {self._value!r})\"";
     _out.dec();
-    
+
     _out.dec();
 
     _out.dec();
