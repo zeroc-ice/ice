@@ -12,31 +12,31 @@ module Test
 
     interface TestIntf
     {
-        ["cpp:view-type:std::span<const std::byte>"] ByteSeq opByteSpan(
+        ByteSeq opByteSpan(
             ["cpp:view-type:std::span<const std::byte>"] ByteSeq dataIn,
-            ["cpp:view-type:std::span<const std::byte>"] out ByteSeq dataOut);
+            out ByteSeq dataOut);
 
-        ["cpp:view-type:std::span<const std::int16_t>"] ShortSeq opShortSpan(
+        ShortSeq opShortSpan(
             ["cpp:view-type:std::span<const std::int16_t>"] ShortSeq dataIn,
-            ["cpp:view-type:std::span<const std::int16_t>"] out ShortSeq dataOut);
+            out ShortSeq dataOut);
 
-        ["cpp:view-type:std::span<std::string>"] StringSeq opStringSpan(
-            ["cpp:view-type:std::span<std::string>"] StringSeq dataIn,
-            ["cpp:view-type:std::span<std::string>"] out StringSeq dataOut);
+        StringSeq opStringSpan(
+            ["cpp:view-type:std::span<const std::string_view>"] StringSeq dataIn,
+            out StringSeq dataOut);
 
         // Same with optionals
 
-        ["cpp:view-type:std::span<const std::byte>"] optional(10) ByteSeq opOptionalByteSpan(
+        optional(10) ByteSeq opOptionalByteSpan(
             ["cpp:view-type:std::span<const std::byte>"] optional(1) ByteSeq dataIn,
-            ["cpp:view-type:std::span<const std::byte>"] out optional(11) ByteSeq dataOut);
+            out optional(11) ByteSeq dataOut);
 
-        ["cpp:view-type:std::span<const std::int16_t>"] optional(10) ShortSeq opOptionalShortSpan(
+        optional(10) ShortSeq opOptionalShortSpan(
             ["cpp:view-type:std::span<const std::int16_t>"] optional(1) ShortSeq dataIn,
-            ["cpp:view-type:std::span<const std::int16_t>"] out optional(11) ShortSeq dataOut);
+            out optional(11) ShortSeq dataOut);
 
-        ["cpp:view-type:std::span<std::string>"] optional(10) StringSeq opOptionalStringSpan(
-            ["cpp:view-type:std::span<std::string>"] optional(1) StringSeq dataIn,
-            ["cpp:view-type:std::span<std::string>"] out optional(11) StringSeq dataOut);
+        optional(10) StringSeq opOptionalStringSpan(
+            ["cpp:view-type:std::span<const std::string_view>"] optional(1) StringSeq dataIn,
+            out optional(11) StringSeq dataOut);
 
         void shutdown();
     }
