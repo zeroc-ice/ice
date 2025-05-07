@@ -156,8 +156,6 @@ namespace IcePy
             void*,
             bool,
             const Ice::StringSeq* = nullptr) = 0;
-
-        virtual void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) = 0;
     };
     using TypeInfoPtr = std::shared_ptr<TypeInfo>;
 
@@ -198,8 +196,6 @@ namespace IcePy
             bool,
             const Ice::StringSeq* = nullptr) final;
 
-        void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) final;
-
         const Kind kind;
     };
     using PrimitiveInfoPtr = std::shared_ptr<PrimitiveInfo>;
@@ -230,8 +226,6 @@ namespace IcePy
             void*,
             bool,
             const Ice::StringSeq* = nullptr) final;
-
-        void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) final;
 
         void destroy() final;
 
@@ -286,8 +280,6 @@ namespace IcePy
             bool,
             const Ice::StringSeq* = nullptr) final;
 
-        void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) final;
-
         void destroy() final;
 
         static PyObject* instantiate(PyObject*);
@@ -329,8 +321,6 @@ namespace IcePy
             void*,
             bool,
             const Ice::StringSeq* = nullptr) final;
-
-        void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) final;
 
         void destroy() final;
 
@@ -421,8 +411,6 @@ namespace IcePy
             const Ice::StringSeq* = nullptr) final;
         void unmarshaled(PyObject*, PyObject*, void*) final;
 
-        void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) final;
-
         void destroy() final;
 
         class KeyCallback final : public UnmarshalCallback
@@ -475,11 +463,7 @@ namespace IcePy
             bool,
             const Ice::StringSeq* = nullptr) final;
 
-        void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) final;
-
         void destroy() final;
-
-        void printMembers(PyObject*, IceInternal::Output&, PrintObjectHistory*);
 
         const std::string id;
         const std::int32_t compactId{-1};
@@ -522,8 +506,6 @@ namespace IcePy
             bool,
             const Ice::StringSeq* = nullptr) final;
 
-        void print(PyObject*, IceInternal::Output&, PrintObjectHistory*) final;
-
         const std::string id;
         PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
         PyObject* typeObj;    // Borrowed reference - the "_t_XXX" variable owns the reference.
@@ -540,9 +522,6 @@ namespace IcePy
     public:
         void marshal(PyObject*, Ice::OutputStream*, ObjectMap*);
         PyObject* unmarshal(Ice::InputStream*);
-
-        void print(PyObject*, IceInternal::Output&);
-        void printMembers(PyObject*, IceInternal::Output&, PrintObjectHistory*);
 
         std::string id;
         ExceptionInfoPtr base;
@@ -682,7 +661,5 @@ extern "C" PyObject* IcePy_defineProxy(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_declareValue(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineValue(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineException(PyObject*, PyObject*);
-extern "C" PyObject* IcePy_stringify(PyObject*, PyObject*);
-extern "C" PyObject* IcePy_stringifyException(PyObject*, PyObject*);
 
 #endif

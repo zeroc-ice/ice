@@ -210,6 +210,31 @@ namespace
         os << "`";
         return os.str();
     }
+
+    string formatFields(const DataMemberList& members)
+    {
+        if (members.empty())
+        {
+            return "";
+        }
+        else
+        {
+            ostringstream os;
+            bool first = true;
+            os << "{Ice.Util.format_fields(";
+            for (const auto& dataMember : members)
+            {
+                if (!first)
+                {
+                    os << ", ";
+                }
+                first = false;
+                os << dataMember->mappedName() << "=self." << dataMember->mappedName();
+            }
+            os << ")}";
+            return os.str();
+        }
+    }
 }
 
 namespace Slice::Python
@@ -613,14 +638,12 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "return '" << scoped << "'";
     _out.dec();
 
-    //
-    // __str__
-    //
-    _out << sp << nl << "def __str__(self):";
+    // Generate the __repr__ method for this Value class.
+    // The default __str__ method inherited from Ice.Value calls __repr__().
+    _out << sp << nl << "def __repr__(self):";
     _out.inc();
-    _out << nl << "return IcePy.stringify(self, " << type << ")";
+    _out << nl << "return f\"" << getAbsolute(p) << "(" << formatFields(p->allDataMembers()) << ")\"";
     _out.dec();
-    _out << sp << nl << "__repr__ = __str__";
 
     _out.dec();
 
@@ -943,15 +966,6 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     writeOperations(p);
 
-    //
-    // __str__
-    //
-    _out << sp << nl << "def __str__(self):";
-    _out.inc();
-    _out << nl << "return IcePy.stringify(self, " << getMetaTypeReference(p) << "Disp" << ")";
-    _out.dec();
-    _out << sp << nl << "__repr__ = __str__";
-
     _out.dec();
 
     //
@@ -1147,14 +1161,12 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     _out.dec();
 
-    //
-    // __str__
-    //
-    _out << sp << nl << "def __str__(self):";
+    // Generate the __repr__ method for this Exception class.
+    // The default __str__ method inherited from Ice.UserException calls __repr__().
+    _out << sp << nl << "def __repr__(self):";
     _out.inc();
-    _out << nl << "return IcePy.stringifyException(self)";
+    _out << nl << "return f\"" << getAbsolute(p) << "(" << formatFields(p->allDataMembers()) << ")\"";
     _out.dec();
-    _out << sp << nl << "__repr__ = __str__";
 
     //
     // _ice_id
@@ -1430,14 +1442,16 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.dec();
     }
 
-    //
-    // __str__
-    //
+    // Generate the __repr__ method for this struct class.
+    _out << sp << nl << "def __repr__(self):";
+    _out.inc();
+    _out << nl << "return f\"" << getAbsolute(p) << "(" << formatFields(members) << ")\"";
+    _out.dec();
+
     _out << sp << nl << "def __str__(self):";
     _out.inc();
-    _out << nl << "return IcePy.stringify(self, " << getMetaTypeReference(p) << ")";
+    _out << nl << "return repr(self)";
     _out.dec();
-    _out << sp << nl << "__repr__ = __str__";
 
     _out.dec();
 
@@ -1548,6 +1562,21 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "return None";
     _out.dec();
     _out << nl << "valueOf = classmethod(valueOf)";
+
+    _out << sp << nl << "def __repr__(self):";
+    _out.inc();
+    
+    _out << nl << "if self._value in _M_" << _moduleStack.front() << '.' << name << "._enumerators:";
+    _out.inc();
+    _out << nl << "return f\"" << getAbsolute(p) << ".{self._name}\"";
+    _out.dec();
+    
+    _out << nl << "else:";
+    _out.inc();
+    _out << nl << "return f\"" << getAbsolute(p) << "({self._name!r}, {self._value!r})\"";
+    _out.dec();
+    
+    _out.dec();
 
     _out.dec();
 
