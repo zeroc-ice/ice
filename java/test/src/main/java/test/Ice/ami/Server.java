@@ -13,7 +13,7 @@ import test.TestHelper;
 public class Server extends TestHelper {
     public void run(String[] args) {
         var initData = new InitializationData();
-        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.adapterDeactivation.Test");
+        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.ami.Test");
         initData.properties = createTestProperties(args);
         // This test kills connections, so we don't want warnings.
         initData.properties.setProperty("Ice.Warn.Connections", "0");
