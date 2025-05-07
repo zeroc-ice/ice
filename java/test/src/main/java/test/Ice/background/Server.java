@@ -8,7 +8,6 @@ import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.Locator;
 import com.zeroc.Ice.LocatorRegistryPrx;
-import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Router;
@@ -82,7 +81,6 @@ public class Server extends TestHelper {
     @Override
     public void run(String[] args) {
         var initData = new InitializationData();
-        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.background.Test");
         // Install transport plug-in.
         initData.pluginFactories = Collections.singletonList(new PluginFactory());
 

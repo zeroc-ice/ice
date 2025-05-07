@@ -4,7 +4,6 @@ package test.Ice.retry;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.InitializationData;
-import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Util;
 
@@ -23,7 +22,6 @@ public class Collocated extends TestHelper {
     @Override
     public void run(String[] args) {
         InitializationData initData = new InitializationData();
-        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.retry.Test");
         initData.observer = instrumentation.getObserver();
         initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.RetryIntervals", "0 1 10 1");

@@ -4,7 +4,6 @@ package test.Ice.executor;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.InitializationData;
-import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Util;
 
@@ -13,7 +12,6 @@ import test.TestHelper;
 public class Server extends TestHelper {
     public void run(String[] args) {
         InitializationData initData = new InitializationData();
-        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.executor.Test");
         initData.properties = createTestProperties(args);
         // Limit the recv buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.

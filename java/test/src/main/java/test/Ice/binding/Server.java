@@ -6,7 +6,6 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.Logger;
-import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Util;
 
@@ -15,7 +14,6 @@ import test.TestHelper;
 public class Server extends TestHelper {
     public void run(String[] args) {
         InitializationData initData = new InitializationData();
-        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.binding.Test");
         initData.properties = createTestProperties(args);
         initData.logger =
             new Logger() {
