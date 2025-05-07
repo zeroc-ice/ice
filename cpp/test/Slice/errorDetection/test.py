@@ -94,7 +94,7 @@ class SliceErrorDetectionTestCase(ClientTestCase):
             for file in files:
                 try:
                     compiler.run(current, args=[file, "--output-dir", "tmp", "-I" + sliceDir])
-                except:
+                except RuntimeError:
                     failures.append(file)
 
             current.writeln("failed!" if failures else "ok")
