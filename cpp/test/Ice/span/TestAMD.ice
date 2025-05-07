@@ -10,7 +10,7 @@ module Test
     sequence<short> ShortSeq;
     sequence<string> StringSeq;
 
-    // No metadata on in-parameters are we don't use this generated code for the client.
+    // No metadata on in-parameters and we don't use this generated code for the client.
 
     ["amd"]
     interface TestIntf
