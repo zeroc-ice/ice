@@ -155,9 +155,9 @@ namespace
         {
             return true;
         }
-        if (dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type))
+        if (dynamic_pointer_cast<Sequence>(type))
         {
-            // Return true for view-type (sequence and dictionary) and array (sequence only)
+            // Return true for view-type and array.
             for (const auto& meta : metadata)
             {
                 string_view directive = meta->directive();

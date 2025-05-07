@@ -28,11 +28,12 @@ TestIntfAMDI::opShortSpanAsync(
 void
 TestIntfAMDI::opStringSpanAsync(
     StringSeq dataIn,
-    function<void(span<string> returnValue, span<string> dataOut)> response,
+    function<void(span<const string_view> returnValue, span<const string_view> dataOut)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
-    response(dataIn, dataIn);
+    vector<string_view> dataInView{dataIn.begin(), dataIn.end()};
+    response(dataInView, dataInView);
 }
 
 void
@@ -58,13 +59,14 @@ TestIntfAMDI::opOptionalShortSpanAsync(
 void
 TestIntfAMDI::opOptionalStringSpanAsync(
     optional<StringSeq> dataIn,
-    function<void(optional<span<string>> returnValue, optional<span<string>> dataOut)> response,
+    function<void(optional<span<const string_view>> returnValue, optional<span<const string_view>> dataOut)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
     if (dataIn)
     {
-        response(*dataIn, *dataIn);
+        vector<string_view> dataInView{dataIn->begin(), dataIn->end()};
+        response(dataInView, dataInView);
     }
     else
     {

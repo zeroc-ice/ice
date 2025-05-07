@@ -40,9 +40,9 @@ allTests(TestHelper* helper)
     }
 
     {
-        vector<string> v{"a", "bb", "ccc", "dddd", "eeeee"};
+        vector<string_view> v{"a", "bb", "ccc", "dddd", "eeeee"};
 
-        auto dataIn = span<string>{v}.subspan(1, 3);
+        auto dataIn = span<string_view>{v}.subspan(1, 3);
         vector<string> dataOut;
         auto r = prx->opStringSpan(dataIn, dataOut);
         vector<string> dataInVec{dataIn.begin(), dataIn.end()};
@@ -75,9 +75,9 @@ allTests(TestHelper* helper)
     }
 
     {
-        vector<string> v{"a", "bb", "ccc", "dddd", "eeeee"};
+        vector<string_view> v{"a", "bb", "ccc", "dddd", "eeeee"};
 
-        auto dataIn = span<string>{v}.subspan(1, 3);
+        auto dataIn = span<string_view>{v}.subspan(1, 3);
         optional<vector<string>> dataOut;
         auto r = prx->opOptionalStringSpan(dataIn, dataOut);
         vector<string> dataInVec{dataIn.begin(), dataIn.end()};

@@ -1038,7 +1038,7 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
 
     // "cpp:view-type"
     MetadataInfo viewTypeInfo = {
-        .validOn = {typeid(Sequence), typeid(Dictionary)},
+        .validOn = {typeid(Sequence)},
         .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
         .acceptedContext = MetadataApplicationContext::ParameterTypeReferences,
     };
