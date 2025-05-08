@@ -1126,7 +1126,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         if (_initData.sliceLoader)
         {
-            _applicationSliceLoader->add(_applicationSliceLoader);
+            _applicationSliceLoader->add(_initData.sliceLoader);
         }
 
         auto compositeSliceLoader = make_shared<CompositeSliceLoader>();

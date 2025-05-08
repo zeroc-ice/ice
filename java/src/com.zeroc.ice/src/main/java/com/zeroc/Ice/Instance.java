@@ -544,7 +544,7 @@ public final class Instance {
     }
 
     void addSliceLoader(SliceLoader loader) {
-       _applicationSliceLoader.add(loader);
+        _applicationSliceLoader.add(loader);
     }
 
     Class<?> findClass(String className) {
