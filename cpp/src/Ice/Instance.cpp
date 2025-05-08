@@ -907,7 +907,8 @@ IceInternal::Instance::create(const Ice::CommunicatorPtr& communicator, Ice::Ini
 IceInternal::Instance::Instance(InitializationData initData)
     : _initData(std::move(initData)),
       _stringConverter(Ice::getProcessStringConverter()),
-      _wstringConverter(Ice::getProcessWstringConverter())
+      _wstringConverter(Ice::getProcessWstringConverter()),
+      _applicationSliceLoader(make_shared<CompositeSliceLoader>())
 {
 #if defined(ICE_USE_SCHANNEL)
     if (_initData.clientAuthenticationOptions && _initData.clientAuthenticationOptions->trustedRootCertificates)
@@ -1122,17 +1123,16 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
 
         // Update _initData.sliceLoader.
+
         if (_initData.sliceLoader)
         {
-            auto compositeSliceLoader = make_shared<CompositeSliceLoader>();
-            compositeSliceLoader->add(_initData.sliceLoader);
-            compositeSliceLoader->add(DefaultSliceLoader::instance());
-            _initData.sliceLoader = std::move(compositeSliceLoader);
+            _applicationSliceLoader->add(_applicationSliceLoader);
         }
-        else
-        {
-            _initData.sliceLoader = DefaultSliceLoader::instance();
-        }
+
+        auto compositeSliceLoader = make_shared<CompositeSliceLoader>();
+        compositeSliceLoader->add(_applicationSliceLoader);
+        compositeSliceLoader->add(DefaultSliceLoader::instance());
+        _initData.sliceLoader = std::move(compositeSliceLoader);
 
         string toStringModeStr = _initData.properties->getIceProperty("Ice.ToStringMode");
         if (toStringModeStr == "ASCII")
