@@ -111,7 +111,7 @@
         <property name="MessageSizeMax" languages="all" default="1024" />
         <property name="Nohup" languages="cpp" default="1" />
         <property name="Override.Compress" languages="cpp,csharp,java" />
-        <property name="Override.Secure" languages="all" />
+        <property name="Override.Secure" languages="cpp,csharp,java" />
         <property name="Package.[any]" languages="java" />
         <property name="Plugin.[any]" languages="cpp,csharp,java" />
         <property name="PluginLoadOrder" languages="cpp,csharp,java" />
