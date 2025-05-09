@@ -1463,5 +1463,7 @@ public final class Instance {
     private ConnectionOptions _clientConnectionOptions;
     private ConnectionOptions _serverConnectionOptions;
 
+    // The Slice loader(s) added by the application: initData.sliceLoader followed by the loaders added by
+    // addSliceLoader.
     private final CompositeSliceLoader _applicationSliceLoader = new CompositeSliceLoader();
 }
