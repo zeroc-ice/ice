@@ -1512,7 +1512,7 @@ public final class InputStream {
     }
 
     private UserException createUserException(String id) {
-        return (UserException)_instance.sliceLoader().newInstance(id);
+        return (UserException) _instance.sliceLoader().newInstance(id);
     }
 
     private final Instance _instance;
@@ -1587,7 +1587,7 @@ public final class InputStream {
         }
 
         protected Value newInstance(String typeId) {
-            return (Value)_sliceLoader.newInstance(typeId);
+            return (Value) _sliceLoader.newInstance(typeId);
         }
 
         protected void addPatchEntry(int index, Consumer<Value> cb) {

@@ -257,7 +257,7 @@ class RegistryEditor extends CommunicatorEditor {
 
     @Override
     protected void appendProperties(DefaultFormBuilder builder) {
-        CellConstraints cc = new CellConstraints();
+        final CellConstraints cc = new CellConstraints();
 
         builder.append("Hostname");
         builder.append(_hostname, 3);

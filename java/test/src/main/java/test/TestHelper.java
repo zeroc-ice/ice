@@ -22,7 +22,7 @@ public abstract class TestHelper {
         }
     }
 
-    public abstract void run(String args[]);
+    public abstract void run(String[] args);
 
     public interface ControllerHelper {
         void communicatorInitialized(Communicator c);

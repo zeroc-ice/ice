@@ -177,7 +177,8 @@ public class AllTests {
             test(false);
         } catch (UnknownUserException ex) {
             var expected =
-                "The reply carries a user exception that does not conform to the operation's exception specification: ::Test::TestIntfUserException";
+                "The reply carries a user exception that does not conform to the operation's exception specification: "
+                    + "::Test::TestIntfUserException";
             test(ex.getMessage().equals(expected));
         } catch (Throwable ex) {
             test(false);
@@ -190,7 +191,8 @@ public class AllTests {
             test(false);
         } catch (UnknownUserException ex) {
             var expected =
-                "The reply carries a user exception that does not conform to the operation's exception specification: ::Test::TestIntfUserException";
+                "The reply carries a user exception that does not conform to the operation's exception specification: "
+                    + "::Test::TestIntfUserException";
             test(ex.getMessage().equals(expected));
         } catch (Throwable ex) {
             test(false);

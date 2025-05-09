@@ -1275,7 +1275,6 @@ public class Coordinator {
         YesThisTime,
         No
     }
-    ;
 
     void login(
             final SessionKeeper sessionKeeper,
@@ -2979,7 +2978,11 @@ public class Coordinator {
                     (IGraphView)
                         ctor.newInstance(new Object[]{Coordinator.this, title.toString()});
                 _graphViews.add(view);
-            } catch (NoSuchMethodException ex) {} catch (InstantiationException ex) {} catch (IllegalAccessException ex) {} catch (java.lang.reflect.InvocationTargetException ex) {}
+            } catch (NoSuchMethodException ex) {
+            } catch (InstantiationException ex) {
+            } catch (IllegalAccessException ex) {
+            } catch (java.lang.reflect.InvocationTargetException ex) {
+            }
         }
         return view;
     }
@@ -3081,10 +3084,7 @@ public class Coordinator {
 
     private void about() {
         String text =
-            "IceGrid GUI version "
-                + Util.stringVersion()
-                + "\n"
-                + "Copyright \u00A9 ZeroC, Inc.\n";
+            "IceGrid GUI version " + Util.stringVersion() + "\nCopyright © ZeroC, Inc.\n";
 
         JOptionPane.showMessageDialog(
             _mainFrame, text, "About - IceGrid GUI", JOptionPane.INFORMATION_MESSAGE);

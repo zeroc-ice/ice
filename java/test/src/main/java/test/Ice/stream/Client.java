@@ -584,7 +584,7 @@ public class Client extends TestHelper {
 
             {
                 out = new OutputStream(communicator);
-                MyException ex = new MyException();
+                final MyException ex = new MyException();
 
                 MyClass c = new MyClass();
                 c.c = c;
@@ -635,7 +635,7 @@ public class Client extends TestHelper {
                 dict.put((byte) 1, false);
                 out = new OutputStream(communicator);
                 ByteBoolDHelper.write(out, dict);
-                byte data[] = out.finished();
+                byte[] data = out.finished();
                 in = new InputStream(communicator, data);
                 Map<Byte, Boolean> dict2 = ByteBoolDHelper.read(in);
                 test(dict2.equals(dict));
@@ -647,7 +647,7 @@ public class Client extends TestHelper {
                 dict.put((short) 4, 8);
                 out = new OutputStream(communicator);
                 ShortIntDHelper.write(out, dict);
-                byte data[] = out.finished();
+                byte[] data = out.finished();
                 in = new InputStream(communicator, data);
                 Map<Short, Integer> dict2 = ShortIntDHelper.read(in);
                 test(dict2.equals(dict));
@@ -659,7 +659,7 @@ public class Client extends TestHelper {
                 dict.put((long) 123809829, 0.56f);
                 out = new OutputStream(communicator);
                 LongFloatDHelper.write(out, dict);
-                byte data[] = out.finished();
+                byte[] data = out.finished();
                 in = new InputStream(communicator, data);
                 Map<Long, Float> dict2 = LongFloatDHelper.read(in);
                 test(dict2.equals(dict));
@@ -671,7 +671,7 @@ public class Client extends TestHelper {
                 dict.put("key2", "value2");
                 out = new OutputStream(communicator);
                 StringStringDHelper.write(out, dict);
-                byte data[] = out.finished();
+                byte[] data = out.finished();
                 in = new InputStream(communicator, data);
                 Map<String, String> dict2 = StringStringDHelper.read(in);
                 test(dict2.equals(dict));

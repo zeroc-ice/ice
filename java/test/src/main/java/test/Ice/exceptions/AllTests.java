@@ -451,10 +451,11 @@ public class AllTests {
         try {
             thrower.throwDispatchException((byte) ReplyStatus.OperationNotExist.value());
             test(false);
-        } catch (OperationNotExistException ex) { // remapped as expected
-            test(
-                "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }"
-                    .equals(ex.getMessage()));
+        } catch (OperationNotExistException ex) {
+            // remapped as expected
+            final String expected = "Dispatch failed with OperationNotExist "
+                + "{ id = 'thrower', facet = '', operation = 'throwDispatchException' }";
+            test(expected.equals(ex.getMessage()));
         }
 
         try {
