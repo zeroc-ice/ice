@@ -5,11 +5,6 @@ class EnumBase(object):
         self._name = _n
         self._value = _v
 
-    def __str__(self):
-        return self._name
-
-    __repr__ = __str__
-
     def __hash__(self):
         return self._value
 
@@ -60,6 +55,9 @@ class EnumBase(object):
 
     def _getValue(self):
         return self._value
+
+    def __str__(self):
+        return repr(self)
 
     name = property(_getName)
     value = property(_getValue)

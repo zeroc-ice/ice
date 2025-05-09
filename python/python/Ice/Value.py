@@ -47,4 +47,7 @@ class Value(object):
         """
         return getattr(self, "_ice_slicedData", None)
 
+    def __str__(self):
+        return repr(self)
+
 IcePy._t_Value = IcePy.defineValue("::Ice::Object", Value, -1, (), False, None, ())

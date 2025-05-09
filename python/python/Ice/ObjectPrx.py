@@ -937,5 +937,15 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_flushBatchRequests()
 
+    def __repr__(self):
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__qualname__}("
+            f"communicator={self.ice_getCommunicator()!r}, "
+            f"proxyString={self.ice_toString()!r})"
+        )
+
+    def __str__(self):
+        return repr(self)
+
 
     __module__ = 'Ice'
