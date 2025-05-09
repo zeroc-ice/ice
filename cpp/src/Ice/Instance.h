@@ -92,7 +92,9 @@ namespace IceInternal
         [[nodiscard]] Ice::ToStringMode toStringMode() const { return _toStringMode; }
         [[nodiscard]] bool acceptClassCycles() const { return _acceptClassCycles; }
 
+        void addSliceLoader(Ice::SliceLoaderPtr loader) noexcept { _applicationSliceLoader->add(std::move(loader)); }
         [[nodiscard]] const Ice::SliceLoaderPtr& sliceLoader() const noexcept { return _initData.sliceLoader; }
+
         [[nodiscard]] const Ice::ConnectionOptions& clientConnectionOptions() const noexcept
         {
             return _clientConnectionOptions;
@@ -203,6 +205,10 @@ namespace IceInternal
         // Only set when _implicitContextKind == Shared.
         Ice::ImplicitContextPtr _sharedImplicitContext;
         Ice::SSL::SSLEnginePtr _sslEngine;
+
+        // The Slice loader(s) added by the application: initData.sliceLoader followed by the loaders added by
+        // addSliceLoader.
+        const Ice::CompositeSliceLoaderPtr _applicationSliceLoader;
     };
 
     class ProcessI final : public Ice::Process

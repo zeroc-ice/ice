@@ -205,6 +205,14 @@ namespace Ice
         /// @return This communicator's logger.
         [[nodiscard]] LoggerPtr getLogger() const noexcept;
 
+        /// Adds a Slice loader to this communicator, after the Slice loader set in InitializationData (if any) and
+        /// after other Slice loaders added by this function.
+        /// @param loader The Slice loader to add.
+        /// @remarks This function is not thread-safe and should only be called right after the communicator is created.
+        /// It's provided for applications that cannot set the Slice loader in the InitializationData of the
+        /// communicator, such as IceBox services.
+        void addSliceLoader(SliceLoaderPtr loader) noexcept;
+
         /// Gets the observer object of this communicator.
         /// @return This communicator's observer object.
         [[nodiscard]] Instrumentation::CommunicatorObserverPtr getObserver() const noexcept;

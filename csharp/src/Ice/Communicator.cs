@@ -278,6 +278,16 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     public Logger getLogger() => instance.initializationData().logger!;
 
     /// <summary>
+    /// Adds a Slice loader to this communicator, after the Slice loader set in <see cref="InitializationData" />(if
+    /// any) and after other Slice loaders added by this method.
+    /// </summary>
+    /// <param name="loader"> The Slice loader to add.</param>
+    /// <remarks>This method is not thread-safe and should only be called right after the communicator is created.
+    /// It's provided for applications that cannot set the Slice loader in the <see cref="InitializationData" /> of the
+    /// communicator, such as IceBox services.</remarks>
+    public void addSliceLoader(SliceLoader loader) => instance.addSliceLoader(loader);
+
+    /// <summary>
     /// Gets the observer resolver object for this communicator.
     /// </summary>
     /// <returns>This communicator's observer resolver object.</returns>

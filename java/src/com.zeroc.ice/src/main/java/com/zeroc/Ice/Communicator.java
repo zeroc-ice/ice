@@ -345,6 +345,19 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
+     * Adds a Slice loader to this communicator, after the Slice loader set in {@link InitializationData}
+     * (if any) and after other Slice loaders added by this method.
+     *
+     * This method is not thread-safe and should only be called right after the communicator is created.
+     * It's provided for applications that cannot set the Slice loader in the {@link InitializationData} of the
+     * communicator, such as IceBox services.
+     * @param loader The Slice loader to add.
+     */
+    public void addSliceLoader(SliceLoader loader) {
+        _instance.addSliceLoader(loader);
+    }
+
+    /**
      * Get the observer resolver object for this communicator.
      *
      * @return This communicator's observer resolver object.
