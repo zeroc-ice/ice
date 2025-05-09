@@ -218,20 +218,20 @@ namespace
             return "";
         }
 
-	ostringstream os;
-	bool first = true;
-	os << "{Ice.Util.format_fields(";
-	for (const auto& dataMember : members)
-	{
-	  if (!first)
-	  {
-	    os << ", ";
-	  }
-	  first = false;
-	  os << dataMember->mappedName() << "=self." << dataMember->mappedName();
-	}
-	os << ")}";
-	return os.str();
+        ostringstream os;
+        bool first = true;
+        os << "{Ice.Util.format_fields(";
+        for (const auto& dataMember : members)
+        {
+            if (!first)
+            {
+                os << ", ";
+            }
+            first = false;
+            os << dataMember->mappedName() << "=self." << dataMember->mappedName();
+        }
+        os << ")}";
+        return os.str();
     }
 }
 
