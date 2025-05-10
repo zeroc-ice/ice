@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix
+    xmlns="http://wixtoolset.org/schemas/v4/wxs"
+    xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+    xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+    <Package
+        Name="Ice $(Version)"
+        Manufacturer="ZeroC, Inc."
+        Version="$(Version).0"
+        InstallerVersion="500"
+        Compressed="yes"
+        Id="Ice_$(Version)">
+
+        <SummaryInformation
+            Description="Ice $(Version)"
+            Comments="Ice $(Version) MSI Installer"
+            Keywords="Ice, RPC"/>
+
+        <!-- Embed CAB files in MSI -->
+        <MediaTemplate EmbedCab="yes" />
+
+        <!-- Reference the UI Fragment -->
+        <PropertyRef Id="UiFragment"/>
+
+        <!-- Add components to the MainFeature -->
+        <Feature Id="MainFeature" Title="Ice" Level="1">
+            <ComponentGroupRef Id="InstallFolderComponents" />
+            <ComponentGroupRef Id="StartMenuComponents"/>
+            <MergeRef Id="VC143CRT"/>
+            <ComponentRef Id="AddToPath" />
+        </Feature>
+
+        <!-- Notify applications of the environment changes. Opened command prompt windows would not see the Env updates
+             unless RefreshEnv is called from the given command prompt. -->
+        <util:BroadcastEnvironmentChange />
+    </Package>
+</Wix>

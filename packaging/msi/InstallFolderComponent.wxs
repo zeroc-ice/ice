@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+    <Fragment>
+        <!-- Define the directory structure -->
+        <StandardDirectory Id="ProgramFiles64Folder">
+            <Directory Id="INSTALLFOLDER" Name="ZeroC\Ice-$(Version)">
+                <Directory Id="BinFolder" Name="bin" />
+                <Directory Id="SliceFolder" Name="slice" />
+                <Directory Id="ConfigFolder" Name="config" />
+            </Directory>
+        </StandardDirectory>
+        <StandardDirectory Id="ProgramMenuFolder">
+            <Directory Id="IceStartMenu" Name="Ice $(Version)" />
+        </StandardDirectory>
+
+        <Component Id="AddToPath" Guid="361FB9AF-3452-45F8-93E9-AAA1E97CB1AA" Condition="ADD_TO_PATH = 1">
+            <Environment
+                Id="AddToSystemPath"
+                Name="PATH"
+                Action="set"
+                Part="last"
+                System="yes"
+                Value="[BinFolder]"
+                Permanent="no" />
+        </Component>
+        <!-- Define the components that install the require files -->
+        <ComponentGroup Id="InstallFolderComponents">
+            <!-- Binary files from the x64 Release build -->
+            <Files Include="!(bindpath.STAGING_DIR)bin\**" Directory="BinFolder" />
+            <!-- The IceGrid GUI jar -->
+            <File Source="!(bindpath.SOURCE_ROOT)java\lib\icegridgui.jar" Directory="BinFolder" />
+            <!-- Slice Files-->
+            <Files Include="!(bindpath.STAGING_DIR)slice\**" Directory="SliceFolder" />
+            <!-- Config Files -->
+            <Files Include="!(bindpath.SOURCE_ROOT)cpp\config\*.cfg" Directory="ConfigFolder" />
+            <Files Include="!(bindpath.SOURCE_ROOT)cpp\config\templates.xml" Directory="ConfigFolder" />
+            <!-- License Files -->
+            <File Id="License"
+                  Source="!(bindpath.SOURCE_ROOT)LICENSE"
+                  Name="LICENSE.txt"/>
+            <File Id="IceLicense"
+                  Source="!(bindpath.SOURCE_ROOT)ICE_LICENSE"
+                  Name="ICE_LICENSE.txt"/>
+            <File Id="ThirdPartyLicense"
+                  Source="!(bindpath.SOURCE_ROOT)packaging\msi\docs\THIRD_PARTY_LICENSE.txt"/>
+        </ComponentGroup>
+    </Fragment>
+</Wix>

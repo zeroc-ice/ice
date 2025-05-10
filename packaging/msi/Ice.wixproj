@@ -1,50 +1,46 @@
-﻿<Project Sdk="WixToolset.Sdk/5.0.2">
-
+﻿<Project Sdk="WixToolset.Sdk/6.0.0">
+  <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.version.props" />
   <PropertyGroup>
-      <!--
+    <!--
         Suppress warning from the VC++ redistributable merge modules
         see: https://wixtoolset.org/docs/v3/howtos/redistributables_and_install_checks/install_vcredist/#a-note-about-ice-warnings
       -->
-      <SuppressIces>ICE03;ICE30;ICE82</SuppressIces>
-
-      <PackageDir Condition="'$(PackageDir)' != ''">$([MSBuild]::EnsureTrailingSlash('$(PackageDir)'))</PackageDir>
-
-      <StagingDir Condition="'$(StagingDir)' ==  ''">$(MSBuildThisFileDirectory)staging</StagingDir>
-      <StagingDir>$([MSBuild]::EnsureTrailingSlash('$(StagingDir)'))</StagingDir>
-
-      <VCInstallDir Condition="'$(VCInstallDir)' != ''">$([MSBuild]::EnsureTrailingSlash('$(VCInstallDir)'))</VCInstallDir>
+    <SuppressIces>ICE03;ICE30;ICE82</SuppressIces>
+    <PackageDir Condition="'$(PackageDir)' != ''">$([MSBuild]::EnsureTrailingSlash('$(PackageDir)'))</PackageDir>
+    <StagingDir Condition="'$(StagingDir)' ==  ''">$(MSBuildThisFileDirectory)staging</StagingDir>
+    <StagingDir>$([MSBuild]::EnsureTrailingSlash('$(StagingDir)'))</StagingDir>
+    <VCInstallDir Condition="'$(VCInstallDir)' != ''">$([MSBuild]::EnsureTrailingSlash('$(VCInstallDir)'))</VCInstallDir>
+    <!-- Use DefineConstants to make MSBuild properties available in wxs Wix Files-->
+    <DefineConstants>Version=3.8.0</DefineConstants>
+    <DefineConstants>$(DefineConstants);IceManualUrl=https://doc.zeroc.com/ice/3.8/</DefineConstants>
+    <DefineConstants>$(DefineConstants);IceSourceUrl=https://github.com/zeroc-ice/ice/tree/3.8</DefineConstants>
+    <DefineConstants>$(DefineConstants);IceReleaseNotesUrl=https://github.com/zeroc-ice/ice/releases/tag/v3.8.0</DefineConstants>
+    <OutputName>Ice-$(IcePackageVersion)</OutputName>
+    <ProductCode>Ice-$(Version)</ProductCode>
   </PropertyGroup>
-
   <ItemGroup>
-      <BindPath Include="$(MSBuildThisFileDirectory)..\..\" BindName="SOURCE_ROOT" />
-      <BindPath Include="$(StagingDir)" BindName="STAGING_DIR" />
-      <BindPath Include="$(VCInstallDir)Redist\MSVC\v143\MergeModules\" BindName="MERGE_MODULES" />
+    <BindPath Include="$(MSBuildThisFileDirectory)..\..\" BindName="SOURCE_ROOT" />
+    <BindPath Include="$(StagingDir)" BindName="STAGING_DIR" />
+    <BindPath Include="$(VCInstallDir)Redist\MSVC\v143\MergeModules\" BindName="MERGE_MODULES" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="WixToolset.Util.wixext" Version="5.0.2" />
-    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="6.0.0" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="6.0.0" />
   </ItemGroup>
-
   <!-- Files from the source build -->
   <ItemGroup>
     <Slices Include="$(PackageDir)slice\**\*.ice" />
-
     <Libraries Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\*.dll" />
     <Executables Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\*.exe"
-                 Exclude="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\slice2*.exe" />
+      Exclude="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\slice2*.exe" />
   </ItemGroup>
-
   <!-- Copy required files to staging before MSI build -->
   <Target Name="CopyToStaging" BeforeTargets="CoreCompile">
-
     <Error Condition="!Exists('$(MSBuildThisFileDirectory)..\..\java\lib\icegridgui.jar')"
       Text="The IceGridGUI must be build before creating the MSI package." />
-
     <RemoveDir Directories="$(StagingDir)" />
     <MakeDir Directories="$(StagingDir)bin" />
     <MakeDir Directories="$(StagingDir)slice" />
-
     <Copy SourceFiles="@(Slices)" DestinationFolder="$(StagingDir)slice\%(Slices.RecursiveDir)" />
     <Copy SourceFiles="@(Tools)" DestinationFolder="$(StagingDir)bin" />
     <Copy SourceFiles="@(Libraries)" DestinationFolder="$(StagingDir)bin" />

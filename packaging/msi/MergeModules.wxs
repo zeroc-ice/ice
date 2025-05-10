@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix
+    xmlns="http://wixtoolset.org/schemas/v4/wxs"
+    xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+    xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+    <Fragment>
+        <!-- VC143 C++ runtime merge module -->
+        <StandardDirectory Id="TARGETDIR">
+            <Merge
+                Id="VC143CRT"
+                SourceFile="!(bindpath.MERGE_MODULES)Microsoft_VC143_CRT_x64.msm"
+                Language="0"/>
+        </StandardDirectory>
+    </Fragment>
+</Wix>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix
+    xmlns="http://wixtoolset.org/schemas/v4/wxs"
+    xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+    xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+    <Fragment>
+        <!-- Define the IceGrid GUI icon -->
+        <Icon
+            Id="IceGridGUIIcon"
+            SourceFile="!(bindpath.SOURCE_ROOT)java\src\IceGridGUI\src\main\resources\icons\icegrid.ico" />
+        <!-- Define the components that install the start menu shortcuts -->
+        <ComponentGroup Id="StartMenuComponents">
+            <Component
+                Id="IceStartMenuShortcuts"
+                Directory="IceStartMenu"
+                Guid="618E2B68-1829-478A-AB46-47D65887F351">
+                <util:InternetShortcut
+                    Id="ManualLink"
+                    Name="Ice Manual"
+                    Type="url"
+                    Target="$(IceManualUrl)" />
+                <util:InternetShortcut
+                    Id="SourceCodeLink"
+                    Name="Source Code on Github"
+                    Type="url"
+                    Target="$(IceSourceUrl)" />
+                <Shortcut
+                    Id="IceGridGUIShortcut"
+                    Name="IceGrid GUI"
+                        Target="[BinFolder]icegridgui.jar"
+                        WorkingDirectory="BinFolder"
+                        Icon="IceGridGUIIcon"
+                        Advertise="no"/>
+                <RegistryValue Root="HKCU" Key="ZeroC\Ice-$(Version)\Installed" Value="1" Type="string" KeyPath="yes" />
+                <RemoveFolder Id="IceStartMenu" On="uninstall"/>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+</Wix>
