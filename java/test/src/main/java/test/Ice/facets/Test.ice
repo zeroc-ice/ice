@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.facets"]]
+["java:identifier:test.Ice.facets.Test"]
 module Test
 {
     interface Empty

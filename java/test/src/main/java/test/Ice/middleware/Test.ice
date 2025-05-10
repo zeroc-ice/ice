@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.middleware"]]
+["java:identifier:test.Ice.middleware.Test"]
 module Test
 {
     interface MyObject

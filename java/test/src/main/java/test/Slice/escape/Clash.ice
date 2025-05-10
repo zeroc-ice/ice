@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-[["java:package:test.Slice.escape"]]
-
+["java:identifier:test.Slice.escape.Clash"]
 module Clash
 {
     interface Intf

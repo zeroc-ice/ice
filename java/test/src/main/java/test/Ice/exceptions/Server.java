@@ -4,6 +4,7 @@ package test.Ice.exceptions;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Util;
@@ -13,16 +14,15 @@ import test.TestHelper;
 public class Server extends TestHelper {
     public void run(String[] args) {
         InitializationData initData = new InitializationData();
-        //
-        // For this test, we need a dummy logger, otherwise the
-        // assertion test will print an error message.
-        //
+        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.exceptions.Test");
+        // For this test, we need a dummy logger, otherwise the assertion test will print an error message.
         initData.logger = new DummyLogger();
+
         initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
         initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+
         try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator.getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));

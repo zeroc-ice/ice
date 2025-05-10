@@ -12,10 +12,11 @@ import test.TestHelper;
 public class Collocated extends TestHelper {
     public void run(String[] args) {
         InitializationData initData = new InitializationData();
-        CustomExecutor executor = new CustomExecutor();
         initData.properties = createTestProperties(args);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.executor");
+
+        CustomExecutor executor = new CustomExecutor();
         initData.executor = executor;
+
         try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator

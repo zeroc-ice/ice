@@ -2,7 +2,9 @@
 
 #pragma once
 
-[["java:package:test.Ice.packagemd"]]
+[["suppress-warning:deprecated"]] // for 'java:package' metadata
+
+["java:package:test.Ice.packagemd"]
 module Test1
 {
     class C1

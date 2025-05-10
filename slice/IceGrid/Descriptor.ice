@@ -8,13 +8,13 @@
 
 [["cpp:include:IceGrid/Config.h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:IceGrid"]]
 
 #include "Ice/BuiltinSequences.ice"
 #include "Ice/Identity.ice"
 
+["java:identifier:com.zeroc.IceGrid"]
 module IceGrid
 {
     /// A mapping of string to string.

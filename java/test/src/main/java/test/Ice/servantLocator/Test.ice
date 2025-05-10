@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.servantLocator"]]
+["java:identifier:test.Ice.servantLocator.Test"]
 module Test
 {
     exception TestIntfUserException

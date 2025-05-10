@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Slice.structure"]]
+["java:identifier:test.Slice.structure.Test"]
 module Test
 {
     sequence<string> StringSeq;

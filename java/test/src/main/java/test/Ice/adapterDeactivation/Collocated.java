@@ -4,16 +4,12 @@ package test.Ice.adapterDeactivation;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Properties;
 
 import test.TestHelper;
 
 public class Collocated extends TestHelper {
     public void run(String[] args) {
-        Properties properties = createTestProperties(args);
-        properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
-
-        try (Communicator communicator = initialize(properties)) {
+        try (Communicator communicator = initialize(args)) {
             //
             // 2 threads are necessary to dispatch the collocated transient() call with AMI
             //

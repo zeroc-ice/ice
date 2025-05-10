@@ -185,7 +185,7 @@ plugins {
 With an `.ice` file in `src/main/slice/Greeter.ice`:
 
 ```slice
-["java:package:com.zeroc.demos"]
+["java:identifier:com.zeroc.demos.VisitorCenter"]
 module VisitorCenter {
     interface Greeter {
         string greet(string name);

@@ -2,8 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.maxConnections"]]
-
+["java:identifier:test.Ice.maxConnections.Test"]
 module Test
 {
     interface TestIntf

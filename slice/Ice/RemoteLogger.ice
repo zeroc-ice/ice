@@ -8,12 +8,12 @@
 
 [["cpp:include:list"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Ice"]]
 
 #include "BuiltinSequences.ice"
 
+["java:identifier:com.zeroc.Ice"]
 module Ice
 {
     /// Represents the different types of log messages.

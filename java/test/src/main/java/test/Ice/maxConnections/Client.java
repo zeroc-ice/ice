@@ -8,8 +8,6 @@ public class Client extends TestHelper {
     @Override
     public void run(String[] args) {
         var properties = createTestProperties(args);
-        properties.setProperty("Ice.Package.Test", "test.Ice.maxConnections");
-
         // We disable retries to make the logs clearer and avoid hiding potential issues.
         properties.setProperty("Ice.RetryIntervals", "-1");
 

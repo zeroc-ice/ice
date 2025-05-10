@@ -5,7 +5,7 @@
 
 #include "Ice/PropertyDict.ice"
 
-[["java:package:test.Ice.admin"]]
+["java:identifier:test.Ice.admin.Test"]
 module Test
 {
     interface RemoteCommunicator

@@ -7,7 +7,6 @@ import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectPrx;
-import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 
 import java.io.PrintWriter;
@@ -16,19 +15,13 @@ import test.TestHelper;
 
 public class Collocated extends TestHelper {
     public void run(String[] args) {
-        Properties properties = createTestProperties(args);
-        properties.setProperty("Ice.BatchAutoFlushSize", "100");
-
         var initData = new InitializationData();
         initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.operations.Test");
-        initData.properties = properties;
+        initData.properties = createTestProperties(args);
+        initData.properties.setProperty("Ice.BatchAutoFlushSize", "100");
+        // It's possible to have batch oneway requests dispatched after the adapter is deactivated due to thread scheduling so we suppress this warning.
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
 
-        //
-        // Its possible to have batch oneway requests dispatched
-        // after the adapter is deactivated due to thread
-        // scheduling so we suppress this warning.
-        //
-        properties.setProperty("Ice.Warn.Dispatch", "0");
         try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

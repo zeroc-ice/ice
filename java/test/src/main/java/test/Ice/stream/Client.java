@@ -3,11 +3,12 @@
 package test.Ice.stream;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.CompositeSliceLoader;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice.MarshalException;
+import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.OutputStream;
-import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.SliceLoader;
 import com.zeroc.Ice.UserException;
 import com.zeroc.Ice.Util;
@@ -107,11 +108,12 @@ public class Client extends TestHelper {
     }
 
     public void run(String[] args) {
+        var customSliceLoader = new CustomSliceLoader();
         var initData = new InitializationData();
         initData.properties = createTestProperties(args);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.stream");
-        var customSliceLoader = new CustomSliceLoader();
-        initData.sliceLoader = customSliceLoader;
+        initData.sliceLoader = new CompositeSliceLoader(
+            customSliceLoader,
+            new ModuleToPackageSliceLoader("::Test", "test.Ice.stream.Test"));
 
         try (Communicator communicator = initialize(initData)) {
             InputStream in;

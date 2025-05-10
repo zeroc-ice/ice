@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.IceGrid.simple"]]
+["java:identifier:test.IceGrid.simple.Test"]
 module Test
 {
     interface TestIntf

@@ -5,7 +5,7 @@
 #include "Ice/BuiltinSequences.ice"
 #include "Ice/Identity.ice"
 
-[["java:package:test.Ice.ami"]]
+["java:identifier:test.Ice.ami.Test"]
 module Test
 {
     exception TestIntfException

@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.seqMapping"]]
+["java:identifier:test.Ice.seqMapping.Test"]
 module Test
 {
     ["java:serializable:test.Ice.seqMapping.Serialize.Small"] sequence<byte> SerialSmall;

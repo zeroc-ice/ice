@@ -4,7 +4,7 @@
 
 #include "Ice/BuiltinSequences.ice"
 
-[["java:package:test.Ice.exceptions.AMD"]]
+["java:identifier:test.Ice.exceptions.AMD.Test"]
 module Test
 {
     interface Thrower;

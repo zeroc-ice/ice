@@ -8,12 +8,12 @@
 
 [["cpp:source-include:Ice/Process.h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Ice"]]
 
 #include "Locator.ice"
 
+["java:identifier:com.zeroc.Ice"]
 module Ice
 {
     interface Process;

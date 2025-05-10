@@ -8,7 +8,6 @@
 
 [["cpp:include:IceStorm/Config.h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:IceStorm"]]
 
@@ -16,6 +15,7 @@
 #include "Metrics.ice"
 
 /// Lightweight publish/subscribe framework, available for all Ice language mappings.
+["java:identifier:com.zeroc.IceStorm"]
 module IceStorm
 {
     interface Topic;

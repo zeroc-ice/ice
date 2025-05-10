@@ -3,7 +3,6 @@
 package test.Ice.udp;
 
 import com.zeroc.Ice.Communicator;
-import com.zeroc.Ice.Properties;
 
 import test.Ice.udp.Test.TestIntfPrx;
 import test.TestHelper;
@@ -13,9 +12,8 @@ import java.util.List;
 
 public class Client extends TestHelper {
     public void run(String[] args) {
-        List<String> rargs = new ArrayList<String>();
-        Properties properties = createTestProperties(args, rargs);
-        properties.setProperty("Ice.Package.Test", "test.Ice.udp");
+        List<String> remainingArgs = new ArrayList<String>();
+        var properties = createTestProperties(args, remainingArgs);
         properties.setProperty("Ice.Warn.Connections", "0");
         properties.setProperty("Ice.UDP.RcvSize", "16384");
         properties.setProperty("Ice.UDP.SndSize", "16384");
@@ -24,7 +22,7 @@ public class Client extends TestHelper {
             AllTests.allTests(this);
             int num;
             try {
-                num = rargs.size() == 1 ? Integer.parseInt(rargs.get(0)) : 1;
+                num = remainingArgs.size() == 1 ? Integer.parseInt(remainingArgs.get(0)) : 1;
             } catch (NumberFormatException ex) {
                 num = 1;
             }

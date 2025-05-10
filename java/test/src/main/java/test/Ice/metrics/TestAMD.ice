@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.metrics.AMD"]]
+["java:identifier:test.Ice.metrics.AMD.Test"]
 module Test
 {
     exception UserEx

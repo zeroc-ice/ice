@@ -4,6 +4,7 @@ package test.Ice.classLoader;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectPrx;
 
 import test.Ice.classLoader.Test.ConcreteClass;
@@ -12,6 +13,7 @@ import test.Ice.classLoader.Test.InitialPrx;
 import test.TestHelper;
 
 import java.io.PrintWriter;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,24 +47,9 @@ public class AllTests {
     }
 
     public static void allTests(TestHelper helper, boolean collocated) {
+        var moduleToPackage = Collections.singletonMap("::Test", "test.Ice.classLoader.Test");
         Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
-
-        //
-        // Verify that the class loader is used for Slice packages.
-        //
-        {
-            out.print("testing package... ");
-            out.flush();
-            InitializationData initData = new InitializationData();
-            initData.properties = communicator.getProperties()._clone();
-            MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
-            initData.classLoader = classLoader;
-            try (Communicator ic = helper.initialize(initData)) {
-                test(classLoader.check("test.Ice.classLoader.Test._Marker"));
-                out.println("ok");
-            }
-        }
 
         //
         // Verify that the class loader is used for Ice plug-ins.
@@ -76,6 +63,7 @@ public class AllTests {
                 "Ice.Plugin.Test", "test.Ice.classLoader.PluginFactoryI");
             MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
             initData.classLoader = classLoader;
+            initData.sliceLoader = new ModuleToPackageSliceLoader(moduleToPackage, classLoader);
             try (Communicator ic = helper.initialize(initData)) {
                 test(classLoader.check("test.Ice.classLoader.PluginFactoryI"));
                 out.println("ok");
@@ -90,6 +78,7 @@ public class AllTests {
             initData.properties = communicator.getProperties()._clone();
             MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
             initData.classLoader = classLoader;
+            initData.sliceLoader = new ModuleToPackageSliceLoader(moduleToPackage, classLoader);
             try (Communicator ic = helper.initialize(initData)) {
                 String ref = "initial:" + helper.getTestEndpoint(0);
                 ObjectPrx base = ic.stringToProxy(ref);

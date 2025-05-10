@@ -2,8 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.maxDispatches"]]
-
+["java:identifier:test.Ice.maxDispatches.Test"]
 module Test
 {
     interface TestIntf

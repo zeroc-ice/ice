@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.classLoader"]]
+["java:identifier:test.Ice.classLoader.Test"]
 module Test
 {
     class ConcreteClass

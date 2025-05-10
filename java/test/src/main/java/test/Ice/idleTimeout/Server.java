@@ -9,7 +9,6 @@ import test.TestHelper;
 public class Server extends TestHelper {
     public void run(String[] args) {
         var properties = createTestProperties(args);
-        properties.setProperty("Ice.Package.Test", "test.Ice.idleTimeout");
         properties.setProperty("TestAdapter.Connection.IdleTimeout", "1"); // 1 second
         properties.setProperty("TestAdapter.Connection.MaxDispatches", "1");
         properties.setProperty("Ice.Warn.Connections", "0");

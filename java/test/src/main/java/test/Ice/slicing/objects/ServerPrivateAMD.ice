@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.slicing.objects.serverAMD"]]
+["java:identifier:test.Ice.slicing.objects.serverAMD.Test"]
 module Test
 {
     //

@@ -2,8 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.inactivityTimeout"]]
-
+["java:identifier:test.Ice.inactivityTimeout.Test"]
 module Test
 {
     interface TestIntf
