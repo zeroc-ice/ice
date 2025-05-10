@@ -62,7 +62,10 @@ public class AllTests {
         public void completed(Throwable ex) {
             try {
                 throw ex;
-            } catch (ConnectionLostException exc) {} catch (ConnectFailedException exc) {} catch (SocketException exc) {} catch (Throwable exc) {
+            } catch (ConnectionLostException exc) {
+            } catch (ConnectFailedException exc) {
+            } catch (SocketException exc) {
+            } catch (Throwable exc) {
                 test(false);
             }
             called();

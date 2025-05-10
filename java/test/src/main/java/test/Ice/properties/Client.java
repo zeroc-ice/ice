@@ -196,5 +196,7 @@ public class Client extends TestHelper {
         }
     }
 
+    //CHECKSTYLE:OFF: AvoidEscapedUnicodeCharacters
     private static final String configPath = "./config/\u4E2D\u56FD_client.config";
+    //CHECKSTYLE:ON: AvoidEscapedUnicodeCharacters
 }

@@ -6,7 +6,49 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.OperationMode;
 import com.zeroc.Ice.Util;
 
-import test.Ice.operations.AMD.Test.*;
+import test.Ice.operations.AMD.Test.MyClass;
+import test.Ice.operations.AMD.Test.MyClass1;
+import test.Ice.operations.AMD.Test.MyClassPrx;
+import test.Ice.operations.AMD.Test.MyDerivedClass;
+import test.Ice.operations.AMD.Test.MyEnum;
+import test.Ice.operations.AMD.Test.MyStruct;
+import test.Ice.operations.AMD.Test.MyStruct1;
+import test.Ice.operations.AMD.Test.Structure;
+
+import test.Ice.operations.AMD.Test.s0;
+import test.Ice.operations.AMD.Test.s1;
+import test.Ice.operations.AMD.Test.s2;
+import test.Ice.operations.AMD.Test.s3;
+import test.Ice.operations.AMD.Test.s4;
+import test.Ice.operations.AMD.Test.s5;
+import test.Ice.operations.AMD.Test.s6;
+import test.Ice.operations.AMD.Test.s7;
+import test.Ice.operations.AMD.Test.s8;
+import test.Ice.operations.AMD.Test.s9;
+import test.Ice.operations.AMD.Test.s10;
+
+import test.Ice.operations.AMD.Test.su0;
+import test.Ice.operations.AMD.Test.su1;
+import test.Ice.operations.AMD.Test.su2;
+
+import test.Ice.operations.AMD.Test.ss0;
+import test.Ice.operations.AMD.Test.ss1;
+import test.Ice.operations.AMD.Test.ss2;
+import test.Ice.operations.AMD.Test.ss3;
+import test.Ice.operations.AMD.Test.ss4;
+import test.Ice.operations.AMD.Test.ss5;
+
+import test.Ice.operations.AMD.Test.sw0;
+import test.Ice.operations.AMD.Test.sw1;
+import test.Ice.operations.AMD.Test.sw2;
+import test.Ice.operations.AMD.Test.sw3;
+import test.Ice.operations.AMD.Test.sw4;
+import test.Ice.operations.AMD.Test.sw5;
+import test.Ice.operations.AMD.Test.sw6;
+import test.Ice.operations.AMD.Test.sw7;
+import test.Ice.operations.AMD.Test.sw8;
+import test.Ice.operations.AMD.Test.sw9;
+import test.Ice.operations.AMD.Test.sw10;
 
 import java.util.ArrayList;
 import java.util.Collections;

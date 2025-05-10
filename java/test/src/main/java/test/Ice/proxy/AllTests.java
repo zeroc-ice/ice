@@ -325,6 +325,7 @@ public class AllTests {
             test(false);
         } catch (ParseException ex) {}
 
+        //CHECKSTYLE:OFF: AvoidEscapedUnicodeCharacters
         //
         // Test for bug ICE-5543: escaped escapes in stringToIdentity
         //
@@ -407,6 +408,7 @@ public class AllTests {
         test(id.equals(id2));
 
         out.println("ok");
+        //CHECKSTYLE:ON: AvoidEscapedUnicodeCharacters
 
         out.print("testing proxyToString... ");
         out.flush();

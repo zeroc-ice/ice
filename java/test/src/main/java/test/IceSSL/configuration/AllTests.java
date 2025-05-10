@@ -110,7 +110,7 @@ public class AllTests {
         final String factoryRef = "factory:" + helper.getTestEndpoint(0, "tcp");
         ObjectPrx b = communicator.stringToProxy(factoryRef);
         test(b != null);
-        ServerFactoryPrx factory = ServerFactoryPrx.checkedCast(b);
+        final ServerFactoryPrx factory = ServerFactoryPrx.checkedCast(b);
 
         final String defaultHost = communicator.getProperties().getIceProperty("Ice.Default.Host");
         final String defaultDir = testDir + "/../certs";

@@ -13,15 +13,15 @@ public final class HashUtil {
     }
 
     public static int hashAdd(int hashCode, byte value) {
-        return shift(hashCode) ^ (int) (2654435761l * value);
+        return shift(hashCode) ^ (int) (2654435761L * value);
     }
 
     public static int hashAdd(int hashCode, short value) {
-        return shift(hashCode) ^ (int) (2654435761l * value);
+        return shift(hashCode) ^ (int) (2654435761L * value);
     }
 
     public static int hashAdd(int hashCode, int value) {
-        return shift(hashCode) ^ (int) (2654435761l * value);
+        return shift(hashCode) ^ (int) (2654435761L * value);
     }
 
     public static int hashAdd(int hashCode, long value) {

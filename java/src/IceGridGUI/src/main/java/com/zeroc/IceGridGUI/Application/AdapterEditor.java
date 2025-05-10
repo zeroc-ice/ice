@@ -406,7 +406,7 @@ class AdapterEditor extends CommunicatorChildEditor {
         _name.setText(Utils.substitute(descriptor.name, resolver));
         _name.setEditable(isEditable);
 
-        String oaPrefix = descriptor.name + ".";
+        final String oaPrefix = descriptor.name + ".";
 
         _description.setText(Utils.substitute(descriptor.description, resolver));
         _description.setEditable(isEditable);

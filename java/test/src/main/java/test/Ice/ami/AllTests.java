@@ -111,7 +111,6 @@ public class AllTests {
         LocalException,
         OtherException
     }
-    ;
 
     private static void throwEx(ThrowType t) {
         switch (t) {
@@ -375,7 +374,7 @@ public class AllTests {
         out.flush();
         {
             TestIntfPrx q = TestIntfPrx.uncheckedCast(p.ice_adapterId("dummy"));
-            ThrowType throwExType[] = {ThrowType.LocalException, ThrowType.OtherException};
+            ThrowType[] throwExType = {ThrowType.LocalException, ThrowType.OtherException};
 
             for (int i = 0; i < 2; i++) {
                 final int idx = i;

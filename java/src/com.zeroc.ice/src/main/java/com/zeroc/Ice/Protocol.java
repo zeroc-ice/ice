@@ -20,7 +20,7 @@ final class Protocol {
     //
     // The magic number at the front of each message
     //
-    public static final byte magic[] = {0x49, 0x63, 0x65, 0x50}; // 'I', 'c', 'e', 'P'
+    public static final byte[] magic = {0x49, 0x63, 0x65, 0x50}; // 'I', 'c', 'e', 'P'
 
     //
     // The current Ice protocol and encoding version

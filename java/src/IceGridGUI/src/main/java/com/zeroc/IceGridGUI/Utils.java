@@ -163,7 +163,7 @@ public class Utils {
 
             Rectangle visibleBounds = new Rectangle();
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            GraphicsDevice screens[] = ge.getScreenDevices();
+            GraphicsDevice[] screens = ge.getScreenDevices();
             for (GraphicsDevice s : screens) {
                 visibleBounds.add(s.getDefaultConfiguration().getBounds());
             }

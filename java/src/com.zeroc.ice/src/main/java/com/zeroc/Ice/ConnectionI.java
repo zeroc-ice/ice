@@ -1940,7 +1940,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                             info.stream.instance(), info.stream.getEncoding(), ubuf, true);
                 } else {
                     throw new FeatureNotSupportedException(
-                        "Cannot uncompress compressed message: org.apache.tools.bzip2.CBZip2OutputStream was not found");
+                        "Cannot uncompress compressed message: "
+                            + "org.apache.tools.bzip2.CBZip2OutputStream was not found");
                 }
             }
             info.stream.pos(Protocol.headerSize);
@@ -2540,7 +2541,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
     private CloseCallback _closeCallback;
 
-    private static final ConnectionState connectionStateMap[] = {
+    private static final ConnectionState[] connectionStateMap = {
         ConnectionState.ConnectionStateValidating, // StateNotInitialized
         ConnectionState.ConnectionStateValidating, // StateNotValidated
         ConnectionState.ConnectionStateActive, // StateActive

@@ -129,7 +129,7 @@ public final class SysLoggerI implements Logger {
 
             String msg = '<' + Integer.toString(priority) + '>' + _prefix + ": " + message;
 
-            byte buf[] = msg.getBytes();
+            byte[] buf = msg.getBytes();
             DatagramPacket p = new DatagramPacket(buf, buf.length, _host, _port);
             _socket.send(p);
         } catch (IOException ex) {

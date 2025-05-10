@@ -2894,13 +2894,11 @@ public class SessionKeeper {
         DirectUsernamePasswordCredentialsStep,
         RoutedUsernamePasswordCredentialsStep
     }
-    ;
 
     enum AuthType {
         UsernamePasswordAuthType,
         X509CertificateAuthType
     }
-    ;
 
     private class ConnectionDetailDialog extends JDialog {
         ConnectionDetailDialog(ConnectionInfo inf) {
@@ -3182,6 +3180,7 @@ public class SessionKeeper {
                         return label;
                     }
                 }
+
                 _connectionList =
                     new JList(_connectionListModel) {
                         @Override
@@ -3468,7 +3467,7 @@ public class SessionKeeper {
 
             FormLayout layout = new FormLayout("pref:grow", "pref:grow");
             DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-            final String columnNames[] = new String[]{"Alias", "Subject", "Issuer"};
+            final String[] columnNames = new String[]{"Alias", "Subject", "Issuer"};
             _tableModel =
                 new AbstractTableModel() {
                     @Override

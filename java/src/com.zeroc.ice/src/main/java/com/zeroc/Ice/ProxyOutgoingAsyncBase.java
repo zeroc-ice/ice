@@ -96,7 +96,9 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
                         }
                     }
 
+                    //CHECKSTYLE:OFF: FallThrough
                     default:
+                    {
                         String message = is.readString();
                         switch (replyStatus) {
                             case UnknownException -> throw new UnknownException(message);
@@ -104,6 +106,8 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
                             case UnknownUserException -> throw new UnknownUserException(message);
                             default -> throw new DispatchException(replyStatusInt, message);
                         }
+                    }
+                    //CHECKSTYLE:OFF: FallThrough
                 }
                 return finished(replyStatus == ReplyStatus.Ok, true);
 

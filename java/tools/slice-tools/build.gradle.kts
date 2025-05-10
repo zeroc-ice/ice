@@ -23,7 +23,6 @@ repositories {
 }
 
 dependencies {
-    //checkstyle("com.puppycrawl.checkstyle:${checkstyle.toolVersion}")
     compileOnly("com.android.tools.build:gradle:8.1.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

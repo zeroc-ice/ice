@@ -25,17 +25,26 @@ slice {
         toolsPath = defaultIceToolsPath
     }
 }
+
 checkstyle {
     toolVersion = '10.21.4'
 }
 
-task checkstyle(type: Checkstyle) {
-    ignoreFailures = true
-    showViolations = true
-    source 'src'
-    include '**/*.java'
-    exclude 'com/zeroc/Ice/PropertyNames.java'
-    classpath = files()
+tasks.named('checkstyleMain') {
+    doFirst {
+        source = sourceSets.main.allJava.matching {
+	    // Exclude generated files
+            exclude {
+                def path = it.file.toPath().normalize().toString().replace(File.separator, '/')
+                if (path.contains("/build/generated")) {
+                    return true
+                } else if (path.endsWith("/com/zeroc/Ice/PropertyNames.java")) {
+                    return true
+                }
+                return false
+            }
+        }
+    }
 }
 
 // Android does not have a compileJava task

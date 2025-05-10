@@ -51,7 +51,7 @@ public class AllTests {
         Identity identity = new Identity();
         identity.category = "foo";
 
-        String names[] = {"foo", "bar", "x", "y", "abcdefg"};
+        String[] names = {"foo", "bar", "x", "y", "abcdefg"};
 
         for (int idx = 0; idx < 5; idx++) {
             identity.name = names[idx];
