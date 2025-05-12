@@ -27,35 +27,25 @@ namespace
     // We cannot use mappedName because it depends on the language name used to create the Unit.
     static string getCsMappedName(const ContainedPtr& cont)
     {
-        if (auto metadata = cont->getMetadataArgs("cs:identifier"))
-        {
-            return *metadata;
-        }
-        else
-        {
-            return cont->name();
-        }
+        return cont->getMetadataArgs("cs:identifier").value_or(cont->name());
     }
 
-    static string getCsMappedScoped(const ContainedPtr& cont, const string& separator);
+    static string getCsMappedScoped(const ContainedPtr& cont);
 
     // We cannot use mappedScope because it depends on the language name used to create the Unit.
-    static string getCsMappedScope(const ContainedPtr& cont, const string& separator)
+    static string getCsMappedScope(const ContainedPtr& cont)
     {
         string scoped;
         auto container = dynamic_pointer_cast<Contained>(cont->container());
         if (container)
         {
-            scoped = getCsMappedScoped(container, separator);
+            scoped = getCsMappedScoped(container);
         }
-        return scoped + separator;
+        return scoped + '.';
     }
 
     // We cannot use mappedScoped because it depends on the language name used to create the Unit.
-    static string getCsMappedScoped(const ContainedPtr& cont, const string& separator)
-    {
-        return getCsMappedScope(cont, separator) + getCsMappedName(cont);
-    }
+    static string getCsMappedScoped(const ContainedPtr& cont) { return getCsMappedScope(cont) + getCsMappedName(cont); }
 
     static string getCsNamespacePrefix(const ContainedPtr& cont)
     {
@@ -72,20 +62,13 @@ namespace
         }
         assert(dynamic_pointer_cast<Module>(p));
 
-        if (auto metadata = p->getMetadataArgs("cs:namespace"))
-        {
-            return *metadata;
-        }
-        else
-        {
-            return "";
-        }
+        return p->getMetadataArgs("cs:namespace").value_or("");
     }
 
     static string getCsMappedNamespace(const ContainedPtr& cont)
     {
         string csNamespacePrefix = getCsNamespacePrefix(cont);
-        string csMappedScope = getCsMappedScope(cont, ".").substr(1);
+        string csMappedScope = getCsMappedScope(cont).substr(1);
         csMappedScope = csMappedScope.substr(0, csMappedScope.size() - 1); // Remove the trailing "."
         if (csNamespacePrefix.empty())
         {
@@ -197,13 +180,7 @@ namespace
         ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
         if (contained)
         {
-            string csNamespacePrefix = getCsNamespacePrefix(contained);
-            string scoped = getCsMappedScoped(contained, ".").substr(1);
-            if (!csNamespacePrefix.empty())
-            {
-                os << csNamespacePrefix << ".";
-            }
-            os << scoped;
+            os << getCsMappedNamespace(contained) << "." << getCsMappedName(contained);
             InterfaceDeclPtr interface = dynamic_pointer_cast<InterfaceDecl>(contained);
             if (interface)
             {
