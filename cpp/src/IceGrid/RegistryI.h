@@ -31,7 +31,6 @@ namespace IceGrid
             const Ice::CommunicatorPtr&,
             const std::shared_ptr<TraceLevels>&,
             bool,
-            bool,
             std::string,
             std::string);
         ~RegistryI() override = default;
@@ -93,7 +92,6 @@ namespace IceGrid
 
         const Ice::CommunicatorPtr _communicator;
         const std::shared_ptr<TraceLevels> _traceLevels;
-        const bool _nowarn;
         const bool _readonly;
         const std::string _initFromReplica;
         const std::string _collocatedNodeName;
