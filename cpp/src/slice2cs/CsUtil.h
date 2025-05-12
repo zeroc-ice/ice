@@ -12,7 +12,8 @@ namespace Slice
     class CsDocCommentFormatter : public DocCommentFormatter
     {
         /// Returns a C# formatted link to the provided Slice identifier.
-        [[nodiscard]] std::string formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const final;
+        [[nodiscard]] std::string
+        formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const final;
 
         [[nodiscard]] bool shouldStripMarkup() const final { return true; }
         [[nodiscard]] bool shouldUseXmlEscaping() const final { return true; }

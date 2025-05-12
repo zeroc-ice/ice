@@ -73,7 +73,8 @@ namespace Slice
     class CppDocCommentFormatter : public DocCommentFormatter
     {
         /// Returns a doxygen formatted link to the provided Slice identifier.
-        [[nodiscard]] std::string formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const final;
+        [[nodiscard]] std::string
+        formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const final;
     };
 }
 

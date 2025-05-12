@@ -2262,7 +2262,8 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 
 // TODO: this needs to be updated to handle 'python:identifier'.
 string
-Slice::Python::PyDocCommentFormatter::formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const
+Slice::Python::PyDocCommentFormatter::formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    const
 {
     ostringstream os;
     os << "`";

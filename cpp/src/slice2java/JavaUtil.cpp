@@ -155,7 +155,10 @@ Slice::mapsToJavaBuiltinType(const TypePtr& p)
 }
 
 string
-Slice::JavaDocCommentFormatter::formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const
+Slice::JavaDocCommentFormatter::formatLink(
+    const string& rawLink,
+    const ContainedPtr& source,
+    const SyntaxTreeBasePtr& target) const
 {
     ostringstream result;
     result << "{@link ";
@@ -174,7 +177,7 @@ Slice::JavaDocCommentFormatter::formatLink(const string& rawLink, const Containe
             {
                 // link to the method on the proxy interface
                 result << JavaGenerator::getUnqualified(operationTarget->interface(), sourceScope) << "Prx#"
-                        << operationTarget->mappedName();
+                       << operationTarget->mappedName();
             }
             else if (auto fieldTarget = dynamic_pointer_cast<DataMember>(target))
             {

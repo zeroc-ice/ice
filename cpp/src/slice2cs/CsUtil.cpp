@@ -22,7 +22,10 @@ using namespace Slice;
 using namespace IceInternal;
 
 string
-Slice::CsDocCommentFormatter::formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const
+Slice::CsDocCommentFormatter::formatLink(
+    const string& rawLink,
+    const ContainedPtr& source,
+    const SyntaxTreeBasePtr& target) const
 {
     ostringstream result;
     result << "<see ";

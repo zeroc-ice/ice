@@ -11,7 +11,8 @@ namespace Slice::Python
     class PyDocCommentFormatter : public DocCommentFormatter
     {
         /// Returns a DocString formatted link to the provided Slice identifier.
-        [[nodiscard]] std::string formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const final;
+        [[nodiscard]] std::string
+        formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const final;
         [[nodiscard]] bool shouldStripMarkup() const final { return true; }
     };
 

@@ -15,7 +15,8 @@ namespace Slice
     class JsDocCommentFormatter : public DocCommentFormatter
     {
         /// Returns a JsDoc formatted link to the provided Slice identifier.
-        [[nodiscard]] std::string formatLink(const std::string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const final;
+        [[nodiscard]] std::string
+        formatLink(const std::string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const final;
     };
 
     class JsGenerator

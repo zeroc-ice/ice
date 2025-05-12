@@ -36,8 +36,7 @@ class MatlabDocCommentFormatter : public DocCommentFormatter
 {
     /// Returns a MATLAB formatted link to the provided Slice identifier.
     /// TODO: this needs to be updated to handle 'matlab:identifier'.
-    [[nodiscard]] string
-    formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const final
+    [[nodiscard]] string formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const final
     {
         auto hashPos = rawLink.find('#');
         if (hashPos != string::npos)

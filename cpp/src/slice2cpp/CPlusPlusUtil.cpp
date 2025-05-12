@@ -853,7 +853,10 @@ Slice::inWstringModule(const SequencePtr& seq)
 }
 
 string
-Slice::CppDocCommentFormatter::formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const
+Slice::CppDocCommentFormatter::formatLink(
+    const string& rawLink,
+    const ContainedPtr& source,
+    const SyntaxTreeBasePtr& target) const
 {
     if (target)
     {
@@ -892,7 +895,7 @@ Slice::CppDocCommentFormatter::formatLink(const string& rawLink, const Contained
 
             InterfaceDefPtr parent = operationTarget->interface();
             return getUnqualified(parent->mappedScoped() + "Prx", source->mappedScope()) +
-                    "::" + operationTarget->mappedName();
+                   "::" + operationTarget->mappedName();
         }
         if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
         {

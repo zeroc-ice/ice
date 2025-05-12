@@ -12,7 +12,8 @@ namespace Slice
 {
     class Slice2DocCommentFormatter : public DocCommentFormatter
     {
-        [[nodiscard]] std::string formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const final;
+        [[nodiscard]] std::string
+        formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const final;
         [[nodiscard]] virtual bool shouldStripMarkup() const { return true; }
     };
 
