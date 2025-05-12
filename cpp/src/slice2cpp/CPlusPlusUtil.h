@@ -69,6 +69,12 @@ namespace Slice
 
     std::string findMetadata(const MetadataList&, TypeContext = TypeContext::None);
     bool inWstringModule(const SequencePtr&);
+
+    class CppDocCommentFormatter : public DocCommentFormatter
+    {
+        /// Returns a doxygen formatted link to the provided Slice identifier.
+        [[nodiscard]] std::string formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const final;
+    };
 }
 
 #endif

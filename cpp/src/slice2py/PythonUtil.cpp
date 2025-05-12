@@ -185,38 +185,6 @@ namespace
         return os.str();
     }
 
-    class PyDocCommentFormatter : public DocCommentFormatter
-    {
-        /// Returns a DocString formatted link to the provided Slice identifier.
-        /// TODO: this needs to be updated to handle 'python:identifier'.
-        [[nodiscard]] string
-        formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const final
-        {
-            ostringstream os;
-            os << "`";
-
-            auto hashPos = rawLink.find('#');
-            if (hashPos != string::npos)
-            {
-                if (hashPos != 0)
-                {
-                    os << rawLink.substr(0, hashPos);
-                    os << ".";
-                }
-                os << rawLink.substr(hashPos + 1);
-            }
-            else
-            {
-                os << rawLink;
-            }
-
-            os << "`";
-            return os.str();
-        }
-
-        [[nodiscard]] bool stripMarkup() const final { return true; }
-    };
-
     string formatFields(const DataMemberList& members)
     {
         if (members.empty())
@@ -2290,6 +2258,32 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         }
     }
     _out << nl << tripleQuotes;
+}
+
+// TODO: this needs to be updated to handle 'python:identifier'.
+string
+Slice::Python::PyDocCommentFormatter::formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const
+{
+    ostringstream os;
+    os << "`";
+
+    auto hashPos = rawLink.find('#');
+    if (hashPos != string::npos)
+    {
+        if (hashPos != 0)
+        {
+            os << rawLink.substr(0, hashPos);
+            os << ".";
+        }
+        os << rawLink.substr(hashPos + 1);
+    }
+    else
+    {
+        os << rawLink;
+    }
+
+    os << "`";
+    return os.str();
 }
 
 string

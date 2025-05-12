@@ -229,67 +229,6 @@ namespace
         return name;
     }
 
-    class CppDocCommentFormatter : public DocCommentFormatter
-    {
-        /// Returns a doxygen formatted link to the provided Slice identifier.
-        [[nodiscard]] string
-        formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const final
-        {
-            if (target)
-            {
-                if (dynamic_pointer_cast<DataMember>(target) || dynamic_pointer_cast<Enumerator>(target))
-                {
-                    ContainedPtr memberTarget = dynamic_pointer_cast<Contained>(target);
-
-                    // Links to fields/enumerators must always be qualified in the form 'container#member'.
-                    ContainedPtr parent = dynamic_pointer_cast<Contained>(memberTarget->container());
-                    assert(parent);
-
-                    string parentName = getUnqualified(parent->mappedScoped(), source->mappedScope());
-                    return parentName + "#" + memberTarget->mappedName();
-                }
-                if (auto enumTarget = dynamic_pointer_cast<Enum>(target))
-                {
-                    // If a link to an enum isn't qualified (ie. the source and target are in the same module),
-                    // we have to place a '#' character in front, so Doxygen looks in the current scope.
-                    string link = getUnqualified(enumTarget->mappedScoped(), source->mappedScope());
-                    if (link.find("::") == string::npos)
-                    {
-                        link.insert(0, "#");
-                    }
-                    return link;
-                }
-                if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
-                {
-                    // Links to Slice interfaces should always point to the generated proxy type, not the servant type.
-                    return getUnqualified(interfaceTarget->mappedScoped() + "Prx", source->mappedScope());
-                }
-                if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
-                {
-                    // Doxygen supports multiple syntaxes for operations, but none of them allow for a bare name.
-                    // We opt for the syntax where operation names are qualified by what type they're defined on.
-                    // See: https://www.doxygen.nl/manual/autolink.html#linkfunc.
-
-                    InterfaceDefPtr parent = operationTarget->interface();
-                    return getUnqualified(parent->mappedScoped() + "Prx", source->mappedScope()) +
-                           "::" + operationTarget->mappedName();
-                }
-                if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
-                {
-                    return typeToString(builtinTarget, false);
-                }
-
-                ContainedPtr containedTarget = dynamic_pointer_cast<Contained>(target);
-                assert(containedTarget);
-                return getUnqualified(containedTarget->mappedScoped(), source->mappedScope());
-            }
-            else
-            {
-                return rawLink; // rely on doxygen autolink.
-            }
-        }
-    };
-
     void writeDocLines(Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
     {
         auto l = lines.cbegin();

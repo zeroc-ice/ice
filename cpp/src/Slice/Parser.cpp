@@ -449,7 +449,7 @@ optional<DocComment>
 Slice::DocComment::parseFrom(const ContainedPtr& p, const DocCommentFormatter& formatter)
 {
     // Split the comment's raw text up into lines.
-    StringList lines = splitComment(p->docComment(), formatter.stripMarkup(), formatter.useXmlEscaping());
+    StringList lines = splitComment(p->docComment(), formatter.shouldStripMarkup(), formatter.shouldUseXmlEscaping());
     if (lines.empty())
     {
         return nullopt;

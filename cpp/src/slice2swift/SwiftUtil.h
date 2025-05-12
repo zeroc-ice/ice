@@ -17,6 +17,12 @@ namespace Slice
     std::string getSwiftModule(const ModulePtr&);
     ModulePtr getTopLevelModule(const ContainedPtr&);
 
+    class SwiftDocCommentFormatter : public DocCommentFormatter
+    {
+        [[nodiscard]] std::string formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const final;
+        [[nodiscard]] bool shouldStripMarkup() const final { return true; }
+    };
+
     class SwiftGenerator
     {
     public:

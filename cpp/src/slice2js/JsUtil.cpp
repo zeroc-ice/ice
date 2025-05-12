@@ -112,6 +112,30 @@ Slice::getJavaScriptModule(const DefinitionContextPtr& dc)
     return dc->getMetadataArgs("js:module").value_or("");
 }
 
+// TODO: this needs to be updated to handle 'js:identifier'.
+string
+Slice::JsDocCommentFormatter::formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const
+{
+    string result = "{@link ";
+
+    auto hashPos = rawLink.find('#');
+    if (hashPos != string::npos)
+    {
+        // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link.
+        if (hashPos != 0)
+        {
+            result += rawLink.substr(0, hashPos);
+            result += "#";
+        }
+        result += rawLink.substr(hashPos + 1);
+    }
+    else
+    {
+        result += rawLink;
+    }
+    return result + "}";
+}
+
 string
 Slice::JsGenerator::typeToJsString(const TypePtr& type, bool definition)
 {

@@ -12,6 +12,12 @@ namespace Slice
     std::string getJavaScriptModuleForType(const TypePtr& type);
     std::string getJavaScriptModule(const DefinitionContextPtr&);
 
+    class JsDocCommentFormatter : public DocCommentFormatter
+    {
+        /// Returns a JsDoc formatted link to the provided Slice identifier.
+        [[nodiscard]] std::string formatLink(const std::string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const final;
+    };
+
     class JsGenerator
     {
     public:

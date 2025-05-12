@@ -96,61 +96,6 @@ namespace
 
         return "java.util.Optional.ofNullable";
     }
-
-    class JavaDocCommentFormatter : public DocCommentFormatter
-    {
-        /// Returns a javadoc formatted link to the provided Slice identifier.
-        [[nodiscard]] string
-        formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const final
-        {
-            ostringstream result;
-            result << "{@link ";
-
-            if (target)
-            {
-                if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
-                {
-                    result << JavaGenerator::typeToObjectString(builtinTarget, TypeModeIn);
-                }
-                else
-                {
-                    string sourceScope = JavaGenerator::getPackage(source);
-
-                    if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
-                    {
-                        // link to the method on the proxy interface
-                        result << JavaGenerator::getUnqualified(operationTarget->interface(), sourceScope) << "Prx#"
-                               << operationTarget->mappedName();
-                    }
-                    else if (auto fieldTarget = dynamic_pointer_cast<DataMember>(target))
-                    {
-                        // link to the field
-                        auto parent = dynamic_pointer_cast<Contained>(fieldTarget->container());
-                        assert(parent);
-
-                        result << JavaGenerator::getUnqualified(parent, sourceScope) << "#"
-                               << fieldTarget->mappedName();
-                    }
-                    else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
-                    {
-                        // link to the proxy interface
-                        result << JavaGenerator::getUnqualified(interfaceTarget, sourceScope) << "Prx";
-                    }
-                    else
-                    {
-                        result << JavaGenerator::getUnqualified(dynamic_pointer_cast<Contained>(target), sourceScope);
-                    }
-                }
-            }
-            else
-            {
-                result << rawLink;
-            }
-
-            result << '}';
-            return result.str();
-        }
-    };
 }
 
 Slice::JavaVisitor::JavaVisitor(const string& dir) : JavaGenerator(dir) {}

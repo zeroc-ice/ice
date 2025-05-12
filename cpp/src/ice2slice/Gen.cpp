@@ -231,33 +231,6 @@ namespace
         }
     }
 
-    class Slice2DocCommentFormatter : public DocCommentFormatter
-    {
-        [[nodiscard]] string
-        formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const final
-        {
-            // The only difference with '@link' between the 'Ice' and 'Slice' syntaxes
-            // is that the 'Ice' syntax uses '#' whereas the 'Slice' syntax uses '::'.
-            string formattedLink;
-            auto separatorPos = rawLink.find('#');
-            if (separatorPos == 0)
-            {
-                // We want to avoid converting the relative link '#member' into the global link '::member'.
-                // Instead we simply convert it to 'member' with no prefix.
-                formattedLink = rawLink.substr(1);
-            }
-            else if (separatorPos != string::npos)
-            {
-                formattedLink = rawLink;
-                formattedLink.replace(separatorPos, 1, "::");
-            }
-
-            return "{@link " + formattedLink + "}";
-        }
-
-        [[nodiscard]] virtual bool stripMarkup() const { return true; }
-    };
-
     void writeDocComment(const ContainedPtr& contained, Output& out)
     {
         Slice2DocCommentFormatter formatter;
@@ -364,6 +337,28 @@ namespace
             out << member->name() << ": " << typeToString(member->type(), scope, member->optional());
         }
     }
+}
+
+string
+Slice::Slice2DocCommentFormatter::formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const
+{
+    // The only difference with '@link' between the 'Ice' and 'Slice' syntaxes
+    // is that the 'Ice' syntax uses '#' whereas the 'Slice' syntax uses '::'.
+    string formattedLink;
+    auto separatorPos = rawLink.find('#');
+    if (separatorPos == 0)
+    {
+        // We want to avoid converting the relative link '#member' into the global link '::member'.
+        // Instead we simply convert it to 'member' with no prefix.
+        formattedLink = rawLink.substr(1);
+    }
+    else if (separatorPos != string::npos)
+    {
+        formattedLink = rawLink;
+        formattedLink.replace(separatorPos, 1, "::");
+    }
+
+    return "{@link " + formattedLink + "}";
 }
 
 Gen::Gen(std::string fileBase) : _fileBase(std::move(fileBase)) {}

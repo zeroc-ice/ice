@@ -36,36 +36,6 @@ namespace
             return "nil";
         }
     }
-
-    class SwiftDocCommentFormatter : public DocCommentFormatter
-    {
-        // TODO: fix this to emit double-ticks instead of single-ticks once we've fixed all the links.
-        // TODO: this needs to be updated to handle 'swift:identifier'.
-        [[nodiscard]] string
-        formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const final
-        {
-            string result = "`";
-
-            auto hashPos = rawLink.find('#');
-            if (hashPos != string::npos)
-            {
-                if (hashPos != 0)
-                {
-                    result += rawLink.substr(0, hashPos);
-                    result += "/";
-                }
-                result += rawLink.substr(hashPos + 1);
-            }
-            else
-            {
-                result += rawLink;
-            }
-
-            return result + "`";
-        }
-
-        [[nodiscard]] bool stripMarkup() const final { return true; }
-    };
 }
 
 string
@@ -122,6 +92,31 @@ Slice::getTopLevelModule(const ContainedPtr& cont)
         assert(p);
     }
     return m;
+}
+
+// TODO: fix this to emit double-ticks instead of single-ticks once we've fixed all the links.
+// TODO: this needs to be updated to handle 'swift:identifier'.
+string
+Slice::SwiftDocCommentFormatter::formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const
+{
+    string result = "`";
+
+    auto hashPos = rawLink.find('#');
+    if (hashPos != string::npos)
+    {
+        if (hashPos != 0)
+        {
+            result += rawLink.substr(0, hashPos);
+            result += "/";
+        }
+        result += rawLink.substr(hashPos + 1);
+    }
+    else
+    {
+        result += rawLink;
+    }
+
+    return result + "`";
 }
 
 void

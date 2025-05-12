@@ -37,6 +37,12 @@ namespace Slice
     /// Returns true if and only if 'p' maps to one of the builtin Java types (ie. a primitive type or a string).
     bool mapsToJavaBuiltinType(const TypePtr& p);
 
+    class JavaDocCommentFormatter : public DocCommentFormatter
+    {
+        /// Returns a javadoc formatted link to the provided Slice identifier.
+        [[nodiscard]] std::string formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const final;
+    };
+
     class JavaOutput final : public ::IceInternal::Output
     {
     public:

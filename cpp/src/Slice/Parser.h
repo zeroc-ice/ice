@@ -261,12 +261,12 @@ namespace Slice
         /// Specifies whether the doc-comment parser should remove HTML tags (text between '<' and '>' characters).
         /// If this returns true, the parser will remove such characters (and also the enclosing angle brackets).
         /// If this returns false, tags will be left as-is.
-        [[nodiscard]] virtual bool stripMarkup() const { return false; }
+        [[nodiscard]] virtual bool shouldStripMarkup() const { return false; }
 
         /// Specifies whether the doc-comment parser should escape special characters: '&', '<', and '>'.
         /// If this returns true, the parser will replace them with "&amp;", "&lt;", and "&gt;" (respectively).
         /// If this returns false, these characters will be left as-is.
-        [[nodiscard]] virtual bool useXmlEscaping() const { return false; }
+        [[nodiscard]] virtual bool shouldUseXmlEscaping() const { return false; }
     };
 
     class DocComment final

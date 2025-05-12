@@ -32,6 +32,34 @@ using namespace std;
 using namespace Slice;
 using namespace IceInternal;
 
+class MatlabDocCommentFormatter : public DocCommentFormatter
+{
+    /// Returns a MATLAB formatted link to the provided Slice identifier.
+    /// TODO: this needs to be updated to handle 'matlab:identifier'.
+    [[nodiscard]] string
+    formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const final
+    {
+        auto hashPos = rawLink.find('#');
+        if (hashPos != string::npos)
+        {
+            string result;
+            if (hashPos != 0)
+            {
+                result += rawLink.substr(0, hashPos);
+                result += ".";
+            }
+            result += rawLink.substr(hashPos + 1);
+            return result;
+        }
+        else
+        {
+            return rawLink;
+        }
+    }
+
+    [[nodiscard]] bool shouldStripMarkup() const final { return true; }
+};
+
 namespace
 {
     void writeCopyright(IceInternal::Output& out, const string& file)
@@ -449,34 +477,6 @@ namespace
             out << nl << "end";
         }
     }
-
-    class MatlabDocCommentFormatter : public DocCommentFormatter
-    {
-        /// Returns a MATLAB formatted link to the provided Slice identifier.
-        /// TODO: this needs to be updated to handle 'matlab:identifier'.
-        [[nodiscard]] string
-        formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const final
-        {
-            auto hashPos = rawLink.find('#');
-            if (hashPos != string::npos)
-            {
-                string result;
-                if (hashPos != 0)
-                {
-                    result += rawLink.substr(0, hashPos);
-                    result += ".";
-                }
-                result += rawLink.substr(hashPos + 1);
-                return result;
-            }
-            else
-            {
-                return rawLink;
-            }
-        }
-
-        [[nodiscard]] bool stripMarkup() const final { return true; }
-    };
 
     void writeDocLines(IceInternal::Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
     {
