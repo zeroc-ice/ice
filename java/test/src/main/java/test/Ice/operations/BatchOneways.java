@@ -176,9 +176,9 @@ class BatchOneways {
             ObjectPrx prx =
                 p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();
 
-            MyClassPrx batchC1 = MyClassPrx.uncheckedCast(prx.ice_compress(false));
-            MyClassPrx batchC2 = MyClassPrx.uncheckedCast(prx.ice_compress(true));
-            MyClassPrx batchC3 = MyClassPrx.uncheckedCast(prx.ice_identity(identity));
+            final MyClassPrx batchC1 = MyClassPrx.uncheckedCast(prx.ice_compress(false));
+            final MyClassPrx batchC2 = MyClassPrx.uncheckedCast(prx.ice_compress(true));
+            final MyClassPrx batchC3 = MyClassPrx.uncheckedCast(prx.ice_identity(identity));
 
             batchC1.opByteSOneway(bs1);
             batchC1.opByteSOneway(bs1);

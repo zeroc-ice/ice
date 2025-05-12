@@ -15,7 +15,7 @@ public final class ClassSliceLoader implements SliceLoader {
      * Creates a ClassSliceLoader.
      *
      * @param classes An array of classes with the {@link SliceTypeId} annotation. Each class may also have the
-     * {@link CompactSliceTypeId} annotation.
+     *                {@link CompactSliceTypeId} annotation.
      * @throws IllegalArgumentException If any class is not annotated with {@link SliceTypeId}.
      */
     public ClassSliceLoader(Class<?>... classes) {
