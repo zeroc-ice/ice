@@ -953,6 +953,34 @@ Slice::Contained::isTopLevel() const
     return dynamic_pointer_cast<Unit>(container()) != nullptr;
 }
 
+ModulePtr
+Slice::Contained::getTopLevelModule() const
+{
+    ContainedPtr p;
+
+    // Round-about way to get `ContainedPtr` for this element, since we can't `enable_shared_from_this`.
+    for (const auto& sibling : container()->contents())
+    {
+        if (sibling.get() == this)
+        {
+            p = sibling;
+        }
+    }
+    assert(p);
+
+    // Navigate up through this element's parents until we hit a top-level element.
+    while (!p->isTopLevel())
+    {
+        p = dynamic_pointer_cast<Contained>(p->container());
+        assert(p);
+    }
+
+    // By the time we reach here, 'p' must be a top-level element; we cast it to a module.
+    // Note that this cast can fail for elements erroneously defined outside of a module!
+    // However, these are guaranteed not to exist after the parsing stage has completed.
+    return dynamic_pointer_cast<Module>(p);
+}
+
 string
 Slice::Contained::name() const
 {

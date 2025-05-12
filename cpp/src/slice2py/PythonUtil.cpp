@@ -2379,18 +2379,13 @@ string
 Slice::Python::getPackageMetadata(const ContainedPtr& cont)
 {
     // Traverse to the top-level module.
-    ContainedPtr p = cont;
-    while (!p->isTopLevel())
-    {
-        p = dynamic_pointer_cast<Contained>(p->container());
-        assert(p);
-    }
-    assert(dynamic_pointer_cast<Module>(p));
+    ModulePtr topLevelModule = cont->getTopLevelModule();
+    assert(topLevelModule);
 
     // The python:package metadata can be defined as file metadata or applied to a top-level module.
     // We check for the metadata at the top-level module first and then fall back to the global scope.
     static const string directive = "python:package";
-    if (auto packageMetadata = p->getMetadataArgs(directive))
+    if (auto packageMetadata = topLevelModule->getMetadataArgs(directive))
     {
         return *packageMetadata;
     }

@@ -65,6 +65,8 @@ namespace
 string
 Slice::getSwiftModule(const ModulePtr& module, string& swiftPrefix)
 {
+    assert(module);
+
     string swiftModule;
     if (auto argument = module->getMetadataArgs("swift:module"))
     {
@@ -93,29 +95,6 @@ Slice::getSwiftModule(const ModulePtr& module)
 {
     string prefix;
     return getSwiftModule(module, prefix);
-}
-
-ModulePtr
-Slice::getTopLevelModule(const ContainedPtr& cont)
-{
-    // Traverse to the top-level module.
-    ModulePtr m;
-    ContainedPtr p = cont;
-    while (true)
-    {
-        if (dynamic_pointer_cast<Module>(p))
-        {
-            m = dynamic_pointer_cast<Module>(p);
-        }
-
-        if (p->isTopLevel())
-        {
-            break;
-        }
-        p = dynamic_pointer_cast<Contained>(p->container());
-        assert(p);
-    }
-    return m;
 }
 
 void
@@ -608,7 +587,7 @@ SwiftGenerator::getRelativeTypeString(const ContainedPtr& contained, const strin
 
     // Determine which Swift module this element will be mapped into.
     string swiftPrefix;
-    string swiftModule = getSwiftModule(getTopLevelModule(contained), swiftPrefix);
+    string swiftModule = getSwiftModule(contained->getTopLevelModule(), swiftPrefix);
 
     // If a swift prefix was provided, we need to remove any escaping before appending it to the type string.
     string prefixedTypeString;
@@ -744,7 +723,7 @@ SwiftGenerator::writeConstantValue(
 }
 
 string
-SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel, bool optional)
+SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& usedBy, bool optional)
 {
     static const char* builtinTable[] = {
         "Swift.UInt8",
@@ -766,12 +745,11 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel, 
     }
 
     string t = "";
-    //
-    // The current module where the type is being used
-    //
-    string currentModule = getSwiftModule(getTopLevelModule(toplevel));
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
 
+    // The current module where the type is being used
+    string currentModule = getSwiftModule(usedBy->getTopLevelModule());
+
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
     {
         if (builtin->kind() == Builtin::KindObject)
@@ -964,7 +942,7 @@ SwiftGenerator::writeMembers(
     const ContainedPtr& p,
     int typeCtx)
 {
-    string swiftModule = getSwiftModule(getTopLevelModule(p));
+    string swiftModule = getSwiftModule(p->getTopLevelModule());
     bool protocol = (typeCtx & TypeContextProtocol) != 0;
     string access = protocol ? "" : "public ";
     for (const auto& member : members)
@@ -980,8 +958,9 @@ SwiftGenerator::writeMembers(
             (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Sequence>(type) ||
              dynamic_pointer_cast<Dictionary>(type)))
         {
-            ModulePtr m = getTopLevelModule(dynamic_pointer_cast<Contained>(type));
-            alias = removeEscaping(m->mappedName()) + "_" + removeEscaping(memberType);
+            ModulePtr topLevelModule = (dynamic_pointer_cast<Contained>(type))->getTopLevelModule();
+            assert(topLevelModule);
+            alias = removeEscaping(topLevelModule->mappedName()) + "_" + removeEscaping(memberType);
             out << nl << "typealias " << alias << " = " << memberType;
         }
 
@@ -1039,7 +1018,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(
 {
     assert(!(type->isClassType() && tag >= 0)); // Optional classes are disallowed by the parser.
 
-    string swiftModule = getSwiftModule(getTopLevelModule(p));
+    string swiftModule = getSwiftModule(p->getTopLevelModule());
     string stream = dynamic_pointer_cast<Struct>(p) ? "self" : marshal ? "ostr" : "istr";
 
     string args;
@@ -1144,8 +1123,9 @@ SwiftGenerator::writeMarshalUnmarshalCode(
             string alias;
             if (memberType == memberName)
             {
-                ModulePtr m = getTopLevelModule(cl);
-                alias = removeEscaping(m->mappedName()) + "_" + removeEscaping(memberType);
+                ModulePtr topLevelModule = cl->getTopLevelModule();
+                assert(topLevelModule);
+                alias = removeEscaping(topLevelModule->mappedName()) + "_" + removeEscaping(memberType);
                 out << nl << "typealias " << alias << " = " << memberType;
             }
             args += (alias.empty() ? memberType : alias) + ".self";
@@ -1492,7 +1472,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceInternal::Output& out, const Operati
 void
 SwiftGenerator::writeUnmarshalUserException(::IceInternal::Output& out, const OperationPtr& op)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(op));
+    const string swiftModule = getSwiftModule(op->getTopLevelModule());
 
     // Arrange exceptions into most-derived to least-derived order. If we don't
     // do this, a base exception handler can appear before a derived exception
@@ -1536,7 +1516,7 @@ SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationP
 {
     const ParameterList inParams = op->inParameters();
     const bool returnsAnyValues = op->returnsAnyValues();
-    const string swiftModule = getSwiftModule(getTopLevelModule(op));
+    const string swiftModule = getSwiftModule(op->getTopLevelModule());
 
     out << sp;
     writeOpDocSummary(out, op, false);
