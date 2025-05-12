@@ -276,8 +276,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     if (properties->getIcePropertyAsInt("IceGrid.Node.CollocateRegistry") > 0)
     {
-        _registry =
-            make_shared<CollocatedRegistry>(communicator(), _activator, readonly, initFromReplica, name);
+        _registry = make_shared<CollocatedRegistry>(communicator(), _activator, readonly, initFromReplica, name);
         if (!_registry->start())
         {
             return false;
@@ -456,7 +455,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         out << "could not reach IceGrid registry '" << locator;
         out << "': " << ex.what()
             << ". This warning is expected if the IceGrid registry is not running yet; otherwise, please check the "
-                "value of the Ice.Default.Locator property in the config file of this IceGrid node.";
+               "value of the Ice.Default.Locator property in the config file of this IceGrid node.";
     }
 
     //
@@ -770,12 +769,13 @@ NodeService::usage(const string& appName)
                      "                     Add or update descriptor in file DESCRIPTOR, with\n"
                      "                     optional targets.\n";
 #ifndef _WIN32
-    options.append("\n"
-                   "\n"
-                   "--daemon             Run as a daemon.\n"
-                   "--noclose            Do not close open file descriptors.\n"
-                   "--nochdir            Do not change the current working directory.\n"
-                   "--pidfile FILE       Write process ID into FILE.");
+    options.append(
+        "\n"
+        "\n"
+        "--daemon             Run as a daemon.\n"
+        "--noclose            Do not close open file descriptors.\n"
+        "--nochdir            Do not change the current working directory.\n"
+        "--pidfile FILE       Write process ID into FILE.");
 #endif
     print("Usage: " + appName + " [options]\n" + options);
 }

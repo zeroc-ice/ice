@@ -180,7 +180,7 @@ RouterService::start(int argc, char* argv[], int& status)
     {
         ServiceWarning warn(this);
         warn << "unable to contact permissions verifier '" << properties->getIceProperty(verifierProperty) << "'\n"
-                << ex;
+             << ex;
     }
     catch (const std::exception& ex)
     {
@@ -208,7 +208,7 @@ RouterService::start(int argc, char* argv[], int& status)
     {
         ServiceWarning warn(this);
         warn << "unable to contact session manager '" << properties->getIceProperty(sessionManagerProperty) << "'\n"
-                << ex;
+             << ex;
     }
     catch (const std::exception& ex)
     {
@@ -234,8 +234,8 @@ RouterService::start(int argc, char* argv[], int& status)
     {
         ServiceWarning warn(this);
         warn << "unable to contact ssl permissions verifier '" << properties->getIceProperty(sslVerifierProperty)
-                << "'\n"
-                << ex;
+             << "'\n"
+             << ex;
     }
     catch (const std::exception& ex)
     {
@@ -271,8 +271,8 @@ RouterService::start(int argc, char* argv[], int& status)
     {
         ServiceWarning warn(this);
         warn << "unable to contact ssl session manager '" << properties->getIceProperty(sslSessionManagerProperty)
-                << "'\n"
-                << ex;
+             << "'\n"
+             << ex;
     }
     catch (const std::exception& ex)
     {
@@ -443,12 +443,13 @@ RouterService::usage(const string& appName)
                      "-h, --help           Show this message.\n"
                      "-v, --version        Display the Ice version.\n";
 #ifndef _WIN32
-    options.append("\n"
-                   "\n"
-                   "--daemon             Run as a daemon.\n"
-                   "--pidfile FILE       Write process ID into FILE.\n"
-                   "--noclose            Do not close open file descriptors.\n"
-                   "--nochdir            Do not change the current working directory.\n");
+    options.append(
+        "\n"
+        "\n"
+        "--daemon             Run as a daemon.\n"
+        "--pidfile FILE       Write process ID into FILE.\n"
+        "--noclose            Do not close open file descriptors.\n"
+        "--nochdir            Do not change the current working directory.\n");
 #endif
     print("Usage: " + appName + " [options]\n" + options);
 }
