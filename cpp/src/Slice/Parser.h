@@ -244,18 +244,30 @@ namespace Slice
     // DocComment
     // ----------------------------------------------------------------------
 
-    /// Functions of this type are used by `DocComment::parseFrom` to map link tags into each language's link syntax.
-    /// In Slice, links are of the form: '{@link <rawLink>}'.
-    ///
-    /// The first argument (`rawLink`) is the raw link text, taken verbatim from the doc-comment.
-    /// The second argument (`source`) is a pointer to the Slice element that the doc comment (and link) are written on.
-    /// The third argument (`target`) is a pointer to the Slice element that is being linked to.
-    /// If the parser could not resolve the link, this will be `nullptr`.
-    ///
-    /// This function should return the fully formatted link.
-    /// `DocComment::parseFrom` replaces the entire '{@link <rawLink>}' by the string this function returns.
-    using DocLinkFormatter =
-        std::string (*)(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
+    class DocCommentFormatter
+    {
+    public:
+        /// This function is called by the doc-comment parser to map link tags into each language's link syntax.
+        ///
+        /// @param rawLink The raw link text, taken verbatim. In Slice, links are of the form: '{@link <rawLink>}'.
+        /// @param source A pointer to the Slice element that the doc-comment (and link) are written on.
+        /// @param target A pointer to the Slice element being linked to, or `nullptr` if the link couldn't be resolved.
+        ///
+        /// @return A properly formatted link. The doc-comment parser will replace the entire '{@link <rawLink>}' string
+        /// with the returned value.
+        [[nodiscard]] virtual std::string
+        formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const = 0;
+
+        /// Specifies whether the doc-comment parser should remove HTML tags (text between '<' and '>' characters).
+        /// If this returns true, the parser will remove such characters (and also the enclosing angle brackets).
+        /// If this returns false, tags will be left as-is.
+        [[nodiscard]] virtual bool stripMarkup() const { return false; }
+
+        /// Specifies whether the doc-comment parser should escape special characters: '&', '<', and '>'.
+        /// If this returns true, the parser will replace them with "&amp;", "&lt;", and "&gt;" (respectively).
+        /// If this returns false, these characters will be left as-is.
+        [[nodiscard]] virtual bool useXmlEscaping() const { return false; }
+    };
 
     class DocComment final
     {
@@ -263,17 +275,12 @@ namespace Slice
         /// Parses the raw doc-comment attached to `p` into a structured `DocComment`.
         ///
         /// @param p The slice element whose doc-comment should be parsed.
-        /// @param linkFormatter A function used to format links according to the target language's syntax.
-        /// @param stripMarkup If true, removes all HTML markup from the parsed comment. Defaults to false.
-        /// @param escapeXml If true, escapes all XML special characters in the parsed comment. Defaults to false.
+        /// @param formatter A formatter used to map certain comment elements to the target language's syntax.
         ///
         /// @return A `DocComment` instance containing a parsed representation of `p`'s doc-comment, if a doc-comment
         /// was present. If no doc-comment was present (or it contained only whitespace) this returns `nullopt` instead.
-        [[nodiscard]] static std::optional<DocComment> parseFrom(
-            const ContainedPtr& p,
-            DocLinkFormatter linkFormatter,
-            bool stripMarkup = false,
-            bool escapeXml = false);
+        [[nodiscard]] static std::optional<DocComment>
+        parseFrom(const ContainedPtr& p, const DocCommentFormatter& formatter);
 
         [[nodiscard]] bool isDeprecated() const;
         [[nodiscard]] StringList deprecated() const;

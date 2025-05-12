@@ -37,29 +37,35 @@ namespace
         }
     }
 
-    // TODO: fix this to emit double-ticks instead of single-ticks once we've fixed all the links.
-    // TODO: this is temporary and will be replaced when we add 'swift:identifier' support.
-    string swiftLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    class SwiftDocCommentFormatter : public DocCommentFormatter
     {
-        string result = "`";
-
-        auto hashPos = rawLink.find('#');
-        if (hashPos != string::npos)
+        // TODO: fix this to emit double-ticks instead of single-ticks once we've fixed all the links.
+        // TODO: this needs to be updated to handle 'swift:identifier'.
+        [[nodiscard]] string
+        formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const final
         {
-            if (hashPos != 0)
+            string result = "`";
+
+            auto hashPos = rawLink.find('#');
+            if (hashPos != string::npos)
             {
-                result += rawLink.substr(0, hashPos);
-                result += "/";
+                if (hashPos != 0)
+                {
+                    result += rawLink.substr(0, hashPos);
+                    result += "/";
+                }
+                result += rawLink.substr(hashPos + 1);
             }
-            result += rawLink.substr(hashPos + 1);
-        }
-        else
-        {
-            result += rawLink;
+            else
+            {
+                result += rawLink;
+            }
+    
+            return result + "`";
         }
 
-        return result + "`";
-    }
+        [[nodiscard]] bool stripMarkup() const final { return true; }
+    };
 }
 
 string
@@ -195,7 +201,8 @@ SwiftGenerator::writeDocSentence(IceInternal::Output& out, const StringList& lin
 void
 SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 {
-    optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter, true);
+    SwiftDocCommentFormatter formatter;
+    optional<DocComment> doc = DocComment::parseFrom(p, formatter);
     if (!doc)
     {
         return;
@@ -230,7 +237,8 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 void
 SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool dispatch)
 {
-    optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter, true);
+    SwiftDocCommentFormatter formatter;
+    optional<DocComment> doc = DocComment::parseFrom(p, formatter);
     if (!doc)
     {
         return;
@@ -388,7 +396,8 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
 void
 SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
-    optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter, true);
+    SwiftDocCommentFormatter formatter;
+    optional<DocComment> doc = DocComment::parseFrom(p, formatter);
     if (!doc)
     {
         return;
@@ -413,7 +422,7 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
         out << nl << "/// " << prx << " Methods:";
         for (const auto& op : ops)
         {
-            optional<DocComment> opdoc = DocComment::parseFrom(op, swiftLinkFormatter, true);
+            optional<DocComment> opdoc = DocComment::parseFrom(op, formatter);
             optional<StringList> opDocOverview;
             if (opdoc)
             {
@@ -446,7 +455,8 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
 void
 SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
-    optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter, true);
+    SwiftDocCommentFormatter formatter;
+    optional<DocComment> doc = DocComment::parseFrom(p, formatter);
     if (!doc)
     {
         return;
@@ -472,7 +482,7 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
         for (const auto& op : ops)
         {
             out << nl << "///  - " << removeEscaping(op->mappedName());
-            optional<DocComment> opdoc = DocComment::parseFrom(op, swiftLinkFormatter, true);
+            optional<DocComment> opdoc = DocComment::parseFrom(op, formatter);
             if (opdoc)
             {
                 StringList opdocOverview = opdoc->overview();

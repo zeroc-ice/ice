@@ -450,27 +450,33 @@ namespace
         }
     }
 
-    /// Returns a MATLAB formatted link to the provided Slice identifier.
-    /// TODO: this is temporary and will be replaced when we add 'matlab:identifier' support.
-    string matlabLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    class MatlabDocCommentFormatter : public DocCommentFormatter
     {
-        auto hashPos = rawLink.find('#');
-        if (hashPos != string::npos)
+        /// Returns a MATLAB formatted link to the provided Slice identifier.
+        /// TODO: this needs to be updated to handle 'matlab:identifier'.
+        [[nodiscard]] string
+        formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const final
         {
-            string result;
-            if (hashPos != 0)
+            auto hashPos = rawLink.find('#');
+            if (hashPos != string::npos)
             {
-                result += rawLink.substr(0, hashPos);
-                result += ".";
+                string result;
+                if (hashPos != 0)
+                {
+                    result += rawLink.substr(0, hashPos);
+                    result += ".";
+                }
+                result += rawLink.substr(hashPos + 1);
+                return result;
             }
-            result += rawLink.substr(hashPos + 1);
-            return result;
+            else
+            {
+                return rawLink;
+            }
         }
-        else
-        {
-            return rawLink;
-        }
-    }
+
+        [[nodiscard]] bool stripMarkup() const final { return true; }
+    };
 
     void writeDocLines(IceInternal::Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
     {
@@ -596,7 +602,8 @@ namespace
 
     void writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
     {
-        optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter, true);
+        MatlabDocCommentFormatter formatter;
+        optional<DocComment> doc = DocComment::parseFrom(p, formatter);
         if (!doc)
         {
             return;
@@ -626,7 +633,7 @@ namespace
                 for (const auto& enumerator : enumerators)
                 {
                     out << nl << "%   " << enumerator->mappedName();
-                    if (auto enumeratorDoc = DocComment::parseFrom(enumerator, matlabLinkFormatter, true))
+                    if (auto enumeratorDoc = DocComment::parseFrom(enumerator, formatter))
                     {
                         StringList enumeratorOverview = enumeratorDoc->overview();
                         if (!enumeratorOverview.empty())
@@ -648,7 +655,7 @@ namespace
                 for (const auto& member : members)
                 {
                     out << nl << "%   " << member->mappedName();
-                    if (auto memberDoc = DocComment::parseFrom(member, matlabLinkFormatter, true))
+                    if (auto memberDoc = DocComment::parseFrom(member, formatter))
                     {
                         StringList memberOverview = memberDoc->overview();
                         if (!memberOverview.empty())
@@ -670,7 +677,7 @@ namespace
                 for (const auto& member : members)
                 {
                     out << nl << "%   " << member->mappedName();
-                    if (auto memberDoc = DocComment::parseFrom(member, matlabLinkFormatter, true))
+                    if (auto memberDoc = DocComment::parseFrom(member, formatter))
                     {
                         StringList memberOverview = memberDoc->overview();
                         if (!memberOverview.empty())
@@ -692,7 +699,7 @@ namespace
                 for (const auto& member : members)
                 {
                     out << nl << "%   " << member->mappedName();
-                    if (auto memberDoc = DocComment::parseFrom(member, matlabLinkFormatter, true))
+                    if (auto memberDoc = DocComment::parseFrom(member, formatter))
                     {
                         StringList memberOverview = memberDoc->overview();
                         if (!memberOverview.empty())
@@ -730,7 +737,8 @@ namespace
 
     void writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool async)
     {
-        optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter, true);
+        MatlabDocCommentFormatter formatter;
+        optional<DocComment> doc = DocComment::parseFrom(p, formatter);
         if (!doc)
         {
             return;
@@ -891,7 +899,8 @@ namespace
 
     void writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p)
     {
-        optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter, true);
+        MatlabDocCommentFormatter formatter;
+        optional<DocComment> doc = DocComment::parseFrom(p, formatter);
         if (!doc)
         {
             return;
@@ -919,7 +928,7 @@ namespace
             for (const auto& op : ops)
             {
                 const string opName = op->mappedName();
-                const optional<DocComment> opdoc = DocComment::parseFrom(op, matlabLinkFormatter, true);
+                const optional<DocComment> opdoc = DocComment::parseFrom(op, formatter);
                 out << nl << "%   " << opName;
                 if (opdoc)
                 {
@@ -970,7 +979,8 @@ namespace
 
     void writeMemberDoc(IceInternal::Output& out, const DataMemberPtr& p)
     {
-        optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter, true);
+        MatlabDocCommentFormatter formatter;
+        optional<DocComment> doc = DocComment::parseFrom(p, formatter);
         if (!doc)
         {
             return;

@@ -231,30 +231,37 @@ namespace
         }
     }
 
-    string slice2LinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    class Slice2DocCommentFormatter : public DocCommentFormatter
     {
-        // The only difference with '@link' between the 'Ice' and 'Slice' syntaxes
-        // is that the 'Ice' syntax uses '#' whereas the 'Slice' syntax uses '::'.
-        string formattedLink;
-        auto separatorPos = rawLink.find('#');
-        if (separatorPos == 0)
+        [[nodiscard]] string
+        formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) const final
         {
-            // We want to avoid converting the relative link '#member' into the global link '::member'.
-            // Instead we simply convert it to 'member' with no prefix.
-            formattedLink = rawLink.substr(1);
-        }
-        else if (separatorPos != string::npos)
-        {
-            formattedLink = rawLink;
-            formattedLink.replace(separatorPos, 1, "::");
+            // The only difference with '@link' between the 'Ice' and 'Slice' syntaxes
+            // is that the 'Ice' syntax uses '#' whereas the 'Slice' syntax uses '::'.
+            string formattedLink;
+            auto separatorPos = rawLink.find('#');
+            if (separatorPos == 0)
+            {
+                // We want to avoid converting the relative link '#member' into the global link '::member'.
+                // Instead we simply convert it to 'member' with no prefix.
+                formattedLink = rawLink.substr(1);
+            }
+            else if (separatorPos != string::npos)
+            {
+                formattedLink = rawLink;
+                formattedLink.replace(separatorPos, 1, "::");
+            }
+
+            return "{@link " + formattedLink + "}";
         }
 
-        return "{@link " + formattedLink + "}";
-    }
+        [[nodiscard]] virtual bool stripMarkup() const { return true; }
+    };
 
     void writeDocComment(const ContainedPtr& contained, Output& out)
     {
-        optional<DocComment> comment = DocComment::parseFrom(contained, slice2LinkFormatter, true);
+        Slice2DocCommentFormatter formatter;
+        optional<DocComment> comment = DocComment::parseFrom(contained, formatter);
         if (!comment)
         {
             return;

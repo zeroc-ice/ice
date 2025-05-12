@@ -446,10 +446,10 @@ namespace
 }
 
 optional<DocComment>
-Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatter, bool stripMarkup, bool escapeXml)
+Slice::DocComment::parseFrom(const ContainedPtr& p, const DocCommentFormatter& formatter)
 {
     // Split the comment's raw text up into lines.
-    StringList lines = splitComment(p->docComment(), stripMarkup, escapeXml);
+    StringList lines = splitComment(p->docComment(), formatter.stripMarkup(), formatter.useXmlEscaping());
     if (lines.empty())
     {
         return nullopt;
@@ -490,7 +490,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 }
 
                 // Finally, insert a correctly formatted link where the '{@link foo}' used to be.
-                string formattedLink = linkFormatter(linkText, p, linkTarget);
+                string formattedLink = formatter.formatLink(linkText, p, linkTarget);
                 line.insert(pos, formattedLink);
                 pos += formattedLink.length();
             }
