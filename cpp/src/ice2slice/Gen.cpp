@@ -17,18 +17,24 @@ namespace
         // Traverse to the top-level module.
         ContainedPtr p = cont;
         string csharpNamespace;
+        hasCSharpNamespaceAttribute = false;
         while (true)
         {
             if (dynamic_pointer_cast<Module>(p))
             {
-                // TODO we should be using the `mappedName` here, not the slice `name`.
                 if (csharpNamespace.empty())
                 {
-                    csharpNamespace = p->name();
+                    csharpNamespace = p->mappedName();
                 }
                 else
                 {
-                    csharpNamespace = p->name() + "." + csharpNamespace;
+                    csharpNamespace = p->mappedName() + "." + csharpNamespace;
+                }
+
+                if (auto metadata = p->getMetadataArgs("cs:identifier"))
+                {
+                    hasCSharpNamespaceAttribute = true;
+                    return *metadata;
                 }
             }
 
@@ -48,7 +54,6 @@ namespace
         }
         else
         {
-            hasCSharpNamespaceAttribute = false;
             return csharpNamespace;
         }
     }
