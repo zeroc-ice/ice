@@ -24,7 +24,8 @@ namespace
         }
     }
 
-    static string getCSharpMappedName(const ContainedPtr& cont)
+    // We cannot use mappedName because it depends on the language name used to create the Unit.
+    static string getCsMappedName(const ContainedPtr& cont)
     {
         if (auto metadata = cont->getMetadataArgs("cs:identifier"))
         {
@@ -36,25 +37,27 @@ namespace
         }
     }
 
-    static string getCSharpMappedScoped(const ContainedPtr& cont, const string& separator);
+    static string getCsMappedScoped(const ContainedPtr& cont, const string& separator);
 
-    static string getCSharpMappedScope(const ContainedPtr& cont, const string& separator)
+    // We cannot use mappedScope because it depends on the language name used to create the Unit.
+    static string getCsMappedScope(const ContainedPtr& cont, const string& separator)
     {
         string scoped;
         auto container = std::dynamic_pointer_cast<Contained>(cont->container());
         if (container)
         {
-            scoped = getCSharpMappedScoped(container, separator);
+            scoped = getCsMappedScoped(container, separator);
         }
         return scoped + separator;
     }
 
-    static string getCSharpMappedScoped(const ContainedPtr& cont, const string& separator)
+    // We cannot use mappedScoped because it depends on the language name used to create the Unit.
+    static string getCsMappedScoped(const ContainedPtr& cont, const string& separator)
     {
-        return getCSharpMappedScope(cont, separator) + getCSharpMappedName(cont);
+        return getCsMappedScope(cont, separator) + getCsMappedName(cont);
     }
 
-    static string getCSharpNamespacePrefix(const ContainedPtr& cont)
+    static string getCsNamespacePrefix(const ContainedPtr& cont)
     {
         // Traverse to the top-level module.
         ContainedPtr p = cont;
@@ -79,14 +82,10 @@ namespace
         }
     }
 
-    static string getCSharpNamespace(const ContainedPtr& cont, bool& hasModuleRemapping)
+    static string getCsMappedNamespace(const ContainedPtr& cont)
     {
-        // Module remapping is required if the module has a cs:namespace attribute or any of the modules has
-        // a cs:identifier
-        string csNamespacePrefix = getCSharpNamespacePrefix(cont);
-        hasModuleRemapping = !csNamespacePrefix.empty() || cont->scope() != getCSharpMappedScope(cont, "::");
-
-        string csMappedScope = getCSharpMappedScope(cont, ".").substr(1);
+        string csNamespacePrefix = getCsNamespacePrefix(cont);
+        string csMappedScope = getCsMappedScope(cont, ".").substr(1);
         csMappedScope = csMappedScope.substr(0, csMappedScope.size() - 1); // Remove the trailing "."
         if (csNamespacePrefix.empty())
         {
@@ -198,8 +197,8 @@ namespace
         ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
         if (contained)
         {
-            string csNamespacePrefix = getCSharpNamespacePrefix(contained);
-            string scoped = getCSharpMappedScoped(contained, ".").substr(1);
+            string csNamespacePrefix = getCsNamespacePrefix(contained);
+            string scoped = getCsMappedScoped(contained, ".").substr(1);
             if (!csNamespacePrefix.empty())
             {
                 os << csNamespacePrefix << ".";
@@ -770,17 +769,25 @@ Gen::TypesVisitor::getOutput(const ContainedPtr& contained)
         *out << nl << "mode = Slice1";
         *out << nl;
 
-        bool hasModuleRemapping;
-        string csNamespace = getCSharpNamespace(contained, hasModuleRemapping);
-        if (hasModuleRemapping)
-        {
-            *out << nl << "[cs::namespace(\"" << csNamespace << "\")]";
-        }
-
         // The module name is the scoped named without the start and end scope operator '::'
         assert(scope.find("::") == 0);
         assert(scope.rfind("::") == scope.size() - 2);
         string moduleName = scope.substr(2).substr(0, scope.size() - 4);
+
+        string csNamespace = moduleName;
+        string::size_type pos = string::npos;
+        while ((pos = csNamespace.find("::")) != string::npos)
+        {
+            csNamespace.replace(pos, 2, ".");
+        }
+        string csMappedNamespace = getCsMappedNamespace(contained);
+
+        // If the mapped C# namespace is different than the default C# namespace, we need to add the
+        // cs::namespace attribute to the module.
+        if (csMappedNamespace != csNamespace)
+        {
+            *out << nl << "[cs::namespace(\"" << csMappedNamespace << "\")]";
+        }
 
         *out << nl << "module " << moduleName;
         auto inserted = _outputs.emplace(scope, std::move(out));
