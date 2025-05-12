@@ -105,7 +105,7 @@ namespace
         {
             ostringstream result;
             result << "{@link ";
-    
+
             if (target)
             {
                 if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
@@ -115,7 +115,7 @@ namespace
                 else
                 {
                     string sourceScope = JavaGenerator::getPackage(source);
-    
+
                     if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
                     {
                         // link to the method on the proxy interface
@@ -127,8 +127,9 @@ namespace
                         // link to the field
                         auto parent = dynamic_pointer_cast<Contained>(fieldTarget->container());
                         assert(parent);
-    
-                        result << JavaGenerator::getUnqualified(parent, sourceScope) << "#" << fieldTarget->mappedName();
+
+                        result << JavaGenerator::getUnqualified(parent, sourceScope) << "#"
+                               << fieldTarget->mappedName();
                     }
                     else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
                     {
@@ -145,7 +146,7 @@ namespace
             {
                 result << rawLink;
             }
-    
+
             result << '}';
             return result.str();
         }

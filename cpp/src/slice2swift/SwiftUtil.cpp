@@ -60,7 +60,7 @@ namespace
             {
                 result += rawLink;
             }
-    
+
             return result + "`";
         }
 

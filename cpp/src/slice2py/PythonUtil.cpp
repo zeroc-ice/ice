@@ -194,7 +194,7 @@ namespace
         {
             ostringstream os;
             os << "`";
-    
+
             auto hashPos = rawLink.find('#');
             if (hashPos != string::npos)
             {
@@ -209,7 +209,7 @@ namespace
             {
                 os << rawLink;
             }
-    
+
             os << "`";
             return os.str();
         }

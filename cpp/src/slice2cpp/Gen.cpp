@@ -240,11 +240,11 @@ namespace
                 if (dynamic_pointer_cast<DataMember>(target) || dynamic_pointer_cast<Enumerator>(target))
                 {
                     ContainedPtr memberTarget = dynamic_pointer_cast<Contained>(target);
-    
+
                     // Links to fields/enumerators must always be qualified in the form 'container#member'.
                     ContainedPtr parent = dynamic_pointer_cast<Contained>(memberTarget->container());
                     assert(parent);
-    
+
                     string parentName = getUnqualified(parent->mappedScoped(), source->mappedScope());
                     return parentName + "#" + memberTarget->mappedName();
                 }
@@ -269,7 +269,7 @@ namespace
                     // Doxygen supports multiple syntaxes for operations, but none of them allow for a bare name.
                     // We opt for the syntax where operation names are qualified by what type they're defined on.
                     // See: https://www.doxygen.nl/manual/autolink.html#linkfunc.
-    
+
                     InterfaceDefPtr parent = operationTarget->interface();
                     return getUnqualified(parent->mappedScoped() + "Prx", source->mappedScope()) +
                            "::" + operationTarget->mappedName();
@@ -278,7 +278,7 @@ namespace
                 {
                     return typeToString(builtinTarget, false);
                 }
-    
+
                 ContainedPtr containedTarget = dynamic_pointer_cast<Contained>(target);
                 assert(containedTarget);
                 return getUnqualified(containedTarget->mappedScoped(), source->mappedScope());

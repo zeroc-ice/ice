@@ -110,13 +110,14 @@ namespace
         {
             ostringstream result;
             result << "<see ";
-    
+
             if (target)
             {
                 if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
                 {
                     string typeS = CsGenerator::typeToString(builtinTarget, "");
-                    if (builtinTarget->kind() == Builtin::KindObjectProxy || builtinTarget->kind() == Builtin::KindValue)
+                    if (builtinTarget->kind() == Builtin::KindObjectProxy ||
+                        builtinTarget->kind() == Builtin::KindValue)
                     {
                         // Remove trailing '?':
                         typeS.pop_back();
@@ -133,7 +134,7 @@ namespace
                     // TODO: remove once mappedScope() is fixed.
                     string sourceScope = source->mappedScope(".").substr(1);
                     sourceScope.pop_back();
-    
+
                     result << "cref=\"";
                     if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
                     {
@@ -175,7 +176,7 @@ namespace
                 }
                 result << "cref=\"" << targetS << "\"";
             }
-    
+
             result << " />";
             return result.str();
         }
