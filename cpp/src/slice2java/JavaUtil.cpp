@@ -182,8 +182,7 @@ Slice::JavaDocCommentFormatter::formatLink(const string& rawLink, const Containe
                 auto parent = dynamic_pointer_cast<Contained>(fieldTarget->container());
                 assert(parent);
 
-                result << JavaGenerator::getUnqualified(parent, sourceScope) << "#"
-                        << fieldTarget->mappedName();
+                result << JavaGenerator::getUnqualified(parent, sourceScope) << "#" << fieldTarget->mappedName();
             }
             else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
             {

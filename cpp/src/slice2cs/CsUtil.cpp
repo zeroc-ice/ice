@@ -32,8 +32,7 @@ Slice::CsDocCommentFormatter::formatLink(const string& rawLink, const ContainedP
         if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
         {
             string typeS = CsGenerator::typeToString(builtinTarget, "");
-            if (builtinTarget->kind() == Builtin::KindObjectProxy ||
-                builtinTarget->kind() == Builtin::KindValue)
+            if (builtinTarget->kind() == Builtin::KindObjectProxy || builtinTarget->kind() == Builtin::KindValue)
             {
                 // Remove trailing '?':
                 typeS.pop_back();
