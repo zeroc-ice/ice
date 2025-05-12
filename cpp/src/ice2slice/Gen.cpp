@@ -12,32 +12,54 @@ using namespace IceInternal;
 
 namespace
 {
-    static string getCSharpNamespace(const ContainedPtr& cont, bool& hasCSharpNamespaceAttribute)
+    static void writeCsIdentifier(const ContainedPtr& cont, Output& out)
+    {
+        // Modules are not allowed to have a cs::identifier attribute in IceRPC Slice.
+        // they are handled separately in the getOutput function.
+        assert(!dynamic_pointer_cast<Module>(cont));
+
+        if (auto metadata = cont->getMetadataArgs("cs:identifier"))
+        {
+            out << nl << "[cs::identifier(\"" << *metadata << "\")]";
+        }
+    }
+
+    static string getCSharpMappedName(const ContainedPtr& cont)
+    {
+        if (auto metadata = cont->getMetadataArgs("cs:identifier"))
+        {
+            return *metadata;
+        }
+        else
+        {
+            return cont->name();
+        }
+    }
+
+    static string getCSharpMappedScoped(const ContainedPtr& cont, const string& separator);
+
+    static string getCSharpMappedScope(const ContainedPtr& cont, const string& separator)
+    {
+        string scoped;
+        auto container = std::dynamic_pointer_cast<Contained>(cont->container());
+        if (container)
+        {
+            scoped = getCSharpMappedScoped(container, separator);
+        }
+        return scoped + separator;
+    }
+
+    static string getCSharpMappedScoped(const ContainedPtr& cont, const string& separator)
+    {
+        return getCSharpMappedScope(cont, separator) + getCSharpMappedName(cont);
+    }
+
+    static string getCSharpNamespacePrefix(const ContainedPtr& cont)
     {
         // Traverse to the top-level module.
         ContainedPtr p = cont;
-        string csharpNamespace;
-        hasCSharpNamespaceAttribute = false;
         while (true)
         {
-            if (dynamic_pointer_cast<Module>(p))
-            {
-                if (csharpNamespace.empty())
-                {
-                    csharpNamespace = p->mappedName();
-                }
-                else
-                {
-                    csharpNamespace = p->mappedName() + "." + csharpNamespace;
-                }
-
-                if (auto metadata = p->getMetadataArgs("cs:identifier"))
-                {
-                    hasCSharpNamespaceAttribute = true;
-                    return *metadata;
-                }
-            }
-
             if (p->isTopLevel())
             {
                 break;
@@ -49,12 +71,30 @@ namespace
 
         if (auto metadata = p->getMetadataArgs("cs:namespace"))
         {
-            hasCSharpNamespaceAttribute = true;
-            return *metadata + "." + csharpNamespace;
+            return *metadata;
         }
         else
         {
-            return csharpNamespace;
+            return "";
+        }
+    }
+
+    static string getCSharpNamespace(const ContainedPtr& cont, bool& hasModuleRemapping)
+    {
+        // Module remapping is required if the module has a cs:namespace attribute or any of the modules has
+        // a cs:identifier
+        string csNamespacePrefix = getCSharpNamespacePrefix(cont);
+        hasModuleRemapping = !csNamespacePrefix.empty() || cont->scope() != getCSharpMappedScope(cont, "::");
+
+        string csMappedScope = getCSharpMappedScope(cont, ".").substr(1);
+        csMappedScope = csMappedScope.substr(0, csMappedScope.size() - 1); // Remove the trailing "."
+        if (csNamespacePrefix.empty())
+        {
+            return csMappedScope;
+        }
+        else
+        {
+            return csNamespacePrefix + "." + csMappedScope;
         }
     }
 
@@ -158,10 +198,13 @@ namespace
         ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
         if (contained)
         {
-            bool hasCSharpNamespaceAttribute;
-            string csharpNamespace = getCSharpNamespace(contained, hasCSharpNamespaceAttribute);
-
-            os << csharpNamespace << "." << contained->name();
+            string csNamespacePrefix = getCSharpNamespacePrefix(contained);
+            string scoped = getCSharpMappedScoped(contained, ".").substr(1);
+            if (!csNamespacePrefix.empty())
+            {
+                os << csNamespacePrefix << ".";
+            }
+            os << scoped;
             InterfaceDeclPtr interface = dynamic_pointer_cast<InterfaceDecl>(contained);
             if (interface)
             {
@@ -180,10 +223,16 @@ namespace
     string paramToString(const ParameterPtr& param, const string& scope, bool includeParamName = true)
     {
         ostringstream os;
+        if (auto identifier = param->getMetadataArgs("cs:identifier"))
+        {
+            os << "[cs::identifier(\"" << *identifier << "\")] ";
+        }
+
         if (param->optional())
         {
             os << "tag(" << param->tag() << ") ";
         }
+
         if (includeParamName)
         {
             os << param->name() << ": ";
@@ -323,6 +372,7 @@ namespace
         for (const auto& member : dataMembers)
         {
             writeDocComment(member, out);
+            writeCsIdentifier(member, out);
             out << nl;
             if (member->optional())
             {
@@ -447,6 +497,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(p, out);
+    writeCsIdentifier(p, out);
     out << nl << "interface " << p->name();
     if (bases.size() > 0)
     {
@@ -469,6 +520,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         OperationPtr op = *q;
         writeDocComment(op, out);
+        writeCsIdentifier(op, out);
         if (op->hasMetadata("marshaled-result"))
         {
             out << nl << "[cs::encodedReturn]";
@@ -549,6 +601,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     out << sp;
     writeDocComment(p, out);
+    writeCsIdentifier(p, out);
     out << nl << "exception " << p->name();
     if (ExceptionPtr base = p->base())
     {
@@ -572,6 +625,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     out << sp;
     writeDocComment(p, out);
+    writeCsIdentifier(p, out);
     out << nl << "compact struct " << p->name() << " {";
     out.inc();
 
@@ -653,6 +707,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp;
     writeDocComment(p, out);
+    writeCsIdentifier(p, out);
     out << nl << "enum " << p->name() << " {";
     out.inc();
 
@@ -715,11 +770,11 @@ Gen::TypesVisitor::getOutput(const ContainedPtr& contained)
         *out << nl << "mode = Slice1";
         *out << nl;
 
-        bool hasCSharpNamespaceAttribute;
-        string csharpNamespace = getCSharpNamespace(contained, hasCSharpNamespaceAttribute);
-        if (hasCSharpNamespaceAttribute)
+        bool hasModuleRemapping;
+        string csNamespace = getCSharpNamespace(contained, hasModuleRemapping);
+        if (hasModuleRemapping)
         {
-            *out << nl << "[cs::namespace(\"" << csharpNamespace << "\")]";
+            *out << nl << "[cs::namespace(\"" << csNamespace << "\")]";
         }
 
         // The module name is the scoped named without the start and end scope operator '::'
