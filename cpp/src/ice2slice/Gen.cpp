@@ -43,7 +43,7 @@ namespace
     static string getCsMappedScope(const ContainedPtr& cont, const string& separator)
     {
         string scoped;
-        auto container = std::dynamic_pointer_cast<Contained>(cont->container());
+        auto container = dynamic_pointer_cast<Contained>(cont->container());
         if (container)
         {
             scoped = getCsMappedScoped(container, separator);
