@@ -14,7 +14,7 @@ namespace Slice
     {
         [[nodiscard]] std::string
         formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) const final;
-        [[nodiscard]] virtual bool shouldStripMarkup() const { return true; }
+        [[nodiscard]] bool shouldStripMarkup() const final { return true; }
     };
 
     class Gen
