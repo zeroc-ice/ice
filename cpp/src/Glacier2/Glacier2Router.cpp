@@ -443,13 +443,12 @@ RouterService::usage(const string& appName)
                      "-h, --help           Show this message.\n"
                      "-v, --version        Display the Ice version.\n";
 #ifndef _WIN32
-    options.append(
-        "\n"
-        "\n"
-        "--daemon             Run as a daemon.\n"
-        "--pidfile FILE       Write process ID into FILE.\n"
-        "--noclose            Do not close open file descriptors.\n"
-        "--nochdir            Do not change the current working directory.\n");
+    options.append("\n"
+                   "\n"
+                   "--daemon             Run as a daemon.\n"
+                   "--pidfile FILE       Write process ID into FILE.\n"
+                   "--noclose            Do not close open file descriptors.\n"
+                   "--nochdir            Do not change the current working directory.\n");
 #endif
     print("Usage: " + appName + " [options]\n" + options);
 }
