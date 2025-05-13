@@ -13,7 +13,7 @@ WarningInvalidComment.ice:51: warning: '@param namess' does not correspond to an
 WarningInvalidComment.ice:51: warning: ignoring duplicate doc-comment tag: '@return'
 WarningInvalidComment.ice:51: warning: '@throws SomeOtherException': this exception is not listed in nor derived from any exception in this operation's specification
 WarningInvalidComment.ice:51: warning: ignoring duplicate doc-comment tag: '@throws CommentDummy'
-WarningInvalidComment.ice:26: warning: ignoring unknown doc tag '@remark' in comment
+WarningInvalidComment.ice:26: warning: ignoring unknown doc tag '@something' in comment
 WarningInvalidComment.ice:26: warning: '@see' tags cannot span multiple lines and must be of the form: '@see identifier'
 WarningInvalidComment.ice:26: warning: ignoring unknown doc tag '@bad' in comment
 WarningInvalidComment.ice:30: warning: ignoring duplicate doc-comment tag: '@deprecated'
