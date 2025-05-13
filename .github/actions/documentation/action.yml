@@ -86,7 +86,7 @@ runs:
 
         aws s3 sync ./csharp/docfx/_site s3://${AWS_S3_CODE_BUCKET}/ice/main/api/csharp --delete
 
-        aws s3 sync ./js/docs s3://${AWS_S3_CODE_BUCKET}/ice/main/api/js --delete
+        aws s3 sync ./js/docs s3://${AWS_S3_CODE_BUCKET}/ice/main/api/javascript --delete
 
         aws s3 sync ./python/docs/_build/html s3://${AWS_S3_CODE_BUCKET}/ice/main/api/python --delete
 
