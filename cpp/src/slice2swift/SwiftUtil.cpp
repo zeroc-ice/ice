@@ -65,8 +65,6 @@ namespace
 string
 Slice::getSwiftModule(const ModulePtr& module, string& swiftPrefix)
 {
-    assert(module);
-
     string swiftModule;
     if (auto argument = module->getMetadataArgs("swift:module"))
     {
@@ -959,7 +957,6 @@ SwiftGenerator::writeMembers(
              dynamic_pointer_cast<Dictionary>(type)))
         {
             ModulePtr topLevelModule = (dynamic_pointer_cast<Contained>(type))->getTopLevelModule();
-            assert(topLevelModule);
             alias = removeEscaping(topLevelModule->mappedName()) + "_" + removeEscaping(memberType);
             out << nl << "typealias " << alias << " = " << memberType;
         }
@@ -1124,7 +1121,6 @@ SwiftGenerator::writeMarshalUnmarshalCode(
             if (memberType == memberName)
             {
                 ModulePtr topLevelModule = cl->getTopLevelModule();
-                assert(topLevelModule);
                 alias = removeEscaping(topLevelModule->mappedName()) + "_" + removeEscaping(memberType);
                 out << nl << "typealias " << alias << " = " << memberType;
             }

@@ -2378,9 +2378,7 @@ Slice::Python::generate(const UnitPtr& unit, bool all, const vector<string>& inc
 string
 Slice::Python::getPackageMetadata(const ContainedPtr& cont)
 {
-    // Traverse to the top-level module.
     ModulePtr topLevelModule = cont->getTopLevelModule();
-    assert(topLevelModule);
 
     // The python:package metadata can be defined as file metadata or applied to a top-level module.
     // We check for the metadata at the top-level module first and then fall back to the global scope.

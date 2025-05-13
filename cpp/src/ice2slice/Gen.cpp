@@ -50,8 +50,6 @@ namespace
     static string getCsMappedNamespace(const ContainedPtr& cont)
     {
         ModulePtr topLevelModule = cont->getTopLevelModule();
-        assert(topLevelModule);
-
         string csMappedScope = getCsMappedScope(cont).substr(1);
         csMappedScope = csMappedScope.substr(0, csMappedScope.size() - 1); // Remove the trailing "."
 

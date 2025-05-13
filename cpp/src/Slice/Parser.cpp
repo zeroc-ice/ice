@@ -972,13 +972,14 @@ Slice::Contained::getTopLevelModule() const
     while (!p->isTopLevel())
     {
         p = dynamic_pointer_cast<Contained>(p->container());
-        assert(p);
     }
 
     // By the time we reach here, 'p' must be a top-level element; we cast it to a module.
     // Note that this cast can fail for elements erroneously defined outside of a module!
     // However, these are guaranteed not to exist after the parsing stage has completed.
-    return dynamic_pointer_cast<Module>(p);
+    ModulePtr topLevelModule = dynamic_pointer_cast<Module>(p);
+    assert(topLevelModule);
+    return topLevelModule;
 }
 
 string

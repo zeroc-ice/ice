@@ -320,9 +320,7 @@ Slice::JavaGenerator::output() const
 string
 Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& contained)
 {
-    // Traverse to the top-level module.
     ModulePtr topLevelModule = contained->getTopLevelModule();
-    assert(topLevelModule);
 
     // The 'java:package' metadata can be defined as file metadata or applied to a top-level module.
     // We check for the metadata at the top-level module first and then fall back to the global scope.
