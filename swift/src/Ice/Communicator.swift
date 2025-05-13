@@ -41,14 +41,14 @@ public protocol Communicator: AnyObject {
     /// "some_host", port 10000. If the stringified proxy does not parse correctly, the operation throws ParseException.
     /// Refer to the Ice manual for a detailed description of the syntax supported by stringified proxies.
     ///
-    /// - parameter _: `String` The stringified proxy to convert into a proxy.
+    /// - parameter str: `String` The stringified proxy to convert into a proxy.
     ///
     /// - returns: `ObjectPrx?` - The proxy, or nil if str is an empty string.
     func stringToProxy(_ str: String) throws -> ObjectPrx?
 
     /// Convert a proxy into a string.
     ///
-    /// - parameter _: `ObjectPrx?` The proxy to convert into a stringified proxy.
+    /// - parameter obj: `ObjectPrx?` The proxy to convert into a stringified proxy.
     ///
     /// - returns: `String` - The stringified proxy, or an empty string if
     /// obj is nil.
@@ -59,7 +59,7 @@ public protocol Communicator: AnyObject {
     /// Additional properties configure local settings for the proxy, such as MyProxy.PreferSecure=1. The
     /// "Properties" appendix in the Ice manual describes each of the supported proxy properties.
     ///
-    /// - parameter _: `String` The base property name.
+    /// - parameter property: `String` The base property name.
     ///
     /// - returns: `ObjectPrx?` - The proxy.
     func propertyToProxy(_ property: String) throws -> ObjectPrx?
@@ -75,7 +75,7 @@ public protocol Communicator: AnyObject {
 
     /// Convert an identity into a string.
     ///
-    /// - parameter _: `Identity` The identity to convert into a string.
+    /// - parameter ident: `Identity` The identity to convert into a string.
     ///
     /// - returns: `String` - The "stringified" identity.
     func identityToString(_ ident: Identity) -> String
@@ -87,7 +87,7 @@ public protocol Communicator: AnyObject {
     /// by the adapter. Attempts to create a named object adapter for which no configuration can be found raise
     /// InitializationException.
     ///
-    /// - parameter _: `String` The object adapter name.
+    /// - parameter name: `String` The object adapter name.
     ///
     /// - returns: `ObjectAdapter` - The new object adapter.
     func createObjectAdapter(_ name: String) throws -> ObjectAdapter
@@ -155,7 +155,7 @@ public protocol Communicator: AnyObject {
     /// You can also set a router for an individual proxy by calling the operation ice_router on the
     /// proxy.
     ///
-    /// - parameter _: `RouterPrx?` The default router to use for this communicator.
+    /// - parameter rtr: `RouterPrx?` The default router to use for this communicator.
     func setDefaultRouter(_ rtr: RouterPrx?)
 
     /// Get the default locator for this communicator.
@@ -169,14 +169,14 @@ public protocol Communicator: AnyObject {
     /// You can also set a locator for an individual proxy by calling the operation ice_locator on the
     /// proxy, or for an object adapter by calling ObjectAdapter.setLocator on the object adapter.
     ///
-    /// - parameter _: `LocatorPrx?` The default locator to use for this communicator.
+    /// - parameter loc: `LocatorPrx?` The default locator to use for this communicator.
     func setDefaultLocator(_ loc: LocatorPrx?)
 
     /// Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
     /// for all connections associated with the communicator. Any errors that occur while flushing a connection are
     /// ignored.
     ///
-    /// - parameter _: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
+    /// - parameter compress: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
     /// being sent over the wire.
     func flushBatchRequests(
         _ compress: CompressBatch
@@ -216,7 +216,7 @@ public protocol Communicator: AnyObject {
     /// Remove the following facet to the Admin object. Removing a facet that was not previously registered throws
     /// NotRegisteredException.
     ///
-    /// - parameter _: `String` The name of the Admin facet.
+    /// - parameter facet: `String` The name of the Admin facet.
     ///
     /// - returns: `Dispatcher` - The servant associated with this Admin facet.
     @discardableResult
@@ -224,7 +224,7 @@ public protocol Communicator: AnyObject {
 
     /// Returns a facet of the Admin object.
     ///
-    /// - parameter _: `String` The name of the Admin facet.
+    /// - parameter facet: `String` The name of the Admin facet.
     ///
     /// - returns: `Dispatcher?` - The servant associated with this Admin facet, or null if no facet is registered with the
     /// given name.

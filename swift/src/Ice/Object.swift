@@ -29,7 +29,7 @@ public protocol Object {
 
     /// Tests whether this object supports a specific Slice interface.
     ///
-    /// - parameter s: `String` - The type ID of the Slice interface to test against.
+    /// - parameter id: `String` - The type ID of the Slice interface to test against.
     ///
     /// - parameter current: `Ice.Current` - The Current object for the dispatch.
     ///

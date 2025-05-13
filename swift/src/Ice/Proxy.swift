@@ -17,7 +17,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
     /// Creates a new proxy that is identical to this proxy, except for the identity.
     ///
-    /// - parameter _: `Ice.Identity` - The identity for the new proxy.
+    /// - parameter id: `Ice.Identity` - The identity for the new proxy.
     ///
     /// - returns: A proxy with the new identity.
     func ice_identity(_ id: Identity) -> Self
@@ -29,7 +29,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
     /// Creates a new proxy that is identical to this proxy, except for the per-proxy context.
     ///
-    /// - parameter newContext: `Ice.Context` - The context for the new proxy.
+    /// - parameter context: `Ice.Context` - The context for the new proxy.
     ///
     /// - returns: The proxy with the new per-proxy context.
     func ice_context(_ context: Context) -> Self
@@ -42,7 +42,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
     /// Creates a new proxy that is identical to this proxy, except for the facet.
     ///
-    /// - parameter _: `String` - The facet for the new proxy.
+    /// - parameter facet: `String` - The facet for the new proxy.
     ///
     /// - returns: `Ice.ObjectPrx` - The proxy with the new facet.
     func ice_facet(_ facet: String) -> ObjectPrx
@@ -55,7 +55,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
     /// Creates a new proxy that is identical to this proxy, except for the adapter ID.
     ///
-    /// - parameter _: `String` - The adapter ID for the new proxy.
+    /// - parameter id: `String` - The adapter ID for the new proxy.
     ///
     /// - returns: The proxy with the new adapter ID.
     func ice_adapterId(_ id: String) -> Self
@@ -67,7 +67,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
     /// Creates a new proxy that is identical to this proxy, except for the endpoints.
     ///
-    /// - parameter _: `EndpointSeq` - The endpoints for the new proxy.
+    /// - parameter endpoints: `EndpointSeq` - The endpoints for the new proxy.
     ///
     /// - returns: The proxy with the new endpoints.
     func ice_endpoints(_ endpoints: EndpointSeq) -> Self
@@ -79,7 +79,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
     /// Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
     ///
-    /// - parameter _: `Int32` - The new locator cache timeout (in seconds).
+    /// - parameter timeout: `Int32` - The new locator cache timeout (in seconds).
     ///
     /// - returns: A new proxy with the specified cache timeout.
     func ice_locatorCacheTimeout(_ timeout: Int32) -> Self
@@ -91,7 +91,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     ///
-    /// - parameter _: `Int32` - The new invocation timeout (in seconds).
+    /// - parameter timeout: `Int32` - The new invocation timeout (in seconds).
     ///
     /// - returns: A new proxy with the specified invocation timeout.
     func ice_invocationTimeout(_ timeout: Int32) -> Self
@@ -103,7 +103,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
     /// Creates a new proxy that is identical to this proxy, except for its connection ID.
     ///
-    /// - parameter _: `String` - The connection ID for the new proxy. An empty string removes the
+    /// - parameter id: `String` - The connection ID for the new proxy. An empty string removes the
     ///   connection ID.
     ///
     /// - returns: A new proxy with the specified connection ID.
@@ -116,7 +116,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
     /// Creates a new proxy that is identical to this proxy, except for connection caching.
     ///
-    /// - parameter _: `Bool` - True if the new proxy should cache connections; false, otherwise.
+    /// - parameter cached: `Bool` - True if the new proxy should cache connections; false, otherwise.
     ///
     /// - returns: The new proxy with the specified caching policy.
     func ice_connectionCached(_ cached: Bool) -> Self
@@ -128,7 +128,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
     /// Creates a new proxy that is identical to this proxy, except for the endpoint selection policy.
     ///
-    /// - parameter _: `Ice.EndpointSelectionType` - The new endpoint selection policy.
+    /// - parameter type: `Ice.EndpointSelectionType` - The new endpoint selection policy.
     ///
     /// - returns: The new proxy with the specified endpoint selection policy.
     func ice_endpointSelection(_ type: EndpointSelectionType) -> Self
@@ -141,7 +141,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     /// Creates a new proxy that is identical to this proxy, except for the encoding used to marshal
     /// parameters.
     ///
-    /// - parameter _: `Ice.EncodingVersion` - The encoding version to use to marshal requests parameters.
+    /// - parameter encoding: `Ice.EncodingVersion` - The encoding version to use to marshal requests parameters.
     ///
     /// - returns: The new proxy with the specified encoding version.
     func ice_encodingVersion(_ encoding: EncodingVersion) -> Self
@@ -167,7 +167,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
     /// Creates a new proxy that is identical to this proxy, except for the locator.
     ///
-    /// - parameter _: `Ice.LocatorPrx` The locator for the new proxy.
+    /// - parameter locator: `Ice.LocatorPrx` The locator for the new proxy.
     ///
     /// - returns: The new proxy with the specified locator.
     func ice_locator(_ locator: LocatorPrx?) -> Self
@@ -179,7 +179,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
     /// Creates a new proxy that is identical to this proxy, except for how it selects endpoints.
     ///
-    /// - parameter _: `Bool` - If true only endpoints that use a secure transport are used by the new proxy.
+    /// - parameter secure: `Bool` - If true only endpoints that use a secure transport are used by the new proxy.
     ///   otherwise the returned proxy uses both secure and insecure endpoints.
     ///
     /// - returns: The new proxy with the specified selection policy.
@@ -193,7 +193,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
     /// Creates a new proxy that is identical to this proxy, except for its endpoint selection policy.
     ///
-    /// - parameter _: `Bool` - If true, the new proxy will use secure endpoints for invocations
+    /// - parameter preferSecure: `Bool` - If true, the new proxy will use secure endpoints for invocations
     ///   and only use insecure endpoints if an invocation cannot be made via secure endpoints. Otherwise
     ///   the proxy prefers insecure endpoints to secure ones.
     ///
@@ -258,7 +258,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
     /// Creates a new proxy that is identical to this proxy, except for compression.
     ///
-    /// - parameter _: `Bool` - True enables compression for the new proxy; false disables compression.
+    /// - parameter compress: `Bool` - True enables compression for the new proxy; false disables compression.
     ///
     /// - returns: A new proxy with the specified compression setting.
     func ice_compress(_ compress: Bool) -> Self
@@ -266,7 +266,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     /// Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
     /// to the given connection.
     ///
-    /// - parameter _: `Ice.Connection` - The fixed proxy connection.
+    /// - parameter connection: `Ice.Connection` - The fixed proxy connection.
     ///
     /// - returns: A fixed proxy bound to the given connection.
     func ice_fixed(_ connection: Connection) -> Self
@@ -295,7 +295,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
     /// Creates a new proxy that is identical to this proxy, except for collocation optimization.
     ///
-    /// - parameter _: `Bool` - True if the new proxy enables collocation optimization; false, otherwise.
+    /// - parameter collocated: `Bool` - True if the new proxy enables collocation optimization; false, otherwise.
     ///
     /// - returns: The new proxy the specified collocation optimization.
     func ice_collocationOptimized(_ collocated: Bool) -> Self

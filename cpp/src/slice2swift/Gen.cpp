@@ -716,7 +716,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "/// Write a `" << unescapedName << "` sequence to the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter ostr: The stream to write to.";
-    out << nl << "/// - Parameter value: The sequence value to write to the stream.";
+    out << nl << "/// - Parameter v: The sequence value to write to the stream.";
     out << nl << "public static func write(to ostr: " << ostr << ", value v: " << name << ")";
     out << sb;
     out << nl << "ostr.write(size: v.count)";
@@ -732,7 +732,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "/// - Parameters:";
     out << nl << "///   - ostr: The stream to write to.";
     out << nl << "///   - tag: The numeric tag associated with the value.";
-    out << nl << "///   - value: The sequence value to write to the stream.";
+    out << nl << "///   - v: The sequence value to write to the stream.";
     out << nl << "public static func write(to ostr: " << ostr << ",  tag: Swift.Int32, value v: " << name << "?)";
     out << sb;
     out << nl << "guard let val = v else";
@@ -872,7 +872,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "/// Write a `" << unescapedName << "` dictionary to the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter ostr: The stream to write to.";
-    out << nl << "/// - Parameter value: The dictionary value to write to the stream.";
+    out << nl << "/// - Parameter v: The dictionary value to write to the stream.";
     out << nl << "public static func write(to ostr: " << ostr << ", value v: " << name << ")";
     out << sb;
     out << nl << "ostr.write(size: v.count)";
@@ -889,7 +889,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "/// - Parameters:";
     out << nl << "///   - ostr: The stream to write to.";
     out << nl << "///   - tag: The numeric tag associated with the value.";
-    out << nl << "///   - value: The dictionary value to write to the stream.";
+    out << nl << "///   - v: The dictionary value to write to the stream.";
     out << nl << "public static func write(to ostr: " << ostr << ", tag: Swift.Int32, value v: " << name << "?)";
     out << sb;
     out << nl << "guard let val = v else";

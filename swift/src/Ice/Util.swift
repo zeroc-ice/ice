@@ -5,7 +5,7 @@ import IceImpl
 
 /// Converts a string to an encoding version.
 ///
-/// - parameter _: `String` - The string to convert.
+/// - parameter s: `String` - The string to convert.
 ///
 /// - returns: `Ice.EncodingVersion` - The converted encoding version.</returns>
 func stringToEncodingVersion(_ s: String) throws -> EncodingVersion {
