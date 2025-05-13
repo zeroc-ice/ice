@@ -772,7 +772,11 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generated
         writeDocLines(_out, "summary", comment->overview());
     }
 
-    StringList remarks = comment->remarks();
+    StringList remarks;
+    if (comment)
+    {
+        remarks = comment->remarks();
+    }
     if (!generatedType.empty())
     {
         remarks.push_back("");
@@ -784,7 +788,7 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generated
     }
     if (!remarks.empty())
     {
-        writeDocLines(_out, "remarks", comment->remarks());
+        writeDocLines(_out, "remarks", remarks);
     }
 
     if (comment)
