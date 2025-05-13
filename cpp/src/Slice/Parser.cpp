@@ -507,6 +507,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
     const string throwsTag = "@throws";
     const string exceptionTag = "@exception";
     const string remarkTag = "@remark";
+    const string remarksTag = "@remarks";
     const string seeTag = "@see";
     const string returnTag = "@return";
     const string deprecatedTag = "@deprecated";
@@ -607,7 +608,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 }
             }
         }
-        else if (parseCommentLine(line, remarkTag, lineText))
+        else if (parseCommentLine(line, remarkTag, lineText) || parseCommentLine(line, remarksTag, lineText))
         {
             currentSection = &(comment._remarks);
         }

@@ -783,7 +783,9 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generated
         {
             remarks.push_back("");
         }
-        remarks.push_back("The Slice compiler generated this " + generatedType + " from Slice " + p->kindOf() + " <c>" + p->scoped() + "</c>.");
+        remarks.push_back(
+            "The Slice compiler generated this " + generatedType + " from Slice " + p->kindOf() + " <c>" + p->scoped() +
+            "</c>.");
         if (!notes.empty())
         {
             remarks.push_back(notes);
