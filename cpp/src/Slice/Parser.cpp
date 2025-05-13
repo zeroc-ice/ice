@@ -506,6 +506,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
     const string paramTag = "@param";
     const string throwsTag = "@throws";
     const string exceptionTag = "@exception";
+    const string remarksTag = "@remarks";
     const string seeTag = "@see";
     const string returnTag = "@return";
     const string deprecatedTag = "@deprecated";
@@ -605,6 +606,10 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                     }
                 }
             }
+        }
+        else if (parseCommentLine(line, remarksTag, lineText))
+        {
+            currentSection = &(comment._remarks);
         }
         else if (parseCommentLine(line, seeTag, lineText))
         {
@@ -713,6 +718,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
     }
 
     trimLines(comment._overview);
+    trimLines(comment._remarks);
     trimLines(comment._deprecated);
     trimLines(comment._returns);
 
@@ -735,6 +741,12 @@ StringList
 Slice::DocComment::overview() const
 {
     return _overview;
+}
+
+StringList
+Slice::DocComment::remarks() const
+{
+    return _remarks;
 }
 
 StringList
