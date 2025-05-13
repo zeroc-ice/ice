@@ -772,15 +772,19 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generated
         writeDocLines(_out, "summary", comment->overview());
     }
 
+    StringList remarks = comment->remarks();
     if (!generatedType.empty())
     {
-        _out << nl << "/// <remarks>" << "The Slice compiler generated this " << generatedType << " from Slice "
-             << p->kindOf() << " <c>" << p->scoped() << "</c>.";
+        remarks.push_back("");
+        remarks.push_back("The Slice compiler generated this " + generatedType + " from Slice " + p->kindOf() + " <c>" + p->scoped() + "</c>.");
         if (!notes.empty())
         {
-            _out << nl << "/// " << notes;
+            remarks.push_back(notes);
         }
-        _out << "</remarks>";
+    }
+    if (!remarks.empty())
+    {
+        writeDocLines(_out, "remarks", comment->remarks());
     }
 
     if (comment)
@@ -851,6 +855,8 @@ Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>
 
         writeDocLines(_out, openTag.str(), exceptionLines, "exception");
     }
+
+    writeDocLines(_out, "remarks", comment->remarks());
 
     writeSeeAlso(_out, comment->seeAlso());
 }

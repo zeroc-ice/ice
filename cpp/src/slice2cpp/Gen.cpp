@@ -388,6 +388,14 @@ namespace
             writeDocLines(out, doc->overview(), true);
         }
 
+        const auto& remarks = doc->remarks();
+        if (!remarks.empty())
+        {
+            out << nl << "///";
+            out << nl << "/// @remarks ";
+            writeDocLines(out, remarks, true);
+        }
+
         if (!doc->seeAlso().empty())
         {
             writeSeeAlso(out, doc->seeAlso());
@@ -556,6 +564,14 @@ namespace
         if (showExceptions)
         {
             writeOpDocExceptions(out, op, doc);
+        }
+
+        const auto& remarks = doc.remarks();
+        if (!remarks.empty())
+        {
+            out << nl << "///";
+            out << nl << "/// @remarks ";
+            writeDocLines(out, remarks, true);
         }
 
         const auto& seeAlso = doc.seeAlso();
