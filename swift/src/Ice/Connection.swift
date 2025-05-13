@@ -45,16 +45,16 @@ extension InputStream {
 extension OutputStream {
     /// Writes an enumerated value to the stream.
     ///
-    /// parameter v: `CompressBatch` - The enumerator to write.
+    /// - parameter v: `CompressBatch` - The enumerator to write.
     public func write(_ v: CompressBatch) {
         write(enum: v.rawValue, maxValue: 2)
     }
 
     /// Writes an optional enumerated value to the stream.
     ///
-    /// parameter tag: `Int32` - The numeric tag associated with the value.
+    /// - parameter tag: `Int32` - The numeric tag associated with the value.
     ///
-    /// parameter value: `CompressBatch` - The enumerator to write.
+    /// - parameter value: `CompressBatch` - The enumerator to write.
     public func write(tag: Int32, value: CompressBatch?) {
         guard let v = value else {
             return
