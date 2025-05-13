@@ -22,27 +22,59 @@ using namespace IceInternal;
 namespace
 {
     /// Returns a JsDoc formatted link to the provided Slice identifier.
-    /// TODO: this is temporary and will be replaced when we add 'js:identifier' support.
-    string jsLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    string jsLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
     {
-        string result = "{@link ";
-
-        auto hashPos = rawLink.find('#');
-        if (hashPos != string::npos)
+        ostringstream result;
+        result << "{@link ";
+        if (target)
         {
-            // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link.
-            if (hashPos != 0)
+            if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
             {
-                result += rawLink.substr(0, hashPos);
-                result += "#";
+                result << JsGenerator::typeToJsString(builtinTarget, true);
             }
-            result += rawLink.substr(hashPos + 1);
+            else
+            {
+                if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
+                {
+                    string targetScoped = operationTarget->interface()->mappedScoped(".").substr(1);
+
+                    // link to the method on the proxy interface
+                    result << targetScoped << "Prx." << operationTarget->mappedName();
+                }
+                else
+                {
+                    string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".").substr(1);
+                    if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+                    {
+                        // link to the proxy interface
+                        result << targetScoped << "Prx";
+                    }
+                    else
+                    {
+                        result << targetScoped;
+                    }
+                }
+            }
         }
         else
         {
-            result += rawLink;
+            auto hashPos = rawLink.find('#');
+            if (hashPos != string::npos)
+            {
+                // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link.
+                if (hashPos != 0)
+                {
+                    result << rawLink.substr(0, hashPos) << "#";
+                }
+                result << rawLink.substr(hashPos + 1);
+            }
+            else
+            {
+                result << rawLink;
+            }
         }
-        return result + "}";
+        result << "}";
+        return result.str();
     }
 
     // Convert a path to a module name, e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz"
