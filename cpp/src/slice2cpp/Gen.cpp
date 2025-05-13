@@ -391,9 +391,8 @@ namespace
         const auto& remarks = doc->remarks();
         if (!remarks.empty())
         {
-            out << nl << "///";
             out << nl << "/// @remarks ";
-            writeDocLines(out, remarks, true);
+            writeDocLines(out, remarks, false);
         }
 
         if (!doc->seeAlso().empty())
@@ -569,9 +568,8 @@ namespace
         const auto& remarks = doc.remarks();
         if (!remarks.empty())
         {
-            out << nl << "///";
             out << nl << "/// @remarks ";
-            writeDocLines(out, remarks, true);
+            writeDocLines(out, remarks, false);
         }
 
         const auto& seeAlso = doc.seeAlso();
