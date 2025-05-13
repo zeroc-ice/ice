@@ -113,7 +113,8 @@ Slice::getJavaScriptModule(const DefinitionContextPtr& dc)
 }
 
 string
-Slice::JsDocCommentFormatter::formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target) const
+Slice::JsDocCommentFormatter::formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
+    const
 {
     ostringstream result;
     result << "{@link ";
