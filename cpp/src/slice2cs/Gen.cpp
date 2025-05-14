@@ -776,23 +776,25 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generated
 
     if (!generatedType.empty())
     {
-        const string typeMessage = "The Slice compiler generated this " + generatedType + " from Slice " + p->kindOf() +
-                                   " <c>" + p->scoped() + "</c>.";
-        if (remarks.empty())
+        // If there's user-provided remarks, and a generated-type message, we wrap both in separate '<para>' tags.
+        const bool hasUserRemarks = !remarks.empty();
+        if (hasUserRemarks)
         {
-            // If there were no user provided-remarks, just add the message normally.
-            remarks.push_back(typeMessage);
-            remarks.push_back(notes);
-        }
-        else
-        {
-            // If there's user-provided remarks, and a type message, we wrap both in separate '<para>' tags.
-            indentLines(remarks);
-            remarks.push_front("<para>");
+            remarks.push_front("<para>"); // 'push_front' to go in front of the user-provided remarks.
             remarks.push_back("</para>");
             remarks.push_back("<para>");
-            remarks.push_back("    " + typeMessage);
-            remarks.push_back("    " + notes);
+        }
+
+        remarks.push_back(
+            "The Slice compiler generated this " + generatedType + " from Slice " + p->kindOf() + " <c>" + p->scoped() +
+            "</c>.");
+        if (!notes.empty())
+        {
+            remarks.push_back(notes);
+        }
+
+        if (hasUserRemarks)
+        {
             remarks.push_back("</para>");
         }
     }
