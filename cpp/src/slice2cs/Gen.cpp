@@ -779,7 +779,7 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generated
         // If there's user-provided remarks, and a generated-type message, we introduce a paragraph between them.
         if (!remarks.empty())
         {
-            remarks.push_back("<para />");
+            remarks.emplace_back("<para />");
         }
 
         remarks.push_back(
