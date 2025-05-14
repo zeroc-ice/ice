@@ -782,6 +782,7 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generated
         {
             // If there were no user provided-remarks, just add the message normally.
             remarks.push_back(typeMessage);
+            remarks.push_back(notes);
         }
         else
         {
