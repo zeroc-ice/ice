@@ -3,15 +3,13 @@
 from typing import final
 
 @final
-class ObjectAdapter(object):
+class ObjectAdapter:
     """
     The object adapter provides an up-call interface from the Ice runtime to the implementation of Ice objects.
 
     The object adapter is responsible for receiving requests from endpoints, and for mapping between servants,
     identities, and proxies.
     """
-
-    __module__ = "Ice"
 
     def __init__(self, impl):
         self._impl = impl
@@ -212,11 +210,12 @@ class ObjectAdapter(object):
 
         1. The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
         2. If no servant has been found in the Active Servant Map, the object adapter tries to find a default servant
-        for the category component of the identity.
+           for the category component of the identity.
         3. If no servant has been found by any of the preceding steps, the object adapter tries to find a default servant
-        for an empty category, regardless of the category contained in the identity.
+           for an empty category, regardless of the category contained in the identity.
         4. If no servant has been found by any of the preceding steps, the object adapter gives up and the caller
-        receives `ObjectNotExistException` or `FacetNotExistException`.
+           receives `ObjectNotExistException` or `FacetNotExistException`.
+
 
         Parameters
         ----------
@@ -280,7 +279,7 @@ class ObjectAdapter(object):
 
         Returns
         -------
-        dict of str : Ice.Object
+        dict[str, Ice.Object]
             A collection containing all the facet names and servants of the removed Ice object.
         """
         return self._impl.removeAllFacets(id)
@@ -353,7 +352,7 @@ class ObjectAdapter(object):
 
         Returns
         -------
-        dict of str : Ice.Object
+        dict[str, Ice.Object]
             A dictionary containing all the facet names and servants that have been found, or an empty dictionary if
             there is no facet for the given identity.
         """
@@ -388,13 +387,13 @@ class ObjectAdapter(object):
 
         1. The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
         2. If no servant has been found in the Active Servant Map, the object adapter tries to find a servant locator
-        for the category component of the identity. If a locator is found, the object adapter tries to find a servant
-        using this locator.
+           for the category component of the identity. If a locator is found, the object adapter tries to find a servant
+           using this locator.
         3. If no servant has been found by any of the preceding steps, the object adapter tries to find a locator for
-        an empty category, regardless of the category contained in the identity. If a locator is found, the object
-        adapter tries to find a servant using this locator.
+           an empty category, regardless of the category contained in the identity. If a locator is found, the object
+           adapter tries to find a servant using this locator.
         4. If no servant has been found by any of the preceding steps, the object adapter gives up and the caller
-        receives `ObjectNotExistException` or `FacetNotExistException`.
+           receives `ObjectNotExistException` or `FacetNotExistException`.
 
         Only one locator for the empty category can be installed.
 

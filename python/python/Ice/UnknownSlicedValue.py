@@ -3,8 +3,6 @@
 from .Value import Value
 import IcePy
 
-__name__ = "Ice"
-
 class UnknownSlicedValue(Value):
     """
     Unknown sliced value holds an instance of an unknown Slice class type.
@@ -19,7 +17,7 @@ class UnknownSlicedValue(Value):
         return self.unknownTypeId
 
 
-class SlicedData(object):
+class SlicedData:
     """
     Holds class slices that cannot be unmarshaled because their types are not known locally.
 
@@ -28,10 +26,11 @@ class SlicedData(object):
     slices : tuple of SliceInfo
         The details of each slice, in order of most-derived to least-derived.
     """
+
     pass
 
 
-class SliceInfo(object):
+class SliceInfo:
     """
     Encapsulates the details of a slice with an unknown type.
 
@@ -48,6 +47,7 @@ class SliceInfo(object):
     isLastSlice : bool
         Whether or not this is the last slice.
     """
+
     pass
 
 IcePy._t_UnknownSlicedValue = IcePy.defineValue(

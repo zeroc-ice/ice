@@ -1,8 +1,9 @@
 # Copyright (c) ZeroC, Inc.
 
-class LocalException(Exception):
-    """The base class for Ice run-time exceptions."""
+from .Exception import Exception as IceException
 
-    __module__ = "Ice"
+class LocalException(IceException):
+    """The base class for Ice run-time exceptions."""
+    pass
 
 __all__ = ["LocalException"]

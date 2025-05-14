@@ -1,13 +1,20 @@
 # Copyright (c) ZeroC, Inc.
 
-class Exception(Exception):  # Derives from built-in base 'Exception' class.
-    """The base class for all Ice exceptions."""
+from builtins import Exception as BuiltinsException
 
-    def __str__(self):
-        return self.__class__.__name__
+class Exception(BuiltinsException):
+    """
+    The base class for all Ice exceptions.
+    """
 
     def ice_id(self):
-        """Returns the type id of this exception."""
-        return self._ice_id
+        """
+        Returns the type ID of this exception. This corresponds to the Slice type ID for Slice-defined exceptions,
+        and to a similar fully scoped name for other exceptions. For example "::Ice::CommunicatorDestroyedException".
 
-    __module__ = "Ice"
+        Returns
+        -------
+        str
+            The type ID.
+        """
+        return self._ice_id

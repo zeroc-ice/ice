@@ -33,9 +33,7 @@ class Blobject(Object, ABC):
         -------
         tuple of (bool, bytes)
             A tuple containing:
-            - bool
-                True if the operation succeeded, False if it raised a user exception.
-            - bytes
-                The encoded form of the operation's results or the user exception.
+                - bool True if the operation succeeded, False if it raised a user exception.
+                - bytes The encoded form of the operation's results or the user exception.
         """
         pass

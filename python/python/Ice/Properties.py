@@ -3,14 +3,12 @@
 from typing import final
 
 @final
-class Properties(object):
+class Properties:
     """
     A property set used to configure Ice and Ice applications. Properties are key/value pairs, with both keys and
     values being strings. By convention, property keys should have the form
     application-name[.category[.sub-category]].name.
     """
-
-    __module__ = "Ice"
 
     def __init__(self, impl):
         self._impl = impl
@@ -205,7 +203,7 @@ class Properties(object):
 
         Returns
         -------
-        dict of str : str
+        dict[str, str]
             The matching property set with keys and values as strings.
         """
         return self._impl.getPropertiesForPrefix(prefix)

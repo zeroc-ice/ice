@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-class BatchRequestInterceptor(object):
+class BatchRequestInterceptor:
     """
     Base class for batch request interceptor.
 

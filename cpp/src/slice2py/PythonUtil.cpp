@@ -111,15 +111,15 @@ namespace
         SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
         if (seq)
         {
-            return typeToDocstring(seq->type(), false) + "[]";
+            return "list[" + typeToDocstring(seq->type(), false) + "]";
         }
 
         DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
         if (dict)
         {
             ostringstream os;
-            os << "dict where keys are " << typeToDocstring(dict->keyType(), false) << " and values are "
-               << typeToDocstring(dict->valueType(), false);
+            os << "dict[" << typeToDocstring(dict->keyType(), false) << ", "
+               << typeToDocstring(dict->valueType(), false) << "]";
             return os.str();
         }
 
@@ -2161,7 +2161,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         if (mode == DocSync || mode == DocAsync)
         {
             const string contextParamName = getEscapedParamName(op, "context");
-            _out << nl << contextParamName << " : Ice.Context";
+            _out << nl << contextParamName << " : dict[str, str]";
             _out << nl << "    The request context for the invocation.";
         }
 
@@ -2209,25 +2209,44 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 
         if (op->returnsMultipleValues())
         {
+            _out << nl;
             _out << nl << "    A tuple containing:";
             if (returnType)
             {
-                _out << nl << "    - " << typeToDocstring(returnType, op->returnIsOptional());
+                _out << nl << "        - " << typeToDocstring(returnType, op->returnIsOptional());
+                bool firstLine = true;
                 for (const string& line : returnsDoc)
                 {
-                    _out << nl << "        " << line;
+                    if (firstLine)
+                    {
+                        firstLine = false;
+                        _out << " " << line;
+                    }
+                    else
+                    {
+                        _out << nl << "          " << line;
+                    }
                 }
             }
 
             for (const auto& param : outParams)
             {
-                _out << nl << "    - " << typeToDocstring(param->type(), param->optional());
+                _out << nl << "        - " << typeToDocstring(param->type(), param->optional());
                 const auto r = parametersDoc.find(param->name());
                 if (r != parametersDoc.end())
                 {
+                    bool firstLine = true;
                     for (const string& line : r->second)
                     {
-                        _out << nl << "        " << line;
+                        if (firstLine)
+                        {
+                            firstLine = false;
+                            _out << " " << line;
+                        }
+                        else
+                        {
+                            _out << nl << "          " << line;
+                        }
                     }
                 }
             }

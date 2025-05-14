@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-class InitializationData(object):
+class InitializationData:
     """
     The attributes of this class are used to initialize a new communicator instance.
 
@@ -42,5 +42,3 @@ class InitializationData(object):
         self.batchRequestInterceptor = None
         self.eventLoopAdapter = None
         self.sliceLoader = None
-
-    __module__ = "Ice"
