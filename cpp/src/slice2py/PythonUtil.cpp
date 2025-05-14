@@ -186,29 +186,70 @@ namespace
     }
 
     /// Returns a DocString formatted link to the provided Slice identifier.
-    /// TODO: this is temporary and will be replaced when we add 'python:identifier' support.
-    string pyLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    string pyLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
     {
-        ostringstream os;
-        os << "`";
-
-        auto hashPos = rawLink.find('#');
-        if (hashPos != string::npos)
+        ostringstream result;
+        if (target)
         {
-            if (hashPos != 0)
+            if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
             {
-                os << rawLink.substr(0, hashPos);
-                os << ".";
+                if (builtinTarget->kind() == Builtin::KindObject)
+                {
+                    result << ":class:`Ice.Object`";
+                }
+                else if (builtinTarget->kind() == Builtin::KindValue)
+                {
+                    result << ":class:`Ice.Value`";
+                }
+                else if (builtinTarget->kind() == Builtin::KindObjectProxy)
+                {
+                    result << ":class:`Ice.ObjectPrx`";
+                }
+                else
+                {
+                    result << "``" << typeToDocstring(builtinTarget, false) << "``";
+                }
             }
-            os << rawLink.substr(hashPos + 1);
+            else if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
+            {
+                string targetScoped = operationTarget->interface()->mappedScoped(".").substr(1);
+
+                // link to the method on the proxy interface
+                result << ":meth:`" << targetScoped << "Prx." << operationTarget->mappedName() << "`";
+            }
+            else
+            {
+                string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".").substr(1);
+                result << ":class:`" << targetScoped;
+                if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+                {
+                    // link to the proxy interface
+                    result << "Prx";
+                }
+                result << "`";
+            }
         }
         else
         {
-            os << rawLink;
-        }
+            result << "``";
 
-        os << "`";
-        return os.str();
+            auto hashPos = rawLink.find('#');
+            if (hashPos != string::npos)
+            {
+                if (hashPos != 0)
+                {
+                    result << rawLink.substr(0, hashPos) << ".";
+                }
+                result << rawLink.substr(hashPos + 1);
+            }
+            else
+            {
+                result << rawLink;
+            }
+
+            result << "``";
+        }
+        return result.str();
     }
 
     string formatFields(const DataMemberList& members)
