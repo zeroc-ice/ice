@@ -953,6 +953,19 @@ Slice::Contained::isTopLevel() const
     return dynamic_pointer_cast<Unit>(container()) != nullptr;
 }
 
+ModulePtr
+Slice::Contained::getTopLevelModule() const
+{
+    if (auto parent = dynamic_pointer_cast<Contained>(container()))
+    {
+        return parent->getTopLevelModule();
+    }
+    // `Module` has its own implementation of this function. So reaching here means we hit an
+    // element which is a top-level non-module. The parser will report an error for it, but
+    // until we exit (at the end of parsing) this element will exist, and needs to be handled.
+    return nullptr;
+}
+
 string
 Slice::Contained::name() const
 {
@@ -2420,6 +2433,17 @@ string
 Slice::Module::kindOf() const
 {
     return "module";
+}
+
+ModulePtr
+Slice::Module::getTopLevelModule() const
+{
+    if (auto parent = dynamic_pointer_cast<Contained>(container()))
+    {
+        return parent->getTopLevelModule();
+    }
+    // Reaching here means that this module is at the top-level! We return it.
+    return dynamic_pointer_cast<Module>(const_pointer_cast<Container>(shared_from_this()));
 }
 
 void

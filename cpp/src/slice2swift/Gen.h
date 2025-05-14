@@ -44,7 +44,7 @@ namespace Slice
             void writeImports();
 
         private:
-            void addImport(const SyntaxTreeBasePtr& p, const ContainedPtr& toplevel);
+            void addImport(const SyntaxTreeBasePtr& p, const ContainedPtr& usedBy);
             void addImport(const std::string& module);
 
             IceInternal::Output& out;

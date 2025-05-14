@@ -1741,7 +1741,7 @@ bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
     string prefix = getPackagePrefix(p);
-    if (!prefix.empty() && dynamic_pointer_cast<Unit>(p->container())) // generate Marker class for top-level modules
+    if (!prefix.empty() && p->isTopLevel()) // generate Marker class for top-level modules
     {
         string markerClass = prefix + "." + p->mappedName() + "._Marker";
         open(markerClass, p->file());

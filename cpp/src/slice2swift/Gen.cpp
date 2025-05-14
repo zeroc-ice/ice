@@ -206,14 +206,15 @@ Gen::ImportVisitor::writeImports()
 }
 
 void
-Gen::ImportVisitor::addImport(const SyntaxTreeBasePtr& p, const ContainedPtr& toplevel)
+Gen::ImportVisitor::addImport(const SyntaxTreeBasePtr& p, const ContainedPtr& usedBy)
 {
-    // Only add imports for user defined constructs.
+    // Only add imports for user defined constructs...
     auto definition = dynamic_pointer_cast<Contained>(p);
     if (definition)
     {
-        string swiftM1 = getSwiftModule(getTopLevelModule(definition));
-        string swiftM2 = getSwiftModule(getTopLevelModule(toplevel));
+        // ... and only if the type lives in a different module than where it's being used.
+        string swiftM1 = getSwiftModule(definition->getTopLevelModule());
+        string swiftM2 = getSwiftModule(usedBy->getTopLevelModule());
         if (swiftM1 != swiftM2)
         {
             addImport(swiftM1);
@@ -236,7 +237,7 @@ bool
 Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const string prefix = getClassResolverPrefix(p->unit());
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
 
     ClassDefPtr base = p->base();
@@ -369,7 +370,7 @@ Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr&)
 bool
 Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
 
     ExceptionPtr base = p->base();
@@ -500,7 +501,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
     const string docName = removeEscaping(name);
     bool isLegalKeyType = Dictionary::isLegalKeyType(p);
@@ -617,7 +618,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 void
 Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
     const string unescapedName = removeEscaping(name);
 
@@ -771,7 +772,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 void
 Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
     const string unescapedName = removeEscaping(name);
 
@@ -920,7 +921,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
     const string docName = removeEscaping(name);
     const EnumeratorList enumerators = p->enumerators();
@@ -1017,7 +1018,7 @@ void
 Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
     const TypePtr type = p->type();
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
 
     writeDocSummary(out, p);
     out << nl << "public let " << p->mappedName() << ": " << typeToString(type, p) << " = ";
@@ -1030,7 +1031,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     InterfaceList bases = p->bases();
 
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string unescapedName = removeEscaping(getRelativeTypeString(p, swiftModule));
     const string traits = unescapedName + "Traits";
     const string prx = unescapedName + "Prx";
@@ -1238,7 +1239,7 @@ Gen::ServantVisitor::ServantVisitor(::IceInternal::Output& o) : out(o) {}
 bool
 Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
 
     const string servant = getRelativeTypeString(p, swiftModule);
     const string unescapedName = removeEscaping(servant);
@@ -1353,7 +1354,7 @@ Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 void
 Gen::ServantVisitor::visitOperation(const OperationPtr& op)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(op));
+    const string swiftModule = getSwiftModule(op->getTopLevelModule());
 
     out << sp;
     writeOpDocSummary(out, op, true);
@@ -1379,7 +1380,7 @@ Gen::ServantExtVisitor::ServantExtVisitor(::IceInternal::Output& o) : out(o) {}
 bool
 Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
 
     out << sp;
     writeServantDocSummary(out, p, swiftModule);

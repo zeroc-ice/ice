@@ -382,6 +382,7 @@ namespace Slice
         virtual void destroy() {}
         [[nodiscard]] ContainerPtr container() const;
         [[nodiscard]] bool isTopLevel() const;
+        [[nodiscard]] virtual ModulePtr getTopLevelModule() const;
 
         /// Returns the Slice identifier of this element.
         [[nodiscard]] std::string name() const;
@@ -535,6 +536,7 @@ namespace Slice
     public:
         Module(const ContainerPtr& container, const std::string& name, bool nestedSyntax);
         [[nodiscard]] std::string kindOf() const final;
+        [[nodiscard]] ModulePtr getTopLevelModule() const final;
         void visit(ParserVisitor* visitor) final;
         void destroy() final;
 
