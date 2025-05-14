@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-# ruff: noqa: F401, F821, E402, F403
+# ruff: noqa: F401, F821, E402, F403, F405
 
 """
 Ice module
@@ -114,6 +114,9 @@ Encoding_1_1 = Ice.EncodingVersion(1, 1)
 #
 NativePropertiesAdmin = IcePy.NativePropertiesAdmin
 
+# __all__ defines the public symbols of the Ice module.
+# It controls what is imported when using `from Ice import *`.
+# Sphinx uses this list when generating API documentation via the `automodule` directive.
 __all__ = [
     "AdapterAlreadyActiveException",
     "AdapterNotFoundException",

@@ -9,12 +9,15 @@ class Exception(BuiltinsException):
 
     def ice_id(self):
         """
-        Returns the type ID of this exception. This corresponds to the Slice type ID for Slice-defined exceptions,
-        and to a similar fully scoped name for other exceptions. For example "::Ice::CommunicatorDestroyedException".
+        Return the type ID of this exception.
+
+        For exceptions defined in Slice, this corresponds to the Slice type ID.
+        For other exceptions, it is a fully scoped name in the same format.
+        For example: "::Ice::CommunicatorDestroyedException".
 
         Returns
         -------
         str
-            The type ID.
+            The type ID of the exception.
         """
         return self._ice_id
