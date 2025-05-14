@@ -1088,7 +1088,6 @@ allTests(Test::TestHelper* helper)
         server->exe = properties->getProperty("IceGridNodeExe");
         server->pwd = ".";
         server->allocatable = false;
-        server->options.emplace_back("--nowarn");
 
         addProperty(server, "IceGrid.Node.Name", "node-${index}");
         addProperty(server, "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-${index}");

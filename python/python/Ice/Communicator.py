@@ -15,21 +15,20 @@ class Communicator:
 
     Example
     -------
-    The following example shows how to create a communicator and use the `with` statement to ensure that the
+    The following example shows how to create a communicator and use the ``async with`` statement to ensure that the
     communicator is properly destroyed.
 
     .. code-block:: python
 
-        import sys
-        import Ice
-        import Demo
+        async def main():
+            async with Ice.initialize(
+                sys.argv,
+                eventLoop=asyncio.get_running_loop()) as communicator:
+                ...
 
-        with Ice.initialize(sys.argv) as communicator:
-            hello = Demo.HelloPrx(communicator, "hello:default -h localhost -p 10000")
-            hello.sayHello()
+        if __name__ == "__main__":
+            asyncio.run(main())
     """
-
-    __module__ = "Ice"
 
     def __init__(self, impl, eventLoopAdapter=None):
         self._impl = impl
@@ -239,7 +238,7 @@ class Communicator:
         """
         Create a new object adapter.
 
-        The endpoints for the object adapter are taken from the property `name.Endpoints`. It is legal to create an
+        The endpoints for the object adapter are taken from the property ``name.Endpoints``. It is legal to create an
         object adapter with an empty string as its name. Such an object adapter is accessible via bidirectional connections
         or by collocated invocations that originate from the same communicator as is used by the adapter. Attempts to create
         a named object adapter for which no configuration can be found raise an InitializationException.
@@ -452,8 +451,8 @@ class Communicator:
         """
         Add the Admin object with all its facets to the provided object adapter.
 
-        If `Ice.Admin.ServerId` is set and the provided object adapter has a Locator, `createAdmin` registers the
-        Admin's Process facet with the Locator's LocatorRegistry. `createAdmin` must only be called once;
+        If ``Ice.Admin.ServerId`` is set and the provided object adapter has a Locator, ``createAdmin`` registers the
+        Admin's Process facet with the Locator's LocatorRegistry. ``createAdmin`` must only be called once;
         subsequent calls raise InitializationException.
 
         Parameters
@@ -480,11 +479,11 @@ class Communicator:
         """
         Get a proxy to the main facet of the Admin object.
 
-        This method also creates the Admin object and activates the Ice.Admin object adapter to host this Admin object
-        if `Ice.Admin.Endpoints` is set. The identity of the Admin object created by getAdmin is
-        `{value of Ice.Admin.InstanceName}/admin`, or `{UUID}/admin` when `Ice.Admin.InstanceName` is not set.
-        If `Ice.Admin.DelayCreation` is 0 or not set, getAdmin is called by the communicator initialization,
-        after initialization of all plugins.
+        This method also creates the Admin object and activates the ``Ice.Admin`` object adapter to host this Admin
+        object if ``Ice.Admin.Endpoints`` property is set. The identity of the Admin object created by getAdmin is
+        ``{value of Ice.Admin.InstanceName}/admin``, or ``{UUID}/admin`` when ``Ice.Admin.InstanceName`` property is
+        not set. If ``Ice.Admin.DelayCreation`` property is 0 or not set, getAdmin is called by the communicator
+        initialization, after initialization of all plugins.
 
         Returns
         -------
@@ -497,8 +496,7 @@ class Communicator:
         """
         Adds a new facet to the Admin object.
 
-        This method adds a new servant implementing the specified Admin facet. If a servant with the same facet name
-        is already registered, the method raises an `AlreadyRegisteredException`.
+        This method adds a new servant implementing the specified Admin facet.
 
         Parameters
         ----------
@@ -559,7 +557,7 @@ class Communicator:
 
         Returns
         -------
-        dict
-            A dictionary where the keys are facet names (str) and the values are the associated servants (Ice.Object).
+        dict[str, Object]
+            A dictionary where the keys are facet names and the values are the associated servants.
         """
         return self._impl.findAllAdminFacets()

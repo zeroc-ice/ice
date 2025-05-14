@@ -45,14 +45,12 @@ RegistryService::shutdown()
 bool
 RegistryService::start(int argc, char* argv[], int& status)
 {
-    bool nowarn;
     bool readonly;
     std::string initFromReplica;
 
     IceInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    opts.addOpt("", "nowarn");
     opts.addOpt("", "readonly");
     opts.addOpt("", "initdb-from-replica", IceInternal::Options::NeedArg);
 
@@ -80,7 +78,7 @@ RegistryService::start(int argc, char* argv[], int& status)
         status = EXIT_SUCCESS;
         return false;
     }
-    nowarn = opts.isSet("nowarn");
+
     readonly = opts.isSet("readonly");
     if (opts.isSet("initdb-from-replica"))
     {
@@ -99,7 +97,7 @@ RegistryService::start(int argc, char* argv[], int& status)
     //
     // Warn the user that setting Ice.ThreadPool.Server isn't useful.
     //
-    if (!nowarn && !properties->getProperty("Ice.ThreadPool.Server.Size").empty())
+    if (!properties->getProperty("Ice.ThreadPool.Server.Size").empty())
     {
         Warning out(communicator()->getLogger());
         out << "setting 'Ice.ThreadPool.Server.Size' is not useful, ";
@@ -108,7 +106,7 @@ RegistryService::start(int argc, char* argv[], int& status)
 
     auto traceLevels = make_shared<TraceLevels>(communicator(), "IceGrid.Registry");
 
-    _registry = make_shared<RegistryI>(communicator(), traceLevels, nowarn, readonly, initFromReplica, "");
+    _registry = make_shared<RegistryI>(communicator(), traceLevels, readonly, initFromReplica, "");
     if (!_registry->start())
     {
         return false;
@@ -203,7 +201,6 @@ RegistryService::usage(const string& appName)
     string options = "Options:\n"
                      "-h, --help           Show this message.\n"
                      "-v, --version        Display the Ice version.\n"
-                     "--nowarn             Don't print any security warnings.\n"
                      "--readonly           Start the master registry in read-only mode.\n"
                      "--initdb-from-replica <replica>\n"
                      "                     Initialize the database from the given replica.";

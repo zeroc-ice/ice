@@ -74,7 +74,6 @@ namespace
             const CommunicatorPtr&,
             const shared_ptr<Activator>&,
             bool,
-            bool,
             const std::string&,
             const std::string&);
         void shutdown() final;
@@ -103,11 +102,10 @@ namespace
 CollocatedRegistry::CollocatedRegistry(
     const CommunicatorPtr& com,
     const shared_ptr<Activator>& activator,
-    bool nowarn,
     bool readonly,
     const string& initFromReplica,
     const string& nodeName)
-    : RegistryI(com, make_shared<TraceLevels>(com, "IceGrid.Registry"), nowarn, readonly, initFromReplica, nodeName),
+    : RegistryI(com, make_shared<TraceLevels>(com, "IceGrid.Registry"), readonly, initFromReplica, nodeName),
       _activator(activator)
 {
 }
@@ -177,7 +175,6 @@ NodeService::start(int argc, char* argv[], int& status)
 bool
 NodeService::startImpl(int argc, char* argv[], int& status)
 {
-    bool nowarn = false;
     bool readonly = false;
     string initFromReplica;
     string desc;
@@ -196,10 +193,6 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             print(ICE_STRING_VERSION);
             status = EXIT_SUCCESS;
             return false;
-        }
-        else if (strcmp(argv[i], "--nowarn") == 0)
-        {
-            nowarn = true;
         }
         else if (strcmp(argv[i], "--readonly") == 0)
         {
@@ -263,7 +256,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Warn the user that setting Ice.ThreadPool.Server isn't useful.
     //
-    if (!nowarn && !properties->getProperty("Ice.ThreadPool.Server.Size").empty())
+    if (!properties->getProperty("Ice.ThreadPool.Server.Size").empty())
     {
         Warning out(communicator()->getLogger());
         out << "setting 'Ice.ThreadPool.Server.Size' is not useful, ";
@@ -283,8 +276,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     if (properties->getIcePropertyAsInt("IceGrid.Node.CollocateRegistry") > 0)
     {
-        _registry =
-            make_shared<CollocatedRegistry>(communicator(), _activator, nowarn, readonly, initFromReplica, name);
+        _registry = make_shared<CollocatedRegistry>(communicator(), _activator, readonly, initFromReplica, name);
         if (!_registry->start())
         {
             return false;
@@ -353,11 +345,8 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         }
         catch (const FileException& ex)
         {
-            if (!nowarn)
-            {
-                Warning out(communicator()->getLogger());
-                out << "couldn't disable file indexing:\n" << ex;
-            }
+            Warning out(communicator()->getLogger());
+            out << "couldn't disable file indexing:\n" << ex;
         }
 #endif
     }
@@ -454,22 +443,19 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     _node->getPlatformInfo().start();
 
     // Ensures that the IceGrid registry is reachable.
-    if (!nowarn)
-    {
-        auto locator = communicator()->getDefaultLocator();
+    auto locator = communicator()->getDefaultLocator();
 
-        try
-        {
-            locator->ice_invocationTimeout(1s)->ice_ping();
-        }
-        catch (const std::exception& ex)
-        {
-            Warning out(communicator()->getLogger());
-            out << "could not reach IceGrid registry '" << locator;
-            out << "': " << ex.what()
-                << ". This warning is expected if the IceGrid registry is not running yet; otherwise, please check the "
-                   "value of the Ice.Default.Locator property in the config file of this IceGrid node.";
-        }
+    try
+    {
+        locator->ice_invocationTimeout(1s)->ice_ping();
+    }
+    catch (const std::exception& ex)
+    {
+        Warning out(communicator()->getLogger());
+        out << "could not reach IceGrid registry '" << locator;
+        out << "': " << ex.what()
+            << ". This warning is expected if the IceGrid registry is not running yet; otherwise, please check the "
+               "value of the Ice.Default.Locator property in the config file of this IceGrid node.";
     }
 
     //
@@ -775,7 +761,6 @@ NodeService::usage(const string& appName)
     string options = "Options:\n"
                      "-h, --help           Show this message.\n"
                      "-v, --version        Display the Ice version.\n"
-                     "--nowarn             Don't print any security warnings.\n"
                      "--readonly           Start the collocated master registry in read-only mode.\n"
                      "--initdb-from-replica <replica>\n"
                      "                     Initialize the collocated registry database from the\n"

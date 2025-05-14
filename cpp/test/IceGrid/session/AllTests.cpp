@@ -1541,7 +1541,6 @@ allTests(TestHelper* helper)
         auto server = make_shared<ServerDescriptor>();
         server->id = "node-1";
         server->exe = properties->getProperty("IceGridNodeExe");
-        server->options.emplace_back("--nowarn");
         server->pwd = ".";
         server->allocatable = false;
         server->propertySet.properties.push_back(PropertyDescriptor{"IceGrid.Node.Name", "node-1"});
