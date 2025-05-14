@@ -137,13 +137,11 @@ namespace
 RegistryI::RegistryI(
     const CommunicatorPtr& communicator,
     const shared_ptr<TraceLevels>& traceLevels,
-    bool nowarn,
     bool readonly,
     string initFromReplica,
     string collocatedNodeName)
     : _communicator(communicator),
       _traceLevels(traceLevels),
-      _nowarn(nowarn),
       _readonly(readonly),
       _initFromReplica(std::move(initFromReplica)),
       _collocatedNodeName(std::move(collocatedNodeName)),
@@ -202,27 +200,21 @@ RegistryI::startImpl()
 
     if (!properties->getIceProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
     {
-        if (!_nowarn)
+        Warning out(_communicator->getLogger());
+        out << "session manager endpoints `IceGrid.Registry.SessionManager.Endpoints' enabled";
+        if (properties->getIcePropertyAsInt("IceGrid.Registry.SessionFilters") <= 0)
         {
-            Warning out(_communicator->getLogger());
-            out << "session manager endpoints `IceGrid.Registry.SessionManager.Endpoints' enabled";
-            if (properties->getIcePropertyAsInt("IceGrid.Registry.SessionFilters") <= 0)
-            {
-                out << " (with Glacier2 filters disabled)";
-            }
+            out << " (with Glacier2 filters disabled)";
         }
     }
 
     if (!properties->getIceProperty("IceGrid.Registry.AdminSessionManager.Endpoints").empty())
     {
-        if (!_nowarn)
+        Warning out(_communicator->getLogger());
+        out << "administrative session manager endpoints `IceGrid.Registry.AdminSessionManager.Endpoints' enabled";
+        if (properties->getIcePropertyAsInt("IceGrid.Registry.AdminSessionFilters") <= 0)
         {
-            Warning out(_communicator->getLogger());
-            out << "administrative session manager endpoints `IceGrid.Registry.AdminSessionManager.Endpoints' enabled";
-            if (properties->getIcePropertyAsInt("IceGrid.Registry.AdminSessionFilters") <= 0)
-            {
-                out << " (with Glacier2 filters disabled)";
-            }
+            out << " (with Glacier2 filters disabled)";
         }
     }
 
@@ -610,13 +602,10 @@ RegistryI::startImpl()
         }
         catch (const Ice::LocalException& ex)
         {
-            if (!_nowarn)
-            {
-                Warning out(_communicator->getLogger());
-                out << "failed to join the multicast group for IceGrid discovery:\n";
-                out << "endpoints = " << properties->getIceProperty("IceGrid.Registry.Discovery.Endpoints") << "\n";
-                out << ex;
-            }
+            Warning out(_communicator->getLogger());
+            out << "failed to join the multicast group for IceGrid discovery:\n";
+            out << "endpoints = " << properties->getIceProperty("IceGrid.Registry.Discovery.Endpoints") << "\n";
+            out << ex;
         }
     }
 

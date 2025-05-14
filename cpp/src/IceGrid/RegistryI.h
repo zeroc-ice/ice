@@ -27,13 +27,7 @@ namespace IceGrid
     class RegistryI : public Registry, public std::enable_shared_from_this<RegistryI>
     {
     public:
-        RegistryI(
-            const Ice::CommunicatorPtr&,
-            const std::shared_ptr<TraceLevels>&,
-            bool,
-            bool,
-            std::string,
-            std::string);
+        RegistryI(const Ice::CommunicatorPtr&, const std::shared_ptr<TraceLevels>&, bool, std::string, std::string);
         ~RegistryI() override = default;
 
         bool start();
@@ -93,7 +87,6 @@ namespace IceGrid
 
         const Ice::CommunicatorPtr _communicator;
         const std::shared_ptr<TraceLevels> _traceLevels;
-        const bool _nowarn;
         const bool _readonly;
         const std::string _initFromReplica;
         const std::string _collocatedNodeName;

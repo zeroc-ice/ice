@@ -24,7 +24,6 @@
       <parameter name="id"/>
       <parameter name="disable-on-failure" default="0"/>
       <server id="${id}" exe="${icegridnode.exe}" activation="manual">
-        <option>--nowarn</option>
 
         <property name="IceGrid.Node.Endpoints" value="default"/>
         <property name="IceGrid.Node.Name" value="${server}"/>

@@ -6,7 +6,6 @@
       <parameter name="id"/>
       <parameter name="encoding" default=""/>
       <server id="${id}" exe="${icegridnode.exe}" activation="manual">
-        <option>--nowarn</option>
 
         <property name="IceGrid.Node.Endpoints" value="default"/>
         <property name="IceGrid.InstanceName" value="RepTestIceGrid"/>
@@ -32,7 +31,6 @@
       <parameter name="encoding" default=""/>
       <parameter name="arg" default=""/>
       <server id="${id}" exe="${icegridregistry.exe}" activation="manual">
-        <option>--nowarn</option>
         <option>${arg}</option>
         <property name="IceGrid.InstanceName" value="RepTestIceGrid"/>
         <property name="IceGrid.Registry.Client.Endpoints" value="default -p ${port}"/>
