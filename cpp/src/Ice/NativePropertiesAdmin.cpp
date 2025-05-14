@@ -167,7 +167,7 @@ Ice::NativePropertiesAdmin::setProperties(PropertyDict props, const Current&)
 }
 
 std::function<void()>
-Ice::NativePropertiesAdmin::addUpdateCallback(std::function<void(const Ice::PropertyDict&)> cb)
+Ice::NativePropertiesAdmin::addUpdateCallback(std::function<void(const PropertyDict&)> cb)
 {
     lock_guard lock{_mutex};
 
@@ -178,7 +178,7 @@ Ice::NativePropertiesAdmin::addUpdateCallback(std::function<void(const Ice::Prop
 }
 
 void
-Ice::NativePropertiesAdmin::removeUpdateCallback(std::list<std::function<void(const Ice::PropertyDict&)>>::iterator p)
+Ice::NativePropertiesAdmin::removeUpdateCallback(std::list<std::function<void(const PropertyDict&)>>::iterator p)
 {
     lock_guard lock{_mutex};
     _updateCallbacks.erase(p);

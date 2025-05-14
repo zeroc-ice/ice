@@ -26,9 +26,14 @@ namespace Ice
 
         ~NativePropertiesAdmin() final;
 
-        std::string getProperty(std::string, const Ice::Current&) final;
-        Ice::PropertyDict getPropertiesForPrefix(std::string, const Ice::Current&) final;
-        void setProperties(Ice::PropertyDict, const Ice::Current&) final;
+        /// @copydoc PropertiesAdmin::getProperty
+        std::string getProperty(std::string key, const Current& current) final;
+
+        /// @copydoc PropertiesAdmin::getPropertiesForPrefix
+        PropertyDict getPropertiesForPrefix(std::string prefix, const Current& current) final;
+
+        /// @copydoc PropertiesAdmin::setProperties
+        void setProperties(PropertyDict newProperties, const Current& current) final;
 
         /// Registers an update callback that will be invoked when a property update occurs.
         /// @param cb The callback.
@@ -38,11 +43,11 @@ namespace Ice
     private:
         void removeUpdateCallback(std::list<std::function<void(const PropertyDict&)>>::iterator p);
 
-        const Ice::PropertiesPtr _properties;
-        const Ice::LoggerPtr _logger;
+        const PropertiesPtr _properties;
+        const LoggerPtr _logger;
         std::recursive_mutex _mutex;
 
-        std::list<std::function<void(const Ice::PropertyDict&)>> _updateCallbacks;
+        std::list<std::function<void(const PropertyDict&)>> _updateCallbacks;
     };
 
     /// A shared pointer to a NativePropertiesAdmin.
