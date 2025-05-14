@@ -220,7 +220,7 @@ namespace
             else
             {
                 string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".").substr(1);
-                result << ":class:`" result << targetScoped;
+                result << ":class:`" << targetScoped;
                 if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
                 {
                     // link to the proxy interface
