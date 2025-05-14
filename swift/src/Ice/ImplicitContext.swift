@@ -25,12 +25,12 @@ public protocol ImplicitContext: AnyObject {
 
     /// Set the underlying context.
     ///
-    /// - parameter _: `Context` The new context.
+    /// - parameter newContext: `Context` The new context.
     func setContext(_ newContext: Context)
 
     /// Check if this key has an associated value in the underlying context.
     ///
-    /// - parameter _: `String` The key.
+    /// - parameter key: `String` The key.
     ///
     /// - returns: `Bool` - True if the key has an associated value, False otherwise.
     func containsKey(_ key: String) -> Bool
@@ -39,7 +39,7 @@ public protocol ImplicitContext: AnyObject {
     /// associated with the key. containsKey allows you to distinguish between an empty-string value and no
     /// value at all.
     ///
-    /// - parameter _: `String` The key.
+    /// - parameter key: `String` The key.
     ///
     /// - returns: `String` - The value associated with the key.
     func get(_ key: String) -> String
@@ -55,7 +55,7 @@ public protocol ImplicitContext: AnyObject {
 
     /// Remove the entry for the given key in the underlying context.
     ///
-    /// - parameter _: `String` The key.
+    /// - parameter key: `String` The key.
     ///
     /// - returns: `String` - The value associated with the key, if any.
     func remove(_ key: String) -> String

@@ -45,16 +45,16 @@ extension InputStream {
 extension OutputStream {
     /// Writes an enumerated value to the stream.
     ///
-    /// parameter _: `CompressBatch` - The enumerator to write.
+    /// - parameter v: `CompressBatch` - The enumerator to write.
     public func write(_ v: CompressBatch) {
         write(enum: v.rawValue, maxValue: 2)
     }
 
     /// Writes an optional enumerated value to the stream.
     ///
-    /// parameter tag: `Int32` - The numeric tag associated with the value.
+    /// - parameter tag: `Int32` - The numeric tag associated with the value.
     ///
-    /// parameter _: `CompressBatch` - The enumerator to write.
+    /// - parameter value: `CompressBatch` - The enumerator to write.
     public func write(tag: Int32, value: CompressBatch?) {
         guard let v = value else {
             return
@@ -89,7 +89,7 @@ public protocol Connection: AnyObject, CustomStringConvertible {
     /// client if the server cannot directly establish a connection to the client, for example because of firewalls. In
     /// this case, the server would create a proxy using an already established connection from the client.
     ///
-    /// - parameter _: `Identity` The identity for which a proxy is to be created.
+    /// - parameter id: `Identity` The identity for which a proxy is to be created.
     ///
     /// - returns: `ObjectPrx` - A proxy that matches the given identity and uses this connection.
     func createProxy(_ id: Identity) throws -> ObjectPrx
@@ -100,7 +100,7 @@ public protocol Connection: AnyObject, CustomStringConvertible {
     /// The default object adapter of an incoming connection is the object adapter that created this connection;
     /// the default object adapter of an outgoing connection is the communicator's default object adapter.
     ///
-    /// - parameter _: `ObjectAdapter?` The object adapter to associate with the connection.
+    /// - parameter adapter: `ObjectAdapter?` The object adapter to associate with the connection.
     func setAdapter(_ adapter: ObjectAdapter?) throws
 
     /// Gets the object adapter associated with this connection.
@@ -116,7 +116,7 @@ public protocol Connection: AnyObject, CustomStringConvertible {
     /// Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
     /// associated with the connection.
     ///
-    /// - parameter _: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
+    /// - parameter compress: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
     /// being sent over the wire.
     func flushBatchRequests(
         _ compress: CompressBatch
@@ -126,7 +126,7 @@ public protocol Connection: AnyObject, CustomStringConvertible {
     /// is called from the Ice thread pool associated with the connection. If the callback needs more information about
     /// the closure, it can call Connection.throwException.
     ///
-    /// - parameter _: `CloseCallback?` The close callback object.
+    /// - parameter callback: `CloseCallback?` The close callback object.
     func setCloseCallback(_ callback: CloseCallback?) throws
 
     /// Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.

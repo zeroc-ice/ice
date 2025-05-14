@@ -96,7 +96,7 @@ public protocol ObjectAdapter: AnyObject {
     /// identity. Note that the generated UUID identity can be accessed using the proxy's ice_getIdentity
     /// operation.
     ///
-    /// - parameter _: `Dispatcher` The servant to add.
+    /// - parameter servant: `Dispatcher` The servant to add.
     ///
     /// - returns: `ObjectPrx` - A proxy that matches the generated UUID identity and this object adapter.
     @discardableResult
@@ -134,7 +134,7 @@ public protocol ObjectAdapter: AnyObject {
 
     /// Remove a servant (that is, the default facet) from the object adapter's Active Servant Map.
     ///
-    /// - parameter _: `Identity` The identity of the Ice object that is implemented by the servant. If the servant
+    /// - parameter id: `Identity` The identity of the Ice object that is implemented by the servant. If the servant
     /// implements multiple Ice objects, remove has to be called for all those Ice objects. Removing an identity
     /// that is not in the map throws NotRegisteredException.
     ///
@@ -157,7 +157,7 @@ public protocol ObjectAdapter: AnyObject {
     /// object, including its default facet. Removing an identity that is not in the map throws
     /// NotRegisteredException.
     ///
-    /// - parameter _: `Identity` The identity of the Ice object to be removed.
+    /// - parameter id: `Identity` The identity of the Ice object to be removed.
     ///
     /// - returns: `FacetMap` - A collection containing all the facet names and servants of the removed Ice object.
     @discardableResult
@@ -166,7 +166,7 @@ public protocol ObjectAdapter: AnyObject {
     /// Remove the default servant for a specific category. Attempting to remove a default servant for a category that
     /// is not registered throws NotRegisteredException.
     ///
-    /// - parameter _: `String` The category of the default servant to remove.
+    /// - parameter category: `String` The category of the default servant to remove.
     ///
     /// - returns: `Dispatcher` - The default servant.
     @discardableResult
@@ -176,7 +176,7 @@ public protocol ObjectAdapter: AnyObject {
     /// This operation only tries to look up a servant in the Active Servant Map. It does not attempt
     /// to find a servant by using any installed ServantLocator.
     ///
-    /// - parameter _: `Identity` The identity of the Ice object for which the servant should be returned.
+    /// - parameter id: `Identity` The identity of the Ice object for which the servant should be returned.
     ///
     /// - returns: `Dispatcher?` - The servant that implements the Ice object with the given identity, or null if no such
     /// servant has been found.
@@ -195,7 +195,7 @@ public protocol ObjectAdapter: AnyObject {
 
     /// Find all facets with the given identity in the Active Servant Map.
     ///
-    /// - parameter _: `Identity` The identity of the Ice object for which the facets should be returned.
+    /// - parameter id: `Identity` The identity of the Ice object for which the facets should be returned.
     ///
     /// - returns: `FacetMap` - A collection containing all the facet names and servants that have been found, or an
     /// empty map if there is no facet for the given identity.
@@ -205,7 +205,7 @@ public protocol ObjectAdapter: AnyObject {
     /// This operation only tries to lookup a servant in the Active Servant Map. It does not attempt to
     /// find a servant by using any installed ServantLocator.
     ///
-    /// - parameter _: `ObjectPrx` The proxy for which the servant should be returned.
+    /// - parameter proxy: `ObjectPrx` The proxy for which the servant should be returned.
     ///
     /// - returns: `Dispatcher?` - The servant that matches the proxy, or null if no such servant has been found.
     func findByProxy(_ proxy: ObjectPrx) -> Dispatcher?
@@ -235,7 +235,7 @@ public protocol ObjectAdapter: AnyObject {
 
     /// Remove a Servant Locator from this object adapter.
     ///
-    /// - parameter _: `String` The category for which the Servant Locator can locate servants, or an empty
+    /// - parameter category: `String` The category for which the Servant Locator can locate servants, or an empty
     /// string if the Servant Locator does not belong to any specific category.
     ///
     /// - returns: `ServantLocator` - The Servant Locator, or throws NotRegisteredException if no Servant Locator was
@@ -245,7 +245,7 @@ public protocol ObjectAdapter: AnyObject {
 
     /// Find a Servant Locator installed with this object adapter.
     ///
-    /// - parameter _: `String` The category for which the Servant Locator can locate servants, or an empty
+    /// - parameter category: `String` The category for which the Servant Locator can locate servants, or an empty
     /// string if the Servant Locator does not belong to any specific category.
     ///
     /// - returns: `ServantLocator?` - The Servant Locator, or null if no Servant Locator was found for the given
@@ -254,7 +254,7 @@ public protocol ObjectAdapter: AnyObject {
 
     /// Find the default servant for a specific category.
     ///
-    /// - parameter _: `String` The category of the default servant to find.
+    /// - parameter category: `String` The category of the default servant to find.
     ///
     /// - returns: `Dispatcher?` - The default servant or null if no default servant was registered for the category.
     func findDefaultServant(_ category: String) -> Dispatcher?
@@ -264,7 +264,7 @@ public protocol ObjectAdapter: AnyObject {
     /// return value is an indirect proxy that refers to the replica group id. Otherwise, if no adapter id is defined,
     /// the return value is a direct proxy containing this object adapter's published endpoints.
     ///
-    /// - parameter _: `Identity` The object's identity.
+    /// - parameter id: `Identity` The object's identity.
     ///
     /// - returns: `ObjectPrx` - A proxy for the object with the given identity.
     func createProxy(_ id: Identity) throws -> ObjectPrx
@@ -272,7 +272,7 @@ public protocol ObjectAdapter: AnyObject {
     /// Create a direct proxy for the object with the given identity. The returned proxy contains this object adapter's
     /// published endpoints.
     ///
-    /// - parameter _: `Identity` The object's identity.
+    /// - parameter id: `Identity` The object's identity.
     ///
     /// - returns: `ObjectPrx` - A proxy for the object with the given identity.
     func createDirectProxy(_ id: Identity) throws -> ObjectPrx
@@ -281,7 +281,7 @@ public protocol ObjectAdapter: AnyObject {
     /// adapter id, the return value refers to the adapter id. Otherwise, the return value contains only the object
     /// identity.
     ///
-    /// - parameter _: `Identity` The object's identity.
+    /// - parameter id: `Identity` The object's identity.
     ///
     /// - returns: `ObjectPrx` - A proxy for the object with the given identity.
     func createIndirectProxy(_ id: Identity) throws -> ObjectPrx
@@ -291,7 +291,7 @@ public protocol ObjectAdapter: AnyObject {
     /// adapter will contain the adapter identifier instead of its endpoints. The adapter identifier must be configured
     /// using the AdapterId property.
     ///
-    /// - parameter _: `LocatorPrx?` The locator used by this object adapter.
+    /// - parameter loc: `LocatorPrx?` The locator used by this object adapter.
     func setLocator(_ loc: LocatorPrx?) throws
 
     /// Get the Ice locator used by this object adapter.
@@ -312,6 +312,6 @@ public protocol ObjectAdapter: AnyObject {
 
     /// Set of the endpoints that proxies created by this object adapter will contain.
     ///
-    /// - parameter _: `EndpointSeq` The new set of endpoints that the object adapter will embed in proxies.
+    /// - parameter newEndpoints: `EndpointSeq` The new set of endpoints that the object adapter will embed in proxies.
     func setPublishedEndpoints(_ newEndpoints: EndpointSeq) throws
 }

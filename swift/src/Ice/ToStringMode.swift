@@ -54,16 +54,16 @@ extension InputStream {
 extension OutputStream {
     /// Writes an enumerated value to the stream.
     ///
-    /// parameter _: `ToStringMode` - The enumerator to write.
-    public func write(_ v: ToStringMode) {
-        write(enum: v.rawValue, maxValue: 2)
+    /// - parameter value: `ToStringMode` - The enumerator to write.
+    public func write(_ value: ToStringMode) {
+        write(enum: value.rawValue, maxValue: 2)
     }
 
     /// Writes an optional enumerated value to the stream.
     ///
-    /// parameter tag: `Int32` - The numeric tag associated with the value.
+    /// - parameter tag: `Int32` - The numeric tag associated with the value.
     ///
-    /// parameter _: `ToStringMode` - The enumerator to write.
+    /// - parameter value: `ToStringMode` - The enumerator to write.
     public func write(tag: Int32, value: ToStringMode?) {
         guard let v = value else {
             return

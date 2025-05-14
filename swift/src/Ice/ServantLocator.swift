@@ -14,7 +14,7 @@ public protocol ServantLocator: AnyObject {
     /// If you call locate from your own code, you must also call finished
     /// when you have finished using the servant, provided that locate returned a non-null servant.
     ///
-    /// - parameter _: `Current` Information about the current operation for which a servant is required.
+    /// - parameter curr: `Current` Information about the current operation for which a servant is required.
     ///
     /// - returns: `(returnValue: Dispatcher?, cookie: AnyObject?)`:
     ///
@@ -52,6 +52,6 @@ public protocol ServantLocator: AnyObject {
 
     /// Called when the object adapter in which this servant locator is installed is destroyed.
     ///
-    /// - parameter _: `String` Indicates for which category the servant locator is being deactivated.
+    /// - parameter category: `String` Indicates for which category the servant locator is being deactivated.
     func deactivate(_ category: String)
 }

@@ -89,7 +89,6 @@ public final class ObjectNotExistException: RequestFailedException {
     ///   - id: The identity of the target Ice object carried by the request.
     ///   - facet: The facet of the target Ice object.
     ///   - operation: The operation name carried by the request.
-    ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
     public convenience init(
@@ -116,7 +115,6 @@ public final class FacetNotExistException: RequestFailedException {
     ///   - id: The identity of the target Ice object carried by the request.
     ///   - facet: The facet of the target Ice object.
     ///   - operation: The operation name carried by the request.
-    ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
     public convenience init(
@@ -144,7 +142,6 @@ public final class OperationNotExistException: RequestFailedException {
     ///   - id: The identity of the target Ice object carried by the request.
     ///   - facet: The facet of the target Ice object.
     ///   - operation: The operation name carried by the request.
-    ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
     public convenience init(

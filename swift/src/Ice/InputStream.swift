@@ -281,7 +281,7 @@ public class InputStream {
 
     /// Skips the given number of bytes.
     ///
-    /// - parameter _: `Int` - The number of bytes to skip.
+    /// - parameter count: `Int` - The number of bytes to skip.
     public func skip(_ count: Int) throws {
         precondition(count >= 0, "skip count is negative")
         try changePos(offset: count)
@@ -289,7 +289,7 @@ public class InputStream {
 
     /// Skips the given number of bytes.
     ///
-    /// - parameter _: `Int32` - The number of bytes to skip.
+    /// - parameter count: `Int32` - The number of bytes to skip.
     public func skip(_ count: Int32) throws {
         try changePos(offset: Int(count))
     }
@@ -324,9 +324,6 @@ public class InputStream {
     }
 
     /// Marks the end of a user exception.
-    ///
-    /// - returns: `Ice.SlicedData?` - A `SlicedData` object containing the preserved slices for unknown
-    ///   types.
     public func endException() throws {
         precondition(encaps.decoder != nil)
         _ = try encaps.decoder.endInstance()
@@ -794,6 +791,8 @@ extension InputStream {
     /// Reads an optional base proxy from the stream.
     ///
     /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - parameter type: `ObjectPrx.Protocol` - The proxy type.
     ///
     /// - returns: `ObjectPrx?` - The proxy read from the stream.
     public func read(tag: Int32, type _: ObjectPrx.Protocol) throws -> ObjectPrx? {
