@@ -780,7 +780,9 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generated
         const bool hasUserRemarks = !remarks.empty();
         if (hasUserRemarks)
         {
-            remarks.push_front("<para>"); // 'push_front' to go in front of the user-provided remarks.
+            // 'push_front' to go in front of the user-provided remarks.
+            remarks.push_front(""); // We want the '<para>' tag to be on its own line, not right after '<remarks>'
+            remarks.push_front("<para>");
             remarks.push_back("</para>");
             remarks.push_back("<para>");
         }
@@ -796,6 +798,7 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generated
         if (hasUserRemarks)
         {
             remarks.push_back("</para>");
+            remarks.push_back("");
         }
     }
 
