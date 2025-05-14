@@ -109,6 +109,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Gen.cpp" />
+    <ClCompile Include="..\CsMetadataValidator.cpp" />
     <ClCompile Include="..\Main.cpp" />
     <ClCompile Include="..\CsUtil.cpp" />
   </ItemGroup>
@@ -117,6 +118,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Gen.h" />
+    <ClInclude Include="..\CsMetadataValidator.h" />
     <ClInclude Include="..\CsUtil.h" />
   </ItemGroup>
   <ItemGroup>
