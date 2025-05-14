@@ -210,30 +210,23 @@ namespace
                     result << "``" << typeToDocstring(builtinTarget, false) << "``";
                 }
             }
+            else if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
+            {
+                string targetScoped = operationTarget->interface()->mappedScoped(".").substr(1);
+
+                // link to the method on the proxy interface
+                result << ":meth:`" << targetScoped << "Prx." << operationTarget->mappedName() << "`";
+            }
             else
             {
-                if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
+                string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".").substr(1);
+                result << ":class:`" result << targetScoped;
+                if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
                 {
-                    string targetScoped = operationTarget->interface()->mappedScoped(".").substr(1);
-
-                    // link to the method on the proxy interface
-                    result << ":meth:`" << targetScoped << "Prx." << operationTarget->mappedName() << "`";
+                    // link to the proxy interface
+                    result << "Prx";
                 }
-                else
-                {
-                    string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".").substr(1);
-                    result << ":class:`";
-                    if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
-                    {
-                        // link to the proxy interface
-                        result << targetScoped << "Prx";
-                    }
-                    else
-                    {
-                        result << targetScoped;
-                    }
-                    result << "`";
-                }
+                result << "`";
             }
         }
         else
