@@ -15,6 +15,7 @@
 #include "Ice/LocalExceptions.h"
 #include "Ice/Locator.h"
 #include "Ice/LoggerUtil.h"
+#include "Ice/NativePropertiesAdmin.h"
 #include "Ice/ObserverHelper.h"
 #include "Ice/Properties.h"
 #include "Ice/Router.h"
@@ -27,7 +28,6 @@
 #include "NetworkProxy.h"
 #include "ObjectAdapterFactory.h"
 #include "PluginManagerI.h"
-#include "PropertiesAdminI.h"
 #include "ReferenceFactory.h"
 #include "RetryQueue.h"
 #include "RouterInfo.h"
@@ -1430,10 +1430,10 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         // Properties facet
         //
         const string propertiesFacetName = "Properties";
-        PropertiesAdminIPtr propsAdmin;
+        NativePropertiesAdminPtr propsAdmin;
         if (_adminFacetFilter.empty() || _adminFacetFilter.find(propertiesFacetName) != _adminFacetFilter.end())
         {
-            propsAdmin = make_shared<PropertiesAdminI>(shared_from_this());
+            propsAdmin = make_shared<NativePropertiesAdmin>(_initData.properties, _initData.logger);
             _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin));
         }
 
