@@ -280,6 +280,8 @@ namespace Slice
 
         /// Contains all introductory lines up to the first tag.
         [[nodiscard]] StringList overview() const;
+        /// Returns the contents of any '@remark' or '@remarks' tags.
+        [[nodiscard]] StringList remarks() const;
         /// Targets of '@see' tags.
         [[nodiscard]] StringList seeAlso() const;
 
@@ -294,6 +296,7 @@ namespace Slice
         bool _isDeprecated{false};
         StringList _deprecated;
         StringList _overview;
+        StringList _remarks;
         StringList _seeAlso;
 
         StringList _returns;

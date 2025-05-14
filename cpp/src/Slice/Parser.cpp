@@ -506,6 +506,8 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
     const string paramTag = "@param";
     const string throwsTag = "@throws";
     const string exceptionTag = "@exception";
+    const string remarkTag = "@remark";
+    const string remarksTag = "@remarks";
     const string seeTag = "@see";
     const string returnTag = "@return";
     const string deprecatedTag = "@deprecated";
@@ -551,7 +553,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 else
                 {
                     comment._parameters[name] = {};
-                    currentSection = &(comment._parameters[name]);
+                    currentSection = &comment._parameters[name];
                 }
             }
         }
@@ -601,14 +603,18 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                     else
                     {
                         comment._exceptions[name] = {};
-                        currentSection = &(comment._exceptions[name]);
+                        currentSection = &comment._exceptions[name];
                     }
                 }
             }
         }
+        else if (parseCommentLine(line, remarkTag, lineText) || parseCommentLine(line, remarksTag, lineText))
+        {
+            currentSection = &comment._remarks;
+        }
         else if (parseCommentLine(line, seeTag, lineText))
         {
-            currentSection = &(comment._seeAlso);
+            currentSection = &comment._seeAlso;
 
             // Remove any leading and trailing whitespace from the line.
             // There's no concern of losing formatting for `@see` due to its simplicity.
@@ -654,7 +660,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 }
                 else
                 {
-                    currentSection = &(comment._returns);
+                    currentSection = &comment._returns;
                 }
             }
         }
@@ -670,7 +676,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
             else
             {
                 comment._isDeprecated = true;
-                currentSection = &(comment._deprecated);
+                currentSection = &comment._deprecated;
             }
         }
         else // This line didn't introduce a new tag. Either we're in the overview or a tag whose content is multi-line.
@@ -687,7 +693,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 }
 
                 // '@see' tags are not allowed to span multiple lines.
-                if (currentSection == &(comment._seeAlso))
+                if (currentSection == &comment._seeAlso)
                 {
                     string msg = "'@see' tags cannot span multiple lines and must be of the form: '@see identifier'";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
@@ -713,6 +719,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
     }
 
     trimLines(comment._overview);
+    trimLines(comment._remarks);
     trimLines(comment._deprecated);
     trimLines(comment._returns);
 
@@ -735,6 +742,12 @@ StringList
 Slice::DocComment::overview() const
 {
     return _overview;
+}
+
+StringList
+Slice::DocComment::remarks() const
+{
+    return _remarks;
 }
 
 StringList
