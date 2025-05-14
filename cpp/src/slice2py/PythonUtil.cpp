@@ -185,32 +185,6 @@ namespace
         return os.str();
     }
 
-    /// Returns a DocString formatted link to the provided Slice identifier.
-    /// TODO: this is temporary and will be replaced when we add 'python:identifier' support.
-    string pyLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
-    {
-        ostringstream os;
-        os << "`";
-
-        auto hashPos = rawLink.find('#');
-        if (hashPos != string::npos)
-        {
-            if (hashPos != 0)
-            {
-                os << rawLink.substr(0, hashPos);
-                os << ".";
-            }
-            os << rawLink.substr(hashPos + 1);
-        }
-        else
-        {
-            os << rawLink;
-        }
-
-        os << "`";
-        return os.str();
-    }
-
     string formatFields(const DataMemberList& members)
     {
         if (members.empty())
@@ -458,7 +432,8 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
     }
     _out << nl << "__name__ = '" << abs << "'";
 
-    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter, true), "_M_" + abs + ".__doc__ = ");
+    PyDocCommentFormatter formatter;
+    writeDocstring(DocComment::parseFrom(p, formatter), "_M_" + abs + ".__doc__ = ");
 
     _moduleStack.push_front(abs);
     return true;
@@ -588,7 +563,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out.inc();
 
-    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter, true), members);
+    PyDocCommentFormatter formatter;
+    writeDocstring(DocComment::parseFrom(p, formatter), members);
 
     //
     // __init__
@@ -1128,7 +1104,8 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << "):";
     _out.inc();
 
-    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter, true), members);
+    PyDocCommentFormatter formatter;
+    writeDocstring(DocComment::parseFrom(p, formatter), members);
 
     //
     // __init__
@@ -1247,7 +1224,8 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "class " << name << "(object):";
     _out.inc();
 
-    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter, true), members);
+    PyDocCommentFormatter formatter;
+    writeDocstring(DocComment::parseFrom(p, formatter), members);
 
     _out << nl << "def __init__(self";
     writeConstructorParams(p->dataMembers());
@@ -1544,7 +1522,8 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "class " << name << "(Ice.EnumBase):";
     _out.inc();
 
-    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter, true), enumerators);
+    PyDocCommentFormatter formatter;
+    writeDocstring(DocComment::parseFrom(p, formatter), enumerators);
 
     _out << sp << nl << "def __init__(self, _n, _v):";
     _out.inc();
@@ -1965,7 +1944,8 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
     map<string, list<string>> docs;
     for (const auto& member : members)
     {
-        if (auto memberDoc = DocComment::parseFrom(member, pyLinkFormatter, true))
+        PyDocCommentFormatter formatter;
+        if (auto memberDoc = DocComment::parseFrom(member, formatter))
         {
             auto memberOverview = memberDoc->overview();
             if (!memberOverview.empty())
@@ -2027,7 +2007,8 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
     map<string, list<string>> docs;
     for (const auto& enumerator : enumerators)
     {
-        if (auto enumeratorDoc = DocComment::parseFrom(enumerator, pyLinkFormatter, true))
+        PyDocCommentFormatter formatter;
+        if (auto enumeratorDoc = DocComment::parseFrom(enumerator, formatter))
         {
             auto enumeratorOverview = enumeratorDoc->overview();
             if (!enumeratorOverview.empty())
@@ -2081,7 +2062,8 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
 void
 Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode mode)
 {
-    optional<DocComment> comment = DocComment::parseFrom(op, pyLinkFormatter, true);
+    PyDocCommentFormatter formatter;
+    optional<DocComment> comment = DocComment::parseFrom(op, formatter);
     if (!comment)
     {
         return;
@@ -2295,6 +2277,33 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         }
     }
     _out << nl << tripleQuotes;
+}
+
+// TODO: this needs to be updated to handle 'python:identifier'.
+string
+Slice::Python::PyDocCommentFormatter::formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    const
+{
+    ostringstream os;
+    os << "`";
+
+    auto hashPos = rawLink.find('#');
+    if (hashPos != string::npos)
+    {
+        if (hashPos != 0)
+        {
+            os << rawLink.substr(0, hashPos);
+            os << ".";
+        }
+        os << rawLink.substr(hashPos + 1);
+    }
+    else
+    {
+        os << rawLink;
+    }
+
+    os << "`";
+    return os.str();
 }
 
 string

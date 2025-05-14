@@ -113,6 +113,63 @@ Slice::getJavaScriptModule(const DefinitionContextPtr& dc)
 }
 
 string
+Slice::JsDocCommentFormatter::formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
+    const
+{
+    ostringstream result;
+    result << "{@link ";
+    if (target)
+    {
+        if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
+        {
+            result << JsGenerator::typeToJsString(builtinTarget, true);
+        }
+        else
+        {
+            if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
+            {
+                string targetScoped = operationTarget->interface()->mappedScoped(".").substr(1);
+
+                // link to the method on the proxy interface
+                result << targetScoped << "Prx." << operationTarget->mappedName();
+            }
+            else
+            {
+                string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".").substr(1);
+                if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+                {
+                    // link to the proxy interface
+                    result << targetScoped << "Prx";
+                }
+                else
+                {
+                    result << targetScoped;
+                }
+            }
+        }
+    }
+    else
+    {
+        auto hashPos = rawLink.find('#');
+        if (hashPos != string::npos)
+        {
+            // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link.
+            if (hashPos != 0)
+            {
+                result << rawLink.substr(0, hashPos) << "#";
+            }
+            result << rawLink.substr(hashPos + 1);
+        }
+        else
+        {
+            result << rawLink;
+        }
+    }
+    result << "}";
+    return result.str();
+}
+
+string
 Slice::JsGenerator::typeToJsString(const TypePtr& type, bool definition)
 {
     if (!type)
