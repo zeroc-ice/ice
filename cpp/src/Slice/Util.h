@@ -54,6 +54,9 @@ namespace Slice
 
     std::vector<std::string> splitScopedName(const std::string& scoped, bool allowEmpty = true);
 
+    /// Prepends @p indentation to the start of each line in the @p lines list.
+    void indentLines(StringList& lines, std::string_view indentation = "    ");
+
     /// Returns "an" if @p s starts with a vowel and "a" otherwise.
     std::string getArticleFor(const std::string& s);
 

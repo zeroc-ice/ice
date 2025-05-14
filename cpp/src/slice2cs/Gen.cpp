@@ -767,30 +767,35 @@ void
 Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generatedType, const string& notes)
 {
     optional<DocComment> comment = DocComment::parseFrom(p, csLinkFormatter, true, true);
-    if (comment)
-    {
-        writeDocLines(_out, "summary", comment->overview());
-    }
-
     StringList remarks;
     if (comment)
     {
+        writeDocLines(_out, "summary", comment->overview());
         remarks = comment->remarks();
     }
+
     if (!generatedType.empty())
     {
-        if (!remarks.empty())
+        const string typeMessage = "The Slice compiler generated this " + generatedType + " from Slice " + p->kindOf() +
+                                   " <c>" + p->scoped() + "</c>.";
+        if (remarks.empty())
         {
-            remarks.emplace_back("");
+            // If there were no user provided-remarks, just add the message normally.
+            remarks.push_back(typeMessage);
         }
-        remarks.push_back(
-            "The Slice compiler generated this " + generatedType + " from Slice " + p->kindOf() + " <c>" + p->scoped() +
-            "</c>.");
-        if (!notes.empty())
+        else
         {
-            remarks.push_back(notes);
+            // If there's user-provided remarks, and a type message, we wrap both in separate '<para>' tags.
+            indentLines(remarks);
+            remarks.push_front("<para>");
+            remarks.push_back("</para>");
+            remarks.push_back("<para>");
+            remarks.push_back("    " + typeMessage);
+            remarks.push_back("    " + notes);
+            remarks.push_back("</para>");
         }
     }
+
     if (!remarks.empty())
     {
         writeDocLines(_out, "remarks", remarks);

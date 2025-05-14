@@ -388,7 +388,7 @@ namespace
             writeDocLines(out, doc->overview(), true);
         }
 
-        const auto& remarks = doc->remarks();
+        StringList remarks = doc->remarks();
         if (!remarks.empty())
         {
             out << nl << "/// @remarks ";
@@ -565,7 +565,7 @@ namespace
             writeOpDocExceptions(out, op, doc);
         }
 
-        const auto& remarks = doc.remarks();
+        StringList remarks = doc.remarks();
         if (!remarks.empty())
         {
             out << nl << "/// @remarks ";

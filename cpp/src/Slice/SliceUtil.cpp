@@ -416,6 +416,15 @@ Slice::splitScopedName(const string& scoped, bool allowEmpty)
     return ids;
 }
 
+void
+Slice::indentLines(StringList& lines, string_view indentation)
+{
+    for (auto& line : lines)
+    {
+        line.insert(0, indentation);
+    }
+}
+
 string
 Slice::getArticleFor(const string& s)
 {
