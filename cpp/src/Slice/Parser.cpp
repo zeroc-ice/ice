@@ -960,9 +960,9 @@ Slice::Contained::getTopLevelModule() const
     {
         parent->getTopLevelModule();
     }
-    // `Module` has it's own implementation of this function. So reaching here means we hit an element
-    // which is a top-level non-module type. This will cause the parser to report a syntax error, but
-    // but until we exit (at the end of parsing) this element will exist, and needs to be handled.
+    // `Module` has its own implementation of this function. So reaching here means we hit an
+    // element which is a top-level non-module. The parser will report an error for it, but
+    // until we exit (at the end of parsing) this element will exist, and needs to be handled.
     return nullptr;
 }
 
