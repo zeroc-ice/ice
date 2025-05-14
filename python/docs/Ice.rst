@@ -1,10 +1,11 @@
 Ice package
 ===========
 
+.. currentmodule:: Ice
+
 Module contents
 ---------------
 
 .. automodule:: Ice
    :members:
-   :undoc-members:
    :show-inheritance:

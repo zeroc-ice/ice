@@ -18,7 +18,7 @@ def uncheckedCast(type, proxy, facet=None):
 
     Returns
     -------
-    ObjectPrx|None
+    ObjectPrx or None
         A proxy with the requested type.
     """
     if proxy is None:
@@ -41,12 +41,12 @@ def checkedCast(type, proxy, facet=None, context=None):
     facet : str, optional
         A facet name.
 
-    context : dict, optional
+    context : dict[str, str], optional
         The request context.
 
     Returns
     -------
-    ObjectPrx|None
+    ObjectPrx or None
         A proxy with the requested type, or None if the target object does not support the requested type.
     """
     if proxy is None:
@@ -69,12 +69,12 @@ async def checkedCastAsync(type, proxy, facet=None, context=None):
     facet : str, optional
         A facet name.
 
-    context : dict, optional
+    context : dict[str, str], optional
         The request context.
 
     Returns
     -------
-    ObjectPrx|None
+    ObjectPrx or None
         A proxy with the requested type, or None if the target object does not support the requested type.
     """
     if proxy is None:
@@ -104,7 +104,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Returns
         -------
-        ObjectPrx|None
+        ObjectPrx or None
             A proxy with the requested type, or None if the target object does not support the requested type.
         """
         return uncheckedCast(ObjectPrx, proxy, facet)
@@ -122,12 +122,12 @@ class ObjectPrx(IcePy.ObjectPrx):
         facet : str, optional
             A facet name.
 
-        context : dict, optional
+        context : dict[str, str], optional
             The request context.
 
         Returns
         -------
-        ObjectPrx|None
+        ObjectPrx or None
             A proxy with the requested type, or None if the target object does not support the requested type.
         """
         return checkedCast(ObjectPrx, proxy, facet, context)
@@ -145,12 +145,12 @@ class ObjectPrx(IcePy.ObjectPrx):
         facet : str, optional
             A facet name.
 
-        context : dict, optional
+        context : dict[str, str], optional
             The request context.
 
         Returns
         -------
-        ObjectPrx|None
+        ObjectPrx or None
             A proxy with the requested type, or None if the target object does not support the requested type.
         """
         return checkedCastAsync(ObjectPrx, proxy, facet, context)
@@ -186,7 +186,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         ----------
         id : str
             The type ID of the Slice interface to test against.
-        context : dict, optional
+        context : dict[str, str], optional
             The context dictionary for the invocation.
 
         Returns
@@ -204,7 +204,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         ----------
         id : str
             The type ID of the Slice interface to test against.
-        context : dict, optional
+        context : dict[str, str], optional
             The context dictionary for the invocation.
 
         Returns
@@ -220,7 +220,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Parameters
         ----------
-        context : dict, optional
+        context : dict[str, str], optional
             The context dictionary for the invocation.
 
         Examples
@@ -235,7 +235,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Parameters
         ----------
-        context : dict, optional
+        context : dict[str, str], optional
             The context dictionary for the invocation.
 
         Examples
@@ -250,7 +250,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Parameters
         ----------
-        context : dict, optional
+        context : dict[str, str], optional
             The context dictionary for the invocation.
 
         Returns
@@ -266,7 +266,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Parameters
         ----------
-        context : dict, optional
+        context : dict[str, str], optional
             The context dictionary for the invocation.
 
         Returns
@@ -282,7 +282,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Parameters
         ----------
-        context : dict, optional
+        context : dict[str, str], optional
             The context dictionary for the invocation.
 
         Returns
@@ -298,7 +298,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Parameters
         ----------
-        context : dict, optional
+        context : dict[str, str], optional
             The context dictionary for the invocation.
 
         Returns
@@ -352,7 +352,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Parameters
         ----------
-        new_context : dict
+        new_context : dict[str, str]
             The context for the new proxy.
 
         Returns
@@ -946,6 +946,3 @@ class ObjectPrx(IcePy.ObjectPrx):
 
     def __str__(self):
         return repr(self)
-
-
-    __module__ = 'Ice'

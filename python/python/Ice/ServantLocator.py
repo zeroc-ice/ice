@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-class ServantLocator(object):
+class ServantLocator:
     """
     A servant locator is called by an object adapter to locate a servant that is not found in its active servant map.
     """
@@ -30,12 +30,13 @@ class ServantLocator(object):
 
         Returns
         -------
-        tuple
+        tuple of (Ice.Object or None, object)
+
             A tuple containing the following:
-            - retval : Ice.Object or None
-                The located servant, or None if no suitable servant has been found.
-            - cookie : object
-                A "cookie" that will be passed to `finished`.
+                - retval : Ice.Object or None
+                    The located servant, or None if no suitable servant has been found.
+                - cookie : object
+                    A "cookie" that will be passed to `finished`.
 
         Raises
         ------
@@ -82,5 +83,3 @@ class ServantLocator(object):
             Indicates for which category the servant locator is being deactivated.
         """
         raise NotImplementedError("method 'deactivate' not implemented")
-
-    __module__ = "Ice"

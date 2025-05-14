@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-class Logger(object):
+class Logger:
     """
     The Ice message logger.
 
@@ -85,5 +85,3 @@ class Logger(object):
             A new logger instance with the specified prefix.
         """
         raise NotImplementedError("method 'cloneWithPrefix' not implemented")
-
-    __module__ = "Ice"

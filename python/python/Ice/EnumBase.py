@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-class EnumBase(object):
+class EnumBase:
     def __init__(self, _n, _v):
         self._name = _n
         self._value = _v

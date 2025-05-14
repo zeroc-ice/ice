@@ -10,7 +10,7 @@ from .LocalExceptions import InvocationCanceledException
 #
 # This class defines an __await__ method so that coroutines can call 'await <future>'.
 #
-class FutureBase(object):
+class FutureBase:
     def __await__(self):
         if not self.done():
             yield self
@@ -19,7 +19,7 @@ class FutureBase(object):
 
 def wrap_future(future, *, loop=None):
     """
-    Wrap an Ice.Future object into an asyncio.Future.
+    Wrap an :class:`Ice.Future` object into an ``asyncio.Future``.
 
     This function converts an Ice.Future into an asyncio.Future to allow integration of Ice's
     asynchronous operations with Python's asyncio framework. If the provided future is already
@@ -48,6 +48,7 @@ def wrap_future(future, *, loop=None):
     AssertionError
         If `future` is not an instance of Ice.Future (or FutureBase).
     """
+
     if isinstance(future, asyncio.Future):
         return future
 

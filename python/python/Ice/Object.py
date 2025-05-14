@@ -4,10 +4,11 @@ import IcePy
 import Ice.OperationMode_ice
 import Ice.BuiltinSequences_ice
 
-class Object(object):
+class Object:
     """
     The base class for servants.
     """
+
     def ice_isA(self, id, current):
         """
         Determine whether the target object supports the interface denoted by the given Slice type ID.
