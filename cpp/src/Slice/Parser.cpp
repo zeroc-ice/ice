@@ -2443,7 +2443,7 @@ Slice::Module::getTopLevelModule() const
         return parent->getTopLevelModule();
     }
     // Reaching here means that this module is at the top-level! We return it.
-    return dynamic_pointer_cast<Module>(shared_from_this());
+    return dynamic_pointer_cast<Module>(const_pointer_cast<Container>(shared_from_this()));
 }
 
 void
