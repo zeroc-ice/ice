@@ -776,15 +776,10 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generated
 
     if (!generatedType.empty())
     {
-        // If there's user-provided remarks, and a generated-type message, we wrap both in separate '<para>' tags.
-        const bool hasUserRemarks = !remarks.empty();
-        if (hasUserRemarks)
+        // If there's user-provided remarks, and a generated-type message, we introduce a paragraph between them.
+        if (!remarks.empty())
         {
-            // 'push_front' to go in front of the user-provided remarks.
-            remarks.push_front(""); // We want the '<para>' tag to be on its own line, not right after '<remarks>'
-            remarks.push_front("<para>");
-            remarks.push_back("</para>");
-            remarks.push_back("<para>");
+            remarks.push_back("<para />");
         }
 
         remarks.push_back(
@@ -793,12 +788,6 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generated
         if (!notes.empty())
         {
             remarks.push_back(notes);
-        }
-
-        if (hasUserRemarks)
-        {
-            remarks.push_back("</para>");
-            remarks.push_back("");
         }
     }
 
