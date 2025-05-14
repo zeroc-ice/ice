@@ -18,6 +18,9 @@
     <ClCompile Include="..\Gen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\slice2cs\CsMetadataValidator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -29,6 +32,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Gen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\slice2cs\CsMetadataValidator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
