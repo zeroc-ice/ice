@@ -40,8 +40,10 @@ class InvocationFuture(Future):
         After cancellation, `done()` returns `True`, and attempting to retrieve the result will raise
         an `Ice.InvocationCanceledException`.
         """
-        self._asyncInvocationContext.cancel()
-        return Future.cancel(self)
+        canceled = Future.cancel(self)
+        if canceled:
+            self._asyncInvocationContext.cancel()
+        return canceled
 
     def is_sent(self):
         """
