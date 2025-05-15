@@ -64,7 +64,7 @@ module IceStormElection
 
         /// Remove a subscriber from a topic.
         /// @param llu The log update token.
-        /// @param name The topic name.
+        /// @param topic The topic name.
         /// @param subscribers The identities of the subscribers to remove.
         /// @throws ObserverInconsistencyException Raised if an inconsistency was detected.
         void removeSubscriber(LogUpdate llu, string topic, Ice::IdentitySeq subscribers)
