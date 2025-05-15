@@ -121,11 +121,35 @@ def process_dump(dump: Path, workspace: Path, reports_root: Path, cdb_exe: str) 
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Collect dump-related binaries and PDBs")
-    parser.add_argument("--dumps", type=Path, default=Path("dumps"), help="Folder containing .dmp files")
-    parser.add_argument("--workspace", type=Path, default=Path(os.getenv("GITHUB_WORKSPACE", ".")).resolve(), help="GitHub workspace root")
-    parser.add_argument("--reports", type=Path, default=Path("Reports"), help="Output folder for reports")
-    parser.add_argument("--cdb", default="cdb", help="Path to cdb.exe (defaults to one on PATH)")
-    parser.add_argument("-v", "--verbose", action="count", default=0, help="Increase logging verbosity (-v or -vv)")
+    parser.add_argument(
+        "--dumps",
+        type=Path,
+        default=Path("dumps"),
+        help="Folder containing .dmp Windows dump files")
+
+    parser.add_argument(
+        "--workspace",
+        type=Path,
+        default=Path(os.getenv("GITHUB_WORKSPACE", ".")).resolve(),
+        help="GitHub workspace root")
+
+    parser.add_argument(
+        "--reports",
+        type=Path,
+        default=Path("Reports"),
+        help="Output folder for reports")
+
+    parser.add_argument(
+        "--cdb",
+        default="cdb",
+        help="Path to cdb.exe (defaults to one on PATH)")
+
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
+        help="Increase logging verbosity (-v or -vv)")
     return parser
 
 
