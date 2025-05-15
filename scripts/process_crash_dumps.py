@@ -68,7 +68,7 @@ def run_cdb(dump: Path, modules_txt: Path, cdb_exe: str) -> None:
     try:
         subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except FileNotFoundError as exc:
-        LOGGER.error("Could not find cdb.exe – specify with --cdb or add it to PATH")
+        LOGGER.error("Could not find cdb.exe - specify with --cdb or add it to PATH")
         raise SystemExit(1) from exc
 
 
