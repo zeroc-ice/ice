@@ -186,29 +186,70 @@ namespace
     }
 
     /// Returns a DocString formatted link to the provided Slice identifier.
-    /// TODO: this is temporary and will be replaced when we add 'python:identifier' support.
-    string pyLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    string pyLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
     {
-        ostringstream os;
-        os << "`";
-
-        auto hashPos = rawLink.find('#');
-        if (hashPos != string::npos)
+        ostringstream result;
+        if (target)
         {
-            if (hashPos != 0)
+            if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
             {
-                os << rawLink.substr(0, hashPos);
-                os << ".";
+                if (builtinTarget->kind() == Builtin::KindObject)
+                {
+                    result << ":class:`Ice.Object`";
+                }
+                else if (builtinTarget->kind() == Builtin::KindValue)
+                {
+                    result << ":class:`Ice.Value`";
+                }
+                else if (builtinTarget->kind() == Builtin::KindObjectProxy)
+                {
+                    result << ":class:`Ice.ObjectPrx`";
+                }
+                else
+                {
+                    result << "``" << typeToDocstring(builtinTarget, false) << "``";
+                }
             }
-            os << rawLink.substr(hashPos + 1);
+            else if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
+            {
+                string targetScoped = operationTarget->interface()->mappedScoped(".").substr(1);
+
+                // link to the method on the proxy interface
+                result << ":meth:`" << targetScoped << "Prx." << operationTarget->mappedName() << "`";
+            }
+            else
+            {
+                string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".").substr(1);
+                result << ":class:`" << targetScoped;
+                if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+                {
+                    // link to the proxy interface
+                    result << "Prx";
+                }
+                result << "`";
+            }
         }
         else
         {
-            os << rawLink;
-        }
+            result << "``";
 
-        os << "`";
-        return os.str();
+            auto hashPos = rawLink.find('#');
+            if (hashPos != string::npos)
+            {
+                if (hashPos != 0)
+                {
+                    result << rawLink.substr(0, hashPos) << ".";
+                }
+                result << rawLink.substr(hashPos + 1);
+            }
+            else
+            {
+                result << rawLink;
+            }
+
+            result << "``";
+        }
+        return result.str();
     }
 
     string formatFields(const DataMemberList& members)
@@ -241,7 +282,7 @@ namespace Slice::Python
     // ModuleVisitor finds all of the Slice modules whose include level is greater
     // than 0 and emits a statement of the following form:
     //
-    // _M_Foo = Ice.openModule('Foo')
+    // _M_Foo = Ice.openModule("Foo")
     //
     // This statement allows the code generated for this translation unit to refer
     // to types residing in those included modules.
@@ -355,7 +396,7 @@ writeModuleHasDefinitionCheck(Output& out, const ContainedPtr& cont, const strin
         scope = package + "." + scope;
     }
 
-    out << sp << nl << "if '" << name << "' not in _M_" << scope << "__dict__:";
+    out << sp << nl << "if \"" << name << "\" not in _M_" << scope << "__dict__:";
 }
 
 //
@@ -387,7 +428,7 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
                         mod = mod.empty() ? q : mod + "." + q;
                         if (_history.count(mod) == 0)
                         {
-                            _out << nl << "_M_" << mod << " = Ice.openModule('" << mod << "')";
+                            _out << nl << "_M_" << mod << " = Ice.openModule(\"" << mod << "\")";
                             _history.insert(mod);
                         }
                     }
@@ -395,7 +436,7 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
             }
 
             _out << sp << nl << "# Included module " << abs;
-            _out << nl << "_M_" << abs << " = Ice.openModule('" << abs << "')";
+            _out << nl << "_M_" << abs << " = Ice.openModule(\"" << abs << "\")";
             _history.insert(abs);
         }
     }
@@ -416,14 +457,14 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
     //
     // As each module is opened, we emit the statement
     //
-    // __name__ = 'Foo'
+    // __name__ = "Foo"
     //
     // This renames the current module to 'Foo' so that subsequent
     // type definitions have the proper fully-qualified name.
     //
     // We also emit the statement
     //
-    // _M_Foo = Ice.openModule('Foo')
+    // _M_Foo = Ice.openModule("Foo")
     //
     // This allows us to create types in the module Foo.
     //
@@ -447,16 +488,16 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
                     mod = mod.empty() ? q : mod + "." + q;
                     if (_moduleHistory.count(mod) == 0) // Don't emit this more than once for each module.
                     {
-                        _out << nl << "_M_" << mod << " = Ice.openModule('" << mod << "')";
+                        _out << nl << "_M_" << mod << " = Ice.openModule(\"" << mod << "\")";
                         _moduleHistory.insert(mod);
                     }
                 }
             }
         }
-        _out << nl << "_M_" << abs << " = Ice.openModule('" << abs << "')";
+        _out << nl << "_M_" << abs << " = Ice.openModule(\"" << abs << "\")";
         _moduleHistory.insert(abs);
     }
-    _out << nl << "__name__ = '" << abs << "'";
+    _out << nl << "__name__ = \"" << abs << "\"";
 
     writeDocstring(DocComment::parseFrom(p, pyLinkFormatter, true), "_M_" + abs + ".__doc__ = ");
 
@@ -473,7 +514,7 @@ Slice::Python::CodeVisitor::visitModuleEnd(const ModulePtr&)
 
     if (!_moduleStack.empty())
     {
-        _out << sp << nl << "__name__ = '" << _moduleStack.front() << "'";
+        _out << sp << nl << "__name__ = \"" << _moduleStack.front() << "\"";
     }
 }
 
@@ -486,7 +527,7 @@ Slice::Python::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
     {
         writeModuleHasDefinitionCheck(_out, p, p->mappedName());
         _out.inc();
-        _out << nl << getMetaTypeReference(p) << " = IcePy.declareValue('" << scoped << "')";
+        _out << nl << getMetaTypeReference(p) << " = IcePy.declareValue(\"" << scoped << "\")";
         _out.dec();
         _classHistory.insert(scoped); // Avoid redundant declarations.
     }
@@ -501,7 +542,7 @@ Slice::Python::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
     {
         writeModuleHasDefinitionCheck(_out, p, p->mappedName());
         _out.inc();
-        _out << nl << getMetaTypeReference(p) << "Prx" << " = IcePy.declareProxy('" << scoped << "')";
+        _out << nl << getMetaTypeReference(p) << "Prx" << " = IcePy.declareProxy(\"" << scoped << "\")";
         _out.dec();
         _classHistory.insert(scoped); // Avoid redundant declarations.
     }
@@ -624,7 +665,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     _out << sp << nl << "def ice_id(self):";
     _out.inc();
-    _out << nl << "return '" << scoped << "'";
+    _out << nl << "return \"" << scoped << "\"";
     _out.dec();
 
     //
@@ -633,7 +674,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp << nl << "@staticmethod";
     _out << nl << "def ice_staticId():";
     _out.inc();
-    _out << nl << "return '" << scoped << "'";
+    _out << nl << "return \"" << scoped << "\"";
     _out.dec();
 
     // Generate the __repr__ method for this Value class.
@@ -645,7 +686,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out.dec();
 
-    _out << sp << nl << type << " = IcePy.defineValue('" << scoped << "', " << valueName << ", " << p->compactId()
+    _out << sp << nl << type << " = IcePy.defineValue(\"" << scoped << "\", " << valueName << ", " << p->compactId()
          << ", ";
     writeMetadata(p->getMetadata());
     _out << ", False, ";
@@ -663,7 +704,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Data members are represented as a tuple:
     //
-    //   ('MemberName', MemberMetadata, MemberType, Optional, Tag)
+    //   ("MemberName", MemberMetadata, MemberType, Optional, Tag)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
     //
@@ -679,8 +720,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << ',' << nl;
         }
-        _out << "('";
-        _out << (*r)->mappedName() << "', ";
+        _out << "(\"" << (*r)->mappedName() << "\", ";
         writeMetadata((*r)->getMetadata());
         _out << ", ";
         writeType((*r)->type());
@@ -885,12 +925,12 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp << nl << "@staticmethod";
     _out << nl << "def ice_staticId():";
     _out.inc();
-    _out << nl << "return '" << scoped << "'";
+    _out << nl << "return \"" << scoped << "\"";
     _out.dec();
 
     _out.dec(); // end prx class
 
-    _out << nl << getMetaTypeReference(p) << "Prx" << " = IcePy.defineProxy('" << scoped << "', " << prxName << ")";
+    _out << nl << getMetaTypeReference(p) << "Prx" << " = IcePy.defineProxy(\"" << scoped << "\", " << prxName << ")";
 
     registerName(prxName);
 
@@ -940,7 +980,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             _out << ", ";
         }
-        _out << "'" << *q << "'";
+        _out << "\"" << *q << "\"";
     }
     _out << ')';
     _out.dec();
@@ -950,7 +990,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     _out << sp << nl << "def ice_id(self, current):";
     _out.inc();
-    _out << nl << "return '" << scoped << "'";
+    _out << nl << "return \"" << scoped << "\"";
     _out.dec();
 
     //
@@ -959,7 +999,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp << nl << "@staticmethod";
     _out << nl << "def ice_staticId():";
     _out.inc();
-    _out << nl << "return '" << scoped << "'";
+    _out << nl << "return \"" << scoped << "\"";
     _out.dec();
 
     writeOperations(p);
@@ -969,7 +1009,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     // Define each operation. The arguments to the IcePy.Operation constructor are:
     //
-    // 'sliceOpName', 'mappedOpName', Mode, AMD, Format, Metadata, (InParams), (OutParams), ReturnParam, (Exceptions)
+    // "sliceOpName", "mappedOpName", Mode, AMD, Format, Metadata, (InParams), (OutParams), ReturnParam, (Exceptions)
     //
     // where InParams and OutParams are tuples of type descriptions, and Exceptions
     // is a tuple of exception type ids.
@@ -978,6 +1018,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         _out << sp;
     }
+
     for (const auto& operation : operations)
     {
         ParameterList params = operation->parameters();
@@ -1006,8 +1047,8 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         const string sliceName = operation->name();
 
-        _out << nl << className << "._op_" << sliceName << " = IcePy.Operation('" << sliceName << "', '"
-             << operation->mappedName() << "', " << getOperationMode(operation->mode()) << ", " << format << ", ";
+        _out << nl << className << "._op_" << sliceName << " = IcePy.Operation(\"" << sliceName << "\", \""
+             << operation->mappedName() << "\", " << getOperationMode(operation->mode()) << ", " << format << ", ";
         writeMetadata(operation->getMetadata());
         _out << ", (";
         for (t = params.begin(), count = 0; t != params.end(); ++t)
@@ -1169,7 +1210,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // _ice_id
     //
-    _out << sp << nl << "_ice_id = '" << scoped << "'";
+    _out << sp << nl << "_ice_id = \"" << scoped << "\"";
 
     _out.dec();
 
@@ -1177,7 +1218,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     // Emit the type information.
     //
     string type = getMetaTypeReference(p);
-    _out << sp << nl << type << " = IcePy.defineException('" << scoped << "', " << name << ", ";
+    _out << sp << nl << type << " = IcePy.defineException(\"" << scoped << "\", " << name << ", ";
     writeMetadata(p->getMetadata());
     _out << ", ";
     if (!base)
@@ -1197,7 +1238,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Data members are represented as a tuple:
     //
-    //   ('MemberName', MemberMetadata, MemberType, Optional, Tag)
+    //   ("MemberName", MemberMetadata, MemberType, Optional, Tag)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
     //
@@ -1207,7 +1248,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             _out << ',' << nl;
         }
-        _out << "('" << (*dmli)->mappedName() << "', ";
+        _out << "(\"" << (*dmli)->mappedName() << "\", ";
         writeMetadata((*dmli)->getMetadata());
         _out << ", ";
         writeType((*dmli)->type());
@@ -1456,13 +1497,13 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     //
     // Emit the type information.
     //
-    _out << sp << nl << getMetaTypeReference(p) << " = IcePy.defineStruct('" << scoped << "', " << name << ", ";
+    _out << sp << nl << getMetaTypeReference(p) << " = IcePy.defineStruct(\"" << scoped << "\", " << name << ", ";
     writeMetadata(p->getMetadata());
     _out << ", (";
     //
     // Data members are represented as a tuple:
     //
-    //   ('MemberName', MemberMetadata, MemberType)
+    //   ("MemberName", MemberMetadata, MemberType)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
     //
@@ -1477,7 +1518,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         {
             _out << ',' << nl;
         }
-        _out << "('" << (*r)->mappedName() << "', ";
+        _out << "(\"" << (*r)->mappedName() << "\", ";
         writeMetadata((*r)->getMetadata());
         _out << ", ";
         writeType((*r)->type());
@@ -1507,7 +1548,7 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
     // Emit the type information.
     writeModuleHasDefinitionCheck(_out, p, "_t_" + p->mappedName());
     _out.inc();
-    _out << nl << getMetaTypeReference(p) << " = IcePy.defineSequence('" << p->scoped() << "', ";
+    _out << nl << getMetaTypeReference(p) << " = IcePy.defineSequence(\"" << p->scoped() << "\", ";
     writeMetadata(p->getMetadata());
     _out << ", ";
     writeType(p->type());
@@ -1521,7 +1562,7 @@ Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
     // Emit the type information.
     writeModuleHasDefinitionCheck(_out, p, "_t_" + p->mappedName());
     _out.inc();
-    _out << nl << getMetaTypeReference(p) << " = IcePy.defineDictionary('" << p->scoped() << "', ";
+    _out << nl << getMetaTypeReference(p) << " = IcePy.defineDictionary(\"" << p->scoped() << "\", ";
     writeMetadata(p->getMetadata());
     _out << ", ";
     writeType(p->keyType());
@@ -1598,7 +1639,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     // Emit the type information.
     //
-    _out << sp << nl << getMetaTypeReference(p) << " = IcePy.defineEnum('" << scoped << "', " << name << ", ";
+    _out << sp << nl << getMetaTypeReference(p) << " = IcePy.defineEnum(\"" << scoped << "\", " << name << ", ";
     writeMetadata(p->getMetadata());
     _out << ", " << name << "._enumerators)";
 
@@ -1727,7 +1768,7 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
             }
             case Builtin::KindString:
             {
-                _out << "''";
+                _out << "\"\"";
                 break;
             }
             case Builtin::KindValue:
@@ -1805,7 +1846,7 @@ Slice::Python::CodeVisitor::writeMetadata(const MetadataList& metadata)
             {
                 _out << ", ";
             }
-            _out << "'" << *meta << "'";
+            _out << "\"" << *meta << "\"";
             ++i;
         }
     }
@@ -2397,19 +2438,12 @@ Slice::Python::generate(const UnitPtr& unit, bool all, const vector<string>& inc
 string
 Slice::Python::getPackageMetadata(const ContainedPtr& cont)
 {
-    // Traverse to the top-level module.
-    ContainedPtr p = cont;
-    while (!p->isTopLevel())
-    {
-        p = dynamic_pointer_cast<Contained>(p->container());
-        assert(p);
-    }
-    assert(dynamic_pointer_cast<Module>(p));
+    ModulePtr topLevelModule = cont->getTopLevelModule();
 
     // The python:package metadata can be defined as file metadata or applied to a top-level module.
     // We check for the metadata at the top-level module first and then fall back to the global scope.
     static const string directive = "python:package";
-    if (auto packageMetadata = p->getMetadataArgs(directive))
+    if (auto packageMetadata = topLevelModule->getMetadataArgs(directive))
     {
         return *packageMetadata;
     }

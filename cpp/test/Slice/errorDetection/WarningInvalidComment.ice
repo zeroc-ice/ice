@@ -18,7 +18,7 @@ module Test
     }
 
     /// This is a test overview.
-    /// @remark: This is an unknown comment tag which spans 1 line.
+    /// @something: This is an unknown comment tag which spans 1 line.
     /// @see: CommentDummy
     ///       But then we write a 2nd line, which isn't allowed for 'see' tags.
     /// @bad: Another unknown comment tag, but this will span 2 lines.

@@ -280,6 +280,8 @@ namespace Slice
 
         /// Contains all introductory lines up to the first tag.
         [[nodiscard]] StringList overview() const;
+        /// Returns the contents of any '@remark' or '@remarks' tags.
+        [[nodiscard]] StringList remarks() const;
         /// Targets of '@see' tags.
         [[nodiscard]] StringList seeAlso() const;
 
@@ -294,6 +296,7 @@ namespace Slice
         bool _isDeprecated{false};
         StringList _deprecated;
         StringList _overview;
+        StringList _remarks;
         StringList _seeAlso;
 
         StringList _returns;
@@ -382,6 +385,7 @@ namespace Slice
         virtual void destroy() {}
         [[nodiscard]] ContainerPtr container() const;
         [[nodiscard]] bool isTopLevel() const;
+        [[nodiscard]] virtual ModulePtr getTopLevelModule() const;
 
         /// Returns the Slice identifier of this element.
         [[nodiscard]] std::string name() const;
@@ -535,6 +539,7 @@ namespace Slice
     public:
         Module(const ContainerPtr& container, const std::string& name, bool nestedSyntax);
         [[nodiscard]] std::string kindOf() const final;
+        [[nodiscard]] ModulePtr getTopLevelModule() const final;
         void visit(ParserVisitor* visitor) final;
         void destroy() final;
 

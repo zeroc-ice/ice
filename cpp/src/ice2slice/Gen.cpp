@@ -47,36 +47,19 @@ namespace
     // We cannot use mappedScoped because it depends on the language name used to create the Unit.
     static string getCsMappedScoped(const ContainedPtr& cont) { return getCsMappedScope(cont) + getCsMappedName(cont); }
 
-    static string getCsNamespacePrefix(const ContainedPtr& cont)
-    {
-        // Traverse to the top-level module.
-        ContainedPtr p = cont;
-        while (true)
-        {
-            if (p->isTopLevel())
-            {
-                break;
-            }
-            p = dynamic_pointer_cast<Contained>(p->container());
-            assert(p);
-        }
-        assert(dynamic_pointer_cast<Module>(p));
-
-        return p->getMetadataArgs("cs:namespace").value_or("");
-    }
-
     static string getCsMappedNamespace(const ContainedPtr& cont)
     {
-        string csNamespacePrefix = getCsNamespacePrefix(cont);
+        ModulePtr topLevelModule = cont->getTopLevelModule();
         string csMappedScope = getCsMappedScope(cont).substr(1);
         csMappedScope = csMappedScope.substr(0, csMappedScope.size() - 1); // Remove the trailing "."
-        if (csNamespacePrefix.empty())
+
+        if (auto csNamespacePrefix = topLevelModule->getMetadataArgs("cs:namespace"))
         {
-            return csMappedScope;
+            return *csNamespacePrefix + "." + csMappedScope;
         }
         else
         {
-            return csNamespacePrefix + "." + csMappedScope;
+            return csMappedScope;
         }
     }
 

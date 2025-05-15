@@ -767,20 +767,33 @@ void
 Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generatedType, const string& notes)
 {
     optional<DocComment> comment = DocComment::parseFrom(p, csLinkFormatter, true, true);
+    StringList remarks;
     if (comment)
     {
         writeDocLines(_out, "summary", comment->overview());
+        remarks = comment->remarks();
     }
 
     if (!generatedType.empty())
     {
-        _out << nl << "/// <remarks>" << "The Slice compiler generated this " << generatedType << " from Slice "
-             << p->kindOf() << " <c>" << p->scoped() << "</c>.";
+        // If there's user-provided remarks, and a generated-type message, we introduce a paragraph between them.
+        if (!remarks.empty())
+        {
+            remarks.emplace_back("<para />");
+        }
+
+        remarks.push_back(
+            "The Slice compiler generated this " + generatedType + " from Slice " + p->kindOf() + " <c>" + p->scoped() +
+            "</c>.");
         if (!notes.empty())
         {
-            _out << nl << "/// " << notes;
+            remarks.push_back(notes);
         }
-        _out << "</remarks>";
+    }
+
+    if (!remarks.empty())
+    {
+        writeDocLines(_out, "remarks", remarks);
     }
 
     if (comment)
@@ -851,6 +864,8 @@ Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>
 
         writeDocLines(_out, openTag.str(), exceptionLines, "exception");
     }
+
+    writeDocLines(_out, "remarks", comment->remarks());
 
     writeSeeAlso(_out, comment->seeAlso());
 }

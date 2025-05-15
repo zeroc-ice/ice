@@ -1,26 +1,53 @@
 // Copyright (c) ZeroC, Inc.
 
-#ifndef ICE_PROPERTIES_ADMIN_H
-#define ICE_PROPERTIES_ADMIN_H
+#ifndef ICE_NATIVE_PROPERTIES_ADMIN_H
+#define ICE_NATIVE_PROPERTIES_ADMIN_H
 
+#include "Ice/PropertiesAdmin.h"
 #include "Ice/PropertyDict.h"
 
 #include <functional>
+#include <list>
 #include <memory>
+#include <mutex>
 
 namespace Ice
 {
-    /// Base class for the Properties admin facet.
+    /// The default implementation for the PropertiesAdmin facet.
     /// @headerfile Ice/Ice.h
-    // This class must be ICE_API with an out-of-line destructor because we dynamic_pointer_cast to it.
-    class ICE_API NativePropertiesAdmin
+    class ICE_API NativePropertiesAdmin final : public PropertiesAdmin,
+                                                public std::enable_shared_from_this<NativePropertiesAdmin>
     {
     public:
-        virtual ~NativePropertiesAdmin();
+        /// Constructs a NativePropertiesAdmin.
+        /// @param properties The properties to manage.
+        /// @param logger The logger to use for logging.
+        NativePropertiesAdmin(PropertiesPtr properties, LoggerPtr logger);
 
-        /// Registers an update callback that will be invoked when property updates occur.
+        ~NativePropertiesAdmin() final;
+
+        /// @copydoc PropertiesAdmin::getProperty
+        std::string getProperty(std::string key, const Current& current) final;
+
+        /// @copydoc PropertiesAdmin::getPropertiesForPrefix
+        PropertyDict getPropertiesForPrefix(std::string prefix, const Current& current) final;
+
+        /// @copydoc PropertiesAdmin::setProperties
+        void setProperties(PropertyDict newProperties, const Current& current) final;
+
+        /// Registers an update callback that will be invoked when a property update occurs.
         /// @param cb The callback.
-        virtual std::function<void()> addUpdateCallback(std::function<void(const PropertyDict&)> cb) = 0;
+        /// @return A function that unregisters the callback.
+        std::function<void()> addUpdateCallback(std::function<void(const PropertyDict&)> cb);
+
+    private:
+        void removeUpdateCallback(std::list<std::function<void(const PropertyDict&)>>::iterator p);
+
+        const PropertiesPtr _properties;
+        const LoggerPtr _logger;
+        std::recursive_mutex _mutex;
+
+        std::list<std::function<void(const PropertyDict&)>> _updateCallbacks;
     };
 
     /// A shared pointer to a NativePropertiesAdmin.
