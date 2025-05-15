@@ -110,6 +110,12 @@ module Test
         double zeroDotD = 0;
     }
 
+    struct Struct4
+    {
+        string foo = "foo";
+        string bar;
+    }
+
     class Base
     {
         bool boolFalse = false;

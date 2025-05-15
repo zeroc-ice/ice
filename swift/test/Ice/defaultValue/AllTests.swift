@@ -87,6 +87,12 @@ func allTests(_ helper: TestHelper) async throws {
     }
 
     do {
+        let v = Struct4(bar: "bar")
+        try test(v.foo == "foo")
+        try test(v.bar == "bar")
+    }
+
+    do {
         let v = Base()
         try test(!v.boolFalse)
         try test(v.boolTrue)

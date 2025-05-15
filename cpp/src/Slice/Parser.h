@@ -1020,7 +1020,7 @@ namespace Slice
         [[nodiscard]] bool optional() const;
         [[nodiscard]] int tag() const;
 
-        // defaultValue() and defaultValueType() are either both null (not default value) or both non-null.
+        // defaultValue() and defaultValueType() are either both null (no default value) or both non-null.
         [[nodiscard]] std::optional<std::string> defaultValue() const;
         [[nodiscard]] SyntaxTreeBasePtr defaultValueType() const;
         [[nodiscard]] std::string kindOf() const final;

@@ -22,7 +22,7 @@ func allTests(_ helper: TestHelper) async throws {
             name: "MyOA", endpoints: "tcp -h 127.0.0.1 -p 0")
         let log = MiddlewareLog()
 
-        let objPrx = try oa.add(servant: MyObjectDisp(MyObjectI()), id: Ice.stringToIdentity("test"))
+        let objPrx = try oa.add(servant: MyObjectDisp(MyObjectI()), id: Ice.Identity(name: "test"))
         oa.use { next in
             Middleware(next, "A", log)
         }.use { next in

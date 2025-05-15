@@ -27,7 +27,7 @@ class Server: TestHelperI {
                 key: "TestAdapter.Endpoints",
                 value: getTestEndpoint(num: 0, prot: "udp"))
             let adapter2 = try communicator.createObjectAdapter("TestAdapter")
-            try adapter2.add(servant: TestIntfDisp(TestIntfI()), id: Ice.stringToIdentity("test"))
+            try adapter2.add(servant: TestIntfDisp(TestIntfI()), id: Ice.Identity(name: "test"))
             try adapter2.activate()
         }
 
@@ -44,7 +44,7 @@ class Server: TestHelperI {
         endpoint += "\(getTestPort(properties: properties, num: 10))"
         communicator.getProperties().setProperty(key: "McastTestAdapter.Endpoints", value: endpoint)
         let mcastAdapter = try communicator.createObjectAdapter("McastTestAdapter")
-        try mcastAdapter.add(servant: TestIntfDisp(TestIntfI()), id: Ice.stringToIdentity("test"))
+        try mcastAdapter.add(servant: TestIntfDisp(TestIntfI()), id: Ice.Identity(name: "test"))
         try mcastAdapter.activate()
         communicator.waitForShutdown()
     }
