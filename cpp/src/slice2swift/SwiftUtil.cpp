@@ -918,7 +918,7 @@ SwiftGenerator::writeMemberwiseInitializer(
                 out << ", ";
             }
 
-            out << m->mappedName() << ": " + typeToString(m->type(), p, m->optional());
+            out << m->mappedName() << ": " << typeToString(m->type(), p, m->optional());
             if (m->defaultValueType())
             {
                 out << " = ";
