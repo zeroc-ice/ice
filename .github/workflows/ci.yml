@@ -88,13 +88,12 @@ jobs:
             test_flags: "--platform=x64"
             build_cpp_and_python: true
 
-          # Android (disabled until we fix https://github.com/zeroc-ice/ice/issues/3341)
-          # - os: ubuntu-24.04
-          #   config: "android"
-          #   working_directory: "java"
-          #   test_flags: "--android --controller-app"
-          #   build_cpp_and_python: true
-          #   build_android_controller: true
+          - os: ubuntu-24.04
+            config: "android"
+            working_directory: "java"
+            test_flags: "--android --controller-app"
+            build_cpp_and_python: true
+            build_android_controller: true
 
     runs-on: ${{ matrix.os }}
     steps:
