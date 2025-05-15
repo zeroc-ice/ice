@@ -7,7 +7,6 @@ import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.MarshalException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.UnknownUserException;
-import com.zeroc.Ice.Util;
 
 import test.Ice.packagemd.Test.InitialPrx;
 import test.Ice.packagemd.Test1.C1;
