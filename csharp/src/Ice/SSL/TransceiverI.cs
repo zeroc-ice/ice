@@ -76,7 +76,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         if (_sslStream != null)
         {
             cancelSslHandshake();
-            _sslStream.Dispose(); // Closing the stream also closes the socket.
+            _sslStream.Dispose(); // Disposing the stream also closes the socket.
             _sslStream = null;
         }
 
