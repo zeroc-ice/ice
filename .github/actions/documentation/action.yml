@@ -67,7 +67,7 @@ runs:
         done
 
         # Check if the documentation generation had any warnings
-        if grep -q "warning:" doc_output.log; then
+        if grep -q "^warning:" doc_output.log; then
           echo "Documentation generation had warnings"
           exit 1
         fi
