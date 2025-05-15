@@ -17,7 +17,6 @@ Client::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     void allTests(Test::TestHelper*);
     allTests(this);
-    assert(false); // Testing dumps
 }
 
 DEFINE_TEST(Client)

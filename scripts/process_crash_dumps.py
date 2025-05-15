@@ -5,13 +5,13 @@
 """
 process_crash_dumps.py - gather binaries & PDBs referenced by crash dumps
 
-For every *.dmp* file found in a dumps directory this script:
-  1. Launches `cdb.exe` to generate a *modules.txt* file containing the
-     verbose module list (equivalent to Visual Studio's **Modules** window).
-  2. Parses that text, keeps only the modules whose Image paths live inside
-     the current GitHub workspace (or an explicitly supplied workspace path).
-  3. Copies each matching binary **and** its companion PDB (if found) to a
-     dedicated sub-folder under *Reports/<dump file name>/*.`
+For every *.dmp* file found in the specified dumps directory this script:
+  1. Launches `cdb.exe` to generate a *modules.txt* file containing full module list corresponding
+     to the dlls and executables loaded by the crashed process.
+  2. Parses the modules and filter outs any modules that are located outside the GitHub workspace,
+     this is to avoid copying binaries not belonging to the current build.
+  3. Copies each matching binary **and** its companion PDB (if found) to a dedicated sub-folder under
+     specified reports directory.
 
 Example folder structure created:
 
@@ -23,15 +23,8 @@ Example folder structure created:
         ice38a0.dll
         ice38a0.pdb
 
-Usage (run from CI):
-
-    python process_crash_dumps.py \
-        --dumps "C:\\dumps" \
-        --workspace "%GITHUB_WORKSPACE%" \
-        --reports Reports
-
 Arguments:
-  --dumps       Path containing *.dmp files (default: ./dumps)
+  --dumps       Path containing *.dmp dump files
   --workspace   Root of your GitHub checkout (default: env GITHUB_WORKSPACE or cwd)
   --reports     Where to write the per-dump report folders (default: ./Reports)
   --cdb         Full path to cdb.exe if it isn't in PATH
@@ -87,7 +80,8 @@ def inside_workspace(path: Path, workspace: Path) -> bool:
     """Return *True* if *path* is located inside *workspace* (case-insensitive)."""
     try:
         return Path(os.path.commonpath([workspace.resolve(), path.resolve()])) == workspace.resolve()
-    except ValueError:  # drives differ on Windows, cannot be inside
+    except ValueError:
+        # drives differ on Windows, cannot be inside
         return False
 
 
