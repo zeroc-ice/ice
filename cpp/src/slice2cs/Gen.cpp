@@ -13,6 +13,7 @@
 
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
+#include "CsMetadataValidator.h"
 #include "Ice/UUID.h"
 #include <algorithm>
 #include <cassert>
@@ -973,7 +974,7 @@ Slice::Gen::~Gen()
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-    CsGenerator::validateMetadata(p);
+    Slice::validateCsMetadata(p);
 
     TypesVisitor typesVisitor(_out);
     p->visit(&typesVisitor);

@@ -108,6 +108,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Gen.cpp" />
+    <ClCompile Include="..\..\slice2cs\CsMetadataValidator.cpp" />
     <ClCompile Include="..\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -115,6 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Gen.h" />
+    <ClInclude Include="..\..\slice2cs\CsMetadataValidator.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\IceUtil\msbuild\iceutil\iceutil.vcxproj">

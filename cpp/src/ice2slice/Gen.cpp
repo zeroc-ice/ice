@@ -3,6 +3,7 @@
 #include "Gen.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
+#include "../slice2cs/CsMetadataValidator.h"
 
 #include <cassert>
 
@@ -347,6 +348,8 @@ Gen::Gen(std::string fileBase) : _fileBase(std::move(fileBase)) {}
 void
 Gen::generate(const UnitPtr& p)
 {
+    Slice::validateCsMetadata(p);
+
     OutputModulesVisitor outputModulesVisitor;
     p->visit(&outputModulesVisitor);
 
