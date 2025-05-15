@@ -905,12 +905,33 @@ SwiftGenerator::writeMemberwiseInitializer(
     {
         out << sp;
         out << nl;
-        out << "public init" << spar;
+        out << "public init(";
+        bool firstMember = true;
         for (const auto& m : allMembers)
         {
-            out << (m->mappedName() + ": " + typeToString(m->type(), p, m->optional()));
+            if (firstMember)
+            {
+                firstMember = false;
+            }
+            else
+            {
+                out << ", ";
+            }
+
+            out << m->mappedName() << ": " << typeToString(m->type(), p, m->optional());
+            if (m->defaultValueType())
+            {
+                out << " = ";
+                writeConstantValue(
+                    out,
+                    m->type(),
+                    m->defaultValueType(),
+                    m->defaultValue().value_or(""),
+                    getSwiftModule(p->getTopLevelModule()),
+                    m->optional());
+            }
         }
-        out << epar;
+        out << ")";
         out << sb;
         for (const auto& m : members)
         {
@@ -976,7 +997,7 @@ SwiftGenerator::writeMembers(
                     out,
                     type,
                     member->defaultValueType(),
-                    member->defaultValue().value_or(""), // TODO: revisit this code
+                    member->defaultValue().value_or(""),
                     swiftModule,
                     member->optional());
             }

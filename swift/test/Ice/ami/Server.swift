@@ -44,7 +44,7 @@ class Server: TestHelperI {
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         let adapter2 = try communicator.createObjectAdapter("ControllerAdapter")
 
-        try adapter.add(servant: TestIntfDisp(TestI(helper: self)), id: Ice.stringToIdentity("test"))
+        try adapter.add(servant: TestIntfDisp(TestI(helper: self)), id: Ice.Identity(name: "test"))
         try adapter.add(servant: OuterInnerTestIntfDisp(TestII()), id: Ice.stringToIdentity("test2"))
         try adapter.activate()
         try adapter2.add(

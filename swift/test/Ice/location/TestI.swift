@@ -117,7 +117,7 @@ class ServerManagerI: ServerManager {
 
                 let object = try TestI(adapter1: adapter, adapter2: adapter2, registry: _registry)
                 try _registry.addObject(
-                    adapter.add(servant: TestIntfDisp(object), id: Ice.stringToIdentity("test")))
+                    adapter.add(servant: TestIntfDisp(object), id: Ice.Identity(name: "test")))
                 try _registry.addObject(
                     adapter.add(servant: TestIntfDisp(object), id: Ice.stringToIdentity("test2")))
                 _ = try adapter.add(servant: TestIntfDisp(object), id: Ice.stringToIdentity("test3"))

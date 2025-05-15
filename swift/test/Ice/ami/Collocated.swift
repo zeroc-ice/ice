@@ -44,7 +44,7 @@ class Collocated: TestHelperI {
 
         try adapter.add(
             servant: TestIntfDisp(TestI(helper: self)),
-            id: Ice.stringToIdentity("test"))
+            id: Ice.Identity(name: "test"))
         try adapter.add(
             servant: OuterInnerTestIntfDisp(TestII()),
             id: Ice.stringToIdentity("test2"))

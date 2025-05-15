@@ -41,14 +41,14 @@ public class Client: TestHelperI {
         communicator.getProperties().setProperty(
             key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
-        try adapter.add(servant: breakDisp(BreakI()), id: Ice.stringToIdentity("test"))
+        try adapter.add(servant: breakDisp(BreakI()), id: Ice.Identity(name: "test"))
         try adapter.add(servant: doDisp(DoI()), id: Ice.stringToIdentity("test1"))
         try adapter.activate()
 
         let out = getWriter()
         out.write("testing operation name... ")
         let p = try await checkedCast(
-            prx: adapter.createProxy(Ice.stringToIdentity("test")), type: breakPrx.self)!
+            prx: adapter.createProxy(Ice.Identity(name: "test")), type: breakPrx.self)!
         _ = try await p.case(0)
         out.writeLine("ok")
 

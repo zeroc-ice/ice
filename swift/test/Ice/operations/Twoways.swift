@@ -219,9 +219,9 @@ func testClasses(helper: TestHelper, prx p: MyClassPrx) async throws {
     do {
         var (r, c1, c2) = try await p.opMyClass(p)
 
-        try test(c1!.ice_getIdentity() == Ice.stringToIdentity("test"))
+        try test(c1!.ice_getIdentity() == Ice.Identity(name: "test"))
         try test(c2!.ice_getIdentity() == Ice.stringToIdentity("noSuchIdentity"))
-        try test(r!.ice_getIdentity() == Ice.stringToIdentity("test"))
+        try test(r!.ice_getIdentity() == Ice.Identity(name: "test"))
         try await r!.opVoid()
         try await c1!.opVoid()
 
