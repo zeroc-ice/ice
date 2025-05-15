@@ -571,6 +571,7 @@
     <ClCompile Include="..\..\LoggerI.cpp" />
     <ClCompile Include="..\..\LoggerUtil.cpp" />
     <ClCompile Include="..\..\MetricsAdminI.cpp" />
+    <ClCompile Include="..\..\NativePropertiesAdmin.cpp" />
     <ClCompile Include="..\..\Network.cpp" />
     <ClCompile Include="..\..\NetworkProxy.cpp" />
     <ClCompile Include="..\..\Object.cpp" />
@@ -582,7 +583,6 @@
     <ClCompile Include="..\..\OutgoingAsync.cpp" />
     <ClCompile Include="..\..\OutputStream.cpp" />
     <ClCompile Include="..\..\PluginManagerI.cpp" />
-    <ClCompile Include="..\..\PropertiesAdminI.cpp" />
     <ClCompile Include="..\..\PropertyNames.cpp" />
     <ClCompile Include="..\..\PropertyUtil.cpp" />
     <ClCompile Include="..\..\Protocol.cpp" />
