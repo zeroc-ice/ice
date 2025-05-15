@@ -7,7 +7,6 @@ import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.MarshalException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.UnknownUserException;
-import com.zeroc.Ice.Util;
 
 import test.Ice.packagemd.Test.InitialPrx;
 import test.Ice.packagemd.Test1.C1;
@@ -105,7 +104,7 @@ public class AllTests {
                 initData.properties.setProperty("Ice.Package.Test2", "test.Ice.packagemd.testpkg");
                 initData.properties.setProperty("Ice.Default.Package", "test.Ice.packagemd.modpkg");
 
-                try (Communicator configuredCommunicator = Util.initialize(initData)) {
+                try (Communicator configuredCommunicator = helper.initialize(initData)) {
                     var proxy = InitialPrx.createProxy(configuredCommunicator, ref);
 
                     test.Ice.packagemd.testpkg.Test2.C1 c1 = proxy.getTest2C2AsC1();
