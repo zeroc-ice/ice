@@ -58,10 +58,20 @@ runs:
       run: |
         mkdir ./swift/docs
 
+        touch doc_output.log
+
         for target in Ice Glacier2 IceGrid IceStorm; do
-          swift package --allow-writing-to-directory ./swift/docs generate-documentation --output-path ./swift/docs/$target \
-            --target $target --transform-for-static-hosting --hosting-base-path  /ice/main/api/swift/$target
+          swift package --allow-writing-to-directory ./swift/docs generate-documentation \
+            --output-path ./swift/docs/$target --target $target \
+            --transform-for-static-hosting --hosting-base-path  /ice/main/api/swift/$target 2>&1 | tee -a doc_output.log
         done
+
+        # Check if the documentation generation had any warnings
+        if grep -q "^warning:" doc_output.log; then
+          echo "Documentation generation had warnings"
+          exit 1
+        fi
+
       shell: bash
 
     - name: Generate API reference for Java
