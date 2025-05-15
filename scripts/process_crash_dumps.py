@@ -111,6 +111,9 @@ def process_dump(dump: Path, workspace: Path, reports_root: Path, cdb_exe: str) 
         else:
             LOGGER.debug("Skipping non-workspace module: %s", img_path)
 
+    # Copy the dump file itself to the report directory
+    shutil.copy2(dump, report_dir / dump.name)
+
 
 # ---------------------------------------------------------------------------
 # CLI
