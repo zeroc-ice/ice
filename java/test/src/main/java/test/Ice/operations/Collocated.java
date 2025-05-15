@@ -19,7 +19,8 @@ public class Collocated extends TestHelper {
         initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.operations.Test");
         initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.BatchAutoFlushSize", "100");
-        // It's possible to have batch oneway requests dispatched after the adapter is deactivated due to thread scheduling so we suppress this warning.
+        // It's possible to have batch oneway requests dispatched after the adapter is deactivated due to thread
+        // scheduling so we suppress this warning.
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
 
         try (Communicator communicator = initialize(initData)) {
