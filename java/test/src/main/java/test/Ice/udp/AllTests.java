@@ -80,7 +80,7 @@ public class AllTests {
             obj.ping(reply);
             obj.ping(reply);
             obj.ping(reply);
-            ret = replyI.waitReply(3, 2000);
+            ret = replyI.waitReply(3, 2000, out);
             if (ret) {
                 break; // Success
             }
@@ -104,7 +104,7 @@ public class AllTests {
                     seq = new byte[seq.length * 2 + 10];
                     replyI.reset();
                     obj.sendByteSeq(seq, reply);
-                    replyI.waitReply(1, 10000);
+                    replyI.waitReply(1, 10000, out);
                 }
             } catch (DatagramLimitException ex) {
                 test(seq.length > 16384);
@@ -120,7 +120,7 @@ public class AllTests {
                 // We don't expect a reply because the server's value for Ice.UDP.RcvSize is too
                 // small.
                 //
-                test(!replyI.waitReply(1, 500));
+                test(!replyI.waitReply(1, 500, out));
             } catch (LocalException ex) {
                 ex.printStackTrace();
                 test(false);
@@ -176,7 +176,7 @@ public class AllTests {
                     }
                     throw ex;
                 }
-                ret = replyI.waitReply(numServers, 2000);
+                ret = replyI.waitReply(numServers, 2000, out);
                 if (ret) {
                     break; // Success
                 }
@@ -199,7 +199,7 @@ public class AllTests {
                 obj.pingBiDir(reply.ice_getIdentity());
                 obj.pingBiDir(reply.ice_getIdentity());
                 obj.pingBiDir(reply.ice_getIdentity());
-                ret = replyI.waitReply(3, 2000);
+                ret = replyI.waitReply(3, 2000, out);
                 if (ret) {
                     break; // Success
                 }
