@@ -3,7 +3,6 @@
 package com.zeroc.Ice;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -152,8 +151,6 @@ class StreamSocket {
                 }
 
                 read += ret;
-            } catch (InterruptedIOException ex) {
-                continue;
             } catch (IOException ex) {
                 throw new ConnectionLostException(ex);
             }
@@ -185,8 +182,6 @@ class StreamSocket {
                     return sent;
                 }
                 sent += ret;
-            } catch (InterruptedIOException ex) {
-                continue;
             } catch (IOException ex) {
                 throw new SocketException(ex);
             }
