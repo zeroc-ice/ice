@@ -35,7 +35,7 @@ public class AllTests {
             _replies = 0;
         }
 
-        public synchronized boolean waitReply(int expectedReplies, long timeout) {
+        public synchronized boolean waitReply(int expectedReplies, long timeout, PrintWriter out) {
             long end = System.currentTimeMillis() + timeout;
             while (_replies < expectedReplies) {
                 long delay = end - System.currentTimeMillis();
@@ -46,6 +46,9 @@ public class AllTests {
                 } else {
                     break;
                 }
+            }
+            if (_replies != expectedReplies) {
+                out.println("Expected " + expectedReplies + " replies, got " + _replies);
             }
             return _replies == expectedReplies;
         }
