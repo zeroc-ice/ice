@@ -276,7 +276,7 @@ Test::TestHelper::initialize(Ice::InitializationData initData)
 {
     int argc = 0;
     char* argv[] = {nullptr};
-    return initialize(argc, argv, initData);
+    return initialize(argc, argv, std::move(initData));
 }
 
 Ice::CommunicatorPtr
