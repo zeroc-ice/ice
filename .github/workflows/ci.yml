@@ -214,11 +214,24 @@ jobs:
           if-no-files-found: ignore
         if: runner.os == 'macOS' && always()
 
-      - name: Upload Windows crash dumps
+      - name: Process Windows crash dumps
+        if: runner.os == 'Windows' && always()
+        shell: pwsh
+        run: |
+          $dumpDir   = Join-Path $env:GITHUB_WORKSPACE 'LocalDumps'
+          $reportsDir = Join-Path $env:GITHUB_WORKSPACE 'LocalDumpReports'
+
+          python scripts\process_crash_dumps.py `
+              --dumps     $dumpDir `
+              --workspace $env:GITHUB_WORKSPACE `
+              --reports   $reportsDir `
+              --cdb "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\cdb.exe"
+
+      - name: Upload Windows crash dump reports
         uses: actions/upload-artifact@v4
         with:
           name: crash-dumps-${{ matrix.config }}-${{ matrix.os }}
-          path: ${{ github.workspace }}/LocalDumps/*
+          path: ${{ github.workspace }}/LocalDumpReports/*
           if-no-files-found: ignore
         if: runner.os == 'Windows' && always()
 
