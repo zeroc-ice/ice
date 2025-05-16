@@ -121,8 +121,6 @@ final class UdpTransceiver implements Transceiver {
                 throw new ConnectionLostException(ex);
             } catch (PortUnreachableException ex) {
                 throw new ConnectionLostException(ex);
-            } catch (InterruptedIOException ex) {
-                continue;
             } catch (IOException ex) {
                 throw new SocketException(ex);
             }
@@ -164,8 +162,6 @@ final class UdpTransceiver implements Transceiver {
                 throw new ConnectionLostException(ex);
             } catch (PortUnreachableException ex) {
                 throw new ConnectionLostException(ex);
-            } catch (InterruptedIOException ex) {
-                continue;
             } catch (IOException ex) {
                 throw new ConnectionLostException(ex);
             }

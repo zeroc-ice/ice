@@ -152,8 +152,6 @@ class StreamSocket {
                 }
 
                 read += ret;
-            } catch (InterruptedIOException ex) {
-                continue;
             } catch (IOException ex) {
                 throw new ConnectionLostException(ex);
             }
@@ -185,8 +183,6 @@ class StreamSocket {
                     return sent;
                 }
                 sent += ret;
-            } catch (InterruptedIOException ex) {
-                continue;
             } catch (IOException ex) {
                 throw new SocketException(ex);
             }
