@@ -81,6 +81,14 @@ runs:
         ./gradlew :alljavadoc
       shell: bash
 
+    - name: Generate API reference for Ruby
+      working-directory: ./ruby
+      run: |
+        gem install --user-install yard
+        export PATH="$(ruby -r rubygems -e 'puts Gem.user_dir')/bin:$PATH"
+        yard  doc 'ruby/**/*.rb'
+      shell: bash
+
     # This will perform a full sync of the documentation to S3 every time the workflow is run since
     # the timestamps will always be different. Using --size-only is not sufficient since the
     # documentation may be updated without changing the size of the files. S3 does not offer a hash based sync.
@@ -105,6 +113,8 @@ runs:
         done
 
         aws s3 sync ./java/build/docs/javadoc s3://${AWS_S3_CODE_BUCKET}/ice/main/api/java --delete
+
+        aws s3 sync ./ruby/doc s3://${AWS_S3_CODE_BUCKET}/ice/main/api/ruby --delete
 
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
