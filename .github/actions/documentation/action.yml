@@ -114,7 +114,7 @@ runs:
 
         aws s3 sync ./java/build/docs/javadoc s3://${AWS_S3_CODE_BUCKET}/ice/main/api/java --delete
 
-        aws s3 sync ./ruby/docs s3://${AWS_S3_CODE_BUCKET}/ice/main/api/ruby --delete
+        aws s3 sync ./ruby/doc s3://${AWS_S3_CODE_BUCKET}/ice/main/api/ruby --delete
 
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
