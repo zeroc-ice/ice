@@ -42,7 +42,7 @@ Collocated::run(int argc, char** argv)
 
     installTransport(initData);
 
-    Ice::CommunicatorHolder ich1 = Ice::initialize(argc, argv, initData);
+    Ice::CommunicatorHolder ich1 = initialize(initData);
 
     //
     // Configure a second communicator for the invocation timeout
@@ -53,7 +53,7 @@ Collocated::run(int argc, char** argv)
     initData.properties->setProperty("Ice.RetryIntervals", "0 1 10000");
     initData.observer = getObserver();
 
-    Ice::CommunicatorHolder ich2 = Ice::initialize(initData);
+    Ice::CommunicatorHolder ich2 = initialize(initData);
 
     setupObjectAdapter(ich1.communicator());
     setupObjectAdapter(ich2.communicator());
