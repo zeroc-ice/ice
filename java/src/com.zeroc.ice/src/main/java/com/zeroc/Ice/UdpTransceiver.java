@@ -3,7 +3,6 @@
 package com.zeroc.Ice;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.PortUnreachableException;
