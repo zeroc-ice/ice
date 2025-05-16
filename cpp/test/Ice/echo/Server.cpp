@@ -38,7 +38,7 @@ Server::run(int argc, char** argv)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     BlobjectIPtr blob = make_shared<BlobjectI>();
     adapter->addDefaultServant(blob, "");
-    adapter->add(make_shared<EchoI>(blob), Ice::stringToIdentity("__echo"));
+    adapter->add(make_shared<EchoI>(blob), Ice::Identity{.name = "__echo"});
     adapter->activate();
     serverReady();
     communicator->waitForShutdown();
