@@ -1795,7 +1795,7 @@ class TestCase(Runnable):
         pass
 
     def teardownServerSide(self, current, success):
-        # Can be overridden to perform terddown after the server side is stopped
+        # Can be overridden to perform teardown after the server side is stopped
         pass
 
     def setupClientSide(self, current):
@@ -1803,7 +1803,7 @@ class TestCase(Runnable):
         pass
 
     def teardownClientSide(self, current, success):
-        # Can be overridden to perform terddown after the client side is stopped
+        # Can be overridden to perform teardown after the client side is stopped
         pass
 
     def startServerSide(self, current):

@@ -1675,7 +1675,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
                 initData.properties->setProperty("Ice.ImplicitContext", impl);
                 installTransport(initData);
 
-                Ice::CommunicatorPtr ic = Ice::initialize(initData);
+                Ice::CommunicatorPtr ic = initialize(initData);
 
                 Ice::Context ctx;
                 ctx["one"] = "ONE";

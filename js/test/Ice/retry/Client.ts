@@ -51,6 +51,7 @@ export class Client extends TestHelper {
 
         out.write("testing invocation timeout and retries... ");
         retry2 = new Test.RetryPrx(communicator2, retry1.toString());
+        retry2.ice_getConnection();
         try {
             await retry2.ice_invocationTimeout(500).opIdempotent(4);
             test(false);

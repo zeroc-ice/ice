@@ -272,6 +272,14 @@ Test::TestHelper::createTestProperties(int& argc, char* argv[])
 }
 
 Ice::CommunicatorPtr
+Test::TestHelper::initialize(Ice::InitializationData initData)
+{
+    int argc = 0;
+    char* argv[] = {nullptr};
+    return initialize(argc, argv, std::move(initData));
+}
+
+Ice::CommunicatorPtr
 Test::TestHelper::initialize(int& argc, char* argv[], const Ice::PropertiesPtr& properties)
 {
     Ice::InitializationData initData;

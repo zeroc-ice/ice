@@ -99,7 +99,7 @@ namespace Test
         static Ice::PropertiesPtr createTestProperties(int&, char*[]);
 
         Ice::CommunicatorPtr initialize(int& argc, char* argv[], const Ice::PropertiesPtr& properties = nullptr);
-
+        Ice::CommunicatorPtr initialize(Ice::InitializationData);
         Ice::CommunicatorPtr initialize(int&, char*[], Ice::InitializationData);
 
         [[nodiscard]] Ice::CommunicatorPtr communicator() const;
