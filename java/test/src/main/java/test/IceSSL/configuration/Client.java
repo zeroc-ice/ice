@@ -21,7 +21,12 @@ public class Client extends TestHelper {
         String testDir = remainingArgs.get(0);
         try (Communicator communicator = initialize(properties)) {
             PlatformTests.allTests(this, testDir);
-            ServerFactoryPrx factory = AllTests.allTests(this, testDir);
+
+            // Run the tests with the default JKS certificates
+            ServerFactoryPrx factory = AllTests.allTests(this, testDir, "JKS");
+
+            // Run the tests again with the PKCS12 certificates
+            factory = AllTests.allTests(this, testDir, "PKCS12");
             factory.shutdown();
         }
     }
