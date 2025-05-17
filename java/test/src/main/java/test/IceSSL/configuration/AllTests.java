@@ -66,7 +66,7 @@ public class AllTests {
 
     private static InitializationData createClientProps(
             Properties defaultProperties, String ks, String ts, String keystoreType) {
-        String keyStoreExt = keystoreType.equals("PKCS12") ? ".p12" : ".jks";
+        String keyStoreExt = "PKCS12".equals(keystoreType) ? ".p12" : ".jks";
         InitializationData initData = createClientProps(defaultProperties);
         if (!ks.isEmpty()) {
             initData.properties.setProperty("IceSSL.Keystore", ks + keyStoreExt);
@@ -98,12 +98,12 @@ public class AllTests {
     private static Map<String, String> createServerProps(
             Properties defaultProperties, String ks, String ts, String keystoreType) {
 
-        String keyStoreExt = keystoreType.equals("PKCS12") ? ".p12" : ".jks";
+        String keyStoreExt = "PKCS12".equals(keystoreType) ? ".p12" : ".jks";
         Map<String, String> d = createServerProps(defaultProperties);
         if (!ks.isEmpty()) {
             d.put("IceSSL.Keystore", ks + keyStoreExt);
-                d.put("IceSSL.KeystoreType", keystoreType);
-                d.put("IceSSL.KeystorePassword", "password");
+            d.put("IceSSL.KeystoreType", keystoreType);
+            d.put("IceSSL.KeystorePassword", "password");
         }
         if (!ts.isEmpty()) {
             d.put("IceSSL.Truststore", ts + keyStoreExt);
@@ -625,7 +625,7 @@ public class AllTests {
         {
             // Test password failure.
             initData = createClientProps(defaultProperties);
-            initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1." + (keystoreType.equals("PKCS12") ? "p12" : "jks"));
+            initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1." + ("PKCS12".equals(keystoreType) ? "p12" : "jks"));
             initData.properties.setProperty("IceSSL.KeystoreType", keystoreType);
             // Don't specify the password.
             try {
