@@ -63,7 +63,11 @@ def allTests(helper, communicator):
 
     cb = Callback()
 
+    # Hold adapter to make sure invocations don't _complete_ synchronously. If add_done_callback is called on
+    # a completed future, the callback is called immediately in the calling thread.
+    testController.holdAdapter()
     p.opAsync().add_done_callback(cb.response)
+    testController.resumeAdapter()
     cb.check()
 
     #
