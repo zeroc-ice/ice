@@ -1239,15 +1239,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
 
             if (isGeneric && !isList && !isStack)
             {
-                if (isValueType(type))
-                {
-                    out << "e.Current";
-                }
-                else
-                {
-                    out << "(e.Current is null ? new ";
-                    out << typeS << "() : e.Current)";
-                }
+                out << "e.Current";
             }
             else
             {
