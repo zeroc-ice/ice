@@ -65,13 +65,18 @@ public class AllTests {
     }
 
     private static InitializationData createClientProps(
-            Properties defaultProperties, String ks, String ts) {
+            Properties defaultProperties, String ks, String ts, String keystoreType) {
+        String keyStoreExt = keystoreType.equals("PKCS12") ? ".p12" : ".jks";
         InitializationData initData = createClientProps(defaultProperties);
         if (!ks.isEmpty()) {
-            initData.properties.setProperty("IceSSL.Keystore", ks + ".jks");
+            initData.properties.setProperty("IceSSL.Keystore", ks + keyStoreExt);
+            initData.properties.setProperty("IceSSL.KeystoreType", keystoreType);
+            initData.properties.setProperty("IceSSL.KeystorePassword", "password");
         }
         if (!ts.isEmpty()) {
-            initData.properties.setProperty("IceSSL.Truststore", ts + ".jks");
+            initData.properties.setProperty("IceSSL.Truststore", ts + keyStoreExt);
+            initData.properties.setProperty("IceSSL.TruststoreType", keystoreType);
+            initData.properties.setProperty("IceSSL.TruststorePassword", "password");
         }
         initData.properties.setProperty("IceSSL.Password", "password");
         return initData;
@@ -91,21 +96,29 @@ public class AllTests {
     }
 
     private static Map<String, String> createServerProps(
-            Properties defaultProperties, String ks, String ts) {
+            Properties defaultProperties, String ks, String ts, String keystoreType) {
+
+        String keyStoreExt = keystoreType.equals("PKCS12") ? ".p12" : ".jks";
         Map<String, String> d = createServerProps(defaultProperties);
         if (!ks.isEmpty()) {
-            d.put("IceSSL.Keystore", ks + ".jks");
+            d.put("IceSSL.Keystore", ks + keyStoreExt);
+                d.put("IceSSL.KeystoreType", keystoreType);
+                d.put("IceSSL.KeystorePassword", "password");
         }
         if (!ts.isEmpty()) {
-            d.put("IceSSL.Truststore", ts + ".jks");
+            d.put("IceSSL.Truststore", ts + keyStoreExt);
+            d.put("IceSSL.TruststoreType", keystoreType);
+            d.put("IceSSL.TruststorePassword", "password");
         }
         d.put("IceSSL.Password", "password");
         return d;
     }
 
-    public static ServerFactoryPrx allTests(TestHelper helper, String testDir) {
+    public static ServerFactoryPrx allTests(TestHelper helper, String testDir, String keystoreType) {
         Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
+
+        out.println("Running tests with " + keystoreType + " certificates");
 
         final String factoryRef = "factory:" + helper.getTestEndpoint(0, "tcp");
         ObjectPrx b = communicator.stringToProxy(factoryRef);
@@ -127,11 +140,11 @@ public class AllTests {
 
             // Test Ice.SSL.VerifyPeer=0. Client does not have a certificate, but it still verifies
             // the server's.
-            initData = createClientProps(defaultProperties, "", "cacert1");
+            initData = createClientProps(defaultProperties, "", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "", keystoreType);
             d.put("IceSSL.VerifyPeer", "0");
             ServerPrx server = fact.createServer(d);
             try {
@@ -147,11 +160,11 @@ public class AllTests {
             comm.destroy();
 
             // Test Ice.SSL.VerifyPeer=1. Client does not have a certificate.
-            initData = createClientProps(defaultProperties, "", "cacert1");
+            initData = createClientProps(defaultProperties, "", "cacert1", keystoreType);
             comm = Util.initialize(args, initData);
             fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "", keystoreType);
             d.put("IceSSL.VerifyPeer", "1");
             server = fact.createServer(d);
             try {
@@ -164,7 +177,7 @@ public class AllTests {
 
             // Test Ice.SSL.VerifyPeer=2. This should fail because the client does not supply a
             // certificate.
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "", keystoreType);
             d.put("IceSSL.VerifyPeer", "2");
             server = fact.createServer(d);
             try {
@@ -186,11 +199,11 @@ public class AllTests {
             //
             // Provide "cacert1" to the client to verify the server certificate (without this the
             // client connection wouldn't be able to provide the certificate chain).
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             comm = Util.initialize(args, initData);
             fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put("IceSSL.VerifyPeer", "1");
             server = fact.createServer(d);
             try {
@@ -217,7 +230,7 @@ public class AllTests {
             fact.destroyServer(server);
 
             // Test Ice.SSL.VerifyPeer=2. Client has a certificate.
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put("IceSSL.VerifyPeer", "2");
             server = fact.createServer(d);
             try {
@@ -236,12 +249,12 @@ public class AllTests {
 
             // Test Ice.SSL.VerifyPeer=1. This should fail because the client doesn't trust the
             // server's CA.
-            initData = createClientProps(defaultProperties, "", "");
+            initData = createClientProps(defaultProperties, "", "", keystoreType);
             initData.properties.setProperty("IceSSL.VerifyPeer", "1");
             comm = Util.initialize(args, initData);
             fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put("IceSSL.VerifyPeer", "0");
             server = fact.createServer(d);
             try {
@@ -259,12 +272,12 @@ public class AllTests {
 
             // Test Ice.SSL.VerifyPeer=1. This should fail because the server doesn't trust the
             // client's CA.
-            initData = createClientProps(defaultProperties, "c_rsa_ca2", "");
+            initData = createClientProps(defaultProperties, "c_rsa_ca2", "", keystoreType);
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
             comm = Util.initialize(args, initData);
             fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "", keystoreType);
             d.put("IceSSL.VerifyPeer", "1");
             server = fact.createServer(d);
             try {
@@ -283,12 +296,12 @@ public class AllTests {
 
             // This should succeed because the self signed certificate used by the server is
             // trusted.
-            initData = createClientProps(defaultProperties, "", "cacert2");
+            initData = createClientProps(defaultProperties, "", "cacert2", keystoreType);
             initData.properties.setProperty("IceSSL.VerifyPeer", "1");
             comm = Util.initialize(args, initData);
             fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_cacert2", "");
+            d = createServerProps(defaultProperties, "s_cacert2", "", keystoreType);
             d.put("IceSSL.VerifyPeer", "0");
             server = fact.createServer(d);
             try {
@@ -307,7 +320,7 @@ public class AllTests {
             comm = Util.initialize(args, initData);
             fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_cacert2", "");
+            d = createServerProps(defaultProperties, "s_cacert2", "", keystoreType);
             d.put("IceSSL.VerifyPeer", "0");
             server = fact.createServer(d);
             try {
@@ -323,12 +336,12 @@ public class AllTests {
             comm.destroy();
 
             // Verify that Ice.SSL.CheckCertName has no effect in a server.
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             comm = Util.initialize(args, initData);
 
             fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put("IceSSL.CheckCertName", "1");
             server = fact.createServer(d);
             try {
@@ -348,13 +361,13 @@ public class AllTests {
                 props.setProperty("Ice.Default.Host", "localhost");
                 // Target host matches the certificate DNS altName
                 {
-                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
                     comm = Util.initialize(args, initData);
 
                     fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
-                    d = createServerProps(props, "s_rsa_ca1_cn1", "cacert1");
+                    d = createServerProps(props, "s_rsa_ca1_cn1", "cacert1", keystoreType);
                     server = fact.createServer(d);
                     try {
                         server.ice_ping();
@@ -368,13 +381,13 @@ public class AllTests {
 
                 // Target host does not match the certificate DNS altName
                 {
-                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
                     comm = Util.initialize(args, initData);
 
                     fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
-                    d = createServerProps(props, "s_rsa_ca1_cn2", "cacert1");
+                    d = createServerProps(props, "s_rsa_ca1_cn2", "cacert1", keystoreType);
                     server = fact.createServer(d);
                     try {
                         server.ice_ping();
@@ -389,13 +402,13 @@ public class AllTests {
                 // Target host matches the certificate Common Name and the certificate does not
                 // include a DNS altName
                 {
-                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
                     comm = Util.initialize(args, initData);
 
                     fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
-                    d = createServerProps(props, "s_rsa_ca1_cn3", "cacert1");
+                    d = createServerProps(props, "s_rsa_ca1_cn3", "cacert1", keystoreType);
                     server = fact.createServer(d);
                     try {
                         server.ice_ping();
@@ -410,13 +423,13 @@ public class AllTests {
                 // Target host does not match the certificate Common Name and the certificate does
                 // not include a DNS altName
                 {
-                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
                     comm = Util.initialize(args, initData);
 
                     fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
-                    d = createServerProps(props, "s_rsa_ca1_cn4", "cacert1");
+                    d = createServerProps(props, "s_rsa_ca1_cn4", "cacert1", keystoreType);
                     server = fact.createServer(d);
                     try {
                         server.ice_ping();
@@ -431,13 +444,13 @@ public class AllTests {
                 // Target host matches the certificate Common Name and the certificate has a DNS
                 // altName that does not matches the target host
                 {
-                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
                     comm = Util.initialize(args, initData);
 
                     fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
-                    d = createServerProps(props, "s_rsa_ca1_cn5", "cacert1");
+                    d = createServerProps(props, "s_rsa_ca1_cn5", "cacert1", keystoreType);
                     server = fact.createServer(d);
                     try {
                         server.ice_ping();
@@ -453,13 +466,13 @@ public class AllTests {
 
                 // Target host matches the certificate IP altName
                 {
-                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
                     comm = Util.initialize(args, initData);
 
                     fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
-                    d = createServerProps(defaultProperties, "s_rsa_ca1_cn6", "cacert1");
+                    d = createServerProps(defaultProperties, "s_rsa_ca1_cn6", "cacert1", keystoreType);
                     server = fact.createServer(d);
                     try {
                         server.ice_ping();
@@ -473,13 +486,13 @@ public class AllTests {
 
                 // Target host does not match the certificate IP altName
                 {
-                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
                     comm = Util.initialize(args, initData);
 
                     fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
-                    d = createServerProps(defaultProperties, "s_rsa_ca1_cn7", "cacert1");
+                    d = createServerProps(defaultProperties, "s_rsa_ca1_cn7", "cacert1", keystoreType);
                     server = fact.createServer(d);
                     try {
                         server.ice_ping();
@@ -494,13 +507,13 @@ public class AllTests {
                 // Target host is an IP address that matches the CN and the certificate doesn't
                 // include an IP altName
                 {
-                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
                     comm = Util.initialize(args, initData);
 
                     fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
-                    d = createServerProps(defaultProperties, "s_rsa_ca1_cn8", "cacert1");
+                    d = createServerProps(defaultProperties, "s_rsa_ca1_cn8", "cacert1", keystoreType);
                     server = fact.createServer(d);
                     try {
                         server.ice_ping();
@@ -515,13 +528,13 @@ public class AllTests {
                 // Target host does not match the certificate DNS altName, connection should succeed
                 // because Ice.SSL.CheckCertName is set to 0.
                 {
-                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
                     initData.properties.setProperty("IceSSL.CheckCertName", "0");
                     comm = Util.initialize(args, initData);
 
                     fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
-                    d = createServerProps(props, "s_rsa_ca1_cn2", "cacert1");
+                    d = createServerProps(props, "s_rsa_ca1_cn2", "cacert1", keystoreType);
                     server = fact.createServer(d);
                     try {
                         server.ice_ping();
@@ -542,11 +555,11 @@ public class AllTests {
         out.flush();
         {
             // This should fail because the server's certificate is expired.
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1_exp", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1_exp", "cacert1", keystoreType);
             d.put("IceSSL.VerifyPeer", "2");
             ServerPrx server = fact.createServer(d);
             try {
@@ -567,7 +580,7 @@ public class AllTests {
             comm = Util.initialize(args, initData);
             fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put("IceSSL.VerifyPeer", "2");
             server = fact.createServer(d);
             try {
@@ -589,11 +602,11 @@ public class AllTests {
         out.print("testing multiple CA certificates... ");
         out.flush();
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacerts");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacerts", keystoreType);
             Communicator comm = Util.initialize(args, initData);
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca2", "cacerts");
+            d = createServerProps(defaultProperties, "s_rsa_ca2", "cacerts", keystoreType);
             d.put("IceSSL.VerifyPeer", "2");
             ServerPrx server = fact.createServer(d);
             try {
@@ -612,7 +625,8 @@ public class AllTests {
         {
             // Test password failure.
             initData = createClientProps(defaultProperties);
-            initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+            initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1." + (keystoreType.equals("PKCS12") ? "p12" : "jks"));
+            initData.properties.setProperty("IceSSL.KeystoreType", keystoreType);
             // Don't specify the password.
             try {
                 Util.initialize(args, initData);
@@ -629,7 +643,7 @@ public class AllTests {
         out.print("testing Ice.SSL.TrustOnly... ");
         out.flush();
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             initData.properties.setProperty(
                 "IceSSL.TrustOnly",
                 "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
@@ -638,7 +652,7 @@ public class AllTests {
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -650,7 +664,7 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             initData.properties.setProperty(
                 "IceSSL.TrustOnly",
                 "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
@@ -659,7 +673,7 @@ public class AllTests {
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -669,7 +683,7 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             initData.properties.setProperty(
                 "IceSSL.TrustOnly",
                 "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
@@ -678,7 +692,7 @@ public class AllTests {
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -690,12 +704,12 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put(
                 "IceSSL.TrustOnly",
                 "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
@@ -711,12 +725,12 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put(
                 "IceSSL.TrustOnly",
                 "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
@@ -730,13 +744,13 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             initData.properties.setProperty("IceSSL.TrustOnly", "CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -748,13 +762,13 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             initData.properties.setProperty("IceSSL.TrustOnly", "!CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -764,12 +778,12 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put("IceSSL.TrustOnly", "CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
@@ -782,12 +796,12 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put("IceSSL.TrustOnly", "!CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
@@ -798,13 +812,13 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             initData.properties.setProperty("IceSSL.TrustOnly", "CN=Client");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -814,12 +828,12 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put("IceSSL.TrustOnly", "CN=Server");
             ServerPrx server = fact.createServer(d);
             try {
@@ -830,13 +844,13 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             initData.properties.setProperty("IceSSL.TrustOnly", "C=Canada,CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -846,13 +860,13 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             initData.properties.setProperty("IceSSL.TrustOnly", "!C=Canada,CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -864,13 +878,13 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             initData.properties.setProperty("IceSSL.TrustOnly", "C=Canada;CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -882,13 +896,13 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             initData.properties.setProperty("IceSSL.TrustOnly", "!C=Canada;!CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -898,14 +912,14 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             initData.properties.setProperty(
                 "IceSSL.TrustOnly", "!CN=Server1"); // Should not match "Server"
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -917,12 +931,12 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put("IceSSL.TrustOnly", "!CN=Client1"); // Should not match "Client"
             ServerPrx server = fact.createServer(d);
             try {
@@ -936,13 +950,13 @@ public class AllTests {
         }
         {
             // Rejection takes precedence (client).
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             initData.properties.setProperty("IceSSL.TrustOnly", "ST=Florida;!CN=Server;C=US");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -953,12 +967,12 @@ public class AllTests {
         }
         {
             // Rejection takes precedence (server).
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put("IceSSL.TrustOnly", "ST=Florida;!CN=Client;C=US");
             ServerPrx server = fact.createServer(d);
             try {
@@ -973,7 +987,7 @@ public class AllTests {
         out.print("testing Ice.SSL.TrustOnly.Client... ");
         out.flush();
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             initData.properties.setProperty(
                 "IceSSL.TrustOnly.Client",
                 "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
@@ -982,7 +996,7 @@ public class AllTests {
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             // Should have no effect.
             d.put(
                 "IceSSL.TrustOnly.Client",
@@ -999,7 +1013,7 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             initData.properties.setProperty(
                 "IceSSL.TrustOnly.Client",
                 "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
@@ -1008,7 +1022,7 @@ public class AllTests {
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -1018,12 +1032,12 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             // Should have no effect.
             d.put("IceSSL.TrustOnly.Client", "CN=Client");
             ServerPrx server = fact.createServer(d);
@@ -1037,13 +1051,13 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             initData.properties.setProperty("IceSSL.TrustOnly.Client", "CN=Client");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -1053,13 +1067,13 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             initData.properties.setProperty("IceSSL.TrustOnly.Client", "!CN=Client");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -1075,7 +1089,7 @@ public class AllTests {
         out.print("testing Ice.SSL.TrustOnly.Server... ");
         out.flush();
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             // Should have no effect.
             initData.properties.setProperty(
                 "IceSSL.TrustOnly.Server",
@@ -1085,7 +1099,7 @@ public class AllTests {
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put(
                 "IceSSL.TrustOnly.Server",
                 "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
@@ -1101,12 +1115,12 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put(
                 "IceSSL.TrustOnly.Server",
                 "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
@@ -1120,14 +1134,14 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             // Should have no effect.
             initData.properties.setProperty("IceSSL.TrustOnly.Server", "!CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -1139,12 +1153,12 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put("IceSSL.TrustOnly.Server", "CN=Server");
             ServerPrx server = fact.createServer(d);
             try {
@@ -1155,12 +1169,12 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put("IceSSL.TrustOnly.Server", "!CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
@@ -1175,12 +1189,12 @@ public class AllTests {
         out.print("testing Ice.SSL.TrustOnly.Server.<AdapterName>... ");
         out.flush();
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put("IceSSL.TrustOnly.Server", "CN=bogus");
             d.put(
                 "IceSSL.TrustOnly.Server.ServerAdapter",
@@ -1197,12 +1211,12 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put(
                 "IceSSL.TrustOnly.Server.ServerAdapter",
                 "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
@@ -1216,12 +1230,12 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put("IceSSL.TrustOnly.Server.ServerAdapter", "CN=bogus");
             ServerPrx server = fact.createServer(d);
             try {
@@ -1232,11 +1246,11 @@ public class AllTests {
             comm.destroy();
         }
         {
-            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+            initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1", keystoreType);
             Communicator comm = Util.initialize(args, initData);
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
-            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
+            d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1", keystoreType);
             d.put("IceSSL.TrustOnly.Server.ServerAdapter", "!CN=bogus");
             ServerPrx server = fact.createServer(d);
             try {

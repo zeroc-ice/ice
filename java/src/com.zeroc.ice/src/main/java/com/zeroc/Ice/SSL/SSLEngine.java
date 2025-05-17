@@ -159,7 +159,7 @@ public class SSLEngine {
                             Arrays.fill(passwordChars, '\0');
                         }
                         keystorePassword = null;
-                    } catch (IOException ex) {
+                    } catch (IOException ex) {                        
                         throw new InitializationException(
                             "SSL transport: unable to load keystore:\n" + keystorePath, ex);
                     } finally {
