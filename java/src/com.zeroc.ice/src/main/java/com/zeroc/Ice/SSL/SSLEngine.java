@@ -131,17 +131,13 @@ public class SSLEngine {
                 //
                 KeyManager[] keyManagers = null;
                 KeyStore keys = null;
-                if (_keystoreStream != null || !keystorePath.isEmpty()) {
+                if (!keystorePath.isEmpty()) {
                     InputStream keystoreStream = null;
                     try {
-                        if (_keystoreStream != null) {
-                            keystoreStream = _keystoreStream;
-                        } else {
-                            keystoreStream = openResource(keystorePath);
-                            if (keystoreStream == null) {
-                                throw new InitializationException(
-                                    "SSL transport: keystore not found:\n" + keystorePath);
-                            }
+                        keystoreStream = openResource(keystorePath);
+                        if (keystoreStream == null) {
+                            throw new InitializationException(
+                                "SSL transport: keystore not found:\n" + keystorePath);
                         }
 
                         keys = KeyStore.getInstance(keystoreType);
@@ -231,27 +227,22 @@ public class SSLEngine {
                 // Load the truststore.
                 //
                 KeyStore ts = null;
-                if (_truststoreStream != null || !truststorePath.isEmpty()) {
+                if (!truststorePath.isEmpty()) {
                     //
-                    // If the trust store and the key store are the same input stream or file, don't
+                    // If the trust store and the key store are the same file, don't
                     // create another key store.
                     //
-                    if ((_truststoreStream != null && _truststoreStream == _keystoreStream)
-                        || (!truststorePath.isEmpty() && truststorePath.equals(keystorePath))) {
+                    if (truststorePath.equals(keystorePath)) {
                         assert keys != null;
                         ts = keys;
                     } else {
                         InputStream truststoreStream = null;
                         try {
-                            if (_truststoreStream != null) {
-                                truststoreStream = _truststoreStream;
-                            } else {
-                                truststoreStream = openResource(truststorePath);
-                                if (truststoreStream == null) {
-                                    throw new InitializationException(
-                                        "SSL transport: truststore not found:\n"
-                                            + truststorePath);
-                                }
+                            truststoreStream = openResource(truststorePath);
+                            if (truststoreStream == null) {
+                                throw new InitializationException(
+                                    "SSL transport: truststore not found:\n"
+                                        + truststorePath);
                             }
 
                             ts = KeyStore.getInstance(truststoreType);

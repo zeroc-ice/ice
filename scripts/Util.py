@@ -2990,7 +2990,7 @@ class BrowserProcessController(RemoteProcessController):
             self.httpServer = Expect.Expect(httpServerCmd, cwd=cwd)
             self.httpServer.expect("Available on:")
 
-            httpsServerCmd = "node node_modules/http-server/bin/http-server -p 9090 --tls --cert ../certs/server.pem --key ../certs/server_key.pem dist"
+            httpsServerCmd = "node node_modules/http-server/bin/http-server -p 9090 --tls --cert ../certs/server_cert.pem --key ../certs/server_key.pem dist"
             cwd = current.testcase.getMapping().getPath()
             self.httpsServer = Expect.Expect(httpsServerCmd, cwd=cwd)
             self.httpsServer.expect("Available on:")
@@ -3578,7 +3578,7 @@ class CppMapping(Mapping):
 
         props.update(
             {
-                "IceSSL.CAs": "cacert.pem",
+                "IceSSL.CAs": "ca_cert.pem",
                 "IceSSL.CertFile": "server.p12" if server else "client.p12",
             }
         )
@@ -3738,24 +3738,16 @@ class JavaMapping(Mapping):
 
     def getSSLProps(self, process, current):
         props = Mapping.getSSLProps(self, process, current)
-        if current.config.android:
-            props.update(
-                {
-                    "IceSSL.KeystoreType": "BKS",
-                    "IceSSL.TruststoreType": "BKS",
-                    "IceSSL.Keystore": "server.bks"
-                    if isinstance(process, Server)
-                    else "client.bks",
-                }
-            )
-        else:
-            props.update(
-                {
-                    "IceSSL.Keystore": "server.jks"
-                    if isinstance(process, Server)
-                    else "client.jks",
-                }
-            )
+        props.update(
+            {
+                "IceSSL.Keystore": "server.p12" if isinstance(process, Server) else "client.p12",
+                "IceSSL.KeystorePassword": "password",
+                "IceSSL.KeystoreType": "PKCS12",
+                "IceSSL.Truststore": "ca.p12",
+                "IceSSL.TruststorePassword": "password",
+                "IceSSL.TruststoreType": "PKCS12",
+            }
+        )
         return props
 
     def getPluginEntryPoint(self, plugin, process, current):
@@ -3850,7 +3842,7 @@ class CSharpMapping(Mapping):
                 "IceSSL.DefaultDir": os.path.join(
                     self.component.getSourceDir(), "certs"
                 ),
-                "IceSSL.CAs": "cacert.pem",
+                "IceSSL.CAs": "ca_cert.pem",
                 "IceSSL.VerifyPeer": "0" if current.config.protocol == "wss" else "2",
                 "IceSSL.CertFile": "server.p12"
                 if isinstance(process, Server)

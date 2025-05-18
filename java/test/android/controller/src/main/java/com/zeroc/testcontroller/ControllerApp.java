@@ -286,11 +286,14 @@ public class ControllerApp extends Application {
 
         public java.io.InputStream loadResource(String path) {
             switch (path) {
-                case "server.bks" -> {
+                case "server.p12" -> {
                     return getResources().openRawResource(R.raw.server);
                 }
-                case "client.bks" -> {
+                case "client.p12" -> {
                     return getResources().openRawResource(R.raw.client);
+                }
+                case "ca.p12" -> {
+                    return getResources().openRawResource(R.raw.ca);
                 }
                 default -> {
                     return null;
