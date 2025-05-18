@@ -9,10 +9,10 @@ x509_extensions     = v3_extensions
 C  = US
 ST = Florida
 L  = Jupiter
-O  = ZeroC
+O  = ZeroC,\ Inc.
 OU = Ice
-CN = 127.0.0.1
-emailAddress = tests@zeroc.com
+CN = server
+emailAddress = info@zeroc.com
 
 [ v3_extensions ]
 subjectKeyIdentifier = hash

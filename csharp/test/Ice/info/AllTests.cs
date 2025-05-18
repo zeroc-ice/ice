@@ -219,7 +219,8 @@ public class AllTests : global::Test.AllTests
                 {
                     test(sslInfo.certs.Length > 0);
                     // The SHA1 Thumbprint of the server certificate used in the test.
-                    test(sslInfo.certs[0].Thumbprint == "9E754B7A7BF5E1951CB2A46B565F8BBB8A4A355D");
+                    // 45:B0:40:4F:12:CF:3F:E6:37:CF:EE:9C:53:C8:89:C9:60:22:76:DF
+                    test(sslInfo.certs[0].Thumbprint == "45B0404F12CF3FE637CFEE9C53C889C9602276DF");
                 }
             }
             else if (@base.ice_getConnection().type() == "ssl")
@@ -228,7 +229,8 @@ public class AllTests : global::Test.AllTests
                 test(sslInfo != null);
                 test(sslInfo.certs.Length > 0);
                 // The SHA1 Thumbprint of the server certificate used in the test.
-                test(sslInfo.certs[0].Thumbprint == "9E754B7A7BF5E1951CB2A46B565F8BBB8A4A355D");
+                // 45:B0:40:4F:12:CF:3F:E6:37:CF:EE:9C:53:C8:89:C9:60:22:76:DF
+                test(sslInfo.certs[0].Thumbprint == "45B0404F12CF3FE637CFEE9C53C889C9602276DF");
             }
 
             connection = @base.ice_datagram().ice_getConnection();
