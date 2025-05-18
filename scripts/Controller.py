@@ -64,7 +64,7 @@ class ControllerDriver(Driver):
             # certificate. Some browsers such as Chrome don't provide the
             # option to set this trust settings.
             #
-            serverCert = os.path.join(toplevel, "certs", "server.pem")
+            serverCert = os.path.join(toplevel, "certs", "server_cert.pem")
             if self.clean:
                 if (
                     os.system("security verify-cert -c " + serverCert + " >& /dev/null")
