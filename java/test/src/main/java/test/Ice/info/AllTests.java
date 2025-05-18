@@ -288,40 +288,15 @@ public class AllTests {
 
     static void checkPeerCertificate(com.zeroc.Ice.SSL.ConnectionInfo info) {
         test(info.certs.length > 0);
-        try {
-            byte[] thumbprint =
-                MessageDigest.getInstance("SHA-1").digest(info.certs[0].getEncoded());
-
-            // The SHA1 Thumbprint of the server certificate used in the test.
-            // 45:B0:40:4F:12:CF:3F:E6:37:CF:EE:9C:53:C8:89:C9:60:22:76:DF
-            byte[] expected = {
-                (byte) 0x45,
-                (byte) 0xB0,
-                (byte) 0x40,
-                (byte) 0x4F,
-                (byte) 0x12,
-                (byte) 0xCF,
-                (byte) 0x3F,
-                (byte) 0xE6,
-                (byte) 0x37,
-                (byte) 0xCF,
-                (byte) 0xEE,
-                (byte) 0x9C,
-                (byte) 0x53,
-                (byte) 0xC8,
-                (byte) 0x89,
-                (byte) 0xC9,
-                (byte) 0x60,
-                (byte) 0x22,
-                (byte) 0x76,
-                (byte) 0xDF,
-            };
-            test(Arrays.equals(thumbprint, expected));
-        } catch (NoSuchAlgorithmException e) {
-            test(false);
-        } catch (CertificateEncodingException e) {
-            test(false);
-        }
+        test(info.certs[0] instanceof java.security.cert.X509Certificate);
+        var cert = (java.security.cert.X509Certificate) info.certs[0];
+        var subjectDN = cert.getSubjectX500Principal().getName();
+        test(subjectDN.contains("CN=127.0.0.1"));
+        test(subjectDN.contains("OU=Ice"));
+        test(subjectDN.contains("O=ZeroC\\, Inc."));
+        test(subjectDN.contains("L=Jupiter"));
+        test(subjectDN.contains("ST=Florida"));
+        test(subjectDN.contains("C=US"));
     }
 
     private AllTests() {}

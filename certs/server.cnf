@@ -11,7 +11,7 @@ ST = Florida
 L  = Jupiter
 O  = ZeroC,\ Inc.
 OU = Ice
-CN = server
+CN = 127.0.0.1
 emailAddress = info@zeroc.com
 
 [ v3_extensions ]

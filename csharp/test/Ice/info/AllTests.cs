@@ -2,6 +2,8 @@
 
 namespace Ice.info;
 
+using System.Security.Cryptography.X509Certificates;
+
 public class AllTests : global::Test.AllTests
 {
     private static Ice.TCPEndpointInfo getTCPEndpointInfo(Ice.EndpointInfo info)
@@ -218,19 +220,14 @@ public class AllTests : global::Test.AllTests
                 if (sslInfo != null)
                 {
                     test(sslInfo.certs.Length > 0);
-                    // The SHA1 Thumbprint of the server certificate used in the test.
-                    // 45:B0:40:4F:12:CF:3F:E6:37:CF:EE:9C:53:C8:89:C9:60:22:76:DF
-                    test(sslInfo.certs[0].Thumbprint == "45B0404F12CF3FE637CFEE9C53C889C9602276DF");
+                    checkPeerCertificateSubjectName(sslInfo.certs[0].SubjectName);
                 }
             }
             else if (@base.ice_getConnection().type() == "ssl")
             {
                 var sslInfo = info as Ice.SSL.ConnectionInfo;
                 test(sslInfo != null);
-                test(sslInfo.certs.Length > 0);
-                // The SHA1 Thumbprint of the server certificate used in the test.
-                // 45:B0:40:4F:12:CF:3F:E6:37:CF:EE:9C:53:C8:89:C9:60:22:76:DF
-                test(sslInfo.certs[0].Thumbprint == "45B0404F12CF3FE637CFEE9C53C889C9602276DF");
+                checkPeerCertificateSubjectName(sslInfo.certs[0].SubjectName);
             }
 
             connection = @base.ice_datagram().ice_getConnection();
@@ -256,5 +253,17 @@ public class AllTests : global::Test.AllTests
 
         communicator.shutdown();
         communicator.waitForShutdown();
+    }
+
+    private static void checkPeerCertificateSubjectName(
+        X500DistinguishedName subjectName)
+    {
+        test(subjectName.Name.Contains("E=info@zeroc.com"));
+        test(subjectName.Name.Contains("CN=127.0.0.1"));
+        test(subjectName.Name.Contains("OU=Ice"));
+        test(subjectName.Name.Contains("O=\"ZeroC, Inc.\""));
+        test(subjectName.Name.Contains("L=Jupiter"));
+        test(subjectName.Name.Contains("S=Florida"));
+        test(subjectName.Name.Contains("C=US"));
     }
 }
