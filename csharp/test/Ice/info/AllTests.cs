@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice.info;
-
 using System.Security.Cryptography.X509Certificates;
+
+namespace Ice.info;
 
 public class AllTests : global::Test.AllTests
 {

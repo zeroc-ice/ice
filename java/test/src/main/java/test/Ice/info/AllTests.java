@@ -27,9 +27,7 @@ import test.Ice.info.Test.TestIntfPrx;
 import test.TestHelper;
 
 import java.io.PrintWriter;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -288,8 +286,8 @@ public class AllTests {
 
     static void checkPeerCertificate(com.zeroc.Ice.SSL.ConnectionInfo info) {
         test(info.certs.length > 0);
-        test(info.certs[0] instanceof java.security.cert.X509Certificate);
-        var cert = (java.security.cert.X509Certificate) info.certs[0];
+        test(info.certs[0] instanceof X509Certificate);
+        var cert = (X509Certificate) info.certs[0];
         var subjectDN = cert.getSubjectX500Principal().getName();
         test(subjectDN.contains("CN=127.0.0.1"));
         test(subjectDN.contains("OU=Ice"));
