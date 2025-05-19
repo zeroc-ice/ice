@@ -874,7 +874,7 @@ Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>
 void
 Slice::CsVisitor::writeParameterDocComments(const DocComment& comment, const ParameterList& parameters)
 {
-    auto commentParameters = comment.parameters();
+    const auto& commentParameters = comment.parameters();
     for (const auto& param : parameters)
     {
         auto q = commentParameters.find(param->name());

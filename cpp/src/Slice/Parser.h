@@ -182,7 +182,7 @@ namespace Slice
         [[nodiscard]] const std::string& directive() const;
         [[nodiscard]] const std::string& arguments() const;
 
-        [[nodiscard]] std::string file() const;
+        [[nodiscard]] const std::string& file() const;
         [[nodiscard]] int line() const;
 
         friend std::ostream& operator<<(std::ostream& out, const Metadata& metadata);
@@ -214,14 +214,14 @@ namespace Slice
     public:
         DefinitionContext(int includeLevel);
 
-        [[nodiscard]] std::string filename() const;
+        [[nodiscard]] const std::string& filename() const;
         [[nodiscard]] int includeLevel() const;
         [[nodiscard]] bool seenDefinition() const;
 
-        void setFilename(const std::string& filename);
+        void setFilename(std::string filename);
         void setSeenDefinition();
 
-        [[nodiscard]] MetadataList getMetadata() const;
+        [[nodiscard]] const MetadataList& getMetadata() const;
         void setMetadata(MetadataList metadata);
         void appendMetadata(MetadataList metadata);
         [[nodiscard]] bool hasMetadata(std::string_view directive) const;
@@ -276,21 +276,21 @@ namespace Slice
             bool escapeXml = false);
 
         [[nodiscard]] bool isDeprecated() const;
-        [[nodiscard]] StringList deprecated() const;
+        [[nodiscard]] const StringList& deprecated() const;
 
         /// Contains all introductory lines up to the first tag.
-        [[nodiscard]] StringList overview() const;
+        [[nodiscard]] const StringList& overview() const;
         /// Returns the contents of any '@remark' or '@remarks' tags.
-        [[nodiscard]] StringList remarks() const;
+        [[nodiscard]] const StringList& remarks() const;
         /// Targets of '@see' tags.
-        [[nodiscard]] StringList seeAlso() const;
+        [[nodiscard]] const StringList& seeAlso() const;
 
         /// Description of an operation's return value.
-        [[nodiscard]] StringList returns() const;
+        [[nodiscard]] const StringList& returns() const;
         /// Parameter descriptions for an op. Key is parameter name.
-        [[nodiscard]] std::map<std::string, StringList> parameters() const;
+        [[nodiscard]] const std::map<std::string, StringList>& parameters() const;
         /// Exception descriptions for an op. Key is exception name.
-        [[nodiscard]] std::map<std::string, StringList> exceptions() const;
+        [[nodiscard]] const std::map<std::string, StringList>& exceptions() const;
 
     private:
         bool _isDeprecated{false};
@@ -402,7 +402,7 @@ namespace Slice
         /// Returns the mapped fully-scoped identifier that this element will use in the target language.
         [[nodiscard]] std::string mappedScope(const std::string& separator = "::") const;
 
-        [[nodiscard]] std::string file() const;
+        [[nodiscard]] const std::string& file() const;
         [[nodiscard]] int line() const;
 
         [[nodiscard]] std::string docComment() const;
@@ -411,7 +411,7 @@ namespace Slice
         [[nodiscard]] DefinitionContextPtr definitionContext() const;
         [[nodiscard]] UnitPtr unit() const final;
 
-        [[nodiscard]] virtual MetadataList getMetadata() const;
+        [[nodiscard]] virtual const MetadataList& getMetadata() const;
         virtual void setMetadata(MetadataList metadata);
         virtual void appendMetadata(MetadataList metadata);
         [[nodiscard]] bool hasMetadata(std::string_view directive) const;
@@ -606,7 +606,7 @@ namespace Slice
 
         // Class metadata is always stored on the underlying decl type, not the definition.
         // So we override these `xMetadata` functions to forward to `_declarations->xMetadata()` instead.
-        [[nodiscard]] MetadataList getMetadata() const final;
+        [[nodiscard]] const MetadataList& getMetadata() const final;
         void setMetadata(MetadataList metadata) final;
         void appendMetadata(MetadataList metadata) final;
 
@@ -773,7 +773,7 @@ namespace Slice
 
         // Interface metadata is always stored on the underlying decl type, not the definition.
         // So we override these `xMetadata` functions to forward to `_declarations->xMetadata()` instead.
-        [[nodiscard]] MetadataList getMetadata() const final;
+        [[nodiscard]] const MetadataList& getMetadata() const final;
         void setMetadata(MetadataList metadata) final;
         void appendMetadata(MetadataList metadata) final;
 
@@ -1051,7 +1051,7 @@ namespace Slice
         void addToDocComment(const std::string& comment);
         std::string currentDocComment(); // Not const, as this function removes the current doc-comment.
         [[nodiscard]] std::string currentFile() const;
-        [[nodiscard]] std::string topLevelFile() const;
+        [[nodiscard]] const std::string& topLevelFile() const;
         [[nodiscard]] int currentLine() const;
 
         int setCurrentFile(const std::string& currentFile, int lineNumber);

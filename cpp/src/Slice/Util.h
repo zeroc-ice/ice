@@ -16,7 +16,7 @@ namespace Slice
     void emitRaw(const char* message);
     std::vector<std::string> filterMcppWarnings(const std::string& message);
     void
-    printGeneratedHeader(IceInternal::Output& out, const std::string& path, const std::string& commentStyle = "//");
+    printGeneratedHeader(IceInternal::Output& out, std::string_view path, std::string_view commentStyle = "//");
 #ifdef _WIN32
     std::vector<std::string> argvToArgs(int argc, wchar_t* argv[]);
 #else

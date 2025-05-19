@@ -34,17 +34,16 @@ using namespace IceInternal;
 
 namespace
 {
-    void writeCopyright(IceInternal::Output& out, const string& file)
+    void writeCopyright(IceInternal::Output& out, string_view file)
     {
-        string f = file;
-        string::size_type pos = f.find_last_of('/');
+        string::size_type pos = file.find_last_of('/');
         if (pos != string::npos)
         {
-            f = f.substr(pos + 1);
+            file = file.substr(pos + 1);
         }
 
         out << nl << "% Copyright (c) ZeroC, Inc.";
-        out << nl << "% Generated from " << f << " by slice2matlab version " << ICE_STRING_VERSION;
+        out << nl << "% Generated from " << file << " by slice2matlab version " << ICE_STRING_VERSION;
         out << sp;
     }
 
@@ -609,7 +608,7 @@ namespace
         //
         out << "% " << n << "   Summary of " << n;
 
-        StringList docOverview = doc->overview();
+        const StringList& docOverview = doc->overview();
         if (!docOverview.empty())
         {
             out << nl << "%";
@@ -628,7 +627,7 @@ namespace
                     out << nl << "%   " << enumerator->mappedName();
                     if (auto enumeratorDoc = DocComment::parseFrom(enumerator, matlabLinkFormatter, true))
                     {
-                        StringList enumeratorOverview = enumeratorDoc->overview();
+                        const StringList& enumeratorOverview = enumeratorDoc->overview();
                         if (!enumeratorOverview.empty())
                         {
                             out << " - ";
@@ -650,7 +649,7 @@ namespace
                     out << nl << "%   " << member->mappedName();
                     if (auto memberDoc = DocComment::parseFrom(member, matlabLinkFormatter, true))
                     {
-                        StringList memberOverview = memberDoc->overview();
+                        const StringList& memberOverview = memberDoc->overview();
                         if (!memberOverview.empty())
                         {
                             out << " - ";
@@ -672,7 +671,7 @@ namespace
                     out << nl << "%   " << member->mappedName();
                     if (auto memberDoc = DocComment::parseFrom(member, matlabLinkFormatter, true))
                     {
-                        StringList memberOverview = memberDoc->overview();
+                        const StringList& memberOverview = memberDoc->overview();
                         if (!memberOverview.empty())
                         {
                             out << " - ";
@@ -694,7 +693,7 @@ namespace
                     out << nl << "%   " << member->mappedName();
                     if (auto memberDoc = DocComment::parseFrom(member, matlabLinkFormatter, true))
                     {
-                        StringList memberOverview = memberDoc->overview();
+                        const StringList& memberOverview = memberDoc->overview();
                         if (!memberOverview.empty())
                         {
                             out << " - ";
@@ -705,14 +704,14 @@ namespace
             }
         }
 
-        StringList docSeeAlso = doc->seeAlso();
+        const StringList& docSeeAlso = doc->seeAlso();
         if (!docSeeAlso.empty())
         {
             out << nl << "%";
             writeSeeAlso(out, docSeeAlso, p->container());
         }
 
-        StringList docDeprecated = doc->deprecated();
+        const StringList& docDeprecated = doc->deprecated();
         if (!docDeprecated.empty())
         {
             out << nl << "%";
@@ -738,7 +737,7 @@ namespace
 
         out << nl << "% " << p->mappedName() << (async ? "Async" : "");
 
-        StringList docOverview = doc->overview();
+        const StringList& docOverview = doc->overview();
         if (!docOverview.empty())
         {
             out << "   ";
@@ -747,7 +746,7 @@ namespace
 
         out << nl << "%";
         out << nl << "% Parameters:";
-        auto docParameters = doc->parameters();
+        const auto& docParameters = doc->parameters();
         const ParameterList inParams = p->inParameters();
         string ctxName = "context";
         string resultName = "result";
@@ -794,7 +793,7 @@ namespace
                 if (p->returnType() && outParams.empty())
                 {
                     out << nl << "% Returns (" << typeToString(p->returnType()) << ")";
-                    StringList docReturns = doc->returns();
+                    const StringList& docReturns = doc->returns();
                     if (!docReturns.empty())
                     {
                         out << " - ";
@@ -817,7 +816,7 @@ namespace
                     if (p->returnType())
                     {
                         out << nl << "%   " << resultName << " (" << typeToString(p->returnType()) << ")";
-                        StringList docReturns = doc->returns();
+                        const StringList& docReturns = doc->returns();
                         if (!docReturns.empty())
                         {
                             out << " - ";
@@ -838,7 +837,7 @@ namespace
             }
         }
 
-        auto docExceptions = doc->exceptions();
+        const auto& docExceptions = doc->exceptions();
         if (!docExceptions.empty())
         {
             out << nl << "%";
@@ -866,14 +865,14 @@ namespace
             }
         }
 
-        StringList docSeeAlso = doc->seeAlso();
+        const StringList& docSeeAlso = doc->seeAlso();
         if (!docSeeAlso.empty())
         {
             out << nl << "%";
             writeSeeAlso(out, docSeeAlso, p->container());
         }
 
-        StringList docDeprecated = doc->deprecated();
+        const StringList& docDeprecated = doc->deprecated();
         if (!docDeprecated.empty())
         {
             out << nl << "%";
@@ -904,7 +903,7 @@ namespace
         //
         out << "% " << n << "   Summary of " << n;
 
-        StringList docOverview = doc->overview();
+        const StringList& docOverview = doc->overview();
         if (!docOverview.empty())
         {
             out << nl << "%";
@@ -923,7 +922,7 @@ namespace
                 out << nl << "%   " << opName;
                 if (opdoc)
                 {
-                    StringList opdocOverview = opdoc->overview();
+                    const StringList& opdocOverview = opdoc->overview();
                     if (!opdocOverview.empty())
                     {
                         out << " - ";
@@ -933,7 +932,7 @@ namespace
                 out << nl << "%   " << opName << "Async";
                 if (opdoc)
                 {
-                    StringList opdocOverview = opdoc->overview();
+                    const StringList& opdocOverview = opdoc->overview();
                     if (!opdocOverview.empty())
                     {
                         out << " - ";
@@ -945,14 +944,14 @@ namespace
         out << nl << "%   checkedCast - Contacts the remote server to verify that the object implements this type.";
         out << nl << "%   uncheckedCast - Downcasts the given proxy to this type without contacting the remote server.";
 
-        StringList docSeeAlso = doc->seeAlso();
+        const StringList& docSeeAlso = doc->seeAlso();
         if (!docSeeAlso.empty())
         {
             out << nl << "%";
             writeSeeAlso(out, docSeeAlso, p->container());
         }
 
-        StringList docDeprecated = doc->deprecated();
+        const StringList& docDeprecated = doc->deprecated();
         if (!docDeprecated.empty())
         {
             out << nl << "%";
@@ -976,9 +975,9 @@ namespace
             return;
         }
 
-        StringList docOverview = doc->overview();
-        StringList docSeeAlso = doc->seeAlso();
-        StringList docDeprecated = doc->deprecated();
+        const StringList& docOverview = doc->overview();
+        const StringList& docSeeAlso = doc->seeAlso();
+        const StringList& docDeprecated = doc->deprecated();
         bool docIsDeprecated = doc->isDeprecated();
 
         const string n = p->mappedName();
