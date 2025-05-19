@@ -92,7 +92,8 @@ runs:
     - name: Generate API reference for PHP
       working-directory: ./php
       run: |
-        brew install phive gnupg
+        set -x
+        brew install phive
         phive install --trust-gpg-keys phpDocumentor
         ./tools/phpDocumentor --config ./phpdoc.dist.xml
       shell: bash
