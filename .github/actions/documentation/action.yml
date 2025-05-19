@@ -92,7 +92,9 @@ runs:
     - name: Generate API reference for PHP
       working-directory: ./php
       run: |
-        docker run --rm -v $PWD:/data phpdoc/phpdoc:3
+        brew install phive gnupg
+        phive install --trust-gpg-keys phpDocumentor
+        ./tools/phpDocumentor --config ./phpdoc.dist.xml
       shell: bash
 
     # This will perform a full sync of the documentation to S3 every time the workflow is run since
