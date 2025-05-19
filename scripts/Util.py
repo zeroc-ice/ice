@@ -3579,8 +3579,7 @@ class CppMapping(Mapping):
         props.update(
             {
                 "IceSSL.CAs": "ca_cert.pem",
-                "IceSSL.CertFile": "server_cert.pem" if server else "client_cert.pem",
-                "IceSSL.KeyFile": "server_key.pem" if server else "client_key.pem",
+                "IceSSL.CertFile": "server.p12" if server else "client.p12"
             }
         )
         if isinstance(platform, Darwin):
