@@ -135,7 +135,7 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   The existing `stringToProxy` operation on `Communicator` remains available. However, the new syntax is now the
   preferred way to create a proxy from a string.
 
-- Add new dispatcher API in C++, C#, Java and Swift.
+- Add new dispatcher API in C++, C#, Java, JavaScript, and Swift.
   - Replaced dispatch interceptors by middleware. See the new forwarder and middleware demos.
   - Changed the name of the Ice 3.7 dispatcher API: it's now called executor.
 
