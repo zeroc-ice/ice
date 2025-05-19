@@ -165,15 +165,15 @@ public class SSLEngine {
                             }
                         }
                     } else {
-                        // If the user selected a specific alias, we need to wrap the key managers in order to return
-                        // the desired alias.
+                        // If the user selected a specific alias, ensure it correspond with a key entry.
                         if (!keys.isKeyEntry(alias)) {
                             throw new InitializationException(
-                                "SSL transport: keystore does not contain an entry with alias `"
-                                    + alias
-                                    + "'");
+                                "SSL transport: keystore does not contain an entry with alias `" + alias + "'");
                         }
+                    }
 
+                    if (!alias.isEmpty()) {
+                        // wrap the key managers in order to return the desired alias.
                         for (int i = 0; i < keyManagers.length; i++) {
                             keyManagers[i] =
                                 new X509KeyManagerI(
