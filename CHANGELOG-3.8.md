@@ -136,7 +136,7 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   preferred way to create a proxy from a string.
 
 - Add new dispatcher API in C++, C#, Java and Swift.
-  - Replaced dispatch interceptors by middleware. See new forwarder and middleware demos.
+  - Replaced dispatch interceptors by middleware. See the new forwarder and middleware demos.
   - Changed the name of the Ice 3.7 dispatcher API: it's now called executor.
 
 - Add `setDefaultObjectAdapter` operation on Communicator to simplify the creation of bidir connections. See the updated
