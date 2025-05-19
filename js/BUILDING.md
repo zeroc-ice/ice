@@ -105,7 +105,7 @@ with SSL via your web browser.
 
 The browser-based tests allow you to choose whether to run the tests over
 non-secure WebSocket (WS) or secure WebSocket (WSS) connections. The WSS
-connections in these tests rely on a self-signed certificate, `cacert`,
+connections in these tests rely on a self-signed certificate, `ca_cert.pem`,
 provided in the certs(../certs) directory.
 
 To successfully run the tests over WSS, additional action may be necessary
@@ -119,7 +119,7 @@ depending on the browser you're using:
    You'll see a warning saying "This Connection is Untrusted". Open Firefox's
    Preferences or Options dialog, click on the Advanced section, select the
    Certificates tab and click on the "View Certificates..." button. In the
-   Authorities tab, click the "Import..." button, navigate to the `cacert.pem`
+   Authorities tab, click the "Import..." button, navigate to the `ca_cert.pem`
    file, and add it as a certificate authority (CA) for trusting web sites.
    After closing the dialogs, reload the test page to continue. You should
    uninstall this certificate after running the tests.
@@ -128,7 +128,7 @@ depending on the browser you're using:
    Run the management console (mmc.exe) and add the Certificates snap-in for
    the computer account. Then select Console Root > Certificates (Local
    Computer) > Trusted Root Certificate Authorities. In the Action menu, choose
-   All Tasks and Import. Navigate to the `cacert.der` file and import it into
+   All Tasks and Import. Navigate to the `ca_cert.pem` file and import it into
    the Trusted Root Certificate Authorities. Reload the test page to continue.
    You should uninstall this certificate after running the tests.
 

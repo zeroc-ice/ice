@@ -38,7 +38,7 @@ for name in server client; do
     openssl pkcs12 -export -out ${name}.p12 \
         -inkey ${name}_key.pem -in ${name}_cert.pem -certfile ca_cert.pem \
         -name "${name}" -passout pass:"${PASSWORD}" \
-        -legacy # For compatibility with macOS Keychain
+        -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -macalg sha1 -legacy # For compatibility with macOS Keychain
 done
 
 # We don't need the CA private key or serial file after certs are generated
