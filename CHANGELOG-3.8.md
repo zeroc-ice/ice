@@ -15,8 +15,8 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
 - Replaced ACM and connection timeouts by idle, inactivity, connect, and close timeouts.
   - Idle timeout\
   Once a connection is established, this connection is considered healthy as long as it does not wait for more than idle
-  timeout to read a byte. If a connection waits for more than idle timeout to read a byte, it's deemed idle and aborted
-  by the idle check.
+  timeout to read a byte. If a connection waits for more than idle timeout to read a byte, it is considered idle and
+  aborted by the idle check mechanism.
   Idle is never a good state. To prevent connections from becoming idle, Ice ensures there is regular write activity on
   established connections: if there is no write on a connection for idle timeout / 2, Ice sends a heartbeat on this
   connection. A heartbeat is a one-way, unacknowledged, ValidateConnection message. The default idle timeout is
@@ -29,15 +29,15 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
     - **Interop with Ice 3.7 and earlier releases**\
     If your Ice 3.8 application connects to an older Ice server or accepts a connection from an older Ice client, you
     need to change the configuration of your older Ice application to send regular heartbeats. Otherwise, your Ice 3.8
-    application can deem the connection idle (after idle timeout) and abort this connection. With Ice 3.7 and Ice 3.6,
-    you can set the property `Ice.ACM.Heartbeat` to 3, and make sure the `Ice.ACM.Timeout` property matches your idle
-    timeout (the default for the ACM timeout is 60 seconds, just like the default idle timeout). If you are unable to
-    change the configuration of your older Ice application, you can switch off the idle check on the Ice 3.8 side
+    application can consider the connection idle (after idle timeout) and abort this connection. With Ice 3.7 and Ice
+    3.6, you can set the property `Ice.ACM.Heartbeat` to 3, and make sure the `Ice.ACM.Timeout` property matches your
+    idle timeout (the default for the ACM timeout is 60 seconds, just like the default idle timeout). If you are unable
+    to change the configuration of your older Ice application, you can switch off the idle check on the Ice 3.8 side
     by setting `Ice.Connection.Client.EnableIdleCheck` or `Ice.Connection.Server.EnableIdleCheck` to 0. You can also
-    switch off the idle check for just a specific object adapter by setting `AdapterName.Connection.EnableIdleCheck` to
-    0.
+    switch off the idle check for just a specific object adapter by setting `AdapterName.Connection.EnableIdleCheck`
+    to 0.
     - **Interop with IceRPC**\
-    IceRPC uses the same idle timeout and idle check mechanism for connections that use the `ice` protocol.
+    [IceRPC] uses the same idle timeout and idle check mechanism for connections that use the `ice` protocol.
   - Inactivity timeout\
   A connection is considered inactive when there is no application-level activity on this connection:
   there is no outstanding invocation (we're not waiting for a response for a request we've sent), there is no
@@ -73,8 +73,8 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   property `AdapterName.Connection.MaxDispatches`.
   When the limit is reached, Ice stops reading from the connection, which applies back pressure on the peer.
   - Max connections\
-   The property _adapter_.MaxConnections limits the number of incoming connections accepted by an object adapter. The
-   default is 0, which means no limit.
+  The property _adapter_.MaxConnections limits the number of incoming connections accepted by an object adapter. The
+  default is 0, which means no limit.
 
 - Simplify proxy creation.
   You can now create a typed proxy directly from a communicator and a string in all languages. For example:
@@ -438,4 +438,5 @@ service.
 
 - The IcePatch2 service was removed.
 
+[IceRPC]: https://github.com/icerpc
 [Slice/print]: cpp/test/Slice/print
