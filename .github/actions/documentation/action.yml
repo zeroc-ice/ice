@@ -10,6 +10,9 @@ inputs:
   aws-s3-code-bucket:
     description: "AWS S3 bucket for storing the API reference"
     required: true
+  github-token:
+    description: "GitHub token for accessing the repository"
+    required: true
 
 runs:
   using: "composite"
@@ -94,7 +97,7 @@ runs:
       env:
         # We need to set the GITHUB_AUTH_TOKEN to allow phive use the GitHub API to get the versions
         # of the packages. If we don't set this, phive will likely fail with a 403 error.
-        GITHUB_AUTH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        GITHUB_AUTH_TOKEN: "${{ inputs.github-token }}"
       run: |
         set -x
         brew install phive
