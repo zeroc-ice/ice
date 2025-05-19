@@ -91,6 +91,10 @@ runs:
 
     - name: Generate API reference for PHP
       working-directory: ./php
+      env:
+        # We need to set the GITHUB_AUTH_TOKEN to allow phive use the GitHub API to get the versions
+        # of the packages. If we don't set this, phive will likely fail with a 403 error.
+        GITHUB_AUTH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
       run: |
         set -x
         brew install phive
