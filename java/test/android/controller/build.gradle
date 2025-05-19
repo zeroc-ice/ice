@@ -79,16 +79,18 @@ android {
     }
 }
 
-task copyBksTask(type: Copy) {
-    from "${rootProject.projectDir}/../../../../certs/client.bks"
-    from "${rootProject.projectDir}/../../../../certs/server.bks"
+task copyCertificatesTask(type: Copy) {
+    from "${rootProject.projectDir}/../../../../certs/ca.p12"
+    from "${rootProject.projectDir}/../../../../certs/client.p12"
+    from "${rootProject.projectDir}/../../../../certs/server.p12"
     into "src/main/res/raw"
 }
-preBuild.dependsOn(copyBksTask)
+preBuild.dependsOn(copyCertificatesTask)
 
 clean {
-    delete("src/main/res/raw/client.bks")
-    delete("src/main/res/raw/server.bks")
+    delete("src/main/res/raw/ca.p12")
+    delete("src/main/res/raw/client.p12")
+    delete("src/main/res/raw/server.p12")
 }
 
 dependencies {
