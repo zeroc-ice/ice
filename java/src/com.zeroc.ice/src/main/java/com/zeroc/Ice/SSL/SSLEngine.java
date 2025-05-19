@@ -278,11 +278,9 @@ public class SSLEngine {
                     }
                 }
 
-                //
-                // Collect the trust managers. Use IceSSL.Truststore if specified, otherwise use the
-                // Java root CAs if Ice.Use.PlatformCAs is enabled. If none of these are enabled,
-                // use the keystore or a dummy trust manager which rejects any certificate.
-                //
+                // Collect the trust managers. Use IceSSL.Truststore if specified, otherwise use the Java root CAs if
+                // Ice.Use.PlatformCAs is enabled. If none of these are enabled use a dummy trust manager which
+                // rejects any certificate.
                 javax.net.ssl.TrustManager[] trustManagers = null;
                 {
                     String algorithm = TrustManagerFactory.getDefaultAlgorithm();
@@ -291,36 +289,33 @@ public class SSLEngine {
                     KeyStore trustStore = null;
                     if (ts != null) {
                         trustStore = ts;
-                    } else if (properties.getIcePropertyAsInt("IceSSL.UsePlatformCAs") <= 0) {
-                        if (keys != null) {
-                            trustStore = keys;
-                        } else {
-                            trustManagers =
-                                new javax.net.ssl.TrustManager[]{
-                                    new X509TrustManager() {
-                                        @Override
-                                        public void checkClientTrusted(
-                                                    X509Certificate[] chain, String authType)
-                                            throws CertificateException {
-                                            throw new CertificateException("no trust anchors");
-                                        }
-
-                                        @Override
-                                        public void checkServerTrusted(
-                                                    X509Certificate[] chain, String authType)
-                                            throws CertificateException {
-                                            throw new CertificateException("no trust anchors");
-                                        }
-
-                                        @Override
-                                        public X509Certificate[] getAcceptedIssuers() {
-                                            return new X509Certificate[0];
-                                        }
-                                    }
-                                };
-                        }
+                    } else if (properties.getIcePropertyAsInt("IceSSL.UsePlatformCAs") > 0) {
+                        // Set trustManagers to null to use the platform CAs
+                        trustManagers = null;
                     } else {
-                        trustStore = null;
+                        trustManagers =
+                            new javax.net.ssl.TrustManager[]{
+                                new X509TrustManager() {
+                                    @Override
+                                    public void checkClientTrusted(
+                                                X509Certificate[] chain, String authType)
+                                        throws CertificateException {
+                                        throw new CertificateException("no trust anchors");
+                                    }
+
+                                    @Override
+                                    public void checkServerTrusted(
+                                                X509Certificate[] chain, String authType)
+                                        throws CertificateException {
+                                        throw new CertificateException("no trust anchors");
+                                    }
+
+                                    @Override
+                                    public X509Certificate[] getAcceptedIssuers() {
+                                        return new X509Certificate[0];
+                                    }
+                                }
+                            };
                     }
 
                     //
