@@ -3579,25 +3579,22 @@ class CppMapping(Mapping):
         props.update(
             {
                 "IceSSL.CAs": "ca_cert.pem",
-                "IceSSL.CertFile": "server.p12" if server else "client.p12",
+                "IceSSL.CertFile": "server_cert.pem" if server else "client_cert.pem",
+                "IceSSL.KeyFile": "server_key.pem" if server else "client_key.pem",
             }
         )
         if isinstance(platform, Darwin):
             props.update(
                 {
                     "IceSSL.KeychainPassword": "password",
-                    "IceSSL.Keychain": "server.keychain"
-                    if server
-                    else "client.keychain",
+                    "IceSSL.Keychain": "server.keychain" if server else "client.keychain",
                 }
             )
         return props
 
     def getPluginEntryPoint(self, plugin, process, current):
         return {
-            "IceSSL": "IceSSLOpenSSL:createIceSSLOpenSSL"
-            if current.config.openssl
-            else "IceSSL:createIceSSL",
+            "IceSSL": "IceSSL:createIceSSL",
             "IceBT": "IceBT:createIceBT",
             "IceDiscovery": "IceDiscovery:createIceDiscovery",
             "IceLocatorDiscovery": "IceLocatorDiscovery:createIceLocatorDiscovery",
@@ -3844,9 +3841,7 @@ class CSharpMapping(Mapping):
                 ),
                 "IceSSL.CAs": "ca_cert.pem",
                 "IceSSL.VerifyPeer": "0" if current.config.protocol == "wss" else "2",
-                "IceSSL.CertFile": "server.p12"
-                if isinstance(process, Server)
-                else "client.p12",
+                "IceSSL.CertFile": "server.p12" if isinstance(process, Server) else "client.p12",
             }
         )
         return props
