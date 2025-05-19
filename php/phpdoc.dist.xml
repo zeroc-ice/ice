@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpdocumentor
+    configVersion="3"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://www.phpdoc.org"
+>
+    <title>Ice 3.8 Slice API Reference</title>
+    <paths>
+        <output>doc/api</output>
+        <cache>doc/cache</cache>
+    </paths>
+    <version number="3.8">
+        <folder>latest</folder>
+        <api>
+            <source dsn=".">
+                <path>lib</path>
+            </source>
+        </api>
+    </version>
+</phpdocumentor>
