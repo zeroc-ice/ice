@@ -1,12 +1,11 @@
 # Ice for Java
 
-[Getting started] | [Examples] | [Maven packages] | [Documentation] | [Building from source]
+[Examples] | [Ice Manual] | [Building from source]
 
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
 
-Ice for Java is the Java implementation of the Ice framework. It includes the latest
-Slice-to-Java mapping introduced in Ice 3.7.
+Ice for Java is the Java implementation of the Ice framework.
 
 ## Sample Code
 
@@ -15,11 +14,16 @@ Slice-to-Java mapping introduced in Ice 3.7.
 
 #pragma once
 
-module Demo
+["java:identifier:com.example.visitorcenter"]
+module VisitorCenter
 {
-    interface Hello
+    /// Represents a simple greeter.
+    interface Greeter
     {
-        void sayHello();
+        /// Creates a personalized greeting.
+        /// @param name The name of the person to greet.
+        /// @return The greeting.
+        string greet(string name);
     }
 }
 ```
@@ -27,18 +31,18 @@ module Demo
 ```java
 // Client implementation (Client.java)
 
-import com.zeroc.Ice.*;
-import Demo.*;
+import com.example.visitorcenter.GreeterPrx;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Util;
 
-public class Client
-{
-    public static void main(String[] args)
-    {
-        try(Communicator communicator = Util.initialize(args))
-        {
-            HelloPrx hello = HelloPrx.checkedCast(
-                communicator.stringToProxy("hello:default -h localhost -p 10000"));
-            hello.sayHello();
+class Client {
+    public static void main(String[] args) {
+        try (Communicator communicator = Util.initialize(args)) {
+            GreeterPrx greeter =
+                GreeterPrx.createProxy(communicator, "greeter:tcp -h localhost -p 4061");
+
+            String greeting = greeter.greet(System.getProperty("user.name"));
+            System.out.println(greeting);
         }
     }
 }
@@ -49,44 +53,42 @@ public class Client
 
 import com.zeroc.Ice.*;
 
-public class Server
-{
-    public static void main(String[] args)
-    {
-        try(Communicator communicator = Util.initialize(args))
-        {
-            // Install a shutdown hook to ensure the communicator gets shut down when
-            // the user interrupts the application with Ctrl-C.
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> communicator.shutdown()));
-            ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(
-                "Hello",
-                "default -h localhost -p 10000");
-            adapter.add(new Printer(), Util.stringToIdentity("hello"));
+import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.Util;
+
+class Server {
+    public static void main(String[] args) {
+        try (Communicator communicator = Util.initialize(args)) {
+            ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("GreeterAdapter", "tcp -p 4061");
+            adapter.add(new Chatbot(), new Identity("greeter", ""));
+
             adapter.activate();
+            System.out.println("Listening on port 4061...");
+
             communicator.waitForShutdown();
         }
     }
 }
+
 ```
 
 ```java
-// Printer implementation (Printer.java)
+// Greeter implementation (Chatbot.java)
 
-import Demo.*;
+import com.example.visitorcenter.Greeter;
+import com.zeroc.Ice.Current;
 
-public class Printer implements Hello
+class Chatbot implements Greeter
 {
-    @Override
-    public void sayHello(com.zeroc.Ice.Current current)
-    {
-        System.out.println("Hello World!");
+    public String greet(String name, Current current) {
+        System.out.println("Dispatching greet request { name = '" + name + "' }");
+        return "Hello, " + name + "!";
     }
-}
-```
+}``
 
-[Getting started]: https://doc.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-java
-[Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.7/java
-[Maven packages]: https://central.sonatype.com/namespace/com.zeroc
-[Documentation]: https://doc.zeroc.com/ice/3.7
-[Building from source]: https://github.com/zeroc-ice/ice/blob/3.7/java/BUILDING.md
+[Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/java
+[Ice Manual]: https://doc.zeroc.com/ice/3.7
+[Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

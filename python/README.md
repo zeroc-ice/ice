@@ -1,6 +1,6 @@
 # Ice for Python
 
-[Getting started] | [Examples] | [Documentation] | [Building from source]
+[Examples] | [Ice Manual] | [Building from source]
 
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
@@ -10,62 +10,71 @@ Ice for Python is the Python implementation of the Ice framework.
 ## Sample Code
 
 ```slice
-// Slice definitions (Hello.ice)
+// Slice definitions (Greeter.ice)
 
-module Demo
+#pragma once
+
+module VisitorCenter
 {
-    interface Hello
+    /// Represents a simple greeter.
+    interface Greeter
     {
-        void sayHello();
+        /// Creates a personalized greeting.
+        /// @param name The name of the person to greet.
+        /// @return The greeting.
+        string greet(string name);
     }
 }
 ```
 
 ```python
-// Client application (client.py)
-import sys
+# Client application (main.py)
 import Ice
+import asyncio
+import getpass
+import sys
 
-Ice.loadSlice('Hello.ice')
-import Demo
+import VisitorCenter
 
-# Ice.initialize returns an initialized Ice communicator, the communicator is destroyed
-# once it goes out of scope.
-with Ice.initialize(sys.argv) as communicator:
-    hello = Demo.HelloPrx(communicator, "hello:default -h localhost -p 10000")
-    hello.sayHello()
+async def main():
+    async with Ice.initialize(sys.argv, eventLoop=asyncio.get_running_loop()) as communicator:
+        greeter = VisitorCenter.GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061")
+        greeting = await greeter.greetAsync(getpass.getuser())
+        print(greeting)
 ```
 
 ```python
-// Server application (server.py)
+# Server application (main.py)
 
-import signal
-import sys
 import Ice
+import chatbot
+import sys
 
-Ice.loadSlice('Hello.ice')
-import Demo
+def main():
+    with Ice.initialize(sys.argv) as communicator:
+        adapter = communicator.createObjectAdapterWithEndpoints("GreeterAdapter", "tcp -p 4061")
+        adapter.add(chatbot.Chatbot(), Ice.Identity(name="greeter"))
 
-class Printer(Demo.Hello):
-    def sayHello(self, current):
-        print("Hello World!")
+        adapter.activate()
+        print("Listening on port 4061...")
 
-# Ice.initialize returns an initialized Ice communicator, the communicator is destroyed
-# once it goes out of scope.
-with Ice.initialize(sys.argv) as communicator:
-
-    # Install a signal handler to shutdown the communicator on Ctrl-C
-    signal.signal(signal.SIGINT, lambda signum, frame: communicator.shutdown())
-    if hasattr(signal, 'SIGBREAK'):
-        signal.signal(signal.SIGBREAK, lambda signum, frame: communicator.shutdown())
-    adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default -h localhost -p 10000")
-    adapter.add(Printer(), Ice.stringToIdentity("hello"))
-    adapter.activate()
-    communicator.waitForShutdown()
+        try:
+            communicator.waitForShutdown()
+        except KeyboardInterrupt:
+            print("Caught Ctrl+C, exiting...")
 ```
 
-[Getting started]: https://doc.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-python
-[Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.7/python
-[Documentation]: https://doc.zeroc.com/ice/3.7
-[Building from source]: https://github.com/zeroc-ice/ice/blob/3.7/python/BUILDING.md
+```python
+# Greeter implementation (chatbot.py)
+import VisitorCenter
+
+class Chatbot(VisitorCenter.Greeter):
+    def greet(self, name: str, current: Ice.Current) -> str:
+        print(f"Dispatching greet request {{ name = '{name}' }}")
+        return f"Hello, {name}!"
+```
+
+[Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/python
+[Ice Manual]: https://doc.zeroc.com/ice/3.7
+[Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice
