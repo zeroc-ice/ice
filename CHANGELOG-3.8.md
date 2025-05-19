@@ -15,23 +15,24 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
 - Replaced ACM and connection timeouts by idle, inactivity, connect, and close timeouts.
   - Idle timeout\
   Once a connection is established, this connection is considered healthy as long as it does not wait for more than idle
-  timeout to read a byte. If a connection waits for more than idle timeout to read a byte, it's deemed idle and aborted.
+  timeout to read a byte. If a connection waits for more than idle timeout to read a byte, it's deemed idle and aborted
+  by the idle check.
   Idle is never a good state. To prevent connections from becoming idle, Ice ensures there is regular write activity on
   established connections: if there is no write on a connection for idle timeout / 2, Ice sends a heartbeat on this
   connection. A heartbeat is a one-way, unacknowledged, ValidateConnection message. The default idle timeout is
   60 seconds. You can change this value with the configuration property `Ice.Connection.Client.IdleTimeout` (for client
   connections) or `Ice.Connection.Server.IdleTimeout` (for server connections). The unit for this timeout is seconds.
    You can also override this value for a specific object adapter with the configuration property
-  `AdapterName.Connection.IdleTimeout`. Our general recommendation is to keep things simple: use the same value
-  (typically the default) for all your Ice applications. In particular, the idle timeout is not negotiated during
-  connection establishment and an idle timeout mismatch may result in untimely connection aborts.
+  `AdapterName.Connection.IdleTimeout`. We recommend keeping things simple: use the same value (typically the default)
+  for all your Ice applications. In particular, the idle timeout is not negotiated during connection establishment and
+  an idle timeout mismatch may result in untimely connection aborts.
     - **Interop with Ice 3.7 and earlier releases**\
     If your Ice 3.8 application connects to an older Ice server or accepts a connection from an older Ice client, you
     need to change the configuration of your older Ice application to send regular heartbeats. Otherwise, your Ice 3.8
     application can deem the connection idle (after idle timeout) and abort this connection. With Ice 3.7 and Ice 3.6,
     you can set the property `Ice.ACM.Heartbeat` to 3, and make sure the `Ice.ACM.Timeout` property matches your idle
     timeout (the default for the ACM timeout is 60 seconds, just like the default idle timeout). If you are unable to
-    change the configuration of your older Ice application, you can switch off the idle detection on the Ice 3.8 side
+    change the configuration of your older Ice application, you can switch off the idle check on the Ice 3.8 side
     by setting `Ice.Connection.Client.EnableIdleCheck` or `Ice.Connection.Server.EnableIdleCheck` to 0. You can also
     switch off the idle check for just a specific object adapter by setting `AdapterName.Connection.EnableIdleCheck` to
     0.
@@ -63,6 +64,17 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   client connections) or `Ice.Connection.Server.CloseTimeout` (for server connections). The unit for this timeout is
   seconds, as usual. You can also override this value for a specific object adapter with the configuration
   property `AdapterName.Connection.CloseTimeout`.
+
+- Add new properties for flow control.
+  - Max dispatches\
+  The maximum number of concurrent dispatches for each connection is now 100. You can change this value by setting
+  `Ice.Connection.Client.MaxDispatches` (for client connections) or `Ice.Connection.Server.MaxDispatches` (for server
+  connections). You can also override this value for a specific object adapter with the configuration
+  property `AdapterName.Connection.MaxDispatches`.
+  When the limit is reached, Ice stops reading from the connection, which applies back pressure on the peer.
+  - Max connections\
+   The property _adapter_.MaxConnections limits the number of incoming connections accepted by an object adapter. The
+   default is 0, which means no limit.
 
 - Simplify proxy creation.
   You can now create a typed proxy directly from a communicator and a string in all languages. For example:
@@ -120,15 +132,22 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   const greeter = new GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061");
   ```
 
-  The existing `stringToProxy` operation on `Communicator` remains available. However, the new
-  syntax is now the preferred way to create a proxy from a string.
+  The existing `stringToProxy` operation on `Communicator` remains available. However, the new syntax is now the
+  preferred way to create a proxy from a string.
+
+- Add new dispatcher API in C++, C#, Java and Swift.
+  - Replaced dispatch interceptors by middleware. See new forwarder and middleware demos.
+  - Changed the name of the Ice 3.7 dispatcher API: it's now called executor.
+
+- Add `setDefaultObjectAdapter` operation on Communicator to simplify the creation of bidir connections. See the updated
+  Ice/bidir demo.
 
 - Rework the published endpoints of object adapters
   - The published endpoints of an object adapter are the endpoint(s) included in the proxies returned by the `add` and
 `createProxy` operations on an object adapter. For indirect object adapters, the published endpoints are the endpoints
 registered with the Ice Locator (typically the IceGrid registry).
   - Improved the algorithm for computing the default published endpoints.
-  - Add new _AdapterName_.PublishedHost property, used to compute the default published endpoints.
+  - Add new _adapter_.PublishedHost property, used to compute the default published endpoints.
   - Removed the `refreshPublishedEndpoints` operation on `ObjectAdapter`.
 
 - The local exceptions that can be marshaled now have a common base class (`DispatchException`), and are no longer
@@ -273,9 +292,9 @@ This fixed name is the only name you can use when loading/configuring such a plu
 
 - Removed local Slice. `local` is no longer a Slice keyword.
 
-- Removed the `["preserve-slice"]` metadata. Slice classes encoded in the sliced format are now always preserved.
+- Removed the `["preserve-slice"]` metadata. Slice classes marshaled in the sliced format are now always preserved.
 
-- Exceptions are now always encoded in the sliced format and no longer support preservation of unknown slices.
+- Exceptions are now always marshaled in the sliced format and no longer support preservation of unknown slices.
 
 - Slice classes can no longer define operations or implement interfaces, and `implements` is no longer a Slice keyword.
 This feature has been deprecated since Ice 3.7.
@@ -285,14 +304,31 @@ This feature has been deprecated since Ice 3.7.
 - An interface can no longer be used as a type. This feature, known as "interface by value", has been deprecated since
 Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `Greeter` represents an interface.
 
-## Property Changes
+- The type of an optional field or parameter can no longer be a class or contain a class.
+
+- `:` is now an alias for the `extends` keyword.
+
+- Removed Slice checksums.
+
+## Slice Tools
+
+- Add new `ice2slice` compiler that converts Slice files in the `.ice` format (used by Ice) into Slice files in the
+`.slice` format (used by IceRPC).
+
+## IceSSL Changes
+
+- IceSSL is no longer a plug-in.
 
 - Removed `IceSSL.SchannelStrongCrypto`. Strong crypto is now enabled by default.
 
 ## C++ Changes
 
 - There is now a single C++ mapping, based on the C++11 mapping provided by Ice 3.7. This new C++ mapping requires a
-C++ compiler with support for std=c++17 or higher.
+C++ compiler with support for C++17 or higher.
+
+- Generated proxy classes are now concrete classes with public constructors.
+
+- Nullable proxies are represented using `std::optional`.
 
 - All functions that create proxies, including `Communicator::stringToProxy`, `ObjectAdapter::add`,
   `Connection::createProxy` and more, are now template functions that allow you to choose the type of the returned
@@ -332,14 +368,37 @@ was executed in a thread managed by the same Ice thread pool unless you specifie
 - Replaced the `Ice.Util.registerPluginFactory` mechanism by plug-in factories on InitializationData. The corresponding
 plug-ins are created during communicator initialization. See `InitializationData.pluginFactories`.
 
+- Slice structs are now mapped to record structs or record classes.
+
+- Updated Ice.Communicator to implement IAsyncDisposable. The preferred way to create and dispose of a communicator is
+  now:
+
+  ```cs
+  await using Ice.Communicator communicator = Ice.Util.initialize(ref args);
+  ```
+
 - Removed ThreadHookPlugin.
 
+- Removed support for serializable objects (the `cs:serializable` metadata directive).
+
 ## Java Changes
+
+- Removed the Java-Compat mapping.
 
 - Add plug-in factories to InitializationData. The corresponding plug-ins are created during communicator
 initialization. See `InitializationData.pluginFactories`.
 
+- Removed the `com.zeroc.Ice.Exception` base class. The common base class for all Ice exceptions is now
+  `java.lang.Exception`.
+
+- Removed the `Ice.ThreadInterruptSafe` property. You no longer need to set a property to use Ice for Java with
+  interrupts.
+
 - Removed ThreadHookPlugin.
+
+- Reworked IceMX to avoid creating split packages.
+
+## JavaScript Changes
 
 ## MATLAB Changes
 
@@ -353,6 +412,22 @@ initialization. See `InitializationData.pluginFactories`.
 ## PHP Changes
 
 - Removed the flattened mapping deprecated in 3.7.
+
+## Python Changes
+
+## Ruby Changes
+
+## Swift Changes
+
+## Glacier2 Changes
+
+- Removed buffered mode. As a result, Glacier2 has now a single mode, the previous "unbuffered" mode.
+
+- Removed support for request overrides (the `_ovrd` request context).
+
+- Removed support for creating batches of requests (`Glacier2.Client.AlwaysBatch` and `Glacier2.Server.AlwayBatch`).
+
+- Removed Glacier2 helper classes.
 
 ## IceGrid Changes
 
