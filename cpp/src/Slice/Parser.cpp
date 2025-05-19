@@ -300,23 +300,9 @@ namespace
         }
     }
 
-    StringList splitComment(string comment, bool stripMarkup, bool escapeXml)
+    StringList splitComment(string comment, bool escapeXml)
     {
         string::size_type pos = 0;
-
-        if (stripMarkup)
-        {
-            // Strip HTML markup.
-            while ((pos = comment.find('<', pos)) != string::npos)
-            {
-                string::size_type endpos = comment.find('>', pos);
-                if (endpos == string::npos)
-                {
-                    break;
-                }
-                comment.erase(pos, endpos - pos + 1);
-            }
-        }
 
         // Escape XML entities.
         if (escapeXml)
@@ -446,10 +432,10 @@ namespace
 }
 
 optional<DocComment>
-Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatter, bool stripMarkup, bool escapeXml)
+Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatter, bool escapeXml)
 {
     // Split the comment's raw text up into lines.
-    StringList lines = splitComment(p->docComment(), stripMarkup, escapeXml);
+    StringList lines = splitComment(p->docComment(), escapeXml);
     if (lines.empty())
     {
         return nullopt;

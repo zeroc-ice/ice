@@ -272,7 +272,6 @@ namespace Slice
         [[nodiscard]] static std::optional<DocComment> parseFrom(
             const ContainedPtr& p,
             DocLinkFormatter linkFormatter,
-            bool stripMarkup = false,
             bool escapeXml = false);
 
         [[nodiscard]] bool isDeprecated() const;
