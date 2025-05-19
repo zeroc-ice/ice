@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://www.phpdoc.org"
 >
-    <title>Ice 3.8 Ruby API Reference</title>
+    <title>Ice 3.8 PHP API Reference</title>
     <paths>
         <output>doc/api</output>
         <cache>doc/cache</cache>
