@@ -11,7 +11,7 @@ inputs:
     description: "AWS S3 bucket for storing the API reference"
     required: true
   github-token:
-    description: "GitHub token for accessing the repository"
+    description: "GitHub token used by phive to access the GitHub API (to get the versions of the packages)"
     required: true
 
 runs:
