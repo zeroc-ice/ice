@@ -10,6 +10,12 @@ inputs:
   aws-s3-code-bucket:
     description: "AWS S3 bucket for storing the API reference"
     required: true
+  github-token:
+    description: "GitHub token used by phive to access the GitHub API (to get the versions of the packages)"
+    required: true
+
+# Disable the default permissions for the action.
+permissions: {}
 
 runs:
   using: "composite"
@@ -89,6 +95,19 @@ runs:
         yard  doc 'ruby/**/*.rb'
       shell: bash
 
+    - name: Generate API reference for PHP
+      working-directory: ./php
+      env:
+        # We need to set the GITHUB_AUTH_TOKEN to allow phive use the GitHub API to get the versions
+        # of the packages. If we don't set this, phive will likely fail with a 403 error.
+        GITHUB_AUTH_TOKEN: "${{ inputs.github-token }}"
+      run: |
+        set -x
+        brew install phive
+        phive install phpDocumentor --trust-gpg-keys 6DA3ACC4991FFAE5 --temporary
+        ./tools/phpDocumentor --config ./phpdoc.dist.xml
+      shell: bash
+
     # This will perform a full sync of the documentation to S3 every time the workflow is run since
     # the timestamps will always be different. Using --size-only is not sufficient since the
     # documentation may be updated without changing the size of the files. S3 does not offer a hash based sync.
@@ -115,6 +134,8 @@ runs:
         aws s3 sync ./java/build/docs/javadoc s3://${AWS_S3_CODE_BUCKET}/ice/main/api/java --delete
 
         aws s3 sync ./ruby/doc s3://${AWS_S3_CODE_BUCKET}/ice/main/api/ruby --delete
+
+        aws s3 sync ./php/doc/api s3://${AWS_S3_CODE_BUCKET}/ice/main/api/php --delete
 
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
