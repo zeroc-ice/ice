@@ -3827,7 +3827,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         out << nl << "* @return a {@code CompletionStage} that will complete when the operation is done";
         if (throwsUserException)
         {
-            out << nl << "@throws com.zeroc.Ice.UserException in the event of a user exception";
+            out << nl << "* @throws com.zeroc.Ice.UserException in the event of a user exception";
         }
         out << nl << "* @hidden";
         out << nl << "*/";
