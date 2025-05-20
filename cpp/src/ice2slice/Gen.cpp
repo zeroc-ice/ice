@@ -1,10 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Gen.h"
-#include "../Ice/StringUtil.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
 #include "../slice2cs/CsMetadataValidator.h"
+#include "Ice/StringUtil.h"
 
 #include <cassert>
 
