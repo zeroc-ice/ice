@@ -98,17 +98,17 @@ namespace
         ostringstream os;
 
         static const char* builtinTable[] = {
-            "uint8",                     // KindByte
-            "bool",                      // KindBool
-            "int16",                     // KindShort
-            "int32",                     // KindInt
-            "int64",                     // KindLong
-            "float32",                   // KindFloat
-            "float64",                   // KindDouble
-            "string",                    // KindString
-            "AnyClass?",                 // KindObject
-            "IceRpc::ServiceAddress?",   // KindObjectProxy
-            "AnyClass?"                  // KindValue
+            "uint8",                   // KindByte
+            "bool",                    // KindBool
+            "int16",                   // KindShort
+            "int32",                   // KindInt
+            "int64",                   // KindLong
+            "float32",                 // KindFloat
+            "float64",                 // KindDouble
+            "string",                  // KindString
+            "AnyClass?",               // KindObject
+            "IceRpc::ServiceAddress?", // KindObjectProxy
+            "AnyClass?"                // KindValue
         };
 
         if (BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type))
