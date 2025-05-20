@@ -264,16 +264,12 @@ namespace Slice
         ///
         /// @param p The slice element whose doc-comment should be parsed.
         /// @param linkFormatter A function used to format links according to the target language's syntax.
-        /// @param stripMarkup If true, removes all HTML markup from the parsed comment. Defaults to false.
         /// @param escapeXml If true, escapes all XML special characters in the parsed comment. Defaults to false.
         ///
         /// @return A `DocComment` instance containing a parsed representation of `p`'s doc-comment, if a doc-comment
         /// was present. If no doc-comment was present (or it contained only whitespace) this returns `nullopt` instead.
-        [[nodiscard]] static std::optional<DocComment> parseFrom(
-            const ContainedPtr& p,
-            DocLinkFormatter linkFormatter,
-            bool stripMarkup = false,
-            bool escapeXml = false);
+        [[nodiscard]] static std::optional<DocComment>
+        parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatter, bool escapeXml = false);
 
         [[nodiscard]] bool isDeprecated() const;
         [[nodiscard]] StringList deprecated() const;
