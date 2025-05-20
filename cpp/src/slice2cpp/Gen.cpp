@@ -3111,13 +3111,14 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         H << nl << "public:";
         H.inc();
         H << nl << "/// Marshals the result immediately.";
-        const StringList& returnsDoc = comment->returns();
-        if (ret && comment && !returnsDoc.empty())
-        {
-            H << nl << "/// @param " << returnValueParam << " " << getDocSentence(returnsDoc);
-        }
         if (comment)
         {
+            const StringList& returnsDoc = comment->returns();
+            if (ret && !returnsDoc.empty())
+            {
+                H << nl << "/// @param " << returnValueParam << " " << getDocSentence(returnsDoc);
+            }
+
             const map<string, StringList>& paramComments = comment->parameters();
             for (const auto& param : outParams)
             {
