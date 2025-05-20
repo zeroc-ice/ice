@@ -42,7 +42,6 @@ from .Value import *
 from .Object import Object
 from .ObjectPrx import ObjectPrx, checkedCast, checkedCastAsync, uncheckedCast
 from .Blobject import Blobject
-from .BlobjectAsync import BlobjectAsync
 from .FormatType import *
 from .Util import *
 from .UnknownSlicedValue import *
@@ -123,7 +122,6 @@ __all__ = [
     "AlreadyRegisteredException",
     "BatchRequestInterceptor",
     "Blobject",
-    "BlobjectAsync",
     "CloseConnectionException",
     "CloseTimeoutException",
     "Communicator",

@@ -70,7 +70,7 @@ class BlobjectCall(object):
             self._future.set_exception(ex)
 
 
-class BlobjectAsyncI(Ice.BlobjectAsync):
+class BlobjectAsyncI(Ice.Blobject):
     def __init__(self):
         self._queue = CallQueue()
         self._queue.start()
