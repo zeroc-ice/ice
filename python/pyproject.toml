@@ -2,9 +2,7 @@
 name = "zeroc-ice"
 version = "3.8.0a0"
 description = "Ice is a comprehensive RPC framework with support for Python, C++, .NET, Java, JavaScript and more."
-authors = [
-    {name = "ZeroC, Inc.", email = "info@zeroc.com"}
-]
+authors = [{ name = "ZeroC, Inc.", email = "info@zeroc.com" }]
 requires-python = ">=3.12"
 readme = "README.md"
 license = "GPL-2.0-only"
@@ -21,7 +19,7 @@ classifiers = [
 [project.urls]
 Homepage = "https://zeroc.com/ice"
 Repository = "https://github.com/zeroc-ice/ice"
-Documentation = "https://doc.zeroc.com/api/ice/main/python/index.html"
+Documentation = "https://code.zeroc.com/ice/main/api/python/index.html"
 Issues = "https://github.com/zeroc-ice/ice/issues"
 Changelog = "https://github.com/zeroc-ice/ice/blob/main/CHANGELOG-3.8.md"
 

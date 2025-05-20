@@ -121,6 +121,7 @@ namespace Slice
         void writeHiddenProxyDocComment(IceInternal::Output&, const OperationPtr&);
         void writeServantDocComment(IceInternal::Output&, const OperationPtr&, const std::string&, bool);
         void writeSeeAlso(IceInternal::Output&, const UnitPtr&, const std::string&);
+        void writeParamDocComments(IceInternal::Output& out, const DataMemberList& members);
     };
 
     class Gen final

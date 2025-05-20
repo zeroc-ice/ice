@@ -31,7 +31,7 @@ javadoc {
             dependsOn artifactProject.tasks.named("javadoc")
 
             options.linksOffline(
-                "https://doc.zeroc.com/api/ice/main/java/${artifactProject.ext.displayName}/",
+                "https://code.zeroc.com/ice/main/api/java/${artifactProject.ext.displayName}/",
                 "${rootProject.projectDir}/src/${artifactProject.ext.moduleName}/build/docs/javadoc")
         }
     }
