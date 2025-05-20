@@ -1,6 +1,6 @@
 # Ice for Python
 
-[Examples] | [Ice Manual] | [Building from source]
+[Examples] | [Documentation] | [API Reference] | [Building from source]
 
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
@@ -41,6 +41,9 @@ async def main():
         greeter = VisitorCenter.GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061")
         greeting = await greeter.greetAsync(getpass.getuser())
         print(greeting)
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ```python
@@ -62,6 +65,9 @@ def main():
             communicator.waitForShutdown()
         except KeyboardInterrupt:
             print("Caught Ctrl+C, exiting...")
+
+if __name__ == "__main__":
+    main()
 ```
 
 ```python
@@ -75,6 +81,7 @@ class Chatbot(VisitorCenter.Greeter):
 ```
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/python
-[Ice Manual]: https://doc.zeroc.com/ice/3.7
+[Documentation]: https://doc.zeroc.com/ice/3.7
+[API Reference]: https://code.zeroc.com/ice/main/api/python/index.html
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

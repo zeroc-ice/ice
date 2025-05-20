@@ -1,6 +1,6 @@
 # Ice for C++
 
-[Examples] | [Ice Manual] | [Building from source]
+[Examples] | [Documentation] | [API Reference] | [Building from source]
 
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 
     VisitorCenter::GreeterPrx greeter{communicator, "greeter:tcp -h localhost -p 4061"};
 
-    string greeting = greeter.greet("alice");
+    string greeting = greeter->greet("alice");
     cout << greeting << endl;
     return 0;
 }
@@ -114,6 +114,7 @@ namespace Server
 ```
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/cpp
-[Ice Manual]: https://doc.zeroc.com/ice/3.7
+[Documentation]: https://doc.zeroc.com/ice/3.7
+[API Reference]: https://code.zeroc.com/ice/main/api/cpp/index.html
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

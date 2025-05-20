@@ -1,6 +1,6 @@
 # Ice for PHP
 
-[Examples] | [Ice Manual] | [Building from source]
+[Examples] | [Documentation] | [API Reference] | [Building from source]
 
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
@@ -45,6 +45,7 @@ echo "$greeting\n";
 ```
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/php
-[Ice Manual]: https://doc.zeroc.com/ice/3.7
+[Documentation]: https://doc.zeroc.com/ice/3.7
+[API Reference]: https://code.zeroc.com/ice/main/api/php/index.html
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

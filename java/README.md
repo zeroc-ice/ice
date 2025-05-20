@@ -1,6 +1,6 @@
 # Ice for Java
 
-[Examples] | [Ice Manual] | [Building from source]
+[Examples] | [Documentation] | [API Reference] | [Building from source]
 
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
@@ -10,7 +10,7 @@ Ice for Java is the Java implementation of the Ice framework.
 ## Sample Code
 
 ```slice
-// Slice definitions (Hello.ice)
+// Slice definitions (Greeter.ice)
 
 #pragma once
 
@@ -51,8 +51,6 @@ class Client {
 ```java
 // Server implementation (Server.java)
 
-import com.zeroc.Ice.*;
-
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.ObjectAdapter;
@@ -61,7 +59,8 @@ import com.zeroc.Ice.Util;
 class Server {
     public static void main(String[] args) {
         try (Communicator communicator = Util.initialize(args)) {
-            ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("GreeterAdapter", "tcp -p 4061");
+            ObjectAdapter adapter =
+                communicator.createObjectAdapterWithEndpoints("GreeterAdapter", "tcp -p 4061");
             adapter.add(new Chatbot(), new Identity("greeter", ""));
 
             adapter.activate();
@@ -71,7 +70,6 @@ class Server {
         }
     }
 }
-
 ```
 
 ```java
@@ -80,15 +78,16 @@ class Server {
 import com.example.visitorcenter.Greeter;
 import com.zeroc.Ice.Current;
 
-class Chatbot implements Greeter
-{
+class Chatbot implements Greeter {
     public String greet(String name, Current current) {
         System.out.println("Dispatching greet request { name = '" + name + "' }");
         return "Hello, " + name + "!";
     }
-}``
+}
+```
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/java
-[Ice Manual]: https://doc.zeroc.com/ice/3.7
+[Documentation]: https://doc.zeroc.com/ice/3.7
+[API Reference]: https://code.zeroc.com/ice/main/api/java/index.html
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice
