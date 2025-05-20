@@ -383,30 +383,33 @@ namespace
             return;
         }
 
-        if (!doc->overview().empty())
+        const StringList& overview = doc->overview();
+        if (!overview.empty())
         {
-            writeDocLines(out, doc->overview(), true);
+            writeDocLines(out, overview, true);
         }
 
-        StringList remarks = doc->remarks();
+        const StringList& remarks = doc->remarks();
         if (!remarks.empty())
         {
             out << nl << "/// @remarks ";
             writeDocLines(out, remarks, false);
         }
 
-        if (!doc->seeAlso().empty())
+        const StringList& seeAlso = doc->seeAlso();
+        if (!seeAlso.empty())
         {
-            writeSeeAlso(out, doc->seeAlso());
+            writeSeeAlso(out, seeAlso);
         }
 
         if (options.generateDeprecated)
         {
-            if (!doc->deprecated().empty())
+            const StringList& deprecated = doc->deprecated();
+            if (!deprecated.empty())
             {
                 out << nl << "///";
                 out << nl << "/// @deprecated ";
-                writeDocLines(out, doc->deprecated(), false);
+                writeDocLines(out, deprecated, false);
             }
             else if (doc->isDeprecated())
             {
@@ -415,7 +418,7 @@ namespace
             }
         }
 
-        string file = p->file();
+        string_view file = p->file();
         assert(!file.empty());
         DefinitionContextPtr dc = p->unit()->findDefinitionContext(file);
         assert(dc);
@@ -464,7 +467,7 @@ namespace
             writeDocLines(out, preParams, true);
         }
 
-        map<string, StringList> paramDoc = doc.parameters();
+        const map<string, StringList>& paramDoc = doc.parameters();
         for (const auto& param : params)
         {
             // We want to lookup the parameter by its slice identifier, ignoring any 'cpp:identifier' metadata.
@@ -504,7 +507,7 @@ namespace
             }
         }
 
-        map<string, StringList> paramDoc = doc.parameters();
+        const map<string, StringList>& paramDoc = doc.parameters();
         for (const auto& param : outParams)
         {
             auto q = paramDoc.find(param->name());
@@ -546,7 +549,7 @@ namespace
         const StringList& postParams = StringList(),
         const StringList& returns = StringList())
     {
-        const auto& overview = doc.overview();
+        const StringList& overview = doc.overview();
         if (!overview.empty())
         {
             writeDocLines(out, overview, true);
@@ -565,14 +568,14 @@ namespace
             writeOpDocExceptions(out, op, doc);
         }
 
-        StringList remarks = doc.remarks();
+        const StringList& remarks = doc.remarks();
         if (!remarks.empty())
         {
             out << nl << "/// @remarks ";
             writeDocLines(out, remarks, false);
         }
 
-        const auto& seeAlso = doc.seeAlso();
+        const StringList& seeAlso = doc.seeAlso();
         if (!seeAlso.empty())
         {
             writeSeeAlso(out, seeAlso);
@@ -580,7 +583,7 @@ namespace
 
         if (options.generateDeprecated)
         {
-            const auto& deprecated = doc.deprecated();
+            const StringList& deprecated = doc.deprecated();
             if (!deprecated.empty())
             {
                 out << nl << "///";
@@ -692,7 +695,7 @@ Slice::Gen::~Gen()
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-    string file = p->topLevelFile();
+    string_view file = p->topLevelFile();
     DefinitionContextPtr dc = p->findDefinitionContext(file);
     assert(dc);
 
@@ -1135,7 +1138,7 @@ Slice::Gen::resetUseWstring(list<TypeContext>& hist)
 }
 
 string
-Slice::Gen::getHeaderExt(const string& file, const UnitPtr& ut)
+Slice::Gen::getHeaderExt(string_view file, const UnitPtr& ut)
 {
     DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
@@ -1143,7 +1146,7 @@ Slice::Gen::getHeaderExt(const string& file, const UnitPtr& ut)
 }
 
 string
-Slice::Gen::getSourceExt(const string& file, const UnitPtr& ut)
+Slice::Gen::getSourceExt(string_view file, const UnitPtr& ut)
 {
     DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
@@ -1333,9 +1336,8 @@ Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
     const string scope = p->mappedScope();
     const TypePtr type = p->type();
     const TypeContext typeCtx = _useWstring;
-    const MetadataList metadata = p->getMetadata();
 
-    string seqType = findMetadata(metadata, _useWstring);
+    string seqType = findMetadata(p->getMetadata(), _useWstring);
 
     writeDocSummary(H, p);
     string deprecatedAttribute = getDeprecatedAttribute(p);
@@ -1711,7 +1713,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         const string paramName = q->mappedName();
         const string prefixedParamName = paramPrefix + paramName;
-        const MetadataList metadata = q->getMetadata();
+        const MetadataList& metadata = q->getMetadata();
 
         if (q->isOutParam())
         {
@@ -3109,24 +3111,25 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         H << nl << "public:";
         H.inc();
         H << nl << "/// Marshals the result immediately.";
-        if (ret && comment && !comment->returns().empty())
-        {
-            H << nl << "/// @param " << returnValueParam << " " << getDocSentence(comment->returns());
-        }
-        map<string, StringList> paramComments;
         if (comment)
         {
-            paramComments = comment->parameters();
-        }
-        const string mrcurrent = escapeParam(outParams, "current");
-        for (const auto& param : outParams)
-        {
-            auto r = paramComments.find(param->name());
-            if (r != paramComments.end())
+            const StringList& returnsDoc = comment->returns();
+            if (ret && !returnsDoc.empty())
             {
-                H << nl << "/// @param " << param->mappedName() << " " << getDocSentence(r->second);
+                H << nl << "/// @param " << returnValueParam << " " << getDocSentence(returnsDoc);
+            }
+
+            const map<string, StringList>& paramComments = comment->parameters();
+            for (const auto& param : outParams)
+            {
+                auto r = paramComments.find(param->name());
+                if (r != paramComments.end())
+                {
+                    H << nl << "/// @param " << param->mappedName() << " " << getDocSentence(r->second);
+                }
             }
         }
+        const string mrcurrent = escapeParam(outParams, "current");
         H << nl << "/// @param " << mrcurrent << " The Current object of the incoming request.";
         H << nl << resultName << spar << responseParams << currentTypeDecl + " " + mrcurrent << epar << ";";
         H << eb << ';';

@@ -107,7 +107,7 @@ Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
     os << ";";
     for (const auto& member : members)
     {
-        const MetadataList metadata = member->getMetadata();
+        const MetadataList& metadata = member->getMetadata();
         const string typeString = JavaGenerator::typeToString(member->type(), TypeModeMember, "", metadata);
         os << member->mappedName() << ":" << typeString << ",";
     }
@@ -328,7 +328,7 @@ Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& contained)
     {
         return *metadataArgs;
     }
-    string file = contained->file();
+    string_view file = contained->file();
     DefinitionContextPtr dc = contained->unit()->findDefinitionContext(file);
     assert(dc);
     return dc->getMetadataArgs("java:package").value_or("");

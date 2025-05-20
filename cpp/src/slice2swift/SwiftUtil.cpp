@@ -180,7 +180,7 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 
     bool hasStarted = false;
 
-    StringList docOverview = doc->overview();
+    const StringList& docOverview = doc->overview();
     if (!docOverview.empty())
     {
         writeDocLines(out, docOverview);
@@ -194,7 +194,7 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
             out << nl << "///";
         }
         out << nl << "/// ## Deprecated";
-        StringList docDeprecated = doc->deprecated();
+        const StringList& docDeprecated = doc->deprecated();
         if (!docDeprecated.empty())
         {
             writeDocLines(out, docDeprecated);
@@ -216,7 +216,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
     bool hasStarted = false;
 
     // Write the overview.
-    StringList docOverview = doc->overview();
+    const StringList& docOverview = doc->overview();
     if (!docOverview.empty())
     {
         writeDocLines(out, docOverview);
@@ -233,14 +233,14 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
         hasStarted = true;
 
         out << nl << "///  ## Deprecated";
-        StringList docDeprecated = doc->deprecated();
+        const StringList& docDeprecated = doc->deprecated();
         if (!docDeprecated.empty())
         {
             writeDocLines(out, docDeprecated);
         }
     }
 
-    auto docParameters = doc->parameters();
+    const auto& docParameters = doc->parameters();
 
     // Document all the in parameters.
     const ParameterList inParams = p->inParameters();
@@ -296,7 +296,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
         }
 
         // First, check if the user supplied a message in the doc comment for this return type.
-        StringList docMessage = doc->returns();
+        const StringList& docMessage = doc->returns();
         if (useListStyle)
         {
             out << nl << "///   - " << returnValueName;
@@ -340,7 +340,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
     }
 
     // Document what exceptions it can throw.
-    auto docExceptions = doc->exceptions();
+    const auto& docExceptions = doc->exceptions();
     if (!docExceptions.empty())
     {
         useListStyle = docExceptions.size() < 2;
@@ -373,7 +373,7 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
 
     const string prx = removeEscaping(getRelativeTypeString(p, swiftModule)) + "Prx";
 
-    StringList docOverview = doc->overview();
+    const StringList& docOverview = doc->overview();
     if (docOverview.empty())
     {
         out << nl << "/// " << prx << " overview.";
@@ -394,7 +394,7 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
             optional<StringList> opDocOverview;
             if (opdoc)
             {
-                StringList overview = opdoc->overview();
+                const StringList& overview = opdoc->overview();
                 if (!overview.empty())
                 {
                     opDocOverview = overview;
@@ -431,7 +431,7 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
 
     const string name = removeEscaping(getRelativeTypeString(p, swiftModule));
 
-    StringList docOverview = doc->overview();
+    const StringList& docOverview = doc->overview();
     if (docOverview.empty())
     {
         out << nl << "/// " << name << " overview.";
@@ -452,7 +452,7 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
             optional<DocComment> opdoc = DocComment::parseFrom(op, swiftLinkFormatter);
             if (opdoc)
             {
-                StringList opdocOverview = opdoc->overview();
+                const StringList& opdocOverview = opdoc->overview();
                 if (!opdocOverview.empty())
                 {
                     out << ": ";

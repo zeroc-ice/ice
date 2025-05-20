@@ -305,12 +305,13 @@ Slice::JavaVisitor::writeResultType(
                 out << '.';
             }
 
-            if (ret && !dc->returns().empty())
+            const StringList& returns = dc->returns();
+            if (ret && !returns.empty())
             {
                 out << nl << " * @param " << retval << ' ';
-                writeDocCommentLines(out, dc->returns());
+                writeDocCommentLines(out, returns);
             }
-            map<string, StringList> paramDocs = dc->parameters();
+            const map<string, StringList>& paramDocs = dc->parameters();
             for (const auto& outParam : outParams)
             {
                 auto q = paramDocs.find(outParam->name());
@@ -385,11 +386,12 @@ Slice::JavaVisitor::writeResultType(
     out << sp;
     if (ret)
     {
-        if (dc && !dc->returns().empty())
+        const StringList& returns = dc->returns();
+        if (dc && !returns.empty())
         {
             out << nl << "/**";
             out << nl << " * ";
-            writeDocCommentLines(out, dc->returns());
+            writeDocCommentLines(out, returns);
             out << nl << " **/";
         }
         out << nl << "public "
@@ -401,7 +403,7 @@ Slice::JavaVisitor::writeResultType(
     {
         if (dc)
         {
-            map<string, StringList> paramDocs = dc->parameters();
+            const map<string, StringList>& paramDocs = dc->parameters();
             auto q = paramDocs.find(outParam->name());
             if (q != paramDocs.end() && !q->second.empty())
             {
@@ -460,12 +462,13 @@ Slice::JavaVisitor::writeMarshaledResultType(
         out << nl << "/**";
         out << nl << " * This constructor marshals the results of operation " << op->mappedName() << " immediately.";
 
-        if (ret && !dc->returns().empty())
+        const StringList& returns = dc->returns();
+        if (ret && !returns.empty())
         {
             out << nl << " * @param " << retval << ' ';
-            writeDocCommentLines(out, dc->returns());
+            writeDocCommentLines(out, returns);
         }
-        map<string, StringList> paramDocs = dc->parameters();
+        const map<string, StringList>& paramDocs = dc->parameters();
         for (const auto& outParam : outParams)
         {
             auto q = paramDocs.find(outParam->name());
@@ -529,12 +532,13 @@ Slice::JavaVisitor::writeMarshaledResultType(
             out << nl << " * This constructor marshals the results of operation " << op->mappedName()
                 << " immediately (overload without Optional parameters).";
 
-            if (ret && !dc->returns().empty())
+            const StringList& returns = dc->returns();
+            if (ret && !returns.empty())
             {
                 out << nl << " * @param " << retval << ' ';
-                writeDocCommentLines(out, dc->returns());
+                writeDocCommentLines(out, returns);
             }
-            map<string, StringList> paramDocs = dc->parameters();
+            const map<string, StringList>& paramDocs = dc->parameters();
             for (const auto& outParam : outParams)
             {
                 auto q = paramDocs.find(outParam->name());
@@ -1384,27 +1388,29 @@ Slice::JavaVisitor::writeDocComment(Output& out, const UnitPtr& unt, const optio
     }
 
     out << nl << "/**";
-    if (!dc->overview().empty())
+    const StringList& overview = dc->overview();
+    if (!overview.empty())
     {
         out << nl << " * ";
-        writeDocCommentLines(out, dc->overview());
+        writeDocCommentLines(out, overview);
     }
 
-    if (!dc->seeAlso().empty())
+    const StringList& seeAlso = dc->seeAlso();
+    if (!seeAlso.empty())
     {
         out << nl << " *";
-        StringList sa = dc->seeAlso();
-        for (const auto& p : sa)
+        for (const auto& p : seeAlso)
         {
             out << nl << " * @see ";
             writeSeeAlso(out, unt, p);
         }
     }
 
-    if (!dc->deprecated().empty())
+    const StringList& deprecated = dc->deprecated();
+    if (!deprecated.empty())
     {
         out << nl << " * @deprecated ";
-        writeDocCommentLines(out, dc->deprecated());
+        writeDocCommentLines(out, deprecated);
     }
     else if (dc->isDeprecated())
     {
@@ -1440,19 +1446,19 @@ Slice::JavaVisitor::writeProxyDocComment(
         return;
     }
 
-    map<string, StringList> paramDocs = dc->parameters();
-
     out << nl << "/**";
-    if (!dc->overview().empty())
+    const StringList& overview = dc->overview();
+    if (!overview.empty())
     {
         out << nl << " * ";
-        writeDocCommentLines(out, dc->overview());
+        writeDocCommentLines(out, overview);
     }
 
     //
     // Show in-params in order of declaration, but only those with docs.
     //
     const ParameterList paramList = p->inParameters();
+    const map<string, StringList>& paramDocs = dc->parameters();
     for (const auto& param : paramList)
     {
         auto j = paramDocs.find(param->name());
@@ -1484,10 +1490,11 @@ Slice::JavaVisitor::writeProxyDocComment(
     }
     else if (p->returnType())
     {
-        if (!dc->returns().empty())
+        const StringList returns = dc->returns();
+        if (!returns.empty())
         {
             out << nl << " * @return ";
-            writeDocCommentLines(out, dc->returns());
+            writeDocCommentLines(out, returns);
         }
         else if (async)
         {
@@ -1525,10 +1532,11 @@ Slice::JavaVisitor::writeProxyDocComment(
         writeExceptionDocComment(out, p, *dc);
     }
 
-    if (!dc->seeAlso().empty())
+    const StringList& seeAlso = dc->seeAlso();
+    if (!seeAlso.empty())
     {
         out << nl << " *";
-        StringList sa = dc->seeAlso();
+        StringList sa = seeAlso;
         for (const auto& q : sa)
         {
             out << nl << " * @see ";
@@ -1536,10 +1544,11 @@ Slice::JavaVisitor::writeProxyDocComment(
         }
     }
 
-    if (!dc->deprecated().empty())
+    const StringList& deprecated = dc->deprecated();
+    if (!deprecated.empty())
     {
         out << nl << " * @deprecated ";
-        writeDocCommentLines(out, dc->deprecated());
+        writeDocCommentLines(out, deprecated);
     }
     else if (dc->isDeprecated())
     {
@@ -1581,15 +1590,16 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
         return;
     }
 
-    map<string, StringList> paramDocs = dc->parameters();
+    const map<string, StringList>& paramDocs = dc->parameters();
     const string currentParamName = getEscapedParamName(p->parameters(), "current");
     const string currentParam = " * @param " + currentParamName + " The Current object of the incoming request.";
 
     out << nl << "/**";
-    if (!dc->overview().empty())
+    const StringList& overview = dc->overview();
+    if (!overview.empty())
     {
         out << nl << " * ";
-        writeDocCommentLines(out, dc->overview());
+        writeDocCommentLines(out, overview);
     }
 
     // Show in-params in order of declaration, but only those with docs.
@@ -1620,10 +1630,11 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
     }
     else if (p->returnType())
     {
-        if (!dc->returns().empty())
+        const StringList& returns = dc->returns();
+        if (!returns.empty())
         {
             out << nl << " * @return ";
-            writeDocCommentLines(out, dc->returns());
+            writeDocCommentLines(out, returns);
         }
         else if (async)
         {
@@ -1655,11 +1666,11 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
 
     writeExceptionDocComment(out, p, *dc);
 
-    if (!dc->seeAlso().empty())
+    const StringList& seeAlso = dc->seeAlso();
+    if (!seeAlso.empty())
     {
         out << nl << " *";
-        StringList sa = dc->seeAlso();
-        for (const auto& q : sa)
+        for (const auto& q : seeAlso)
         {
             out << nl << " * @see ";
             writeSeeAlso(out, p->unit(), q);
@@ -2601,7 +2612,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     const BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
     const bool classType = type->isClassType();
 
-    const MetadataList metadata = p->getMetadata();
+    const MetadataList& metadata = p->getMetadata();
     const string s = typeToString(type, TypeModeMember, getPackage(contained), metadata, true, false);
 
     Output& out = output();
