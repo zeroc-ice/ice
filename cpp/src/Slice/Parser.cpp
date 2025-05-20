@@ -183,7 +183,7 @@ Slice::DefinitionContext::seenDefinition() const
 void
 Slice::DefinitionContext::setFilename(string filename)
 {
-    _filename = filename;
+    _filename = std::move(filename);
 }
 
 void
