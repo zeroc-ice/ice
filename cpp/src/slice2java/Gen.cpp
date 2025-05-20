@@ -2608,7 +2608,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << eb;
 
     out << sp;
-    out << sp;
     out << nl << "/**";
     out << nl << " * Unmarshals " << getArticleFor(name) << " {@code " << name << "} from an input stream.";
     out << nl << " *";
