@@ -14,6 +14,9 @@ inputs:
     description: "GitHub token used by phive to access the GitHub API (to get the versions of the packages)"
     required: true
 
+# Disable the default permissions for the action.
+permissions: {}
+
 runs:
   using: "composite"
   steps:
