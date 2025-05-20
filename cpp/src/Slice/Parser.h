@@ -269,10 +269,8 @@ namespace Slice
         ///
         /// @return A `DocComment` instance containing a parsed representation of `p`'s doc-comment, if a doc-comment
         /// was present. If no doc-comment was present (or it contained only whitespace) this returns `nullopt` instead.
-        [[nodiscard]] static std::optional<DocComment> parseFrom(
-            const ContainedPtr& p,
-            DocLinkFormatter linkFormatter,
-            bool escapeXml = false);
+        [[nodiscard]] static std::optional<DocComment>
+        parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatter, bool escapeXml = false);
 
         [[nodiscard]] bool isDeprecated() const;
         [[nodiscard]] StringList deprecated() const;
