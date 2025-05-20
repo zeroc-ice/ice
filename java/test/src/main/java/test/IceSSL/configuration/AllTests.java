@@ -625,7 +625,9 @@ public class AllTests {
         {
             // Test password failure.
             initData = createClientProps(defaultProperties);
-            initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1." + ("PKCS12".equals(keystoreType) ? "p12" : "jks"));
+            initData.properties.setProperty(
+                "IceSSL.Keystore",
+                "c_rsa_ca1." + ("PKCS12".equals(keystoreType) ? "p12" : "jks"));
             initData.properties.setProperty("IceSSL.KeystoreType", keystoreType);
             // Don't specify the password.
             try {
