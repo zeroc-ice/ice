@@ -1,24 +1,28 @@
 # Ice for C++
 
-[Getting started] | [Examples] | [NuGet packages] | [Documentation] | [Building from source]
+[Examples] | [Documentation] | [API Reference] | [Building from source]
 
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
 
-Ice for C++ is the C++ implementation of Ice.
+Ice for C++ is the C++ implementation of the Ice framework.
 
 ## Sample Code
 
 ```slice
-// Slice definitions (Hello.ice)
+// Slice definitions (Greeter.ice)
 
 #pragma once
 
-module Demo
+module VisitorCenter
 {
-    interface Hello
+    /// Represents a simple greeter.
+    interface Greeter
     {
-        void sayHello();
+        /// Creates a personalized greeting.
+        /// @param name The name of the person to greet.
+        /// @return The greeting.
+        string greet(string name);
     }
 }
 ```
@@ -26,26 +30,22 @@ module Demo
 ```cpp
 // Client application (Client.cpp)
 
+#include "Greeter.h"
+
 #include <Ice/Ice.h>
-#include <Hello.h>
+#include <iostream>
 
 using namespace std;
-using namespace Demo;
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
-    try
-    {
-        const Ice::CommunicatorHolder ich(argc, argv);
-        HelloPrx hello{ich.communicator(), "hello:default -h localhost -p 10000"};
-        hello->sayHello();
-    }
-    catch (const std::exception& ex)
-    {
-        cerr << ex.what() << endl;
-        return 1;
-    }
+    Ice::CommunicatorPtr communicator = Ice::initialize(argc, argv);
+    Ice::CommunicatorHolder communicatorHolder{communicator};
+
+    VisitorCenter::GreeterPrx greeter{communicator, "greeter:tcp -h localhost -p 4061"};
+
+    string greeting = greeter->greet("alice");
+    cout << greeting << endl;
     return 0;
 }
 ```
@@ -53,66 +53,68 @@ main(int argc, char* argv[])
 ```cpp
 // Server application (Server.cpp)
 
+#include "Chatbot.h"
+
 #include <Ice/Ice.h>
-#include <Printer.h>
+#include <iostream>
 
 using namespace std;
 
 int main(int argc, char* argv[])
 {
-    try
-    {
-        // CtrlCHandler must be created before the communicator or any other threads
-        // are started
-        Ice::CtrlCHandler ctrlCHandler;
+    Ice::CtrlCHandler ctrlCHandler;
 
-        const Ice::CommunicatorHolder ich(argc, argv);
-        const auto& communicator = ich.communicator();
+    Ice::CommunicatorPtr communicator = Ice::initialize(argc, argv);
+    Ice::CommunicatorHolder communicatorHolder{communicator};
 
-        ctrlCHandler.setCallback(
-            [communicator](int)
-            {
-                communicator->shutdown();
-            });
+    auto adapter =
+        communicator->createObjectAdapterWithEndpoints("GreeterAdapter", "tcp -p 4061");
+    adapter->add(make_shared<Server::Chatbot>(), Ice::Identity{"greeter"});
 
-        auto adapter = communicator->createObjectAdapterWithEndpoints(
-            "Hello",
-            "default -h localhost -p 10000");
-        adapter->add(make_shared<HelloI>(), Ice::stringToIdentity("hello"));
-        adapter->activate();
-        communicator->waitForShutdown();
-    }
-    catch (const std::exception& ex)
-    {
-        cerr << ex.what() << endl;
-        return 1;
-    }
+    adapter->activate();
+    cout << "Listening on port 4061..." << endl;
+
+    ctrlCHandler.setCallback(
+        [communicator](int signal)
+        {
+            cout << "Caught signal " << signal << ", shutting down..." << endl;
+            communicator->shutdown();
+        });
+
+    communicator->waitForShutdown();
     return 0;
 }
 ```
 
 ```cpp
-// Printer implementation (Printer.h)
+// Greeter implementation (Chatbot.h)
 
-#include <Ice/Ice.h>
-#include <Hello.h>
+#include "Greeter.h"
 
-class Printer final : public Demo::Hello
+#include <iostream>
+#include <sstream>
+
+namespace Server
 {
-public:
-    /**
-     * Prints a message to the standard output.
-     **/
-    void sayHello(const Ice::Current&) final
+    class Chatbot : public VisitorCenter::Greeter
     {
-        std::cout << "Hello World!" << std::endl;
-    }
+    public:
+        std::string greet(std::string name, const Ice::Current&) override
+        {
+            std::cout
+                << "Dispatching greet request { name = '" << name << "' }"
+                << std::endl;
+
+            std::ostringstream os;
+            os << "Hello, " << name << "!";
+            return os.str();
+        }
+    };
 }
 ```
 
-[Getting started]: https://doc.zeroc.com/ice/3.8/hello-world-application/writing-an-ice-application-with-c++
-[Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.8/cpp
-[NuGet packages]: https://www.nuget.org/packages?q=zeroc.ice.v
-[Documentation]: https://doc.zeroc.com/ice/3.8
-[Building from source]: https://github.com/zeroc-ice/ice/blob/3.8/cpp/BUILDING.md
+[Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/cpp
+[Documentation]: https://doc.zeroc.com/ice/3.7
+[API Reference]: https://code.zeroc.com/ice/main/api/cpp/index.html
+[Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice
