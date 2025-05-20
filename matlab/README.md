@@ -1,22 +1,31 @@
 # Ice for MATLAB
 
-[Getting started] | [Examples] | [Documentation] | [Building from source]
+[Examples] | [Documentation] | [API Reference] | [Building from source]
 
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
 
-Ice for MATLAB is the MATLAB implementation of the Ice framework.
+Ice for MATLAB is the MATLAB implementation of the Ice framework. As of this version, it
+supports only clients: you need to implement the server portion of your application in
+another programming language such as C++, C# or Java.
 
 ## Sample Code
 
 ```slice
-// Slice definitions (Hello.ice)
+// Slice definitions (Greeter.ice)
 
-module Demo
+#pragma once
+
+["matlab:identifier:visitorcenter"]
+module VisitorCenter
 {
-    interface Hello
+    /// Represents a simple greeter.
+    interface Greeter
     {
-        void sayHello();
+        /// Creates a personalized greeting.
+        /// @param name The name of the person to greet.
+        /// @return The greeting.
+        string greet(string name);
     }
 }
 ```
@@ -24,32 +33,24 @@ module Demo
 ```matlab
 // Client application (client.m)
 function client(args)
-    addpath('generated');
-    if ~libisloaded('ice')
-        loadlibrary('ice', @iceproto);
-    end
-
-    import Demo.*
-
     if nargin == 0
         args = {};
     end
 
-    try
-        communicator = Ice.initialize(args);
-        cleanup = onCleanup(@() communicator.destroy());
-        hello = Demo.HelloPrx.checkedCast(
-            communicator.stringToProxy('hello:default -h localhost -p 10000'));
-        hello.sayHello();
-    catch ex
-        fprintf('%s\n', getReport(ex));
+    if ~libisloaded('ice')
+        loadlibrary('ice', @iceproto);
     end
-    rmpath('generated');
+
+    communicator = Ice.initialize(args);
+    cleanup = onCleanup(@() communicator.destroy());
+
+    greeter = visitorcenter.GreeterPrx(communicator, 'greeter:tcp -h localhost -p 4061');
+    fprintf('%s\n', greeting);
 end
 ```
 
-[Getting started]: https://doc.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-matlab
-[Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.7/matlab
+[Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/matlab
 [Documentation]: https://doc.zeroc.com/ice/3.7
-[Building from source]: https://github.com/zeroc-ice/ice/blob/3.7/matlab/BUILDING.md
+[API Reference]: https://code.zeroc.com
+[Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice
