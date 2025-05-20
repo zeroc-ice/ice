@@ -86,7 +86,6 @@ public class SSLEngine {
                 String alias = properties.getIceProperty("IceSSL.Alias");
                 boolean overrideAlias = !alias.isEmpty(); // Always use the configured alias
 
-
                 // The truststore holds the certificates of trusted CAs.
                 String truststorePath = properties.getIceProperty("IceSSL.Truststore");
 
