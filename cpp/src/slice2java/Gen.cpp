@@ -1559,6 +1559,7 @@ Slice::JavaVisitor::writeHiddenProxyDocComment(Output& out, const OperationPtr& 
     out << nl << " * Invokes the " << p->name()
         << " operation with the given parameters on this proxy and returns a future that will be completed with the "
            "result.";
+    out << nl << " *";
 
     // Show in-params in order of declaration
     for (const auto& param : p->inParameters())
