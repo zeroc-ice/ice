@@ -20,7 +20,11 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-final class ConnectionI extends EventHandler implements Connection, CancellationHandler {
+// Public because it's used by the 'Ice/metrics' test.
+/**
+ * @hidden
+ */
+public final class ConnectionI extends EventHandler implements Connection, CancellationHandler {
     public interface StartCallback {
         void connectionStartCompleted(ConnectionI connection);
 
