@@ -2001,7 +2001,7 @@ namespace
         // Check if the integer is between the allowed bounds.
         if (token->v < 0)
         {
-            errorReason = "must be positive";
+            errorReason = "cannot be negative";
         }
         else if (token->v > max_value)
         {

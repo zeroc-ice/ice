@@ -2,29 +2,29 @@ OptionalParams.ice:30: missing tag
 OptionalParams.ice:31: missing tag
 OptionalParams.ice:32: 'abc' is not defined
 OptionalParams.ice:33: invalid tag '0x80000000': tags must be less than or equal to '2147483647'
-OptionalParams.ice:34: invalid tag '-0x80000001': tags must be positive
-OptionalParams.ice:35: invalid tag '-1': tags must be positive
-OptionalParams.ice:37: invalid tag 'C3' (-1): tags must be positive
-OptionalParams.ice:38: invalid tag 'C4' (-2147483647): tags must be positive
+OptionalParams.ice:34: invalid tag '-0x80000001': tags cannot be negative
+OptionalParams.ice:35: invalid tag '-1': tags cannot be negative
+OptionalParams.ice:37: invalid tag 'C3' (-1): tags cannot be negative
+OptionalParams.ice:38: invalid tag 'C4' (-2147483647): tags cannot be negative
 OptionalParams.ice:39: constant 'C5' cannot be used as an integer constant
 OptionalParams.ice:42: syntax error
 OptionalParams.ice:44: missing tag
 OptionalParams.ice:45: missing tag
 OptionalParams.ice:46: 'abc' is not defined
 OptionalParams.ice:47: invalid tag '0x80000000': tags must be less than or equal to '2147483647'
-OptionalParams.ice:48: invalid tag '-0x80000001': tags must be positive
-OptionalParams.ice:49: invalid tag '-1': tags must be positive
-OptionalParams.ice:51: invalid tag 'C3' (-1): tags must be positive
-OptionalParams.ice:52: invalid tag 'C4' (-2147483647): tags must be positive
+OptionalParams.ice:48: invalid tag '-0x80000001': tags cannot be negative
+OptionalParams.ice:49: invalid tag '-1': tags cannot be negative
+OptionalParams.ice:51: invalid tag 'C3' (-1): tags cannot be negative
+OptionalParams.ice:52: invalid tag 'C4' (-2147483647): tags cannot be negative
 OptionalParams.ice:53: constant 'C5' cannot be used as an integer constant
 OptionalParams.ice:57: missing tag
 OptionalParams.ice:58: missing tag
 OptionalParams.ice:59: 'abc' is not defined
 OptionalParams.ice:60: invalid tag '0x80000000': tags must be less than or equal to '2147483647'
-OptionalParams.ice:61: invalid tag '-0x80000001': tags must be positive
-OptionalParams.ice:62: invalid tag '-1': tags must be positive
-OptionalParams.ice:64: invalid tag 'C3' (-1): tags must be positive
-OptionalParams.ice:65: invalid tag 'C4' (-2147483647): tags must be positive
+OptionalParams.ice:61: invalid tag '-0x80000001': tags cannot be negative
+OptionalParams.ice:62: invalid tag '-1': tags cannot be negative
+OptionalParams.ice:64: invalid tag 'C3' (-1): tags cannot be negative
+OptionalParams.ice:65: invalid tag 'C4' (-2147483647): tags cannot be negative
 OptionalParams.ice:66: constant 'C5' cannot be used as an integer constant
 OptionalParams.ice:68: enumerator 'e1' could designate '::Test::E::e1' or '::Test::Ebis::e1'
 OptionalParams.ice:72: tag for optional parameter 'o' is already in use

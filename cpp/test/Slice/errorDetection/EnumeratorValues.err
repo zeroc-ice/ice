@@ -1,5 +1,5 @@
 EnumeratorValues.ice:9: value for enumerator 'C' is out of range
 EnumeratorValues.ice:10: invalid enumerator value '2147483649': enumerator values must be less than or equal to '2147483647'
-EnumeratorValues.ice:11: invalid enumerator value '-1': enumerator values must be positive
-EnumeratorValues.ice:12: invalid enumerator value '-2147483649': enumerator values must be positive
+EnumeratorValues.ice:11: invalid enumerator value '-1': enumerator values cannot be negative
+EnumeratorValues.ice:12: invalid enumerator value '-2147483649': enumerator values cannot be negative
 EnumeratorValues.ice:12: enumerator 'F' has the same value as enumerator 'B'
