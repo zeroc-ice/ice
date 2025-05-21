@@ -1928,7 +1928,7 @@ Slice::Container::lookupContained(const string& identifier, bool emitErrors)
 }
 
 InterfaceDefPtr
-Slice::Container::lookupInterface(const string& identifier, bool emitErrors)
+Slice::Container::lookupInterfaceDef(const string& identifier, bool emitErrors)
 {
     TypeList types = lookupType(identifier);
     if (!types.empty())
@@ -1936,14 +1936,20 @@ Slice::Container::lookupInterface(const string& identifier, bool emitErrors)
         auto interface = dynamic_pointer_cast<InterfaceDecl>(types.front());
         if (!interface)
         {
-            currentUnit->error("'" + identifier + "' is not an interface");
+            if (emitErrors)
+            {
+                unit()->error("'" + identifier + "' is not an interface");
+            }
         }
         else
         {
             InterfaceDefPtr def = interface->definition();
             if (!def)
             {
-                currentUnit->error("'" + identifier + "' has been declared but not defined");
+                if (emitErrors)
+                {
+                    unit()->error("'" + identifier + "' has been declared but not defined");
+                }
             }
             else
             {

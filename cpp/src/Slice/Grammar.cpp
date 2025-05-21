@@ -4212,10 +4212,10 @@ namespace
     InterfaceDefPtr lookupInterfaceByName(const string& name)
     {
         ContainerPtr cont = currentUnit->currentContainer();
-        InterfaceDefPtr interfaceDef = cont->lookupInterface(name, true);
+        InterfaceDefPtr interfaceDef = cont->lookupInterfaceDef(name, true);
         if (interfaceDef)
         {
-            cont->checkIntroduced(identifier);
+            cont->checkIntroduced(name);
         }
         return interfaceDef;
     }
