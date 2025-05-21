@@ -3829,17 +3829,17 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         bool throwsUserException = !op->throws().empty() || op->hasMetadata("java:UserException");
 
         out << nl << "/**";
-        out << nl << "* Dispatches the operation " << opName << ".";
-        out << nl << "*";
-        out << nl << "* @param obj the servant object";
-        out << nl << "* @param request the incoming request";
-        out << nl << "* @return a {@code CompletionStage} that will complete when the operation is done";
+        out << nl << " * Dispatches the operation " << opName << ".";
+        out << nl << " *";
+        out << nl << " * @param obj the servant object";
+        out << nl << " * @param request the incoming request";
+        out << nl << " * @return a {@code CompletionStage} that will complete when the operation is done";
         if (throwsUserException)
         {
-            out << nl << "* @throws com.zeroc.Ice.UserException in the event of a user exception";
+            out << nl << " * @throws com.zeroc.Ice.UserException in the event of a user exception";
         }
-        out << nl << "* @hidden";
-        out << nl << "*/";
+        out << nl << " * @hidden";
+        out << nl << " */";
 
         out << nl << "static java.util.concurrent.CompletionStage<com.zeroc.Ice.OutgoingResponse> _iceD_" << opName
             << '(' << name << " obj, com.zeroc.Ice.IncomingRequest request)";
