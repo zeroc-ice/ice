@@ -4212,31 +4212,12 @@ namespace
     InterfaceDefPtr lookupInterfaceByName(const string& name)
     {
         ContainerPtr cont = currentUnit->currentContainer();
-        TypeList types = cont->lookupType(name);
-        if (!types.empty())
+        InterfaceDefPtr interfaceDef = cont->lookupInterface(name, true);
+        if (interfaceDef)
         {
-            auto interface = dynamic_pointer_cast<InterfaceDecl>(types.front());
-            if (!interface)
-            {
-                currentUnit->error("'" + name + "' is not an interface");
-            }
-            else
-            {
-                InterfaceDefPtr def = interface->definition();
-                if (!def)
-                {
-                    currentUnit->error("'" + name + "' has been declared but not defined");
-                }
-                else
-                {
-                    cont->checkIntroduced(name);
-                    return def;
-                }
-            }
+            cont->checkIntroduced(identifier);
         }
-
-        // If we failed to find a valid interface with the specified name.
-        return nullptr;
+        return interfaceDef;
     }
 
     bool checkIntegerBounds(const IntegerTokPtr& token, string_view kindString)
