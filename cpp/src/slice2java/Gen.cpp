@@ -3851,7 +3851,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         out << nl << " *";
         out << nl << " * @param obj the servant object";
         out << nl << " * @param request the incoming request";
-        out << nl << " * @return a {@code CompletionStage} that will complete when the operation is done";
+        out << nl << " * @return a {@code CompletionStage} that will complete when the dispatch is done";
         if (throwsUserException)
         {
             out << nl << " * @throws com.zeroc.Ice.UserException in the event of a user exception";
