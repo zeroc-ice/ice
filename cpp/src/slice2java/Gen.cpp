@@ -386,13 +386,16 @@ Slice::JavaVisitor::writeResultType(
     out << sp;
     if (ret)
     {
-        const StringList& returns = dc->returns();
-        if (dc && !returns.empty())
+        if (dc)
         {
-            out << nl << "/**";
-            out << nl << " * ";
-            writeDocCommentLines(out, returns);
-            out << nl << " **/";
+            const StringList& returns = dc->returns();
+            if (!returns.empty())
+            {
+                out << nl << "/**";
+                out << nl << " * ";
+                writeDocCommentLines(out, returns);
+                out << nl << " **/";
+            }
         }
         out << nl << "public "
             << typeToString(ret, TypeModeIn, package, op->getMetadata(), true, op->returnIsOptional()) << ' ' << retval

@@ -196,18 +196,22 @@ namespace
     {
         // JavaScript doesn't provide a way to deprecate elements other than by using a comment, so we map both the
         // Slice @deprecated tag and the deprecated metadata argument to a `@deprecated` JSDoc tag.
-        if ((comment && comment->isDeprecated()) || contained->isDeprecated())
+        if (comment && comment->isDeprecated())
         {
-            out << nl << " * @deprecated";
-            // If a reason was supplied, append it after the `@deprecated` tag. If no reason was supplied, fallback to
-            // the deprecated metadata argument.
+            // If a reason was supplied, append it after the `@deprecated` tag.
             const StringList& deprecatedDoc = comment->deprecated();
             if (!deprecatedDoc.empty())
             {
-                out << " ";
+                out << nl << " * @deprecated ";
                 writeDocLines(out, deprecatedDoc, false);
+                return;
             }
-            else if (auto deprecated = contained->getDeprecationReason())
+        }
+        if ((comment && comment->isDeprecated()) || contained->isDeprecated())
+        {
+            // If no reason was supplied, fallback to the 'deprecated' metadata argument.
+            out << nl << " * @deprecated";
+            if (auto deprecated = contained->getDeprecationReason())
             {
                 out << " " << *deprecated;
             }
