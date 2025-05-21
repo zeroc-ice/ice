@@ -116,60 +116,6 @@ SwiftGenerator::writeDocLines(IceInternal::Output& out, const StringList& lines,
 }
 
 void
-SwiftGenerator::writeDocSentence(IceInternal::Output& out, const StringList& lines)
-{
-    //
-    // Write the first sentence.
-    //
-    for (auto i = lines.begin(); i != lines.end(); ++i)
-    {
-        const string ws = " \t";
-
-        if (i->empty())
-        {
-            break;
-        }
-        if (i != lines.begin() && i->find_first_not_of(ws) == 0)
-        {
-            out << " ";
-        }
-        string::size_type pos = i->find('.');
-        if (pos == string::npos)
-        {
-            out << *i;
-        }
-        else if (pos == i->size() - 1)
-        {
-            out << *i;
-            break;
-        }
-        else
-        {
-            //
-            // Assume a period followed by whitespace indicates the end of the sentence.
-            //
-            while (pos != string::npos)
-            {
-                if (ws.find((*i)[pos + 1]) != string::npos)
-                {
-                    break;
-                }
-                pos = i->find('.', pos + 1);
-            }
-            if (pos != string::npos)
-            {
-                out << i->substr(0, pos + 1);
-                break;
-            }
-            else
-            {
-                out << *i;
-            }
-        }
-    }
-}
-
-void
 SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 {
     optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter);
@@ -406,15 +352,13 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
             out << nl << "///  - " << opName;
             if (auto overview = opDocOverview)
             {
-                out << ": ";
-                writeDocSentence(out, *overview);
+                out << ": " << getFirstSentence(*overview);
             }
 
             out << nl << "///  - " << opName << "Async";
             if (auto overview = opDocOverview)
             {
-                out << ": ";
-                writeDocSentence(out, *overview);
+                out << ": " << getFirstSentence(*overview);
             }
         }
     }
@@ -455,8 +399,7 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
                 const StringList& opdocOverview = opdoc->overview();
                 if (!opdocOverview.empty())
                 {
-                    out << ": ";
-                    writeDocSentence(out, opdocOverview);
+                    out << ": " << getFirstSentence(opdocOverview);
                 }
             }
         }
