@@ -75,18 +75,19 @@ jobs:
             test_flags: "--config=static --filter=Ice/ --filter=IceDiscovery/"
             working_directory: "cpp"
 
+          # TODO: Re-enable once MATLAB outage is fixed
           # MATLAB
-          - os: ubuntu-24.04
-            config: "matlab"
-            working_directory: "matlab"
-            build_cpp_and_python: true
-          - os: windows-2022
-            config: "matlab"
-            working_directory: "matlab"
-            build_flags: "/p:Platform=x64"
-            msbuild_project: "msbuild/ice.proj"
-            test_flags: "--platform=x64"
-            build_cpp_and_python: true
+          # - os: ubuntu-24.04
+          #   config: "matlab"
+          #   working_directory: "matlab"
+          #   build_cpp_and_python: true
+          # - os: windows-2022
+          #   config: "matlab"
+          #   working_directory: "matlab"
+          #   build_flags: "/p:Platform=x64"
+          #   msbuild_project: "msbuild/ice.proj"
+          #   test_flags: "--platform=x64"
+          #   build_cpp_and_python: true
 
           - os: ubuntu-24.04
             config: "android"
