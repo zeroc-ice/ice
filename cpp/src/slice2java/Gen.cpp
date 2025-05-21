@@ -1922,7 +1922,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             //
             out << sp;
             out << nl << "/**";
-            out << nl << " * Creates a new {@code " << name << "} with all values for all its fields.";
+            out << nl << " * Creates a new {@code " << name << "} with values for all its fields.";
             out << nl << " *";
             writeParamDocComments(out, allDataMembers);
             out << nl << " */";
@@ -1988,7 +1988,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     // Implementation of 'ice_staticId'.
     out << sp;
     out << nl << "/**";
-    out << nl << " * Gets the type ID of the associated Slice interface";
+    out << nl << " * Gets the type ID of the associated Slice interface.";
     out << nl << " *";
     out << nl << " * @return the string \"" << p->scoped() << "\"";
     out << nl << " */";
@@ -2203,7 +2203,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             //
             out << sp;
             out << nl << "/**";
-            out << nl << " * Creates a new {@code " << name << "} with all values for all its fields.";
+            out << nl << " * Creates a new {@code " << name << "} with values for all its fields.";
             writeParamDocComments(out, allDataMembers);
             out << nl << " */";
             out << nl << "public " << name << spar;
@@ -3613,7 +3613,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     out << nl << "/**";
-    out << nl << " * Gets the type ID of the associated Slice interface";
+    out << nl << " * Gets the type ID of the associated Slice interface.";
     out << nl << " *";
     out << nl << " * @return the string \"" << p->scoped() << "\"";
     out << nl << " */";
@@ -3808,7 +3808,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     out << sp;
     out << nl << "/**";
-    out << nl << " * Gets the type ID of the associated Slice interface";
+    out << nl << " * Gets the type ID of the associated Slice interface.";
     out << nl << " *";
     out << nl << " * @return the string \"" << p->scoped() << "\"";
     out << nl << " */";
