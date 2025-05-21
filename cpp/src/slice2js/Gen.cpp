@@ -196,17 +196,22 @@ namespace
     {
         // JavaScript doesn't provide a way to deprecate elements other than by using a comment, so we map both the
         // Slice @deprecated tag and the deprecated metadata argument to a `@deprecated` JSDoc tag.
+        if (comment && comment->isDeprecated())
+        {
+            // If a reason was supplied, append it after the `@deprecated` tag.
+            const StringList& deprecatedDoc = comment->deprecated();
+            if (!deprecatedDoc.empty())
+            {
+                out << nl << " * @deprecated ";
+                writeDocLines(out, deprecatedDoc, false);
+                return;
+            }
+        }
         if ((comment && comment->isDeprecated()) || contained->isDeprecated())
         {
+            // If no reason was supplied, fallback to the 'deprecated' metadata argument.
             out << nl << " * @deprecated";
-            // If a reason was supplied, append it after the `@deprecated` tag. If no reason was supplied, fallback to
-            // the deprecated metadata argument.
-            if (!comment->deprecated().empty())
-            {
-                out << " ";
-                writeDocLines(out, comment->deprecated(), false);
-            }
-            else if (auto deprecated = contained->getDeprecationReason())
+            if (auto deprecated = contained->getDeprecationReason())
             {
                 out << " " << *deprecated;
             }
@@ -403,14 +408,16 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeDeprecat
 
     if (comment)
     {
-        if (!comment->overview().empty())
+        const StringList& overview = comment->overview();
+        if (!overview.empty())
         {
-            writeDocLines(_out, comment->overview(), true);
+            writeDocLines(_out, overview, true);
         }
 
-        if (!comment->seeAlso().empty())
+        const StringList seeAlso = comment->seeAlso();
+        if (!seeAlso.empty())
         {
-            writeSeeAlso(_out, comment->seeAlso());
+            writeSeeAlso(_out, seeAlso);
         }
     }
 
@@ -2300,9 +2307,10 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr
     optional<DocComment> comment = DocComment::parseFrom(op, jsLinkFormatter);
     if (comment)
     {
-        if (!comment->overview().empty())
+        const StringList& overview = comment->overview();
+        if (!overview.empty())
         {
-            writeDocLines(out, comment->overview(), true);
+            writeDocLines(out, overview, true);
         }
 
         paramDoc = comment->parameters();
@@ -2350,23 +2358,24 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr
         writeDocLines(out, comment->returns(), false, "   ");
     }
 
-    for (const auto& param : op->outParameters())
-    {
-        auto q = paramDoc.find(param->name());
-        if (q != paramDoc.end())
-        {
-            out << nl << " * - " << typeToTsString(param->type(), true, false, param->optional()) << " : ";
-            writeDocLines(out, q->second, false, "   ");
-        }
-    }
-
     if (comment)
     {
+        for (const auto& param : op->outParameters())
+        {
+            auto q = paramDoc.find(param->name());
+            if (q != paramDoc.end())
+            {
+                out << nl << " * - " << typeToTsString(param->type(), true, false, param->optional()) << " : ";
+                writeDocLines(out, q->second, false, "   ");
+            }
+        }
+
         writeOpDocExceptions(out, op, *comment);
 
-        if (!comment->seeAlso().empty())
+        const StringList& seeAlso = comment->seeAlso();
+        if (!seeAlso.empty())
         {
-            writeSeeAlso(out, comment->seeAlso());
+            writeSeeAlso(out, seeAlso);
         }
     }
 

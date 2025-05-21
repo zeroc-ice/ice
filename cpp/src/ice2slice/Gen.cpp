@@ -249,7 +249,7 @@ namespace
         OperationPtr operation = dynamic_pointer_cast<Operation>(contained);
         if (operation)
         {
-            std::map<std::string, StringList> parameterDocs = comment->parameters();
+            const map<string, StringList>& parameterDocs = comment->parameters();
 
             // Input parameters
             for (const auto& param : operation->inParameters())
@@ -280,7 +280,7 @@ namespace
             }
 
             // Return value
-            StringList returnDocs = comment->returns();
+            const StringList& returnDocs = comment->returns();
             if (!returnDocs.empty())
             {
                 out << nl << "/// @returns";

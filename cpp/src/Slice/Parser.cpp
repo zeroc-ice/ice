@@ -144,7 +144,7 @@ Slice::Metadata::arguments() const
     return _arguments;
 }
 
-string
+const string&
 Slice::Metadata::file() const
 {
     return _file;
@@ -162,7 +162,7 @@ Slice::Metadata::line() const
 
 Slice::DefinitionContext::DefinitionContext(int includeLevel) : _includeLevel(includeLevel) {}
 
-string
+const string&
 Slice::DefinitionContext::filename() const
 {
     return _filename;
@@ -181,9 +181,9 @@ Slice::DefinitionContext::seenDefinition() const
 }
 
 void
-Slice::DefinitionContext::setFilename(const string& filename)
+Slice::DefinitionContext::setFilename(string filename)
 {
-    _filename = filename;
+    _filename = std::move(filename);
 }
 
 void
@@ -192,7 +192,7 @@ Slice::DefinitionContext::setSeenDefinition()
     _seenDefinition = true;
 }
 
-MetadataList
+const MetadataList&
 Slice::DefinitionContext::getMetadata() const
 {
     return _metadata;
@@ -718,43 +718,43 @@ Slice::DocComment::isDeprecated() const
     return _isDeprecated;
 }
 
-StringList
+const StringList&
 Slice::DocComment::deprecated() const
 {
     return _deprecated;
 }
 
-StringList
+const StringList&
 Slice::DocComment::overview() const
 {
     return _overview;
 }
 
-StringList
+const StringList&
 Slice::DocComment::remarks() const
 {
     return _remarks;
 }
 
-StringList
+const StringList&
 Slice::DocComment::seeAlso() const
 {
     return _seeAlso;
 }
 
-StringList
+const StringList&
 Slice::DocComment::returns() const
 {
     return _returns;
 }
 
-map<string, StringList>
+const map<string, StringList>&
 Slice::DocComment::parameters() const
 {
     return _parameters;
 }
 
-map<string, StringList>
+const map<string, StringList>&
 Slice::DocComment::exceptions() const
 {
     return _exceptions;
@@ -1019,7 +1019,7 @@ Slice::Contained::mappedScope(const string& separator) const
     return scoped + separator;
 }
 
-string
+const string&
 Slice::Contained::file() const
 {
     return _file;
@@ -1055,7 +1055,7 @@ Slice::Contained::unit() const
     return _container->unit();
 }
 
-MetadataList
+const MetadataList&
 Slice::Contained::getMetadata() const
 {
     return _metadata;
@@ -2752,7 +2752,7 @@ Slice::ClassDef::compactId() const
     return _compactId;
 }
 
-MetadataList
+const MetadataList&
 Slice::ClassDef::getMetadata() const
 {
     return _declaration->getMetadata();
@@ -3204,7 +3204,7 @@ Slice::InterfaceDef::ids() const
     return ids;
 }
 
-MetadataList
+const MetadataList&
 Slice::InterfaceDef::getMetadata() const
 {
     return _declaration->getMetadata();
@@ -4746,7 +4746,7 @@ Slice::Unit::currentFile() const
     }
 }
 
-string
+const string&
 Slice::Unit::topLevelFile() const
 {
     return _topLevelFile;

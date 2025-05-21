@@ -1979,7 +1979,7 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
 {
     if (comment)
     {
-        auto overview = comment->overview();
+        const StringList& overview = comment->overview();
         if (!overview.empty())
         {
             _out << nl << prefix << tripleQuotes;
@@ -2000,15 +2000,13 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
         return;
     }
 
-    auto overview = comment->overview();
-
     // Collect docstrings (if any) for the members.
     map<string, list<string>> docs;
     for (const auto& member : members)
     {
         if (auto memberDoc = DocComment::parseFrom(member, pyLinkFormatter))
         {
-            auto memberOverview = memberDoc->overview();
+            const StringList& memberOverview = memberDoc->overview();
             if (!memberOverview.empty())
             {
                 docs[member->name()] = memberOverview;
@@ -2016,6 +2014,7 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
         }
     }
 
+    const StringList& overview = comment->overview();
     if (overview.empty() && docs.empty())
     {
         return;
@@ -2062,15 +2061,13 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
         return;
     }
 
-    auto overview = comment->overview();
-
     // Collect docstrings (if any) for the enumerators.
     map<string, list<string>> docs;
     for (const auto& enumerator : enumerators)
     {
         if (auto enumeratorDoc = DocComment::parseFrom(enumerator, pyLinkFormatter))
         {
-            auto enumeratorOverview = enumeratorDoc->overview();
+            const StringList& enumeratorOverview = enumeratorDoc->overview();
             if (!enumeratorOverview.empty())
             {
                 docs[enumerator->name()] = enumeratorOverview;
@@ -2078,6 +2075,7 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
         }
     }
 
+    const StringList& overview = comment->overview();
     if (overview.empty() && docs.empty())
     {
         return;
@@ -2133,10 +2131,10 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     ParameterList inParams = op->inParameters();
     ParameterList outParams = op->outParameters();
 
-    auto overview = comment->overview();
-    auto returnsDoc = comment->returns();
-    auto parametersDoc = comment->parameters();
-    auto exceptionsDoc = comment->exceptions();
+    const StringList& overview = comment->overview();
+    const StringList& returnsDoc = comment->returns();
+    const auto& parametersDoc = comment->parameters();
+    const auto& exceptionsDoc = comment->exceptions();
 
     if (overview.empty())
     {
@@ -2448,7 +2446,7 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
         return *packageMetadata;
     }
 
-    string file = cont->file();
+    string_view file = cont->file();
     DefinitionContextPtr dc = cont->unit()->findDefinitionContext(file);
     assert(dc);
     return dc->getMetadataArgs(directive).value_or("");

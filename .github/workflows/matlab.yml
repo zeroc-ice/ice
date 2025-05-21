@@ -2,11 +2,12 @@ name: Matlab
 
 on:
   workflow_dispatch:
-  push:
-    branches: ["main"]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: ["main"]
+  # TODO: Re-enable once MATLAB outage is fixed
+  # push:
+  #   branches: ["main"]
+  # pull_request:
+  #   # The branches below must be a subset of the branches above
+  #   branches: ["main"]
 
 jobs:
   matlab-analyzer:
