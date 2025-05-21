@@ -1738,11 +1738,17 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unt, const string& 
 void
 Slice::JavaVisitor::writeParamDocComments(IceInternal::Output& out, const DataMemberList& members)
 {
+    bool first = true;
     for (const auto& member : members)
     {
         if (const auto docComment = DocComment::parseFrom(member, javaLinkFormatter))
         {
-            const auto firstSentence = Slice::getDocSentence(docComment->overview());
+            if (first)
+            {
+                out << nl << " *";
+                first = false;
+            }
+            const auto firstSentence = Slice::getFirstSentence(docComment->overview());
             out << nl << " * @param " << member->mappedName() << ' ' << firstSentence;
         }
     }
@@ -1880,7 +1886,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << nl << " * Creates a new {@code " << name
                     << "} with values for all fields not marked optional in the Slice definition for {@code "
                     << p->scoped() << "}.";
-                out << nl << " *";
                 writeParamDocComments(out, requiredMembers);
                 out << nl << " */";
                 out << nl << "public " << name << spar;
@@ -1938,7 +1943,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << sp;
             out << nl << "/**";
             out << nl << " * Creates a new {@code " << name << "} with values for all its fields.";
-            out << nl << " *";
             writeParamDocComments(out, allDataMembers);
             out << nl << " */";
             out << nl << "public " << name << spar;
@@ -2430,7 +2434,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         out << nl << " * Creates a new {@code " << name
             << "} with values for all fields not marked optional in the Slice definition for {@code " << p->scoped()
             << "}.";
-        out << nl << " *";
         writeParamDocComments(out, members);
         out << nl << " */";
         out << nl << "public " << name << spar << parameters << epar;

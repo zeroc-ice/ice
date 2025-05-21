@@ -2190,7 +2190,8 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
                 auto r = allDocComments.find(dataMember->name());
                 if (r != allDocComments.end())
                 {
-                    H << nl << "/// @param " << dataMember->mappedName() << " " << getDocSentence(r->second.overview());
+                    H << nl << "/// @param " << dataMember->mappedName() << " "
+                      << getFirstSentence(r->second.overview());
                 }
             }
             H << nl << name << "(";
@@ -2614,7 +2615,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
             auto r = allDocComments.find(dataMember->name());
             if (r != allDocComments.end())
             {
-                H << nl << "/// @param " << dataMember->mappedName() << " " << getDocSentence(r->second.overview());
+                H << nl << "/// @param " << dataMember->mappedName() << " " << getFirstSentence(r->second.overview());
             }
         }
         H << nl;
@@ -3064,7 +3065,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             const StringList& returnsDoc = comment->returns();
             if (ret && !returnsDoc.empty())
             {
-                H << nl << "/// @param " << returnValueParam << " " << getDocSentence(returnsDoc);
+                H << nl << "/// @param " << returnValueParam << " " << getFirstSentence(returnsDoc);
             }
 
             const map<string, StringList>& paramComments = comment->parameters();
@@ -3073,7 +3074,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
                 auto r = paramComments.find(param->name());
                 if (r != paramComments.end())
                 {
-                    H << nl << "/// @param " << param->mappedName() << " " << getDocSentence(r->second);
+                    H << nl << "/// @param " << param->mappedName() << " " << getFirstSentence(r->second);
                 }
             }
         }

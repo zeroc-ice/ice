@@ -2256,7 +2256,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if (auto comment = DocComment::parseFrom(dataMember, jsLinkFormatter))
         {
-            _out << nl << " * @param " << dataMember->mappedName() << " " << getDocSentence(comment->overview());
+            _out << nl << " * @param " << dataMember->mappedName() << " " << getFirstSentence(comment->overview());
         }
     }
     _out << nl << " */";
@@ -2612,7 +2612,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             if (auto comment = DocComment::parseFrom(dataMember, jsLinkFormatter))
             {
-                _out << nl << " * @param " << dataMember->mappedName() << " " << getDocSentence(comment->overview());
+                _out << nl << " * @param " << dataMember->mappedName() << " " << getFirstSentence(comment->overview());
             }
         }
         _out << nl << " */";

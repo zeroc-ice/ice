@@ -514,7 +514,7 @@ Slice::isFirstElement(const ContainedPtr& p)
 }
 
 string
-Slice::getDocSentence(const StringList& lines)
+Slice::getFirstSentence(const StringList& lines)
 {
     // Extract the first sentence.
     ostringstream ostr;
