@@ -9,7 +9,6 @@
 namespace Slice
 {
     std::string relativePath(const std::string&, const std::string&);
-    std::string getJavaScriptModuleForType(const TypePtr& type);
     std::string getJavaScriptModule(const DefinitionContextPtr&);
 
     class JsGenerator
