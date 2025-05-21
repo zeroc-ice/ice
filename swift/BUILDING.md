@@ -27,8 +27,7 @@ This file describes how to build Ice for Swift from source and how to test the r
    If you want to create binaries for iOS or the iOS simulator, build the C++ XCFrameworks with `PLATFORMS=all`:
 
    ```shell
-   cd cpp
-   make PLATFORMS=all
+   make -C ../cpp -j12 PLATFORMS=all
    ```
 
 ### Building with make
@@ -39,10 +38,10 @@ Run the following command from the `swift` directory:
 make
 ```
 
-Add `PLATFORMS=all` to include the [iOS test controller] in your build:
+Add `PLATFORMS='macosx iphonesimulator'` to include the [iOS test controller] in your build:
 
 ```shell
-make PLATFORMS=all
+make PLATFORMS='macosx iphonesimulator'
 ```
 
 ### Building with Xcode
