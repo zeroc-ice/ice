@@ -515,3 +515,56 @@ Slice::isFirstElement(const ContainedPtr& p)
     ContainerPtr container = dynamic_pointer_cast<Container>(p->container());
     return p == container->contents().front();
 }
+
+string
+Slice::getDocSentence(const StringList& lines)
+{
+    // Extract the first sentence.
+    ostringstream ostr;
+    for (auto i = lines.begin(); i != lines.end(); ++i)
+    {
+        const string ws = " \t";
+
+        if (i->empty())
+        {
+            break;
+        }
+        if (i != lines.begin() && i->find_first_not_of(ws) == 0)
+        {
+            ostr << " ";
+        }
+        string::size_type pos = i->find('.');
+        if (pos == string::npos)
+        {
+            ostr << *i;
+        }
+        else if (pos == i->size() - 1)
+        {
+            ostr << *i;
+            break;
+        }
+        else
+        {
+            // Assume a period followed by whitespace indicates the end of the sentence.
+            while (pos != string::npos)
+            {
+                if (ws.find((*i)[pos + 1]) != string::npos)
+                {
+                    break;
+                }
+                pos = i->find('.', pos + 1);
+            }
+            if (pos != string::npos)
+            {
+                ostr << i->substr(0, pos + 1);
+                break;
+            }
+            else
+            {
+                ostr << *i;
+            }
+        }
+    }
+
+    return ostr.str();
+}

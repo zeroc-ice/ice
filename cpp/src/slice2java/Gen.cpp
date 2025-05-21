@@ -1834,7 +1834,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         // Default constructor.
         //
         out << sp;
-        writeDocComment(out, "Constructs a new " + name + ".");
+        writeDocComment(out, "Creates a new {@code " + name + "}.");
         out << nl << "public " << name << "()";
         out << sb;
         if (baseClass)
@@ -1862,7 +1862,10 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 //
                 out << sp;
                 out << nl << "/**";
-                out << nl << " * Constructs a new {@code " << name << "} with required fields initialized.";
+                out << nl << " * Creates a new {@code " << name
+                    << "} with values for all fields not marked optional in the Slice definition for {@code "
+                    << p->scoped() << "}.";
+                out << nl << " *";
                 writeParamDocComments(out, requiredMembers);
                 out << nl << " */";
                 out << nl << "public " << name << spar;
@@ -1919,7 +1922,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             //
             out << sp;
             out << nl << "/**";
-            out << nl << " * Constructs a new {@code " << name << "} with all fields initialized.";
+            out << nl << " * Creates a new {@code " << name << "} with all values for all its fields.";
+            out << nl << " *";
             writeParamDocComments(out, allDataMembers);
             out << nl << " */";
             out << nl << "public " << name << spar;
@@ -2121,7 +2125,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     // Default constructor.
     out << sp;
-    writeDocComment(out, "Constructs a new {@code " + name + "}.");
+    writeDocComment(out, "Creates a new {@code " + name + "}.");
     out << nl << "public " << name << "()";
     out << sb;
     writeDataMemberInitializers(out, members, package);
@@ -2148,7 +2152,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 // Generate a constructor accepting parameters for just the required members.
                 out << sp;
                 out << nl << "/**";
-                out << nl << " * Constructs a new {@code " << name << "} with required fields initialized.";
+                out << nl << " * Creates a new {@code " << name
+                    << "} with values for all fields not marked optional in the Slice definition for {@code "
+                    << p->scoped() << "}.";
                 writeParamDocComments(out, requiredMembers);
                 out << nl << " */";
                 out << nl << "public " << name << spar;
@@ -2197,7 +2203,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             //
             out << sp;
             out << nl << "/**";
-            out << nl << " * Constructs a new {@code " << name << "} with all fields initialized.";
+            out << nl << " * Creates a new {@code " << name << "} with all values for all its fields.";
             writeParamDocComments(out, allDataMembers);
             out << nl << " */";
             out << nl << "public " << name << spar;
@@ -2382,7 +2388,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     string typeS = typeToString(p, TypeModeIn, package);
 
     out << sp;
-    writeDocComment(out, "Constructs a new {@code " + name + "}.");
+    writeDocComment(out, "Creates a new {@code " + name + "}.");
     out << nl << "public " << name << "()";
     out << sb;
     writeDataMemberInitializers(out, members, package);
@@ -2406,7 +2412,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         out << sp;
         out << nl << "/**";
-        out << nl << " * Constructs a new {@code " << name << "} with required fiel.";
+        out << nl << " * Creates a new {@code " << name
+            << "} with values for all fields not marked optional in the Slice definition for {@code " << p->scoped()
+            << "}.";
+        out << nl << " *";
         writeParamDocComments(out, members);
         out << nl << " */";
         out << nl << "public " << name << spar << parameters << epar;
@@ -2560,7 +2569,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     out << sp;
     out << nl << "/**";
-    out << nl << " * Marshals this object's data members into an output stream.";
+    out << nl << " * Marshals this object's fields into an output stream.";
     out << nl << " *";
     out << nl << " * @param ostr the output stream";
     out << nl << " */";
@@ -2575,7 +2584,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     out << sp;
     out << nl << "/**";
-    out << nl << " * Unmarshals and sets this object's data members from an input stream.";
+    out << nl << " * Unmarshals and sets this object's fields from an input stream.";
     out << nl << " *";
     out << nl << " * @param istr the input stream";
     out << nl << " */";
