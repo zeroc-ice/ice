@@ -131,9 +131,9 @@ namespace
     /// @param name The (possibly scoped) name to resolve.
     [[nodiscard]] InterfaceDefPtr lookupInterfaceByName(const string& name);
 
-    /// Checks if the provided integer is between '0' and 'int32_t::max' (inclusive).
-    /// If the provided int is within this range, this returns `true`.
-    /// Otherwise this returns `false`, and will automatically emit an error stating the issue.
+    /// Checks if the provided integer token's value is within the range ['0' ... 'int32_t::max'] (inclusive).
+    /// If it is within this range, this function will return `true`.
+    /// Otherwise thi will return `false`, and automatically emit an error stating the issue.
     bool checkIntegerBounds(const IntegerTokPtr& token, string_view kindString);
 }
 
