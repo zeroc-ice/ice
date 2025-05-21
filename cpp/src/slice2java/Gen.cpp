@@ -2639,7 +2639,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << " * Unmarshals " << getArticleFor(name) << " {@code " << name << "} from an input stream.";
     out << nl << " *";
     out << nl << " * @param istr the input stream ";
-    out << nl << " * @return the {@code " << name << "}";
+    out << nl << " * @return the unmarshalled {@code " << name << "}";
     out << nl << " */";
     out << nl << "static public " << name << " ice_read(com.zeroc.Ice.InputStream istr)";
     out << sb;
