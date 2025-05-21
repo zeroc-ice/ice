@@ -317,58 +317,6 @@ namespace
         }
     }
 
-    string getDocSentence(const StringList& lines)
-    {
-        // Extract the first sentence.
-        ostringstream ostr;
-        for (auto i = lines.begin(); i != lines.end(); ++i)
-        {
-            const string ws = " \t";
-
-            if (i->empty())
-            {
-                break;
-            }
-            if (i != lines.begin() && i->find_first_not_of(ws) == 0)
-            {
-                ostr << " ";
-            }
-            string::size_type pos = i->find('.');
-            if (pos == string::npos)
-            {
-                ostr << *i;
-            }
-            else if (pos == i->size() - 1)
-            {
-                ostr << *i;
-                break;
-            }
-            else
-            {
-                // Assume a period followed by whitespace indicates the end of the sentence.
-                while (pos != string::npos)
-                {
-                    if (ws.find((*i)[pos + 1]) != string::npos)
-                    {
-                        break;
-                    }
-                    pos = i->find('.', pos + 1);
-                }
-                if (pos != string::npos)
-                {
-                    ostr << i->substr(0, pos + 1);
-                    break;
-                }
-                else
-                {
-                    ostr << *i;
-                }
-            }
-        }
-
-        return ostr.str();
-    }
-
     struct DocSummaryOptions
     {
         bool generateDeprecated{true};
@@ -2242,7 +2190,8 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
                 auto r = allDocComments.find(dataMember->name());
                 if (r != allDocComments.end())
                 {
-                    H << nl << "/// @param " << dataMember->mappedName() << " " << getDocSentence(r->second.overview());
+                    H << nl << "/// @param " << dataMember->mappedName() << " "
+                      << getFirstSentence(r->second.overview());
                 }
             }
             H << nl << name << "(";
@@ -2666,7 +2615,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
             auto r = allDocComments.find(dataMember->name());
             if (r != allDocComments.end())
             {
-                H << nl << "/// @param " << dataMember->mappedName() << " " << getDocSentence(r->second.overview());
+                H << nl << "/// @param " << dataMember->mappedName() << " " << getFirstSentence(r->second.overview());
             }
         }
         H << nl;
@@ -3116,7 +3065,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             const StringList& returnsDoc = comment->returns();
             if (ret && !returnsDoc.empty())
             {
-                H << nl << "/// @param " << returnValueParam << " " << getDocSentence(returnsDoc);
+                H << nl << "/// @param " << returnValueParam << " " << getFirstSentence(returnsDoc);
             }
 
             const map<string, StringList>& paramComments = comment->parameters();
@@ -3125,7 +3074,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
                 auto r = paramComments.find(param->name());
                 if (r != paramComments.end())
                 {
-                    H << nl << "/// @param " << param->mappedName() << " " << getDocSentence(r->second);
+                    H << nl << "/// @param " << param->mappedName() << " " << getFirstSentence(r->second);
                 }
             }
         }

@@ -1567,18 +1567,25 @@ Slice::JavaVisitor::writeHiddenProxyDocComment(Output& out, const OperationPtr& 
     // the _iceI_ methods are all async
 
     out << nl << "/**";
-    out << nl << " * @hidden";
+
+    out << nl << " * Invokes the " << p->name()
+        << " operation on this proxy with the given parameters and returns a future that will be completed with the "
+           "result.";
+    out << nl << " *";
 
     // Show in-params in order of declaration
     for (const auto& param : p->inParameters())
     {
-        out << nl << " * @param " << "iceP_" << param->mappedName() << " -";
+        out << nl << " * @param " << "iceP_" << param->mappedName() << " parameter";
     }
-    out << nl << " * @param context -";
-    out << nl << " * @param sync -";
+    out << nl << " * @param context the request context";
+    out << nl << " * @param sync {@code true} if the operation is synchronous, {@code false} otherwise";
 
     // There is always a return value since it's async
-    out << nl << " * @return -";
+    out << nl << " * @return a CompletableFuture that will be completed with the result of the operation";
+
+    // Hide this method generated documentation
+    out << nl << " * @hidden";
 
     // No throws since it's async
     out << nl << " **/";
@@ -1728,6 +1735,25 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unt, const string& 
     }
 }
 
+void
+Slice::JavaVisitor::writeParamDocComments(IceInternal::Output& out, const DataMemberList& members)
+{
+    bool first = true;
+    for (const auto& member : members)
+    {
+        if (const auto docComment = DocComment::parseFrom(member, javaLinkFormatter))
+        {
+            if (first)
+            {
+                out << nl << " *";
+                first = false;
+            }
+            const auto firstSentence = Slice::getFirstSentence(docComment->overview());
+            out << nl << " * @param " << member->mappedName() << ' ' << firstSentence;
+        }
+    }
+}
+
 Slice::Gen::Gen(string base, const vector<string>& includePaths, string dir)
     : _base(std::move(base)),
       _includePaths(includePaths),
@@ -1779,6 +1805,16 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     string package = getPackage(p);
     DataMemberList members = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
+    DataMemberList optionalMembers = p->orderedOptionalDataMembers();
+
+    DataMemberList requiredMembers;
+    for (const auto& member : allDataMembers)
+    {
+        if (!member->optional())
+        {
+            requiredMembers.push_back(member);
+        }
+    }
 
     open(getUnqualified(p), p->file());
     Output& out = output();
@@ -1815,25 +1851,11 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if (!allDataMembers.empty())
     {
-        bool hasOptionalMembers = false;
-        bool hasRequiredMembers = false;
-
-        for (const auto& member : allDataMembers)
-        {
-            if (member->optional())
-            {
-                hasOptionalMembers = true;
-            }
-            else
-            {
-                hasRequiredMembers = true;
-            }
-        }
-
         //
         // Default constructor.
         //
         out << sp;
+        writeDocComment(out, "Creates a new {@code " + name + "}.");
         out << nl << "public " << name << "()";
         out << sb;
         if (baseClass)
@@ -1854,22 +1876,26 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 baseDataMembers = baseClass->allDataMembers();
             }
 
-            if (hasRequiredMembers && hasOptionalMembers)
+            if (!requiredMembers.empty() && !optionalMembers.empty())
             {
                 //
                 // Generate a constructor accepting parameters for just the required members.
                 //
-                out << sp << nl << "public " << name << spar;
+                out << sp;
+                out << nl << "/**";
+                out << nl << " * Creates a new {@code " << name
+                    << "} with values for all fields not marked optional in the Slice definition for {@code "
+                    << p->scoped() << "}.";
+                writeParamDocComments(out, requiredMembers);
+                out << nl << " */";
+                out << nl << "public " << name << spar;
                 vector<string> parameters;
-                for (const auto& member : allDataMembers)
+                for (const auto& member : requiredMembers)
                 {
-                    if (!member->optional())
-                    {
-                        string memberName = member->mappedName();
-                        string memberType =
-                            typeToString(member->type(), TypeModeMember, package, member->getMetadata(), true, false);
-                        parameters.push_back(memberType + " " + memberName);
-                    }
+                    string memberName = member->mappedName();
+                    string memberType =
+                        typeToString(member->type(), TypeModeMember, package, member->getMetadata(), true, false);
+                    parameters.push_back(memberType + " " + memberName);
                 }
                 out << parameters << epar;
                 out << sb;
@@ -1914,7 +1940,12 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             //
             // Generate a constructor accepting parameters for all members.
             //
-            out << sp << nl << "public " << name << spar;
+            out << sp;
+            out << nl << "/**";
+            out << nl << " * Creates a new {@code " << name << "} with values for all its fields.";
+            writeParamDocComments(out, allDataMembers);
+            out << nl << " */";
+            out << nl << "public " << name << spar;
             vector<string> parameters;
             for (const auto& member : allDataMembers)
             {
@@ -1974,13 +2005,21 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     // Implementation of 'ice_staticId'.
-    out << sp << nl << "public static String ice_staticId()";
+    out << sp;
+    out << nl << "/**";
+    out << nl << " * Gets the type ID of the associated Slice interface.";
+    out << nl << " *";
+    out << nl << " * @return the string \"" << p->scoped() << "\"";
+    out << nl << " */";
+    out << nl << "public static String ice_staticId()";
     out << sb;
     out << nl << "return \"" << p->scoped() << "\";";
     out << eb;
 
     // Implementation of 'ice_id'.
-    out << sp << nl << "@Override";
+    out << sp;
+    writeDocComment(out, "{@inheritDoc}");
+    out << nl << "@Override";
     out << nl << "public String ice_id()";
     out << sb;
     out << nl << "return ice_staticId();";
@@ -1988,8 +2027,12 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     // Implementation of '_iceWriteImpl'.
     int iter = 0;
+
     out << sp;
-    writeHiddenDocComment(out);
+    writeDocComment(
+        out,
+        "{@inheritDoc}\n"
+        "@hidden");
     out << nl << "@Override";
     out << nl << "protected void _iceWriteImpl(com.zeroc.Ice.OutputStream ostr_)";
     out << sb;
@@ -2015,7 +2058,10 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     // Implementation of '_iceReadImpl'.
     iter = 0;
     out << sp;
-    writeHiddenDocComment(out);
+    writeDocComment(
+        out,
+        "{@inheritDoc}\n"
+        "@hidden");
     out << nl << "@Override";
     out << nl << "protected void _iceReadImpl(com.zeroc.Ice.InputStream istr_)";
     out << sb;
@@ -2040,7 +2086,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     // Generate the 'serialVersionUID' field.
     out << sp;
-    writeHiddenDocComment(out);
     out << nl << getSerialVersionUID(p);
 
     out << eb;
@@ -2059,6 +2104,16 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     if (base)
     {
         baseDataMembers = base->allDataMembers();
+    }
+
+    DataMemberList requiredMembers;
+    DataMemberList optionalMembers = p->orderedOptionalDataMembers();
+    for (const auto& member : allDataMembers)
+    {
+        if (!member->optional())
+        {
+            requiredMembers.push_back(member);
+        }
     }
 
     open(getUnqualified(p), p->file());
@@ -2087,34 +2142,21 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     out << sb;
 
-    //
     // Default constructor.
-    //
     out << sp;
+    writeDocComment(out, "Creates a new {@code " + name + "}.");
     out << nl << "public " << name << "()";
     out << sb;
     writeDataMemberInitializers(out, members, package);
     out << eb;
 
+    // Additional constructors.
     if (!allDataMembers.empty())
     {
         // Only generate additional constructors if the parameter list is not too large.
         if (isValidMethodParameterList(allDataMembers))
         {
-            bool hasOptionalMembers = false;
-            bool hasRequiredMembers = false;
-            for (const auto& member : allDataMembers)
-            {
-                if (member->optional())
-                {
-                    hasOptionalMembers = true;
-                }
-                else
-                {
-                    hasRequiredMembers = true;
-                }
-            }
-            if (hasRequiredMembers && hasOptionalMembers)
+            if (!requiredMembers.empty() && !optionalMembers.empty())
             {
                 bool hasBaseRequired = false;
                 for (const auto& member : baseDataMembers)
@@ -2126,22 +2168,25 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                     }
                 }
 
-                DataMemberList optionalMembers = p->orderedOptionalDataMembers();
-
                 // Generate a constructor accepting parameters for just the required members.
-                out << sp << nl << "public " << name << spar;
+                out << sp;
+                out << nl << "/**";
+                out << nl << " * Creates a new {@code " << name
+                    << "} with values for all fields not marked optional in the Slice definition for {@code "
+                    << p->scoped() << "}.";
+                writeParamDocComments(out, requiredMembers);
+                out << nl << " */";
+                out << nl << "public " << name << spar;
                 vector<string> parameters;
-                for (const auto& member : allDataMembers)
+                for (const auto& member : requiredMembers)
                 {
-                    if (!member->optional())
-                    {
-                        string memberName = member->mappedName();
-                        string memberType =
-                            typeToString(member->type(), TypeModeMember, package, member->getMetadata(), true, false);
-                        parameters.push_back(memberType + " " + memberName);
-                    }
+                    string memberName = member->mappedName();
+                    string memberType =
+                        typeToString(member->type(), TypeModeMember, package, member->getMetadata(), true, false);
+                    parameters.push_back(memberType + " " + memberName);
                 }
                 out << parameters << epar;
+
                 out << sb;
                 if (!baseDataMembers.empty())
                 {
@@ -2175,7 +2220,12 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             //
             // Primary constructor which takes all data members.
             //
-            out << sp << nl << "public " << name << spar;
+            out << sp;
+            out << nl << "/**";
+            out << nl << " * Creates a new {@code " << name << "} with values for all its fields.";
+            writeParamDocComments(out, allDataMembers);
+            out << nl << " */";
+            out << nl << "public " << name << spar;
             vector<string> parameters;
             for (const auto& member : allDataMembers)
             {
@@ -2218,7 +2268,10 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
     }
 
-    out << sp << nl << "public String ice_id()";
+    out << sp;
+    writeDocComment(out, "{@inheritDoc}");
+    out << nl << "@Override";
+    out << nl << "public String ice_id()";
     out << sb;
     out << nl << "return \"" << p->scoped() << "\";";
     out << eb;
@@ -2239,7 +2292,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     int iter;
 
     out << sp;
-    writeHiddenDocComment(out);
+    writeDocComment(
+        out,
+        "{@inheritDoc}\n"
+        "@hidden");
     out << nl << "@Override";
     out << nl << "protected void _writeImpl(com.zeroc.Ice.OutputStream ostr_)";
     out << sb;
@@ -2264,7 +2320,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     out << eb;
 
     out << sp;
-    writeHiddenDocComment(out);
+    writeDocComment(
+        out,
+        "{@inheritDoc}\n"
+        "@hidden");
     out << nl << "@Override";
     out << nl << "protected void _readImpl(com.zeroc.Ice.InputStream istr_)";
     out << sb;
@@ -2291,7 +2350,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     if (p->usesClasses() && !(base && base->usesClasses()))
     {
         out << sp;
-        writeHiddenDocComment(out);
+        writeDocComment(
+            out,
+            "@{inheritDoc}\n"
+            "@hidden");
         out << nl << "@Override";
         out << nl << "public boolean _usesClasses()";
         out << sb;
@@ -2300,7 +2362,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
 
     out << sp;
-    writeHiddenDocComment(out);
     out << nl << getSerialVersionUID(p);
 
     out << eb;
@@ -2345,7 +2406,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     string name = p->mappedName();
     string typeS = typeToString(p, TypeModeIn, package);
 
-    out << sp << nl << "public " << name << "()";
+    out << sp;
+    writeDocComment(out, "Creates a new {@code " + name + "}.");
+    out << nl << "public " << name << "()";
     out << sb;
     writeDataMemberInitializers(out, members, package);
     out << eb;
@@ -2366,7 +2429,14 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             paramNames.push_back(memberName);
         }
 
-        out << sp << nl << "public " << name << spar << parameters << epar;
+        out << sp;
+        out << nl << "/**";
+        out << nl << " * Creates a new {@code " << name
+            << "} with values for all fields not marked optional in the Slice definition for {@code " << p->scoped()
+            << "}.";
+        writeParamDocComments(out, members);
+        out << nl << " */";
+        out << nl << "public " << name << spar << parameters << epar;
         out << sb;
         for (const auto& paramName : paramNames)
         {
@@ -2375,7 +2445,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         out << eb;
     }
 
-    out << sp << nl << "public boolean equals(java.lang.Object rhs)";
+    out << sp;
+    writeDocComment(out, "{@inheritDoc}");
+    out << nl << "@Override";
+    out << nl << "public boolean equals(java.lang.Object rhs)";
     out << sb;
     out << nl << "if(this == rhs)";
     out << sb;
@@ -2481,7 +2554,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << sp << nl << "return false;";
     out << eb;
 
-    out << sp << nl << "public int hashCode()";
+    out << sp;
+    writeDocComment(out, "{@inheritDoc}");
+    out << nl << "@Override";
+    out << nl << "public int hashCode()";
     out << sb;
     out << nl << "int h_ = 5381;";
     out << nl << "h_ = com.zeroc.Ice.HashUtil.hashAdd(h_, \"" << p->scoped() << "\");";
@@ -2492,7 +2568,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "return h_;";
     out << eb;
 
-    out << sp << nl << "public " << name << " clone()";
+    out << sp;
+    writeDocComment(out, "{@inheritDoc}");
+    out << nl << "@Override";
+    out << nl << "public " << name << " clone()";
     out << sb;
     out << nl << name << " c = null;";
     out << nl << "try";
@@ -2506,7 +2585,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "return c;";
     out << eb;
 
-    out << sp << nl << "public void ice_writeMembers(com.zeroc.Ice.OutputStream ostr)";
+    out << sp;
+    out << nl << "/**";
+    out << nl << " * Marshals this object's fields into an output stream.";
+    out << nl << " *";
+    out << nl << " * @param ostr the output stream";
+    out << nl << " */";
+    out << nl << "public void ice_writeMembers(com.zeroc.Ice.OutputStream ostr)";
     out << sb;
     iter = 0;
     for (const auto& member : members)
@@ -2515,7 +2600,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     }
     out << eb;
 
-    out << sp << nl << "public void ice_readMembers(com.zeroc.Ice.InputStream istr)";
+    out << sp;
+    out << nl << "/**";
+    out << nl << " * Unmarshals and sets this object's fields from an input stream.";
+    out << nl << " *";
+    out << nl << " * @param istr the input stream";
+    out << nl << " */";
+    out << nl << "public void ice_readMembers(com.zeroc.Ice.InputStream istr)";
     out << sb;
     iter = 0;
     for (const auto& member : members)
@@ -2524,7 +2615,14 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     }
     out << eb;
 
-    out << sp << nl << "static public void ice_write(com.zeroc.Ice.OutputStream ostr, " << name << " v)";
+    out << sp;
+    out << nl << "/**";
+    out << nl << " * Marshals " << getArticleFor(name) << " {@code " << name << "} into an output stream.";
+    out << nl << " *";
+    out << nl << " * @param ostr the output stream";
+    out << nl << " * @param v the {@code " << name << "} to marshal; can be null";
+    out << nl << " */";
+    out << nl << "static public void ice_write(com.zeroc.Ice.OutputStream ostr, " << name << " v)";
     out << sb;
     out << nl << "if(v == null)";
     out << sb;
@@ -2536,7 +2634,14 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << eb;
     out << eb;
 
-    out << sp << nl << "static public " << name << " ice_read(com.zeroc.Ice.InputStream istr)";
+    out << sp;
+    out << nl << "/**";
+    out << nl << " * Unmarshals " << getArticleFor(name) << " {@code " << name << "} from an input stream.";
+    out << nl << " *";
+    out << nl << " * @param istr the input stream ";
+    out << nl << " * @return the unmarshalled {@code " << name << "}";
+    out << nl << " */";
+    out << nl << "static public " << name << " ice_read(com.zeroc.Ice.InputStream istr)";
     out << sb;
     out << nl << name << " v = new " << name << "();";
     out << nl << "v.ice_readMembers(istr);";
@@ -2545,6 +2650,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     string optName = "java.util.Optional<" + name + ">";
     out << sp;
+    out << nl << "/**";
+    out << nl << " * Marshals an optional {@code " << name << "} into an output stream.";
+    out << nl << " *";
+    out << nl << " * @param ostr the output stream";
+    out << nl << " * @param tag the tag";
+    out << nl << " * @param v the value to marshal";
+    out << nl << " */";
     out << nl << "static public void ice_write(com.zeroc.Ice.OutputStream ostr, int tag, " << optName << " v)";
     out << sb;
     out << nl << "if(v != null && v.isPresent())";
@@ -2554,6 +2666,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "/**";
+    out << nl << " * Marshals an optional {@code " << name << "} into an output stream.";
+    out << nl << " *";
+    out << nl << " * @param ostr the output stream";
+    out << nl << " * @param tag the tag";
+    out << nl << " * @param v the value to marshal";
+    out << nl << " */";
     out << nl << "static public void ice_write(com.zeroc.Ice.OutputStream ostr, int tag, " << name << " v)";
     out << sb;
     out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
@@ -2573,6 +2692,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "/**";
+    out << nl << " * Unmarshals an optional {@code " << name << "} from an input stream.";
+    out << nl << " *";
+    out << nl << " * @param istr the input stream";
+    out << nl << " * @param tag the tag";
+    out << nl << " * @return the unmarshaled value";
+    out << nl << " */";
     out << nl << "static public " << optName << " ice_read(com.zeroc.Ice.InputStream istr, int tag)";
     out << sb;
     out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
@@ -2596,7 +2722,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << sp << nl << "private static final " << name << " _nullMarshalValue = new " << name << "();";
 
     out << sp;
-    writeHiddenDocComment(out);
     out << nl << getSerialVersionUID(p);
 
     out << eb;
@@ -3096,6 +3221,12 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "public final class " << name << "Helper";
     out << sb;
 
+    out << nl << "/**";
+    out << nl << " * Marshals a list of {@code " << name << "} into an output stream.";
+    out << nl << " *";
+    out << nl << " * @param ostr the output stream";
+    out << nl << " * @param v the list to marshal";
+    out << nl << " */";
     out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, " << typeS << " v)";
     out << sb;
     iter = 0;
@@ -3103,6 +3234,12 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "/**";
+    out << nl << " * Unmarshals a list of {@code " << name << "} from an input stream.";
+    out << nl << " *";
+    out << nl << " * @param istr the input stream";
+    out << nl << " * @return the list";
+    out << nl << " */";
     if (suppressUnchecked)
     {
         out << nl << "@SuppressWarnings(\"unchecked\")";
@@ -3117,6 +3254,13 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     string optTypeS = "java.util.Optional<" + typeS + ">";
     out << sp;
+    out << nl << "/**";
+    out << nl << " * Marshals an optional list of {@code " << name << "} into an output stream.";
+    out << nl << " *";
+    out << nl << " * @param ostr the output stream";
+    out << nl << " * @param tag the tag";
+    out << nl << " * @param v the list to marshal";
+    out << nl << " */";
     out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << optTypeS << " v)";
     out << sb;
     out << nl << "if(v != null && v.isPresent())";
@@ -3126,6 +3270,13 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "/**";
+    out << nl << " * Marshals an optional list of {@code " << name << "} into an output stream.";
+    out << nl << " *";
+    out << nl << " * @param ostr the output stream";
+    out << nl << " * @param tag the tag";
+    out << nl << " * @param v the list to marshal";
+    out << nl << " */";
     out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << typeS << " v)";
     out << sb;
     out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
@@ -3153,6 +3304,13 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "/**";
+    out << nl << " * Unmarshals an optional list of {@code " << name << "} from an input stream.";
+    out << nl << " *";
+    out << nl << " * @param istr the input stream";
+    out << nl << " * @param tag the tag";
+    out << nl << " * @return the list";
+    out << nl << " */";
     out << nl << "public static " << optTypeS << " read(com.zeroc.Ice.InputStream istr, int tag)";
     out << sb;
     out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
@@ -3472,6 +3630,11 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     }
 
     out << sp;
+    out << nl << "/**";
+    out << nl << " * Gets the type ID of the associated Slice interface.";
+    out << nl << " *";
+    out << nl << " * @return the string \"" << p->scoped() << "\"";
+    out << nl << " */";
     out << nl << "static String ice_staticId()";
     out << sb;
     out << nl << "return \"" << p->scoped() << "\";";
@@ -3661,8 +3824,13 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         }
     }
 
-    out << sp << nl;
-    out << "static String ice_staticId()";
+    out << sp;
+    out << nl << "/**";
+    out << nl << " * Gets the type ID of the associated Slice interface.";
+    out << nl << " *";
+    out << nl << " * @return the string \"" << p->scoped() << "\"";
+    out << nl << " */";
+    out << nl << "static String ice_staticId()";
     out << sb;
 
     out << nl << "return \"" << p->scoped() << "\";";
@@ -3676,10 +3844,24 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         string opName = op->mappedName();
         out << sp;
 
-        writeHiddenDocComment(out);
+        bool throwsUserException = !op->throws().empty() || op->hasMetadata("java:UserException");
+
+        out << nl << "/**";
+        out << nl << " * Dispatches the operation " << opName << ".";
+        out << nl << " *";
+        out << nl << " * @param obj the servant object";
+        out << nl << " * @param request the incoming request";
+        out << nl << " * @return a {@code CompletionStage} that will complete when the dispatch is done";
+        if (throwsUserException)
+        {
+            out << nl << " * @throws com.zeroc.Ice.UserException in the event of a user exception";
+        }
+        out << nl << " * @hidden";
+        out << nl << " */";
+
         out << nl << "static java.util.concurrent.CompletionStage<com.zeroc.Ice.OutgoingResponse> _iceD_" << opName
             << '(' << name << " obj, com.zeroc.Ice.IncomingRequest request)";
-        if (!op->throws().empty() || op->hasMetadata("java:UserException"))
+        if (throwsUserException)
         {
             out.inc();
             out << nl << "throws com.zeroc.Ice.UserException";

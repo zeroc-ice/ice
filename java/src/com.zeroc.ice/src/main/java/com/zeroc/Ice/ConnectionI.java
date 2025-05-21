@@ -20,8 +20,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+// Public because it's used by the 'Ice/metrics' test.
 /**
- * @hidden Public because it's used by the 'Ice/metrics' test.
+ * @hidden
  */
 public final class ConnectionI extends EventHandler implements Connection, CancellationHandler {
     public interface StartCallback {
@@ -322,8 +323,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
     }
 
     @Override
-    public CompletableFuture<Void> flushBatchRequestsAsync(
-            CompressBatch compressBatch) {
+    public CompletableFuture<Void> flushBatchRequestsAsync(CompressBatch compressBatch) {
         return _iceI_flushBatchRequestsAsync(compressBatch);
     }
 
@@ -776,8 +776,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         }
     }
 
-    protected void upcall(
-            StartCallback startCB, List<OutgoingMessage> sentCBs, MessageInfo info) {
+    protected void upcall(StartCallback startCB, List<OutgoingMessage> sentCBs, MessageInfo info) {
         int dispatchedCount = 0;
 
         //
@@ -1088,7 +1087,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     .logger
                     .trace(
                         _instance.traceLevels().networkCat,
-                        "connection aborted by the idle check because it did not receive any bytes for "
+                        "connection aborted by the idle check because it did not receive"
+                            + " any bytes for "
                             + idleTimeout
                             + "s\n"
                             + _transceiver.toDetailedString());
@@ -1097,7 +1097,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             setState(
                 StateClosed,
                 new ConnectionAbortedException(
-                    "Connection aborted by the idle check because it did not receive any bytes for "
+                    "Connection aborted by the idle check because it did not receive any"
+                        + " bytes for "
                         + idleTimeout
                         + "s.",
                     false));
@@ -1251,7 +1252,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             Assert.FinalizerAssert(_upcallCount == 0);
             Assert.FinalizerAssert(_sendStreams.isEmpty());
             Assert.FinalizerAssert(_asyncRequests.isEmpty());
-        } catch (Exception ex) {} finally {
+        } catch (Exception ex) {
+        } finally {
             super.finalize();
         }
     }
@@ -1953,7 +1955,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     if (_endpoint.datagram()) {
                         if (_warn) {
                             _logger.warning(
-                                "ignoring close connection message for datagram connection:\n"
+                                "ignoring close connection message for datagram"
+                                    + " connection:\n"
                                     + _desc);
                         }
                     } else {
@@ -1976,7 +1979,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 {
                     if (_state >= StateClosing) {
                         TraceUtil.trace(
-                            "received request during closing\n(ignored by server, client will retry)",
+                            "received request during closing\n"
+                                + "(ignored by server, client will retry)",
                             info.stream,
                             this,
                             _logger,
@@ -1998,7 +2002,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 {
                     if (_state >= StateClosing) {
                         TraceUtil.trace(
-                            "received batch request during closing\n(ignored by server, client will retry)",
+                            "received batch request during closing\n"
+                                + "(ignored by server, client will retry)",
                             info.stream,
                             this,
                             _logger,
@@ -2125,8 +2130,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 } else {
                     // Received request on a connection without an object adapter.
                     sendResponse(
-                        request.current.createOutgoingResponse(
-                            new ObjectNotExistException()),
+                        request.current.createOutgoingResponse(new ObjectNotExistException()),
                         isTwoWay,
                         (byte) 0);
                 }
@@ -2328,7 +2332,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 setState(
                     StateClosing,
                     new ConnectionClosedException(
-                        "Connection closed because it remained inactive for longer than the inactivity timeout.",
+                        "Connection closed because it remained inactive for longer than the"
+                            + " inactivity timeout.",
                         false));
             }
         }

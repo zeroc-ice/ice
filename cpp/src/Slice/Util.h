@@ -67,5 +67,8 @@ namespace Slice
 
     // Is this the first element defined in its container?
     bool isFirstElement(const ContainedPtr& p);
+
+    /// Returns the first sentence in the provided list of lines.
+    std::string getFirstSentence(const StringList& lines);
 }
 #endif
