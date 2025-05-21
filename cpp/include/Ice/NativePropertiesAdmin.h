@@ -13,7 +13,7 @@
 
 namespace Ice
 {
-    /// The default implementation for the PropertiesAdmin facet.
+    /// The default implementation for the "Properties" admin facet.
     /// @headerfile Ice/Ice.h
     class ICE_API NativePropertiesAdmin final : public PropertiesAdmin,
                                                 public std::enable_shared_from_this<NativePropertiesAdmin>
