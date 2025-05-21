@@ -1569,7 +1569,7 @@ Slice::JavaVisitor::writeHiddenProxyDocComment(Output& out, const OperationPtr& 
     out << nl << "/**";
 
     out << nl << " * Invokes the " << p->name()
-        << " operation with the given parameters on this proxy and returns a future that will be completed with the "
+        << " operation on this proxy with the given parameters and returns a future that will be completed with the "
            "result.";
     out << nl << " *";
 
