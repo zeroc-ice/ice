@@ -9,7 +9,6 @@
 #import "include/Process.h"
 #import "include/Properties.h"
 #import "include/PropertiesAdmin.h"
-#import "include/UnsupportedAdminFacet.h"
 
 #import "Convert.h"
 #import "LoggerWrapperI.h"
