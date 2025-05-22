@@ -23,7 +23,7 @@ class IB2I: IAI, MBIB2 {
     }
 }
 
-// Tests implementation reuse by deriving from IAI.
+// Tests implementation reuse by deriving from IB1I.
 class ICI: IB1I, MAIC {
     func ib2op(p: MBIB2Prx?, current _: Ice.Current) async throws -> MBIB2Prx? {
         return p
