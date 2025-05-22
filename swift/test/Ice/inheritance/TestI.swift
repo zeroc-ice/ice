@@ -9,40 +9,27 @@ class IAI: MAIA {
     }
 }
 
-class IB1I: MBIB1 {
-    func iaop(p: MAIAPrx?, current _: Ice.Current) async throws -> MAIAPrx? {
-        return p
-    }
-
+// Tests implementation reuse by deriving from IAI.
+class IB1I: IAI, MBIB1 {
     func ib1op(p: MBIB1Prx?, current _: Ice.Current) async throws -> MBIB1Prx? {
         return p
     }
 }
 
-class IB2I: MBIB2 {
-    func iaop(p: MAIAPrx?, current _: Ice.Current) async throws -> MAIAPrx? {
-        return p
-    }
-
+// Tests implementation reuse by deriving from IAI.
+class IB2I: IAI, MBIB2 {
     func ib2op(p: MBIB2Prx?, current _: Ice.Current) async throws -> MBIB2Prx? {
         return p
     }
 }
 
-class ICI: MAIC {
-    func iaop(p: MAIAPrx?, current _: Ice.Current) async throws -> MAIAPrx? {
+// Tests implementation reuse by deriving from IAI.
+class ICI: IB1I, MAIC {
+    func ib2op(p: MBIB2Prx?, current _: Ice.Current) async throws -> MBIB2Prx? {
         return p
     }
 
     func icop(p: MAICPrx?, current _: Ice.Current) async throws -> MAICPrx? {
-        return p
-    }
-
-    func ib1op(p: MBIB1Prx?, current _: Ice.Current) async throws -> MBIB1Prx? {
-        return p
-    }
-
-    func ib2op(p: MBIB2Prx?, current _: Ice.Current) async throws -> MBIB2Prx? {
         return p
     }
 }
