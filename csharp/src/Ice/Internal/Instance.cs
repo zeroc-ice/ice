@@ -913,10 +913,10 @@ public sealed class Instance
             // Properties facet
             //
             string propertiesFacetName = "Properties";
-            PropertiesAdminI propsAdmin = null;
+            NativePropertiesAdmin propsAdmin = null;
             if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(propertiesFacetName))
             {
-                propsAdmin = new PropertiesAdminI(this);
+                propsAdmin = new NativePropertiesAdmin(this);
                 _adminFacets.Add(propertiesFacetName, propsAdmin);
             }
 

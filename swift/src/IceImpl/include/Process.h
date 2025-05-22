@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-#import "LocalObject.h"
+#import "Config.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-ICEIMPL_API @interface ICEProcess : ICELocalObject
+ICEIMPL_API @interface ICEProcess : NSObject
 - (void)shutdown;
 - (void)writeMessage:(NSString*)message fd:(int32_t)fd;
 @end
@@ -11,7 +11,7 @@ ICEIMPL_API @interface ICEProcess : ICELocalObject
 #ifdef __cplusplus
 
 @interface ICEProcess ()
-@property(nonatomic, readonly) std::shared_ptr<Ice::Process> process;
+- (nonnull instancetype)initWithCppProcess:(Ice::ProcessPtr)cppProcess;
 @end
 
 #endif

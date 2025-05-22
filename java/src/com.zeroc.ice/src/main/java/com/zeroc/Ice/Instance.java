@@ -928,9 +928,9 @@ public final class Instance {
             // Properties facet
             //
             String propertiesFacetName = "Properties";
-            PropertiesAdminI propsAdmin = null;
+            NativePropertiesAdmin propsAdmin = null;
             if (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(propertiesFacetName)) {
-                propsAdmin = new PropertiesAdminI(this);
+                propsAdmin = new NativePropertiesAdmin(this);
                 _adminFacets.put(propertiesFacetName, propsAdmin);
             }
 

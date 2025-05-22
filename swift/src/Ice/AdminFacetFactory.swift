@@ -80,7 +80,7 @@ class AdminFacetFacade: ICEDispatchAdapter {
     func complete() {}
 }
 
-final class UnsupportedAdminFacet: LocalObject<ICEUnsupportedAdminFacet>, Object {
+final class UnsupportedAdminFacet: Object {
     func ice_id(current _: Current) -> String {
         return ObjectTraits.staticId
     }
@@ -97,40 +97,34 @@ final class UnsupportedAdminFacet: LocalObject<ICEUnsupportedAdminFacet>, Object
 }
 
 class AdminFacetFactory: ICEAdminFacetFactory {
-    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess)
-        -> ICEDispatchAdapter
-    {
+    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess) -> ICEDispatchAdapter {
+        // We create a new ProcessI each time, which does not really matter since users are not expected
+        // to compare the address of these servants.
+
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(
             communicator: c,
-            dispatcher: ProcessDisp(
-                handle.getSwiftObject(ProcessI.self) {
-                    ProcessI(handle: handle)
-                }))
+            dispatcher: ProcessDisp(ProcessI(handle: handle))
+        )
     }
 
-    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin)
-        -> ICEDispatchAdapter
-    {
+    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin) -> ICEDispatchAdapter {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
+
+        // We create a new NativePropertiesAdmin each time, which does not really matter since users are not expected
+        // to compare the address of these servants.
 
         return AdminFacetFacade(
             communicator: c,
-            dispatcher: PropertiesAdminDisp(
-                handle.getSwiftObject(PropertiesAdminI.self) {
-                    PropertiesAdminI(communicator: c, handle: handle)
-                }))
+            dispatcher: PropertiesAdminDisp(NativePropertiesAdmin(handle: handle))
+        )
     }
 
-    static func createUnsupported(_ communicator: ICECommunicator, handle: ICEUnsupportedAdminFacet)
-        -> ICEDispatchAdapter
-    {
+    static func createUnsupported(_ communicator: ICECommunicator) -> ICEDispatchAdapter {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(
             communicator: c,
-            dispatcher: ObjectDisp(
-                handle.getSwiftObject(UnsupportedAdminFacet.self) {
-                    UnsupportedAdminFacet(handle: handle)
-                }))
+            dispatcher: ObjectDisp(UnsupportedAdminFacet())
+        )
     }
 }
