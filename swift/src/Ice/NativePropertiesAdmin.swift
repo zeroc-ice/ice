@@ -16,6 +16,10 @@ public typealias PropertiesAdminRemoveCallback = () -> Void
 public class NativePropertiesAdmin: PropertiesAdmin {
     private let handle: ICEPropertiesAdmin
 
+    init(handle: ICEPropertiesAdmin) {
+        self.handle = handle
+    }
+
     public func getProperty(key: String, current _: Current) throws -> String {
         return try autoreleasepool {
             try handle.getProperty(key)
@@ -43,9 +47,5 @@ public class NativePropertiesAdmin: PropertiesAdmin {
         return handle.addUpdateCallback { (props: PropertyDict) in
             cb(props)
         }
-    }
-
-    internal init(handle: ICEPropertiesAdmin) {
-        self.handle = handle
     }
 }
