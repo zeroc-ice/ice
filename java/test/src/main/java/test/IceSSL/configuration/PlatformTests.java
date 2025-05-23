@@ -131,9 +131,9 @@ public class PlatformTests {
             out.flush();
 
             try (var serverCommunicator =
-                createServer(helper, certificatesPath + "/s_rsa_ca1.jks", null)) {
+                createServer(helper, certificatesPath + "/ca1/server.jks", null)) {
                 try (var clientCommunicator =
-                    createClient(helper, null, certificatesPath + "/cacert1.jks")) {
+                    createClient(helper, null, certificatesPath + "/ca1/ca1.jks")) {
                     var obj =
                         ServerPrx.createProxy(
                             clientCommunicator,
@@ -178,9 +178,9 @@ public class PlatformTests {
             out.flush();
 
             try (var serverCommunicator =
-                createServer(helper, certificatesPath + "/s_rsa_ca1.jks", null)) {
+                createServer(helper, certificatesPath + "/ca1/server.jks", null)) {
                 try (var clientCommunicator =
-                    createClient(helper, null, certificatesPath + "/cacert2.jks")) {
+                    createClient(helper, null, certificatesPath + "/ca2/ca2.jks")) {
                     var obj =
                         ServerPrx.createProxy(
                             clientCommunicator,
@@ -208,9 +208,9 @@ public class PlatformTests {
             out.print("server validates client certificate using trust store... ");
             out.flush();
 
-            var serverCertificatePath = certificatesPath + "/s_rsa_ca1.jks";
-            var clientCertificatePath = certificatesPath + "/c_rsa_ca1.jks";
-            var trustedStorePath = certificatesPath + "/cacert1.jks";
+            var serverCertificatePath = certificatesPath + "/ca1/server.jks";
+            var clientCertificatePath = certificatesPath + "/ca1/client.jks";
+            var trustedStorePath = certificatesPath + "/ca1/ca1.jks";
 
             try (var serverCommunicator =
                 createServer(helper, serverCertificatePath, trustedStorePath)) {
@@ -238,9 +238,9 @@ public class PlatformTests {
             out.print("server rejects client certificate using trust store... ");
             out.flush();
 
-            var serverCertificatePath = certificatesPath + "/s_rsa_ca1.jks";
-            var clientCertificatePath = certificatesPath + "/c_rsa_ca2.jks";
-            var trustedStorePath = certificatesPath + "/cacert1.jks";
+            var serverCertificatePath = certificatesPath + "/ca1/server.jks";
+            var clientCertificatePath = certificatesPath + "/ca2/client.jks";
+            var trustedStorePath = certificatesPath + "/ca1/ca1.jks";
 
             try (var serverCommunicator =
                 createServer(helper, serverCertificatePath, trustedStorePath)) {
@@ -336,7 +336,7 @@ public class PlatformTests {
         }
 
         try (var serverCommunicator = Util.initialize()) {
-            var keyManager = new ReloadableKeyManager(certificatesPath + "/s_rsa_ca1.jks");
+            var keyManager = new ReloadableKeyManager(certificatesPath + "/ca1/server.jks");
             var sslContext = SSLContext.getInstance("TLS");
             sslContext.init(new KeyManager[]{keyManager}, null, null);
             var adapter =
@@ -351,7 +351,7 @@ public class PlatformTests {
             adapter.activate();
 
             try (var clientCommunicator =
-                createClient(helper, null, certificatesPath + "/cacert1.jks")) {
+                createClient(helper, null, certificatesPath + "/ca1/ca1.jks")) {
                 var obj =
                     ServerPrx.createProxy(
                         clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
@@ -360,7 +360,7 @@ public class PlatformTests {
 
             // CA2 is not accepted with the initial configuration
             try (var clientCommunicator =
-                createClient(helper, null, certificatesPath + "/cacert2.jks")) {
+                createClient(helper, null, certificatesPath + "/ca2/ca2.jks")) {
                 var obj =
                     ServerPrx.createProxy(
                         clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
@@ -372,11 +372,11 @@ public class PlatformTests {
                 }
             }
 
-            keyManager.reload(certificatesPath + "/s_rsa_ca2.jks");
+            keyManager.reload(certificatesPath + "/ca2/server.jks");
 
             // CA2 is accepted with the new configuration
             try (var clientCommunicator =
-                createClient(helper, null, certificatesPath + "/cacert2.jks")) {
+                createClient(helper, null, certificatesPath + "/ca2/ca2.jks")) {
                 var obj =
                     ServerPrx.createProxy(
                         clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
@@ -385,7 +385,7 @@ public class PlatformTests {
 
             // CA1 is not accepted with the initial configuration
             try (var clientCommunicator =
-                createClient(helper, null, certificatesPath + "/cacert1.jks")) {
+                createClient(helper, null, certificatesPath + "/ca1/ca1.jks")) {
                 var obj =
                     ServerPrx.createProxy(
                         clientCommunicator, "server:" + helper.getTestEndpoint(10, "ssl"));
@@ -404,9 +404,7 @@ public class PlatformTests {
         }
     }
 
-    public static void allTests(TestHelper helper, String testDir) {
-        String certificatesPath = testDir + "/../certs";
-
+    public static void allTests(TestHelper helper, String certificatesPath) {
         clientValidatesServerUsingTrustStore(helper, certificatesPath);
         clientValidatesServerUsingDefaultTrustStore(helper, certificatesPath);
         clientRejectsServerUsingTrustStore(helper, certificatesPath);

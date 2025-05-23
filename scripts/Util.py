@@ -1169,7 +1169,7 @@ class Mapping(object):
             "IceSSL.Password": "password",
             "IceSSL.DefaultDir": ""
             if current.config.buildPlatform == "iphoneos"
-            else os.path.join(self.component.getSourceDir(), "certs"),
+            else os.path.join(self.component.getSourceDir(), "certs/common/ca"),
         }
 
         #
@@ -3459,7 +3459,7 @@ class Driver:
         # Load IceSSL, this is useful to talk with WSS for JavaScript
         initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
         initData.properties.setProperty(
-            "IceSSL.DefaultDir", os.path.join(self.component.getSourceDir(), "certs")
+            "IceSSL.DefaultDir", os.path.join(self.component.getSourceDir(), "certs/common/ca")
         )
         initData.properties.setProperty("IceSSL.CertFile", "server.p12")
         initData.properties.setProperty("IceSSL.Password", "password")
@@ -3579,7 +3579,7 @@ class CppMapping(Mapping):
         props.update(
             {
                 "IceSSL.CAs": "ca_cert.pem",
-                "IceSSL.CertFile": "server.p12" if server else "client.p12"
+                "IceSSL.CertFile": "server.p12" if server else "client.p12",
             }
         )
         if isinstance(platform, Darwin):
@@ -3836,7 +3836,7 @@ class CSharpMapping(Mapping):
             {
                 "IceSSL.Password": "password",
                 "IceSSL.DefaultDir": os.path.join(
-                    self.component.getSourceDir(), "certs"
+                    self.component.getSourceDir(), "certs/common/ca"
                 ),
                 "IceSSL.CAs": "ca_cert.pem",
                 "IceSSL.VerifyPeer": "0" if current.config.protocol == "wss" else "2",
@@ -4365,9 +4365,9 @@ class SwiftMapping(Mapping):
     def getSSLProps(self, process, current):
         props = Mapping.getByName("cpp").getSSLProps(process, current)
         props["IceSSL.DefaultDir"] = (
-            "certs"
-            if current.config.buildPlatform == "iphoneos"
-            else os.path.join(self.component.getSourceDir(), "certs")
+            "certs/common/ca"
+            if current.config.buildPlatform == "iphoneos" else
+            os.path.join(self.component.getSourceDir(), "certs/common/ca")
         )
         return props
 

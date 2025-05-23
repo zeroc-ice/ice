@@ -15,6 +15,7 @@ from Util import (
     platform,
 )
 
+certsPath = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "certs", "configuration"))
 
 class ConfigurationTestCase(ClientServerTestCase):
     def setupServerSide(self, current):
@@ -22,56 +23,37 @@ class ConfigurationTestCase(ClientServerTestCase):
         if not isinstance(self.getMapping(), CppMapping):
             return
 
-        certsPath = os.path.abspath(
-            os.path.join(current.testsuite.getPath(), "..", "certs")
-        )
-
         self.crlServer = None
         self.ocspServer = None
 
         if isinstance(platform, Windows) or isinstance(platform, Darwin):
             from scripts.tests.IceSSL import revocationutil
 
-            self.crlServer = revocationutil.createCRLServer(
-                "127.0.0.1", 20001, certsPath
-            )
+            # Create and start the CRL server for revocation tests.
+            self.crlServer = revocationutil.createCRLServer("127.0.0.1", 20001, certsPath)
             self.crlServer.start()
-            self.ocspServer = revocationutil.createOCSPServer(
-                "127.0.0.1", 20002, certsPath
-            )
+
+            # Create and start the CRL server for revocation tests.
+            self.ocspServer = revocationutil.createOCSPServer("127.0.0.1", 20002, certsPath)
             self.ocspServer.start()
 
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
-            keychainPath = os.path.join(certsPath, "Find.keychain")
-            os.system("mkdir -p {0}".format(os.path.join(certsPath, "keychain")))
-            os.system("security create-keychain -p password %s" % keychainPath)
-            for cert in ["s_rsa_ca1.p12", "c_rsa_ca1.p12"]:
-                os.system(
-                    "security import %s -f pkcs12 -A -P password -k %s"
-                    % (os.path.join(certsPath, cert), keychainPath)
-                )
-        elif current.config.openssl or platform.hasOpenSSL():
-            if isinstance(platform, Windows):
-                conf = os.path.join(current.testsuite.getPath(), "openssl.cnf")
-                os.environ["OPENSSL_CONF"] = conf
-                with open(conf, "w") as file:
-                    file.write(
-                        "# Dummy openssl configuration file to avoid warnings with Windows testing"
-                    )
+            # Create the keychains directory for IceSSL tests.
+            keychainsPath = os.path.join(certsPath, "keychain")
+            os.makedirs(keychainsPath, exist_ok=True)
 
-            #
-            # Create copies of the CA certificates named after the subject
-            # hash. This is used by the tests to find the CA certificates in
-            # the IceSSL.DefaultDir
-            #
-            for c in ["cacert1.pem", "cacert2.pem"]:
-                pem = os.path.join(certsPath, c)
-                out = run(
-                    "{openssl} x509 -subject_hash -noout -in {pem}".format(
-                        pem=pem, openssl=self.getOpenSSLCommand(current)
-                    )
-                )
-                shutil.copyfile(pem, "{dir}/{out}.0".format(dir=certsPath, out=out))
+            # Create find.keychain for IceSSL.FindCerts tests on macOS
+            keychainPath = os.path.join(certsPath, "Find.keychain")
+            os.system(f"security create-keychain -p password {keychainPath}")
+            for cert in ["ca1/server.p12", "ca1/client.p12"]:
+                os.system(f"security import {os.path.join(certsPath, cert)} -f pkcs12 -A -P password -k {keychainPath}")
+        elif current.config.openssl or platform.hasOpenSSL():
+            # Create copies of the CA certificates named after the subject hash. This is used by the tests to find the
+            # CA certificates in the IceSSL.DefaultDir.
+            for cert in ["ca1/ca1_cert.pem", "ca2/ca2_cert.pem"]:
+                certFile = os.path.join(certsPath, cert)
+                out = run(f"openssl x509 -subject_hash -noout -in {certFile}")
+                shutil.copyfile(certFile, f"{certsPath}/{out}.0")
 
     def teardownServerSide(self, current, success):
         # Nothing to do if we're not running this test with the C++ mapping
@@ -83,57 +65,22 @@ class ConfigurationTestCase(ClientServerTestCase):
         if self.ocspServer:
             self.ocspServer.shutdown()
 
-        certsPath = os.path.abspath(
-            os.path.join(current.testsuite.getPath(), "..", "certs")
-        )
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
-            os.system(
-                "rm -rf {0} {1}".format(
-                    os.path.join(certsPath, "keychain"),
-                    os.path.join(certsPath, "Find.keychain"),
-                )
-            )
-        elif current.config.openssl or platform.hasOpenSSL():
-            for c in ["cacert1.pem", "cacert2.pem"]:
-                pem = os.path.join(certsPath, c)
-                out = run(
-                    "{openssl} x509 -subject_hash -noout -in {pem}".format(
-                        pem=pem, openssl=self.getOpenSSLCommand(current)
-                    )
-                )
-                os.remove("{dir}/{out}.0".format(out=out, dir=certsPath))
-            if isinstance(platform, Windows):
-                os.remove(os.path.join(current.testsuite.getPath(), "openssl.cnf"))
-                del os.environ["OPENSSL_CONF"]
+            keychainsPath = os.path.join(certsPath, "keychain")
+            os.system(f"rm -rf {keychainsPath}")
 
-    def getOpenSSLCommand(self, current):
-        if isinstance(platform, Windows):
-            return os.path.join(
-                current.testsuite.getPath(),
-                "..",
-                "..",
-                "..",
-                "msbuild",
-                "packages",
-                "zeroc.openssl.v143.1.1.1.3",
-                "build",
-                "native",
-                "bin",
-                "Win32",
-                "Release",
-                "openssl.exe",
-            )
-        else:
-            return "openssl"
+            findKeychain = os.path.join(certsPath, "Find.keychain")
+            os.system(f"rm -rf {findKeychain}")
+        elif current.config.openssl or platform.hasOpenSSL():
+            for cert in ["ca1/ca1_cert.pem", "ca2/ca2_cert.pem"]:
+                out = run(f"openssl x509 -subject_hash -noout -in {os.path.join(certsPath, cert)}")
+                os.remove(f"{certsPath}/{out}.0")
 
 TestSuite(
     __name__,
-    [
-        ConfigurationTestCase(
-            client=Client(args=['"{testdir}"']),
-            server=Server(args=['"{testdir}"']),
-        )
-    ],
+    [ConfigurationTestCase(
+        client=Client(args=[f'"{certsPath}"']),
+        server=Server(args=[f'"{certsPath}"']))],
     multihost=False,
     options={"protocol": ["tcp"]},
 )
