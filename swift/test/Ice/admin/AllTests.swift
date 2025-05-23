@@ -73,13 +73,13 @@ func testFacets(com: Ice.Communicator, builtInFacets: Bool, helper: TestHelper) 
     let f2 = TestFacetI()
     let f3 = TestFacetI()
 
-    try com.addAdminFacet(servant: TestFacetDisp(f1), facet: "Facet1")
-    try com.addAdminFacet(servant: TestFacetDisp(f2), facet: "Facet2")
-    try com.addAdminFacet(servant: TestFacetDisp(f3), facet: "Facet3")
+    try com.addAdminFacet(servant: f1, facet: "Facet1")
+    try com.addAdminFacet(servant: f2, facet: "Facet2")
+    try com.addAdminFacet(servant: f3, facet: "Facet3")
 
-    try helper.test((com.findAdminFacet("Facet1") as! TestFacetDisp).servant as? TestFacetI === f1)
-    try helper.test((com.findAdminFacet("Facet2") as! TestFacetDisp).servant as? TestFacetI === f2)
-    try helper.test((com.findAdminFacet("Facet3") as! TestFacetDisp).servant as? TestFacetI === f3)
+    try helper.test(com.findAdminFacet("Facet1") as? TestFacetI === f1)
+    try helper.test(com.findAdminFacet("Facet2") as? TestFacetI === f2)
+    try helper.test(com.findAdminFacet("Facet3") as? TestFacetI === f3)
     try helper.test(com.findAdminFacet("Bogus") == nil)
 
     let facetMap = com.findAllAdminFacets()
@@ -98,7 +98,7 @@ func testFacets(com: Ice.Communicator, builtInFacets: Bool, helper: TestHelper) 
     try helper.test(facetMap["Facet3"] != nil)
 
     do {
-        try com.addAdminFacet(servant: TestFacetDisp(f1), facet: "Facet1")
+        try com.addAdminFacet(servant: f1, facet: "Facet1")
         try helper.test(false)
     } catch is Ice.AlreadyRegisteredException {}
 
@@ -402,7 +402,7 @@ func allTests(_ helper: TestHelper) async throws {
     //     let remoteLogger = RemoteLoggerI(helper: helper)
 
     //     let myProxy = try uncheckedCast(
-    //         prx: adapter.addWithUUID(Ice.RemoteLoggerDisp(remoteLogger)),
+    //         prx: adapter.addWithUUID(remoteLogger),
     //         type: Ice.RemoteLoggerPrx.self)
 
     //     try adapter.activate()

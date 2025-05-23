@@ -110,7 +110,7 @@ class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
         //
         // Install a custom admin facet.
         //
-        try communicator.addAdminFacet(servant: TestFacetDisp(TestFacetI()), facet: "TestFacet")
+        try communicator.addAdminFacet(servant: TestFacetI(), facet: "TestFacet")
 
         //
         // Set the callback on the admin facet.
@@ -125,7 +125,7 @@ class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
             }
         }
         return try uncheckedCast(
-            prx: current.adapter.addWithUUID(RemoteCommunicatorDisp(servant)),
+            prx: current.adapter.addWithUUID(servant),
             type: RemoteCommunicatorPrx.self)
     }
 

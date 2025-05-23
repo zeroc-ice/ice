@@ -31,7 +31,7 @@ class Collocated: TestHelperI {
         let adapter = try communicator.createObjectAdapter("TestAdapter")
 
         let obj = ThrowerI()
-        try adapter.add(servant: ThrowerDisp(obj), id: Ice.stringToIdentity("thrower"))
+        try adapter.add(servant: obj, id: Ice.stringToIdentity("thrower"))
 
         // try adapter.activate() // Don't activate OA to ensure collocation is used.
 

@@ -45,9 +45,9 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     communicator.getProperties().setProperty(key: "TestAdapter1.Endpoints", value: "tcp -h *")
     var adapter = try communicator.createObjectAdapter("TestAdapter1")
     let obj = EmptyI()
-    _ = try adapter.add(servant: EmptyDisp(obj), id: Ice.stringToIdentity("x"))
+    _ = try adapter.add(servant: obj, id: Ice.stringToIdentity("x"))
     do {
-        _ = try adapter.add(servant: EmptyDisp(obj), id: Ice.stringToIdentity("x"))
+        _ = try adapter.add(servant: obj, id: Ice.stringToIdentity("x"))
         try test(false)
     } catch is Ice.AlreadyRegisteredException {}
 
