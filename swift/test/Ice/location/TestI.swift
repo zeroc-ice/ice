@@ -23,7 +23,7 @@ class TestI: TestIntf {
         _registry = registry
 
         try _registry.addObject(
-            _adapter1.add(servant: HelloDisp(HelloI()), id: Ice.stringToIdentity("hello")))
+            _adapter1.add(servant: HelloI(), id: Ice.stringToIdentity("hello")))
     }
 
     func shutdown(current _: Ice.Current) async throws {

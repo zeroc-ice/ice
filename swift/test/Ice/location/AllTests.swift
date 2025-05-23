@@ -521,7 +521,7 @@ func allTests(_ helper: TestHelper) async throws {
 
     var ident = Ice.Identity()
     ident.name = UUID().uuidString
-    try adapter.add(servant: HelloDisp(HelloI()), id: ident)
+    try adapter.add(servant: HelloI(), id: ident)
 
     do {
         let helloPrx = try makeProxy(

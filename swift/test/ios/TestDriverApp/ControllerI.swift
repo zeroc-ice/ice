@@ -75,7 +75,7 @@ class ProcessControllerI: CommonProcessController {
         helper.run()
         return try uncheckedCast(
             prx: current.adapter.addWithUUID(
-                CommonProcessDisp(ProcessI(helper: helper))), type: CommonProcessPrx.self)
+                ProcessI(helper: helper)), type: CommonProcessPrx.self)
     }
 
     func getHost(
@@ -116,8 +116,7 @@ class ControllerI {
         ident.name = "com.zeroc.Swift-Test-Controller"
 
         try adapter.add(
-            servant: CommonProcessControllerDisp(
-                ProcessControllerI(view: view, ipv4: ipv4, ipv6: ipv6)), id: ident)
+            servant: ProcessControllerI(view: view, ipv4: ipv4, ipv6: ipv6), id: ident)
         try adapter.activate()
     }
 

@@ -34,10 +34,10 @@ class Collocated: TestHelperI {
         }
 
         try communicator.createObjectAdapter("TestAdapter").add(
-            servant: RetryDisp(RetryI()),
+            servant: RetryI(),
             id: Ice.stringToIdentity("retry"))
         try communicator2.createObjectAdapter("TestAdapter").add(
-            servant: RetryDisp(RetryI()),
+            servant: RetryI(),
             id: Ice.stringToIdentity("retry"))
 
         // try adapter.activate() // Don't activate OA to ensure collocation is used.
