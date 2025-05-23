@@ -117,9 +117,7 @@ class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
         //
         let servant = RemoteCommunicatorI(communicator: communicator)
 
-        if let propDisp = communicator.findAdminFacet("Properties") as? PropertiesAdminDisp,
-            let propFacet = propDisp.servant as? NativePropertiesAdmin
-        {
+        if let propFacet = communicator.findAdminFacet("Properties") as? NativePropertiesAdmin {
             _ = propFacet.addUpdateCallback { changes in
                 servant.updated(changes: changes)
             }
