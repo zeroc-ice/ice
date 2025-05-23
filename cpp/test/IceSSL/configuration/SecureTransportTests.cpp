@@ -756,7 +756,7 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesP
 void
 allAuthenticationOptionsTests(Test::TestHelper* helper, const string&)
 {
-    const string certificatesPath = getResourcePath("certs");
+    const string certificatesPath = getResourcePath("certs/configuration");
 #    else
 void
 allAuthenticationOptionsTests(Test::TestHelper* helper, const string& defaultDir)

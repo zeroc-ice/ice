@@ -1264,10 +1264,16 @@ testDerCertificates(const string&, const Ice::PropertiesPtr&, bool)
 }
 #endif
 
+#ifdef ICE_USE_SECURE_TRANSPORT_IOS
+void
+testTrustOnly(const string&, const Ice::PropertiesPtr&, bool)
+{
+    // Test not supported on iOS
+}
+#else
 void
 testTrustOnly(const string& factoryRef, const Ice::PropertiesPtr& defaultProps, bool p12)
 {
-#ifndef ICE_USE_SECURE_TRANSPORT_IOS
     cout << "testing IceSSL.TrustOnly... " << flush;
 
     // iOS support only provides access to the CN of the certificate so we can't check for other attributes
@@ -2055,8 +2061,8 @@ testTrustOnly(const string& factoryRef, const Ice::PropertiesPtr& defaultProps, 
         comm->destroy();
     }
     cout << "ok" << endl;
-#endif
 }
+#endif
 
 #if defined(ICE_USE_SCHANNEL) || defined(ICE_USE_OPENSSL)
 void
