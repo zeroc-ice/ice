@@ -1559,7 +1559,6 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
         << "(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse";
 
     out << sb;
-    out << nl;
 
     if (op->mode() == Operation::Mode::Normal)
     {

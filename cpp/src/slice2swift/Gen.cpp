@@ -1240,78 +1240,7 @@ bool
 Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     const string swiftModule = getSwiftModule(p->getTopLevelModule());
-
     const string servant = getRelativeTypeString(p, swiftModule);
-    const string unescapedName = removeEscaping(servant);
-    const string disp = unescapedName + "Disp";
-    const string traits = unescapedName + "Traits";
-
-    //
-    // Disp struct
-    //
-    out << sp;
-    out << sp;
-    out << nl << "/// Dispatcher for `" << unescapedName << "` servants.";
-    out << nl << "public struct " << disp << ": Ice.Dispatcher";
-    out << sb;
-    out << nl << "public let servant: " << servant;
-
-    out << nl << "private static let defaultObject = " << getUnqualified("Ice.ObjectI", swiftModule) << "<" << traits
-        << ">()";
-
-    out << sp;
-    out << nl << "public init(_ servant: " << servant << ")";
-    out << sb;
-    out << nl << "self.servant = servant";
-    out << eb;
-
-    const OperationList allOps = p->allOperations();
-
-    list<pair<string, string>> allOpNames;
-    transform(
-        allOps.begin(),
-        allOps.end(),
-        back_inserter(allOpNames),
-        [](const ContainedPtr& it) { return std::make_pair(it->name(), it->mappedName()); });
-
-    allOpNames.emplace_back("ice_id", "ice_id");
-    allOpNames.emplace_back("ice_ids", "ice_ids");
-    allOpNames.emplace_back("ice_isA", "ice_isA");
-    allOpNames.emplace_back("ice_ping", "ice_ping");
-
-    out << sp;
-    out << nl;
-    out << "public func dispatch(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse";
-    out << sb;
-    out << nl;
-    out << "switch request.current.operation";
-    out << sb;
-    out.dec(); // to align case with switch
-    for (const auto& [sliceName, mappedName] : allOpNames)
-    {
-        const string mappedDispatchName = "_iceD_" + removeEscaping(mappedName);
-        out << nl << "case \"" << sliceName << "\":";
-        out.inc();
-        if (sliceName == "ice_id" || sliceName == "ice_ids" || sliceName == "ice_isA" || sliceName == "ice_ping")
-        {
-            out << nl << "try await (servant as? Ice.Object ?? " << disp << ".defaultObject)." << mappedDispatchName
-                << "(request)";
-        }
-        else
-        {
-            out << nl << "try await servant." << mappedDispatchName << "(request)";
-        }
-
-        out.dec();
-    }
-    out << nl << "default:";
-    out.inc();
-    out << nl << "throw Ice.OperationNotExistException()";
-    // missing dec to compensate for the extra dec after switch sb
-    out << eb;
-    out << eb;
-
-    out << eb;
 
     //
     // Protocol
@@ -1410,14 +1339,27 @@ Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     allOpNames.emplace_back("ice_isA", "ice_isA");
     allOpNames.emplace_back("ice_ping", "ice_ping");
 
-    // TODO: doc-comment
     out << sp;
+    out << nl
+        << "/// Dispatches an incoming request to one of the instance methods of the generated protocol, based on the "
+              "operation name carried by the request.";
+    out << nl << "/// - Parameter request: The incoming request.";
+    out << nl << "/// - Returns: The outgoing response.";
     out << nl << "public func dispatch(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
     out << nl << "try await Self.dispatch(self, request: request)";
     out << eb;
 
-    // TODO: doc-comment
     out << sp;
+    out << nl
+        << "/// Dispatches an incoming request to one of the instance methods of the generated protocol, based on the "
+              "operation name carried by the request.";
+    out << nl
+        << "/// Call this static method from the `dispatch` method of your servant class when you want to reuse a base "
+            "servant class in a derived servant class.";
+    out << nl << "/// - Parameters:";
+    out << nl << "///   - servant: The servant to dispatch the request to.";
+    out << nl << "///   - request: The incoming request.";
+    out << nl << "/// - Returns: The outgoing response.";
     out << nl << "public static func dispatch(_ servant: " << servant
         << ", request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
     out << nl << "switch request.current.operation";

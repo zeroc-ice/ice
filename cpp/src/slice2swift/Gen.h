@@ -73,7 +73,7 @@ namespace Slice
             IceInternal::Output& out;
         };
 
-        // Generates the Disp structs and servant protocols.
+        // Generates the servant protocols.
         class ServantVisitor final : public SwiftGenerator, public ParserVisitor
         {
         public:
