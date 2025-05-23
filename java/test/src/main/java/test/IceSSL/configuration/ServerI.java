@@ -30,13 +30,11 @@ class ServerI implements Server {
     @Override
     public void checkCert(String subjectDN, String issuerDN, Current current) {
         try {
-            ConnectionInfo info =
-                (ConnectionInfo) current.con.getInfo();
-            X509Certificate cert =
-                (X509Certificate) info.certs[0];
+            ConnectionInfo info = (ConnectionInfo) current.con.getInfo();
+            X509Certificate cert = (X509Certificate) info.certs[0];
             test(info.verified);
             test(
-                info.certs.length == 1
+                info.certs.length == 2
                     && cert.getSubjectX500Principal().toString().equals(subjectDN)
                     && cert.getIssuerX500Principal().toString().equals(issuerDN));
         } catch (LocalException ex) {

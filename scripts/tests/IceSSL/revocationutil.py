@@ -31,11 +31,11 @@ def load_db(basepath):
     as the certificates and revocations key.
     """
     db = {}
-    for ca_dir, certs in [("db/ca4", ["s_rsa_ca4.pem", "s_rsa_ca4_revoked.pem", "intermediate1/ca.pem"]),
-                          ("db/ca4/intermediate1", ["s_rsa_cai4.pem", "s_rsa_cai4_revoked.pem"])]:
+    for ca_dir, certs in [("ca4", ["server_cert.pem", "server_revoked_cert.pem", "i1/i1_cert.pem"]),
+                          ("ca4/i1", ["server_cert.pem"])]:
         ca_dir = os.path.join(basepath, ca_dir)
-        issuer_cert = load_certificate("{}/ca.pem".format(ca_dir))
-        issuer_key = load_private_key("{}/ca_key.pem".format(ca_dir), b"password")
+        issuer_cert = load_certificate(f"{ca_dir}/{os.path.basename(ca_dir)}_cert.pem")
+        issuer_key = load_private_key(f"{ca_dir}/{os.path.basename(ca_dir)}_key.pem".format(ca_dir), None)
 
         issuer_sha1 = issuer_cert.extensions.get_extension_for_class(SubjectKeyIdentifier).value.digest
         db[issuer_sha1] = {}
@@ -60,7 +60,8 @@ def load_db(basepath):
                     print("invalid line\n" + line)
                     sys.exit(1)
 
-                assert tokens[0] == 'R'
+                if tokens[0] != 'R':
+                    continue
                 certinfo = {
                     "revocation_time": datetime.strptime(tokens[2], "%y%m%d%H%M%S%z"),
                     "serial_number": int(tokens[3], 16),
@@ -71,7 +72,7 @@ def load_db(basepath):
 
 
 class OCSPHandler(http.server.BaseHTTPRequestHandler):
-    "A simple handlder for OCSP GET/POST requests"
+    "A simple handler for OCSP GET/POST requests"
 
     def __init__(self, db, *args, **kwargs):
         self._db = db

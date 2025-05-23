@@ -1,0 +1,11 @@
+V	260625100144Z		1000	unknown	/CN=ca1.i1/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure/emailAddress=info@zeroc.com
+V	260625100145Z		1001	unknown	/CN=ca1.client/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure/emailAddress=info@zeroc.com
+V	260625100146Z		1002	unknown	/CN=ca1.server_cn2/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure/emailAddress=info@zeroc.com
+V	260625100147Z		1003	unknown	/CN=localhost/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure (ca1.server_cn3)/emailAddress=info@zeroc.com
+V	260625100148Z		1004	unknown	/CN=ca1.server_cn1/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure/emailAddress=info@zeroc.com
+V	260625100148Z		1005	unknown	/CN=localhostXX/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure (ca1.server_cn4)/emailAddress=info@zeroc.com
+V	260625100148Z		1006	unknown	/CN=localhost/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure (ca1.server_cn5)/emailAddress=info@zeroc.com
+V	260625100149Z		1007	unknown	/CN=ca1.server_cn7/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure/emailAddress=info@zeroc.com
+V	260625100149Z		1008	unknown	/CN=ca1.server_cn6/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure/emailAddress=info@zeroc.com
+V	260625100150Z		1009	unknown	/CN=127.0.0.1/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure (ca1.server_cn8)/emailAddress=info@zeroc.com
+V	260625100150Z		100A	unknown	/CN=ca1.server/C=US/ST=Florida/L=Jupiter/O=ZeroC/OU=Ice test infrastructure/emailAddress=info@zeroc.com

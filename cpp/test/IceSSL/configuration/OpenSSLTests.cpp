@@ -69,14 +69,14 @@ void
 clientValidatesServerUsingCAFile(Test::TestHelper* helper, const string& testDir)
 {
     cout << "client validates server certificate using a CAFile... " << flush;
-    const string serverCertFile = testDir + "/../certs/s_rsa_ca1_pub.pem";
-    const string serverKeyFile = testDir + "/../certs/s_rsa_ca1_priv.pem";
+    const string serverCertFile = testDir + "/ca1/server_cert.pem";
+    const string serverKeyFile = testDir + "/ca1/server_key.pem";
     SSL_CTX* serverSSLContext = SSL_CTX_new(TLS_method());
     SSL_CTX_use_certificate_chain_file(serverSSLContext, serverCertFile.c_str());
     SSL_CTX_use_PrivateKey_file(serverSSLContext, serverKeyFile.c_str(), SSL_FILETYPE_PEM);
     SSL_CTX_set_default_passwd_cb(serverSSLContext, passwordCallback);
 
-    const string clientCAFile = testDir + "/../certs/cacert1.pem";
+    const string clientCAFile = testDir + "/ca1/ca1_cert.pem";
     SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_method());
     SSL_CTX_load_verify_file(clientSSLContext, clientCAFile.c_str());
 
@@ -117,8 +117,8 @@ clientValidatesServerUsingValidationCallback(Test::TestHelper* helper, const str
 {
     cout << "client validates server certificate using validation callback... " << flush;
 
-    const string serverCertFile = testDir + "/../certs/s_rsa_ca1_pub.pem";
-    const string serverKeyFile = testDir + "/../certs/s_rsa_ca1_priv.pem";
+    const string serverCertFile = testDir + "/ca1/server_cert.pem";
+    const string serverKeyFile = testDir + "/ca1/server_key.pem";
     SSL_CTX* serverSSLContext = SSL_CTX_new(TLS_server_method());
     SSL_CTX_use_certificate_chain_file(serverSSLContext, serverCertFile.c_str());
     SSL_CTX_use_PrivateKey_file(serverSSLContext, serverKeyFile.c_str(), SSL_FILETYPE_PEM);
@@ -126,7 +126,7 @@ clientValidatesServerUsingValidationCallback(Test::TestHelper* helper, const str
 
     // The server certificate is not trusted by the client CA, but the validation callback accepts the server
     // certificate.
-    const string clientCAFile = testDir + "/../certs/cacert2.pem";
+    const string clientCAFile = testDir + "/ca2/ca2_cert.pem";
     SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_client_method());
     SSL_CTX_load_verify_file(clientSSLContext, clientCAFile.c_str());
 
@@ -185,15 +185,15 @@ clientRejectsServerUsingCAFile(Test::TestHelper* helper, const string& testDir)
 {
     cout << "client rejects server certificate using a CAFile... " << flush;
 
-    const string serverCertFile = testDir + "/../certs/s_rsa_ca1_pub.pem";
-    const string serverKeyFile = testDir + "/../certs/s_rsa_ca1_priv.pem";
+    const string serverCertFile = testDir + "/ca1/server_cert.pem";
+    const string serverKeyFile = testDir + "/ca1/server_key.pem";
     SSL_CTX* serverSSLContext = SSL_CTX_new(TLS_server_method());
     SSL_CTX_use_certificate_chain_file(serverSSLContext, serverCertFile.c_str());
     SSL_CTX_use_PrivateKey_file(serverSSLContext, serverKeyFile.c_str(), SSL_FILETYPE_PEM);
     SSL_CTX_set_default_passwd_cb(serverSSLContext, passwordCallback);
 
     // The CAs used by the client doesn't trust the server certificate.
-    const string clientCAFile = testDir + "/../certs/cacert2.pem";
+    const string clientCAFile = testDir + "/ca2/ca2_cert.pem";
     SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_client_method());
     SSL_CTX_load_verify_file(clientSSLContext, clientCAFile.c_str());
 
@@ -240,8 +240,8 @@ void
 clientRejectsServerUsingDefaultSettings(Test::TestHelper* helper, const string& testDir)
 {
     cout << "client rejects server certificate using the default settings... " << flush;
-    const string serverCertFile = testDir + "/../certs/s_rsa_ca1_pub.pem";
-    const string serverKeyFile = testDir + "/../certs/s_rsa_ca1_priv.pem";
+    const string serverCertFile = testDir + "/ca1/server_cert.pem";
+    const string serverKeyFile = testDir + "/ca1/server_key.pem";
     SSL_CTX* serverSSLContext = SSL_CTX_new(TLS_server_method());
     SSL_CTX_use_certificate_chain_file(serverSSLContext, serverCertFile.c_str());
     SSL_CTX_use_PrivateKey_file(serverSSLContext, serverKeyFile.c_str(), SSL_FILETYPE_PEM);
@@ -285,8 +285,8 @@ void
 clientRejectsServerUsingValidationCallback(Test::TestHelper* helper, const string& testDir)
 {
     cout << "client rejects server certificate using a validation callback... " << flush;
-    const string serverCertFile = testDir + "/../certs/s_rsa_ca1_pub.pem";
-    const string serverKeyFile = testDir + "/../certs/s_rsa_ca1_priv.pem";
+    const string serverCertFile = testDir + "/ca1/server_cert.pem";
+    const string serverKeyFile = testDir + "/ca1/server_key.pem";
     SSL_CTX* serverSSLContext = SSL_CTX_new(TLS_method());
     SSL_CTX_use_certificate_chain_file(serverSSLContext, serverCertFile.c_str());
     SSL_CTX_use_PrivateKey_file(serverSSLContext, serverKeyFile.c_str(), SSL_FILETYPE_PEM);
@@ -294,7 +294,7 @@ clientRejectsServerUsingValidationCallback(Test::TestHelper* helper, const strin
 
     // The client trusted root certificates include the server certificate CA, but the validation callback
     // rejects the server certificate.
-    const string clientCAFile = testDir + "/../certs/cacert1.pem";
+    const string clientCAFile = testDir + "/ca1/ca1_cert.pem";
     SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_method());
     SSL_CTX_load_verify_file(clientSSLContext, clientCAFile.c_str());
 
@@ -347,18 +347,18 @@ serverValidatesClientUsingCAFile(Test::TestHelper* helper, const string& testDir
     cout << "server validates client certificate using a CAFile... " << flush;
 
     // The CA used by the server trust the client certificate.
-    const string serverCertFile = testDir + "/../certs/s_rsa_ca1_pub.pem";
-    const string serverKeyFile = testDir + "/../certs/s_rsa_ca1_priv.pem";
-    const string serverCAFile = testDir + "/../certs/cacert1.pem";
+    const string serverCertFile = testDir + "/ca1/server_cert.pem";
+    const string serverKeyFile = testDir + "/ca1/server_key.pem";
+    const string serverCAFile = testDir + "/ca1/ca1_cert.pem";
     SSL_CTX* serverSSLContext = SSL_CTX_new(TLS_method());
     SSL_CTX_use_certificate_chain_file(serverSSLContext, serverCertFile.c_str());
     SSL_CTX_use_PrivateKey_file(serverSSLContext, serverKeyFile.c_str(), SSL_FILETYPE_PEM);
     SSL_CTX_set_default_passwd_cb(serverSSLContext, passwordCallback);
     SSL_CTX_load_verify_file(serverSSLContext, serverCAFile.c_str());
 
-    const string clientCertFile = testDir + "/../certs/c_rsa_ca1_pub.pem";
-    const string clientKeyFile = testDir + "/../certs/c_rsa_ca1_priv.pem";
-    const string clientCAFile = testDir + "/../certs/cacert1.pem";
+    const string clientCertFile = testDir + "/ca1/client_cert.pem";
+    const string clientKeyFile = testDir + "/ca1/client_key.pem";
+    const string clientCAFile = testDir + "/ca1/ca1_cert.pem";
     SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_method());
     SSL_CTX_use_certificate_chain_file(clientSSLContext, clientCertFile.c_str());
     SSL_CTX_use_PrivateKey_file(clientSSLContext, clientKeyFile.c_str(), SSL_FILETYPE_PEM);
@@ -408,18 +408,18 @@ serverValidatesClientUsingValidationCallback(Test::TestHelper* helper, const str
 
     // The client certificate is not trusted by the server CA, but the validation callback accepts the client
     // certificate.
-    const string serverCertFile = testDir + "/../certs/s_rsa_ca1_pub.pem";
-    const string serverKeyFile = testDir + "/../certs/s_rsa_ca1_priv.pem";
-    const string serverCAFile = testDir + "/../certs/cacert2.pem";
+    const string serverCertFile = testDir + "/ca1/server_cert.pem";
+    const string serverKeyFile = testDir + "/ca1/server_key.pem";
+    const string serverCAFile = testDir + "/ca2/ca2_cert.pem";
     SSL_CTX* serverSSLContext = SSL_CTX_new(TLS_method());
     SSL_CTX_use_certificate_chain_file(serverSSLContext, serverCertFile.c_str());
     SSL_CTX_use_PrivateKey_file(serverSSLContext, serverKeyFile.c_str(), SSL_FILETYPE_PEM);
     SSL_CTX_set_default_passwd_cb(serverSSLContext, passwordCallback);
     SSL_CTX_load_verify_file(serverSSLContext, serverCAFile.c_str());
 
-    const string clientCertFile = testDir + "/../certs/c_rsa_ca1_pub.pem";
-    const string clientKeyFile = testDir + "/../certs/c_rsa_ca1_priv.pem";
-    const string clientCAFile = testDir + "/../certs/cacert1.pem";
+    const string clientCertFile = testDir + "/ca1/client_cert.pem";
+    const string clientKeyFile = testDir + "/ca1/client_key.pem";
+    const string clientCAFile = testDir + "/ca1/ca1_cert.pem";
     SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_method());
     SSL_CTX_use_certificate_chain_file(clientSSLContext, clientCertFile.c_str());
     SSL_CTX_use_PrivateKey_file(clientSSLContext, clientKeyFile.c_str(), SSL_FILETYPE_PEM);
@@ -470,18 +470,18 @@ serverRejectsClientUsingCAFile(Test::TestHelper* helper, const string& testDir)
     cout << "server rejects client certificate using a CAFile... " << flush;
 
     // The CAs used by the server doesn't trust the certificate used by the client.
-    const string serverCertFile = testDir + "/../certs/s_rsa_ca1_pub.pem";
-    const string serverKeyFile = testDir + "/../certs/s_rsa_ca1_priv.pem";
-    const string serverCAFile = testDir + "/../certs/cacert2.pem";
+    const string serverCertFile = testDir + "/ca1/server_cert.pem";
+    const string serverKeyFile = testDir + "/ca1/server_key.pem";
+    const string serverCAFile = testDir + "/ca2/ca2_cert.pem";
     SSL_CTX* serverSSLContext = SSL_CTX_new(TLS_method());
     SSL_CTX_use_certificate_chain_file(serverSSLContext, serverCertFile.c_str());
     SSL_CTX_use_PrivateKey_file(serverSSLContext, serverKeyFile.c_str(), SSL_FILETYPE_PEM);
     SSL_CTX_set_default_passwd_cb(serverSSLContext, passwordCallback);
     SSL_CTX_load_verify_file(serverSSLContext, serverCAFile.c_str());
 
-    const string clientCertFile = testDir + "/../certs/c_rsa_ca1_pub.pem";
-    const string clientKeyFile = testDir + "/../certs/c_rsa_ca1_priv.pem";
-    const string clientCAFile = testDir + "/../certs/cacert1.pem";
+    const string clientCertFile = testDir + "/ca1/client_cert.pem";
+    const string clientKeyFile = testDir + "/ca1/client_key.pem";
+    const string clientCAFile = testDir + "/ca1/ca1_cert.pem";
     SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_method());
     SSL_CTX_use_certificate_chain_file(clientSSLContext, clientCertFile.c_str());
     SSL_CTX_use_PrivateKey_file(clientSSLContext, clientKeyFile.c_str(), SSL_FILETYPE_PEM);
@@ -539,16 +539,16 @@ serverRejectsClientUsingDefaultSettings(Test::TestHelper* helper, const string& 
 
     // The server doesn't configure any CAs, the system OpenSSL configuration would be used. The
     // system CAs don't trust the client certificate and the connection should be rejected.
-    const string serverCertFile = testDir + "/../certs/s_rsa_ca1_pub.pem";
-    const string serverKeyFile = testDir + "/../certs/s_rsa_ca1_priv.pem";
+    const string serverCertFile = testDir + "/ca1/server_cert.pem";
+    const string serverKeyFile = testDir + "/ca1/server_key.pem";
     SSL_CTX* serverSSLContext = SSL_CTX_new(TLS_method());
     SSL_CTX_use_certificate_chain_file(serverSSLContext, serverCertFile.c_str());
     SSL_CTX_use_PrivateKey_file(serverSSLContext, serverKeyFile.c_str(), SSL_FILETYPE_PEM);
     SSL_CTX_set_default_passwd_cb(serverSSLContext, passwordCallback);
 
-    const string clientCertFile = testDir + "/../certs/c_rsa_ca1_pub.pem";
-    const string clientKeyFile = testDir + "/../certs/c_rsa_ca1_priv.pem";
-    const string clientCAFile = testDir + "/../certs/cacert1.pem";
+    const string clientCertFile = testDir + "/ca1/client_cert.pem";
+    const string clientKeyFile = testDir + "/ca1/client_key.pem";
+    const string clientCAFile = testDir + "/ca1/ca1_cert.pem";
     SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_method());
     SSL_CTX_use_certificate_chain_file(clientSSLContext, clientCertFile.c_str());
     SSL_CTX_use_PrivateKey_file(clientSSLContext, clientKeyFile.c_str(), SSL_FILETYPE_PEM);
@@ -606,17 +606,17 @@ serverRejectsClientUsingValidationCallback(Test::TestHelper* helper, const strin
 
     // The server configured CAs trust the client certificate, but the installed validation callback explicitly
     // rejects the client certificate.
-    const string serverCertFile = testDir + "/../certs/s_rsa_ca1_pub.pem";
-    const string serverKeyFile = testDir + "/../certs/s_rsa_ca1_priv.pem";
-    const string serverCAFile = testDir + "/../certs/cacert1.pem";
+    const string serverCertFile = testDir + "/ca1/server_cert.pem";
+    const string serverKeyFile = testDir + "/ca1/server_key.pem";
+    const string serverCAFile = testDir + "/ca1/ca1_cert.pem";
     SSL_CTX_use_certificate_chain_file(serverSSLContext, serverCertFile.c_str());
     SSL_CTX_use_PrivateKey_file(serverSSLContext, serverKeyFile.c_str(), SSL_FILETYPE_PEM);
     SSL_CTX_set_default_passwd_cb(serverSSLContext, passwordCallback);
     SSL_CTX_load_verify_file(serverSSLContext, serverCAFile.c_str());
 
-    const string clientCertFile = testDir + "/../certs/c_rsa_ca1_pub.pem";
-    const string clientKeyFile = testDir + "/../certs/c_rsa_ca1_priv.pem";
-    const string clientCAFile = testDir + "/../certs/cacert1.pem";
+    const string clientCertFile = testDir + "/ca1/client_cert.pem";
+    const string clientKeyFile = testDir + "/ca1/client_key.pem";
+    const string clientCAFile = testDir + "/ca1/ca1_cert.pem";
     SSL_CTX* clientSSLContext = SSL_CTX_new(TLS_method());
     SSL_CTX_use_certificate_chain_file(clientSSLContext, clientCertFile.c_str());
     SSL_CTX_use_PrivateKey_file(clientSSLContext, clientKeyFile.c_str(), SSL_FILETYPE_PEM);
@@ -709,13 +709,13 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& testDir)
         SSL_CTX* _serverSSLContext = nullptr;
     };
 
-    ServerState serverState(testDir + "/../certs/s_rsa_ca1_pub.pem", testDir + "/../certs/s_rsa_ca1_priv.pem");
+    ServerState serverState(testDir + "/ca1/server_cert.pem", testDir + "/ca1/server_key.pem");
 
-    const string clientCA1File = testDir + "/../certs/cacert1.pem";
+    const string clientCA1File = testDir + "/ca1/ca1_cert.pem";
     SSL_CTX* clientSSLContextCA1 = SSL_CTX_new(TLS_method());
     SSL_CTX_load_verify_file(clientSSLContextCA1, clientCA1File.c_str());
 
-    const string clientCA2File = testDir + "/../certs/cacert2.pem";
+    const string clientCA2File = testDir + "/ca2/ca2_cert.pem";
     SSL_CTX* clientSSLContextCA2 = SSL_CTX_new(TLS_method());
     SSL_CTX_load_verify_file(clientSSLContextCA2, clientCA2File.c_str());
 
@@ -765,7 +765,7 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& testDir)
             }
         }
 
-        serverState.reloadSSLContext(testDir + "/../certs/s_rsa_ca2_pub.pem", testDir + "/../certs/s_rsa_ca2_priv.pem");
+        serverState.reloadSSLContext(testDir + "/ca2/server_cert.pem", testDir + "/ca2/server_key.pem");
 
         {
             // CA2 is accepted with the new configuration

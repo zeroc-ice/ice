@@ -26,7 +26,7 @@ public class Server extends TestHelper {
                 .setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             Identity id = Util.stringToIdentity("factory");
-            adapter.add(new ServerFactoryI(remainingArgs.get(0) + "/../certs"), id);
+            adapter.add(new ServerFactoryI(remainingArgs.get(0)), id);
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

@@ -506,7 +506,12 @@ namespace
                                 "SSL transport: invalid value '" + value + "' for `IceSSL.FindCert' property");
                         }
 
-                        CRYPT_INTEGER_BLOB serial = {static_cast<DWORD>(buffer.size()), &buffer[0]};
+                        // CRYPT_INTEGER_BLOB stores serial data in little-endian format, parseBytes returns big-endian
+                        // data.
+                        std::vector<BYTE> serialData(buffer.size());
+                        std::reverse_copy(std::begin(buffer), std::end(buffer), std::begin(serialData));
+
+                        CRYPT_INTEGER_BLOB serial = {static_cast<DWORD>(serialData.size()), &serialData[0]};
                         PCCERT_CONTEXT next = nullptr;
                         do
                         {
