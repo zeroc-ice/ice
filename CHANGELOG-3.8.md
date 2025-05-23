@@ -419,6 +419,11 @@ initialization. See `InitializationData.pluginFactories`.
 
 ## Swift Changes
 
+- Simplified the server-side mapping by removing the generated Disp structs.
+  - You can now use the generated server-side protocols as servants / dispatchers, like in other language mappings.
+  - If you want to reuse a servant implementation in a derived servant class, you need to define or override the
+    `dispatch` method in all your servant classes. See the Ice/filesystem demo for an example.
+
 ## Glacier2 Changes
 
 - Removed buffered mode. As a result, Glacier2 has now a single mode, the previous "unbuffered" mode.
