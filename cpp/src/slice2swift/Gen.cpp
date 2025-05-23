@@ -1325,18 +1325,20 @@ Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocSummary(out, p);
-    out << nl << "public protocol " << servant;
-    if (!baseNames.empty())
+    out << nl << "public protocol " << servant << ":";
+    if (baseNames.empty())
     {
-        out << ":";
+        out << " " << getUnqualified("Ice.Dispatcher", swiftModule);
     }
-
-    for (auto i = baseNames.begin(); i != baseNames.end();)
+    else
     {
-        out << " " << (*i);
-        if (++i != baseNames.end())
+        for (auto i = baseNames.begin(); i != baseNames.end();)
         {
-            out << ",";
+            out << " " << (*i);
+            if (++i != baseNames.end())
+            {
+                out << ",";
+            }
         }
     }
 
@@ -1381,12 +1383,70 @@ bool
 Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     const string swiftModule = getSwiftModule(p->getTopLevelModule());
+    const string servant = getRelativeTypeString(p, swiftModule);
+    const string unescapedName = removeEscaping(servant);
+    const string disp = unescapedName + "Disp";
+    const string traits = unescapedName + "Traits";
 
     out << sp;
     writeServantDocSummary(out, p, swiftModule);
-    out << nl << "extension " << getRelativeTypeString(p, swiftModule);
-
+    out << nl << "extension " << servant;
     out << sb;
+    out << nl << "private static var defaultObject: " << getUnqualified("Ice.Object", swiftModule) << sb;
+    out << nl << getUnqualified("Ice.ObjectI", swiftModule) << "<" << traits << ">()";
+    out << eb;
+
+    const OperationList allOps = p->allOperations();
+
+    list<pair<string, string>> allOpNames;
+    transform(
+        allOps.begin(),
+        allOps.end(),
+        back_inserter(allOpNames),
+        [](const ContainedPtr& it) { return std::make_pair(it->name(), it->mappedName()); });
+
+    allOpNames.emplace_back("ice_id", "ice_id");
+    allOpNames.emplace_back("ice_ids", "ice_ids");
+    allOpNames.emplace_back("ice_isA", "ice_isA");
+    allOpNames.emplace_back("ice_ping", "ice_ping");
+
+    // TODO: doc-comment
+    out << sp;
+    out << nl << "public func dispatch(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
+    out << nl << "try await Self.dispatch(self, request: request)";
+    out << eb;
+
+    // TODO: doc-comment
+    out << sp;
+    out << nl << "public static func dispatch(_ servant: " << servant
+        << ", request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
+    out << nl << "switch request.current.operation";
+    out << sb;
+    out.dec(); // to align case with switch
+    for (const auto& [sliceName, mappedName] : allOpNames)
+    {
+        const string mappedDispatchName = "_iceD_" + removeEscaping(mappedName);
+        out << nl << "case \"" << sliceName << "\":";
+        out.inc();
+        if (sliceName == "ice_id" || sliceName == "ice_ids" || sliceName == "ice_isA" || sliceName == "ice_ping")
+        {
+            out << nl << "try await (servant as? Ice.Object ?? " << "Self.defaultObject)." << mappedDispatchName
+                << "(request)";
+        }
+        else
+        {
+            out << nl << "try await servant." << mappedDispatchName << "(request)";
+        }
+
+        out.dec();
+    }
+    out << nl << "default:";
+    out.inc();
+    out << nl << "throw Ice.OperationNotExistException()";
+    // missing dec to compensate for the extra dec after switch sb
+    out << eb;
+    out << eb;
+
     return true;
 }
 
