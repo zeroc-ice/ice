@@ -39,7 +39,7 @@ func allTests(_ helper: TestHelper) async throws {
     //
     // Register default servant with category "foo"
     //
-    try oa.addDefaultServant(servant: MyObjectDisp(servant), category: "foo")
+    try oa.addDefaultServant(servant: servant, category: "foo")
 
     //
     // Start test
@@ -47,7 +47,7 @@ func allTests(_ helper: TestHelper) async throws {
     output.write("testing single category... ")
 
     var r = oa.findDefaultServant("foo")
-    try test((r as! MyObjectDisp).servant as? MyObjectI === servant)
+    try test(r as? MyObjectI === servant)
 
     r = oa.findDefaultServant("bar")
     try test(r == nil)
@@ -117,13 +117,13 @@ func allTests(_ helper: TestHelper) async throws {
 
     output.write("testing default category... ")
 
-    try oa.addDefaultServant(servant: MyObjectDisp(servant), category: "")
+    try oa.addDefaultServant(servant: servant, category: "")
 
     r = oa.findDefaultServant("bar")
     try test(r == nil)
 
     r = oa.findDefaultServant("")
-    try test((r as! MyObjectDisp).servant as? MyObjectI === servant)
+    try test(r as? MyObjectI === servant)
 
     for name in names {
         identity.name = name

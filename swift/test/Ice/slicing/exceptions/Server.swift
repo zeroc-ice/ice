@@ -20,7 +20,7 @@ class Server: TestHelperI {
             key: "TestAdapter.Endpoints",
             value: "\(getTestEndpoint(num: 0)) -t 2000")
         let adapter = try communicator.createObjectAdapter("TestAdapter")
-        try adapter.add(servant: TestIntfDisp(TestI(self)), id: Ice.stringToIdentity("Test"))
+        try adapter.add(servant: TestI(self), id: Ice.stringToIdentity("Test"))
         try adapter.activate()
         serverReady()
         communicator.waitForShutdown()

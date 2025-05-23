@@ -4,7 +4,6 @@
 @class ICECommunicator;
 @class ICEProcess;
 @class ICEPropertiesAdmin;
-@class ICEUnsupportedAdminFacet;
 @protocol ICEDispatchAdapter;
 
 NS_ASSUME_NONNULL_BEGIN

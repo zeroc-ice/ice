@@ -11,7 +11,8 @@ public protocol SliceTraits {
     static var staticId: String { get }
 }
 
-/// The base class for servants.
+/// The common interface implemented by all Ice objects.
+// Note that it does not inherit from Dispatcher on purpose.
 public protocol Object {
     /// Returns the Slice type ID of the most-derived interface supported by this object.
     ///
@@ -105,29 +106,5 @@ open class ObjectI<T: SliceTraits>: Object {
 
     open func ice_ping(current _: Current) async throws {
         // Do nothing
-    }
-}
-
-/// Request dispatcher for plain Object servants.
-public struct ObjectDisp: Dispatcher {
-    public let servant: Object
-
-    public init(_ servant: Object) {
-        self.servant = servant
-    }
-
-    public func dispatch(_ request: IncomingRequest) async throws -> OutgoingResponse {
-        switch request.current.operation {
-        case "ice_id":
-            try await servant._iceD_ice_id(request)
-        case "ice_ids":
-            try await servant._iceD_ice_ids(request)
-        case "ice_isA":
-            try await servant._iceD_ice_isA(request)
-        case "ice_ping":
-            try await servant._iceD_ice_ping(request)
-        default:
-            throw OperationNotExistException()
-        }
     }
 }

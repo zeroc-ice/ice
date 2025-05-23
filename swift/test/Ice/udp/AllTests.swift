@@ -50,7 +50,7 @@ public func allTests(_ helper: TestHelper) async throws {
     let adapter = try communicator.createObjectAdapter("ReplyAdapter")
     var replyI = PingReplyI()
     var reply = try uncheckedCast(
-        prx: adapter.addWithUUID(PingReplyDisp(replyI)),
+        prx: adapter.addWithUUID(replyI),
         type: PingReplyPrx.self
     ).ice_datagram()
     try adapter.activate()
@@ -77,7 +77,7 @@ public func allTests(_ helper: TestHelper) async throws {
         // receive 3 new datagrams using a new object. We give up after 5 retries.
         replyI = PingReplyI()
         reply = try uncheckedCast(
-            prx: adapter.addWithUUID(PingReplyDisp(replyI)),
+            prx: adapter.addWithUUID(replyI),
             type: PingReplyPrx.self
         ).ice_datagram()
     }
@@ -153,7 +153,7 @@ public func allTests(_ helper: TestHelper) async throws {
 
         replyI = PingReplyI()
         reply = try uncheckedCast(
-            prx: adapter.addWithUUID(PingReplyDisp(replyI)).ice_datagram(),
+            prx: adapter.addWithUUID(replyI).ice_datagram(),
             type: PingReplyPrx.self)
     }
 
@@ -173,7 +173,7 @@ public func allTests(_ helper: TestHelper) async throws {
         }
         replyI = PingReplyI()
         reply = try uncheckedCast(
-            prx: adapter.addWithUUID(PingReplyDisp(replyI)),
+            prx: adapter.addWithUUID(replyI),
             type: PingReplyPrx.self
         ).ice_datagram()
     }

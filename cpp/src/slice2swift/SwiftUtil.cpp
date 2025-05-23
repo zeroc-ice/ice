@@ -675,7 +675,7 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& usedBy, bo
         "Swift.Float",
         "Swift.Double",
         "Swift.String",
-        "Ice.Disp",      // Object
+        "Ice.Value",     // Object, no longer used (see below)
         "Ice.ObjectPrx", // ObjectPrx
         "Ice.Value"      // Value
     };
@@ -1559,7 +1559,6 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
         << "(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse";
 
     out << sb;
-    out << nl;
 
     if (op->mode() == Operation::Mode::Normal)
     {
