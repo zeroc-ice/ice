@@ -1063,21 +1063,19 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // Proxy class
     out << sp;
     writeProxyDocSummary(out, p, swiftModule);
-    out << nl << "public protocol " << prx << ":";
+    out << nl << "public protocol " << prx << ": ";
     if (bases.size() == 0)
     {
-        out << " " << getUnqualified("Ice.ObjectPrx", swiftModule);
+        out << getUnqualified("Ice.ObjectPrx", swiftModule);
     }
     else
     {
-        for (auto i = bases.begin(); i != bases.end();)
+        out.spar("");
+        for (const auto& baseInterface : bases)
         {
-            out << " " << removeEscaping(getRelativeTypeString(*i, swiftModule)) << "Prx";
-            if (++i != bases.end())
-            {
-                out << ",";
-            }
+            out << (removeEscaping(getRelativeTypeString(baseInterface, swiftModule)) + "Prx");
         }
+        out.epar("");
     }
     out << sb;
     out << eb;
@@ -1254,25 +1252,22 @@ Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocSummary(out, p);
-    out << nl << "public protocol " << servant << ":";
+    out << nl << "public protocol " << servant << ": ";
     if (baseNames.empty())
     {
-        out << " " << getUnqualified("Ice.Dispatcher", swiftModule);
+        out << getUnqualified("Ice.Dispatcher", swiftModule);
     }
     else
     {
-        for (auto i = baseNames.begin(); i != baseNames.end();)
+        out.spar("");
+        for (const auto& baseName : baseNames)
         {
-            out << " " << (*i);
-            if (++i != baseNames.end())
-            {
-                out << ",";
-            }
+            out << baseName;
         }
+        out.epar("");
     }
 
     out << sb;
-
     return true;
 }
 
@@ -1314,7 +1309,6 @@ Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string servant = getRelativeTypeString(p, swiftModule);
     const string unescapedName = removeEscaping(servant);
-    const string disp = unescapedName + "Disp";
     const string traits = unescapedName + "Traits";
 
     out << sp;
@@ -1342,7 +1336,7 @@ Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << sp;
     out << nl
         << "/// Dispatches an incoming request to one of the instance methods of the generated protocol, based on the "
-              "operation name carried by the request.";
+           "operation name carried by the request.";
     out << nl << "/// - Parameter request: The incoming request.";
     out << nl << "/// - Returns: The outgoing response.";
     out << nl << "public func dispatch(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
@@ -1352,10 +1346,10 @@ Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << sp;
     out << nl
         << "/// Dispatches an incoming request to one of the instance methods of the generated protocol, based on the "
-              "operation name carried by the request.";
+           "operation name carried by the request.";
     out << nl
         << "/// Call this static method from the `dispatch` method of your servant class when you want to reuse a base "
-            "servant class in a derived servant class.";
+           "servant class in a derived servant class.";
     out << nl << "/// - Parameters:";
     out << nl << "///   - servant: The servant to dispatch the request to.";
     out << nl << "///   - request: The incoming request.";

@@ -675,7 +675,7 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& usedBy, bo
         "Swift.Float",
         "Swift.Double",
         "Swift.String",
-        "Ice.Disp",      // Object
+        "Ice.Value",     // Object
         "Ice.ObjectPrx", // ObjectPrx
         "Ice.Value"      // Value
     };
