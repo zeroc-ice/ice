@@ -79,9 +79,8 @@ namespace
         return fileBase + scope + ".slice";
     }
 
-    string getUnqualified(const ContainedPtr& contained, const string& moduleName)
+    string getUnqualified(const string& scopedName, const string& moduleName)
     {
-        string scopedName = contained->scoped();
         if (scopedName.find("::") != string::npos && scopedName.find(moduleName) == 0 &&
             scopedName.find("::", moduleName.size()) == string::npos)
         {
@@ -91,6 +90,11 @@ namespace
         {
             return scopedName;
         }
+    }
+
+    string getUnqualified(const ContainedPtr& contained, const string& moduleName)
+    {
+        return getUnqualified(contained->scoped(), moduleName);
     }
 
     string typeToString(const TypePtr& type, const string& scope, bool optional)
@@ -127,15 +131,12 @@ namespace
         }
         else if (ContainedPtr contained = dynamic_pointer_cast<Contained>(type))
         {
-            const string scoped = contained->scoped();
-            if (scoped == "::Ice::Identity")
+            string scopedName = contained->scoped();
+            if (scopedName == "::Ice::Identity")
             {
-                os << "Ice::IdentityPath";
+                scopedName = "::Ice::IdentityPath";
             }
-            else
-            {
-                os << getUnqualified(contained, scope);
-            }
+            os << getUnqualified(scopedName, scope);
         }
 
         if (optional && !type->isClassType() && !isProxyType(type))
