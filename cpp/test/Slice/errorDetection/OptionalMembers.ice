@@ -38,7 +38,7 @@ module Test
         optional(-1) float m6;          // out of range
         optional(C1) string m7;         // ok
         optional(C2) string m8;         // duplicate tag
-        optional(C3) double m9;         // invalid tag
+        optional(C3) double m9;         // out of range
         optional(C4) byte m10;          // out of range
         optional(C5) bool m11;          // invalid tag
         optional(C6) bool m12;          // ok
@@ -68,7 +68,7 @@ module Test
         optional(-1) float m6;          // out of range
         optional(C1) string m7;         // ok
         optional(C2) string m8;         // duplicate tag
-        optional(C3) double m9;         // invalid tag
+        optional(C3) double m9;         // out of range
         optional(C4) byte m10;          // out of range
         optional(C5) bool m11;          // invalid tag
         optional(C6) bool m12;          // ok

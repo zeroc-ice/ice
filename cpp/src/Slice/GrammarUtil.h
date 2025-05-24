@@ -51,6 +51,8 @@ namespace Slice
 
     struct BoolTok final : public GrammarBase
     {
+        BoolTok(bool value) : v(value) {}
+
         bool v{false};
     };
 
