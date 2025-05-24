@@ -913,9 +913,6 @@ testFindCert(const string& factoryRef, const string& defaultDir, const Ice::Prop
         d["IceSSL.KeychainPassword"] = "password";
         d["IceSSL.FindCert"] = serverFindCertProperties[i];
 
-        cerr << "Client find cert: " << clientFindCertProperties[i] << endl;
-        cerr << "Server find cert: " << serverFindCertProperties[i] << endl;
-
         // Use TrustOnly to ensure the peer has pick the expected certificate.
 #    ifndef ICE_USE_SECURE_TRANSPORT_IOS
         d["IceSSL.TrustOnly"] = "CN=ca1.client";
@@ -1164,6 +1161,7 @@ testCertificateChains(
     }
     fact->destroyServer(server);
     comm->destroy();
+    cout << "ok" << endl;
 }
 
 #ifdef ICE_USE_OPENSSL
@@ -2452,21 +2450,15 @@ testSystemCAs(const Ice::PropertiesPtr& defaultProps)
 
 Test::ServerFactoryPrx
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-allTests(Test::TestHelper* helper, const string& certsDir, bool p12)
+allTests(Test::TestHelper* helper, const string& defaultDir, bool p12)
 #else
-allTests(Test::TestHelper* helper, const string& /*certsDir*/, bool p12)
+allTests(Test::TestHelper* helper, const string& defaultDir, bool p12)
 #endif
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     string factory = "factory:" + helper->getTestEndpoint("tcp");
 
     string defaultHost = communicator->getProperties()->getIceProperty("Ice.Default.Host");
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-    string defaultDir = certsDir;
-#else
-    string defaultDir = "certs/configuration";
-#endif
-
     Ice::PropertiesPtr defaultProps = communicator->getProperties()->clone();
     defaultProps->setProperty("IceSSL.DefaultDir", defaultDir);
 

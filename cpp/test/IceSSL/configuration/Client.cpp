@@ -20,27 +20,28 @@ void
 Client::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    string testdir;
 #if TARGET_OS_IPHONE == 0
     if (argc < 2)
     {
         ostringstream os;
-        os << "Usage: " << argv[0] << " testdir";
+        os << "Usage: " << argv[0] << " certsDir";
         throw std::invalid_argument(os.str());
     }
-    testdir = argv[1];
+    string certsDir = argv[1];
+#else
+    string certsDir = "certs/configuration";
 #endif
 
     void allAuthenticationOptionsTests(Test::TestHelper*, const string&);
-    allAuthenticationOptionsTests(this, testdir);
+    allAuthenticationOptionsTests(this, certsDir);
 
     Test::ServerFactoryPrx allTests(Test::TestHelper*, const string&, bool);
 
     cerr << "testing with PKCS12 certificates..." << endl;
-    Test::ServerFactoryPrx factory = allTests(this, testdir, true);
+    Test::ServerFactoryPrx factory = allTests(this, certsDir, true);
 #if TARGET_OS_IPHONE == 0
     cerr << "testing with PEM certificates..." << endl;
-    factory = allTests(this, testdir, false);
+    factory = allTests(this, certsDir, false);
 #endif
     factory->shutdown();
 }
