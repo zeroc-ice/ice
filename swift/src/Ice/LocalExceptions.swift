@@ -370,9 +370,6 @@ public final class FixedProxyException: LocalException {}
 /// This exception is raised when a failure occurs during initialization.
 public final class InitializationException: LocalException {}
 
-/// This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
-public final class InvocationCanceledException: LocalException {}
-
 /// This exception is raised if no suitable endpoint is available.
 public final class NoEndpointException: LocalException {
     /// Creates a NoEndpointException.
