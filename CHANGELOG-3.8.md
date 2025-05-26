@@ -344,9 +344,106 @@ Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `
 
 ## IceSSL Changes
 
-- IceSSL is no longer a plug-in.
+The ssl transport is no longer a plug-in. It is now built into the main Ice library and always available.
 
-- Removed `IceSSL.SchannelStrongCrypto`. Strong crypto is now enabled by default.
+### Integration with Platform SSL Engines
+
+Ice 3.8 introduces new IceSSL configuration APIs that allow you to configure the ssl transport using platform-native
+SSL engine APIs. This provides significantly greater flexibility for advanced use cases.
+
+- The ssl transport can now be fully configured programmatically, without relying on IceSSL properties.
+- Separate configurations for outgoing and incoming SSL connections are supported.
+- Per-ObjectAdapter SSL configurations are now possible for fine-grained control.
+
+> These APIs are platform-dependent. A good starting point is the `Ice/secure` demo for your target platform and
+> language mapping.
+
+### Removed Support for OpenSSL on Windows
+
+In Ice 3.7, IceSSL on Windows could be built with either Schannel or OpenSSL. In Ice 3.8, since IceSSL is now built-in,
+it always uses the platform’s native SSL APIs. On Windows, this means **Schannel is always used**;
+**OpenSSL is no longer supported** on Windows.
+
+### Removed IceSSL APIs
+
+- **Certificate API**\
+  The `IceSSL::Certificate` type and related APIs have been removed. Applications that require access to certificate
+  data must now use platform-native certificate APIs.
+
+- **Certificate Verifiers**\
+  Custom certificate verifiers have been replaced with new configuration APIs that allow applications to install
+  validation callbacks that directly use the underlying SSL engine APIs.
+
+- **Password Callbacks**\
+  Password callback support has been removed. Applications can now provide certificates and keys directly through the
+  new configuration APIs.
+
+### Updated IceSSL Properties
+
+- **IceSSL.CertFile**\
+  This property no longer accepts multiple files. In Ice 3.7, IceSSL with OpenSSL or Schannel allowed specifying two
+  files—one for RSA and one for DSA certificates. This uncommon use case is no longer supported. Applications requiring
+  more flexibility should use the new configuration APIs, which support selecting certificates on a per-connection
+  basis.
+
+- **IceSSL.CheckCertName**\
+  In Ice 3.7, this property controlled two unrelated features:
+  (1) matching the target host name against the peer's certificate Subject Alternative Name or Common Name, and
+  (2) enabling SNI (Server Name Indication).
+  In Ice 3.8, **SNI is always enabled** for outgoing connections when the target endpoint uses a DNS name. The property
+  now only controls certificate name matching.
+
+- **IceSSL.Truststore**\
+  The `IceSSL.Keystore` property is no longer used as a fallback for `IceSSL.Truststore`.
+
+- **IceSSL.VerifyPeer**\
+  Setting `IceSSL.VerifyPeer=0` no longer suppresses verification errors. In Ice 3.7, this was often used alongside
+  the now-removed certificate verifier APIs. Applications requiring custom trust logic should use the new validation
+  callbacks.
+
+### Removed IceSSL Properties
+
+Several IceSSL properties have been removed in Ice 3.8, either because better alternatives are now available, they are
+no longer useful, or they go against best practices:
+
+- **IceSSL.CertVerifier**\
+  Previously used to dynamically load custom certificate verifiers. This mechanism and the property have been removed.
+
+- **IceSSL.Ciphers**\
+  Used to configure the list of allowed SSL ciphers. Ice 3.8 now uses system-wide defaults by default. For advanced use
+  cases, the new configuration APIs provide direct access to the underlying SSL engine.
+
+- **IceSSL.DH.bits**, **IceSSL.DHParams**\
+  Used to configure Diffie-Hellman parameters for DH cipher suites. Since DH-based ciphers are no longer recommended,
+  these properties have been removed.
+
+- **IceSSL.EntropyDaemon**\
+  Relevant only for legacy OpenSSL versions that are no longer supported.
+
+- **IceSSL.InitOpenSSL**\
+  Controlled whether IceSSL performed global OpenSSL initialization. This is no longer needed with the OpenSSL versions
+  supported in Ice 3.8.
+
+- **IceSSL.Random**\
+  Used to provide seed data to the SSL engine. Modern SSL platforms handle this internally, so the property is no longer
+  necessary.
+
+- **IceSSL.SchannelStrongCrypto**\
+  Enabled the `SCH_USE_STRONG_CRYPTO` flag on Windows to disable weak cryptographic algorithms. This flag is now always
+  enabled by default, making the property redundant.
+
+- **IceSSL.PasswordCallback**, **IceSSL.PasswordRetryMax**\
+  Supported dynamic password callbacks, which are no longer supported. These properties and their underlying mechanism
+  have been removed.
+
+- **IceSSL.Protocols**, **IceSSL.ProtocolVersionMax**, **IceSSL.ProtocolVersionMin**\
+  Controlled which SSL/TLS protocol versions were allowed for connections. Ice 3.8 now uses the system defaults
+  (typically TLS 1.2 and TLS 1.3). Applications needing precise control can either adjust system settings or use the
+  new configuration APIs.
+
+- **IceSSL.VerifyDepthMax**\
+  Previously used to set the maximum certificate chain length. This feature was rarely used. Applications requiring this
+  functionality should implement a custom certificate validation callback.
 
 ## C++ Changes
 
@@ -558,7 +655,7 @@ initialization. See `InitializationData.pluginFactories`.
 - Fixed a bug in DataStorm that can result in unexpected samples received after a session was recovered after
   disconnection.
 
-- Fixed a bug in filter initialization that can result in segmentation fault when using a key or a sample filer.
+- Fixed a bug in filter initialization that can result in segmentation fault when using a key or a sample filter.
 
 ## Glacier2 Changes
 
