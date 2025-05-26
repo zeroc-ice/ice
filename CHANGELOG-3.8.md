@@ -191,6 +191,7 @@ classDiagram
 ```
 
 - Consolidate and refactor the exceptions derived from LocalException.
+
   | Local exception in Ice 3.7          | Replacement                | Notes    |
   |-------------------------------------|----------------------------| ---------|
   | BadMagicException                   | ProtocolException (base)   |          |
@@ -286,7 +287,25 @@ classDiagram
   user exceptions is currently ignored.
 
 - The plug-ins provided by Ice now have fixed names: IceIAP, IceBT, IceUDP, IceWS, IceDiscovery, IceLocatorDiscovery.
-This fixed name is the only name you can use when loading/configuring such a plug-in with the Ice.Plugin.name property.
+  This fixed name is the only name you can use when loading/configuring such a plug-in with the Ice.Plugin.name property.
+
+- The Windows MSI installer is now built using the WiX Toolset. The WiX project files are included in the packaging/msi
+  directory.
+
+- The RPM packaging files, previously distributed in the ice-packaging repository, are now included in the packaging/rpm
+  directory.
+
+- The DEB packaging files, previously distributed in the ice-packaging repository, are now included in the packaging/deb
+  directory.
+
+- Removed support for setting per-language plugin entry points. In Ice 3.7 and earlier, it was possible to specify
+  plugin entry points on a per-language basis using the `Ice.Plugin.<name>.<lang>` syntax. This feature was rarely used
+  and discouraged, as configuration files should not be shared across language mappings.
+
+- The default value for Ice.ClassGraphDepthMax is now `10`. In Ice 3.7, the default was `0`, which meant the class
+  graph depth was unlimited.
+
+- Removed the `stringToIdentity` method from the Communicator class. This method was deprecated in Ice 3.7.
 
 ## Slice Language Changes
 
@@ -314,6 +333,14 @@ Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `
 
 - Add new `ice2slice` compiler that converts Slice files in the `.ice` format (used by Ice) into Slice files in the
 `.slice` format (used by IceRPC).
+
+- Removed the `slice2html` compiler, which was previously used to convert Slice documentation comments to HTML. Doxygen
+  should be used to generate Slice API documentation.
+
+- Removed the `--impl` argument from the Slice compiler.
+
+- Removed the `--ice` and `--underscore` Slice compiler options. The Slice parser now accepts identifiers with the Ice
+  prefix and underscores by default.
 
 ## IceSSL Changes
 
@@ -357,6 +384,17 @@ See `InitializationData::pluginFactories`.
 
 - Removed StringConverterPlugin and ThreadHookPlugin.
 
+- Removed the `--nowarn` option, which was used to suppress warnings in `icegridnode`, `glacier2router`,
+  `icegridregistry`, and `icebox`.
+
+- The C++ NuGet package has been renamed to `ZeroC.Ice.Cpp`. This package replaces the `zeroc.ice.vXXX` packages from
+  Ice 3.7. It includes the Slice tools for C++ and no longer requires the `zeroc.icebuilder.msbuild` package.
+  Additionally, it provides CMake support files in the cmake directory.
+
+- Added overloads for the `ice_invocationTimeout` and `ice_locatorCacheTimeout` proxy methods that accept
+  `std::chrono::duration` values. The corresponding `ice_getInvocationTimeout` and `ice_getLocatorCacheTimeout` methods
+  now return `std::chrono::milliseconds`.
+
 ## C# Changes
 
 - The thread pools created by Ice no longer set a synchronization context. As a result, the continuation from an async
@@ -381,6 +419,28 @@ plug-ins are created during communicator initialization. See `InitializationData
 
 - Removed support for serializable objects (the `cs:serializable` metadata directive).
 
+- The monolithic `zeroc.ice.net` package has been replaced with modular NuGet packages. Each package includes the
+  corresponding Slice definitions for its module.
+
+  ### New C\# Packages
+
+    | Package                   | Description                                                                             |
+    |---------------------------|-----------------------------------------------------------------------------------------|
+    | iceboxnet                 | The .NET IceBox server, packaged as a .NET tool.                                        |
+    | ZeroC.Glacier2            | The Glacier2 assembly, and Slice definitions.                                           |
+    | ZeroC.Ice                 | The core Ice assembly and Slice definitions.                                            |
+    | ZeroC.Ice.Slice.Tools     | Includes slice2cs and MSBuild integration. Replaces `zeroc.icebuilder.msbuild` package. |
+    | ZeroC.IceBox              | The IceBox assembly, and Slice definitions.                                             |
+    | ZeroC.IceDiscovery        | IceDiscovery plug-in.                                                                   |
+    | ZeroC.IceGrid             | The IceGrid assembly, and Slice definitions.                                            |
+    | ZeroC.IceLocatorDiscovery | IceLocatorDiscovery plug-in.                                                            |
+    | ZeroC.IceStorm            | The IceStorm assembly, and Slice definitions.                                           |
+
+- Added overloads for the `ice_invocationTimeout` and `ice_locatorCacheTimeout` proxy methods that accept `TimeSpan`
+  values. The corresponding `ice_getInvocationTimeout` and `ice_getLocatorCacheTimeout` methods now return a `TimeSpan`.
+
+- Removed support for using `clr` as an alias for `cs` in metadata declarations.
+
 ## Java Changes
 
 - Removed the Java-Compat mapping.
@@ -398,12 +458,46 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Reworked IceMX to avoid creating split packages.
 
+- Removed support for serializable objects (the `java:serializable` metadata directive).
+
+- Added overloads for the `ice_invocationTimeout` and `ice_locatorCacheTimeout` proxy methods that accept
+  `java.time.Duration` values. The corresponding `ice_getInvocationTimeout` and `ice_getLocatorCacheTimeout` methods
+  now return a `java.time.Duration`.
+
+- Added support for the `Ice.ClassGraphDepthMax` property, which controls the maximum depth allowed when unmarshaling a
+  graph of Slice class instances.
+
 ## JavaScript Changes
+
+- The Ice for JavaScript NPM package has been converted to a scoped package named `@zeroc/ice`.
+
+- The `slice2js` Slice compiler is now included in the `@zeroc/ice` package, so there is no longer a need to install a
+  separate `slice2js` NPM package.
+
+- Added support for `Symbol.asyncDispose` on `Ice.Communicator`, allowing it to be used with the await using expression
+  in TypeScript applications.
+
+- Ice for JavaScript now uses `console.assert` with the label `DEV`. You must configure your build to strip out these
+  `DEV` assertions in release builds.
+
+- Fixed a bug where a reply could be processed before the corresponding request was marked as sent. This could break
+  at-most-once semantics.
+
+- Added support for `Ice.ClassGraphDepthMax` to control the maximum unmarshaling depth for graphs of Slice class
+  instances.
+
+- Removed support for the Internet Explorer browser.
+
+- Slice modules are now always mapped to JavaScript ES6 modules. The `js:es6-module` metadata has been removed, as a
+  single module mapping is now used by default.
 
 ## MATLAB Changes
 
 - The default value for property `Ice.ProgramName` is now `matlab-client`. It used to be the first element in the args
   cell given to `Ice.initialize`.
+
+- The `slice2matlab` function has been updated to accept multiple arguments, which are passed directly to the
+  `slice2matlab` compiler. In Ice 3.7, all arguments had to be provided as a single string, which was less convenient.
 
 ## Objective-C Changes
 
@@ -413,7 +507,33 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Removed the flattened mapping deprecated in 3.7.
 
+- Removed support for Windows PHP builds.
+
+- Removed support for PHP 5 builds.
+
 ## Python Changes
+
+- Added `Ice.EventLoopAdapter` for async event loop integration. This adapter enables integration of Ice with the
+  application’s event loop, eliminates the need for manual use of `Ice.wrap_future`, and supports alternative event
+  loops beyond the default asyncio loop.
+
+- Added async context manager support to `Ice.Communicator`, allowing it to be used in `async with` expressions.
+
+- Added a `checkedCastAsync` method to proxy objects to support asynchronous checked casts.
+
+- Added a `Communicator.waitForShutdownAsync` method to asynchronously wait for communicator shutdown.
+
+- Removed the copy parameter from the memory view factory. In Ice 3.8, the factory always receives a memory view over
+  the input stream data, making the copy parameter unnecessary.
+
+- Ice no longer uses `Ice.Unset` to represent unset optional parameters. Starting with Ice 3.8, `None` is used
+  instead. The Ice.Unset global has been removed. Furthermore in Ice 3.8 there is not distinction between a non-set
+  optional parameter and an optional parameter set to `None`.
+
+- Removed the `Ice.generateUUID` helper method. You should use Python’s built-in uuid module instead.
+
+- Added support for building pip packages directly from the Ice source distribution. In previous releases, the pip
+  package was built from a separate tarball that included pre-generated source code.
 
 ## Ruby Changes
 
@@ -423,6 +543,22 @@ initialization. See `InitializationData.pluginFactories`.
   - You can now use the generated server-side protocols as servants / dispatchers, like in other language mappings.
   - If you want to reuse a servant implementation in a derived servant class, you need to define or override the
     `dispatch` method in all your servant classes. See the Ice/filesystem demo for an example.
+
+## DataStorm Changes
+
+- The DataStorm publisher/subscriber framework has bee integrated into the Ice distribution, and is not longer a
+  separate product.
+
+- Added support for running DataStorm callbacks using a custom executor, the executor can be set using `customExecutor`
+  Node's constructor parameter.
+
+- Add `DataStorm.Node.Name` property that allows configure the name used by a DataStorm node. The node names must
+  be unique within a DataStorm deployment.
+
+- Fixed a bug in DataStorm that can result in unexpected samples received after a session was recovered after
+  disconnection.
+
+- Fixed a bug in filter initialization that can result in segmentation fault when using a key or a sample filer.
 
 ## Glacier2 Changes
 
