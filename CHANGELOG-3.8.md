@@ -558,7 +558,7 @@ initialization. See `InitializationData.pluginFactories`.
 - Fixed a bug in DataStorm that can result in unexpected samples received after a session was recovered after
   disconnection.
 
-- Fixed a bug in filter initialization that can result in segmentation fault when using a key or a sample filer.
+- Fixed a bug in filter initialization that can result in segmentation fault when using a key or a sample filter.
 
 ## Glacier2 Changes
 
