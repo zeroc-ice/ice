@@ -636,7 +636,7 @@ initialization. See `InitializationData.pluginFactories`.
   the input stream data, making the copy parameter unnecessary.
 
 - Ice no longer uses `Ice.Unset` to represent unset optional parameters. Starting with Ice 3.8, `None` is used
-  instead. The Ice.Unset global has been removed. Furthermore in Ice 3.8 there is not distinction between a non-set
+  instead. The Ice.Unset global has been removed. Furthermore, there is no distinction between a non-set
   optional parameter and an optional parameter set to `None`.
 
 - Removed the `Ice.generateUUID` helper method. You should use Python’s built-in uuid module instead.
