@@ -2639,7 +2639,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << " * Unmarshals " << getArticleFor(name) << " {@code " << name << "} from an input stream.";
     out << nl << " *";
     out << nl << " * @param istr the input stream ";
-    out << nl << " * @return the unmarshalled {@code " << name << "}";
+    out << nl << " * @return the unmarshaled {@code " << name << "}";
     out << nl << " */";
     out << nl << "static public " << name << " ice_read(com.zeroc.Ice.InputStream istr)";
     out << sb;
@@ -3049,12 +3049,28 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     }
     out << ';';
 
-    out << sp << nl << "public int value()";
+    out << sp;
+    out << nl << "/**";
+    out << nl << " * Returns the value of this enumerator.";
+    out << nl << " *";
+    out << nl << " * @return the value of this enumerator";
+    out << nl << " */";
+    out << nl << "public int value()";
     out << sb;
     out << nl << "return _value;";
     out << eb;
 
-    out << sp << nl << "public static " << name << " valueOf(int v)";
+    out << sp;
+    out << nl << "/**";
+    out << nl << " * Gets a {@code " << name
+        << "} corresponding to the given value, or {@code null} if the value does not match any enumerator.";
+    out << nl << " *";
+    out << nl << " * @param v the value to match";
+    out << nl
+        << " * @return the enumerator corresponding to the given value, or {@code null} if the value does not match "
+           "any enumerator";
+    out << nl << " */";
+    out << nl << "public static " << name << " valueOf(int v)";
     out << sb;
     out << nl << "switch(v)";
     out << sb;
@@ -3076,12 +3092,25 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "_value = v;";
     out << eb;
 
-    out << sp << nl << "public void ice_write(com.zeroc.Ice.OutputStream ostr)";
+    out << sp;
+    out << nl << "/**";
+    out << nl << " * Marshals this {@code " << name << "} into an output stream.";
+    out << nl << " *";
+    out << nl << " * @param ostr the output stream";
+    out << nl << " */";
+    out << nl << "public void ice_write(com.zeroc.Ice.OutputStream ostr)";
     out << sb;
     out << nl << "ostr.writeEnum(_value, " << p->maxValue() << ");";
     out << eb;
 
-    out << sp << nl << "public static void ice_write(com.zeroc.Ice.OutputStream ostr, " << name << " v)";
+    out << sp;
+    out << nl << "/**";
+    out << nl << " * Marshals " << getArticleFor(name) << " {@code " << name << "} into an output stream.";
+    out << nl << " *";
+    out << nl << " * @param ostr the output stream";
+    out << nl << " * @param v the {@code " << name << "} to marshal";
+    out << nl << " */";
+    out << nl << "public static void ice_write(com.zeroc.Ice.OutputStream ostr, " << name << " v)";
     out << sb;
     out << nl << "if(v == null)";
     out << sb;
@@ -3094,7 +3123,14 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << eb;
     out << eb;
 
-    out << sp << nl << "public static " << name << " ice_read(com.zeroc.Ice.InputStream istr)";
+    out << sp;
+    out << nl << "/**";
+    out << nl << " * Unmarshals " << getArticleFor(name) << " {@code " << name << "} from an input stream.";
+    out << nl << " *";
+    out << nl << " * @param istr the input stream ";
+    out << nl << " * @return the unmarshaled {@code " << name << "}";
+    out << nl << " */";
+    out << nl << "public static " << name << " ice_read(com.zeroc.Ice.InputStream istr)";
     out << sb;
     out << nl << "int v = istr.readEnum(" << p->maxValue() << ");";
     out << nl << "return validate(v);";
@@ -3102,6 +3138,13 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     string optName = "java.util.Optional<" + name + ">";
     out << sp;
+    out << nl << "/**";
+    out << nl << " * Marshals an optional {@code " << name << "} into an output stream.";
+    out << nl << " *";
+    out << nl << " * @param ostr the output stream";
+    out << nl << " * @param tag the tag";
+    out << nl << " * @param v the value to marshal";
+    out << nl << " */";
     out << nl << "public static void ice_write(com.zeroc.Ice.OutputStream ostr, int tag, " << optName << " v)";
     out << sb;
     out << nl << "if(v != null && v.isPresent())";
@@ -3111,6 +3154,13 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "/**";
+    out << nl << " * Marshals an optional {@code " << name << "} into an output stream.";
+    out << nl << " *";
+    out << nl << " * @param ostr the output stream";
+    out << nl << " * @param tag the tag";
+    out << nl << " * @param v the value to marshal";
+    out << nl << " */";
     out << nl << "public static void ice_write(com.zeroc.Ice.OutputStream ostr, int tag, " << name << " v)";
     out << sb;
     out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
@@ -3120,6 +3170,13 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "/**";
+    out << nl << " * Unmarshals an optional {@code " << name << "} from an input stream.";
+    out << nl << " *";
+    out << nl << " * @param istr the input stream";
+    out << nl << " * @param tag the tag";
+    out << nl << " * @return the unmarshaled value";
+    out << nl << " */";
     out << nl << "public static " << optName << " ice_read(com.zeroc.Ice.InputStream istr, int tag)";
     out << sb;
     out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
