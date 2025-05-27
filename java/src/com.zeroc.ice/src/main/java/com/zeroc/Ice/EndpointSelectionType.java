@@ -15,10 +15,22 @@ public enum EndpointSelectionType {
      */
     Ordered(1);
 
+    /**
+     * Returns the integer value of this endpoint selection type.
+     *
+     * @return the integer value of this endpoint selection type
+     */
     public int value() {
         return _value;
     }
 
+    /**
+     * Returns the endpoint selection type corresponding to the given integer value.
+     *
+     * @param v the integer value of the endpoint selection type
+     * @return the endpoint selection type corresponding to the given integer value, or {@code null}
+     * if no such type exists
+     */
     public static EndpointSelectionType valueOf(int v) {
         switch (v) {
             case 0:

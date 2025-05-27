@@ -3051,9 +3051,9 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp;
     out << nl << "/**";
-    out << nl << " * Returns the value of this enumerator.";
+    out << nl << " * Returns the integer value of this enumerator.";
     out << nl << " *";
-    out << nl << " * @return the value of this enumerator";
+    out << nl << " * @return the integer value of this enumerator";
     out << nl << " */";
     out << nl << "public int value()";
     out << sb;
@@ -3062,13 +3062,11 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp;
     out << nl << "/**";
-    out << nl << " * Gets a {@code " << name
-        << "} corresponding to the given value, or {@code null} if the value does not match any enumerator.";
+    out << nl << " * Returns the {@code " << name << "} type corresponding to the given integer value.";
     out << nl << " *";
     out << nl << " * @param v the value to match";
-    out << nl
-        << " * @return the enumerator corresponding to the given value, or {@code null} if the value does not match "
-           "any enumerator";
+    out << nl << " * @return the {@code " << name
+        << "} type corresponding to the given integer value, or {@code null} if no such type exists";
     out << nl << " */";
     out << nl << "public static " << name << " valueOf(int v)";
     out << sb;

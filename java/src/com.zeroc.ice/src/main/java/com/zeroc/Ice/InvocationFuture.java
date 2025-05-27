@@ -446,9 +446,23 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         _instance.initializationData().logger.error(s);
     }
 
+    /**
+     * The {@code Instance} associated with this future.
+     */
     protected final Instance _instance;
+    /**
+     * The observer for this invocation, or null if no observer is set.
+     */
     protected InvocationObserver _observer;
+
+    /**
+     *
+     */
     protected Connection _cachedConnection;
+
+    /*
+     * Indicates whether the request was sent synchronously.
+     */
     protected boolean _sentSynchronously;
     protected boolean _doneInSent;
     // True if this AMI request is being used for a generated synchronous invocation.
