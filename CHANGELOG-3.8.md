@@ -298,8 +298,8 @@ classDiagram
 - The DEB packaging files, previously distributed in the ice-packaging repository, are now included in the packaging/deb
   directory.
 
-- Removed support for setting per-language plugin entry points. In Ice 3.7 and earlier, it was possible to specify
-  plugin entry points on a per-language basis using the `Ice.Plugin.<name>.<lang>` syntax. This feature was rarely used
+- Removed support for setting per-language plug-in entry points. In Ice 3.7 and earlier, it was possible to specify
+  plug-in entry points on a per-language basis using the `Ice.Plugin.<name>.<lang>` syntax. This feature was rarely used
   and discouraged, as configuration files should not be shared across language mappings.
 
 - The default value for Ice.ClassGraphDepthMax is now `10`. In Ice 3.7, the default was `0`, which meant the class
@@ -339,8 +339,7 @@ Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `
 
 - Removed the `--impl` argument from the Slice compiler.
 
-- Removed the `--ice` and `--underscore` Slice compiler options. The Slice parser now accepts identifiers with the Ice
-  prefix and underscores by default.
+- You can now use identifiers with underscores or with the Ice prefix without any special compiler option.
 
 ## IceSSL Changes
 
@@ -419,22 +418,21 @@ plug-ins are created during communicator initialization. See `InitializationData
 
 - Removed support for serializable objects (the `cs:serializable` metadata directive).
 
-- The monolithic `zeroc.ice.net` package has been replaced with modular NuGet packages. Each package includes the
-  corresponding Slice definitions for its module.
+- The monolithic `zeroc.ice.net` package has been replaced with modular NuGet packages.
 
   ### New C\# Packages
 
     | Package                   | Description                                                                             |
     |---------------------------|-----------------------------------------------------------------------------------------|
-    | iceboxnet                 | The .NET IceBox server, packaged as a .NET tool.                                        |
-    | ZeroC.Glacier2            | The Glacier2 assembly, and Slice definitions.                                           |
-    | ZeroC.Ice                 | The core Ice assembly and Slice definitions.                                            |
+    | iceboxnet                 | The .NET IceBox server, packaged as a dotnet tool.                                      |
+    | ZeroC.Glacier2            | The Glacier2 assembly.                                                                  |
+    | ZeroC.Ice                 | The core Ice assembly.                                                                  |
     | ZeroC.Ice.Slice.Tools     | Includes slice2cs and MSBuild integration. Replaces `zeroc.icebuilder.msbuild` package. |
-    | ZeroC.IceBox              | The IceBox assembly, and Slice definitions.                                             |
+    | ZeroC.IceBox              | The IceBox assembly.                                                                    |
     | ZeroC.IceDiscovery        | IceDiscovery plug-in.                                                                   |
-    | ZeroC.IceGrid             | The IceGrid assembly, and Slice definitions.                                            |
+    | ZeroC.IceGrid             | The IceGrid assembly.                                                                   |
     | ZeroC.IceLocatorDiscovery | IceLocatorDiscovery plug-in.                                                            |
-    | ZeroC.IceStorm            | The IceStorm assembly, and Slice definitions.                                           |
+    | ZeroC.IceStorm            | The IceStorm assembly.                                                                  |
 
 - Added overloads for the `ice_invocationTimeout` and `ice_locatorCacheTimeout` proxy methods that accept `TimeSpan`
   values. The corresponding `ice_getInvocationTimeout` and `ice_getLocatorCacheTimeout` methods now return a `TimeSpan`.
@@ -457,8 +455,6 @@ initialization. See `InitializationData.pluginFactories`.
 - Removed ThreadHookPlugin.
 
 - Reworked IceMX to avoid creating split packages.
-
-- Removed support for serializable objects (the `java:serializable` metadata directive).
 
 - Added overloads for the `ice_invocationTimeout` and `ice_locatorCacheTimeout` proxy methods that accept
   `java.time.Duration` values. The corresponding `ice_getInvocationTimeout` and `ice_getLocatorCacheTimeout` methods
@@ -517,11 +513,23 @@ initialization. See `InitializationData.pluginFactories`.
   application’s event loop, eliminates the need for manual use of `Ice.wrap_future`, and supports alternative event
   loops beyond the default asyncio loop.
 
-- Added async context manager support to `Ice.Communicator`, allowing it to be used in `async with` expressions.
+- Added async context manager support to `Ice.Communicator`. You can now use the communicator in `async with`
+  expressions.
+
+  ```python
+  async def main():
+      async with Ice.initialize(
+	      sys.argv,
+		      eventLoop=asyncio.get_running_loop()) as communicator:
+              ...
+
+  if __name__ == "__main__":
+      asyncio.run(main())
+  ```
 
 - Added a `checkedCastAsync` method to proxy objects to support asynchronous checked casts.
 
-- Added a `Communicator.waitForShutdownAsync` method to asynchronously wait for communicator shutdown.
+- Added a `Communicator.shutdownCompleted` method to asynchronously wait for communicator to shut down.
 
 - Removed the copy parameter from the memory view factory. In Ice 3.8, the factory always receives a memory view over
   the input stream data, making the copy parameter unnecessary.
@@ -546,14 +554,14 @@ initialization. See `InitializationData.pluginFactories`.
 
 ## DataStorm Changes
 
-- The DataStorm publisher/subscriber framework has bee integrated into the Ice distribution, and is not longer a
+- The DataStorm publisher/subscriber framework has been integrated into the Ice distribution, and is no longer a
   separate product.
 
-- Added support for running DataStorm callbacks using a custom executor, the executor can be set using `customExecutor`
-  Node's constructor parameter.
+- Added support for running DataStorm callbacks using a custom executor. The executor can be set using the
+  `customExecutor` parameter of the Node's constructor.
 
-- Add `DataStorm.Node.Name` property that allows configure the name used by a DataStorm node. The node names must
-  be unique within a DataStorm deployment.
+- Added `DataStorm.Node.Name` property to configure the name of a DataStorm node. The node names must be unique within
+  a DataStorm deployment.
 
 - Fixed a bug in DataStorm that can result in unexpected samples received after a session was recovered after
   disconnection.
