@@ -10,9 +10,8 @@ public final class OutgoingResponse {
     /**
      * Gets the exception ID of the response.
      *
-     * <p>It's null when replyStatus is {@link ReplyStatus#Ok}. Otherwise, this ID is the Slice type
-     * ID of the exception marshaled into this response if this exception was defined in Slice or is
-     * derived from {@link LocalException}. For other exceptions, this ID is the full name of the
+     * <p>It's null when replyStatus is {@link ReplyStatus#Ok} or {@link ReplyStatus#UserException}. Otherwise, this ID
+     * is the value returned by {@link LocalException#ice_id}. For other exceptions, this ID is the full name of the
      * exception's type.
      */
     public final String exceptionId;
@@ -20,7 +19,8 @@ public final class OutgoingResponse {
     /**
      * Gets the full details of the exception marshaled into the response.
      *
-     * <p>The exception details. It's null when replyStatus is {@link ReplyStatus#Ok}.
+     * <p>The exception details. It's null when replyStatus is {@link ReplyStatus#Ok} or
+     * {@link ReplyStatus#UserException}.
      */
     public final String exceptionDetails;
 
@@ -40,9 +40,9 @@ public final class OutgoingResponse {
      * Constructs an OutgoingResponse object.
      *
      * @param replyStatus The reply status, as an int.
-     * @param exceptionId The ID of the exception, when the response carries an exception.
+     * @param exceptionId The ID of the exception, when the response carries an exception other than a user exception.
      * @param exceptionDetails The full details of the exception, when the response carries an
-     *     exception.
+     *     exception other than a user exception.
      * @param outputStream The output stream that holds the response.
      */
     public OutgoingResponse(

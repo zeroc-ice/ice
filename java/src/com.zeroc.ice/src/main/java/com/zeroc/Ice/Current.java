@@ -180,7 +180,11 @@ public final class Current implements Cloneable {
                 return createOutgoingResponse(ex);
             }
         }
-        return new OutgoingResponse(ostr);
+        return new OutgoingResponse(
+            ok ? ReplyStatus.Ok.value() : ReplyStatus.UserException.value(),
+            null,
+            null,
+            ostr);
     }
 
     /**
@@ -226,7 +230,7 @@ public final class Current implements Cloneable {
 
         // TODO: replace by switch statement with Java 21
         if (exc instanceof UserException ex) {
-            exceptionId = ex.ice_id();
+            exceptionId = null;
             replyStatus = ReplyStatus.UserException.value();
 
             if (requestId != 0) {
@@ -259,7 +263,7 @@ public final class Current implements Cloneable {
             if (replyStatus >= ReplyStatus.ObjectNotExist.value()
                 && replyStatus <= ReplyStatus.OperationNotExist.value()) {
 
-                Identity objectId = new Identity();
+                var objectId = new Identity();
                 String objectFacet = "";
                 String operationName = "";
                 if (exc instanceof RequestFailedException rfe) {
@@ -299,7 +303,11 @@ public final class Current implements Cloneable {
         exc.printStackTrace(printWriter);
         printWriter.flush();
 
-        return new OutgoingResponse(replyStatus, exceptionId, stringWriter.toString(), ostr);
+        return new OutgoingResponse(
+            replyStatus,
+            exceptionId,
+            exceptionId != null ? stringWriter.toString() : null,
+            ostr);
     }
 
     /**

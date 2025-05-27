@@ -119,7 +119,11 @@ public static class CurrentExtensions
                 return current.createOutgoingResponse(ex);
             }
         }
-        return new OutgoingResponse(ostr);
+        return new OutgoingResponse(
+            replyStatus: ok ? ReplyStatus.Ok : ReplyStatus.UserException,
+            exceptionId: null,
+            exceptionDetails: null,
+            ostr);
     }
 
     /// <summary>
@@ -157,13 +161,13 @@ public static class CurrentExtensions
             }
 
             ReplyStatus replyStatus;
-            string exceptionId;
+            string? exceptionId;
             string? dispatchExceptionMessage = null;
 
             switch (exc)
             {
                 case UserException ex:
-                    exceptionId = ex.ice_id();
+                    exceptionId = null;
                     replyStatus = ReplyStatus.UserException;
 
                     if (current.requestId != 0)
@@ -238,7 +242,11 @@ public static class CurrentExtensions
                 }
             }
 
-            return new OutgoingResponse(replyStatus, exceptionId, exc.ToString(), ostr);
+            return new OutgoingResponse(
+                replyStatus,
+                exceptionId,
+                replyStatus > ReplyStatus.UserException ? exc.ToString() : null,
+                ostr);
         }
     }
 

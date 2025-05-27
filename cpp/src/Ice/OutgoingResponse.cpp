@@ -52,8 +52,7 @@ namespace
         }
         catch (const UserException& ex)
         {
-            exceptionId = ex.ice_id();
-            exceptionDetails = toString(ex);
+            // We keep exceptionId and exceptionDetails empty.
 
             replyStatus = ReplyStatus::UserException;
 
@@ -258,7 +257,7 @@ Ice::makeOutgoingResponse(bool ok, pair<const byte*, const byte*> encapsulation,
             return makeOutgoingResponse(current_exception(), current);
         }
     }
-    return OutgoingResponse{std::move(ostr), current};
+    return OutgoingResponse{ok ? ReplyStatus::Ok : ReplyStatus::UserException, "", "", std::move(ostr), current};
 }
 
 OutgoingResponse
