@@ -10,7 +10,7 @@ import java.security.cert.CertificateException;
 /**
  * @hidden Used by Ice
  */
-class Instance extends ProtocolInstance {
+public class Instance extends ProtocolInstance {
     public Instance(SSLEngine engine, short type, String protocol) {
         super(engine.communicator(), type, protocol, true);
         _engine = engine;
