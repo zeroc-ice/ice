@@ -6,7 +6,7 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 
-public class FixedReference extends Reference {
+class FixedReference extends Reference {
     public FixedReference(
             Instance instance,
             Communicator communicator,

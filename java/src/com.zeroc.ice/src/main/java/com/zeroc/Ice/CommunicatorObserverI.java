@@ -2,6 +2,15 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
+import com.zeroc.Ice.Instrumentation.ConnectionObserver;
+import com.zeroc.Ice.Instrumentation.ConnectionState;
+import com.zeroc.Ice.Instrumentation.DispatchObserver;
+import com.zeroc.Ice.Instrumentation.InvocationObserver;
+import com.zeroc.Ice.Instrumentation.Observer;
+import com.zeroc.Ice.Instrumentation.ObserverUpdater;
+import com.zeroc.Ice.Instrumentation.ThreadObserver;
+import com.zeroc.Ice.Instrumentation.ThreadState;
 import com.zeroc.IceMX.CollocatedMetrics;
 import com.zeroc.IceMX.ConnectionMetrics;
 import com.zeroc.IceMX.DispatchMetrics;
@@ -12,15 +21,6 @@ import com.zeroc.IceMX.ObserverFactoryWithDelegate;
 import com.zeroc.IceMX.ObserverWithDelegateI;
 import com.zeroc.IceMX.RemoteMetrics;
 import com.zeroc.IceMX.ThreadMetrics;
-import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
-import com.zeroc.Ice.Instrumentation.ConnectionObserver;
-import com.zeroc.Ice.Instrumentation.ConnectionState;
-import com.zeroc.Ice.Instrumentation.DispatchObserver;
-import com.zeroc.Ice.Instrumentation.InvocationObserver;
-import com.zeroc.Ice.Instrumentation.Observer;
-import com.zeroc.Ice.Instrumentation.ObserverUpdater;
-import com.zeroc.Ice.Instrumentation.ThreadObserver;
-import com.zeroc.Ice.Instrumentation.ThreadState;
 
 import java.util.Map;
 
@@ -406,7 +406,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                     } catch (Exception ex) {
                         // Either a fixed proxy or the communicator is destroyed.
                         os.append(_proxy.ice_getCommunicator()
-                            .identityToString(_proxy.ice_getIdentity()));
+                                .identityToString(_proxy.ice_getIdentity()));
                         os.append(" [").append(_operation).append(']');
                     }
                     _id = os.toString();
@@ -680,9 +680,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
 
     @Override
     public InvocationObserver getInvocationObserver(
-            ObjectPrx prx,
-            String operation,
-            Map<String, String> ctx) {
+            ObjectPrx prx, String operation, Map<String, String> ctx) {
         if (_invocations.isEnabled()) {
             try {
                 InvocationObserver delegate = null;

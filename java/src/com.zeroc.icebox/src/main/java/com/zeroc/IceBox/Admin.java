@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public final class Admin {
+class Admin {
     private static void usage() {
         System.err.println(
             "Usage: com.zeroc.IceBox.Admin [options] [command...]\n"
@@ -49,7 +49,7 @@ public final class Admin {
         System.exit(status);
     }
 
-    public static int run(
+    private static int run(
             Communicator communicator, List<String> commands) {
         if (commands.isEmpty()) {
             usage();

@@ -19,7 +19,7 @@ public class LocalException extends RuntimeException {
     /**
      * Returns the type ID of this exception.
      *
-     * @return The type ID of this exception.
+     * @return the type ID of this exception
      */
     public String ice_id() {
         return "::Ice::LocalException";
