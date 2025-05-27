@@ -523,7 +523,7 @@ initialization. See `InitializationData.pluginFactories`.
   ```python
   async def main():
       async with Ice.initialize(
-	      sys.argv,
+          sys.argv,
           eventLoop=asyncio.get_running_loop()) as communicator:
           ...
 
