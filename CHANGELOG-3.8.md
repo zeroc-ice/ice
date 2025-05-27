@@ -352,7 +352,7 @@ SSL engine APIs. This provides significantly greater flexibility for advanced us
 
 - The ssl transport can now be fully configured programmatically, without relying on IceSSL properties.
 - Separate configurations for outgoing and incoming SSL connections are supported.
-- Per-ObjectAdapter configuration is also possible. 
+- Per-ObjectAdapter configuration is also possible.
 
 > These APIs are platform-dependent. A good starting point is the `Ice/secure` demo for your target platform and
 > language mapping.
