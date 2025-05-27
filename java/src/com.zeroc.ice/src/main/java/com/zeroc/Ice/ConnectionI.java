@@ -20,9 +20,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-// Public because it's used by the 'Ice/metrics' test.
 /**
- * @hidden
+ * @hidden Public because it's used by the 'Ice/metrics' test.
  */
 public final class ConnectionI extends EventHandler implements Connection, CancellationHandler {
     public interface StartCallback {
