@@ -141,7 +141,6 @@ public interface Object {
                 ret, (ostr, value) -> ostr.writeBool(value), FormatType.CompactFormat));
     }
 
-
     /**
      * Dispatches an incoming request and returns the corresponding outgoing response
      * for the {@code ice_ping} operation.

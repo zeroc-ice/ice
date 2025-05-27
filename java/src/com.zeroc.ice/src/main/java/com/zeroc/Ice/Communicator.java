@@ -566,7 +566,7 @@ public final class Communicator implements AutoCloseable {
     /**
      * Get the {@code Instance} object associated with this communicator.
      *
-     * @return the {@code Instance} object associated with this communicator.
+     * @return the {@code Instance} object associated with this communicator
      * @hidden
      */
     public Instance getInstance() {
