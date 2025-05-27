@@ -58,8 +58,9 @@ extension Current {
                 ostr.writeEncapsulation(encapsulation)
             }
         }
-        return OutgoingResponse(replyStatus: ok ? ReplyStatus.ok.rawValue : ReplyStatus.userException.rawValue,
-                                exceptionId: nil, exceptionDetails: nil, outputStream: ostr)
+        return OutgoingResponse(
+            replyStatus: ok ? ReplyStatus.ok.rawValue : ReplyStatus.userException.rawValue,
+            exceptionId: nil, exceptionDetails: nil, outputStream: ostr)
     }
 
     /// Creates an outgoing response that marshals an exception.
