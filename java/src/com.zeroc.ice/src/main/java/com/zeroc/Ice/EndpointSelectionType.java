@@ -29,7 +29,7 @@ public enum EndpointSelectionType {
      *
      * @param v the integer value of the endpoint selection type
      * @return the endpoint selection type corresponding to the given integer value, or {@code null}
-     * if no such type exists
+     *     if no such type exists
      */
     public static EndpointSelectionType valueOf(int v) {
         switch (v) {

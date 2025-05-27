@@ -406,7 +406,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                     } catch (Exception ex) {
                         // Either a fixed proxy or the communicator is destroyed.
                         os.append(_proxy.ice_getCommunicator()
-                                .identityToString(_proxy.ice_getIdentity()));
+                            .identityToString(_proxy.ice_getIdentity()));
                         os.append(" [").append(_operation).append(']');
                     }
                     _id = os.toString();
