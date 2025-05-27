@@ -122,7 +122,7 @@ namespace
     /// Resolves a `Type` named `name` from the current scope and returns it.
     /// If no such type could be found, this returns `nullptr` instead.
     /// @param name The (possibly scoped) name to resolve.
-    /// @param expectInterfaceType `true` is the type ends with '*' (indicated a proxy), false otherwise.
+    /// @param expectInterfaceType `true` if the type ends with '*' (indicated a proxy), false otherwise.
     ///        This function will automatically emit errors for interfaces missing '*', or non-interfaces using '*'.
     [[nodiscard]] TypePtr lookupTypeByName(const string& name, bool expectInterfaceType);
 
@@ -133,7 +133,10 @@ namespace
 
     /// Checks if the provided integer token's value is within the range ['0' ... 'int32_t::max'] (inclusive).
     /// If it is within this range, this function will return `true`.
-    /// Otherwise thi will return `false`, and automatically emit an error stating the issue.
+    /// Otherwise this will return `false`, and automatically emit an error stating the issue.
+    /// @param token An integer token to check the value of.
+    /// @param kindString A string describing what the integer is being used for ("tag", "compact id", etc.).
+    ///                   It is only used to emit a more descriptive error message.
     bool checkIntegerBounds(const IntegerTokPtr& token, string_view kindString);
 }
 

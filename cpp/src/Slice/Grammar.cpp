@@ -172,7 +172,7 @@ namespace
     /// Resolves a `Type` named `name` from the current scope and returns it.
     /// If no such type could be found, this returns `nullptr` instead.
     /// @param name The (possibly scoped) name to resolve.
-    /// @param expectInterfaceType `true` is the type ends with '*' (indicated a proxy), false otherwise.
+    /// @param expectInterfaceType `true` if the type ends with '*' (indicated a proxy), false otherwise.
     ///        This function will automatically emit errors for interfaces missing '*', or non-interfaces using '*'.
     [[nodiscard]] TypePtr lookupTypeByName(const string& name, bool expectInterfaceType);
 
@@ -183,12 +183,15 @@ namespace
 
     /// Checks if the provided integer token's value is within the range ['0' ... 'int32_t::max'] (inclusive).
     /// If it is within this range, this function will return `true`.
-    /// Otherwise thi will return `false`, and automatically emit an error stating the issue.
+    /// Otherwise this will return `false`, and automatically emit an error stating the issue.
+    /// @param token An integer token to check the value of.
+    /// @param kindString A string describing what the integer is being used for ("tag", "compact id", etc.).
+    ///                   It is only used to emit a more descriptive error message.
     bool checkIntegerBounds(const IntegerTokPtr& token, string_view kindString);
 }
 
 
-#line 192 "src/Slice/Grammar.cpp"
+#line 195 "src/Slice/Grammar.cpp"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -366,7 +369,7 @@ typedef enum yysymbol_kind_t yysymbol_kind_t;
 int slice_lex(YYSTYPE* lvalp, YYLTYPE* llocp);
 
 
-#line 370 "src/Slice/Grammar.cpp"
+#line 373 "src/Slice/Grammar.cpp"
 
 #ifdef short
 # undef short
@@ -754,28 +757,28 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   205,   205,   213,   216,   224,   228,   232,   242,   246,
-     250,   260,   263,   272,   276,   288,   296,   305,   314,   313,
-     319,   318,   323,   328,   327,   333,   332,   337,   342,   341,
-     347,   346,   351,   356,   355,   361,   360,   365,   370,   369,
-     375,   374,   379,   384,   383,   388,   393,   392,   398,   397,
-     402,   406,   416,   415,   446,   445,   529,   533,   544,   555,
-     554,   580,   588,   597,   608,   621,   627,   638,   655,   668,
-     672,   683,   694,   693,   732,   736,   747,   767,   779,   792,
-     791,   825,   853,   862,   865,   873,   882,   885,   889,   897,
-     927,   958,   980,  1006,  1021,  1027,  1037,  1041,  1050,  1077,
-    1110,  1109,  1141,  1140,  1163,  1167,  1178,  1192,  1191,  1225,
-    1235,  1245,  1250,  1260,  1264,  1273,  1282,  1285,  1289,  1297,
-    1304,  1316,  1328,  1339,  1347,  1361,  1371,  1387,  1391,  1403,
-    1402,  1434,  1433,  1451,  1452,  1456,  1465,  1477,  1494,  1500,
-    1516,  1528,  1541,  1555,  1568,  1576,  1590,  1591,  1597,  1598,
-    1604,  1608,  1617,  1620,  1628,  1629,  1630,  1631,  1632,  1633,
-    1634,  1635,  1636,  1637,  1642,  1646,  1651,  1656,  1666,  1670,
-    1756,  1762,  1770,  1780,  1790,  1794,  1803,  1812,  1821,  1856,
-    1863,  1870,  1882,  1891,  1905,  1906,  1907,  1908,  1909,  1910,
-    1911,  1912,  1913,  1914,  1915,  1916,  1917,  1918,  1919,  1920,
-    1921,  1922,  1923,  1924,  1925,  1926,  1927,  1928,  1929,  1930,
-    1931
+       0,   208,   208,   216,   219,   227,   231,   235,   245,   249,
+     253,   263,   266,   275,   279,   291,   299,   308,   317,   316,
+     322,   321,   326,   331,   330,   336,   335,   340,   345,   344,
+     350,   349,   354,   359,   358,   364,   363,   368,   373,   372,
+     378,   377,   382,   387,   386,   391,   396,   395,   401,   400,
+     405,   409,   419,   418,   449,   448,   532,   536,   547,   558,
+     557,   583,   591,   600,   611,   624,   630,   641,   658,   671,
+     675,   686,   697,   696,   735,   739,   750,   770,   782,   795,
+     794,   828,   856,   865,   868,   876,   885,   888,   892,   900,
+     930,   961,   983,  1009,  1024,  1030,  1040,  1044,  1053,  1080,
+    1113,  1112,  1144,  1143,  1166,  1170,  1181,  1195,  1194,  1228,
+    1238,  1248,  1253,  1263,  1267,  1276,  1285,  1288,  1292,  1300,
+    1307,  1319,  1331,  1342,  1350,  1364,  1374,  1390,  1394,  1406,
+    1405,  1437,  1436,  1454,  1455,  1459,  1468,  1480,  1497,  1503,
+    1519,  1531,  1544,  1558,  1571,  1579,  1593,  1594,  1600,  1601,
+    1607,  1611,  1620,  1623,  1631,  1632,  1633,  1634,  1635,  1636,
+    1637,  1638,  1639,  1640,  1645,  1649,  1654,  1659,  1669,  1673,
+    1759,  1765,  1773,  1783,  1793,  1797,  1806,  1815,  1824,  1859,
+    1866,  1873,  1885,  1894,  1908,  1909,  1910,  1911,  1912,  1913,
+    1914,  1915,  1916,  1917,  1918,  1919,  1920,  1921,  1922,  1923,
+    1924,  1925,  1926,  1927,  1928,  1929,  1930,  1931,  1932,  1933,
+    1934
 };
 #endif
 
@@ -1758,112 +1761,112 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* start: definitions  */
-#line 206 "src/Slice/Grammar.y"
+#line 209 "src/Slice/Grammar.y"
 {
 }
-#line 1765 "src/Slice/Grammar.cpp"
+#line 1768 "src/Slice/Grammar.cpp"
     break;
 
   case 3: /* opt_semicolon: ';'  */
-#line 214 "src/Slice/Grammar.y"
-{
-}
-#line 1772 "src/Slice/Grammar.cpp"
-    break;
-
-  case 4: /* opt_semicolon: %empty  */
 #line 217 "src/Slice/Grammar.y"
 {
 }
-#line 1779 "src/Slice/Grammar.cpp"
+#line 1775 "src/Slice/Grammar.cpp"
+    break;
+
+  case 4: /* opt_semicolon: %empty  */
+#line 220 "src/Slice/Grammar.y"
+{
+}
+#line 1782 "src/Slice/Grammar.cpp"
     break;
 
   case 5: /* file_metadata: ICE_FILE_METADATA_OPEN metadata_list ICE_FILE_METADATA_CLOSE  */
-#line 225 "src/Slice/Grammar.y"
+#line 228 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[-1];
 }
-#line 1787 "src/Slice/Grammar.cpp"
+#line 1790 "src/Slice/Grammar.cpp"
     break;
 
   case 6: /* file_metadata: ICE_FILE_METADATA_OPEN error ICE_FILE_METADATA_CLOSE  */
-#line 229 "src/Slice/Grammar.y"
+#line 232 "src/Slice/Grammar.y"
 {
     yyval = make_shared<MetadataListTok>();
 }
-#line 1795 "src/Slice/Grammar.cpp"
+#line 1798 "src/Slice/Grammar.cpp"
     break;
 
   case 7: /* file_metadata: ICE_FILE_METADATA_OPEN ICE_FILE_METADATA_CLOSE  */
-#line 233 "src/Slice/Grammar.y"
+#line 236 "src/Slice/Grammar.y"
 {
     currentUnit->warning(WarningCategory::All, "No directives were provided in metadata list");
     yyval = make_shared<MetadataListTok>();
 }
-#line 1804 "src/Slice/Grammar.cpp"
+#line 1807 "src/Slice/Grammar.cpp"
     break;
 
   case 8: /* local_metadata: ICE_METADATA_OPEN metadata_list ICE_METADATA_CLOSE  */
-#line 243 "src/Slice/Grammar.y"
+#line 246 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[-1];
 }
-#line 1812 "src/Slice/Grammar.cpp"
+#line 1815 "src/Slice/Grammar.cpp"
     break;
 
   case 9: /* local_metadata: ICE_METADATA_OPEN error ICE_METADATA_CLOSE  */
-#line 247 "src/Slice/Grammar.y"
+#line 250 "src/Slice/Grammar.y"
 {
     yyval = make_shared<MetadataListTok>();
 }
-#line 1820 "src/Slice/Grammar.cpp"
+#line 1823 "src/Slice/Grammar.cpp"
     break;
 
   case 10: /* local_metadata: ICE_METADATA_OPEN ICE_METADATA_CLOSE  */
-#line 251 "src/Slice/Grammar.y"
+#line 254 "src/Slice/Grammar.y"
 {
     currentUnit->warning(WarningCategory::All, "No directives were provided in metadata list");
     yyval = make_shared<MetadataListTok>();
 }
-#line 1829 "src/Slice/Grammar.cpp"
+#line 1832 "src/Slice/Grammar.cpp"
     break;
 
   case 11: /* metadata: metadata_directives  */
-#line 261 "src/Slice/Grammar.y"
+#line 264 "src/Slice/Grammar.y"
 {
 }
-#line 1836 "src/Slice/Grammar.cpp"
+#line 1839 "src/Slice/Grammar.cpp"
     break;
 
   case 12: /* metadata: %empty  */
-#line 264 "src/Slice/Grammar.y"
+#line 267 "src/Slice/Grammar.y"
 {
     yyval = make_shared<MetadataListTok>();
 }
-#line 1844 "src/Slice/Grammar.cpp"
+#line 1847 "src/Slice/Grammar.cpp"
     break;
 
   case 13: /* metadata_directives: local_metadata  */
-#line 273 "src/Slice/Grammar.y"
+#line 276 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[0];
 }
-#line 1852 "src/Slice/Grammar.cpp"
+#line 1855 "src/Slice/Grammar.cpp"
     break;
 
   case 14: /* metadata_directives: metadata_directives local_metadata  */
-#line 277 "src/Slice/Grammar.y"
+#line 280 "src/Slice/Grammar.y"
 {
     auto metadata1 = dynamic_pointer_cast<MetadataListTok>(yyvsp[-1]);
     auto metadata2 = dynamic_pointer_cast<MetadataListTok>(yyvsp[0]);
     metadata1->v.splice(metadata1->v.end(), std::move(metadata2->v));
     yyval = metadata1;
 }
-#line 1863 "src/Slice/Grammar.cpp"
+#line 1866 "src/Slice/Grammar.cpp"
     break;
 
   case 15: /* definitions: definitions file_metadata  */
-#line 289 "src/Slice/Grammar.y"
+#line 292 "src/Slice/Grammar.y"
 {
     auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[0]);
     if (!metadata->v.empty())
@@ -1871,11 +1874,11 @@ yyreduce:
         currentUnit->addFileMetadata(std::move(metadata->v));
     }
 }
-#line 1875 "src/Slice/Grammar.cpp"
+#line 1878 "src/Slice/Grammar.cpp"
     break;
 
   case 16: /* definitions: definitions metadata definition  */
-#line 297 "src/Slice/Grammar.y"
+#line 300 "src/Slice/Grammar.y"
 {
     auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-1]);
     auto contained = dynamic_pointer_cast<Contained>(yyvsp[0]);
@@ -1884,186 +1887,186 @@ yyreduce:
         contained->appendMetadata(std::move(metadata->v));
     }
 }
-#line 1888 "src/Slice/Grammar.cpp"
+#line 1891 "src/Slice/Grammar.cpp"
     break;
 
   case 17: /* definitions: %empty  */
-#line 306 "src/Slice/Grammar.y"
+#line 309 "src/Slice/Grammar.y"
 {
 }
-#line 1895 "src/Slice/Grammar.cpp"
+#line 1898 "src/Slice/Grammar.cpp"
     break;
 
   case 18: /* $@1: %empty  */
-#line 314 "src/Slice/Grammar.y"
+#line 317 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == nullptr || dynamic_pointer_cast<Module>(yyvsp[0]));
 }
-#line 1903 "src/Slice/Grammar.cpp"
+#line 1906 "src/Slice/Grammar.cpp"
     break;
 
   case 20: /* $@2: %empty  */
-#line 319 "src/Slice/Grammar.y"
+#line 322 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == nullptr || dynamic_pointer_cast<ClassDecl>(yyvsp[0]));
 }
-#line 1911 "src/Slice/Grammar.cpp"
+#line 1914 "src/Slice/Grammar.cpp"
     break;
 
   case 22: /* definition: class_decl  */
-#line 324 "src/Slice/Grammar.y"
+#line 327 "src/Slice/Grammar.y"
 {
     currentUnit->error("';' missing after class forward declaration");
 }
-#line 1919 "src/Slice/Grammar.cpp"
+#line 1922 "src/Slice/Grammar.cpp"
     break;
 
   case 23: /* $@3: %empty  */
-#line 328 "src/Slice/Grammar.y"
+#line 331 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == nullptr || dynamic_pointer_cast<ClassDef>(yyvsp[0]));
 }
-#line 1927 "src/Slice/Grammar.cpp"
+#line 1930 "src/Slice/Grammar.cpp"
     break;
 
   case 25: /* $@4: %empty  */
-#line 333 "src/Slice/Grammar.y"
+#line 336 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == nullptr || dynamic_pointer_cast<InterfaceDecl>(yyvsp[0]));
 }
-#line 1935 "src/Slice/Grammar.cpp"
+#line 1938 "src/Slice/Grammar.cpp"
     break;
 
   case 27: /* definition: interface_decl  */
-#line 338 "src/Slice/Grammar.y"
+#line 341 "src/Slice/Grammar.y"
 {
     currentUnit->error("';' missing after interface forward declaration");
 }
-#line 1943 "src/Slice/Grammar.cpp"
+#line 1946 "src/Slice/Grammar.cpp"
     break;
 
   case 28: /* $@5: %empty  */
-#line 342 "src/Slice/Grammar.y"
+#line 345 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == nullptr || dynamic_pointer_cast<InterfaceDef>(yyvsp[0]));
 }
-#line 1951 "src/Slice/Grammar.cpp"
+#line 1954 "src/Slice/Grammar.cpp"
     break;
 
   case 30: /* $@6: %empty  */
-#line 347 "src/Slice/Grammar.y"
+#line 350 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == nullptr);
 }
-#line 1959 "src/Slice/Grammar.cpp"
+#line 1962 "src/Slice/Grammar.cpp"
     break;
 
   case 32: /* definition: exception_decl  */
-#line 352 "src/Slice/Grammar.y"
+#line 355 "src/Slice/Grammar.y"
 {
     currentUnit->error("';' missing after exception forward declaration");
 }
-#line 1967 "src/Slice/Grammar.cpp"
+#line 1970 "src/Slice/Grammar.cpp"
     break;
 
   case 33: /* $@7: %empty  */
-#line 356 "src/Slice/Grammar.y"
+#line 359 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == nullptr || dynamic_pointer_cast<Exception>(yyvsp[0]));
 }
-#line 1975 "src/Slice/Grammar.cpp"
+#line 1978 "src/Slice/Grammar.cpp"
     break;
 
   case 35: /* $@8: %empty  */
-#line 361 "src/Slice/Grammar.y"
+#line 364 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == nullptr);
 }
-#line 1983 "src/Slice/Grammar.cpp"
+#line 1986 "src/Slice/Grammar.cpp"
     break;
 
   case 37: /* definition: struct_decl  */
-#line 366 "src/Slice/Grammar.y"
+#line 369 "src/Slice/Grammar.y"
 {
     currentUnit->error("';' missing after struct forward declaration");
 }
-#line 1991 "src/Slice/Grammar.cpp"
+#line 1994 "src/Slice/Grammar.cpp"
     break;
 
   case 38: /* $@9: %empty  */
-#line 370 "src/Slice/Grammar.y"
+#line 373 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == nullptr || dynamic_pointer_cast<Struct>(yyvsp[0]));
 }
-#line 1999 "src/Slice/Grammar.cpp"
+#line 2002 "src/Slice/Grammar.cpp"
     break;
 
   case 40: /* $@10: %empty  */
-#line 375 "src/Slice/Grammar.y"
+#line 378 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == nullptr || dynamic_pointer_cast<Sequence>(yyvsp[0]));
 }
-#line 2007 "src/Slice/Grammar.cpp"
+#line 2010 "src/Slice/Grammar.cpp"
     break;
 
   case 42: /* definition: sequence_def  */
-#line 380 "src/Slice/Grammar.y"
+#line 383 "src/Slice/Grammar.y"
 {
     currentUnit->error("';' missing after sequence definition");
 }
-#line 2015 "src/Slice/Grammar.cpp"
+#line 2018 "src/Slice/Grammar.cpp"
     break;
 
   case 43: /* $@11: %empty  */
-#line 384 "src/Slice/Grammar.y"
+#line 387 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == nullptr || dynamic_pointer_cast<Dictionary>(yyvsp[0]));
 }
-#line 2023 "src/Slice/Grammar.cpp"
+#line 2026 "src/Slice/Grammar.cpp"
     break;
 
   case 45: /* definition: dictionary_def  */
-#line 389 "src/Slice/Grammar.y"
+#line 392 "src/Slice/Grammar.y"
 {
     currentUnit->error("';' missing after dictionary definition");
 }
-#line 2031 "src/Slice/Grammar.cpp"
+#line 2034 "src/Slice/Grammar.cpp"
     break;
 
   case 46: /* $@12: %empty  */
-#line 393 "src/Slice/Grammar.y"
+#line 396 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == nullptr || dynamic_pointer_cast<Enum>(yyvsp[0]));
 }
-#line 2039 "src/Slice/Grammar.cpp"
+#line 2042 "src/Slice/Grammar.cpp"
     break;
 
   case 48: /* $@13: %empty  */
-#line 398 "src/Slice/Grammar.y"
+#line 401 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == nullptr || dynamic_pointer_cast<Const>(yyvsp[0]));
 }
-#line 2047 "src/Slice/Grammar.cpp"
+#line 2050 "src/Slice/Grammar.cpp"
     break;
 
   case 50: /* definition: const_def  */
-#line 403 "src/Slice/Grammar.y"
+#line 406 "src/Slice/Grammar.y"
 {
     currentUnit->error("';' missing after const definition");
 }
-#line 2055 "src/Slice/Grammar.cpp"
+#line 2058 "src/Slice/Grammar.cpp"
     break;
 
   case 51: /* definition: error ';'  */
-#line 407 "src/Slice/Grammar.y"
+#line 410 "src/Slice/Grammar.y"
 {
     yyerrok;
 }
-#line 2063 "src/Slice/Grammar.cpp"
+#line 2066 "src/Slice/Grammar.cpp"
     break;
 
   case 52: /* @14: %empty  */
-#line 416 "src/Slice/Grammar.y"
+#line 419 "src/Slice/Grammar.y"
 {
     currentUnit->setSeenDefinition();
 
@@ -2081,11 +2084,11 @@ yyreduce:
         yyval = nullptr;
     }
 }
-#line 2085 "src/Slice/Grammar.cpp"
+#line 2088 "src/Slice/Grammar.cpp"
     break;
 
   case 53: /* module_def: ICE_MODULE ICE_IDENTIFIER @14 '{' definitions '}'  */
-#line 434 "src/Slice/Grammar.y"
+#line 437 "src/Slice/Grammar.y"
 {
     if (yyvsp[-3])
     {
@@ -2097,11 +2100,11 @@ yyreduce:
         yyval = nullptr;
     }
 }
-#line 2101 "src/Slice/Grammar.cpp"
+#line 2104 "src/Slice/Grammar.cpp"
     break;
 
   case 54: /* @15: %empty  */
-#line 446 "src/Slice/Grammar.y"
+#line 449 "src/Slice/Grammar.y"
 {
     currentUnit->setSeenDefinition();
 
@@ -2156,11 +2159,11 @@ yyreduce:
         }
     }
 }
-#line 2160 "src/Slice/Grammar.cpp"
+#line 2163 "src/Slice/Grammar.cpp"
     break;
 
   case 55: /* module_def: ICE_MODULE ICE_SCOPED_IDENTIFIER @15 '{' definitions '}'  */
-#line 501 "src/Slice/Grammar.y"
+#line 504 "src/Slice/Grammar.y"
 {
     if (yyvsp[-3])
     {
@@ -2184,38 +2187,38 @@ yyreduce:
         yyval = nullptr;
     }
 }
-#line 2188 "src/Slice/Grammar.cpp"
+#line 2191 "src/Slice/Grammar.cpp"
     break;
 
   case 56: /* exception_id: ICE_EXCEPTION ICE_IDENTIFIER  */
-#line 530 "src/Slice/Grammar.y"
+#line 533 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[0];
 }
-#line 2196 "src/Slice/Grammar.cpp"
+#line 2199 "src/Slice/Grammar.cpp"
     break;
 
   case 57: /* exception_id: ICE_EXCEPTION keyword  */
-#line 534 "src/Slice/Grammar.y"
+#line 537 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     currentUnit->error("keyword '" + ident->v + "' cannot be used as exception name");
     yyval = yyvsp[0]; // Dummy
 }
-#line 2206 "src/Slice/Grammar.cpp"
+#line 2209 "src/Slice/Grammar.cpp"
     break;
 
   case 58: /* exception_decl: exception_id  */
-#line 545 "src/Slice/Grammar.y"
+#line 548 "src/Slice/Grammar.y"
 {
     currentUnit->error("exceptions cannot be forward declared");
     yyval = nullptr;
 }
-#line 2215 "src/Slice/Grammar.cpp"
+#line 2218 "src/Slice/Grammar.cpp"
     break;
 
   case 59: /* @16: %empty  */
-#line 555 "src/Slice/Grammar.y"
+#line 558 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
     auto base = dynamic_pointer_cast<Exception>(yyvsp[0]);
@@ -2228,11 +2231,11 @@ yyreduce:
     }
     yyval = ex;
 }
-#line 2232 "src/Slice/Grammar.cpp"
+#line 2235 "src/Slice/Grammar.cpp"
     break;
 
   case 60: /* exception_def: exception_id exception_extends @16 '{' data_members '}'  */
-#line 568 "src/Slice/Grammar.y"
+#line 571 "src/Slice/Grammar.y"
 {
     if (yyvsp[-3])
     {
@@ -2240,11 +2243,11 @@ yyreduce:
     }
     yyval = yyvsp[-3];
 }
-#line 2244 "src/Slice/Grammar.cpp"
+#line 2247 "src/Slice/Grammar.cpp"
     break;
 
   case 61: /* exception_extends: extends scoped_name  */
-#line 581 "src/Slice/Grammar.y"
+#line 584 "src/Slice/Grammar.y"
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = currentUnit->currentContainer();
@@ -2252,29 +2255,29 @@ yyreduce:
     cont->checkIntroduced(scoped->v);
     yyval = contained;
 }
-#line 2256 "src/Slice/Grammar.cpp"
+#line 2259 "src/Slice/Grammar.cpp"
     break;
 
   case 62: /* exception_extends: %empty  */
-#line 589 "src/Slice/Grammar.y"
+#line 592 "src/Slice/Grammar.y"
 {
     yyval = nullptr;
 }
-#line 2264 "src/Slice/Grammar.cpp"
+#line 2267 "src/Slice/Grammar.cpp"
     break;
 
   case 63: /* type_id: type ICE_IDENTIFIER  */
-#line 598 "src/Slice/Grammar.y"
+#line 601 "src/Slice/Grammar.y"
 {
     auto type = dynamic_pointer_cast<Type>(yyvsp[-1]);
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     yyval = make_shared<TypeStringTok>(type, ident->v);
 }
-#line 2274 "src/Slice/Grammar.cpp"
+#line 2277 "src/Slice/Grammar.cpp"
     break;
 
   case 64: /* optional: ICE_OPTIONAL_OPEN integer_constant ')'  */
-#line 609 "src/Slice/Grammar.y"
+#line 612 "src/Slice/Grammar.y"
 {
     auto integer = dynamic_pointer_cast<IntegerTok>(yyvsp[-1]);
     int tag = -1;
@@ -2287,31 +2290,31 @@ yyreduce:
     auto m = make_shared<OptionalDefTok>(tag);
     yyval = m;
 }
-#line 2291 "src/Slice/Grammar.cpp"
+#line 2294 "src/Slice/Grammar.cpp"
     break;
 
   case 65: /* optional: ICE_OPTIONAL_OPEN ')'  */
-#line 622 "src/Slice/Grammar.y"
+#line 625 "src/Slice/Grammar.y"
 {
     currentUnit->error("missing tag");
     auto m = make_shared<OptionalDefTok>(-1); // Dummy
     yyval = m;
 }
-#line 2301 "src/Slice/Grammar.cpp"
+#line 2304 "src/Slice/Grammar.cpp"
     break;
 
   case 66: /* optional: ICE_OPTIONAL  */
-#line 628 "src/Slice/Grammar.y"
+#line 631 "src/Slice/Grammar.y"
 {
     currentUnit->error("missing tag");
     auto m = make_shared<OptionalDefTok>(-1); // Dummy
     yyval = m;
 }
-#line 2311 "src/Slice/Grammar.cpp"
+#line 2314 "src/Slice/Grammar.cpp"
     break;
 
   case 67: /* optional_type_id: optional type_id  */
-#line 639 "src/Slice/Grammar.y"
+#line 642 "src/Slice/Grammar.y"
 {
     auto m = dynamic_pointer_cast<OptionalDefTok>(yyvsp[-1]);
     auto ts = dynamic_pointer_cast<TypeStringTok>(yyvsp[0]);
@@ -2328,11 +2331,11 @@ yyreduce:
 
     yyval = m;
 }
-#line 2332 "src/Slice/Grammar.cpp"
+#line 2335 "src/Slice/Grammar.cpp"
     break;
 
   case 68: /* optional_type_id: type_id  */
-#line 656 "src/Slice/Grammar.y"
+#line 659 "src/Slice/Grammar.y"
 {
     auto ts = dynamic_pointer_cast<TypeStringTok>(yyvsp[0]);
     auto m = make_shared<OptionalDefTok>(-1);
@@ -2340,38 +2343,38 @@ yyreduce:
     m->name = ts->name;
     yyval = m;
 }
-#line 2344 "src/Slice/Grammar.cpp"
+#line 2347 "src/Slice/Grammar.cpp"
     break;
 
   case 69: /* struct_id: ICE_STRUCT ICE_IDENTIFIER  */
-#line 669 "src/Slice/Grammar.y"
+#line 672 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[0];
 }
-#line 2352 "src/Slice/Grammar.cpp"
+#line 2355 "src/Slice/Grammar.cpp"
     break;
 
   case 70: /* struct_id: ICE_STRUCT keyword  */
-#line 673 "src/Slice/Grammar.y"
+#line 676 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     currentUnit->error("keyword '" + ident->v + "' cannot be used as struct name");
     yyval = yyvsp[0]; // Dummy
 }
-#line 2362 "src/Slice/Grammar.cpp"
+#line 2365 "src/Slice/Grammar.cpp"
     break;
 
   case 71: /* struct_decl: struct_id  */
-#line 684 "src/Slice/Grammar.y"
+#line 687 "src/Slice/Grammar.y"
 {
     currentUnit->error("structs cannot be forward declared");
     yyval = nullptr; // Dummy
 }
-#line 2371 "src/Slice/Grammar.cpp"
+#line 2374 "src/Slice/Grammar.cpp"
     break;
 
   case 72: /* @17: %empty  */
-#line 694 "src/Slice/Grammar.y"
+#line 697 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = currentUnit->currentContainer();
@@ -2389,11 +2392,11 @@ yyreduce:
     }
     yyval = st;
 }
-#line 2393 "src/Slice/Grammar.cpp"
+#line 2396 "src/Slice/Grammar.cpp"
     break;
 
   case 73: /* struct_def: struct_id @17 '{' data_members '}'  */
-#line 712 "src/Slice/Grammar.y"
+#line 715 "src/Slice/Grammar.y"
 {
     if (yyvsp[-3])
     {
@@ -2409,29 +2412,29 @@ yyreduce:
         currentUnit->error("struct '" + st->name() + "' must have at least one member"); // $$ is a dummy
     }
 }
-#line 2413 "src/Slice/Grammar.cpp"
+#line 2416 "src/Slice/Grammar.cpp"
     break;
 
   case 74: /* class_name: ICE_CLASS ICE_IDENTIFIER  */
-#line 733 "src/Slice/Grammar.y"
+#line 736 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[0];
 }
-#line 2421 "src/Slice/Grammar.cpp"
+#line 2424 "src/Slice/Grammar.cpp"
     break;
 
   case 75: /* class_name: ICE_CLASS keyword  */
-#line 737 "src/Slice/Grammar.y"
+#line 740 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     currentUnit->error("keyword '" + ident->v + "' cannot be used as class name");
     yyval = yyvsp[0]; // Dummy
 }
-#line 2431 "src/Slice/Grammar.cpp"
+#line 2434 "src/Slice/Grammar.cpp"
     break;
 
   case 76: /* class_id: ICE_CLASS ICE_IDENT_OPEN integer_constant ')'  */
-#line 748 "src/Slice/Grammar.y"
+#line 751 "src/Slice/Grammar.y"
 {
     auto integer = dynamic_pointer_cast<IntegerTok>(yyvsp[-1]);
     int id = -1;
@@ -2451,33 +2454,33 @@ yyreduce:
     classId->t = id;
     yyval = classId;
 }
-#line 2455 "src/Slice/Grammar.cpp"
+#line 2458 "src/Slice/Grammar.cpp"
     break;
 
   case 77: /* class_id: class_name  */
-#line 768 "src/Slice/Grammar.y"
+#line 771 "src/Slice/Grammar.y"
 {
     auto classId = make_shared<ClassIdTok>();
     classId->v = dynamic_pointer_cast<StringTok>(yyvsp[0])->v;
     classId->t = -1;
     yyval = classId;
 }
-#line 2466 "src/Slice/Grammar.cpp"
+#line 2469 "src/Slice/Grammar.cpp"
     break;
 
   case 78: /* class_decl: class_name  */
-#line 780 "src/Slice/Grammar.y"
+#line 783 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = currentUnit->currentContainer();
     ClassDeclPtr cl = cont->createClassDecl(ident->v);
     yyval = cl;
 }
-#line 2477 "src/Slice/Grammar.cpp"
+#line 2480 "src/Slice/Grammar.cpp"
     break;
 
   case 79: /* @18: %empty  */
-#line 792 "src/Slice/Grammar.y"
+#line 795 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<ClassIdTok>(yyvsp[-1]);
     ContainerPtr cont = currentUnit->currentContainer();
@@ -2494,11 +2497,11 @@ yyreduce:
         yyval = nullptr;
     }
 }
-#line 2498 "src/Slice/Grammar.cpp"
+#line 2501 "src/Slice/Grammar.cpp"
     break;
 
   case 80: /* class_def: class_id class_extends @18 '{' data_members '}'  */
-#line 809 "src/Slice/Grammar.y"
+#line 812 "src/Slice/Grammar.y"
 {
     if (yyvsp[-3])
     {
@@ -2510,11 +2513,11 @@ yyreduce:
         yyval = nullptr;
     }
 }
-#line 2514 "src/Slice/Grammar.cpp"
+#line 2517 "src/Slice/Grammar.cpp"
     break;
 
   case 81: /* class_extends: extends scoped_name  */
-#line 826 "src/Slice/Grammar.y"
+#line 829 "src/Slice/Grammar.y"
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = currentUnit->currentContainer();
@@ -2542,33 +2545,33 @@ yyreduce:
         }
     }
 }
-#line 2546 "src/Slice/Grammar.cpp"
+#line 2549 "src/Slice/Grammar.cpp"
     break;
 
   case 82: /* class_extends: %empty  */
-#line 854 "src/Slice/Grammar.y"
+#line 857 "src/Slice/Grammar.y"
 {
     yyval = nullptr;
 }
-#line 2554 "src/Slice/Grammar.cpp"
+#line 2557 "src/Slice/Grammar.cpp"
     break;
 
   case 83: /* extends: ICE_EXTENDS  */
-#line 863 "src/Slice/Grammar.y"
-{
-}
-#line 2561 "src/Slice/Grammar.cpp"
-    break;
-
-  case 84: /* extends: ':'  */
 #line 866 "src/Slice/Grammar.y"
 {
 }
-#line 2568 "src/Slice/Grammar.cpp"
+#line 2564 "src/Slice/Grammar.cpp"
+    break;
+
+  case 84: /* extends: ':'  */
+#line 869 "src/Slice/Grammar.y"
+{
+}
+#line 2571 "src/Slice/Grammar.cpp"
     break;
 
   case 85: /* data_members: metadata data_member ';' data_members  */
-#line 874 "src/Slice/Grammar.y"
+#line 877 "src/Slice/Grammar.y"
 {
     auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-3]);
     auto contained = dynamic_pointer_cast<Contained>(yyvsp[-2]);
@@ -2577,33 +2580,33 @@ yyreduce:
         contained->appendMetadata(std::move(metadata->v));
     }
 }
-#line 2581 "src/Slice/Grammar.cpp"
+#line 2584 "src/Slice/Grammar.cpp"
     break;
 
   case 86: /* data_members: error ';' data_members  */
-#line 883 "src/Slice/Grammar.y"
+#line 886 "src/Slice/Grammar.y"
 {
 }
-#line 2588 "src/Slice/Grammar.cpp"
+#line 2591 "src/Slice/Grammar.cpp"
     break;
 
   case 87: /* data_members: metadata data_member  */
-#line 886 "src/Slice/Grammar.y"
+#line 889 "src/Slice/Grammar.y"
 {
     currentUnit->error("';' missing after definition");
 }
-#line 2596 "src/Slice/Grammar.cpp"
+#line 2599 "src/Slice/Grammar.cpp"
     break;
 
   case 88: /* data_members: %empty  */
-#line 890 "src/Slice/Grammar.y"
+#line 893 "src/Slice/Grammar.y"
 {
 }
-#line 2603 "src/Slice/Grammar.cpp"
+#line 2606 "src/Slice/Grammar.cpp"
     break;
 
   case 89: /* data_member: optional_type_id  */
-#line 898 "src/Slice/Grammar.y"
+#line 901 "src/Slice/Grammar.y"
 {
     auto def = dynamic_pointer_cast<OptionalDefTok>(yyvsp[0]);
     auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
@@ -2633,11 +2636,11 @@ yyreduce:
     currentUnit->currentContainer()->checkIntroduced(def->name, dm);
     yyval = dm;
 }
-#line 2637 "src/Slice/Grammar.cpp"
+#line 2640 "src/Slice/Grammar.cpp"
     break;
 
   case 90: /* data_member: optional_type_id '=' const_initializer  */
-#line 928 "src/Slice/Grammar.y"
+#line 931 "src/Slice/Grammar.y"
 {
     auto def = dynamic_pointer_cast<OptionalDefTok>(yyvsp[-2]);
     auto value = dynamic_pointer_cast<ConstDefTok>(yyvsp[0]);
@@ -2668,11 +2671,11 @@ yyreduce:
     currentUnit->currentContainer()->checkIntroduced(def->name, dm);
     yyval = dm;
 }
-#line 2672 "src/Slice/Grammar.cpp"
+#line 2675 "src/Slice/Grammar.cpp"
     break;
 
   case 91: /* data_member: type keyword  */
-#line 959 "src/Slice/Grammar.y"
+#line 962 "src/Slice/Grammar.y"
 {
     auto type = dynamic_pointer_cast<Type>(yyvsp[-1]);
     string name = dynamic_pointer_cast<StringTok>(yyvsp[0])->v;
@@ -2694,11 +2697,11 @@ yyreduce:
     assert(yyval);
     currentUnit->error("keyword '" + name + "' cannot be used as data member name");
 }
-#line 2698 "src/Slice/Grammar.cpp"
+#line 2701 "src/Slice/Grammar.cpp"
     break;
 
   case 92: /* data_member: type  */
-#line 981 "src/Slice/Grammar.y"
+#line 984 "src/Slice/Grammar.y"
 {
     auto type = dynamic_pointer_cast<Type>(yyvsp[0]);
     auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
@@ -2719,11 +2722,11 @@ yyreduce:
     assert(yyval);
     currentUnit->error("missing data member name");
 }
-#line 2723 "src/Slice/Grammar.cpp"
+#line 2726 "src/Slice/Grammar.cpp"
     break;
 
   case 93: /* return_type: optional type  */
-#line 1007 "src/Slice/Grammar.y"
+#line 1010 "src/Slice/Grammar.y"
 {
     auto m = dynamic_pointer_cast<OptionalDefTok>(yyvsp[-1]);
     m->type = dynamic_pointer_cast<Type>(yyvsp[0]);
@@ -2738,46 +2741,46 @@ yyreduce:
 
     yyval = m;
 }
-#line 2742 "src/Slice/Grammar.cpp"
+#line 2745 "src/Slice/Grammar.cpp"
     break;
 
   case 94: /* return_type: type  */
-#line 1022 "src/Slice/Grammar.y"
+#line 1025 "src/Slice/Grammar.y"
 {
     auto m = make_shared<OptionalDefTok>(-1);
     m->type = dynamic_pointer_cast<Type>(yyvsp[0]);
     yyval = m;
 }
-#line 2752 "src/Slice/Grammar.cpp"
+#line 2755 "src/Slice/Grammar.cpp"
     break;
 
   case 95: /* return_type: ICE_VOID  */
-#line 1028 "src/Slice/Grammar.y"
+#line 1031 "src/Slice/Grammar.y"
 {
     auto m = make_shared<OptionalDefTok>(-1);
     yyval = m;
 }
-#line 2761 "src/Slice/Grammar.cpp"
+#line 2764 "src/Slice/Grammar.cpp"
     break;
 
   case 96: /* idempotent_modifier: ICE_IDEMPOTENT  */
-#line 1038 "src/Slice/Grammar.y"
+#line 1041 "src/Slice/Grammar.y"
 {
     yyval = make_shared<BoolTok>(true);
 }
-#line 2769 "src/Slice/Grammar.cpp"
+#line 2772 "src/Slice/Grammar.cpp"
     break;
 
   case 97: /* idempotent_modifier: %empty  */
-#line 1042 "src/Slice/Grammar.y"
+#line 1045 "src/Slice/Grammar.y"
 {
     yyval = make_shared<BoolTok>(false);
 }
-#line 2777 "src/Slice/Grammar.cpp"
+#line 2780 "src/Slice/Grammar.cpp"
     break;
 
   case 98: /* operation_preamble: idempotent_modifier return_type ICE_IDENT_OPEN  */
-#line 1051 "src/Slice/Grammar.y"
+#line 1054 "src/Slice/Grammar.y"
 {
     bool isIdempotent = dynamic_pointer_cast<BoolTok>(yyvsp[-2])->v;
     auto returnType = dynamic_pointer_cast<OptionalDefTok>(yyvsp[-1]);
@@ -2804,11 +2807,11 @@ yyreduce:
         yyval = nullptr;
     }
 }
-#line 2808 "src/Slice/Grammar.cpp"
+#line 2811 "src/Slice/Grammar.cpp"
     break;
 
   case 99: /* operation_preamble: idempotent_modifier return_type ICE_KEYWORD_OPEN  */
-#line 1078 "src/Slice/Grammar.y"
+#line 1081 "src/Slice/Grammar.y"
 {
     bool isIdempotent = dynamic_pointer_cast<BoolTok>(yyvsp[-2])->v;
     auto returnType = dynamic_pointer_cast<OptionalDefTok>(yyvsp[-1]);
@@ -2835,11 +2838,11 @@ yyreduce:
         yyval = nullptr;
     }
 }
-#line 2839 "src/Slice/Grammar.cpp"
+#line 2842 "src/Slice/Grammar.cpp"
     break;
 
   case 100: /* @19: %empty  */
-#line 1110 "src/Slice/Grammar.y"
+#line 1113 "src/Slice/Grammar.y"
 {
     if (yyvsp[-2])
     {
@@ -2860,11 +2863,11 @@ yyreduce:
     }
     yyval = yyvsp[-2];
 }
-#line 2864 "src/Slice/Grammar.cpp"
+#line 2867 "src/Slice/Grammar.cpp"
     break;
 
   case 101: /* operation: operation_preamble parameters ')' @19 throws  */
-#line 1131 "src/Slice/Grammar.y"
+#line 1134 "src/Slice/Grammar.y"
 {
     auto op = dynamic_pointer_cast<Operation>(yyvsp[-1]);
     auto el = dynamic_pointer_cast<ExceptionListTok>(yyvsp[0]);
@@ -2874,11 +2877,11 @@ yyreduce:
         op->setExceptionList(el->v);
     }
 }
-#line 2878 "src/Slice/Grammar.cpp"
+#line 2881 "src/Slice/Grammar.cpp"
     break;
 
   case 102: /* @20: %empty  */
-#line 1141 "src/Slice/Grammar.y"
+#line 1144 "src/Slice/Grammar.y"
 {
     if (yyvsp[-2])
     {
@@ -2886,11 +2889,11 @@ yyreduce:
     }
     yyerrok;
 }
-#line 2890 "src/Slice/Grammar.cpp"
+#line 2893 "src/Slice/Grammar.cpp"
     break;
 
   case 103: /* operation: operation_preamble error ')' @20 throws  */
-#line 1149 "src/Slice/Grammar.y"
+#line 1152 "src/Slice/Grammar.y"
 {
     auto op = dynamic_pointer_cast<Operation>(yyvsp[-1]);
     auto el = dynamic_pointer_cast<ExceptionListTok>(yyvsp[0]);
@@ -2900,29 +2903,29 @@ yyreduce:
         op->setExceptionList(el->v); // Dummy
     }
 }
-#line 2904 "src/Slice/Grammar.cpp"
+#line 2907 "src/Slice/Grammar.cpp"
     break;
 
   case 104: /* interface_id: ICE_INTERFACE ICE_IDENTIFIER  */
-#line 1164 "src/Slice/Grammar.y"
+#line 1167 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[0];
 }
-#line 2912 "src/Slice/Grammar.cpp"
+#line 2915 "src/Slice/Grammar.cpp"
     break;
 
   case 105: /* interface_id: ICE_INTERFACE keyword  */
-#line 1168 "src/Slice/Grammar.y"
+#line 1171 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     currentUnit->error("keyword '" + ident->v + "' cannot be used as interface name");
     yyval = yyvsp[0]; // Dummy
 }
-#line 2922 "src/Slice/Grammar.cpp"
+#line 2925 "src/Slice/Grammar.cpp"
     break;
 
   case 106: /* interface_decl: interface_id  */
-#line 1179 "src/Slice/Grammar.y"
+#line 1182 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto cont = currentUnit->currentContainer();
@@ -2930,11 +2933,11 @@ yyreduce:
     cont->checkIntroduced(ident->v, cl);
     yyval = cl;
 }
-#line 2934 "src/Slice/Grammar.cpp"
+#line 2937 "src/Slice/Grammar.cpp"
     break;
 
   case 107: /* @21: %empty  */
-#line 1192 "src/Slice/Grammar.y"
+#line 1195 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
     ContainerPtr cont = currentUnit->currentContainer();
@@ -2951,11 +2954,11 @@ yyreduce:
         yyval = nullptr;
     }
 }
-#line 2955 "src/Slice/Grammar.cpp"
+#line 2958 "src/Slice/Grammar.cpp"
     break;
 
   case 108: /* interface_def: interface_id interface_extends @21 '{' operations '}'  */
-#line 1209 "src/Slice/Grammar.y"
+#line 1212 "src/Slice/Grammar.y"
 {
     if (yyvsp[-3])
     {
@@ -2967,11 +2970,11 @@ yyreduce:
         yyval = nullptr;
     }
 }
-#line 2971 "src/Slice/Grammar.cpp"
+#line 2974 "src/Slice/Grammar.cpp"
     break;
 
   case 109: /* interface_list: interface_list ',' scoped_name  */
-#line 1226 "src/Slice/Grammar.y"
+#line 1229 "src/Slice/Grammar.y"
 {
     auto interfaces = dynamic_pointer_cast<InterfaceListTok>(yyvsp[-2]);
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
@@ -2981,11 +2984,11 @@ yyreduce:
     }
     yyval = interfaces;
 }
-#line 2985 "src/Slice/Grammar.cpp"
+#line 2988 "src/Slice/Grammar.cpp"
     break;
 
   case 110: /* interface_list: scoped_name  */
-#line 1236 "src/Slice/Grammar.y"
+#line 1239 "src/Slice/Grammar.y"
 {
     auto interfaces = make_shared<InterfaceListTok>();
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
@@ -2995,45 +2998,45 @@ yyreduce:
     }
     yyval = interfaces;
 }
-#line 2999 "src/Slice/Grammar.cpp"
+#line 3002 "src/Slice/Grammar.cpp"
     break;
 
   case 111: /* interface_list: ICE_OBJECT  */
-#line 1246 "src/Slice/Grammar.y"
+#line 1249 "src/Slice/Grammar.y"
 {
     currentUnit->error("illegal inheritance from type Object");
     yyval = make_shared<InterfaceListTok>(); // Dummy
 }
-#line 3008 "src/Slice/Grammar.cpp"
+#line 3011 "src/Slice/Grammar.cpp"
     break;
 
   case 112: /* interface_list: ICE_VALUE  */
-#line 1251 "src/Slice/Grammar.y"
+#line 1254 "src/Slice/Grammar.y"
 {
     currentUnit->error("illegal inheritance from type Value");
     yyval = make_shared<InterfaceListTok>(); // Dummy
 }
-#line 3017 "src/Slice/Grammar.cpp"
+#line 3020 "src/Slice/Grammar.cpp"
     break;
 
   case 113: /* interface_extends: extends interface_list  */
-#line 1261 "src/Slice/Grammar.y"
+#line 1264 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[0];
 }
-#line 3025 "src/Slice/Grammar.cpp"
+#line 3028 "src/Slice/Grammar.cpp"
     break;
 
   case 114: /* interface_extends: %empty  */
-#line 1265 "src/Slice/Grammar.y"
+#line 1268 "src/Slice/Grammar.y"
 {
     yyval = make_shared<InterfaceListTok>();
 }
-#line 3033 "src/Slice/Grammar.cpp"
+#line 3036 "src/Slice/Grammar.cpp"
     break;
 
   case 115: /* operations: metadata operation ';' operations  */
-#line 1274 "src/Slice/Grammar.y"
+#line 1277 "src/Slice/Grammar.y"
 {
     auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-3]);
     auto contained = dynamic_pointer_cast<Contained>(yyvsp[-2]);
@@ -3042,55 +3045,55 @@ yyreduce:
         contained->appendMetadata(std::move(metadata->v));
     }
 }
-#line 3046 "src/Slice/Grammar.cpp"
+#line 3049 "src/Slice/Grammar.cpp"
     break;
 
   case 116: /* operations: error ';' operations  */
-#line 1283 "src/Slice/Grammar.y"
+#line 1286 "src/Slice/Grammar.y"
 {
 }
-#line 3053 "src/Slice/Grammar.cpp"
+#line 3056 "src/Slice/Grammar.cpp"
     break;
 
   case 117: /* operations: metadata operation  */
-#line 1286 "src/Slice/Grammar.y"
+#line 1289 "src/Slice/Grammar.y"
 {
     currentUnit->error("';' missing after definition");
 }
-#line 3061 "src/Slice/Grammar.cpp"
+#line 3064 "src/Slice/Grammar.cpp"
     break;
 
   case 118: /* operations: %empty  */
-#line 1290 "src/Slice/Grammar.y"
+#line 1293 "src/Slice/Grammar.y"
 {
 }
-#line 3068 "src/Slice/Grammar.cpp"
+#line 3071 "src/Slice/Grammar.cpp"
     break;
 
   case 119: /* exception_list: exception_list ',' exception  */
-#line 1298 "src/Slice/Grammar.y"
+#line 1301 "src/Slice/Grammar.y"
 {
     auto exceptionList = dynamic_pointer_cast<ExceptionListTok>(yyvsp[-2]);
     auto exception = dynamic_pointer_cast<Exception>(yyvsp[0]);
     exceptionList->v.push_back(exception);
     yyval = exceptionList;
 }
-#line 3079 "src/Slice/Grammar.cpp"
+#line 3082 "src/Slice/Grammar.cpp"
     break;
 
   case 120: /* exception_list: exception  */
-#line 1305 "src/Slice/Grammar.y"
+#line 1308 "src/Slice/Grammar.y"
 {
     auto exceptionList = make_shared<ExceptionListTok>();
     auto exception = dynamic_pointer_cast<Exception>(yyvsp[0]);
     exceptionList->v.push_back(exception);
     yyval = exceptionList;
 }
-#line 3090 "src/Slice/Grammar.cpp"
+#line 3093 "src/Slice/Grammar.cpp"
     break;
 
   case 121: /* exception: scoped_name  */
-#line 1317 "src/Slice/Grammar.y"
+#line 1320 "src/Slice/Grammar.y"
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = currentUnit->currentContainer();
@@ -3102,21 +3105,21 @@ yyreduce:
     cont->checkIntroduced(scoped->v, exception);
     yyval = exception;
 }
-#line 3106 "src/Slice/Grammar.cpp"
+#line 3109 "src/Slice/Grammar.cpp"
     break;
 
   case 122: /* exception: keyword  */
-#line 1329 "src/Slice/Grammar.y"
+#line 1332 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     currentUnit->error("keyword '" + ident->v + "' cannot be used as exception name");
     yyval = currentUnit->currentContainer()->createException(Ice::generateUUID(), 0, Dummy); // Dummy
 }
-#line 3116 "src/Slice/Grammar.cpp"
+#line 3119 "src/Slice/Grammar.cpp"
     break;
 
   case 123: /* sequence_def: ICE_SEQUENCE '<' metadata type '>' ICE_IDENTIFIER  */
-#line 1340 "src/Slice/Grammar.y"
+#line 1343 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-3]);
@@ -3124,11 +3127,11 @@ yyreduce:
     ContainerPtr cont = currentUnit->currentContainer();
     yyval = cont->createSequence(ident->v, type, std::move(metadata->v));
 }
-#line 3128 "src/Slice/Grammar.cpp"
+#line 3131 "src/Slice/Grammar.cpp"
     break;
 
   case 124: /* sequence_def: ICE_SEQUENCE '<' metadata type '>' keyword  */
-#line 1348 "src/Slice/Grammar.y"
+#line 1351 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-3]);
@@ -3137,11 +3140,11 @@ yyreduce:
     yyval = cont->createSequence(ident->v, type, std::move(metadata->v)); // Dummy
     currentUnit->error("keyword '" + ident->v + "' cannot be used as sequence name");
 }
-#line 3141 "src/Slice/Grammar.cpp"
+#line 3144 "src/Slice/Grammar.cpp"
     break;
 
   case 125: /* dictionary_def: ICE_DICTIONARY '<' metadata type ',' metadata type '>' ICE_IDENTIFIER  */
-#line 1362 "src/Slice/Grammar.y"
+#line 1365 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto keyMetadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-6]);
@@ -3151,11 +3154,11 @@ yyreduce:
     ContainerPtr cont = currentUnit->currentContainer();
     yyval = cont->createDictionary(ident->v, keyType, std::move(keyMetadata->v), valueType, std::move(valueMetadata->v));
 }
-#line 3155 "src/Slice/Grammar.cpp"
+#line 3158 "src/Slice/Grammar.cpp"
     break;
 
   case 126: /* dictionary_def: ICE_DICTIONARY '<' metadata type ',' metadata type '>' keyword  */
-#line 1372 "src/Slice/Grammar.y"
+#line 1375 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto keyMetadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-6]);
@@ -3166,29 +3169,29 @@ yyreduce:
     yyval = cont->createDictionary(ident->v, keyType, std::move(keyMetadata->v), valueType, std::move(valueMetadata->v)); // Dummy
     currentUnit->error("keyword '" + ident->v + "' cannot be used as dictionary name");
 }
-#line 3170 "src/Slice/Grammar.cpp"
+#line 3173 "src/Slice/Grammar.cpp"
     break;
 
   case 127: /* enum_id: ICE_ENUM ICE_IDENTIFIER  */
-#line 1388 "src/Slice/Grammar.y"
+#line 1391 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[0];
 }
-#line 3178 "src/Slice/Grammar.cpp"
+#line 3181 "src/Slice/Grammar.cpp"
     break;
 
   case 128: /* enum_id: ICE_ENUM keyword  */
-#line 1392 "src/Slice/Grammar.y"
+#line 1395 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     currentUnit->error("keyword '" + ident->v + "' cannot be used as enumeration name");
     yyval = yyvsp[0]; // Dummy
 }
-#line 3188 "src/Slice/Grammar.cpp"
+#line 3191 "src/Slice/Grammar.cpp"
     break;
 
   case 129: /* @22: %empty  */
-#line 1403 "src/Slice/Grammar.y"
+#line 1406 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = currentUnit->currentContainer();
@@ -3204,11 +3207,11 @@ yyreduce:
     currentUnit->pushContainer(en);
     yyval = en;
 }
-#line 3208 "src/Slice/Grammar.cpp"
+#line 3211 "src/Slice/Grammar.cpp"
     break;
 
   case 130: /* enum_def: enum_id @22 '{' enumerators '}'  */
-#line 1419 "src/Slice/Grammar.y"
+#line 1422 "src/Slice/Grammar.y"
 {
     auto en = dynamic_pointer_cast<Enum>(yyvsp[-3]);
     if (en)
@@ -3222,11 +3225,11 @@ yyreduce:
     }
     yyval = yyvsp[-3];
 }
-#line 3226 "src/Slice/Grammar.cpp"
+#line 3229 "src/Slice/Grammar.cpp"
     break;
 
   case 131: /* @23: %empty  */
-#line 1434 "src/Slice/Grammar.y"
+#line 1437 "src/Slice/Grammar.y"
 {
     currentUnit->error("missing enumeration name");
     ContainerPtr cont = currentUnit->currentContainer();
@@ -3234,36 +3237,36 @@ yyreduce:
     currentUnit->pushContainer(en);
     yyval = en;
 }
-#line 3238 "src/Slice/Grammar.cpp"
+#line 3241 "src/Slice/Grammar.cpp"
     break;
 
   case 132: /* enum_def: ICE_ENUM @23 '{' enumerators '}'  */
-#line 1442 "src/Slice/Grammar.y"
+#line 1445 "src/Slice/Grammar.y"
 {
     currentUnit->popContainer();
     yyval = yyvsp[-4];
 }
-#line 3247 "src/Slice/Grammar.cpp"
+#line 3250 "src/Slice/Grammar.cpp"
     break;
 
   case 134: /* enumerators: enumerator_list ','  */
-#line 1453 "src/Slice/Grammar.y"
+#line 1456 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[-1];
 }
-#line 3255 "src/Slice/Grammar.cpp"
+#line 3258 "src/Slice/Grammar.cpp"
     break;
 
   case 135: /* enumerators: %empty  */
-#line 1457 "src/Slice/Grammar.y"
+#line 1460 "src/Slice/Grammar.y"
 {
     yyval = make_shared<EnumeratorListTok>(); // Empty list
 }
-#line 3263 "src/Slice/Grammar.cpp"
+#line 3266 "src/Slice/Grammar.cpp"
     break;
 
   case 136: /* enumerator_list: enumerator_list ',' metadata enumerator  */
-#line 1466 "src/Slice/Grammar.y"
+#line 1469 "src/Slice/Grammar.y"
 {
     auto enumeratorList = dynamic_pointer_cast<EnumeratorListTok>(yyvsp[-3]);
     auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-1]);
@@ -3275,11 +3278,11 @@ yyreduce:
     enumeratorList->v.push_back(enumerator);
     yyval = enumeratorList;
 }
-#line 3279 "src/Slice/Grammar.cpp"
+#line 3282 "src/Slice/Grammar.cpp"
     break;
 
   case 137: /* enumerator_list: metadata enumerator  */
-#line 1478 "src/Slice/Grammar.y"
+#line 1481 "src/Slice/Grammar.y"
 {
     auto enumeratorList = make_shared<EnumeratorListTok>();
     auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-1]);
@@ -3291,21 +3294,21 @@ yyreduce:
     enumeratorList->v.push_back(enumerator);
     yyval = enumeratorList;
 }
-#line 3295 "src/Slice/Grammar.cpp"
+#line 3298 "src/Slice/Grammar.cpp"
     break;
 
   case 138: /* enumerator: ICE_IDENTIFIER  */
-#line 1495 "src/Slice/Grammar.y"
+#line 1498 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
     yyval = cont->createEnumerator(ident->v, nullopt);
 }
-#line 3305 "src/Slice/Grammar.cpp"
+#line 3308 "src/Slice/Grammar.cpp"
     break;
 
   case 139: /* enumerator: ICE_IDENTIFIER '=' integer_constant  */
-#line 1501 "src/Slice/Grammar.y"
+#line 1504 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[-2]);
     EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
@@ -3321,22 +3324,22 @@ yyreduce:
         yyval = cont->createEnumerator(ident->v, nullopt); // Dummy
     }
 }
-#line 3325 "src/Slice/Grammar.cpp"
+#line 3328 "src/Slice/Grammar.cpp"
     break;
 
   case 140: /* enumerator: keyword  */
-#line 1517 "src/Slice/Grammar.y"
+#line 1520 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
     currentUnit->error("keyword '" + ident->v + "' cannot be used as enumerator");
     yyval = cont->createEnumerator(ident->v, nullopt); // Dummy
 }
-#line 3336 "src/Slice/Grammar.cpp"
+#line 3339 "src/Slice/Grammar.cpp"
     break;
 
   case 141: /* parameter: optional_type_id  */
-#line 1529 "src/Slice/Grammar.y"
+#line 1532 "src/Slice/Grammar.y"
 {
     auto tsp = dynamic_pointer_cast<OptionalDefTok>(yyvsp[0]);
     ParameterPtr param;
@@ -3349,11 +3352,11 @@ yyreduce:
     }
     yyval = param;
 }
-#line 3353 "src/Slice/Grammar.cpp"
+#line 3356 "src/Slice/Grammar.cpp"
     break;
 
   case 142: /* parameter: type keyword  */
-#line 1542 "src/Slice/Grammar.y"
+#line 1545 "src/Slice/Grammar.y"
 {
     auto type = dynamic_pointer_cast<Type>(yyvsp[-1]);
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
@@ -3367,11 +3370,11 @@ yyreduce:
     }
     yyval = param;
 }
-#line 3371 "src/Slice/Grammar.cpp"
+#line 3374 "src/Slice/Grammar.cpp"
     break;
 
   case 143: /* parameter: type  */
-#line 1556 "src/Slice/Grammar.y"
+#line 1559 "src/Slice/Grammar.y"
 {
     auto type = dynamic_pointer_cast<Type>(yyvsp[0]);
     ParameterPtr param;
@@ -3384,11 +3387,11 @@ yyreduce:
     }
     yyval = param;
 }
-#line 3388 "src/Slice/Grammar.cpp"
+#line 3391 "src/Slice/Grammar.cpp"
     break;
 
   case 144: /* parameter: ICE_OUT parameter  */
-#line 1569 "src/Slice/Grammar.y"
+#line 1572 "src/Slice/Grammar.y"
 {
     if (auto param = dynamic_pointer_cast<Parameter>(yyvsp[0]))
     {
@@ -3396,11 +3399,11 @@ yyreduce:
     }
     yyval = yyvsp[0];
 }
-#line 3400 "src/Slice/Grammar.cpp"
+#line 3403 "src/Slice/Grammar.cpp"
     break;
 
   case 145: /* parameter: local_metadata parameter  */
-#line 1577 "src/Slice/Grammar.y"
+#line 1580 "src/Slice/Grammar.y"
 {
     if (auto param = dynamic_pointer_cast<Parameter>(yyvsp[0]))
     {
@@ -3409,144 +3412,144 @@ yyreduce:
     }
     yyval = yyvsp[0];
 }
-#line 3413 "src/Slice/Grammar.cpp"
+#line 3416 "src/Slice/Grammar.cpp"
     break;
 
   case 150: /* throws: ICE_THROWS exception_list  */
-#line 1605 "src/Slice/Grammar.y"
+#line 1608 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[0];
 }
-#line 3421 "src/Slice/Grammar.cpp"
+#line 3424 "src/Slice/Grammar.cpp"
     break;
 
   case 151: /* throws: %empty  */
-#line 1609 "src/Slice/Grammar.y"
+#line 1612 "src/Slice/Grammar.y"
 {
     yyval = make_shared<ExceptionListTok>();
 }
-#line 3429 "src/Slice/Grammar.cpp"
+#line 3432 "src/Slice/Grammar.cpp"
     break;
 
   case 152: /* scoped_name: ICE_IDENTIFIER  */
-#line 1618 "src/Slice/Grammar.y"
-{
-}
-#line 3436 "src/Slice/Grammar.cpp"
-    break;
-
-  case 153: /* scoped_name: ICE_SCOPED_IDENTIFIER  */
 #line 1621 "src/Slice/Grammar.y"
 {
 }
-#line 3443 "src/Slice/Grammar.cpp"
+#line 3439 "src/Slice/Grammar.cpp"
+    break;
+
+  case 153: /* scoped_name: ICE_SCOPED_IDENTIFIER  */
+#line 1624 "src/Slice/Grammar.y"
+{
+}
+#line 3446 "src/Slice/Grammar.cpp"
     break;
 
   case 154: /* builtin: ICE_BOOL  */
-#line 1628 "src/Slice/Grammar.y"
+#line 1631 "src/Slice/Grammar.y"
            {}
-#line 3449 "src/Slice/Grammar.cpp"
+#line 3452 "src/Slice/Grammar.cpp"
     break;
 
   case 155: /* builtin: ICE_BYTE  */
-#line 1629 "src/Slice/Grammar.y"
+#line 1632 "src/Slice/Grammar.y"
            {}
-#line 3455 "src/Slice/Grammar.cpp"
+#line 3458 "src/Slice/Grammar.cpp"
     break;
 
   case 156: /* builtin: ICE_SHORT  */
-#line 1630 "src/Slice/Grammar.y"
+#line 1633 "src/Slice/Grammar.y"
             {}
-#line 3461 "src/Slice/Grammar.cpp"
+#line 3464 "src/Slice/Grammar.cpp"
     break;
 
   case 157: /* builtin: ICE_INT  */
-#line 1631 "src/Slice/Grammar.y"
+#line 1634 "src/Slice/Grammar.y"
           {}
-#line 3467 "src/Slice/Grammar.cpp"
+#line 3470 "src/Slice/Grammar.cpp"
     break;
 
   case 158: /* builtin: ICE_LONG  */
-#line 1632 "src/Slice/Grammar.y"
+#line 1635 "src/Slice/Grammar.y"
            {}
-#line 3473 "src/Slice/Grammar.cpp"
+#line 3476 "src/Slice/Grammar.cpp"
     break;
 
   case 159: /* builtin: ICE_FLOAT  */
-#line 1633 "src/Slice/Grammar.y"
+#line 1636 "src/Slice/Grammar.y"
             {}
-#line 3479 "src/Slice/Grammar.cpp"
+#line 3482 "src/Slice/Grammar.cpp"
     break;
 
   case 160: /* builtin: ICE_DOUBLE  */
-#line 1634 "src/Slice/Grammar.y"
+#line 1637 "src/Slice/Grammar.y"
              {}
-#line 3485 "src/Slice/Grammar.cpp"
+#line 3488 "src/Slice/Grammar.cpp"
     break;
 
   case 161: /* builtin: ICE_STRING  */
-#line 1635 "src/Slice/Grammar.y"
+#line 1638 "src/Slice/Grammar.y"
              {}
-#line 3491 "src/Slice/Grammar.cpp"
+#line 3494 "src/Slice/Grammar.cpp"
     break;
 
   case 162: /* builtin: ICE_OBJECT  */
-#line 1636 "src/Slice/Grammar.y"
+#line 1639 "src/Slice/Grammar.y"
              {}
-#line 3497 "src/Slice/Grammar.cpp"
+#line 3500 "src/Slice/Grammar.cpp"
     break;
 
   case 163: /* builtin: ICE_VALUE  */
-#line 1637 "src/Slice/Grammar.y"
+#line 1640 "src/Slice/Grammar.y"
             {}
-#line 3503 "src/Slice/Grammar.cpp"
+#line 3506 "src/Slice/Grammar.cpp"
     break;
 
   case 164: /* type: ICE_OBJECT '*'  */
-#line 1643 "src/Slice/Grammar.y"
+#line 1646 "src/Slice/Grammar.y"
 {
     yyval = currentUnit->createBuiltin(Builtin::KindObjectProxy);
 }
-#line 3511 "src/Slice/Grammar.cpp"
+#line 3514 "src/Slice/Grammar.cpp"
     break;
 
   case 165: /* type: builtin  */
-#line 1647 "src/Slice/Grammar.y"
+#line 1650 "src/Slice/Grammar.y"
 {
     auto typeName = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     yyval = currentUnit->createBuiltin(Builtin::kindFromString(typeName->v).value());
 }
-#line 3520 "src/Slice/Grammar.cpp"
+#line 3523 "src/Slice/Grammar.cpp"
     break;
 
   case 166: /* type: scoped_name  */
-#line 1652 "src/Slice/Grammar.y"
+#line 1655 "src/Slice/Grammar.y"
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     yyval = lookupTypeByName(scoped->v, false);
 }
-#line 3529 "src/Slice/Grammar.cpp"
+#line 3532 "src/Slice/Grammar.cpp"
     break;
 
   case 167: /* type: scoped_name '*'  */
-#line 1657 "src/Slice/Grammar.y"
+#line 1660 "src/Slice/Grammar.y"
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
     yyval = lookupTypeByName(scoped->v, true);
 }
-#line 3538 "src/Slice/Grammar.cpp"
+#line 3541 "src/Slice/Grammar.cpp"
     break;
 
   case 168: /* integer_constant: ICE_INTEGER_LITERAL  */
-#line 1667 "src/Slice/Grammar.y"
+#line 1670 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[0];
 }
-#line 3546 "src/Slice/Grammar.cpp"
+#line 3549 "src/Slice/Grammar.cpp"
     break;
 
   case 169: /* integer_constant: scoped_name  */
-#line 1671 "src/Slice/Grammar.y"
+#line 1674 "src/Slice/Grammar.y"
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = currentUnit->currentContainer();
@@ -3627,28 +3630,28 @@ yyreduce:
         yyval = nullptr;
     }
 }
-#line 3631 "src/Slice/Grammar.cpp"
+#line 3634 "src/Slice/Grammar.cpp"
     break;
 
   case 170: /* string_literal: ICE_STRING_LITERAL string_literal  */
-#line 1757 "src/Slice/Grammar.y"
+#line 1760 "src/Slice/Grammar.y"
 {
     auto str1 = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
     auto str2 = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     str1->v += str2->v;
 }
-#line 3641 "src/Slice/Grammar.cpp"
+#line 3644 "src/Slice/Grammar.cpp"
     break;
 
   case 171: /* string_literal: ICE_STRING_LITERAL  */
-#line 1763 "src/Slice/Grammar.y"
+#line 1766 "src/Slice/Grammar.y"
 {
 }
-#line 3648 "src/Slice/Grammar.cpp"
+#line 3651 "src/Slice/Grammar.cpp"
     break;
 
   case 172: /* metadata_list: metadata_list ',' string_literal  */
-#line 1771 "src/Slice/Grammar.y"
+#line 1774 "src/Slice/Grammar.y"
 {
     auto str = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto metadataList = dynamic_pointer_cast<MetadataListTok>(yyvsp[-2]);
@@ -3658,11 +3661,11 @@ yyreduce:
 
     yyval = metadataList;
 }
-#line 3662 "src/Slice/Grammar.cpp"
+#line 3665 "src/Slice/Grammar.cpp"
     break;
 
   case 173: /* metadata_list: string_literal  */
-#line 1781 "src/Slice/Grammar.y"
+#line 1784 "src/Slice/Grammar.y"
 {
     auto str = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto metadataList = make_shared<MetadataListTok>();
@@ -3672,27 +3675,27 @@ yyreduce:
 
     yyval = metadataList;
 }
-#line 3676 "src/Slice/Grammar.cpp"
+#line 3679 "src/Slice/Grammar.cpp"
     break;
 
   case 174: /* metadata_list: metadata_list ',' BAD_TOKEN  */
-#line 1791 "src/Slice/Grammar.y"
+#line 1794 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[-2];
 }
-#line 3684 "src/Slice/Grammar.cpp"
+#line 3687 "src/Slice/Grammar.cpp"
     break;
 
   case 175: /* metadata_list: BAD_TOKEN  */
-#line 1795 "src/Slice/Grammar.y"
+#line 1798 "src/Slice/Grammar.y"
 {
     yyval = make_shared<MetadataListTok>();
 }
-#line 3692 "src/Slice/Grammar.cpp"
+#line 3695 "src/Slice/Grammar.cpp"
     break;
 
   case 176: /* const_initializer: ICE_INTEGER_LITERAL  */
-#line 1804 "src/Slice/Grammar.y"
+#line 1807 "src/Slice/Grammar.y"
 {
     BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindLong);
     auto intVal = dynamic_pointer_cast<IntegerTok>(yyvsp[0]);
@@ -3701,11 +3704,11 @@ yyreduce:
     auto def = make_shared<ConstDefTok>(type, sstr.str());
     yyval = def;
 }
-#line 3705 "src/Slice/Grammar.cpp"
+#line 3708 "src/Slice/Grammar.cpp"
     break;
 
   case 177: /* const_initializer: ICE_FLOATING_POINT_LITERAL  */
-#line 1813 "src/Slice/Grammar.y"
+#line 1816 "src/Slice/Grammar.y"
 {
     BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindDouble);
     auto floatVal = dynamic_pointer_cast<FloatingTok>(yyvsp[0]);
@@ -3714,11 +3717,11 @@ yyreduce:
     auto def = make_shared<ConstDefTok>(type, sstr.str());
     yyval = def;
 }
-#line 3718 "src/Slice/Grammar.cpp"
+#line 3721 "src/Slice/Grammar.cpp"
     break;
 
   case 178: /* const_initializer: scoped_name  */
-#line 1822 "src/Slice/Grammar.y"
+#line 1825 "src/Slice/Grammar.y"
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ConstDefTokPtr def;
@@ -3753,44 +3756,44 @@ yyreduce:
     }
     yyval = def;
 }
-#line 3757 "src/Slice/Grammar.cpp"
+#line 3760 "src/Slice/Grammar.cpp"
     break;
 
   case 179: /* const_initializer: ICE_STRING_LITERAL  */
-#line 1857 "src/Slice/Grammar.y"
+#line 1860 "src/Slice/Grammar.y"
 {
     BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindString);
     auto literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto def = make_shared<ConstDefTok>(type, literal->v);
     yyval = def;
 }
-#line 3768 "src/Slice/Grammar.cpp"
+#line 3771 "src/Slice/Grammar.cpp"
     break;
 
   case 180: /* const_initializer: ICE_FALSE  */
-#line 1864 "src/Slice/Grammar.y"
+#line 1867 "src/Slice/Grammar.y"
 {
     BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindBool);
     auto literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto def = make_shared<ConstDefTok>(type, "false");
     yyval = def;
 }
-#line 3779 "src/Slice/Grammar.cpp"
+#line 3782 "src/Slice/Grammar.cpp"
     break;
 
   case 181: /* const_initializer: ICE_TRUE  */
-#line 1871 "src/Slice/Grammar.y"
+#line 1874 "src/Slice/Grammar.y"
 {
     BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindBool);
     auto literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto def = make_shared<ConstDefTok>(type, "true");
     yyval = def;
 }
-#line 3790 "src/Slice/Grammar.cpp"
+#line 3793 "src/Slice/Grammar.cpp"
     break;
 
   case 182: /* const_def: ICE_CONST metadata type ICE_IDENTIFIER '=' const_initializer  */
-#line 1883 "src/Slice/Grammar.y"
+#line 1886 "src/Slice/Grammar.y"
 {
     auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-4]);
     auto const_type = dynamic_pointer_cast<Type>(yyvsp[-3]);
@@ -3799,11 +3802,11 @@ yyreduce:
     yyval = currentUnit->currentContainer()->createConst(ident->v, const_type, std::move(metadata->v), value->v,
                                                       value->valueAsString);
 }
-#line 3803 "src/Slice/Grammar.cpp"
+#line 3806 "src/Slice/Grammar.cpp"
     break;
 
   case 183: /* const_def: ICE_CONST metadata type '=' const_initializer  */
-#line 1892 "src/Slice/Grammar.y"
+#line 1895 "src/Slice/Grammar.y"
 {
     auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-3]);
     auto const_type = dynamic_pointer_cast<Type>(yyvsp[-2]);
@@ -3812,173 +3815,173 @@ yyreduce:
     yyval = currentUnit->currentContainer()->createConst(Ice::generateUUID(), const_type, std::move(metadata->v),
                                                       value->v, value->valueAsString, Dummy); // Dummy
 }
-#line 3816 "src/Slice/Grammar.cpp"
+#line 3819 "src/Slice/Grammar.cpp"
     break;
 
   case 184: /* keyword: ICE_MODULE  */
-#line 1905 "src/Slice/Grammar.y"
+#line 1908 "src/Slice/Grammar.y"
              {}
-#line 3822 "src/Slice/Grammar.cpp"
+#line 3825 "src/Slice/Grammar.cpp"
     break;
 
   case 185: /* keyword: ICE_CLASS  */
-#line 1906 "src/Slice/Grammar.y"
+#line 1909 "src/Slice/Grammar.y"
             {}
-#line 3828 "src/Slice/Grammar.cpp"
+#line 3831 "src/Slice/Grammar.cpp"
     break;
 
   case 186: /* keyword: ICE_INTERFACE  */
-#line 1907 "src/Slice/Grammar.y"
+#line 1910 "src/Slice/Grammar.y"
                 {}
-#line 3834 "src/Slice/Grammar.cpp"
+#line 3837 "src/Slice/Grammar.cpp"
     break;
 
   case 187: /* keyword: ICE_EXCEPTION  */
-#line 1908 "src/Slice/Grammar.y"
+#line 1911 "src/Slice/Grammar.y"
                 {}
-#line 3840 "src/Slice/Grammar.cpp"
+#line 3843 "src/Slice/Grammar.cpp"
     break;
 
   case 188: /* keyword: ICE_STRUCT  */
-#line 1909 "src/Slice/Grammar.y"
+#line 1912 "src/Slice/Grammar.y"
              {}
-#line 3846 "src/Slice/Grammar.cpp"
+#line 3849 "src/Slice/Grammar.cpp"
     break;
 
   case 189: /* keyword: ICE_SEQUENCE  */
-#line 1910 "src/Slice/Grammar.y"
+#line 1913 "src/Slice/Grammar.y"
                {}
-#line 3852 "src/Slice/Grammar.cpp"
+#line 3855 "src/Slice/Grammar.cpp"
     break;
 
   case 190: /* keyword: ICE_DICTIONARY  */
-#line 1911 "src/Slice/Grammar.y"
+#line 1914 "src/Slice/Grammar.y"
                  {}
-#line 3858 "src/Slice/Grammar.cpp"
+#line 3861 "src/Slice/Grammar.cpp"
     break;
 
   case 191: /* keyword: ICE_ENUM  */
-#line 1912 "src/Slice/Grammar.y"
+#line 1915 "src/Slice/Grammar.y"
            {}
-#line 3864 "src/Slice/Grammar.cpp"
+#line 3867 "src/Slice/Grammar.cpp"
     break;
 
   case 192: /* keyword: ICE_OUT  */
-#line 1913 "src/Slice/Grammar.y"
+#line 1916 "src/Slice/Grammar.y"
           {}
-#line 3870 "src/Slice/Grammar.cpp"
+#line 3873 "src/Slice/Grammar.cpp"
     break;
 
   case 193: /* keyword: ICE_EXTENDS  */
-#line 1914 "src/Slice/Grammar.y"
+#line 1917 "src/Slice/Grammar.y"
               {}
-#line 3876 "src/Slice/Grammar.cpp"
+#line 3879 "src/Slice/Grammar.cpp"
     break;
 
   case 194: /* keyword: ICE_THROWS  */
-#line 1915 "src/Slice/Grammar.y"
+#line 1918 "src/Slice/Grammar.y"
              {}
-#line 3882 "src/Slice/Grammar.cpp"
+#line 3885 "src/Slice/Grammar.cpp"
     break;
 
   case 195: /* keyword: ICE_VOID  */
-#line 1916 "src/Slice/Grammar.y"
+#line 1919 "src/Slice/Grammar.y"
            {}
-#line 3888 "src/Slice/Grammar.cpp"
+#line 3891 "src/Slice/Grammar.cpp"
     break;
 
   case 196: /* keyword: ICE_BOOL  */
-#line 1917 "src/Slice/Grammar.y"
+#line 1920 "src/Slice/Grammar.y"
            {}
-#line 3894 "src/Slice/Grammar.cpp"
+#line 3897 "src/Slice/Grammar.cpp"
     break;
 
   case 197: /* keyword: ICE_BYTE  */
-#line 1918 "src/Slice/Grammar.y"
+#line 1921 "src/Slice/Grammar.y"
            {}
-#line 3900 "src/Slice/Grammar.cpp"
+#line 3903 "src/Slice/Grammar.cpp"
     break;
 
   case 198: /* keyword: ICE_SHORT  */
-#line 1919 "src/Slice/Grammar.y"
+#line 1922 "src/Slice/Grammar.y"
             {}
-#line 3906 "src/Slice/Grammar.cpp"
+#line 3909 "src/Slice/Grammar.cpp"
     break;
 
   case 199: /* keyword: ICE_INT  */
-#line 1920 "src/Slice/Grammar.y"
+#line 1923 "src/Slice/Grammar.y"
           {}
-#line 3912 "src/Slice/Grammar.cpp"
+#line 3915 "src/Slice/Grammar.cpp"
     break;
 
   case 200: /* keyword: ICE_LONG  */
-#line 1921 "src/Slice/Grammar.y"
+#line 1924 "src/Slice/Grammar.y"
            {}
-#line 3918 "src/Slice/Grammar.cpp"
+#line 3921 "src/Slice/Grammar.cpp"
     break;
 
   case 201: /* keyword: ICE_FLOAT  */
-#line 1922 "src/Slice/Grammar.y"
+#line 1925 "src/Slice/Grammar.y"
             {}
-#line 3924 "src/Slice/Grammar.cpp"
+#line 3927 "src/Slice/Grammar.cpp"
     break;
 
   case 202: /* keyword: ICE_DOUBLE  */
-#line 1923 "src/Slice/Grammar.y"
+#line 1926 "src/Slice/Grammar.y"
              {}
-#line 3930 "src/Slice/Grammar.cpp"
+#line 3933 "src/Slice/Grammar.cpp"
     break;
 
   case 203: /* keyword: ICE_STRING  */
-#line 1924 "src/Slice/Grammar.y"
+#line 1927 "src/Slice/Grammar.y"
              {}
-#line 3936 "src/Slice/Grammar.cpp"
+#line 3939 "src/Slice/Grammar.cpp"
     break;
 
   case 204: /* keyword: ICE_OBJECT  */
-#line 1925 "src/Slice/Grammar.y"
+#line 1928 "src/Slice/Grammar.y"
              {}
-#line 3942 "src/Slice/Grammar.cpp"
+#line 3945 "src/Slice/Grammar.cpp"
     break;
 
   case 205: /* keyword: ICE_CONST  */
-#line 1926 "src/Slice/Grammar.y"
+#line 1929 "src/Slice/Grammar.y"
             {}
-#line 3948 "src/Slice/Grammar.cpp"
+#line 3951 "src/Slice/Grammar.cpp"
     break;
 
   case 206: /* keyword: ICE_FALSE  */
-#line 1927 "src/Slice/Grammar.y"
+#line 1930 "src/Slice/Grammar.y"
             {}
-#line 3954 "src/Slice/Grammar.cpp"
+#line 3957 "src/Slice/Grammar.cpp"
     break;
 
   case 207: /* keyword: ICE_TRUE  */
-#line 1928 "src/Slice/Grammar.y"
+#line 1931 "src/Slice/Grammar.y"
            {}
-#line 3960 "src/Slice/Grammar.cpp"
+#line 3963 "src/Slice/Grammar.cpp"
     break;
 
   case 208: /* keyword: ICE_IDEMPOTENT  */
-#line 1929 "src/Slice/Grammar.y"
+#line 1932 "src/Slice/Grammar.y"
                  {}
-#line 3966 "src/Slice/Grammar.cpp"
+#line 3969 "src/Slice/Grammar.cpp"
     break;
 
   case 209: /* keyword: ICE_OPTIONAL  */
-#line 1930 "src/Slice/Grammar.y"
+#line 1933 "src/Slice/Grammar.y"
                {}
-#line 3972 "src/Slice/Grammar.cpp"
+#line 3975 "src/Slice/Grammar.cpp"
     break;
 
   case 210: /* keyword: ICE_VALUE  */
-#line 1931 "src/Slice/Grammar.y"
+#line 1934 "src/Slice/Grammar.y"
             {}
-#line 3978 "src/Slice/Grammar.cpp"
+#line 3981 "src/Slice/Grammar.cpp"
     break;
 
 
-#line 3982 "src/Slice/Grammar.cpp"
+#line 3985 "src/Slice/Grammar.cpp"
 
       default: break;
     }
@@ -4176,7 +4179,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 1934 "src/Slice/Grammar.y"
+#line 1937 "src/Slice/Grammar.y"
 
 
 // NOLINTEND
