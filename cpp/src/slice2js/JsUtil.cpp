@@ -369,7 +369,7 @@ Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(
     Output& out,
     const TypePtr& type,
     const string& param,
-    int tag,
+    int32_t tag,
     bool marshal)
 {
     assert(!type->isClassType()); // Optional classes are disallowed by the parser.

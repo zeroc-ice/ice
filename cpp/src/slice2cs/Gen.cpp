@@ -378,12 +378,7 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
     //
     // Sort optional parameters by tag.
     //
-    class SortFn
-    {
-    public:
-        static bool compare(const ParameterPtr& lhs, const ParameterPtr& rhs) { return lhs->tag() < rhs->tag(); }
-    };
-    optionals.sort(SortFn::compare);
+    optionals.sort(Slice::compareTag<ParameterPtr>);
 
     //
     // Handle optional parameters.

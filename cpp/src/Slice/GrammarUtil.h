@@ -95,13 +95,13 @@ namespace Slice
         TypePtr type;
         std::string name;
         const bool isOptional{false};
-        const int tag{0};
+        const int32_t tag{0};
     };
 
     struct ClassIdTok final : public GrammarBase
     {
         std::string v;
-        int t{0};
+        int32_t t{0};
     };
 
     struct TokenContext

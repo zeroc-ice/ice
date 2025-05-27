@@ -90,7 +90,7 @@ namespace Slice
             const ContainedPtr&,
             const std::string&,
             bool,
-            int = -1);
+            int32_t = -1);
 
         bool usesMarshalHelper(const TypePtr&);
         void writeMarshalInParams(::IceInternal::Output&, const OperationPtr&);

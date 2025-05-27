@@ -1005,8 +1005,8 @@ private:
     string getOptionalFormat(const TypePtr&);
     string getFormatType(FormatType);
 
-    void marshal(IceInternal::Output&, const string&, const string&, const TypePtr&, bool, int);
-    void unmarshal(IceInternal::Output&, const string&, const string&, const TypePtr&, bool, int);
+    void marshal(IceInternal::Output&, const string&, const string&, const TypePtr&, bool, int32_t);
+    void unmarshal(IceInternal::Output&, const string&, const string&, const TypePtr&, bool, int32_t);
 
     void unmarshalStruct(IceInternal::Output&, const StructPtr&, const string&);
     void convertStruct(IceInternal::Output&, const StructPtr&, const string&);
@@ -1290,7 +1290,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "TypeId char = '" << scoped << "'";
     if (p->compactId() != -1)
     {
-        out << nl << "CompactId char = '" << to_string(p->compactId()) << "'";
+        out << nl << "CompactId char = '" << p->compactId() << "'";
     }
     out.dec();
     out << nl << "end";
@@ -2797,7 +2797,7 @@ CodeVisitor::marshal(
     const string& v,
     const TypePtr& type,
     bool optional,
-    int tag)
+    int32_t tag)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
@@ -3034,7 +3034,7 @@ CodeVisitor::unmarshal(
     const string& v,
     const TypePtr& type,
     bool optional,
-    int tag)
+    int32_t tag)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
