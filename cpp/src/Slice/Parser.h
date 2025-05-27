@@ -477,6 +477,7 @@ namespace Slice
         [[nodiscard]] TypeList
         lookupTypeNoBuiltin(const std::string& identifier, bool emitErrors, bool ignoreUndefined = false);
         [[nodiscard]] ContainedList lookupContained(const std::string& identifier, bool emitErrors);
+        [[nodiscard]] InterfaceDefPtr lookupInterfaceDef(const std::string& identifier, bool emitErrors);
         [[nodiscard]] ExceptionPtr lookupException(const std::string& identifier, bool emitErrors);
         [[nodiscard]] ModuleList modules() const;
         [[nodiscard]] InterfaceList interfaces() const;
