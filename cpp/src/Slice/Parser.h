@@ -107,10 +107,7 @@ namespace Slice
     bool containedCompare(const ContainedPtr& lhs, const ContainedPtr& rhs);
     bool containedEqual(const ContainedPtr& lhs, const ContainedPtr& rhs);
 
-    template<typename T> bool compareTag(const T& lhs, const T& rhs)
-    {
-        return lhs->tag() < rhs->tag();
-    }
+    template<typename T> bool compareTag(const T& lhs, const T& rhs) { return lhs->tag() < rhs->tag(); }
 
     // ----------------------------------------------------------------------
     // CICompare -- function object to do case-insensitive string comparison.
@@ -987,7 +984,12 @@ namespace Slice
     class Parameter final : public Contained, public std::enable_shared_from_this<Parameter>
     {
     public:
-        Parameter(const ContainerPtr& container, const std::string& name, TypePtr type, bool isOptional, std::int32_t tag);
+        Parameter(
+            const ContainerPtr& container,
+            const std::string& name,
+            TypePtr type,
+            bool isOptional,
+            std::int32_t tag);
         [[nodiscard]] TypePtr type() const;
         [[nodiscard]] bool isOutParam() const;
         void setIsOutParam();
