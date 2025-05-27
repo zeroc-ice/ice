@@ -9,7 +9,7 @@ import com.zeroc.Ice.ProtocolInstance;
 
 import java.util.ArrayList;
 
-public final class EndpointFactoryI extends EndpointFactoryWithUnderlying {
+final class EndpointFactoryI extends EndpointFactoryWithUnderlying {
     public EndpointFactoryI(Instance instance, short type) {
         super(instance, type);
         _instance = instance;
