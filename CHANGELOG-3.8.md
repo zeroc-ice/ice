@@ -337,7 +337,7 @@ Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `
 - Removed the `slice2html` compiler, which was previously used to convert Slice documentation comments to HTML. Doxygen
   should be used to generate Slice API documentation.
 
-- Removed the `--impl` argument from the Slice compiler.
+- Removed the `--impl` argument from the Slice compilers.
 
 - You can now use identifiers with underscores or with the Ice prefix without any special compiler option.
 
@@ -470,8 +470,12 @@ initialization. See `InitializationData.pluginFactories`.
 - The `slice2js` Slice compiler is now included in the `@zeroc/ice` package, so there is no longer a need to install a
   separate `slice2js` NPM package.
 
-- Added support for `Symbol.asyncDispose` on `Ice.Communicator`, allowing it to be used with the await using expression
-  in TypeScript applications.
+- Added support for `Symbol.asyncDispose` on `Ice.Communicator`. TypeScript applications can now use the communicator in
+  `await using` expressions.
+
+  ```ts
+  await using communicator = Ice.initialize(process.argv);
+  ```
 
 - Ice for JavaScript now uses `console.assert` with the label `DEV`. You must configure your build to strip out these
   `DEV` assertions in release builds.
@@ -520,8 +524,8 @@ initialization. See `InitializationData.pluginFactories`.
   async def main():
       async with Ice.initialize(
 	      sys.argv,
-		      eventLoop=asyncio.get_running_loop()) as communicator:
-              ...
+          eventLoop=asyncio.get_running_loop()) as communicator:
+          ...
 
   if __name__ == "__main__":
       asyncio.run(main())
