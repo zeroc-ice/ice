@@ -6,7 +6,7 @@ OptionalMembers.ice:37: invalid tag '-0x80000001': tags cannot be negative
 OptionalMembers.ice:38: invalid tag '-1': tags cannot be negative
 OptionalMembers.ice:40: tag for optional data member 'm8' is already in use
 OptionalMembers.ice:41: invalid tag 'C3' (-1): tags cannot be negative
-OptionalMembers.ice:42: invalid tag 'C4' (-2147483647): tags cannot be negative
+OptionalMembers.ice:42: invalid tag 'C4' (2147483649): tags must be less than or equal to '2147483647'
 OptionalMembers.ice:43: constant 'C5' cannot be used as an integer constant
 OptionalMembers.ice:45: tag for optional data member 'm13' is already in use
 OptionalMembers.ice:46: enumerator 'e2' could designate '::Test::E::e2' or '::Test::Ebis::e2' or '::Test::Eter::e2'
@@ -19,7 +19,7 @@ OptionalMembers.ice:67: invalid tag '-0x80000001': tags cannot be negative
 OptionalMembers.ice:68: invalid tag '-1': tags cannot be negative
 OptionalMembers.ice:70: tag for optional data member 'm8' is already in use
 OptionalMembers.ice:71: invalid tag 'C3' (-1): tags cannot be negative
-OptionalMembers.ice:72: invalid tag 'C4' (-2147483647): tags cannot be negative
+OptionalMembers.ice:72: invalid tag 'C4' (2147483649): tags must be less than or equal to '2147483647'
 OptionalMembers.ice:73: constant 'C5' cannot be used as an integer constant
 OptionalMembers.ice:75: tag for optional data member 'm13' is already in use
 OptionalMembers.ice:78: tag for optional data member 'm16' is already in use
