@@ -1,2 +1,0 @@
-R	270125152613Z	241022152621Z	FECA35870F2AC431	unknown	/CN=Server cai3 revoked/OU=Ice/O=ZeroC, Inc./L=Jupiter/ST=Florida/C=US/emailAddress=info@zeroc.com
-R	270125152613Z	241022152621Z	556B8586AB1B8F7F	unknown	/CN=Client cai3 revoked/OU=Ice/O=ZeroC, Inc./L=Jupiter/ST=Florida/C=US/emailAddress=info@zeroc.com

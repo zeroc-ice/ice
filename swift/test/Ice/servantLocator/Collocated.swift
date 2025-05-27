@@ -21,9 +21,9 @@ class Collocated: TestHelperI {
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         try adapter.addServantLocator(locator: ServantLocatorI("category", self), category: "category")
         try adapter.addServantLocator(locator: ServantLocatorI("", self), category: "")
-        try adapter.add(servant: TestIntfDisp(TestI()), id: Ice.stringToIdentity("asm"))
+        try adapter.add(servant: TestI(), id: Ice.stringToIdentity("asm"))
         try adapter.add(
-            servant: TestActivationDisp(TestActivationI(self)),
+            servant: TestActivationI(self),
             id: Ice.stringToIdentity("test/activation"))
         // try adapter.activate() // Don't activate OA to ensure collocation is used.
         _ = try await allTests(self)

@@ -259,9 +259,9 @@ public class AllTests : global::Test.AllTests
         X500DistinguishedName subjectName)
     {
         test(subjectName.Name.Contains("E=info@zeroc.com"));
-        test(subjectName.Name.Contains("CN=127.0.0.1"));
-        test(subjectName.Name.Contains("OU=Ice"));
-        test(subjectName.Name.Contains("O=\"ZeroC, Inc.\""));
+        test(subjectName.Name.Contains("CN=ca.server"));
+        test(subjectName.Name.Contains("OU=Ice test infrastructure"));
+        test(subjectName.Name.Contains("O=ZeroC"));
         test(subjectName.Name.Contains("L=Jupiter"));
         test(subjectName.Name.Contains("S=Florida"));
         test(subjectName.Name.Contains("C=US"));

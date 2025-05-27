@@ -80,9 +80,9 @@ android {
 }
 
 task copyCertificatesTask(type: Copy) {
-    from "${rootProject.projectDir}/../../../../certs/ca.p12"
-    from "${rootProject.projectDir}/../../../../certs/client.p12"
-    from "${rootProject.projectDir}/../../../../certs/server.p12"
+    from "${rootProject.projectDir}/../../../../certs/common/ca/ca.p12"
+    from "${rootProject.projectDir}/../../../../certs/common/ca/client.p12"
+    from "${rootProject.projectDir}/../../../../certs/common/ca/server.p12"
     into "src/main/res/raw"
 }
 preBuild.dependsOn(copyCertificatesTask)

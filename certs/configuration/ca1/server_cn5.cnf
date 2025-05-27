@@ -1,0 +1,25 @@
+[ req ]
+default_bits        = 2048
+prompt              = no
+default_md          = sha256
+distinguished_name  = req_distinguished_name
+x509_extensions     = v3_extensions
+
+[ req_distinguished_name ]
+C  = US
+ST = Florida
+L  = Jupiter
+O  = ZeroC
+OU = Ice test infrastructure (ca1.server_cn5)
+CN = localhost
+emailAddress = info@zeroc.com
+
+[ v3_extensions ]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+keyUsage = critical, digitalSignature, nonRepudiation, keyEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = localhostX

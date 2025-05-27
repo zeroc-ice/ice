@@ -289,9 +289,9 @@ public class AllTests {
         test(info.certs[0] instanceof X509Certificate);
         var cert = (X509Certificate) info.certs[0];
         var subjectDN = cert.getSubjectX500Principal().getName();
-        test(subjectDN.contains("CN=127.0.0.1"));
-        test(subjectDN.contains("OU=Ice"));
-        test(subjectDN.contains("O=ZeroC\\, Inc."));
+        test(subjectDN.contains("CN=ca.server"));
+        test(subjectDN.contains("OU=Ice test infrastructure"));
+        test(subjectDN.contains("O=ZeroC"));
         test(subjectDN.contains("L=Jupiter"));
         test(subjectDN.contains("ST=Florida"));
         test(subjectDN.contains("C=US"));

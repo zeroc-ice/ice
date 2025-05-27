@@ -4,11 +4,11 @@ import IceImpl
 
 class AdminFacetFacade: ICEDispatchAdapter {
     private let communicator: Communicator
-    var dispatcher: Dispatcher
+    var servant: Dispatcher
 
-    init(communicator: Communicator, dispatcher: Dispatcher) {
+    init(communicator: Communicator, servant: Dispatcher) {
         self.communicator = communicator
-        self.dispatcher = dispatcher
+        self.servant = servant
     }
 
     func dispatch(
@@ -61,7 +61,7 @@ class AdminFacetFacade: ICEDispatchAdapter {
         Task {
             let response: OutgoingResponse
             do {
-                response = try await dispatcher.dispatch(request)
+                response = try await servant.dispatch(request)
             } catch {
                 response = current.makeOutgoingResponse(error: error)
             }
@@ -80,20 +80,10 @@ class AdminFacetFacade: ICEDispatchAdapter {
     func complete() {}
 }
 
-final class UnsupportedAdminFacet: Object {
-    func ice_id(current _: Current) -> String {
-        return ObjectTraits.staticId
+final class UnsupportedAdminFacet: Dispatcher {
+    func dispatch(_ request: IncomingRequest) async throws -> OutgoingResponse {
+        throw Ice.OperationNotExistException()
     }
-
-    func ice_ids(current _: Current) -> [String] {
-        return ObjectTraits.staticIds
-    }
-
-    func ice_isA(id: String, current _: Current) -> Bool {
-        return id == ObjectTraits.staticId
-    }
-
-    func ice_ping(current _: Current) {}
 }
 
 class AdminFacetFactory: ICEAdminFacetFactory {
@@ -104,7 +94,7 @@ class AdminFacetFactory: ICEAdminFacetFactory {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(
             communicator: c,
-            dispatcher: ProcessDisp(ProcessI(handle: handle))
+            servant: ProcessI(handle: handle)
         )
     }
 
@@ -116,7 +106,7 @@ class AdminFacetFactory: ICEAdminFacetFactory {
 
         return AdminFacetFacade(
             communicator: c,
-            dispatcher: PropertiesAdminDisp(NativePropertiesAdmin(handle: handle))
+            servant: NativePropertiesAdmin(handle: handle)
         )
     }
 
@@ -124,7 +114,7 @@ class AdminFacetFactory: ICEAdminFacetFactory {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(
             communicator: c,
-            dispatcher: ObjectDisp(UnsupportedAdminFacet())
+            servant: UnsupportedAdminFacet()
         )
     }
 }

@@ -325,7 +325,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             let adapter = try communicator.createObjectAdapter("")
             let replyI = PingReplyI()
             let reply = try uncheckedCast(
-                prx: adapter.addWithUUID(PingReplyDisp(replyI)), type: PingReplyPrx.self)
+                prx: adapter.addWithUUID(replyI), type: PingReplyPrx.self)
 
             let context: [String: String] = ["ONE": ""]
             try await p.pingBiDir(reply, context: context)

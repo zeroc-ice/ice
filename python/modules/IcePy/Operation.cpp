@@ -2737,8 +2737,7 @@ IcePy::ServantWrapperPtr
 IcePy::createServantWrapper(PyObject* servant)
 {
     PyObject* blobjectType{lookupType("Ice.Blobject")};
-    PyObject* blobjectAsyncType{lookupType("Ice.BlobjectAsync")};
-    if (PyObject_IsInstance(servant, blobjectType) || PyObject_IsInstance(servant, blobjectAsyncType))
+    if (PyObject_IsInstance(servant, blobjectType))
     {
         return make_shared<BlobjectServantWrapper>(servant);
     }

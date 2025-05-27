@@ -162,7 +162,7 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
         try adapter.activate()
 
         let proxy = try uncheckedCast(
-            prx: adapter.addWithUUID(TimeoutDisp(TimeoutI())),
+            prx: adapter.addWithUUID(TimeoutI()),
             type: TimeoutPrx.self
         ).ice_invocationTimeout(100)
         do {

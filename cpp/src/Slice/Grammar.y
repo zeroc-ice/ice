@@ -67,6 +67,7 @@ int slice_lex(YYSTYPE* lvalp, YYLTYPE* llocp);
 
 #include "Ice/UUID.h"
 #include "Parser.h"
+#include "GrammarUtil.h"
 
 #include <cstring>
 #include <limits>
@@ -114,6 +115,29 @@ slice_error(const char* s)
     {
         currentUnit->error(s);
     }
+}
+
+namespace
+{
+    /// Resolves a `Type` named `name` from the current scope and returns it.
+    /// If no such type could be found, this returns `nullptr` instead.
+    /// @param name The (possibly scoped) name to resolve.
+    /// @param expectInterfaceType `true` if the type ends with '*' (indicated a proxy), false otherwise.
+    ///        This function will automatically emit errors for interfaces missing '*', or non-interfaces using '*'.
+    [[nodiscard]] TypePtr lookupTypeByName(const string& name, bool expectInterfaceType);
+
+    /// Resolves an `InterfaceDef` named `name` from the current scope and returns it.
+    /// If no such interface could be found, this returns `nullptr` instead.
+    /// @param name The (possibly scoped) name to resolve.
+    [[nodiscard]] InterfaceDefPtr lookupInterfaceByName(const string& name);
+
+    /// Checks if the provided integer token's value is within the range ['0' ... 'int32_t::max'] (inclusive).
+    /// If it is within this range, this function will return `true`.
+    /// Otherwise this will return `false`, and automatically emit an error stating the issue.
+    /// @param token An integer token to check the value of.
+    /// @param kindString A string describing what the integer is being used for ("tag", "compact id", etc.).
+    ///                   It is only used to emit a more descriptive error message.
+    bool checkIntegerBounds(const IntegerTokPtr& token, string_view kindString);
 }
 
 %}
@@ -584,94 +608,14 @@ type_id
 // ----------------------------------------------------------------------
 optional
 // ----------------------------------------------------------------------
-: ICE_OPTIONAL_OPEN ICE_INTEGER_LITERAL ')'
+: ICE_OPTIONAL_OPEN integer_constant ')'
 {
-    auto i = dynamic_pointer_cast<IntegerTok>($2);
-
-    int tag;
-    if (i->v < 0 || i->v > std::numeric_limits<int32_t>::max())
-    {
-        currentUnit->error("tag is out of range");
-        tag = -1;
-    }
-    else
-    {
-        tag = static_cast<int>(i->v);
-    }
-
-    auto m = make_shared<OptionalDefTok>(tag);
-    $$ = m;
-}
-| ICE_OPTIONAL_OPEN scoped_name ')'
-{
-    auto scoped = dynamic_pointer_cast<StringTok>($2);
-    ContainerPtr cont = currentUnit->currentContainer();
-    ContainedList cl = cont->lookupContained(scoped->v, false);
-    if (cl.empty())
-    {
-        EnumeratorList enumerators = cont->enumerators(scoped->v);
-        if (enumerators.size() == 1)
-        {
-            // Found
-            cl.push_back(enumerators.front());
-            scoped->v = enumerators.front()->scoped();
-        }
-        else if (enumerators.size() > 1)
-        {
-            ostringstream os;
-            os << "enumerator '" << scoped->v << "' could designate";
-            bool first = true;
-            for (const auto& p : enumerators)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    os << " or";
-                }
-
-                os << " '" << p->scoped() << "'";
-            }
-            currentUnit->error(os.str());
-        }
-        else
-        {
-            currentUnit->error(string("'") + scoped->v + "' is not defined");
-        }
-    }
-
-    if (cl.empty())
-    {
-        YYERROR; // Can't continue, jump to next yyerrok
-    }
-    cont->checkIntroduced(scoped->v);
-
+    auto integer = dynamic_pointer_cast<IntegerTok>($2);
     int tag = -1;
-    auto enumerator = dynamic_pointer_cast<Enumerator>(cl.front());
-    auto constant = dynamic_pointer_cast<Const>(cl.front());
-    if (constant)
-    {
-        auto b = dynamic_pointer_cast<Builtin>(constant->type());
-        if (b && b->isIntegralType())
-        {
-            int64_t l = std::stoll(constant->value(), nullptr, 0);
-            if (l < 0 || l > std::numeric_limits<int32_t>::max())
-            {
-                currentUnit->error("tag is out of range");
-            }
-            tag = static_cast<int>(l);
-        }
-    }
-    else if (enumerator)
-    {
-        tag = enumerator->value();
-    }
 
-    if (tag < 0)
+    if (integer && checkIntegerBounds(integer, "tag"))
     {
-        currentUnit->error("invalid tag '" + scoped->v + "'");
+        tag = static_cast<int>(integer->v);
     }
 
     auto m = make_shared<OptionalDefTok>(tag);
@@ -803,105 +747,14 @@ class_name
 // ----------------------------------------------------------------------
 class_id
 // ----------------------------------------------------------------------
-: ICE_CLASS ICE_IDENT_OPEN ICE_INTEGER_LITERAL ')'
+: ICE_CLASS ICE_IDENT_OPEN integer_constant ')'
 {
-    int64_t id = dynamic_pointer_cast<IntegerTok>($3)->v;
-    if (id < 0)
-    {
-        currentUnit->error("invalid compact id for class: id must be a positive integer");
-    }
-    else if (id > std::numeric_limits<int32_t>::max())
-    {
-        currentUnit->error("invalid compact id for class: value is out of range");
-    }
-    else
-    {
-        string typeId = currentUnit->getTypeId(static_cast<int>(id));
-        if (!typeId.empty())
-        {
-            currentUnit->error("invalid compact id for class: already assigned to class '" + typeId + "'");
-        }
-    }
-
-    auto classId = make_shared<ClassIdTok>();
-    classId->v = dynamic_pointer_cast<StringTok>($2)->v;
-    classId->t = static_cast<int>(id);
-    $$ = classId;
-}
-| ICE_CLASS ICE_IDENT_OPEN scoped_name ')'
-{
-    auto scoped = dynamic_pointer_cast<StringTok>($3);
-
-    ContainerPtr cont = currentUnit->currentContainer();
-    ContainedList cl = cont->lookupContained(scoped->v, false);
-    if (cl.empty())
-    {
-        EnumeratorList enumerators = cont->enumerators(scoped->v);
-        if (enumerators.size() == 1)
-        {
-            // Found
-            cl.push_back(enumerators.front());
-            scoped->v = enumerators.front()->scoped();
-        }
-        else if (enumerators.size() > 1)
-        {
-            ostringstream os;
-            os << "enumerator '" << scoped->v << "' could designate";
-            bool first = true;
-            for (const auto& p : enumerators)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    os << " or";
-                }
-
-                os << " '" << p->scoped() << "'";
-            }
-            currentUnit->error(os.str());
-        }
-        else
-        {
-            currentUnit->error(string("'") + scoped->v + "' is not defined");
-        }
-    }
-
-    if (cl.empty())
-    {
-        YYERROR; // Can't continue, jump to next yyerrok
-    }
-    cont->checkIntroduced(scoped->v);
-
+    auto integer = dynamic_pointer_cast<IntegerTok>($3);
     int id = -1;
-    auto enumerator = dynamic_pointer_cast<Enumerator>(cl.front());
-    auto constant = dynamic_pointer_cast<Const>(cl.front());
-    if (constant)
-    {
-        auto b = dynamic_pointer_cast<Builtin>(constant->type());
-        if (b && b->isIntegralType())
-        {
-            int64_t l = std::stoll(constant->value(), nullptr, 0);
-            if (l < 0 || l > std::numeric_limits<int32_t>::max())
-            {
-                currentUnit->error("compact id for class is out of range");
-            }
-            id = static_cast<int>(l);
-        }
-    }
-    else if (enumerator)
-    {
-        id = enumerator->value();
-    }
 
-    if (id < 0)
+    if (integer && checkIntegerBounds(integer, "compact id"))
     {
-        currentUnit->error("invalid compact id for class: id must be a positive integer");
-    }
-    else
-    {
+        id = static_cast<int>(integer->v);
         string typeId = currentUnit->getTypeId(id);
         if (!typeId.empty())
         {
@@ -913,7 +766,6 @@ class_id
     classId->v = dynamic_pointer_cast<StringTok>($2)->v;
     classId->t = id;
     $$ = classId;
-
 }
 | class_name
 {
@@ -984,20 +836,14 @@ class_extends
         auto cl = dynamic_pointer_cast<ClassDecl>(types.front());
         if (!cl)
         {
-            string msg = "'";
-            msg += scoped->v;
-            msg += "' is not a class";
-            currentUnit->error(msg);
+            currentUnit->error("'" + scoped->v + "' is not a class");
         }
         else
         {
             ClassDefPtr def = cl->definition();
             if (!def)
             {
-                string msg = "'";
-                msg += scoped->v;
-                msg += "' has been declared but not defined";
-                currentUnit->error(msg);
+                currentUnit->error("'" + scoped->v + "' has been declared but not defined");
             }
             else
             {
@@ -1189,30 +1035,24 @@ return_type
 ;
 
 // ----------------------------------------------------------------------
+idempotent_modifier
+// ----------------------------------------------------------------------
+: ICE_IDEMPOTENT
+{
+    $$ = make_shared<BoolTok>(true);
+}
+| %empty
+{
+    $$ = make_shared<BoolTok>(false);
+}
+;
+
+// ----------------------------------------------------------------------
 operation_preamble
 // ----------------------------------------------------------------------
-: return_type ICE_IDENT_OPEN
+: idempotent_modifier return_type ICE_IDENT_OPEN
 {
-    auto returnType = dynamic_pointer_cast<OptionalDefTok>($1);
-    string name = dynamic_pointer_cast<StringTok>($2)->v;
-    auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
-    if (interface)
-    {
-        OperationPtr op = interface->createOperation(name, returnType->type, returnType->isOptional, returnType->tag);
-        if (op)
-        {
-            interface->checkIntroduced(name, op);
-            currentUnit->pushContainer(op);
-        }
-        $$ = op;
-    }
-    else
-    {
-        $$ = nullptr;
-    }
-}
-| ICE_IDEMPOTENT return_type ICE_IDENT_OPEN
-{
+    bool isIdempotent = dynamic_pointer_cast<BoolTok>($1)->v;
     auto returnType = dynamic_pointer_cast<OptionalDefTok>($2);
     string name = dynamic_pointer_cast<StringTok>($3)->v;
     auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
@@ -1223,7 +1063,7 @@ operation_preamble
             returnType->type,
             returnType->isOptional,
             returnType->tag,
-            Operation::Idempotent);
+            isIdempotent ? Operation::Idempotent : Operation::Normal);
 
         if (op)
         {
@@ -1237,28 +1077,9 @@ operation_preamble
         $$ = nullptr;
     }
 }
-| return_type ICE_KEYWORD_OPEN
+| idempotent_modifier return_type ICE_KEYWORD_OPEN
 {
-    auto returnType = dynamic_pointer_cast<OptionalDefTok>($1);
-    string name = dynamic_pointer_cast<StringTok>($2)->v;
-    auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
-    if (interface)
-    {
-        OperationPtr op = interface->createOperation(name, returnType->type, returnType->isOptional, returnType->tag);
-        if (op)
-        {
-            currentUnit->pushContainer(op);
-            currentUnit->error("keyword '" + name + "' cannot be used as operation name");
-        }
-        $$ = op; // Dummy
-    }
-    else
-    {
-        $$ = nullptr;
-    }
-}
-| ICE_IDEMPOTENT return_type ICE_KEYWORD_OPEN
-{
+    bool isIdempotent = dynamic_pointer_cast<BoolTok>($1)->v;
     auto returnType = dynamic_pointer_cast<OptionalDefTok>($2);
     string name = dynamic_pointer_cast<StringTok>($3)->v;
     auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
@@ -1269,7 +1090,8 @@ operation_preamble
             returnType->type,
             returnType->isOptional,
             returnType->tag,
-            Operation::Idempotent);
+            isIdempotent ? Operation::Idempotent : Operation::Normal);
+
         if (op)
         {
             currentUnit->pushContainer(op);
@@ -1405,73 +1227,23 @@ interface_list
 // ----------------------------------------------------------------------
 : interface_list ',' scoped_name
 {
-    auto intfs = dynamic_pointer_cast<InterfaceListTok>($1);
+    auto interfaces = dynamic_pointer_cast<InterfaceListTok>($1);
     auto scoped = dynamic_pointer_cast<StringTok>($3);
-    ContainerPtr cont = currentUnit->currentContainer();
-    TypeList types = cont->lookupType(scoped->v);
-    if (!types.empty())
+    if (auto interfaceDef = lookupInterfaceByName(scoped->v))
     {
-        auto interface = dynamic_pointer_cast<InterfaceDecl>(types.front());
-        if (!interface)
-        {
-            string msg = "'";
-            msg += scoped->v;
-            msg += "' is not an interface";
-            currentUnit->error(msg);
-        }
-        else
-        {
-            InterfaceDefPtr def = interface->definition();
-            if (!def)
-            {
-                string msg = "'";
-                msg += scoped->v;
-                msg += "' has been declared but not defined";
-                currentUnit->error(msg);
-            }
-            else
-            {
-                cont->checkIntroduced(scoped->v);
-                intfs->v.push_back(def);
-            }
-        }
+        interfaces->v.push_back(interfaceDef);
     }
-    $$ = intfs;
+    $$ = interfaces;
 }
 | scoped_name
 {
-    auto intfs = make_shared<InterfaceListTok>();
+    auto interfaces = make_shared<InterfaceListTok>();
     auto scoped = dynamic_pointer_cast<StringTok>($1);
-    ContainerPtr cont = currentUnit->currentContainer();
-    TypeList types = cont->lookupType(scoped->v);
-    if (!types.empty())
+    if (auto interfaceDef = lookupInterfaceByName(scoped->v))
     {
-        auto interface = dynamic_pointer_cast<InterfaceDecl>(types.front());
-        if (!interface)
-        {
-            string msg = "'";
-            msg += scoped->v;
-            msg += "' is not an interface";
-            currentUnit->error(msg); // $$ is a dummy
-        }
-        else
-        {
-            InterfaceDefPtr def = interface->definition();
-            if (!def)
-            {
-                string msg = "'";
-                msg += scoped->v;
-                msg += "' has been declared but not defined";
-                currentUnit->error(msg); // $$ is a dummy
-            }
-            else
-            {
-                cont->checkIntroduced(scoped->v);
-                intfs->v.push_back(def);
-            }
-        }
+        interfaces->v.push_back(interfaceDef);
     }
-    $$ = intfs;
+    $$ = interfaces;
 }
 | ICE_OBJECT
 {
@@ -1728,17 +1500,15 @@ enumerator
     EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
     $$ = cont->createEnumerator(ident->v, nullopt);
 }
-| ICE_IDENTIFIER '=' enumerator_initializer
+| ICE_IDENTIFIER '=' integer_constant
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
     EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
     auto intVal = dynamic_pointer_cast<IntegerTok>($3);
     if (intVal)
     {
-        if (intVal->v < 0 || intVal->v > std::numeric_limits<int32_t>::max())
-        {
-            currentUnit->error("value for enumerator '" + ident->v + "' is out of range");
-        }
+        // We report numbers that are out of range, but always create the enumerator no matter what.
+        checkIntegerBounds(intVal, "enumerator value");
         $$ = cont->createEnumerator(ident->v, static_cast<int>(intVal->v));
     }
     else
@@ -1752,51 +1522,6 @@ enumerator
     EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
     currentUnit->error("keyword '" + ident->v + "' cannot be used as enumerator");
     $$ = cont->createEnumerator(ident->v, nullopt); // Dummy
-}
-;
-
-// ----------------------------------------------------------------------
-enumerator_initializer
-// ----------------------------------------------------------------------
-: ICE_INTEGER_LITERAL
-{
-    $$ = $1;
-}
-| scoped_name
-{
-    auto scoped = dynamic_pointer_cast<StringTok>($1);
-    ContainedList cl = currentUnit->currentContainer()->lookupContained(scoped->v, true);
-    IntegerTokPtr tok;
-    if (!cl.empty())
-    {
-        auto constant = dynamic_pointer_cast<Const>(cl.front());
-        if (constant)
-        {
-            currentUnit->currentContainer()->checkIntroduced(scoped->v, constant);
-            auto b = dynamic_pointer_cast<Builtin>(constant->type());
-            if (b && b->isIntegralType())
-            {
-                try
-                {
-                    int64_t v = std::stoll(constant->value(), nullptr, 0);
-                    tok = make_shared<IntegerTok>();
-                    tok->v = v;
-                    tok->literal = constant->value();
-                }
-                catch (const std::exception&)
-                {
-                }
-            }
-        }
-    }
-
-    if (!tok)
-    {
-        string msg = "illegal initializer: '" + scoped->v + "' is not an integer constant";
-        currentUnit->error(msg); // $$ is dummy
-    }
-
-    $$ = tok;
 }
 ;
 
@@ -1929,53 +1654,101 @@ type
 | scoped_name
 {
     auto scoped = dynamic_pointer_cast<StringTok>($1);
-    ContainerPtr cont = currentUnit->currentContainer();
-
-    TypeList types = cont->lookupType(scoped->v);
-    if (types.empty())
-    {
-        $$ = nullptr;
-    }
-    else
-    {
-        TypePtr firstType = types.front();
-        auto interface = dynamic_pointer_cast<InterfaceDecl>(firstType);
-        if (interface)
-        {
-            string msg = "add a '*' after the interface name to specify its proxy type: '";
-            msg += scoped->v;
-            msg += "*'";
-            currentUnit->error(msg);
-        }
-
-        cont->checkIntroduced(scoped->v);
-        $$ = firstType;
-    }
+    $$ = lookupTypeByName(scoped->v, false);
 }
 | scoped_name '*'
 {
     auto scoped = dynamic_pointer_cast<StringTok>($1);
-    ContainerPtr cont = currentUnit->currentContainer();
+    $$ = lookupTypeByName(scoped->v, true);
+}
+;
 
-    TypeList types = cont->lookupType(scoped->v);
-    if (types.empty())
+// ----------------------------------------------------------------------
+integer_constant
+// ----------------------------------------------------------------------
+: ICE_INTEGER_LITERAL
+{
+    $$ = $1;
+}
+| scoped_name
+{
+    auto scoped = dynamic_pointer_cast<StringTok>($1);
+    ContainerPtr cont = currentUnit->currentContainer();
+    ContainedList cl = cont->lookupContained(scoped->v, false);
+
+    if (cl.empty())
     {
-        $$ = nullptr;
+        EnumeratorList enumerators = cont->enumerators(scoped->v);
+        if (enumerators.size() == 1)
+        {
+            // We found the enumerator the user must of been referencing.
+            cl.push_back(enumerators.front());
+            scoped->v = enumerators.front()->scoped();
+        }
+        else if (enumerators.size() > 1)
+        {
+            // There are multiple enumerators and it's ambiguous which to use.
+            bool first = true;
+            ostringstream os;
+            os << "enumerator '" << scoped->v << "' could designate";
+            for (const auto& p : enumerators)
+            {
+                if (!first)
+                {
+                    os << " or";
+                }
+                first = false;
+
+                os << " '" << p->scoped() << "'";
+            }
+            currentUnit->error(os.str());
+
+            // Use the first enumerator we found, so parsing can continue.
+            cl.push_back(enumerators.front());
+        }
+    }
+
+    optional<int> integerValue;
+    if (cl.empty())
+    {
+        // If we couldn't find any Slice types matching the provided name, report an error.
+        currentUnit->error("'" + scoped->v + "' is not defined");
     }
     else
     {
-        TypePtr firstType = types.front();
-        auto interface = dynamic_pointer_cast<InterfaceDecl>(firstType);
-        if (!interface)
+        cont->checkIntroduced(scoped->v);
+        if (auto constant = dynamic_pointer_cast<Const>(cl.front()))
         {
-            string msg = "'";
-            msg += scoped->v;
-            msg += "' must be an interface";
-            currentUnit->error(msg);
+            auto b = dynamic_pointer_cast<Builtin>(constant->type());
+            if (b && b->isIntegralType())
+            {
+                int64_t l = std::stoll(constant->value(), nullptr, 0);
+                integerValue = static_cast<int>(l);
+            }
+        }
+        else if (auto enumerator = dynamic_pointer_cast<Enumerator>(cl.front()))
+        {
+            integerValue = enumerator->value();
         }
 
-        cont->checkIntroduced(scoped->v);
-        $$ = firstType;
+        // If the provided name resolved to a non-integer-constant Slice type, report an error.
+        if (!integerValue)
+        {
+            currentUnit->error(cl.front()->kindOf() + " '" + scoped->v + "' cannot be used as an integer constant");
+        }
+    }
+
+    if (integerValue)
+    {
+        // Return the value that we resolved.
+        auto tok = make_shared<IntegerTok>();
+        tok->v = *integerValue;
+        tok->literal = scoped->v;
+        $$ = tok;
+    }
+    else
+    {
+        $$ = nullptr;
     }
 }
 ;
@@ -2164,3 +1937,77 @@ keyword
 %%
 
 // NOLINTEND
+
+namespace
+{
+    TypePtr lookupTypeByName(const string& name, bool expectInterfaceType)
+    {
+        ContainerPtr cont = currentUnit->currentContainer();
+        TypeList types = cont->lookupType(name);
+        if (types.empty())
+        {
+            return nullptr;
+        }
+
+        TypePtr firstType = types.front();
+        auto interface = dynamic_pointer_cast<InterfaceDecl>(firstType);
+        if (interface && !expectInterfaceType)
+        {
+            string msg = "add a '*' after the interface name to specify its proxy type: '" + name + "*'";
+            currentUnit->error(msg);
+        }
+        if (!interface && expectInterfaceType)
+        {
+            string msg = "'" + name + "' must be an interface";
+            currentUnit->error(msg);
+        }
+
+        cont->checkIntroduced(name);
+        return firstType;
+    }
+
+    InterfaceDefPtr lookupInterfaceByName(const string& name)
+    {
+        ContainerPtr cont = currentUnit->currentContainer();
+        InterfaceDefPtr interfaceDef = cont->lookupInterfaceDef(name, true);
+        if (interfaceDef)
+        {
+            cont->checkIntroduced(name);
+        }
+        return interfaceDef;
+    }
+
+    bool checkIntegerBounds(const IntegerTokPtr& token, string_view kindString)
+    {
+        const int32_t max_value = std::numeric_limits<int32_t>::max();
+        optional<string> errorReason;
+
+        // Check if the integer is between the allowed bounds.
+        if (token->v < 0)
+        {
+            errorReason = "cannot be negative";
+        }
+        else if (token->v > max_value)
+        {
+            errorReason = "must be less than or equal to '" + std::to_string(max_value) + "'";
+        }
+
+        // Report an error if the integer wasn't within bounds.
+        if (errorReason)
+        {
+            ostringstream msg;
+            msg << "invalid " << kindString << " '" << token->literal << "'";
+            if (isalpha(token->literal[0]))
+            {
+                msg << " (" << token->v << ")";
+            }
+            msg << ": " << kindString << "s " << *errorReason;
+            currentUnit->error(msg.str());
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+}

@@ -15,7 +15,7 @@ class Collocated: TestHelperI {
             value: "\(getTestEndpoint(num: 0)):\(getTestEndpoint(num: 0, prot: "udp"))"
         )
         let adapter = try communicator.createObjectAdapter("TestAdapter")
-        try adapter.add(servant: InitialDisp(InitialI(adapter)), id: Ice.stringToIdentity("initial"))
+        try adapter.add(servant: InitialI(adapter), id: Ice.stringToIdentity("initial"))
         // try adapter.activate() // Don't activate OA to ensure collocation is used.
 
         _ = try await allTests(self)

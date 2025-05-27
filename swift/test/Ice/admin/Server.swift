@@ -15,7 +15,7 @@ class Server: TestHelperI {
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         let id = try Ice.stringToIdentity("factory")
         try adapter.add(
-            servant: RemoteCommunicatorFactoryDisp(RemoteCommunicatorFactoryI()),
+            servant: RemoteCommunicatorFactoryI(),
             id: id)
         try adapter.activate()
         serverReady()
