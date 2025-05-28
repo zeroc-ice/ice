@@ -15,7 +15,7 @@ public final class ConnectionRefusedException extends ConnectFailedException {
     }
 
     /**
-     * Constructs a new {@code ConnectionRefusedException} with a cause.
+     * Constructs a {@code ConnectionRefusedException} with a cause.
      *
      * @param cause the cause of the exception
      */
