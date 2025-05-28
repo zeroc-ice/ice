@@ -567,7 +567,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
     const TypePtr& type,
     const string& scope,
     const string& param,
-    int tag,
+    int32_t tag,
     bool marshal,
     const string& customStream)
 {

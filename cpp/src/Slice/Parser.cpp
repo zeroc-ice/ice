@@ -25,13 +25,6 @@ Slice::containedEqual(const ContainedPtr& lhs, const ContainedPtr& rhs)
     return lhs->scoped() == rhs->scoped();
 }
 
-template<typename T>
-bool
-compareTag(const T& lhs, const T& rhs)
-{
-    return lhs->tag() < rhs->tag();
-}
-
 // NOTE: It is important that this list is kept in alphabetical order!
 constexpr string_view languages[] = {"cpp", "cs", "java", "js", "matlab", "php", "python", "ruby", "swift"};
 
@@ -1227,7 +1220,7 @@ Slice::Container::createModule(const string& name, bool nestedSyntax)
 }
 
 ClassDefPtr
-Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& base)
+Slice::Container::createClassDef(const string& name, int32_t id, const ClassDefPtr& base)
 {
     ContainedList matches = unit()->findContents(thisScope() + name);
     for (const auto& p : matches)
@@ -2573,7 +2566,7 @@ Slice::ClassDef::createDataMember(
     const string& name,
     const TypePtr& type,
     bool isOptional,
-    int tag,
+    int32_t tag,
     SyntaxTreeBasePtr defaultValueType,
     optional<string> defaultValueString)
 {
@@ -2780,7 +2773,7 @@ Slice::ClassDef::visit(ParserVisitor* visitor)
     }
 }
 
-int
+int32_t
 Slice::ClassDef::compactId() const
 {
     return _compactId;
@@ -2804,7 +2797,7 @@ Slice::ClassDef::appendMetadata(MetadataList metadata)
     _declaration->appendMetadata(std::move(metadata));
 }
 
-Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, ClassDefPtr base)
+Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int32_t id, ClassDefPtr base)
     : Contained(container, name),
       _base(std::move(base)),
       _compactId(id)
@@ -3042,7 +3035,7 @@ Slice::InterfaceDef::createOperation(
     const string& name,
     const TypePtr& returnType,
     bool isOptional,
-    int tag,
+    int32_t tag,
     Operation::Mode mode)
 {
     ContainedList matches = unit()->findContents(thisScope() + name);
@@ -3284,7 +3277,7 @@ Slice::Operation::returnIsOptional() const
     return _returnIsOptional;
 }
 
-int
+int32_t
 Slice::Operation::returnTag() const
 {
     return _returnTag;
@@ -3321,7 +3314,7 @@ Slice::Operation::hasMarshaledResult() const
 }
 
 ParameterPtr
-Slice::Operation::createParameter(const string& name, const TypePtr& type, bool isOptional, int tag)
+Slice::Operation::createParameter(const string& name, const TypePtr& type, bool isOptional, int32_t tag)
 {
     ContainedList matches = unit()->findContents(thisScope() + name);
     if (!matches.empty())
@@ -3688,7 +3681,7 @@ Slice::Operation::Operation(
     const string& name,
     TypePtr returnType,
     bool returnIsOptional,
-    int returnTag,
+    int32_t returnTag,
     Mode mode)
     : Contained(container, name),
       _returnType(std::move(returnType)),
@@ -3714,7 +3707,7 @@ Slice::Exception::createDataMember(
     const string& name,
     const TypePtr& type,
     bool isOptional,
-    int tag,
+    int32_t tag,
     SyntaxTreeBasePtr defaultValueType,
     optional<string> defaultValueString)
 {
@@ -3945,7 +3938,7 @@ Slice::Struct::createDataMember(
     const string& name,
     const TypePtr& type,
     bool isOptional,
-    int tag,
+    int32_t tag,
     SyntaxTreeBasePtr defaultValueType,
     optional<string> defaultValueString)
 {
@@ -4320,7 +4313,7 @@ Slice::Dictionary::Dictionary(
 // ----------------------------------------------------------------------
 
 EnumeratorPtr
-Slice::Enum::createEnumerator(const string& name, optional<int> explicitValue)
+Slice::Enum::createEnumerator(const string& name, optional<int32_t> explicitValue)
 {
     // Validate the enumerator's name.
     ContainedList matches = unit()->findContents(thisScope() + name);
@@ -4343,7 +4336,7 @@ Slice::Enum::createEnumerator(const string& name, optional<int> explicitValue)
     checkIdentifier(name); // Ignore return value.
 
     // Determine the enumerator's value, and check that it's valid.
-    int nextValue;
+    int32_t nextValue;
     if (explicitValue)
     {
         // If an explicit value was provided, the parser already checks that it's between `0` and `int32_t::max`.
@@ -4403,13 +4396,13 @@ Slice::Enum::hasExplicitValues() const
     return _hasExplicitValues;
 }
 
-int
+int32_t
 Slice::Enum::minValue() const
 {
     return static_cast<int>(_minValue);
 }
 
-int
+int32_t
 Slice::Enum::maxValue() const
 {
     return static_cast<int>(_maxValue);
@@ -4479,7 +4472,7 @@ Slice::Enumerator::hasExplicitValue() const
     return _hasExplicitValue;
 }
 
-int
+int32_t
 Slice::Enumerator::value() const
 {
     return _value;
@@ -4491,7 +4484,7 @@ Slice::Enumerator::visit(ParserVisitor*)
     // TODO we should probably visit enumerators, even if only for validation purposes.
 }
 
-Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, int value, bool hasExplicitValue)
+Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, int32_t value, bool hasExplicitValue)
     : Contained(container, name),
       _hasExplicitValue(hasExplicitValue),
       _value(value)
@@ -4592,7 +4585,7 @@ Slice::Parameter::optional() const
     return _optional;
 }
 
-int
+int32_t
 Slice::Parameter::tag() const
 {
     return _tag;
@@ -4610,7 +4603,12 @@ Slice::Parameter::visit(ParserVisitor* visitor)
     visitor->visitParameter(shared_from_this());
 }
 
-Slice::Parameter::Parameter(const ContainerPtr& container, const string& name, TypePtr type, bool isOptional, int tag)
+Slice::Parameter::Parameter(
+    const ContainerPtr& container,
+    const string& name,
+    TypePtr type,
+    bool isOptional,
+    int32_t tag)
     : Contained(container, name),
       _type(std::move(type)),
       _optional(isOptional),
@@ -4634,7 +4632,7 @@ Slice::DataMember::optional() const
     return _optional;
 }
 
-int
+int32_t
 Slice::DataMember::tag() const
 {
     return _tag;
@@ -4669,7 +4667,7 @@ Slice::DataMember::DataMember(
     const string& name,
     TypePtr type,
     bool isOptional,
-    int tag,
+    int32_t tag,
     SyntaxTreeBasePtr defaultValueType,
     std::optional<string> defaultValueString)
     : Contained(container, name),
@@ -5007,13 +5005,13 @@ Slice::Unit::findContents(const string& scopedName) const
 }
 
 void
-Slice::Unit::addTypeId(int compactId, const std::string& typeId)
+Slice::Unit::addTypeId(int32_t compactId, const std::string& typeId)
 {
     _typeIds.insert(make_pair(compactId, typeId));
 }
 
 std::string
-Slice::Unit::getTypeId(int compactId) const
+Slice::Unit::getTypeId(int32_t compactId) const
 {
     auto p = _typeIds.find(compactId);
     if (p != _typeIds.end())

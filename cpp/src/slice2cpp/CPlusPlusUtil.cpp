@@ -118,6 +118,7 @@ namespace
         }
     }
 
+    // TODO this is probably unnecessary. Search for `orderedOptionalDataMembers` in 'libSlice'.
     /// Split data members in required and optional members; the optional members are sorted in tag order.
     std::pair<DataMemberList, DataMemberList> split(const DataMemberList& dataMembers)
     {
@@ -137,8 +138,7 @@ namespace
         }
 
         // Sort optional data members
-        optionalMembers.sort([](const DataMemberPtr& lhs, const DataMemberPtr& rhs)
-                             { return lhs->tag() < rhs->tag(); });
+        optionalMembers.sort(Slice::compareTag<DataMemberPtr>);
 
         return {requiredMembers, optionalMembers};
     }
@@ -245,15 +245,7 @@ namespace
             //
             // Sort optional parameters by tag.
             //
-            class SortFn
-            {
-            public:
-                static bool compare(const ParameterPtr& lhs, const ParameterPtr& rhs)
-                {
-                    return lhs->tag() < rhs->tag();
-                }
-            };
-            optionals.sort(SortFn::compare);
+            optionals.sort(Slice::compareTag<ParameterPtr>);
 
             out << nl;
             if (marshal)

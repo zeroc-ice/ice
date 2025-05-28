@@ -68,7 +68,7 @@ namespace Slice
             const TypePtr&,
             const std::string&,
             const std::string&,
-            int,
+            std::int32_t,
             bool,
             const std::string& = "");
         void writeSequenceMarshalUnmarshalCode(

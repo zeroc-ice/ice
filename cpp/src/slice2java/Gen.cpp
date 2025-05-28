@@ -906,7 +906,7 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
 
         bool optional;
         TypePtr type;
-        int tag;
+        int32_t tag;
         MetadataList metadata;
         if (ret)
         {
@@ -1004,7 +1004,7 @@ Slice::JavaVisitor::writeMarshalServantResults(
         bool optional;
         OptionalMode mode;
         TypePtr type;
-        int tag;
+        int32_t tag;
         MetadataList metadata;
         if (op->returnType())
         {

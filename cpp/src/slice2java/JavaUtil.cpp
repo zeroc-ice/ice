@@ -568,7 +568,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
     const TypePtr& type,
     OptionalMode mode,
     bool optionalMapping,
-    int tag,
+    int32_t tag,
     const string& param,
     bool marshal,
     int& iter,
