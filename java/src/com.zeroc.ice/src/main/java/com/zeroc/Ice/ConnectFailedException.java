@@ -12,7 +12,7 @@ public class ConnectFailedException extends SocketException {
     }
 
     /**
-     * Constructs a new {@code ConnectFailedException} with a cause.
+     * Constructs a {@code ConnectFailedException} with a cause.
      *
      * @param cause the cause of the exception
      */
