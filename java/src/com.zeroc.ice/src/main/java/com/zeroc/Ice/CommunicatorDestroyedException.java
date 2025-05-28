@@ -9,7 +9,7 @@ package com.zeroc.Ice;
  */
 public final class CommunicatorDestroyedException extends LocalException {
     /**
-     * Creates a new {@code CommunicatorDestroyedException}.
+     * Constructs a {@code CommunicatorDestroyedException}.
      */
     public CommunicatorDestroyedException() {
         super("communicator destroyed");

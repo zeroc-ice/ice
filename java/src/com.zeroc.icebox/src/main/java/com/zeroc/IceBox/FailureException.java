@@ -11,7 +11,7 @@ import com.zeroc.Ice.LocalException;
  */
 public final class FailureException extends LocalException {
     /**
-     * Creates a new {@code FailureException} with a message.
+     * Constructs a {@code FailureException} with a message.
      *
      * @param message the detail message for this exception
      */
@@ -20,7 +20,7 @@ public final class FailureException extends LocalException {
     }
 
     /**
-     * Creates a new {@code FailureException} with a message and a cause.
+     * Constructs a {@code FailureException} with a message and a cause.
      *
      * @param message the detail message for this exception
      * @param cause   the cause of this exception

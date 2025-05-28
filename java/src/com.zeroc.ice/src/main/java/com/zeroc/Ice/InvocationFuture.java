@@ -446,48 +446,30 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         _instance.initializationData().logger.error(s);
     }
 
-    /**
-     * The {@code Instance} associated with this future.
-     */
-    protected final Instance _instance;
+    // While package-private, the fields below should only be accessed by subclasses.
 
-    /**
-     * The observer for this invocation, or null if no observer is set.
-     */
-    protected InvocationObserver _observer;
+    final Instance _instance;
+    InvocationObserver _observer;
+    Connection _cachedConnection;
 
-    /**
-     * The connection used for this invocation.
-     */
-    protected Connection _cachedConnection;
+    boolean _sentSynchronously;
+    boolean _doneInSent;
 
-    /**
-     * Indicates whether the request was sent synchronously.
-     */
-    protected boolean _sentSynchronously;
+    // True if this AMI request is being used for a generated synchronous invocation.
+    boolean _synchronous;
+    CompletableFuture<Boolean> _sentFuture;
 
-    /**
-     * Indicates if the request was sent and marked as done in the sent method.
-     */
-    protected boolean _doneInSent;
+    final Communicator _communicator;
+    final String _operation;
 
-    /**
-     * True if this AMI request is being used for a generated synchronous invocation.
-     */
-    protected boolean _synchronous;
-    protected CompletableFuture<Boolean> _sentFuture;
-
-    protected final Communicator _communicator;
-    protected final String _operation;
-
-    protected LocalException _exception;
+    LocalException _exception;
 
     private CancellationHandler _cancellationHandler;
     private LocalException _cancellationException;
 
-    protected static final byte StateOK = 0x1;
-    protected static final byte StateDone = 0x2;
-    protected static final byte StateSent = 0x4;
-    protected static final byte StateCachedBuffers = 0x08;
-    protected byte _state;
+    static final byte StateOK = 0x1;
+    static final byte StateDone = 0x2;
+    static final byte StateSent = 0x4;
+    static final byte StateCachedBuffers = 0x08;
+    byte _state;
 }

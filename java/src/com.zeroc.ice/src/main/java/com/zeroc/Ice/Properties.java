@@ -34,7 +34,7 @@ public final class Properties {
         public boolean used;
     }
 
-    /** Creates a new empty property set. */
+    /** Constructs an empty property set. */
     public Properties() {}
 
     /**

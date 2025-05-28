@@ -5,7 +5,7 @@ package com.zeroc.Ice;
 // TODO: should this derive from 'LocalException'?
 final class WebSocketException extends RuntimeException {
     /**
-     * Creates a new {@code WebSocketException} with the specified reason.
+     * Constructs a {@code WebSocketException} with the specified reason.
      *
      * @param reason the reason for this exception
      */
@@ -14,7 +14,7 @@ final class WebSocketException extends RuntimeException {
     }
 
     /**
-     * Creates a new {@code WebSocketException} with a cause.
+     * Constructs a {@code WebSocketException} with a cause.
      *
      * @param cause  the cause of this exception
      */

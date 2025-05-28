@@ -12,7 +12,7 @@ package com.zeroc.Ice;
  */
 public final class CloseConnectionException extends ProtocolException {
     /**
-     * Creates a new {@code CloseConnectionException}.
+     * Constructs a {@code CloseConnectionException}.
      */
     public CloseConnectionException() {
         super("Connection closed by the peer.");

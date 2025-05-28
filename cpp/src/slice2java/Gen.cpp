@@ -1855,7 +1855,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         // Default constructor.
         //
         out << sp;
-        writeDocComment(out, "Creates a new {@code " + name + "}.");
+        writeDocComment(out, "Constructs a {@code " + name + "}.");
         out << nl << "public " << name << "()";
         out << sb;
         if (baseClass)
@@ -1883,7 +1883,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 //
                 out << sp;
                 out << nl << "/**";
-                out << nl << " * Creates a new {@code " << name
+                out << nl << " * Constructs a {@code " << name
                     << "} with values for all fields not marked optional in the Slice definition for {@code "
                     << p->scoped() << "}.";
                 writeParamDocComments(out, requiredMembers);
@@ -1942,7 +1942,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             //
             out << sp;
             out << nl << "/**";
-            out << nl << " * Creates a new {@code " << name << "} with values for all its fields.";
+            out << nl << " * Constructs a {@code " << name << "} with values for all its fields.";
             writeParamDocComments(out, allDataMembers);
             out << nl << " */";
             out << nl << "public " << name << spar;
@@ -2144,7 +2144,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     // Default constructor.
     out << sp;
-    writeDocComment(out, "Creates a new {@code " + name + "}.");
+    writeDocComment(out, "Constructs a {@code " + name + "}.");
     out << nl << "public " << name << "()";
     out << sb;
     writeDataMemberInitializers(out, members, package);
@@ -2171,7 +2171,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 // Generate a constructor accepting parameters for just the required members.
                 out << sp;
                 out << nl << "/**";
-                out << nl << " * Creates a new {@code " << name
+                out << nl << " * Constructs a {@code " << name
                     << "} with values for all fields not marked optional in the Slice definition for {@code "
                     << p->scoped() << "}.";
                 writeParamDocComments(out, requiredMembers);
@@ -2222,7 +2222,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             //
             out << sp;
             out << nl << "/**";
-            out << nl << " * Creates a new {@code " << name << "} with values for all its fields.";
+            out << nl << " * Constructs a {@code " << name << "} with values for all its fields.";
             writeParamDocComments(out, allDataMembers);
             out << nl << " */";
             out << nl << "public " << name << spar;
@@ -2407,7 +2407,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     string typeS = typeToString(p, TypeModeIn, package);
 
     out << sp;
-    writeDocComment(out, "Creates a new {@code " + name + "}.");
+    writeDocComment(out, "Constructs a {@code " + name + "}.");
     out << nl << "public " << name << "()";
     out << sb;
     writeDataMemberInitializers(out, members, package);
@@ -2431,7 +2431,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         out << sp;
         out << nl << "/**";
-        out << nl << " * Creates a new {@code " << name
+        out << nl << " * Constructs a {@code " << name
             << "} with values for all fields not marked optional in the Slice definition for {@code " << p->scoped()
             << "}.";
         writeParamDocComments(out, members);
@@ -3062,11 +3062,11 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp;
     out << nl << "/**";
-    out << nl << " * Returns the {@code " << name << "} type corresponding to the given integer value.";
+    out << nl << " * Returns the {@code " << name << "} enumerator corresponding to the given integer value.";
     out << nl << " *";
     out << nl << " * @param v the value to match";
     out << nl << " * @return the {@code " << name
-        << "} type corresponding to the given integer value, or {@code null} if no such type exists";
+        << "} enumerator corresponding to the given integer value, or {@code null} if no such type exists";
     out << nl << " */";
     out << nl << "public static " << name << " valueOf(int v)";
     out << sb;

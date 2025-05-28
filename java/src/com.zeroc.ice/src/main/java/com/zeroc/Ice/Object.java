@@ -12,11 +12,11 @@ import java.util.concurrent.CompletionStage;
 public interface Object {
     /** Holds the results of a call to <code>ice_invoke</code>. */
     public class Ice_invokeResult {
-        /** Default initializes the members. */
+        /** Default initializes the fields. */
         public Ice_invokeResult() {}
 
         /**
-         * One-shot constructor to initialize the members.
+         * Primary constructor to initialize the fields.
          *
          * @param returnValue {@code true} for a successful invocation with any results encoded in
          *     {@code outParams}; {@code false} if a user exception occurred with the exception
