@@ -16,6 +16,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 public @interface CompactSliceTypeId {
-    /** The compact ID of this class.*/
+    /**
+     * Returns the compact ID of this class.
+     *
+     * @return the compact ID of this class
+     * */
     int value();
 }
