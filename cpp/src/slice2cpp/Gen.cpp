@@ -1228,7 +1228,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
         // an explicit value for *all* enumerators.
         if (hasExplicitValues)
         {
-            H << " = " << std::to_string(enumerator->value());
+            H << " = " << enumerator->value();
         }
     }
     H << eb << ';';

@@ -139,9 +139,6 @@ module Ice
     class InitializationException < LocalException
     end
 
-    class InvocationCanceledException < LocalException
-    end
-
     class NoEndpointException < LocalException
     end
 

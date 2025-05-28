@@ -5,9 +5,8 @@ import Foundation
 /// Represents the response to an incoming request. It's returned by Dispatcher.dispatch.
 public final class OutgoingResponse {
     /// Gets the exception ID of the response.
-    /// It's nil when replyStatus is ok. Otherwise, this ID is the Slice type ID of the exception marshaled into this
-    /// response if this exception was defined in Slice or is derived from LocalException.
-    /// For other exceptions, this ID is the full name of the exception's type.
+    /// It's nil when replyStatus is ok or userException. Otherwise, this ID is the value returned by `ice_id` for
+    /// Ice local exceptions. For other exceptions, this ID is the full name of the exception's type.
     public let exceptionId: String?
 
     /// Gets the full details of the exception marshaled into this response.
@@ -23,12 +22,12 @@ public final class OutgoingResponse {
     /// Creates an OutgoingResponse object.
     /// - Parameters:
     ///   - replyStatus: The reply status.
-    ///   - exceptionId: The ID of the exception, when the response carries an exception.
-    ///   - exceptionDetails: The full details of the exception, when the response carries an exception.
+    ///   - exceptionId: The ID of the exception, when the response carries an exception other than a user exception.
+    ///   - exceptionDetails: The full details of the exception, when the response carries an exception other than a
+    ///   user exception.
     ///   - outputStream: The output stream that holds the response.
     public init(
-        replyStatus: UInt8, exceptionId: String?, exceptionDetails: String?,
-        outputStream: OutputStream
+        replyStatus: UInt8, exceptionId: String?, exceptionDetails: String?, outputStream: OutputStream
     ) {
         self.replyStatus = replyStatus
         self.exceptionId = exceptionId
@@ -38,7 +37,7 @@ public final class OutgoingResponse {
 
     /// Creates an OutgoingResponse object with the ok status.
     /// - Parameter outputStream: The output stream that holds the response.
-    public convenience init(_ outputStream: OutputStream) {
+    internal convenience init(_ outputStream: OutputStream) {
         self.init(
             replyStatus: ReplyStatus.ok.rawValue, exceptionId: nil, exceptionDetails: nil, outputStream: outputStream)
     }

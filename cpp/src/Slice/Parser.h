@@ -90,9 +90,6 @@ namespace Slice
     using ConstPtr = std::shared_ptr<Const>;
     using UnitPtr = std::shared_ptr<Unit>;
 
-    bool containedCompare(const ContainedPtr& lhs, const ContainedPtr& rhs);
-    bool containedEqual(const ContainedPtr& lhs, const ContainedPtr& rhs);
-
     using StringList = std::list<std::string>;
     using MetadataList = std::list<MetadataPtr>;
     using TypeList = std::list<TypePtr>;
@@ -106,6 +103,11 @@ namespace Slice
     using DataMemberList = std::list<DataMemberPtr>;
     using ParameterList = std::list<ParameterPtr>;
     using EnumeratorList = std::list<EnumeratorPtr>;
+
+    bool containedCompare(const ContainedPtr& lhs, const ContainedPtr& rhs);
+    bool containedEqual(const ContainedPtr& lhs, const ContainedPtr& rhs);
+
+    template<typename T> bool compareTag(const T& lhs, const T& rhs) { return lhs->tag() < rhs->tag(); }
 
     // ----------------------------------------------------------------------
     // CICompare -- function object to do case-insensitive string comparison.
@@ -449,7 +451,7 @@ namespace Slice
     public:
         void destroyContents();
         ModulePtr createModule(const std::string& name, bool nestedSyntax);
-        [[nodiscard]] ClassDefPtr createClassDef(const std::string& name, int id, const ClassDefPtr& base);
+        [[nodiscard]] ClassDefPtr createClassDef(const std::string& name, std::int32_t id, const ClassDefPtr& base);
         [[nodiscard]] ClassDeclPtr createClassDecl(const std::string& name);
         [[nodiscard]] InterfaceDefPtr createInterfaceDef(const std::string& name, const InterfaceList& bases);
         [[nodiscard]] InterfaceDeclPtr createInterfaceDecl(const std::string& name);
@@ -580,13 +582,13 @@ namespace Slice
     class ClassDef final : public Container, public Contained
     {
     public:
-        ClassDef(const ContainerPtr& container, const std::string& name, int id, ClassDefPtr base);
+        ClassDef(const ContainerPtr& container, const std::string& name, std::int32_t id, ClassDefPtr base);
         void destroy() final;
         DataMemberPtr createDataMember(
             const std::string& name,
             const TypePtr& type,
             bool isOptional,
-            int tag,
+            std::int32_t tag,
             SyntaxTreeBasePtr defaultValueType,
             std::optional<std::string> defaultValueString);
         [[nodiscard]] ClassDeclPtr declaration() const;
@@ -598,7 +600,7 @@ namespace Slice
         [[nodiscard]] DataMemberList classDataMembers() const;
         [[nodiscard]] bool canBeCyclic() const;
         void visit(ParserVisitor* visitor) final;
-        [[nodiscard]] int compactId() const;
+        [[nodiscard]] std::int32_t compactId() const;
         [[nodiscard]] std::string kindOf() const final;
 
         // Class metadata is always stored on the underlying decl type, not the definition.
@@ -612,7 +614,7 @@ namespace Slice
 
         ClassDeclPtr _declaration;
         ClassDefPtr _base;
-        int _compactId;
+        std::int32_t _compactId;
     };
 
     // ----------------------------------------------------------------------
@@ -671,15 +673,15 @@ namespace Slice
             Idempotent = 2
         };
 
-        Operation(const ContainerPtr&, const std::string&, TypePtr, bool, int, Mode);
+        Operation(const ContainerPtr&, const std::string&, TypePtr, bool, std::int32_t, Mode);
         [[nodiscard]] InterfaceDefPtr interface() const;
         [[nodiscard]] TypePtr returnType() const;
         [[nodiscard]] bool returnIsOptional() const;
-        [[nodiscard]] int returnTag() const;
+        [[nodiscard]] std::int32_t returnTag() const;
         [[nodiscard]] Mode mode() const;
         [[nodiscard]] bool hasMarshaledResult() const;
 
-        ParameterPtr createParameter(const std::string& name, const TypePtr& type, bool isOptional, int tag);
+        ParameterPtr createParameter(const std::string& name, const TypePtr& type, bool isOptional, std::int32_t tag);
 
         [[nodiscard]] ParameterList parameters() const;
         /// Returns a list of all this operation's in-parameters (all parameters not marked with 'out').
@@ -729,7 +731,7 @@ namespace Slice
     private:
         TypePtr _returnType;
         bool _returnIsOptional;
-        int _returnTag;
+        std::int32_t _returnTag;
         ExceptionList _throws;
         Mode _mode;
     };
@@ -754,7 +756,7 @@ namespace Slice
             const std::string& name,
             const TypePtr& returnType,
             bool isOptional,
-            int tag,
+            std::int32_t tag,
             Operation::Mode mode = Operation::Normal);
 
         [[nodiscard]] InterfaceDeclPtr declaration() const;
@@ -796,7 +798,7 @@ namespace Slice
             const std::string& name,
             const TypePtr& type,
             bool isOptional,
-            int tag,
+            std::int32_t tag,
             SyntaxTreeBasePtr defaultValueType,
             std::optional<std::string> defaultValueString);
         [[nodiscard]] DataMemberList dataMembers() const;
@@ -826,7 +828,7 @@ namespace Slice
             const std::string& name,
             const TypePtr& type,
             bool isOptional,
-            int tag,
+            std::int32_t tag,
             SyntaxTreeBasePtr defaultValueType,
             std::optional<std::string> defaultValueString);
         [[nodiscard]] DataMemberList dataMembers() const;
@@ -907,10 +909,10 @@ namespace Slice
     {
     public:
         Enum(const ContainerPtr& container, const std::string& name);
-        EnumeratorPtr createEnumerator(const std::string& name, std::optional<int> explicitValue);
+        EnumeratorPtr createEnumerator(const std::string& name, std::optional<std::int32_t> explicitValue);
         [[nodiscard]] bool hasExplicitValues() const;
-        [[nodiscard]] int minValue() const;
-        [[nodiscard]] int maxValue() const;
+        [[nodiscard]] std::int32_t minValue() const;
+        [[nodiscard]] std::int32_t maxValue() const;
         [[nodiscard]] size_t minWireSize() const final;
         [[nodiscard]] std::string getOptionalFormat() const final;
         [[nodiscard]] bool isVariableLength() const final;
@@ -920,9 +922,9 @@ namespace Slice
 
     private:
         bool _hasExplicitValues{false};
-        std::int64_t _minValue;
-        std::int64_t _maxValue{0};
-        int _lastValue{-1};
+        std::int32_t _minValue;
+        std::int32_t _maxValue{0};
+        std::int32_t _lastValue{-1};
     };
 
     // ----------------------------------------------------------------------
@@ -932,18 +934,18 @@ namespace Slice
     class Enumerator final : public Contained
     {
     public:
-        Enumerator(const ContainerPtr& container, const std::string& name, int value, bool hasExplicitValue);
+        Enumerator(const ContainerPtr& container, const std::string& name, std::int32_t value, bool hasExplicitValue);
         [[nodiscard]] EnumPtr type() const;
         [[nodiscard]] std::string kindOf() const final;
 
         [[nodiscard]] bool hasExplicitValue() const;
-        [[nodiscard]] int value() const;
+        [[nodiscard]] std::int32_t value() const;
 
         void visit(ParserVisitor* visitor) final;
 
     private:
         bool _hasExplicitValue;
-        int _value;
+        std::int32_t _value;
     };
 
     // ----------------------------------------------------------------------
@@ -982,12 +984,17 @@ namespace Slice
     class Parameter final : public Contained, public std::enable_shared_from_this<Parameter>
     {
     public:
-        Parameter(const ContainerPtr& container, const std::string& name, TypePtr type, bool isOptional, int tag);
+        Parameter(
+            const ContainerPtr& container,
+            const std::string& name,
+            TypePtr type,
+            bool isOptional,
+            std::int32_t tag);
         [[nodiscard]] TypePtr type() const;
         [[nodiscard]] bool isOutParam() const;
         void setIsOutParam();
         [[nodiscard]] bool optional() const;
-        [[nodiscard]] int tag() const;
+        [[nodiscard]] std::int32_t tag() const;
         [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
@@ -995,7 +1002,7 @@ namespace Slice
         TypePtr _type;
         bool _isOutParam{false};
         bool _optional;
-        int _tag;
+        std::int32_t _tag;
     };
 
     // ----------------------------------------------------------------------
@@ -1010,12 +1017,12 @@ namespace Slice
             const std::string& name,
             TypePtr type,
             bool isOptional,
-            int tag,
+            std::int32_t tag,
             SyntaxTreeBasePtr defaultValueType,
             std::optional<std::string> defaultValueString);
         [[nodiscard]] TypePtr type() const;
         [[nodiscard]] bool optional() const;
-        [[nodiscard]] int tag() const;
+        [[nodiscard]] std::int32_t tag() const;
 
         // defaultValue() and defaultValueType() are either both null (no default value) or both non-null.
         [[nodiscard]] std::optional<std::string> defaultValue() const;
@@ -1026,7 +1033,7 @@ namespace Slice
     private:
         TypePtr _type;
         bool _optional;
-        int _tag;
+        std::int32_t _tag;
         SyntaxTreeBasePtr _defaultValueType;
         std::optional<std::string> _defaultValue;
     };
@@ -1073,8 +1080,8 @@ namespace Slice
         void addContent(const ContainedPtr& contained);
         [[nodiscard]] ContainedList findContents(const std::string& scopedName) const;
 
-        void addTypeId(int compactId, const std::string& typeId);
-        [[nodiscard]] std::string getTypeId(int compactId) const;
+        void addTypeId(std::int32_t compactId, const std::string& typeId);
+        [[nodiscard]] std::string getTypeId(std::int32_t compactId) const;
 
         // Returns the path names of the files included directly by the top-level file.
         [[nodiscard]] StringList includeFiles() const;
@@ -1113,7 +1120,7 @@ namespace Slice
         std::map<Builtin::Kind, BuiltinPtr> _builtins;
         std::map<std::string, ContainedList> _contentMap;
         std::map<std::string, DefinitionContextPtr, std::less<>> _definitionContextMap;
-        std::map<int, std::string> _typeIds;
+        std::map<std::int32_t, std::string> _typeIds;
         std::map<std::string, std::set<std::string>> _fileTopLevelModules;
     };
 

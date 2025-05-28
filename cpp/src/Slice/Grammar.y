@@ -611,11 +611,11 @@ optional
 : ICE_OPTIONAL_OPEN integer_constant ')'
 {
     auto integer = dynamic_pointer_cast<IntegerTok>($2);
-    int tag = -1;
+    int32_t tag = -1;
 
     if (integer && checkIntegerBounds(integer, "tag"))
     {
-        tag = static_cast<int>(integer->v);
+        tag = static_cast<int32_t>(integer->v);
     }
 
     auto m = make_shared<OptionalDefTok>(tag);
@@ -750,11 +750,11 @@ class_id
 : ICE_CLASS ICE_IDENT_OPEN integer_constant ')'
 {
     auto integer = dynamic_pointer_cast<IntegerTok>($3);
-    int id = -1;
+    int32_t id = -1;
 
     if (integer && checkIntegerBounds(integer, "compact id"))
     {
-        id = static_cast<int>(integer->v);
+        id = static_cast<int32_t>(integer->v);
         string typeId = currentUnit->getTypeId(id);
         if (!typeId.empty())
         {
@@ -1509,7 +1509,7 @@ enumerator
     {
         // We report numbers that are out of range, but always create the enumerator no matter what.
         checkIntegerBounds(intVal, "enumerator value");
-        $$ = cont->createEnumerator(ident->v, static_cast<int>(intVal->v));
+        $$ = cont->createEnumerator(ident->v, static_cast<int32_t>(intVal->v));
     }
     else
     {
@@ -1708,7 +1708,7 @@ integer_constant
         }
     }
 
-    optional<int> integerValue;
+    optional<int64_t> integerValue;
     if (cl.empty())
     {
         // If we couldn't find any Slice types matching the provided name, report an error.
@@ -1722,8 +1722,7 @@ integer_constant
             auto b = dynamic_pointer_cast<Builtin>(constant->type());
             if (b && b->isIntegralType())
             {
-                int64_t l = std::stoll(constant->value(), nullptr, 0);
-                integerValue = static_cast<int>(l);
+                integerValue = std::stoll(constant->value(), nullptr, 0);
             }
         }
         else if (auto enumerator = dynamic_pointer_cast<Enumerator>(cl.front()))

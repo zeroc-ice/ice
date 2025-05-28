@@ -14,17 +14,17 @@ public sealed class OutgoingResponse
     /// <summary>
     /// Gets the exception ID of the response.
     /// </summary>
-    /// <value>The exception ID of the response. It's null when replyStatus is <see cref="ReplyStatus.Ok" />. Otherwise,
-    /// this ID is the Slice type ID of the exception marshaled into this response if this exception was defined in
-    /// Slice or is derived from <see cref="LocalException" />. For other exceptions, this ID is the full name of
-    /// the exception's type.</value>
+    /// <value>The exception ID of the response. It's null when replyStatus is <see cref="ReplyStatus.Ok" /> or
+    /// <see cref="ReplyStatus.UserException"/> . Otherwise, this ID is the value returned by
+    /// <see cref="LocalException.ice_id()" />. For other exceptions, this ID is the full name of the exception's type.
+    /// </value>
     public string? exceptionId { get; }
 
     /// <summary>
     /// Gets the full details of the exception marshaled into the response.
     /// </summary>
     /// <value>The exception details, usually produced by calling <see cref="object.ToString" /> on the exception. It's
-    /// null when replyStatus is <see cref="ReplyStatus.Ok" />.</value>
+    /// null when replyStatus is <see cref="ReplyStatus.Ok" /> or <see cref="ReplyStatus.UserException"/>.</value>
     public string? exceptionDetails { get; }
 
     /// <summary>
@@ -46,8 +46,10 @@ public sealed class OutgoingResponse
     /// Initializes a new instance of the <see cref="OutgoingResponse" /> class.
     /// </summary>
     /// <param name="replyStatus">The reply status.</param>
-    /// <param name="exceptionId">The ID of the exception, when the response carries an exception.</param>
-    /// <param name="exceptionDetails">The full details of the exception, when the response carries an exception.</param>
+    /// <param name="exceptionId">The ID of the exception, when the response carries an exception other than a user
+    /// exception.</param>
+    /// <param name="exceptionDetails">The full details of the exception, when the response carries an exception other
+    /// than a user exception.</param>
     /// <param name="outputStream">The output stream that holds the response.</param>
     public OutgoingResponse(
         ReplyStatus replyStatus,

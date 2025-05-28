@@ -85,7 +85,7 @@ function createOutgoingResponseCore(current, exception) {
     let dispatchExceptionMessage = null;
 
     if (exception instanceof UserException) {
-        exceptionId = exception.ice_id();
+        exceptionId = null;
         replyStatus = ReplyStatus.UserException;
 
         if (current.requestId != 0) {
@@ -148,5 +148,5 @@ function createOutgoingResponseCore(current, exception) {
     }
 
     // The stack includes the class name and error message.
-    return new OutgoingResponse(ostr, replyStatus, exceptionId, exception.stack);
+    return new OutgoingResponse(ostr, replyStatus, exceptionId, exceptionId != null ? exception.stack : null);
 }

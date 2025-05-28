@@ -975,7 +975,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(
     const ContainedPtr& p,
     const string& param,
     bool marshal,
-    int tag)
+    int32_t tag)
 {
     assert(!(type->isClassType() && tag >= 0)); // Optional classes are disallowed by the parser.
 

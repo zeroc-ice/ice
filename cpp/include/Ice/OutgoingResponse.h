@@ -23,8 +23,10 @@ namespace Ice
     public:
         /// Constructs an OutgoingResponse object.
         /// @param replyStatus The status of the response.
-        /// @param exceptionId The type ID of the exception, when the response carries an exception.
-        /// @param exceptionDetails The full details of the exception, when the response carries an exception.
+        /// @param exceptionId The type ID of the exception, when the response carries an exception other than a user
+        /// exception.
+        /// @param exceptionDetails The full details of the exception, when the response carries an exception other than
+        /// a user exception.
         /// @param outputStream The output stream that holds the response.
         /// @param current A reference to the Current object of the request.
         OutgoingResponse(
@@ -60,15 +62,14 @@ namespace Ice
         [[nodiscard]] const Current& current() const noexcept { return _current.get(); }
 
         /// Gets the exception ID of the response.
-        /// @return The exception ID of the response. It's empty when #replyStatus is ReplyStatus::Ok. Otherwise, this
-        /// ID is the Slice type ID of the exception marshaled into this response if this exception was defined in Slice
-        /// or is derived from LocalException. For other exceptions, this ID is the value returned by
-        /// `std::exception::what()`.
+        /// @return The exception ID of the response. It's empty when #replyStatus is ReplyStatus::Ok or
+        /// ReplyStatus::UserException. Otherwise, this ID is the value returned by LocalException#ice_id. For other
+        /// exceptions, this ID is the value returned by `std::exception::what()`.
         [[nodiscard]] const std::string& exceptionId() const noexcept { return _exceptionId; }
 
         /// Gets the full details of the exception marshaled into the response.
         /// @return The exception details. For Ice exceptions, it's produced by Exception::ice_print. It's empty
-        /// when #replyStatus is ReplyStatus::Ok.
+        /// when #replyStatus is ReplyStatus::Ok or ReplyStatus::UserException.
         [[nodiscard]] const std::string& exceptionDetails() const noexcept { return _exceptionDetails; }
 
         /// Gets the reply status of the response.

@@ -11,8 +11,10 @@ declare module "@zeroc/ice" {
              *
              * @param outputStream The output stream that holds the response.
              * @param replyStatus The reply status.
-             * @param exceptionId The ID of the exception, when the response carries an exception.
-             * @param exceptionDetails The full details of the exception, when the response carries an exception.
+             * @param exceptionId The ID of the exception, when the response carries an exception other than a user
+             * exception.
+             * @param exceptionDetails The full details of the exception, when the response carries an exception other
+             * than a user exception.
              */
             constructor(
                 outputStream: OutputStream,
@@ -32,12 +34,14 @@ declare module "@zeroc/ice" {
             outputStream: OutputStream;
 
             /**
-             * The exception ID of the response. It's null when replyStatus is {@link ReplyStatus.Ok}.
+             * The exception ID of the response. It's null when replyStatus is {@link ReplyStatus.Ok} or
+             * {@link ReplyStatus.UserException}.
              */
             exceptionId: string;
 
             /**
-             * The exception details marshaled into the response. It's null when replyStatus is {@link ReplyStatus.Ok}.
+             * The exception details marshaled into the response. It's null when replyStatus is {@link ReplyStatus.Ok}
+             * or {@link ReplyStatus.UserException}.
              */
             exceptionDetails: string;
 
