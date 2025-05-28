@@ -38,6 +38,9 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509TrustManager;
 
+/**
+ * @hidden Public because it's used by Ice.Instance
+ */
 public class SSLEngine {
     public SSLEngine(Communicator communicator) {
         _communicator = communicator;

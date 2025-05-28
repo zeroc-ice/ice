@@ -2,26 +2,25 @@
 
 package com.zeroc.Ice;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 /** The base interface for servants. */
 @SliceTypeId(value = "::Ice::Object")
 public interface Object {
     /** Holds the results of a call to <code>ice_invoke</code>. */
     public class Ice_invokeResult {
-        /** Default initializes the members. */
+        /** Default initializes the fields. */
         public Ice_invokeResult() {}
 
         /**
-         * One-shot constructor to initialize the members.
+         * Primary constructor to initialize the fields.
          *
-         * @param returnValue True for a successful invocation with any results encoded in <code>
-         *     outParams</code>. False if a user exception occurred with the exception encoded in
-         *     <code>
-         *     outParams</code>.
+         * @param returnValue {@code true} for a successful invocation with any results encoded in
+         *     {@code outParams}; {@code false} if a user exception occurred with the exception
+         *     encoded in {@code outParams}.
          * @param outParams The encoded results.
          */
         public Ice_invokeResult(boolean returnValue, byte[] outParams) {
@@ -109,6 +108,7 @@ public interface Object {
      *
      * @param request The incoming request.
      * @return The outgoing response.
+     * @throws UserException when the response payload contains a {@code UserException}.
      */
     default CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
         throws UserException {
@@ -122,6 +122,12 @@ public interface Object {
     }
 
     /**
+     * Dispatches an incoming request and returns the corresponding outgoing response
+     * for the {@code ice_isA} operation.
+     *
+     * @param obj the object to dispatch the request to
+     * @param request the incoming request
+     * @return a {@link CompletionStage} that will complete with the outgoing response
      * @hidden
      */
     static CompletionStage<OutgoingResponse> _iceD_ice_isA(Object obj, IncomingRequest request) {
@@ -136,6 +142,12 @@ public interface Object {
     }
 
     /**
+     * Dispatches an incoming request and returns the corresponding outgoing response
+     * for the {@code ice_ping} operation.
+     *
+     * @param obj the object to dispatch the request to
+     * @param request the incoming request
+     * @return a {@link CompletionStage} that will complete with the outgoing response
      * @hidden
      */
     static CompletionStage<OutgoingResponse> _iceD_ice_ping(Object obj, IncomingRequest request) {
@@ -145,6 +157,12 @@ public interface Object {
     }
 
     /**
+     * Dispatches an incoming request and returns the corresponding outgoing response
+     * for the {@code ice_ids} operation.
+     *
+     * @param obj the object to dispatch the request to
+     * @param request the incoming request
+     * @return a {@link CompletionStage} that will complete with the outgoing response
      * @hidden
      */
     static CompletionStage<OutgoingResponse> _iceD_ice_ids(Object obj, IncomingRequest request) {
@@ -158,6 +176,12 @@ public interface Object {
     }
 
     /**
+     * Dispatches an incoming request and returns the corresponding outgoing response
+     * for the {@code ice_id} operation.
+     *
+     * @param obj the object to dispatch the request to
+     * @param request the incoming request
+     * @return a {@link CompletionStage} that will complete with the outgoing response
      * @hidden
      */
     static CompletionStage<OutgoingResponse> _iceD_ice_id(Object obj, IncomingRequest request) {

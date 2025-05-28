@@ -7,6 +7,9 @@ import com.zeroc.Ice.ProtocolInstance;
 
 import java.security.cert.CertificateException;
 
+/**
+ * @hidden Public because it's used by Ice.Instance
+ */
 public class Instance extends ProtocolInstance {
     public Instance(SSLEngine engine, short type, String protocol) {
         super(engine.communicator(), type, protocol, true);

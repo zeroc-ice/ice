@@ -547,18 +547,7 @@ public final class Communicator implements AutoCloseable {
         _instance.initialize(this, initData);
     }
 
-    /**
-     * For compatibility with C#, we do not invoke methods on other objects from within a finalizer.
-     *
-     * <p>protected synchronized void finalize() throws Throwable { if(!_instance.destroyed()) {
-     * _instance.logger().warning("Ice::Communicator::destroy() has not been called"); }
-     *
-     * <p>super.finalize(); }
-     */
-
-    //
-    // Certain initialization tasks need to be completed after the constructor.
-    //
+    /** Certain initialization tasks need to be completed after the constructor. */
     void finishSetup(String[] args, List<String> rArgs) {
         try {
             args = _instance.finishSetup(args, this);
@@ -574,6 +563,12 @@ public final class Communicator implements AutoCloseable {
         }
     }
 
+    /**
+     * Get the {@code Instance} object associated with this communicator.
+     *
+     * @return the {@code Instance} object associated with this communicator
+     * @hidden
+     */
     public Instance getInstance() {
         return _instance;
     }

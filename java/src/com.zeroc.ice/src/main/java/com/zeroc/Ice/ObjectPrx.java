@@ -797,6 +797,11 @@ public interface ObjectPrx {
     Reference _getReference();
 
     /**
+     * Creates a new {@code ObjectPrx} instance. This is a helper method and should not be
+     * called directly by user code.
+     *
+     * @param ref the reference to use for the new proxy
+     * @return a new {@code ObjectPrx} instance
      * @hidden
      */
     default ObjectPrx _newInstance(Reference ref) {

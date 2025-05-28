@@ -34,8 +34,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
-// NOTE: the class isn't final on purpose to allow users to eventually extend it.
-public class ServiceManagerI implements ServiceManager {
+final class ServiceManagerI implements ServiceManager {
     public ServiceManagerI(Communicator communicator, String[] args) {
         _communicator = communicator;
         _logger = _communicator.getLogger();

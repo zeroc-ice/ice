@@ -8,14 +8,23 @@ package com.zeroc.Ice;
  * (65507 bytes).
  */
 public final class DatagramLimitException extends ProtocolException {
+    /**
+     * Constructs a {@code DatagramLimitException}.
+     */
     public DatagramLimitException() {
         super("Datagram limit exceeded");
     }
 
+    /**
+     * Constructs a {@code DatagramLimitException} with a reason message.
+     *
+     * @param reason the reason for the exception
+     */
     public DatagramLimitException(String reason) {
         super("Datagram limit exceeded: " + reason);
     }
 
+    @Override
     public String ice_id() {
         return "::Ice::DatagramLimitException";
     }

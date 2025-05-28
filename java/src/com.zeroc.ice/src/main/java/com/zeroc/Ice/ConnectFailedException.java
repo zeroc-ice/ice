@@ -4,14 +4,23 @@ package com.zeroc.Ice;
 
 /** This exception indicates connection failures. */
 public class ConnectFailedException extends SocketException {
+    /**
+     * Constructs a {@code ConnectFailedException}.
+     */
     public ConnectFailedException() {
         super();
     }
 
+    /**
+     * Constructs a {@code ConnectFailedException} with a cause.
+     *
+     * @param cause the cause of the exception
+     */
     public ConnectFailedException(Throwable cause) {
         super(cause);
     }
 
+    @Override
     public String ice_id() {
         return "::Ice::ConnectFailedException";
     }

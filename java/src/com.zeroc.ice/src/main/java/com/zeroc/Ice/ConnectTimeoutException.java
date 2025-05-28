@@ -4,10 +4,14 @@ package com.zeroc.Ice;
 
 /** This exception indicates a connection establishment timeout condition. */
 public final class ConnectTimeoutException extends TimeoutException {
+    /**
+     * Constructs a new {@code ConnectTimeoutException}.
+     */
     public ConnectTimeoutException() {
         super("Connect timed out.");
     }
 
+    @Override
     public String ice_id() {
         return "::Ice::ConnectTimeoutException";
     }

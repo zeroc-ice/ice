@@ -14,6 +14,18 @@ import java.util.function.BiConsumer;
  * With this object, an application can obtain several attributes of the invocation.
  */
 public abstract class InvocationFuture<T> extends CompletableFuture<T> {
+
+    InvocationFuture(Communicator communicator, Instance instance, String op) {
+        _communicator = communicator;
+        _instance = instance;
+        _operation = op;
+        _state = 0;
+        _sentSynchronously = false;
+        _doneInSent = false;
+        _synchronous = false;
+        _exception = null;
+    }
+
     /**
      * If not completed, cancels the request. This is a local operation, it won't cancel the request
      * on the server side. Calling <code>cancel</code> prevents a queued request from being sent or
@@ -233,7 +245,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         }
     }
 
-    protected abstract void markCompleted();
+    abstract void markCompleted();
 
     public final void invokeCompleted() {
         try {
@@ -288,20 +300,9 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         _cancellationHandler = handler;
     }
 
-    protected InvocationFuture(Communicator communicator, Instance instance, String op) {
-        _communicator = communicator;
-        _instance = instance;
-        _operation = op;
-        _state = 0;
-        _sentSynchronously = false;
-        _doneInSent = false;
-        _synchronous = false;
-        _exception = null;
-    }
+    void cacheMessageBuffers() {}
 
-    protected void cacheMessageBuffers() {}
-
-    protected boolean sent(boolean done) {
+    boolean sent(boolean done) {
         synchronized (this) {
             assert (_exception == null);
 
@@ -337,7 +338,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         }
     }
 
-    protected boolean finished(boolean ok, boolean invoke) {
+    boolean finished(boolean ok, boolean invoke) {
         synchronized (this) {
             _state |= StateDone;
             if (ok) {
@@ -365,7 +366,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         }
     }
 
-    protected boolean finished(LocalException ex) {
+    boolean finished(LocalException ex) {
         synchronized (this) {
             _state |= StateDone;
             _exception = ex;
@@ -403,7 +404,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         dispatch(() -> invokeSent());
     }
 
-    protected void cancel(LocalException ex) {
+    void cancel(LocalException ex) {
         CancellationHandler handler;
         synchronized (this) {
             if (_cancellationHandler == null) {
@@ -415,11 +416,11 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         handler.asyncRequestCanceled((OutgoingAsyncBase) this, ex);
     }
 
-    protected InvocationObserver getObserver() {
+    InvocationObserver getObserver() {
         return _observer;
     }
 
-    protected void dispatch(final Runnable runnable) {
+    void dispatch(final Runnable runnable) {
         try {
             _instance
                 .clientThreadPool()
@@ -446,26 +447,30 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         _instance.initializationData().logger.error(s);
     }
 
-    protected final Instance _instance;
-    protected InvocationObserver _observer;
-    protected Connection _cachedConnection;
-    protected boolean _sentSynchronously;
-    protected boolean _doneInSent;
+    // While package-private, the fields below should only be accessed by subclasses.
+
+    final Instance _instance;
+    InvocationObserver _observer;
+    Connection _cachedConnection;
+
+    boolean _sentSynchronously;
+    boolean _doneInSent;
+
     // True if this AMI request is being used for a generated synchronous invocation.
-    protected boolean _synchronous;
-    protected CompletableFuture<Boolean> _sentFuture;
+    boolean _synchronous;
+    CompletableFuture<Boolean> _sentFuture;
 
-    protected final Communicator _communicator;
-    protected final String _operation;
+    final Communicator _communicator;
+    final String _operation;
 
-    protected LocalException _exception;
+    LocalException _exception;
 
     private CancellationHandler _cancellationHandler;
     private LocalException _cancellationException;
 
-    protected static final byte StateOK = 0x1;
-    protected static final byte StateDone = 0x2;
-    protected static final byte StateSent = 0x4;
-    protected static final byte StateCachedBuffers = 0x08;
-    protected byte _state;
+    static final byte StateOK = 0x1;
+    static final byte StateDone = 0x2;
+    static final byte StateSent = 0x4;
+    static final byte StateCachedBuffers = 0x08;
+    byte _state;
 }

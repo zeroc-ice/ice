@@ -10,14 +10,26 @@ import com.zeroc.Ice.LocalException;
  * service executable.
  */
 public final class FailureException extends LocalException {
+    /**
+     * Constructs a {@code FailureException} with a message.
+     *
+     * @param message the detail message for this exception
+     */
     public FailureException(String message) {
         super(message);
     }
 
+    /**
+     * Constructs a {@code FailureException} with a message and a cause.
+     *
+     * @param message the detail message for this exception
+     * @param cause   the cause of this exception
+     */
     public FailureException(String message, Throwable cause) {
         super(message, cause);
     }
 
+    @Override
     public String ice_id() {
         return "::IceBox::FailureException";
     }

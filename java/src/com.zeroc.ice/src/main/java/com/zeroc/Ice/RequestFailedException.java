@@ -4,8 +4,7 @@ package com.zeroc.Ice;
 
 /**
  * This exception is raised if a request failed. This exception, and all exceptions derived from
- * {@link DispatchException}, are transmitted by the Ice protocol, even though they are declared
- * <code>local</code>.
+ * {@link DispatchException}, are transmitted by the Ice protocol.
  */
 public abstract class RequestFailedException extends DispatchException {
     @Override

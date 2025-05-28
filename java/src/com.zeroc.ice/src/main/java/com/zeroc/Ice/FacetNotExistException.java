@@ -7,10 +7,20 @@ package com.zeroc.Ice;
  * not find a servant for the identity + facet carried by the request.
  */
 public final class FacetNotExistException extends RequestFailedException {
+    /**
+     * Constructs a {@code FacetNotExistException}.
+     */
     public FacetNotExistException() {
         super(ReplyStatus.FacetNotExist);
     }
 
+    /**
+     * Constructs a {@code FacetNotExistException} with the specified identity, facet, and operation.
+     *
+     * @param id        the identity of the Ice Object to which the request was sent
+     * @param facet     the facet to which the request was sent
+     * @param operation the operation name of the request
+     */
     public FacetNotExistException(Identity id, String facet, String operation) {
         super(ReplyStatus.FacetNotExist, id, facet, operation);
     }

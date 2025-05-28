@@ -8,12 +8,19 @@ package com.zeroc.Ice;
  * plug-in, or object adapter more than once for the same ID.
  */
 public final class AlreadyRegisteredException extends LocalException {
+    /**
+     * Creates an AlreadyRegisteredException with the specified kind of object and ID.
+     *
+     * @param kindOfObject the kind of object
+     * @param id           the ID of the object
+     */
     public AlreadyRegisteredException(String kindOfObject, String id) {
         super("Another " + kindOfObject + " is already registered with ID '" + id + "'.");
         this.kindOfObject = kindOfObject;
         this.id = id;
     }
 
+    @Override
     public String ice_id() {
         return "::Ice::AlreadyRegisteredException";
     }

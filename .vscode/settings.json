@@ -11,11 +11,7 @@
     },
     "C_Cpp.default.cppStandard": "c++20",
     "[java]": {
-        "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code"
+        "editor.formatOnSave": false
     },
-    "netbeans.java.onSave.organizeImports": false, // This breaks google-java-format ordering
-    "java.format.settings.google.extra": "--aosp",
-    "java.format.settings.google.version": "1.24.0", // should match version in ice.gradle
     "gradle.nestedProjects": true,
-    "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable"
 }
