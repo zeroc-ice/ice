@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-class Admin {
+final class Admin {
     private static void usage() {
         System.err.println(
             "Usage: com.zeroc.IceBox.Admin [options] [command...]\n"
