@@ -23,7 +23,7 @@ public enum OptionalFormat {
         _value = value;
     }
 
-     /**
+    /**
      * Returns the integer value of this enumerator.
      *
      * @return the integer value of this enumerator
@@ -32,7 +32,7 @@ public enum OptionalFormat {
         return _value;
     }
 
-     /**
+    /**
      * Returns the enumerator corresponding to the given integer value.
      *
      * @param v the integer value of the enumerator

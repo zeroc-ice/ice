@@ -38,7 +38,7 @@ public enum ToStringMode {
         return _value;
     }
 
-     /**
+    /**
      * Returns the enumerator corresponding to the given integer value.
      *
      * @param v the integer value of the enumerator
