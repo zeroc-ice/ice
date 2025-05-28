@@ -10,7 +10,7 @@ import com.zeroc.Ice.ProtocolInstance;
 import java.util.ArrayList;
 
 /**
- * @hidden Used by Ice
+ * @hidden Public because it's used by Ice.Instance
  */
 public final class EndpointFactoryI extends EndpointFactoryWithUnderlying {
     public EndpointFactoryI(Instance instance, short type) {
