@@ -9,7 +9,7 @@ package com.zeroc.Ice;
  */
 public final class DatagramLimitException extends ProtocolException {
     /**
-     * Constructs a new {@code DatagramLimitException}.
+     * Constructs a {@code DatagramLimitException}.
      */
     public DatagramLimitException() {
         super("Datagram limit exceeded");
