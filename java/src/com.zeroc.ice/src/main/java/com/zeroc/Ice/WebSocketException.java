@@ -16,7 +16,7 @@ final class WebSocketException extends RuntimeException {
     /**
      * Constructs a {@code WebSocketException} with a cause.
      *
-     * @param cause  the cause of this exception
+     * @param cause the cause of this exception
      */
     public WebSocketException(Throwable cause) {
         super(cause);
