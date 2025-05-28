@@ -3066,7 +3066,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << " *";
     out << nl << " * @param v the value to match";
     out << nl << " * @return the {@code " << name
-        << "} enumerator corresponding to the given integer value, or {@code null} if no such type exists";
+        << "} enumerator corresponding to the given integer value, or {@code null} if no such enumerator exists";
     out << nl << " */";
     out << nl << "public static " << name << " valueOf(int v)";
     out << sb;
