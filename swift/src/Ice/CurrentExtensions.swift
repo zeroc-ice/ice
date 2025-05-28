@@ -44,6 +44,25 @@ extension Current {
         return OutgoingResponse(ostr)
     }
 
+    /// Creates an outgoing response with the specified payload.
+    /// - Parameters:
+    ///   - ok: When `true`, the reply status is `ok`; otherwise, it is `userException`.
+    ///   - encapsulation: The payload of the response.
+    /// - Returns: The outgoing response.
+    public func makeOutgoingResponse(ok: Bool, encapsulation: Data) -> OutgoingResponse {
+        let ostr = startReplyStream(replyStatus: ok ? .ok : .userException)
+        if requestId != 0 {
+            if encapsulation.isEmpty {
+                ostr.writeEmptyEncapsulation(encoding)
+            } else {
+                ostr.writeEncapsulation(encapsulation)
+            }
+        }
+        return OutgoingResponse(
+            replyStatus: ok ? ReplyStatus.ok.rawValue : ReplyStatus.userException.rawValue,
+            exceptionId: nil, exceptionDetails: nil, outputStream: ostr)
+    }
+
     /// Creates an outgoing response that marshals an exception.
     /// - Parameter error: The exception to marshal into the response payload.
     /// - Returns: The outgoing response.
@@ -57,12 +76,12 @@ extension Current {
         }
 
         var replyStatusByte: UInt8
-        var exceptionId: String
+        var exceptionId: String?
         var dispatchExceptionMessage: String
 
         switch error {
         case let ex as UserException:
-            exceptionId = ex.ice_id()
+            exceptionId = nil
             replyStatusByte = ReplyStatus.userException.rawValue
             dispatchExceptionMessage = ""  // not used
 
@@ -84,14 +103,14 @@ extension Current {
             exceptionId = ex.ice_id()
             replyStatusByte = ReplyStatus.unknownLocalException.rawValue
             // We don't include the stack trace in this message.
-            dispatchExceptionMessage = "Dispatch failed with \(exceptionId): \(ex.message)"
+            dispatchExceptionMessage = "Dispatch failed with \(exceptionId!): \(ex.message)"
             break
 
         default:
             replyStatusByte = ReplyStatus.unknownException.rawValue
             exceptionId = "\(type(of: error))"
             // We don't include the stack trace in this message.
-            dispatchExceptionMessage = "Dispatch failed with \(exceptionId)."
+            dispatchExceptionMessage = "Dispatch failed with \(exceptionId!)."
         }
 
         if replyStatusByte > ReplyStatus.userException.rawValue && requestId != 0 {
@@ -128,7 +147,10 @@ extension Current {
         }
 
         return OutgoingResponse(
-            replyStatus: replyStatusByte, exceptionId: exceptionId, exceptionDetails: "\(error)", outputStream: ostr)
+            replyStatus: replyStatusByte,
+            exceptionId: exceptionId,
+            exceptionDetails: exceptionId != nil ? "\(error)" : nil,
+            outputStream: ostr)
     }
 
     /// Starts the output stream for a reply, with everything up to and including the reply status. When the request ID
