@@ -60,9 +60,9 @@ public abstract class UserException extends java.lang.Exception {
     }
 
     /**
-     * Returns {@code true} if this exception uses classes, {@code false} otherwise.
+     * Returns {@code true} if this exception holds classes, {@code false} otherwise.
      *
-     * @return {@code true} if this exception uses classes, {@code false} otherwise
+     * @return {@code true} if this exception holds classes, {@code false} otherwise
      * @hidden
      */
     public boolean _usesClasses() {
