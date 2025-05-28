@@ -20,6 +20,6 @@ public @interface CompactSliceTypeId {
      * Returns the compact ID of this class.
      *
      * @return the compact ID of this class
-     * */
+     */
     int value();
 }
