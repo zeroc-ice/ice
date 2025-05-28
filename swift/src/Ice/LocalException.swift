@@ -10,7 +10,7 @@ public class LocalException: Exception, CustomStringConvertible {
     public let line: Int32
 
     /// A textual representation of this Ice exception.
-    public var description: String { "\(file):\(line) \(ice_id()) \(message)" }
+    public var description: String { "\(file):\(line) \(ice_id().dropFirst(2)) \(message)" }
 
     /// Creates a LocalException.
     /// - Parameters:
