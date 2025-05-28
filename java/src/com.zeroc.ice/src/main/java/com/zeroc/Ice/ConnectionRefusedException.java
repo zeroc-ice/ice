@@ -8,7 +8,7 @@ package com.zeroc.Ice;
  */
 public final class ConnectionRefusedException extends ConnectFailedException {
     /**
-     * Constructs a new {@code ConnectionRefusedException}.
+     * Constructs a {@code ConnectionRefusedException}.
      */
     public ConnectionRefusedException() {
         super();
