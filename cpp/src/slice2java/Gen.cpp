@@ -3505,7 +3505,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 
     out << nl << "public interface " << p->mappedName();
     out << sb;
-    out << nl << "/** The value of Slice constant " << p->scoped() << " */";
+    out << nl << "/** The value of Slice constant '" << p->scoped() << "' */";
     out << nl << typeToString(type, TypeModeIn, package) << " value = ";
     writeConstantValue(out, type, p->valueType(), p->value(), package);
     out << ';' << eb;
