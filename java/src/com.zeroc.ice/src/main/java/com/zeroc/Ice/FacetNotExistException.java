@@ -8,7 +8,7 @@ package com.zeroc.Ice;
  */
 public final class FacetNotExistException extends RequestFailedException {
     /**
-     * Constructs a {@code FacetNotExistException} with the default message.
+     * Constructs a {@code FacetNotExistException}.
      */
     public FacetNotExistException() {
         super(ReplyStatus.FacetNotExist);
