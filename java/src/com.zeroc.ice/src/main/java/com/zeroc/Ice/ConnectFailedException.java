@@ -5,7 +5,7 @@ package com.zeroc.Ice;
 /** This exception indicates connection failures. */
 public class ConnectFailedException extends SocketException {
     /**
-     * Constructs a new {@code ConnectFailedException}.
+     * Constructs a {@code ConnectFailedException}.
      */
     public ConnectFailedException() {
         super();
