@@ -16,7 +16,7 @@ public final class DatagramLimitException extends ProtocolException {
     }
 
     /**
-     * Constructs a new {@code DatagramLimitException} with a reason message.
+     * Constructs a {@code DatagramLimitException} with a reason message.
      *
      * @param reason the reason for the exception
      */
